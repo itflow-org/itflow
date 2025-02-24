@@ -114,7 +114,11 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                         </button>
                                         <div class="dropdown-menu">
 
-                                            <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editRoleModal<?php echo $role_id; ?>">
+                                            <a class="dropdown-item" href="#"
+                                                data-toggle="ajax-modal"
+                                                data-ajax-url="ajax/ajax_role_edit.php"
+                                                data-ajax-id="<?php echo $role_id; ?>"
+                                                >
                                                 <i class="fas fa-fw fa-user-edit mr-2"></i>Edit
                                             </a>
 
@@ -133,9 +137,6 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                         <?php
 
-                        require "modals/admin_role_edit_modal.php";
-
-
                     }
 
                     ?>
@@ -151,6 +152,4 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 <?php
 
 require_once "modals/admin_role_add_modal.php";
-
 require_once "includes/footer.php";
-

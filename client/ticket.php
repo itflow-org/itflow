@@ -19,24 +19,20 @@ $allowed_extensions = array('jpg', 'jpeg', 'gif', 'png', 'webp', 'pdf', 'txt', '
 if (isset($_GET['id']) && intval($_GET['id'])) {
     $ticket_id = intval($_GET['id']);
 
+    $ticket_contact_snippet = "AND ticket_contact_id = $session_contact_id";
+    // Bypass ticket contact being session_id for a primary / technical contact viewing all tickets
     if ($session_contact_primary == 1 || $session_contact_is_technical_contact) {
-        // For a primary / technical contact viewing all tickets
-        $ticket_sql = mysqli_query($mysqli,
-            "SELECT * FROM tickets
-            LEFT JOIN users on ticket_assigned_to = user_id
-            LEFT JOIN ticket_statuses ON ticket_status = ticket_status_id
-            WHERE ticket_id = $ticket_id AND ticket_client_id = $session_client_id"
-        );
-
-    } else {
-        // For a user viewing their own ticket
-        $ticket_sql = mysqli_query($mysqli,
-            "SELECT * FROM tickets
-            LEFT JOIN users on ticket_assigned_to = user_id
-            LEFT JOIN ticket_statuses ON ticket_status = ticket_status_id
-            WHERE ticket_id = $ticket_id AND ticket_client_id = $session_client_id AND ticket_contact_id = $session_contact_id"
-        );
+        $ticket_contact_snippet = '';
     }
+
+    $ticket_sql = mysqli_query($mysqli,
+        "SELECT * FROM tickets
+            LEFT JOIN users on ticket_assigned_to = user_id
+            LEFT JOIN ticket_statuses ON ticket_status = ticket_status_id
+            LEFT JOIN categories ON ticket_category = category_id
+            WHERE ticket_id = $ticket_id AND ticket_client_id = $session_client_id
+             $ticket_contact_snippet"
+    );
 
     $ticket_row = mysqli_fetch_array($ticket_sql);
 
@@ -52,6 +48,7 @@ if (isset($_GET['id']) && intval($_GET['id'])) {
         $ticket_resolved_at = nullable_htmlentities($ticket_row['ticket_resolved_at']);
         $ticket_closed_at = nullable_htmlentities($ticket_row['ticket_closed_at']);
         $ticket_feedback = nullable_htmlentities($ticket_row['ticket_feedback']);
+        $ticket_category = nullable_htmlentities($ticket_row['category_name']);
 
         // Get Ticket Attachments (not associated with a specific reply)
         $sql_ticket_attachments = mysqli_query(
@@ -98,10 +95,12 @@ if (isset($_GET['id']) && intval($_GET['id'])) {
 
             <div class="card-body prettyContent">
                 <h5><strong>Subject:</strong> <?php echo $ticket_subject ?></h5>
-                <hr>
                 <p>
                     <strong>State:</strong> <?php echo $ticket_status ?><br>
                     <strong>Priority:</strong> <?php echo $ticket_priority ?><br>
+                    <?php if (!empty($ticket_category)) { ?>
+                        <strong>Category:</strong> <?php echo $ticket_category ?><br>
+                    <?php } ?>
 
                     <?php if (empty($ticket_closed_at)) { ?>
 
@@ -116,6 +115,7 @@ if (isset($_GET['id']) && intval($_GET['id'])) {
 
                     <?php } ?>
                 </p>
+                <hr>
                 <?php echo $ticket_details ?>
 
                 <?php

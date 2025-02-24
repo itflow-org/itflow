@@ -105,7 +105,12 @@
                                     <i class="fas fa-ellipsis-h"></i>
                                 </button>
                                 <div class="dropdown-menu">
-                                    <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editDocumentTemplateModal<?php echo $document_id; ?>">
+                                    <a class="dropdown-item" href="#"
+                                        data-toggle="ajax-modal"
+                                        data-modal-size="xl"
+                                        data-ajax-url="ajax/ajax_document_template_edit.php"
+                                        data-ajax-id="<?php echo $document_id; ?>"
+                                        >
                                         <i class="fas fa-fw fa-edit mr-2"></i>Edit
                                     </a>
                                     <div class="dropdown-divider"></div>
@@ -118,8 +123,6 @@
                     </tr>
 
                     <?php
-
-                            require "modals/admin_document_template_edit_modal.php";
 
                         }
 

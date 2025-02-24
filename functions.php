@@ -533,7 +533,7 @@ function validateCSRFToken($token)
 }
 
 /*
- * Role validation
+ * LEGACY Role validation
  * Admin - 3
  * Tech - 2
  * Accountant - 1
@@ -549,6 +549,7 @@ function validateAdminRole()
     }
 }
 
+// LEGACY
 // Validates a user is a tech (or admin). Stops page load and attempts to direct away from the page if not (i.e. user is an accountant)
 function validateTechRole()
 {
@@ -560,6 +561,7 @@ function validateTechRole()
     }
 }
 
+// LEGACY
 // Validates a user is an accountant (or admin). Stops page load and attempts to direct away from the page if not (i.e. user is a tech)
 function validateAccountantRole()
 {

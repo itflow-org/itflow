@@ -27,40 +27,41 @@ $document_updated_at = nullable_htmlentities($row['document_updated_at']);
 
 ?>
 
-    <ol class="breadcrumb d-print-none">
-        <li class="breadcrumb-item">
-            <a href="clients.php">Home</a>
-        </li>
-        <li class="breadcrumb-item">
-            <a href="admin_user.php">Admin</a>
-        </li>
-        <li class="breadcrumb-item">
-            <a href="admin_document_template.php">Document Templates</a>
-        </li>
-        <li class="breadcrumb-item active"><i class="fas fa-file mr-2"></i><?php echo $document_name; ?></li>
-    </ol>
+<ol class="breadcrumb d-print-none">
+    <li class="breadcrumb-item">
+        <a href="clients.php">Home</a>
+    </li>
+    <li class="breadcrumb-item">
+        <a href="admin_user.php">Admin</a>
+    </li>
+    <li class="breadcrumb-item">
+        <a href="admin_document_template.php">Document Templates</a>
+    </li>
+    <li class="breadcrumb-item active"><i class="fas fa-file mr-2"></i><?php echo $document_name; ?></li>
+</ol>
 
-    <div class="card card-dark">
-        <div class="card-header">
+<div class="card card-dark">
+    <div class="card-header py-2">
 
-            <h3 class="card-title mt-2"><i class="fa fa-fw fa-file mr-2"></i><?php echo $document_name; ?></h3>
+        <h3 class="card-title mt-2"><i class="fa fa-fw fa-file mr-2"></i><?php echo $document_name; ?></h3>
 
-            <div class="card-tools">
-                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#editDocumentTemplateModal<?php echo $document_id; ?>">
-                    <i class="fas fa-edit mr-2"></i>Edit
-                </button>
-            </div>
-        </div>
-        <div class="card-body prettyContent">
-            <?php echo $document_content; ?>
+        <div class="card-tools">
+            <button type="button" class="btn btn-primary"
+                data-toggle="ajax-modal"
+                data-modal-size="xl"
+                data-ajax-url="ajax/ajax_document_template_edit.php"
+                data-ajax-id="<?php echo $document_id; ?>"
+                >
+                <i class="fas fa-edit mr-2"></i>Edit
+            </button>
         </div>
     </div>
+    <div class="card-body prettyContent">
+        <?php echo $document_content; ?>
+    </div>
+</div>
 
-    <script src="js/pretty_content.js"></script>
+<script src="js/pretty_content.js"></script>
 
 <?php
-
-require_once "modals/admin_document_template_edit_modal.php";
-
 require_once "includes/footer.php";
-

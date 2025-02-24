@@ -205,7 +205,15 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                         <input class="form-check-input bulk-select" type="checkbox" name="product_ids[]" value="<?php echo $product_id ?>">
                                     </div>
                                 </td>
-                                <th><a class="text-dark" href="#" data-toggle="modal" data-target="#editProductModal<?php echo $product_id; ?>"><?php echo $product_name; ?></a></th>
+                                <td>
+                                    <a class="text-dark text-bold" href="#"
+                                        data-toggle="ajax-modal"
+                                        data-ajax-url="ajax/ajax_product_edit.php"
+                                        data-ajax-id="<?php echo $product_id; ?>"
+                                        >
+                                        <?php echo $product_name; ?>   
+                                    </a>
+                                </td>
                                 <td><?php echo $category_name; ?></td>
                                 <td><?php echo $product_description_display; ?></td>
                                 <td><?php echo $tax_name_display; ?></td>
@@ -218,7 +226,11 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                             <i class="fas fa-ellipsis-h"></i>
                                         </button>
                                         <div class="dropdown-menu">
-                                            <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editProductModal<?php echo $product_id; ?>">
+                                            <a class="dropdown-item" href="#"
+                                                data-toggle="ajax-modal"
+                                                data-ajax-url="ajax/ajax_product_edit.php"
+                                                data-ajax-id="<?php echo $product_id; ?>"
+                                                >
                                                 <i class="fas fa-fw fa-edit mr-2"></i>Edit
                                             </a>
                                             <?php if ($session_user_role == 3) { ?>
@@ -246,9 +258,6 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             </tr>
 
                             <?php
-
-                            require "modals/product_edit_modal.php";
-
 
                         }
 

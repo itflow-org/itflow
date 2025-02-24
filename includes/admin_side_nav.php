@@ -33,13 +33,6 @@
                         <p>API Keys</p>
                     </a>
                 </li>
-                <li class="nav-item">
-                    <a href="admin_bulk_mail.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "admin_bulk_mail.php") {echo "active";} ?>">
-                        <i class="nav-icon fas fa-paper-plane"></i>
-                        <p>Bulk Mail</p>
-                    </a>
-                </li>
-
                 <li class="nav-header">TAGS & CATEGORIES</li>
 
                 <li class="nav-item">
@@ -115,7 +108,7 @@
                 <li class="nav-header">MAINTENANCE</li>
 
                 <li class="nav-item">
-                    <a href="admin_mail_queue.php" class="nav-link <?php echo (in_array(basename($_SERVER['PHP_SELF']), ['admin_mail_queue.php', 'admin_mail_queue_message_view.php']) ? 'active' : ''); ?>">
+                    <a href="admin_mail_queue.php" class="nav-link <?php echo (basename($_SERVER['PHP_SELF']) == 'admin_mail_queue.php' ? 'active' : ''); ?>">
                         <i class="nav-icon fas fa-mail-bulk"></i>
                         <p>Mail Queue</p>
                     </a>

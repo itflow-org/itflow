@@ -153,7 +153,13 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     ?>
                     <tr>
                         <td class="text-center">
-                            <a class="text-dark" href="#" <?php if ($user_id !== $session_user_id) {   // Prevent modifying self ?> data-toggle="modal" data-target="#editUserModal<?php echo $user_id; ?>" <?php } ?>>
+                            <a class="text-dark" href="#" 
+                                <?php if ($user_id !== $session_user_id) { // Prevent modifying self ?>
+                                data-toggle="ajax-modal"
+                                data-ajax-url="ajax/ajax_user_edit.php"
+                                data-ajax-id="<?php echo $user_id; ?>"
+                                <?php } ?>
+                                >
                                 <?php if (!empty($user_avatar)) { ?>
                                     <img class="img-size-50 img-circle" src="<?php echo "uploads/users/$user_id/$user_avatar"; ?>">
                                 <?php } else { ?>
@@ -179,7 +185,11 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                     <i class="fas fa-ellipsis-h"></i>
                                 </button>
                                 <div class="dropdown-menu">
-                                    <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editUserModal<?php echo $user_id; ?>">
+                                    <a class="dropdown-item" href="#"
+                                        data-toggle="ajax-modal"
+                                        data-ajax-url="ajax/ajax_user_edit.php"
+                                        data-ajax-id="<?php echo $user_id; ?>"
+                                        >
                                         <i class="fas fa-fw fa-user-edit mr-2"></i>Edit
                                     </a>
                                     <?php if ($remember_token_count > 0) { ?>
@@ -207,10 +217,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                     <?php
 
-                    require "modals/admin_user_edit_modal.php";
-
                     require "modals/admin_user_archive_modal.php";
-
 
                 }
 
@@ -230,14 +237,8 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 </script>
 
 <?php
-
 require_once "modals/admin_user_add_modal.php";
-
 require_once "modals/admin_user_invite_modal.php";
-
 require_once "modals/admin_user_export_modal.php";
-
 require_once "modals/admin_user_all_reset_password_modal.php";
-
 require_once "includes/footer.php";
-

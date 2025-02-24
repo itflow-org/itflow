@@ -8,6 +8,9 @@
                 </button>
             </div>
             <form action="post.php" method="post" autocomplete="off">
+                <?php if (isset($_GET['client_id'])) { ?>
+                <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
+                <?php } ?>
                 <div class="modal-body bg-white">
 
                     <div class="form-group">

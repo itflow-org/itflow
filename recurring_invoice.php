@@ -103,14 +103,14 @@ if (isset($_GET['recurring_id'])) {
             <a href="client_overview.php?client_id=<?php echo $client_id; ?>"><?php echo $client_name; ?></a>
         </li>
         <li class="breadcrumb-item">
-            <a href="client_recurring_invoices.php?client_id=<?php echo $client_id; ?>">Recurring Invoices</a>
+            <a href="recurring_invoices.php?client_id=<?php echo $client_id; ?>">Recurring Invoices</a>
         </li>
         <?php } else { ?>
         <li class="breadcrumb-item">
             <a href="recurring_invoices.php">Recurring Invoices</a>
         </li>
         <li class="breadcrumb-item">
-            <a href="client_recurring_invoices.php?client_id=<?php echo $client_id; ?>"><?php echo $client_name; ?></a>
+            <a href="recurring_invoices.php?client_id=<?php echo $client_id; ?>"><?php echo $client_name; ?></a>
         </li>
         <?php } ?>
         <li class="breadcrumb-item active"><?php echo "$recurring_prefix$recurring_number"; ?></li>
@@ -149,7 +149,11 @@ if (isset($_GET['recurring_id'])) {
                             <i class="fas fa-ellipsis-v"></i>
                         </button>
                         <div class="dropdown-menu">
-                            <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editRecurringModal<?php echo $recurring_id; ?>">
+                            <a class="dropdown-item" href="#"
+                                data-toggle = "ajax-modal"
+                                data-ajax-url = "ajax/ajax_recurring_invoice_edit.php"
+                                data-ajax-id = "<?php echo $recurring_id; ?>"
+                                >
                                 <i class="fa fa-fw fa-edit text-secondary mr-2"></i>Edit
                             </a>
                             <div class="dropdown-divider"></div>
@@ -231,7 +235,7 @@ if (isset($_GET['recurring_id'])) {
                 <div class="col-md-12">
                     <div class="card">
                         <div class="table-responsive">
-                            <table class="table">
+                            <table class="table" id="items">
                                 <thead>
                                     <tr>
                                         <th class="d-print-none"></th>
@@ -261,47 +265,22 @@ if (isset($_GET['recurring_id'])) {
                                     $tax_id = intval($row['item_tax_id']);
                                     $total_tax = $item_tax + $total_tax;
                                     $sub_total = $item_price * $item_quantity + $sub_total;
-                                    $item_order = intval($row['item_order']);
-
-                                    // Logic to check if top or bottom arrow should be hidden by looking at max and min of item_order
-                                    $sql = mysqli_query($mysqli, "SELECT MAX(item_order) AS item_order FROM invoice_items WHERE item_recurring_id = $recurring_id");
-                                    $row = mysqli_fetch_array($sql);
-                                    $max_item_order = intval($row['item_order']);
-
-                                    $sql = mysqli_query($mysqli, "SELECT MIN(item_order) AS item_order FROM invoice_items WHERE item_recurring_id = $recurring_id");
-                                    $row = mysqli_fetch_array($sql);
-                                    $min_item_order = intval($row['item_order']);
-
-                                    if ($item_order == $max_item_order) {
-                                        $down_hidden = "hidden";
-                                    } else {
-                                        $down_hidden = "";
-                                    }
-
-                                    if ($item_order == $min_item_order) {
-                                        $up_hidden = "hidden";
-                                    } else {
-                                        $up_hidden = "";
-                                    }
                                     ?>
 
-                                    <tr>
+                                    <tr data-item-id="<?php echo $item_id; ?>">
                                         <td class="d-print-none">
                                             <div class="dropdown">
                                                 <button class="btn btn-sm btn-light" type="button" data-toggle="dropdown">
                                                     <i class="fas fa-ellipsis-v"></i>
                                                 </button>
                                                 <div class="dropdown-menu">
-                                                    <form action="post.php" method="post">
-                                                        <input type="hidden" name="item_recurring_id" value="<?php echo $recurring_id; ?>">
-                                                        <input type="hidden" name="item_id" value="<?php echo $item_id; ?>">
-                                                        <input type="hidden" name="item_order" value="<?php echo $item_order; ?>">
-                                                        <button class="dropdown-item" type="submit" name="update_recurring_item_order" value="up" <?php echo $up_hidden; ?>><i class="fa fa-fw fa-arrow-up mr-2"></i> Move Up</button>
-                                                        <?php if ($up_hidden == "" && $down_hidden == "") { echo '<div class="dropdown-divider"></div>'; }?>
-                                                        <button class="dropdown-item" type="submit" name="update_recurring_item_order" value="down" <?php echo $down_hidden; ?>><i class="fa fa-fw fa-arrow-down mr-2"></i> Move Down</button>
-                                                    </form>
-                                                    <div class="dropdown-divider"></div>
-                                                    <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editItemModal<?php echo $item_id; ?>"><i class="fa fa-fw fa-edit mr-2"></i>Edit</a>
+                                                    <a class="dropdown-item" href="#"
+                                                        data-toggle="ajax-modal"
+                                                        data-ajax-url="ajax/ajax_item_edit.php"
+                                                        data-ajax-id="<?php echo $item_id; ?>"
+                                                        >
+                                                        <i class="fa fa-fw fa-edit mr-2"></i>Edit
+                                                    </a>
                                                     <div class="dropdown-divider"></div>
                                                     <a class="dropdown-item text-danger confirm-link" href="post.php?delete_recurring_item=<?php echo $item_id; ?>"><i class="fa fa-fw fa-trash mr-2"></i>Delete</a>
 
@@ -309,7 +288,7 @@ if (isset($_GET['recurring_id'])) {
                                                 </div>
                                             </div>
                                         </td>
-                                        <td><?php echo $item_name; ?></td>
+                                        <td class="grab-cursor"><?php echo $item_name; ?></td>
                                         <td><?php echo nl2br($item_description); ?></td>
                                         <td class="text-center"><?php echo $item_quantity; ?></td>
                                         <td class="text-right"><?php echo numfmt_format_currency($currency_format, $item_price, $recurring_currency_code); ?></td>
@@ -318,9 +297,6 @@ if (isset($_GET['recurring_id'])) {
                                     </tr>
 
                                     <?php
-
-                                    require "modals/item_edit_modal.php";
-
 
                                     }
 
@@ -475,14 +451,11 @@ if (isset($_GET['recurring_id'])) {
 
     <?php
 
-    require_once "modals/recurring_invoice_edit_modal.php";
-
     require_once "modals/recurring_invoice_note_modal.php";
 
 }
 
 require_once "includes/footer.php";
-
 
 ?>
 
@@ -505,4 +478,41 @@ require_once "includes/footer.php";
             }
         });
     });
+</script>
+
+<link rel="stylesheet" href="plugins/dragula/dragula.min.css">
+<script src="plugins/dragula/dragula.min.js"></script>
+<script>
+$(document).ready(function() {
+    var container = $('table#items tbody')[0];
+
+    dragula([container])
+        .on('drop', function (el, target, source, sibling) {
+            // Handle the drop event to update the order in the database
+            var rows = $(container).children();
+            var positions = rows.map(function(index, row) {
+                return {
+                    id: $(row).data('itemId'),
+                    order: index
+                };
+            }).get();
+
+            // Send the new order to the server
+            $.ajax({
+                url: 'ajax.php',
+                method: 'POST',
+                data: {
+                    update_recurring_invoice_items_order: true,
+                    recurring_id: <?php echo $recurring_id; ?>,
+                    positions: positions
+                },
+                success: function(data) {
+                    // Handle success
+                },
+                error: function(error) {
+                    console.error('Error updating order:', error);
+                }
+            });
+        });
+});
 </script>

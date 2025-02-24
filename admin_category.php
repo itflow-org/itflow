@@ -33,7 +33,6 @@ if (isset($_GET['archived'])) {
 
 ?>
 
-
 <div class="card card-dark">
     <div class="card-header py-2">
         <h3 class="card-title mt-2"><i class="fa fa-fw fa-list-ul mr-2"></i>
@@ -134,10 +133,15 @@ if (isset($_GET['archived'])) {
 
                         ?>
                         <tr>
-                            <td><a class="text-dark" href="#" data-toggle="modal"
-                                    data-target="#editCategoryModal<?php echo $category_id; ?>">
+                            <td>
+                                <a class="text-dark" href="#" 
+                                    data-toggle="ajax-modal"
+                                    data-ajax-url="ajax/ajax_category_edit.php"
+                                    data-ajax-id="<?php echo $category_id; ?>"
+                                    >
                                     <?php echo $category_name; ?>
-                                </a></td>
+                                </a>
+                            </td>
                             <td><i class="fa fa-3x fa-circle" style="color:<?php echo $category_color; ?>;"></i></td>
                             <td>
                                 <div class="dropdown dropleft text-center">
@@ -159,8 +163,11 @@ if (isset($_GET['archived'])) {
                                             <?php
                                         } else {
                                             ?>
-                                            <a class="dropdown-item" href="#" data-toggle="modal"
-                                                data-target="#editCategoryModal<?php echo $category_id; ?>">
+                                            <a class="dropdown-item" href="#"
+                                                data-toggle="ajax-modal"
+                                                data-ajax-url="ajax/ajax_category_edit.php"
+                                                data-ajax-id="<?php echo $category_id; ?>"
+                                                >
                                                 <i class="fas fa-fw fa-edit mr-2"></i>Edit
                                             </a>
                                             <a class="dropdown-item text-danger confirm-link"
@@ -177,8 +184,6 @@ if (isset($_GET['archived'])) {
 
                         <?php
 
-                        require "modals/admin_category_edit_modal.php";
-
                     }
 
                     ?>
@@ -193,5 +198,4 @@ if (isset($_GET['archived'])) {
 
 <?php
 require_once "modals/admin_category_add_modal.php";
-
 require_once "includes/footer.php";

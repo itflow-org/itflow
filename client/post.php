@@ -14,6 +14,7 @@ if (isset($_POST['add_ticket'])) {
 
     $subject = sanitizeInput($_POST['subject']);
     $details = mysqli_real_escape_string($mysqli, ($_POST['details']));
+    $category = intval($_POST['category']);
 
     // Get settings from get_settings.php
     $config_ticket_prefix = sanitizeInput($config_ticket_prefix);
@@ -37,7 +38,7 @@ if (isset($_POST['add_ticket'])) {
     $new_config_ticket_next_number = $config_ticket_next_number + 1;
     mysqli_query($mysqli, "UPDATE settings SET config_ticket_next_number = $new_config_ticket_next_number WHERE company_id = 1");
 
-    mysqli_query($mysqli, "INSERT INTO tickets SET ticket_prefix = '$config_ticket_prefix', ticket_number = $ticket_number, ticket_subject = '$subject', ticket_details = '$details', ticket_priority = '$priority', ticket_status = 1, ticket_billable = $config_ticket_default_billable, ticket_created_by = 0, ticket_contact_id = $session_contact_id, ticket_url_key = '$url_key', ticket_client_id = $session_client_id");
+    mysqli_query($mysqli, "INSERT INTO tickets SET ticket_prefix = '$config_ticket_prefix', ticket_number = $ticket_number, ticket_category = $category, ticket_subject = '$subject', ticket_details = '$details', ticket_priority = '$priority', ticket_status = 1, ticket_billable = $config_ticket_default_billable, ticket_created_by = 0, ticket_contact_id = $session_contact_id, ticket_url_key = '$url_key', ticket_client_id = $session_client_id");
     $ticket_id = mysqli_insert_id($mysqli);
 
     // Notify agent DL of the new ticket, if populated with a valid email

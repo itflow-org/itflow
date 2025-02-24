@@ -325,23 +325,26 @@ if (isset($_POST['bulk_delete_logins'])) {
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 }
 
-if (isset($_POST['export_client_logins_csv'])) {
+if (isset($_POST['export_credentials_csv'])) {
 
     enforceUserPermission('module_credential');
 
-    $client_id = intval($_POST['client_id']);
+    if (isset($_POST['client_id'])) {
+        $client_id = intval($_POST['client_id']);
+        $client_query = "AND login_client_id = $client_id";
+    } else {
+        $client_query = '';
+    }
 
     //get records from database
-    $sql = mysqli_query($mysqli,"SELECT * FROM logins LEFT JOIN clients ON client_id = login_client_id WHERE login_client_id = $client_id ORDER BY login_name ASC");
+    $sql = mysqli_query($mysqli,"SELECT * FROM logins LEFT JOIN clients ON client_id = login_client_id WHERE login_archived_at IS NULL $client_query ORDER BY login_name ASC");
     $row = mysqli_fetch_array($sql);
-
-    $client_name = $row['client_name'];
 
     $num_rows = mysqli_num_rows($sql);
 
     if ($num_rows > 0) {
         $delimiter = ",";
-        $filename = strtoAZaz09($client_name) . "-Credentials-" . date('Y-m-d') . ".csv";
+        $filename = "Credentials-" . date('Y-m-d') . ".csv";
 
         //create a file pointer
         $f = fopen('php://memory', 'w');
@@ -351,7 +354,7 @@ if (isset($_POST['export_client_logins_csv'])) {
         fputcsv($f, $fields, $delimiter);
 
         //output each row of the data, format line as csv and write to file pointer
-        while($row = $sql->fetch_assoc()) {
+        while($row = mysqli_fetch_assoc($sql)){
             $login_username = decryptLoginEntry($row['login_username']);
             $login_password = decryptLoginEntry($row['login_password']);
             $lineData = array($row['login_name'], $row['login_description'], $login_username, $login_password, $row['login_uri']);
@@ -370,13 +373,13 @@ if (isset($_POST['export_client_logins_csv'])) {
     }
 
     // Logging
-    logAction("Credential", "Export", "$session_name exported $num_rows credential(s) to a CSV file", $client_id);
+    logAction("Credential", "Export", "$session_name exported $num_rows credential(s) to a CSV file");
 
     exit;
 
 }
 
-if (isset($_POST["import_client_logins_csv"])) {
+if (isset($_POST["import_credentials_csv"])) {
 
     enforceUserPermission('module_credential', 2);
 
@@ -465,17 +468,10 @@ if (isset($_POST["import_client_logins_csv"])) {
     }
 }
 
-if (isset($_GET['download_client_logins_csv_template'])) {
-    $client_id = intval($_GET['download_client_logins_csv_template']);
-
-    //get records from database
-    $sql = mysqli_query($mysqli,"SELECT client_name FROM clients WHERE client_id = $client_id");
-    $row = mysqli_fetch_array($sql);
-
-    $client_name = $row['client_name'];
+if (isset($_GET['download_credentials_csv_template'])) {
 
     $delimiter = ",";
-    $filename = strtoAZaz09($client_name) . "-Logins-Template.csv";
+    $filename = "Credentials-Template.csv";
 
     //create a file pointer
     $f = fopen('php://memory', 'w');

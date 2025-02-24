@@ -128,25 +128,24 @@ if (isset($_POST['bulk_delete_networks'])) {
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 }
 
-if (isset($_POST['export_client_networks_csv'])) {
+if (isset($_POST['export_networks_csv'])) {
 
     enforceUserPermission('module_support', 2);
 
-    $client_id = intval($_POST['client_id']);
+    if (isset($_POST['client_id'])) {
+        $client_id = intval($_POST['client_id']);
+        $client_query = "AND network_client_id = $client_id";
+    } else {
+        $client_query = '';
+    }
 
-    //get records from database
-    $sql = mysqli_query($mysqli,"SELECT client_name FROM clients WHERE client_id = $client_id");
-    $row = mysqli_fetch_array($sql);
-
-    $client_name = $row['client_name'];
-
-    $sql = mysqli_query($mysqli,"SELECT * FROM networks WHERE network_client_id = $client_id ORDER BY network_name ASC");
+    $sql = mysqli_query($mysqli,"SELECT * FROM networks WHERE network_archived_at IS NULL $client_query ORDER BY network_name ASC");
 
     $num_rows = mysqli_num_rows($sql);
 
     if ($num_rows > 0) {
         $delimiter = ",";
-        $filename = $client_name . "-Networks-" . date('Y-m-d') . ".csv";
+        $filename = "Networks-" . date('Y-m-d') . ".csv";
 
         //create a file pointer
         $f = fopen('php://memory', 'w');
@@ -173,7 +172,7 @@ if (isset($_POST['export_client_networks_csv'])) {
     }
 
     // Logging
-    logAction("Network", "Export", "$session_name deleted $num_rows network(s) to a CSV file", $client_id);
+    logAction("Network", "Export", "$session_name deleted $num_rows network(s) to a CSV file");
 
     exit;
 

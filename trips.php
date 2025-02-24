@@ -4,8 +4,16 @@
 $sort = "trip_date";
 $order = "DESC";
 
-require_once "includes/inc_all.php";
-
+// If client_id is in URI then show client Side Bar and client header
+if (isset($_GET['client_id'])) {
+    require_once "includes/inc_all_client.php";
+    $client_query = "AND trip_client_id = $client_id";
+    $client_url = "client_id=$client_id&";
+} else {
+    require_once "includes/inc_all.php";
+    $client_query = '';
+    $client_url = '';
+}
 
 //Rebuild URL
 $url_query_strings_sort = http_build_query($get_copy);
@@ -18,6 +26,7 @@ $sql = mysqli_query(
     WHERE (trip_purpose LIKE '%$q%' OR trip_source LIKE '%$q%' OR trip_destination LIKE '%$q%' OR trip_miles LIKE '%$q%' OR client_name LIKE '%$q%' OR user_name LIKE '%$q%')
     AND DATE(trip_date) BETWEEN '$dtf' AND '$dtt'
     AND trip_archived_at IS NULL
+    $client_query
     ORDER BY $sort $order LIMIT $record_from, $record_to"
 );
 
@@ -43,6 +52,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
         <div class="card-body">
             <form class="mb-4" autocomplete="off">
+                <?php if ($client_url) { ?>
+                    <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
+                <?php } ?>
                 <div class="row">
                     <div class="col-sm-4">
                         <div class="input-group">
@@ -101,11 +113,13 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 Date <?php if ($sort == 'trip_date') { echo $order_icon; } ?>
                             </a>
                         </th>
+                        <?php if (!$client_url) { ?>
                         <th>
                             <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=client_name&order=<?php echo $disp; ?>">
                                 Client <?php if ($sort == 'client_name') { echo $order_icon; } ?>
                             </a>
                         </th>
+                        <?php } ?>
                         <th>
                             <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=user_name&order=<?php echo $disp; ?>">
                                 Driver <?php if ($sort == 'user_name') { echo $order_icon; } ?>
@@ -153,7 +167,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         if (empty($client_name)) {
                             $client_name_display = "-";
                         } else {
-                            $client_name_display = "<a href='client_trips.php?client_id=$client_id'>$client_name</a>";
+                            $client_name_display = "<a href='trips.php?client_id=$client_id'>$client_name</a>";
                         }
                         if ($round_trip == 1) {
                             $round_trip_display = "<i class='fa fa-fw fa-sync-alt text-secondary'></i>";
@@ -169,8 +183,18 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                         ?>
                         <tr>
-                            <td><a class="text-dark" href="#" data-toggle="modal" data-target="#editTripModal<?php echo $trip_id; ?>"><?php echo $trip_date; ?></a></td>
+                            <td>
+                                <a class="text-dark" href="#"
+                                    data-toggle="ajax-modal"
+                                    data-ajax-url="ajax/ajax_trip_edit.php?<?php echo $client_url; ?>"
+                                    data-ajax-id="<?php echo $trip_id; ?>"
+                                    >
+                                    <?php echo $trip_date; ?>
+                                </a>
+                            </td>
+                            <?php if (!$client_url) { ?>
                             <td><?php echo $client_name_display; ?></td>
+                            <?php } ?>
                             <td><?php echo $user_name_display; ?></td>
                             <td><?php echo $trip_purpose; ?></td>
                             <td><?php echo $trip_source; ?></td>
@@ -186,10 +210,18 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                             <i class="fa fa-fw fa-map-marker-alt mr-2"></i>Map it<i class="fa fa-fw fa-external-link-alt ml-2"></i>
                                         </a>
                                         <div class="dropdown-divider"></div>
-                                        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editTripModal<?php echo $trip_id; ?>">
+                                        <a class="dropdown-item" href="#"
+                                            data-toggle="ajax-modal"
+                                            data-ajax-url="ajax/ajax_trip_edit.php?<?php echo $client_url; ?>"
+                                            data-ajax-id="<?php echo $trip_id; ?>"
+                                            >
                                             <i class="fa fa-fw fa-edit mr-2"></i>Edit
                                         </a>
-                                        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addTripCopyModal<?php echo $trip_id; ?>">
+                                        <a class="dropdown-item" href="#"
+                                            data-toggle="ajax-modal"
+                                            data-ajax-url="ajax/ajax_trip_copy.php?<?php echo $client_url; ?>"
+                                            data-ajax-id="<?php echo $trip_id; ?>"
+                                            >
                                             <i class="fa fa-fw fa-copy mr-2"></i>Copy
                                         </a>
                                         <div class="dropdown-divider"></div>
@@ -202,14 +234,6 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         </tr>
 
                         <?php
-
-                        require "modals/trip_copy_modal.php";
-
-                        require "modals/trip_edit_modal.php";
-
-                        require "modals/trip_export_modal.php";
-
-
                     }
                     ?>
 
@@ -223,6 +247,5 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
 <?php
 require_once "modals/trip_add_modal.php";
-
+require_once "modals/trip_export_modal.php";
 require_once "includes/footer.php";
-

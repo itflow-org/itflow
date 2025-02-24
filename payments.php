@@ -4,7 +4,16 @@
 $sort = "payment_date";
 $order = "DESC";
 
-require_once "includes/inc_all.php";
+// If client_id is in URI then show client Side Bar and client header
+if (isset($_GET['client_id'])) {
+    require_once "includes/inc_all_client.php";
+    $client_query = "AND invoice_client_id = $client_id";
+    $client_url = "client_id=$client_id&";
+} else {
+    require_once "includes/inc_all.php";
+    $client_query = '';
+    $client_url = '';
+}
 
 // Perms
 enforceUserPermission('module_financial');
@@ -42,6 +51,7 @@ $sql = mysqli_query(
     AND (CONCAT(invoice_prefix,invoice_number) LIKE '%$q%' OR client_name LIKE '%$q%' OR account_name LIKE '%$q%' OR payment_method LIKE '%$q%' OR payment_reference LIKE '%$q%')
     $account_query
     $payment_method_query
+    $client_query
     ORDER BY $sort $order LIMIT $record_from, $record_to"
 );
 
@@ -50,12 +60,20 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 ?>
 
     <div class="card card-dark">
-        <div class="card-header py-3">
-            <h3 class="card-title"><i class="fas fa-fw fa-credit-card mr-2"></i>Payments</h3>
+        <div class="card-header py-2">
+            <h3 class="card-title mt-2"><i class="fas fa-fw fa-credit-card mr-2"></i>Payments</h3>
+            <?php if ($num_rows[0] > 0) { ?>
+            <div class="card-tools">
+                <button type="button" class="btn btn-default" data-toggle="modal" data-target="#exportPaymentModal"><i class="fa fa-fw fa-download mr-2"></i>Export</button>
+            </div>
+            <?php } ?>
         </div>
 
         <div class="card-body">
             <form class="mb-4" autocomplete="off">
+                <?php if ($client_url) { ?>
+                    <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
+                <?php } ?>
                 <div class="row">
                     <div class="col-sm-4">
                         <div class="input-group">
@@ -158,14 +176,21 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 Invoice <?php if ($sort == 'invoice_number') { echo $order_icon; } ?>
                             </a>
                         </th>
+                        <?php if (!$client_url) { ?>
                         <th>
                             <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=client_name&order=<?php echo $disp; ?>">
                                 Client <?php if ($sort == 'client_name') { echo $order_icon; } ?>
                             </a>
                         </th>
+                        <?php } ?>
+                        <th class="text-right">
+                            <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=invoice_amount&order=<?php echo $disp; ?>">
+                                Invoice Amount <?php if ($sort == 'invoice_amount') { echo $order_icon; } ?>
+                            </a>
+                        </th>
                         <th class="text-right">
                             <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=payment_amount&order=<?php echo $disp; ?>">
-                                Amount <?php if ($sort == 'payment_amount') { echo $order_icon; } ?>
+                                Payment Amount <?php if ($sort == 'payment_amount') { echo $order_icon; } ?>
                             </a>
                         </th>
                         <th>
@@ -194,6 +219,8 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         $invoice_prefix = nullable_htmlentities($row['invoice_prefix']);
                         $invoice_number = intval($row['invoice_number']);
                         $invoice_status = nullable_htmlentities($row['invoice_status']);
+                        $invoice_amount = floatval($row['invoice_amount']);
+                        $invoice_currency_code = nullable_htmlentities($row['invoice_currency_code']);
                         $invoice_date = nullable_htmlentities($row['invoice_date']);
                         $payment_id = intval($row['payment_id']);
                         $payment_date = nullable_htmlentities($row['payment_date']);
@@ -221,8 +248,15 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         <tr>
                             <td><?php echo $payment_date; ?></td>
                             <td><?php echo $invoice_date; ?></td>
-                            <td><a href="invoice.php?invoice_id=<?php echo $invoice_id; ?>"><?php echo "$invoice_prefix$invoice_number"; ?></a></td>
-                            <td><a href="client_payments.php?client_id=<?php echo $client_id; ?>"><?php echo $client_name; ?></a></td>
+                            <td>
+                                <a href="invoice.php?<?php echo $client_url; ?>invoice_id=<?php echo $invoice_id; ?>">
+                                    <?php echo "$invoice_prefix$invoice_number"; ?>
+                                </a>
+                            </td>
+                            <?php if (!$client_url) { ?>
+                            <td><a href="payments.php?client_id=<?php echo $client_id; ?>"><?php echo $client_name; ?></a></td>
+                            <?php } ?>
+                            <td class="text-right"><?php echo numfmt_format_currency($currency_format, $invoice_amount, $invoice_currency_code); ?></td>
                             <td class="text-right"><?php echo numfmt_format_currency($currency_format, $payment_amount, $payment_currency_code); ?></td>
                             <td><?php echo $payment_method; ?></td>
                             <td><?php echo $payment_reference_display; ?></td>
@@ -250,10 +284,10 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     </tbody>
                 </table>
             </div>
-            <?php require_once "includes/filter_footer.php";
- ?>
+            <?php require_once "includes/filter_footer.php"; ?>
         </div>
     </div>
 
-<?php require_once "includes/footer.php";
- ?>
+<?php
+require_once "modals/payment_export_modal.php";
+require_once "includes/footer.php";

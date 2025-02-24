@@ -142,7 +142,16 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     ?>
 
                     <tr>
-                        <td><a href="#" data-toggle="modal" data-target="#editRevenueModal<?php echo $revenue_id; ?>"><?php echo $revenue_date; ?></a></td>
+                        <td>
+                            <a href="#"
+                                data-toggle = "ajax-modal"
+                                data-modal-size = "lg"
+                                data-ajax-url = "ajax/ajax_revenue_edit.php"
+                                data-ajax-id = "<?php echo $revenue_id; ?>"
+                                >
+                                <?php echo $revenue_date; ?>
+                            </a>
+                        </td>
                         <td><?php echo $category_name; ?></td>
                         <td class="text-bold text-right"><?php echo numfmt_format_currency($currency_format, $revenue_amount, $revenue_currency_code); ?></td>
                         <td><?php echo $revenue_payment_method; ?></td>
@@ -154,7 +163,12 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                     <i class="fas fa-ellipsis-h"></i>
                                 </button>
                                 <div class="dropdown-menu">
-                                    <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editRevenueModal<?php echo $revenue_id; ?>">
+                                    <a class="dropdown-item" href="#"
+                                        data-toggle = "ajax-modal"
+                                        data-modal-size = "lg"
+                                        data-ajax-url = "ajax/ajax_revenue_edit.php"
+                                        data-ajax-id = "<?php echo $revenue_id; ?>"
+                                        >
                                         <i class="fas fa-fw fa-edit mr-2"></i>Edit
                                     </a>
                                     <div class="dropdown-divider"></div>
@@ -163,17 +177,10 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                     </a>
                                 </div>
                             </div>
-                            <?php
-
-                            require "modals/revenue_edit_modal.php";
-
-
-                            ?>
                         </td>
                     </tr>
 
                 <?php } ?>
-
 
                 </tbody>
             </table>
@@ -186,5 +193,4 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 <?php
 
 require_once "modals/revenue_add_modal.php";
-
 require_once "includes/footer.php";

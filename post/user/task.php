@@ -30,7 +30,7 @@ if (isset($_POST['add_task'])) {
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 }
 
-if (isset($_POST['edit_task'])) {
+if (isset($_POST['edit_ticket_task'])) {
 
     enforceUserPermission('module_support', 2);
 
@@ -38,21 +38,34 @@ if (isset($_POST['edit_task'])) {
     $task_name = sanitizeInput($_POST['name']);
     $task_order = intval($_POST['order']);
     $task_completion_estimate = intval($_POST['completion_estimate']);
-    $is_ticket = intval($_POST['is_ticket']);
 
-    if($is_ticket == 1) {
-        // Get Client ID
-        $sql = mysqli_query($mysqli, "SELECT * FROM tasks LEFT JOIN tickets ON ticket_id = task_ticket_id WHERE task_id = $task_id");
-        $row = mysqli_fetch_array($sql);
-        $client_id = intval($row['ticket_client_id']);
-        mysqli_query($mysqli, "UPDATE tasks SET task_name = '$task_name', task_order = $task_order, task_completion_estimate = $task_completion_estimate WHERE task_id = $task_id");
-    } else {
-        $client_id = 0;
-        mysqli_query($mysqli, "UPDATE task_templates SET task_template_name = '$task_name', task_template_order = $task_order, task_template_completion_estimate = $task_completion_estimate WHERE task_template_id = $task_id");
-    }
+    // Get Client ID
+    $sql = mysqli_query($mysqli, "SELECT * FROM tasks LEFT JOIN tickets ON ticket_id = task_ticket_id WHERE task_id = $task_id");
+    $row = mysqli_fetch_array($sql);
+    $client_id = intval($row['ticket_client_id']);
+    mysqli_query($mysqli, "UPDATE tasks SET task_name = '$task_name', task_order = $task_order, task_completion_estimate = $task_completion_estimate WHERE task_id = $task_id");
 
     // Logging
     logAction("Task", "Edit", "$session_name edited task $task_name", $client_id, $task_id);
+
+    $_SESSION['alert_message'] = "Task <strong>$task_name</strong> edited";
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+}
+
+if (isset($_POST['edit_ticket_template_task'])) {
+
+    enforceUserPermission('module_support', 2);
+
+    $task_template_id = intval($_POST['task_template_id']);
+    $task_name = sanitizeInput($_POST['name']);
+    $task_order = intval($_POST['order']);
+    $task_completion_estimate = intval($_POST['completion_estimate']);
+
+    mysqli_query($mysqli, "UPDATE task_templates SET task_template_name = '$task_name', task_template_order = $task_order, task_template_completion_estimate = $task_completion_estimate WHERE task_template_id = $task_template_id");
+
+    // Logging
+    logAction("Task", "Edit", "$session_name edited task $task_name", 0, $task_template_id);
 
     $_SESSION['alert_message'] = "Task <strong>$task_name</strong> edited";
 

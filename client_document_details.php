@@ -165,7 +165,12 @@ $page_title = $row['document_name'];
     <div class="col-md-3 d-print-none">
         <div class="row">
             <div class="col-12 mb-3">
-                <button type="button" class="btn btn-primary mr-2" data-toggle="modal" data-target="#editDocumentModal<?php echo $document_id; ?>">
+                <button type="button" class="btn btn-primary mr-2"
+                    data-toggle="ajax-modal"
+                    data-modal-size="lg"
+                    data-ajax-url="ajax/ajax_document_edit.php"
+                    data-ajax-id="<?php echo $document_id; ?>"
+                    >
                     <i class="fas fa-fw fa-edit mr-2"></i>Edit
                 </button>
                 <button type="button" class="btn btn-secondary mr-2" data-toggle="modal" data-target="#shareModal"
@@ -232,7 +237,12 @@ $page_title = $row['document_name'];
 
                 ?>
                 <div class="ml-2">
-                    <a href="client_contact_details.php?client_id=<?php echo $client_id; ?>&contact_id=<?php echo $contact_id; ?>" target="_blank"><?php echo $contact_name; ?></a>
+                    <a href="#"
+                        data-toggle="ajax-modal"
+                        data-modal-size="lg"
+                        data-ajax-url="ajax/ajax_contact_details.php"
+                        data-ajax-id="<?php echo $contact_id; ?>">
+                        <?php echo $contact_name; ?></a>
                     <a class="confirm-link float-right" href="post.php?unlink_contact_from_document&contact_id=<?php echo $contact_id; ?>&document_id=<?php echo $document_id; ?>">
                         <i class="fas fa-fw fa-trash-alt text-secondary"></i>
                     </a>
@@ -263,7 +273,12 @@ $page_title = $row['document_name'];
 
                 ?>
                 <div class="ml-2">
-                    <a href="client_asset_details.php?client_id=<?php echo $client_id; ?>&asset_id=<?php echo $asset_id; ?>" target="_blank"><?php echo $asset_name; ?></a>
+                    <a href="#"
+                        data-toggle="ajax-modal"
+                        data-modal-size="lg"
+                        data-ajax-url="ajax/ajax_asset_details.php"
+                        data-ajax-id="<?php echo $asset_id; ?>">
+                        <?php echo $asset_name; ?></a>
                     <a class="confirm-link float-right" href="post.php?unlink_asset_from_document&asset_id=<?php echo $asset_id; ?>&document_id=<?php echo $document_id; ?>">
                         <i class="fas fa-fw fa-trash-alt text-secondary"></i>
                     </a>
@@ -294,7 +309,7 @@ $page_title = $row['document_name'];
 
                 ?>
                 <div class="ml-2">
-                    <a href="client_software.php?client_id=<?php echo $client_id; ?>&q=<?php echo $software_name; ?>" target="_blank"><?php echo $software_name; ?></a>
+                    <a href="software.php?client_id=<?php echo $client_id; ?>&q=<?php echo $software_name; ?>" target="_blank"><?php echo $software_name; ?></a>
                     <a class="confirm-link float-right" href="post.php?unlink_software_from_document&software_id=<?php echo $software_id; ?>&document_id=<?php echo $document_id; ?>">
                         <i class="fas fa-fw fa-trash-alt text-secondary"></i>
                     </a>
@@ -325,7 +340,7 @@ $page_title = $row['document_name'];
 
                 ?>
                 <div class="ml-2">
-                    <a href="client_vendors.php?client_id=<?php echo $client_id; ?>&q=<?php echo $vendor_name; ?>" target="_blank"><?php echo $vendor_name; ?></a>
+                    <a href="vendors.php?client_id=<?php echo $client_id; ?>&q=<?php echo $vendor_name; ?>" target="_blank"><?php echo $vendor_name; ?></a>
                     <a class="confirm-link float-right" href="post.php?unlink_vendor_from_document&vendor_id=<?php echo $vendor_id; ?>&document_id=<?php echo $document_id; ?>">
                         <i class="fas fa-fw fa-trash-alt text-secondary"></i>
                     </a>
@@ -394,7 +409,6 @@ $page_title = $row['document_name'];
 
 <?php
 
-require_once "modals/client_document_edit_modal.php";
 require_once "modals/client_document_link_file_modal.php";
 require_once "modals/client_document_link_contact_modal.php";
 require_once "modals/client_document_link_asset_modal.php";
@@ -403,5 +417,3 @@ require_once "modals/client_document_link_vendor_modal.php";
 require_once "modals/document_edit_visibility_modal.php";
 require_once "modals/share_modal.php";
 require_once "includes/footer.php";
-
-?>

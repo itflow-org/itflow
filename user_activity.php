@@ -42,7 +42,7 @@ $sql_recent_logs = mysqli_query($mysqli, "SELECT * FROM logs
         </tbody>
     </table>
     <div class="card-footer">
-        <a href="admin_audit_log.php?q=<?php echo "$session_name successfully logged in"; ?>>See More...</a>
+        <a href="admin_audit_log.php?q=<?php echo "$session_name successfully logged in"; ?>">See More...</a>
     </div>
 </div>
 

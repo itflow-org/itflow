@@ -15,6 +15,7 @@ require_once "plugins/totp/totp.php";
  * Fetches SSL certificates from remote hosts & returns the relevant info (issuer, expiry, public key)
  */
 if (isset($_GET['certificate_fetch_parse_json_details'])) {
+    enforceUserPermission('module_support');
 
     // PHP doesn't appreciate attempting SSL sockets to non-existent domains
     if (empty($_GET['domain'])) {
@@ -40,76 +41,10 @@ if (isset($_GET['certificate_fetch_parse_json_details'])) {
 }
 
 /*
- * Looks up info for a given certificate ID from the database, used to dynamically populate modal fields
- */
-if (isset($_GET['certificate_get_json_details'])) {
-    validateTechRole();
-
-    $certificate_id = intval($_GET['certificate_id']);
-    $client_id = intval($_GET['client_id']);
-
-    // Individual certificate lookup
-    $cert_sql = mysqli_query($mysqli, "SELECT * FROM certificates WHERE certificate_id = $certificate_id AND certificate_client_id = $client_id");
-    while ($row = mysqli_fetch_array($cert_sql)) {
-        $response['certificate'][] = $row;
-    }
-
-    // Get all domains for this client that could be linked to this certificate
-    $domains_sql = mysqli_query($mysqli, "SELECT domain_id, domain_name FROM domains WHERE domain_client_id = $client_id");
-    while ($row = mysqli_fetch_array($domains_sql)) {
-        $response['domains'][] = $row;
-    }
-
-    echo json_encode($response);
-}
-
-/*
- * Looks up info for a given domain ID from the database, used to dynamically populate modal fields
- */
-if (isset($_GET['domain_get_json_details'])) {
-    enforceUserPermission('module_support');
-
-    $domain_id = intval($_GET['domain_id']);
-    $client_id = intval($_GET['client_id']);
-
-    // Individual domain lookup
-    $cert_sql = mysqli_query($mysqli, "SELECT * FROM domains WHERE domain_id = $domain_id AND domain_client_id = $client_id");
-    while ($row = mysqli_fetch_array($cert_sql)) {
-        $response['domain'][] = $row;
-    }
-
-    // Get all registrars/webhosts (vendors) for this client that could be linked to this domain
-    $vendor_sql = mysqli_query($mysqli, "SELECT vendor_id, vendor_name FROM vendors WHERE vendor_client_id = $client_id AND vendor_archived_at IS NULL ORDER BY vendor_name ASC");
-    while ($row = mysqli_fetch_array($vendor_sql)) {
-        $response['vendors'][] = $row;
-    }
-
-    // Get domain history
-    $history_sql = mysqli_query($mysqli, "SELECT * FROM domain_history WHERE domain_history_domain_id = $domain_id");
-    $history_html = "<table class='table table-sm table-striped border table-hover'>";
-    $history_html .= "<thead class='thead-dark'><tr><th>Date</th><th>Field</th><th>Before</th><th>After</th></tr></thead><tbody>";
-    while ($row = mysqli_fetch_array($history_sql)) {
-        // Fetch data from the query and create table rows
-        $history_html .= "<tr>";
-        $history_html .= "<td>" . htmlspecialchars(date('Y-m-d', strtotime($row['domain_history_modified_at']))) . "</td>";
-        $history_html .= "<td>" . htmlspecialchars($row['domain_history_column']) . "</td>";
-        $history_html .= "<td>" . htmlspecialchars($row['domain_history_old_value']) . "</td>";
-        $history_html .= "<td>" . htmlspecialchars($row['domain_history_new_value']) . "</td>";
-        $history_html .= "</tr>";
-    }
-    $history_html .= "</tbody></table>";
-
-    // Return the HTML content to JavaScript
-    $response['history'] = $history_html;
-
-    echo json_encode($response);
-}
-
-/*
  * Looks up info on the ticket number provided, used to populate the ticket merge modal
  */
 if (isset($_GET['merge_ticket_get_json_details'])) {
-    validateTechRole();
+    enforceUserPermission('module_support');
 
     $merge_into_ticket_number = intval($_GET['merge_into_ticket_number']);
 
@@ -130,35 +65,9 @@ if (isset($_GET['merge_ticket_get_json_details'])) {
     }
 }
 
-/*
- * Looks up info for a given network ID from the database, used to dynamically populate modal fields
- */
-if (isset($_GET['network_get_json_details'])) {
-    validateTechRole();
-
-    $network_id = intval($_GET['network_id']);
-    $client_id = intval($_GET['client_id']);
-
-    // Individual network lookup
-    $network_sql = mysqli_query($mysqli, "SELECT * FROM networks WHERE network_id = $network_id AND network_client_id = $client_id");
-    while ($row = mysqli_fetch_array($network_sql)) {
-        $response['network'][] = $row;
-    }
-
-    // Lookup all client locations, as networks can be associated with any client location
-    $locations_sql = mysqli_query(
-        $mysqli,
-        "SELECT location_id, location_name FROM locations
-         WHERE location_client_id = '$client_id'"
-    );
-    while ($row = mysqli_fetch_array($locations_sql)) {
-        $response['locations'][] = $row;
-    }
-
-    echo json_encode($response);
-}
-
 if (isset($_POST['client_set_notes'])) {
+    enforceUserPermission('module_client', 2);
+
     $client_id = intval($_POST['client_id']);
     $notes = sanitizeInput($_POST['notes']);
 
@@ -171,6 +80,8 @@ if (isset($_POST['client_set_notes'])) {
 }
 
 if (isset($_POST['contact_set_notes'])) {
+    enforceUserPermission('module_client', 2);
+
     $contact_id = intval($_POST['contact_id']);
     $notes = sanitizeInput($_POST['notes']);
 
@@ -191,6 +102,8 @@ if (isset($_POST['contact_set_notes'])) {
 }
 
 if (isset($_POST['asset_set_notes'])) {
+    enforceUserPermission('module_support', 2);
+
     $asset_id = intval($_POST['asset_id']);
     $notes = sanitizeInput($_POST['notes']);
 
@@ -211,7 +124,7 @@ if (isset($_POST['asset_set_notes'])) {
 }
 
 /*
- * Collision Detection/Avoidance
+ * Ticketing Collision Detection/Avoidance
  * Called upon loading a ticket, and every 2 mins thereafter
  * Is used in conjunction with ticket_query_views to show who is currently viewing a ticket
  */
@@ -222,7 +135,7 @@ if (isset($_GET['ticket_add_view'])) {
 }
 
 /*
- * Collision Detection/Avoidance
+ * Ticketing Collision Detection/Avoidance
  * Returns formatted text of the agents currently viewing a ticket
  * Called upon loading a ticket, and every 2 mins thereafter
  */
@@ -255,7 +168,7 @@ if (isset($_GET['ticket_query_views'])) {
  * Generates public/guest links for sharing logins/docs
  */
 if (isset($_GET['share_generate_link'])) {
-    validateTechRole();
+    enforceUserPermission('module_support', 2);
 
     $item_encrypted_username = '';  // Default empty
     $item_encrypted_credential = '';  // Default empty
@@ -372,96 +285,10 @@ if (isset($_GET['share_generate_link'])) {
 }
 
 /*
- *  Looks up info for a given recurring (was scheduled) ticket ID from the database, used to dynamically populate modal edit fields
- */
-if (isset($_GET['recurring_ticket_get_json_details'])) {
-    validateTechRole();
-
-    $client_id = intval($_GET['client_id']);
-    $ticket_id = intval($_GET['ticket_id']);
-
-    // Get all contacts, to allow tickets to be raised under a specific contact
-    $contact_sql = mysqli_query($mysqli, "SELECT contact_id, contact_name FROM contacts
-    WHERE contact_client_id = $client_id
-    AND contact_archived_at IS NULL
-    ORDER BY contact_primary DESC, contact_technical DESC, contact_name ASC"
-    );
-    while ($row = mysqli_fetch_array($contact_sql)) {
-        $response['contacts'][] = $row;
-    }
-
-    // Get ticket details
-    $ticket_sql = mysqli_query($mysqli, "SELECT * FROM scheduled_tickets
-    WHERE scheduled_ticket_id = $ticket_id
-    AND scheduled_ticket_client_id = $client_id LIMIT 1");
-    while ($row = mysqli_fetch_array($ticket_sql)) {
-        $response['ticket'][] = $row;
-    }
-
-    // Get assets
-    $asset_sql = mysqli_query($mysqli, "SELECT asset_id, asset_name FROM assets WHERE asset_client_id = $client_id AND asset_archived_at IS NULL");
-    while ($row = mysqli_fetch_array($asset_sql)) {
-        $response['assets'][] = $row;
-    }
-
-    // Get technicians to auto assign the ticket to
-    $sql_agents = mysqli_query(
-        $mysqli,
-        "SELECT users.user_id, user_name FROM users
-            LEFT JOIN user_settings on users.user_id = user_settings.user_id
-            WHERE user_role > 1
-            AND user_status = 1
-            AND user_archived_at IS NULL
-            ORDER BY user_name ASC"
-    );
-    while ($row = mysqli_fetch_array($sql_agents)) {
-        $response['agents'][] = $row;
-    }
-
-    echo json_encode($response);
-
-}
-
-/*
- * Looks up info for a given quote ID from the database, used to dynamically populate modal fields
- */
-if (isset($_GET['quote_get_json_details'])) {
-    $quote_id = intval($_GET['quote_id']);
-
-    // Get quote details
-    $quote_sql = mysqli_query(
-        $mysqli,
-        "SELECT * FROM quotes
-        LEFT JOIN clients ON quote_client_id = client_id
-        WHERE quote_id = $quote_id LIMIT 1"
-    );
-
-    while ($row = mysqli_fetch_array($quote_sql)) {
-        $response['quote'][] = $row;
-    }
-
-
-    // Get all income-related categories for quoting
-    $quote_created_at = $response['quote'][0]['quote_created_at'];
-    $category_sql = mysqli_query(
-        $mysqli,
-        "SELECT category_id, category_name FROM categories
-        WHERE category_type = 'Income' AND (category_archived_at > '$quote_created_at' OR category_archived_at IS NULL)
-        ORDER BY category_name"
-    );
-
-    while ($row = mysqli_fetch_array($category_sql)) {
-        $response['categories'][] = $row;
-    }
-
-    echo json_encode($response);
-
-}
-
-/*
  * Returns sorted list of active clients
  */
 if (isset($_GET['get_active_clients'])) {
+    enforceUserPermission('module_client');
 
     $client_sql = mysqli_query(
         $mysqli,
@@ -481,6 +308,8 @@ if (isset($_GET['get_active_clients'])) {
  * Returns ordered list of active contacts for a specified client
  */
 if (isset($_GET['get_client_contacts'])) {
+    enforceUserPermission('module_client');
+
     $client_id = intval($_GET['client_id']);
 
     $contact_sql = mysqli_query(
@@ -502,7 +331,7 @@ if (isset($_GET['get_client_contacts'])) {
  * When provided with a login ID, checks permissions and returns the 6-digit code
  */
 if (isset($_GET['get_totp_token_via_id'])) {
-    validateTechRole();
+    enforceUserPermission('module_credential');
 
     $login_id = intval($_GET['login_id']);
 
@@ -529,3 +358,245 @@ if (isset($_GET['get_totp_token_via_id'])) {
 if (isset($_GET['get_readable_pass'])) {
     echo json_encode(GenerateReadablePassword(4));
 }
+
+/*
+ * ITFlow - POST request handler for client tickets
+ */
+if (isset($_POST['update_kanban_status_position'])) {
+    // Update multiple ticket status kanban orders
+    enforceUserPermission('module_support', 2);
+
+    $positions = $_POST['positions'];
+
+    foreach ($positions as $position) {
+        $status_id = intval($position['status_id']);
+        $kanban = intval($position['status_kanban']);
+
+        mysqli_query($mysqli, "UPDATE ticket_statuses SET ticket_status_order = $kanban WHERE ticket_status_id = $status_id");
+    }
+
+    // return a response
+    echo json_encode(['status' => 'success']);
+    exit;
+}
+
+if (isset($_POST['update_kanban_ticket'])) {
+    // Update ticket kanban order and status
+    enforceUserPermission('module_support', 2);
+    
+    // all tickets on the column
+    $positions = $_POST['positions'];
+
+    foreach ($positions as $position) {
+        $ticket_id = intval($position['ticket_id']);
+        $kanban = intval($position['ticket_order']); // ticket kanban position
+        $status = intval($position['ticket_status']); // ticket statuses
+        $oldStatus = intval($position['ticket_oldStatus']); // ticket old status if moved
+
+        $statuses['Closed'] = 5;
+        $statuses['Resolved'] = 4;
+
+        // Continue if status is null / Closed
+        if ($status === null || $status === $statuses['Closed']) {
+            continue;
+        }
+
+
+        if ($oldStatus === false) {
+            // if ticket was not moved, just uptdate the order on kanban
+            mysqli_query($mysqli, "UPDATE tickets SET ticket_order = $kanban WHERE ticket_id = $ticket_id");
+            customAction('ticket_update', $ticket_id);
+        } else { 
+            // If the ticket was moved from a resolved status to another status, we need to update ticket_resolved_at
+            if ($oldStatus === $statuses['Resolved']) {
+                mysqli_query($mysqli, "UPDATE tickets SET ticket_order = $kanban, ticket_status = $status, ticket_resolved_at = NULL WHERE ticket_id = $ticket_id");
+                customAction('ticket_update', $ticket_id);
+            } elseif ($status === $statuses['Resolved']) {
+                // If the ticket was moved to a resolved status, we need to update ticket_resolved_at
+                mysqli_query($mysqli, "UPDATE tickets SET ticket_order = $kanban, ticket_status = $status, ticket_resolved_at = NOW() WHERE ticket_id = $ticket_id");
+                customAction('ticket_update', $ticket_id);
+
+                // Client notification email
+                if (!empty($config_smtp_host) && $config_ticket_client_general_notifications == 1) {
+
+                    // Get details
+                    $ticket_sql = mysqli_query($mysqli, "SELECT contact_name, contact_email, ticket_prefix, ticket_number, ticket_subject, ticket_status_name, ticket_assigned_to, ticket_url_key, ticket_client_id FROM tickets 
+                        LEFT JOIN clients ON ticket_client_id = client_id 
+                        LEFT JOIN contacts ON ticket_contact_id = contact_id
+                        LEFT JOIN ticket_statuses ON ticket_status = ticket_status_id
+                        WHERE ticket_id = $ticket_id
+                    ");
+                    $row = mysqli_fetch_array($ticket_sql);
+
+                    $contact_name = sanitizeInput($row['contact_name']);
+                    $contact_email = sanitizeInput($row['contact_email']);
+                    $ticket_prefix = sanitizeInput($row['ticket_prefix']);
+                    $ticket_number = intval($row['ticket_number']);
+                    $ticket_subject = sanitizeInput($row['ticket_subject']);
+                    $client_id = intval($row['ticket_client_id']);
+                    $ticket_assigned_to = intval($row['ticket_assigned_to']);
+                    $ticket_status = sanitizeInput($row['ticket_status_name']);
+                    $url_key = sanitizeInput($row['ticket_url_key']);
+
+                    // Sanitize Config vars from get_settings.php
+                    $config_ticket_from_name = sanitizeInput($config_ticket_from_name);
+                    $config_ticket_from_email = sanitizeInput($config_ticket_from_email);
+                    $config_base_url = sanitizeInput($config_base_url);
+
+                    // Get Company Info
+                    $sql = mysqli_query($mysqli, "SELECT company_name, company_phone FROM companies WHERE company_id = 1");
+                    $row = mysqli_fetch_array($sql);
+                    $company_name = sanitizeInput($row['company_name']);
+                    $company_phone = sanitizeInput(formatPhoneNumber($row['company_phone']));
+
+                    // EMAIL
+                    $subject = "Ticket resolved - [$ticket_prefix$ticket_number] - $ticket_subject | (pending closure)";
+                    $body = "<i style=\'color: #808080\'>##- Please type your reply above this line -##</i><br><br>Hello $contact_name,<br><br>Your ticket regarding $ticket_subject has been marked as solved and is pending closure.<br><br>If your request/issue is resolved, you can simply ignore this email. If you need further assistance, please reply or <a href=\'https://$config_base_url/guest/guest_view_ticket.php?ticket_id=$ticket_id&url_key=$url_key\'>re-open</a> to let us know! <br><br>Ticket: $ticket_prefix$ticket_number<br>Subject: $ticket_subject<br>Status: $ticket_status<br>Portal: <a href=\'https://$config_base_url/guest/guest_view_ticket.php?ticket_id=$ticket_id&url_key=$url_key\'>View ticket</a><br><br>--<br>$company_name - Support<br>$config_ticket_from_email<br>$company_phone";
+
+                    // Check email valid
+                    if (filter_var($contact_email, FILTER_VALIDATE_EMAIL)) {
+
+                        $data = [];
+
+                        // Email Ticket Contact
+                        // Queue Mail
+
+                        $data[] = [
+                            'from' => $config_ticket_from_email,
+                            'from_name' => $config_ticket_from_name,
+                            'recipient' => $contact_email,
+                            'recipient_name' => $contact_name,
+                            'subject' => $subject,
+                            'body' => $body
+                        ];
+                    }
+
+                    // Also Email all the watchers
+                    $sql_watchers = mysqli_query($mysqli, "SELECT watcher_email FROM ticket_watchers WHERE watcher_ticket_id = $ticket_id");
+                    $body .= "<br><br>----------------------------------------<br>YOU ARE A COLLABORATOR ON THIS TICKET";
+                    while ($row = mysqli_fetch_array($sql_watchers)) {
+                        $watcher_email = sanitizeInput($row['watcher_email']);
+
+                        // Queue Mail
+                        $data[] = [
+                            'from' => $config_ticket_from_email,
+                            'from_name' => $config_ticket_from_name,
+                            'recipient' => $watcher_email,
+                            'recipient_name' => $watcher_email,
+                            'subject' => $subject,
+                            'body' => $body
+                        ];
+                    }
+                    addToMailQueue($data);
+                }
+                //End Mail IF
+                
+            } else {
+                // If the ticket was moved from any status to another status
+                mysqli_query($mysqli, "UPDATE tickets SET ticket_order = $kanban, ticket_status = $status WHERE ticket_id = $ticket_id");
+                customAction('ticket_update', $ticket_id);
+            }
+        }
+
+    }
+
+    // return a response
+    echo json_encode(['status' => 'success','payload' => $positions]);
+    exit;
+}
+
+if (isset($_POST['update_ticket_tasks_order'])) {
+    // Update multiple ticket tasks order
+    enforceUserPermission('module_support', 2);
+
+    $positions = $_POST['positions'];
+    $ticket_id = intval($_POST['ticket_id']);
+
+    foreach ($positions as $position) {   
+        $id = intval($position['id']);
+        $order = intval($position['order']);
+
+        mysqli_query($mysqli, "UPDATE tasks SET task_order = $order WHERE task_ticket_id = $ticket_id AND task_id = $id");
+    }
+
+    // return a response
+    echo json_encode(['status' => 'success']);
+    exit;
+}
+
+if (isset($_POST['update_task_templates_order'])) {
+    // Update multiple task templates order
+    enforceUserPermission('module_support', 2);
+
+    $positions = $_POST['positions'];
+    $ticket_template_id = intval($_POST['ticket_template_id']);
+
+    foreach ($positions as $position) {   
+        $id = intval($position['id']);
+        $order = intval($position['order']);
+
+        mysqli_query($mysqli, "UPDATE task_templates SET task_template_order = $order WHERE task_template_ticket_template_id = $ticket_template_id AND task_template_id = $id");
+    }
+
+    // return a response
+    echo json_encode(['status' => 'success']);
+    exit;
+}
+
+if (isset($_POST['update_quote_items_order'])) {
+    // Update multiple quote items order
+    enforceUserPermission('module_sales', 2);
+
+    $positions = $_POST['positions'];
+    $quote_id = intval($_POST['quote_id']);
+
+    foreach ($positions as $position) {   
+        $id = intval($position['id']);
+        $order = intval($position['order']);
+
+        mysqli_query($mysqli, "UPDATE invoice_items SET item_order = $order WHERE item_quote_id = $quote_id AND item_id = $id");
+    }
+
+    // return a response
+    echo json_encode(['status' => 'success']);
+    exit;
+}
+
+if (isset($_POST['update_invoice_items_order'])) {
+    // Update multiple invoice items order
+    enforceUserPermission('module_sales', 2);
+
+    $positions = $_POST['positions'];
+    $invoice_id = intval($_POST['invoice_id']);
+
+    foreach ($positions as $position) {   
+        $id = intval($position['id']);
+        $order = intval($position['order']);
+
+        mysqli_query($mysqli, "UPDATE invoice_items SET item_order = $order WHERE item_invoice_id = $invoice_id AND item_id = $id");
+    }
+
+    // return a response
+    echo json_encode(['status' => 'success']);
+    exit;
+}
+
+if (isset($_POST['update_recurring_invoice_items_order'])) {
+    // Update multiple recurring invoice items order
+    enforceUserPermission('module_sales', 2);
+
+    $positions = $_POST['positions'];
+    $recurring_id = intval($_POST['recurring_id']);
+
+    foreach ($positions as $position) {   
+        $id = intval($position['id']);
+        $order = intval($position['order']);
+
+        mysqli_query($mysqli, "UPDATE invoice_items SET item_order = $order WHERE item_recurring_id = $recurring_id AND item_id = $id");
+    }
+
+    // return a response
+    echo json_encode(['status' => 'success']);
+    exit;
+}
+

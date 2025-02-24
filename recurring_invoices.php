@@ -4,7 +4,16 @@
 $sort = "recurring_next_date";
 $order = "ASC";
 
-require_once "includes/inc_all.php";
+// If client_id is in URI then show client Side Bar and client header
+if (isset($_GET['client_id'])) {
+    require_once "includes/inc_all_client.php";
+    $client_query = "AND recurring_client_id = $client_id";
+    $client_url = "client_id=$client_id&";
+} else {
+    require_once "includes/inc_all.php";
+    $client_query = '';
+    $client_url = '';
+}
 
 // Perms
 enforceUserPermission('module_sales');
@@ -20,6 +29,7 @@ $sql = mysqli_query(
     LEFT JOIN recurring_payments ON recurring_payment_recurring_invoice_id = recurring_id
     WHERE (CONCAT(recurring_prefix,recurring_number) LIKE '%$q%' OR recurring_frequency LIKE '%$q%' OR recurring_scope LIKE '%$q%' OR client_name LIKE '%$q%' OR category_name LIKE '%$q%')
     AND DATE(recurring_created_at) BETWEEN '$dtf' AND '$dtt'
+    $client_query
     ORDER BY $sort $order LIMIT $record_from, $record_to");
 
 $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
@@ -36,6 +46,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
     <div class="card-body">
         <form class="mb-4" autocomplete="off">
+            <?php if ($client_url) { ?>
+                <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
+            <?php } ?>
             <div class="row">
                 <div class="col-sm-4">
                     <div class="input-group">
@@ -104,11 +117,13 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             Scope <?php if ($sort == 'recurring_scope') { echo $order_icon; } ?>
                         </a>
                     </th>
+                    <?php if (!$client_url) { ?>
                     <th>
                         <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=client_name&order=<?php echo $disp; ?>">
                             Client <?php if ($sort == 'client_name') { echo $order_icon; } ?>
                         </a>
                     </th>
+                    <?php } ?>
                     <th class="text-right">
                         <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=recurring_amount&order=<?php echo $disp; ?>">
                             Amount <?php if ($sort == 'recurring_amount') { echo $order_icon; } ?>
@@ -195,11 +210,15 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                     <tr>
                         <td class="text-bold">
-                            <a href="recurring_invoice.php?recurring_id=<?php echo $recurring_id; ?>"><?php echo "$recurring_prefix$recurring_number"; ?></a>
+                            <a href="recurring_invoice.php?<?php echo $client_url; ?>recurring_id=<?php echo $recurring_id; ?>">
+                                <?php echo "$recurring_prefix$recurring_number"; ?>
+                            </a>
                         </td>
                         <td class="text-bold"><?php echo $recurring_next_date; ?></td>
                         <td><?php echo $recurring_scope; ?></td>
-                        <td class="text-bold"><a href="client_recurring_invoices.php?client_id=<?php echo $client_id; ?>"><?php echo $client_name; ?></a></td>
+                        <?php if (!$client_url) { ?>
+                        <td class="text-bold"><a href="recurring_invoices.php?client_id=<?php echo $client_id; ?>"><?php echo $client_name; ?></a></td>
+                        <?php } ?>
                         <td class="text-bold text-right"><?php echo numfmt_format_currency($currency_format, $recurring_amount, $recurring_currency_code); ?></td>
                         <td><?php echo ucwords($recurring_frequency); ?>ly</td>
                         <td><?php echo $recurring_last_sent; ?></td>
@@ -217,7 +236,11 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                     <i class="fas fa-ellipsis-h"></i>
                                 </button>
                                 <div class="dropdown-menu">
-                                    <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editRecurringModal<?php echo $recurring_id; ?>">
+                                    <a class="dropdown-item" href="#"
+                                        data-toggle = "ajax-modal"
+                                        data-ajax-url = "ajax/ajax_recurring_invoice_edit.php"
+                                        data-ajax-id = "<?php echo $recurring_id; ?>"
+                                        >
                                         <i class="fas fa-fw fa-edit mr-2"></i>Edit
                                     </a>
                                     <?php if ($status !== 'Active') { ?>
@@ -232,9 +255,6 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     </tr>
 
                     <?php
-                    require "modals/recurring_invoice_edit_modal.php";
-
-
                     }
                     ?>
 
@@ -249,5 +269,4 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 <?php
 
 require_once "modals/recurring_invoice_add_modal.php";
-
 require_once "includes/footer.php";

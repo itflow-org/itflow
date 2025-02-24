@@ -11,5 +11,5 @@ $primary_dns = sanitizeInput($_POST['primary_dns']);
 $secondary_dns = sanitizeInput($_POST['secondary_dns']);
 $dhcp_range = sanitizeInput($_POST['dhcp_range']);
 $notes = sanitizeInput($_POST['notes']);
-$location_id = intval($_POST['location']);
+$location_id = intval($_POST['location'] ?? 0);
 $client_id = intval($_POST['client_id']);

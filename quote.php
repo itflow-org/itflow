@@ -3,9 +3,12 @@
 // If client_id is in URI then show client Side Bar and client header
 if (isset($_GET['client_id'])) {
     require_once "includes/inc_all_client.php";
-} else { 
+} else {
     require_once "includes/inc_all.php";
 }
+
+// Perms
+enforceUserPermission('module_sales');
 
 if (isset($_GET['quote_id'])) {
 
@@ -17,7 +20,9 @@ if (isset($_GET['quote_id'])) {
         LEFT JOIN clients ON quote_client_id = client_id
         LEFT JOIN contacts ON clients.client_id = contacts.contact_client_id AND contact_primary = 1
         LEFT JOIN locations ON clients.client_id = locations.location_client_id AND location_primary = 1
-        WHERE quote_id = $quote_id"
+        WHERE quote_id = $quote_id
+        $access_permission_query
+        LIMIT 1"
     );
 
     if (mysqli_num_rows($sql) == 0) {
@@ -59,7 +64,7 @@ if (isset($_GET['quote_id'])) {
         $client_net_terms = $config_default_net_terms;
     }
 
-    // Override Tab Title // No Sanitizing needed as this var will opnly be used in the tab title
+    // Override Tab Title // No Sanitizing needed as this var will only be used in the tab title
     $tab_title = $row['client_name'];
     $page_title = "{$row['quote_prefix']}{$row['quote_number']}";
 
@@ -108,7 +113,14 @@ if (isset($_GET['quote_id'])) {
         $json_products = json_encode($products);
     }
 
+    // Quote File Attachments
+    $sql_quote_files = mysqli_query(
+        $mysqli,
+        "SELECT file_reference_name, file_name, file_created_at FROM quote_files LEFT JOIN files ON quote_files.file_id = files.file_id WHERE quote_id = $quote_id"
+    );
+
 ?>
+<link rel="stylesheet" href="plugins/dragula/dragula.min.css">
 
     <ol class="breadcrumb d-print-none">
         <?php if (isset($_GET['client_id'])) { ?>
@@ -116,14 +128,14 @@ if (isset($_GET['quote_id'])) {
             <a href="client_overview.php?client_id=<?php echo $client_id; ?>"><?php echo $client_name; ?></a>
         </li>
         <li class="breadcrumb-item">
-            <a href="client_quotes.php?client_id=<?php echo $client_id; ?>">Quotes</a>
+            <a href="quotes.php?client_id=<?php echo $client_id; ?>">Quotes</a>
         </li>
         <?php } else { ?>
         <li class="breadcrumb-item">
-            <a href="quotes.php">Quotes</a>
+            <a href="quotes.php">Global Quotes</a>
         </li>
         <li class="breadcrumb-item">
-            <a href="client_quotes.php?client_id=<?php echo $client_id; ?>"><?php echo $client_name; ?></a>
+            <a href="quotes.php?client_id=<?php echo $client_id; ?>"><?php echo $client_name; ?>Quotes</a>
         </li>
         <?php } ?>
         <li class="breadcrumb-item active"><?php echo "$quote_prefix$quote_number"; ?></li>
@@ -140,12 +152,7 @@ if (isset($_GET['quote_id'])) {
                             <i class="fas fa-paper-plane mr-2"></i>Send
                         </button>
                         <div class="dropdown-menu">
-                            <?php if (!empty($config_smtp_host) && !empty($contact_email)) { ?>
-                                <a class="dropdown-item" href="post.php?email_quote=<?php echo $quote_id; ?>">
-                                    <i class="fas fa-fw fa-paper-plane mr-2"></i>Send Email
-                                </a>
-                                <div class="dropdown-divider"></div>
-                            <?php } ?>
+
                             <a class="dropdown-item" href="post.php?mark_quote_sent=<?php echo $quote_id; ?>">
                                 <i class="fas fa-fw fa-check mr-2"></i>Mark Sent
                             </a>
@@ -175,11 +182,19 @@ if (isset($_GET['quote_id'])) {
                             <i class="fas fa-ellipsis-v"></i>
                         </button>
                         <div class="dropdown-menu">
-                            <a class="dropdown-item" href="#" data-toggle="modal" onclick="populateQuoteEditModal(<?php echo $quote_id ?>)" data-target="#editQuoteModal">
+                            <a class="dropdown-item" href="#"
+                                data-toggle = "ajax-modal"
+                                data-ajax-url = "ajax/ajax_quote_edit.php"
+                                data-ajax-id = "<?php echo $quote_id; ?>"
+                                >
                                 <i class="fa fa-fw fa-edit text-secondary mr-2"></i>Edit
                             </a>
                             <?php if (lookupUserPermission("module_sales") >= 2) { ?>
-                                <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addQuoteCopyModal<?php echo $quote_id; ?>">
+                                <a class="dropdown-item" href="#"
+                                    data-toggle = "ajax-modal"
+                                    data-ajax-url = "ajax/ajax_quote_copy.php"
+                                    data-ajax-id = "<?php echo $quote_id; ?>"
+                                    >
                                     <i class="fa fa-fw fa-copy text-secondary mr-2"></i>Copy
                                 </a>
                             <?php } ?>
@@ -273,7 +288,7 @@ if (isset($_GET['quote_id'])) {
                 <div class="col-md-12">
                     <div class="card">
                         <div class="table-responsive">
-                            <table class="table">
+                            <table class="table" id="items">
                                 <thead>
                                     <tr>
                                         <th class="d-print-none"></th>
@@ -295,7 +310,6 @@ if (isset($_GET['quote_id'])) {
                                         $item_id = intval($row['item_id']);
                                         $item_name = nullable_htmlentities($row['item_name']);
                                         $item_description = nullable_htmlentities($row['item_description']);
-                                        $item_order = intval($row['item_order']);
                                         $item_quantity = floatval($row['item_quantity']);
                                         $item_price = floatval($row['item_price']);
                                         $item_tax = floatval($row['item_tax']);
@@ -304,29 +318,9 @@ if (isset($_GET['quote_id'])) {
                                         $tax_id = intval($row['item_tax_id']);
                                         $total_tax = $item_tax + $total_tax;
                                         $sub_total = $item_price * $item_quantity + $sub_total;
+                                        ?>
 
-                                        // Logic to check if top or bottom arrow should be hidden by looking at max and min of item_order
-                                        $sql = mysqli_query($mysqli, "SELECT MAX(item_order) AS item_order FROM invoice_items WHERE item_quote_id = $quote_id");
-                                        $row = mysqli_fetch_array($sql);
-                                        $max_item_order = intval($row['item_order']);
-
-                                        $sql = mysqli_query($mysqli, "SELECT MIN(item_order) AS item_order FROM invoice_items WHERE item_quote_id = $quote_id");
-                                        $row = mysqli_fetch_array($sql);
-                                        $min_item_order = intval($row['item_order']);
-
-                                        if ($item_order == $max_item_order) {
-                                            $down_hidden = "hidden";
-                                        } else {
-                                            $down_hidden = "";
-                                        }
-
-                                        if ($item_order == $min_item_order) {
-                                            $up_hidden = "hidden";
-                                        } else {
-                                            $up_hidden = "";
-                                        } ?>
-
-                                        <tr>
+                                        <tr data-item-id="<?php echo $item_id; ?>">
                                             <td class="d-print-none">
                                                 <?php if ($quote_status !== "Invoiced" && $quote_status !== "Accepted" && $quote_status !== "Declined" && lookupUserPermission("module_sales") >= 2) { ?>
                                                     <div class="dropdown">
@@ -334,18 +328,11 @@ if (isset($_GET['quote_id'])) {
                                                             <i class="fas fa-ellipsis-v"></i>
                                                         </button>
                                                         <div class="dropdown-menu">
-                                                            <form action="post.php" method="post">
-                                                                <input type="hidden" name="item_quote_id" value="<?php echo $quote_id; ?>">
-                                                                <input type="hidden" name="item_id" value="<?php echo $item_id; ?>">
-                                                                <input type="hidden" name="item_order" value="<?php echo $item_order; ?>">
-                                                                <button class="dropdown-item" type="submit" name="update_quote_item_order" value="up" <?php echo $up_hidden; ?>><i class="fa fa-fw fa-arrow-up mr-2"></i>Move Up</button>
-                                                                <?php if ($up_hidden == "" && $down_hidden == "") {
-                                                                    echo '<div class="dropdown-divider"></div>';
-                                                                } ?>
-                                                                <button class="dropdown-item" type="submit" name="update_quote_item_order" value="down" <?php echo $down_hidden; ?>><i class="fa fa-fw fa-arrow-down mr-2"></i>Move Down</button>
-                                                            </form>
-                                                            <div class="dropdown-divider"></div>
-                                                            <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editItemModal<?php echo $item_id; ?>">
+                                                            <a class="dropdown-item" href="#"
+                                                                data-toggle="ajax-modal"
+                                                                data-ajax-url="ajax/ajax_item_edit.php"
+                                                                data-ajax-id="<?php echo $item_id; ?>"
+                                                                >
                                                                 <i class="fa fa-fw fa-edit mr-2"></i>Edit
                                                             </a>
                                                             <div class="dropdown-divider"></div>
@@ -356,7 +343,7 @@ if (isset($_GET['quote_id'])) {
                                                     </div>
                                                 <?php } ?>
                                             </td>
-                                            <td><?php echo $item_name; ?></td>
+                                            <td class="grab-cursor"><?php echo $item_name; ?></td>
                                             <td><?php echo nl2br($item_description); ?></td>
                                             <td class="text-center"><?php echo number_format($item_quantity, 2); ?></td>
                                             <td class="text-right"><?php echo numfmt_format_currency($currency_format, $item_price, $quote_currency_code); ?></td>
@@ -366,9 +353,6 @@ if (isset($_GET['quote_id'])) {
 
                                     <?php
 
-                                        if ($quote_status !== "Invoiced" && $quote_status !== "Accepted" && $quote_status !== "Declined") {
-                                            require "modals/item_edit_modal.php";
-                                        }
                                     }
 
                                     ?>
@@ -483,6 +467,54 @@ if (isset($_GET['quote_id'])) {
         </div>
     </div>
 
+    <?php if (mysqli_num_rows($sql_quote_files) > 0) { ?>
+        <div class="row mb-3">
+        <div class="col-sm d-print-none">
+            <div class="card">
+                <div class="card-header text-bold">
+                    <i class="fa fa-paperclip mr-2"></i>Attachments
+                    <div class="card-tools">
+                        <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                            <i class="fas fa-minus"></i>
+                        </button>
+                        <button type="button" class="btn btn-tool" data-card-widget="remove">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <table class="table">
+                        <thead>
+                        <tr>
+                            <th>File Name</th>
+                            <th>Upload date</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <?php
+
+                        while ($quote_file = mysqli_fetch_array($sql_quote_files)) {
+                            $name = nullable_htmlentities($quote_file['file_name']);
+                            $ref_name = nullable_htmlentities($quote_file['file_reference_name']);
+                            $created = nullable_htmlentities($quote_file['file_created_at']);
+
+                            ?>
+                            <tr>
+                                <td><a target="_blank" href="/uploads/clients/<?php echo $client_id ?>/<?php echo $ref_name ?>"><?php echo $name; ?></a></td>
+                                <td><?php echo $created; ?></td>
+                            </tr>
+                            <?php
+                        }
+                        ?>
+
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <?php } ?>
+
     <div class="row mb-3">
         <div class="col-sm d-print-none">
             <div class="card">
@@ -532,12 +564,7 @@ if (isset($_GET['quote_id'])) {
     </div>
 
 <?php
-    require_once "modals/quote_edit_modal.php";
-
     require_once "modals/quote_to_invoice_modal.php";
-
-    require_once "modals/quote_copy_modal.php";
-
     require_once "modals/quote_note_modal.php";
 }
 
@@ -552,7 +579,7 @@ require_once "includes/footer.php";
 <script src="plugins/jquery-ui/jquery-ui.min.js"></script>
 <script>
     $(function() {
-        var availableProducts = <?php echo $json_products ?>;
+        var availableProducts = <?php echo $json_products ?? '""' ?>;
 
         $("#name").autocomplete({
             source: availableProducts,
@@ -960,4 +987,40 @@ require_once "includes/footer.php";
             columnGap: 20
         }
     }
+</script>
+
+<script src="plugins/dragula/dragula.min.js"></script>
+<script>
+$(document).ready(function() {
+    var container = $('table#items tbody')[0];
+
+    dragula([container])
+        .on('drop', function (el, target, source, sibling) {
+            // Handle the drop event to update the order in the database
+            var rows = $(container).children();
+            var positions = rows.map(function(index, row) {
+                return {
+                    id: $(row).data('itemId'),
+                    order: index
+                };
+            }).get();
+
+            // Send the new order to the server
+            $.ajax({
+                url: 'ajax.php',
+                method: 'POST',
+                data: {
+                    update_quote_items_order: true,
+                    quote_id: <?php echo $quote_id; ?>,
+                    positions: positions
+                },
+                success: function(data) {
+                    // Handle success
+                },
+                error: function(error) {
+                    console.error('Error updating order:', error);
+                }
+            });
+        });
+});
 </script>

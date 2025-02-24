@@ -74,7 +74,7 @@
                 <?php } ?>
 
                 <li class="nav-item">
-                    <a href="calendar_events.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "calendar_events.php") { echo "active"; } ?>">
+                    <a href="calendar.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "calendar.php") { echo "active"; } ?>">
                         <i class="nav-icon fas fa-calendar-alt"></i>
                         <p>Calendar</p>
                     </a>
@@ -184,9 +184,19 @@
                     </li>
                 <?php } ?>
 
+                <?php if (lookupUserPermission("module_client") >= 1) { ?>
+                <li class="nav-item mt-3">
+                    <a href="contacts.php" class="nav-link">
+                        <i class="fas fa-users nav-icon"></i>
+                        <p>Client Overview</p>
+                        <i class="fas fa-angle-right nav-icon float-right"></i>
+                    </a>
+                </li>
+                <?php } ?>
+
                 <?php if (lookupUserPermission("module_reporting") >= 1) { ?>
                     <li class="nav-item mt-3">
-                        <a href="report_income_summary.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "report_income_summary.php") { echo "active"; } ?>">
+                        <a href="report_overview.php" class="nav-link">
                             <i class="fas fa-chart-line nav-icon"></i>
                             <p>Reports</p>
                             <i class="fas fa-angle-right nav-icon float-right"></i>

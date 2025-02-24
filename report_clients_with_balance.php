@@ -2,7 +2,7 @@
 
 require_once "includes/inc_all_reports.php";
 
-validateAccountantRole();
+enforceUserPermission('module_financial');
 
 ?>
 

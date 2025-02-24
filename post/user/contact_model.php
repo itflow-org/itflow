@@ -14,7 +14,7 @@ $contact_primary = intval($_POST['contact_primary'] ?? 0);
 $contact_important = intval($_POST['contact_important'] ?? 0);
 $contact_billing = intval($_POST['contact_billing'] ?? 0);
 $contact_technical = intval($_POST['contact_technical'] ?? 0);
-$location_id = intval($_POST['location']);
+$location_id = intval($_POST['location'] ?? 0);
 $pin = sanitizeInput($_POST['pin']);
 $auth_method = sanitizeInput($_POST['auth_method']);
 

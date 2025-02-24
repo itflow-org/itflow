@@ -20,7 +20,7 @@ if (!empty($name) && !empty($client_id)) {
         $insert_id = mysqli_insert_id($mysqli);
 
         // Add Primary Interface
-        mysqli_query($mysqli,"INSERT INTO asset_interfaces SET interface_name = 'Primary', interface_mac = '$mac', interface_ip = '$ip', interface_port = 'eth0', interface_primary = 1, interface_network_id = $network, interface_asset_id = $insert_id");
+        mysqli_query($mysqli,"INSERT INTO asset_interfaces SET interface_name = '1', interface_mac = '$mac', interface_ip = '$ip', interface_primary = 1, interface_network_id = $network, interface_asset_id = $insert_id");
 
         // Logging
         logAction("Asset", "Create", "$name via API ($api_key_name)", $client_id, $insert_id);
