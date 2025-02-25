@@ -295,10 +295,9 @@ if (isset($_POST['bulk_transfer_client_asset'])) {
             while ($row = mysqli_fetch_array($sql_interfaces)) {
                 $interface_name = sanitizeInput($row['interface_name']);
                 $interface_mac = sanitizeInput($row['interface_mac']);
-                $interface_port = sanitizeInput($row['interface_port']);
                 $interface_primary = intval($row['interface_primary']);
 
-                mysqli_query($mysqli,"INSERT INTO asset_interfaces SET interface_name = '$interface_name', interface_mac = '$interface_mac', interface_port = '$interface_port', interface_primary = $interface_primary, interface_asset_id = $new_asset_id");
+                mysqli_query($mysqli,"INSERT INTO asset_interfaces SET interface_name = '$interface_name', interface_mac = '$interface_mac',  interface_primary = $interface_primary, interface_asset_id = $new_asset_id");
 
             }
 
@@ -331,7 +330,7 @@ if (isset($_POST['bulk_transfer_client_asset'])) {
         $_SESSION['alert_message'] = "Transferred <strong>$asset_count</strong> assets to <strong>$new_client_name</strong>.";
     }
 
-    header("Location: client_assets.php?client_id=$new_client_id&asset_id=$new_asset_id");
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
 }
 
 if (isset($_POST['bulk_assign_asset_contact'])) {
