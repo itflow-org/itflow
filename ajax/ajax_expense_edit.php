@@ -131,7 +131,12 @@ ob_start();
                         ?>
                     </select>
                     <div class="input-group-append">
-                        <a class="btn btn-secondary" href="vendors.php" target="_blank"><i class="fas fa-fw fa-plus"></i></a>
+                        <button class="btn btn-secondary" type="button"
+                            data-toggle="ajax-modal"
+                            data-modal-size="sm"
+                            data-ajax-url="ajax/ajax_category_add.php?category=Expense">
+                            <i class="fas fa-plus"></i>
+                        </button>
                     </div>
                 </div>
             </div>
@@ -176,7 +181,12 @@ ob_start();
                         ?>
                     </select>
                     <div class="input-group-append">
-                        <a class="btn btn-secondary" href="admin_category.php?category=Expense" target="_blank"><i class="fas fa-fw fa-plus"></i></a>
+                        <button class="btn btn-secondary" type="button"
+                            data-toggle="ajax-modal"
+                            data-modal-size="sm"
+                            data-ajax-url="ajax/ajax_category_add.php?category=Expense">
+                            <i class="fas fa-plus"></i>
+                        </button>
                     </div>
                 </div>
             </div>

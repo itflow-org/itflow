@@ -59,7 +59,12 @@ ob_start();
                     ?>
                 </select>
                 <div class="input-group-append">
-                    <a class="btn btn-secondary" href="admin_category.php?category=Income" target="_blank"><i class="fas fa-fw fa-plus"></i></a>
+                    <button class="btn btn-secondary" type="button"
+                        data-toggle="ajax-modal"
+                        data-modal-size="sm"
+                        data-ajax-url="ajax/ajax_category_add.php?category=Income">
+                        <i class="fas fa-fw fa-plus"></i>
+                    </button>
                 </div>
             </div>
         </div>

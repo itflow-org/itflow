@@ -67,8 +67,8 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             </div>
                         </div>
                     </div>
-                    <div class="col-sm-2">
-                        <div class="form-group">
+                    <div class="col-sm-3">
+                        <div class="input-group">
                             <select class="form-control select2" name="category" onchange="this.form.submit()">
                                 <option value="">- All Categories -</option>
 
@@ -84,9 +84,17 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 ?>
 
                             </select>
+                            <div class="input-group-append">
+                                <button class="btn btn-secondary" type="button"
+                                    data-toggle="ajax-modal"
+                                    data-modal-size="sm"
+                                    data-ajax-url="ajax/ajax_category_add.php?category=Income">
+                                    <i class="fas fa-plus"></i>
+                                </button>
+                            </div>
                         </div>
                     </div>
-                    <div class="col-md-6">
+                    <div class="col-md-5">
                         <div class="btn-group float-right">
                             <a href="?<?php echo $url_query_strings_sort ?>&archived=<?php if($archived == 1){ echo 0; } else { echo 1; } ?>" 
                                 class="btn btn-<?php if($archived == 1){ echo "primary"; } else { echo "default"; } ?>">
