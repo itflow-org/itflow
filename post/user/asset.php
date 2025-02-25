@@ -495,6 +495,248 @@ if (isset($_POST['bulk_unarchive_assets'])) {
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 }
 
+// BEGIN LINKING
+
+if (isset($_POST['link_software_to_asset'])) {
+
+    enforceUserPermission('module_support', 2);
+
+    $software_id = intval($_POST['software_id']);
+    $asset_id = intval($_POST['asset_id']);
+
+    // Get software Name and Client ID for logging
+    $sql_software = mysqli_query($mysqli,"SELECT software_name, software_client_id FROM software WHERE software_id = $software_id");
+    $row = mysqli_fetch_array($sql_software);
+    $software_name = sanitizeInput($row['software_name']);
+    $client_id = intval($row['software_client_id']);
+
+    // Get Asset Name for logging
+    $sql_asset = mysqli_query($mysqli,"SELECT asset_name FROM assets WHERE asset_id = $asset_id");
+    $row = mysqli_fetch_array($sql_asset);
+    $asset_name = sanitizeInput($row['asset_name']);
+
+    mysqli_query($mysqli,"INSERT INTO software_assets SET asset_id = $asset_id, software_id = $software_id");
+
+    // Logging
+    logAction("Software", "Link", "$session_name added software license $software_name to asset $asset_name", $client_id, $software_id);
+
+    $_SESSION['alert_message'] = "Software <strong>$software_name</strong> licensed for asset <strong>$asset_name</strong>";
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
+if (isset($_GET['unlink_software_from_asset'])) {
+
+    enforceUserPermission('module_support', 2);
+
+    $asset_id = intval($_GET['asset_id']);
+    $software_id = intval($_GET['software_id']);
+
+    // Get software Name and Client ID for logging
+    $sql_software = mysqli_query($mysqli,"SELECT software_name, software_client_id FROM software WHERE software_id = $software_id");
+    $row = mysqli_fetch_array($sql_software);
+    $software_name = sanitizeInput($row['software_name']);
+    $client_id = intval($row['software_client_id']);
+
+    // Get Asset Name for logging
+    $sql_asset = mysqli_query($mysqli,"SELECT asset_name FROM assets WHERE asset_id = $asset_id");
+    $row = mysqli_fetch_array($sql_asset);
+    $asset_name = sanitizeInput($row['asset_name']);
+
+    mysqli_query($mysqli,"DELETE FROM software_assets WHERE asset_id = $asset_id AND software_id = $software_id");
+
+    //Logging
+    logAction("software", "Unlink", "$session_name removed software license $software_name from asset $asset_name", $client_id, $software_id);
+
+    $_SESSION['alert_type'] = "error";
+    $_SESSION['alert_message'] = "Removed Software License <strong>$software_name</strong> for Asset <strong>$asset_name</strong>";
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+// Right now 1 login and have many assets but not many to many
+if (isset($_POST['link_asset_to_credential'])) {
+
+    enforceUserPermission('module_support', 2);
+
+    $login_id = intval($_POST['login_id']);
+    $asset_id = intval($_POST['asset_id']);
+
+    // Get login Name and Client ID for logging
+    $sql_login = mysqli_query($mysqli,"SELECT login_name, login_client_id FROM logins WHERE login_id = $login_id");
+    $row = mysqli_fetch_array($sql_login);
+    $login_name = sanitizeInput($row['login_name']);
+    $client_id = intval($row['login_client_id']);
+
+    // Get Asset Name for logging
+    $sql_asset = mysqli_query($mysqli,"SELECT asset_name FROM assets WHERE asset_id = $asset_id");
+    $row = mysqli_fetch_array($sql_asset);
+    $asset_name = sanitizeInput($row['asset_name']);
+
+    mysqli_query($mysqli,"UPDATE logins SET login_asset_id = $asset_id WHERE login_id = $login_id");
+
+    // Logging
+    logAction("Credential", "Link", "$session_name linked credential $login_name to asset $asset_name", $client_id, $login_id);
+
+    $_SESSION['alert_message'] = "Asset <strong>$asset_name</strong> linked with credential <strong>$login_name</strong>";
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
+if (isset($_GET['unlink_credential_from_asset'])) {
+
+    enforceUserPermission('module_support', 2);
+
+    $asset_id = intval($_GET['asset_id']);
+    $login_id = intval($_GET['login_id']);
+
+    // Get login Name and Client ID for logging
+    $sql_login = mysqli_query($mysqli,"SELECT login_name, login_client_id FROM logins WHERE login_id = $login_id");
+    $row = mysqli_fetch_array($sql_login);
+    $login_name = sanitizeInput($row['login_name']);
+    $client_id = intval($row['login_client_id']);
+
+    // Get Asset Name for logging
+    $sql_asset = mysqli_query($mysqli,"SELECT asset_name FROM assets WHERE asset_id = $asset_id");
+    $row = mysqli_fetch_array($sql_asset);
+    $asset_name = sanitizeInput($row['asset_name']);
+
+    mysqli_query($mysqli,"UPDATE logins SET login_asset_id = 0 WHERE login_id = $login_id");
+
+    //Logging
+    logAction("Credential", "Unlink", "$session_name unlinked asset $asset_name from credential $login_name", $client_id, $login_id);
+
+    $_SESSION['alert_type'] = "error";
+    $_SESSION['alert_message'] = "Credential <strong>$login_name</strong> unlinked from Asset <strong>$asset_name</strong>";
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
+if (isset($_POST['link_service_to_asset'])) {
+
+    enforceUserPermission('module_support', 2);
+
+    $service_id = intval($_POST['service_id']);
+    $asset_id = intval($_POST['asset_id']);
+
+    // Get service Name and Client ID for logging
+    $sql_service = mysqli_query($mysqli,"SELECT service_name, service_client_id FROM services WHERE service_id = $service_id");
+    $row = mysqli_fetch_array($sql_service);
+    $service_name = sanitizeInput($row['service_name']);
+    $client_id = intval($row['service_client_id']);
+
+    // Get Asset Name for logging
+    $sql_asset = mysqli_query($mysqli,"SELECT asset_name FROM assets WHERE asset_id = $asset_id");
+    $row = mysqli_fetch_array($sql_asset);
+    $asset_name = sanitizeInput($row['asset_name']);
+
+    mysqli_query($mysqli,"INSERT INTO service_assets SET asset_id = $asset_id, service_id = $service_id");
+
+    // Logging
+    logAction("Service", "Link", "$session_name linked asset $asset_name to service $service_name", $client_id, $service_id);
+
+    $_SESSION['alert_message'] = "Service <strong>$service_name</strong> linked with asset <strong>$asset_name</strong>";
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
+if (isset($_GET['unlink_service_from_asset'])) {
+
+    enforceUserPermission('module_support', 2);
+
+    $asset_id = intval($_GET['asset_id']);
+    $service_id = intval($_GET['service_id']);
+
+    // Get service Name and Client ID for logging
+    $sql_service = mysqli_query($mysqli,"SELECT service_name, service_client_id FROM services WHERE service_id = $service_id");
+    $row = mysqli_fetch_array($sql_service);
+    $service_name = sanitizeInput($row['service_name']);
+    $client_id = intval($row['service_client_id']);
+
+    // Get Asset Name for logging
+    $sql_asset = mysqli_query($mysqli,"SELECT asset_name FROM assets WHERE asset_id = $asset_id");
+    $row = mysqli_fetch_array($sql_asset);
+    $asset_name = sanitizeInput($row['asset_name']);
+
+    mysqli_query($mysqli,"DELETE FROM service_assets WHERE asset_id = $asset_id AND service_id = $service_id");
+
+    //Logging
+    logAction("Service", "Unlink", "$session_name unlinked asset $asset_name from service $service_name", $client_id, $service_id);
+
+    $_SESSION['alert_type'] = "error";
+    $_SESSION['alert_message'] = "Asset <strong>$asset_name</strong> unlinked from service <strong>$service_name</strong>";
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
+if (isset($_POST['link_asset_to_file'])) {
+
+    enforceUserPermission('module_support', 2);
+
+    $file_id = intval($_POST['file_id']);
+    $asset_id = intval($_POST['asset_id']);
+
+    // Get file Name and Client ID for logging
+    $sql_file = mysqli_query($mysqli,"SELECT file_name, file_client_id FROM files WHERE file_id = $file_id");
+    $row = mysqli_fetch_array($sql_file);
+    $file_name = sanitizeInput($row['file_name']);
+    $client_id = intval($row['file_client_id']);
+
+    // Get Asset Name for logging
+    $sql_asset = mysqli_query($mysqli,"SELECT asset_name FROM assets WHERE asset_id = $asset_id");
+    $row = mysqli_fetch_array($sql_asset);
+    $asset_name = sanitizeInput($row['asset_name']);
+
+    // asset add query
+    mysqli_query($mysqli,"INSERT INTO asset_files SET asset_id = $asset_id, file_id = $file_id");
+
+    // Logging
+    logAction("File", "Link", "$session_name linked asset $asset_name to file $file_name", $client_id, $file_id);
+
+    $_SESSION['alert_message'] = "Asset <strong>$asset_name</strong> linked with File <strong>$file_name</strong>";
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
+if (isset($_GET['unlink_asset_from_file'])) {
+
+    enforceUserPermission('module_support', 2);
+
+    $asset_id = intval($_GET['asset_id']);
+    $file_id = intval($_GET['file_id']);
+
+    // Get file Name and Client ID for logging
+    $sql_file = mysqli_query($mysqli,"SELECT file_name, file_client_id FROM files WHERE file_id = $file_id");
+    $row = mysqli_fetch_array($sql_file);
+    $file_name = sanitizeInput($row['file_name']);
+    $client_id = intval($row['file_client_id']);
+
+    // Get Asset Name for logging
+    $sql_asset = mysqli_query($mysqli,"SELECT asset_name FROM assets WHERE asset_id = $asset_id");
+    $row = mysqli_fetch_array($sql_asset);
+    $asset_name = sanitizeInput($row['asset_name']);
+
+    mysqli_query($mysqli,"DELETE FROM asset_files WHERE asset_id = $asset_id AND file_id = $file_id");
+
+    //Logging
+    logAction("File", "Unlink", "$session_name unlinked asset $asset_name from file $file_name", $client_id, $file_id);
+
+    $_SESSION['alert_type'] = "error";
+    $_SESSION['alert_message'] = "Asset <strong>$asset_name</strong> unlinked from file <strong>$file_name</strong>";
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
+// END LINKING
+
+
 if (isset($_POST["import_assets_csv"])) {
 
     enforceUserPermission('module_support', 2);

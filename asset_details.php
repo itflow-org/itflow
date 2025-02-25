@@ -217,6 +217,16 @@ if (isset($_GET['asset_id'])) {
 
     $software_count = mysqli_num_rows($sql_related_software);
 
+    // Linked Services
+    $sql_linked_services = mysqli_query($mysqli, "SELECT * FROM service_assets, services
+        WHERE service_assets.asset_id = $asset_id 
+        AND service_assets.service_id = services.service_id
+        ORDER BY service_name ASC"
+    );
+    $service_count = mysqli_num_rows($sql_linked_services);
+
+    $linked_services = array();
+
     ?>
 
     <div class="row">
@@ -357,28 +367,24 @@ if (isset($_GET['asset_id'])) {
                 <div class="dropdown dropleft">
                     <button type="button" class="btn btn-outline-primary" data-toggle="dropdown"><i class="fas fa-link mr-2"></i>Link</button>
                     <div class="dropdown-menu">
-                        <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#linkAssetModal">
-                            <i class="fa fa-fw fa-desktop mr-2"></i>Asset (WIP)
-                        </a>
-                        <div class="dropdown-divider"></div>
                         <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#linkSoftwareModal">
-                            <i class="fa fa-fw fa-cube mr-2"></i>License (WIP)
+                            <i class="fa fa-fw fa-cube mr-2"></i>License
                         </a>
                         <div class="dropdown-divider"></div>
                         <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#linkCredentialModal">
-                            <i class="fa fa-fw fa-key mr-2"></i>Credential (WIP)
+                            <i class="fa fa-fw fa-key mr-2"></i>Credential
                         </a>
                         <div class="dropdown-divider"></div>
                         <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#linkServiceModal">
-                            <i class="fa fa-fw fa-stream mr-2"></i>Service (WIP)
+                            <i class="fa fa-fw fa-stream mr-2"></i>Service
                         </a>
                         <div class="dropdown-divider"></div>
                         <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#linkDocumentModal">
-                            <i class="fa fa-fw fa-folder mr-2"></i>Document (WIP)
+                            <i class="fa fa-fw fa-folder mr-2"></i>Document
                         </a>
                         <div class="dropdown-divider"></div>
                         <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#linkFileModal">
-                            <i class="fa fa-fw fa-paperclip mr-2"></i>File (WIP)
+                            <i class="fa fa-fw fa-paperclip mr-2"></i>File
                         </a>
                         
                         
@@ -623,6 +629,10 @@ if (isset($_GET['asset_id'])) {
                                                 <a class="dropdown-item" href="#" data-toggle="modal" data-target="#shareModal" onclick="populateShareModal(<?php echo "$client_id, 'Login', $login_id"; ?>)">
                                                     <i class="fas fa-fw fa-share-alt mr-2"></i>Share
                                                 </a>
+                                                <div class="dropdown-divider"></div>
+                                                <a class="dropdown-item" href="post.php?unlink_credential_from_asset&asset_id=<?php echo $asset_id; ?>&login_id=<?php echo $login_id; ?>">
+                                                    <i class="fas fa-fw fa-unlink mr-2"></i>Unlink
+                                                </a>
                                                 <?php if ($session_user_role == 3) { ?>
                                                     <div class="dropdown-divider"></div>
                                                     <a class="dropdown-item text-danger text-bold" href="post.php?delete_login=<?php echo $login_id; ?>">
@@ -660,6 +670,7 @@ if (isset($_GET['asset_id'])) {
                                 <th>Type</th>
                                 <th>License Type</th>
                                 <th>Seats</th>
+                                <th class="text-center">Action</th>
                             </tr>
                             </thead>
                             <tbody>
@@ -702,6 +713,8 @@ if (isset($_GET['asset_id'])) {
                                 }
                                 $contact_licenses = implode(',', $contact_licenses_array);
 
+                                $linked_software[] = $software_id;
+
                                 ?>
                                 <tr>
                                     <td>
@@ -716,6 +729,9 @@ if (isset($_GET['asset_id'])) {
                                     <td><?php echo $software_type; ?></td>
                                     <td><?php echo $software_license_type; ?></td>
                                     <td><?php echo "$seat_count / $software_seats"; ?></td>
+                                    <td class="text-center">
+                                        <a href="post.php?unlink_software_from_asset&asset_id=<?php echo $asset_id; ?>&software_id=<?php echo $software_id; ?>" class="btn btn-secondary btn-sm" title="Unlink"><i class="fas fa-fw fa-unlink"></i></a>
+                                    </td>
                                 </tr>
 
                                 <?php
@@ -826,7 +842,7 @@ if (isset($_GET['asset_id'])) {
                             <tr>
                                 <th>Name</th>
                                 <th>Uploaded</th>
-                                
+                                <th class="text-center">Action</th>
                             </tr>
                             </thead>
                             <tbody>
@@ -862,10 +878,16 @@ if (isset($_GET['asset_id'])) {
                                     $file_icon = "file";
                                 }
                                 $file_created_at = nullable_htmlentities($row['file_created_at']);
+
+                                $linked_files[] = $file_id;
+
                                 ?>
                                 <tr>
                                     <td><a class="text-dark" href="<?php echo "uploads/clients/$client_id/$file_reference_name"; ?>" target="_blank" ><?php echo "$file_name<br><span class='text-secondary'>$file_description</span>"; ?></a></td>
                                     <td><?php echo $file_created_at; ?></td>
+                                    <td class="text-center">
+                                        <a href="post.php?unlink_asset_from_file&asset_id=<?php echo $asset_id; ?>&file_id=<?php echo $file_id; ?>" class="btn btn-secondary btn-sm" title="Unlink"><i class="fas fa-fw fa-unlink"></i></a>
+                                    </td>
                                 </tr>
 
                                 <?php
@@ -1048,6 +1070,64 @@ if (isset($_GET['asset_id'])) {
                 </div>
             </div>
 
+            <div class="card card-dark <?php if ($service_count == 0) { echo "d-none"; } ?>">
+                <div class="card-header py-2">
+                    <h3 class="card-title mt-2"><i class="fa fa-fw fa-stream mr-2"></i>Linked Services</h3>
+                    <div class="card-tools">
+                        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#linkServiceModal">
+                            <i class="fas fa-link mr-2"></i>Link Service
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive-sm">
+                        <table class="table table-striped table-borderless table-hover dataTables" style="width:100%">
+                            <thead class="text-dark">
+                            <tr>
+                                <th>Service</th>
+                                <th>Category</th>
+                                <th>Importance</th>
+                                <th class="text-center">Action</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <?php
+
+                            while ($row = mysqli_fetch_array($sql_linked_services)) {
+                                $service_id = intval($row['service_id']);
+                                $service_name = nullable_htmlentities($row['service_name']);
+                                $service_description = nullable_htmlentities($row['service_description']);
+                                $service_category = nullable_htmlentities($row['service_category']);
+                                $service_importance = nullable_htmlentities($row['service_importance']);
+
+                                $linked_services[] = $service_id;
+
+                                ?>
+
+                                <tr>
+                                    <td>
+                                        <div><?php echo $service_name; ?></div>
+                                        <div class="text-secondary"><?php echo $service_description; ?></div>
+                                    </td>
+                                    <td><?php echo $service_category; ?></td>
+                                    <td><?php echo $service_importance; ?></td>
+                                    <td class="text-center">
+                                        <a href="post.php?unlink_service_from_asset&asset_id=<?php echo $asset_id; ?>&service_id=<?php echo $service_id; ?>" class="btn btn-secondary btn-sm" title="Unlink"><i class="fas fa-fw fa-unlink"></i></a>
+                                    </td>
+                                </tr>
+
+                                <?php
+
+                            }
+
+                            ?>
+
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
         </div>
 
     </div>
@@ -1102,4 +1182,11 @@ require_once "modals/asset_interface_import_modal.php";
 require_once "modals/asset_interface_export_modal.php";
 require_once "modals/ticket_add_modal.php";
 require_once "modals/recurring_ticket_add_modal.php";
+
+require_once "modals/asset_link_software_modal.php";
+require_once "modals/asset_link_credential_modal.php";
+require_once "modals/asset_link_service_modal.php";
+require_once "modals/asset_link_document_modal.php";
+require_once "modals/asset_link_file_modal.php";
+
 require_once "includes/footer.php";
