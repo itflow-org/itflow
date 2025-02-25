@@ -1409,3 +1409,8 @@ function logAuth($status, $details) {
 
     mysqli_query($mysqli, "INSERT INTO auth_logs SET auth_log_status = $status, auth_log_details = '$details', auth_log_ip = '$session_ip', auth_log_user_agent = '$session_user_agent', auth_log_user_id = $session_user_id");
 }
+
+// Helper function for missing data fallback
+function getFallback($data) {
+    return !empty($data) ? $data : '<span class="text-muted">N/A</span>';
+}

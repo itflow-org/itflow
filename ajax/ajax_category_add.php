@@ -7,7 +7,7 @@ $category = nullable_htmlentities($_GET['category']);
 ?>
 
 <div class="modal-header">
-    <h5 class="modal-title"><i class="fa fa-fw fa-list-ul mr-2"></i>New <?php echo $category; ?> Category</h5>
+    <h5 class="modal-title"><i class="fa fa-fw fa-list-ul mr-2"></i>New Category</h5>
     <button type="button" class="close text-white" data-dismiss="modal">
         <span>&times;</span>
     </button>

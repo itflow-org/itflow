@@ -22,9 +22,13 @@ enforceUserPermission('module_support');
 $url_query_strings_sort = http_build_query($get_copy);
 
 $sql = mysqli_query($mysqli, "SELECT SQL_CALC_FOUND_ROWS domains.*, clients.*,
+    registrar.vendor_id AS registrar_id,
     registrar.vendor_name AS registrar_name,
+    dnshost.vendor_id AS dnshost_id,
     dnshost.vendor_name AS dnshost_name,
+    mailhost.vendor_id AS mailhost_id,
     mailhost.vendor_name AS mailhost_name,
+    webhost.vendor_id AS webhost_id,
     webhost.vendor_name AS webhost_name
     FROM domains
     LEFT JOIN clients ON client_id = domain_client_id
@@ -191,12 +195,11 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             } else {
                                 $tr_class = '';
                             }
+                            $domain_registrar_id = intval($row['registrar_id']);
+                            $domain_webhost_id = intval($row['webhost_id']);
+                            $domain_dnshost_id = intval($row['dnshost_id']);
+                            $domain_mailhost_id = intval($row['mailhost_id']);
                             $domain_registrar_name = nullable_htmlentities($row['registrar_name']);
-                            if($domain_registrar_name) {
-                                $domain_registrar_name_display = $domain_registrar_name;
-                            } else {
-                                $domain_registrar_name_display = "-";
-                            }
                             $domain_webhost_name = nullable_htmlentities($row['webhost_name']);
                             $domain_dnshost_name = nullable_htmlentities($row['dnshost_name']);
                             $domain_mailhost_name = nullable_htmlentities($row['mailhost_name']);
@@ -205,10 +208,26 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             $client_id = intval($row['domain_client_id']);
                             $client_name = nullable_htmlentities($row['client_name']);
                             // Add - if empty on the table
-                            $domain_registrar_name_display = $domain_registrar_name ? $domain_registrar_name : "-";
-                            $domain_webhost_name_display = $domain_webhost_name ? $domain_webhost_name : "-";
-                            $domain_dnshost_name_display = $domain_dnshost_name ? $domain_dnshost_name : "-";
-                            $domain_mailhost_name_display = $domain_mailhost_name ? $domain_mailhost_name : "-";
+                            $domain_registrar_name_display = $domain_registrar_name ? "
+                                <a href='#' data-toggle='ajax-modal'
+                                    data-ajax-url='ajax/ajax_vendor_details.php' data-ajax-id='$domain_registrar_id'>
+                                    $domain_registrar_name
+                                </a>" : "-";
+                            $domain_webhost_name_display = $domain_webhost_name ? "
+                                <a href='#' data-toggle='ajax-modal'
+                                    data-ajax-url='ajax/ajax_vendor_details.php' data-ajax-id='$domain_webhost_id'>
+                                    $domain_webhost_name
+                                </a>" : "-";
+                            $domain_dnshost_name_display = $domain_dnshost_name ? "
+                                <a href='#' data-toggle='ajax-modal'
+                                    data-ajax-url='ajax/ajax_vendor_details.php' data-ajax-id='$domain_dnshost_id'>
+                                    $domain_dnshost_name
+                                </a>" : "-";
+                            $domain_mailhost_name_display = $domain_mailhost_name ? "
+                                <a href='#' data-toggle='ajax-modal'
+                                    data-ajax-url='ajax/ajax_vendor_details.php' data-ajax-id='$domain_mailhost_id'>
+                                    $domain_mailhost_name
+                                </a>" : "-";
 
                             ?>
                             <tr class="<?php echo $tr_class; ?>">
