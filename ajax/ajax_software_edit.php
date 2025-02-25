@@ -18,6 +18,7 @@ $software_purchase = nullable_htmlentities($row['software_purchase']);
 $software_expire = nullable_htmlentities($row['software_expire']);
 $software_notes = nullable_htmlentities($row['software_notes']);
 $software_created_at = nullable_htmlentities($row['software_created_at']);
+$software_vendor_id = intval($row['software_vendor_id']);
 $client_id = intval($row['software_client_id']);
 $seat_count = 0;
 
@@ -104,6 +105,28 @@ ob_start();
                             <span class="input-group-text"><i class="fa fa-fw fa-angle-right"></i></span>
                         </div>
                         <input type="text" class="form-control" name="description" placeholder="Short description" value="<?php echo $software_description; ?>">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Vendor</label>
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text"><i class="fa fa-fw fa-building"></i></span>
+                        </div>
+                        <select class="form-control select2" name="vendor">
+                            <option value="">- Select Vendor -</option>
+                            <?php
+                            $vendor_sql = mysqli_query($mysqli, "SELECT vendor_id, vendor_name FROM vendors WHERE vendor_client_id = $client_id AND vendor_archived_at IS NULL ORDER BY vendor_name ASC");
+                                while ($row = mysqli_fetch_array($vendor_sql)) {
+                                    $vendor_id = $row['vendor_id'];
+                                    $vendor_name = $row['vendor_name'];
+                                ?>
+                                <option <?php if ($software_vendor_id == $vendor_id) { echo "selected"; } ?> value="<?php echo $vendor_id; ?>"><?php echo $vendor_name; ?></option>
+                            <?php 
+                            }
+                            ?>
+                        </select>
                     </div>
                 </div>
 
