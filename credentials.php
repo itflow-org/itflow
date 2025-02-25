@@ -293,9 +293,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             $login_archived_at = nullable_htmlentities($row['login_archived_at']);
                             $login_important = intval($row['login_important']);
                             $login_contact_id = intval($row['login_contact_id']);
-                            $login_vendor_id = intval($row['login_vendor_id']);
                             $login_asset_id = intval($row['login_asset_id']);
-                            $login_software_id = intval($row['login_software_id']);
 
                             // Tags
                             $login_tag_name_display_array = array();

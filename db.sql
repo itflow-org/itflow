@@ -1033,9 +1033,7 @@ CREATE TABLE `logins` (
   `login_password_changed_at` datetime DEFAULT current_timestamp(),
   `login_folder_id` int(11) NOT NULL DEFAULT 0,
   `login_contact_id` int(11) NOT NULL DEFAULT 0,
-  `login_vendor_id` int(11) NOT NULL DEFAULT 0,
   `login_asset_id` int(11) NOT NULL DEFAULT 0,
-  `login_software_id` int(11) NOT NULL DEFAULT 0,
   `login_client_id` int(11) NOT NULL DEFAULT 0,
   PRIMARY KEY (`login_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -1813,7 +1811,7 @@ CREATE TABLE `software` (
   `software_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
   `software_archived_at` datetime DEFAULT NULL,
   `software_accessed_at` datetime DEFAULT NULL,
-  `software_login_id` int(11) NOT NULL DEFAULT 0,
+  `software_vendor_id` int(11) DEFAULT 0,
   `software_client_id` int(11) NOT NULL,
   `software_template_id` int(11) NOT NULL DEFAULT 0,
   PRIMARY KEY (`software_id`)
@@ -2363,4 +2361,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-02-18 17:21:45
+-- Dump completed on 2025-02-24 21:23:33

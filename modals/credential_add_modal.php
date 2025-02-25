@@ -172,30 +172,6 @@
                             </div>
 
                             <div class="form-group">
-                                <label>Vendor</label>
-                                <div class="input-group">
-                                    <div class="input-group-prepend">
-                                        <span class="input-group-text"><i class="fa fa-fw fa-building"></i></span>
-                                    </div>
-                                    <select class="form-control select2" name="vendor">
-                                        <option value="">- Vendor -</option>
-                                        <?php
-
-                                        $sql_vendors = mysqli_query($mysqli, "SELECT * FROM vendors WHERE vendor_client_id = $client_id ORDER BY vendor_name ASC");
-                                        while ($row = mysqli_fetch_array($sql_vendors)) {
-                                            $vendor_id = intval($row['vendor_id']);
-                                            $vendor_name = nullable_htmlentities($row['vendor_name']);
-                                            ?>
-                                            <option value="<?php echo $vendor_id; ?>"><?php echo $vendor_name; ?></option>
-
-                                            <?php
-                                        }
-                                        ?>
-                                    </select>
-                                </div>
-                            </div>
-
-                            <div class="form-group">
                                 <label>Asset</label>
                                 <div class="input-group">
                                     <div class="input-group-prepend">
@@ -225,31 +201,6 @@
                                     </select>
                                 </div>
                             </div>
-
-                            <div class="form-group">
-                                <label>Software</label>
-                                <div class="input-group">
-                                    <div class="input-group-prepend">
-                                        <span class="input-group-text"><i class="fa fa-fw fa-box"></i></span>
-                                    </div>
-                                    <select class="form-control select2" name="software">
-                                        <option value="">- Software -</option>
-                                        <?php
-
-                                        $sql = mysqli_query($mysqli, "SELECT * FROM software WHERE software_client_id = $client_id ORDER BY software_name ASC");
-                                        while ($row = mysqli_fetch_array($sql)) {
-                                            $software_id = intval($row['software_id']);
-                                            $software_name = nullable_htmlentities($row['software_name']);
-                                            ?>
-                                            <option value="<?php echo $software_id; ?>"><?php echo $software_name; ?></option>
-
-                                            <?php
-                                        }
-                                        ?>
-                                    </select>
-                                </div>
-                            </div>
-
                         </div>
                         <?php } ?>
 
