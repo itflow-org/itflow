@@ -22,6 +22,7 @@ $sql = mysqli_query(
     $mysqli,
     "SELECT SQL_CALC_FOUND_ROWS * FROM software
     LEFT JOIN clients ON client_id = software_client_id
+    LEFT JOIN vendors ON vendor_id = software_vendor_id
     WHERE software_template = 0
     AND software_$archive_query
     AND (software_name LIKE '%$q%' OR software_type LIKE '%$q%' OR software_key LIKE '%$q%' OR client_name LIKE '%$q%')
@@ -114,6 +115,11 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 Expire <?php if ($sort == 'software_expire') { echo $order_icon; } ?>
                             </a>
                         </th>
+                        <th>
+                            <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=vendor_name&order=<?php echo $disp; ?>">
+                                Vendor <?php if ($sort == 'vendor_name') { echo $order_icon; } ?>
+                            </a>
+                        </th>
                         <?php if (!$client_url) { ?>
                         <th>
                             <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=client_name&order=<?php echo $disp; ?>">
@@ -135,11 +141,16 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         $software_description = nullable_htmlentities($row['software_description']);
                         $software_version = nullable_htmlentities($row['software_version']);
                         $software_type = nullable_htmlentities($row['software_type']);
-                        $software_license_type = nullable_htmlentities($row['software_license_type']);
-                        $software_key = nullable_htmlentities($row['software_key']);
+                        $software_license_type = getFallBack(nullable_htmlentities($row['software_license_type']));
                         $software_seats = nullable_htmlentities($row['software_seats']);
-                        $software_purchase = nullable_htmlentities($row['software_purchase']);
                         $software_expire = nullable_htmlentities($row['software_expire']);
+                        $vendor_name = nullable_htmlentities($row['vendor_name']);
+                        $vendor_id = intval($row['vendor_id']);
+                        if ($vendor_name) {
+                            $vendor_display = "<a href='#' data-toggle='ajax-modal' data-ajax-url='ajax/ajax_vendor_details.php' data-ajax-id='$vendor_id'>$vendor_name</a>";
+                        } else {
+                            $vendor_display = "<span class='text-muted'>N/A</span>";
+                        }
                         if ($software_expire) {
                             $software_expire_ago = timeAgo($software_expire);
                             $software_expire_display = "<div>$software_expire</div><div><small>$software_expire_ago</small></div>";
@@ -154,19 +165,18 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             // Determine the class based on the number of days until expiry
                             if ($days_until_expiry <= 0) {
                                 $tr_class = "table-secondary";
-                            } elseif ($days_until_expiry <= 14) {
+                            } elseif ($days_until_expiry <= 7) {
                                 $tr_class = "table-danger";
-                            } elseif ($days_until_expiry <= 90) {
+                            } elseif ($days_until_expiry <= 45) {
                                 $tr_class = "table-warning";    
                             } else {
                                 $tr_class = '';
                             }
                             
                         } else {
-                            $software_expire_display = "-";
+                            $software_expire_display = "<span class='text-muted'>N/A</span>";
                         }
      
-                        $software_notes = nullable_htmlentities($row['software_notes']);
                         $software_created_at = nullable_htmlentities($row['software_created_at']);
 
                         $seat_count = 0;
@@ -212,6 +222,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             <td><?php echo $software_license_type; ?></td>
                             <td><?php echo "$seat_count / $software_seats"; ?></td>
                             <td><?php echo $software_expire_display; ?></td>
+                            <td><?php echo $vendor_display; ?></td>
                             <?php if (!$client_url) { ?>
                             <td><a href="software.php?client_id=<?php echo $client_id; ?>"><?php echo $client_name; ?></a></td>
                             <?php } ?>

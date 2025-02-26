@@ -171,6 +171,16 @@
                             </div>
 
                             <div class="form-group">
+                                <label>Purchase Reference</label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text"><i class="fa fa-fw fa-shopping-cart"></i></span>
+                                    </div>
+                                    <input type="text" class="form-control" name="purchase_reference" placeholder="eg. Invoice, PO Number">
+                                </div>
+                            </div>
+
+                            <div class="form-group">
                                 <label>Purchase Date</label>
                                 <div class="input-group">
                                     <div class="input-group-prepend">

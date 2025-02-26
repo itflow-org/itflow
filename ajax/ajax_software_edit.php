@@ -14,6 +14,7 @@ $software_type = nullable_htmlentities($row['software_type']);
 $software_license_type = nullable_htmlentities($row['software_license_type']);
 $software_key = nullable_htmlentities($row['software_key']);
 $software_seats = nullable_htmlentities($row['software_seats']);
+$software_purchase_reference = nullable_htmlentities($row['software_purchase_reference']);
 $software_purchase = nullable_htmlentities($row['software_purchase']);
 $software_expire = nullable_htmlentities($row['software_expire']);
 $software_notes = nullable_htmlentities($row['software_notes']);
@@ -180,6 +181,16 @@ ob_start();
                             <span class="input-group-text"><i class="fa fa-fw fa-key"></i></span>
                         </div>
                         <input type="text" class="form-control" name="key" placeholder="License key" maxlength="200" value="<?php echo $software_key; ?>">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Purchase Reference</label>
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text"><i class="fa fa-fw fa-shopping-cart"></i></span>
+                        </div>
+                        <input type="text" class="form-control" name="purchase_reference" placeholder="eg. Invoice, PO Number" value="<?php echo $software_purchase_reference; ?>">
                     </div>
                 </div>
 
