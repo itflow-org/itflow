@@ -268,6 +268,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 Location <?php if ($sort == 'location_name') { echo $order_icon; } ?>
                             </a>
                         </th>
+                        <th></th>
                         <?php if (!$client_url) { ?>
                         <th>
                             <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=client_name&order=<?php echo $disp; ?>">
@@ -275,7 +276,6 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             </a>
                         </th>
                         <?php } ?>
-                        <th></th>
                         <th class="text-center">Action</th>
                     </tr>
                     </thead>
@@ -356,7 +356,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         $sql_related_assets = mysqli_query($mysqli, "SELECT * FROM assets WHERE asset_contact_id = $contact_id ORDER BY asset_id DESC");
                         $asset_count = mysqli_num_rows($sql_related_assets);
                         if ($asset_count) { 
-                            $asset_count_display = "<span class='mr-2 badge badge-pill badge-dark p-2' title='$asset_count Assets'><i class='fas fa-desktop mr-2'></i>$asset_count</span>";
+                            $asset_count_display = "<span class='mr-2 badge badge-pill badge-dark p-2' title='$asset_count Assets'><i class='fas fa-fw fa-desktop mr-2'></i>$asset_count</span>";
                         } else {
                             $asset_count_display = '';
                         }
@@ -365,7 +365,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         $sql_related_logins = mysqli_query($mysqli, "SELECT * FROM logins WHERE login_contact_id = $contact_id ORDER BY login_id DESC");
                         $login_count = mysqli_num_rows($sql_related_logins);
                         if ($login_count) { 
-                            $login_count_display = "<span class='mr-2 badge badge-pill badge-secondary p-2' title='$login_count Credentials'><i class='fas fa-key mr-2'></i>$login_count</span>";
+                            $login_count_display = "<span class='mr-2 badge badge-pill badge-secondary p-2' title='$login_count Credentials'><i class='fas fa-fw fa-key mr-2'></i>$login_count</span>";
                         } else {
                             $login_count_display = '';
                         }
@@ -374,7 +374,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         $sql_related_software = mysqli_query($mysqli, "SELECT * FROM software, software_contacts WHERE software.software_id = software_contacts.software_id AND software_contacts.contact_id = $contact_id");
                         $software_count = mysqli_num_rows($sql_related_software);
                         if ($software_count) { 
-                            $software_count_display = "<span class='mr-2 badge badge-pill badge-secondary p-2' title='$software_count Licenses'><i class='fas fa-cube mr-2'></i>$software_count</span>";
+                            $software_count_display = "<span class='mr-2 badge badge-pill badge-secondary p-2' title='$software_count Licenses'><i class='fas fa-fw fa-cube mr-2'></i>$software_count</span>";
                         } else {
                             $software_count_display = '';
                         }
@@ -383,7 +383,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         $sql_related_tickets = mysqli_query($mysqli, "SELECT * FROM tickets WHERE ticket_contact_id = $contact_id");
                         $ticket_count = mysqli_num_rows($sql_related_tickets);
                         if ($ticket_count) { 
-                            $ticket_count_display = "<span class='mr-2 badge badge-pill badge-secondary p-2' title='$ticket_count Tickets'><i class='fas fa-life-ring mr-2'></i>$ticket_count</span>";
+                            $ticket_count_display = "<span class='mr-2 badge badge-pill badge-secondary p-2' title='$ticket_count Tickets'><i class='fas fa-fw fa-life-ring mr-2'></i>$ticket_count</span>";
                         } else {
                             $software_count_display = '';
                         }
@@ -392,7 +392,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         $sql_related_documents = mysqli_query($mysqli, "SELECT * FROM documents, contact_documents WHERE documents.document_id = contact_documents.document_id AND contact_documents.contact_id = $contact_id");
                         $document_count = mysqli_num_rows($sql_related_documents);
                         if ($document_count) { 
-                            $document_count_display = "<span class='mr-2 badge badge-pill badge-secondary p-2' title='$document_count Documents'><i class='fas fa-file-alt mr-2'></i>$document_count</span>";
+                            $document_count_display = "<span class='mr-2 badge badge-pill badge-secondary p-2' title='$document_count Documents'><i class='fas fa-fw fa-file-alt mr-2'></i>$document_count</span>";
                         } else {
                             $document_count_display = '';
                         }
@@ -462,10 +462,12 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             <td><?php echo $contact_department; ?></td>
                             <td><?php echo $contact_info_display; ?></td>
                             <td><?php echo $location_name_display; ?></td>
+                            <td>
+                                <?php echo "$asset_count_display$login_count_display$software_count_display$ticket_count_display$document_count_display"; ?>
+                            </td>
                             <?php if (!$client_url) { ?>
                             <td><a href="contacts.php?client_id=<?php echo $client_id; ?>"><?php echo $client_name; ?></a></td>
                             <?php } ?>
-                            <td><?php echo "$asset_count_display$login_count_display$software_count_display$ticket_count_display$document_count_display"; ?></td>
                             <td>
                                 <div class="dropdown dropleft text-center">
                                     <button class="btn btn-secondary btn-sm" type="button" data-toggle="dropdown">

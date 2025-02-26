@@ -64,11 +64,13 @@ if ($client_url && isset($_GET['location']) && !empty($_GET['location'])) {
 
 $sql = mysqli_query(
     $mysqli,
-    "SELECT SQL_CALC_FOUND_ROWS l.login_id AS l_login_id, l.*, login_tags.*, tags.*, clients.*
+    "SELECT SQL_CALC_FOUND_ROWS l.login_id AS l_login_id, l.*, login_tags.*, tags.*, clients.*, contacts.*, assets.*
     FROM logins l
     LEFT JOIN login_tags ON login_tags.login_id = l.login_id
     LEFT JOIN tags ON tags.tag_id = login_tags.tag_id
     LEFT JOIN clients ON client_id = login_client_id
+    LEFT JOIN contacts ON contact_id = login_contact_id
+    LEFT JOIN assets ON asset_id = login_asset_id
     $location_query_innerjoin
     WHERE l.login_$archive_query
     $tag_query
@@ -302,7 +304,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             $login_archived_at = nullable_htmlentities($row['login_archived_at']);
                             $login_important = intval($row['login_important']);
                             $login_contact_id = intval($row['login_contact_id']);
+                            $contact_name = nullable_htmlentities($row['contact_name']);
                             $login_asset_id = intval($row['login_asset_id']);
+                            $asset_name = nullable_htmlentities($row['asset_name']);
 
                             // Tags
                             $login_tag_name_display_array = array();
@@ -325,6 +329,27 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 $login_tag_name_display_array[] = "<a href='credentials.php?$client_url tags[]=$login_tag_id'><span class='badge text-light p-1 mr-1' style='background-color: $login_tag_color;'><i class='fa fa-fw fa-$login_tag_icon mr-2'></i>$login_tag_name</span></a>";
                             }
                             $login_tags_display = implode('', $login_tag_name_display_array);
+
+                            if ($login_contact_id) { 
+                                $login_contact_display = "<a href='#' class='mr-2 badge badge-pill badge-dark p-2' title='$contact_name'
+                                    data-toggle='ajax-modal'
+                                    data-modal-size='lg'
+                                    data-ajax-url='ajax/ajax_contact_details.php'
+                                    data-ajax-id='$login_contact_id'>
+                                    <i class='fas fa-fw fa-user'></i></a>";
+                            } else {
+                                $login_contact_display = '';
+                            }
+
+                            if ($login_asset_id) { 
+                                $login_asset_display = "<a href='#' class='mr-2 badge badge-pill badge-secondary p-2' title='$asset_name' data-toggle='ajax-modal'
+                                    data-modal-size='lg'
+                                    data-ajax-url='ajax/ajax_asset_details.php'
+                                    data-ajax-id='$login_asset_id'>
+                                    <i class='fas fa-fw fa-desktop'></i></a>";
+                            } else {
+                                $login_asset_display = '';
+                            }
 
                             // Check if shared
                             $sql_shared = mysqli_query(
@@ -390,6 +415,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 <td><?php echo $otp_display; ?></td>
                                 <td><?php echo $login_uri_display; ?></td>
                                 <td>
+                                    <?php echo "$login_contact_display$login_asset_display"; ?>
                                     <?php if (mysqli_num_rows($sql_shared) > 0) { ?>
                                         <div class="media" title="Expires <?php echo $item_expire_at_human; ?>">
                                             <i class="fas fa-link mr-2 mt-1"></i>
