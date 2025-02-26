@@ -340,7 +340,12 @@ $page_title = $row['document_name'];
 
                 ?>
                 <div class="ml-2">
-                    <a href="vendors.php?client_id=<?php echo $client_id; ?>&q=<?php echo $vendor_name; ?>" target="_blank"><?php echo $vendor_name; ?></a>
+                    <a href="#"
+                        data-toggle="ajax-modal"
+                        data-ajax-url="ajax/ajax_vendor_details.php"
+                        data-ajax-id="<?php echo $vendor_id; ?>">
+                        <?php echo $vendor_name; ?>        
+                    </a>
                     <a class="confirm-link float-right" href="post.php?unlink_vendor_from_document&vendor_id=<?php echo $vendor_id; ?>&document_id=<?php echo $document_id; ?>">
                         <i class="fas fa-fw fa-trash-alt text-secondary"></i>
                     </a>

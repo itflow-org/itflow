@@ -275,7 +275,16 @@ ob_start();
                     <ul>
                         <?php
                         while ($row = mysqli_fetch_array($sql_vendors)) {
-                            echo "<li><a href=\"vendors.php?client_id=$client_id&q=$row[vendor_name]\">$row[vendor_name]</a></li>";
+
+                            $vendor_id = intval($row['vendor_id']);
+                            $vendor_name = nullable_htmlentities($row['vendor_name']);
+                            echo "<li><a href='#' data-toggle='ajax-modal'
+                                data-modal-size='lg'
+                                data-ajax-url='ajax/ajax_vendor_details.php'
+                                data-ajax-id='$vendor_id'>
+                                $vendor_name
+                                </a>
+                            </li>";
                         }
                         ?>
                     </ul>
@@ -379,7 +388,15 @@ ob_start();
                         mysqli_data_seek($sql_docs, 0);
 
                         while ($row = mysqli_fetch_array($sql_docs)) {
-                            echo "<li><a href=\"client_document_details.php?client_id=$client_id&document_id=$row[document_id]\">$row[document_name]</a></li>";
+                            $document_id = intval($row['document_id']);
+                            $document_name = nullable_htmlentities($row['document_name']);
+                            echo "<li><a href='#' data-toggle='ajax-modal'
+                                data-modal-size='lg'
+                                data-ajax-url='ajax/ajax_document_view.php'
+                                data-ajax-id='$document_id'>
+                                $document_name
+                                </a>
+                            </li>";
                         }
                         ?>
                     </ul>
