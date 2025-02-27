@@ -95,11 +95,10 @@ $kanban = array_values($statuses);
             ?>
             
             <div
-                class="task"
+                class="task grab-cursor"
                 data-ticket-id= "<?=$item['ticket_id']?>"
                 data-ticket-status-id= "<?=$item['ticket_status_id']?>"
                 ondblclick="window.location.href='ticket.php?ticket_id=<?php echo $item['ticket_id']; ?>'"
-                style="cursor: grabbing;"
             >
                 <span class='badge badge-<?php echo $ticket_priority_color; ?>'>
                     <?php echo $item['ticket_priority']; ?>
@@ -107,8 +106,10 @@ $kanban = array_values($statuses);
                 <span class='badge badge-secondary'>
                     <?php echo $item['category_name']; ?>
                 </span>
+                <div class='btn btn-secondary drag-handle-class' style="display: none;">
+                    <i class="drag-handle-class fas fa-bars"></i>
+                </div>
                 <br>
-                
                 <b>
                     <?php
                         if (!$client_url) {
