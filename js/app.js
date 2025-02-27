@@ -39,6 +39,7 @@ tinymce.init({
         plugins: 'autosave lists autolink',
         toolbar: 'bold italic styles'
     },
+    convert_urls: false,
     plugins: 'link image lists table code codesample fullscreen autoresize',
     license_key: 'gpl'
 });
@@ -70,6 +71,7 @@ tinymce.init({
         plugins: 'autosave lists autolink',
         toolbar: 'bold italic styles'
     },
+    convert_urls: false,
     plugins: 'link image lists table code codesample fullscreen autoresize',
     license_key: 'gpl',
     setup: function(editor) {
@@ -168,6 +170,7 @@ tinymce.init({
         plugins: 'autosave lists autolink',
         toolbar: 'bold italic styles'
     },
+    convert_urls: false,
     plugins: 'link image lists table code fullscreen autoresize',
     license_key: 'gpl'
 });
@@ -196,6 +199,7 @@ tinymce.init({
         menubar: false,
         toolbar: 'bold italic styles'
     },
+    convert_urls: false,
     plugins: 'link image lists table code codesample fullscreen autoresize',
     license_key: 'gpl',
     setup: function(editor) {
