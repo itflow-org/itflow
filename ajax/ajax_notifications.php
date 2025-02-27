@@ -44,7 +44,6 @@ ob_start();
         }
         ?>
 
-
     <a class="text-dark dropdown-item px-1" href="<?php echo $notification_action; ?>">
         <div>
             <span class="text-bold">

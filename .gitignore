@@ -26,3 +26,4 @@ xcustom/*
 !xcustom/readme.php
 post/xcustom
 !post/xcustom/readme.php
+.zed
