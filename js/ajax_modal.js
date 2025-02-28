@@ -42,7 +42,7 @@ $(document).on('click', '[data-toggle="ajax-modal"]', function (e) {
             
             // Build the modal HTML using the returned title and content.
             var modalHtml = 
-                '<div class="modal text-sm" id="' + modalId + '" tabindex="-1">' +
+                '<div class="modal fade text-sm" id="' + modalId + '" tabindex="-1">' +
                 '    <div class="modal-dialog modal-'+ modalSize +'">' +
                 '       <div class="modal-content bg-dark">'
                             + response.content +
