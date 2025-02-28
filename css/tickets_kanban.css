@@ -32,4 +32,10 @@
     margin: 5px 0;
     padding: 10px;
     border: 1px solid #ddd;
+    user-select: none; /* Prevent text selection */
+}
+
+.drag-handle-class {
+    touch-action: none;
+    float: right;
 }

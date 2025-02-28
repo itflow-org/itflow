@@ -1,6 +1,12 @@
 $(document).ready(function() {
     console.log('CONFIG_TICKET_MOVING_COLUMNS: ' + CONFIG_TICKET_MOVING_COLUMNS);
     console.log('CONFIG_TICKET_ORDERING: ' + CONFIG_TICKET_ORDERING);
+
+    // Function to detect touch devices
+    function isTouchDevice() {
+        return 'ontouchstart' in window || navigator.maxTouchPoints;
+    }
+
     // Initialize Dragula for the Kanban board
     let boardDrake = dragula([
         document.querySelector('#kanban-board')
@@ -54,8 +60,30 @@ $(document).ready(function() {
     // Initialize Dragula for the Kanban Cards
     let drake = dragula([
         ...document.querySelectorAll('#status')
-    ]);
+    ], {
+        moves: function(el, container, handle) {
+            if (isTouchDevice()) {
+                return handle.classList.contains('drag-handle-class');
+            } else {
+                return true; // Allow dragging on the entire task element for desktop
+            }
+        }
+    });
 
+    if (isTouchDevice()) {
+        const moveList = document.querySelectorAll('.task');
+        moveList.forEach(task => {
+            task.querySelector('.drag-handle-class').style.display = 'inline';
+        });
+    }
+
+    drake.on('drag', function(el) {
+        el.style.cursor = 'grabbing';
+    });
+    
+    drake.on('dragend', function(el) {
+        el.style.cursor = 'grab';
+    });
     // Add event listener for the drop event
     drake.on('drop', function (el, target, source, sibling) {
         // Log the target ID to the console
