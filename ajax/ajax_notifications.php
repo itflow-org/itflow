@@ -53,7 +53,7 @@ ob_start();
                 <?php echo $notification_timestamp_formated; ?>
             </small>
         </div>
-        <small class="text-secondary"><?php echo $notification_details; ?></small>
+        <small class="text-secondary text-wrap"><?php echo $notification_details; ?></small>
     </a>
 
     <?php
