@@ -402,7 +402,7 @@ ob_start();
         <?php } ?>
 
         <?php if ($credential_count) { ?>
-        <div class="tab-pane fade" id="pills-contact-credentials<?php echo $asset_id; ?>">
+        <div class="tab-pane fade" id="pills-contact-credentials<?php echo $contact_id; ?>">
             <div class="table-responsive-sm">
                 <table class="table table-striped table-borderless table-hover table-sm">
                     <thead>
@@ -446,9 +446,7 @@ ob_start();
                         $login_note = nullable_htmlentities($row['login_note']);
                         $login_important = intval($row['login_important']);
                         $login_contact_id = intval($row['login_contact_id']);
-                        $login_vendor_id = intval($row['login_vendor_id']);
                         $login_asset_id = intval($row['login_asset_id']);
-                        $login_software_id = intval($row['login_software_id']);
 
                         // Tags
                         $login_tag_name_display_array = array();
@@ -499,7 +497,7 @@ ob_start();
         <?php } ?>
 
         <?php if ($ticket_count) { ?>
-        <div class="tab-pane fade" id="pills-contact-tickets<?php echo $asset_id; ?>">
+        <div class="tab-pane fade" id="pills-contact-tickets<?php echo $contact_id; ?>">
             <div class="table-responsive-sm">
                 <table class="table table-striped table-borderless table-hover table-sm">
                     <thead class="text-dark">
@@ -848,7 +846,13 @@ ob_start();
 </div>
 
 <div class="modal-footer bg-white">
-    <a href="contact_details.php?<?php echo $client_url; ?>contact_id=<?php echo $contact_id; ?>" class="btn btn-primary text-bold"><span class="text-white">More Details</span></a>
+    <a href="contact_details.php?<?php echo $client_url; ?>contact_id=<?php echo $contact_id; ?>" class="btn btn-primary text-bold">
+        <span class="text-white"><i class="fas fa-info-circle mr-2"></i>More Details</span>
+    </a>
+    <a href="#" class="btn btn-secondary" 
+        data-toggle="ajax-modal" data-ajax-url="ajax/ajax_contact_edit.php" data-ajax-id="<?php echo $contact_id; ?>">
+        <span class="text-white"><i class="fas fa-edit mr-2"></i>Edit</span>
+    </a>
     <button type="button" class="btn btn-light" data-dismiss="modal"><i class="fa fa-times mr-2"></i>Close</button>
 </div>
 

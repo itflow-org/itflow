@@ -23,9 +23,10 @@ if (isset($_POST['add_software_from_template'])) {
     $type = sanitizeInput($row['software_type']);
     $license_type = sanitizeInput($row['software_license_type']);
     $notes = sanitizeInput($row['software_notes']);
+    $vendor = sanitizeInput($_POST['vendor'] ?? 0);
 
     // Software add query
-    mysqli_query($mysqli,"INSERT INTO software SET software_name = '$name', software_version = '$version', software_description = '$description', software_type = '$type', software_license_type = '$license_type', software_notes = '$notes', software_client_id = $client_id");
+    mysqli_query($mysqli,"INSERT INTO software SET software_name = '$name', software_version = '$version', software_description = '$description', software_type = '$type', software_license_type = '$license_type', software_notes = '$notes', software_vendor_id = $vendor, software_client_id = $client_id");
 
     $software_id = mysqli_insert_id($mysqli);
 
@@ -51,6 +52,7 @@ if (isset($_POST['add_software'])) {
     $notes = sanitizeInput($_POST['notes']);
     $key = sanitizeInput($_POST['key']);
     $seats = intval($_POST['seats']);
+    $purchase_reference = sanitizeInput($_POST['purchase_reference']);
     $purchase = sanitizeInput($_POST['purchase']);
     if (empty($purchase)) {
         $purchase = "NULL";
@@ -64,8 +66,9 @@ if (isset($_POST['add_software'])) {
         $expire = "'" . $expire . "'";
     }
     $notes = sanitizeInput($_POST['notes']);
+    $vendor = sanitizeInput($_POST['vendor'] ?? 0);
 
-    mysqli_query($mysqli,"INSERT INTO software SET software_name = '$name', software_version = '$version', software_description = '$description', software_type = '$type', software_key = '$key', software_license_type = '$license_type', software_seats = $seats, software_purchase = $purchase, software_expire = $expire, software_notes = '$notes', software_client_id = $client_id");
+    mysqli_query($mysqli,"INSERT INTO software SET software_name = '$name', software_version = '$version', software_description = '$description', software_type = '$type', software_key = '$key', software_license_type = '$license_type', software_seats = $seats, software_purchase_reference = '$purchase_reference', software_purchase = $purchase, software_expire = $expire, software_notes = '$notes', software_vendor_id = $vendor, software_client_id = $client_id");
 
     $software_id = mysqli_insert_id($mysqli);
 
@@ -110,6 +113,7 @@ if (isset($_POST['edit_software'])) {
     $notes = sanitizeInput($_POST['notes']);
     $key = sanitizeInput($_POST['key']);
     $seats = intval($_POST['seats']);
+    $purchase_reference = sanitizeInput($_POST['purchase_reference']);
     $purchase = sanitizeInput($_POST['purchase']);
     if (empty($purchase)) {
         $purchase = "NULL";
@@ -123,8 +127,9 @@ if (isset($_POST['edit_software'])) {
         $expire = "'" . $expire . "'";
     }
     $notes = sanitizeInput($_POST['notes']);
+    $vendor = sanitizeInput($_POST['vendor'] ?? 0);
 
-    mysqli_query($mysqli,"UPDATE software SET software_name = '$name', software_version = '$version', software_description = '$description', software_type = '$type', software_key = '$key', software_license_type = '$license_type', software_seats = $seats, software_purchase = $purchase, software_expire = $expire, software_notes = '$notes' WHERE software_id = $software_id");
+    mysqli_query($mysqli,"UPDATE software SET software_name = '$name', software_version = '$version', software_description = '$description', software_type = '$type', software_key = '$key', software_license_type = '$license_type', software_seats = $seats, software_purchase_reference = '$purchase_reference', software_purchase = $purchase, software_expire = $expire, software_notes = '$notes', software_vendor_id = $vendor WHERE software_id = $software_id");
 
 
     // Update Asset Licenses

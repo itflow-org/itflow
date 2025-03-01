@@ -185,8 +185,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             </div>
                         </div>
                         <div class="col-md-2">
-                            <div class="form-group">
-                                <label>Tag</label>
+                            <label>Tag</label>
+                            <div class="input-group">
+                                
                                 <select onchange="this.form.submit()" class="form-control select2" name="tags[]" data-placeholder="- Select Tags -" multiple>
                                     <?php 
                                     $sql_tags = mysqli_query($mysqli, "SELECT * FROM tags WHERE tag_type = 1");
@@ -198,6 +199,15 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                                     <?php } ?>
                                 </select>
+                                <div class="input-group-append">
+                                    <button class="btn btn-secondary" type="button"
+                                        data-toggle="ajax-modal"
+                                        data-modal-size="sm"
+                                        data-ajax-url="ajax/ajax_tag_add.php"
+                                        data-ajax-id="1">
+                                        <i class="fas fa-plus"></i>
+                                    </button>
+                                </div>
                             </div>
                         </div>
                         <div class="col-sm-2">
@@ -398,7 +408,14 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                                 if (!empty($contact_name)) { ?>
                                     <div class="text-bold">
-                                        <i class="fa fa-fw fa-user text-secondary mr-2 mb-2"></i><a href="client_contact_details.php?client_id=<?php echo $client_id ?>&contact_id=<?php echo $contact_id ?>"><?php echo $contact_name; ?></a>
+                                        <i class="fa fa-fw fa-user text-secondary mr-2 mb-2"></i>
+                                        <a href="#"
+                                            data-toggle="ajax-modal"
+                                            data-modal-size="lg"
+                                            data-ajax-url="ajax/ajax_contact_details.php?client_id=<?php echo $client_id; ?>"
+                                            data-ajax-id="<?php echo $contact_id; ?>">
+                                            <?php echo $contact_name; ?>
+                                         </a>
                                     </div>
                                 <?php } else {
                                     echo "-";

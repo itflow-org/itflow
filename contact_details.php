@@ -495,9 +495,7 @@ if (isset($_GET['contact_id'])) {
                                 $login_note = nullable_htmlentities($row['login_note']);
                                 $login_important = intval($row['login_important']);
                                 $login_contact_id = intval($row['login_contact_id']);
-                                $login_vendor_id = intval($row['login_vendor_id']);
                                 $login_asset_id = intval($row['login_asset_id']);
-                                $login_software_id = intval($row['login_software_id']);
 
                                 // Tags
                                 $login_tag_name_display_array = array();

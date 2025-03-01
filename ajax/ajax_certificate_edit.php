@@ -12,6 +12,7 @@ $certificate_description = nullable_htmlentities($row['certificate_description']
 $certificate_domain = nullable_htmlentities($row['certificate_domain']);
 $certificate_domain_id = intval($row['certificate_domain_id']);
 $certificate_issued_by = nullable_htmlentities($row['certificate_issued_by']);
+$certificate_public_key = nullable_htmlentities($row['certificate_public_key']);
 $certificate_expire = nullable_htmlentities($row['certificate_expire']);
 $certificate_created_at = nullable_htmlentities($row['certificate_created_at']);
 $client_id = intval($row['certificate_client_id']);

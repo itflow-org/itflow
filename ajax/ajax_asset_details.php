@@ -121,9 +121,7 @@ $sql_related_credentials = mysqli_query($mysqli, "
         logins.login_note,
         logins.login_important,
         logins.login_contact_id,
-        logins.login_vendor_id,
-        logins.login_asset_id,
-        logins.login_software_id
+        logins.login_asset_id
     FROM logins
     LEFT JOIN login_tags ON login_tags.login_id = logins.login_id
     LEFT JOIN tags ON tags.tag_id = login_tags.tag_id
@@ -474,9 +472,7 @@ ob_start();
                         $login_note = nullable_htmlentities($row['login_note']);
                         $login_important = intval($row['login_important']);
                         $login_contact_id = intval($row['login_contact_id']);
-                        $login_vendor_id = intval($row['login_vendor_id']);
                         $login_asset_id = intval($row['login_asset_id']);
-                        $login_software_id = intval($row['login_software_id']);
 
                         // Tags
                         $login_tag_name_display_array = array();
@@ -852,7 +848,11 @@ ob_start();
 </div>
 
 <div class="modal-footer bg-white">
-    <a href="asset_details.php?<?php echo $client_url; ?>asset_id=<?php echo $asset_id; ?>" class="btn btn-primary text-bold"><span class="text-white">More Details</span></a>
+    <a href="asset_details.php?<?php echo $client_url; ?>asset_id=<?php echo $asset_id; ?>" class="btn btn-primary text-bold"><span class="text-white"><i class="fas fa-info-circle mr-2"></i>More Details</span></a>
+    <a href="#" class="btn btn-secondary" 
+        data-toggle="ajax-modal" data-ajax-url="ajax/ajax_asset_edit.php" data-ajax-id="<?php echo $asset_id; ?>">
+        <span class="text-white"><i class="fas fa-edit mr-2"></i>Edit</span>
+    </a>
     <button type="button" class="btn btn-light" data-dismiss="modal"><i class="fa fa-times mr-2"></i>Close</button>
 </div>
 

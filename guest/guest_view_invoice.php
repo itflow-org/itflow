@@ -377,6 +377,13 @@ if ($balance > 0) {
                                 style: 'invoiceNumber',
                                 width: '*'
                             },
+                            <?php if ($invoice_status == "Paid") { ?>
+                            {
+                                text: 'PAID',
+                                style: 'invoicePaid',
+                                width: '*'
+                            },
+                            <?php } ?>
                         ],
                     ],
                 },
@@ -665,6 +672,14 @@ if ($balance > 0) {
                 invoiceNumber: {
                     fontSize: 14,
                     alignment: 'right'
+                },
+                // Invoice Paid
+                invoicePaid: {
+                    fontSize: 13,
+                    bold: true,
+                    margin: [0,5,0,0],
+                    alignment: 'right',
+                    color: 'green'
                 },
                 // Billing Headers
                 invoiceBillingTitle: {

@@ -586,7 +586,7 @@ if ($user_config_dashboard_technical_enable == 1) {
         <!-- ./col -->
 
         <div class="col-lg-4 col-6">
-            <a class="small-box bg-success">
+            <a class="small-box bg-success" href="contacts.php">
                 <div class="inner">
                     <h3><?php echo $contacts_added; ?></h3>
                     <p>New Contacts</p>
@@ -625,7 +625,7 @@ if ($user_config_dashboard_technical_enable == 1) {
         <!-- ./col -->
 
         <div class="col-lg-4 col-6">
-            <a class="small-box bg-warning" href="domains.php">
+            <a class="small-box bg-warning" href="domains.php?sort=domain_expire&order=ASC">
                 <div class="inner">
                     <h3><?php echo $expiring_domains; ?></h3>
                     <p>Expiring Domains</p>
@@ -638,7 +638,7 @@ if ($user_config_dashboard_technical_enable == 1) {
         <!-- ./col -->
 
         <div class="col-lg-4 col-6">
-            <a class="small-box bg-primary">
+            <a class="small-box bg-primary" href="certificates.php?sort=certificate_expire&order=ASC">
                 <div class="inner">
                     <h3><?php echo $expiring_certificates; ?></h3>
                     <p>Expiring Certificates</p>

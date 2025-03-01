@@ -37,7 +37,7 @@ require_once "includes/inc_all_admin.php";
                             <th>
                                 <div><i class="fas fa-fw fa-globe mr-2"></i>Domain Expiration Notice</div>
                                 <small class="text-muted">
-                                    (This setting triggers a notification when a domain is approaching its expiration date, specifically at 1, 7, 14, 30 and 90 days prior to expiry.)
+                                    (This setting triggers a notification when a domain is approaching its expiration date, specifically at 1, 7 and 45 days prior to expiry.)
                                 </small>
                             </th>
                             <td>
@@ -54,7 +54,7 @@ require_once "includes/inc_all_admin.php";
                             <th>
                                 <div><i class="fas fa-fw fa-lock mr-2"></i>Certificate Expiration Notice</div>
                                 <small class="text-muted">
-                                    (This setting triggers a notification when a certificate is approaching its expiration date, specifically at 1, 7, 14, 30 and 90 days prior to expiry.)
+                                    (This setting triggers a notification when a certificate is approaching its expiration date, specifically at 1, 7 and 45 days prior to expiry.)
                                 </small>
                             </th>
                             <td>
@@ -67,7 +67,7 @@ require_once "includes/inc_all_admin.php";
                             <th>
                                 <div><i class="fas fa-fw fa-desktop mr-2"></i>Asset Warranty Expiration Notice</div>
                                 <small class="text-muted">
-                                    (This setting triggers a notification when an asset is approaching its expiration date, specifically at 1, 7, 14, 30 and 90 days prior to expiry.)
+                                    (This setting triggers a notification when an asset is approaching its expiration date, specifically at 1, 7 and 45 days prior to expiry.)
                                 </small>
                             </th>
                             <td>

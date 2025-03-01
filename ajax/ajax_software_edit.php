@@ -14,10 +14,12 @@ $software_type = nullable_htmlentities($row['software_type']);
 $software_license_type = nullable_htmlentities($row['software_license_type']);
 $software_key = nullable_htmlentities($row['software_key']);
 $software_seats = nullable_htmlentities($row['software_seats']);
+$software_purchase_reference = nullable_htmlentities($row['software_purchase_reference']);
 $software_purchase = nullable_htmlentities($row['software_purchase']);
 $software_expire = nullable_htmlentities($row['software_expire']);
 $software_notes = nullable_htmlentities($row['software_notes']);
 $software_created_at = nullable_htmlentities($row['software_created_at']);
+$software_vendor_id = intval($row['software_vendor_id']);
 $client_id = intval($row['software_client_id']);
 $seat_count = 0;
 
@@ -108,6 +110,28 @@ ob_start();
                 </div>
 
                 <div class="form-group">
+                    <label>Vendor</label>
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text"><i class="fa fa-fw fa-building"></i></span>
+                        </div>
+                        <select class="form-control select2" name="vendor">
+                            <option value="">- Select Vendor -</option>
+                            <?php
+                            $vendor_sql = mysqli_query($mysqli, "SELECT vendor_id, vendor_name FROM vendors WHERE vendor_client_id = $client_id AND vendor_archived_at IS NULL ORDER BY vendor_name ASC");
+                                while ($row = mysqli_fetch_array($vendor_sql)) {
+                                    $vendor_id = $row['vendor_id'];
+                                    $vendor_name = $row['vendor_name'];
+                                ?>
+                                <option <?php if ($software_vendor_id == $vendor_id) { echo "selected"; } ?> value="<?php echo $vendor_id; ?>"><?php echo $vendor_name; ?></option>
+                            <?php 
+                            }
+                            ?>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
                     <label>Type <strong class="text-danger">*</strong></label>
                     <div class="input-group">
                         <div class="input-group-prepend">
@@ -157,6 +181,16 @@ ob_start();
                             <span class="input-group-text"><i class="fa fa-fw fa-key"></i></span>
                         </div>
                         <input type="text" class="form-control" name="key" placeholder="License key" maxlength="200" value="<?php echo $software_key; ?>">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Purchase Reference</label>
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text"><i class="fa fa-fw fa-shopping-cart"></i></span>
+                        </div>
+                        <input type="text" class="form-control" name="purchase_reference" placeholder="eg. Invoice, PO Number" value="<?php echo $software_purchase_reference; ?>">
                     </div>
                 </div>
 

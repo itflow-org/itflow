@@ -89,6 +89,14 @@
                                         <?php } ?>
 
                                     </select>
+                                    <div class="input-group-append">
+                                        <button class="btn btn-secondary" type="button"
+                                            data-toggle="ajax-modal"
+                                            data-modal-size="sm"
+                                            data-ajax-url="ajax/ajax_category_add.php?category=Referral">
+                                            <i class="fas fa-fw fa-plus"></i>
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
 
@@ -120,6 +128,15 @@
                                         <?php } ?>
 
                                     </select>
+                                    <div class="input-group-append">
+                                        <button class="btn btn-secondary" type="button"
+                                            data-toggle="ajax-modal"
+                                            data-modal-size="sm"
+                                            data-ajax-url="ajax/ajax_tag_add.php"
+                                            data-ajax-id="1">
+                                            <i class="fas fa-fw fa-plus"></i>
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
 

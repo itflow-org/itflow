@@ -261,7 +261,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                                                 $icon = $d['icon']; // already from getAssetIcon
                                                                 ?>
                                                                 <i class="fa fa-<?php echo $icon; ?>"></i>
-                                                                <a href="client_asset_details.php?client_id=<?php echo $client_id; ?>&asset_id=<?php echo $d['asset_id']; ?>" 
+                                                                <a href="asset_details.php?client_id=<?php echo $client_id; ?>&asset_id=<?php echo $d['asset_id']; ?>" 
                                                                    target="_blank">
                                                                    <?php echo $d['asset_name']; ?>
                                                                    <i class="fas fa-external-link-alt ml-1"></i>

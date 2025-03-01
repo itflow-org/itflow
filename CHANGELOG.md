@@ -2,6 +2,30 @@
 
 This file documents all notable changes made to ITFlow.
 
+## [25.02.1]
+### Fixed
+- Resolved broken links in the client overview, project and client listings, and rack details.
+- Corrected asset transfer functionality to clients.
+- Fixed the ticket scheduling redirect.
+- Corrected the ticket link in the Scheduled Ticket Agent Notification email.
+- Addressed issues with credentials and ticket actions in the Contact Detail Modal.
+- Fixed text wrapping in notifications.
+- Adjusted notifications so that they are sorted with the newest first.
+- Fixed drag-and-drop functionality for tickets in the Kanban view on mobile devices.
+- Resolved a weird issue with TinyMCE that prevented using links referencing your ITFlow instance url.
+- Corrected image orientation issues during upload and the preview optimization process.
+
+### Added / Changed
+- Introduced entity link indicator icons and counts in the contacts and credentials section.
+- Implemented a fade animation for the new AJAX modal.
+- Removed the Client Overview Expire Day Select and replaced it with simplified 1, 7, or 45-day options.
+- Added the ability to link and unlink entities within asset details.
+- Introduced quick tag/category creation across the app.
+- Added a Vendor Quick Details Modal.
+- Enabled vendor linking and added a License Purchase Reference in the Software Licenses section.
+- Added download original, optimized and thumbnail option for images.
+- Added Paid status to the top corner of Invoice PDFs
+
 ## [25.02]
 ### Fixed
 - Migrated several reports to the new permissions/roles system

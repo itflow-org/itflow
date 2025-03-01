@@ -21,9 +21,7 @@ $login_created_at = nullable_htmlentities($row['login_created_at']);
 $login_archived_at = nullable_htmlentities($row['login_archived_at']);
 $login_important = intval($row['login_important']);
 $login_contact_id = intval($row['login_contact_id']);
-$login_vendor_id = intval($row['login_vendor_id']);
 $login_asset_id = intval($row['login_asset_id']);
-$login_software_id = intval($row['login_software_id']);
 
 // Tags
 $login_tag_id_array = array();
@@ -190,28 +188,6 @@ ob_start();
                 </div>
 
                 <div class="form-group">
-                    <label>Vendor</label>
-                    <div class="input-group">
-                        <div class="input-group-prepend">
-                            <span class="input-group-text"><i class="fa fa-fw fa-building"></i></span>
-                        </div>
-                        <select class="form-control select2" name="vendor">
-                            <option value="0">- None -</option>
-                            <?php
-
-                            $sql_vendors = mysqli_query($mysqli, "SELECT vendor_id, vendor_name FROM vendors WHERE vendor_client_id = $client_id ORDER BY vendor_name ASC");
-                            while ($row = mysqli_fetch_array($sql_vendors)) {
-                                $vendor_id_select = intval($row['vendor_id']);
-                                $vendor_name_select = nullable_htmlentities($row['vendor_name']);
-                                ?>
-                                <option <?php if ($login_vendor_id == $vendor_id_select) { echo "selected"; } ?> value="<?php echo $vendor_id_select; ?>"><?php echo $vendor_name_select; ?></option>
-                            <?php } ?>
-
-                        </select>
-                    </div>
-                </div>
-
-                <div class="form-group">
                     <label>Asset</label>
                     <div class="input-group">
                         <div class="input-group-prepend">
@@ -234,28 +210,6 @@ ob_start();
 
                                 ?>
                                 <option <?php if ($login_asset_id == $asset_id_select) { echo "selected"; } ?> value="<?php echo $asset_id_select; ?>"><?php echo $asset_select_display_string; ?></option>
-
-                            <?php } ?>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label>Software</label>
-                    <div class="input-group">
-                        <div class="input-group-prepend">
-                            <span class="input-group-text"><i class="fa fa-fw fa-box"></i></span>
-                        </div>
-                        <select class="form-control select2" name="software">
-                            <option value="0">- None -</option>
-                            <?php
-
-                            $sql_software = mysqli_query($mysqli, "SELECT software_id, software_name FROM software WHERE software_client_id = $client_id ORDER BY software_name ASC");
-                            while ($row = mysqli_fetch_array($sql_software)) {
-                                $software_id_select = intval($row['software_id']);
-                                $software_name_select = nullable_htmlentities($row['software_name']);
-                                ?>
-                                <option <?php if ($login_software_id == $software_id_select) { echo "selected"; } ?> value="<?php echo $software_id_select; ?>"><?php echo $software_name_select; ?></option>
 
                             <?php } ?>
                         </select>
@@ -288,6 +242,15 @@ ob_start();
                             <?php } ?>
 
                         </select>
+                        <div class="input-group-append">
+                            <button class="btn btn-secondary" type="button"
+                                data-toggle="ajax-modal"
+                                data-modal-size="sm"
+                                data-ajax-url="ajax/ajax_tag_add.php"
+                                data-ajax-id="4">
+                                <i class="fas fa-plus"></i>
+                            </button>
+                        </div>
                     </div>
                 </div>
 

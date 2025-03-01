@@ -1,11 +1,13 @@
 <?php
 
-require_once '../includes/ajax_header.php';
+require_once "../includes/ajax_header.php";
 
-$sql = mysqli_query($mysqli, "SELECT * FROM notifications
+$sql = mysqli_query(
+    $mysqli,
+    "SELECT * FROM notifications
     WHERE notification_user_id = $session_user_id
     AND notification_dismissed_at IS NULL
-    ORDER BY notification_id"
+    ORDER BY notification_id DESC"
 );
 
 $num_notifications = mysqli_num_rows($sql);
@@ -24,19 +26,24 @@ ob_start();
 <div class="modal-body bg-white">
     <?php if ($num_notifications) { ?>
 
-    <?php
+    <?php while ($row = mysqli_fetch_array($sql)) {
 
-    while ($row = mysqli_fetch_array($sql)) {
-        $notification_id = intval($row['notification_id']);
-        $notification_type = nullable_htmlentities($row['notification_type']);
-        $notification_details = nullable_htmlentities($row['notification']);
-        $notification_action = nullable_htmlentities($row['notification_action']);
-        $notification_timestamp_formated = date('M d g:ia',strtotime($row['notification_timestamp']));
-        $notification_client_id = intval($row['notification_client_id']);
-        if(empty($notification_action)) { $notification_action = "#"; }
-    ?>
+        $notification_id = intval($row["notification_id"]);
+        $notification_type = nullable_htmlentities($row["notification_type"]);
+        $notification_details = nullable_htmlentities($row["notification"]);
+        $notification_action = nullable_htmlentities(
+            $row["notification_action"]
+        );
+        $notification_timestamp_formated = date(
+            "M d g:ia",
+            strtotime($row["notification_timestamp"])
+        );
+        $notification_client_id = intval($row["notification_client_id"]);
+        if (empty($notification_action)) {
+            $notification_action = "#";
+        }
+        ?>
 
-   
     <a class="text-dark dropdown-item px-1" href="<?php echo $notification_action; ?>">
         <div>
             <span class="text-bold">
@@ -46,14 +53,11 @@ ob_start();
                 <?php echo $notification_timestamp_formated; ?>
             </small>
         </div>
-        <small class="text-secondary"><?php echo $notification_details; ?></small>
+        <small class="text-secondary text-wrap"><?php echo $notification_details; ?></small>
     </a>
 
-    <?php 
-    }
-
-    } else {
-    ?>
+    <?php
+    }} else { ?>
     <div class="text-center text-secondary py-5">
         <i class='far fa-6x fa-bell-slash'></i>
         <h3 class="mt-3">No Notifications</h3>
@@ -62,7 +66,9 @@ ob_start();
 </div>
 <div class="modal-footer bg-white justify-content-end">
     <?php if ($num_notifications) { ?>
-    <a href="post.php?dismiss_all_notifications&csrf_token=<?php echo $_SESSION['csrf_token'] ?>" class="btn btn-primary">
+    <a href="post.php?dismiss_all_notifications&csrf_token=<?php echo $_SESSION[
+        "csrf_token"
+    ]; ?>" class="btn btn-primary">
         <span class="text-white text-bold"><i class="fas fa-check mr-2"></i>Dismiss all</span>
     </a>
     <?php } else { ?>
@@ -75,5 +81,4 @@ ob_start();
     </button>
 </div>
 
-<?php
-require_once "../includes/ajax_footer.php";
+<?php require_once "../includes/ajax_footer.php";

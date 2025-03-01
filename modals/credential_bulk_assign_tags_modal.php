@@ -34,6 +34,15 @@
                             <?php } ?>
 
                         </select>
+                        <div class="input-group-append">
+                            <button class="btn btn-secondary" type="button"
+                                data-toggle="ajax-modal"
+                                data-modal-size="sm"
+                                data-ajax-url="ajax/ajax_tag_add.php"
+                                data-ajax-id="4">
+                                <i class="fas fa-plus"></i>
+                            </button>
+                        </div>
                     </div>
                 </div>
 
