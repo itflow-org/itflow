@@ -2,7 +2,7 @@
     <div class="modal-dialog">
         <div class="modal-content bg-dark">
             <div class="modal-header">
-                <h5 class="modal-title"><i class="fa fa-fw fa-folder-plus mr-2"></i>Creating folder in <strong><?php if($get_folder_id > 0) { echo $folder['folder_name']; } else { echo "/"; } ?></strong></h5>
+                <h5 class="modal-title"><i class="fa fa-fw fa-folder-plus mr-2"></i>Creating folder in <strong><?php if($get_folder_id > 0) { echo $folder_path[count($folder_path)-1]['folder_name']; } else { echo "/"; } ?></strong></h5>
                 <button type="button" class="close text-white" data-dismiss="modal">
                     <span>&times;</span>
                 </button>
