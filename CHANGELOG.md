@@ -24,6 +24,7 @@ This file documents all notable changes made to ITFlow.
 - Added a Vendor Quick Details Modal.
 - Enabled vendor linking and added a License Purchase Reference in the Software Licenses section.
 - Added download original, optimized and thumbnail option for images.
+- Added Paid status to the top corner of Invoice PDFs
 
 ## [25.02]
 ### Fixed
