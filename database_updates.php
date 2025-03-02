@@ -17,117 +17,6 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
 
     // We need updates!
 
-    if (CURRENT_DATABASE_VERSION == '0.1.0') {
-        // Insert queries here required to update to DB version 0.1.1
-        // Logs don't get archived
-        mysqli_query($mysqli, "ALTER TABLE `logs` DROP `log_archived_at`");
-
-        // Assets will eventualy have file associatons which could include a receipt.
-        mysqli_query($mysqli, "ALTER TABLE `assets` DROP `asset_reciept`");
-
-        mysqli_query($mysqli, "ALTER TABLE `campaign_messages` DROP `message_updated_at`");
-        // This will be a seperate table eventually called contact_documents because contact can have several documents
-        mysqli_query($mysqli, "ALTER TABLE `documents` DROP `document_contact_id`");
-
-        mysqli_query($mysqli, "ALTER TABLE `expenses` DROP `expense_asset_id`");
-        mysqli_query($mysqli, "ALTER TABLE `files` DROP `file_contact_id`");
-        mysqli_query($mysqli, "ALTER TABLE `history` DROP `history_archived_at`");
-
-        // Then, update the database to the next sequential version
-        mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.1.1'");
-    }
-
-    if (CURRENT_DATABASE_VERSION == '0.1.1') {
-        // Insert queries here required to update to DB version 0.1.2
-        // Create Many to Many Relationship tables for Assets, Contacts, Software and Vendors
-
-        mysqli_query($mysqli, "CREATE TABLE `asset_documents` (`asset_id` int(11) NOT NULL,`document_id` int(11) NOT NULL, PRIMARY KEY (`asset_id`,`document_id`))");
-        mysqli_query($mysqli, "CREATE TABLE `asset_logins` (`asset_id` int(11) NOT NULL,`login_id` int(11) NOT NULL, PRIMARY KEY (`asset_id`,`login_id`))");
-        mysqli_query($mysqli, "CREATE TABLE `asset_files` (`asset_id` int(11) NOT NULL,`file_id` int(11) NOT NULL, PRIMARY KEY (`asset_id`,`file_id`))");
-
-        mysqli_query($mysqli, "CREATE TABLE `contact_documents` (`contact_id` int(11) NOT NULL,`document_id` int(11) NOT NULL, PRIMARY KEY (`contact_id`,`document_id`))");
-        mysqli_query($mysqli, "CREATE TABLE `contact_logins` (`contact_id` int(11) NOT NULL,`login_id` int(11) NOT NULL, PRIMARY KEY (`contact_id`,`login_id`))");
-        mysqli_query($mysqli, "CREATE TABLE `contact_files` (`contact_id` int(11) NOT NULL,`file_id` int(11) NOT NULL, PRIMARY KEY (`contact_id`,`file_id`))");
-
-        mysqli_query($mysqli, "CREATE TABLE `software_documents` (`software_id` int(11) NOT NULL,`document_id` int(11) NOT NULL, PRIMARY KEY (`software_id`,`document_id`))");
-        mysqli_query($mysqli, "CREATE TABLE `software_logins` (`software_id` int(11) NOT NULL,`login_id` int(11) NOT NULL, PRIMARY KEY (`software_id`,`login_id`))");
-        mysqli_query($mysqli, "CREATE TABLE `software_files` (`software_id` int(11) NOT NULL,`file_id` int(11) NOT NULL, PRIMARY KEY (`software_id`,`file_id`))");
-
-        mysqli_query($mysqli, "CREATE TABLE `vendor_documents` (`vendor_id` int(11) NOT NULL,`document_id` int(11) NOT NULL, PRIMARY KEY (`vendor_id`,`document_id`))");
-        mysqli_query($mysqli, "CREATE TABLE `vendor_logins` (`vendor_id` int(11) NOT NULL,`login_id` int(11) NOT NULL, PRIMARY KEY (`vendor_id`,`login_id`))");
-        mysqli_query($mysqli, "CREATE TABLE `vendor_files` (`vendor_id` int(11) NOT NULL,`file_id` int(11) NOT NULL, PRIMARY KEY (`vendor_id`,`file_id`))");
-
-        // Then, update the database to the next sequential version
-        mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.1.2'");
-    }
-
-    if (CURRENT_DATABASE_VERSION == '0.1.2') {
-        // Insert queries here required to update to DB version 0.1.3
-        mysqli_query($mysqli, "ALTER TABLE `logs` ADD `log_entity_id` INT NOT NULL DEFAULT '0' AFTER `log_user_id`");
-
-        // Then, update the database to the next sequential version
-        mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.1.3'");
-    }
-
-    if (CURRENT_DATABASE_VERSION == '0.1.3') {
-        // Insert queries here required to update to DB version 0.1.4
-        mysqli_query($mysqli, "ALTER TABLE assets ADD asset_status VARCHAR(200) NULL AFTER asset_mac");
-
-        ///Then, update the database to the next sequential version
-        mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.1.4'");
-    }
-
-    if (CURRENT_DATABASE_VERSION == '0.1.4') {
-        // Insert queries here required to update to DB version 0.1.5
-        mysqli_query($mysqli, "ALTER TABLE `domains` ADD `domain_txt` TEXT NULL DEFAULT NULL AFTER `domain_mail_servers`");
-
-        // Then, update the database to the next sequential version
-        mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.1.5'");
-    }
-
-    if (CURRENT_DATABASE_VERSION == '0.1.5') {
-        // Insert queries here required to update to DB version 0.1.6
-        // Remove Mailing List Tables
-        mysqli_query($mysqli, "DROP TABLE campaigns");
-        mysqli_query($mysqli, "DROP TABLE campaign_messages");
-
-        // Then, update the database to the next sequential version
-        mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.1.6'");
-    }
-
-    if (CURRENT_DATABASE_VERSION == '0.1.6') {
-        // Insert queries here required to update to DB version 0.1.7
-        //Remove custom links
-        mysqli_query($mysqli, "DROP TABLE custom_links");
-        // Then, update the database to the next sequential version
-        mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.1.7'");
-    }
-
-    if (CURRENT_DATABASE_VERSION == '0.1.7') {
-        // Insert queries here required to update to DB version 0.1.8
-        mysqli_query($mysqli, "ALTER TABLE `settings` DROP `config_backup_enable`");
-        mysqli_query($mysqli, "ALTER TABLE `settings` DROP `config_backup_path`");
-
-        // Then, update the database to the next sequential version
-        mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.1.8'");
-    }
-
-    if (CURRENT_DATABASE_VERSION == '0.1.8') {
-        // Insert queries here required to update to DB version 0.1.9
-        mysqli_query($mysqli, "ALTER TABLE `settings` DROP `config_base_url`");
-        // Then, update the database to the next sequential version
-        mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.1.9'");
-    }
-
-    if (CURRENT_DATABASE_VERSION == '0.1.9') {
-        // Insert queries here required to update to DB version 0.2.0
-        // Allow contacts to reset their portal password
-        mysqli_query($mysqli, "ALTER TABLE contacts ADD contact_password_reset_token VARCHAR(200) NULL DEFAULT NULL AFTER contact_password_hash");
-
-        // Then, update the database to the next sequential version
-        mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '0.2.0'");
-    }
-
     if (CURRENT_DATABASE_VERSION == '0.2.0') {
         //Insert queries here required to update to DB version 0.2.1
 
@@ -2239,7 +2128,7 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
     }
 
     if (CURRENT_DATABASE_VERSION == '1.6.6') {
-        
+
         mysqli_query($mysqli, "CREATE TABLE `contact_notes` (
             `contact_note_id` INT(11) NOT NULL AUTO_INCREMENT,
             `contact_note_type` VARCHAR(200) NOT NULL,
@@ -2280,7 +2169,7 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
     }
 
     if (CURRENT_DATABASE_VERSION == '1.6.7') {
-        
+
         mysqli_query($mysqli, "CREATE TABLE `error_logs` (
             `error_log_id` INT(11) NOT NULL AUTO_INCREMENT,
             `error_log_type` VARCHAR(200) NOT NULL,
@@ -2304,7 +2193,7 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
     }
 
     if (CURRENT_DATABASE_VERSION == '1.6.8') {
-        
+
         // Create New Vendor Templates Table this eventual be used to seperate templates out of the vendors table
         mysqli_query($mysqli, "CREATE TABLE `vendor_templates` (`vendor_template_id` int(11) AUTO_INCREMENT PRIMARY KEY,
             `vendor_template_name` varchar(200) NOT NULL,
@@ -2322,7 +2211,7 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
     }
 
     if (CURRENT_DATABASE_VERSION == '1.6.9') {
-        
+
         mysqli_query($mysqli, "ALTER TABLE `files` ADD `file_has_thumbnail` TINYINT(1) NOT NULL DEFAULT 0 AFTER `file_mime_type`");
         mysqli_query($mysqli, "ALTER TABLE `files` ADD `file_has_preview` TINYINT(1) NOT NULL DEFAULT 0 AFTER `file_has_thumbnail`");
 
@@ -2330,7 +2219,7 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
     }
 
     if (CURRENT_DATABASE_VERSION == '1.7.0') {
-        
+
         mysqli_query($mysqli, "DROP TABLE `vendor_templates`");
 
         mysqli_query($mysqli, "CREATE TABLE `vendor_contacts` (
@@ -2348,12 +2237,12 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
             `vendor_contact_archived_at` DATETIME DEFAULT NULL,
             `vendor_contact_vendor_id` INT(11) NOT NULL DEFAULT 0
         )");
-        
+
         mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.7.1'");
     }
 
     if (CURRENT_DATABASE_VERSION == '1.7.1') {
-        
+
         mysqli_query($mysqli, "DROP TABLE `error_logs`");
 
         mysqli_query($mysqli, "CREATE TABLE `app_logs` (
@@ -2364,7 +2253,7 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
             `app_log_created_at` DATETIME NOT NULL DEFAULT current_timestamp(),
             PRIMARY KEY (`app_log_id`)
         )");
-        
+
         mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.7.2'");
     }
 
@@ -2377,7 +2266,7 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
     }
 
     if (CURRENT_DATABASE_VERSION == '1.7.3') {
-        
+
         // Add Recurring Payments
         mysqli_query($mysqli, "CREATE TABLE `recurring_payments` (
             `recurring_payment_id` INT(11) NOT NULL AUTO_INCREMENT,
@@ -2397,7 +2286,7 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
     }
 
     if (CURRENT_DATABASE_VERSION == '1.7.4') {
-        
+
         // Remove Recurring Payment Amount as it will use the Recurring Invoice Amount and is unessessary
         mysqli_query($mysqli, "ALTER TABLE `recurring_payments` DROP `recurring_payment_amount`");
 
@@ -2463,14 +2352,14 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
     }
 
     if (CURRENT_DATABASE_VERSION == '1.7.9') {
-    
+
         mysqli_query($mysqli, "ALTER TABLE `settings` DROP `config_cron_key`");
 
         mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.8.0'");
     }
 
     if (CURRENT_DATABASE_VERSION == '1.8.0') {
-    
+
         mysqli_query($mysqli, "ALTER TABLE `ticket_statuses` ADD `ticket_status_order` int(11) NOT NULL DEFAULT 0");
 
         mysqli_query($mysqli, "ALTER TABLE `tickets` ADD `ticket_order` int(11) NOT NULL DEFAULT 0");
@@ -2481,12 +2370,12 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
 
         mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.8.1'");
     }
-    
+
     if (CURRENT_DATABASE_VERSION == '1.8.1') {
         mysqli_query($mysqli, "ALTER TABLE `asset_interfaces` CHANGE `interface_port` `interface_description` VARCHAR(200) DEFAULT NULL AFTER `interface_name`");
 
         mysqli_query($mysqli, "ALTER TABLE `asset_interfaces` ADD `interface_type` VARCHAR(50) DEFAULT NULL AFTER `interface_description`");
-        
+
         mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.8.2'");
     }
 
