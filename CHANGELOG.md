@@ -2,6 +2,10 @@
 
 This file documents all notable changes made to ITFlow.
 
+## [25.02.2]
+### Fixed
+- Fix broken create / edit credentials
+
 ## [25.02.1]
 ### Fixed
 - Resolved broken links in the client overview, project and client listings, and rack details.
