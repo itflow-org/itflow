@@ -5,7 +5,7 @@ require_once '../includes/ajax_header.php';
 $certificate_id = intval($_GET['id']);
 
 $sql = mysqli_query($mysqli, "SELECT * FROM certificates WHERE certificate_id = $certificate_id LIMIT 1");
-                     
+
 $row = mysqli_fetch_array($sql);
 $certificate_name = nullable_htmlentities($row['certificate_name']);
 $certificate_description = nullable_htmlentities($row['certificate_description']);
@@ -13,9 +13,12 @@ $certificate_domain = nullable_htmlentities($row['certificate_domain']);
 $certificate_domain_id = intval($row['certificate_domain_id']);
 $certificate_issued_by = nullable_htmlentities($row['certificate_issued_by']);
 $certificate_public_key = nullable_htmlentities($row['certificate_public_key']);
+$certificate_notes = nullable_htmlentities($row['certificate_notes']);
 $certificate_expire = nullable_htmlentities($row['certificate_expire']);
 $certificate_created_at = nullable_htmlentities($row['certificate_created_at']);
 $client_id = intval($row['certificate_client_id']);
+
+$history_sql = mysqli_query($mysqli, "SELECT * FROM certificate_history WHERE certificate_history_certificate_id = $certificate_id");
 
 // Generate the HTML form content using output buffering.
 ob_start();
@@ -41,6 +44,9 @@ ob_start();
             </li>
             <li class="nav-item">
                 <a class="nav-link" data-toggle="pill" href="#pillsEditNotes<?php echo $certificate_id; ?>">Notes</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" data-toggle="pill" href="#pillsEditHistory<?php echo $certificate_id; ?>">History</a>
             </li>
         </ul>
 
@@ -78,7 +84,7 @@ ob_start();
                         </div>
                         <select class="form-control select2" name="domain_id">
                             <option value="">- Select Domain -</option>
-                            <?php 
+                            <?php
                             $domains_sql = mysqli_query($mysqli, "SELECT domain_id, domain_name FROM domains WHERE domain_client_id = $client_id");
                             while ($row = mysqli_fetch_array($domains_sql)) {
                                 $domain_id = intval($row['domain_id']);
@@ -141,11 +147,40 @@ ob_start();
             </div>
 
             <div class="tab-pane fade" id="pillsEditNotes<?php echo $certificate_id; ?>">
-
                 <div class="form-group">
                     <textarea class="form-control" name="notes" rows="12" placeholder="Enter some notes"><?php echo $certificate_notes; ?></textarea>
                 </div>
+            </div>
 
+            <div class="tab-pane fade" id="pillsEditHistory<?php echo $certificate_id; ?>">
+                <div class="table-responsive">
+                    <table class='table table-sm table-striped border table-hover'>
+                        <thead class='thead-dark'>
+                        <tr>
+                            <th>Date</th>
+                            <th>Field</th>
+                            <th>Before</th>
+                            <th>After</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <?php
+                        while ($row = mysqli_fetch_array($history_sql)) {
+                            $certificate_modified_at = nullable_htmlentities($row['certificate_history_modified_at']);
+                            $certificate_field = nullable_htmlentities($row['certificate_history_column']);
+                            $certificate_before_value = nullable_htmlentities($row['certificate_history_old_value']);
+                            $certificate_after_value = nullable_htmlentities($row['certificate_history_new_value']);
+                            ?>
+                            <tr>
+                                <td><?php echo $certificate_modified_at; ?></td>
+                                <td><?php echo $certificate_field; ?></td>
+                                <td><?php echo $certificate_before_value; ?></td>
+                                <td><?php echo $certificate_after_value; ?></td>
+                            </tr>
+                        <?php } ?>
+                        </tbody>
+                    </table>
+                </div>
             </div>
 
         </div>
