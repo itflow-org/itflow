@@ -47,6 +47,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
     </div>
     <div class="card-body">
         <form class="mb-4" autocomplete="off">
+            <?php if ($dismissed_filter) { ?>
+                <input type="hidden" name="dismissed" value="">
+            <?php } ?>
             <div class="row">
                 <div class="col-sm-4">
                     <div class="input-group">
