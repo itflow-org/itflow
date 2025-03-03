@@ -2,6 +2,11 @@
 
 This file documents all notable changes made to ITFlow.
 
+## [25.02.3]
+
+### Fixed
+- Fixed notificaitons being reversed as dismissed notifications.
+
 ## [25.02.2]
 
 ### Fixed
