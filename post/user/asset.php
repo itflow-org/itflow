@@ -740,7 +740,6 @@ if (isset($_GET['unlink_asset_from_file'])) {
 if (isset($_POST["import_assets_csv"])) {
 
     enforceUserPermission('module_support', 2);
-
     validateCSRFToken($_POST['csrf_token']);
 
     $client_id = intval($_POST['client_id']);
@@ -774,9 +773,9 @@ if (isset($_POST["import_assets_csv"])) {
     //(Else)Check column count (name, desc, type, make, model, serial, os, assigned to, location)
     $f = fopen($file_name, "r");
     $f_columns = fgetcsv($f, 1000, ",");
-    if (!$error & count($f_columns) != 9) {
+    if (!$error & count($f_columns) != 10) {
         $error = true;
-        $_SESSION['alert_message'] = "Bad column count.";
+        $_SESSION['alert_message'] = "Invalid column count.";
     }
 
     //Else, parse the file
@@ -832,11 +831,14 @@ if (isset($_POST["import_assets_csv"])) {
                     $location_id = intval($row['location_id']);
                 }
             }
+            if (!empty($column[9])) {
+                $physical_location = sanitizeInput($column[9]);
+            }
 
             // Check if duplicate was detected
             if ($duplicate_detect == 0) {
                 //Add
-                mysqli_query($mysqli,"INSERT INTO assets SET asset_name = '$name', asset_description = '$description', asset_type = '$type', asset_make = '$make', asset_model = '$model', asset_serial = '$serial', asset_os = '$os', asset_contact_id = $contact_id, asset_location_id = $location_id, asset_client_id = $client_id");
+                mysqli_query($mysqli,"INSERT INTO assets SET asset_name = '$name', asset_description = '$description', asset_type = '$type', asset_make = '$make', asset_model = '$model', asset_serial = '$serial', asset_os = '$os', asset_physical_location = '$physical_location', asset_contact_id = $contact_id, asset_location_id = $location_id, asset_client_id = $client_id");
 
                 $asset_id = mysqli_insert_id($mysqli);
                 
@@ -864,7 +866,7 @@ if (isset($_POST["import_assets_csv"])) {
 }
 
 if (isset($_GET['download_assets_csv_template'])) {
-    $client_id = intval($_GET['download_client_assets_csv_template']);
+    $client_id = intval($_GET['download_assets_csv_template']);
 
     //get records from database
     $sql = mysqli_query($mysqli,"SELECT client_name FROM clients WHERE client_id = $client_id");
@@ -879,7 +881,7 @@ if (isset($_GET['download_assets_csv_template'])) {
     $f = fopen('php://memory', 'w');
 
     //set column headers
-    $fields = array('Name', 'Description', 'Type', 'Make', 'Model', 'Serial', 'OS', 'Assigned To', 'Location');
+    $fields = array('Name', 'Description', 'Type', 'Make', 'Model', 'Serial', 'OS', 'Assigned To', 'Location', 'Physical Location');
     fputcsv($f, $fields, $delimiter);
 
     //move back to beginning of file
@@ -898,22 +900,22 @@ if (isset($_GET['download_assets_csv_template'])) {
 if (isset($_POST['export_assets_csv'])) {
 
     enforceUserPermission('module_support');
-
     validateCSRFToken($_POST['csrf_token']);
+
+    $client_name = 'All'; // default
 
     if (isset($_POST['client_id'])) {
         $client_id = intval($_POST['client_id']);
         $client_query = "AND asset_client_id = $client_id";
+
+        $client_row = mysqli_fetch_array(mysqli_query($mysqli,"SELECT client_name FROM clients WHERE client_id = $client_id"));
+        $client_name = $client_row['client_name'];
     } else {
         $client_query = '';
     }
 
-    //get records from database
+    // Get records from database
     $sql = mysqli_query($mysqli,"SELECT * FROM assets LEFT JOIN contacts ON asset_contact_id = contact_id LEFT JOIN locations ON asset_location_id = location_id LEFT JOIN asset_interfaces ON interface_asset_id = asset_id AND interface_primary = 1 LEFT JOIN clients ON asset_client_id = client_id WHERE asset_archived_at IS NULL $client_query ORDER BY asset_name ASC");
-    $row = mysqli_fetch_array($sql);
-
-    $client_name = $row['client_name'];
-
     $num_rows = mysqli_num_rows($sql);
 
     if ($num_rows > 0) {
@@ -924,12 +926,12 @@ if (isset($_POST['export_assets_csv'])) {
         $f = fopen('php://memory', 'w');
 
         //set column headers
-        $fields = array('Name', 'Description', 'Type', 'Make', 'Model', 'Serial Number', 'Operating System', 'Purchase Date', 'Warranty Expire', 'Install Date', 'Assigned To', 'Location', 'Notes');
+        $fields = array('Name', 'Description', 'Type', 'Make', 'Model', 'Serial Number', 'Operating System', 'Purchase Date', 'Warranty Expire', 'Install Date', 'Assigned To', 'Location', 'Physical Location', 'Notes');
         fputcsv($f, $fields, $delimiter);
 
         //output each row of the data, format line as csv and write to file pointer
-        while($row = mysqli_fetch_array($sql)) {
-            $lineData = array($row['asset_name'], $row['asset_description'], $row['asset_type'], $row['asset_make'], $row['asset_model'], $row['asset_serial'], $row['asset_os'], $row['asset_purchase_date'], $row['asset_warranty_expire'], $row['asset_install_date'], $row['contact_name'], $row['location_name'], $row['asset_notes']);
+        while ($row = mysqli_fetch_array($sql)) {
+            $lineData = array($row['asset_name'], $row['asset_description'], $row['asset_type'], $row['asset_make'], $row['asset_model'], $row['asset_serial'], $row['asset_os'], $row['asset_purchase_date'], $row['asset_warranty_expire'], $row['asset_install_date'], $row['contact_name'], $row['location_name'], $row['asset_physical_location'], $row['asset_notes']);
             fputcsv($f, $lineData, $delimiter);
         }
 
@@ -1188,7 +1190,6 @@ if (isset($_GET['delete_asset_interface'])) {
 if (isset($_POST["import_client_asset_interfaces_csv"])) {
 
     enforceUserPermission('module_support', 2);
-
     validateCSRFToken($_POST['csrf_token']);
 
     $asset_id = intval($_POST['asset_id']);
@@ -1338,7 +1339,6 @@ if (isset($_GET['download_client_asset_interfaces_csv_template'])) {
 if (isset($_POST['export_client_asset_interfaces_csv'])) {
 
     enforceUserPermission('module_support');
-
     validateCSRFToken($_POST['csrf_token']);
 
     $asset_id = intval($_POST['asset_id']);

@@ -2,6 +2,24 @@
 
 This file documents all notable changes made to ITFlow.
 
+## [25.02.2]
+
+### Fixed
+- Corrected some edit modals not showing notes correctly.
+- Bugfix: When exporting to CSV, the first asset wasn't being shown.
+- Fix broken create / edit credentials.
+- Fixed missing Notificatons link.
+- Fixed a few dead links.
+- Fixed Overdue count also counting Non-Billable Invoices.
+- Fix Edit Client Notes.
+
+### Added / Changed
+- Implemented SSL certificate history tracking.
+- Added Inactive / Active Filter to Recurring Invoices.
+- Merged Dismissed notifications and notification in one.
+- Added Link Button to addd / edit Document WYSIWYG.
+- Added Physical location to the asset export / import.
+
 ## [25.02.1]
 ### Fixed
 - Resolved broken links in the client overview, project and client listings, and rack details.
@@ -24,33 +42,33 @@ This file documents all notable changes made to ITFlow.
 - Added a Vendor Quick Details Modal.
 - Enabled vendor linking and added a License Purchase Reference in the Software Licenses section.
 - Added download original, optimized and thumbnail option for images.
-- Added Paid status to the top corner of Invoice PDFs
+- Added Paid status to the top corner of Invoice PDFs.
 
 ## [25.02]
 ### Fixed
-- Migrated several reports to the new permissions/roles system
-- Resolved issue with empty task box showing for closed/resolved tickets
-- Corrected ticket priority sorting
-- Cloned asset interfaces when transferring assets between clients
+- Migrated several reports to the new permissions/roles system.
+- Resolved issue with empty task box showing for closed/resolved tickets.
+- Corrected ticket priority sorting.
+- Cloned asset interfaces when transferring assets between clients.
 
 ### Added / Changed
 - Restored max number of records per page option back to 500 since we dont have repeating modals.
-- Bulk Categorize Tickets feature
-- Renamed "Interface port" to "Interface Description." "Interface Name" should now refer to port name and/or number
-- Changed "Transfer Asset to Client" from a single action to a bulk action
-- Updated Filter Footer UI to show "Showing x to x of x records" instead of just the total records
+- Bulk Categorize Tickets feature.
+- Renamed "Interface port" to "Interface Description." "Interface Name" should now refer to port name and/or number.
+- Changed "Transfer Asset to Client" from a single action to a bulk action.
+- Updated Filter Footer UI to show "Showing x to x of x records" instead of just the total records.
 - Added Client Overview section to view client assets, contacts, licenses, credentials, etc.
-- Introduced Quick Peek for asset details, contact information, and document viewing throughout the ITFlow App, all made possible by AJAX
-- Enabled Simple Drag-and-Drop Ordering for Invoices, Recurring Invoices, Quotes, Ticket Tasks, and Ticket Template Tasks
-- Added new Ticket View options: Kanban and Simple View
-- Migrated all repeating modals to the new AJAX modal function for faster loading times and quicker development
-- Allowed clients to upload PDF documents to accepted quotes
-- Client Portal now shows ticket category
-- Custom links can now be added to the Client Portal navbar
+- Introduced Quick Peek for asset details, contact information, and document viewing throughout the ITFlow App, all made possible by AJAX.
+- Enabled Simple Drag-and-Drop Ordering for Invoices, Recurring Invoices, Quotes, Ticket Tasks, and Ticket Template Tasks.
+- Added new Ticket View options: Kanban and Simple View.
+- Migrated all repeating modals to the new AJAX modal function for faster loading times and quicker development.
+- Allowed clients to upload PDF documents to accepted quotes.
+- Client Portal now shows ticket category.
+- Custom links can now be added to the Client Portal navbar.
 - Lots of little tweaks to UI, performance, bugs, etc.
 
 ### Breaking Changes
-- Cron scripts have officially been moved to the /scripts folder and are no longer in the root directory; they must be updated to function properly
+- Cron scripts have officially been moved to the /scripts folder and are no longer in the root directory; they must be updated to function properly.
 
 ## [25.01.3]
 ### Fixed

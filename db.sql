@@ -322,6 +322,24 @@ CREATE TABLE `categories` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `certificate_history`
+--
+
+DROP TABLE IF EXISTS `certificate_history`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `certificate_history` (
+ `certificate_history_id` int(11) NOT NULL AUTO_INCREMENT,
+ `certificate_history_column` varchar(200) NOT NULL,
+ `certificate_history_old_value` text NOT NULL,
+ `certificate_history_new_value` text NOT NULL,
+ `certificate_history_certificate_id` int(11) NOT NULL,
+ `certificate_history_modified_at` datetime NOT NULL DEFAULT current_timestamp(),
+ PRIMARY KEY (`certificate_history_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `certificates`
 --
 
