@@ -900,22 +900,22 @@ if (isset($_GET['download_assets_csv_template'])) {
 if (isset($_POST['export_assets_csv'])) {
 
     enforceUserPermission('module_support');
-
     validateCSRFToken($_POST['csrf_token']);
+
+    $client_name = 'All'; // default
 
     if (isset($_POST['client_id'])) {
         $client_id = intval($_POST['client_id']);
         $client_query = "AND asset_client_id = $client_id";
+
+        $client_row = mysqli_fetch_array(mysqli_query($mysqli,"SELECT client_name FROM clients WHERE client_id = $client_id"));
+        $client_name = $client_row['client_name'];
     } else {
         $client_query = '';
     }
 
-    //get records from database
+    // Get records from database
     $sql = mysqli_query($mysqli,"SELECT * FROM assets LEFT JOIN contacts ON asset_contact_id = contact_id LEFT JOIN locations ON asset_location_id = location_id LEFT JOIN asset_interfaces ON interface_asset_id = asset_id AND interface_primary = 1 LEFT JOIN clients ON asset_client_id = client_id WHERE asset_archived_at IS NULL $client_query ORDER BY asset_name ASC");
-    $row = mysqli_fetch_array($sql);
-
-    $client_name = $row['client_name'];
-
     $num_rows = mysqli_num_rows($sql);
 
     if ($num_rows > 0) {
@@ -930,7 +930,7 @@ if (isset($_POST['export_assets_csv'])) {
         fputcsv($f, $fields, $delimiter);
 
         //output each row of the data, format line as csv and write to file pointer
-        while($row = mysqli_fetch_array($sql)) {
+        while ($row = mysqli_fetch_array($sql)) {
             $lineData = array($row['asset_name'], $row['asset_description'], $row['asset_type'], $row['asset_make'], $row['asset_model'], $row['asset_serial'], $row['asset_os'], $row['asset_purchase_date'], $row['asset_warranty_expire'], $row['asset_install_date'], $row['contact_name'], $row['location_name'], $row['asset_physical_location'], $row['asset_notes']);
             fputcsv($f, $lineData, $delimiter);
         }

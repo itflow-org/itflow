@@ -5,6 +5,7 @@ This file documents all notable changes made to ITFlow.
 ## [25.03]
 ### Fixed
 - Corrected some edit modals not showing notes correctly.
+- Bugfix: When exporting to CSV, the first asset wasn't being shown.
 
 ### Added / Changed
 - Implemented SSL certificate history tracking.
