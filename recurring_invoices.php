@@ -18,8 +18,14 @@ if (isset($_GET['client_id'])) {
 // Perms
 enforceUserPermission('module_sales');
 
-//Rebuild URL
-$url_query_strings_sort = http_build_query($get_copy);
+// Status Filter
+if (isset($_GET['status']) && $_GET['status'] == "inactive") {
+    $status_filter = "inactive";
+    $status_query = "AND recurring_status = 0";
+} else {
+    $status_filter = "active";
+    $status_query = "AND recurring_status = 1";
+}
 
 $sql = mysqli_query(
     $mysqli,
@@ -29,6 +35,7 @@ $sql = mysqli_query(
     LEFT JOIN recurring_payments ON recurring_payment_recurring_invoice_id = recurring_id
     WHERE (CONCAT(recurring_prefix,recurring_number) LIKE '%$q%' OR recurring_frequency LIKE '%$q%' OR recurring_scope LIKE '%$q%' OR client_name LIKE '%$q%' OR category_name LIKE '%$q%')
     AND DATE(recurring_created_at) BETWEEN '$dtf' AND '$dtt'
+    $status_query
     $client_query
     ORDER BY $sort $order LIMIT $record_from, $record_to");
 
@@ -49,6 +56,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
             <?php if ($client_url) { ?>
                 <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
             <?php } ?>
+            <input type="hidden" name="status" value="<?php echo $status_filter; ?>">
             <div class="row">
                 <div class="col-sm-4">
                     <div class="input-group">
@@ -60,7 +68,11 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     </div>
                 </div>
                 <div class="col-sm-8">
-                    <div class="btn-group float-right">
+                    <div class="btn-toolbar float-right">
+                        <div class="btn-group mr-2">
+                            <a href="?status=active" class="btn btn-<?php if ($status_filter == "active"){ echo "primary"; } else { echo "default"; } ?>"><i class="fa fa-fw fa-check mr-2"></i>Active</a>
+                            <a href="?status=inactive" class="btn btn-<?php if ($status_filter == "inactive"){ echo "primary"; } else { echo "default"; } ?>"><i class="fa fa-fw fa-ban mr-2"></i>Inactive</a>
+                        </div>
                     </div>
                 </div>
             </div>
