@@ -2,17 +2,23 @@
 
 This file documents all notable changes made to ITFlow.
 
-## [25.03]
+## [25.02.2]
+
 ### Fixed
 - Corrected some edit modals not showing notes correctly.
 - Bugfix: When exporting to CSV, the first asset wasn't being shown.
+- Fix broken create / edit credentials.
+- Fixed missing Notificatons link
+- Fixed a few dead links
+- Fixed Overdue count also counting Non-Billable Invoices
+- Fix Edit Client Notes
 
 ### Added / Changed
 - Implemented SSL certificate history tracking.
-
-## [25.02.2]
-### Fixed
-- Fix broken create / edit credentials.
+- Added Inactive / Active Filter to Recurring Invoices
+- Merged Dismissed notifications and notification in one.
+- Added Link Button to addd / edit Document WYSIWYG
+- Added Physical location to the asset export / import
 
 ## [25.02.1]
 ### Fixed
