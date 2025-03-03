@@ -28,6 +28,7 @@ tinymce.init({
     toolbar: [
       { name: 'styles', items: [ 'styles' ] },
       { name: 'formatting', items: [ 'bold', 'italic', 'forecolor' ] },
+      { name: 'link', items: [ 'link'] },
       { name: 'lists', items: [ 'bullist', 'numlist' ] },
       { name: 'alignment', items: [ 'alignleft', 'aligncenter', 'alignright', 'alignjustify' ] },
       { name: 'indentation', items: [ 'outdent', 'indent' ] },
@@ -59,6 +60,7 @@ tinymce.init({
     toolbar: [
       { name: 'styles', items: [ 'styles' ] },
       { name: 'formatting', items: [ 'bold', 'italic', 'forecolor' ] },
+      { name: 'link', items: [ 'link'] },
       { name: 'lists', items: [ 'bullist', 'numlist' ] },
       { name: 'alignment', items: [ 'alignleft', 'aligncenter', 'alignright', 'alignjustify' ] },
       { name: 'indentation', items: [ 'outdent', 'indent' ] },
@@ -273,20 +275,6 @@ tinymce.init({
             }
         });
     }
-});
-
-// Initialize TinyMCE
-tinymce.init({
-    selector: '.tinymcePreview',
-    resize: false,
-    promotion: false,
-    branding: false,
-    menubar: false,
-    toolbar: false,
-    statusbar: false,
-    readonly: false,
-    plugins: 'autoresize',
-    license_key: 'gpl',
 });
 
 // DateTime
