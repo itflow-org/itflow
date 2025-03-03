@@ -101,14 +101,14 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             Notification <?php if ($sort == 'notification') { echo $order_icon; } ?>
                         </a>
                     </th>
-                    <?php if(!$dismissed_filter) { ?>
+                    <?php if($dismissed_filter) { ?>
                     <th>
                         <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=notification_dismissed_at&order=<?php echo $disp; ?>">
                             Dismissed At <?php if ($sort == 'notification_dismissed_at') { echo $order_icon; } ?>
                         </a>
                     </th>
                     <?php } ?>
-                    <?php if($dismissed_filter) { ?>
+                    <?php if(!$dismissed_filter) { ?>
                     <th class="text-center p-0">
                         <?php if (mysqli_num_rows($sql) > 0) { ?>
                         <a href="post.php?dismiss_all_notifications&csrf_token=<?php echo $_SESSION["csrf_token"]; ?>" 
@@ -137,10 +137,10 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     <td><?php echo $notification_timestamp; ?></td>
                     <td><?php echo $notification_type; ?></td>
                     <td><?php echo $notification; ?></td>
-                    <?php if(!$dismissed_filter) { ?>
+                    <?php if($dismissed_filter) { ?>
                     <td><?php echo $notification_dismissed_at; ?></td>
                     <?php } ?>
-                    <?php if($dismissed_filter) { ?>
+                    <?php if(!$dismissed_filter) { ?>
                     <td class="text-center"><a class="btn btn-secondary btn-sm" href="post.php?dismiss_notification=<?php echo $notification_id; ?>" title="Dismiss"><i class="fas fa-check"></i></a></td>
                     <?php } ?>
                 </tr>
