@@ -2,9 +2,16 @@
 
 This file documents all notable changes made to ITFlow.
 
+## [25.03]
+### Fixed
+- Corrected some edit modals not showing notes correctly.
+
+### Added / Changed
+- Implemented SSL certificate history tracking.
+
 ## [25.02.2]
 ### Fixed
-- Fix broken create / edit credentials
+- Fix broken create / edit credentials.
 
 ## [25.02.1]
 ### Fixed
