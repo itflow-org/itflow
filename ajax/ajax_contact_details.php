@@ -846,7 +846,7 @@ ob_start();
 </div>
 
 <div class="modal-footer bg-white">
-    <a href="contact_details.php?<?php echo $client_url; ?>contact_id=<?php echo $contact_id; ?>" class="btn btn-primary text-bold">
+    <a href="contact_details.php?client_id=<?php echo $client_id; ?>&contact_id=<?php echo $contact_id; ?>" class="btn btn-primary text-bold">
         <span class="text-white"><i class="fas fa-info-circle mr-2"></i>More Details</span>
     </a>
     <a href="#" class="btn btn-secondary" 
