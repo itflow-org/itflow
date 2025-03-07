@@ -78,6 +78,7 @@ $config_ticket_default_billable = intval($row['config_ticket_default_billable'])
 $config_ticket_default_view = intval($row['config_ticket_default_view']);
 $config_ticket_moving_columns = intval($row['config_ticket_moving_columns']);
 $config_ticket_ordering = intval($row['config_ticket_ordering']);
+$config_ticket_timer_default_no_autostart = intval($row['config_ticket_timer_default_no_autostart']);
 
 // Cron
 $config_enable_cron = intval($row['config_enable_cron']);
