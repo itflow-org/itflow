@@ -476,7 +476,7 @@ if (isset($_GET['ticket_id'])) {
 
                             $ticket_closed_by_display = 'User';
                             if (!empty($ticket_closed_by)) {
-                                $sql_closed_by = mysqli_query($mysqli, "SELECT * FROM tickets, users WHERE ticket_closed_by = user_id");
+                                $sql_closed_by = mysqli_query($mysqli, "SELECT user_name FROM users WHERE user_id = $ticket_closed_by");
                                 $row = mysqli_fetch_array($sql_closed_by);
                                 $ticket_closed_by_display = nullable_htmlentities($row['user_name']);
                             }
