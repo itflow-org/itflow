@@ -10,11 +10,16 @@ This file documents all notable changes made to ITFlow.
 - Corrected the contact ticket count display.
 - Addressed an issue where clicking "More Details" in AJAX contact/asset details failed to include the `client_id` in the URL.
 - Fixed an issue with recurring invoices in the client URL: clicking "Inactive" or "Active" would unexpectedly navigate away from the client section.
+- Added new php function getFieldById() to return a record using just an id and sanitized as well.
 
 ## [25.02.3]
 
 ### Fixed
+- Corrected some edit modals not showing notes correctly.
 - Fixed notifications being reversed as dismissed notifications.
+
+### Added / Changed
+- Implemented SSL certificate history tracking.
 
 ## [25.02.2]
 
