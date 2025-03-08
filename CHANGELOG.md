@@ -15,11 +15,7 @@ This file documents all notable changes made to ITFlow.
 ## [25.02.3]
 
 ### Fixed
-- Corrected some edit modals not showing notes correctly.
 - Fixed notifications being reversed as dismissed notifications.
-
-### Added / Changed
-- Implemented SSL certificate history tracking.
 
 ## [25.02.2]
 
