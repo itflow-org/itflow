@@ -385,7 +385,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         if ($ticket_count) { 
                             $ticket_count_display = "<span class='mr-2 badge badge-pill badge-secondary p-2' title='$ticket_count Tickets'><i class='fas fa-fw fa-life-ring mr-2'></i>$ticket_count</span>";
                         } else {
-                            $software_count_display = '';
+                            $ticket_count_display = '';
                         }
 
                         // Related Documents Query

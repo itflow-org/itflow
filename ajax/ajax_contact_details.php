@@ -9,7 +9,7 @@ $sql = mysqli_query($mysqli, "SELECT * FROM contacts
     LEFT JOIN locations ON location_id = contact_location_id
     LEFT JOIN users ON user_id = contact_user_id
     WHERE contact_id = $contact_id
-    $client_query
+    LIMIT 1
 ");
 
 $row = mysqli_fetch_array($sql);
@@ -114,7 +114,7 @@ $sql_linked_services = mysqli_query($mysqli, "SELECT * FROM service_contacts, se
     AND service_contacts.service_id = services.service_id
     ORDER BY service_name ASC"
 );
-$service_count = mysqli_num_rows($sql_linked_services);
+$services_count = mysqli_num_rows($sql_linked_services);
 
 $linked_services = array();
 
@@ -846,7 +846,7 @@ ob_start();
 </div>
 
 <div class="modal-footer bg-white">
-    <a href="contact_details.php?<?php echo $client_url; ?>contact_id=<?php echo $contact_id; ?>" class="btn btn-primary text-bold">
+    <a href="contact_details.php?client_id=<?php echo $client_id; ?>&contact_id=<?php echo $contact_id; ?>" class="btn btn-primary text-bold">
         <span class="text-white"><i class="fas fa-info-circle mr-2"></i>More Details</span>
     </a>
     <a href="#" class="btn btn-secondary" 

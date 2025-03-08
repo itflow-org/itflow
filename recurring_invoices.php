@@ -70,8 +70,8 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                 <div class="col-sm-8">
                     <div class="btn-toolbar float-right">
                         <div class="btn-group mr-2">
-                            <a href="?status=active" class="btn btn-<?php if ($status_filter == "active"){ echo "primary"; } else { echo "default"; } ?>"><i class="fa fa-fw fa-check mr-2"></i>Active</a>
-                            <a href="?status=inactive" class="btn btn-<?php if ($status_filter == "inactive"){ echo "primary"; } else { echo "default"; } ?>"><i class="fa fa-fw fa-ban mr-2"></i>Inactive</a>
+                            <a href="?<?php echo $client_url; ?>status=active" class="btn btn-<?php if ($status_filter == "active"){ echo "primary"; } else { echo "default"; } ?>"><i class="fa fa-fw fa-check mr-2"></i>Active</a>
+                            <a href="?<?php echo $client_url; ?>status=inactive" class="btn btn-<?php if ($status_filter == "inactive"){ echo "primary"; } else { echo "default"; } ?>"><i class="fa fa-fw fa-ban mr-2"></i>Inactive</a>
                         </div>
                     </div>
                 </div>

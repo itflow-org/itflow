@@ -848,7 +848,7 @@ ob_start();
 </div>
 
 <div class="modal-footer bg-white">
-    <a href="asset_details.php?<?php echo $client_url; ?>asset_id=<?php echo $asset_id; ?>" class="btn btn-primary text-bold"><span class="text-white"><i class="fas fa-info-circle mr-2"></i>More Details</span></a>
+    <a href="asset_details.php?client_id=<?php echo $client_id; ?>&asset_id=<?php echo $asset_id; ?>" class="btn btn-primary text-bold"><span class="text-white"><i class="fas fa-info-circle mr-2"></i>More Details</span></a>
     <a href="#" class="btn btn-secondary" 
         data-toggle="ajax-modal" data-ajax-url="ajax/ajax_asset_edit.php" data-ajax-id="<?php echo $asset_id; ?>">
         <span class="text-white"><i class="fas fa-edit mr-2"></i>Edit</span>

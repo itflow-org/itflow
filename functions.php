@@ -1414,3 +1414,90 @@ function logAuth($status, $details) {
 function getFallback($data) {
     return !empty($data) ? $data : '<span class="text-muted">N/A</span>';
 }
+
+/**
+ * Retrieves a specified field's value from a table based on the record's id.
+ * It validates the table and field names, automatically determines the primary key (or uses the first column as fallback),
+ * and returns the field value with an appropriate escaping method.
+ *
+ * @param string $table         The name of the table.
+ * @param int    $id            The record's id.
+ * @param string $field         The field (column) to retrieve.
+ * @param string $escape_method The escape method: 'sql' (default, auto-detects int), 'html', 'json', or 'int'.
+ * 
+ * @return mixed The escaped field value, or null if not found or invalid input.
+ */
+function getFieldById($table, $id, $field, $escape_method = 'sql') {
+    global $mysqli;  // Use the global MySQLi connection
+
+    // Validate table and field names to allow only letters, numbers, and underscores
+    if (!preg_match('/^[a-zA-Z0-9_]+$/', $table) || !preg_match('/^[a-zA-Z0-9_]+$/', $field)) {
+        return null; // Invalid table or field name
+    }
+
+    // Sanitize id as an integer
+    $id = (int)$id;
+
+    // Get the list of columns and their details from the table
+    $columns_result = mysqli_query($mysqli, "SHOW COLUMNS FROM `$table`");
+    if (!$columns_result || mysqli_num_rows($columns_result) == 0) {
+        return null; // Table not found or has no columns
+    }
+
+    // Build an associative array with column details
+    $columns = [];
+    while ($row = mysqli_fetch_assoc($columns_result)) {
+        $columns[$row['Field']] = [
+            'type' => $row['Type'],
+            'key'  => $row['Key']
+        ];
+    }
+
+    // Find the primary key field if available
+    $id_field = null;
+    foreach ($columns as $col => $details) {
+        if ($details['key'] === 'PRI') {
+            $id_field = $col;
+            break;
+        }
+    }
+    // Fallback: if no primary key is found, use the first column
+    if (!$id_field) {
+        reset($columns);
+        $id_field = key($columns);
+    }
+
+    // Ensure the requested field exists; if not, default to the id field
+    if (!array_key_exists($field, $columns)) {
+        $field = $id_field;
+    }
+
+    // Build and execute the query to fetch the specified field value
+    $query = "SELECT `$field` FROM `$table` WHERE `$id_field` = $id";
+    $sql = mysqli_query($mysqli, $query);
+
+    if ($sql && mysqli_num_rows($sql) > 0) {
+        $row = mysqli_fetch_assoc($sql);
+        $value = $row[$field];
+
+        // Apply the desired escaping method or auto-detect integer type if using SQL escaping
+        switch ($escape_method) {
+            case 'html':
+                return htmlspecialchars($value, ENT_QUOTES, 'UTF-8'); // Escape for HTML
+            case 'json':
+                return json_encode($value); // Escape for JSON
+            case 'int':
+                return (int)$value; // Explicitly cast value to integer
+            case 'sql':
+            default:
+                // Auto-detect if the field type is integer
+                if (stripos($columns[$field]['type'], 'int') !== false) {
+                    return (int)$value;
+                } else {
+                    return sanitizeInput($value); // Escape for SQL using a custom function
+                }
+        }
+    }
+
+    return null; // Return null if no record was found
+}
