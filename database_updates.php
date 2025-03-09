@@ -2423,10 +2423,16 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
         mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.8.7'");
     }
 
-    // if (CURRENT_DATABASE_VERSION == '1.8.7') {
-    //     // Insert queries here required to update to DB version 1.8.8
+     if (CURRENT_DATABASE_VERSION == '1.8.7') {
+         mysqli_query($mysqli, "ALTER TABLE `tickets` ADD `ticket_first_response_at` DATETIME NULL DEFAULT NULL AFTER `ticket_archived_at`");
+
+         mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.8.8'");
+     }
+
+    // if (CURRENT_DATABASE_VERSION == '1.8.8') {
+    //     // Insert queries here required to update to DB version 1.8.9
     //     // Then, update the database to the next sequential version
-    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.8.8'");
+    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.8.9'");
     // }
 
 } else {
