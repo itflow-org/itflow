@@ -267,8 +267,8 @@ $password_hash = password_hash(trim($user_password_plain), PASSWORD_DEFAULT);
 $site_encryption_master_key = randomString();
 $user_specific_encryption_ciphertext = setupFirstUserSpecificKey($user_password_plain, $site_encryption_master_key);
 
-mysqli_query($mysqli,"INSERT INTO users SET user_name = '$user_name', user_email = '$user_email', user_password = '$password_hash', user_specific_encryption_ciphertext = '$user_specific_encryption_ciphertext'");
-mysqli_query($mysqli,"INSERT INTO user_settings SET user_id = 1, user_role = 3");
+mysqli_query($mysqli,"INSERT INTO users SET user_name = '$user_name', user_email = '$user_email', user_password = '$password_hash', user_specific_encryption_ciphertext = '$user_specific_encryption_ciphertext', user_role_id = 3");
+mysqli_query($mysqli,"INSERT INTO user_settings SET user_id = 1");
 echo "User $user_name created successfully.\n";
 
 // Company Details
@@ -308,20 +308,20 @@ mysqli_query($mysqli, "INSERT INTO modules SET module_name = 'module_financial',
 mysqli_query($mysqli, "INSERT INTO modules SET module_name = 'module_reporting', module_description = 'Access to all reports'");
 
 // Roles
-mysqli_query($mysqli, "INSERT INTO user_roles SET user_role_id = 1, user_role_name = 'Accountant', user_role_description = 'Built-in - Limited access to financial-focused modules'");
+mysqli_query($mysqli, "INSERT INTO user_roles SET role_id = 1, role_name = 'Accountant', role_description = 'Built-in - Limited access to financial-focused modules'");
 mysqli_query($mysqli, "INSERT INTO user_role_permissions SET user_role_id = 1, module_id = 1, user_role_permission_level = 1");
 mysqli_query($mysqli, "INSERT INTO user_role_permissions SET user_role_id = 1, module_id = 2, user_role_permission_level = 1");
 mysqli_query($mysqli, "INSERT INTO user_role_permissions SET user_role_id = 1, module_id = 4, user_role_permission_level = 1");
 mysqli_query($mysqli, "INSERT INTO user_role_permissions SET user_role_id = 1, module_id = 5, user_role_permission_level = 2");
 mysqli_query($mysqli, "INSERT INTO user_role_permissions SET user_role_id = 1, module_id = 6, user_role_permission_level = 1");
 
-mysqli_query($mysqli, "INSERT INTO user_roles SET user_role_id = 2, user_role_name = 'Technician', user_role_description = 'Built-in - Limited access to technical-focused modules'");
+mysqli_query($mysqli, "INSERT INTO user_roles SET role_id = 2, role_name = 'Technician', role_description = 'Built-in - Limited access to technical-focused modules'");
 mysqli_query($mysqli, "INSERT INTO user_role_permissions SET user_role_id = 2, module_id = 1, user_role_permission_level = 2");
 mysqli_query($mysqli, "INSERT INTO user_role_permissions SET user_role_id = 2, module_id = 2, user_role_permission_level = 2");
 mysqli_query($mysqli, "INSERT INTO user_role_permissions SET user_role_id = 2, module_id = 3, user_role_permission_level = 2");
 mysqli_query($mysqli, "INSERT INTO user_role_permissions SET user_role_id = 2, module_id = 4, user_role_permission_level = 2");
 
-mysqli_query($mysqli, "INSERT INTO user_roles SET user_role_id = 3, user_role_name = 'Administrator', user_role_description = 'Built-in - Full administrative access', user_role_is_admin = 1");
+mysqli_query($mysqli, "INSERT INTO user_roles SET role_id = 3, role_name = 'Administrator', role_description = 'Built-in - Full administrative access', role_is_admin = 1");
 
 // Custom Links
 mysqli_query($mysqli,"INSERT INTO custom_links SET custom_link_name = 'Docs', custom_link_uri = 'https://docs.itflow.org', custom_link_new_tab = 1, custom_link_icon = 'question-circle'");
