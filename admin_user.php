@@ -6,17 +6,24 @@ $order = "ASC";
 
 require_once "includes/inc_all_admin.php";
 
-
-//Rebuild URL
-$url_query_strings_sort = http_build_query($get_copy);
+// User Type Filter
+if (isset($_GET['type']) && $_GET['type'] == "client") {
+    $type_filter = "client";
+    $type_query = "AND user_type = 2";
+} else {
+    $type_filter = "user";
+    $type_query = "AND user_type = 1";
+}
 
 $sql = mysqli_query(
     $mysqli,
-    "SELECT SQL_CALC_FOUND_ROWS * FROM users, user_settings, user_roles
-    WHERE users.user_id = user_settings.user_id
-    AND user_role_id = role_id
-    AND (user_name LIKE '%$q%' OR user_email LIKE '%$q%')
+    "SELECT SQL_CALC_FOUND_ROWS * FROM users
+    LEFT JOIN user_roles ON user_role_id = role_id
+    LEFT JOIN user_settings ON users.user_id = user_settings.user_id
+    LEFT JOIN contacts ON users.user_id = contact_user_id
+    WHERE (user_name LIKE '%$q%' OR user_email LIKE '%$q%')
     AND user_archived_at IS NULL
+    $type_query
     ORDER BY $sort $order LIMIT $record_from, $record_to"
 );
 
@@ -36,6 +43,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                 <div class="dropdown-menu">
                     <!--<a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#userInviteModal"><i class="fas fa-paper-plane mr-2"></i>Invite User</a>-->
                     <?php if ($num_rows[0] > 1) { ?>
+                        <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#exportUserModal"><i class="fa fa-fw fa-download mr-2"></i>Export</a>
                         <div class="dropdown-divider"></div>
                         <a class="dropdown-item text-danger" href="#" data-toggle="modal" data-target="#resetAllUserPassModal"><i class="fas fa-skull-crossbones mr-2"></i>IR</a>
                     <?php } ?>
@@ -55,8 +63,11 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     </div>
                 </div>
                 <div class="col-md-8">
-                    <div class="float-right">
-                        <button type="button" class="btn btn-default" data-toggle="modal" data-target="#exportUserModal"><i class="fa fa-fw fa-download mr-2"></i>Export</button>
+                    <div class="btn-toolbar float-right">
+                        <div class="btn-group mr-2">
+                            <a href="?type=user" class="btn btn-<?php if ($type_filter == "user"){ echo "primary"; } else { echo "default"; } ?>"><i class="fa fa-fw fa-user-shield mr-2"></i>User</a>
+                            <a href="?type=client" class="btn btn-<?php if ($type_filter == "client"){ echo "primary"; } else { echo "default"; } ?>"><i class="fa fa-fw fa-user mr-2"></i>Client</a>
+                        </div>
                     </div>
                 </div>
             </div>
