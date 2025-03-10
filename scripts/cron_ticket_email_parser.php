@@ -269,7 +269,8 @@ function addReply($from_email, $date, $subject, $ticket_number, $message, $attac
         mysqli_query($mysqli, "INSERT INTO ticket_replies SET ticket_reply = '$message_esc', ticket_reply_type = '$ticket_reply_type', ticket_reply_time_worked = '00:00:00', ticket_reply_by = $ticket_reply_contact, ticket_reply_ticket_id = $ticket_id");
         $reply_id = mysqli_insert_id($mysqli);
 
-        mkdirMissing('../uploads/tickets/');
+        $ticket_dir = "../uploads/tickets/" . $ticket_id . "/";
+        mkdirMissing($ticket_dir);
         foreach ($attachments as $attachment) {
             $att_name = $attachment->getFilename();
             $att_extarr = explode('.', $att_name);
@@ -277,7 +278,7 @@ function addReply($from_email, $date, $subject, $ticket_number, $message, $attac
 
             if (in_array($att_extension, $allowed_extensions)) {
                 $att_saved_filename = md5(uniqid(rand(), true)) . '.' . $att_extension;
-                $att_saved_path = "../uploads/tickets/" . $ticket_id . "/" . $att_saved_filename;
+                $att_saved_path = $ticket_dir . $att_saved_filename;
                 file_put_contents($att_saved_path, $attachment->getContent());
 
                 $ticket_attachment_name = sanitizeInput($att_name);
