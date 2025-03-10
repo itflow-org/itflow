@@ -298,6 +298,11 @@ if (mysqli_num_rows($os_sql) > 0) {
                                     type="submit" form="bulkActions" name="bulk_unarchive_assets">
                                     <i class="fas fa-fw fa-redo mr-2"></i>Unarchive
                                 </button>
+                                <div class="dropdown-divider"></div>
+                                <button class="dropdown-item text-danger text-bold"
+                                    type="submit" form="bulkActions" name="bulk_delete_assets">
+                                    <i class="fas fa-fw fa-trash mr-2"></i>Delete
+                                </button>
                                 <?php } else { ?>
                                 <div class="dropdown-divider"></div>
                                 <button class="dropdown-item text-danger confirm-link"

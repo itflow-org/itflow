@@ -186,12 +186,21 @@ if (isset($_GET['delete_asset'])) {
     $client_id = intval($row['asset_client_id']);
 
     mysqli_query($mysqli,"DELETE FROM assets WHERE asset_id = $asset_id");
-
     // Delete Interfaces
     mysqli_query($mysqli,"DELETE FROM asset_interfaces WHERE interface_asset_id = $asset_id");
-
     // Delete History
     mysqli_query($mysqli,"DELETE FROM asset_history WHERE asset_history_asset_id = $asset_id");
+    // Delete Notes
+    mysqli_query($mysqli,"DELETE FROM asset_notes WHERE asset_note_asset_id = $asset_id");
+    // Rack Units
+    mysqli_query($mysqli,"DELETE FROM rack_units WHERE unit_asset_id = $asset_id");
+
+    // Delete Links
+    mysqli_query($mysqli,"DELETE FROM asset_documents WHERE asset_id = $asset_id");
+    mysqli_query($mysqli,"DELETE FROM asset_files WHERE asset_id = $asset_id");
+    mysqli_query($mysqli,"DELETE FROM contact_assets WHERE asset_id = $asset_id");
+    mysqli_query($mysqli,"DELETE FROM service_assets WHERE asset_id = $asset_id");
+    mysqli_query($mysqli,"DELETE FROM software_assets WHERE asset_id = $asset_id");
 
     // Logging
     logAction("Asset", "Delete", "$session_name deleted asset $asset_name", $client_id);
@@ -486,13 +495,66 @@ if (isset($_POST['bulk_unarchive_assets'])) {
         }
 
         // Bulk Logging
-        logAction("Asset", "Bulk Unarchive", "$session_name unarchived $count assets", $client_id);
+        logAction("Asset", "Bulk Unarchive", "$session_name unarchived $count assets");
 
         $_SESSION['alert_message'] = "Unarchived $count asset(s)";
 
     }
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
+}
+
+if (isset($_POST['bulk_delete_assets'])) {
+
+    enforceUserPermission('module_support', 3);
+
+    validateCSRFToken($_POST['csrf_token']);
+
+    if (isset($_POST['asset_ids'])) {
+
+        // Get Count
+        $count = count($_POST['asset_ids']);
+
+        foreach ($_POST['asset_ids'] as $asset_id) {
+
+            $asset_id = intval($asset_id);
+
+            // Get Asset Name and Client ID for logging and alert message
+            $sql = mysqli_query($mysqli,"SELECT asset_name, asset_client_id FROM assets WHERE asset_id = $asset_id");
+            $row = mysqli_fetch_array($sql);
+            $asset_name = sanitizeInput($row['asset_name']);
+            $client_id = intval($row['asset_client_id']);
+
+            mysqli_query($mysqli,"DELETE FROM assets WHERE asset_id = $asset_id");
+            // Delete Interfaces
+            mysqli_query($mysqli,"DELETE FROM asset_interfaces WHERE interface_asset_id = $asset_id");
+            // Delete History
+            mysqli_query($mysqli,"DELETE FROM asset_history WHERE asset_history_asset_id = $asset_id");
+            // Delete Notes
+            mysqli_query($mysqli,"DELETE FROM asset_notes WHERE asset_note_asset_id = $asset_id");
+            // Rack Units
+            mysqli_query($mysqli,"DELETE FROM rack_units WHERE unit_asset_id = $asset_id");
+
+            // Delete Links
+            mysqli_query($mysqli,"DELETE FROM asset_documents WHERE asset_id = $asset_id");
+            mysqli_query($mysqli,"DELETE FROM asset_files WHERE asset_id = $asset_id");
+            mysqli_query($mysqli,"DELETE FROM contact_assets WHERE asset_id = $asset_id");
+            mysqli_query($mysqli,"DELETE FROM service_assets WHERE asset_id = $asset_id");
+            mysqli_query($mysqli,"DELETE FROM software_assets WHERE asset_id = $asset_id");
+
+            // Individual Asset logging
+            logAction("Asset", "Delete", "$session_name deleted asset $asset_name", $client_id, $asset_id);
+        }
+
+        // Bulk Logging
+        logAction("Asset", "Bulk Delete", "$session_name deleted $count assets");
+
+        $_SESSION['alert_type'] = "error";
+        $_SESSION['alert_message'] = "Deleted <strong>$count</strong> asset(s)";
+    }
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
 }
 
 // BEGIN LINKING
