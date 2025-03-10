@@ -2435,10 +2435,53 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
         mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.8.9'");
     }
 
-    // if (CURRENT_DATABASE_VERSION == '1.8.9') {
-    //     // Insert queries here required to update to DB version 1.9.0
+    if (CURRENT_DATABASE_VERSION == '1.8.9') {
+        mysqli_query($mysqli, "ALTER TABLE `users` ADD `user_role_id` INT(11) DEFAULT 0 AFTER `user_archived_at`");
+
+        // Copy user role from user settings table to the users table
+        mysqli_query($mysqli,"
+            UPDATE `users`
+            JOIN `user_settings` ON users.user_id = user_settings.user_id
+            SET users.user_role_id = user_settings.user_role
+        ");
+
+        mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.9.0'");
+    }
+
+    if (CURRENT_DATABASE_VERSION == '1.9.0') {
+        mysqli_query($mysqli, "ALTER TABLE `user_settings` DROP `user_role`");
+
+        mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.9.1'");
+    }
+
+    if (CURRENT_DATABASE_VERSION == '1.9.1') {
+
+        mysqli_query($mysqli,
+            "ALTER TABLE `user_roles`
+            CHANGE COLUMN `user_role_id` `role_id` INT(11) NOT NULL AUTO_INCREMENT,
+            CHANGE COLUMN `user_role_name` `role_name` VARCHAR(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+            CHANGE COLUMN `user_role_description` `role_description` VARCHAR(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
+            CHANGE COLUMN `user_role_type` `role_type` TINYINT(1) NOT NULL DEFAULT 1,
+            CHANGE COLUMN `user_role_is_admin` `role_is_admin` TINYINT(1) NOT NULL DEFAULT 0,
+            CHANGE COLUMN `user_role_created_at` `role_created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP(),
+            CHANGE COLUMN `user_role_updated_at` `role_updated_at` DATETIME NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP(),
+            CHANGE COLUMN `user_role_archived_at` `role_archived_at` DATETIME NULL DEFAULT NULL
+        ");
+
+        mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.9.2'");
+    }
+
+    if (CURRENT_DATABASE_VERSION == '1.9.2') {
+
+        mysqli_query($mysqli, "RENAME TABLE `user_permissions` TO `user_client_permissions`");
+
+        mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.9.3'");
+    }
+
+    // if (CURRENT_DATABASE_VERSION == '1.9.3') {
+    //     // Insert queries here required to update to DB version 1.9.4
     //     // Then, update the database to the next sequential version
-    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.9.0'");
+    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.9.4'");
     // }
 
 } else {

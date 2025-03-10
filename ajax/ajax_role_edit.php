@@ -4,18 +4,18 @@ require_once '../includes/ajax_header.php';
 
 $role_id = intval($_GET['id']);
 
-$sql = mysqli_query($mysqli, "SELECT * FROM user_roles WHERE user_role_id = $role_id LIMIT 1");
+$sql = mysqli_query($mysqli, "SELECT * FROM user_roles WHERE role_id = $role_id LIMIT 1");
 
 $row = mysqli_fetch_array($sql);
-$role_name = nullable_htmlentities($row['user_role_name']);
-$role_description = nullable_htmlentities($row['user_role_description']);
-$role_admin = intval($row['user_role_is_admin']);
+$role_name = nullable_htmlentities($row['role_name']);
+$role_description = nullable_htmlentities($row['role_description']);
+$role_admin = intval($row['role_is_admin']);
 
 // Count number of users that have each role
-$sql_role_user_count = mysqli_query($mysqli, "SELECT COUNT(users.user_id) FROM users LEFT JOIN user_settings on users.user_id = user_settings.user_id WHERE user_role = $role_id AND user_archived_at IS NULL");
+$sql_role_user_count = mysqli_query($mysqli, "SELECT COUNT(user_id) FROM users WHERE user_role_id = $role_id AND user_archived_at IS NULL");
 $role_user_count = mysqli_fetch_row($sql_role_user_count)[0];
 
-$sql_users = mysqli_query($mysqli, "SELECT * FROM users LEFT JOIN user_settings on users.user_id = user_settings.user_id WHERE user_role = $role_id AND user_archived_at IS NULL");
+$sql_users = mysqli_query($mysqli, "SELECT * FROM users WHERE user_role_id = $role_id AND user_archived_at IS NULL");
 // Initialize an empty array to hold user names
 $user_names = [];
 

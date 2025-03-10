@@ -89,9 +89,8 @@
                                 <option value="">- Driver -</option>
                                 <?php
 
-                                $sql = mysqli_query($mysqli, "SELECT users.user_id, user_name FROM users
-                                    LEFT JOIN user_settings on users.user_id = user_settings.user_id
-                                    WHERE user_role > 1 AND user_archived_at IS NULL ORDER BY user_name ASC"
+                                $sql = mysqli_query($mysqli, "SELECT user_id, user_name FROM users
+                                    WHERE user_role_id > 1 AND user_archived_at IS NULL ORDER BY user_name ASC"
                                 );
                                 while ($row = mysqli_fetch_array($sql)) {
                                     $user_id = intval($row['user_id']);

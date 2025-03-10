@@ -2205,13 +2205,13 @@ CREATE TABLE `trips` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Table structure for table `user_permissions`
+-- Table structure for table `user_client_permissions`
 --
 
-DROP TABLE IF EXISTS `user_permissions`;
+DROP TABLE IF EXISTS `user_client_permissions`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `user_permissions` (
+CREATE TABLE `user_client_permissions` (
   `user_id` int(11) NOT NULL,
   `client_id` int(11) NOT NULL,
   PRIMARY KEY (`user_id`,`client_id`)
@@ -2240,15 +2240,15 @@ DROP TABLE IF EXISTS `user_roles`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `user_roles` (
-  `user_role_id` int(11) NOT NULL AUTO_INCREMENT,
-  `user_role_name` varchar(200) NOT NULL,
-  `user_role_description` varchar(200) DEFAULT NULL,
-  `user_role_type` tinyint(1) NOT NULL DEFAULT 1,
-  `user_role_is_admin` tinyint(1) NOT NULL DEFAULT 0,
-  `user_role_created_at` datetime NOT NULL DEFAULT current_timestamp(),
-  `user_role_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
-  `user_role_archived_at` datetime DEFAULT NULL,
-  PRIMARY KEY (`user_role_id`)
+  `role_id` int(11) NOT NULL AUTO_INCREMENT,
+  `role_name` varchar(200) NOT NULL,
+  `role_description` varchar(200) DEFAULT NULL,
+  `role_type` tinyint(1) NOT NULL DEFAULT 1,
+  `role_is_admin` tinyint(1) NOT NULL DEFAULT 0,
+  `role_created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `role_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
+  `role_archived_at` datetime DEFAULT NULL,
+  PRIMARY KEY (`role_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -2261,7 +2261,6 @@ DROP TABLE IF EXISTS `user_settings`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `user_settings` (
   `user_id` int(11) NOT NULL,
-  `user_role` int(11) NOT NULL,
   `user_config_force_mfa` tinyint(1) NOT NULL DEFAULT 0,
   `user_config_records_per_page` int(11) NOT NULL DEFAULT 10,
   `user_config_dashboard_financial_enable` tinyint(1) NOT NULL DEFAULT 0,
@@ -2296,6 +2295,7 @@ CREATE TABLE `users` (
   `user_created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `user_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
   `user_archived_at` datetime DEFAULT NULL,
+  `user_role_id` int(11) DEFAULT 0,
   PRIMARY KEY (`user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -2383,4 +2383,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-03-10 12:25:19
+-- Dump completed on 2025-03-10 15:52:38

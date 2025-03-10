@@ -73,11 +73,6 @@ $sql_years_select = mysqli_query($mysqli, "
 <?php
 if ($user_config_dashboard_financial_enable == 1) {
 
-    // Ensure the user has the appropriate role to view the financial dashboard
-    if ($_SESSION['user_role'] != 3 && $_SESSION['user_role'] != 1) {
-        exit('<script type="text/javascript">window.location.href = \'dashboard_technical.php\';</script>');
-    }
-
     // Fetch financial data for the dashboard
     // Define variables to avoid errors in logs
     $largest_income_month = 0;

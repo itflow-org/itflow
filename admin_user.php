@@ -14,7 +14,7 @@ $sql = mysqli_query(
     $mysqli,
     "SELECT SQL_CALC_FOUND_ROWS * FROM users, user_settings, user_roles
     WHERE users.user_id = user_settings.user_id
-    AND user_settings.user_role = user_roles.user_role_id
+    AND user_role_id = role_id
     AND (user_name LIKE '%$q%' OR user_email LIKE '%$q%')
     AND user_archived_at IS NULL
     ORDER BY $sort $order LIMIT $record_from, $record_to"
@@ -77,8 +77,8 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         </a>
                     </th>
                     <th>
-                        <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=user_role&order=<?php echo $disp; ?>">
-                            Role <?php if ($sort == 'user_role') { echo $order_icon; } ?>
+                        <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=role_name&order=<?php echo $disp; ?>">
+                            Role <?php if ($sort == 'role_name') { echo $order_icon; } ?>
                         </a>
                     </th>
                     <th>
@@ -116,8 +116,8 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         $mfa_status_display = "<i class='fas fa-fw fa-lock text-success'></i>";
                     }
                     $user_config_force_mfa = intval($row['user_config_force_mfa']);
-                    $user_role = $row['user_role'];
-                    $user_role_display = nullable_htmlentities($row['user_role_name']);
+                    $user_role = $row['user_role_id'];
+                    $user_role_display = nullable_htmlentities($row['role_name']);
                     $user_initials = nullable_htmlentities(initials($user_name));
 
                     $sql_last_login = mysqli_query(
@@ -139,7 +139,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     }
 
                     // Get User Client Access Permissions
-                    $user_client_access_sql = mysqli_query($mysqli,"SELECT client_id FROM user_permissions WHERE user_id = $user_id");
+                    $user_client_access_sql = mysqli_query($mysqli,"SELECT client_id FROM user_client_permissions WHERE user_id = $user_id");
                     $client_access_array = [];
                     while ($row = mysqli_fetch_assoc($user_client_access_sql)) {
                         $client_access_array[] = intval($row['client_id']);

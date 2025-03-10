@@ -541,7 +541,7 @@ function validateCSRFToken($token)
 
 function validateAdminRole()
 {
-    if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 3) {
+    if (!isset($session_user_role) || $session_user_role != 3) {
         $_SESSION['alert_type'] = "danger";
         $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
         header("Location: " . $_SERVER["HTTP_REFERER"]);
@@ -553,7 +553,7 @@ function validateAdminRole()
 // Validates a user is a tech (or admin). Stops page load and attempts to direct away from the page if not (i.e. user is an accountant)
 function validateTechRole()
 {
-    if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] == 1) {
+    if (!isset($session_user_role) || $session_user_role == 1) {
         $_SESSION['alert_type'] = "danger";
         $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
         header("Location: " . $_SERVER["HTTP_REFERER"]);
@@ -565,7 +565,7 @@ function validateTechRole()
 // Validates a user is an accountant (or admin). Stops page load and attempts to direct away from the page if not (i.e. user is a tech)
 function validateAccountantRole()
 {
-    if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] == 2) {
+    if (!isset($session_user_role) || $session_user_role == 2) {
         $_SESSION['alert_type'] = "danger";
         $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
         header("Location: " . $_SERVER["HTTP_REFERER"]);
@@ -1313,15 +1313,15 @@ function lookupUserPermission($module) {
     $sql = mysqli_query(
         $mysqli,
         "SELECT
-			urp.user_role_permission_level
+			user_role_permissions.user_role_permission_level
 		FROM
-			modules AS m
+			modules
 		JOIN
-			user_role_permissions AS urp
+			user_role_permissions
 		ON
-			m.module_id = urp.module_id
+			modules.module_id = user_role_permissions.module_id
 		WHERE
-			m.module_name = '$module' AND urp.user_role_id = $session_user_role"
+			module_name = '$module' AND user_role_permissions.user_role_id = $session_user_role"
     );
 
     $row = mysqli_fetch_array($sql);

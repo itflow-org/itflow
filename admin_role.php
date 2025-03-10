@@ -1,7 +1,7 @@
 <?php
 
 // Default Column Sortby Filter
-$sort = "user_role_is_admin";
+$sort = "role_is_admin";
 $order = "DESC";
 
 require_once "includes/inc_all_admin.php";
@@ -13,8 +13,8 @@ $url_query_strings_sort = http_build_query($get_copy);
 $sql = mysqli_query(
     $mysqli,
     "SELECT SQL_CALC_FOUND_ROWS * FROM user_roles
-    WHERE (user_roles.user_role_name LIKE '%$q%' OR user_roles.user_role_description LIKE '%$q%')
-    AND user_roles.user_role_archived_at IS NULL
+    WHERE (role_name LIKE '%$q%' OR role_description LIKE '%$q%')
+    AND role_archived_at IS NULL
     ORDER BY $sort $order LIMIT $record_from, $record_to"
 );
 
@@ -53,14 +53,14 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     <thead class="text-dark <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
                     <tr>
                         <th>
-                            <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=user_role_name&order=<?php echo $disp; ?>">
-                                Role <?php if ($sort == 'user_role_name') { echo $order_icon; } ?>
+                            <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=role_name&order=<?php echo $disp; ?>">
+                                Role <?php if ($sort == 'role_name') { echo $order_icon; } ?>
                             </a>
                         </th>
                         <th>Members</th>
                         <th>
-                            <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=user_role_is_admin&order=<?php echo $disp; ?>">
-                                Admin <?php if ($sort == 'user_role_is_admin') { echo $order_icon; } ?>
+                            <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=role_is_admin&order=<?php echo $disp; ?>">
+                                Admin <?php if ($sort == 'role_is_admin') { echo $order_icon; } ?>
                             </a>
                         </th>
                         <th class="text-center">Action</th>
@@ -70,17 +70,17 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     <?php
 
                     while ($row = mysqli_fetch_array($sql)) {
-                        $role_id = intval($row['user_role_id']);
-                        $role_name = nullable_htmlentities($row['user_role_name']);
-                        $role_description = nullable_htmlentities($row['user_role_description']);
-                        $role_admin = intval($row['user_role_is_admin']);
-                        $role_archived_at = nullable_htmlentities($row['user_role_archived_at']);
+                        $role_id = intval($row['role_id']);
+                        $role_name = nullable_htmlentities($row['role_name']);
+                        $role_description = nullable_htmlentities($row['role_description']);
+                        $role_admin = intval($row['role_is_admin']);
+                        $role_archived_at = nullable_htmlentities($row['role_archived_at']);
 
                         // Count number of users that have each role
-                        $sql_role_user_count = mysqli_query($mysqli, "SELECT COUNT(users.user_id) FROM users LEFT JOIN user_settings on users.user_id = user_settings.user_id WHERE user_role = $role_id AND user_archived_at IS NULL");
+                        $sql_role_user_count = mysqli_query($mysqli, "SELECT COUNT(user_id) FROM users WHERE user_role_id = $role_id AND user_archived_at IS NULL");
                         $role_user_count = mysqli_fetch_row($sql_role_user_count)[0];
 
-                        $sql_users = mysqli_query($mysqli, "SELECT * FROM users LEFT JOIN user_settings on users.user_id = user_settings.user_id WHERE user_role = $role_id AND user_archived_at IS NULL");
+                        $sql_users = mysqli_query($mysqli, "SELECT * FROM users WHERE user_role_id = $role_id AND user_archived_at IS NULL");
                         // Initialize an empty array to hold user names
                         $user_names = [];
 
@@ -90,7 +90,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         }
 
                         // Convert the array of user names to a comma-separated string
-                        $user_names_string = implode(",", $user_names) ;
+                        $user_names_string = implode(",", $user_names);
 
                         if (empty($user_names_string)) {
                             $user_names_string = "-";

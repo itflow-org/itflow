@@ -117,7 +117,7 @@ if (isset($_POST['login'])) {
         $user_email = sanitizeInput($row['user_email']);
         $token = sanitizeInput($row['user_token']);
         $force_mfa = intval($row['user_config_force_mfa']);
-        $user_role = intval($row['user_role']);
+        $user_role_id = intval($row['user_role_id']);
         $user_encryption_ciphertext = $row['user_specific_encryption_ciphertext'];
         $user_extension_key = $row['user_extension_key'];
 
@@ -193,9 +193,6 @@ if (isset($_POST['login'])) {
 
             // Session info
             $_SESSION['user_id'] = $user_id;
-            $_SESSION['user_name'] = $user_name;
-            $_SESSION['user_type'] = 1;
-            $_SESSION['user_role'] = $user_role;
             $_SESSION['csrf_token'] = randomString(156);
             $_SESSION['logged'] = true;
 
