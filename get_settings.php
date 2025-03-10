@@ -142,21 +142,22 @@ $config_whitelabel_key = $row['config_whitelabel_key'];
 $theme_colors_array = array (
     'lightblue',
     'blue',
-    'green',
     'cyan',
-    'yellow',
-    'red',
-    'black',
-    'gray',
-    'indigo',
-    'navy',
-    'purple',
-    'fuchsia',
-    'pink',
-    'maroon',
-    'orange',
+    'green',
+    'olive',
     'teal',
-    'olive'
+    'red',
+    'maroon',
+    'pink',
+    'purple',
+    'indigo',
+    'fuchsia',
+    'yellow',
+    'orange',
+    'yellow',
+    'black',
+    'navy',
+    'gray'
 );
 
 $colors_array = array (
