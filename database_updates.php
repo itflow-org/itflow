@@ -2429,10 +2429,16 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
          mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.8.8'");
      }
 
-    // if (CURRENT_DATABASE_VERSION == '1.8.8') {
-    //     // Insert queries here required to update to DB version 1.8.9
+    if (CURRENT_DATABASE_VERSION == '1.8.8') {
+        mysqli_query($mysqli, "ALTER TABLE `invoices` ADD `invoice_recurring_invoice_id` INT(11) NOT NULL DEFAULT 0 AFTER `invoice_category_id`");
+        mysqli_query($mysqli, "ALTER TABLE `invoice_items` ADD `item_product_id` INT(11) NOT NULL DEFAULT 0 AFTER `item_tax_id`");
+        mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.8.9'");
+    }
+
+    // if (CURRENT_DATABASE_VERSION == '1.8.9') {
+    //     // Insert queries here required to update to DB version 1.9.0
     //     // Then, update the database to the next sequential version
-    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.8.9'");
+    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.9.0'");
     // }
 
 } else {

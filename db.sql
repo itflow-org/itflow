@@ -329,13 +329,13 @@ DROP TABLE IF EXISTS `certificate_history`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `certificate_history` (
- `certificate_history_id` int(11) NOT NULL AUTO_INCREMENT,
- `certificate_history_column` varchar(200) NOT NULL,
- `certificate_history_old_value` text NOT NULL,
- `certificate_history_new_value` text NOT NULL,
- `certificate_history_certificate_id` int(11) NOT NULL,
- `certificate_history_modified_at` datetime NOT NULL DEFAULT current_timestamp(),
- PRIMARY KEY (`certificate_history_id`)
+  `certificate_history_id` int(11) NOT NULL AUTO_INCREMENT,
+  `certificate_history_column` varchar(200) NOT NULL,
+  `certificate_history_old_value` text NOT NULL,
+  `certificate_history_new_value` text NOT NULL,
+  `certificate_history_certificate_id` int(11) NOT NULL,
+  `certificate_history_modified_at` datetime NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`certificate_history_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -929,6 +929,7 @@ CREATE TABLE `invoice_items` (
   `item_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
   `item_archived_at` datetime DEFAULT NULL,
   `item_tax_id` int(11) NOT NULL DEFAULT 0,
+  `item_product_id` int(11) NOT NULL DEFAULT 0,
   `item_quote_id` int(11) NOT NULL DEFAULT 0,
   `item_recurring_id` int(11) NOT NULL DEFAULT 0,
   `item_invoice_id` int(11) NOT NULL DEFAULT 0,
@@ -960,6 +961,7 @@ CREATE TABLE `invoices` (
   `invoice_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
   `invoice_archived_at` datetime DEFAULT NULL,
   `invoice_category_id` int(11) NOT NULL,
+  `invoice_recurring_invoice_id` int(11) NOT NULL DEFAULT 0,
   `invoice_client_id` int(11) NOT NULL,
   PRIMARY KEY (`invoice_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -2381,4 +2383,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-02-26 12:58:39
+-- Dump completed on 2025-03-10 12:25:19
