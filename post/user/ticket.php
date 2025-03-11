@@ -81,6 +81,13 @@ if (isset($_POST['add_ticket'])) {
         }
     }
 
+    if (isset($_POST['additional_assets'])) {
+        foreach ($_POST['additional_assets'] as $additional_asset) {
+            $additional_asset_id = intval($additional_asset);
+            mysqli_query($mysqli, "INSERT INTO ticket_assets SET ticket_id = $ticket_id, asset_id = $additional_asset_id");
+        }
+    }
+
     // E-mail client
     if (!empty($config_smtp_host) && $config_ticket_client_general_notifications == 1) {
 
@@ -187,6 +194,14 @@ if (isset($_POST['edit_ticket'])) {
     $project_id = intval($_POST['project']);
 
     mysqli_query($mysqli, "UPDATE tickets SET ticket_category = $category_id, ticket_subject = '$ticket_subject', ticket_priority = '$ticket_priority', ticket_billable = $billable, ticket_details = '$details', ticket_vendor_ticket_number = '$vendor_ticket_number', ticket_contact_id = $contact_id, ticket_vendor_id = $vendor_id, ticket_location_id = $location_id, ticket_asset_id = $asset_id, ticket_project_id = $project_id WHERE ticket_id = $ticket_id");
+
+    if (isset($_POST['additional_assets'])) {
+        mysqli_query($mysqli, "DELETE FROM ticket_assets WHERE ticket_id = $ticket_id");
+        foreach ($_POST['additional_assets'] as $additional_asset) {
+            $additional_asset_id = intval($additional_asset);
+            mysqli_query($mysqli, "INSERT INTO ticket_assets SET ticket_id = $ticket_id, asset_id = $additional_asset_id");
+        }
+    }
 
     // Get contact/ticket details after update for logging / email purposes
     $sql = mysqli_query($mysqli, "SELECT contact_name, contact_email, ticket_prefix, ticket_number, ticket_category, ticket_details, ticket_status_name, ticket_created_by, ticket_assigned_to, ticket_client_id FROM tickets 

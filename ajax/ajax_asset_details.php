@@ -133,12 +133,16 @@ $sql_related_credentials = mysqli_query($mysqli, "
 $credential_count = mysqli_num_rows($sql_related_credentials);
 
 // Related Tickets Query
-$sql_related_tickets = mysqli_query($mysqli, "SELECT * FROM tickets 
-    LEFT JOIN users on ticket_assigned_to = user_id
+$sql_related_tickets = mysqli_query($mysqli, "
+    SELECT tickets.*, users.*, ticket_statuses.*
+    FROM tickets
+    LEFT JOIN users ON ticket_assigned_to = user_id
     LEFT JOIN ticket_statuses ON ticket_status_id = ticket_status
-    WHERE ticket_asset_id = $asset_id
-    ORDER BY ticket_number DESC"
-);
+    LEFT JOIN ticket_assets ON tickets.ticket_id = ticket_assets.ticket_id
+    WHERE ticket_asset_id = $asset_id OR ticket_assets.asset_id = $asset_id
+    GROUP BY tickets.ticket_id
+    ORDER BY ticket_number DESC
+");
 $ticket_count = mysqli_num_rows($sql_related_tickets);
 
 // Related Recurring Tickets Query
