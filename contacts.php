@@ -351,6 +351,11 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         }
                         $auth_method = nullable_htmlentities($row['user_auth_method']);
                         $contact_user_id = intval($row['contact_user_id']);
+                        if ($contact_user_id) {
+                            $user_exists_display = "<span class='badge badge-pill badge-dark p-1' title='User: $auth_method'><i class='fas fa-fw fa-user'></i></span>";
+                        } else { 
+                            $user_exists_display = "";
+                        }
 
                         // Related Assets Query
                         $sql_related_assets = mysqli_query($mysqli, "SELECT * FROM assets WHERE asset_contact_id = $contact_id ORDER BY asset_id DESC");
@@ -445,7 +450,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                         <?php } ?>
 
                                         <div class="media-body">
-                                            <div class="<?php if($contact_important) { echo "text-bold"; } ?>"><?php echo $contact_name; ?></div>
+                                            <div class="<?php if($contact_important) { echo "text-bold"; } ?>"><?php echo $contact_name; ?> <?php echo $user_exists_display; ?></div>
                                             <?php echo $contact_title_display; ?>
                                             <div><?php echo $contact_primary_display; ?></div>
                                             <?php

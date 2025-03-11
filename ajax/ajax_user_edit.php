@@ -4,7 +4,10 @@ require_once '../includes/ajax_header.php';
 
 $user_id = intval($_GET['id']);
 
-$sql = mysqli_query($mysqli, "SELECT * FROM users, user_settings WHERE users.user_id = user_settings.user_id AND users.user_id = $user_id LIMIT 1");
+$sql = mysqli_query($mysqli, "SELECT * FROM users 
+    LEFT JOIN user_settings ON users.user_id = user_settings.user_id
+    WHERE users.user_id = $user_id LIMIT 1"
+);
 
 $row = mysqli_fetch_array($sql);
 $user_name = nullable_htmlentities($row['user_name']);
