@@ -145,8 +145,8 @@ if (isset($_GET['client_id'])) {
         $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('ticket_id') AS num FROM tickets WHERE ticket_archived_at IS NULL AND ticket_closed_at IS NOT NULL AND ticket_client_id = $client_id"));
         $num_closed_tickets = $row['num'];
 
-        $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('scheduled_ticket_id') AS num FROM scheduled_tickets WHERE scheduled_ticket_client_id = $client_id"));
-        $num_scheduled_tickets = $row['num'];
+        $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('recurring_ticket_id') AS num FROM recurring_tickets WHERE recurring_ticket_client_id = $client_id"));
+        $num_recurring_tickets = $row['num'];
 
         $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('service_id') AS num FROM services WHERE service_client_id = $client_id"));
         $num_services = $row['num'];

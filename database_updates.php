@@ -2490,10 +2490,37 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
         mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.9.4'");
     }
 
-    // if (CURRENT_DATABASE_VERSION == '1.9.4') {
-    //     // Insert queries here required to update to DB version 1.9.5
+    if (CURRENT_DATABASE_VERSION == '1.9.4') {
+        mysqli_query($mysqli, "RENAME TABLE `scheduled_tickets` TO `recurring_tickets`");
+
+        mysqli_query($mysqli,
+            "ALTER TABLE `recurring_tickets`
+            CHANGE COLUMN `scheduled_ticket_id` `recurring_ticket_id` INT(11) NOT NULL AUTO_INCREMENT,
+            CHANGE COLUMN `scheduled_ticket_category` `recurring_ticket_category` VARCHAR(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
+            CHANGE COLUMN `scheduled_ticket_subject` `recurring_ticket_subject` VARCHAR(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+            CHANGE COLUMN `scheduled_ticket_details` `recurring_ticket_details` LONGTEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+            CHANGE COLUMN `scheduled_ticket_priority` `recurring_ticket_priority` VARCHAR(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
+            CHANGE COLUMN `scheduled_ticket_frequency` `recurring_ticket_frequency` VARCHAR(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+            CHANGE COLUMN `scheduled_ticket_billable` `recurring_ticket_billable` TINYINT(1) NOT NULL DEFAULT 0,
+            CHANGE COLUMN `scheduled_ticket_start_date` `recurring_ticket_start_date` DATE NOT NULL,
+            CHANGE COLUMN `scheduled_ticket_next_run` `recurring_ticket_next_run` DATE NOT NULL,
+            CHANGE COLUMN `scheduled_ticket_created_at` `recurring_ticket_created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP(),
+            CHANGE COLUMN `scheduled_ticket_updated_at` `recurring_ticket_updated_at` DATETIME NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP(),
+            CHANGE COLUMN `scheduled_ticket_created_by` `recurring_ticket_created_by` INT(11) NOT NULL DEFAULT 0,
+            CHANGE COLUMN `scheduled_ticket_assigned_to` `recurring_ticket_assigned_to` INT(11) NOT NULL DEFAULT 0,
+            CHANGE COLUMN `scheduled_ticket_client_id` `recurring_ticket_client_id` INT(11) NOT NULL DEFAULT 0,
+            CHANGE COLUMN `scheduled_ticket_contact_id` `recurring_ticket_contact_id` INT(11) NOT NULL DEFAULT 0,
+            CHANGE COLUMN `scheduled_ticket_asset_id` `recurring_ticket_asset_id` INT(11) NOT NULL DEFAULT 0
+            "
+        );
+
+        mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.9.5'");
+    }
+
+    // if (CURRENT_DATABASE_VERSION == '1.9.5') {
+    //     // Insert queries here required to update to DB version 1.9.6
     //     // Then, update the database to the next sequential version
-    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.9.5'");
+    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.9.6'");
     // }
 
 } else {

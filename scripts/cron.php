@@ -280,25 +280,25 @@ if ($tickets_pending_assignment > 0) {
     logApp("Cron", "info", "Cron created notifications for new tickets that are pending assignment");
 }
 
-// Recurring (Scheduled) tickets
+// Recurring tickets
 
 // Get recurring tickets for today
-$sql_scheduled_tickets = mysqli_query($mysqli, "SELECT * FROM scheduled_tickets WHERE scheduled_ticket_next_run = CURDATE()");
+$sql_recurring_tickets = mysqli_query($mysqli, "SELECT * FROM recurring_tickets WHERE recurring_ticket_next_run = CURDATE()");
 
-if (mysqli_num_rows($sql_scheduled_tickets) > 0) {
-    while ($row = mysqli_fetch_array($sql_scheduled_tickets)) {
+if (mysqli_num_rows($sql_recurring_tickets) > 0) {
+    while ($row = mysqli_fetch_array($sql_recurring_tickets)) {
 
-        $schedule_id = intval($row['scheduled_ticket_id']);
-        $subject = sanitizeInput($row['scheduled_ticket_subject']);
-        $details = mysqli_real_escape_string($mysqli, $row['scheduled_ticket_details']);
-        $priority = sanitizeInput($row['scheduled_ticket_priority']);
-        $frequency = sanitizeInput(strtolower($row['scheduled_ticket_frequency']));
-        $billable = intval($row['scheduled_ticket_billable']);
-        $created_id = intval($row['scheduled_ticket_created_by']);
-        $assigned_id = intval($row['scheduled_ticket_assigned_to']);
-        $client_id = intval($row['scheduled_ticket_client_id']);
-        $contact_id = intval($row['scheduled_ticket_contact_id']);
-        $asset_id = intval($row['scheduled_ticket_asset_id']);
+        $schedule_id = intval($row['recurring_ticket_id']);
+        $subject = sanitizeInput($row['recurring_ticket_subject']);
+        $details = mysqli_real_escape_string($mysqli, $row['recurring_ticket_details']);
+        $priority = sanitizeInput($row['recurring_ticket_priority']);
+        $frequency = sanitizeInput(strtolower($row['recurring_ticket_frequency']));
+        $billable = intval($row['recurring_ticket_billable']);
+        $created_id = intval($row['recurring_ticket_created_by']);
+        $assigned_id = intval($row['recurring_ticket_assigned_to']);
+        $client_id = intval($row['recurring_ticket_client_id']);
+        $contact_id = intval($row['recurring_ticket_contact_id']);
+        $asset_id = intval($row['recurring_ticket_asset_id']);
 
         $ticket_status = 1; // Default
         if ($assigned_id > 0) {
@@ -408,7 +408,7 @@ if (mysqli_num_rows($sql_scheduled_tickets) > 0) {
 
         // Update the run date
         $next_run = $next_run->format('Y-m-d');
-        $a = mysqli_query($mysqli, "UPDATE scheduled_tickets SET scheduled_ticket_next_run = '$next_run' WHERE scheduled_ticket_id = $schedule_id");
+        $a = mysqli_query($mysqli, "UPDATE recurring_tickets SET recurring_ticket_next_run = '$next_run' WHERE recurring_ticket_id = $schedule_id");
 
     }
 }

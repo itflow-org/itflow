@@ -1495,6 +1495,34 @@ CREATE TABLE `recurring_payments` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `recurring_tickets`
+--
+
+DROP TABLE IF EXISTS `recurring_tickets`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `recurring_tickets` (
+  `recurring_ticket_id` int(11) NOT NULL AUTO_INCREMENT,
+  `recurring_ticket_category` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `recurring_ticket_subject` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+  `recurring_ticket_details` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+  `recurring_ticket_priority` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `recurring_ticket_frequency` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+  `recurring_ticket_billable` tinyint(1) NOT NULL DEFAULT 0,
+  `recurring_ticket_start_date` date NOT NULL,
+  `recurring_ticket_next_run` date NOT NULL,
+  `recurring_ticket_created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `recurring_ticket_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
+  `recurring_ticket_created_by` int(11) NOT NULL DEFAULT 0,
+  `recurring_ticket_assigned_to` int(11) NOT NULL DEFAULT 0,
+  `recurring_ticket_client_id` int(11) NOT NULL DEFAULT 0,
+  `recurring_ticket_contact_id` int(11) NOT NULL DEFAULT 0,
+  `recurring_ticket_asset_id` int(11) NOT NULL DEFAULT 0,
+  PRIMARY KEY (`recurring_ticket_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `remember_tokens`
 --
 
@@ -1532,34 +1560,6 @@ CREATE TABLE `revenues` (
   `revenue_account_id` int(11) NOT NULL,
   `revenue_client_id` int(11) NOT NULL DEFAULT 0,
   PRIMARY KEY (`revenue_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `scheduled_tickets`
---
-
-DROP TABLE IF EXISTS `scheduled_tickets`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `scheduled_tickets` (
-  `scheduled_ticket_id` int(11) NOT NULL AUTO_INCREMENT,
-  `scheduled_ticket_category` varchar(200) DEFAULT NULL,
-  `scheduled_ticket_subject` varchar(500) NOT NULL,
-  `scheduled_ticket_details` longtext NOT NULL,
-  `scheduled_ticket_priority` varchar(200) DEFAULT NULL,
-  `scheduled_ticket_frequency` varchar(10) NOT NULL,
-  `scheduled_ticket_billable` tinyint(1) NOT NULL DEFAULT 0,
-  `scheduled_ticket_start_date` date NOT NULL,
-  `scheduled_ticket_next_run` date NOT NULL,
-  `scheduled_ticket_created_at` datetime NOT NULL DEFAULT current_timestamp(),
-  `scheduled_ticket_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
-  `scheduled_ticket_created_by` int(11) NOT NULL DEFAULT 0,
-  `scheduled_ticket_assigned_to` int(11) NOT NULL DEFAULT 0,
-  `scheduled_ticket_client_id` int(11) NOT NULL DEFAULT 0,
-  `scheduled_ticket_contact_id` int(11) NOT NULL DEFAULT 0,
-  `scheduled_ticket_asset_id` int(11) NOT NULL DEFAULT 0,
-  PRIMARY KEY (`scheduled_ticket_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -2400,4 +2400,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-03-11 15:09:10
+-- Dump completed on 2025-03-11 18:31:54

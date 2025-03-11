@@ -74,8 +74,8 @@
                             <p>
                                 Recurring Tickets
                                 <?php
-                                if ($num_scheduled_tickets) { ?>
-                                    <span class="right badge"><?php echo $num_scheduled_tickets; ?></span>
+                                if ($num_recurring_tickets) { ?>
+                                    <span class="right badge"><?php echo $num_recurring_tickets; ?></span>
                                 <?php } ?>
 
                             </p>
