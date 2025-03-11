@@ -539,8 +539,8 @@ function validateCSRFToken($token)
  * Accountant - 1
  */
 
-function validateAdminRole()
-{
+function validateAdminRole() {
+    global $session_user_role;
     if (!isset($session_user_role) || $session_user_role != 3) {
         $_SESSION['alert_type'] = "danger";
         $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
@@ -551,8 +551,8 @@ function validateAdminRole()
 
 // LEGACY
 // Validates a user is a tech (or admin). Stops page load and attempts to direct away from the page if not (i.e. user is an accountant)
-function validateTechRole()
-{
+function validateTechRole() {
+    global $session_user_role;
     if (!isset($session_user_role) || $session_user_role == 1) {
         $_SESSION['alert_type'] = "danger";
         $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
@@ -563,8 +563,8 @@ function validateTechRole()
 
 // LEGACY
 // Validates a user is an accountant (or admin). Stops page load and attempts to direct away from the page if not (i.e. user is a tech)
-function validateAccountantRole()
-{
+function validateAccountantRole() {
+    global $session_user_role;
     if (!isset($session_user_role) || $session_user_role == 2) {
         $_SESSION['alert_type'] = "danger";
         $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
