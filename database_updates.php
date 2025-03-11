@@ -2517,10 +2517,22 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
         mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.9.5'");
     }
 
-    // if (CURRENT_DATABASE_VERSION == '1.9.5') {
-    //     // Insert queries here required to update to DB version 1.9.6
+    if (CURRENT_DATABASE_VERSION == '1.9.5') {
+        mysqli_query($mysqli,
+            "CREATE TABLE `recurring_ticket_assets` (
+            `recurring_ticket_id` INT(11) NOT NULL,
+            `asset_id` INT(11) NOT NULL,
+            PRIMARY KEY (`recurring_ticket_id`,`asset_id`),
+            FOREIGN KEY (`asset_id`) REFERENCES `assets`(`asset_id`) ON DELETE CASCADE,
+            FOREIGN KEY (`recurring_ticket_id`) REFERENCES `recurring_tickets`(`recurring_ticket_id`) ON DELETE CASCADE
+        )");
+        mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.9.6'");
+    }
+
+    // if (CURRENT_DATABASE_VERSION == '1.9.6') {
+    //     // Insert queries here required to update to DB version 1.9.7
     //     // Then, update the database to the next sequential version
-    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.9.6'");
+    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.9.7'");
     // }
 
 } else {

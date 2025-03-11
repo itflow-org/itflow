@@ -91,12 +91,12 @@ if (isset($_GET['query'])) {
         ORDER BY ticket_id DESC LIMIT 5"
     );
 
-    $sql_recurring_tickets = mysqli_query($mysqli, "SELECT * FROM scheduled_tickets
-        LEFT JOIN clients ON scheduled_ticket_client_id = client_id
-        WHERE (scheduled_ticket_subject LIKE '%$query%'
-            OR scheduled_ticket_details LIKE '%$query%')
+    $sql_recurring_tickets = mysqli_query($mysqli, "SELECT * FROM recurring_tickets
+        LEFT JOIN clients ON recurring_ticket_client_id = client_id
+        WHERE (recurring_ticket_subject LIKE '%$query%'
+            OR recurring_ticket_details LIKE '%$query%')
             $access_permission_query
-        ORDER BY scheduled_ticket_id DESC LIMIT 5"
+        ORDER BY recurring_ticket_id DESC LIMIT 5"
     );
 
     $sql_logins = mysqli_query($mysqli, "SELECT * FROM logins
@@ -544,18 +544,18 @@ if (isset($_GET['query'])) {
                             <?php
 
                             while ($row = mysqli_fetch_array($sql_recurring_tickets)) {
-                                $scheduled_ticket_id = intval($row['scheduled_ticket_id']);
-                                $scheduled_ticket_subject = nullable_htmlentities($row['scheduled_ticket_subject']);
-                                $scheduled_ticket_frequency = nullable_htmlentities($row['scheduled_ticket_frequency']);
-                                $scheduled_ticket_next_run = nullable_htmlentities($row['scheduled_ticket_next_run']);
+                                $recurring_ticket_id = intval($row['recurring_ticket_id']);
+                                $recurring_ticket_subject = nullable_htmlentities($row['recurring_ticket_subject']);
+                                $recurring_ticket_frequency = nullable_htmlentities($row['recurring_ticket_frequency']);
+                                $recurring_ticket_next_run = nullable_htmlentities($row['recurring_ticket_next_run']);
                                 $client_name = nullable_htmlentities($row['client_name']);
                                 $client_id = intval($row['client_id']);
 
                                 ?>
                                 <tr>
-                                    <td><a href="recurring_tickets.php"><?php echo $scheduled_ticket_subject; ?></a></td>
-                                    <td><?php echo $scheduled_ticket_frequency; ?></td>
-                                    <td><?php echo $scheduled_ticket_next_run; ?></td>
+                                    <td><a href="recurring_tickets.php"><?php echo $recurring_ticket_subject; ?></a></td>
+                                    <td><?php echo $recurring_ticket_frequency; ?></td>
+                                    <td><?php echo $recurring_ticket_next_run; ?></td>
                                     <td><a href="recurring_tickets.php?client_id=<?php echo $client_id ?>"><?php echo $client_name; ?></a></td>
                                 </tr>
 

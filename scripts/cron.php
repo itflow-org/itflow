@@ -288,7 +288,7 @@ $sql_recurring_tickets = mysqli_query($mysqli, "SELECT * FROM recurring_tickets 
 if (mysqli_num_rows($sql_recurring_tickets) > 0) {
     while ($row = mysqli_fetch_array($sql_recurring_tickets)) {
 
-        $schedule_id = intval($row['recurring_ticket_id']);
+        $recurring_ticket_id = intval($row['recurring_ticket_id']);
         $subject = sanitizeInput($row['recurring_ticket_subject']);
         $details = mysqli_real_escape_string($mysqli, $row['recurring_ticket_details']);
         $priority = sanitizeInput($row['recurring_ticket_priority']);
@@ -316,6 +316,12 @@ if (mysqli_num_rows($sql_recurring_tickets) > 0) {
         // Raise the ticket
         mysqli_query($mysqli, "INSERT INTO tickets SET ticket_prefix = '$config_ticket_prefix', ticket_number = $ticket_number, ticket_subject = '$subject', ticket_details = '$details', ticket_priority = '$priority', ticket_status = '$ticket_status', ticket_billable = $billable, ticket_created_by = $created_id, ticket_assigned_to = $assigned_id, ticket_contact_id = $contact_id, ticket_client_id = $client_id, ticket_asset_id = $asset_id");
         $id = mysqli_insert_id($mysqli);
+
+        // Copy Additional Assets from Recurring ticket to new ticket
+        mysqli_query($mysqli, "INSERT INTO ticket_assets (ticket_id, asset_id)
+        SELECT $id, asset_id
+        FROM recurring_ticket_assets
+        WHERE recurring_ticket_id = $recurring_ticket_id");
 
         // Logging
         logAction("Ticket", "Create", "Cron created recurring scheduled $frequency ticket - $subject", $client_id, $id);
@@ -408,7 +414,7 @@ if (mysqli_num_rows($sql_recurring_tickets) > 0) {
 
         // Update the run date
         $next_run = $next_run->format('Y-m-d');
-        $a = mysqli_query($mysqli, "UPDATE recurring_tickets SET recurring_ticket_next_run = '$next_run' WHERE recurring_ticket_id = $schedule_id");
+        $a = mysqli_query($mysqli, "UPDATE recurring_tickets SET recurring_ticket_next_run = '$next_run' WHERE recurring_ticket_id = $recurring_ticket_id");
 
     }
 }

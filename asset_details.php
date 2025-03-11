@@ -94,9 +94,11 @@ if (isset($_GET['asset_id'])) {
     $ticket_count = mysqli_num_rows($sql_related_tickets);
 
     // Related Recurring Tickets Query
-    $sql_related_recurring_tickets = mysqli_query($mysqli, "SELECT * FROM scheduled_tickets 
-        WHERE scheduled_ticket_asset_id = $asset_id
-        ORDER BY scheduled_ticket_next_run DESC"
+    $sql_related_recurring_tickets = mysqli_query($mysqli, "SELECT * FROM recurring_tickets 
+        LEFT JOIN recurring_ticket_assets ON recurring_tickets.recurring_ticket_id = recurring_ticket_assets.recurring_ticket_id
+        WHERE recurring_ticket_asset_id = $asset_id OR recurring_ticket_assets.asset_id = $asset_id
+        GROUP BY recurring_tickets.recurring_ticket_id
+        ORDER BY recurring_ticket_next_run DESC"
     );
     $recurring_ticket_count = mysqli_num_rows($sql_related_recurring_tickets);
 
@@ -920,29 +922,30 @@ if (isset($_GET['asset_id'])) {
                             <?php
 
                             while ($row = mysqli_fetch_array($sql_related_recurring_tickets)) {
-                                $scheduled_ticket_id = intval($row['scheduled_ticket_id']);
-                                $scheduled_ticket_subject = nullable_htmlentities($row['scheduled_ticket_subject']);
-                                $scheduled_ticket_priority = nullable_htmlentities($row['scheduled_ticket_priority']);
-                                $scheduled_ticket_frequency = nullable_htmlentities($row['scheduled_ticket_frequency']);
-                                $scheduled_ticket_next_run = nullable_htmlentities($row['scheduled_ticket_next_run']);
+                                $recurring_ticket_id = intval($row['recurring_ticket_id']);
+                                $recurring_ticket_subject = nullable_htmlentities($row['recurring_ticket_subject']);
+                                $recurring_ticket_priority = nullable_htmlentities($row['recurring_ticket_priority']);
+                                $recurring_ticket_frequency = nullable_htmlentities($row['recurring_ticket_frequency']);
+                                $recurring_ticket_next_run = nullable_htmlentities($row['recurring_ticket_next_run']);
                             ?>
 
                                 <tr>
                                     <td class="text-bold">
                                         <a href="#"
                                             data-toggle="ajax-modal"
+                                            data-modal-size="lg"
                                             data-ajax-url="ajax/ajax_recurring_ticket_edit.php"
-                                            data-ajax-id="<?php echo $scheduled_ticket_id; ?>"
+                                            data-ajax-id="<?php echo $recurring_ticket_id; ?>"
                                             >
-                                            <?php echo $scheduled_ticket_subject ?>
+                                            <?php echo $recurring_ticket_subject ?>
                                         </a>
                                     </td>
 
-                                    <td><?php echo $scheduled_ticket_priority ?></td>
+                                    <td><?php echo $recurring_ticket_priority ?></td>
 
-                                    <td><?php echo $scheduled_ticket_frequency ?></td>
+                                    <td><?php echo $recurring_ticket_frequency ?></td>
 
-                                    <td><?php echo $scheduled_ticket_next_run ?></td>
+                                    <td><?php echo $recurring_ticket_next_run ?></td>
 
                                     <td>
                                         <div class="dropdown dropleft text-center">
@@ -952,19 +955,20 @@ if (isset($_GET['asset_id'])) {
                                             <div class="dropdown-menu">
                                                 <a class="dropdown-item" href="#"
                                                     data-toggle="ajax-modal"
+                                                    data-modal-size="lg"
                                                     data-ajax-url="ajax/ajax_recurring_ticket_edit.php"
-                                                    data-ajax-id="<?php echo $scheduled_ticket_id; ?>"
+                                                    data-ajax-id="<?php echo $recurring_ticket_id; ?>"
                                                     >
                                                     <i class="fas fa-fw fa-edit mr-2"></i>Edit
                                                 </a>
                                                 <div class="dropdown-divider"></div>
-                                                <a class="dropdown-item" href="post.php?force_recurring_ticket=<?php echo $scheduled_ticket_id; ?>&csrf_token=<?php echo $_SESSION['csrf_token'] ?>">
+                                                <a class="dropdown-item" href="post.php?force_recurring_ticket=<?php echo $recurring_ticket_id; ?>&csrf_token=<?php echo $_SESSION['csrf_token'] ?>">
                                                     <i class="fa fa-fw fa-paper-plane text-secondary mr-2"></i>Force Reoccur
                                                 </a>
                                                 <?php
                                                 if ($session_user_role == 3) { ?>
                                                 <div class="dropdown-divider"></div>
-                                                <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_recurring_ticket=<?php echo $scheduled_ticket_id; ?>">
+                                                <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_recurring_ticket=<?php echo $recurring_ticket_id; ?>">
                                                     <i class="fas fa-fw fa-trash mr-2"></i>Delete
                                                 </a>
                                             </div>

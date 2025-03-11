@@ -18,6 +18,14 @@ $recurring_ticket_contact_id = intval($row['recurring_ticket_contact_id']);
 $recurring_ticket_asset_id = intval($row['recurring_ticket_asset_id']);
 $recurring_ticket_billable = intval($row['recurring_ticket_billable']);
 
+// Additional Assets Selected
+$additional_assets_array = array();
+$sql_additional_assets = mysqli_query($mysqli, "SELECT asset_id FROM recurring_ticket_assets WHERE recurring_ticket_id = $recurring_ticket_id");
+while ($row = mysqli_fetch_array($sql_additional_assets)) {
+    $additional_asset_id = intval($row['asset_id']);
+    $additional_assets_array[] = $additional_asset_id;
+}
+
 // Generate the HTML form content using output buffering.
 ob_start();
 ?>
@@ -213,6 +221,31 @@ ob_start();
                                 <?php
                             }
                             ?>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Additional Assets</label>
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text"><i class="fa fa-fw fa-desktop"></i></span>
+                        </div>
+                        <select class="form-control select2" name="additional_assets[]" data-tags="true" data-placeholder="- Select Additional Assets -" multiple>
+                            <option value=""></option>
+                            <?php
+
+                            $sql_assets = mysqli_query($mysqli, "SELECT asset_id, asset_name, contact_name FROM assets LEFT JOIN contacts ON contact_id = asset_contact_id WHERE asset_client_id = $client_id AND asset_id != $recurring_ticket_asset_id AND asset_archived_at IS NULL ORDER BY asset_name ASC");
+                            while ($row = mysqli_fetch_array($sql_assets)) {
+                                $asset_id_select = intval($row['asset_id']);
+                                $asset_name_select = nullable_htmlentities($row['asset_name']);
+                                $asset_contact_name_select = nullable_htmlentities($row['contact_name']);
+                            ?>
+                                <option value="<?php echo $asset_id_select; ?>" 
+                                    <?php if (in_array($asset_id_select, $additional_assets_array)) { echo "selected"; } ?>
+                                    ><?php echo "$asset_name_select - $asset_contact_name_select"; ?></option>
+
+                            <?php } ?>
                         </select>
                     </div>
                 </div>

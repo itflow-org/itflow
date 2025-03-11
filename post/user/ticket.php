@@ -81,6 +81,7 @@ if (isset($_POST['add_ticket'])) {
         }
     }
 
+    // Add Additional Assets
     if (isset($_POST['additional_assets'])) {
         foreach ($_POST['additional_assets'] as $additional_asset) {
             $additional_asset_id = intval($additional_asset);
@@ -195,6 +196,7 @@ if (isset($_POST['edit_ticket'])) {
 
     mysqli_query($mysqli, "UPDATE tickets SET ticket_category = $category_id, ticket_subject = '$ticket_subject', ticket_priority = '$ticket_priority', ticket_billable = $billable, ticket_details = '$details', ticket_vendor_ticket_number = '$vendor_ticket_number', ticket_contact_id = $contact_id, ticket_vendor_id = $vendor_id, ticket_location_id = $location_id, ticket_asset_id = $asset_id, ticket_project_id = $project_id WHERE ticket_id = $ticket_id");
 
+    // Add Additional Assets
     if (isset($_POST['additional_assets'])) {
         mysqli_query($mysqli, "DELETE FROM ticket_assets WHERE ticket_id = $ticket_id");
         foreach ($_POST['additional_assets'] as $additional_asset) {
@@ -2045,6 +2047,14 @@ if (isset($_POST['add_recurring_ticket'])) {
 
     $recurring_ticket_id = mysqli_insert_id($mysqli);
 
+    // Add Additional Assets
+    if (isset($_POST['additional_assets'])) {
+        foreach ($_POST['additional_assets'] as $additional_asset) {
+            $additional_asset_id = intval($additional_asset);
+            mysqli_query($mysqli, "INSERT INTO recurring_ticket_assets SET recurring_ticket_id = $recurring_ticket_id, asset_id = $additional_asset_id");
+        }
+    }
+
     // Logging
     logAction("Recurring Ticket", "Create", "$session_name created recurring ticket for $subject - $frequency", $client_id, $recurring_ticket_id);
 
@@ -2063,6 +2073,15 @@ if (isset($_POST['edit_recurring_ticket'])) {
     $next_run_date = sanitizeInput($_POST['next_date']);
 
     mysqli_query($mysqli, "UPDATE recurring_tickets SET recurring_ticket_subject = '$subject', recurring_ticket_details = '$details', recurring_ticket_priority = '$priority', recurring_ticket_frequency = '$frequency', recurring_ticket_billable = $billable, recurring_ticket_next_run = '$next_run_date', recurring_ticket_assigned_to = $assigned_to, recurring_ticket_asset_id = $asset_id, recurring_ticket_contact_id = $contact_id WHERE recurring_ticket_id = $recurring_ticket_id");
+
+    // Add Additional Assets
+    if (isset($_POST['additional_assets'])) {
+        mysqli_query($mysqli, "DELETE FROM recurring_ticket_assets WHERE recurring_ticket_id = $recurring_ticket_id");
+        foreach ($_POST['additional_assets'] as $additional_asset) {
+            $additional_asset_id = intval($additional_asset);
+            mysqli_query($mysqli, "INSERT INTO recurring_ticket_assets SET recurring_ticket_id = $recurring_ticket_id, asset_id = $additional_asset_id");
+        }
+    }
 
     // Logging
     logAction("Recurring Ticket", "Edit", "$session_name edited recurring ticket $subject", $client_id, $recurring_ticket_id);
@@ -2083,7 +2102,6 @@ if (isset($_GET['force_recurring_ticket'])) {
 
     if (mysqli_num_rows($sql) > 0) {
         $row = mysqli_fetch_array($sql);
-        $schedule_id = intval($row['recurring_ticket_id']);
         $subject = sanitizeInput($row['recurring_ticket_subject']);
         $details = mysqli_real_escape_string($mysqli, $row['recurring_ticket_details']);
         $priority = sanitizeInput($row['recurring_ticket_priority']);
@@ -2116,6 +2134,12 @@ if (isset($_GET['force_recurring_ticket'])) {
         // Raise the ticket
         mysqli_query($mysqli, "INSERT INTO tickets SET ticket_prefix = '$config_ticket_prefix', ticket_number = $ticket_number, ticket_subject = '$subject', ticket_details = '$details', ticket_priority = '$priority', ticket_status = '$ticket_status', ticket_billable = $billable, ticket_url_key = '$url_key', ticket_created_by = $created_id, ticket_assigned_to = $assigned_id, ticket_contact_id = $contact_id, ticket_client_id = $client_id, ticket_asset_id = $asset_id");
         $id = mysqli_insert_id($mysqli);
+
+        // Copy Additional Assets from Recurring ticket to new ticket
+        mysqli_query($mysqli, "INSERT INTO ticket_assets (ticket_id, asset_id)
+        SELECT $id, asset_id
+        FROM recurring_ticket_assets
+        WHERE recurring_ticket_id = $recurring_ticket_id");
 
         // Notifications
 
@@ -2182,7 +2206,7 @@ if (isset($_GET['force_recurring_ticket'])) {
 
         // Update the run date
         $next_run = $next_run->format('Y-m-d');
-        mysqli_query($mysqli, "UPDATE recurring_tickets SET recurring_ticket_next_run = '$next_run' WHERE recurring_ticket_id = $schedule_id");
+        mysqli_query($mysqli, "UPDATE recurring_tickets SET recurring_ticket_next_run = '$next_run' WHERE recurring_ticket_id = $recurring_ticket_id");
 
         // Logging
         logAction("Ticket", "Create", "$session_name force created recurring scheduled $frequency ticket - $config_ticket_prefix$ticket_number - $subject", $client_id, $id);
@@ -2226,7 +2250,7 @@ if (isset($_GET['delete_recurring_ticket'])) {
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 }
 
-if (isset($_POST['bulk_delete_recurring_tickets']) || isset($_POST['bulk_delete_recurring_tickets'])) {
+if (isset($_POST['bulk_delete_recurring_tickets'])) {
 
     enforceUserPermission('module_support', 3);
     validateCSRFToken($_POST['csrf_token']);

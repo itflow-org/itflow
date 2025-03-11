@@ -146,9 +146,11 @@ $sql_related_tickets = mysqli_query($mysqli, "
 $ticket_count = mysqli_num_rows($sql_related_tickets);
 
 // Related Recurring Tickets Query
-$sql_related_recurring_tickets = mysqli_query($mysqli, "SELECT * FROM scheduled_tickets 
-    WHERE scheduled_ticket_asset_id = $asset_id
-    ORDER BY scheduled_ticket_next_run DESC"
+$sql_related_recurring_tickets = mysqli_query($mysqli, "SELECT * FROM recurring_tickets 
+    LEFT JOIN recurring_ticket_assets ON recurring_tickets.recurring_ticket_id = recurring_ticket_assets.recurring_ticket_id
+    WHERE recurring_ticket_asset_id = $asset_id OR recurring_ticket_assets.asset_id = $asset_id
+    GROUP BY recurring_tickets.recurring_ticket_id
+    ORDER BY recurring_ticket_next_run DESC"
 );
 $recurring_ticket_count = mysqli_num_rows($sql_related_recurring_tickets);
 
@@ -632,18 +634,18 @@ ob_start();
                     <?php
 
                     while ($row = mysqli_fetch_array($sql_related_recurring_tickets)) {
-                        $scheduled_ticket_id = intval($row['scheduled_ticket_id']);
-                        $scheduled_ticket_subject = nullable_htmlentities($row['scheduled_ticket_subject']);
-                        $scheduled_ticket_priority = nullable_htmlentities($row['scheduled_ticket_priority']);
-                        $scheduled_ticket_frequency = nullable_htmlentities($row['scheduled_ticket_frequency']);
-                        $scheduled_ticket_next_run = nullable_htmlentities($row['scheduled_ticket_next_run']);
+                        $recurring_ticket_id = intval($row['recurring_ticket_id']);
+                        $recurring_ticket_subject = nullable_htmlentities($row['recurring_ticket_subject']);
+                        $recurring_ticket_priority = nullable_htmlentities($row['recurring_ticket_priority']);
+                        $recurring_ticket_frequency = nullable_htmlentities($row['recurring_ticket_frequency']);
+                        $recurring_ticket_next_run = nullable_htmlentities($row['recurring_ticket_next_run']);
                     ?>
 
                         <tr>
-                            <td class="text-bold"><?php echo $scheduled_ticket_subject ?></td>
-                            <td><?php echo $scheduled_ticket_priority ?></td>
-                            <td><?php echo $scheduled_ticket_frequency ?></td>
-                            <td><?php echo $scheduled_ticket_next_run ?></td>
+                            <td class="text-bold"><?php echo $recurring_ticket_subject ?></td>
+                            <td><?php echo $recurring_ticket_priority ?></td>
+                            <td><?php echo $recurring_ticket_frequency ?></td>
+                            <td><?php echo $recurring_ticket_next_run ?></td>
                         </tr>
 
                     <?php } ?>

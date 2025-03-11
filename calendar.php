@@ -245,15 +245,15 @@ while ($row = mysqli_fetch_array($sql)) {
 
             // Recurring Tickets
             $sql = mysqli_query($mysqli, "SELECT * FROM clients
-                LEFT JOIN scheduled_tickets ON client_id = scheduled_ticket_client_id
-                LEFT JOIN users ON scheduled_ticket_assigned_to = user_id
+                LEFT JOIN recurring_tickets ON client_id = recurring_ticket_client_id
+                LEFT JOIN users ON recurring_ticket_assigned_to = user_id
                 $client_query"
             );
             while ($row = mysqli_fetch_array($sql)) {
-                $event_id = intval($row['scheduled_ticket_id']);
+                $event_id = intval($row['recurring_ticket_id']);
                 $client_id = intval($row['client_id']);
                 $username = $row['user_name'];
-                $frequency = $row['scheduled_ticket_frequency'];
+                $frequency = $row['recurring_ticket_frequency'];
                 if (empty($username)) {
                     $username = "";
                 } else {
@@ -261,8 +261,8 @@ while ($row = mysqli_fetch_array($sql)) {
                     $username = "[". substr($row['user_name'], 0, 9) . "...]";
                 }
 
-                $event_title = json_encode("R Ticket ($frequency) - " . $row['scheduled_ticket_subject'] . " " . $username);
-                $event_start = json_encode($row['scheduled_ticket_next_run']);
+                $event_title = json_encode("R Ticket ($frequency) - " . $row['recurring_ticket_subject'] . " " . $username);
+                $event_start = json_encode($row['recurring_ticket_next_run']);
 
                 echo "{ id: $event_id, title: $event_title, start: $event_start, color: '$event_color', url: 'recurring_tickets.php?client_id=$client_id$client_url' },";
             }
