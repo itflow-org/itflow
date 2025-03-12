@@ -2546,7 +2546,6 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
             CHANGE COLUMN `recurring_amount` `recurring_invoice_amount` DECIMAL(15,2) NOT NULL DEFAULT 0.00,
             CHANGE COLUMN `recurring_currency_code` `recurring_invoice_currency_code` VARCHAR(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
             CHANGE COLUMN `recurring_note` `recurring_invoice_note` TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
-            CHANGE COLUMN `recurring_invoice_email_notify` `recurring_invoice_invoice_email_notify` TINYINT(1) NOT NULL DEFAULT 1,
             CHANGE COLUMN `recurring_created_at` `recurring_invoice_created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP(),
             CHANGE COLUMN `recurring_updated_at` `recurring_invoice_updated_at` DATETIME NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP(),
             CHANGE COLUMN `recurring_archived_at` `recurring_invoice_archived_at` DATETIME NULL DEFAULT NULL,
