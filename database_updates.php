@@ -2576,10 +2576,17 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
         mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.9.8'");
     }
 
-    // if (CURRENT_DATABASE_VERSION == '1.9.8') {
-    //     // Insert queries here required to update to DB version 1.9.9
+    if (CURRENT_DATABASE_VERSION == '1.9.8') {
+        // Reference a Recurring Ticket that generated ticket
+        mysqli_query($mysqli, "ALTER TABLE `tickets` ADD `ticket_recurring_ticket_id` INT(11) DEFAULT 0 AFTER `ticket_project_id`");
+
+        mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.9.9'");
+    }
+
+    // if (CURRENT_DATABASE_VERSION == '1.9.9') {
+    //     // Insert queries here required to update to DB version 2.0.0
     //     // Then, update the database to the next sequential version
-    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.9.9'");
+    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '2.0.0'");
     // }
 
 } else {
