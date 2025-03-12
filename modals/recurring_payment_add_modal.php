@@ -1,15 +1,15 @@
-<div class="modal" id="addRecurringPaymentModal<?php echo $recurring_id; ?>" tabindex="-1">
+<div class="modal" id="addRecurringPaymentModal<?php echo $recurring_invoice_id; ?>" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content bg-dark">
             <div class="modal-header">
-                <h5 class="modal-title"><i class="fa fa-fw fa-redo-alt mr-2"></i>Creating Recurring Payment: <strong><?php echo "$recurring_prefix$recurring_number"; ?></strong></h5>
+                <h5 class="modal-title"><i class="fa fa-fw fa-redo-alt mr-2"></i>Creating Recurring Payment: <strong><?php echo "$recurring_invoice_prefix$recurring_invoice_number"; ?></strong></h5>
                 <button type="button" class="close text-white" data-dismiss="modal">
                     <span>&times;</span>
                 </button>
             </div>
             <form action="post.php" method="post" autocomplete="off">
-                <input type="hidden" name="recurring_id" value="<?php echo $recurring_id; ?>">
-                <input type="hidden" name="currency_code" value="<?php echo $recurring_currency_code; ?>">
+                <input type="hidden" name="recurring_invoice_id" value="<?php echo $recurring_invoice_id; ?>">
+                <input type="hidden" name="currency_code" value="<?php echo $recurring_invoice_currency_code; ?>">
                 <div class="modal-body bg-white">
 
                     <div class="form-group">
