@@ -160,7 +160,7 @@ if (isset($_POST['add_invoice_recurring'])) {
     $new_config_recurring_invoice_next_number = $config_recurring_invoice_next_number + 1;
     mysqli_query($mysqli,"UPDATE settings SET config_recurring_invoice_next_number = $new_config_recurring_invoice_next_number WHERE company_id = 1");
 
-    mysqli_query($mysqli,"INSERT INTO recurring_invoice_invoices SET recurring_invoice_prefix = '$config_recurring_invoice_prefix', recurring_invoice_number = $recurring_invoice_number, recurring_invoice_scope = '$invoice_scope', recurring_invoice_frequency = '$recurring_invoice_frequency', recurring_invoice_next_date = DATE_ADD('$invoice_date', INTERVAL 1 $recurring_invoice_frequency), recurring_invoice_status = 1, recurring_invoice_amount = $invoice_amount, recurring_invoice_currency_code = '$invoice_currency_code', recurring_invoice_note = '$invoice_note', recurring_invoice_category_id = $category_id, recurring_invoice_client_id = $client_id");
+    mysqli_query($mysqli,"INSERT INTO recurring_invoices SET recurring_invoice_prefix = '$config_recurring_invoice_prefix', recurring_invoice_number = $recurring_invoice_number, recurring_invoice_scope = '$invoice_scope', recurring_invoice_frequency = '$recurring_invoice_frequency', recurring_invoice_next_date = DATE_ADD('$invoice_date', INTERVAL 1 $recurring_invoice_frequency), recurring_invoice_status = 1, recurring_invoice_amount = $invoice_amount, recurring_invoice_currency_code = '$invoice_currency_code', recurring_invoice_note = '$invoice_note', recurring_invoice_category_id = $category_id, recurring_invoice_client_id = $client_id");
 
     $recurring_invoice_id = mysqli_insert_id($mysqli);
 
@@ -187,11 +187,11 @@ if (isset($_POST['add_invoice_recurring'])) {
 
     $_SESSION['alert_message'] = "Created recurring Invoice from Invoice <strong>$invoice_prefix$invoice_number</strong>";
 
-    header("Location: recurring_invoice_invoice.php?recurring_invoice_id=$recurring_invoice_id");
+    header("Location: recurring_invoice.php?recurring_invoice_id=$recurring_invoice_id");
 
 }
 
-if (isset($_POST['add_recurring_invoice_invoice'])) {
+if (isset($_POST['add_recurring_invoice'])) {
 
     $client_id = intval($_POST['client']);
     $frequency = sanitizeInput($_POST['frequency']);
@@ -204,7 +204,7 @@ if (isset($_POST['add_recurring_invoice_invoice'])) {
     $new_config_recurring_invoice_next_number = $config_recurring_invoice_next_number + 1;
     mysqli_query($mysqli,"UPDATE settings SET config_recurring_invoice_next_number = $new_config_recurring_invoice_next_number WHERE company_id = 1");
 
-    mysqli_query($mysqli,"INSERT INTO recurring_invoice_invoices SET recurring_invoice_prefix = '$config_recurring_invoice_prefix', recurring_invoice_number = $recurring_invoice_number, recurring_invoice_scope = '$scope', recurring_invoice_frequency = '$frequency', recurring_invoice_next_date = '$start_date', recurring_invoice_category_id = $category, recurring_invoice_status = 1, recurring_invoice_currency_code = '$session_company_currency', recurring_invoice_client_id = $client_id");
+    mysqli_query($mysqli,"INSERT INTO recurring_invoices SET recurring_invoice_prefix = '$config_recurring_invoice_prefix', recurring_invoice_number = $recurring_invoice_number, recurring_invoice_scope = '$scope', recurring_invoice_frequency = '$frequency', recurring_invoice_next_date = '$start_date', recurring_invoice_category_id = $category, recurring_invoice_status = 1, recurring_invoice_currency_code = '$session_company_currency', recurring_invoice_client_id = $client_id");
 
     $recurring_invoice_id = mysqli_insert_id($mysqli);
 
@@ -215,7 +215,7 @@ if (isset($_POST['add_recurring_invoice_invoice'])) {
 
     $_SESSION['alert_message'] = "Recurring Invoice <strong>$config_recurring_invoice_prefix$recurring_invoice_number</strong> created";
 
-    header("Location: recurring_invoice_invoice.php?recurring_invoice_id=$recurring_invoice_id");
+    header("Location: recurring_invoice.php?recurring_invoice_id=$recurring_invoice_id");
 
 }
 
@@ -245,7 +245,7 @@ if (isset($_POST['edit_recurring_invoice'])) {
     }
     $recurring_invoice_amount = $recurring_invoice_amount - $recurring_invoice_discount;
 
-    mysqli_query($mysqli,"UPDATE recurring_invoice_invoices SET recurring_invoice_scope = '$scope', recurring_invoice_frequency = '$frequency', recurring_invoice_next_date = '$next_date', recurring_invoice_category_id = $category, recurring_invoice_discount_amount = $recurring_invoice_discount, recurring_invoice_amount = $recurring_invoice_amount, recurring_invoice_status = $status WHERE recurring_invoice_id = $recurring_invoice_id");
+    mysqli_query($mysqli,"UPDATE recurring_invoices SET recurring_invoice_scope = '$scope', recurring_invoice_frequency = '$frequency', recurring_invoice_next_date = '$next_date', recurring_invoice_category_id = $category, recurring_invoice_discount_amount = $recurring_invoice_discount, recurring_invoice_amount = $recurring_invoice_amount, recurring_invoice_status = $status WHERE recurring_invoice_id = $recurring_invoice_id");
 
     mysqli_query($mysqli,"INSERT INTO history SET history_status = '$status', history_description = 'Recurring Invoice edited', history_recurring_invoice_id = $recurring_invoice_id");
 
