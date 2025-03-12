@@ -22,7 +22,7 @@ $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('invoice_id') AS n
 $num_open_invoices = $row['num'];
 
 // Recurring Invoice Count
-$row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('recurring_id') AS num FROM recurring WHERE recurring_archived_at IS NULL"));
+$row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('recurring_invoice_id') AS num FROM recurring_invoices WHERE recurring_invoice_archived_at IS NULL"));
 $num_recurring_invoices = $row['num'];
 
 // Open Quotes Count

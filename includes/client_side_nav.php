@@ -277,8 +277,8 @@
                                 <p>
                                     Recurring Invoices
                                     <?php
-                                    if ($num_recurring > 0) { ?>
-                                        <span class="right badge"><?php echo $num_recurring; ?></span>
+                                    if ($num_recurring_invoices) { ?>
+                                        <span class="right badge"><?php echo $num_recurring_invoices; ?></span>
                                     <?php } ?>
                                 </p>
                             </a>

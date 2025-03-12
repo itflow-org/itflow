@@ -77,7 +77,7 @@ require_once "includes/inc_all_admin.php";
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-barcode"></i></span>
                         </div>
-                        <input type="text" class="form-control" name="config_recurring_prefix" placeholder="Recurring Prefix" value="<?php echo nullable_htmlentities($config_recurring_prefix); ?>" required>
+                        <input type="text" class="form-control" name="config_recurring_invoice_prefix" placeholder="Recurring Invoice Prefix" value="<?php echo nullable_htmlentities($config_recurring_invoice_prefix); ?>" required>
                     </div>
                 </div>
 
@@ -87,7 +87,7 @@ require_once "includes/inc_all_admin.php";
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-barcode"></i></span>
                         </div>
-                        <input type="number" min="0" class="form-control" name="config_recurring_next_number" placeholder="Next Recurring Number" value="<?php echo intval($config_recurring_next_number); ?>" required>
+                        <input type="number" min="0" class="form-control" name="config_recurring_invoice_next_number" placeholder="Next Recurring Invoice Number" value="<?php echo intval($config_recurring_invoice_next_number); ?>" required>
                     </div>
                 </div>
 

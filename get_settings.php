@@ -49,8 +49,8 @@ $config_invoice_late_fee_percent = floatval($row['config_invoice_late_fee_percen
 $config_invoice_paid_notification_email = $row['config_invoice_paid_notification_email'];
 
 // Recurring Invoices
-$config_recurring_prefix = $row['config_recurring_prefix'];
-$config_recurring_next_number = intval($row['config_recurring_next_number']);
+$config_recurring_invoice_prefix = $row['config_recurring_invoice_prefix'];
+$config_recurring_invoice_next_number = intval($row['config_recurring_invoice_next_number']);
 
 // Quotes
 $config_quote_prefix = $row['config_quote_prefix'];

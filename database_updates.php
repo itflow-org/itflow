@@ -2529,10 +2529,58 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
         mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.9.6'");
     }
 
-    // if (CURRENT_DATABASE_VERSION == '1.9.6') {
-    //     // Insert queries here required to update to DB version 1.9.7
+    if (CURRENT_DATABASE_VERSION == '1.9.6') {
+        mysqli_query($mysqli, "RENAME TABLE `recurring` TO `recurring_invoices`");
+
+        mysqli_query($mysqli, "
+            ALTER TABLE `recurring_invoices`
+            CHANGE COLUMN `recurring_id` `recurring_invoice_id` INT(11) NOT NULL AUTO_INCREMENT,
+            CHANGE COLUMN `recurring_prefix` `recurring_invoice_prefix` VARCHAR(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
+            CHANGE COLUMN `recurring_number` `recurring_invoice_number` INT(11) NOT NULL,
+            CHANGE COLUMN `recurring_scope` `recurring_invoice_scope` VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
+            CHANGE COLUMN `recurring_frequency` `recurring_invoice_frequency` VARCHAR(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+            CHANGE COLUMN `recurring_last_sent` `recurring_invoice_last_sent` DATE NULL DEFAULT NULL,
+            CHANGE COLUMN `recurring_next_date` `recurring_invoice_next_date` DATE NOT NULL,
+            CHANGE COLUMN `recurring_status` `recurring_invoice_status` INT(1) NOT NULL,
+            CHANGE COLUMN `recurring_discount_amount` `recurring_invoice_discount_amount` DECIMAL(15,2) NOT NULL DEFAULT 0.00,
+            CHANGE COLUMN `recurring_amount` `recurring_invoice_amount` DECIMAL(15,2) NOT NULL DEFAULT 0.00,
+            CHANGE COLUMN `recurring_currency_code` `recurring_invoice_currency_code` VARCHAR(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+            CHANGE COLUMN `recurring_note` `recurring_invoice_note` TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
+            CHANGE COLUMN `recurring_invoice_email_notify` `recurring_invoice_invoice_email_notify` TINYINT(1) NOT NULL DEFAULT 1,
+            CHANGE COLUMN `recurring_created_at` `recurring_invoice_created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP(),
+            CHANGE COLUMN `recurring_updated_at` `recurring_invoice_updated_at` DATETIME NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP(),
+            CHANGE COLUMN `recurring_archived_at` `recurring_invoice_archived_at` DATETIME NULL DEFAULT NULL,
+            CHANGE COLUMN `recurring_category_id` `recurring_invoice_category_id` INT(11) NOT NULL,
+            CHANGE COLUMN `recurring_client_id` `recurring_invoice_client_id` INT(11) NOT NULL
+        ");
+        mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.9.7'");
+    }
+
+    if (CURRENT_DATABASE_VERSION == '1.9.7') {
+
+        mysqli_query($mysqli, "
+            ALTER TABLE `settings`
+            CHANGE COLUMN `config_recurring_prefix` `config_recurring_invoice_prefix` VARCHAR(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
+            CHANGE COLUMN `config_recurring_next_number` `config_recurring_invoice_next_number` INT(11) NOT NULL DEFAULT 1
+        ");
+
+        mysqli_query($mysqli, "
+            ALTER TABLE `history`
+            CHANGE COLUMN `history_recurring_id` `history_recurring_invoice_id` INT(11) NOT NULL DEFAULT 0
+        ");
+
+        mysqli_query($mysqli, "
+            ALTER TABLE `invoice_items`
+            CHANGE COLUMN `item_recurring_id` `item_recurring_invoice_id` INT(11) NOT NULL DEFAULT 0
+        ");
+
+        mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.9.8'");
+    }
+
+    // if (CURRENT_DATABASE_VERSION == '1.9.8') {
+    //     // Insert queries here required to update to DB version 1.9.9
     //     // Then, update the database to the next sequential version
-    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.9.7'");
+    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.9.9'");
     // }
 
 } else {

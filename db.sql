@@ -902,7 +902,7 @@ CREATE TABLE `history` (
   `history_description` varchar(200) NOT NULL,
   `history_created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `history_invoice_id` int(11) NOT NULL DEFAULT 0,
-  `history_recurring_id` int(11) NOT NULL DEFAULT 0,
+  `history_recurring_invoice_id` int(11) NOT NULL DEFAULT 0,
   `history_quote_id` int(11) NOT NULL DEFAULT 0,
   PRIMARY KEY (`history_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -931,7 +931,7 @@ CREATE TABLE `invoice_items` (
   `item_tax_id` int(11) NOT NULL DEFAULT 0,
   `item_product_id` int(11) NOT NULL DEFAULT 0,
   `item_quote_id` int(11) NOT NULL DEFAULT 0,
-  `item_recurring_id` int(11) NOT NULL DEFAULT 0,
+  `item_recurring_invoice_id` int(11) NOT NULL DEFAULT 0,
   `item_invoice_id` int(11) NOT NULL DEFAULT 0,
   PRIMARY KEY (`item_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -1413,36 +1413,6 @@ CREATE TABLE `records` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Table structure for table `recurring`
---
-
-DROP TABLE IF EXISTS `recurring`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `recurring` (
-  `recurring_id` int(11) NOT NULL AUTO_INCREMENT,
-  `recurring_prefix` varchar(200) DEFAULT NULL,
-  `recurring_number` int(11) NOT NULL,
-  `recurring_scope` varchar(255) DEFAULT NULL,
-  `recurring_frequency` varchar(200) NOT NULL,
-  `recurring_last_sent` date DEFAULT NULL,
-  `recurring_next_date` date NOT NULL,
-  `recurring_status` int(1) NOT NULL,
-  `recurring_discount_amount` decimal(15,2) NOT NULL DEFAULT 0.00,
-  `recurring_amount` decimal(15,2) NOT NULL DEFAULT 0.00,
-  `recurring_currency_code` varchar(200) NOT NULL,
-  `recurring_note` text DEFAULT NULL,
-  `recurring_invoice_email_notify` tinyint(1) NOT NULL DEFAULT 1,
-  `recurring_created_at` datetime NOT NULL DEFAULT current_timestamp(),
-  `recurring_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
-  `recurring_archived_at` datetime DEFAULT NULL,
-  `recurring_category_id` int(11) NOT NULL,
-  `recurring_client_id` int(11) NOT NULL,
-  PRIMARY KEY (`recurring_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
 -- Table structure for table `recurring_expenses`
 --
 
@@ -1471,6 +1441,36 @@ CREATE TABLE `recurring_expenses` (
   `recurring_expense_account_id` int(11) NOT NULL,
   PRIMARY KEY (`recurring_expense_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `recurring_invoices`
+--
+
+DROP TABLE IF EXISTS `recurring_invoices`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `recurring_invoices` (
+  `recurring_invoice_id` int(11) NOT NULL AUTO_INCREMENT,
+  `recurring_invoice_prefix` varchar(200) DEFAULT NULL,
+  `recurring_invoice_number` int(11) NOT NULL,
+  `recurring_invoice_scope` varchar(255) DEFAULT NULL,
+  `recurring_invoice_frequency` varchar(200) NOT NULL,
+  `recurring_invoice_last_sent` date DEFAULT NULL,
+  `recurring_invoice_next_date` date NOT NULL,
+  `recurring_invoice_status` int(1) NOT NULL,
+  `recurring_invoice_discount_amount` decimal(15,2) NOT NULL DEFAULT 0.00,
+  `recurring_invoice_amount` decimal(15,2) NOT NULL DEFAULT 0.00,
+  `recurring_invoice_currency_code` varchar(200) NOT NULL,
+  `recurring_invoice_note` text DEFAULT NULL,
+  `recurring_invoice_invoice_email_notify` tinyint(1) NOT NULL DEFAULT 1,
+  `recurring_invoice_created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `recurring_invoice_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
+  `recurring_invoice_archived_at` datetime DEFAULT NULL,
+  `recurring_invoice_category_id` int(11) NOT NULL,
+  `recurring_invoice_client_id` int(11) NOT NULL,
+  PRIMARY KEY (`recurring_invoice_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1737,8 +1737,8 @@ CREATE TABLE `settings` (
   `config_invoice_late_fee_enable` tinyint(1) NOT NULL DEFAULT 0,
   `config_invoice_late_fee_percent` decimal(5,2) NOT NULL DEFAULT 0.00,
   `config_invoice_paid_notification_email` varchar(200) DEFAULT NULL,
-  `config_recurring_prefix` varchar(200) DEFAULT NULL,
-  `config_recurring_next_number` int(11) NOT NULL,
+  `config_recurring_invoice_prefix` varchar(200) DEFAULT NULL,
+  `config_recurring_invoice_next_number` int(11) NOT NULL DEFAULT 1,
   `config_quote_prefix` varchar(200) DEFAULT NULL,
   `config_quote_next_number` int(11) DEFAULT NULL,
   `config_quote_footer` text DEFAULT NULL,
@@ -2417,4 +2417,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-03-11 19:35:52
+-- Dump completed on 2025-03-11 22:07:39

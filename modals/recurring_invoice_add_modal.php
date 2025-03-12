@@ -1,4 +1,4 @@
-<div class="modal" id="addRecurringModal" tabindex="-1">
+<div class="modal" id="addRecurringInvoiceModal" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content bg-dark">
             <div class="modal-header">
@@ -109,7 +109,7 @@
 
                 </div>
                 <div class="modal-footer bg-white">
-                    <button type="submit" name="add_recurring" class="btn btn-primary text-bold"><i class="fas fa-check mr-2"></i>Create</button>
+                    <button type="submit" name="add_recurring_invoice" class="btn btn-primary text-bold"><i class="fas fa-check mr-2"></i>Create</button>
                     <button type="button" class="btn btn-light" data-dismiss="modal"><i class="fas fa-times mr-2"></i>Cancel</button>
                 </div>
             </form>
