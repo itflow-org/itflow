@@ -934,7 +934,7 @@ if ($config_telemetry > 0 || $config_telemetry == 2) {
     $revenue_count = $row['num'];
 
     // Recurring Invoice Count
-    $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('recurring_id') AS num FROM recurring"));
+    $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('recurring_invoice_id') AS num FROM recurring_invoices"));
     $recurring_invoice_count = $row['num'];
 
     // Account Count
