@@ -191,7 +191,7 @@ if ($item_type == "Document") {
 
     $credential_otp_secret = nullable_htmlentities($credential_row['credential_otp_secret']);
     $credential_id_with_secret = '"' . $credential_row['credential_id'] . '","' . $credential_row['credential_otp_secret'] . '"';
-    if (empty($login_otp_secret)) {
+    if (empty($credential_otp_secret)) {
         $otp_display = "-";
     } else {
         $otp_display = "<span onmouseenter='showOTP($credential_id_with_secret)'><i class='far fa-clock'></i> <span id='otp_$credential_id'><i>Hover..</i></span></span>";
