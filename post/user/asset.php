@@ -43,15 +43,15 @@ if (isset($_POST['add_asset'])) {
 
 
     if (!empty($_POST['username'])) {
-        $username = trim(mysqli_real_escape_string($mysqli, encryptLoginEntry($_POST['username'])));
-        $password = trim(mysqli_real_escape_string($mysqli, encryptLoginEntry($_POST['password'])));
+        $username = trim(mysqli_real_escape_string($mysqli, encryptCredentialEntry($_POST['username'])));
+        $password = trim(mysqli_real_escape_string($mysqli, encryptCredentialEntry($_POST['password'])));
 
-        mysqli_query($mysqli,"INSERT INTO logins SET login_name = '$name', login_username = '$username', login_password = '$password', login_asset_id = $asset_id, login_client_id = $client_id");
+        mysqli_query($mysqli,"INSERT INTO credentials SET credential_name = '$name', credential_username = '$username', credential_password = '$password', credential_asset_id = $asset_id, credential_client_id = $client_id");
 
-        $login_id = mysqli_insert_id($mysqli);
+        $credential_id = mysqli_insert_id($mysqli);
 
         //Logging
-        logAction("Credential", "Create", "$session_name created login credential for asset $asset_name", $client_id, $login_id);
+        logAction("Credential", "Create", "$session_name created login credential for asset $asset_name", $client_id, $credential_id);
 
         $alert_extended = " along with login credentials";
 

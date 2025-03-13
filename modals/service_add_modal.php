@@ -190,14 +190,14 @@
                             </div> 
 
                             <div class="form-group">
-                                <label for="logins">Select related logins</label>
-                                <select class="form-control select2" id="logins" name="logins[]" multiple>
+                                <label for="logins">Select related Credentials</label>
+                                <select class="form-control select2" id="credentials" name="credentials[]" multiple>
                                     <?php
-                                    $sql = mysqli_query($mysqli, "SELECT * FROM logins WHERE login_archived_at IS NULL AND login_client_id = $client_id");
+                                    $sql = mysqli_query($mysqli, "SELECT * FROM credentials WHERE credential_archived_at IS NULL AND credential_client_id = $client_id");
                                     while ($row = mysqli_fetch_array($sql)) {
-                                        $login_id = intval($row['login_id']);
-                                        $login_name = nullable_htmlentities($row['login_name']);
-                                        echo "<option value=\"$login_id\">$login_name</option>";
+                                        $credential_id = intval($row['credential_id']);
+                                        $credential_name = nullable_htmlentities($row['credential_name']);
+                                        echo "<option value=\"$credential_id\">$credential_name</option>";
                                     }
                                     ?>
                                 </select>
