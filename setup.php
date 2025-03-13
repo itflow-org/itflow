@@ -19,7 +19,7 @@ if ($config_enable_setup == 0) {
     exit;
 }
 
-include_once "settings_localization_array.php";
+include_once "includes/settings_localization_array.php";
 $errorLog = ini_get('error_log') ?: "Debian/Ubuntu default is usually /var/log/apache2/error.log";
 
 // Get a list of all available timezones

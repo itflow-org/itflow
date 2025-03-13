@@ -83,14 +83,16 @@ if (isset($_GET['id']) && intval($_GET['id'])) {
         </ol>
 
         <div class="card">
-            <div class="card-header bg-dark text-center">
-                <h4 class="mt-1">
+            <div class="card-header bg-dark my-2">
+                <h4 class="card-title mt-1">
                     Ticket <?php echo $ticket_prefix, $ticket_number ?>
+                </h4>
+                <div class="card-tools">
                     <?php
                     if (empty($ticket_resolved_at) && $task_count == $completed_task_count) { ?>
                         <a href="post.php?resolve_ticket=<?php echo $ticket_id; ?>" class="btn btn-sm btn-outline-success float-right text-white confirm-link"><i class="fas fa-fw fa-check text-success"></i> Resolve ticket</a>
                     <?php } ?>
-                </h4>
+                </div>
             </div>
 
             <div class="card-body prettyContent">
@@ -122,7 +124,7 @@ if (isset($_GET['id']) && intval($_GET['id'])) {
                 while ($ticket_attachment = mysqli_fetch_array($sql_ticket_attachments)) {
                     $name = nullable_htmlentities($ticket_attachment['ticket_attachment_name']);
                     $ref_name = nullable_htmlentities($ticket_attachment['ticket_attachment_reference_name']);
-                    echo "<hr class=''><i class='fas fa-fw fa-paperclip text-secondary mr-1'></i>$name | <a target='_blank' href='https://$config_base_url/uploads/tickets/$ticket_id/$ref_name'><i class='fas fa-fw fa-external-link-alt mr-1'></i>View</a>";
+                    echo "<hr><i class='fas fa-fw fa-paperclip text-secondary mr-1'></i>$name | <a href='../uploads/tickets/$ticket_id/$ref_name' download='$name'><i class='fas fa-fw fa-download mr-1'></i>Download</a> | <a target='_blank' href='../uploads/tickets/$ticket_id/$ref_name'><i class='fas fa-fw fa-external-link-alt mr-1'></i>View</a>";
                 }
                 ?>
             </div>
@@ -259,7 +261,7 @@ if (isset($_GET['id']) && intval($_GET['id'])) {
                     while ($ticket_attachment = mysqli_fetch_array($sql_ticket_reply_attachments)) {
                         $name = nullable_htmlentities($ticket_attachment['ticket_attachment_name']);
                         $ref_name = nullable_htmlentities($ticket_attachment['ticket_attachment_reference_name']);
-                        echo "<hr><i class='fas fa-fw fa-paperclip text-secondary mr-1'></i>$name | <a target='_blank' href='https://$config_base_url/uploads/tickets/$ticket_id/$ref_name'><i class='fas fa-fw fa-external-link-alt mr-1'></i>View</a>";
+                        echo "<hr><i class='fas fa-fw fa-paperclip text-secondary mr-1'></i>$name | <a href='../uploads/tickets/$ticket_id/$ref_name' download='$name'><i class='fas fa-fw fa-download mr-1'></i>Download</a> | <a target='_blank' href='../uploads/tickets/$ticket_id/$ref_name'><i class='fas fa-fw fa-external-link-alt mr-1'></i>View</a>";
                     }
                     ?>
                 </div>

@@ -27,7 +27,7 @@ if ($_SESSION['user_type'] !== 2) {
 }
 
 // Set Timezone
-require_once "../inc_set_timezone.php";
+require_once "../includes/inc_set_timezone.php";
 
 // User IP & UA
 $session_ip = sanitizeInput(getIP());

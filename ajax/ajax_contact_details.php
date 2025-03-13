@@ -189,11 +189,6 @@ ob_start();
             <a class="nav-link" data-toggle="pill" href="#pills-contact-recurring-tickets<?php echo $contact_id; ?>"><i class="fas fa-fw fa-redo-alt fa-2x"></i><br>Rcr Tickets (<?php echo $recurring_ticket_count; ?>)</a>
         </li>
         <?php } ?>
-        <?php if ($services_count) { ?>
-        <li class="nav-item">
-            <a class="nav-link" data-toggle="pill" href="#pills-contact-services<?php echo $contact_id; ?>"><i class="fas fa-fw fa-stream fa-2x"></i><br>Services (<?php echo $services_count; ?>)</a>
-        </li>
-        <?php } ?>
         <?php if ($document_count) { ?>
         <li class="nav-item">
             <a class="nav-link" data-toggle="pill" href="#pills-contact-documents<?php echo $contact_id; ?>"><i class="fas fa-fw fa-file-alt fa-2x"></i><br>Documents (<?php echo $document_count; ?>)</a>

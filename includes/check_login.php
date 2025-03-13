@@ -13,16 +13,16 @@ if (!isset($_SESSION)) {
 
 // Check to see if setup is enabled
 if (!isset($config_enable_setup) || $config_enable_setup == 1) {
-    header("Location: setup.php");
+    header("Location: ../setup.php");
     exit;
 }
 
 // Check user is logged in with a valid session
 if (!isset($_SESSION['logged']) || !$_SESSION['logged']) {
     if ($_SERVER["REQUEST_URI"] == "/") {
-        header("Location: login.php");
+        header("Location: ../login.php");
     } else {
-        header("Location: login.php?last_visited=" . base64_encode($_SERVER["REQUEST_URI"]) );
+        header("Location: ../login.php?last_visited=" . base64_encode($_SERVER["REQUEST_URI"]) );
     }
     exit;
 }

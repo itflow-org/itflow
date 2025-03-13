@@ -19,11 +19,11 @@ if (php_sapi_name() !== 'cli') {
 require_once "../config.php";
 
 // Set Timezone
-require_once "../inc_set_timezone.php";
+require_once "../includes/inc_set_timezone.php";
 require_once "../functions.php";
 
 // Get settings for the "default" company
-require_once "../get_settings.php";
+require_once "../includes/get_settings.php";
 
 $config_ticket_prefix = sanitizeInput($config_ticket_prefix);
 $config_ticket_from_name = sanitizeInput($config_ticket_from_name);

@@ -103,8 +103,8 @@
                         <p>
                             Calendar
                             <?php
-                            if ($num_events > 0) { ?>
-                                <span class="right badge text-light"><?php echo $num_events; ?></span>
+                            if ($num_calendar_events > 0) { ?>
+                                <span class="right badge text-light"><?php echo $num_calendar_events; ?></span>
                             <?php } ?>
                         </p>
                     </a>

@@ -10,7 +10,7 @@ require_once '../config.php';
 
 require_once '../functions.php';
 
-require_once '../get_settings.php';
+require_once '../includes/get_settings.php';
 
 if (!isset($_SESSION)) {
     // HTTP Only cookies
@@ -23,7 +23,7 @@ if (!isset($_SESSION)) {
 }
 
 // Set Timezone after session_start
-require_once "../inc_set_timezone.php";
+require_once "../includes/inc_set_timezone.php";
 
 // Check to see if client portal is enabled
 if($config_client_portal_enable == 0) {
