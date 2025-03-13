@@ -46,7 +46,7 @@ if (isset($_POST['add_event'])) {
     require_once 'post/user/event_model.php';
 
 
-    mysqli_query($mysqli,"INSERT INTO events SET event_title = '$title', event_location = '$location', event_description = '$description', event_start = '$start', event_end = '$end', event_repeat = '$repeat', event_calendar_id = $calendar_id, event_client_id = $client");
+    mysqli_query($mysqli,"INSERT INTO calendar_events SET event_title = '$title', event_location = '$location', event_description = '$description', event_start = '$start', event_end = '$end', event_repeat = '$repeat', event_calendar_id = $calendar_id, event_client_id = $client");
 
     $event_id = mysqli_insert_id($mysqli);
 
@@ -121,7 +121,7 @@ if (isset($_POST['edit_event'])) {
 
     $event_id = intval($_POST['event_id']);
 
-    mysqli_query($mysqli,"UPDATE events SET event_title = '$title', event_location = '$location', event_description = '$description', event_start = '$start', event_end = '$end', event_repeat = '$repeat', event_calendar_id = $calendar_id, event_client_id = $client WHERE event_id = $event_id");
+    mysqli_query($mysqli,"UPDATE calendar_events SET event_title = '$title', event_location = '$location', event_description = '$description', event_start = '$start', event_end = '$end', event_repeat = '$repeat', event_calendar_id = $calendar_id, event_client_id = $client WHERE event_id = $event_id");
 
     //If email is checked
     if ($email_event == 1) {
@@ -187,12 +187,12 @@ if (isset($_GET['delete_event'])) {
     $event_id = intval($_GET['delete_event']);
 
     // Get Event Title
-    $sql = mysqli_query($mysqli,"SELECT * FROM events WHERE event_id = $event_id");
+    $sql = mysqli_query($mysqli,"SELECT * FROM calendar_events WHERE event_id = $event_id");
     $row = mysqli_fetch_array($sql);
     $event_title = sanitizeInput($row['event_title']);
     $client_id = intval($row['event_client_id']);
 
-    mysqli_query($mysqli,"DELETE FROM events WHERE event_id = $event_id");
+    mysqli_query($mysqli,"DELETE FROM calendar_events WHERE event_id = $event_id");
 
     // Logging
     logAction("Calendar Event", "Delete", "$session_name deleted calendar event $event_title", $client_id);

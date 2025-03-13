@@ -89,7 +89,7 @@ require_once "modals/calendar_add_modal.php";
 
 
 //loop through IDs and create a modal for each
-$sql = mysqli_query($mysqli, "SELECT * FROM events LEFT JOIN calendars ON event_calendar_id = calendar_id $client_event_query");
+$sql = mysqli_query($mysqli, "SELECT * FROM calendar_events LEFT JOIN calendars ON event_calendar_id = calendar_id $client_event_query");
 while ($row = mysqli_fetch_array($sql)) {
     $event_id = intval($row['event_id']);
     $event_title = nullable_htmlentities($row['event_title']);
@@ -170,7 +170,7 @@ while ($row = mysqli_fetch_array($sql)) {
         },
         events: [
             <?php
-            $sql = mysqli_query($mysqli, "SELECT * FROM events LEFT JOIN calendars ON event_calendar_id = calendar_id $client_event_query");
+            $sql = mysqli_query($mysqli, "SELECT * FROM calendar_events LEFT JOIN calendars ON event_calendar_id = calendar_id $client_event_query");
             while ($row = mysqli_fetch_array($sql)) {
                 $event_id = intval($row['event_id']);
                 $event_title = json_encode($row['event_title']);

@@ -2662,10 +2662,22 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
         mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '2.0.0'");
     }
 
-    // if (CURRENT_DATABASE_VERSION == '2.0.0') {
-    //     // Insert queries here required to update to DB version 2.0.1
+    if (CURRENT_DATABASE_VERSION == '2.0.0') {
+
+        //Dropping patch panel as a patch panel can be documented as an asset with interfaces.
+        mysqli_query($mysqli, "DROP TABLE `patch_panel_ports`");
+        mysqli_query($mysqli, "DROP TABLE `patch_panels`");
+        
+        mysqli_query($mysqli, "RENAME TABLE `events` TO `calendar_events`");
+        mysqli_query($mysqli, "RENAME TABLE `event_attendees` TO `calendar_event_attendees`");
+
+        mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '2.0.1'");
+    }
+
+    // if (CURRENT_DATABASE_VERSION == '2.0.1') {
+    //     // Insert queries here required to update to DB version 2.0.2
     //     // Then, update the database to the next sequential version
-    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '2.0.1'");
+    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '2.0.2'");
     // }
 
 } else {

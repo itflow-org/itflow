@@ -300,6 +300,52 @@ CREATE TABLE `budget` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `calendar_event_attendees`
+--
+
+DROP TABLE IF EXISTS `calendar_event_attendees`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `calendar_event_attendees` (
+  `attendee_id` int(11) NOT NULL AUTO_INCREMENT,
+  `attendee_name` varchar(200) DEFAULT NULL,
+  `attendee_email` varchar(200) DEFAULT NULL,
+  `attendee_invitation_status` tinyint(1) NOT NULL DEFAULT 0,
+  `attendee_created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `attendee_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
+  `attendee_archived_at` datetime DEFAULT NULL,
+  `attendee_contact_id` int(11) NOT NULL DEFAULT 0,
+  `attendee_event_id` int(11) NOT NULL,
+  PRIMARY KEY (`attendee_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `calendar_events`
+--
+
+DROP TABLE IF EXISTS `calendar_events`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `calendar_events` (
+  `event_id` int(11) NOT NULL AUTO_INCREMENT,
+  `event_title` varchar(200) NOT NULL,
+  `event_location` text DEFAULT NULL,
+  `event_description` longtext DEFAULT NULL,
+  `event_start` datetime NOT NULL,
+  `event_end` datetime DEFAULT NULL,
+  `event_repeat` varchar(200) DEFAULT NULL,
+  `event_created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `event_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
+  `event_archived_at` datetime DEFAULT NULL,
+  `event_client_id` int(11) NOT NULL DEFAULT 0,
+  `event_location_id` int(11) NOT NULL DEFAULT 0,
+  `event_calendar_id` int(11) NOT NULL DEFAULT 0,
+  PRIMARY KEY (`event_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `calendars`
 --
 
@@ -838,52 +884,6 @@ CREATE TABLE `email_queue` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Table structure for table `event_attendees`
---
-
-DROP TABLE IF EXISTS `event_attendees`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `event_attendees` (
-  `attendee_id` int(11) NOT NULL AUTO_INCREMENT,
-  `attendee_name` varchar(200) DEFAULT NULL,
-  `attendee_email` varchar(200) DEFAULT NULL,
-  `attendee_invitation_status` tinyint(1) NOT NULL DEFAULT 0,
-  `attendee_created_at` datetime NOT NULL DEFAULT current_timestamp(),
-  `attendee_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
-  `attendee_archived_at` datetime DEFAULT NULL,
-  `attendee_contact_id` int(11) NOT NULL DEFAULT 0,
-  `attendee_event_id` int(11) NOT NULL,
-  PRIMARY KEY (`attendee_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `events`
---
-
-DROP TABLE IF EXISTS `events`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `events` (
-  `event_id` int(11) NOT NULL AUTO_INCREMENT,
-  `event_title` varchar(200) NOT NULL,
-  `event_location` text DEFAULT NULL,
-  `event_description` longtext DEFAULT NULL,
-  `event_start` datetime NOT NULL,
-  `event_end` datetime DEFAULT NULL,
-  `event_repeat` varchar(200) DEFAULT NULL,
-  `event_created_at` datetime NOT NULL DEFAULT current_timestamp(),
-  `event_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
-  `event_archived_at` datetime DEFAULT NULL,
-  `event_client_id` int(11) NOT NULL DEFAULT 0,
-  `event_location_id` int(11) NOT NULL DEFAULT 0,
-  `event_calendar_id` int(11) NOT NULL DEFAULT 0,
-  PRIMARY KEY (`event_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
 -- Table structure for table `expenses`
 --
 
@@ -1167,55 +1167,6 @@ CREATE TABLE `notifications` (
   `notification_user_id` int(11) NOT NULL DEFAULT 0,
   `notification_entity_id` int(11) DEFAULT 0,
   PRIMARY KEY (`notification_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `patch_panel_ports`
---
-
-DROP TABLE IF EXISTS `patch_panel_ports`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `patch_panel_ports` (
-  `port_id` int(11) NOT NULL AUTO_INCREMENT,
-  `port_number` int(11) NOT NULL,
-  `port_name` varchar(200) DEFAULT NULL,
-  `port_description` text DEFAULT NULL,
-  `port_type` varchar(200) DEFAULT NULL,
-  `port_created_at` datetime NOT NULL DEFAULT current_timestamp(),
-  `port_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
-  `port_archived_at` datetime DEFAULT NULL,
-  `port_asset_id` int(11) DEFAULT NULL,
-  `port_patch_panel_id` int(11) NOT NULL,
-  PRIMARY KEY (`port_id`),
-  KEY `port_patch_panel_id` (`port_patch_panel_id`),
-  CONSTRAINT `patch_panel_ports_ibfk_1` FOREIGN KEY (`port_patch_panel_id`) REFERENCES `patch_panels` (`patch_panel_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `patch_panels`
---
-
-DROP TABLE IF EXISTS `patch_panels`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `patch_panels` (
-  `patch_panel_id` int(11) NOT NULL AUTO_INCREMENT,
-  `patch_panel_name` varchar(200) NOT NULL,
-  `patch_panel_description` text DEFAULT NULL,
-  `patch_panel_type` varchar(200) DEFAULT NULL,
-  `patch_panel_ports` int(11) NOT NULL,
-  `patch_panel_physical_location` varchar(200) DEFAULT NULL,
-  `patch_panel_notes` text DEFAULT NULL,
-  `patch_panel_created_at` datetime NOT NULL DEFAULT current_timestamp(),
-  `patch_panel_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
-  `patch_panel_archived_at` datetime DEFAULT NULL,
-  `patch_panel_location_id` int(11) DEFAULT NULL,
-  `patch_panel_rack_id` int(11) DEFAULT NULL,
-  `patch_panel_client_id` int(11) NOT NULL,
-  PRIMARY KEY (`patch_panel_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -2451,4 +2402,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-03-12 21:27:39
+-- Dump completed on 2025-03-13 16:33:22
