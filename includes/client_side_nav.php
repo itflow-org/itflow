@@ -147,8 +147,8 @@
                                 <p>
                                     Credentials
                                     <?php
-                                    if ($num_logins > 0) { ?>
-                                        <span class="right badge text-light"><?php echo $num_logins; ?></span>
+                                    if ($num_credentials > 0) { ?>
+                                        <span class="right badge text-light"><?php echo $num_credentials; ?></span>
                                     <?php } ?>
                                 </p>
                             </a>

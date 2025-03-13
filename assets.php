@@ -524,8 +524,8 @@ if (mysqli_num_rows($os_sql) > 0) {
                             $location_name_display = $location_name;
                         }
 
-                        $sql_logins = mysqli_query($mysqli, "SELECT * FROM logins WHERE login_asset_id = $asset_id");
-                        $login_count = mysqli_num_rows($sql_logins);
+                        $sql_credentials = mysqli_query($mysqli, "SELECT * FROM credentials WHERE credential_asset_id = $asset_id");
+                        $credential_count = mysqli_num_rows($sql_credentials);
 
                         ?>
                         <tr>

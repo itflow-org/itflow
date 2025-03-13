@@ -51,21 +51,21 @@ $software_count = mysqli_num_rows($sql_linked_software);
 
 $linked_software = array();
 
-// Related Logins Query 1 to 1 relationship
-$sql_related_logins = mysqli_query($mysqli, "
+// Related Credentials Query 1 to 1 relationship
+$sql_related_credentials = mysqli_query($mysqli, "
     SELECT
-        logins.login_id AS logins_login_id,   -- Alias for logins.login_id
-        logins.*,                              -- All other columns from logins
-        login_tags.*,                          -- All columns from login_tags
+        credentials.credential_id AS credentials_credential_id,   -- Alias for credentials.credential_id
+        credentials.*,                              -- All other columns from credentials
+        credential_tags.*,                          -- All columns from credential_tags
         tags.*                                 -- All columns from tags
-    FROM logins
-    LEFT JOIN login_tags ON login_tags.login_id = logins.login_id
-    LEFT JOIN tags ON tags.tag_id = login_tags.tag_id
-    WHERE login_contact_id = $contact_id
-    GROUP BY logins.login_id
-    ORDER BY login_name DESC
+    FROM credentials
+    LEFT JOIN credential_tags ON credential_tags.credential_id = credentials.credential_id
+    LEFT JOIN tags ON tags.tag_id = credential_tags.tag_id
+    WHERE credential_contact_id = $contact_id
+    GROUP BY credentials.credential_id
+    ORDER BY credential_name DESC
 ");
-$credential_count = mysqli_num_rows($sql_related_logins);
+$credential_count = mysqli_num_rows($sql_related_credentials);
 
 // Related Tickets Query - 1 to 1 relationship
 $sql_related_tickets = mysqli_query($mysqli, "SELECT * FROM tickets
@@ -418,68 +418,68 @@ ob_start();
                     <tbody>
                     <?php
 
-                    while ($row = mysqli_fetch_array($sql_related_logins)) {
-                        $login_id = intval($row['logins_login_id']);
-                        $login_name = nullable_htmlentities($row['login_name']);
-                        $login_description = nullable_htmlentities($row['login_description']);
-                        $login_uri = nullable_htmlentities($row['login_uri']);
-                        if (empty($login_uri)) {
-                            $login_uri_display = "-";
+                    while ($row = mysqli_fetch_array($sql_related_credentials)) {
+                        $credential_id = intval($row['logins_credential_id']);
+                        $credential_name = nullable_htmlentities($row['credential_name']);
+                        $credential_description = nullable_htmlentities($row['credential_description']);
+                        $credential_uri = nullable_htmlentities($row['credential_uri']);
+                        if (empty($credential_uri)) {
+                            $credential_uri_display = "-";
                         } else {
-                            $login_uri_display = "$login_uri";
+                            $credential_uri_display = "$credential_uri";
                         }
-                        $login_uri_2 = nullable_htmlentities($row['login_uri_2']);
-                        $login_username = nullable_htmlentities(decryptLoginEntry($row['login_username']));
-                        if (empty($login_username)) {
-                            $login_username_display = "-";
+                        $credential_uri_2 = nullable_htmlentities($row['credential_uri_2']);
+                        $credential_username = nullable_htmlentities(decryptCredentialEntry($row['credential_username']));
+                        if (empty($credential_username)) {
+                            $credential_username_display = "-";
                         } else {
-                            $login_username_display = "$login_username";
+                            $credential_username_display = "$credential_username";
                         }
-                        $login_password = nullable_htmlentities(decryptLoginEntry($row['login_password']));
-                        $login_otp_secret = nullable_htmlentities($row['login_otp_secret']);
-                        $login_id_with_secret = '"' . $row['login_id'] . '","' . $row['login_otp_secret'] . '"';
-                        if (empty($login_otp_secret)) {
+                        $credential_password = nullable_htmlentities(decryptCredentialEntry($row['credential_password']));
+                        $credential_otp_secret = nullable_htmlentities($row['credential_otp_secret']);
+                        $credential_id_with_secret = '"' . $row['credential_id'] . '","' . $row['credential_otp_secret'] . '"';
+                        if (empty($credential_otp_secret)) {
                             $otp_display = "-";
                         } else {
-                            $otp_display = "<span onmouseenter='showOTPViaLoginID($login_id)'><i class='far fa-clock'></i> <span id='otp_$login_id'><i>Hover..</i></span></span>";
+                            $otp_display = "<span onmouseenter='showOTPViaCredentialID($credential_id)'><i class='far fa-clock'></i> <span id='otp_$credential_id'><i>Hover..</i></span></span>";
                         }
-                        $login_note = nullable_htmlentities($row['login_note']);
-                        $login_important = intval($row['login_important']);
-                        $login_contact_id = intval($row['login_contact_id']);
-                        $login_asset_id = intval($row['login_asset_id']);
+                        $credential_note = nullable_htmlentities($row['credential_note']);
+                        $credential_important = intval($row['credential_important']);
+                        $credential_contact_id = intval($row['credential_contact_id']);
+                        $credential_asset_id = intval($row['credential_asset_id']);
 
                         // Tags
-                        $login_tag_name_display_array = array();
-                        $login_tag_id_array = array();
-                        $sql_login_tags = mysqli_query($mysqli, "SELECT * FROM login_tags LEFT JOIN tags ON login_tags.tag_id = tags.tag_id WHERE login_id = $login_id ORDER BY tag_name ASC");
-                        while ($row = mysqli_fetch_array($sql_login_tags)) {
+                        $credential_tag_name_display_array = array();
+                        $credential_tag_id_array = array();
+                        $sql_credential_tags = mysqli_query($mysqli, "SELECT * FROM credential_tags LEFT JOIN tags ON credential_tags.tag_id = tags.tag_id WHERE credential_id = $credential_id ORDER BY tag_name ASC");
+                        while ($row = mysqli_fetch_array($sql_credential_tags)) {
 
-                            $login_tag_id = intval($row['tag_id']);
-                            $login_tag_name = nullable_htmlentities($row['tag_name']);
-                            $login_tag_color = nullable_htmlentities($row['tag_color']);
-                            if (empty($login_tag_color)) {
-                                $login_tag_color = "dark";
+                            $credential_tag_id = intval($row['tag_id']);
+                            $credential_tag_name = nullable_htmlentities($row['tag_name']);
+                            $credential_tag_color = nullable_htmlentities($row['tag_color']);
+                            if (empty($credential_tag_color)) {
+                                $credential_tag_color = "dark";
                             }
-                            $login_tag_icon = nullable_htmlentities($row['tag_icon']);
-                            if (empty($login_tag_icon)) {
-                                $login_tag_icon = "tag";
+                            $credential_tag_icon = nullable_htmlentities($row['tag_icon']);
+                            if (empty($credential_tag_icon)) {
+                                $credential_tag_icon = "tag";
                             }
 
-                            $login_tag_id_array[] = $login_tag_id;
-                            $login_tag_name_display_array[] = "<a href='client_logins.php?client_id=$client_id&tags[]=$login_tag_id'><span class='badge text-light p-1 mr-1' style='background-color: $login_tag_color;'><i class='fa fa-fw fa-$login_tag_icon mr-2'></i>$login_tag_name</span></a>";
+                            $credential_tag_id_array[] = $credential_tag_id;
+                            $credential_tag_name_display_array[] = "<a href='credentials.php?client_id=$client_id&tags[]=$credential_tag_id'><span class='badge text-light p-1 mr-1' style='background-color: $credential_tag_color;'><i class='fa fa-fw fa-$credential_tag_icon mr-2'></i>$credential_tag_name</span></a>";
                         }
-                        $login_tags_display = implode('', $login_tag_name_display_array);
+                        $credential_tags_display = implode('', $credential_tag_name_display_array);
 
                         ?>
                         <tr>
-                            <td><i class="fa fa-fw fa-key text-secondary mr-2"></i><?php echo $login_name; ?></td>
-                            <td><?php echo $login_description; ?></td>
-                            <td><?php echo $login_username_display; ?></td>
+                            <td><i class="fa fa-fw fa-key text-secondary mr-2"></i><?php echo $credential_name; ?></td>
+                            <td><?php echo $credential_description; ?></td>
+                            <td><?php echo $credential_username_display; ?></td>
                             <td>
-                                <button class="btn p-0" type="button" data-toggle="popover" data-trigger="focus" data-placement="top" data-content="<?php echo $login_password; ?>"><i class="fas fa-2x fa-ellipsis-h text-secondary"></i><i class="fas fa-2x fa-ellipsis-h text-secondary"></i></button>
+                                <button class="btn p-0" type="button" data-toggle="popover" data-trigger="focus" data-placement="top" data-content="<?php echo $credential_password; ?>"><i class="fas fa-2x fa-ellipsis-h text-secondary"></i><i class="fas fa-2x fa-ellipsis-h text-secondary"></i></button>
                             </td>
                             <td><?php echo $otp_display; ?></td>
-                            <td><?php echo $login_uri_display; ?></td>
+                            <td><?php echo $credential_uri_display; ?></td>
                         </tr>
 
                         <?php
@@ -492,7 +492,7 @@ ob_start();
                 </table>
             </div>
         </div>
-        <!-- Include script to get TOTP code via the login ID -->
+        <!-- Include script to get TOTP code via the credential ID -->
         <script src="js/credential_show_otp_via_id.js"></script>
         <?php } ?>
 

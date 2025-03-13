@@ -334,13 +334,13 @@ function generateUserSessionKey($site_encryption_master_key)
     }
 }
 
-// Decrypts an encrypted password (website/asset login), returns it as a string
-function decryptLoginEntry($login_password_ciphertext)
+// Decrypts an encrypted password (website/asset credentials), returns it as a string
+function decryptCredentialEntry($credential_password_ciphertext)
 {
 
-    // Split the login into IV and Ciphertext
-    $login_iv =  substr($login_password_ciphertext, 0, 16);
-    $login_ciphertext = $salt = substr($login_password_ciphertext, 16);
+    // Split the credential into IV and Ciphertext
+    $credential_iv =  substr($credential_password_ciphertext, 0, 16);
+    $credential_ciphertext = $salt = substr($credential_password_ciphertext, 16);
 
     // Get the user session info.
     $user_encryption_session_ciphertext = $_SESSION['user_encryption_session_ciphertext'];
@@ -350,12 +350,12 @@ function decryptLoginEntry($login_password_ciphertext)
     // Decrypt the session key to get the master key
     $site_encryption_master_key = openssl_decrypt($user_encryption_session_ciphertext, 'aes-128-cbc', $user_encryption_session_key, 0, $user_encryption_session_iv);
 
-    // Decrypt the login password using the master key
-    return openssl_decrypt($login_ciphertext, 'aes-128-cbc', $site_encryption_master_key, 0, $login_iv);
+    // Decrypt the credential password using the master key
+    return openssl_decrypt($credential_ciphertext, 'aes-128-cbc', $site_encryption_master_key, 0, $credential_iv);
 }
 
-// Encrypts a website/asset login password
-function encryptLoginEntry($login_password_cleartext)
+// Encrypts a website/asset credential password
+function encryptCredentialEntry($credential_password_cleartext)
 {
     $iv = randomString();
 
@@ -367,26 +367,26 @@ function encryptLoginEntry($login_password_cleartext)
     //Decrypt the session key to get the master key
     $site_encryption_master_key = openssl_decrypt($user_encryption_session_ciphertext, 'aes-128-cbc', $user_encryption_session_key, 0, $user_encryption_session_iv);
 
-    //Encrypt the website/asset login using the master key
-    $ciphertext = openssl_encrypt($login_password_cleartext, 'aes-128-cbc', $site_encryption_master_key, 0, $iv);
+    //Encrypt the website/asset credential using the master key
+    $ciphertext = openssl_encrypt($credential_password_cleartext, 'aes-128-cbc', $site_encryption_master_key, 0, $iv);
 
     return $iv . $ciphertext;
 }
 
-function apiDecryptLoginEntry($login_ciphertext, $api_key_decrypt_hash, #[\SensitiveParameter]$api_key_decrypt_password)
+function apiDecryptCredentialEntry($credential_ciphertext, $api_key_decrypt_hash, #[\SensitiveParameter]$api_key_decrypt_password)
 {
-    // Split the login entry (username/password) into IV and Ciphertext
-    $login_iv =  substr($login_ciphertext, 0, 16);
-    $login_ciphertext = $salt = substr($login_ciphertext, 16);
+    // Split the Credential entry (username/password) into IV and Ciphertext
+    $credential_iv =  substr($credential_ciphertext, 0, 16);
+    $credential_ciphertext = $salt = substr($credential_ciphertext, 16);
 
     // Decrypt the api hash to get the master key
     $site_encryption_master_key = decryptUserSpecificKey($api_key_decrypt_hash, $api_key_decrypt_password);
 
-    // Decrypt the login password using the master key
-    return openssl_decrypt($login_ciphertext, 'aes-128-cbc', $site_encryption_master_key, 0, $login_iv);
+    // Decrypt the credential password using the master key
+    return openssl_decrypt($credential_ciphertext, 'aes-128-cbc', $site_encryption_master_key, 0, $credential_iv);
 }
 
-function apiEncryptLoginEntry(#[\SensitiveParameter]$credential_cleartext, $api_key_decrypt_hash, #[\SensitiveParameter]$api_key_decrypt_password)
+function apiEncryptCredentialEntry(#[\SensitiveParameter]$credential_cleartext, $api_key_decrypt_hash, #[\SensitiveParameter]$api_key_decrypt_password)
 {
     $iv = randomString();
 

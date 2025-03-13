@@ -163,61 +163,61 @@ if ($item_type == "Document") {
     echo "<a href='guest_download_file.php?id=$item_id&key=$item_key'>Download $file_name</a>";
 
 
-} elseif ($item_type == "Login") {
+} elseif ($item_type == "Credential") {
     $encryption_key = $_GET['ek'];
 
-    $login_sql = mysqli_query($mysqli, "SELECT * FROM logins WHERE login_id = $item_related_id AND login_client_id = $client_id LIMIT 1");
-    $login_row = mysqli_fetch_array($login_sql);
-    if (mysqli_num_rows($login_sql) !== 1 || !$login_row) {
+    $credential_sql = mysqli_query($mysqli, "SELECT * FROM credentials WHERE credential_id = $item_related_id AND credential_client_id = $client_id LIMIT 1");
+    $credential_row = mysqli_fetch_array($credential_sql);
+    if (mysqli_num_rows($credential_sql) !== 1 || !$credential_row) {
         echo "<div class='alert alert-danger'>Error retrieving login.</div>";
         include "guest_footer.php";
 
         exit();
     }
 
-    $login_id = intval($login_row['login_id']);
-    $login_name = nullable_htmlentities($login_row['login_name']);
-    $login_uri = nullable_htmlentities($login_row['login_uri']);
+    $credential_id = intval($credential_row['credential_id']);
+    $credential_name = nullable_htmlentities($credential_row['credential_name']);
+    $credential_uri = nullable_htmlentities($credential_row['credential_uri']);
 
     $username_iv = substr($row['item_encrypted_username'], 0, 16);
     $username_ciphertext = substr($row['item_encrypted_username'], 16);
-    $login_username = nullable_htmlentities(openssl_decrypt($username_ciphertext, 'aes-128-cbc', $encryption_key, 0, $username_iv));
+    $credential_username = nullable_htmlentities(openssl_decrypt($username_ciphertext, 'aes-128-cbc', $encryption_key, 0, $username_iv));
 
     $password_iv = substr($row['item_encrypted_credential'], 0, 16);
     $password_ciphertext = substr($row['item_encrypted_credential'], 16);
-    $login_password = nullable_htmlentities(openssl_decrypt($password_ciphertext, 'aes-128-cbc', $encryption_key, 0, $password_iv));
+    $credential_password = nullable_htmlentities(openssl_decrypt($password_ciphertext, 'aes-128-cbc', $encryption_key, 0, $password_iv));
 
-    $login_otp = nullable_htmlentities($login_row['login_otp_secret']);
+    $credential_otp = nullable_htmlentities($credential_row['credential_otp_secret']);
 
-    $login_otp_secret = nullable_htmlentities($login_row['login_otp_secret']);
-    $login_id_with_secret = '"' . $login_row['login_id'] . '","' . $login_row['login_otp_secret'] . '"';
+    $credential_otp_secret = nullable_htmlentities($credential_row['credential_otp_secret']);
+    $credential_id_with_secret = '"' . $credential_row['credential_id'] . '","' . $credential_row['credential_otp_secret'] . '"';
     if (empty($login_otp_secret)) {
         $otp_display = "-";
     } else {
-        $otp_display = "<span onmouseenter='showOTP($login_id_with_secret)'><i class='far fa-clock'></i> <span id='otp_$login_id'><i>Hover..</i></span></span>";
+        $otp_display = "<span onmouseenter='showOTP($credential_id_with_secret)'><i class='far fa-clock'></i> <span id='otp_$credential_id'><i>Hover..</i></span></span>";
     }
 
-    $login_notes = nullable_htmlentities($login_row['login_note']);
+    $credential_notes = nullable_htmlentities($credential_row['credential_note']);
 
 
 
     ?>
 
-    <h5><?php echo $login_name; ?></h5>
+    <h5><?php echo $credential_name; ?></h5>
     <table class="table col-md-3">
         <tr>
             <th>URL</th>
-            <td><?php echo $login_uri; ?></td>
+            <td><?php echo $credential_uri; ?></td>
         </tr>
         <tr>
             <th>Username</th>
-            <td><?php echo $login_username ?></td>
+            <td><?php echo $credential_username ?></td>
         </tr>
         <tr>
             <th>Password</th>
-            <td><?php echo $login_password ?></td>
+            <td><?php echo $credential_password ?></td>
         </tr>
-        <?php if(!empty($login_otp_secret)){ ?>
+        <?php if(!empty($credential_otp_secret)){ ?>
         <tr>
             <th>2FA (TOTP)</th>
             <td><?php echo $otp_display ?></td>
@@ -250,12 +250,12 @@ if ($item_type == "Document") {
 
     <?php
 
-    // Update login view count
+    // Update credential view count
     $new_item_views = $item_views + 1;
     mysqli_query($mysqli, "UPDATE shared_items SET item_views = $new_item_views WHERE item_id = $item_id");
 
     // Logging
-    $name = sanitizeInput($login_row['login_name']);
+    $name = sanitizeInput($credential_row['credential_name']);
     logAction("Share", "View", "Viewed shared $item_type $name via link", $client_id);
 
 }

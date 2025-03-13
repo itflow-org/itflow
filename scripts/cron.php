@@ -989,9 +989,9 @@ if ($config_telemetry > 0 || $config_telemetry == 2) {
     $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('software_id') AS num FROM software WHERE software_template = 1"));
     $software_template_count = $row['num'];
 
-    // Password Count
-    $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('login_id') AS num FROM logins"));
-    $password_count = $row['num'];
+    // Credential Count
+    $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('credential_id') AS num FROM credentials"));
+    $credential_count = $row['num'];
 
     // Network Count
     $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('network_id') AS num FROM networks"));
@@ -1100,7 +1100,7 @@ if ($config_telemetry > 0 || $config_telemetry == 2) {
             'asset_count' => $asset_count,
             'software_count' => $software_count,
             'software_template_count' => $software_template_count,
-            'password_count' => $password_count,
+            'credential_count' => $credential_count,
             'network_count' => $network_count,
             'certificate_count' => $certificate_count,
             'domain_count' => $domain_count,

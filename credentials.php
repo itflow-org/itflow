@@ -1,21 +1,21 @@
 <?php
 
 // Default Column Sortby Filter
-$sort = "login_name";
+$sort = "credential_name";
 $order = "ASC";
 
 // If client_id is in URI then show client Side Bar and client header
 if (isset($_GET['client_id'])) {
     require_once "includes/inc_all_client.php";
-    $client_query = "AND login_client_id = $client_id";
+    $client_query = "AND credential_client_id = $client_id";
     $client_url = "client_id=$client_id&";
-    // Log when users load the Credentials/Logins page
+    // Log when users load the Credentials page
     logAction("Credential", "View", "$session_name viewed the Credentials page for client", $client_id);
 } else {
     require_once "includes/inc_client_overview_all.php";
     $client_query = '';
     $client_url = '';
-    // Log when users load the Credentials/Logins page
+    // Log when users load the Credentials page
     logAction("Credential", "View", "$session_name viewed the All Credentials page");
 }
 
@@ -41,7 +41,7 @@ if (isset($_GET['tags']) && is_array($_GET['tags']) && !empty($_GET['tags'])) {
 if (!$client_url) {
     // Client Filter
     if (isset($_GET['client']) & !empty($_GET['client'])) {
-        $client_query = 'AND (login_client_id = ' . intval($_GET['client']) . ')';
+        $client_query = 'AND (credential_client_id = ' . intval($_GET['client']) . ')';
         $client = intval($_GET['client']);
     } else {
         // Default - any
@@ -53,7 +53,7 @@ if (!$client_url) {
 // Location Filter
 if ($client_url && isset($_GET['location']) && !empty($_GET['location'])) {
     $location_query = 'AND (a.asset_location_id = ' . intval($_GET['location']) . ')';
-    $location_query_innerjoin = 'INNER JOIN assets a on a.asset_id = l.login_asset_id ';
+    $location_query_innerjoin = 'INNER JOIN assets a on a.asset_id = c.credential_asset_id ';
     $location_filter = intval($_GET['location']);
 } else {
     // Default - any
@@ -64,22 +64,22 @@ if ($client_url && isset($_GET['location']) && !empty($_GET['location'])) {
 
 $sql = mysqli_query(
     $mysqli,
-    "SELECT SQL_CALC_FOUND_ROWS l.login_id AS l_login_id, l.*, login_tags.*, tags.*, clients.*, contacts.*, assets.*
-    FROM logins l
-    LEFT JOIN login_tags ON login_tags.login_id = l.login_id
-    LEFT JOIN tags ON tags.tag_id = login_tags.tag_id
-    LEFT JOIN clients ON client_id = login_client_id
-    LEFT JOIN contacts ON contact_id = login_contact_id
-    LEFT JOIN assets ON asset_id = login_asset_id
+    "SELECT SQL_CALC_FOUND_ROWS c.credential_id AS c_credential_id, c.*, credential_tags.*, tags.*, clients.*, contacts.*, assets.*
+    FROM credentials c
+    LEFT JOIN credential_tags ON credential_tags.credential_id = c.credential_id
+    LEFT JOIN tags ON tags.tag_id = credential_tags.tag_id
+    LEFT JOIN clients ON client_id = credential_client_id
+    LEFT JOIN contacts ON contact_id = credential_contact_id
+    LEFT JOIN assets ON asset_id = credential_asset_id
     $location_query_innerjoin
-    WHERE l.login_$archive_query
+    WHERE c.credential_$archive_query
     $tag_query
-    AND (l.login_name LIKE '%$q%' OR l.login_description LIKE '%$q%' OR l.login_uri LIKE '%$q%' OR tag_name LIKE '%$q%' OR client_name LIKE '%$q%')
+    AND (c.credential_name LIKE '%$q%' OR c.credential_description LIKE '%$q%' OR c.credential_uri LIKE '%$q%' OR tag_name LIKE '%$q%' OR client_name LIKE '%$q%')
     $location_query
     $access_permission_query
     $client_query
-    GROUP BY l.login_id
-    ORDER BY l.login_important DESC, $sort $order LIMIT $record_from, $record_to"
+    GROUP BY c.credential_id
+    ORDER BY c.credential_important DESC, $sort $order LIMIT $record_from, $record_to"
 );
 
 $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
@@ -92,17 +92,17 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
         <div class="card-tools">
             <?php if (lookupUserPermission("module_credential") >= 2) { ?>
                 <div class="btn-group">
-                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addLoginModal" <?php if (!isset($_COOKIE['user_encryption_session_key'])) { echo "disabled"; } ?>>
+                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addCredentialModal" <?php if (!isset($_COOKIE['user_encryption_session_key'])) { echo "disabled"; } ?>>
                     <i class="fas fa-plus mr-2"></i>New Credential
                 </button>
                 <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown"></button>
                 <div class="dropdown-menu">
-                    <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#importLoginModal">
+                    <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#importCredentialModal">
                         <i class="fa fa-fw fa-upload mr-2"></i>Import
                     </a>
                     <?php if ($num_rows[0] > 0) { ?>
                         <div class="dropdown-divider"></div>
-                        <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#exportLoginModal">
+                        <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#exportCredentialModal">
                             <i class="fa fa-fw fa-download mr-2"></i>Export
                         </a>
                     <?php } ?>
@@ -207,12 +207,12 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             <div class="dropdown-menu">
                                 <?php if ($archived) { ?>
                                 <button class="dropdown-item text-info"
-                                    type="submit" form="bulkActions" name="bulk_unarchive_logins">
+                                    type="submit" form="bulkActions" name="bulk_unarchive_credentials">
                                     <i class="fas fa-fw fa-redo mr-2"></i>Unarchive
                                 </button>
                                 <div class="dropdown-divider"></div>
                                 <button class="dropdown-item text-danger text-bold"
-                                    type="submit" form="bulkActions" name="bulk_delete_logins">
+                                    type="submit" form="bulkActions" name="bulk_delete_credentials">
                                     <i class="fas fa-fw fa-trash mr-2"></i>Delete
                                 </button>
                                 <?php } else { ?>
@@ -221,7 +221,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 </a>
                                     <div class="dropdown-divider"></div>
                                 <button class="dropdown-item text-danger confirm-link"
-                                    type="submit" form="bulkActions" name="bulk_archive_logins">
+                                    type="submit" form="bulkActions" name="bulk_archive_credentials">
                                     <i class="fas fa-fw fa-archive mr-2"></i>Archive
                                 </button>
                                 <?php } ?>
@@ -246,16 +246,16 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 </div>
                             </td>
                             <th>
-                                <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=login_name&order=<?php echo $disp; ?>">
-                                    Name <?php if ($sort == 'login_name') { echo $order_icon; } ?>
+                                <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=credential_name&order=<?php echo $disp; ?>">
+                                    Name <?php if ($sort == 'credential_name') { echo $order_icon; } ?>
                                 </a>
                             </th>
                             <th>Username / ID</th>
                             <th>Password / Key</th>
                             <th>OTP</th>
                             <th>
-                                <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=login_uri&order=<?php echo $disp; ?>">
-                                    URI <?php if ($sort == 'login_uri') { echo $order_icon; } ?>
+                                <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=credential_uri&order=<?php echo $disp; ?>">
+                                    URI <?php if ($sort == 'credential_uri') { echo $order_icon; } ?>
                                 </a>
                             </th>
                             <th></th>
@@ -275,80 +275,80 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         while ($row = mysqli_fetch_array($sql)) {
                             $client_id = intval($row['client_id']);
                             $client_name = nullable_htmlentities($row['client_name']);
-                            $login_id = intval($row['l_login_id']);
-                            $login_name = nullable_htmlentities($row['login_name']);
-                            $login_description = nullable_htmlentities($row['login_description']);
-                            $login_uri = nullable_htmlentities($row['login_uri']);
-                            if (empty($login_uri)) {
-                                $login_uri_display = "-";
+                            $credential_id = intval($row['c_credential_id']);
+                            $credential_name = nullable_htmlentities($row['credential_name']);
+                            $credential_description = nullable_htmlentities($row['credential_description']);
+                            $credential_uri = nullable_htmlentities($row['credential_uri']);
+                            if (empty($credential_uri)) {
+                                $credential_uri_display = "-";
                             } else {
-                                $login_uri_display = truncate($login_uri,40) . "<button class='btn btn-sm clipboardjs' type='button' data-clipboard-text='$login_uri'><i class='far fa-copy text-secondary'></i></button>";
+                                $credential_uri_display = truncate($credential_uri,40) . "<button class='btn btn-sm clipboardjs' type='button' data-clipboard-text='$credential_uri'><i class='far fa-copy text-secondary'></i></button>";
                             }
-                            $login_uri_2 = nullable_htmlentities($row['login_uri_2']);
-                            $login_username = nullable_htmlentities(decryptLoginEntry($row['login_username']));
-                            if (empty($login_username)) {
-                                $login_username_display = "-";
+                            $credential_uri_2 = nullable_htmlentities($row['credential_uri_2']);
+                            $credential_username = nullable_htmlentities(decryptCredentialEntry($row['credential_username']));
+                            if (empty($credential_username)) {
+                                $credential_username_display = "-";
                             } else {
-                                $login_username_display = "$login_username<button class='btn btn-sm clipboardjs' type='button' data-clipboard-text='$login_username'><i class='far fa-copy text-secondary'></i></button>";
+                                $credential_username_display = "$credential_username<button class='btn btn-sm clipboardjs' type='button' data-clipboard-text='$credential_username'><i class='far fa-copy text-secondary'></i></button>";
                             }
-                            $login_password = nullable_htmlentities(decryptLoginEntry($row['login_password']));
-                            $login_otp_secret = nullable_htmlentities($row['login_otp_secret']);
-                            $login_id_with_secret = '"' . $row['login_id'] . '","' . $row['login_otp_secret'] . '"';
-                            if (empty($login_otp_secret)) {
+                            $credential_password = nullable_htmlentities(decryptCredentialEntry($row['credential_password']));
+                            $credential_otp_secret = nullable_htmlentities($row['credential_otp_secret']);
+                            $credential_id_with_secret = '"' . $row['credential_id'] . '","' . $row['credential_otp_secret'] . '"';
+                            if (empty($credential_otp_secret)) {
                                 $otp_display = "-";
                             } else {
-                                $otp_display = "<span onmouseenter='showOTPViaLoginID($login_id)'><i class='far fa-clock'></i> <span id='otp_$login_id'><i>Hover..</i></span></span>";
+                                $otp_display = "<span onmouseenter='showOTPViaCredentialID($credential_id)'><i class='far fa-clock'></i> <span id='otp_$credential_id'><i>Hover..</i></span></span>";
                             }
-                            $login_note = nullable_htmlentities($row['login_note']);
-                            $login_created_at = nullable_htmlentities($row['login_created_at']);
-                            $login_archived_at = nullable_htmlentities($row['login_archived_at']);
-                            $login_important = intval($row['login_important']);
-                            $login_contact_id = intval($row['login_contact_id']);
+                            $credential_note = nullable_htmlentities($row['credential_note']);
+                            $credential_created_at = nullable_htmlentities($row['credential_created_at']);
+                            $credential_archived_at = nullable_htmlentities($row['credential_archived_at']);
+                            $credential_important = intval($row['credential_important']);
+                            $credential_contact_id = intval($row['credential_contact_id']);
                             $contact_name = nullable_htmlentities($row['contact_name']);
-                            $login_asset_id = intval($row['login_asset_id']);
+                            $credential_asset_id = intval($row['credential_asset_id']);
                             $asset_name = nullable_htmlentities($row['asset_name']);
 
                             // Tags
-                            $login_tag_name_display_array = array();
-                            $login_tag_id_array = array();
-                            $sql_login_tags = mysqli_query($mysqli, "SELECT * FROM login_tags LEFT JOIN tags ON login_tags.tag_id = tags.tag_id WHERE login_id = $login_id ORDER BY tag_name ASC");
-                            while ($row = mysqli_fetch_array($sql_login_tags)) {
+                            $credential_tag_name_display_array = array();
+                            $credential_tag_id_array = array();
+                            $sql_credential_tags = mysqli_query($mysqli, "SELECT * FROM credential_tags LEFT JOIN tags ON credential_tags.tag_id = tags.tag_id WHERE credential_id = $credential_id ORDER BY tag_name ASC");
+                            while ($row = mysqli_fetch_array($sql_credential_tags)) {
 
-                                $login_tag_id = intval($row['tag_id']);
-                                $login_tag_name = nullable_htmlentities($row['tag_name']);
-                                $login_tag_color = nullable_htmlentities($row['tag_color']);
-                                if (empty($login_tag_color)) {
-                                    $login_tag_color = "dark";
+                                $credential_tag_id = intval($row['tag_id']);
+                                $credential_tag_name = nullable_htmlentities($row['tag_name']);
+                                $credential_tag_color = nullable_htmlentities($row['tag_color']);
+                                if (empty($credential_tag_color)) {
+                                    $credential_tag_color = "dark";
                                 }
-                                $login_tag_icon = nullable_htmlentities($row['tag_icon']);
-                                if (empty($login_tag_icon)) {
-                                    $login_tag_icon = "tag";
+                                $credential_tag_icon = nullable_htmlentities($row['tag_icon']);
+                                if (empty($credential_tag_icon)) {
+                                    $credential_tag_icon = "tag";
                                 }
 
-                                $login_tag_id_array[] = $login_tag_id;
-                                $login_tag_name_display_array[] = "<a href='credentials.php?$client_url tags[]=$login_tag_id'><span class='badge text-light p-1 mr-1' style='background-color: $login_tag_color;'><i class='fa fa-fw fa-$login_tag_icon mr-2'></i>$login_tag_name</span></a>";
+                                $credential_tag_id_array[] = $credential_tag_id;
+                                $credential_tag_name_display_array[] = "<a href='credentials.php?$client_url tags[]=$credential_tag_id'><span class='badge text-light p-1 mr-1' style='background-color: $credential_tag_color;'><i class='fa fa-fw fa-$credential_tag_icon mr-2'></i>$credential_tag_name</span></a>";
                             }
-                            $login_tags_display = implode('', $login_tag_name_display_array);
+                            $credential_tags_display = implode('', $credential_tag_name_display_array);
 
-                            if ($login_contact_id) { 
-                                $login_contact_display = "<a href='#' class='mr-2 badge badge-pill badge-dark p-2' title='$contact_name'
+                            if ($credential_contact_id) { 
+                                $credential_contact_display = "<a href='#' class='mr-2 badge badge-pill badge-dark p-2' title='$contact_name'
                                     data-toggle='ajax-modal'
                                     data-modal-size='lg'
                                     data-ajax-url='ajax/ajax_contact_details.php'
-                                    data-ajax-id='$login_contact_id'>
+                                    data-ajax-id='$credential_contact_id'>
                                     <i class='fas fa-fw fa-user'></i></a>";
                             } else {
-                                $login_contact_display = '';
+                                $credential_contact_display = '';
                             }
 
-                            if ($login_asset_id) { 
-                                $login_asset_display = "<a href='#' class='mr-2 badge badge-pill badge-secondary p-2' title='$asset_name' data-toggle='ajax-modal'
+                            if ($credential_asset_id) { 
+                                $credential_asset_display = "<a href='#' class='mr-2 badge badge-pill badge-secondary p-2' title='$asset_name' data-toggle='ajax-modal'
                                     data-modal-size='lg'
                                     data-ajax-url='ajax/ajax_asset_details.php'
-                                    data-ajax-id='$login_asset_id'>
+                                    data-ajax-id='$credential_asset_id'>
                                     <i class='fas fa-fw fa-desktop'></i></a>";
                             } else {
-                                $login_asset_display = '';
+                                $credential_asset_display = '';
                             }
 
                             // Check if shared
@@ -359,8 +359,8 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 AND item_active = 1
                                 AND item_views != item_view_limit
                                 AND item_expire_at > NOW()
-                                AND item_type = 'Login'
-                                AND item_related_id = $login_id
+                                AND item_type = 'Credential'
+                                AND item_related_id = $credential_id
                                 LIMIT 1"
                             );
                             if (mysqli_num_rows($sql_shared) > 0) {
@@ -381,41 +381,41 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
 
                         ?>
-                            <tr class="<?php if (!empty($login_important)) { echo "text-bold"; } ?>">
+                            <tr class="<?php if (!empty($credential_important)) { echo "text-bold"; } ?>">
                                 <td class="pr-0">
                                     <div class="form-check">
-                                        <input class="form-check-input bulk-select" type="checkbox" name="login_ids[]" value="<?php echo $login_id ?>">
+                                        <input class="form-check-input bulk-select" type="checkbox" name="credential_ids[]" value="<?php echo $credential_id ?>">
                                     </div>
                                 </td>
                                 <td>
                                     <a class="text-dark" href="#"
                                         data-toggle="ajax-modal"
                                         data-ajax-url="ajax/ajax_credential_edit.php"
-                                        data-ajax-id="<?php echo $login_id; ?>"
+                                        data-ajax-id="<?php echo $credential_id; ?>"
                                         >
                                         <div class="media">
                                             <i class="fa fa-fw fa-2x fa-key mr-3"></i>
                                             <div class="media-body">
-                                                <div><?php echo $login_name; ?></div>
-                                                <div><small class="text-secondary"><?php echo $login_description; ?></small></div>
+                                                <div><?php echo $credential_name; ?></div>
+                                                <div><small class="text-secondary"><?php echo $credential_description; ?></small></div>
                                                 <?php
-                                                if (!empty($login_tags_display)) { ?>
+                                                if (!empty($credential_tags_display)) { ?>
                                                     <div class="mt-1">
-                                                        <?php echo $login_tags_display; ?>
+                                                        <?php echo $credential_tags_display; ?>
                                                     </div>
                                                 <?php } ?>
                                             </div>
                                         </div>
                                     </a>
                                 </td>
-                                <td><?php echo $login_username_display; ?></td>
+                                <td><?php echo $credential_username_display; ?></td>
                                 <td>
-                                    <button class="btn p-0" type="button" data-toggle="popover" data-trigger="focus" data-placement="top" data-content="<?php echo $login_password; ?>"><i class="fas fa-2x fa-ellipsis-h text-secondary"></i><i class="fas fa-2x fa-ellipsis-h text-secondary"></i></button><button class="btn btn-sm clipboardjs" type="button" data-clipboard-text="<?php echo $login_password; ?>"><i class="far fa-copy text-secondary"></i></button>
+                                    <button class="btn p-0" type="button" data-toggle="popover" data-trigger="focus" data-placement="top" data-content="<?php echo $credential_password; ?>"><i class="fas fa-2x fa-ellipsis-h text-secondary"></i><i class="fas fa-2x fa-ellipsis-h text-secondary"></i></button><button class="btn btn-sm clipboardjs" type="button" data-clipboard-text="<?php echo $credential_password; ?>"><i class="far fa-copy text-secondary"></i></button>
                                 </td>
                                 <td><?php echo $otp_display; ?></td>
-                                <td><?php echo $login_uri_display; ?></td>
+                                <td><?php echo $credential_uri_display; ?></td>
                                 <td>
-                                    <?php echo "$login_contact_display$login_asset_display"; ?>
+                                    <?php echo "$credential_contact_display$credential_asset_display"; ?>
                                     <?php if (mysqli_num_rows($sql_shared) > 0) { ?>
                                         <div class="media" title="Expires <?php echo $item_expire_at_human; ?>">
                                             <i class="fas fa-link mr-2 mt-1"></i>
@@ -431,21 +431,21 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 <?php } ?>
                                 <td class="text-center">
                                     <div class="btn-group">
-                                        <?php if ( !empty($login_uri) || !empty($login_uri_2) ) { ?>
+                                        <?php if ( !empty($credential_uri) || !empty($credential_uri_2) ) { ?>
                                         <div class="dropdown dropleft text-center">
                                             <button class="btn btn-default btn-sm" type="button" data-toggle="dropdown">
                                                 <i class="fa fa-fw fa-external-link-alt"></i>
                                             </button>
                                             <div class="dropdown-menu">
-                                                <?php if ($login_uri) { ?>
-                                                <a href="<?php echo $login_uri; ?>" alt="<?php echo $login_uri; ?>" target="_blank" class="dropdown-item" >
-                                                    <i class="fa fa-fw fa-external-link-alt"></i> <?php echo truncate($login_uri,40); ?>
+                                                <?php if ($credential_uri) { ?>
+                                                <a href="<?php echo $credential_uri; ?>" alt="<?php echo $credential_uri; ?>" target="_blank" class="dropdown-item" >
+                                                    <i class="fa fa-fw fa-external-link-alt"></i> <?php echo truncate($credential_uri,40); ?>
                                                 </a>
                                                 <?php } ?>
-                                                <?php if ($login_uri_2) { ?>
+                                                <?php if ($credential_uri_2) { ?>
                                                 <div class="dropdown-divider"></div>
-                                                <a href="<?php echo $login_uri_2; ?>" target="_blank" class="dropdown-item" >
-                                                    <i class="fa fa-fw fa-external-link-alt"></i> <?php echo truncate($login_uri_2,40); ?>
+                                                <a href="<?php echo $credential_uri_2; ?>" target="_blank" class="dropdown-item" >
+                                                    <i class="fa fa-fw fa-external-link-alt"></i> <?php echo truncate($credential_uri_2,40); ?>
                                                 </a>
                                                 <?php } ?>
                                             </div>
@@ -459,29 +459,29 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                                 <a class="dropdown-item" href="#"
                                                     data-toggle="ajax-modal"
                                                     data-ajax-url="ajax/ajax_credential_edit.php"
-                                                    data-ajax-id="<?php echo $login_id; ?>"
+                                                    data-ajax-id="<?php echo $credential_id; ?>"
                                                     >
                                                     <i class="fas fa-fw fa-edit mr-2"></i>Edit
                                                 </a>
                                                 <div class="dropdown-divider"></div>
-                                                <a class="dropdown-item" href="#" data-toggle="modal" data-target="#shareModal" onclick="populateShareModal(<?php echo "$client_id, 'Login', $login_id"; ?>)">
+                                                <a class="dropdown-item" href="#" data-toggle="modal" data-target="#shareModal" onclick="populateShareModal(<?php echo "$client_id, 'Credential', $credential_id"; ?>)">
                                                     <i class="fas fa-fw fa-share mr-2"></i>Share
                                                 </a>
                                                 <?php  if (lookupUserPermission("module_credential") >= 2) { ?>
-                                                    <?php if ($login_archived_at) { ?>
+                                                    <?php if ($credential_archived_at) { ?>
                                                         <div class="dropdown-divider"></div>
-                                                        <a class="dropdown-item text-info confirm-link" href="post.php?unarchive_login=<?php echo $login_id; ?>">
+                                                        <a class="dropdown-item text-info confirm-link" href="post.php?unarchive_credential=<?php echo $credential_id; ?>">
                                                             <i class="fas fa-fw fa-redo mr-2"></i>Unarchive
                                                         </a>
                                                         <?php if (lookupUserPermission("module_credential") >= 3) { ?>
                                                             <div class="dropdown-divider"></div>
-                                                            <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_login=<?php echo $login_id; ?>">
+                                                            <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_credential=<?php echo $credential_id; ?>">
                                                                 <i class="fas fa-fw fa-trash mr-2"></i>Delete
                                                         <?php } ?>
                                                         </a>
                                                     <?php } else { ?>
                                                         <div class="dropdown-divider"></div>
-                                                        <a class="dropdown-item text-danger confirm-link" href="post.php?archive_login=<?php echo $login_id; ?>">
+                                                        <a class="dropdown-item text-danger confirm-link" href="post.php?archive_credential=<?php echo $credential_id; ?>">
                                                             <i class="fas fa-fw fa-archive mr-2"></i>Archive
                                                         </a>
                                                     <?php } ?>

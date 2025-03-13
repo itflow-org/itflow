@@ -12,10 +12,10 @@ if (isset($_GET['days'])) {
 }
 
 $passwords_not_rotated_sql = mysqli_query($mysqli,
-    "SELECT login_id, login_name, login_description, login_password_changed_at, login_client_id, client_id, client_name
-        FROM logins
-        LEFT JOIN clients ON login_client_id = client_id
-        WHERE DATE(login_password_changed_at) < DATE_SUB(CURDATE(), INTERVAL $days DAY)
+    "SELECT credential_id, credential_name, credential_description, credential_password_changed_at, credential_client_id, client_id, client_name
+        FROM credentials
+        LEFT JOIN clients ON credential_client_id = client_id
+        WHERE DATE(credential_password_changed_at) < DATE_SUB(CURDATE(), INTERVAL $days DAY)
         ORDER BY client_name"
 );
 
@@ -46,10 +46,10 @@ $passwords_not_rotated_sql = mysqli_query($mysqli,
 
                     while ($row = mysqli_fetch_array($passwords_not_rotated_sql)) {
 
-                        $login_id = intval($row['login_id']);
-                        $login_name = nullable_htmlentities($row['login_name']);
-                        $login_description = nullable_htmlentities($row['login_description']);
-                        $login_password_changed = nullable_htmlentities($row['login_password_changed_at']);
+                        $credential_id = intval($row['credential_id']);
+                        $credential_name = nullable_htmlentities($row['credential_name']);
+                        $credential_description = nullable_htmlentities($row['credential_description']);
+                        $credential_password_changed = nullable_htmlentities($row['credential_password_changed_at']);
                         $client_id = intval($row['client_id']);
                         $client_name = nullable_htmlentities($row['client_name']);
 
@@ -57,9 +57,9 @@ $passwords_not_rotated_sql = mysqli_query($mysqli,
 
                         <tr>
                             <td><?php echo $client_name; ?></td>
-                            <td class="text-right"><?php echo $login_name; ?></td>
-                            <td class="text-right"><?php echo $login_description; ?></td>
-                            <td class="text-right"><?php echo timeAgo($login_password_changed) . " (" . $login_password_changed . ")" ?></td>
+                            <td class="text-right"><?php echo $credential_name; ?></td>
+                            <td class="text-right"><?php echo $credential_description; ?></td>
+                            <td class="text-right"><?php echo timeAgo($credential_password_changed) . " (" . $credential_password_changed . ")" ?></td>
                         </tr>
 
                     <?php } ?>

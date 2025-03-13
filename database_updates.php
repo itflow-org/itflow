@@ -2583,10 +2583,89 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
         mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.9.9'");
     }
 
-    // if (CURRENT_DATABASE_VERSION == '1.9.9') {
-    //     // Insert queries here required to update to DB version 2.0.0
+    if (CURRENT_DATABASE_VERSION == '1.9.9') {
+        mysqli_query($mysqli, "RENAME TABLE `logins` TO `credentials`");
+        mysqli_query($mysqli, "
+            ALTER TABLE `credentials`
+            CHANGE COLUMN `login_id` `credential_id` INT(11) NOT NULL AUTO_INCREMENT,
+            CHANGE COLUMN `login_name` `credential_name` VARCHAR(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+            CHANGE COLUMN `login_description` `credential_description` VARCHAR(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
+            CHANGE COLUMN `login_category` `credential_category` VARCHAR(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
+            CHANGE COLUMN `login_uri` `credential_uri` VARCHAR(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
+            CHANGE COLUMN `login_uri_2` `credential_uri_2` VARCHAR(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
+            CHANGE COLUMN `login_username` `credential_username` VARCHAR(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
+            CHANGE COLUMN `login_password` `credential_password` VARBINARY(200) NULL DEFAULT NULL,
+            CHANGE COLUMN `login_otp_secret` `credential_otp_secret` VARCHAR(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
+            CHANGE COLUMN `login_note` `credential_note` TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
+            CHANGE COLUMN `login_important` `credential_important` TINYINT(1) NOT NULL DEFAULT '0',
+            CHANGE COLUMN `login_created_at` `credential_created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP(),
+            CHANGE COLUMN `login_updated_at` `credential_updated_at` DATETIME NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP(),
+            CHANGE COLUMN `login_archived_at` `credential_archived_at` DATETIME NULL DEFAULT NULL,
+            CHANGE COLUMN `login_accessed_at` `credential_accessed_at` DATETIME NULL DEFAULT NULL,
+            CHANGE COLUMN `login_password_changed_at` `credential_password_changed_at` DATETIME NULL DEFAULT CURRENT_TIMESTAMP(),
+            CHANGE COLUMN `login_folder_id` `credential_folder_id` INT(11) NOT NULL DEFAULT '0',
+            CHANGE COLUMN `login_contact_id` `credential_contact_id` INT(11) NOT NULL DEFAULT '0',
+            CHANGE COLUMN `login_asset_id` `credential_asset_id` INT(11) NOT NULL DEFAULT '0',
+            CHANGE COLUMN `login_client_id` `credential_client_id` INT(11) NOT NULL DEFAULT '0'
+        ");
+
+        mysqli_query($mysqli, "RENAME TABLE `contact_logins` TO `contact_credentials`");
+        mysqli_query($mysqli, "
+            ALTER TABLE `contact_credentials`
+            CHANGE COLUMN `login_id` `credential_id` INT(11) NOT NULL,
+            ADD FOREIGN KEY (`contact_id`) REFERENCES `contacts`(`contact_id`) ON DELETE CASCADE,
+            ADD FOREIGN KEY (`credential_id`) REFERENCES `credentials`(`credential_id`) ON DELETE CASCADE
+        ");
+
+        mysqli_query($mysqli, "RENAME TABLE `service_logins` TO `service_credentials`");
+        mysqli_query($mysqli, "
+            ALTER TABLE `service_credentials`
+            CHANGE COLUMN `login_id` `credential_id` INT(11) NOT NULL,
+            ADD FOREIGN KEY (`service_id`) REFERENCES `services`(`service_id`) ON DELETE CASCADE,
+            ADD FOREIGN KEY (`credential_id`) REFERENCES `credentials`(`credential_id`) ON DELETE CASCADE
+        ");
+
+        mysqli_query($mysqli, "RENAME TABLE `software_logins` TO `software_credentials`");
+        mysqli_query($mysqli, "
+            ALTER TABLE `software_credentials`
+            CHANGE COLUMN `login_id` `credential_id` INT(11) NOT NULL,
+            ADD FOREIGN KEY (`software_id`) REFERENCES `software`(`software_id`) ON DELETE CASCADE,
+            ADD FOREIGN KEY (`credential_id`) REFERENCES `credentials`(`credential_id`) ON DELETE CASCADE
+        ");
+
+        mysqli_query($mysqli, "RENAME TABLE `vendor_logins` TO `vendor_credentials`");
+        mysqli_query($mysqli, "
+            ALTER TABLE `vendor_credentials`
+            CHANGE COLUMN `login_id` `credential_id` INT(11) NOT NULL,
+            ADD FOREIGN KEY (`vendor_id`) REFERENCES `vendors`(`vendor_id`) ON DELETE CASCADE,
+            ADD FOREIGN KEY (`credential_id`) REFERENCES `credentials`(`credential_id`) ON DELETE CASCADE
+        ");
+
+        mysqli_query($mysqli, "RENAME TABLE `login_tags` TO `credential_tags`");
+        mysqli_query($mysqli, "
+            ALTER TABLE `credential_tags`
+            CHANGE COLUMN `login_id` `credential_id` INT(11) NOT NULL,
+            ADD FOREIGN KEY (`tag_id`) REFERENCES `tags`(`tag_id`) ON DELETE CASCADE,
+            ADD FOREIGN KEY (`credential_id`) REFERENCES `credentials`(`credential_id`) ON DELETE CASCADE
+        ");
+
+        mysqli_query($mysqli,
+            "CREATE TABLE `asset_credentials` (
+                `credential_id` INT(11) NOT NULL,
+                `asset_id` INT(11) NOT NULL,
+                PRIMARY KEY (`credential_id`,`asset_id`),
+                FOREIGN KEY (`credential_id`) REFERENCES `credentials`(`credential_id`) ON DELETE CASCADE,
+                FOREIGN KEY (`asset_id`) REFERENCES `assets`(`asset_id`) ON DELETE CASCADE
+            )"
+        );
+
+        mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '2.0.0'");
+    }
+
+    // if (CURRENT_DATABASE_VERSION == '2.0.0') {
+    //     // Insert queries here required to update to DB version 2.0.1
     //     // Then, update the database to the next sequential version
-    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '2.0.0'");
+    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '2.0.1'");
     // }
 
 } else {

@@ -366,13 +366,13 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             $asset_count_display = '';
                         }
 
-                        // Related Logins Query
-                        $sql_related_logins = mysqli_query($mysqli, "SELECT * FROM logins WHERE login_contact_id = $contact_id ORDER BY login_id DESC");
-                        $login_count = mysqli_num_rows($sql_related_logins);
-                        if ($login_count) { 
-                            $login_count_display = "<span class='mr-2 badge badge-pill badge-secondary p-2' title='$login_count Credentials'><i class='fas fa-fw fa-key mr-2'></i>$login_count</span>";
+                        // Related Credentials Query
+                        $sql_related_credentials = mysqli_query($mysqli, "SELECT * FROM credentials WHERE credential_contact_id = $contact_id ORDER BY credential_id DESC");
+                        $credential_count = mysqli_num_rows($sql_related_credentials);
+                        if ($credential_count) { 
+                            $credential_count_display = "<span class='mr-2 badge badge-pill badge-secondary p-2' title='$credential_count Credentials'><i class='fas fa-fw fa-key mr-2'></i>$credential_count</span>";
                         } else {
-                            $login_count_display = '';
+                            $credential_count_display = '';
                         }
 
                         // Related Software Query
@@ -468,7 +468,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             <td><?php echo $contact_info_display; ?></td>
                             <td><?php echo $location_name_display; ?></td>
                             <td>
-                                <?php echo "$asset_count_display$login_count_display$software_count_display$ticket_count_display$document_count_display"; ?>
+                                <?php echo "$asset_count_display$credential_count_display$software_count_display$ticket_count_display$document_count_display"; ?>
                             </td>
                             <?php if (!$client_url) { ?>
                             <td><a href="contacts.php?client_id=<?php echo $client_id; ?>"><?php echo $client_name; ?></a></td>

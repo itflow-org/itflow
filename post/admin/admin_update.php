@@ -116,8 +116,8 @@ if (isset($_GET['update'])) {
         $software_template_count = $row['num'];
 
         // Password Count
-        $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('login_id') AS num FROM logins"));
-        $password_count = $row['num'];
+        $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('credential_id') AS num FROM credentials"));
+        $credential_count = $row['num'];
 
         // Network Count
         $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('network_id') AS num FROM networks"));
@@ -227,7 +227,7 @@ if (isset($_GET['update'])) {
                 'asset_count' => $asset_count,
                 'software_count' => $software_count,
                 'software_template_count' => $software_template_count,
-                'password_count' => $password_count,
+                'credential_count' => $credential_count,
                 'network_count' => $network_count,
                 'certificate_count' => $certificate_count,
                 'domain_count' => $domain_count,

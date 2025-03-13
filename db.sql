@@ -74,6 +74,23 @@ CREATE TABLE `app_logs` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `asset_credentials`
+--
+
+DROP TABLE IF EXISTS `asset_credentials`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `asset_credentials` (
+  `credential_id` int(11) NOT NULL,
+  `asset_id` int(11) NOT NULL,
+  PRIMARY KEY (`credential_id`,`asset_id`),
+  KEY `asset_id` (`asset_id`),
+  CONSTRAINT `asset_credentials_ibfk_1` FOREIGN KEY (`credential_id`) REFERENCES `credentials` (`credential_id`) ON DELETE CASCADE,
+  CONSTRAINT `asset_credentials_ibfk_2` FOREIGN KEY (`asset_id`) REFERENCES `assets` (`asset_id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `asset_custom`
 --
 
@@ -484,6 +501,23 @@ CREATE TABLE `contact_assets` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `contact_credentials`
+--
+
+DROP TABLE IF EXISTS `contact_credentials`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `contact_credentials` (
+  `contact_id` int(11) NOT NULL,
+  `credential_id` int(11) NOT NULL,
+  PRIMARY KEY (`contact_id`,`credential_id`),
+  KEY `credential_id` (`credential_id`),
+  CONSTRAINT `contact_credentials_ibfk_1` FOREIGN KEY (`contact_id`) REFERENCES `contacts` (`contact_id`) ON DELETE CASCADE,
+  CONSTRAINT `contact_credentials_ibfk_2` FOREIGN KEY (`credential_id`) REFERENCES `credentials` (`credential_id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `contact_documents`
 --
 
@@ -508,20 +542,6 @@ CREATE TABLE `contact_files` (
   `contact_id` int(11) NOT NULL,
   `file_id` int(11) NOT NULL,
   PRIMARY KEY (`contact_id`,`file_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `contact_logins`
---
-
-DROP TABLE IF EXISTS `contact_logins`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `contact_logins` (
-  `contact_id` int(11) NOT NULL,
-  `login_id` int(11) NOT NULL,
-  PRIMARY KEY (`contact_id`,`login_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -591,6 +611,55 @@ CREATE TABLE `contacts` (
   `contact_department` varchar(200) DEFAULT NULL,
   `contact_client_id` int(11) NOT NULL DEFAULT 0,
   PRIMARY KEY (`contact_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `credential_tags`
+--
+
+DROP TABLE IF EXISTS `credential_tags`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `credential_tags` (
+  `credential_id` int(11) NOT NULL,
+  `tag_id` int(11) NOT NULL,
+  PRIMARY KEY (`credential_id`,`tag_id`),
+  KEY `tag_id` (`tag_id`),
+  CONSTRAINT `credential_tags_ibfk_1` FOREIGN KEY (`tag_id`) REFERENCES `tags` (`tag_id`) ON DELETE CASCADE,
+  CONSTRAINT `credential_tags_ibfk_2` FOREIGN KEY (`credential_id`) REFERENCES `credentials` (`credential_id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `credentials`
+--
+
+DROP TABLE IF EXISTS `credentials`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `credentials` (
+  `credential_id` int(11) NOT NULL AUTO_INCREMENT,
+  `credential_name` varchar(200) NOT NULL,
+  `credential_description` varchar(500) DEFAULT NULL,
+  `credential_category` varchar(200) DEFAULT NULL,
+  `credential_uri` varchar(500) DEFAULT NULL,
+  `credential_uri_2` varchar(500) DEFAULT NULL,
+  `credential_username` varchar(500) DEFAULT NULL,
+  `credential_password` varbinary(200) DEFAULT NULL,
+  `credential_otp_secret` varchar(200) DEFAULT NULL,
+  `credential_note` text DEFAULT NULL,
+  `credential_important` tinyint(1) NOT NULL DEFAULT 0,
+  `credential_created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `credential_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
+  `credential_archived_at` datetime DEFAULT NULL,
+  `credential_accessed_at` datetime DEFAULT NULL,
+  `credential_password_changed_at` datetime DEFAULT current_timestamp(),
+  `credential_folder_id` int(11) NOT NULL DEFAULT 0,
+  `credential_contact_id` int(11) NOT NULL DEFAULT 0,
+  `credential_asset_id` int(11) NOT NULL DEFAULT 0,
+  `credential_client_id` int(11) NOT NULL DEFAULT 0,
+  PRIMARY KEY (`credential_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -1010,52 +1079,6 @@ CREATE TABLE `locations` (
   `location_contact_id` int(11) NOT NULL DEFAULT 0,
   `location_client_id` int(11) NOT NULL DEFAULT 0,
   PRIMARY KEY (`location_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `login_tags`
---
-
-DROP TABLE IF EXISTS `login_tags`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `login_tags` (
-  `login_id` int(11) NOT NULL,
-  `tag_id` int(11) NOT NULL,
-  PRIMARY KEY (`login_id`,`tag_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `logins`
---
-
-DROP TABLE IF EXISTS `logins`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `logins` (
-  `login_id` int(11) NOT NULL AUTO_INCREMENT,
-  `login_name` varchar(200) NOT NULL,
-  `login_description` varchar(500) DEFAULT NULL,
-  `login_category` varchar(200) DEFAULT NULL,
-  `login_uri` varchar(500) DEFAULT NULL,
-  `login_uri_2` varchar(500) DEFAULT NULL,
-  `login_username` varchar(500) DEFAULT NULL,
-  `login_password` varbinary(200) DEFAULT NULL,
-  `login_otp_secret` varchar(200) DEFAULT NULL,
-  `login_note` text DEFAULT NULL,
-  `login_important` tinyint(1) NOT NULL DEFAULT 0,
-  `login_created_at` datetime NOT NULL DEFAULT current_timestamp(),
-  `login_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
-  `login_archived_at` datetime DEFAULT NULL,
-  `login_accessed_at` datetime DEFAULT NULL,
-  `login_password_changed_at` datetime DEFAULT current_timestamp(),
-  `login_folder_id` int(11) NOT NULL DEFAULT 0,
-  `login_contact_id` int(11) NOT NULL DEFAULT 0,
-  `login_asset_id` int(11) NOT NULL DEFAULT 0,
-  `login_client_id` int(11) NOT NULL DEFAULT 0,
-  PRIMARY KEY (`login_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -1620,6 +1643,23 @@ CREATE TABLE `service_contacts` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `service_credentials`
+--
+
+DROP TABLE IF EXISTS `service_credentials`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `service_credentials` (
+  `service_id` int(11) NOT NULL,
+  `credential_id` int(11) NOT NULL,
+  KEY `service_id` (`service_id`),
+  KEY `credential_id` (`credential_id`),
+  CONSTRAINT `service_credentials_ibfk_1` FOREIGN KEY (`service_id`) REFERENCES `services` (`service_id`) ON DELETE CASCADE,
+  CONSTRAINT `service_credentials_ibfk_2` FOREIGN KEY (`credential_id`) REFERENCES `credentials` (`credential_id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `service_documents`
 --
 
@@ -1643,19 +1683,6 @@ CREATE TABLE `service_domains` (
   `service_id` int(11) NOT NULL,
   `domain_id` int(11) NOT NULL
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `service_logins`
---
-
-DROP TABLE IF EXISTS `service_logins`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `service_logins` (
-  `service_id` int(11) NOT NULL,
-  `login_id` int(11) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1885,6 +1912,23 @@ CREATE TABLE `software_contacts` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `software_credentials`
+--
+
+DROP TABLE IF EXISTS `software_credentials`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `software_credentials` (
+  `software_id` int(11) NOT NULL,
+  `credential_id` int(11) NOT NULL,
+  PRIMARY KEY (`software_id`,`credential_id`),
+  KEY `credential_id` (`credential_id`),
+  CONSTRAINT `software_credentials_ibfk_1` FOREIGN KEY (`software_id`) REFERENCES `software` (`software_id`) ON DELETE CASCADE,
+  CONSTRAINT `software_credentials_ibfk_2` FOREIGN KEY (`credential_id`) REFERENCES `credentials` (`credential_id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `software_documents`
 --
 
@@ -1909,20 +1953,6 @@ CREATE TABLE `software_files` (
   `software_id` int(11) NOT NULL,
   `file_id` int(11) NOT NULL,
   PRIMARY KEY (`software_id`,`file_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `software_logins`
---
-
-DROP TABLE IF EXISTS `software_logins`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `software_logins` (
-  `software_id` int(11) NOT NULL,
-  `login_id` int(11) NOT NULL,
-  PRIMARY KEY (`software_id`,`login_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -2187,6 +2217,7 @@ CREATE TABLE `tickets` (
   `ticket_asset_id` int(11) NOT NULL DEFAULT 0,
   `ticket_invoice_id` int(11) NOT NULL DEFAULT 0,
   `ticket_project_id` int(11) NOT NULL DEFAULT 0,
+  `ticket_recurring_ticket_id` int(11) DEFAULT 0,
   `ticket_order` int(11) NOT NULL DEFAULT 0,
   PRIMARY KEY (`ticket_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -2335,6 +2366,23 @@ CREATE TABLE `users` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `vendor_credentials`
+--
+
+DROP TABLE IF EXISTS `vendor_credentials`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `vendor_credentials` (
+  `vendor_id` int(11) NOT NULL,
+  `credential_id` int(11) NOT NULL,
+  PRIMARY KEY (`vendor_id`,`credential_id`),
+  KEY `credential_id` (`credential_id`),
+  CONSTRAINT `vendor_credentials_ibfk_1` FOREIGN KEY (`vendor_id`) REFERENCES `vendors` (`vendor_id`) ON DELETE CASCADE,
+  CONSTRAINT `vendor_credentials_ibfk_2` FOREIGN KEY (`credential_id`) REFERENCES `credentials` (`credential_id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `vendor_documents`
 --
 
@@ -2359,20 +2407,6 @@ CREATE TABLE `vendor_files` (
   `vendor_id` int(11) NOT NULL,
   `file_id` int(11) NOT NULL,
   PRIMARY KEY (`vendor_id`,`file_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `vendor_logins`
---
-
-DROP TABLE IF EXISTS `vendor_logins`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `vendor_logins` (
-  `vendor_id` int(11) NOT NULL,
-  `login_id` int(11) NOT NULL,
-  PRIMARY KEY (`vendor_id`,`login_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -2417,4 +2451,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-03-12 13:56:16
+-- Dump completed on 2025-03-12 21:27:39
