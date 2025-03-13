@@ -1,10 +1,10 @@
 <?php
 
-require_once "guest_header.php";
+require_once "includes/guest_header.php";
 
 if (!isset($_GET['invoice_id'], $_GET['url_key'])) {
     echo "<br><h2>Oops, something went wrong! Please raise a ticket if you believe this is an error.</h2>";
-    require_once "guest_footer.php";
+    require_once "includes/guest_footer.php";
 
     exit();
 }
@@ -25,7 +25,7 @@ $sql = mysqli_query(
 if (mysqli_num_rows($sql) !== 1) {
     // Invalid invoice/key
     echo "<br><h2>Oops, something went wrong! Please raise a ticket if you believe this is an error.</h2>";
-    require_once "guest_footer.php";
+    require_once "includes/guest_footer.php";
 
     exit();
 }
@@ -931,4 +931,4 @@ if ($outstanding_invoices_count > 0) { ?>
 
 <?php } // End previous unpaid invoices
 
-require_once "guest_footer.php";
+require_once "includes/guest_footer.php";
