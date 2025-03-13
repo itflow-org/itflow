@@ -640,18 +640,18 @@ if (isset($_POST['export_client_pdf'])) {
     $export_locations = intval($_POST['export_locations']);
     $export_assets = intval($_POST['export_assets']);
     $export_software = intval($_POST['export_software']);
-    $export_logins = 0;
+    $export_credentials = 0;
     if (lookupUserPermission("module_credential") >= 1) {
-        $export_logins = intval($_POST['export_logins']);
+        $export_credentials = intval($_POST['export_credentials']);
     }
     $export_networks = intval($_POST['export_networks']);
     $export_certificates = intval($_POST['export_certificates']);
     $export_domains = intval($_POST['export_domains']);
     $export_tickets = intval($_POST['export_tickets']);
-    $export_scheduled_tickets = intval($_POST['export_scheduled_tickets']);
+    $export_recurring_tickets = intval($_POST['export_recurring_tickets']);
     $export_vendors = intval($_POST['export_vendors']);
     $export_invoices = intval($_POST['export_invoices']);
-    $export_recurring = intval($_POST['export_recurring']);
+    $export_recurring_invoices = intval($_POST['export_recurring_invoices']);
     $export_quotes = intval($_POST['export_quotes']);
     $export_payments = intval($_POST['export_payments']);
     $export_trips = intval($_POST['export_trips']);
@@ -682,7 +682,7 @@ if (isset($_POST['export_client_pdf'])) {
     $sql_contacts = mysqli_query($mysqli,"SELECT * FROM contacts WHERE contact_client_id = $client_id AND contact_archived_at IS NULL ORDER BY contact_name ASC");
     $sql_locations = mysqli_query($mysqli,"SELECT * FROM locations WHERE location_client_id = $client_id AND location_archived_at IS NULL ORDER BY location_name ASC");
     $sql_vendors = mysqli_query($mysqli,"SELECT * FROM vendors WHERE vendor_client_id = $client_id AND vendor_archived_at IS NULL ORDER BY vendor_name ASC");
-    $sql_logins = mysqli_query($mysqli,"SELECT * FROM logins WHERE login_client_id = $client_id ORDER BY login_name ASC");
+    $sql_credentials = mysqli_query($mysqli,"SELECT * FROM credentials WHERE credential_client_id = $client_id ORDER BY credential_name ASC");
     $sql_assets = mysqli_query($mysqli,"SELECT * FROM assets 
         LEFT JOIN contacts ON asset_contact_id = contact_id 
         LEFT JOIN locations ON asset_location_id = location_id
@@ -1013,8 +1013,8 @@ if (isset($_POST['export_client_pdf'])) {
                 <?php } ?>
                 //Vendors END
 
-                //Logins Start
-                <?php if(mysqli_num_rows($sql_logins) > 0 && $export_logins == 1){ ?>
+                //Credentials Start
+                <?php if(mysqli_num_rows($sql_credentials) > 0 && $export_credentials == 1){ ?>
                 {
                     text: 'Credentials',
                     style: 'title'
@@ -1047,33 +1047,33 @@ if (isset($_POST['export_client_pdf'])) {
                             ],
 
                             <?php
-                            while($row = mysqli_fetch_array($sql_logins)){
-                            $login_name = $row['login_name'];
-                            $login_description = $row['login_description'];
-                            $login_username = decryptLoginEntry($row['login_username']);
-                            $login_password = decryptLoginEntry($row['login_password']);
-                            $login_uri = $row['login_uri'];
+                            while($row = mysqli_fetch_array($sql_credentials)){
+                            $credential_name = $row['credential_name'];
+                            $credential_description = $row['credential_description'];
+                            $credential_username = decryptCredentialEntry($row['credential_username']);
+                            $credential_password = decryptCredentialEntry($row['credential_password']);
+                            $credential_uri = $row['credential_uri'];
                             ?>
 
                             [
                                 {
-                                    text: <?php echo json_encode($login_name); ?>,
+                                    text: <?php echo json_encode($credential_name); ?>,
                                     style: 'item'
                                 },
                                 {
-                                    text: <?php echo json_encode($login_description); ?>,
+                                    text: <?php echo json_encode($credential_description); ?>,
                                     style: 'item'
                                 },
                                 {
-                                    text: <?php echo json_encode($login_username); ?>,
+                                    text: <?php echo json_encode($credential_username); ?>,
                                     style: 'item'
                                 },
                                 {
-                                    text: <?php echo json_encode($login_password); ?>,
+                                    text: <?php echo json_encode($credential_password); ?>,
                                     style: 'item'
                                 },
                                 {
-                                    text: <?php echo json_encode($login_uri); ?>,
+                                    text: <?php echo json_encode($credential_uri); ?>,
                                     style: 'item'
                                 }
                             ],
