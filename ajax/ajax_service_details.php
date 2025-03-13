@@ -330,7 +330,7 @@ ob_start();
 
                         // Showing credentials linked to assets
                         while ($row = mysqli_fetch_array($sql_assets)) {
-                            if (!empty($row['login_name'])) {
+                            if (!empty($row['credential_name'])) {
                                 echo "<li><a href=\"credentials.php?client_id=$client_id&q=$row[credential_name]\">$row[credential_name]</a></li>";
                             }
                         }

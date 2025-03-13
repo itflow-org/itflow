@@ -53,10 +53,10 @@ if (isset($_POST['add_service'])) {
         }
     }
 
-    if (isset($_POST['logins'])) {
-        foreach($_POST['logins'] as $login_id) {
-            $login_id = intval($login_id);
-            mysqli_query($mysqli, "INSERT INTO service_logins SET service_id = $service_id, login_id = $login_id");
+    if (isset($_POST['credentials'])) {
+        foreach($_POST['credentials'] as $credential_id) {
+            $credential_id = intval($credential_id);
+            mysqli_query($mysqli, "INSERT INTO service_credentials SET service_id = $service_id, credential_id = $credential_id");
         }
     }
 
@@ -104,7 +104,7 @@ if (isset($_POST['edit_service'])) {
     mysqli_query($mysqli, "DELETE FROM service_vendors WHERE service_id = $service_id");
     mysqli_query($mysqli, "DELETE FROM service_documents WHERE service_id = $service_id");
     mysqli_query($mysqli, "DELETE FROM service_assets WHERE service_id = $service_id");
-    mysqli_query($mysqli, "DELETE FROM service_logins WHERE service_id = $service_id");
+    mysqli_query($mysqli, "DELETE FROM service_credentials WHERE service_id = $service_id");
     mysqli_query($mysqli, "DELETE FROM service_domains WHERE service_id = $service_id");
     mysqli_query($mysqli, "DELETE FROM service_certificates WHERE service_id = $service_id");
 
@@ -137,10 +137,10 @@ if (isset($_POST['edit_service'])) {
         }
     }
 
-    if (isset($_POST['logins'])) {
-        foreach($_POST['logins'] as $login_id) {
-            $login_id = intval($login_id);
-            mysqli_query($mysqli, "INSERT INTO service_logins SET service_id = $service_id, login_id = $login_id");
+    if (isset($_POST['credentials'])) {
+        foreach($_POST['credentials'] as $credential_id) {
+            $credential_id = intval($credential_id);
+            mysqli_query($mysqli, "INSERT INTO service_credentials SET service_id = $service_id, credential_id = $credential_id");
         }
     }
 
@@ -189,7 +189,6 @@ if (isset($_GET['delete_service'])) {
     mysqli_query($mysqli, "DELETE FROM service_vendors WHERE service_id = $service_id");
     mysqli_query($mysqli, "DELETE FROM service_documents WHERE service_id = $service_id");
     mysqli_query($mysqli, "DELETE FROM service_assets WHERE service_id = $service_id");
-    mysqli_query($mysqli, "DELETE FROM service_logins WHERE service_id = $service_id");
     mysqli_query($mysqli, "DELETE FROM service_domains WHERE service_id = $service_id");
     mysqli_query($mysqli, "DELETE FROM service_certificates WHERE service_id = $service_id");
 
