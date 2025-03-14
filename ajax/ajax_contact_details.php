@@ -399,7 +399,7 @@ ob_start();
         <?php if ($credential_count) { ?>
         <div class="tab-pane fade" id="pills-contact-credentials<?php echo $contact_id; ?>">
             <div class="table-responsive-sm">
-                <table class="table table-striped table-borderless table-hover table-sm">
+                <table class="table table-striped table-borderless table-hover table-sm dataTables" style="width:100%">
                     <thead>
                     <tr>
                         <th>Name</th>

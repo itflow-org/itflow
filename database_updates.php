@@ -2915,18 +2915,6 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
             ADD FOREIGN KEY (`asset_id`) REFERENCES `assets`(`asset_id`) ON DELETE CASCADE
         ");
 
-        // Clean up orphaned unit_asset_id rows in rack_units
-        mysqli_query($mysqli, "
-            DELETE FROM `rack_units`
-            WHERE `unit_asset_id` NOT IN (SELECT `asset_id` FROM `assets`);
-        ");
-
-        // Add foreign key to rack_units
-        mysqli_query($mysqli, "
-            ALTER TABLE `rack_units`
-            ADD FOREIGN KEY (`unit_asset_id`) REFERENCES `assets`(`asset_id`) ON DELETE CASCADE
-        ");
-
         // Clean up orphaned service_id rows in service_assets
         mysqli_query($mysqli, "
             DELETE FROM `service_assets`

@@ -13,8 +13,7 @@ use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 
 // Function to generate both crypto & URL safe random strings
-function randomString($length = 16)
-{
+function randomString($length = 16) {
     // Generate some cryptographically safe random bytes
     //  Generate a little more than requested as we'll lose some later converting
     $random_bytes = random_bytes($length + 5);
@@ -31,8 +30,7 @@ function randomString($length = 16)
 }
 
 // Older keygen function - only used for TOTP currently
-function key32gen()
-{
+function key32gen() {
     $chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
     $chars .= "234567";
     while (1) {
@@ -46,25 +44,23 @@ function key32gen()
     return $key;
 }
 
-function nullable_htmlentities($unsanitizedInput)
-{
+function nullable_htmlentities($unsanitizedInput) {
     //return htmlentities($unsanitizedInput ?? '');
     return htmlspecialchars($unsanitizedInput ?? '', ENT_QUOTES, 'UTF-8');
 }
 
-function initials($str)
-{
-    if (!empty($str)) {
-        $ret = '';
-        foreach (explode(' ', $str) as $word)
-            $ret .= strtoupper($word[0]);
-        $ret = substr($ret, 0, 2);
-        return $ret;
+function initials($string) {
+    if (!empty($string)) {
+        $return = '';
+        foreach (explode(' ', $string) as $word) {
+            $return .= mb_strtoupper($word[0], 'UTF-8'); // Use mb_strtoupper for UTF-8 support
+        }
+        $return = substr($return, 0, 2);
+        return $return;
     }
 }
 
-function removeDirectory($path)
-{
+function removeDirectory($path) {
     if (!file_exists($path)) {
         return;
     }
@@ -76,13 +72,11 @@ function removeDirectory($path)
     rmdir($path);
 }
 
-function getUserAgent()
-{
+function getUserAgent() {
     return $_SERVER['HTTP_USER_AGENT'];
 }
 
-function getIP()
-{
+function getIP() {
     if (defined("CONST_GET_IP_METHOD")) {
         if (CONST_GET_IP_METHOD == "HTTP_X_FORWARDED_FOR") {
             $ip = getenv('HTTP_X_FORWARDED_FOR');
@@ -100,8 +94,7 @@ function getIP()
     return $ip;
 }
 
-function getWebBrowser($user_browser)
-{
+function getWebBrowser($user_browser) {
     $browser        =   "-";
     $browser_array  =   array(
         '/msie/i'       =>  "<i class='fab fa-fw fa-internet-explorer text-secondary'></i> Internet Explorer",
@@ -120,8 +113,7 @@ function getWebBrowser($user_browser)
     return $browser;
 }
 
-function getOS($user_os)
-{
+function getOS($user_os) {
     $os_platform    =   "-";
     $os_array       =   array(
         '/windows/i'            =>  "<i class='fab fa-fw fa-windows text-secondary'></i> Windows",
@@ -141,8 +133,7 @@ function getOS($user_os)
     return $os_platform;
 }
 
-function getDevice()
-{
+function getDevice() {
     $tablet_browser = 0;
     $mobile_browser = 0;
     if (preg_match('/(tablet|ipad|playbook)|(android(?!.*(mobi|opera mini)))/i', strtolower($_SERVER['HTTP_USER_AGENT']))) {
@@ -189,8 +180,7 @@ function getDevice()
     }
 }
 
-function truncate($text, $chars)
-{
+function truncate($text, $chars) {
     if (strlen($text) <= $chars) {
         return $text;
     }
@@ -203,8 +193,7 @@ function truncate($text, $chars)
     return $text . "...";
 }
 
-function formatPhoneNumber($phoneNumber)
-{
+function formatPhoneNumber($phoneNumber) {
     global $mysqli;
 
     // Get Phone Mask Option
@@ -240,8 +229,7 @@ function formatPhoneNumber($phoneNumber)
     return $phoneNumber;
 }
 
-function mkdirMissing($dir)
-{
+function mkdirMissing($dir) {
     if (!is_dir($dir)) {
         mkdir($dir);
     }
@@ -249,8 +237,7 @@ function mkdirMissing($dir)
 
 // Called during initial setup
 // Encrypts the master key with the user's password
-function setupFirstUserSpecificKey($user_password, $site_encryption_master_key)
-{
+function setupFirstUserSpecificKey($user_password, $site_encryption_master_key) {
     $iv = randomString();
     $salt = randomString();
 
@@ -268,8 +255,7 @@ function setupFirstUserSpecificKey($user_password, $site_encryption_master_key)
  * New Users: Requires the admin setting up their account have a Specific/Session key configured
  * Password Changes: Will use the current info in the session.
 */
-function encryptUserSpecificKey($user_password)
-{
+function encryptUserSpecificKey($user_password) {
     $iv = randomString();
     $salt = randomString();
 

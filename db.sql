@@ -1351,9 +1351,7 @@ CREATE TABLE `rack_units` (
   `unit_rack_id` int(11) NOT NULL,
   PRIMARY KEY (`unit_id`),
   KEY `unit_rack_id` (`unit_rack_id`),
-  KEY `unit_asset_id` (`unit_asset_id`),
-  CONSTRAINT `rack_units_ibfk_1` FOREIGN KEY (`unit_rack_id`) REFERENCES `racks` (`rack_id`) ON DELETE CASCADE,
-  CONSTRAINT `rack_units_ibfk_2` FOREIGN KEY (`unit_asset_id`) REFERENCES `assets` (`asset_id`) ON DELETE CASCADE
+  KEY `unit_asset_id` (`unit_asset_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -2428,4 +2426,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-03-13 21:33:12
+-- Dump completed on 2025-03-14 15:31:19
