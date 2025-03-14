@@ -102,7 +102,9 @@ CREATE TABLE `asset_custom` (
   `asset_custom_field_value` int(11) NOT NULL,
   `asset_custom_field_id` int(11) NOT NULL,
   `asset_custom_asset_id` int(11) NOT NULL,
-  PRIMARY KEY (`asset_custom_id`)
+  PRIMARY KEY (`asset_custom_id`),
+  KEY `asset_custom_asset_id` (`asset_custom_asset_id`),
+  CONSTRAINT `asset_custom_ibfk_1` FOREIGN KEY (`asset_custom_asset_id`) REFERENCES `assets` (`asset_id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -116,7 +118,10 @@ DROP TABLE IF EXISTS `asset_documents`;
 CREATE TABLE `asset_documents` (
   `asset_id` int(11) NOT NULL,
   `document_id` int(11) NOT NULL,
-  PRIMARY KEY (`asset_id`,`document_id`)
+  PRIMARY KEY (`asset_id`,`document_id`),
+  KEY `document_id` (`document_id`),
+  CONSTRAINT `asset_documents_ibfk_1` FOREIGN KEY (`asset_id`) REFERENCES `assets` (`asset_id`) ON DELETE CASCADE,
+  CONSTRAINT `asset_documents_ibfk_2` FOREIGN KEY (`document_id`) REFERENCES `documents` (`document_id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -130,7 +135,10 @@ DROP TABLE IF EXISTS `asset_files`;
 CREATE TABLE `asset_files` (
   `asset_id` int(11) NOT NULL,
   `file_id` int(11) NOT NULL,
-  PRIMARY KEY (`asset_id`,`file_id`)
+  PRIMARY KEY (`asset_id`,`file_id`),
+  KEY `file_id` (`file_id`),
+  CONSTRAINT `asset_files_ibfk_1` FOREIGN KEY (`asset_id`) REFERENCES `assets` (`asset_id`) ON DELETE CASCADE,
+  CONSTRAINT `asset_files_ibfk_2` FOREIGN KEY (`file_id`) REFERENCES `files` (`file_id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -147,7 +155,9 @@ CREATE TABLE `asset_history` (
   `asset_history_description` varchar(255) NOT NULL,
   `asset_history_created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `asset_history_asset_id` int(11) NOT NULL,
-  PRIMARY KEY (`asset_history_id`)
+  PRIMARY KEY (`asset_history_id`),
+  KEY `asset_history_asset_id` (`asset_history_asset_id`),
+  CONSTRAINT `asset_history_ibfk_1` FOREIGN KEY (`asset_history_asset_id`) REFERENCES `assets` (`asset_id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -197,7 +207,9 @@ CREATE TABLE `asset_interfaces` (
   `interface_archived_at` datetime DEFAULT NULL,
   `interface_network_id` int(11) DEFAULT NULL,
   `interface_asset_id` int(11) NOT NULL,
-  PRIMARY KEY (`interface_id`)
+  PRIMARY KEY (`interface_id`),
+  KEY `interface_asset_id` (`interface_asset_id`),
+  CONSTRAINT `asset_interfaces_ibfk_1` FOREIGN KEY (`interface_asset_id`) REFERENCES `assets` (`asset_id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -217,7 +229,9 @@ CREATE TABLE `asset_notes` (
   `asset_note_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
   `asset_note_archived_at` datetime DEFAULT NULL,
   `asset_note_asset_id` int(11) NOT NULL,
-  PRIMARY KEY (`asset_note_id`)
+  PRIMARY KEY (`asset_note_id`),
+  KEY `asset_note_asset_id` (`asset_note_asset_id`),
+  CONSTRAINT `asset_notes_ibfk_1` FOREIGN KEY (`asset_note_asset_id`) REFERENCES `assets` (`asset_id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -542,7 +556,10 @@ DROP TABLE IF EXISTS `contact_assets`;
 CREATE TABLE `contact_assets` (
   `contact_id` int(11) NOT NULL,
   `asset_id` int(11) NOT NULL,
-  PRIMARY KEY (`contact_id`,`asset_id`)
+  PRIMARY KEY (`contact_id`,`asset_id`),
+  KEY `asset_id` (`asset_id`),
+  CONSTRAINT `contact_assets_ibfk_1` FOREIGN KEY (`contact_id`) REFERENCES `contacts` (`contact_id`) ON DELETE CASCADE,
+  CONSTRAINT `contact_assets_ibfk_2` FOREIGN KEY (`asset_id`) REFERENCES `assets` (`asset_id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -1334,7 +1351,9 @@ CREATE TABLE `rack_units` (
   `unit_rack_id` int(11) NOT NULL,
   PRIMARY KEY (`unit_id`),
   KEY `unit_rack_id` (`unit_rack_id`),
-  CONSTRAINT `rack_units_ibfk_1` FOREIGN KEY (`unit_rack_id`) REFERENCES `racks` (`rack_id`) ON DELETE CASCADE
+  KEY `unit_asset_id` (`unit_asset_id`),
+  CONSTRAINT `rack_units_ibfk_1` FOREIGN KEY (`unit_rack_id`) REFERENCES `racks` (`rack_id`) ON DELETE CASCADE,
+  CONSTRAINT `rack_units_ibfk_2` FOREIGN KEY (`unit_asset_id`) REFERENCES `assets` (`asset_id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -1563,7 +1582,11 @@ DROP TABLE IF EXISTS `service_assets`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `service_assets` (
   `service_id` int(11) NOT NULL,
-  `asset_id` int(11) NOT NULL
+  `asset_id` int(11) NOT NULL,
+  KEY `service_id` (`service_id`),
+  KEY `asset_id` (`asset_id`),
+  CONSTRAINT `service_assets_ibfk_1` FOREIGN KEY (`service_id`) REFERENCES `services` (`service_id`) ON DELETE CASCADE,
+  CONSTRAINT `service_assets_ibfk_2` FOREIGN KEY (`asset_id`) REFERENCES `assets` (`asset_id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -1844,7 +1867,10 @@ DROP TABLE IF EXISTS `software_assets`;
 CREATE TABLE `software_assets` (
   `software_id` int(11) NOT NULL,
   `asset_id` int(11) NOT NULL,
-  PRIMARY KEY (`software_id`,`asset_id`)
+  PRIMARY KEY (`software_id`,`asset_id`),
+  KEY `asset_id` (`asset_id`),
+  CONSTRAINT `software_assets_ibfk_1` FOREIGN KEY (`software_id`) REFERENCES `software` (`software_id`) ON DELETE CASCADE,
+  CONSTRAINT `software_assets_ibfk_2` FOREIGN KEY (`asset_id`) REFERENCES `assets` (`asset_id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -2402,4 +2428,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-03-13 16:33:22
+-- Dump completed on 2025-03-13 21:33:12

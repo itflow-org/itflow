@@ -2479,14 +2479,29 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
     }
 
     if (CURRENT_DATABASE_VERSION == '1.9.3') {
-        mysqli_query($mysqli,
-            "CREATE TABLE `ticket_assets` (
-            `ticket_id` INT(11) NOT NULL,
-            `asset_id` INT(11) NOT NULL,
-            PRIMARY KEY (`ticket_id`,`asset_id`),
-            FOREIGN KEY (`asset_id`) REFERENCES `assets`(`asset_id`) ON DELETE CASCADE,
-            FOREIGN KEY (`ticket_id`) REFERENCES `tickets`(`ticket_id`) ON DELETE CASCADE
-        )");
+        // Clean up orphaned ticket_id rows in ticket_assets
+        mysqli_query($mysqli, "
+            DELETE FROM `ticket_assets`
+            WHERE `ticket_id` NOT IN (SELECT `ticket_id` FROM `tickets`);
+        ");
+
+        // Clean up orphaned asset_id rows in ticket_assets
+        mysqli_query($mysqli, "
+            DELETE FROM `ticket_assets`
+            WHERE `asset_id` NOT IN (SELECT `asset_id` FROM `assets`);
+        ");
+
+        // Now create the table with foreign keys
+        mysqli_query($mysqli, "
+            CREATE TABLE `ticket_assets` (
+                `ticket_id` INT(11) NOT NULL,
+                `asset_id` INT(11) NOT NULL,
+                PRIMARY KEY (`ticket_id`, `asset_id`),
+                FOREIGN KEY (`asset_id`) REFERENCES `assets`(`asset_id`) ON DELETE CASCADE,
+                FOREIGN KEY (`ticket_id`) REFERENCES `tickets`(`ticket_id`) ON DELETE CASCADE
+            )
+        ");
+
         mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.9.4'");
     }
 
@@ -2518,14 +2533,30 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
     }
 
     if (CURRENT_DATABASE_VERSION == '1.9.5') {
-        mysqli_query($mysqli,
-            "CREATE TABLE `recurring_ticket_assets` (
-            `recurring_ticket_id` INT(11) NOT NULL,
-            `asset_id` INT(11) NOT NULL,
-            PRIMARY KEY (`recurring_ticket_id`,`asset_id`),
-            FOREIGN KEY (`asset_id`) REFERENCES `assets`(`asset_id`) ON DELETE CASCADE,
-            FOREIGN KEY (`recurring_ticket_id`) REFERENCES `recurring_tickets`(`recurring_ticket_id`) ON DELETE CASCADE
-        )");
+        
+        // Clean up orphaned recurring_ticket_id rows in recurring_ticket_assets
+        mysqli_query($mysqli, "
+            DELETE FROM `recurring_ticket_assets`
+            WHERE `recurring_ticket_id` NOT IN (SELECT `recurring_ticket_id` FROM `recurring_tickets`);
+        ");
+
+        // Clean up orphaned asset_id rows in recurring_ticket_assets
+        mysqli_query($mysqli, "
+            DELETE FROM `recurring_ticket_assets`
+            WHERE `asset_id` NOT IN (SELECT `asset_id` FROM `assets`);
+        ");
+
+        // Now create the table with foreign keys
+        mysqli_query($mysqli, "
+            CREATE TABLE `recurring_ticket_assets` (
+                `recurring_ticket_id` INT(11) NOT NULL,
+                `asset_id` INT(11) NOT NULL,
+                PRIMARY KEY (`recurring_ticket_id`, `asset_id`),
+                FOREIGN KEY (`asset_id`) REFERENCES `assets`(`asset_id`) ON DELETE CASCADE,
+                FOREIGN KEY (`recurring_ticket_id`) REFERENCES `recurring_tickets`(`recurring_ticket_id`) ON DELETE CASCADE
+            )
+        ");
+
         mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '1.9.6'");
     }
 
@@ -2609,55 +2640,156 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
             CHANGE COLUMN `login_client_id` `credential_client_id` INT(11) NOT NULL DEFAULT '0'
         ");
 
+        // Rename table contact_logins to contact_credentials
         mysqli_query($mysqli, "RENAME TABLE `contact_logins` TO `contact_credentials`");
+
+        // Alter contact_credentials table and change login_id to credential_id
         mysqli_query($mysqli, "
             ALTER TABLE `contact_credentials`
-            CHANGE COLUMN `login_id` `credential_id` INT(11) NOT NULL,
+            CHANGE COLUMN `login_id` `credential_id` INT(11) NOT NULL
+        ");
+
+        // Clean up orphaned contact_id rows in contact_credentials
+        mysqli_query($mysqli, "
+            DELETE FROM `contact_credentials`
+            WHERE `contact_id` NOT IN (SELECT `contact_id` FROM `contacts`);
+        ");
+
+        // Clean up orphaned credential_id rows in contact_credentials
+        mysqli_query($mysqli, "
+            DELETE FROM `contact_credentials`
+            WHERE `credential_id` NOT IN (SELECT `credential_id` FROM `credentials`);
+        ");
+
+        // Add foreign keys to contact_credentials
+        mysqli_query($mysqli, "
+            ALTER TABLE `contact_credentials`
             ADD FOREIGN KEY (`contact_id`) REFERENCES `contacts`(`contact_id`) ON DELETE CASCADE,
             ADD FOREIGN KEY (`credential_id`) REFERENCES `credentials`(`credential_id`) ON DELETE CASCADE
         ");
 
+        // Rename table service_logins to service_credentials
         mysqli_query($mysqli, "RENAME TABLE `service_logins` TO `service_credentials`");
+
+        // Alter service_credentials table and change login_id to credential_id
         mysqli_query($mysqli, "
             ALTER TABLE `service_credentials`
-            CHANGE COLUMN `login_id` `credential_id` INT(11) NOT NULL,
+            CHANGE COLUMN `login_id` `credential_id` INT(11) NOT NULL
+        ");
+
+        // Clean up orphaned service_id rows in service_credentials
+        mysqli_query($mysqli, "
+            DELETE FROM `service_credentials`
+            WHERE `service_id` NOT IN (SELECT `service_id` FROM `services`);
+        ");
+
+        // Clean up orphaned credential_id rows in service_credentials
+        mysqli_query($mysqli, "
+            DELETE FROM `service_credentials`
+            WHERE `credential_id` NOT IN (SELECT `credential_id` FROM `credentials`);
+        ");
+
+        // Add foreign keys to service_credentials
+        mysqli_query($mysqli, "
+            ALTER TABLE `service_credentials`
             ADD FOREIGN KEY (`service_id`) REFERENCES `services`(`service_id`) ON DELETE CASCADE,
             ADD FOREIGN KEY (`credential_id`) REFERENCES `credentials`(`credential_id`) ON DELETE CASCADE
         ");
 
+        // Rename table software_logins to software_credentials
         mysqli_query($mysqli, "RENAME TABLE `software_logins` TO `software_credentials`");
+
+        // Alter software_credentials table and change login_id to credential_id
         mysqli_query($mysqli, "
             ALTER TABLE `software_credentials`
-            CHANGE COLUMN `login_id` `credential_id` INT(11) NOT NULL,
+            CHANGE COLUMN `login_id` `credential_id` INT(11) NOT NULL
+        ");
+
+        // Clean up orphaned software_id rows in software_credentials
+        mysqli_query($mysqli, "
+            DELETE FROM `software_credentials`
+            WHERE `software_id` NOT IN (SELECT `software_id` FROM `software`);
+        ");
+
+        // Clean up orphaned credential_id rows in software_credentials
+        mysqli_query($mysqli, "
+            DELETE FROM `software_credentials`
+            WHERE `credential_id` NOT IN (SELECT `credential_id` FROM `credentials`);
+        ");
+
+        // Add foreign keys to software_credentials
+        mysqli_query($mysqli, "
+            ALTER TABLE `software_credentials`
             ADD FOREIGN KEY (`software_id`) REFERENCES `software`(`software_id`) ON DELETE CASCADE,
             ADD FOREIGN KEY (`credential_id`) REFERENCES `credentials`(`credential_id`) ON DELETE CASCADE
         ");
 
+        // Rename table vendor_logins to vendor_credentials
         mysqli_query($mysqli, "RENAME TABLE `vendor_logins` TO `vendor_credentials`");
+
+        // Alter vendor_credentials table and change login_id to credential_id
         mysqli_query($mysqli, "
             ALTER TABLE `vendor_credentials`
-            CHANGE COLUMN `login_id` `credential_id` INT(11) NOT NULL,
+            CHANGE COLUMN `login_id` `credential_id` INT(11) NOT NULL
+        ");
+
+        // Clean up orphaned vendor_id rows in vendor_credentials
+        mysqli_query($mysqli, "
+            DELETE FROM `vendor_credentials`
+            WHERE `vendor_id` NOT IN (SELECT `vendor_id` FROM `vendors`);
+        ");
+
+        // Clean up orphaned credential_id rows in vendor_credentials
+        mysqli_query($mysqli, "
+            DELETE FROM `vendor_credentials`
+            WHERE `credential_id` NOT IN (SELECT `credential_id` FROM `credentials`);
+        ");
+
+        // Add foreign keys to vendor_credentials
+        mysqli_query($mysqli, "
+            ALTER TABLE `vendor_credentials`
             ADD FOREIGN KEY (`vendor_id`) REFERENCES `vendors`(`vendor_id`) ON DELETE CASCADE,
             ADD FOREIGN KEY (`credential_id`) REFERENCES `credentials`(`credential_id`) ON DELETE CASCADE
         ");
 
+        // Rename table login_tags to credential_tags
         mysqli_query($mysqli, "RENAME TABLE `login_tags` TO `credential_tags`");
+
+        // Alter credential_tags table and change login_id to credential_id
         mysqli_query($mysqli, "
             ALTER TABLE `credential_tags`
-            CHANGE COLUMN `login_id` `credential_id` INT(11) NOT NULL,
+            CHANGE COLUMN `login_id` `credential_id` INT(11) NOT NULL
+        ");
+
+        // Clean up orphaned tag_id rows in credential_tags
+        mysqli_query($mysqli, "
+            DELETE FROM `credential_tags`
+            WHERE `tag_id` NOT IN (SELECT `tag_id` FROM `tags`);
+        ");
+
+        // Clean up orphaned credential_id rows in credential_tags
+        mysqli_query($mysqli, "
+            DELETE FROM `credential_tags`
+            WHERE `credential_id` NOT IN (SELECT `credential_id` FROM `credentials`);
+        ");
+
+        // Add foreign keys to credential_tags
+        mysqli_query($mysqli, "
+            ALTER TABLE `credential_tags`
             ADD FOREIGN KEY (`tag_id`) REFERENCES `tags`(`tag_id`) ON DELETE CASCADE,
             ADD FOREIGN KEY (`credential_id`) REFERENCES `credentials`(`credential_id`) ON DELETE CASCADE
         ");
 
-        mysqli_query($mysqli,
-            "CREATE TABLE `asset_credentials` (
+        // Create asset_credentials table with foreign keys
+        mysqli_query($mysqli, "
+            CREATE TABLE `asset_credentials` (
                 `credential_id` INT(11) NOT NULL,
                 `asset_id` INT(11) NOT NULL,
-                PRIMARY KEY (`credential_id`,`asset_id`),
+                PRIMARY KEY (`credential_id`, `asset_id`),
                 FOREIGN KEY (`credential_id`) REFERENCES `credentials`(`credential_id`) ON DELETE CASCADE,
                 FOREIGN KEY (`asset_id`) REFERENCES `assets`(`asset_id`) ON DELETE CASCADE
-            )"
-        );
+            )
+        ");
 
         mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '2.0.0'");
     }
@@ -2674,10 +2806,172 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
         mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '2.0.1'");
     }
 
-    // if (CURRENT_DATABASE_VERSION == '2.0.1') {
-    //     // Insert queries here required to update to DB version 2.0.2
+    if (CURRENT_DATABASE_VERSION == '2.0.1') {
+
+        // Clean up orphaned data before adding foreign keys
+
+        // Clean up orphaned asset_custom_asset_id rows in asset_custom
+        mysqli_query($mysqli, "
+            DELETE FROM `asset_custom`
+            WHERE `asset_custom_asset_id` NOT IN (SELECT `asset_id` FROM `assets`);
+        ");
+
+        // Add foreign key to asset_custom
+        mysqli_query($mysqli, "
+            ALTER TABLE `asset_custom`
+            ADD FOREIGN KEY (`asset_custom_asset_id`) REFERENCES `assets`(`asset_id`) ON DELETE CASCADE
+        ");
+
+        // Clean up orphaned asset_id rows in asset_documents
+        mysqli_query($mysqli, "
+            DELETE FROM `asset_documents`
+            WHERE `asset_id` NOT IN (SELECT `asset_id` FROM `assets`);
+        ");
+
+        // Clean up orphaned document_id rows in asset_documents
+        mysqli_query($mysqli, "
+            DELETE FROM `asset_documents`
+            WHERE `document_id` NOT IN (SELECT `document_id` FROM `documents`);
+        ");
+
+        // Add foreign keys to asset_documents
+        mysqli_query($mysqli, "
+            ALTER TABLE `asset_documents`
+            ADD FOREIGN KEY (`asset_id`) REFERENCES `assets`(`asset_id`) ON DELETE CASCADE,
+            ADD FOREIGN KEY (`document_id`) REFERENCES `documents`(`document_id`) ON DELETE CASCADE
+        ");
+
+        // Clean up orphaned asset_id rows in asset_files
+        mysqli_query($mysqli, "
+            DELETE FROM `asset_files`
+            WHERE `asset_id` NOT IN (SELECT `asset_id` FROM `assets`);
+        ");
+
+        // Clean up orphaned file_id rows in asset_files
+        mysqli_query($mysqli, "
+            DELETE FROM `asset_files`
+            WHERE `file_id` NOT IN (SELECT `file_id` FROM `files`);
+        ");
+
+        // Add foreign keys to asset_files
+        mysqli_query($mysqli, "
+            ALTER TABLE `asset_files`
+            ADD FOREIGN KEY (`asset_id`) REFERENCES `assets`(`asset_id`) ON DELETE CASCADE,
+            ADD FOREIGN KEY (`file_id`) REFERENCES `files`(`file_id`) ON DELETE CASCADE
+        ");
+
+        // Clean up orphaned asset_history_asset_id rows in asset_history
+        mysqli_query($mysqli, "
+            DELETE FROM `asset_history`
+            WHERE `asset_history_asset_id` NOT IN (SELECT `asset_id` FROM `assets`);
+        ");
+
+        // Add foreign key to asset_history
+        mysqli_query($mysqli, "
+            ALTER TABLE `asset_history`
+            ADD FOREIGN KEY (`asset_history_asset_id`) REFERENCES `assets`(`asset_id`) ON DELETE CASCADE
+        ");
+
+        // Clean up orphaned interface_asset_id rows in asset_interfaces
+        mysqli_query($mysqli, "
+            DELETE FROM `asset_interfaces`
+            WHERE `interface_asset_id` NOT IN (SELECT `asset_id` FROM `assets`);
+        ");
+
+        // Add foreign key to asset_interfaces
+        mysqli_query($mysqli, "
+            ALTER TABLE `asset_interfaces`
+            ADD FOREIGN KEY (`interface_asset_id`) REFERENCES `assets`(`asset_id`) ON DELETE CASCADE
+        ");
+
+        // Clean up orphaned asset_note_asset_id rows in asset_notes
+        mysqli_query($mysqli, "
+            DELETE FROM `asset_notes`
+            WHERE `asset_note_asset_id` NOT IN (SELECT `asset_id` FROM `assets`);
+        ");
+
+        // Add foreign key to asset_notes
+        mysqli_query($mysqli, "
+            ALTER TABLE `asset_notes`
+            ADD FOREIGN KEY (`asset_note_asset_id`) REFERENCES `assets`(`asset_id`) ON DELETE CASCADE
+        ");
+
+        // Clean up orphaned contact_id rows in contact_assets
+        mysqli_query($mysqli, "
+            DELETE FROM `contact_assets`
+            WHERE `contact_id` NOT IN (SELECT `contact_id` FROM `contacts`);
+        ");
+
+        // Clean up orphaned asset_id rows in contact_assets
+        mysqli_query($mysqli, "
+            DELETE FROM `contact_assets`
+            WHERE `asset_id` NOT IN (SELECT `asset_id` FROM `assets`);
+        ");
+
+        // Add foreign keys to contact_assets
+        mysqli_query($mysqli, "
+            ALTER TABLE `contact_assets`
+            ADD FOREIGN KEY (`contact_id`) REFERENCES `contacts`(`contact_id`) ON DELETE CASCADE,
+            ADD FOREIGN KEY (`asset_id`) REFERENCES `assets`(`asset_id`) ON DELETE CASCADE
+        ");
+
+        // Clean up orphaned unit_asset_id rows in rack_units
+        mysqli_query($mysqli, "
+            DELETE FROM `rack_units`
+            WHERE `unit_asset_id` NOT IN (SELECT `asset_id` FROM `assets`);
+        ");
+
+        // Add foreign key to rack_units
+        mysqli_query($mysqli, "
+            ALTER TABLE `rack_units`
+            ADD FOREIGN KEY (`unit_asset_id`) REFERENCES `assets`(`asset_id`) ON DELETE CASCADE
+        ");
+
+        // Clean up orphaned service_id rows in service_assets
+        mysqli_query($mysqli, "
+            DELETE FROM `service_assets`
+            WHERE `service_id` NOT IN (SELECT `service_id` FROM `services`);
+        ");
+
+        // Clean up orphaned asset_id rows in service_assets
+        mysqli_query($mysqli, "
+            DELETE FROM `service_assets`
+            WHERE `asset_id` NOT IN (SELECT `asset_id` FROM `assets`);
+        ");
+
+        // Add foreign keys to service_assets
+        mysqli_query($mysqli, "
+            ALTER TABLE `service_assets`
+            ADD FOREIGN KEY (`service_id`) REFERENCES `services`(`service_id`) ON DELETE CASCADE,
+            ADD FOREIGN KEY (`asset_id`) REFERENCES `assets`(`asset_id`) ON DELETE CASCADE
+        ");
+
+        // Clean up orphaned software_id rows in software_assets
+        mysqli_query($mysqli, "
+            DELETE FROM `software_assets`
+            WHERE `software_id` NOT IN (SELECT `software_id` FROM `software`);
+        ");
+
+        // Clean up orphaned asset_id rows in software_assets
+        mysqli_query($mysqli, "
+            DELETE FROM `software_assets`
+            WHERE `asset_id` NOT IN (SELECT `asset_id` FROM `assets`);
+        ");
+
+        // Add foreign keys to software_assets
+        mysqli_query($mysqli, "
+            ALTER TABLE `software_assets`
+            ADD FOREIGN KEY (`software_id`) REFERENCES `software`(`software_id`) ON DELETE CASCADE,
+            ADD FOREIGN KEY (`asset_id`) REFERENCES `assets`(`asset_id`) ON DELETE CASCADE
+        ");
+
+        mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '2.0.2'");
+    }
+
+    // if (CURRENT_DATABASE_VERSION == '2.0.2') {
+    //     // Insert queries here required to update to DB version 2.0.3
     //     // Then, update the database to the next sequential version
-    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '2.0.2'");
+    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '2.0.3'");
     // }
 
 } else {

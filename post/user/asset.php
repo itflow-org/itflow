@@ -186,21 +186,6 @@ if (isset($_GET['delete_asset'])) {
     $client_id = intval($row['asset_client_id']);
 
     mysqli_query($mysqli,"DELETE FROM assets WHERE asset_id = $asset_id");
-    // Delete Interfaces
-    mysqli_query($mysqli,"DELETE FROM asset_interfaces WHERE interface_asset_id = $asset_id");
-    // Delete History
-    mysqli_query($mysqli,"DELETE FROM asset_history WHERE asset_history_asset_id = $asset_id");
-    // Delete Notes
-    mysqli_query($mysqli,"DELETE FROM asset_notes WHERE asset_note_asset_id = $asset_id");
-    // Rack Units
-    mysqli_query($mysqli,"DELETE FROM rack_units WHERE unit_asset_id = $asset_id");
-
-    // Delete Links
-    mysqli_query($mysqli,"DELETE FROM asset_documents WHERE asset_id = $asset_id");
-    mysqli_query($mysqli,"DELETE FROM asset_files WHERE asset_id = $asset_id");
-    mysqli_query($mysqli,"DELETE FROM contact_assets WHERE asset_id = $asset_id");
-    mysqli_query($mysqli,"DELETE FROM service_assets WHERE asset_id = $asset_id");
-    mysqli_query($mysqli,"DELETE FROM software_assets WHERE asset_id = $asset_id");
 
     // Logging
     logAction("Asset", "Delete", "$session_name deleted asset $asset_name", $client_id);
@@ -526,21 +511,6 @@ if (isset($_POST['bulk_delete_assets'])) {
             $client_id = intval($row['asset_client_id']);
 
             mysqli_query($mysqli,"DELETE FROM assets WHERE asset_id = $asset_id");
-            // Delete Interfaces
-            mysqli_query($mysqli,"DELETE FROM asset_interfaces WHERE interface_asset_id = $asset_id");
-            // Delete History
-            mysqli_query($mysqli,"DELETE FROM asset_history WHERE asset_history_asset_id = $asset_id");
-            // Delete Notes
-            mysqli_query($mysqli,"DELETE FROM asset_notes WHERE asset_note_asset_id = $asset_id");
-            // Rack Units
-            mysqli_query($mysqli,"DELETE FROM rack_units WHERE unit_asset_id = $asset_id");
-
-            // Delete Links
-            mysqli_query($mysqli,"DELETE FROM asset_documents WHERE asset_id = $asset_id");
-            mysqli_query($mysqli,"DELETE FROM asset_files WHERE asset_id = $asset_id");
-            mysqli_query($mysqli,"DELETE FROM contact_assets WHERE asset_id = $asset_id");
-            mysqli_query($mysqli,"DELETE FROM service_assets WHERE asset_id = $asset_id");
-            mysqli_query($mysqli,"DELETE FROM software_assets WHERE asset_id = $asset_id");
 
             // Individual Asset logging
             logAction("Asset", "Delete", "$session_name deleted asset $asset_name", $client_id, $asset_id);
