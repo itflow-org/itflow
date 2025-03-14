@@ -467,7 +467,7 @@ ob_start();
                         if (empty($credential_username)) {
                             $credential_username_display = "-";
                         } else {
-                            $credential_username_display = "$credential_username";
+                            $credential_username_display = "$credential_username <button type='button' class='btn btn-sm clipboardjs' data-clipboard-text='$credential_username'><i class='far fa-copy text-secondary'></i></button>";
                         }
                         $credential_password = nullable_htmlentities(decryptCredentialEntry($row['credential_password']));
                         $credential_otp_secret = nullable_htmlentities($row['credential_otp_secret']);
@@ -513,6 +513,7 @@ ob_start();
                             <td><?php echo $credential_username_display; ?></td>
                             <td>
                                 <button class="btn p-0" type="button" data-toggle="popover" data-trigger="focus" data-placement="top" data-content="<?php echo $credential_password; ?>"><i class="fas fa-2x fa-ellipsis-h text-secondary"></i><i class="fas fa-2x fa-ellipsis-h text-secondary"></i></button>
+                                <button type='button' class='btn btn-sm clipboardjs' data-clipboard-text='<?php echo $credential_password; ?>'><i class='far fa-copy text-secondary'></i></button>
                             </td>
                             <td><?php echo $otp_display; ?></td>
                             <td><?php echo $credential_uri_display; ?></td>

@@ -669,14 +669,6 @@ if (mysqli_num_rows($os_sql) > 0) {
 
 <script src="js/bulk_actions.js"></script>
 
-<?php
-require_once "modals/asset_add_modal.php";
-require_once "modals/asset_import_modal.php";
-require_once "modals/asset_export_modal.php";
-require_once "includes/footer.php";
-
-?>
-
 <!-- JSON Autocomplete / type ahead -->
 <link rel="stylesheet" href="plugins/jquery-ui/jquery-ui.min.css">
 <script src="plugins/jquery-ui/jquery-ui.min.js"></script>
@@ -692,3 +684,9 @@ require_once "includes/footer.php";
         });
     });
 </script>
+
+<?php
+require_once "modals/asset_add_modal.php";
+require_once "modals/asset_import_modal.php";
+require_once "modals/asset_export_modal.php";
+require_once "includes/footer.php";
