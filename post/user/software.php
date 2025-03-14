@@ -201,10 +201,6 @@ if (isset($_GET['delete_software'])) {
 
     mysqli_query($mysqli,"DELETE FROM software WHERE software_id = $software_id");
 
-    // Remove Software Relations
-    mysqli_query($mysqli,"DELETE FROM software_contacts WHERE software_id = $software_id");
-    mysqli_query($mysqli,"DELETE FROM software_assets WHERE software_id = $software_id");
-
     //Logging
     logAction("Software", "Delete", "$session_name deleted software $software_name and removed all device/user license associations", $client_id);
 

@@ -134,13 +134,6 @@ if (isset($_GET['delete_credential'])) {
 
     mysqli_query($mysqli,"DELETE FROM credentials WHERE credential_id = $credential_id");
 
-    // Remove Relations
-    mysqli_query($mysqli,"DELETE FROM contact_credentials WHERE credential_id = $credential_id");
-    mysqli_query($mysqli,"DELETE FROM service_credentials WHERE credential_id = $credential_id");
-    mysqli_query($mysqli,"DELETE FROM software_credentials WHERE credential_id = $credential_id");
-    mysqli_query($mysqli,"DELETE FROM vendor_credentials WHERE credential_id = $credential_id");
-
-
     // Logging
     logAction("Credential", "Delete", "$session_name deleted credential $credential_name", $client_id);
 
@@ -302,12 +295,6 @@ if (isset($_POST['bulk_delete_credentials'])) {
             $client_id = intval($row['credential_client_id']);
 
             mysqli_query($mysqli, "DELETE FROM credentials WHERE credential_id = $credential_id AND credential_client_id = $client_id");
-
-            // Remove Relations
-            mysqli_query($mysqli,"DELETE FROM contact_credentials WHERE credential_id = $credential_id");
-            mysqli_query($mysqli,"DELETE FROM service_credentials WHERE credential_id = $credential_id");
-            mysqli_query($mysqli,"DELETE FROM software_credentials WHERE credential_id = $credential_id");
-            mysqli_query($mysqli,"DELETE FROM vendor_credentials WHERE credential_id = $credential_id");
 
             // Logging
             logAction("Credential", "Delete", "$session_name deleted credential $credential_name", $client_id);

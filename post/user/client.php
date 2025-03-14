@@ -246,7 +246,7 @@ if (isset($_GET['delete_client'])) {
     }
     mysqli_query($mysqli, "DELETE FROM domains WHERE domain_client_id = $client_id");
 
-    mysqli_query($mysqli, "DELETE FROM events WHERE event_client_id = $client_id");
+    mysqli_query($mysqli, "DELETE FROM calendar_events WHERE event_client_id = $client_id");
     mysqli_query($mysqli, "DELETE FROM files WHERE file_client_id = $client_id");
     mysqli_query($mysqli, "DELETE FROM folders WHERE folder_client_id = $client_id");
 
@@ -268,7 +268,7 @@ if (isset($_GET['delete_client'])) {
     }
     mysqli_query($mysqli, "DELETE FROM locations WHERE location_client_id = $client_id");
 
-    mysqli_query($mysqli, "DELETE FROM logins WHERE login_client_id = $client_id");
+    mysqli_query($mysqli, "DELETE FROM credentials WHERE credential_client_id = $client_id");
     mysqli_query($mysqli, "DELETE FROM logs WHERE log_client_id = $client_id");
     mysqli_query($mysqli, "DELETE FROM networks WHERE network_client_id = $client_id");
     mysqli_query($mysqli, "DELETE FROM notifications WHERE notification_client_id = $client_id");

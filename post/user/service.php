@@ -183,15 +183,6 @@ if (isset($_GET['delete_service'])) {
     // Delete service
     mysqli_query($mysqli, "DELETE FROM services WHERE service_id = $service_id");
 
-    // Delete relations
-    // TODO: Convert this to a join delete
-    mysqli_query($mysqli, "DELETE FROM service_contacts WHERE service_id = $service_id");
-    mysqli_query($mysqli, "DELETE FROM service_vendors WHERE service_id = $service_id");
-    mysqli_query($mysqli, "DELETE FROM service_documents WHERE service_id = $service_id");
-    mysqli_query($mysqli, "DELETE FROM service_assets WHERE service_id = $service_id");
-    mysqli_query($mysqli, "DELETE FROM service_domains WHERE service_id = $service_id");
-    mysqli_query($mysqli, "DELETE FROM service_certificates WHERE service_id = $service_id");
-
     // Logging
     logAction("Service", "Delete", "$session_name deleted service $service_name", $client_id);
 

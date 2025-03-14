@@ -622,25 +622,6 @@ if (isset($_GET['delete_document_version'])) {
 
     mysqli_query($mysqli,"DELETE FROM documents WHERE document_id = $document_id");
 
-    // Remove Associations
-    // File Association
-    mysqli_query($mysqli,"DELETE FROM document_files WHERE document_id = $document_id");
-
-    // Contact Associations
-    mysqli_query($mysqli,"DELETE FROM contact_documents WHERE document_id = $document_id");
-
-    // Asset Associations
-    mysqli_query($mysqli,"DELETE FROM asset_documents WHERE document_id = $document_id");
-
-    // Software Associations
-    mysqli_query($mysqli,"DELETE FROM software_documents WHERE document_id = $document_id");
-
-    // Vendor Associations
-    mysqli_query($mysqli,"DELETE FROM vendor_documents WHERE document_id = $document_id");
-
-    // Service Associations
-    mysqli_query($mysqli,"DELETE FROM service_documents WHERE document_id = $document_id");
-
     //Logging
     logAction("Document Version", "Delete", "$session_name deleted document version $document_name", $client_id);
 
@@ -667,25 +648,6 @@ if (isset($_GET['delete_document'])) {
 
     // Delete all versions associated with the master document
     mysqli_query($mysqli,"DELETE FROM documents WHERE document_parent = $document_id");
-
-    // Remove Associations
-    // File Association
-    mysqli_query($mysqli,"DELETE FROM document_files WHERE document_id = $document_id");
-
-    // Contact Associations
-    mysqli_query($mysqli,"DELETE FROM contact_documents WHERE document_id = $document_id");
-
-    // Asset Associations
-    mysqli_query($mysqli,"DELETE FROM asset_documents WHERE document_id = $document_id");
-
-    // Software Associations
-    mysqli_query($mysqli,"DELETE FROM software_documents WHERE document_id = $document_id");
-
-    // Vendor Associations
-    mysqli_query($mysqli,"DELETE FROM vendor_documents WHERE document_id = $document_id");
-
-    // Service Associations
-    mysqli_query($mysqli,"DELETE FROM service_documents WHERE document_id = $document_id");
 
     //Logging
     logAction("Document", "Delete", "$session_name deleted document $document_name and all versions", $client_id);
@@ -722,25 +684,6 @@ if (isset($_POST['bulk_delete_documents'])) {
             // Delete all versions associated with the master document
             mysqli_query($mysqli,"DELETE FROM documents WHERE document_parent = $document_id");
 
-            // Remove Associations
-            // File Association
-            mysqli_query($mysqli,"DELETE FROM document_files WHERE document_id = $document_id");
-
-            // Contact Associations
-            mysqli_query($mysqli,"DELETE FROM contact_documents WHERE document_id = $document_id");
-
-            // Asset Associations
-            mysqli_query($mysqli,"DELETE FROM asset_documents WHERE document_id = $document_id");
-
-            // Software Associations
-            mysqli_query($mysqli,"DELETE FROM software_documents WHERE document_id = $document_id");
-
-            // Vendor Associations
-            mysqli_query($mysqli,"DELETE FROM vendor_documents WHERE document_id = $document_id");
-
-            // Service Associations
-            mysqli_query($mysqli,"DELETE FROM service_documents WHERE document_id = $document_id");
-
             //Logging
             logAction("Document", "Delete", "$session_name deleted document $document_name and all versions", $client_id);  
 
@@ -756,5 +699,3 @@ if (isset($_POST['bulk_delete_documents'])) {
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
 }
-
-
