@@ -217,33 +217,13 @@ if (isset($_GET['delete_client'])) {
     mysqli_query($mysqli, "DELETE FROM certificates WHERE certificate_client_id = $client_id");
     mysqli_query($mysqli, "DELETE FROM documents WHERE document_client_id = $client_id");
 
-    // Delete Contacts including contact tags, notes
-    $sql = mysqli_query($mysqli, "SELECT contact_id FROM contacts WHERE contact_client_id = $client_id");
-    while($row = mysqli_fetch_array($sql)) {
-        $contact_id = $row['contact_id'];
-        mysqli_query($mysqli, "DELETE FROM contact_tags WHERE contact_id = $contact_id");
-        mysqli_query($mysqli, "DELETE FROM contact_assets WHERE contact_id = $contact_id");
-        mysqli_query($mysqli, "DELETE FROM contact_documents WHERE contact_id = $contact_id");
-        mysqli_query($mysqli, "DELETE FROM contact_files WHERE contact_id = $contact_id");
-        mysqli_query($mysqli, "DELETE FROM contact_logins WHERE contact_id = $contact_id");
-        mysqli_query($mysqli, "DELETE FROM contact_notes WHERE contact_note_contact_id = $contact_id");
-    }
+    // Delete Contacts
     mysqli_query($mysqli, "DELETE FROM contacts WHERE contact_client_id = $client_id");
 
-    // Delete Assets and Interfaces
-    $sql = mysqli_query($mysqli, "SELECT asset_id FROM assets WHERE asset_client_id = $client_id");
-    while($row = mysqli_fetch_array($sql)) {
-        $asset_id = $row['asset_id'];
-        mysqli_query($mysqli, "DELETE FROM asset_interfaces WHERE interface_asset_id = $asset_id");
-    }
+    // Delete Assets
     mysqli_query($mysqli, "DELETE FROM assets WHERE asset_client_id = $client_id");
 
     // Delete Domains and associated records
-    $sql = mysqli_query($mysqli, "SELECT domain_id FROM domains WHERE domain_client_id = $client_id");
-    while($row = mysqli_fetch_array($sql)) {
-        $domain_id = $row['domain_id'];
-        mysqli_query($mysqli, "DELETE FROM records WHERE record_domain_id = $domain_id");
-    }
     mysqli_query($mysqli, "DELETE FROM domains WHERE domain_client_id = $client_id");
 
     mysqli_query($mysqli, "DELETE FROM calendar_events WHERE event_client_id = $client_id");
@@ -261,11 +241,6 @@ if (isset($_GET['delete_client'])) {
     mysqli_query($mysqli, "DELETE FROM invoices WHERE invoice_client_id = $client_id");
 
     // Delete Locations and location tags
-    $sql = mysqli_query($mysqli, "SELECT location_id FROM locations WHERE location_client_id = location_id");
-    while($row = mysqli_fetch_array($sql)) {
-        $location_id = $row['location_id'];
-        mysqli_query($mysqli, "DELETE FROM location_tags WHERE location_id = $location_id");
-    }
     mysqli_query($mysqli, "DELETE FROM locations WHERE location_client_id = $client_id");
 
     mysqli_query($mysqli, "DELETE FROM credentials WHERE credential_client_id = $client_id");
@@ -283,38 +258,23 @@ if (isset($_GET['delete_client'])) {
     mysqli_query($mysqli, "DELETE FROM quotes WHERE quote_client_id = $client_id");
 
     // Delete Recurring Invoices and associated items
-    $sql = mysqli_query($mysqli, "SELECT recurring_id FROM recurring WHERE recurring_client_id = $client_id");
+    $sql = mysqli_query($mysqli, "SELECT recurring_invoice_id FROM recurring_invoices WHERE recurring_invoice_client_id = $client_id");
     while($row = mysqli_fetch_array($sql)) {
-        $recurring_id = $row['recurring_id'];
-        mysqli_query($mysqli, "DELETE FROM invoice_items WHERE item_recurring_id = $recurring_id");
+        $recurring_invoice_id = $row['recurring_invoice_id'];
+        mysqli_query($mysqli, "DELETE FROM invoice_items WHERE item_recurring_invoice_id = $recurring_invoice_id");
     }
-    mysqli_query($mysqli, "DELETE FROM recurring WHERE recurring_client_id = $client_id");
+    mysqli_query($mysqli, "DELETE FROM recurring_invoices WHERE recurring_invoice_client_id = $client_id");
 
     mysqli_query($mysqli, "DELETE FROM revenues WHERE revenue_client_id = $client_id");
-    mysqli_query($mysqli, "DELETE FROM scheduled_tickets WHERE scheduled_ticket_client_id = $client_id");
+    mysqli_query($mysqli, "DELETE FROM recurring_tickets WHERE recurring_ticket_client_id = $client_id");
 
-    // Delete Services and items associated with services
-    $sql = mysqli_query($mysqli, "SELECT service_id FROM services WHERE service_client_id = $client_id");
-    while($row = mysqli_fetch_array($sql)) {
-        $service_id = $row['service_id'];
-        mysqli_query($mysqli, "DELETE FROM service_assets WHERE service_id = $service_id");
-        mysqli_query($mysqli, "DELETE FROM service_certificates WHERE service_id = $service_id");
-        mysqli_query($mysqli, "DELETE FROM service_contacts WHERE service_id = $service_id");
-        mysqli_query($mysqli, "DELETE FROM service_documents WHERE service_id = $service_id");
-        mysqli_query($mysqli, "DELETE FROM service_domains WHERE service_id = $service_id");
-        mysqli_query($mysqli, "DELETE FROM service_logins WHERE service_id = $service_id");
-        mysqli_query($mysqli, "DELETE FROM service_vendors WHERE service_id = $service_id");
-    }
+    // Delete Services
     mysqli_query($mysqli, "DELETE FROM services WHERE service_client_id = $client_id");
 
+    // Delete Shared Items
     mysqli_query($mysqli, "DELETE FROM shared_items WHERE item_client_id = $client_id");
 
-    $sql = mysqli_query($mysqli, "SELECT software_id FROM software WHERE software_client_id = $client_id");
-    while($row = mysqli_fetch_array($sql)) {
-        $software_id = $row['software_id'];
-        mysqli_query($mysqli, "DELETE FROM software_assets WHERE software_id = $software_id");
-        mysqli_query($mysqli, "DELETE FROM software_contacts WHERE software_id = $software_id");
-    }
+    // Delete Software
     mysqli_query($mysqli, "DELETE FROM software WHERE software_client_id = $client_id");
 
     // Delete tickets and related data
@@ -327,9 +287,6 @@ if (isset($_GET['delete_client'])) {
     mysqli_query($mysqli, "DELETE FROM tickets WHERE ticket_client_id = $client_id");
     mysqli_query($mysqli, "DELETE FROM trips WHERE trip_client_id = $client_id");
     mysqli_query($mysqli, "DELETE FROM vendors WHERE vendor_client_id = $client_id");
-
-    // Delete tags
-    mysqli_query($mysqli, "DELETE FROM client_tags WHERE client_id = $client_id");
 
     //Delete Client Files
     removeDirectory('uploads/clients/$client_id');
@@ -1944,8 +1901,6 @@ if (isset($_POST['export_client_pdf'])) {
         }, 10000);
 
     </script>
-
-
 
     <?php
 
