@@ -330,7 +330,9 @@ CREATE TABLE `calendar_event_attendees` (
   `attendee_archived_at` datetime DEFAULT NULL,
   `attendee_contact_id` int(11) NOT NULL DEFAULT 0,
   `attendee_event_id` int(11) NOT NULL,
-  PRIMARY KEY (`attendee_id`)
+  PRIMARY KEY (`attendee_id`),
+  KEY `attendee_event_id` (`attendee_event_id`),
+  CONSTRAINT `calendar_event_attendees_ibfk_1` FOREIGN KEY (`attendee_event_id`) REFERENCES `calendar_events` (`event_id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -355,7 +357,9 @@ CREATE TABLE `calendar_events` (
   `event_client_id` int(11) NOT NULL DEFAULT 0,
   `event_location_id` int(11) NOT NULL DEFAULT 0,
   `event_calendar_id` int(11) NOT NULL DEFAULT 0,
-  PRIMARY KEY (`event_id`)
+  PRIMARY KEY (`event_id`),
+  KEY `event_calendar_id` (`event_calendar_id`),
+  CONSTRAINT `calendar_events_ibfk_1` FOREIGN KEY (`event_calendar_id`) REFERENCES `calendars` (`calendar_id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -412,7 +416,9 @@ CREATE TABLE `certificate_history` (
   `certificate_history_new_value` text NOT NULL,
   `certificate_history_certificate_id` int(11) NOT NULL,
   `certificate_history_modified_at` datetime NOT NULL DEFAULT current_timestamp(),
-  PRIMARY KEY (`certificate_history_id`)
+  PRIMARY KEY (`certificate_history_id`),
+  KEY `certificate_history_certificate_id` (`certificate_history_certificate_id`),
+  CONSTRAINT `certificate_history_ibfk_1` FOREIGN KEY (`certificate_history_certificate_id`) REFERENCES `certificates` (`certificate_id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -458,7 +464,9 @@ CREATE TABLE `client_notes` (
   `client_note_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
   `client_note_archived_at` datetime DEFAULT NULL,
   `client_note_client_id` int(11) NOT NULL,
-  PRIMARY KEY (`client_note_id`)
+  PRIMARY KEY (`client_note_id`),
+  KEY `client_note_client_id` (`client_note_client_id`),
+  CONSTRAINT `client_notes_ibfk_1` FOREIGN KEY (`client_note_client_id`) REFERENCES `clients` (`client_id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -487,7 +495,10 @@ DROP TABLE IF EXISTS `client_tags`;
 CREATE TABLE `client_tags` (
   `client_id` int(11) NOT NULL,
   `tag_id` int(11) NOT NULL,
-  PRIMARY KEY (`client_id`,`tag_id`)
+  PRIMARY KEY (`client_id`,`tag_id`),
+  KEY `tag_id` (`tag_id`),
+  CONSTRAINT `client_tags_ibfk_1` FOREIGN KEY (`client_id`) REFERENCES `clients` (`client_id`) ON DELETE CASCADE,
+  CONSTRAINT `client_tags_ibfk_2` FOREIGN KEY (`tag_id`) REFERENCES `tags` (`tag_id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -559,7 +570,9 @@ CREATE TABLE `contact_assets` (
   PRIMARY KEY (`contact_id`,`asset_id`),
   KEY `asset_id` (`asset_id`),
   CONSTRAINT `contact_assets_ibfk_1` FOREIGN KEY (`contact_id`) REFERENCES `contacts` (`contact_id`) ON DELETE CASCADE,
-  CONSTRAINT `contact_assets_ibfk_2` FOREIGN KEY (`asset_id`) REFERENCES `assets` (`asset_id`) ON DELETE CASCADE
+  CONSTRAINT `contact_assets_ibfk_2` FOREIGN KEY (`asset_id`) REFERENCES `assets` (`asset_id`) ON DELETE CASCADE,
+  CONSTRAINT `contact_assets_ibfk_3` FOREIGN KEY (`contact_id`) REFERENCES `contacts` (`contact_id`) ON DELETE CASCADE,
+  CONSTRAINT `contact_assets_ibfk_4` FOREIGN KEY (`asset_id`) REFERENCES `assets` (`asset_id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -590,7 +603,10 @@ DROP TABLE IF EXISTS `contact_documents`;
 CREATE TABLE `contact_documents` (
   `contact_id` int(11) NOT NULL,
   `document_id` int(11) NOT NULL,
-  PRIMARY KEY (`contact_id`,`document_id`)
+  PRIMARY KEY (`contact_id`,`document_id`),
+  KEY `document_id` (`document_id`),
+  CONSTRAINT `contact_documents_ibfk_1` FOREIGN KEY (`contact_id`) REFERENCES `contacts` (`contact_id`) ON DELETE CASCADE,
+  CONSTRAINT `contact_documents_ibfk_2` FOREIGN KEY (`document_id`) REFERENCES `documents` (`document_id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -604,7 +620,10 @@ DROP TABLE IF EXISTS `contact_files`;
 CREATE TABLE `contact_files` (
   `contact_id` int(11) NOT NULL,
   `file_id` int(11) NOT NULL,
-  PRIMARY KEY (`contact_id`,`file_id`)
+  PRIMARY KEY (`contact_id`,`file_id`),
+  KEY `file_id` (`file_id`),
+  CONSTRAINT `contact_files_ibfk_1` FOREIGN KEY (`contact_id`) REFERENCES `contacts` (`contact_id`) ON DELETE CASCADE,
+  CONSTRAINT `contact_files_ibfk_2` FOREIGN KEY (`file_id`) REFERENCES `files` (`file_id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -624,7 +643,9 @@ CREATE TABLE `contact_notes` (
   `contact_note_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
   `contact_note_archived_at` datetime DEFAULT NULL,
   `contact_note_contact_id` int(11) NOT NULL,
-  PRIMARY KEY (`contact_note_id`)
+  PRIMARY KEY (`contact_note_id`),
+  KEY `contact_note_contact_id` (`contact_note_contact_id`),
+  CONSTRAINT `contact_notes_ibfk_1` FOREIGN KEY (`contact_note_contact_id`) REFERENCES `contacts` (`contact_id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -638,7 +659,10 @@ DROP TABLE IF EXISTS `contact_tags`;
 CREATE TABLE `contact_tags` (
   `contact_id` int(11) NOT NULL,
   `tag_id` int(11) NOT NULL,
-  PRIMARY KEY (`contact_id`,`tag_id`)
+  PRIMARY KEY (`contact_id`,`tag_id`),
+  KEY `tag_id` (`tag_id`),
+  CONSTRAINT `contact_tags_ibfk_1` FOREIGN KEY (`contact_id`) REFERENCES `contacts` (`contact_id`) ON DELETE CASCADE,
+  CONSTRAINT `contact_tags_ibfk_2` FOREIGN KEY (`tag_id`) REFERENCES `tags` (`tag_id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -792,7 +816,10 @@ DROP TABLE IF EXISTS `document_files`;
 CREATE TABLE `document_files` (
   `document_id` int(11) NOT NULL,
   `file_id` int(11) NOT NULL,
-  PRIMARY KEY (`document_id`,`file_id`)
+  PRIMARY KEY (`document_id`,`file_id`),
+  KEY `file_id` (`file_id`),
+  CONSTRAINT `document_files_ibfk_1` FOREIGN KEY (`document_id`) REFERENCES `documents` (`document_id`) ON DELETE CASCADE,
+  CONSTRAINT `document_files_ibfk_2` FOREIGN KEY (`file_id`) REFERENCES `files` (`file_id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -840,7 +867,9 @@ CREATE TABLE `domain_history` (
   `domain_history_new_value` text NOT NULL,
   `domain_history_domain_id` int(11) NOT NULL,
   `domain_history_modified_at` datetime NOT NULL DEFAULT current_timestamp(),
-  PRIMARY KEY (`domain_history_id`)
+  PRIMARY KEY (`domain_history_id`),
+  KEY `domain_history_domain_id` (`domain_history_domain_id`),
+  CONSTRAINT `domain_history_ibfk_1` FOREIGN KEY (`domain_history_domain_id`) REFERENCES `domains` (`domain_id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -1063,7 +1092,10 @@ DROP TABLE IF EXISTS `location_tags`;
 CREATE TABLE `location_tags` (
   `location_id` int(11) NOT NULL,
   `tag_id` int(11) NOT NULL,
-  PRIMARY KEY (`location_id`,`tag_id`)
+  PRIMARY KEY (`location_id`,`tag_id`),
+  KEY `tag_id` (`tag_id`),
+  CONSTRAINT `location_tags_ibfk_1` FOREIGN KEY (`location_id`) REFERENCES `locations` (`location_id`) ON DELETE CASCADE,
+  CONSTRAINT `location_tags_ibfk_2` FOREIGN KEY (`tag_id`) REFERENCES `tags` (`tag_id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -1299,7 +1331,10 @@ DROP TABLE IF EXISTS `quote_files`;
 CREATE TABLE `quote_files` (
   `quote_id` int(11) NOT NULL,
   `file_id` int(11) NOT NULL,
-  PRIMARY KEY (`quote_id`,`file_id`)
+  PRIMARY KEY (`quote_id`,`file_id`),
+  KEY `file_id` (`file_id`),
+  CONSTRAINT `quote_files_ibfk_1` FOREIGN KEY (`quote_id`) REFERENCES `quotes` (`quote_id`) ON DELETE CASCADE,
+  CONSTRAINT `quote_files_ibfk_2` FOREIGN KEY (`file_id`) REFERENCES `files` (`file_id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -1351,7 +1386,7 @@ CREATE TABLE `rack_units` (
   `unit_rack_id` int(11) NOT NULL,
   PRIMARY KEY (`unit_id`),
   KEY `unit_rack_id` (`unit_rack_id`),
-  KEY `unit_asset_id` (`unit_asset_id`)
+  CONSTRAINT `rack_units_ibfk_1` FOREIGN KEY (`unit_rack_id`) REFERENCES `racks` (`rack_id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -1597,7 +1632,11 @@ DROP TABLE IF EXISTS `service_certificates`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `service_certificates` (
   `service_id` int(11) NOT NULL,
-  `certificate_id` int(11) NOT NULL
+  `certificate_id` int(11) NOT NULL,
+  KEY `service_id` (`service_id`),
+  KEY `certificate_id` (`certificate_id`),
+  CONSTRAINT `service_certificates_ibfk_1` FOREIGN KEY (`service_id`) REFERENCES `services` (`service_id`) ON DELETE CASCADE,
+  CONSTRAINT `service_certificates_ibfk_2` FOREIGN KEY (`certificate_id`) REFERENCES `certificates` (`certificate_id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -1610,7 +1649,11 @@ DROP TABLE IF EXISTS `service_contacts`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `service_contacts` (
   `service_id` int(11) NOT NULL,
-  `contact_id` int(11) NOT NULL
+  `contact_id` int(11) NOT NULL,
+  KEY `service_id` (`service_id`),
+  KEY `contact_id` (`contact_id`),
+  CONSTRAINT `service_contacts_ibfk_1` FOREIGN KEY (`service_id`) REFERENCES `services` (`service_id`) ON DELETE CASCADE,
+  CONSTRAINT `service_contacts_ibfk_2` FOREIGN KEY (`contact_id`) REFERENCES `contacts` (`contact_id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -1640,7 +1683,11 @@ DROP TABLE IF EXISTS `service_documents`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `service_documents` (
   `service_id` int(11) NOT NULL,
-  `document_id` int(11) NOT NULL
+  `document_id` int(11) NOT NULL,
+  KEY `service_id` (`service_id`),
+  KEY `document_id` (`document_id`),
+  CONSTRAINT `service_documents_ibfk_1` FOREIGN KEY (`service_id`) REFERENCES `services` (`service_id`) ON DELETE CASCADE,
+  CONSTRAINT `service_documents_ibfk_2` FOREIGN KEY (`document_id`) REFERENCES `documents` (`document_id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -1653,7 +1700,9 @@ DROP TABLE IF EXISTS `service_domains`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `service_domains` (
   `service_id` int(11) NOT NULL,
-  `domain_id` int(11) NOT NULL
+  `domain_id` int(11) NOT NULL,
+  KEY `service_id` (`service_id`),
+  KEY `domain_id` (`domain_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -1666,7 +1715,11 @@ DROP TABLE IF EXISTS `service_vendors`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `service_vendors` (
   `service_id` int(11) NOT NULL,
-  `vendor_id` int(11) NOT NULL
+  `vendor_id` int(11) NOT NULL,
+  KEY `service_id` (`service_id`),
+  KEY `vendor_id` (`vendor_id`),
+  CONSTRAINT `service_vendors_ibfk_1` FOREIGN KEY (`service_id`) REFERENCES `services` (`service_id`) ON DELETE CASCADE,
+  CONSTRAINT `service_vendors_ibfk_2` FOREIGN KEY (`vendor_id`) REFERENCES `vendors` (`vendor_id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -1882,7 +1935,10 @@ DROP TABLE IF EXISTS `software_contacts`;
 CREATE TABLE `software_contacts` (
   `software_id` int(11) NOT NULL,
   `contact_id` int(11) NOT NULL,
-  PRIMARY KEY (`software_id`,`contact_id`)
+  PRIMARY KEY (`software_id`,`contact_id`),
+  KEY `contact_id` (`contact_id`),
+  CONSTRAINT `software_contacts_ibfk_1` FOREIGN KEY (`software_id`) REFERENCES `software` (`software_id`) ON DELETE CASCADE,
+  CONSTRAINT `software_contacts_ibfk_2` FOREIGN KEY (`contact_id`) REFERENCES `contacts` (`contact_id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -1913,7 +1969,10 @@ DROP TABLE IF EXISTS `software_documents`;
 CREATE TABLE `software_documents` (
   `software_id` int(11) NOT NULL,
   `document_id` int(11) NOT NULL,
-  PRIMARY KEY (`software_id`,`document_id`)
+  PRIMARY KEY (`software_id`,`document_id`),
+  KEY `document_id` (`document_id`),
+  CONSTRAINT `software_documents_ibfk_1` FOREIGN KEY (`software_id`) REFERENCES `software` (`software_id`) ON DELETE CASCADE,
+  CONSTRAINT `software_documents_ibfk_2` FOREIGN KEY (`document_id`) REFERENCES `documents` (`document_id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -1927,7 +1986,10 @@ DROP TABLE IF EXISTS `software_files`;
 CREATE TABLE `software_files` (
   `software_id` int(11) NOT NULL,
   `file_id` int(11) NOT NULL,
-  PRIMARY KEY (`software_id`,`file_id`)
+  PRIMARY KEY (`software_id`,`file_id`),
+  KEY `file_id` (`file_id`),
+  CONSTRAINT `software_files_ibfk_1` FOREIGN KEY (`software_id`) REFERENCES `software` (`software_id`) ON DELETE CASCADE,
+  CONSTRAINT `software_files_ibfk_2` FOREIGN KEY (`file_id`) REFERENCES `files` (`file_id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -2367,7 +2429,10 @@ DROP TABLE IF EXISTS `vendor_documents`;
 CREATE TABLE `vendor_documents` (
   `vendor_id` int(11) NOT NULL,
   `document_id` int(11) NOT NULL,
-  PRIMARY KEY (`vendor_id`,`document_id`)
+  PRIMARY KEY (`vendor_id`,`document_id`),
+  KEY `document_id` (`document_id`),
+  CONSTRAINT `vendor_documents_ibfk_1` FOREIGN KEY (`vendor_id`) REFERENCES `vendors` (`vendor_id`) ON DELETE CASCADE,
+  CONSTRAINT `vendor_documents_ibfk_2` FOREIGN KEY (`document_id`) REFERENCES `documents` (`document_id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -2381,7 +2446,10 @@ DROP TABLE IF EXISTS `vendor_files`;
 CREATE TABLE `vendor_files` (
   `vendor_id` int(11) NOT NULL,
   `file_id` int(11) NOT NULL,
-  PRIMARY KEY (`vendor_id`,`file_id`)
+  PRIMARY KEY (`vendor_id`,`file_id`),
+  KEY `file_id` (`file_id`),
+  CONSTRAINT `vendor_files_ibfk_1` FOREIGN KEY (`vendor_id`) REFERENCES `vendors` (`vendor_id`) ON DELETE CASCADE,
+  CONSTRAINT `vendor_files_ibfk_2` FOREIGN KEY (`file_id`) REFERENCES `files` (`file_id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -2426,4 +2494,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-03-14 15:31:19
+-- Dump completed on 2025-03-14 18:18:06
