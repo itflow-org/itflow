@@ -4,13 +4,12 @@
  *
  * To rebuild or modify this file with the latest versions of the included
  * software please visit:
- *   https://datatables.net/download/#bs4/dt-2.2.1
+ *   https://datatables.net/download/#bs4/dt-2.2.2
  *
  * Included libraries:
- *   DataTables 2.2.1
+ *   DataTables 2.2.2
  */
 
-@charset "UTF-8";
 :root {
   --dt-row-selected: 2, 117, 216;
   --dt-row-selected-text: 255, 255, 255;
@@ -93,8 +92,8 @@ table.dataTable thead > tr > td.dt-ordering-asc span.dt-column-order:before {
   position: absolute;
   display: block;
   bottom: 50%;
-  content: "▲";
-  content: "▲"/"";
+  content: "\25B2";
+  content: "\25B2"/"";
 }
 table.dataTable thead > tr > th.dt-orderable-desc span.dt-column-order:after, table.dataTable thead > tr > th.dt-ordering-desc span.dt-column-order:after,
 table.dataTable thead > tr > td.dt-orderable-desc span.dt-column-order:after,
@@ -102,8 +101,8 @@ table.dataTable thead > tr > td.dt-ordering-desc span.dt-column-order:after {
   position: absolute;
   display: block;
   top: 50%;
-  content: "▼";
-  content: "▼"/"";
+  content: "\25BC";
+  content: "\25BC"/"";
 }
 table.dataTable thead > tr > th.dt-orderable-asc, table.dataTable thead > tr > th.dt-orderable-desc, table.dataTable thead > tr > th.dt-ordering-asc, table.dataTable thead > tr > th.dt-ordering-desc,
 table.dataTable thead > tr > td.dt-orderable-asc,
