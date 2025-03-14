@@ -2479,17 +2479,6 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
     }
 
     if (CURRENT_DATABASE_VERSION == '1.9.3') {
-        // Clean up orphaned ticket_id rows in ticket_assets
-        mysqli_query($mysqli, "
-            DELETE FROM `ticket_assets`
-            WHERE `ticket_id` NOT IN (SELECT `ticket_id` FROM `tickets`);
-        ");
-
-        // Clean up orphaned asset_id rows in ticket_assets
-        mysqli_query($mysqli, "
-            DELETE FROM `ticket_assets`
-            WHERE `asset_id` NOT IN (SELECT `asset_id` FROM `assets`);
-        ");
 
         // Now create the table with foreign keys
         mysqli_query($mysqli, "
@@ -2533,20 +2522,8 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
     }
 
     if (CURRENT_DATABASE_VERSION == '1.9.5') {
-        
-        // Clean up orphaned recurring_ticket_id rows in recurring_ticket_assets
-        mysqli_query($mysqli, "
-            DELETE FROM `recurring_ticket_assets`
-            WHERE `recurring_ticket_id` NOT IN (SELECT `recurring_ticket_id` FROM `recurring_tickets`);
-        ");
 
-        // Clean up orphaned asset_id rows in recurring_ticket_assets
-        mysqli_query($mysqli, "
-            DELETE FROM `recurring_ticket_assets`
-            WHERE `asset_id` NOT IN (SELECT `asset_id` FROM `assets`);
-        ");
-
-        // Now create the table with foreign keys
+        // create the table with foreign keys
         mysqli_query($mysqli, "
             CREATE TABLE `recurring_ticket_assets` (
                 `recurring_ticket_id` INT(11) NOT NULL,
@@ -2956,10 +2933,55 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
         mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '2.0.2'");
     }
 
-    // if (CURRENT_DATABASE_VERSION == '2.0.2') {
-    //     // Insert queries here required to update to DB version 2.0.3
+    if (CURRENT_DATABASE_VERSION == '2.0.2') {
+
+        // Clean up orphans
+        mysqli_query($mysqli, "
+            DELETE FROM `calendar_event_attendees`
+            WHERE `attendee_event_id` NOT IN (SELECT `event_id` FROM `calendar_events`);
+        ");
+
+        mysqli_query($mysqli, "
+            DELETE FROM `calendar_events`
+            WHERE `event_calendar_id` NOT IN (SELECT `calendar_id` FROM `calendars`);
+        ");
+
+        // Add foreign key to calendar_event_attendees
+        mysqli_query($mysqli, "
+            ALTER TABLE `calendar_event_attendees`
+            ADD FOREIGN KEY (`attendee_event_id`) REFERENCES `calendar_events`(`event_id`) ON DELETE CASCADE
+        ");
+
+        // Add foreign key to calendar_events
+        mysqli_query($mysqli, "
+            ALTER TABLE `calendar_events`
+            ADD FOREIGN KEY (`event_calendar_id`) REFERENCES `calendars`(`calendar_id`) ON DELETE CASCADE
+        ");
+    
+        mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '2.0.3'");
+    }
+
+    if (CURRENT_DATABASE_VERSION == '2.0.3') {
+
+        // Clean up orphaned history
+        mysqli_query($mysqli, "
+            DELETE FROM `certificate_history`
+            WHERE `certificate_history_certificate_id` NOT IN (SELECT `certificate_id` FROM `certificates`);
+        ");
+
+        // Add foreign key certificate history
+        mysqli_query($mysqli, "
+            ALTER TABLE `certificate_history`
+            ADD FOREIGN KEY (`certificate_history_certificate_id`) REFERENCES `certificates`(`certificate_id`) ON DELETE CASCADE
+        ");
+    
+        mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '2.0.4'");
+    }
+
+    // if (CURRENT_DATABASE_VERSION == '2.0.4') {
+    //     // Insert queries here required to update to DB version 2.0.5
     //     // Then, update the database to the next sequential version
-    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '2.0.3'");
+    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '2.0.5'");
     // }
 
 } else {
