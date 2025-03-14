@@ -50,6 +50,7 @@ $device_icon = getAssetIcon($asset_type);
 $contact_name = nullable_htmlentities($row['contact_name']);
 $contact_email = nullable_htmlentities($row['contact_email']);
 $contact_phone = nullable_htmlentities($row['contact_phone']);
+$contact_extension = nullable_htmlentities($row['contact_extension']);
 $contact_mobile = nullable_htmlentities($row['contact_mobile']);
 $contact_archived_at = nullable_htmlentities($row['contact_archived_at']);
 if ($contact_archived_at) {
@@ -155,8 +156,9 @@ $sql_related_recurring_tickets = mysqli_query($mysqli, "SELECT * FROM recurring_
 $recurring_ticket_count = mysqli_num_rows($sql_related_recurring_tickets);
 
 // Related Documents
-$sql_related_documents = mysqli_query($mysqli, "SELECT * FROM asset_documents 
+$sql_related_documents = mysqli_query($mysqli, "SELECT * FROM asset_documents
     LEFT JOIN documents ON asset_documents.document_id = documents.document_id
+    LEFT JOIN users ON user_id = document_created_by
     WHERE asset_documents.asset_id = $asset_id 
     AND document_archived_at IS NULL 
     ORDER BY document_name DESC"
@@ -553,12 +555,13 @@ ob_start();
                         $ticket_number = intval($row['ticket_number']);
                         $ticket_subject = nullable_htmlentities($row['ticket_subject']);
                         $ticket_priority = nullable_htmlentities($row['ticket_priority']);
+                        $ticket_status_id = intval($row['ticket_status_id']);
                         $ticket_status_name = nullable_htmlentities($row['ticket_status_name']);
                         $ticket_status_color = nullable_htmlentities($row['ticket_status_color']);
                         $ticket_created_at = nullable_htmlentities($row['ticket_created_at']);
                         $ticket_updated_at = nullable_htmlentities($row['ticket_updated_at']);
                         if (empty($ticket_updated_at)) {
-                            if ($ticket_status == "Closed") {
+                            if ($ticket_status_name == "Closed") {
                                 $ticket_updated_at_display = "<p>Never</p>";
                             } else {
                                 $ticket_updated_at_display = "<p class='text-danger'>Never</p>";
@@ -579,7 +582,7 @@ ob_start();
                         }
                         $ticket_assigned_to = intval($row['ticket_assigned_to']);
                         if (empty($ticket_assigned_to)) {
-                            if ($ticket_status == 5) {
+                            if ($ticket_status_id == 5) {
                                 $ticket_assigned_to_display = "<p>Not Assigned</p>";
                             } else {
                                 $ticket_assigned_to_display = "<p class='text-danger'>Not Assigned</p>";

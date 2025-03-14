@@ -1007,12 +1007,13 @@ if (isset($_GET['asset_id'])) {
                                 $ticket_number = intval($row['ticket_number']);
                                 $ticket_subject = nullable_htmlentities($row['ticket_subject']);
                                 $ticket_priority = nullable_htmlentities($row['ticket_priority']);
+                                $ticket_status_id = intval($row['ticket_status_id']);
                                 $ticket_status_name = nullable_htmlentities($row['ticket_status_name']);
                                 $ticket_status_color = nullable_htmlentities($row['ticket_status_color']);
                                 $ticket_created_at = nullable_htmlentities($row['ticket_created_at']);
                                 $ticket_updated_at = nullable_htmlentities($row['ticket_updated_at']);
                                 if (empty($ticket_updated_at)) {
-                                    if ($ticket_status == "Closed") {
+                                    if ($ticket_status_name == "Closed") {
                                         $ticket_updated_at_display = "<p>Never</p>";
                                     } else {
                                         $ticket_updated_at_display = "<p class='text-danger'>Never</p>";
@@ -1033,7 +1034,7 @@ if (isset($_GET['asset_id'])) {
                                 }
                                 $ticket_assigned_to = intval($row['ticket_assigned_to']);
                                 if (empty($ticket_assigned_to)) {
-                                    if ($ticket_status == 5) {
+                                    if ($ticket_status_id == 5) {
                                         $ticket_assigned_to_display = "<p>Not Assigned</p>";
                                     } else {
                                         $ticket_assigned_to_display = "<p class='text-danger'>Not Assigned</p>";

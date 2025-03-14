@@ -39,7 +39,7 @@ if (isset($_POST['add_asset'])) {
     }
 
     // Add Primary Interface
-    mysqli_query($mysqli,"INSERT INTO asset_interfaces SET interface_name = '1', interface_mac = '$mac', interface_ip = '$ip', interface_nat_ip = '$nat_ip', interface_ipv6 = '$ipv6', interface_primary = 1, interface_network_id = $network, interface_asset_id = $asset_id");
+    mysqli_query($mysqli,"INSERT INTO asset_interfaces SET interface_name = '01', interface_mac = '$mac', interface_ip = '$ip', interface_nat_ip = '$nat_ip', interface_ipv6 = '$ipv6', interface_primary = 1, interface_network_id = $network, interface_asset_id = $asset_id");
 
 
     if (!empty($_POST['username'])) {
@@ -89,7 +89,7 @@ if (isset($_POST['edit_asset'])) {
 
     if(mysqli_num_rows($sql_interfaces) == 0 ) {
         // Add Primary Interface
-        mysqli_query($mysqli,"INSERT INTO asset_interfaces SET interface_name = '1', interface_mac = '$mac', interface_ip = '$ip', interface_nat_ip = '$nat_ip', interface_ipv6 = '$ipv6', interface_primary = 1, interface_network_id = $network, interface_asset_id = $asset_id");
+        mysqli_query($mysqli,"INSERT INTO asset_interfaces SET interface_name = '01', interface_mac = '$mac', interface_ip = '$ip', interface_nat_ip = '$nat_ip', interface_ipv6 = '$ipv6', interface_primary = 1, interface_network_id = $network, interface_asset_id = $asset_id");
     } else {
         // Update Primary Interface
         mysqli_query($mysqli,"UPDATE asset_interfaces SET interface_mac = '$mac', interface_ip = '$ip', interface_nat_ip = '$nat_ip', interface_ipv6 = '$ipv6', interface_network_id = $network WHERE interface_asset_id = $asset_id AND interface_primary = 1");
@@ -592,26 +592,26 @@ if (isset($_POST['link_asset_to_credential'])) {
 
     enforceUserPermission('module_support', 2);
 
-    $login_id = intval($_POST['login_id']);
+    $credential_id = intval($_POST['credential_id']);
     $asset_id = intval($_POST['asset_id']);
 
-    // Get login Name and Client ID for logging
-    $sql_login = mysqli_query($mysqli,"SELECT login_name, login_client_id FROM logins WHERE login_id = $login_id");
-    $row = mysqli_fetch_array($sql_login);
-    $login_name = sanitizeInput($row['login_name']);
-    $client_id = intval($row['login_client_id']);
+    // Get credential Name and Client ID for logging
+    $sql_credential = mysqli_query($mysqli,"SELECT credential_name, credential_client_id FROM credentials WHERE credential_id = $credential_id");
+    $row = mysqli_fetch_array($sql_credential);
+    $credential_name = sanitizeInput($row['credential_name']);
+    $client_id = intval($row['credential_client_id']);
 
     // Get Asset Name for logging
     $sql_asset = mysqli_query($mysqli,"SELECT asset_name FROM assets WHERE asset_id = $asset_id");
     $row = mysqli_fetch_array($sql_asset);
     $asset_name = sanitizeInput($row['asset_name']);
 
-    mysqli_query($mysqli,"UPDATE logins SET login_asset_id = $asset_id WHERE login_id = $login_id");
+    mysqli_query($mysqli,"UPDATE credentials SET credential_asset_id = $asset_id WHERE credential_id = $credential_id");
 
     // Logging
-    logAction("Credential", "Link", "$session_name linked credential $login_name to asset $asset_name", $client_id, $login_id);
+    logAction("Credential", "Link", "$session_name linked credential $credential_name to asset $asset_name", $client_id, $credential_id);
 
-    $_SESSION['alert_message'] = "Asset <strong>$asset_name</strong> linked with credential <strong>$login_name</strong>";
+    $_SESSION['alert_message'] = "Asset <strong>$asset_name</strong> linked with credential <strong>$crdential_name</strong>";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
@@ -622,26 +622,26 @@ if (isset($_GET['unlink_credential_from_asset'])) {
     enforceUserPermission('module_support', 2);
 
     $asset_id = intval($_GET['asset_id']);
-    $login_id = intval($_GET['login_id']);
+    $credential_id = intval($_GET['credential_id']);
 
-    // Get login Name and Client ID for logging
-    $sql_login = mysqli_query($mysqli,"SELECT login_name, login_client_id FROM logins WHERE login_id = $login_id");
-    $row = mysqli_fetch_array($sql_login);
-    $login_name = sanitizeInput($row['login_name']);
-    $client_id = intval($row['login_client_id']);
+    // Get credential Name and Client ID for logging
+    $sql_credential = mysqli_query($mysqli,"SELECT credential_name, credential_client_id FROM credentials WHERE credential_id = $credential_id");
+    $row = mysqli_fetch_array($sql_credential);
+    $credential_name = sanitizeInput($row['credential_name']);
+    $client_id = intval($row['credential_client_id']);
 
     // Get Asset Name for logging
     $sql_asset = mysqli_query($mysqli,"SELECT asset_name FROM assets WHERE asset_id = $asset_id");
     $row = mysqli_fetch_array($sql_asset);
     $asset_name = sanitizeInput($row['asset_name']);
 
-    mysqli_query($mysqli,"UPDATE logins SET login_asset_id = 0 WHERE login_id = $login_id");
+    mysqli_query($mysqli,"UPDATE credentials SET credential_asset_id = 0 WHERE credential_id = $credential_id");
 
     //Logging
-    logAction("Credential", "Unlink", "$session_name unlinked asset $asset_name from credential $login_name", $client_id, $login_id);
+    logAction("Credential", "Unlink", "$session_name unlinked asset $asset_name from credential $credential_name", $client_id, $credential_id);
 
     $_SESSION['alert_type'] = "error";
-    $_SESSION['alert_message'] = "Credential <strong>$login_name</strong> unlinked from Asset <strong>$asset_name</strong>";
+    $_SESSION['alert_message'] = "Credential <strong>$credential_name</strong> unlinked from Asset <strong>$asset_name</strong>";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 

@@ -27,7 +27,6 @@ $(document).on('click', '[data-toggle="ajax-modal"]', function (e) {
         method: 'GET',
         data: { id: ajaxId },
         dataType: 'json',
-        cache: false, // Prevent caching if necessary
         success: function (response) {
             if (response.error) {
                 alert(response.error);

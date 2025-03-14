@@ -414,7 +414,7 @@ ob_start();
                     <?php
 
                     while ($row = mysqli_fetch_array($sql_related_credentials)) {
-                        $credential_id = intval($row['logins_credential_id']);
+                        $credential_id = intval($row['credentials_credential_id']);
                         $credential_name = nullable_htmlentities($row['credential_name']);
                         $credential_description = nullable_htmlentities($row['credential_description']);
                         $credential_uri = nullable_htmlentities($row['credential_uri']);
