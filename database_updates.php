@@ -3373,10 +3373,17 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
         mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '2.0.6'");
     }
 
-    // if (CURRENT_DATABASE_VERSION == '2.0.6') {
-    //     // Insert queries here required to update to DB version 2.0.7
+    if (CURRENT_DATABASE_VERSION == '2.0.6') {
+        // Fix service_domains to yse InnoDB instead of MyISAM
+        mysqli_query($mysqli, "ALTER TABLE service_domains ENGINE = InnoDB;");
+
+        mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '2.0.7'");
+    }
+
+    // if (CURRENT_DATABASE_VERSION == '2.0.7') {
+    //     // Insert queries here required to update to DB version 2.0.8
     //     // Then, update the database to the next sequential version
-    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '2.0.7'");
+    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '2.0.8'");
     // }
 
 } else {
