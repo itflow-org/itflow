@@ -202,7 +202,7 @@ if (isset($_GET['quote_id'])) {
                             <a class="dropdown-item" href="#" onclick="window.print();">
                                 <i class="fa fa-fw fa-print text-secondary mr-2"></i>Print
                             </a>
-                            <a class="dropdown-item" href="#" onclick="pdfMake.createPdf(docDefinition).download('<?php echo strtoAZaz09(html_entity_decode("$quote_date-$company_name-$client_name-Quote-$quote_prefix$quote_number")); ?>');">
+                            <a class="dropdown-item" href="#" onclick="pdfMake.createPdf(docDefinition).download('<?php echo strtoAZaz09(html_entity_decode("$quote_date-$company_name-$client_name-$config_quote_localization_title-$quote_prefix$quote_number")); ?>');">
                                 <i class="fa fa-fw fa-download text-secondary mr-2"></i>Download PDF
                             </a>
                             <?php if (!empty($config_smtp_host) && !empty($contact_email)) { ?>
@@ -237,7 +237,7 @@ if (isset($_GET['quote_id'])) {
                             <?php echo $quote_status; ?>
                         </div>
                     </div>
-                    <h3 class="text-right mt-5"><strong>Quote</strong><br><small class="text-secondary"><?php echo "$quote_prefix$quote_number"; ?></small></h3>
+                    <h3 class="text-right mt-5"><strong><?php echo $config_quote_localization_title; ?></strong><br><small class="text-secondary"><?php echo "$quote_prefix$quote_number"; ?></small></h3>
                 </div>
             </div>
             <div class="row mb-4">
@@ -600,7 +600,7 @@ require_once "includes/footer.php";
 <script>
     var docDefinition = {
         info: {
-            title: <?php echo json_encode(html_entity_decode($company_name) . "- Quote") ?>,
+            title: <?php echo json_encode(html_entity_decode($company_name) . "- " . $config_quote_localization_title) ?>,
             author: <?php echo json_encode(html_entity_decode($company_name)) ?>
         },
 
@@ -617,7 +617,7 @@ require_once "includes/footer.php";
                     <?php } ?>
 
                     [{
-                        text: 'Quote',
+                        text: '<?php echo $config_quote_localization_title; ?>',
                         style: 'invoiceTitle',
                         width: '*'
                     }, {
