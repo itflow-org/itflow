@@ -3386,15 +3386,16 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
 		    ADD COLUMN `config_invoice_localization_tax` VARCHAR(200) NULL DEFAULT 'Tax' AFTER `config_invoice_localization_title`, 
 		    ADD COLUMN `config_invoice_localization_total` VARCHAR(200) NULL DEFAULT 'Total' AFTER `config_invoice_localization_tax`, 
 		    ADD COLUMN `config_invoice_localization_subtotal` VARCHAR(200) NULL DEFAULT 'Subtotal' AFTER `config_invoice_localization_total`, 
-		    ADD COLUMN `config_quote_localization_title` VARCHAR(200) NULL DEFAULT 'Quote' AFTER `config_quote_footer`;");
+		    ADD COLUMN `config_quote_localization_title` VARCHAR(200) NULL DEFAULT 'Quote' AFTER `config_quote_footer`,
+    		ADD COLUMN `config_ticket_client_prefix_subject` VARCHAR(200) NULL DEFAULT NULL AFTER `config_ticket_moving_columns`");
 
 		mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '2.0.8'");
 	}
 
-    // if (CURRENT_DATABASE_VERSION == '2.0.7') {
-    //     // Insert queries here required to update to DB version 2.0.8
+    // if (CURRENT_DATABASE_VERSION == '2.0.8') {
+    //     // Insert queries here required to update to DB version 2.0.9
     //     // Then, update the database to the next sequential version
-    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '2.0.8'");
+    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '2.0.9'");
     // }
 
 } else {

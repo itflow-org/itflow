@@ -71,6 +71,7 @@ $config_project_next_number = intval($row['config_project_next_number']);
 
 // Tickets
 $config_ticket_prefix = $row['config_ticket_prefix'];
+$config_ticket_client_prefix_subject = $row['config_ticket_client_prefix_subject'];
 $config_ticket_next_number = intval($row['config_ticket_next_number']);
 $config_ticket_from_name = $row['config_ticket_from_name'];
 $config_ticket_from_email = $row['config_ticket_from_email'];
