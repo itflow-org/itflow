@@ -3380,10 +3380,17 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
         mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '2.0.7'");
     }
 
-    // if (CURRENT_DATABASE_VERSION == '2.0.7') {
-    //     // Insert queries here required to update to DB version 2.0.8
+    if (CURRENT_DATABASE_VERSION == '2.0.7') {
+        
+        mysqli_query($mysqli, "ALTER TABLE `files` DROP `file_hash`");
+
+        mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '2.0.8'");
+    }
+
+    // if (CURRENT_DATABASE_VERSION == '2.0.8') {
+    //     // Insert queries here required to update to DB version 2.0.9
     //     // Then, update the database to the next sequential version
-    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '2.0.8'");
+    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '2.0.9'");
     // }
 
 } else {
