@@ -3387,10 +3387,19 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
         mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '2.0.8'");
     }
 
-    // if (CURRENT_DATABASE_VERSION == '2.0.8') {
-    //     // Insert queries here required to update to DB version 2.0.9
+    if (CURRENT_DATABASE_VERSION == '2.0.8') {
+        
+        mysqli_query($mysqli, "ALTER TABLE `files` DROP `file_has_thumbnail`");
+        mysqli_query($mysqli, "ALTER TABLE `files` DROP `file_has_preview`");
+        mysqli_query($mysqli, "ALTER TABLE `files` DROP `file_asset_id`");
+
+        mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '2.0.9'");
+    }
+
+    // if (CURRENT_DATABASE_VERSION == '2.0.9') {
+    //     // Insert queries here required to update to DB version 2.1.0
     //     // Then, update the database to the next sequential version
-    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '2.0.9'");
+    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '2.1.0'");
     // }
 
 } else {

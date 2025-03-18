@@ -65,21 +65,7 @@ if (isset($_POST['upload_files'])) {
             // Use the file reference (without extension) as the file hash
             $file_hash = strstr($file_reference_name, '.', true) ?: $file_reference_name;
 
-            // Insert file metadata into the database
-            $query = "INSERT INTO files SET 
-                        file_reference_name = '$file_reference_name', 
-                        file_name = '$file_name', 
-                        file_description = '$description', 
-                        file_ext = '$file_extension',
-                        file_mime_type = '$file_mime_type', 
-                        file_size = $file_size, 
-                        file_created_by = $session_user_id, 
-                        file_folder_id = $folder_id, 
-                        file_client_id = $client_id";
-            mysqli_query($mysqli, $query);
-            $file_id = mysqli_insert_id($mysqli);
-
-            // If the file is an image, create a thumbnail and an optimized preview
+            // If the file is an image, optimize it
             if (in_array($file_extension, ['jpg', 'jpeg', 'png', 'gif', 'webp'])) {
 
                 // Create image resource based on file extension
@@ -121,94 +107,88 @@ if (isset($_POST['upload_files'])) {
                         }
                     }
 
-                    // Get original image dimensions
-                    list($orig_width, $orig_height) = getimagesize($dest_path);
-
-                    /* --- CREATE THUMBNAIL --- */
-                    $thumbnail_width  = 200;
-                    $thumbnail_height = 200;
-                    $thumb_img = imagecreatetruecolor($thumbnail_width, $thumbnail_height);
-                    imagecopyresampled($thumb_img, $src_img, 0, 0, 0, 0, 
-                        $thumbnail_width, $thumbnail_height, $orig_width, $orig_height);
-                    $thumbnail_file_name = 'thumbnail_' . $file_reference_name;
-                    $thumb_path = $upload_file_dir . $thumbnail_file_name;
-
-                    switch ($file_extension) {
-                        case 'jpg':
-                        case 'jpeg':
-                            imagejpeg($thumb_img, $thumb_path, 80);
-                            break;
-                        case 'png':
-                            imagepng($thumb_img, $thumb_path);
-                            break;
-                        case 'gif':
-                            imagegif($thumb_img, $thumb_path);
-                            break;
-                        case 'webp':
-                            imagewebp($thumb_img, $thumb_path);
-                            break;
-                    }
-                    imagedestroy($thumb_img);
-                    mysqli_query($mysqli, "UPDATE files SET file_has_thumbnail = 1 WHERE file_id = $file_id");
-
-                    /* --- CREATE OPTIMIZED PREVIEW IMAGE --- */
-                    $preview_max_width  = 1200;
-                    $preview_max_height = 1200;
+                    // Get image dimensions
+                    $orig_width = imagesx($src_img);
+                    $orig_height = imagesy($src_img);
                     $aspect_ratio = $orig_width / $orig_height;
 
-                    if ($orig_width <= $preview_max_width && $orig_height <= $preview_max_height) {
-                        $preview_new_width  = $orig_width;
-                        $preview_new_height = $orig_height;
-                    } elseif ($aspect_ratio > 1) {
-                        // Wider than tall
-                        $preview_new_width  = $preview_max_width;
-                        $preview_new_height = (int)($preview_max_width / $aspect_ratio);
+                    $preview_max_width  = 1200;
+                    $preview_max_height = 1200;
+
+                    // Maintain aspect ratio
+                    if ($orig_width > $orig_height) {
+                        $preview_new_width  = min($preview_max_width, $orig_width);
+                        $preview_new_height = round($preview_new_width / $aspect_ratio);
                     } else {
-                        // Taller or square
-                        $preview_new_height = $preview_max_height;
-                        $preview_new_width  = (int)($preview_max_height * $aspect_ratio);
+                        $preview_new_height = min($preview_max_height, $orig_height);
+                        $preview_new_width  = round($preview_new_height * $aspect_ratio);
                     }
 
-                    $preview_img = imagecreatetruecolor($preview_new_width, $preview_new_height);
-                    imagecopyresampled($preview_img, $src_img, 0, 0, 0, 0,
+                    // Create optimized image
+                    $optimized_img = imagecreatetruecolor($preview_new_width, $preview_new_height);
+
+                    // Handle transparency for PNG & GIF
+                    if (in_array($file_extension, ['png', 'gif'])) {
+                        imagealphablending($optimized_img, false);
+                        imagesavealpha($optimized_img, true);
+                        $transparent = imagecolorallocatealpha($optimized_img, 0, 0, 0, 127);
+                        imagefilledrectangle($optimized_img, 0, 0, $preview_new_width, $preview_new_height, $transparent);
+                    }
+
+                    // Resize image
+                    imagecopyresampled($optimized_img, $src_img, 0, 0, 0, 0, 
                         $preview_new_width, $preview_new_height, $orig_width, $orig_height);
-                    $preview_file_name = 'preview_' . $file_reference_name;
-                    $preview_path = $upload_file_dir . $preview_file_name;
 
-                    switch ($file_extension) {
-                        case 'jpg':
-                        case 'jpeg':
-                            imagejpeg($preview_img, $preview_path, 70);
-                            break;
-                        case 'png':
-                            imagepng($preview_img, $preview_path, 7);
-                            break;
-                        case 'gif':
-                            imagegif($preview_img, $preview_path);
-                            break;
-                        case 'webp':
-                            imagewebp($preview_img, $preview_path, 70);
-                            break;
-                    }
-                    imagedestroy($preview_img);
+                    // Define WebP file path
+                    $optimized_file_name = $file_hash . ".webp";
+                    $optimized_path = $upload_file_dir . $optimized_file_name;
+
+                    // Save as WebP
+                    imagewebp($optimized_img, $optimized_path, 80);
+
+                    // Free memory
+                    imagedestroy($optimized_img);
                     imagedestroy($src_img);
 
-                    mysqli_query($mysqli, "UPDATE files SET file_has_preview = 1 WHERE file_id = $file_id");
+                    // Delete original uploaded image
+                    unlink($dest_path);
+
+                    // Get new file size
+                    $file_size = filesize($optimized_path);
+
+                    // Update details for WebP
+                    $file_reference_name = $optimized_file_name;
+                    $file_extension = "webp";
+                    $file_mime_type = "image/webp";
+                    $file_name = pathinfo($originalName, PATHINFO_FILENAME) . ".webp";
                 }
             }
 
-            // Log the file upload action
+            // Insert file metadata into the database
+            $query = "INSERT INTO files SET 
+                        file_reference_name = '$file_reference_name', 
+                        file_name = '$file_name', 
+                        file_description = '$description', 
+                        file_ext = '$file_extension',
+                        file_mime_type = '$file_mime_type', 
+                        file_size = $file_size, 
+                        file_created_by = $session_user_id, 
+                        file_folder_id = $folder_id, 
+                        file_client_id = $client_id";
+            mysqli_query($mysqli, $query);
+            $file_id = mysqli_insert_id($mysqli);
+
+            // Log upload action
             logAction("File", "Upload", "$session_name uploaded file $file_name", $client_id, $file_id);
             $_SESSION['alert_message'] = "Uploaded file <strong>$file_name</strong>";
-        } else {
-            $_SESSION['alert_type'] = 'error';
-            $_SESSION['alert_message'] = 'There was an error processing the file upload. Please ensure the upload directory is writable by the web server.';
         }
     }
-    // Redirect back to the previous page after processing
+
+    // Redirect after processing
     header("Location: " . $_SERVER["HTTP_REFERER"]);
     exit;
 }
+
 
 if (isset($_POST['rename_file'])) {
 
