@@ -74,8 +74,8 @@
                             <p>
                                 Recurring Tickets
                                 <?php
-                                if ($num_scheduled_tickets) { ?>
-                                    <span class="right badge"><?php echo $num_scheduled_tickets; ?></span>
+                                if ($num_recurring_tickets) { ?>
+                                    <span class="right badge"><?php echo $num_recurring_tickets; ?></span>
                                 <?php } ?>
 
                             </p>
@@ -103,8 +103,8 @@
                         <p>
                             Calendar
                             <?php
-                            if ($num_events > 0) { ?>
-                                <span class="right badge text-light"><?php echo $num_events; ?></span>
+                            if ($num_calendar_events > 0) { ?>
+                                <span class="right badge text-light"><?php echo $num_calendar_events; ?></span>
                             <?php } ?>
                         </p>
                     </a>
@@ -147,8 +147,8 @@
                                 <p>
                                     Credentials
                                     <?php
-                                    if ($num_logins > 0) { ?>
-                                        <span class="right badge text-light"><?php echo $num_logins; ?></span>
+                                    if ($num_credentials > 0) { ?>
+                                        <span class="right badge text-light"><?php echo $num_credentials; ?></span>
                                     <?php } ?>
                                 </p>
                             </a>
@@ -277,8 +277,8 @@
                                 <p>
                                     Recurring Invoices
                                     <?php
-                                    if ($num_recurring > 0) { ?>
-                                        <span class="right badge"><?php echo $num_recurring; ?></span>
+                                    if ($num_recurring_invoices) { ?>
+                                        <span class="right badge"><?php echo $num_recurring_invoices; ?></span>
                                     <?php } ?>
                                 </p>
                             </a>

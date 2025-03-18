@@ -2,6 +2,16 @@
 
 This file documents all notable changes made to ITFlow.
 
+## [25.02.4]
+
+### Fixed
+- Resolved issue preventing the addition or editing of licenses when no vendor was selected.
+- Fixed several undeclared variables in AJAX contact details.
+- Corrected the contact ticket count display.
+- Addressed an issue where clicking "More Details" in AJAX contact/asset details failed to include the `client_id` in the URL.
+- Fixed an issue with recurring invoices in the client URL: clicking "Inactive" or "Active" would unexpectedly navigate away from the client section.
+- Added new php function getFieldById() to return a record using just an id and sanitized as well.
+
 ## [25.02.3]
 
 ### Fixed

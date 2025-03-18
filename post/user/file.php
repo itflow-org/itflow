@@ -70,8 +70,7 @@ if (isset($_POST['upload_files'])) {
                         file_reference_name = '$file_reference_name', 
                         file_name = '$file_name', 
                         file_description = '$description', 
-                        file_ext = '$file_extension', 
-                        file_hash = '$file_hash', 
+                        file_ext = '$file_extension',
                         file_mime_type = '$file_mime_type', 
                         file_size = $file_size, 
                         file_created_by = $session_user_id, 
@@ -315,8 +314,6 @@ if (isset($_POST['delete_file'])) {
     }
 
     mysqli_query($mysqli,"DELETE FROM files WHERE file_id = $file_id");
-
-    mysqli_query($mysqli,"DELETE FROM quote_files WHERE file_id = $file_id");
 
     //Logging
     logAction("File", "Delete", "$session_name deleted file $file_name", $client_id);

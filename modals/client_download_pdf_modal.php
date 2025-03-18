@@ -52,8 +52,8 @@
 
                                 <li class="list-group-item">
                                     <div class="custom-control custom-checkbox">
-                                        <input class="custom-control-input" type="checkbox" id="logins" name="export_logins" value="1">
-                                        <label for="logins" class="custom-control-label">
+                                        <input class="custom-control-input" type="checkbox" id="credentials" name="export_credentials" value="1">
+                                        <label for="credentials" class="custom-control-label">
                                             <i class='fas fa-fw fa-key mr-2'></i>Credentials
                                         </label>
                                     </div>
@@ -101,9 +101,9 @@
 
                                 <li class="list-group-item">
                                     <div class="custom-control custom-checkbox">
-                                        <input class="custom-control-input" type="checkbox" id="scheduled_tickets" name="export_scheduled_tickets" value="1" checked>
-                                        <label for="scheduled_tickets" class="custom-control-label">
-                                            <i class='fas fa-fw fa-clock mr-2'></i>Scheduled Tickets
+                                        <input class="custom-control-input" type="checkbox" id="recurring_tickets" name="export_recurring_tickets" value="1" checked>
+                                        <label for="recurring_tickets" class="custom-control-label">
+                                            <i class='fas fa-fw fa-clock mr-2'></i>Recurring Tickets
                                         </label>
                                     </div>
                                 </li>
@@ -128,8 +128,8 @@
 
                                 <li class="list-group-item">
                                     <div class="custom-control custom-checkbox">
-                                        <input class="custom-control-input" type="checkbox" id="recurring" name="export_recurring" value="1" checked>
-                                        <label for="recurring" class="custom-control-label">
+                                        <input class="custom-control-input" type="checkbox" id="recurring_invoices" name="export_recurring_invoices" value="1" checked>
+                                        <label for="recurring_invoices" class="custom-control-label">
                                             <i class='fas fa-fw fa-sync mr-2'></i>Recurring Invoices
                                         </label>
                                     </div>

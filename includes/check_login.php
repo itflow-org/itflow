@@ -13,31 +13,25 @@ if (!isset($_SESSION)) {
 
 // Check to see if setup is enabled
 if (!isset($config_enable_setup) || $config_enable_setup == 1) {
-    header("Location: setup.php");
+    header("Location: ../setup.php");
     exit;
 }
 
 // Check user is logged in with a valid session
 if (!isset($_SESSION['logged']) || !$_SESSION['logged']) {
     if ($_SERVER["REQUEST_URI"] == "/") {
-        header("Location: login.php");
+        header("Location: ../login.php");
     } else {
-        header("Location: login.php?last_visited=" . base64_encode($_SERVER["REQUEST_URI"]) );
+        header("Location: ../login.php?last_visited=" . base64_encode($_SERVER["REQUEST_URI"]) );
     }
     exit;
-}
-
-// Check user type
-if ($_SESSION['user_type'] !== 1) {
-    header("Location: login.php");
-    exit();
 }
 
 // Set Timezone
 require_once "inc_set_timezone.php";
 
 
-// User IP & UA
+// User Vars and User Settings
 $session_ip = sanitizeInput(getIP());
 $session_user_agent = sanitizeInput($_SERVER['HTTP_USER_AGENT']);
 
@@ -47,7 +41,7 @@ $sql = mysqli_query(
     $mysqli,
     "SELECT * FROM users
     LEFT JOIN user_settings ON users.user_id = user_settings.user_id
-    LEFT JOIN user_roles ON user_settings.user_role = user_roles.user_role_id
+    LEFT JOIN user_roles ON user_role_id = role_id
     WHERE users.user_id = $session_user_id");
 
 $row = mysqli_fetch_array($sql);
@@ -55,9 +49,10 @@ $session_name = sanitizeInput($row['user_name']);
 $session_email = $row['user_email'];
 $session_avatar = $row['user_avatar'];
 $session_token = $row['user_token']; // MFA Token
-$session_user_role = intval($row['user_role']);
-$session_user_role_display = sanitizeInput($row['user_role_name']);
-if (isset($row['user_role_is_admin']) && $row['user_role_is_admin'] == 1) {
+$session_user_type = intval($row['user_type']);
+$session_user_role = intval($row['user_role_id']);
+$session_user_role_display = sanitizeInput($row['role_name']);
+if (isset($row['role_is_admin']) && $row['role_is_admin'] == 1) {
     $session_is_admin = true;
 } else {
     $session_is_admin = false;
@@ -65,6 +60,15 @@ if (isset($row['user_role_is_admin']) && $row['user_role_is_admin'] == 1) {
 $session_user_config_force_mfa = intval($row['user_config_force_mfa']);
 $user_config_records_per_page = intval($row['user_config_records_per_page']);
 
+// Check user type
+if ($session_user_type !== 1) {
+    session_unset();
+    session_destroy();
+    header("Location: login.php");
+    exit();
+}
+
+// Company Vars and Company Settings
 $sql = mysqli_query($mysqli, "SELECT * FROM companies, settings WHERE settings.company_id = companies.company_id AND companies.company_id = 1");
 $row = mysqli_fetch_array($sql);
 
@@ -78,7 +82,7 @@ $session_company_currency = $row['company_currency'];
 $currency_format = numfmt_create($session_company_locale, NumberFormatter::CURRENCY);
 
 // Get User Client Access Permissions
-$user_client_access_sql = "SELECT client_id FROM user_permissions WHERE user_id = $session_user_id";
+$user_client_access_sql = "SELECT client_id FROM user_client_permissions WHERE user_id = $session_user_id";
 $user_client_access_result = mysqli_query($mysqli, $user_client_access_sql);
 
 $client_access_array = [];

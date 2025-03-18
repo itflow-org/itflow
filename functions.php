@@ -13,8 +13,7 @@ use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 
 // Function to generate both crypto & URL safe random strings
-function randomString($length = 16)
-{
+function randomString($length = 16) {
     // Generate some cryptographically safe random bytes
     //  Generate a little more than requested as we'll lose some later converting
     $random_bytes = random_bytes($length + 5);
@@ -31,8 +30,7 @@ function randomString($length = 16)
 }
 
 // Older keygen function - only used for TOTP currently
-function key32gen()
-{
+function key32gen() {
     $chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
     $chars .= "234567";
     while (1) {
@@ -46,25 +44,23 @@ function key32gen()
     return $key;
 }
 
-function nullable_htmlentities($unsanitizedInput)
-{
+function nullable_htmlentities($unsanitizedInput) {
     //return htmlentities($unsanitizedInput ?? '');
     return htmlspecialchars($unsanitizedInput ?? '', ENT_QUOTES, 'UTF-8');
 }
 
-function initials($str)
-{
-    if (!empty($str)) {
-        $ret = '';
-        foreach (explode(' ', $str) as $word)
-            $ret .= strtoupper($word[0]);
-        $ret = substr($ret, 0, 2);
-        return $ret;
+function initials($string) {
+    if (!empty($string)) {
+        $return = '';
+        foreach (explode(' ', $string) as $word) {
+            $return .= mb_strtoupper($word[0], 'UTF-8'); // Use mb_strtoupper for UTF-8 support
+        }
+        $return = substr($return, 0, 2);
+        return $return;
     }
 }
 
-function removeDirectory($path)
-{
+function removeDirectory($path) {
     if (!file_exists($path)) {
         return;
     }
@@ -76,13 +72,11 @@ function removeDirectory($path)
     rmdir($path);
 }
 
-function getUserAgent()
-{
+function getUserAgent() {
     return $_SERVER['HTTP_USER_AGENT'];
 }
 
-function getIP()
-{
+function getIP() {
     if (defined("CONST_GET_IP_METHOD")) {
         if (CONST_GET_IP_METHOD == "HTTP_X_FORWARDED_FOR") {
             $ip = getenv('HTTP_X_FORWARDED_FOR');
@@ -100,8 +94,7 @@ function getIP()
     return $ip;
 }
 
-function getWebBrowser($user_browser)
-{
+function getWebBrowser($user_browser) {
     $browser        =   "-";
     $browser_array  =   array(
         '/msie/i'       =>  "<i class='fab fa-fw fa-internet-explorer text-secondary'></i> Internet Explorer",
@@ -120,8 +113,7 @@ function getWebBrowser($user_browser)
     return $browser;
 }
 
-function getOS($user_os)
-{
+function getOS($user_os) {
     $os_platform    =   "-";
     $os_array       =   array(
         '/windows/i'            =>  "<i class='fab fa-fw fa-windows text-secondary'></i> Windows",
@@ -141,8 +133,7 @@ function getOS($user_os)
     return $os_platform;
 }
 
-function getDevice()
-{
+function getDevice() {
     $tablet_browser = 0;
     $mobile_browser = 0;
     if (preg_match('/(tablet|ipad|playbook)|(android(?!.*(mobi|opera mini)))/i', strtolower($_SERVER['HTTP_USER_AGENT']))) {
@@ -189,8 +180,7 @@ function getDevice()
     }
 }
 
-function truncate($text, $chars)
-{
+function truncate($text, $chars) {
     if (strlen($text) <= $chars) {
         return $text;
     }
@@ -203,8 +193,7 @@ function truncate($text, $chars)
     return $text . "...";
 }
 
-function formatPhoneNumber($phoneNumber)
-{
+function formatPhoneNumber($phoneNumber) {
     global $mysqli;
 
     // Get Phone Mask Option
@@ -240,8 +229,7 @@ function formatPhoneNumber($phoneNumber)
     return $phoneNumber;
 }
 
-function mkdirMissing($dir)
-{
+function mkdirMissing($dir) {
     if (!is_dir($dir)) {
         mkdir($dir);
     }
@@ -249,8 +237,7 @@ function mkdirMissing($dir)
 
 // Called during initial setup
 // Encrypts the master key with the user's password
-function setupFirstUserSpecificKey($user_password, $site_encryption_master_key)
-{
+function setupFirstUserSpecificKey($user_password, $site_encryption_master_key) {
     $iv = randomString();
     $salt = randomString();
 
@@ -268,8 +255,7 @@ function setupFirstUserSpecificKey($user_password, $site_encryption_master_key)
  * New Users: Requires the admin setting up their account have a Specific/Session key configured
  * Password Changes: Will use the current info in the session.
 */
-function encryptUserSpecificKey($user_password)
-{
+function encryptUserSpecificKey($user_password) {
     $iv = randomString();
     $salt = randomString();
 
@@ -334,13 +320,13 @@ function generateUserSessionKey($site_encryption_master_key)
     }
 }
 
-// Decrypts an encrypted password (website/asset login), returns it as a string
-function decryptLoginEntry($login_password_ciphertext)
+// Decrypts an encrypted password (website/asset credentials), returns it as a string
+function decryptCredentialEntry($credential_password_ciphertext)
 {
 
-    // Split the login into IV and Ciphertext
-    $login_iv =  substr($login_password_ciphertext, 0, 16);
-    $login_ciphertext = $salt = substr($login_password_ciphertext, 16);
+    // Split the credential into IV and Ciphertext
+    $credential_iv =  substr($credential_password_ciphertext, 0, 16);
+    $credential_ciphertext = $salt = substr($credential_password_ciphertext, 16);
 
     // Get the user session info.
     $user_encryption_session_ciphertext = $_SESSION['user_encryption_session_ciphertext'];
@@ -350,12 +336,12 @@ function decryptLoginEntry($login_password_ciphertext)
     // Decrypt the session key to get the master key
     $site_encryption_master_key = openssl_decrypt($user_encryption_session_ciphertext, 'aes-128-cbc', $user_encryption_session_key, 0, $user_encryption_session_iv);
 
-    // Decrypt the login password using the master key
-    return openssl_decrypt($login_ciphertext, 'aes-128-cbc', $site_encryption_master_key, 0, $login_iv);
+    // Decrypt the credential password using the master key
+    return openssl_decrypt($credential_ciphertext, 'aes-128-cbc', $site_encryption_master_key, 0, $credential_iv);
 }
 
-// Encrypts a website/asset login password
-function encryptLoginEntry($login_password_cleartext)
+// Encrypts a website/asset credential password
+function encryptCredentialEntry($credential_password_cleartext)
 {
     $iv = randomString();
 
@@ -367,26 +353,26 @@ function encryptLoginEntry($login_password_cleartext)
     //Decrypt the session key to get the master key
     $site_encryption_master_key = openssl_decrypt($user_encryption_session_ciphertext, 'aes-128-cbc', $user_encryption_session_key, 0, $user_encryption_session_iv);
 
-    //Encrypt the website/asset login using the master key
-    $ciphertext = openssl_encrypt($login_password_cleartext, 'aes-128-cbc', $site_encryption_master_key, 0, $iv);
+    //Encrypt the website/asset credential using the master key
+    $ciphertext = openssl_encrypt($credential_password_cleartext, 'aes-128-cbc', $site_encryption_master_key, 0, $iv);
 
     return $iv . $ciphertext;
 }
 
-function apiDecryptLoginEntry($login_ciphertext, $api_key_decrypt_hash, #[\SensitiveParameter]$api_key_decrypt_password)
+function apiDecryptCredentialEntry($credential_ciphertext, $api_key_decrypt_hash, #[\SensitiveParameter]$api_key_decrypt_password)
 {
-    // Split the login entry (username/password) into IV and Ciphertext
-    $login_iv =  substr($login_ciphertext, 0, 16);
-    $login_ciphertext = $salt = substr($login_ciphertext, 16);
+    // Split the Credential entry (username/password) into IV and Ciphertext
+    $credential_iv =  substr($credential_ciphertext, 0, 16);
+    $credential_ciphertext = $salt = substr($credential_ciphertext, 16);
 
     // Decrypt the api hash to get the master key
     $site_encryption_master_key = decryptUserSpecificKey($api_key_decrypt_hash, $api_key_decrypt_password);
 
-    // Decrypt the login password using the master key
-    return openssl_decrypt($login_ciphertext, 'aes-128-cbc', $site_encryption_master_key, 0, $login_iv);
+    // Decrypt the credential password using the master key
+    return openssl_decrypt($credential_ciphertext, 'aes-128-cbc', $site_encryption_master_key, 0, $credential_iv);
 }
 
-function apiEncryptLoginEntry(#[\SensitiveParameter]$credential_cleartext, $api_key_decrypt_hash, #[\SensitiveParameter]$api_key_decrypt_password)
+function apiEncryptCredentialEntry(#[\SensitiveParameter]$credential_cleartext, $api_key_decrypt_hash, #[\SensitiveParameter]$api_key_decrypt_password)
 {
     $iv = randomString();
 
@@ -539,9 +525,9 @@ function validateCSRFToken($token)
  * Accountant - 1
  */
 
-function validateAdminRole()
-{
-    if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 3) {
+function validateAdminRole() {
+    global $session_user_role;
+    if (!isset($session_user_role) || $session_user_role != 3) {
         $_SESSION['alert_type'] = "danger";
         $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
         header("Location: " . $_SERVER["HTTP_REFERER"]);
@@ -551,9 +537,9 @@ function validateAdminRole()
 
 // LEGACY
 // Validates a user is a tech (or admin). Stops page load and attempts to direct away from the page if not (i.e. user is an accountant)
-function validateTechRole()
-{
-    if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] == 1) {
+function validateTechRole() {
+    global $session_user_role;
+    if (!isset($session_user_role) || $session_user_role == 1) {
         $_SESSION['alert_type'] = "danger";
         $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
         header("Location: " . $_SERVER["HTTP_REFERER"]);
@@ -563,9 +549,9 @@ function validateTechRole()
 
 // LEGACY
 // Validates a user is an accountant (or admin). Stops page load and attempts to direct away from the page if not (i.e. user is a tech)
-function validateAccountantRole()
-{
-    if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] == 2) {
+function validateAccountantRole() {
+    global $session_user_role;
+    if (!isset($session_user_role) || $session_user_role == 2) {
         $_SESSION['alert_type'] = "danger";
         $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
         header("Location: " . $_SERVER["HTTP_REFERER"]);
@@ -765,7 +751,7 @@ function checkFileUpload($file, $allowed_extensions)
     $fileContent = file_get_contents($tmp);
 
     // Hash the file content using SHA-256
-    $hashedContent = hash('sha256', $fileContent);
+    $hashedContent = hash('md5', $fileContent);
 
     // Generate a secure filename using the hashed content
     $secureFilename = $hashedContent . randomString(2) . '.' . $extension;
@@ -1313,15 +1299,15 @@ function lookupUserPermission($module) {
     $sql = mysqli_query(
         $mysqli,
         "SELECT
-			urp.user_role_permission_level
+			user_role_permissions.user_role_permission_level
 		FROM
-			modules AS m
+			modules
 		JOIN
-			user_role_permissions AS urp
+			user_role_permissions
 		ON
-			m.module_id = urp.module_id
+			modules.module_id = user_role_permissions.module_id
 		WHERE
-			m.module_name = '$module' AND urp.user_role_id = $session_user_role"
+			module_name = '$module' AND user_role_permissions.user_role_id = $session_user_role"
     );
 
     $row = mysqli_fetch_array($sql);

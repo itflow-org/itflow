@@ -5,7 +5,7 @@
  */
 
 require_once '../config.php';
-require_once '../get_settings.php';
+require_once '../includes/get_settings.php';
 require_once '../functions.php';
 require_once 'check_login.php';
 require_once 'functions.php';

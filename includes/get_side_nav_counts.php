@@ -10,7 +10,7 @@ $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('ticket_id') AS nu
 $num_active_tickets = $row['num'];
 
 // Recurring Ticket Count
-$row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('scheduled_ticket_id') AS num FROM scheduled_tickets LEFT JOIN clients ON client_id = scheduled_ticket_client_id WHERE 1 = 1 $access_permission_query"));
+$row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('recurring_ticket_id') AS num FROM recurring_tickets LEFT JOIN clients ON client_id = recurring_ticket_client_id WHERE 1 = 1 $access_permission_query"));
 $num_recurring_tickets = $row['num'];
 
 // Active Project Count
@@ -22,7 +22,7 @@ $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('invoice_id') AS n
 $num_open_invoices = $row['num'];
 
 // Recurring Invoice Count
-$row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('recurring_id') AS num FROM recurring WHERE recurring_archived_at IS NULL"));
+$row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('recurring_invoice_id') AS num FROM recurring_invoices WHERE recurring_invoice_archived_at IS NULL"));
 $num_recurring_invoices = $row['num'];
 
 // Open Quotes Count

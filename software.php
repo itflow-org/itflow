@@ -175,6 +175,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             
                         } else {
                             $software_expire_display = "<span class='text-muted'>N/A</span>";
+                            $tr_class = '';
                         }
      
                         $software_created_at = nullable_htmlentities($row['software_created_at']);

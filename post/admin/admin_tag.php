@@ -49,7 +49,6 @@ if (isset($_GET['delete_tag'])) {
     $tag_name = sanitizeInput($row['tag_name']);
 
     mysqli_query($mysqli,"DELETE FROM tags WHERE tag_id = $tag_id");
-    mysqli_query($mysqli,"DELETE FROM client_tags WHERE tag_id = $tag_id");
 
     // Logging
     logAction("Tag", "Delete", "$session_name deleted tag $tag_name");

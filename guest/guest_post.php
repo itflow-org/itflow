@@ -5,7 +5,7 @@ require_once "../functions.php";
 
 session_start();
 
-require_once "../inc_set_timezone.php"; // Must be included after session_start to work
+require_once "../includes/inc_set_timezone.php"; // Must be included after session_start to work
 
 if (isset($_GET['accept_quote'], $_GET['url_key'])) {
     $quote_id = intval($_GET['accept_quote']);

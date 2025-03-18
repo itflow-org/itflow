@@ -143,12 +143,6 @@ if (isset($_GET['delete_vendor'])) {
 
     mysqli_query($mysqli,"DELETE FROM vendors WHERE vendor_id = $vendor_id");
 
-    // Remove Relations
-    mysqli_query($mysqli,"DELETE FROM vendor_files WHERE vendor_id = $vendor_id");
-    mysqli_query($mysqli,"DELETE FROM vendor_documents WHERE vendor_id = $vendor_id");
-    mysqli_query($mysqli,"DELETE FROM vendor_logins WHERE vendor_id = $vendor_id");
-    mysqli_query($mysqli,"DELETE FROM service_vendors WHERE vendor_id = $vendor_id");
-
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Vendor', log_action = 'Delete', log_description = '$session_name deleted vendor $vendor_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id");
 
@@ -262,12 +256,6 @@ if (isset($_POST['bulk_delete_vendors'])) {
             }
 
             mysqli_query($mysqli, "DELETE FROM vendors WHERE vendor_id = $vendor_id AND vendor_client_id = $client_id");
-
-            // Remove Relations
-            mysqli_query($mysqli,"DELETE FROM vendor_files WHERE vendor_id = $vendor_id");
-            mysqli_query($mysqli,"DELETE FROM vendor_documents WHERE vendor_id = $vendor_id");
-            mysqli_query($mysqli,"DELETE FROM vendor_logins WHERE vendor_id = $vendor_id");
-            mysqli_query($mysqli,"DELETE FROM service_vendors WHERE vendor_id = $vendor_id");
 
             // Logging
             logAction("Vendor", "Delete", "$session_name deleted vendor $vendor_name", $client_id);

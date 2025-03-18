@@ -28,23 +28,23 @@ if ($service_importance == "High") {
     $service_importance_display = "-";
 }
 
-// Associated Assets (and their logins/networks/locations)
+// Associated Assets (and their credentials/networks/locations)
 $sql_assets = mysqli_query(
     $mysqli,
     "SELECT * FROM service_assets
     LEFT JOIN assets ON service_assets.asset_id = assets.asset_id
     LEFT JOIN asset_interfaces ON interface_asset_id = assets.asset_id AND interface_primary = 1
-    LEFT JOIN logins ON service_assets.asset_id = logins.login_asset_id
+    LEFT JOIN credentials ON service_assets.asset_id = credentials.credential_asset_id
     LEFT JOIN networks ON interface_network_id = networks.network_id
     LEFT JOIN locations ON assets.asset_location_id = locations.location_id
     WHERE service_id = $service_id"
 );
 
-// Associated logins
-$sql_logins = mysqli_query(
+// Associated credentials
+$sql_credentials = mysqli_query(
     $mysqli,
-    "SELECT * FROM service_logins
-    LEFT JOIN logins ON service_logins.login_id = logins.login_id
+    "SELECT * FROM service_credentials
+    LEFT JOIN credentials ON service_credentials.credential_id = credentials.credential_id
     WHERE service_id = $service_id"
 );
 
@@ -318,27 +318,27 @@ ob_start();
                 }
                 ?>
 
-                <!-- Logins -->
+                <!-- Credentials -->
                 <?php
-                if (mysqli_num_rows($sql_assets) > 0 || mysqli_num_rows($sql_logins) > 0) { ?>
-                    <h5><i class="fas fa-fw fa-key mr-2"></i>Logins</h5>
+                if (mysqli_num_rows($sql_assets) > 0 || mysqli_num_rows($sql_credentials) > 0) { ?>
+                    <h5><i class="fas fa-fw fa-key mr-2"></i>Credentials</h5>
                     <ul>
                         <?php
-                        // Reset the $sql_assets/logins pointer to the start
+                        // Reset the $sql_assets/credentials pointer to the start
                         mysqli_data_seek($sql_assets, 0);
-                        mysqli_data_seek($sql_logins, 0);
+                        mysqli_data_seek($sql_credentials, 0);
 
-                        // Showing logins linked to assets
+                        // Showing credentials linked to assets
                         while ($row = mysqli_fetch_array($sql_assets)) {
-                            if (!empty($row['login_name'])) {
-                                echo "<li><a href=\"credentials.php?client_id=$client_id&q=$row[login_name]\">$row[login_name]</a></li>";
+                            if (!empty($row['credential_name'])) {
+                                echo "<li><a href=\"credentials.php?client_id=$client_id&q=$row[credential_name]\">$row[credential_name]</a></li>";
                             }
                         }
 
-                        // Showing explicitly linked logins
-                        while ($row = mysqli_fetch_array($sql_logins)) {
-                            if (!empty($row['login_name'])) {
-                                echo "<li><a href=\"credentials.php?client_id=$client_id&q=$row[login_name]\">$row[login_name]</a></li>";
+                        // Showing explicitly linked credentials
+                        while ($row = mysqli_fetch_array($sql_credentials)) {
+                            if (!empty($row['credential_name'])) {
+                                echo "<li><a href=\"credentials.php?client_id=$client_id&q=$row[credential_name]\">$row[credential_name]</a></li>";
                             }
                         }
                         ?>
@@ -349,27 +349,27 @@ ob_start();
 
                 <!-- URLs -->
                 <?php
-                if ($sql_logins || $sql_assets) { ?>
+                if ($sql_credentials || $sql_assets) { ?>
                     <h5><i class="fas fa-fw fa-link mr-2"></i>URLs</h5>
                     <ul>
                         <?php
-                        // Reset the $sql_logins pointer to the start
-                        mysqli_data_seek($sql_logins, 0);
+                        // Reset the $sql_credentials pointer to the start
+                        mysqli_data_seek($sql_credentials, 0);
 
-                        // Showing URLs linked to logins
-                        while ($row = mysqli_fetch_array($sql_logins)) {
-                            if (!empty($row['login_uri'])) {
-                                echo "<li><a href=\"https://$row[login_uri]\">$row[login_uri]</a></li>";
+                        // Showing URLs linked to credentials
+                        while ($row = mysqli_fetch_array($sql_credentials)) {
+                            if (!empty($row['credential_uri'])) {
+                                echo "<li><a href=\"https://$row[credential_uri]\">$row[credential_uri]</a></li>";
                             }
                         }
 
                         // Reset the $sql_assets pointer to the start
                         mysqli_data_seek($sql_assets, 0);
 
-                        // Show URLs linked to assets, that also have logins
+                        // Show URLs linked to assets, that also have credentials
                         while ($row = mysqli_fetch_array($sql_assets)) {
-                            if (!empty($row['login_uri'])) {
-                                echo "<li><a href=\"https://$row[login_uri]\">$row[login_uri]</a></li>";
+                            if (!empty($row['credential_uri'])) {
+                                echo "<li><a href=\"https://$row[credential_uri]\">$row[credential_uri]</a></li>";
                             }
                         }
                         ?>

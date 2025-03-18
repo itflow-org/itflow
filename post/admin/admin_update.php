@@ -39,9 +39,9 @@ if (isset($_GET['update'])) {
         $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('recurring_id') AS num FROM tickets"));
         $ticket_count = $row['num'];
 
-        // Scheduled Ticket Count
-        $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('scheduled_ticket_id') AS num FROM scheduled_tickets"));
-        $scheduled_ticket_count = $row['num'];
+        // Recurring Ticket Count
+        $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('recurring_ticket_id') AS num FROM recurring_tickets"));
+        $recurring_ticket_count = $row['num'];
 
         // Calendar Event Count
         $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('event_id') AS num FROM events"));
@@ -59,9 +59,9 @@ if (isset($_GET['update'])) {
         $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('revenue_id') AS num FROM revenues"));
         $revenue_count = $row['num'];
 
-        // Recurring Count
-        $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('recurring_id') AS num FROM recurring"));
-        $recurring_count = $row['num'];
+        // Recurring Invoice Count
+        $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('recurring_invoice_id') AS num FROM recurring_invoices"));
+        $recurring_invoice_count = $row['num'];
 
         // Account Count
         $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('account_id') AS num FROM accounts"));
@@ -116,8 +116,8 @@ if (isset($_GET['update'])) {
         $software_template_count = $row['num'];
 
         // Password Count
-        $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('login_id') AS num FROM logins"));
-        $password_count = $row['num'];
+        $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('credential_id') AS num FROM credentials"));
+        $credential_count = $row['num'];
 
         // Network Count
         $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('network_id') AS num FROM networks"));
@@ -208,12 +208,12 @@ if (isset($_GET['update'])) {
                 'comments' => "$comments",
                 'client_count' => $client_count,
                 'ticket_count' => $ticket_count,
-                'scheduled_ticket_count' => $scheduled_ticket_count,
+                'recurring_ticket_count' => $recurring_ticket_count,
                 'calendar_event_count' => $calendar_event_count,
                 'quote_count' => $quote_count,
                 'invoice_count' => $invoice_count,
                 'revenue_count' => $revenue_count,
-                'recurring_count' => $recurring_count,
+                'recurring_invoice_count' => $recurring_invoice_count,
                 'account_count' => $account_count,
                 'tax_count' => $tax_count,
                 'product_count' => $product_count,
@@ -227,7 +227,7 @@ if (isset($_GET['update'])) {
                 'asset_count' => $asset_count,
                 'software_count' => $software_count,
                 'software_template_count' => $software_template_count,
-                'password_count' => $password_count,
+                'credential_count' => $credential_count,
                 'network_count' => $network_count,
                 'certificate_count' => $certificate_count,
                 'domain_count' => $domain_count,
@@ -285,7 +285,7 @@ if (isset($_GET['update'])) {
 
 if (isset($_GET['update_db'])) {
 
-    validateAdminRole(); // Old function
+    //validateAdminRole(); // Old function
 
     // Get the current version
     require_once ('includes/database_version.php');

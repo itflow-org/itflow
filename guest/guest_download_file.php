@@ -3,7 +3,7 @@
 require_once "../config.php";
 
 // Set Timezone
-require_once "../inc_set_timezone.php";
+require_once "../includes/inc_set_timezone.php";
 
 require_once "../functions.php";
 

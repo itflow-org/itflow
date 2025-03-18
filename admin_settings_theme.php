@@ -19,7 +19,7 @@ require_once "includes/inc_all_admin.php";
 
                         ?>
 
-                        <div class="col-3 text-center mb-3">
+                        <div class="col-4 text-center mb-3">
                             <div class="form-group">
                                 <div class="custom-control custom-radio">
                                     <input class="custom-control-input" type="radio" onchange="this.form.submit()" id="customRadio<?php echo $theme_color; ?>" name="edit_theme_settings" value="<?php echo $theme_color; ?>" <?php if ($config_theme == $theme_color) { echo "checked"; } ?>>

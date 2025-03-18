@@ -185,10 +185,6 @@ if(isset($_GET['delete_location'])){
 
     mysqli_query($mysqli,"DELETE FROM locations WHERE location_id = $location_id");
 
-    // Tags
-    // Delete existing tags
-    mysqli_query($mysqli, "DELETE FROM location_tags WHERE location_id = $location_id");
-
     // Logging
     logAction("Location", "Delete", "$session_name deleted location $location_name", $client_id);
 
@@ -416,7 +412,7 @@ if(isset($_POST['export_locations_csv'])){
 
 }
 
-if(isset($_POST["import_locations_csv"])){
+if (isset($_POST["import_locations_csv"])) {
 
     enforceUserPermission('module_client', 2);
 

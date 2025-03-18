@@ -8,7 +8,7 @@
 
 require_once "config.php";
 require_once "functions.php";
-require_once "check_login.php";
+require_once "includes/check_login.php";
 require_once "plugins/totp/totp.php";
 
 /*
@@ -165,7 +165,7 @@ if (isset($_GET['ticket_query_views'])) {
 }
 
 /*
- * Generates public/guest links for sharing logins/docs
+ * Generates public/guest links for sharing credentials/docs
  */
 if (isset($_GET['share_generate_link'])) {
     enforceUserPermission('module_support', 2);
@@ -207,23 +207,23 @@ if (isset($_GET['share_generate_link'])) {
         $item_name = sanitizeInput($row['file_name']);
     }
 
-    if ($item_type == "Login") {
-        $login = mysqli_query($mysqli, "SELECT login_name, login_username, login_password FROM logins WHERE login_id = $item_id AND login_client_id = $client_id LIMIT 1");
-        $row = mysqli_fetch_array($login);
+    if ($item_type == "Credential") {
+        $credential = mysqli_query($mysqli, "SELECT credential_name, credential_username, credential_password FROM credentials WHERE credential_id = $item_id AND credential_client_id = $client_id LIMIT 1");
+        $row = mysqli_fetch_array($credential);
 
-        $item_name = sanitizeInput($row['login_name']);
+        $item_name = sanitizeInput($row['credential_name']);
 
         // Decrypt & re-encrypt username/password for sharing
-        $login_encryption_key = randomString();
+        $credential_encryption_key = randomString();
 
-        $login_username_cleartext = decryptLoginEntry($row['login_username']);
+        $credential_username_cleartext = decryptCredentialEntry($row['credential_username']);
         $iv = randomString();
-        $username_ciphertext = openssl_encrypt($login_username_cleartext, 'aes-128-cbc', $login_encryption_key, 0, $iv);
+        $username_ciphertext = openssl_encrypt($credential_username_cleartext, 'aes-128-cbc', $credential_encryption_key, 0, $iv);
         $item_encrypted_username = $iv . $username_ciphertext;
 
-        $login_password_cleartext = decryptLoginEntry($row['login_password']);
+        $credential_password_cleartext = decryptCredentialEntry($row['credential_password']);
         $iv = randomString();
-        $password_ciphertext = openssl_encrypt($login_password_cleartext, 'aes-128-cbc', $login_encryption_key, 0, $iv);
+        $password_ciphertext = openssl_encrypt($credential_password_cleartext, 'aes-128-cbc', $credential_encryption_key, 0, $iv);
         $item_encrypted_credential = $iv . $password_ciphertext;
     }
 
@@ -232,8 +232,8 @@ if (isset($_GET['share_generate_link'])) {
     $share_id = $mysqli->insert_id;
 
     // Return URL
-    if ($item_type == "Login") {
-        $url = "https://$config_base_url/guest/guest_view_item.php?id=$share_id&key=$item_key&ek=$login_encryption_key";
+    if ($item_type == "Credential") {
+        $url = "https://$config_base_url/guest/guest_view_item.php?id=$share_id&key=$item_key&ek=$credential_encryption_key";
     }
     else {
         $url = "https://$config_base_url/guest/guest_view_item.php?id=$share_id&key=$item_key";
@@ -333,24 +333,24 @@ if (isset($_GET['get_client_contacts'])) {
 if (isset($_GET['get_totp_token_via_id'])) {
     enforceUserPermission('module_credential');
 
-    $login_id = intval($_GET['login_id']);
+    $credential_id = intval($_GET['credential_id']);
 
-    $sql = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT login_name, login_otp_secret, login_client_id FROM logins WHERE login_id = $login_id"));
-    $name = sanitizeInput($sql['login_name']);
-    $totp_secret = $sql['login_otp_secret'];
-    $client_id = intval($sql['login_client_id']);
+    $sql = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT credential_name, credential_otp_secret, credential_client_id FROM credentials WHERE credential_id = $credential_id"));
+    $name = sanitizeInput($sql['credential_name']);
+    $totp_secret = $sql['credential_otp_secret'];
+    $client_id = intval($sql['credential_client_id']);
 
     $otp = TokenAuth6238::getTokenCode(strtoupper($totp_secret));
     echo json_encode($otp);
 
     // Logging
     //  Only log the TOTP view if the user hasn't already viewed this specific login entry recently, this prevents logs filling if a user hovers across an entry a few times
-    $check_recent_totp_view_logged_sql = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(log_id) AS recent_totp_view FROM logs WHERE log_type = 'Login' AND log_action = 'View TOTP' AND log_user_id = $session_user_id AND log_entity_id = $login_id AND log_client_id = $client_id AND log_created_at > (NOW() - INTERVAL 5 MINUTE)"));
+    $check_recent_totp_view_logged_sql = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(log_id) AS recent_totp_view FROM logs WHERE log_type = 'Credential' AND log_action = 'View TOTP' AND log_user_id = $session_user_id AND log_entity_id = $credential_id AND log_client_id = $client_id AND log_created_at > (NOW() - INTERVAL 5 MINUTE)"));
     $recent_totp_view_logged_count = intval($check_recent_totp_view_logged_sql['recent_totp_view']);
 
     if ($recent_totp_view_logged_count == 0) {
         // Logging
-        logAction("Credential", "View TOTP", "$session_name viewed credential TOTP code for $name", $client_id, $login_id);
+        logAction("Credential", "View TOTP", "$session_name viewed credential TOTP code for $name", $client_id, $credential_id);
 
     }
 }

@@ -11,7 +11,7 @@ if (php_sapi_name() !== 'cli') {
 require_once "../config.php";
 
 // Set Timezone
-require_once "../inc_set_timezone.php";
+require_once "../includes/inc_set_timezone.php";
 require_once "../functions.php";
 
 $sql_companies = mysqli_query($mysqli, "SELECT * FROM companies, settings WHERE companies.company_id = settings.company_id AND companies.company_id = 1");
@@ -280,25 +280,25 @@ if ($tickets_pending_assignment > 0) {
     logApp("Cron", "info", "Cron created notifications for new tickets that are pending assignment");
 }
 
-// Recurring (Scheduled) tickets
+// Recurring tickets
 
 // Get recurring tickets for today
-$sql_scheduled_tickets = mysqli_query($mysqli, "SELECT * FROM scheduled_tickets WHERE scheduled_ticket_next_run = CURDATE()");
+$sql_recurring_tickets = mysqli_query($mysqli, "SELECT * FROM recurring_tickets WHERE recurring_ticket_next_run = CURDATE()");
 
-if (mysqli_num_rows($sql_scheduled_tickets) > 0) {
-    while ($row = mysqli_fetch_array($sql_scheduled_tickets)) {
+if (mysqli_num_rows($sql_recurring_tickets) > 0) {
+    while ($row = mysqli_fetch_array($sql_recurring_tickets)) {
 
-        $schedule_id = intval($row['scheduled_ticket_id']);
-        $subject = sanitizeInput($row['scheduled_ticket_subject']);
-        $details = mysqli_real_escape_string($mysqli, $row['scheduled_ticket_details']);
-        $priority = sanitizeInput($row['scheduled_ticket_priority']);
-        $frequency = sanitizeInput(strtolower($row['scheduled_ticket_frequency']));
-        $billable = intval($row['scheduled_ticket_billable']);
-        $created_id = intval($row['scheduled_ticket_created_by']);
-        $assigned_id = intval($row['scheduled_ticket_assigned_to']);
-        $client_id = intval($row['scheduled_ticket_client_id']);
-        $contact_id = intval($row['scheduled_ticket_contact_id']);
-        $asset_id = intval($row['scheduled_ticket_asset_id']);
+        $recurring_ticket_id = intval($row['recurring_ticket_id']);
+        $subject = sanitizeInput($row['recurring_ticket_subject']);
+        $details = mysqli_real_escape_string($mysqli, $row['recurring_ticket_details']);
+        $priority = sanitizeInput($row['recurring_ticket_priority']);
+        $frequency = sanitizeInput(strtolower($row['recurring_ticket_frequency']));
+        $billable = intval($row['recurring_ticket_billable']);
+        $created_id = intval($row['recurring_ticket_created_by']);
+        $assigned_id = intval($row['recurring_ticket_assigned_to']);
+        $client_id = intval($row['recurring_ticket_client_id']);
+        $contact_id = intval($row['recurring_ticket_contact_id']);
+        $asset_id = intval($row['recurring_ticket_asset_id']);
 
         $ticket_status = 1; // Default
         if ($assigned_id > 0) {
@@ -314,8 +314,14 @@ if (mysqli_num_rows($sql_scheduled_tickets) > 0) {
         mysqli_query($mysqli, "UPDATE settings SET config_ticket_next_number = $new_config_ticket_next_number WHERE company_id = 1");
 
         // Raise the ticket
-        mysqli_query($mysqli, "INSERT INTO tickets SET ticket_prefix = '$config_ticket_prefix', ticket_number = $ticket_number, ticket_subject = '$subject', ticket_details = '$details', ticket_priority = '$priority', ticket_status = '$ticket_status', ticket_billable = $billable, ticket_created_by = $created_id, ticket_assigned_to = $assigned_id, ticket_contact_id = $contact_id, ticket_client_id = $client_id, ticket_asset_id = $asset_id");
+        mysqli_query($mysqli, "INSERT INTO tickets SET ticket_prefix = '$config_ticket_prefix', ticket_number = $ticket_number, ticket_subject = '$subject', ticket_details = '$details', ticket_priority = '$priority', ticket_status = '$ticket_status', ticket_billable = $billable, ticket_created_by = $created_id, ticket_assigned_to = $assigned_id, ticket_contact_id = $contact_id, ticket_client_id = $client_id, ticket_asset_id = $asset_id, ticket_recurring_ticket_id = $recurring_ticket_id");
         $id = mysqli_insert_id($mysqli);
+
+        // Copy Additional Assets from Recurring ticket to new ticket
+        mysqli_query($mysqli, "INSERT INTO ticket_assets (ticket_id, asset_id)
+        SELECT $id, asset_id
+        FROM recurring_ticket_assets
+        WHERE recurring_ticket_id = $recurring_ticket_id");
 
         // Logging
         logAction("Ticket", "Create", "Cron created recurring scheduled $frequency ticket - $subject", $client_id, $id);
@@ -408,7 +414,7 @@ if (mysqli_num_rows($sql_scheduled_tickets) > 0) {
 
         // Update the run date
         $next_run = $next_run->format('Y-m-d');
-        $a = mysqli_query($mysqli, "UPDATE scheduled_tickets SET scheduled_ticket_next_run = '$next_run' WHERE scheduled_ticket_id = $schedule_id");
+        $a = mysqli_query($mysqli, "UPDATE recurring_tickets SET recurring_ticket_next_run = '$next_run' WHERE recurring_ticket_id = $recurring_ticket_id");
 
     }
 }
@@ -541,27 +547,27 @@ if ($config_send_invoice_reminders == 1) {
 // Send Recurring Invoices that match todays date and are active
 
 //Loop through all recurring that match today's date and is active
-$sql_recurring = mysqli_query($mysqli, "SELECT * FROM recurring
-    LEFT JOIN recurring_payments ON recurring_id = recurring_payment_recurring_invoice_id
-    LEFT JOIN clients ON client_id = recurring_client_id
-    WHERE recurring_next_date = CURDATE()
-    AND recurring_status = 1
+$sql_recurring_invoices = mysqli_query($mysqli, "SELECT * FROM recurring_invoices
+    LEFT JOIN recurring_payments ON recurring_invoice_id = recurring_payment_recurring_invoice_id
+    LEFT JOIN clients ON client_id = recurring_invoice_client_id
+    WHERE recurring_invoice_next_date = CURDATE()
+    AND recurring_invoice_status = 1
 ");
 
-while ($row = mysqli_fetch_array($sql_recurring)) {
-    $recurring_id = intval($row['recurring_id']);
-    $recurring_scope = sanitizeInput($row['recurring_scope']);
-    $recurring_frequency = sanitizeInput($row['recurring_frequency']);
-    $recurring_status = sanitizeInput($row['recurring_status']);
-    $recurring_last_sent = sanitizeInput($row['recurring_last_sent']);
-    $recurring_next_date = sanitizeInput($row['recurring_next_date']);
-    $recurring_discount_amount = floatval($row['recurring_discount_amount']);
-    $recurring_amount = floatval($row['recurring_amount']);
-    $recurring_currency_code = sanitizeInput($row['recurring_currency_code']);
-    $recurring_note = sanitizeInput($row['recurring_note']);
+while ($row = mysqli_fetch_array($sql_recurring_invoices)) {
+    $recurring_invoice_id = intval($row['recurring_invoice_id']);
+    $recurring_invoice_scope = sanitizeInput($row['recurring_invoice_scope']);
+    $recurring_invoice_frequency = sanitizeInput($row['recurring_invoice_frequency']);
+    $recurring_invoice_status = sanitizeInput($row['recurring_invoice_status']);
+    $recurring_invoice_last_sent = sanitizeInput($row['recurring_invoice_last_sent']);
+    $recurring_invoice_next_date = sanitizeInput($row['recurring_invoice_next_date']);
+    $recurring_invoice_discount_amount = floatval($row['recurring_invoice_discount_amount']);
+    $recurring_invoice_amount = floatval($row['recurring_invoice_amount']);
+    $recurring_invoice_currency_code = sanitizeInput($row['recurring_invoice_currency_code']);
+    $recurring_invoice_note = sanitizeInput($row['recurring_invoice_note']);
     $recurring_invoice_email_notify = intval($row['recurring_invoice_email_notify']);
-    $category_id = intval($row['recurring_category_id']);
-    $client_id = intval($row['recurring_client_id']);
+    $category_id = intval($row['recurring_invoice_category_id']);
+    $client_id = intval($row['recurring_invoice_client_id']);
     $client_name = sanitizeInput($row['client_name']);
     $client_net_terms = intval($row['client_net_terms']);
     
@@ -582,12 +588,12 @@ while ($row = mysqli_fetch_array($sql_recurring)) {
     //Generate a unique URL key for clients to access
     $url_key = randomString(156);
 
-    mysqli_query($mysqli, "INSERT INTO invoices SET invoice_prefix = '$config_invoice_prefix', invoice_number = $new_invoice_number, invoice_scope = '$recurring_scope', invoice_date = CURDATE(), invoice_due = DATE_ADD(CURDATE(), INTERVAL $client_net_terms day), invoice_discount_amount = $recurring_discount_amount, invoice_amount = $recurring_amount, invoice_currency_code = '$recurring_currency_code', invoice_note = '$recurring_note', invoice_category_id = $category_id, invoice_status = 'Sent', invoice_url_key = '$url_key', invoice_client_id = $client_id");
+    mysqli_query($mysqli, "INSERT INTO invoices SET invoice_prefix = '$config_invoice_prefix', invoice_number = $new_invoice_number, invoice_scope = '$recurring_invoice_scope', invoice_date = CURDATE(), invoice_due = DATE_ADD(CURDATE(), INTERVAL $client_net_terms day), invoice_discount_amount = $recurring_invoice_discount_amount, invoice_amount = $recurring_invoice_amount, invoice_currency_code = '$recurring_invoice_currency_code', invoice_note = '$recurring_invoice_note', invoice_category_id = $category_id, invoice_status = 'Sent', invoice_url_key = '$url_key', invoice_recurring_invoice_id = $recurring_invoice_id, invoice_client_id = $client_id");
 
     $new_invoice_id = mysqli_insert_id($mysqli);
 
     //Copy Items from original recurring invoice to new invoice
-    $sql_invoice_items = mysqli_query($mysqli, "SELECT * FROM invoice_items WHERE item_recurring_id = $recurring_id ORDER BY item_id ASC");
+    $sql_invoice_items = mysqli_query($mysqli, "SELECT * FROM invoice_items WHERE item_recurring_invoice_id = $recurring_invoice_id ORDER BY item_id ASC");
 
     while ($row = mysqli_fetch_array($sql_invoice_items)) {
         $item_id = intval($row['item_id']);
@@ -614,7 +620,7 @@ while ($row = mysqli_fetch_array($sql_recurring)) {
 
     //Update recurring dates
 
-    mysqli_query($mysqli, "UPDATE recurring SET recurring_last_sent = CURDATE(), recurring_next_date = DATE_ADD(CURDATE(), INTERVAL 1 $recurring_frequency) WHERE recurring_id = $recurring_id");
+    mysqli_query($mysqli, "UPDATE recurring_invoices SET recurring_invoice_last_sent = CURDATE(), recurring_invoice_next_date = DATE_ADD(CURDATE(), INTERVAL 1 $recurring_invoice_frequency) WHERE recurring_invoice_id = $recurring_invoice_id");
 
     // Get details of the newly generated invoice
     $sql = mysqli_query(
@@ -640,7 +646,7 @@ while ($row = mysqli_fetch_array($sql_recurring)) {
     if ($config_recurring_auto_send_invoice == 1 && $recurring_invoice_email_notify == 1) {
 
         $subject = "Invoice $invoice_prefix$invoice_number";
-        $body = "Hello $contact_name,<br><br>An invoice regarding \"$invoice_scope\" has been generated. Please view the details below.<br><br>Invoice: $invoice_prefix$invoice_number<br>Issue Date: $invoice_date<br>Total: " . numfmt_format_currency($currency_format, $invoice_amount, $recurring_currency_code) . "<br>Due Date: $invoice_due<br><br><br>To view your invoice, please click <a href=\'https://$config_base_url/guest/guest_view_invoice.php?invoice_id=$new_invoice_id&url_key=$invoice_url_key\'>here</a>.<br><br><br>--<br>$company_name - Billing<br>$config_invoice_from_email<br>$company_phone";
+        $body = "Hello $contact_name,<br><br>An invoice regarding \"$invoice_scope\" has been generated. Please view the details below.<br><br>Invoice: $invoice_prefix$invoice_number<br>Issue Date: $invoice_date<br>Total: " . numfmt_format_currency($currency_format, $invoice_amount, $recurring_invoice_currency_code) . "<br>Due Date: $invoice_due<br><br><br>To view your invoice, please click <a href=\'https://$config_base_url/guest/guest_view_invoice.php?invoice_id=$new_invoice_id&url_key=$invoice_url_key\'>here</a>.<br><br><br>--<br>$company_name - Billing<br>$config_invoice_from_email<br>$company_phone";
 
         $mail = addToMailQueue([
             [
@@ -907,9 +913,9 @@ if ($config_telemetry > 0 || $config_telemetry == 2) {
     $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('recurring_id') AS num FROM tickets"));
     $ticket_count = $row['num'];
 
-    // Recurring (Scheduled) Ticket Count
-    $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('scheduled_ticket_id') AS num FROM scheduled_tickets"));
-    $scheduled_ticket_count = $row['num'];
+    // Recurring Ticket Count
+    $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('recurring_ticket_id') AS num FROM recurring_tickets"));
+    $recurring_ticket_count = $row['num'];
 
     // Calendar Event Count
     $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('event_id') AS num FROM events"));
@@ -927,9 +933,9 @@ if ($config_telemetry > 0 || $config_telemetry == 2) {
     $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('revenue_id') AS num FROM revenues"));
     $revenue_count = $row['num'];
 
-    // Recurring Count
-    $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('recurring_id') AS num FROM recurring"));
-    $recurring_count = $row['num'];
+    // Recurring Invoice Count
+    $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('recurring_invoice_id') AS num FROM recurring_invoices"));
+    $recurring_invoice_count = $row['num'];
 
     // Account Count
     $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('account_id') AS num FROM accounts"));
@@ -983,9 +989,9 @@ if ($config_telemetry > 0 || $config_telemetry == 2) {
     $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('software_id') AS num FROM software WHERE software_template = 1"));
     $software_template_count = $row['num'];
 
-    // Password Count
-    $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('login_id') AS num FROM logins"));
-    $password_count = $row['num'];
+    // Credential Count
+    $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('credential_id') AS num FROM credentials"));
+    $credential_count = $row['num'];
 
     // Network Count
     $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('network_id') AS num FROM networks"));
@@ -1075,12 +1081,12 @@ if ($config_telemetry > 0 || $config_telemetry == 2) {
             'currency' => "$company_currency",
             'client_count' => $client_count,
             'ticket_count' => $ticket_count,
-            'scheduled_ticket_count' => $scheduled_ticket_count,
+            'recurring_ticket_count' => $recurring_ticket_count,
             'calendar_event_count' => $calendar_event_count,
             'quote_count' => $quote_count,
             'invoice_count' => $invoice_count,
             'revenue_count' => $revenue_count,
-            'recurring_count' => $recurring_count,
+            'recurring_invoice_count' => $recurring_invoice_count,
             'account_count' => $account_count,
             'tax_count' => $tax_count,
             'product_count' => $product_count,
@@ -1094,7 +1100,7 @@ if ($config_telemetry > 0 || $config_telemetry == 2) {
             'asset_count' => $asset_count,
             'software_count' => $software_count,
             'software_template_count' => $software_template_count,
-            'password_count' => $password_count,
+            'credential_count' => $credential_count,
             'network_count' => $network_count,
             'certificate_count' => $certificate_count,
             'domain_count' => $domain_count,

@@ -351,6 +351,11 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         }
                         $auth_method = nullable_htmlentities($row['user_auth_method']);
                         $contact_user_id = intval($row['contact_user_id']);
+                        if ($contact_user_id) {
+                            $user_exists_display = "<span class='badge badge-pill badge-dark p-1' title='User: $auth_method'><i class='fas fa-fw fa-user'></i></span>";
+                        } else { 
+                            $user_exists_display = "";
+                        }
 
                         // Related Assets Query
                         $sql_related_assets = mysqli_query($mysqli, "SELECT * FROM assets WHERE asset_contact_id = $contact_id ORDER BY asset_id DESC");
@@ -361,13 +366,13 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             $asset_count_display = '';
                         }
 
-                        // Related Logins Query
-                        $sql_related_logins = mysqli_query($mysqli, "SELECT * FROM logins WHERE login_contact_id = $contact_id ORDER BY login_id DESC");
-                        $login_count = mysqli_num_rows($sql_related_logins);
-                        if ($login_count) { 
-                            $login_count_display = "<span class='mr-2 badge badge-pill badge-secondary p-2' title='$login_count Credentials'><i class='fas fa-fw fa-key mr-2'></i>$login_count</span>";
+                        // Related Credentials Query
+                        $sql_related_credentials = mysqli_query($mysqli, "SELECT * FROM credentials WHERE credential_contact_id = $contact_id ORDER BY credential_id DESC");
+                        $credential_count = mysqli_num_rows($sql_related_credentials);
+                        if ($credential_count) { 
+                            $credential_count_display = "<span class='mr-2 badge badge-pill badge-secondary p-2' title='$credential_count Credentials'><i class='fas fa-fw fa-key mr-2'></i>$credential_count</span>";
                         } else {
-                            $login_count_display = '';
+                            $credential_count_display = '';
                         }
 
                         // Related Software Query
@@ -385,7 +390,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         if ($ticket_count) { 
                             $ticket_count_display = "<span class='mr-2 badge badge-pill badge-secondary p-2' title='$ticket_count Tickets'><i class='fas fa-fw fa-life-ring mr-2'></i>$ticket_count</span>";
                         } else {
-                            $software_count_display = '';
+                            $ticket_count_display = '';
                         }
 
                         // Related Documents Query
@@ -445,7 +450,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                         <?php } ?>
 
                                         <div class="media-body">
-                                            <div class="<?php if($contact_important) { echo "text-bold"; } ?>"><?php echo $contact_name; ?></div>
+                                            <div class="<?php if($contact_important) { echo "text-bold"; } ?>"><?php echo $contact_name; ?> <?php echo $user_exists_display; ?></div>
                                             <?php echo $contact_title_display; ?>
                                             <div><?php echo $contact_primary_display; ?></div>
                                             <?php
@@ -463,7 +468,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             <td><?php echo $contact_info_display; ?></td>
                             <td><?php echo $location_name_display; ?></td>
                             <td>
-                                <?php echo "$asset_count_display$login_count_display$software_count_display$ticket_count_display$document_count_display"; ?>
+                                <?php echo "$asset_count_display$credential_count_display$software_count_display$ticket_count_display$document_count_display"; ?>
                             </td>
                             <?php if (!$client_url) { ?>
                             <td><a href="contacts.php?client_id=<?php echo $client_id; ?>"><?php echo $client_name; ?></a></td>

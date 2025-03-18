@@ -6,17 +6,25 @@ $order = "ASC";
 
 require_once "includes/inc_all_admin.php";
 
-
-//Rebuild URL
-$url_query_strings_sort = http_build_query($get_copy);
+// User Type Filter
+if (isset($_GET['type']) && $_GET['type'] == "client") {
+    $type_filter = "client";
+    $type_query = "AND user_type = 2";
+} else {
+    $type_filter = "user";
+    $type_query = "AND user_type = 1";
+}
 
 $sql = mysqli_query(
     $mysqli,
-    "SELECT SQL_CALC_FOUND_ROWS * FROM users, user_settings, user_roles
-    WHERE users.user_id = user_settings.user_id
-    AND user_settings.user_role = user_roles.user_role_id
-    AND (user_name LIKE '%$q%' OR user_email LIKE '%$q%')
+    "SELECT SQL_CALC_FOUND_ROWS * FROM users
+    LEFT JOIN user_roles ON user_role_id = role_id
+    LEFT JOIN user_settings ON users.user_id = user_settings.user_id
+    LEFT JOIN contacts ON users.user_id = contact_user_id
+    LEFT JOIN clients ON contact_client_id = client_id
+    WHERE (user_name LIKE '%$q%' OR user_email LIKE '%$q%')
     AND user_archived_at IS NULL
+    $type_query
     ORDER BY $sort $order LIMIT $record_from, $record_to"
 );
 
@@ -36,6 +44,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                 <div class="dropdown-menu">
                     <!--<a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#userInviteModal"><i class="fas fa-paper-plane mr-2"></i>Invite User</a>-->
                     <?php if ($num_rows[0] > 1) { ?>
+                        <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#exportUserModal"><i class="fa fa-fw fa-download mr-2"></i>Export</a>
                         <div class="dropdown-divider"></div>
                         <a class="dropdown-item text-danger" href="#" data-toggle="modal" data-target="#resetAllUserPassModal"><i class="fas fa-skull-crossbones mr-2"></i>IR</a>
                     <?php } ?>
@@ -55,8 +64,11 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     </div>
                 </div>
                 <div class="col-md-8">
-                    <div class="float-right">
-                        <button type="button" class="btn btn-default" data-toggle="modal" data-target="#exportUserModal"><i class="fa fa-fw fa-download mr-2"></i>Export</button>
+                    <div class="btn-toolbar float-right">
+                        <div class="btn-group mr-2">
+                            <a href="?type=user" class="btn btn-<?php if ($type_filter == "user"){ echo "primary"; } else { echo "default"; } ?>"><i class="fa fa-fw fa-user-shield mr-2"></i>User</a>
+                            <a href="?type=client" class="btn btn-<?php if ($type_filter == "client"){ echo "primary"; } else { echo "default"; } ?>"><i class="fa fa-fw fa-user mr-2"></i>Client</a>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -77,8 +89,8 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         </a>
                     </th>
                     <th>
-                        <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=user_role&order=<?php echo $disp; ?>">
-                            Role <?php if ($sort == 'user_role') { echo $order_icon; } ?>
+                        <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=role_name&order=<?php echo $disp; ?>">
+                            Role <?php if ($sort == 'role_name') { echo $order_icon; } ?>
                         </a>
                     </th>
                     <th>
@@ -90,6 +102,13 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     <th>
                         Last Login
                     </th>
+                    <?php if ($type_filter === "client") { ?>
+                    <th>
+                        <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=client_name&order=<?php echo $disp; ?>">
+                            Client <?php if ($sort == 'client_name') { echo $order_icon; } ?>
+                        </a>
+                    </th>
+                    <?php } ?>
                     <th class="text-center">Action</th>
                 </tr>
                 </thead>
@@ -116,9 +135,13 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         $mfa_status_display = "<i class='fas fa-fw fa-lock text-success'></i>";
                     }
                     $user_config_force_mfa = intval($row['user_config_force_mfa']);
-                    $user_role = $row['user_role'];
-                    $user_role_display = nullable_htmlentities($row['user_role_name']);
+                    $user_role = intval($row['user_role_id']);
+                    $user_role_display = nullable_htmlentities($row['role_name']);
                     $user_initials = nullable_htmlentities(initials($user_name));
+
+                    $contact_id = intval($row['contact_id']);
+                    $client_id = intval($row['client_id']);     
+                    $client_name = nullable_htmlentities($row['client_name']);
 
                     $sql_last_login = mysqli_query(
                         $mysqli,
@@ -139,7 +162,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     }
 
                     // Get User Client Access Permissions
-                    $user_client_access_sql = mysqli_query($mysqli,"SELECT client_id FROM user_permissions WHERE user_id = $user_id");
+                    $user_client_access_sql = mysqli_query($mysqli,"SELECT client_id FROM user_client_permissions WHERE user_id = $user_id");
                     $client_access_array = [];
                     while ($row = mysqli_fetch_assoc($user_client_access_sql)) {
                         $client_access_array[] = intval($row['client_id']);
@@ -178,6 +201,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         <td><?php echo $user_status_display; ?></td>
                         <td class="text-center"><?php echo $mfa_status_display; ?></td>
                         <td><?php echo $last_login; ?></td>
+                        <?php if ($type_filter === "client") { ?>
+                        <td><?php echo $client_name; ?></td>
+                        <?php } ?>
                         <td>
                             <?php if ($user_id !== $session_user_id) {   // Prevent modifying self ?>
                             <div class="dropdown dropleft text-center">

@@ -135,6 +135,7 @@ if (isset($_GET['ticket_id'])) {
         $asset_serial = nullable_htmlentities($row['asset_serial']);
         $asset_os = nullable_htmlentities($row['asset_os']);
         $asset_warranty_expire = nullable_htmlentities($row['asset_warranty_expire']);
+        $asset_icon = getAssetIcon($asset_type);
 
         $vendor_id = intval($row['ticket_vendor_id']);
         $vendor_name = nullable_htmlentities($row['vendor_name']);
@@ -278,9 +279,8 @@ if (isset($_GET['ticket_id'])) {
         // Get Technicians to assign the ticket to
         $sql_assign_to_select = mysqli_query(
             $mysqli,
-            "SELECT users.user_id, user_name FROM users
-            LEFT JOIN user_settings on users.user_id = user_settings.user_id
-            WHERE user_role > 1
+            "SELECT user_id, user_name FROM users
+            WHERE user_role_id > 1
             AND user_type = 1
             AND user_status = 1
             AND user_archived_at IS NULL
@@ -291,6 +291,12 @@ if (isset($_GET['ticket_id'])) {
         // Get Watchers
         $sql_ticket_watchers = mysqli_query($mysqli, "SELECT * FROM ticket_watchers WHERE watcher_ticket_id = $ticket_id ORDER BY watcher_email DESC");
 
+        // Get Additional Assets
+        $sql_additional_assets = mysqli_query($mysqli, "SELECT * FROM assets, ticket_assets
+            WHERE assets.asset_id = ticket_assets.asset_id
+            AND ticket_id = $ticket_id
+            AND assets.asset_id != $asset_id"
+        );
 
         // Get Ticket Attachments
         $sql_ticket_attachments = mysqli_query(
@@ -1018,16 +1024,36 @@ if (isset($_GET['ticket_id'])) {
                 <!-- Asset card -->
                 <?php if ($asset_id) { ?>
                     <div class="card card-body mb-3">
-                        <h5 class="text-secondary">Asset</h5>
+                        <h5 class="text-secondary">Asset(s)</h5>
                         <div>
                             <a href="#"
-                               data-toggle="ajax-modal"
-                               data-modal-size="lg"
-                               data-ajax-url="ajax/ajax_asset_details.php?<?php echo $client_url; ?>"
-                               data-ajax-id="<?php echo $asset_id; ?>">
-                                <i class="fa fa-fw fa-desktop text-secondary mr-2"></i><strong><?php echo $asset_name; ?></strong>
+                                data-toggle="ajax-modal"
+                                data-modal-size="lg"
+                                data-ajax-url="ajax/ajax_asset_details.php?<?php echo $client_url; ?>"
+                                data-ajax-id="<?php echo $asset_id; ?>">
+                                <i class="fa fa-fw fa-<?php echo $asset_icon; ?> text-secondary mr-2"></i><strong><?php echo $asset_name; ?></strong>
                             </a>
                         </div>
+                        <?php
+                        while ($row = mysqli_fetch_array($sql_additional_assets)) {
+                            $additional_asset_id = intval($row['asset_id']);
+                            $additional_asset_name = nullable_htmlentities($row['asset_name']);
+                            $additional_asset_type = nullable_htmlentities($row['asset_type']);
+                            $additional_asset_icon = getAssetIcon($additional_asset_type);
+                            ?>
+                            <div class="mt-1">
+                                <a href="#"
+                                    data-toggle="ajax-modal"
+                                    data-modal-size="lg"
+                                    data-ajax-url="ajax/ajax_asset_details.php?<?php echo $client_url; ?>"
+                                    data-ajax-id="<?php echo $additional_asset_id; ?>">
+                                    <i class="fa fa-fw fa-<?php echo $additional_asset_icon; ?> text-secondary mr-2"></i><?php echo $additional_asset_name; ?>
+                                </a>
+                            </div>
+                        <?php
+
+                        }
+                        ?>   
                     </div>
                 <?php } // End if asset_id ?>
                 <!-- End Asset card -->

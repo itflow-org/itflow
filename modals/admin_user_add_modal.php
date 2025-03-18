@@ -71,13 +71,13 @@
                                     <select class="form-control select2" name="role" required>
                                         <option value="">- Role -</option>
                                         <?php
-                                            $sql_user_roles = mysqli_query($mysqli, "SELECT * FROM user_roles WHERE user_role_archived_at IS NULL");
+                                            $sql_user_roles = mysqli_query($mysqli, "SELECT * FROM user_roles WHERE role_archived_at IS NULL");
                                             while ($row = mysqli_fetch_array($sql_user_roles)) {
-                                                $user_role_id = intval($row['user_role_id']);
-                                                $user_role_name = nullable_htmlentities($row['user_role_name']);
+                                                $role_id = intval($row['role_id']);
+                                                $role_name = nullable_htmlentities($row['role_name']);
 
                                             ?>
-                                            <option value="<?php echo $user_role_id; ?>"><?php echo $user_role_name; ?></option>
+                                            <option value="<?php echo $role_id; ?>"><?php echo $role_name; ?></option>
                                         <?php } ?>
                                     </select>
                                 </div>

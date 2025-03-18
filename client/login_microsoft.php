@@ -18,7 +18,7 @@ if (!isset($_SESSION)) {
 }
 
 // Set Timezone after session starts
-require_once "../inc_set_timezone.php";
+require_once "../includes/inc_set_timezone.php";
 
 $session_ip = sanitizeInput(getIP());
 $session_user_agent = sanitizeInput($_SERVER['HTTP_USER_AGENT']);

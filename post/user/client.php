@@ -217,36 +217,16 @@ if (isset($_GET['delete_client'])) {
     mysqli_query($mysqli, "DELETE FROM certificates WHERE certificate_client_id = $client_id");
     mysqli_query($mysqli, "DELETE FROM documents WHERE document_client_id = $client_id");
 
-    // Delete Contacts including contact tags, notes
-    $sql = mysqli_query($mysqli, "SELECT contact_id FROM contacts WHERE contact_client_id = $client_id");
-    while($row = mysqli_fetch_array($sql)) {
-        $contact_id = $row['contact_id'];
-        mysqli_query($mysqli, "DELETE FROM contact_tags WHERE contact_id = $contact_id");
-        mysqli_query($mysqli, "DELETE FROM contact_assets WHERE contact_id = $contact_id");
-        mysqli_query($mysqli, "DELETE FROM contact_documents WHERE contact_id = $contact_id");
-        mysqli_query($mysqli, "DELETE FROM contact_files WHERE contact_id = $contact_id");
-        mysqli_query($mysqli, "DELETE FROM contact_logins WHERE contact_id = $contact_id");
-        mysqli_query($mysqli, "DELETE FROM contact_notes WHERE contact_note_contact_id = $contact_id");
-    }
+    // Delete Contacts
     mysqli_query($mysqli, "DELETE FROM contacts WHERE contact_client_id = $client_id");
 
-    // Delete Assets and Interfaces
-    $sql = mysqli_query($mysqli, "SELECT asset_id FROM assets WHERE asset_client_id = $client_id");
-    while($row = mysqli_fetch_array($sql)) {
-        $asset_id = $row['asset_id'];
-        mysqli_query($mysqli, "DELETE FROM asset_interfaces WHERE interface_asset_id = $asset_id");
-    }
+    // Delete Assets
     mysqli_query($mysqli, "DELETE FROM assets WHERE asset_client_id = $client_id");
 
     // Delete Domains and associated records
-    $sql = mysqli_query($mysqli, "SELECT domain_id FROM domains WHERE domain_client_id = $client_id");
-    while($row = mysqli_fetch_array($sql)) {
-        $domain_id = $row['domain_id'];
-        mysqli_query($mysqli, "DELETE FROM records WHERE record_domain_id = $domain_id");
-    }
     mysqli_query($mysqli, "DELETE FROM domains WHERE domain_client_id = $client_id");
 
-    mysqli_query($mysqli, "DELETE FROM events WHERE event_client_id = $client_id");
+    mysqli_query($mysqli, "DELETE FROM calendar_events WHERE event_client_id = $client_id");
     mysqli_query($mysqli, "DELETE FROM files WHERE file_client_id = $client_id");
     mysqli_query($mysqli, "DELETE FROM folders WHERE folder_client_id = $client_id");
 
@@ -261,14 +241,9 @@ if (isset($_GET['delete_client'])) {
     mysqli_query($mysqli, "DELETE FROM invoices WHERE invoice_client_id = $client_id");
 
     // Delete Locations and location tags
-    $sql = mysqli_query($mysqli, "SELECT location_id FROM locations WHERE location_client_id = location_id");
-    while($row = mysqli_fetch_array($sql)) {
-        $location_id = $row['location_id'];
-        mysqli_query($mysqli, "DELETE FROM location_tags WHERE location_id = $location_id");
-    }
     mysqli_query($mysqli, "DELETE FROM locations WHERE location_client_id = $client_id");
 
-    mysqli_query($mysqli, "DELETE FROM logins WHERE login_client_id = $client_id");
+    mysqli_query($mysqli, "DELETE FROM credentials WHERE credential_client_id = $client_id");
     mysqli_query($mysqli, "DELETE FROM logs WHERE log_client_id = $client_id");
     mysqli_query($mysqli, "DELETE FROM networks WHERE network_client_id = $client_id");
     mysqli_query($mysqli, "DELETE FROM notifications WHERE notification_client_id = $client_id");
@@ -283,38 +258,23 @@ if (isset($_GET['delete_client'])) {
     mysqli_query($mysqli, "DELETE FROM quotes WHERE quote_client_id = $client_id");
 
     // Delete Recurring Invoices and associated items
-    $sql = mysqli_query($mysqli, "SELECT recurring_id FROM recurring WHERE recurring_client_id = $client_id");
+    $sql = mysqli_query($mysqli, "SELECT recurring_invoice_id FROM recurring_invoices WHERE recurring_invoice_client_id = $client_id");
     while($row = mysqli_fetch_array($sql)) {
-        $recurring_id = $row['recurring_id'];
-        mysqli_query($mysqli, "DELETE FROM invoice_items WHERE item_recurring_id = $recurring_id");
+        $recurring_invoice_id = $row['recurring_invoice_id'];
+        mysqli_query($mysqli, "DELETE FROM invoice_items WHERE item_recurring_invoice_id = $recurring_invoice_id");
     }
-    mysqli_query($mysqli, "DELETE FROM recurring WHERE recurring_client_id = $client_id");
+    mysqli_query($mysqli, "DELETE FROM recurring_invoices WHERE recurring_invoice_client_id = $client_id");
 
     mysqli_query($mysqli, "DELETE FROM revenues WHERE revenue_client_id = $client_id");
-    mysqli_query($mysqli, "DELETE FROM scheduled_tickets WHERE scheduled_ticket_client_id = $client_id");
+    mysqli_query($mysqli, "DELETE FROM recurring_tickets WHERE recurring_ticket_client_id = $client_id");
 
-    // Delete Services and items associated with services
-    $sql = mysqli_query($mysqli, "SELECT service_id FROM services WHERE service_client_id = $client_id");
-    while($row = mysqli_fetch_array($sql)) {
-        $service_id = $row['service_id'];
-        mysqli_query($mysqli, "DELETE FROM service_assets WHERE service_id = $service_id");
-        mysqli_query($mysqli, "DELETE FROM service_certificates WHERE service_id = $service_id");
-        mysqli_query($mysqli, "DELETE FROM service_contacts WHERE service_id = $service_id");
-        mysqli_query($mysqli, "DELETE FROM service_documents WHERE service_id = $service_id");
-        mysqli_query($mysqli, "DELETE FROM service_domains WHERE service_id = $service_id");
-        mysqli_query($mysqli, "DELETE FROM service_logins WHERE service_id = $service_id");
-        mysqli_query($mysqli, "DELETE FROM service_vendors WHERE service_id = $service_id");
-    }
+    // Delete Services
     mysqli_query($mysqli, "DELETE FROM services WHERE service_client_id = $client_id");
 
+    // Delete Shared Items
     mysqli_query($mysqli, "DELETE FROM shared_items WHERE item_client_id = $client_id");
 
-    $sql = mysqli_query($mysqli, "SELECT software_id FROM software WHERE software_client_id = $client_id");
-    while($row = mysqli_fetch_array($sql)) {
-        $software_id = $row['software_id'];
-        mysqli_query($mysqli, "DELETE FROM software_assets WHERE software_id = $software_id");
-        mysqli_query($mysqli, "DELETE FROM software_contacts WHERE software_id = $software_id");
-    }
+    // Delete Software
     mysqli_query($mysqli, "DELETE FROM software WHERE software_client_id = $client_id");
 
     // Delete tickets and related data
@@ -327,9 +287,6 @@ if (isset($_GET['delete_client'])) {
     mysqli_query($mysqli, "DELETE FROM tickets WHERE ticket_client_id = $client_id");
     mysqli_query($mysqli, "DELETE FROM trips WHERE trip_client_id = $client_id");
     mysqli_query($mysqli, "DELETE FROM vendors WHERE vendor_client_id = $client_id");
-
-    // Delete tags
-    mysqli_query($mysqli, "DELETE FROM client_tags WHERE client_id = $client_id");
 
     //Delete Client Files
     removeDirectory('uploads/clients/$client_id');
@@ -640,18 +597,18 @@ if (isset($_POST['export_client_pdf'])) {
     $export_locations = intval($_POST['export_locations']);
     $export_assets = intval($_POST['export_assets']);
     $export_software = intval($_POST['export_software']);
-    $export_logins = 0;
+    $export_credentials = 0;
     if (lookupUserPermission("module_credential") >= 1) {
-        $export_logins = intval($_POST['export_logins']);
+        $export_credentials = intval($_POST['export_credentials']);
     }
     $export_networks = intval($_POST['export_networks']);
     $export_certificates = intval($_POST['export_certificates']);
     $export_domains = intval($_POST['export_domains']);
     $export_tickets = intval($_POST['export_tickets']);
-    $export_scheduled_tickets = intval($_POST['export_scheduled_tickets']);
+    $export_recurring_tickets = intval($_POST['export_recurring_tickets']);
     $export_vendors = intval($_POST['export_vendors']);
     $export_invoices = intval($_POST['export_invoices']);
-    $export_recurring = intval($_POST['export_recurring']);
+    $export_recurring_invoices = intval($_POST['export_recurring_invoices']);
     $export_quotes = intval($_POST['export_quotes']);
     $export_payments = intval($_POST['export_payments']);
     $export_trips = intval($_POST['export_trips']);
@@ -682,7 +639,7 @@ if (isset($_POST['export_client_pdf'])) {
     $sql_contacts = mysqli_query($mysqli,"SELECT * FROM contacts WHERE contact_client_id = $client_id AND contact_archived_at IS NULL ORDER BY contact_name ASC");
     $sql_locations = mysqli_query($mysqli,"SELECT * FROM locations WHERE location_client_id = $client_id AND location_archived_at IS NULL ORDER BY location_name ASC");
     $sql_vendors = mysqli_query($mysqli,"SELECT * FROM vendors WHERE vendor_client_id = $client_id AND vendor_archived_at IS NULL ORDER BY vendor_name ASC");
-    $sql_logins = mysqli_query($mysqli,"SELECT * FROM logins WHERE login_client_id = $client_id ORDER BY login_name ASC");
+    $sql_credentials = mysqli_query($mysqli,"SELECT * FROM credentials WHERE credential_client_id = $client_id ORDER BY credential_name ASC");
     $sql_assets = mysqli_query($mysqli,"SELECT * FROM assets 
         LEFT JOIN contacts ON asset_contact_id = contact_id 
         LEFT JOIN locations ON asset_location_id = location_id
@@ -1013,8 +970,8 @@ if (isset($_POST['export_client_pdf'])) {
                 <?php } ?>
                 //Vendors END
 
-                //Logins Start
-                <?php if(mysqli_num_rows($sql_logins) > 0 && $export_logins == 1){ ?>
+                //Credentials Start
+                <?php if(mysqli_num_rows($sql_credentials) > 0 && $export_credentials == 1){ ?>
                 {
                     text: 'Credentials',
                     style: 'title'
@@ -1047,33 +1004,33 @@ if (isset($_POST['export_client_pdf'])) {
                             ],
 
                             <?php
-                            while($row = mysqli_fetch_array($sql_logins)){
-                            $login_name = $row['login_name'];
-                            $login_description = $row['login_description'];
-                            $login_username = decryptLoginEntry($row['login_username']);
-                            $login_password = decryptLoginEntry($row['login_password']);
-                            $login_uri = $row['login_uri'];
+                            while($row = mysqli_fetch_array($sql_credentials)){
+                            $credential_name = $row['credential_name'];
+                            $credential_description = $row['credential_description'];
+                            $credential_username = decryptCredentialEntry($row['credential_username']);
+                            $credential_password = decryptCredentialEntry($row['credential_password']);
+                            $credential_uri = $row['credential_uri'];
                             ?>
 
                             [
                                 {
-                                    text: <?php echo json_encode($login_name); ?>,
+                                    text: <?php echo json_encode($credential_name); ?>,
                                     style: 'item'
                                 },
                                 {
-                                    text: <?php echo json_encode($login_description); ?>,
+                                    text: <?php echo json_encode($credential_description); ?>,
                                     style: 'item'
                                 },
                                 {
-                                    text: <?php echo json_encode($login_username); ?>,
+                                    text: <?php echo json_encode($credential_username); ?>,
                                     style: 'item'
                                 },
                                 {
-                                    text: <?php echo json_encode($login_password); ?>,
+                                    text: <?php echo json_encode($credential_password); ?>,
                                     style: 'item'
                                 },
                                 {
-                                    text: <?php echo json_encode($login_uri); ?>,
+                                    text: <?php echo json_encode($credential_uri); ?>,
                                     style: 'item'
                                 }
                             ],
@@ -1944,8 +1901,6 @@ if (isset($_POST['export_client_pdf'])) {
         }, 10000);
 
     </script>
-
-
 
     <?php
 

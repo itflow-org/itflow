@@ -1,11 +1,11 @@
 <?php
 
-require_once "guest_header.php";
+require_once "includes/guest_header.php";
 
 
 if (!isset($_GET['quote_id'], $_GET['url_key'])) {
     echo "<br><h2>Oops, something went wrong! Please raise a ticket if you believe this is an error.</h2>";
-    require_once "guest_footer.php";
+    require_once "includes/guest_footer.php";
 
     exit();
 }
@@ -27,7 +27,7 @@ $sql = mysqli_query(
 if (mysqli_num_rows($sql) !== 1) {
     // Invalid quote/key
     echo "<br><h2>Oops, something went wrong! Please raise a ticket if you believe this is an error.</h2>";
-    require_once "guest_footer.php";
+    require_once "includes/guest_footer.php";
 
     exit();
 }
@@ -717,5 +717,5 @@ if ($quote_status == "Draft" || $quote_status == "Sent" || $quote_status == "Vie
 
 <?php
 require_once "guest_quote_upload_file_modal.php";
-require_once "guest_footer.php";
+require_once "includes/guest_footer.php";
 
