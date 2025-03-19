@@ -166,7 +166,7 @@ tinymce.init({
     { name: 'link', items: [ 'link'] },
     { name: 'lists', items: [ 'bullist', 'numlist' ] },
     { name: 'indentation', items: [ 'outdent', 'indent' ] },
-    { name: 'custom', items: ['myRedactButton'] } // Add custom button to toolbar
+    { name: 'custom', items: ['redactButton'] } // Add custom button to toolbar
   ],
   mobile: {
     menubar: false,
@@ -178,7 +178,7 @@ tinymce.init({
   license_key: 'gpl',
   setup: function(editor) {
     // Add custom toolbar button with Font Awesome icon
-    editor.ui.registry.addButton('myRedactButton', {
+    editor.ui.registry.addButton('redactButton', {
       icon: 'permanent-pen',
       tooltip: 'Redact', // Tooltip text for the button
       onAction: function() {
@@ -217,7 +217,7 @@ tinymce.init({
     { name: 'lists', items: ['bullist', 'numlist'] },
     { name: 'indentation', items: ['outdent', 'indent'] },
     { name: 'ai', items: ['reword', 'undo', 'redo'] },
-    { name: 'custom', items: ['myRedactButton'] } // Add custom redact button to toolbar
+    { name: 'custom', items: ['redactButton'] } // Add custom redact button to toolbar
   ],
   mobile: {
     menubar: false,
@@ -299,7 +299,7 @@ tinymce.init({
     });
 
     // Add the Redact button
-    editor.ui.registry.addButton('myRedactButton', {
+    editor.ui.registry.addButton('redactButton', {
       icon: 'permanent-pen',
       tooltip: 'Redact Text', // Tooltip text for the button
       onAction: function() {
@@ -335,6 +335,57 @@ tinymce.init({
     readonly: true,
     toolbar: '',
 });
+
+tinymce.init({
+  selector: '.tinymceRedact', // Your selector
+  browser_spellcheck: true,
+  contextmenu: false,
+  resize: true,
+  min_height: 300,
+  max_height: 600,
+  promotion: false,
+  branding: false,
+  menubar: false,
+  statusbar: false,
+  toolbar: 'redactButton', // Only the redact button in the toolbar
+  mobile: {
+    menubar: false,
+    plugins: 'autosave lists autolink',
+    toolbar: 'redactButton' // Only the redact button on mobile
+  },
+  convert_urls: false,
+  plugins: 'link image lists table code fullscreen autoresize',
+  license_key: 'gpl',
+  setup: function(editor) {
+    // Disable all text input and backspace/delete actions
+    editor.on('keydown', function(e) {
+      // Prevent all key events (including backspace and delete)
+      e.preventDefault();
+    });
+
+    // Add custom toolbar button with Font Awesome icon and label
+    editor.ui.registry.addButton('redactButton', {
+      icon: 'permanent-pen',
+      tooltip: 'Redact', // Tooltip text for the button
+      text: 'REDACT', // Add the text next to the icon
+      onAction: function() {
+        var selectedText = editor.selection.getContent({ format: 'text' });
+
+        if (selectedText) {
+          // Replace the selected text with [REDACTED] in bold red
+          var newContent = '<span style="font-weight: bold; color: red;">[REDACTED]</span>';
+          
+          // Replace selected content with the new content
+          editor.selection.setContent(newContent);
+        } else {
+          alert('Please select a word to redact');
+        }
+      }
+    });
+  }
+});
+
+
 
 // DateTime
 $('.datetimepicker').datetimepicker({

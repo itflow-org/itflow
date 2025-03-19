@@ -14,7 +14,7 @@ if (isset($_GET['ai_reword'])) {
     $inputJSON = file_get_contents('php://input');
     $input = json_decode($inputJSON, TRUE); // Convert JSON into array.
 
-    $promptText = "reword with html format";
+    $promptText = "reword";
     $userText = $input['text'];
 
     // Preparing the data for the OpenAI Chat API request.

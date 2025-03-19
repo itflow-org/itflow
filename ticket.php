@@ -792,30 +792,40 @@ if (isset($_GET['ticket_id'])) {
 
                                 <!-- Right-side content -->
                                 <div class="text-right d-flex flex-column align-items-end">
-                                    <?php if ($ticket_reply_type !== "Client" && empty($ticket_closed_at)) { ?>
-                                        <div class="card-tools d-print-none mb-2">
-                                            <div class="dropdown dropleft">
-                                                <?php if (lookupUserPermission("module_support") >= 2) { ?>
-                                                    <button class="btn btn-sm btn-tool" type="button" id="dropdownMenuButton" data-toggle="dropdown">
-                                                        <i class="fas fa-fw fa-ellipsis-v"></i>
-                                                    </button>
-                                                    <div class="dropdown-menu">
-                                                        <a class="dropdown-item"
-                                                           data-toggle = "ajax-modal"
-                                                           data-modal-size = "lg"
-                                                           data-ajax-url = "ajax/ajax_ticket_reply_edit.php"
-                                                           data-ajax-id = "<?php echo $ticket_reply_id; ?>"
-                                                        >
-                                                            <i class="fas fa-fw fa-edit text-secondary mr-2"></i>Edit
-                                                        </a>
-                                                        <div class="dropdown-divider"></div>
-                                                        <a class="dropdown-item text-danger confirm-link" href="post.php?archive_ticket_reply=<?php echo $ticket_reply_id; ?>">
-                                                            <i class="fas fa-fw fa-archive mr-2"></i>Archive
-                                                        </a>
-                                                    </div>
-                                                <?php } ?>
-                                            </div>
+                                    <div class="card-tools d-print-none mb-2">
+                                        <div class="dropdown dropleft">
+                                            <?php if (lookupUserPermission("module_support") >= 2) { ?>
+                                                <button class="btn btn-sm btn-tool" type="button" id="dropdownMenuButton" data-toggle="dropdown">
+                                                    <i class="fas fa-fw fa-ellipsis-v"></i>
+                                                </button>
+                                                <div class="dropdown-menu">
+                                                    <a href="#" class="dropdown-item"
+                                                       data-toggle = "ajax-modal"
+                                                       data-modal-size = "lg"
+                                                       data-ajax-url = "ajax/ajax_ticket_reply_redact.php"
+                                                       data-ajax-id = "<?php echo $ticket_reply_id; ?>"
+                                                    >
+                                                        <i class="fas fa-fw fa-pen text-danger mr-2"></i>Redact
+                                                    </a>
+                                                    <?php if ($ticket_reply_type !== "Client" && empty($ticket_closed_at)) { ?>
+                                                    <div class="dropdown-divider"></div>
+                                                    <a href="#" class="dropdown-item"
+                                                       data-toggle = "ajax-modal"
+                                                       data-modal-size = "lg"
+                                                       data-ajax-url = "ajax/ajax_ticket_reply_edit.php"
+                                                       data-ajax-id = "<?php echo $ticket_reply_id; ?>"
+                                                    >
+                                                        <i class="fas fa-fw fa-edit text-secondary mr-2"></i>Edit
+                                                    </a>                                                    
+                                                    <div class="dropdown-divider"></div>
+                                                    <a class="dropdown-item text-danger confirm-link" href="post.php?archive_ticket_reply=<?php echo $ticket_reply_id; ?>">
+                                                        <i class="fas fa-fw fa-archive mr-2"></i>Archive
+                                                    </a>
+                                                    <?php } ?>
+                                                </div>
+                                            <?php } ?>
                                         </div>
+                                    </div>
                                     <?php } ?>
 
                                     <small class="text-muted">
