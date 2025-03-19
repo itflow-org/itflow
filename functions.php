@@ -751,7 +751,7 @@ function checkFileUpload($file, $allowed_extensions)
     $fileContent = file_get_contents($tmp);
 
     // Hash the file content using SHA-256
-    $hashedContent = hash('sha256', $fileContent);
+    $hashedContent = hash('md5', $fileContent);
 
     // Generate a secure filename using the hashed content
     $secureFilename = $hashedContent . randomString(2) . '.' . $extension;

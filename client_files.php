@@ -322,22 +322,12 @@ while ($folder_id > 0) {
                         $file_size_KB = number_format($file_size / 1024);
                         $file_mime_type = nullable_htmlentities($row['file_mime_type']);
                         $file_uploaded_by = nullable_htmlentities($row['user_name']);
-                        $file_has_thumbnail = intval($row['file_has_thumbnail']);
-                        $file_has_preview = intval($row['file_has_preview']);
-                        $file_thumbnail_source = $file_reference_name;
-                        if ($file_has_thumbnail == 1) {
-                            $file_thumbnail_source = "thumbnail_$file_reference_name";
-                        }
-                        $file_preview_source = $file_reference_name;
-                        if ($file_has_preview == 1) {
-                            $file_preview_source = "preview_$file_reference_name";
-                        }
 
                         // Store file data into an array for JS
                         $files[] = [
                             'id' => $file_id,
                             'name' => $file_name,
-                            'preview' => "uploads/clients/$client_id/$file_preview_source"
+                            'preview' => "uploads/clients/$client_id/$file_reference_name"
                         ];
 
                         ?>
@@ -345,7 +335,7 @@ while ($folder_id > 0) {
                         <div class="col-xl-2 col-lg-2 col-md-6 col-sm-6 mb-3 text-center">
                         
                             <a href="#" onclick="openModal(<?php echo count($files)-1; ?>)"><!-- passing the index -->
-                                <img class="img-thumbnail" src="<?php echo "uploads/clients/$client_id/$file_thumbnail_source"; ?>" alt="<?php echo $file_reference_name ?>">
+                                <img class="img-thumbnail" src="<?php echo "uploads/clients/$client_id/$file_reference_name"; ?>" alt="<?php echo $file_reference_name ?>">
                             </a>
                             
                             <div>
@@ -356,18 +346,8 @@ while ($folder_id > 0) {
                                     </button>
                                     <div class="dropdown-menu">
                                         <a class="dropdown-item" href="<?php echo "uploads/clients/$client_id/$file_reference_name"; ?>" download="<?php echo $file_name; ?>">
-                                            <i class="fas fa-fw fa-cloud-download-alt mr-2"></i>Download Original
+                                            <i class="fas fa-fw fa-cloud-download-alt mr-2"></i>Download
                                         </a>
-                                        <?php if ($file_has_preview) { ?>
-                                        <a class="dropdown-item" href="<?php echo "uploads/clients/$client_id/preview_$file_reference_name"; ?>" download="preview_<?php echo $file_name; ?>">
-                                            <i class="fas fa-fw fa-cloud-download-alt mr-2"></i>Download Optimized
-                                        </a>
-                                        <?php } ?>
-                                        <?php if ($file_has_thumbnail) { ?>
-                                        <a class="dropdown-item" href="<?php echo "uploads/clients/$client_id/thumbnail_$file_reference_name"; ?>" download="thumbnail_<?php echo $file_name; ?>">
-                                            <i class="fas fa-fw fa-cloud-download-alt mr-2"></i>Download Thumbnail
-                                        </a>
-                                        <?php } ?>
                                         <a class="dropdown-item" href="#" data-toggle="modal" data-target="#shareModal" onclick="populateShareModal(<?php echo "$client_id, 'File', $file_id"; ?>)">
                                             <i class="fas fa-fw fa-share mr-2"></i>Share
                                         </a>
@@ -493,8 +473,6 @@ while ($folder_id > 0) {
                                 $file_mime_type = nullable_htmlentities($row['file_mime_type']);
                                 $file_size = intval($row['file_size']);
                                 $file_uploaded_by = nullable_htmlentities($row['user_name']);
-                                $file_has_thumbnail = intval($row['file_has_thumbnail']);
-                                $file_has_preview = intval($row['file_has_preview']);
                                 $file_created_at = nullable_htmlentities($row['file_created_at']);
                                 $file_folder_id = intval($row['file_folder_id']);
                                 
@@ -573,18 +551,8 @@ while ($folder_id > 0) {
                                             </button>
                                             <div class="dropdown-menu">
                                                 <a class="dropdown-item" href="<?php echo "uploads/clients/$client_id/$file_reference_name"; ?>" download="<?php echo $file_name; ?>">
-                                                    <i class="fas fa-fw fa-cloud-download-alt mr-2"></i>Download Original
+                                                    <i class="fas fa-fw fa-cloud-download-alt mr-2"></i>Download
                                                 </a>
-                                                <?php if ($file_has_preview) { ?>
-                                                <a class="dropdown-item" href="<?php echo "uploads/clients/$client_id/preview_$file_reference_name"; ?>" download="preview_<?php echo $file_name; ?>">
-                                                    <i class="fas fa-fw fa-cloud-download-alt mr-2"></i>Download Optimized
-                                                </a>
-                                                <?php } ?>
-                                                <?php if ($file_has_thumbnail) { ?>
-                                                <a class="dropdown-item" href="<?php echo "uploads/clients/$client_id/thumbnail_$file_reference_name"; ?>" download="thumbnail_<?php echo $file_name; ?>">
-                                                    <i class="fas fa-fw fa-cloud-download-alt mr-2"></i>Download Thumbnail
-                                                </a>
-                                                <?php } ?>
                                                 <a class="dropdown-item" href="#" data-toggle="modal" data-target="#shareModal" onclick="populateShareModal(<?php echo "$client_id, 'File', $file_id"; ?>)">
                                                     <i class="fas fa-fw fa-share mr-2"></i>Share
                                                 </a>
