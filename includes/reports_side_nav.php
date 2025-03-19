@@ -96,6 +96,13 @@
                             <p>Tickets by Client</p>
                         </a>
                     </li>
+
+                    <li class="nav-item">
+                        <a href="report_time_by_tech.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "report_time_by_tech.php") { echo "active"; } ?>">
+                            <i class="nav-icon fas fa-life-ring"></i>
+                            <p>Time by Technician</p>
+                        </a>
+                    </li>
                 <?php } ?>
                 <?php if (lookupUserPermission("module_credential") >= 1) { ?>
                     <li class="nav-item">
