@@ -2,6 +2,18 @@
 
 This file documents all notable changes made to ITFlow.
 
+## [25.03 UNRELEASED]
+
+### Fixed
+- Fixed missing attachments on ticket replies via the ticket email parser
+
+### Added / Changed
+- Added Bulk Delete Asset Functionality
+- Ability to redact ticket replies after a ticket is closed
+
+### Breaking Changes
+- Renamed users table; if you are unable to log in, update the database schema using the CLI script
+
 ## [25.02.4]
 
 ### Fixed
