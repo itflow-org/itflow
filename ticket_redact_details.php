@@ -8,7 +8,7 @@ if (!isset($session_is_admin) || !$session_is_admin) {
 }
 
 //Initialize the HTML Purifier to prevent XSS
-require "plugins/htmlpurifier/HTMLPurifier.standalone.php";
+require_once "plugins/htmlpurifier/HTMLPurifier.standalone.php";
 $purifier_config = HTMLPurifier_Config::createDefault();
 $purifier_config->set('Cache.DefinitionImpl', null); // Disable cache by setting a non-existent directory or an invalid one
 $purifier_config->set('URI.AllowedSchemes', ['data' => true, 'src' => true, 'http' => true, 'https' => true]);
@@ -40,7 +40,7 @@ if (isset($_GET['ticket_id']) && isset($_GET['ticket_reply_id'])) {
         // Get ticket reply
         $sql_ticket_reply = mysqli_query(
             $mysqli,
-            "SELECT * FROM ticket_replies 
+            "SELECT * FROM ticket_replies
             LEFT JOIN users ON ticket_reply_by = user_id
             LEFT JOIN contacts ON ticket_reply_by = contact_id
             WHERE ticket_reply_id = $ticket_reply_id AND ticket_reply_ticket_id = $ticket_id
