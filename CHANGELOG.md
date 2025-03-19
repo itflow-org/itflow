@@ -5,14 +5,31 @@ This file documents all notable changes made to ITFlow.
 ## [25.03 UNRELEASED]
 
 ### Fixed
-- Fixed missing attachments on ticket replies via the ticket email parser
+- Fixed missing attachments on ticket replies via the ticket email parser.
+- Fixed top half of portrait image uploads cut off at the bottom.
+- Ensure all Tables and fields use CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci on update and new installs.
+- Convert service_domains to use InnoDB instead of MyISAM.
+- Fixed intials function from breaking when using UTF8 characters which caused contacts to break.
+- 
 
 ### Added / Changed
-- Added Bulk Delete Asset Functionality
-- Ability to redact ticket replies after a ticket is closed
+- Added Bulk Delete Asset Functionality.
+- Ability to redact ticket replies after a ticket is closed.
+- Ability to redact text while ticket is open.
+- Switched File upload unique file naming to md5 instead of SGHA256 for a huge speed boost.
+- Added the ability to assign Multiple Assets to a ticket.
+- Updated all many to many table to use Cascading Deletion with Foreign key associations to reduce error and enhance efficiency abd performance while preserving data integrity.
+- Turned on Caching for the new AJAX Modals to increase performance to reduce the amount of items it needs to reload into the browser each time the ajax modal is called.
+- Bumped DataTables from 2.2.1 to 2.2.2.
+- Bumped TinyMCE from 7.6.1 to 7.7.1 - Giving a large performance boost.
+- Added Copy to Credentials to Clipboard button in AJAX asset and contact details.
+- Many Tables have been renameed updated changed.
+- Orgainzed Theme colors by primary color and then associated color in rows.
+- Added User icon next to contact if they have a user account.
+- New Image file uploads by default are converted to optimized webp files and original images are no longer saved. Existing images will be untouched.
 
 ### Breaking Changes
-- Renamed users table; if you are unable to log in, update the database schema using the CLI script
+- ATTENTION: TO UPDATE TO THIS VERSION YOU MUST USE: update_cli.php and update_cli.php --db_update from the command line to update or else you will break your install. Keep running update_cli.php --db_update until there are no more updates. BACKUP BEFORE UPDATING TO THIS VERSION. There have been many many backend changes to help us move further with development.
 
 ## [25.02.4]
 
