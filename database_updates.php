@@ -3404,7 +3404,7 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
     }
 
     // if (CURRENT_DATABASE_VERSION == '2.0.10') {
-    //     // Insert queries here required to update to DB version 2.0.9
+    //     // Insert queries here required to update to DB version 2.0.11
     //     // Then, update the database to the next sequential version
     //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '2.0.11'");
     // }
