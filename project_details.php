@@ -4,7 +4,7 @@
 if (isset($_GET['client_id'])) {
     require_once "includes/inc_all_client.php";
     $client_query = "AND ticket_client_id = $client_id";
-    $client_ticket_select_query = "AND ticket_client_id = $client_id";
+    $client_ticket_select_query = "AND ticket_client_id = $client_id"; // Used when linking a ticket to the project
     $client_url = "client_id=$client_id&";
 } else {
     require_once "includes/inc_all.php";
