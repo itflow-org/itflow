@@ -73,7 +73,8 @@
                                         <?php
                                             $sql_ticket_templates = mysqli_query($mysqli, "
                                                 SELECT tt.ticket_template_id, 
-                                                       tt.ticket_template_name, 
+                                                       tt.ticket_template_name,
+                                                       tt.ticket_template_subject, 
                                                        tt.ticket_template_details,
                                                        COUNT(ttt.task_template_id) as task_count
                                                 FROM ticket_templates tt
@@ -87,11 +88,12 @@
                                             while ($row = mysqli_fetch_array($sql_ticket_templates)) {
                                                 $ticket_template_id_select = intval($row['ticket_template_id']);
                                                 $ticket_template_name_select = nullable_htmlentities($row['ticket_template_name']);
+                                                $ticket_template_subject_select = nullable_htmlentities($row['ticket_template_subject']);
                                                 $ticket_template_details_select = nullable_htmlentities($row['ticket_template_details']);
                                                 $task_count = intval($row['task_count']);
                                             ?>
                                                 <option value="<?php echo $ticket_template_id_select; ?>"
-                                                        data-subject="<?php echo $ticket_template_name_select; ?>"
+                                                        data-subject="<?php echo $ticket_template_subject_select; ?>"
                                                         data-details="<?php echo $ticket_template_details_select; ?>">
                                                     <?php echo $ticket_template_name_select; ?> (<?php echo $task_count; ?> tasks)
                                                 </option>
