@@ -372,13 +372,6 @@ if (isset($_GET['asset_id'])) {
                         <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#uploadFilesModal">
                             <i class="fa fa-fw fa-upload mr-2"></i>Upload file(s)
                         </a>
-                        <div class="dropdown-divider"></div>
-                        <a class="dropdown-item text-dark" href="#"
-                            data-toggle="ajax-modal"
-                            data-ajax-url="ajax/ajax_asset_note_create.php"
-                            data-ajax-id="<?php echo $asset_id; ?>">
-                            <i class="fas fa-fw fa-sticky-note mr-2"></i>New Note
-                        </a>
                     </div>
                 </div>
 
