@@ -226,10 +226,30 @@ foreach ($certificateAlertArray as $day) {
         $certificate_name = sanitizeInput($row['certificate_name']);
         $certificate_domain = sanitizeInput($row['certificate_domain']);
         $certificate_expire = sanitizeInput($row['certificate_expire']);
+        $certificate_public_key = $row['certificate_public_key']; // Sanitize input breaks parsing
         $client_id = intval($row['client_id']);
         $client_name = sanitizeInput($row['client_name']);
 
-        appNotify("Certificate Expiring", "Certificate $certificate_name for $client_name will expire in $day Days on $certificate_expire", "certificates.php?client_id=$client_id", $client_id);
+        // Calculate the validity period
+        if (!empty($certificate_public_key)) {
+            $cert_public_key_obj = openssl_x509_parse($certificate_public_key);
+            $validity_days = intval(round(($cert_public_key_obj['validTo_time_t'] - $cert_public_key_obj['validFrom_time_t']) / (60 * 60 * 24)));
+
+            // Only raise a notification at 45 days if the certificate is valid for more than 90 days (i.e. not a LE)
+
+            if ($day == 45 && $validity_days < 91) {
+                // LE certificate - Do nothing here
+                echo "Not raising notification for LE certificate $certificate_name expiring in 45 days";
+
+            } else {
+                // This certificate is either expiring in 1 or 7 days or is a non-LE certificate expiring in 45 days
+                appNotify("Certificate Expiring", "Certificate $certificate_name for $client_name will expire in $day day(s) on $certificate_expire", "certificates.php?client_id=$client_id", $client_id);
+            }
+
+        } else {
+            // No public key - notify anyway as we can't check the validity period
+            appNotify("Certificate Expiring", "Certificate $certificate_name for $client_name will expire in $day day(s) on $certificate_expire", "certificates.php?client_id=$client_id", $client_id);
+        }
 
     }
 
