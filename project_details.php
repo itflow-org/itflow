@@ -1,6 +1,17 @@
 <?php
 
-require_once "includes/inc_all.php";
+// If client_id is in URI then show client Side Bar and client header
+if (isset($_GET['client_id'])) {
+    require_once "includes/inc_all_client.php";
+    $client_query = "AND ticket_client_id = $client_id";
+    $client_ticket_select_query = "AND ticket_client_id = $client_id";
+    $client_url = "client_id=$client_id&";
+} else {
+    require_once "includes/inc_all.php";
+    $client_query = '';
+    $client_ticket_select_query = '';
+    $client_url = '';
+}
 
 if (isset($_GET['project_id'])) {
     $project_id = intval($_GET['project_id']);

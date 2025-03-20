@@ -21,7 +21,7 @@
                                 <option value="">- Select a Tickets -</option>
                                 <?php
 
-                                $sql_tickets_select = mysqli_query($mysqli, "SELECT * FROM tickets WHERE ticket_project_id = 0 AND ticket_closed_at IS NULL");
+                                $sql_tickets_select = mysqli_query($mysqli, "SELECT * FROM tickets WHERE ticket_project_id = 0 AND ticket_closed_at IS NULL $client_ticket_select_query");
                                 while ($row = mysqli_fetch_array($sql_tickets_select)) {
                                     $ticket_id_select = intval($row['ticket_id']);
                                     $ticket_prefix_select = nullable_htmlentities($row['ticket_prefix']);

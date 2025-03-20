@@ -82,6 +82,18 @@
                         </a>
                     </li>
 
+                    <li class="nav-item">
+                        <a href="projects.php?client_id=<?php echo $client_id; ?>" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "projects.php" || basename($_SERVER["PHP_SELF"]) == "project_details.php") { echo "active"; } ?>">
+                            <i class="nav-icon fas fa-project-diagram"></i>
+                            <p>
+                                Projects
+                                <?php if ($num_active_projects) { ?>
+                                    <span class="right badge text-light" data-toggle="tooltip" title="Open Projects"><?php echo $num_active_projects; ?></span>
+                                <?php } ?>
+                            </p>
+                        </a>
+                    </li>
+
                 <?php } ?>
 
                 <li class="nav-item">
