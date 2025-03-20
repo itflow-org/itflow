@@ -162,7 +162,7 @@
                                             $contact_name = nullable_htmlentities($row['contact_name']);
                                             ?>
                                             <option
-                                                <?php if (isset($_GET['contact_id']) && $contact_id == intval($_GET['contact_id'])) { 
+                                                <?php if (isset($_GET['contact_id']) && $contact_id == $_GET['contact_id']) { 
                                                 echo "selected"; }
                                                 ?>
                                                 value="<?php echo $contact_id; ?>"><?php echo $contact_name; ?>
@@ -197,7 +197,9 @@
                                             }
 
                                             ?>
-                                            <option value="<?php echo $asset_id; ?>"><?php echo $asset_display_string; ?></option>
+                                            <option <?php if (isset($_GET['asset_id']) && $asset_id == $_GET['asset_id']) { 
+                                                echo "selected"; } ?>
+                                                value="<?php echo $asset_id; ?>"><?php echo $asset_display_string; ?></option>
 
                                             <?php
                                         }

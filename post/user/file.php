@@ -15,6 +15,8 @@ if (isset($_POST['upload_files'])) {
     $client_id   = intval($_POST['client_id']);
     $folder_id   = intval($_POST['folder_id']);
     $description = sanitizeInput($_POST['description']);
+    $contact_id = intval($_POST['contact'] ?? 0);
+    $asset_id = intval($_POST['asset'] ?? 0);
     $client_dir  = "uploads/clients/$client_id";
 
     // Create client directory if it doesn't exist
@@ -177,6 +179,14 @@ if (isset($_POST['upload_files'])) {
                         file_client_id = $client_id";
             mysqli_query($mysqli, $query);
             $file_id = mysqli_insert_id($mysqli);
+
+            if ($contact_id) {
+                mysqli_query($mysqli,"INSERT INTO contact_files SET contact_id = $contact_id, file_id = $file_id");
+            }
+
+            if ($asset_id) {
+                mysqli_query($mysqli,"INSERT INTO asset_files SET asset_id = $asset_id, file_id = $file_id");
+            }
 
             // Log upload action
             logAction("File", "Upload", "$session_name uploaded file $file_name", $client_id, $file_id);

@@ -12,12 +12,24 @@ if (isset($_POST['add_document'])) {
 
     require_once 'document_model.php';
 
+    $contact_id = intval($_POST['contact'] ?? 0);
+    $asset_id = intval($_POST['asset'] ?? 0);
+
     // Document add query
-    $add_document = mysqli_query($mysqli,"INSERT INTO documents SET document_name = '$name', document_description = '$description', document_content = '$content', document_content_raw = '$content_raw', document_template = 0, document_folder_id = $folder, document_created_by = $session_user_id, document_client_id = $client_id");
+    mysqli_query($mysqli,"INSERT INTO documents SET document_name = '$name', document_description = '$description', document_content = '$content', document_content_raw = '$content_raw', document_template = 0, document_folder_id = $folder, document_created_by = $session_user_id, document_client_id = $client_id");
+    
     $document_id = mysqli_insert_id($mysqli);
 
     // Update field document_parent to be the same id as document ID as this is the only version of the document.
     mysqli_query($mysqli,"UPDATE documents SET document_parent = $document_id WHERE document_id = $document_id");
+
+    if ($contact_id) {
+        mysqli_query($mysqli,"INSERT INTO contact_documents SET contact_id = $contact_id, document_id = $document_id");
+    }
+
+    if ($asset_id) {
+        mysqli_query($mysqli,"INSERT INTO asset_documents SET asset_id = $asset_id, document_id = $document_id");
+    }
 
     // Logging
     logAction("Document", "Create", "$session_name created document $name", $client_id, $document_id);

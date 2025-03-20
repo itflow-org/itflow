@@ -361,8 +361,23 @@ if (isset($_GET['asset_id'])) {
                             <i class="fa fa-fw fa-recycle mr-2"></i>New Recurring Ticket
                         </a>
                         <div class="dropdown-divider"></div>
-                        <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#createContactNoteModal<?php echo $contact_id; ?>">
-                            <i class="fa fa-fw fa-sticky-note mr-2"></i>New Note (WIP)
+                        <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#addCredentialModal">
+                            <i class="fa fa-fw fa-key mr-2"></i>New Credential
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#addDocumentModal">
+                            <i class="fa fa-fw fa-file-alt mr-2"></i>New Document
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#uploadFilesModal">
+                            <i class="fa fa-fw fa-upload mr-2"></i>Upload file(s)
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item text-dark" href="#"
+                            data-toggle="ajax-modal"
+                            data-ajax-url="ajax/ajax_asset_note_create.php"
+                            data-ajax-id="<?php echo $asset_id; ?>">
+                            <i class="fas fa-fw fa-sticky-note mr-2"></i>New Note
                         </a>
                     </div>
                 </div>
@@ -1181,6 +1196,9 @@ require_once "modals/asset_interface_import_modal.php";
 require_once "modals/asset_interface_export_modal.php";
 require_once "modals/ticket_add_modal.php";
 require_once "modals/recurring_ticket_add_modal.php";
+require_once "modals/credential_add_modal.php";
+require_once "modals/client_document_add_modal.php";
+require_once "modals/client_file_upload_modal.php";
 
 require_once "modals/asset_link_software_modal.php";
 require_once "modals/asset_link_credential_modal.php";

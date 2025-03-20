@@ -1184,17 +1184,17 @@ if (isset($_GET['contact_id'])) {
 <?php
 
 require_once "modals/ticket_add_modal.php";
+require_once "modals/recurring_ticket_add_modal.php";
+require_once "modals/asset_add_modal.php";
+require_once "modals/credential_add_modal.php";
+require_once "modals/client_document_add_modal.php";
+require_once "modals/client_file_upload_modal.php";
+
 require_once "modals/contact_link_asset_modal.php";
 require_once "modals/contact_link_software_modal.php";
 require_once "modals/contact_link_credential_modal.php";
 require_once "modals/contact_link_service_modal.php";
 require_once "modals/contact_link_document_modal.php";
 require_once "modals/contact_link_file_modal.php";
-
-require_once "modals/recurring_ticket_add_modal.php";
-require_once "modals/asset_add_modal.php";
-require_once "modals/credential_add_modal.php";
-require_once "modals/client_document_add_modal.php";
-require_once "modals/client_file_upload_modal.php";
 
 require_once "includes/footer.php";

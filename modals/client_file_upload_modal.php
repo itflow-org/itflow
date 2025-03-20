@@ -9,8 +9,13 @@
             </div>
             <form action="post.php" method="post" enctype="multipart/form-data" autocomplete="off">
                 <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
+                <?php if (isset($_GET['contact_id'])) { ?>
+                <input type="hidden" name="contact" value="<?php echo intval($_GET['contact_id']); ?>">
+                <?php } ?>
+                <?php if (isset($_GET['asset_id'])) { ?>
+                <input type="hidden" name="asset" value="<?php echo intval($_GET['asset_id']); ?>">
+                <?php } ?>
                 <div class="modal-body bg-white">
-
 
                     <div class="form-group">
                         <label>Description</label>

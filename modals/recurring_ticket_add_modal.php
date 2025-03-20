@@ -19,9 +19,11 @@
                         <li class="nav-item">
                             <a class="nav-link active" data-toggle="pill" href="#pills-add-details"><i class="fa fa-fw fa-life-ring mr-2"></i>Details</a>
                         </li>
+                        <?php if (!isset($_GET['contact_id'])) { ?>
                         <li class="nav-item">
                             <a class="nav-link" data-toggle="pill" href="#pills-add-contacts"><i class="fa fa-fw fa-users mr-2"></i>Contacts</a>
                         </li>
+                        <?php } ?>
                         <li class="nav-item">
                             <a class="nav-link" data-toggle="pill" href="#pills-add-schedule"><i class="fa fa-fw fa-building mr-2"></i>Schedule</a>
                         </li>
@@ -97,7 +99,7 @@
 
                         </div>
 
-
+                        <?php if (!isset($_GET['contact_id'])) { ?>
                         <div class="tab-pane fade" id="pills-add-contacts">
 
                             <div class="form-group">
@@ -137,8 +139,11 @@
                             <div id="contacts-section">
 
                             </div>
-
                         </div>
+                        <?php } else { ?>
+                        <input type="hidden" name="client" value="<?php echo $client_id; ?>">
+                        <input type="hidden" name="contact" value="<?php echo intval($_GET['contact_id']); ?>">
+                        <?php } ?>
 
                         <div class="tab-pane fade" id="pills-add-schedule">
 
