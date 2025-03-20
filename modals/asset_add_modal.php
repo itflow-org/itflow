@@ -15,22 +15,22 @@
 
                     <ul class="nav nav-pills nav-justified mb-3">
                         <li class="nav-item">
-                            <a class="nav-link active" data-toggle="pill" href="#pills-details">Details</a>
+                            <a class="nav-link active" data-toggle="pill" href="#pills-asset-details">Details</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" data-toggle="pill" href="#pills-network">Network</a>
+                            <a class="nav-link" data-toggle="pill" href="#pills-asset-network">Network</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" data-toggle="pill" href="#pills-assignment">Assignment</a>
+                            <a class="nav-link" data-toggle="pill" href="#pills-asset-assignment">Assignment</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" data-toggle="pill" href="#pills-purchase">Purchase</a>
+                            <a class="nav-link" data-toggle="pill" href="#pills-asset-purchase">Purchase</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" data-toggle="pill" href="#pills-login">Login</a>
+                            <a class="nav-link" data-toggle="pill" href="#pills-asset-login">Login</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" data-toggle="pill" href="#pills-notes">Notes</a>
+                            <a class="nav-link" data-toggle="pill" href="#pills-asset-notes">Notes</a>
                         </li>
                     </ul>
 
@@ -38,7 +38,7 @@
 
                     <div class="tab-content">
 
-                        <div class="tab-pane fade show active" id="pills-details">
+                        <div class="tab-pane fade show active" id="pills-asset-details">
 
                             <?php if ($client_url) { ?>
                                 <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
@@ -149,7 +149,7 @@
 
                         </div>
 
-                        <div class="tab-pane fade" id="pills-network">
+                        <div class="tab-pane fade" id="pills-asset-network">
                             <?php if ($client_url) { ?>
                             <div class="form-group">
                                 <label>Network</label>
@@ -243,7 +243,7 @@
 
                         </div>
 
-                        <div class="tab-pane fade" id="pills-assignment">
+                        <div class="tab-pane fade" id="pills-asset-assignment">
 
                             <div class="form-group">
                                 <label>Physical Location</label>
@@ -293,7 +293,12 @@
                                             $contact_id = intval($row['contact_id']);
                                             $contact_name = nullable_htmlentities($row['contact_name']);
                                             ?>
-                                            <option value="<?php echo $contact_id; ?>"><?php echo $contact_name; ?></option>
+                                            <option 
+                                                <?php if (isset($_GET['contact_id']) && $contact_id == intval($_GET['contact_id'])) { 
+                                                echo "selected"; }
+                                                ?>
+                                                value="<?php echo $contact_id; ?>"><?php echo $contact_name; ?>
+                                            </option>
 
                                         <?php } ?>
 
@@ -319,7 +324,7 @@
 
                         </div>
 
-                        <div class="tab-pane fade" id="pills-purchase">
+                        <div class="tab-pane fade" id="pills-asset-purchase">
 
                             <?php if ($client_url) { ?>
                             <div class="form-group">
@@ -391,7 +396,7 @@
 
                         </div>
 
-                        <div class="tab-pane fade" id="pills-login">
+                        <div class="tab-pane fade" id="pills-asset-login">
 
                             <div class="form-group">
                                 <label>Username</label>
@@ -415,7 +420,7 @@
 
                         </div>
 
-                        <div class="tab-pane fade" id="pills-notes">
+                        <div class="tab-pane fade" id="pills-asset-notes">
 
                             <div class="form-group">
                                 <label>Upload Photo</label>

@@ -14,13 +14,13 @@
                     <?php if (isset($_GET['client_id'])) { ?>
                         <ul class="nav nav-pills nav-justified mb-3">
                             <li class="nav-item">
-                                <a class="nav-link active" data-toggle="pill" href="#pills-details"><i class="fa fa-fw fa-life-ring mr-2"></i>Details</a>
+                                <a class="nav-link active" data-toggle="pill" href="#pills-ticket-details"><i class="fa fa-fw fa-life-ring mr-2"></i>Details</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link" data-toggle="pill" href="#pills-contacts"><i class="fa fa-fw fa-users mr-2"></i>Contact</a>
+                                <a class="nav-link" data-toggle="pill" href="#pills-ticket-contacts"><i class="fa fa-fw fa-users mr-2"></i>Contact</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link" data-toggle="pill" href="#pills-assignment"><i class="fa fa-fw fa-desktop mr-2"></i>Assignment</a>
+                                <a class="nav-link" data-toggle="pill" href="#pills-ticket-assignment"><i class="fa fa-fw fa-desktop mr-2"></i>Assignment</a>
                             </li>
                         </ul>
 
@@ -30,7 +30,7 @@
 
                     <div class="tab-content">
 
-                        <div class="tab-pane fade show active" id="pills-details">
+                        <div class="tab-pane fade show active" id="pills-ticket-details">
 
                             <?php if (empty($_GET['client_id'])) { ?>
 
@@ -207,7 +207,7 @@
 
                         <?php if (isset($_GET['client_id'])) { ?>
 
-                            <div class="tab-pane fade" id="pills-contacts">
+                            <div class="tab-pane fade" id="pills-ticket-contacts">
 
                                 <input type="hidden" name="client" value="<?php echo $client_id; ?>">
 
@@ -246,7 +246,7 @@
                                                 ?>
                                                 <option value="<?php echo $contact_id_select; ?>" 
                                                     <?php 
-                                                    if (isset($_GET['contact_id']) && $contact_id_select == $_GET['contact_id']) {
+                                                    if (isset($_GET['contact_id']) && $contact_id_select == intval($_GET['contact_id'])) {
                                                         echo "selected";
                                                     } elseif (empty($_GET['contact_id']) && $contact_primary_select == 1) {
                                                         echo "selected";
@@ -283,7 +283,7 @@
 
                             </div>
 
-                            <div class="tab-pane fade" id="pills-assignment">
+                            <div class="tab-pane fade" id="pills-ticket-assignment">
 
                                 <div class="form-group">
                                     <label>Primary Asset</label>

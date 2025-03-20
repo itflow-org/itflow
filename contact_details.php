@@ -264,6 +264,22 @@ if (isset($_GET['contact_id'])) {
                             <i class="fa fa-fw fa-recycle mr-2"></i>New Recurring Ticket
                         </a>
                         <div class="dropdown-divider"></div>
+                        <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#addAssetModal">
+                            <i class="fa fa-fw fa-desktop mr-2"></i>New Asset
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#addCredentialModal">
+                            <i class="fa fa-fw fa-key mr-2"></i>New Credential
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#addDocumentModal">
+                            <i class="fa fa-fw fa-file-alt mr-2"></i>New Document
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#uploadFilesModal">
+                            <i class="fa fa-fw fa-upload mr-2"></i>Upload file(s)
+                        </a>
+                        <div class="dropdown-divider"></div>
                         <a class="dropdown-item text-dark" href="#"
                             data-toggle="ajax-modal"
                             data-ajax-url="ajax/ajax_contact_note_create.php"
@@ -1176,5 +1192,9 @@ require_once "modals/contact_link_document_modal.php";
 require_once "modals/contact_link_file_modal.php";
 
 require_once "modals/recurring_ticket_add_modal.php";
+require_once "modals/asset_add_modal.php";
+require_once "modals/credential_add_modal.php";
+require_once "modals/client_document_add_modal.php";
+require_once "modals/client_file_upload_modal.php";
 
 require_once "includes/footer.php";

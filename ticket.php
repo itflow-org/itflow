@@ -826,7 +826,6 @@ if (isset($_GET['ticket_id'])) {
                                             <?php } ?>
                                         </div>
                                     </div>
-                                    <?php } ?>
 
                                     <small class="text-muted">
                                         <div title="Created: <?php echo $ticket_reply_created_at; if ($ticket_reply_updated_at) { echo '. Edited: ' . $ticket_reply_updated_at; } ?>">

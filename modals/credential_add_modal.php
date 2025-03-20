@@ -13,15 +13,15 @@
 
                     <ul class="nav nav-pills nav-justified mb-3">
                         <li class="nav-item">
-                            <a class="nav-link active" data-toggle="pill" href="#pills-details">Details</a>
+                            <a class="nav-link active" data-toggle="pill" href="#pills-credential-details">Details</a>
                         </li>
                         <?php if ($client_url) { ?>
                         <li class="nav-item">
-                            <a class="nav-link" data-toggle="pill" href="#pills-relation">Relation</a>
+                            <a class="nav-link" data-toggle="pill" href="#pills-credential-relation">Relation</a>
                         </li>
                         <?php } ?>
                         <li class="nav-item">
-                            <a class="nav-link" data-toggle="pill" href="#pills-notes">Notes</a>
+                            <a class="nav-link" data-toggle="pill" href="#pills-credential-notes">Notes</a>
                         </li>
                     </ul>
 
@@ -29,7 +29,7 @@
 
                     <div class="tab-content">
 
-                        <div class="tab-pane fade show active" id="pills-details">
+                        <div class="tab-pane fade show active" id="pills-credential-details">
 
                             <?php if ($client_url) { ?>
                                 <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
@@ -145,8 +145,7 @@
                         </div>
 
                         <?php if ($client_url) { ?>
-                        <div class="tab-pane fade" id="pills-relation">
-
+                        <div class="tab-pane fade" id="pills-credential-relation">
                             <div class="form-group">
                                 <label>Contact</label>
                                 <div class="input-group">
@@ -154,7 +153,7 @@
                                         <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
                                     </div>
                                     <select class="form-control select2" name="contact">
-                                        <option value="">- Contact -</option>
+                                        <option value="">- Select Contact -</option>
                                         <?php
 
                                         $sql = mysqli_query($mysqli, "SELECT * FROM contacts WHERE contact_client_id = $client_id ORDER BY contact_name ASC");
@@ -162,7 +161,12 @@
                                             $contact_id = intval($row['contact_id']);
                                             $contact_name = nullable_htmlentities($row['contact_name']);
                                             ?>
-                                            <option value="<?php echo $contact_id; ?>"><?php echo $contact_name; ?></option>
+                                            <option
+                                                <?php if (isset($_GET['contact_id']) && $contact_id == intval($_GET['contact_id'])) { 
+                                                echo "selected"; }
+                                                ?>
+                                                value="<?php echo $contact_id; ?>"><?php echo $contact_name; ?>
+                                            </option>
 
                                             <?php
                                         }
@@ -178,7 +182,7 @@
                                         <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
                                     </div>
                                     <select class="form-control select2" name="asset">
-                                        <option value="">- Asset -</option>
+                                        <option value="">- Select Asset -</option>
                                         <?php
 
                                         $sql = mysqli_query($mysqli, "SELECT * FROM assets LEFT JOIN locations on asset_location_id = location_id WHERE asset_client_id = $client_id AND asset_archived_at IS NULL ORDER BY asset_name ASC");
@@ -204,7 +208,7 @@
                         </div>
                         <?php } ?>
 
-                        <div class="tab-pane fade" id="pills-notes">
+                        <div class="tab-pane fade" id="pills-credential-notes">
 
                             <div class="form-group">
                                 <textarea class="form-control" rows="12" placeholder="Enter some notes" name="note"></textarea>

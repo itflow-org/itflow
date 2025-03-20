@@ -33,7 +33,7 @@
                     </div>
 
                     <div class="form-group">
-                        <textarea class="form-control tinymceTicket<?php if($config_ai_enable) { echo "AI"; } ?>" id="detailsInput" name="details"><?php echo $ticket_template_details; ?></textarea>
+                        <textarea class="form-control tinymceTicket<?php if($config_ai_enable) { echo "AI"; } ?>" name="details"><?php echo $ticket_template_details; ?></textarea>
                     </div>
 
                     <div class="form-group">
