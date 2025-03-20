@@ -1,8 +1,8 @@
-<div class="modal" id="addProjectTicketModal" tabindex="-1">
+<div class="modal" id="linkTicketModal" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content bg-dark">
             <div class="modal-header">
-                <h5 class="modal-title"><i class="fas fa-fw fa-life-ring mr-2"></i>Adding Ticket to Project: <strong><?php echo $project_name; ?></strong></h5>
+                <h5 class="modal-title"><i class="fas fa-fw fa-life-ring mr-2"></i>Link Ticket to Project: <strong><?php echo $project_name; ?></strong></h5>
                 <button type="button" class="close text-white" data-dismiss="modal">
                     <span>&times;</span>
                 </button>
@@ -40,7 +40,7 @@
                 </div>
 
                 <div class="modal-footer bg-white">
-                    <button type="submit" name="add_project_ticket" class="btn btn-primary text-bold"><i class="fas fa-check mr-2"></i>Add</button>
+                    <button type="submit" name="link_ticket_to_project" class="btn btn-primary text-bold"><i class="fas fa-check mr-2"></i>Link</button>
                     <button type="button" class="btn btn-light" data-dismiss="modal"><i class="fas fa-times mr-2"></i>Cancel</button>
                 </div>
             </form>

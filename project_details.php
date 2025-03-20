@@ -187,9 +187,26 @@ if (isset($_GET['project_id'])) {
                         </a>
                     <?php } ?>
                     <?php if (empty($project_completed_at)) { ?>
-                        <button type="button" class="btn btn-primary btn-sm" href="#" data-toggle="modal" data-target="#addProjectTicketModal">
-                            <i class="fas fa-fw fa-plus mr-2"></i>Add Ticket
-                        </button>
+                        <div class="dropdown mr-2">
+                            <button class="btn btn-primary btn-sm" type="button" id="dropdownMenuButton" data-toggle="dropdown">
+                                <i class="fas fa-fw fa-plus mr-2"></i>New
+                            </button>
+                            <div class="dropdown-menu">
+                                <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addTicketModal">
+                                    <i class="fas fa-fw fa-life-ring mr-2"></i>Ticket
+                                </a>
+                            </div>
+                        </div>
+                        <div class="dropdown">
+                            <button class="btn btn-outline-primary btn-sm" type="button" id="dropdownMenuButton" data-toggle="dropdown">
+                                <i class="fas fa-fw fa-link mr-2"></i>Link
+                            </button>
+                            <div class="dropdown-menu">
+                                <a class="dropdown-item" href="#" data-toggle="modal" data-target="#linkTicketModal">
+                                    <i class="fas fa-fw fa-life-ring mr-2"></i>Ticket
+                                </a>
+                            </div>
+                        </div>
                     <?php } ?>
                     <div class="dropdown dropleft text-center ml-3">
                         <button class="btn btn-secondary btn-sm" type="button" id="dropdownMenuButton" data-toggle="dropdown">
@@ -410,7 +427,8 @@ if (isset($_GET['project_id'])) {
 
     <?php
 
-    require_once "modals/project_ticket_add_modal.php";
+    require_once "modals/project_link_ticket_modal.php";
+    require_once "modals/ticket_add_modal.php";
 
 }
 

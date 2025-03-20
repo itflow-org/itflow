@@ -9,6 +9,10 @@
             </div>
             <form action="post.php" method="post" autocomplete="off">
 
+                <?php if (isset($_GET['project_id'])) { ?>
+                <input type="hidden" name="project" value="<?php echo intval($_GET['project_id']); ?>">
+                <?php } ?>
+                
                 <div class="modal-body bg-white">
 
                     <?php if (isset($_GET['client_id'])) { ?>
@@ -410,14 +414,14 @@
                                             <span class="input-group-text"><i class="fa fa-fw fa-project-diagram"></i></span>
                                         </div>
                                         <select class="form-control select2" name="project">
-                                            <option value="0">- None -</option>
+                                            <option value="0">- Select Project -</option>
                                             <?php
 
                                             $sql_projects = mysqli_query($mysqli, "SELECT project_id, project_name FROM projects WHERE project_client_id = $client_id AND project_completed_at IS NULL AND project_archived_at IS NULL ORDER BY project_name ASC");
                                             while ($row = mysqli_fetch_array($sql_projects)) {
                                                 $project_id_select = intval($row['project_id']);
                                                 $project_name_select = nullable_htmlentities($row['project_name']); ?>
-                                                <option value="<?php echo $project_id_select; ?>"><?php echo $project_name_select; ?></option>
+                                                <option <?php if (isset($_GET['project_id']) && $project_id_select == $_GET['project_id']) { echo "selected"; } ?> value="<?php echo $project_id_select; ?>"><?php echo $project_name_select; ?></option>
 
                                             <?php } ?>
                                         </select>
