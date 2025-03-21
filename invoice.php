@@ -257,7 +257,7 @@ if (isset($_GET['invoice_id'])) {
                             <a class="dropdown-item" href="#" onclick="window.print();">
                                 <i class="fa fa-fw fa-print text-secondary mr-2"></i>Print
                             </a>
-                            <a class="dropdown-item" href="#" onclick="pdfMake.createPdf(docDefinition).download('<?php echo strtoAZaz09(html_entity_decode("$invoice_date-$company_name-$client_name-Invoice-$invoice_prefix$invoice_number")); ?>');">
+                            <a class="dropdown-item" href="#" onclick="pdfMake.createPdf(docDefinition).download('<?php echo strtoAZaz09(html_entity_decode("$invoice_date-$company_name-$client_name-$config_invoice_localization_title-$invoice_prefix$invoice_number")); ?>');">
                                 <i class="fa fa-fw fa-download text-secondary mr-2"></i>Download PDF
                             </a>
                             <?php if (!empty($config_smtp_host) && !empty($contact_email)) { ?>
@@ -295,7 +295,7 @@ if (isset($_GET['invoice_id'])) {
                             <?php echo "$invoice_status"; ?>
                         </div>
                     </div>
-                    <h3 class="text-right mt-5"><strong>Invoice</strong><br><small class="text-secondary"><?php echo "$invoice_prefix$invoice_number"; ?></small></h3>
+                    <h3 class="text-right mt-5"><strong><?php echo $config_invoice_localization_title; ?></strong><br><small class="text-secondary"><?php echo "$invoice_prefix$invoice_number"; ?></small></h3>
                 </div>
 
             </div>
@@ -352,8 +352,8 @@ if (isset($_GET['invoice_id'])) {
                                     <th>Description</th>
                                     <th class="text-center">Quantity</th>
                                     <th class="text-right">Price</th>
-                                    <th class="text-right">Tax</th>
-                                    <th class="text-right">Total</th>
+                                    <th class="text-right"><?php echo $config_invoice_localization_tax; ?></th>
+                                    <th class="text-right"><?php echo $config_invoice_localization_total; ?></th>
                                 </tr>
                                 </thead>
                                 <tbody>
@@ -474,7 +474,7 @@ if (isset($_GET['invoice_id'])) {
                         <tbody>
 
                         <tr class="border-bottom">
-                            <td>Subtotal</td>
+                            <td><?php echo $config_invoice_localization_subtotal; ?></td>
                             <td class="text-right"><?php echo numfmt_format_currency($currency_format, $sub_total, $invoice_currency_code); ?></td>
                         </tr>
                         <?php
@@ -489,12 +489,12 @@ if (isset($_GET['invoice_id'])) {
                         ?>
                         <?php if ($total_tax > 0) { ?>
                             <tr class="border-bottom">
-                                <td>Tax</td>
+                                <td><?php echo $config_invoice_localization_tax; ?></td>
                                 <td class="text-right"><?php echo numfmt_format_currency($currency_format, $total_tax, $invoice_currency_code); ?></td>
                             </tr>
                         <?php } ?>
                         <tr class="border-bottom">
-                            <td>Total</td>
+                            <td><?php echo $config_invoice_localization_total; ?></td>
                             <td class="text-right"><?php echo numfmt_format_currency($currency_format, $invoice_amount, $invoice_currency_code); ?></td>
                         </tr>
                         <?php
@@ -714,7 +714,7 @@ require_once "includes/footer.php";
 
     var docDefinition = {
         info: {
-            title: <?php echo json_encode(html_entity_decode($company_name) . "- Invoice") ?>,
+            title: <?php echo json_encode(html_entity_decode($company_name) . "- " .  $config_invoice_localization_title) ?>,
             author: <?php echo json_encode(html_entity_decode($company_name)) ?>
         },
 
@@ -733,7 +733,7 @@ require_once "includes/footer.php";
 
                     [
                         {
-                            text: 'Invoice',
+                            text: '<?php echo $config_invoice_localization_title; ?>',
                             style: 'invoiceTitle',
                             width: '*'
                         },
@@ -848,11 +848,11 @@ require_once "includes/footer.php";
                                 style: [ 'itemsHeader', 'right']
                             },
                             {
-                                text: 'Tax',
+                                text: '<?php echo $config_invoice_localization_tax; ?>',
                                 style: [ 'itemsHeader', 'right']
                             },
                             {
-                                text: 'Total',
+                                text: '<?php echo $config_invoice_localization_total; ?>',
                                 style: [ 'itemsHeader', 'right']
                             }
                         ],
@@ -939,7 +939,7 @@ require_once "includes/footer.php";
                                 style: 'notesText'
                             },
                             {
-                                text: 'Subtotal',
+                                text: '<?php echo $config_invoice_localization_subtotal; ?>',
                                 style: 'itemsFooterSubTitle'
                             },
                             {
@@ -964,7 +964,7 @@ require_once "includes/footer.php";
                         [
                             {},
                             {
-                                text: 'Tax',
+                                text: '<?php echo $config_invoice_localization_tax; ?>',
                                 style: 'itemsFooterSubTitle'
                             },
                             {
@@ -976,7 +976,7 @@ require_once "includes/footer.php";
                         [
                             {},
                             {
-                                text: 'Total',
+                                text: '<?php echo $config_invoice_localization_total; ?>',
                                 style: 'itemsFooterSubTitle'
                             },
                             {
