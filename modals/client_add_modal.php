@@ -145,26 +145,6 @@
                         <div class="tab-pane fade" id="pills-location">
 
                             <div class="form-group">
-                                <label>Location Phone</label>
-                                <div class="input-group">
-                                    <div class="input-group-prepend">
-                                        <span class="input-group-text"><i class="fa fa-fw fa-phone"></i></span>
-                                    </div>
-                                    <input type="text" class="form-control" name="location_phone" placeholder="Location's Phone Number" maxlength="200">
-                                </div>
-                            </div>
-
-                            <div class="form-group">
-                                <label>Location Fax</label>
-                                <div class="input-group">
-                                    <div class="input-group-prepend">
-                                        <span class="input-group-text"><i class="fa fa-fw fa-fax"></i></span>
-                                    </div>
-                                    <input type="text" class="form-control" name="location_fax" placeholder="Location's Fax Number" maxlength="200">
-                                </div>
-                            </div>
-
-                            <div class="form-group">
                                 <label>Address</label>
                                 <div class="input-group">
                                     <div class="input-group-prepend">
@@ -216,6 +196,26 @@
                                             <option <?php if ($session_company_country == $country_name) { echo "selected"; } ?> ><?php echo $country_name; ?></option>
                                         <?php } ?>
                                     </select>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Location Phone</label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text"><i class="fa fa-fw fa-phone"></i></span>
+                                    </div>
+                                    <input type="text" class="form-control" name="location_phone" placeholder="Location's Phone Number" maxlength="200">
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Location Fax</label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text"><i class="fa fa-fw fa-fax"></i></span>
+                                    </div>
+                                    <input type="text" class="form-control" name="location_fax" placeholder="Location's Fax Number" maxlength="200">
                                 </div>
                             </div>
 

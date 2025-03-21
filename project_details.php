@@ -192,11 +192,6 @@ if (isset($_GET['project_id'])) {
 
             <div class="col-sm-3">
                 <div class="btn-group float-right d-print-none">
-                    <?php if ($tickets_closed_percent == 100 && empty($project_completed_at)) { ?>
-                        <a class="btn btn-primary btn-sm confirm-link" href="post.php?close_project=<?php echo $project_id; ?>">
-                            <i class="fas fa-fw fa-check mr-2"></i>Close
-                        </a>
-                    <?php } ?>
                     <?php if (empty($project_completed_at)) { ?>
                         <div class="dropdown mr-2">
                             <button class="btn btn-primary btn-sm" type="button" id="dropdownMenuButton" data-toggle="dropdown">
@@ -209,7 +204,7 @@ if (isset($_GET['project_id'])) {
                             </div>
                         </div>
                         <div class="dropdown">
-                            <button class="btn btn-outline-primary btn-sm" type="button" id="dropdownMenuButton" data-toggle="dropdown">
+                            <button class="btn btn-outline-primary btn-sm mr-3" type="button" id="dropdownMenuButton" data-toggle="dropdown">
                                 <i class="fas fa-fw fa-link mr-2"></i>Link
                             </button>
                             <div class="dropdown-menu">
@@ -218,6 +213,11 @@ if (isset($_GET['project_id'])) {
                                 </a>
                             </div>
                         </div>
+                    <?php } ?>
+                    <?php if ($tickets_closed_percent == 100 && empty($project_completed_at)) { ?>
+                        <a class="btn btn-dark btn-sm confirm-link" href="post.php?close_project=<?php echo $project_id; ?>">
+                            <i class="fas fa-fw fa-check mr-2"></i>Close
+                        </a>
                     <?php } ?>
                     <div class="dropdown dropleft text-center ml-3">
                         <button class="btn btn-secondary btn-sm" type="button" id="dropdownMenuButton" data-toggle="dropdown">
