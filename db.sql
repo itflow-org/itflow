@@ -546,6 +546,7 @@ CREATE TABLE `companies` (
   `company_state` varchar(200) DEFAULT NULL,
   `company_zip` varchar(200) DEFAULT NULL,
   `company_country` varchar(200) DEFAULT NULL,
+  `company_phone_country_code` varchar(10) DEFAULT '1',
   `company_phone` varchar(200) DEFAULT NULL,
   `company_email` varchar(200) DEFAULT NULL,
   `company_website` varchar(200) DEFAULT NULL,
@@ -679,8 +680,10 @@ CREATE TABLE `contacts` (
   `contact_name` varchar(200) NOT NULL,
   `contact_title` varchar(200) DEFAULT NULL,
   `contact_email` varchar(200) DEFAULT NULL,
+  `contact_phone_country_code` varchar(10) DEFAULT '1',
   `contact_phone` varchar(200) DEFAULT NULL,
   `contact_extension` varchar(200) DEFAULT NULL,
+  `contact_mobile_country_code` varchar(10) DEFAULT '1',
   `contact_mobile` varchar(200) DEFAULT NULL,
   `contact_photo` varchar(200) DEFAULT NULL,
   `contact_pin` varchar(255) DEFAULT NULL,
@@ -972,8 +975,6 @@ CREATE TABLE `files` (
   `file_ext` varchar(10) DEFAULT NULL,
   `file_size` bigint(20) unsigned NOT NULL DEFAULT 0,
   `file_mime_type` varchar(100) DEFAULT NULL,
-  `file_has_thumbnail` tinyint(1) NOT NULL DEFAULT 0,
-  `file_has_preview` tinyint(1) NOT NULL DEFAULT 0,
   `file_important` tinyint(1) NOT NULL DEFAULT 0,
   `file_created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `file_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
@@ -981,7 +982,6 @@ CREATE TABLE `files` (
   `file_accessed_at` datetime DEFAULT NULL,
   `file_created_by` int(11) NOT NULL DEFAULT 0,
   `file_folder_id` int(11) NOT NULL DEFAULT 0,
-  `file_asset_id` int(11) NOT NULL DEFAULT 0,
   `file_client_id` int(11) NOT NULL DEFAULT 0,
   PRIMARY KEY (`file_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -1115,7 +1115,10 @@ CREATE TABLE `locations` (
   `location_city` varchar(200) DEFAULT NULL,
   `location_state` varchar(200) DEFAULT NULL,
   `location_zip` varchar(200) DEFAULT NULL,
+  `location_phone_country_code` varchar(10) DEFAULT '1',
   `location_phone` varchar(200) DEFAULT NULL,
+  `location_phone_extension` varchar(10) DEFAULT NULL,
+  `location_fax_country_code` varchar(10) DEFAULT '1',
   `location_fax` varchar(200) DEFAULT NULL,
   `location_hours` varchar(200) DEFAULT NULL,
   `location_photo` varchar(200) DEFAULT NULL,
@@ -2465,6 +2468,7 @@ CREATE TABLE `vendors` (
   `vendor_name` varchar(200) NOT NULL,
   `vendor_description` varchar(200) DEFAULT NULL,
   `vendor_contact_name` varchar(200) DEFAULT NULL,
+  `vendor_phone_country_code` varchar(10) DEFAULT '1',
   `vendor_phone` varchar(200) DEFAULT NULL,
   `vendor_extension` varchar(200) DEFAULT NULL,
   `vendor_email` varchar(200) DEFAULT NULL,
@@ -2494,4 +2498,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-03-18 16:46:18
+-- Dump completed on 2025-03-21 12:46:56

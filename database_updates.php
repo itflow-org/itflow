@@ -3396,10 +3396,27 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
         mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '2.0.9'");
     }
 
-    // if (CURRENT_DATABASE_VERSION == '2.0.9') {
-    //     // Insert queries here required to update to DB version 2.1.0
+    if (CURRENT_DATABASE_VERSION == '2.0.9') {
+        
+        mysqli_query($mysqli, "ALTER TABLE `contacts` ADD `contact_phone_country_code` VARCHAR(10) DEFAULT 1 AFTER `contact_email`");
+        mysqli_query($mysqli, "ALTER TABLE `contacts` ADD `contact_mobile_country_code` VARCHAR(10) DEFAULT 1 AFTER `contact_extension`");
+
+        mysqli_query($mysqli, "ALTER TABLE `locations` ADD `location_phone_country_code` VARCHAR(10) DEFAULT 1 AFTER `location_zip`");
+        mysqli_query($mysqli, "ALTER TABLE `locations` ADD `location_phone_extension` VARCHAR(10) DEFAULT NULL AFTER `location_phone`");
+        mysqli_query($mysqli, "ALTER TABLE `locations` ADD `location_fax_country_code` VARCHAR(10) DEFAULT 1 AFTER `location_phone_extension`");
+
+        mysqli_query($mysqli, "ALTER TABLE `vendors` ADD `vendor_phone_country_code` VARCHAR(10) DEFAULT 1 AFTER `vendor_contact_name`");
+
+        mysqli_query($mysqli, "ALTER TABLE `companies` ADD `company_phone_country_code` VARCHAR(10) DEFAULT 1 AFTER `company_country`");
+
+
+        mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '2.1.0'");
+    }
+
+    // if (CURRENT_DATABASE_VERSION == '2.1.0') {
+    //     // Insert queries here required to update to DB version 2.1.1
     //     // Then, update the database to the next sequential version
-    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '2.1.0'");
+    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '2.1.1'");
     // }
 
 } else {
