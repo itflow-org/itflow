@@ -95,7 +95,14 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 <option value="" <?php if ($client == "") { echo "selected"; } ?>>- All Clients -</option>
 
                                 <?php
-                                $sql_clients_filter = mysqli_query($mysqli, "SELECT * FROM clients WHERE client_archived_at IS NULL $access_permission_query ORDER BY client_name ASC");
+                                    $sql_clients_filter = mysqli_query($mysqli, "
+                                    SELECT DISTINCT client_id, client_name 
+                                    FROM clients
+                                    JOIN software ON software_client_id = client_id
+                                    WHERE client_archived_at IS NULL 
+                                    $access_permission_query
+                                    ORDER BY client_name ASC
+                                ");
                                 while ($row = mysqli_fetch_array($sql_clients_filter)) {
                                     $client_id = intval($row['client_id']);
                                     $client_name = nullable_htmlentities($row['client_name']);
