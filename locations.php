@@ -15,6 +15,18 @@ if (isset($_GET['client_id'])) {
     $client_url = '';
 }
 
+if (!$client_url) {
+    // Client Filter
+    if (isset($_GET['client']) & !empty($_GET['client'])) {
+        $client_query = 'AND (location_client_id = ' . intval($_GET['client']) . ')';
+        $client = intval($_GET['client']);
+    } else {
+        // Default - any
+        $client_query = '';
+        $client = '';
+    }
+}
+
 // Tags Filter
 if (isset($_GET['tags']) && is_array($_GET['tags']) && !empty($_GET['tags'])) {
     // Sanitize each element of the status array
@@ -30,9 +42,6 @@ if (isset($_GET['tags']) && is_array($_GET['tags']) && !empty($_GET['tags'])) {
 } else {
     $tag_query = '';
 }
-
-//Rebuild URL
-$url_query_strings_sort = http_build_query($get_copy);
 
 $sql = mysqli_query(
     $mysqli,
@@ -116,8 +125,31 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         </div>
                     </div>
                 </div>
+                <?php if ($client_url) { ?>
+                <div class="col-md-2"></div>
+                <?php } else { ?>
+                <div class="col-md-2">
+                    <div class="input-group">
+                        <select class="form-control select2" name="client" onchange="this.form.submit()">
+                            <option value="" <?php if ($client == "") { echo "selected"; } ?>>- All Clients -</option>
 
-                <div class="col-md-5">
+                            <?php
+                            $sql_clients_filter = mysqli_query($mysqli, "SELECT * FROM clients WHERE client_archived_at IS NULL $access_permission_query ORDER BY client_name ASC");
+                            while ($row = mysqli_fetch_array($sql_clients_filter)) {
+                                $client_id = intval($row['client_id']);
+                                $client_name = nullable_htmlentities($row['client_name']);
+                            ?>
+                                <option <?php if ($client == $client_id) { echo "selected"; } ?> value="<?php echo $client_id; ?>"><?php echo $client_name; ?></option>
+                            <?php
+                            }
+                            ?>
+
+                        </select>
+                    </div>
+                </div>
+                <?php } ?>
+
+                <div class="col-md-3">
                     <div class="btn-group float-right">
                         <a href="?<?php echo $client_url; ?>archived=<?php if($archived == 1){ echo 0; } else { echo 1; } ?>"
                             class="btn btn-<?php if($archived == 1){ echo "primary"; } else { echo "default"; } ?>">

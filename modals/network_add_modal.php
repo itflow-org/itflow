@@ -49,7 +49,7 @@
                                             while ($row = mysqli_fetch_array($sql)) {
                                                 $client_id = intval($row['client_id']);
                                                 $client_name = nullable_htmlentities($row['client_name']); ?>
-                                                <option value="<?php echo $client_id; ?>"><?php echo $client_name; ?></option>
+                                                <option <?php if ($client_id == $_GET['client']) { echo "selected"; } ?> value="<?php echo $client_id; ?>"><?php echo $client_name; ?></option>
 
                                             <?php } ?>
                                         </select>
@@ -86,7 +86,7 @@
                                         <span class="input-group-text"><i class="fa fa-fw fa-map-marker-alt"></i></span>
                                     </div>
                                     <select class="form-control select2" name="location">
-                                        <option value="">- Location -</option>
+                                        <option value="">- Select Location -</option>
                                         <?php
 
                                         $sql = mysqli_query($mysqli, "SELECT * FROM locations WHERE location_archived_at IS NULL AND location_client_id = $client_id ORDER BY location_name ASC");
@@ -94,7 +94,7 @@
                                             $location_id = intval($row['location_id']);
                                             $location_name = nullable_htmlentities($row['location_name']);
                                         ?>
-                                        <option value="<?php echo $location_id; ?>"><?php echo $location_name; ?></option>
+                                        <option <?php if ($location_id == $_GET['location']) { echo "selected"; } ?> value="<?php echo $location_id; ?>"><?php echo $location_name; ?></option>
 
                                         <?php
                                         }

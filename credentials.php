@@ -126,6 +126,31 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         </div>
                     </div>
                 </div>
+
+                <div class="col-md-3">
+                    <div class="input-group">
+                        <select onchange="this.form.submit()" class="form-control select2" name="tags[]" data-placeholder="- Select Tags -" multiple>
+
+                            <?php $sql_tags = mysqli_query($mysqli, "SELECT * FROM tags WHERE tag_type = 4");
+                            while ($row = mysqli_fetch_array($sql_tags)) {
+                                $tag_id = intval($row['tag_id']);
+                                $tag_name = nullable_htmlentities($row['tag_name']); ?>
+
+                                <option value="<?php echo $tag_id ?>" <?php if (isset($_GET['tags']) && is_array($_GET['tags']) && in_array($tag_id, $_GET['tags'])) { echo 'selected'; } ?>> <?php echo $tag_name ?> </option>
+
+                            <?php } ?>
+                        </select>
+                        <div class="input-group-append">
+                            <button class="btn btn-secondary" type="button"
+                                data-toggle="ajax-modal"
+                                data-modal-size="sm"
+                                data-ajax-url="ajax/ajax_tag_add.php"
+                                data-ajax-id="4">
+                                <i class="fas fa-plus"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
                 
                 <?php if ($client_url) { ?>
                 <div class="col-md-2">
@@ -168,31 +193,6 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     </div>
                 </div>
                 <?php } ?>
-
-                <div class="col-md-3">
-                    <div class="input-group">
-                        <select onchange="this.form.submit()" class="form-control select2" name="tags[]" data-placeholder="- Select Tags -" multiple>
-
-                            <?php $sql_tags = mysqli_query($mysqli, "SELECT * FROM tags WHERE tag_type = 4");
-                            while ($row = mysqli_fetch_array($sql_tags)) {
-                                $tag_id = intval($row['tag_id']);
-                                $tag_name = nullable_htmlentities($row['tag_name']); ?>
-
-                                <option value="<?php echo $tag_id ?>" <?php if (isset($_GET['tags']) && is_array($_GET['tags']) && in_array($tag_id, $_GET['tags'])) { echo 'selected'; } ?>> <?php echo $tag_name ?> </option>
-
-                            <?php } ?>
-                        </select>
-                        <div class="input-group-append">
-                            <button class="btn btn-secondary" type="button"
-                                data-toggle="ajax-modal"
-                                data-modal-size="sm"
-                                data-ajax-url="ajax/ajax_tag_add.php"
-                                data-ajax-id="4">
-                                <i class="fas fa-plus"></i>
-                            </button>
-                        </div>
-                    </div>
-                </div>
 
                 <div class="col-md-3">
                     <div class="btn-group float-right">
