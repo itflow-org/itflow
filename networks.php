@@ -98,7 +98,15 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             <option value="">- All Locations -</option>
 
                             <?php
-                            $sql_locations_filter = mysqli_query($mysqli, "SELECT * FROM locations WHERE location_client_id = $client_id AND location_archived_at IS NULL ORDER BY location_name ASC");
+                            $sql_locations_filter = mysqli_query($mysqli, "
+                                SELECT DISTINCT location_id, location_name
+                                FROM locations
+                                LEFT JOIN networks ON network_location_id = location_id
+                                WHERE location_client_id = $client_id 
+                                AND location_archived_at IS NULL 
+                                AND network_location_id != 0
+                                ORDER BY location_name ASC
+                            ");
                             while ($row = mysqli_fetch_array($sql_locations_filter)) {
                                 $location_id = intval($row['location_id']);
                                 $location_name = nullable_htmlentities($row['location_name']);
