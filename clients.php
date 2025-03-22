@@ -20,18 +20,14 @@ if (isset($_GET['leads']) && $_GET['leads'] == 1) {
 
 // Tags Filter
 if (isset($_GET['tags']) && is_array($_GET['tags']) && !empty($_GET['tags'])) {
-    // Sanitize each element of the status array
-    $sanitizedTags = array();
-    foreach ($_GET['tags'] as $tag) {
-        // Escape each status to prevent SQL injection
-        $sanitizedTags[] = "'" . intval($tag) . "'";
-    }
-
+    // Sanitize each element of the tags array
+    $sanitizedTags = array_map('intval', $_GET['tags']);
     // Convert the sanitized tags into a comma-separated string
-    $sanitizedTagsString = implode(",", $sanitizedTags);
-    $tag_query = "AND tags.tag_id IN ($sanitizedTagsString)";
+    $tag_filter = implode(",", $sanitizedTags);
+    $tag_query = "AND tags.tag_id IN ($tag_filter)";
 } else {
-    $tag_query = '';    
+    $tag_filter = 0;
+    $tag_query = '';
 }
 
 // Industry Filter
@@ -191,12 +187,12 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 <select onchange="this.form.submit()" class="form-control select2" name="tags[]" data-placeholder="- Select Tags -" multiple>
                                     <?php 
                                     $sql_tags_filter = mysqli_query($mysqli, "
-                                        SELECT tags.tag_id, tags.tag_name, tag_type
+                                        SELECT tags.tag_id, tags.tag_name
                                         FROM tags 
                                         LEFT JOIN client_tags ON client_tags.tag_id = tags.tag_id
                                         WHERE tag_type = 1
                                         GROUP BY tags.tag_id
-                                        HAVING COUNT(client_tags.client_id) > 0
+                                        HAVING COUNT(client_tags.client_id) > 0 OR tags.tag_id IN ($tag_filter)
                                     ");
                                     while ($row = mysqli_fetch_array($sql_tags_filter)) {
                                         $tag_id = intval($row['tag_id']);
@@ -497,10 +493,6 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
 <?php
 require_once "modals/client_add_modal.php";
-
 require_once "modals/client_import_modal.php";
-
 require_once "modals/client_export_modal.php";
-
 require_once "includes/footer.php";
-

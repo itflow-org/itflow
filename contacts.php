@@ -17,17 +17,13 @@ if (isset($_GET['client_id'])) {
 
 // Tags Filter
 if (isset($_GET['tags']) && is_array($_GET['tags']) && !empty($_GET['tags'])) {
-    // Sanitize each element of the status array
-    $sanitizedTags = array();
-    foreach ($_GET['tags'] as $tag) {
-        // Escape each status to prevent SQL injection
-        $sanitizedTags[] = "'" . intval($tag) . "'";
-    }
-
+    // Sanitize each element of the tags array
+    $sanitizedTags = array_map('intval', $_GET['tags']);
     // Convert the sanitized tags into a comma-separated string
-    $sanitizedTagsString = implode(",", $sanitizedTags);
-    $tag_query = "AND tags.tag_id IN ($sanitizedTagsString)";
+    $tag_filter = implode(",", $sanitizedTags);
+    $tag_query = "AND tags.tag_id IN ($tag_filter)";
 } else {
+    $tag_filter = 0;
     $tag_query = '';
 }
 
@@ -119,12 +115,12 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                             <?php
                             $sql_tags_filter = mysqli_query($mysqli, "
-                                SELECT tags.tag_id, tags.tag_name, tag_type 
+                                SELECT tags.tag_id, tags.tag_name
                                 FROM tags 
                                 LEFT JOIN contact_tags ON contact_tags.tag_id = tags.tag_id
                                 LEFT JOIN contacts ON contact_tags.contact_id = contacts.contact_id
                                 WHERE tag_type = 3
-                                $client_query  -- This ensures we only get tags relevant to the selected client
+                                $client_query OR tags.tag_id IN ($tag_filter) -- This ensures we only get tags relevant to the selected client or Include the tags in the URL, even if no contacts are associated with them
                                 GROUP BY tags.tag_id
                                 HAVING COUNT(contact_tags.contact_id) > 0
                             ");
@@ -132,7 +128,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 $tag_id = intval($row['tag_id']);
                                 $tag_name = nullable_htmlentities($row['tag_name']); ?>
 
-                                <option value="<?php echo $tag_id ?>" <?php if (isset($_GET['tags']) && is_array($_GET['tags']) && in_array($tag_id, $_GET['tags'])) { echo 'selected'; } ?>> <?php echo $tag_name ?> </option>
+                                <option value="<?php echo $tag_id ?>" <?php if (isset($_GET['tags']) && in_array($tag_id, $_GET['tags'])) { echo 'selected'; } ?>> <?php echo $tag_name ?> </option>
 
                             <?php } ?>
                         </select>

@@ -24,17 +24,13 @@ enforceUserPermission('module_credential');
 
 // Tags Filter
 if (isset($_GET['tags']) && is_array($_GET['tags']) && !empty($_GET['tags'])) {
-    // Sanitize each element of the status array
-    $sanitizedTags = array();
-    foreach ($_GET['tags'] as $tag) {
-        // Escape each status to prevent SQL injection
-        $sanitizedTags[] = "'" . intval($tag) . "'";
-    }
-
+    // Sanitize each element of the tags array
+    $sanitizedTags = array_map('intval', $_GET['tags']);
     // Convert the sanitized tags into a comma-separated string
-    $sanitizedTagsString = implode(",", $sanitizedTags);
-    $tag_query = "AND tags.tag_id IN ($sanitizedTagsString)";
+    $tag_filter = implode(",", $sanitizedTags);
+    $tag_query = "AND tags.tag_id IN ($tag_filter)";
 } else {
+    $tag_filter = 0;
     $tag_query = '';
 }
 
@@ -138,7 +134,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 LEFT JOIN credential_tags ON credential_tags.tag_id = tags.tag_id
                                 LEFT JOIN credentials ON credential_tags.credential_id = credentials.credential_id
                                 WHERE tag_type = 4
-                                $client_query  -- This ensures we only get tags relevant to the selected client
+                                $client_query OR tags.tag_id IN ($tag_filter) -- This ensures we only get tags relevant to the selected client or Include the tags in the URL, even if no contacts are associated with them
                                 GROUP BY tags.tag_id
                                 HAVING COUNT(credential_tags.credential_id) > 0
                             ");
