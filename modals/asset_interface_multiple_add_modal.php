@@ -21,7 +21,7 @@
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fa fa-fw fa-ethernet"></i></span>
                             </div>
-                            <input type="number" id="interface_start" class="form-control" name="interface_start" placeholder="e.g., 1" min="1" required>
+                            <input type="number" id="interface_start" class="form-control" name="interface_start" placeholder="e.g., 1" min="0" required>
                         </div>
                     </div>
 
