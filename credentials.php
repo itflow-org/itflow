@@ -131,8 +131,18 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     <div class="input-group">
                         <select onchange="this.form.submit()" class="form-control select2" name="tags[]" data-placeholder="- Select Tags -" multiple>
 
-                            <?php $sql_tags = mysqli_query($mysqli, "SELECT * FROM tags WHERE tag_type = 4");
-                            while ($row = mysqli_fetch_array($sql_tags)) {
+                            <?php
+                            $sql_tags_filter = mysqli_query($mysqli, "
+                                SELECT tags.tag_id, tags.tag_name, tag_type 
+                                FROM tags 
+                                LEFT JOIN credential_tags ON credential_tags.tag_id = tags.tag_id
+                                LEFT JOIN credentials ON credential_tags.credential_id = credentials.credential_id
+                                WHERE tag_type = 4
+                                $client_query  -- This ensures we only get tags relevant to the selected client
+                                GROUP BY tags.tag_id
+                                HAVING COUNT(credential_tags.credential_id) > 0
+                            ");
+                            while ($row = mysqli_fetch_array($sql_tags_filter)) {
                                 $tag_id = intval($row['tag_id']);
                                 $tag_name = nullable_htmlentities($row['tag_name']); ?>
 
@@ -140,15 +150,6 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                             <?php } ?>
                         </select>
-                        <div class="input-group-append">
-                            <button class="btn btn-secondary" type="button"
-                                data-toggle="ajax-modal"
-                                data-modal-size="sm"
-                                data-ajax-url="ajax/ajax_tag_add.php"
-                                data-ajax-id="4">
-                                <i class="fas fa-plus"></i>
-                            </button>
-                        </div>
                     </div>
                 </div>
                 
