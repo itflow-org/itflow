@@ -53,7 +53,7 @@ if ($client_url && isset($_GET['location']) && !empty($_GET['location'])) {
 } else {
     // Default - any
     $location_query = '';
-    $location_filter = '';
+    $location_filter = 0;
 }
 
 //Get Asset Counts
@@ -216,7 +216,7 @@ if (mysqli_num_rows($os_sql) > 0) {
                                 LEFT JOIN assets ON asset_location_id = location_id
                                 WHERE location_client_id = $client_id 
                                 AND location_archived_at IS NULL 
-                                AND asset_location_id != 0
+                                AND (asset_location_id != 0 OR location_id = $location_filter)
                                 ORDER BY location_name ASC
                             ");
                             while ($row = mysqli_fetch_array($sql_locations_filter)) {

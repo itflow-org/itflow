@@ -50,7 +50,7 @@ if ($client_url && isset($_GET['location']) && !empty($_GET['location'])) {
 } else {
     // Default - any
     $location_query = '';
-    $location_filter = '';
+    $location_filter = 0;
 }
 
 $sql = mysqli_query($mysqli, "SELECT SQL_CALC_FOUND_ROWS contacts.*, clients.*, locations.*, users.*, GROUP_CONCAT(tags.tag_name) FROM contacts
@@ -152,7 +152,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 LEFT JOIN contacts ON contact_location_id = location_id
                                 WHERE location_client_id = $client_id 
                                 AND location_archived_at IS NULL 
-                                AND contact_location_id != 0
+                                AND (contact_location_id != 0 OR location_id = $location_filter)
                                 ORDER BY location_name ASC
                             ");
                             while ($row = mysqli_fetch_array($sql_locations_filter)) {
