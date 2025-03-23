@@ -129,14 +129,14 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                             <?php
                             $sql_tags_filter = mysqli_query($mysqli, "
-                                SELECT tags.tag_id, tags.tag_name, tag_type 
+                                SELECT tags.tag_id, tags.tag_name
                                 FROM tags 
                                 LEFT JOIN credential_tags ON credential_tags.tag_id = tags.tag_id
                                 LEFT JOIN credentials ON credential_tags.credential_id = credentials.credential_id
                                 WHERE tag_type = 4
-                                $client_query OR tags.tag_id IN ($tag_filter) -- This ensures we only get tags relevant to the selected client or Include the tags in the URL, even if no contacts are associated with them
+                                $client_query OR tags.tag_id IN ($tag_filter)
                                 GROUP BY tags.tag_id
-                                HAVING COUNT(credential_tags.credential_id) > 0
+                                HAVING COUNT(credential_tags.credential_id) > 0 OR tags.tag_id IN ($tag_filter)
                             ");
                             while ($row = mysqli_fetch_array($sql_tags_filter)) {
                                 $tag_id = intval($row['tag_id']);

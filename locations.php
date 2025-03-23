@@ -108,9 +108,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 LEFT JOIN location_tags ON location_tags.tag_id = tags.tag_id
                                 LEFT JOIN locations ON location_tags.location_id = locations.location_id
                                 WHERE tag_type = 2
-                                $client_query OR tags.tag_id IN ($tag_filter) -- This ensures we only get tags relevant to the selected client or Include the tags in the URL, even if no contacts are associated with them
+                                $client_query OR tags.tag_id IN ($tag_filter)
                                 GROUP BY tags.tag_id
-                                HAVING COUNT(location_tags.location_id) > 0
+                                HAVING COUNT(location_tags.location_id) > 0 OR tags.tag_id IN ($tag_filter)
                             ");
                             while ($row = mysqli_fetch_array($sql_tags_filter)) {
                                 $tag_id = intval($row['tag_id']);
