@@ -93,20 +93,20 @@
                                 </div>
                             </div>
 
-                            <label>Phone</label>
+                            <label>Phone / <span class="text-secondary">Extension</span></label>
                             <div class="form-row">
-                                <div class="col-8">
+                                <div class="col-9">
                                     <div class="form-group">
                                         <div class="input-group">
                                             <div class="input-group-prepend">
                                                 <span class="input-group-text"><i class="fa fa-fw fa-phone"></i></span>
                                             </div>
-                                            <input type="text" class="form-control" name="phone" placeholder="Phone Number" maxlength="200">
+                                            <input type="tel" class="form-control" name="phone">
                                         </div>
                                     </div>
                                 </div>
-                                <div class="col-4">
-                                    <input type="text" class="form-control" name="extension" placeholder="Extension" maxlength="200">
+                                <div class="col-3">
+                                    <input type="text" class="form-control" name="extension" placeholder="ext." maxlength="200">
                                 </div>
                             </div>
 
@@ -116,7 +116,7 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-mobile-alt"></i></span>
                                     </div>
-                                    <input type="text" class="form-control" name="mobile" placeholder="Mobile Phone Number" maxlength="200">
+                                    <input type="tel" class="form-control" name="mobile">
                                 </div>
                             </div>
 

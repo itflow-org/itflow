@@ -451,6 +451,9 @@ $(document).ready(function() {
     window.intlTelInput(input, {
       initialCountry: "us",
       strictMode: true,
+      showFlags: false,
+      separateDialCode: true,
+      nationalMode: false,
       loadUtils: () => import("../plugins/intl-tel-input/js/utils.js") // for formatting/placeholders etc
     });
   });

@@ -15,6 +15,7 @@ $location_city = nullable_htmlentities($row['location_city']);
 $location_state = nullable_htmlentities($row['location_state']);
 $location_zip = nullable_htmlentities($row['location_zip']);
 $location_phone = formatPhoneNumber($row['location_phone']);
+$location_extension = formatPhoneNumber($row['location_extension']);
 $location_fax = formatPhoneNumber($row['location_fax']);
 $location_hours = nullable_htmlentities($row['location_hours']);
 $location_photo = nullable_htmlentities($row['location_photo']);
@@ -198,13 +199,20 @@ ob_start();
                     </div>
                 </div>
 
-                <div class="form-group">
-                    <label>Phone</label>
-                    <div class="input-group">
-                        <div class="input-group-prepend">
-                            <span class="input-group-text"><i class="fa fa-fw fa-phone"></i></span>
+                <label>Phone / <span class="text-secondary">Extension</span></label>
+                <div class="form-row">
+                    <div class="col-9">
+                        <div class="form-group">
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text"><i class="fa fa-fw fa-phone"></i></span>
+                                </div>
+                                <input type="tel" class="form-control" name="phone" value="<?php echo $location_phone; ?>">
+                            </div>
                         </div>
-                        <input type="text" class="form-control" name="phone" placeholder="Phone Number" maxlength="200" value="<?php echo $location_phone; ?>">
+                    </div>
+                    <div class="col-3">
+                        <input type="text" class="form-control" name="extension" placeholder="ext." maxlength="200" value="<?php echo $location_extension; ?>">
                     </div>
                 </div>
 
@@ -214,7 +222,7 @@ ob_start();
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-fax"></i></span>
                         </div>
-                        <input type="text" class="form-control" name="fax" placeholder="Fax Number" maxlength="200" value="<?php echo $location_fax; ?>">
+                        <input type="tel" class="form-control" name="fax" value="<?php echo $location_fax; ?>">
                     </div>
                 </div>
 

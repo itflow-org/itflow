@@ -3413,10 +3413,16 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
         mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '2.1.0'");
     }
 
-    // if (CURRENT_DATABASE_VERSION == '2.1.0') {
-    //     // Insert queries here required to update to DB version 2.1.1
+    if (CURRENT_DATABASE_VERSION == '2.1.0') {
+        mysqli_query($mysqli, "ALTER TABLE `user_settings` ADD `user_config_signature` TEXT DEFAULT NULL AFTER `user_config_calendar_first_day`");
+
+        mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '2.1.1'");
+    }
+
+    // if (CURRENT_DATABASE_VERSION == '2.1.1') {
+    //     // Insert queries here required to update to DB version 2.1.2
     //     // Then, update the database to the next sequential version
-    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '2.1.1'");
+    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '2.1.2'");
     // }
 
 } else {

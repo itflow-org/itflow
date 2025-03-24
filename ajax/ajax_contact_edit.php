@@ -16,8 +16,10 @@ $contact_name = nullable_htmlentities($row['contact_name']);
 $contact_title = nullable_htmlentities($row['contact_title']);
 $contact_department = nullable_htmlentities($row['contact_department']);
 $contact_extension = nullable_htmlentities($row['contact_extension']);
-$contact_phone = formatPhoneNumber($row['contact_phone']);
-$contact_mobile = formatPhoneNumber($row['contact_mobile']);
+$contact_phone_country_code = nullable_htmlentities($row['contact_phone_country_code']);
+$contact_phone = nullable_htmlentities($row['contact_phone']);
+$contact_mobile_country_code = nullable_htmlentities($row['contact_mobile_country_code']);
+$contact_mobile = nullable_htmlentities($row['contact_mobile']);
 $contact_email = nullable_htmlentities($row['contact_email']);
 $contact_pin = nullable_htmlentities($row['contact_pin']);
 $contact_photo = nullable_htmlentities($row['contact_photo']);
@@ -111,20 +113,20 @@ ob_start();
                     </div>
                 </div>
 
-                <label>Phone</label>
+                <label>Phone / <span class="text-secondary">Extension</span></label>
                 <div class="form-row">
-                    <div class="col-8">
+                    <div class="col-9">
                         <div class="form-group">
                             <div class="input-group">
                                 <div class="input-group-prepend">
                                     <span class="input-group-text"><i class="fa fa-fw fa-phone"></i></span>
                                 </div>
-                                <input type="text" class="form-control" name="phone" placeholder="Phone Number" maxlength="200" value="<?php echo $contact_phone; ?>">
+                                <input type="tel" class="form-control" name="phone" value="<?php echo $contact_phone; ?>">
                             </div>
                         </div>
                     </div>
-                    <div class="col-4">
-                        <input type="text" class="form-control" name="extension" placeholder="Extension" maxlength="200" value="<?php echo $contact_extension; ?>">
+                    <div class="col-3">
+                        <input type="text" class="form-control" name="extension" placeholder="ext." maxlength="200" value="<?php echo $contact_extension; ?>">
                     </div>
                 </div>
 
@@ -134,7 +136,7 @@ ob_start();
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-mobile-alt"></i></span>
                         </div>
-                        <input type="text" class="form-control" name="mobile" placeholder="Mobile Phone Number" maxlength="200" value="<?php echo $contact_mobile; ?>">
+                        <input type="tel" class="form-control" name="mobile" placeholder="Mobile Phone Number" maxlength="200" value="<?php echo $contact_mobile; ?>">
                     </div>
                 </div>
 

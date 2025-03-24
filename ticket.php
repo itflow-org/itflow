@@ -663,7 +663,11 @@ if (isset($_GET['ticket_id'])) {
                             </div>
 
                             <div class="form-group">
-                                <textarea class="form-control tinymceTicket<?php if ($config_ai_enable) { echo "AI"; } ?>" id="textInput" name="ticket_reply" placeholder="Type a response"></textarea>
+                                <textarea 
+                                    class="form-control tinymceTicket<?php if ($config_ai_enable) { echo "AI"; } ?>" name="ticket_reply"
+                                    placeholder="Type a response">
+                                    <?php echo nl2br(getFieldById('user_settings',$session_user_id,'user_config_signature','html')); ?>
+                                </textarea>
                             </div>
 
                             <div class="form-row">

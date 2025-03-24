@@ -13,6 +13,7 @@ if (isset($_POST['edit_your_user_details'])) {
 
     $name = sanitizeInput($_POST['name']);
     $email = sanitizeInput($_POST['email']);
+    $signature = sanitizeInput($_POST['signature']);
 
     $sql = mysqli_query($mysqli,"SELECT user_avatar FROM users WHERE user_id = $session_user_id");
     $row = mysqli_fetch_array($sql);
@@ -74,6 +75,8 @@ if (isset($_POST['edit_your_user_details'])) {
     }
 
     mysqli_query($mysqli,"UPDATE users SET user_name = '$name', user_email = '$email' WHERE user_id = $session_user_id");
+
+    mysqli_query($mysqli,"UPDATE user_settings SET user_config_signature = '$signature' WHERE user_id = $session_user_id");
 
     //Logging
     logAction("User Account", "Edit", "$session_name edited their account $extended_log_description");

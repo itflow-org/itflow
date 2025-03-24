@@ -116,7 +116,7 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-tags"></i></span>
                                     </div>
-                                    <select class="form-control select2" name="tags[]" multiple>
+                                    <select class="form-control select2" name="tags[]" data-placeholder="- Select Tags -"multiple>
                                         <?php
 
                                         $sql_tags_select = mysqli_query($mysqli, "SELECT * FROM tags WHERE tag_type = 1 ORDER BY tag_name ASC");
@@ -205,7 +205,7 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-phone"></i></span>
                                     </div>
-                                    <input type="text" class="form-control" name="location_phone" placeholder="Location's Phone Number" maxlength="200">
+                                    <input type="tel" class="form-control" name="location_phone">
                                 </div>
                             </div>
 
@@ -215,7 +215,7 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-fax"></i></span>
                                     </div>
-                                    <input type="text" class="form-control" name="location_fax" placeholder="Location's Fax Number" maxlength="200">
+                                    <input type="tel" class="form-control" name="location_fax">
                                 </div>
                             </div>
 
@@ -251,7 +251,7 @@
                                             <div class="input-group-prepend">
                                                 <span class="input-group-text"><i class="fa fa-fw fa-phone"></i></span>
                                             </div>
-                                            <input type="text" class="form-control" name="contact_phone" placeholder="Contact's Phone Number" maxlength="200">
+                                            <input type="tel" class="form-control" name="contact_phone">
                                         </div>
                                     </div>
                                 </div>
@@ -261,13 +261,12 @@
                             </div>
 
                             <label>Contact Mobile</label>
-
                             <div class="form-group">
                                 <div class="input-group">
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-mobile-alt"></i></span>
                                     </div>
-                                    <input type="text" class="form-control" name="contact_mobile" placeholder="Contact's Mobile Number" maxlength="200">
+                                    <input type="tel" class="form-control" name="contact_mobile">
                                 </div>
                             </div>
 
