@@ -391,12 +391,6 @@ if (isset($_GET['ticket_id'])) {
                                 </a>
                             <?php }
 
-                            if (!empty($ticket_closed_at) && isset($session_is_admin) && $session_is_admin) { ?>
-                                <a href="ticket_redact.php?ticket_id=<?php echo $ticket_id; ?>" class="btn btn-danger btn-sm ml-3">
-                                    <i class="fas fa-fw fa-marker mr-2"></i>Redact
-                                </a>
-                            <?php }
-
                             if (empty($ticket_closed_at)) { ?>
 
                                 <?php if (empty($ticket_closed_at) && !empty($ticket_resolved_at)) { ?>

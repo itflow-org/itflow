@@ -1589,29 +1589,6 @@ if (isset($_GET['archive_ticket_reply'])) {
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 }
 
-if (isset($_POST['redact_ticket_reply'])) {
-
-    // Perms - Admins only
-    if (!isset($session_is_admin) || !$session_is_admin) {
-        exit(WORDING_ROLECHECK_FAILED . "<br>Tell your admin: Your role does not have admin access.");
-    }
-    validateCSRFToken($_POST['csrf_token']);
-
-    $ticket_id = intval($_POST['ticket_id']);
-    $ticket_reply_id = intval($_POST['ticket_reply_id']);
-    $ticket_reply = mysqli_real_escape_string($mysqli, $_POST['ticket_reply']);
-    $client_id = intval($_POST['client_id']);
-
-    mysqli_query($mysqli, "UPDATE ticket_replies SET ticket_reply = '$ticket_reply' WHERE ticket_reply_id = $ticket_reply_id AND ticket_reply_ticket_id = $ticket_id");
-
-    // Logging
-    logAction("Ticket", "Reply", "$session_name redacted ticket_reply", $client_id, $ticket_reply_id);
-
-    $_SESSION['alert_message'] = "Ticket reply redacted";
-
-    header("Location: ticket_redact.php?ticket_id=" . $ticket_id);
-}
-
 if (isset($_POST['merge_ticket'])) {
 
     enforceUserPermission('module_support', 2);

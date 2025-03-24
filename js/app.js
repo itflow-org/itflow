@@ -320,23 +320,6 @@ $(document).ready(function() {
     }
   });
 
-  // Initialize TinyMCE editor with only a redact button
-  tinymce.init({
-      selector: '.tinymceTicketRedact',
-      browser_spellcheck: false,
-      contextmenu: false,
-      resize: true,
-      min_height: 300,
-      max_height: 500,
-      promotion: false,
-      branding: false,
-      menubar: false,
-      statusbar: false,
-      license_key: 'gpl',
-      readonly: true,
-      toolbar: '',
-  });
-
   tinymce.init({
     selector: '.tinymceRedact', // Your selector
     browser_spellcheck: true,
