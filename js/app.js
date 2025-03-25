@@ -425,20 +425,4 @@ $(document).ready(function() {
   // Data Tables
   new DataTable('.dataTables');
 
-
-  // Initialize International Phone Input
-  const inputs = document.querySelectorAll('input[type="tel"]');
-  
-  // Loop through all the selected inputs and initialize intlTelInput on each one
-  inputs.forEach(input => {
-    window.intlTelInput(input, {
-      initialCountry: "us",
-      strictMode: true,
-      showFlags: false,
-      separateDialCode: true,
-      nationalMode: false,
-      loadUtils: () => import("../plugins/intl-tel-input/js/utils.js") // for formatting/placeholders etc
-    });
-  });
-
 });

@@ -11,7 +11,8 @@ $vendor_name = nullable_htmlentities($row['vendor_name']);
 $vendor_description = nullable_htmlentities($row['vendor_description']);
 $vendor_account_number = nullable_htmlentities($row['vendor_account_number']);
 $vendor_contact_name = nullable_htmlentities($row['vendor_contact_name']);
-$vendor_phone = formatPhoneNumber($row['vendor_phone']);
+$vendor_phone_country_code = nullable_htmlentities($row['vendor_phone_country_code']);
+$vendor_phone = nullable_htmlentities(formatPhoneNumber($row['contact_phone'], $vendor_phone_country_code));
 $vendor_extension = nullable_htmlentities($row['vendor_extension']);
 $vendor_email = nullable_htmlentities($row['vendor_email']);
 $vendor_website = nullable_htmlentities($row['vendor_website']);
@@ -126,12 +127,15 @@ ob_start();
                                 <div class="input-group-prepend">
                                     <span class="input-group-text"><i class="fa fa-fw fa-phone"></i></span>
                                 </div>
-                                <input type="tel" class="form-control" name="phone" value="<?php echo $vendor_phone; ?>">
+                                <input type="tel" class="form-control col-2" name="phone_country_code" value="<?php echo "+$vendor_phone_country_code"; ?>" placeholder="Code" maxlength="4">
+                                <input type="tel" class="form-control" name="phone" value="<?php echo $vendor_phone; ?>" placeholder="Phone Number" maxlength="200">
                             </div>
                         </div>
                     </div>
                     <div class="col-3">
-                        <input type="text" class="form-control" name="extension" placeholder="ext." maxlength="200" value="<?php echo $vendor_extension; ?>">
+                        <div class="form-group">
+                            <input type="text" class="form-control" name="extension" value="<?php echo $vendor_extension; ?>" placeholder="ext." maxlength="200">
+                        </div>
                     </div>
                 </div>
 

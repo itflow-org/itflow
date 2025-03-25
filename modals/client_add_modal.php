@@ -199,23 +199,39 @@
                                 </div>
                             </div>
 
-                            <div class="form-group">
-                                <label>Location Phone</label>
-                                <div class="input-group">
-                                    <div class="input-group-prepend">
-                                        <span class="input-group-text"><i class="fa fa-fw fa-phone"></i></span>
+                            
+                            <label>Location Phone / <span class="text-secondary">Extension</span></label>
+                            <div class="form-row">
+                                <div class="col-9">
+                                    <div class="form-group">
+                                        <div class="input-group">
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text"><i class="fa fa-fw fa-phone"></i></span>
+                                            </div>
+                                            <input type="tel" class="form-control col-2" name="location_phone_country_code" value="+1" placeholder="Code" maxlength="4">
+                                            <input type="tel" class="form-control" name="location_phone" placeholder="Phone Number" maxlength="200">
+                                        </div>
                                     </div>
-                                    <input type="tel" class="form-control" name="location_phone">
+                                </div>
+                                <div class="col-3">
+                                    <div class="form-group">
+                                        <input type="text" class="form-control" name="location_extension" placeholder="ext." maxlength="200">
+                                    </div>
                                 </div>
                             </div>
 
-                            <div class="form-group">
-                                <label>Location Fax</label>
-                                <div class="input-group">
-                                    <div class="input-group-prepend">
-                                        <span class="input-group-text"><i class="fa fa-fw fa-fax"></i></span>
+                            <label>Location Fax</label>    
+                            <div class="form-row">
+                                <div class="col-9">
+                                    <div class="form-group">
+                                        <div class="input-group">
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text"><i class="fa fa-fw fa-fax"></i></span>
+                                            </div>
+                                            <input type="tel" class="form-control col-2" name="location_fax_country_code" value="+1" placeholder="Code" maxlength="4">
+                                            <input type="tel" class="form-control" name="location_fax" placeholder="Fax Number">
+                                        </div>
                                     </div>
-                                    <input type="tel" class="form-control" name="location_fax">
                                 </div>
                             </div>
 
@@ -243,30 +259,38 @@
                                 </div>
                             </div>
 
-                            <label>Contact Phone</label>
+                            <label>Contact Phone / <span class="text-secondary">Extension</span></label>
                             <div class="form-row">
-                                <div class="col-8">
+                                <div class="col-9">
                                     <div class="form-group">
                                         <div class="input-group">
                                             <div class="input-group-prepend">
                                                 <span class="input-group-text"><i class="fa fa-fw fa-phone"></i></span>
                                             </div>
-                                            <input type="tel" class="form-control" name="contact_phone">
+                                            <input type="tel" class="form-control col-2" name="contact_phone_country_code" value="+1" placeholder="Code" maxlength="4">
+                                            <input type="tel" class="form-control" name="contact_phone" placeholder="Phone Number" maxlength="200">
                                         </div>
                                     </div>
                                 </div>
-                                <div class="col-4">
-                                    <input type="text" class="form-control" name="contact_extension" placeholder="Extension" maxlength="200">
+                                <div class="col-3">
+                                    <div class="form-group">
+                                        <input type="text" class="form-control" name="contact_extension" placeholder="ext." maxlength="200">
+                                    </div>
                                 </div>
                             </div>
 
-                            <label>Contact Mobile</label>
-                            <div class="form-group">
-                                <div class="input-group">
-                                    <div class="input-group-prepend">
-                                        <span class="input-group-text"><i class="fa fa-fw fa-mobile-alt"></i></span>
+                            <label>Mobile</label>    
+                            <div class="form-row">
+                                <div class="col-9">
+                                    <div class="form-group">
+                                        <div class="input-group">
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text"><i class="fa fa-fw fa-mobile-alt"></i></span>
+                                            </div>
+                                            <input type="tel" class="form-control col-2" name="contact_mobile_country_code" value="+1" placeholder="Code" maxlength="4">
+                                            <input type="tel" class="form-control" name="contact_mobile" placeholder="Mobile Phone Number">
+                                        </div>
                                     </div>
-                                    <input type="tel" class="form-control" name="contact_mobile">
                                 </div>
                             </div>
 
