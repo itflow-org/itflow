@@ -167,7 +167,8 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         } else {
                             $vendor_contact_name_display = "-";
                         }
-                        $vendor_phone = formatPhoneNumber($row['vendor_phone']);
+                        $vendor_phone_country_code = nullable_htmlentities($row['vendor_phone_country_code']);
+                        $vendor_phone = nullable_htmlentities(formatPhoneNumber($row['vendor_phone'], $vendor_phone_country_code));
                         $vendor_extension = nullable_htmlentities($row['vendor_extension']);
                         $vendor_email = nullable_htmlentities($row['vendor_email']);
                         $vendor_website = nullable_htmlentities($row['vendor_website']);

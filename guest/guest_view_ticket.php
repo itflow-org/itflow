@@ -18,7 +18,8 @@ if (!isset($_GET['ticket_id'], $_GET['url_key'])) {
 
 // Company info
 $company_sql_row = mysqli_fetch_array(mysqli_query($mysqli, "SELECT company_phone, company_website FROM companies, settings WHERE companies.company_id = settings.company_id AND companies.company_id = 1"));
-$company_phone = formatPhoneNumber($company_sql_row['company_phone']);
+$company_phone_country_code = nullable_htmlentities($company_sql_row['company_phone_country_code']);
+$company_phone = nullable_htmlentities(formatPhoneNumber($company_sql_row['company_phone'], $company_phone_country_code));
 $company_website = nullable_htmlentities($company_sql_row['company_website']);
 
 $url_key = sanitizeInput($_GET['url_key']);

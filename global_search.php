@@ -172,7 +172,8 @@ if (isset($_GET['query'])) {
                             while ($row = mysqli_fetch_array($sql_clients)) {
                                 $client_id = intval($row['client_id']);
                                 $client_name = nullable_htmlentities($row['client_name']);
-                                $location_phone = formatPhoneNumber($row['location_phone']);
+                                $location_phone_country_code = nullable_htmlentities($row['location_phone_country_code']);
+                                $location_phone = nullable_htmlentities(formatPhoneNumber($row['location_phone'], $location_phone_country_code));
                                 $client_website = nullable_htmlentities($row['client_website']);
 
                                 ?>
@@ -218,9 +219,11 @@ if (isset($_GET['query'])) {
                                 $contact_id = intval($row['contact_id']);
                                 $contact_name = nullable_htmlentities($row['contact_name']);
                                 $contact_title = nullable_htmlentities($row['contact_title']);
-                                $contact_phone = formatPhoneNumber($row['contact_phone']);
+                                $contact_phone_country_code = nullable_htmlentities($row['contact_phone_country_code']);
+                                $contact_phone = nullable_htmlentities(formatPhoneNumber($row['contact_phone'], $contact_phone_country_code));
                                 $contact_extension = nullable_htmlentities($row['contact_extension']);
-                                $contact_mobile = formatPhoneNumber($row['contact_mobile']);
+                                $contact_mobile_country_code = nullable_htmlentities($row['contact_mobile_country_code']);
+                                $contact_mobile = nullable_htmlentities(formatPhoneNumber($row['contact_mobile'], $contact_mobile_country_code));
                                 $contact_email = nullable_htmlentities($row['contact_email']);
                                 $client_id = intval($row['client_id']);
                                 $client_name = nullable_htmlentities($row['client_name']);
@@ -272,7 +275,8 @@ if (isset($_GET['query'])) {
                             while ($row = mysqli_fetch_array($sql_vendors)) {
                                 $vendor_name = nullable_htmlentities($row['vendor_name']);
                                 $vendor_description = nullable_htmlentities($row['vendor_description']);
-                                $vendor_phone = formatPhoneNumber($row['vendor_phone']);
+                                $vendor_phone_country_code = nullable_htmlentities($row['vendor_phone_country_code']);
+                                $vendor_phone = nullable_htmlentities(formatPhoneNumber($row['vendor_phone'], $vendor_phone_country_code));
                                 $client_id = intval($row['client_id']);
                                 $client_name = nullable_htmlentities($row['client_name']);
 

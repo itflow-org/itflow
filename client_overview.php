@@ -221,9 +221,11 @@ $sql_asset_retired = mysqli_query(
                             $contact_name = nullable_htmlentities($row['contact_name']);
                             $contact_title = nullable_htmlentities($row['contact_title']);
                             $contact_email = nullable_htmlentities($row['contact_email']);
-                            $contact_phone = formatPhoneNumber($row['contact_phone']);
+                            $contact_phone_country_code = nullable_htmlentities($row['contact_phone_country_code']);
+                            $contact_phone = nullable_htmlentities(formatPhoneNumber($row['contact_phone'], $contact_phone_country_code));
                             $contact_extension = nullable_htmlentities($row['contact_extension']);
-                            $contact_mobile = formatPhoneNumber($row['contact_mobile']);
+                            $contact_mobile_country_code = nullable_htmlentities($row['contact_mobile_country_code']);
+                            $contact_mobile = nullable_htmlentities(formatPhoneNumber($row['contact_mobile'], $contact_mobile_country_code));
 
                             ?>
                             <tr>

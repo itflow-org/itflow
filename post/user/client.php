@@ -637,7 +637,11 @@ if (isset($_POST['export_client_pdf'])) {
     $location_state = $row['location_state'];
     $location_zip = $row['location_zip'];
     $contact_name = $row['contact_name'];
-    $contact_phone = formatPhoneNumber($row['contact_phone']);
+    $contact_phone_country_code = nullable_htmlentities($row['contact_phone_country_code']);
+    $contact_phone = nullable_htmlentities(formatPhoneNumber($row['contact_phone'], $contact_phone_country_code));
+    $contact_extension = nullable_htmlentities($row['contact_extension']);
+    $contact_mobile_country_code = nullable_htmlentities($row['contact_mobile_country_code']);
+    $contact_mobile = nullable_htmlentities(formatPhoneNumber($row['contact_phone'], $contact_mobile_country_code));
     $contact_email = $row['contact_email'];
     $client_website = $row['client_website'];
 
@@ -794,12 +798,14 @@ if (isset($_POST['export_client_pdf'])) {
                             while($row = mysqli_fetch_array($sql_contacts)){
                             $contact_name = $row['contact_name'];
                             $contact_title = $row['contact_title'];
-                            $contact_phone = formatPhoneNumber($row['contact_phone']);
+                            $contact_phone_country_code = $row['contact_phone_country_code'];
+                            $contact_phone = formatPhoneNumber($row['contact_phone'], $contact_phone_country_code);
                             $contact_extension = $row['contact_extension'];
                             if(!empty($contact_extension)){
                                 $contact_extension = "x$contact_extension";
                             }
-                            $contact_mobile = formatPhoneNumber($row['contact_mobile']);
+                            $contact_mobile_country_code = $row['contact_mobile_country_code'];
+                            $contact_mobile = formatPhoneNumber($row['contact_phone'], $contact_mobile_country_code);
                             $contact_email = $row['contact_email'];
                             $contact_department = $row['contact_department'];
                             ?>
@@ -872,7 +878,8 @@ if (isset($_POST['export_client_pdf'])) {
                             $location_city = $row['location_city'];
                             $location_state = $row['location_state'];
                             $location_zip = $row['location_zip'];
-                            $location_phone = formatPhoneNumber($row['location_phone']);
+                            $location_phone_country_code = $row['location_phone_country_code'];
+                            $location_phone = formatPhoneNumber($row['location_phone'], $location_phone_country_code);
                             ?>
 
                             [
@@ -938,7 +945,8 @@ if (isset($_POST['export_client_pdf'])) {
                             $vendor_description = $row['vendor_description'];
                             $vendor_account_number = $row['vendor_account_number'];
                             $vendor_contact_name = $row['vendor_contact_name'];
-                            $vendor_phone = formatPhoneNumber($row['vendor_phone']);
+                            $vendor_phone_country_code = $row['vendor_phone_country_code'];
+                            $vendor_phone = formatPhoneNumber($row['vendor_phone'], $vendor_phone_country_code);
                             $vendor_email = $row['vendor_email'];
                             $vendor_website = $row['vendor_website'];
                             ?>

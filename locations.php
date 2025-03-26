@@ -249,13 +249,15 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         $location_city = nullable_htmlentities($row['location_city']);
                         $location_state = nullable_htmlentities($row['location_state']);
                         $location_zip = nullable_htmlentities($row['location_zip']);
-                        $location_phone = formatPhoneNumber($row['location_phone']);
+                        $location_phone_country_code = nullable_htmlentities($row['location_phone_country_code']);
+                        $location_phone = nullable_htmlentities(formatPhoneNumber($row['location_phone'], $location_phone_country_code));
                         if (empty($location_phone)) {
                             $location_phone_display = "-";
                         } else {
                             $location_phone_display = $location_phone;
                         }
-                        $location_fax = formatPhoneNumber($row['location_fax']);
+                        $location_fax_country_code = nullable_htmlentities($row['location_fax_country_code']);
+                        $location_fax = nullable_htmlentities(formatPhoneNumber($row['location_fax'], $location_fax_country_code));
                         if ($location_fax) {
                             $location_fax_display = "<div class='text-secondary'>Fax: $location_fax</div>";
                         } else {
