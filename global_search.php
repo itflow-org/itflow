@@ -23,7 +23,7 @@ if (isset($_GET['query'])) {
     $sql_clients = mysqli_query($mysqli, "SELECT * FROM clients
         LEFT JOIN locations ON clients.client_id = locations.location_client_id AND location_primary = 1
         WHERE client_archived_at IS NULL
-            AND client_name LIKE '%$query%'
+            AND (client_name LIKE '%$query%' OR client_abbreviation LIKE '%$query%')
             $access_permission_query
         ORDER BY client_id DESC LIMIT 5"
     );
