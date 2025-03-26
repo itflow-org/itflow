@@ -677,6 +677,8 @@ if (isset($_POST['export_client_pdf'])) {
             contacts ON software_contacts.contact_id = contacts.contact_id
         JOIN 
             software ON software_contacts.software_id = software.software_id
+        WHERE software_archived_at IS NULL
+        AND contact_archived_at IS NULL
         ORDER BY 
             contact_name, software_name;"
     );
@@ -691,6 +693,8 @@ if (isset($_POST['export_client_pdf'])) {
             assets ON software_assets.asset_id = assets.asset_id
         JOIN 
             software ON software_assets.software_id = software.software_id
+        WHERE software_archived_at IS NULL
+        AND asset_archived_at IS NULL
         ORDER BY 
             asset_name, software_name;"
     );

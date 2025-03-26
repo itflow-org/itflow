@@ -34,6 +34,7 @@ This file documents all notable changes made to ITFlow.
 - Added Create New Ticket while in project details section.
 - Brought back Batch Payment in client invoices.
 - Added client abbrevation to client and global search options.
+- Added User / Asset Software Assigned Licenses to Client PDF Export.
 
 
 ### Breaking Changes
