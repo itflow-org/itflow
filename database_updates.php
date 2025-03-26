@@ -3419,10 +3419,15 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
         mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '2.1.1'");
     }
 
-    // if (CURRENT_DATABASE_VERSION == '2.1.1') {
-    //     // Insert queries here required to update to DB version 2.1.2
+    if (CURRENT_DATABASE_VERSION == '2.1.1') {
+        mysqli_query($mysqli, "ALTER TABLE `settings` DROP `config_phone_mask`");
+        mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '2.1.2'");
+    }
+
+    // if (CURRENT_DATABASE_VERSION == '2.1.2') {
+    //     // Insert queries here required to update to DB version 2.1.3
     //     // Then, update the database to the next sequential version
-    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '2.1.2'");
+    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '2.1.3'");
     // }
 
 } else {

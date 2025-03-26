@@ -218,28 +218,6 @@ require_once "includes/inc_all_admin.php";
                 </div>
             </div>
 
-            <div class="form-group">
-                <label>Phone Mask</label>
-                <div class="input-group">
-                    <div class="input-group-prepend">
-                        <span class="input-group-text"><i class="fa fa-phone"></i></span>
-                    </div>
-                    <select class="form-control select2" name="phone_mask">
-                        <?php
-                            $sql = mysqli_query($mysqli, "SELECT config_phone_mask FROM settings WHERE company_id = 1");
-                            while ($row = mysqli_fetch_array($sql)) {
-                                $phone_mask = intval($row['config_phone_mask']);
-                            } ?>
-                            <option <?php if ($phone_mask == 1) { echo "selected"; }?> value=1>
-                                US Format - e.g. (412) 888-9999
-                            </option>
-                            <option <?php if ($phone_mask == 0) { echo "selected"; }?> value=0>
-                                Non-US Format - e.g. 4128889999
-                            </option>
-                    </select>
-                </div>
-            </div>
-
             <hr>
 
             <button type="submit" name="edit_default_settings" class="btn btn-primary text-bold"><i class="fa fa-check mr-2"></i>Save</button>
