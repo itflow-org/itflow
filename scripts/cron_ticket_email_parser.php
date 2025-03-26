@@ -33,7 +33,7 @@ $config_ticket_email_parse_unknown_senders = intval($row['config_ticket_email_pa
 $sql = mysqli_query($mysqli, "SELECT * FROM companies, settings WHERE companies.company_id = settings.company_id AND companies.company_id = 1");
 $row = mysqli_fetch_array($sql);
 $company_name = sanitizeInput($row['company_name']);
-$company_phone = sanitizeInput(formatPhoneNumber($row['company_phone']));
+$company_phone = sanitizeInput(formatPhoneNumber($row['company_phone'], $row['company_phone_country_code']));
 
 // Check setting enabled
 if ($config_ticket_email_parse == 0) {

@@ -53,7 +53,7 @@ if ($client_url && isset($_GET['location']) && !empty($_GET['location'])) {
 } else {
     // Default - any
     $location_query = '';
-    $location_filter = '';
+    $location_filter = 0;
 }
 
 //Get Asset Counts
@@ -210,7 +210,15 @@ if (mysqli_num_rows($os_sql) > 0) {
                             <option value="">- All Locations -</option>
 
                             <?php
-                            $sql_locations_filter = mysqli_query($mysqli, "SELECT * FROM locations WHERE location_client_id = $client_id AND location_archived_at IS NULL ORDER BY location_name ASC");
+                            $sql_locations_filter = mysqli_query($mysqli, "
+                                SELECT DISTINCT location_id, location_name
+                                FROM locations
+                                LEFT JOIN assets ON asset_location_id = location_id
+                                WHERE location_client_id = $client_id 
+                                AND location_archived_at IS NULL 
+                                AND (asset_location_id != 0 OR location_id = $location_filter)
+                                ORDER BY location_name ASC
+                            ");
                             while ($row = mysqli_fetch_array($sql_locations_filter)) {
                                 $location_id = intval($row['location_id']);
                                 $location_name = nullable_htmlentities($row['location_name']);
@@ -230,7 +238,14 @@ if (mysqli_num_rows($os_sql) > 0) {
                             <option value="" <?php if ($client == "") { echo "selected"; } ?>>- All Clients -</option>
 
                             <?php
-                            $sql_clients_filter = mysqli_query($mysqli, "SELECT * FROM clients WHERE client_archived_at IS NULL $access_permission_query ORDER BY client_name ASC");
+                            $sql_clients_filter = mysqli_query($mysqli, "
+                                SELECT DISTINCT client_id, client_name 
+                                FROM clients
+                                JOIN assets ON asset_client_id = client_id
+                                WHERE client_archived_at IS NULL 
+                                $access_permission_query
+                                ORDER BY client_name ASC
+                            ");
                             while ($row = mysqli_fetch_array($sql_clients_filter)) {
                                 $client_id = intval($row['client_id']);
                                 $client_name = nullable_htmlentities($row['client_name']);

@@ -28,6 +28,8 @@ echo getUserAgent();
 ?>
     <br>
 
+    <input type="tel" name="phone" id="phone">
+
     <dl>
         <dt>Requester</dt>
         <dd>Sam Adams</dd>

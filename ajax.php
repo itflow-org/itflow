@@ -242,7 +242,7 @@ if (isset($_GET['share_generate_link'])) {
     $sql = mysqli_query($mysqli,"SELECT * FROM companies WHERE company_id = 1");
     $row = mysqli_fetch_array($sql);
     $company_name = sanitizeInput($row['company_name']);
-    $company_phone = sanitizeInput(formatPhoneNumber($row['company_phone']));
+    $company_phone = sanitizeInput(formatPhoneNumber($row['company_phone'], $row['company_phone_country_code']));
 
     // Sanitize Config vars from get_settings.php
     $config_ticket_from_name = sanitizeInput($config_ticket_from_name);
@@ -444,10 +444,10 @@ if (isset($_POST['update_kanban_ticket'])) {
                     $config_base_url = sanitizeInput($config_base_url);
 
                     // Get Company Info
-                    $sql = mysqli_query($mysqli, "SELECT company_name, company_phone FROM companies WHERE company_id = 1");
+                    $sql = mysqli_query($mysqli, "SELECT company_name, company_phone, company_phone_country_code FROM companies WHERE company_id = 1");
                     $row = mysqli_fetch_array($sql);
                     $company_name = sanitizeInput($row['company_name']);
-                    $company_phone = sanitizeInput(formatPhoneNumber($row['company_phone']));
+                    $company_phone = sanitizeInput(formatPhoneNumber($row['company_phone'], $row['company_phone_country_code']));
 
                     // EMAIL
                     $subject = "Ticket resolved - [$ticket_prefix$ticket_number] - $ticket_subject | (pending closure)";

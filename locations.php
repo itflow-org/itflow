@@ -15,24 +15,29 @@ if (isset($_GET['client_id'])) {
     $client_url = '';
 }
 
-// Tags Filter
-if (isset($_GET['tags']) && is_array($_GET['tags']) && !empty($_GET['tags'])) {
-    // Sanitize each element of the status array
-    $sanitizedTags = array();
-    foreach ($_GET['tags'] as $tag) {
-        // Escape each status to prevent SQL injection
-        $sanitizedTags[] = "'" . intval($tag) . "'";
+if (!$client_url) {
+    // Client Filter
+    if (isset($_GET['client']) & !empty($_GET['client'])) {
+        $client_query = 'AND (location_client_id = ' . intval($_GET['client']) . ')';
+        $client = intval($_GET['client']);
+    } else {
+        // Default - any
+        $client_query = '';
+        $client = '';
     }
-
-    // Convert the sanitized tags into a comma-separated string
-    $sanitizedTagsString = implode(",", $sanitizedTags);
-    $tag_query = "AND tags.tag_id IN ($sanitizedTagsString)";
-} else {
-    $tag_query = '';
 }
 
-//Rebuild URL
-$url_query_strings_sort = http_build_query($get_copy);
+// Tags Filter
+if (isset($_GET['tags']) && is_array($_GET['tags']) && !empty($_GET['tags'])) {
+    // Sanitize each element of the tags array
+    $sanitizedTags = array_map('intval', $_GET['tags']);
+    // Convert the sanitized tags into a comma-separated string
+    $tag_filter = implode(",", $sanitizedTags);
+    $tag_query = "AND tags.tag_id IN ($tag_filter)";
+} else {
+    $tag_filter = 0;
+    $tag_query = '';
+}
 
 $sql = mysqli_query(
     $mysqli,
@@ -96,8 +101,18 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                 <div class="col-md-3">
                     <div class="input-group">
                         <select onchange="this.form.submit()" class="form-control select2" name="tags[]" data-placeholder="- Select Tags -" multiple>
-                            <?php $sql_tags = mysqli_query($mysqli, "SELECT * FROM tags WHERE tag_type = 2");
-                            while ($row = mysqli_fetch_array($sql_tags)) {
+                            <?php
+                            $sql_tags_filter = mysqli_query($mysqli, "
+                                SELECT tags.tag_id, tags.tag_name, tag_type 
+                                FROM tags 
+                                LEFT JOIN location_tags ON location_tags.tag_id = tags.tag_id
+                                LEFT JOIN locations ON location_tags.location_id = locations.location_id
+                                WHERE tag_type = 2
+                                $client_query OR tags.tag_id IN ($tag_filter)
+                                GROUP BY tags.tag_id
+                                HAVING COUNT(location_tags.location_id) > 0 OR tags.tag_id IN ($tag_filter)
+                            ");
+                            while ($row = mysqli_fetch_array($sql_tags_filter)) {
                                 $tag_id = intval($row['tag_id']);
                                 $tag_name = nullable_htmlentities($row['tag_name']); ?>
 
@@ -105,19 +120,40 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                             <?php } ?>
                         </select>
-                        <div class="input-group-append">
-                            <button class="btn btn-secondary" type="button"
-                                data-toggle="ajax-modal"
-                                data-modal-size="sm"
-                                data-ajax-url="ajax/ajax_tag_add.php"
-                                data-ajax-id="3">
-                                <i class="fas fa-plus"></i>
-                            </button>
-                        </div>
                     </div>
                 </div>
+                <?php if ($client_url) { ?>
+                <div class="col-md-2"></div>
+                <?php } else { ?>
+                <div class="col-md-2">
+                    <div class="input-group">
+                        <select class="form-control select2" name="client" onchange="this.form.submit()">
+                            <option value="" <?php if ($client == "") { echo "selected"; } ?>>- All Clients -</option>
 
-                <div class="col-md-5">
+                            <?php
+                            $sql_clients_filter = mysqli_query($mysqli, "
+                                SELECT DISTINCT client_id, client_name 
+                                FROM clients
+                                JOIN locations ON location_client_id = client_id
+                                WHERE client_archived_at IS NULL 
+                                $access_permission_query
+                                ORDER BY client_name ASC
+                            ");
+                            while ($row = mysqli_fetch_array($sql_clients_filter)) {
+                                $client_id = intval($row['client_id']);
+                                $client_name = nullable_htmlentities($row['client_name']);
+                            ?>
+                                <option <?php if ($client == $client_id) { echo "selected"; } ?> value="<?php echo $client_id; ?>"><?php echo $client_name; ?></option>
+                            <?php
+                            }
+                            ?>
+
+                        </select>
+                    </div>
+                </div>
+                <?php } ?>
+
+                <div class="col-md-3">
                     <div class="btn-group float-right">
                         <a href="?<?php echo $client_url; ?>archived=<?php if($archived == 1){ echo 0; } else { echo 1; } ?>"
                             class="btn btn-<?php if($archived == 1){ echo "primary"; } else { echo "default"; } ?>">
@@ -213,13 +249,15 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         $location_city = nullable_htmlentities($row['location_city']);
                         $location_state = nullable_htmlentities($row['location_state']);
                         $location_zip = nullable_htmlentities($row['location_zip']);
-                        $location_phone = formatPhoneNumber($row['location_phone']);
+                        $location_phone_country_code = nullable_htmlentities($row['location_phone_country_code']);
+                        $location_phone = nullable_htmlentities(formatPhoneNumber($row['location_phone'], $location_phone_country_code));
                         if (empty($location_phone)) {
                             $location_phone_display = "-";
                         } else {
                             $location_phone_display = $location_phone;
                         }
-                        $location_fax = formatPhoneNumber($row['location_fax']);
+                        $location_fax_country_code = nullable_htmlentities($row['location_fax_country_code']);
+                        $location_fax = nullable_htmlentities(formatPhoneNumber($row['location_fax'], $location_fax_country_code));
                         if ($location_fax) {
                             $location_fax_display = "<div class='text-secondary'>Fax: $location_fax</div>";
                         } else {

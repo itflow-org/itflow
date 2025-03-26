@@ -610,6 +610,7 @@ if (isset($_GET['stripe_save_card'])) {
     $sql_settings = mysqli_query($mysqli, "SELECT * FROM companies, settings WHERE companies.company_id = settings.company_id AND companies.company_id = 1");
     $row = mysqli_fetch_array($sql_settings);
     $company_name = sanitizeInput($row['company_name']);
+    $company_phone = sanitizeInput(formatPhoneNumber($row['company_phone'], $row['company_phone_country_code']));
     $config_smtp_host = $row['config_smtp_host'];
     $config_smtp_port = intval($row['config_smtp_port']);
     $config_smtp_encryption = $row['config_smtp_encryption'];

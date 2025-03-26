@@ -134,7 +134,7 @@ ob_start();
                                 <div class="input-group-prepend">
                                     <span class="input-group-text"><i class="fa fa-fw fa-phone"></i></span>
                                 </div>
-                                <input type="text" class="form-control" name="phone" placeholder="Phone Number" maxlength="200" value="<?php echo $vendor_phone; ?>">
+                                <input type="tel" class="form-control" name="phone" value="<?php echo $vendor_phone; ?>">
                                 <div class="input-group-append">
                                     <div class="input-group-text">
                                         <input type="checkbox" name="global_update_vendor_phone" value="1">

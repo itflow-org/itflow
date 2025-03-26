@@ -55,6 +55,16 @@ require_once "includes/inc_all_user.php";
                             <input type="email" class="form-control" name="email" placeholder="Email Address" value="<?php echo nullable_htmlentities($session_email); ?>" required>
                         </div>
                     </div>
+
+                    <div class="form-group">
+                        <label>Signature</label>
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text"><i class="fa fa-fw fa-pen"></i></span>
+                            </div>
+                            <textarea class="form-control" name="signature" rows="4" placeholder="Create a signature automatically appended to tickets, emails etc"><?php echo getFieldById('user_settings',$session_user_id,'user_config_signature','html'); ?></textarea>
+                        </div>
+                    </div>
                     
                     <button type="submit" name="edit_your_user_details" class="btn btn-primary btn-responsive"><i class="fas fa-check mr-2"></i>Save</button>
 

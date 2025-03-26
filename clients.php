@@ -20,18 +20,14 @@ if (isset($_GET['leads']) && $_GET['leads'] == 1) {
 
 // Tags Filter
 if (isset($_GET['tags']) && is_array($_GET['tags']) && !empty($_GET['tags'])) {
-    // Sanitize each element of the status array
-    $sanitizedTags = array();
-    foreach ($_GET['tags'] as $tag) {
-        // Escape each status to prevent SQL injection
-        $sanitizedTags[] = "'" . intval($tag) . "'";
-    }
-
+    // Sanitize each element of the tags array
+    $sanitizedTags = array_map('intval', $_GET['tags']);
     // Convert the sanitized tags into a comma-separated string
-    $sanitizedTagsString = implode(",", $sanitizedTags);
-    $tag_query = "AND tags.tag_id IN ($sanitizedTagsString)";
+    $tag_filter = implode(",", $sanitizedTags);
+    $tag_query = "AND tags.tag_id IN ($tag_filter)";
 } else {
-    $tag_query = '';    
+    $tag_filter = 0;
+    $tag_query = '';
 }
 
 // Industry Filter
@@ -190,8 +186,15 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 
                                 <select onchange="this.form.submit()" class="form-control select2" name="tags[]" data-placeholder="- Select Tags -" multiple>
                                     <?php 
-                                    $sql_tags = mysqli_query($mysqli, "SELECT * FROM tags WHERE tag_type = 1");
-                                    while ($row = mysqli_fetch_array($sql_tags)) {
+                                    $sql_tags_filter = mysqli_query($mysqli, "
+                                        SELECT tags.tag_id, tags.tag_name
+                                        FROM tags 
+                                        LEFT JOIN client_tags ON client_tags.tag_id = tags.tag_id
+                                        WHERE tag_type = 1
+                                        GROUP BY tags.tag_id
+                                        HAVING COUNT(client_tags.client_id) > 0 OR tags.tag_id IN ($tag_filter)
+                                    ");
+                                    while ($row = mysqli_fetch_array($sql_tags_filter)) {
                                         $tag_id = intval($row['tag_id']);
                                         $tag_name = nullable_htmlentities($row['tag_name']); ?>
 
@@ -199,15 +202,6 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                                     <?php } ?>
                                 </select>
-                                <div class="input-group-append">
-                                    <button class="btn btn-secondary" type="button"
-                                        data-toggle="ajax-modal"
-                                        data-modal-size="sm"
-                                        data-ajax-url="ajax/ajax_tag_add.php"
-                                        data-ajax-id="1">
-                                        <i class="fas fa-plus"></i>
-                                    </button>
-                                </div>
                             </div>
                         </div>
                         <div class="col-sm-2">
@@ -297,9 +291,11 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         $contact_id = intval($row['contact_id']);
                         $contact_name = nullable_htmlentities($row['contact_name']);
                         $contact_title = nullable_htmlentities($row['contact_title']);
-                        $contact_phone = formatPhoneNumber($row['contact_phone']);
+                        $contact_phone_country_code = nullable_htmlentities($row['contact_phone_country_code']);
+                        $contact_phone = nullable_htmlentities(formatPhoneNumber($row['contact_phone'], $contact_phone_country_code));
                         $contact_extension = nullable_htmlentities($row['contact_extension']);
-                        $contact_mobile = formatPhoneNumber($row['contact_mobile']);
+                        $contact_mobile_country_code = nullable_htmlentities($row['contact_mobile_country_code']);
+                        $contact_mobile = nullable_htmlentities(formatPhoneNumber($row['contact_mobile'], $contact_mobile_country_code));
                         $contact_email = nullable_htmlentities($row['contact_email']);
                         $client_website = nullable_htmlentities($row['client_website']);
                         $client_rate = floatval($row['client_rate']);
@@ -499,10 +495,6 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
 <?php
 require_once "modals/client_add_modal.php";
-
 require_once "modals/client_import_modal.php";
-
 require_once "modals/client_export_modal.php";
-
 require_once "includes/footer.php";
-

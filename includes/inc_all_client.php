@@ -61,9 +61,11 @@ if (isset($_GET['client_id'])) {
         $contact_name = nullable_htmlentities($row['contact_name']);
         $contact_title = nullable_htmlentities($row['contact_title']);
         $contact_email = nullable_htmlentities($row['contact_email']);
-        $contact_phone = formatPhoneNumber($row['contact_phone']);
+        $contact_phone_country_code = nullable_htmlentities($row['contact_phone_country_code']);
+        $contact_phone = nullable_htmlentities(formatPhoneNumber($row['contact_phone'], $contact_phone_country_code));
         $contact_extension = nullable_htmlentities($row['contact_extension']);
-        $contact_mobile = formatPhoneNumber($row['contact_mobile']);
+        $contact_mobile_country_code = nullable_htmlentities($row['contact_mobile_country_code']);
+        $contact_mobile = nullable_htmlentities(formatPhoneNumber($row['contact_mobile'], $contact_mobile_country_code));
         $contact_primary = intval($row['contact_primary']);
         $location_id = intval($row['location_id']);
         $location_name = nullable_htmlentities($row['location_name']);
@@ -72,7 +74,8 @@ if (isset($_GET['client_id'])) {
         $location_state = nullable_htmlentities($row['location_state']);
         $location_zip = nullable_htmlentities($row['location_zip']);
         $location_country = nullable_htmlentities($row['location_country']);
-        $location_phone = formatPhoneNumber($row['location_phone']);
+        $location_phone_country_code = nullable_htmlentities($row['location_phone_country_code']);
+        $location_phone = nullable_htmlentities(formatPhoneNumber($row['location_phone'], $location_phone_country_code));
         $location_primary = intval($row['location_primary']);
 
         // Tab Title // No Sanitizing needed

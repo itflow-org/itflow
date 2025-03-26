@@ -1843,7 +1843,6 @@ CREATE TABLE `settings` (
   `config_telemetry` tinyint(1) DEFAULT 0,
   `config_timezone` varchar(200) NOT NULL DEFAULT 'America/New_York',
   `config_destructive_deletes_enable` tinyint(1) NOT NULL DEFAULT 0,
-  `config_phone_mask` tinyint(1) NOT NULL DEFAULT 1,
   `config_whitelabel_enabled` int(11) NOT NULL DEFAULT 0,
   `config_whitelabel_key` text DEFAULT NULL,
   `config_ticket_default_view` tinyint(1) NOT NULL DEFAULT 0,
@@ -2371,6 +2370,7 @@ CREATE TABLE `user_settings` (
   `user_config_dashboard_financial_enable` tinyint(1) NOT NULL DEFAULT 0,
   `user_config_dashboard_technical_enable` tinyint(1) NOT NULL DEFAULT 0,
   `user_config_calendar_first_day` tinyint(1) NOT NULL DEFAULT 0,
+  `user_config_signature` text DEFAULT NULL,
   PRIMARY KEY (`user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -2498,4 +2498,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-03-21 12:46:56
+-- Dump completed on 2025-03-26 11:13:46

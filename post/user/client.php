@@ -13,7 +13,10 @@ if (isset($_POST['add_client'])) {
 
     require_once 'post/user/client_model.php';
 
+    $location_phone_country_code = preg_replace("/[^0-9]/", '', $_POST['location_phone_country_code']);
     $location_phone = preg_replace("/[^0-9]/", '', $_POST['location_phone']);
+    $location_extension = preg_replace("/[^0-9]/", '', $_POST['location_extension']);
+    $location_fax_country_code = preg_replace("/[^0-9]/", '', $_POST['location_fax_country_code']);
     $location_fax = preg_replace("/[^0-9]/", '', $_POST['location_fax']);
     $address = sanitizeInput($_POST['address']);
     $city = sanitizeInput($_POST['city']);
@@ -22,8 +25,10 @@ if (isset($_POST['add_client'])) {
     $country = sanitizeInput($_POST['country']);
     $contact = sanitizeInput($_POST['contact']);
     $title = sanitizeInput($_POST['title']);
+    $contact_phone_country_code = preg_replace("/[^0-9]/", '', $_POST['contact_phone_country_code']);
     $contact_phone = preg_replace("/[^0-9]/", '', $_POST['contact_phone']);
     $contact_extension = preg_replace("/[^0-9]/", '', $_POST['contact_extension']);
+    $contact_mobile_country_code = preg_replace("/[^0-9]/", '', $_POST['contact_mobile_country_code']);
     $contact_mobile = preg_replace("/[^0-9]/", '', $_POST['contact_mobile']);
     $contact_email = sanitizeInput($_POST['contact_email']);
 
@@ -49,7 +54,7 @@ if (isset($_POST['add_client'])) {
 
     // Create Location
     if (!empty($location_phone) || !empty($address) || !empty($city) || !empty($state) || !empty($zip)) {
-        mysqli_query($mysqli, "INSERT INTO locations SET location_name = 'Primary', location_address = '$address', location_city = '$city', location_state = '$state', location_zip = '$zip', location_phone = '$location_phone', location_fax = '$location_fax', location_country = '$country', location_primary = 1, location_client_id = $client_id");
+        mysqli_query($mysqli, "INSERT INTO locations SET location_name = 'Primary', location_address = '$address', location_city = '$city', location_state = '$state', location_zip = '$zip', location_phone_country_code = '$location_phone_country_code', location_phone = '$location_phone', location_extension = '$location_extension', location_fax_country_code = '$location_fax_country_code', location_fax = '$location_fax', location_country = '$country', location_primary = 1, location_client_id = $client_id");
 
         //Extended Logging
         $extended_log_description .= ", primary location $address added";
@@ -58,7 +63,7 @@ if (isset($_POST['add_client'])) {
 
     // Create Contact
     if (!empty($contact) || !empty($title) || !empty($contact_phone) || !empty($contact_mobile) || !empty($contact_email)) {
-        mysqli_query($mysqli, "INSERT INTO contacts SET contact_name = '$contact', contact_title = '$title', contact_phone = '$contact_phone', contact_extension = '$contact_extension', contact_mobile = '$contact_mobile', contact_email = '$contact_email', contact_primary = 1, contact_important = 1, contact_client_id = $client_id");
+        mysqli_query($mysqli, "INSERT INTO contacts SET contact_name = '$contact', contact_title = '$title', contact_phone_country_code = '$contact_phone_country_code', contact_phone = '$contact_phone', contact_extension = '$contact_extension', contact_mobile_country_code = '$contact_mobile_country_code', contact_mobile = '$contact_mobile', contact_email = '$contact_email', contact_primary = 1, contact_important = 1, contact_client_id = $client_id");
 
         //Extended Logging
         $extended_log_description .= ", primary contact $contact added";
@@ -632,7 +637,11 @@ if (isset($_POST['export_client_pdf'])) {
     $location_state = $row['location_state'];
     $location_zip = $row['location_zip'];
     $contact_name = $row['contact_name'];
-    $contact_phone = formatPhoneNumber($row['contact_phone']);
+    $contact_phone_country_code = nullable_htmlentities($row['contact_phone_country_code']);
+    $contact_phone = nullable_htmlentities(formatPhoneNumber($row['contact_phone'], $contact_phone_country_code));
+    $contact_extension = nullable_htmlentities($row['contact_extension']);
+    $contact_mobile_country_code = nullable_htmlentities($row['contact_mobile_country_code']);
+    $contact_mobile = nullable_htmlentities(formatPhoneNumber($row['contact_phone'], $contact_mobile_country_code));
     $contact_email = $row['contact_email'];
     $client_website = $row['client_website'];
 
@@ -789,12 +798,14 @@ if (isset($_POST['export_client_pdf'])) {
                             while($row = mysqli_fetch_array($sql_contacts)){
                             $contact_name = $row['contact_name'];
                             $contact_title = $row['contact_title'];
-                            $contact_phone = formatPhoneNumber($row['contact_phone']);
+                            $contact_phone_country_code = $row['contact_phone_country_code'];
+                            $contact_phone = formatPhoneNumber($row['contact_phone'], $contact_phone_country_code);
                             $contact_extension = $row['contact_extension'];
                             if(!empty($contact_extension)){
                                 $contact_extension = "x$contact_extension";
                             }
-                            $contact_mobile = formatPhoneNumber($row['contact_mobile']);
+                            $contact_mobile_country_code = $row['contact_mobile_country_code'];
+                            $contact_mobile = formatPhoneNumber($row['contact_phone'], $contact_mobile_country_code);
                             $contact_email = $row['contact_email'];
                             $contact_department = $row['contact_department'];
                             ?>
@@ -867,7 +878,8 @@ if (isset($_POST['export_client_pdf'])) {
                             $location_city = $row['location_city'];
                             $location_state = $row['location_state'];
                             $location_zip = $row['location_zip'];
-                            $location_phone = formatPhoneNumber($row['location_phone']);
+                            $location_phone_country_code = $row['location_phone_country_code'];
+                            $location_phone = formatPhoneNumber($row['location_phone'], $location_phone_country_code);
                             ?>
 
                             [
@@ -933,7 +945,8 @@ if (isset($_POST['export_client_pdf'])) {
                             $vendor_description = $row['vendor_description'];
                             $vendor_account_number = $row['vendor_account_number'];
                             $vendor_contact_name = $row['vendor_contact_name'];
-                            $vendor_phone = formatPhoneNumber($row['vendor_phone']);
+                            $vendor_phone_country_code = $row['vendor_phone_country_code'];
+                            $vendor_phone = formatPhoneNumber($row['vendor_phone'], $vendor_phone_country_code);
                             $vendor_email = $row['vendor_email'];
                             $vendor_website = $row['vendor_website'];
                             ?>

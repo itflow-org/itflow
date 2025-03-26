@@ -121,9 +121,11 @@ if (isset($_GET['ticket_id'])) {
         $contact_name = nullable_htmlentities($row['contact_name']);
         $contact_title = nullable_htmlentities($row['contact_title']);
         $contact_email = nullable_htmlentities($row['contact_email']);
-        $contact_phone = formatPhoneNumber($row['contact_phone']);
+        $contact_phone_country_code = nullable_htmlentities($row['contact_phone_country_code']);
+        $contact_phone = nullable_htmlentities(formatPhoneNumber($row['contact_phone'], $contact_phone_country_code));
         $contact_extension = nullable_htmlentities($row['contact_extension']);
-        $contact_mobile = formatPhoneNumber($row['contact_mobile']);
+        $contact_mobile_country_code = nullable_htmlentities($row['contact_mobile_country_code']);
+        $contact_mobile = nullable_htmlentities(formatPhoneNumber($row['contact_mobile'], $contact_mobile_country_code));
 
         $asset_id = intval($row['asset_id']);
         $asset_ip = nullable_htmlentities($row['interface_ip']);
@@ -388,12 +390,6 @@ if (isset($_GET['ticket_id'])) {
                             <?php if ($config_module_enable_accounting && $ticket_billable == 1 && empty($invoice_id) && lookupUserPermission("module_sales") >= 2) { ?>
                                 <a href="#" class="btn btn-light btn-sm ml-3" href="#" data-toggle="modal" data-target="#addInvoiceFromTicketModal">
                                     <i class="fas fa-fw fa-file-invoice mr-2"></i>Invoice
-                                </a>
-                            <?php }
-
-                            if (!empty($ticket_closed_at) && isset($session_is_admin) && $session_is_admin) { ?>
-                                <a href="ticket_redact.php?ticket_id=<?php echo $ticket_id; ?>" class="btn btn-danger btn-sm ml-3">
-                                    <i class="fas fa-fw fa-marker mr-2"></i>Redact
                                 </a>
                             <?php }
 
@@ -663,7 +659,11 @@ if (isset($_GET['ticket_id'])) {
                             </div>
 
                             <div class="form-group">
-                                <textarea class="form-control tinymceTicket<?php if ($config_ai_enable) { echo "AI"; } ?>" id="textInput" name="ticket_reply" placeholder="Type a response"></textarea>
+                                <textarea 
+                                    class="form-control tinymceTicket<?php if ($config_ai_enable) { echo "AI"; } ?>" name="ticket_reply"
+                                    placeholder="Type a response">
+                                    <?php echo nl2br(getFieldById('user_settings',$session_user_id,'user_config_signature','html')); ?>
+                                </textarea>
                             </div>
 
                             <div class="form-row">

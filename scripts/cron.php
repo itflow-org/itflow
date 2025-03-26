@@ -20,7 +20,7 @@ $row = mysqli_fetch_array($sql_companies);
 
 // Company Details
 $company_name = sanitizeInput($row['company_name']);
-$company_phone = sanitizeInput(formatPhoneNumber($row['company_phone']));
+$company_phone = sanitizeInput(formatPhoneNumber($row['company_phone'], $row['company_phone_country_code']));
 $company_email = sanitizeInput($row['company_email']);
 $company_website = sanitizeInput($row['company_website']);
 $company_city = sanitizeInput($row['company_city']);

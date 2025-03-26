@@ -24,17 +24,13 @@ enforceUserPermission('module_credential');
 
 // Tags Filter
 if (isset($_GET['tags']) && is_array($_GET['tags']) && !empty($_GET['tags'])) {
-    // Sanitize each element of the status array
-    $sanitizedTags = array();
-    foreach ($_GET['tags'] as $tag) {
-        // Escape each status to prevent SQL injection
-        $sanitizedTags[] = "'" . intval($tag) . "'";
-    }
-
+    // Sanitize each element of the tags array
+    $sanitizedTags = array_map('intval', $_GET['tags']);
     // Convert the sanitized tags into a comma-separated string
-    $sanitizedTagsString = implode(",", $sanitizedTags);
-    $tag_query = "AND tags.tag_id IN ($sanitizedTagsString)";
+    $tag_filter = implode(",", $sanitizedTags);
+    $tag_query = "AND tags.tag_id IN ($tag_filter)";
 } else {
+    $tag_filter = 0;
     $tag_query = '';
 }
 
@@ -126,6 +122,32 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         </div>
                     </div>
                 </div>
+
+                <div class="col-md-3">
+                    <div class="input-group">
+                        <select onchange="this.form.submit()" class="form-control select2" name="tags[]" data-placeholder="- Select Tags -" multiple>
+
+                            <?php
+                            $sql_tags_filter = mysqli_query($mysqli, "
+                                SELECT tags.tag_id, tags.tag_name
+                                FROM tags 
+                                LEFT JOIN credential_tags ON credential_tags.tag_id = tags.tag_id
+                                LEFT JOIN credentials ON credential_tags.credential_id = credentials.credential_id
+                                WHERE tag_type = 4
+                                $client_query OR tags.tag_id IN ($tag_filter)
+                                GROUP BY tags.tag_id
+                                HAVING COUNT(credential_tags.credential_id) > 0 OR tags.tag_id IN ($tag_filter)
+                            ");
+                            while ($row = mysqli_fetch_array($sql_tags_filter)) {
+                                $tag_id = intval($row['tag_id']);
+                                $tag_name = nullable_htmlentities($row['tag_name']); ?>
+
+                                <option value="<?php echo $tag_id ?>" <?php if (isset($_GET['tags']) && is_array($_GET['tags']) && in_array($tag_id, $_GET['tags'])) { echo 'selected'; } ?>> <?php echo $tag_name ?> </option>
+
+                            <?php } ?>
+                        </select>
+                    </div>
+                </div>
                 
                 <?php if ($client_url) { ?>
                 <div class="col-md-2">
@@ -154,7 +176,14 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             <option value="" <?php if ($client == "") { echo "selected"; } ?>>- All Clients -</option>
 
                             <?php
-                            $sql_clients_filter = mysqli_query($mysqli, "SELECT * FROM clients WHERE client_archived_at IS NULL $access_permission_query ORDER BY client_name ASC");
+                            $sql_clients_filter = mysqli_query($mysqli, "
+                                SELECT DISTINCT client_id, client_name 
+                                FROM clients
+                                JOIN credentials ON credential_client_id = client_id
+                                WHERE client_archived_at IS NULL 
+                                $access_permission_query
+                                ORDER BY client_name ASC
+                            ");
                             while ($row = mysqli_fetch_array($sql_clients_filter)) {
                                 $client_id = intval($row['client_id']);
                                 $client_name = nullable_htmlentities($row['client_name']);
@@ -168,31 +197,6 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     </div>
                 </div>
                 <?php } ?>
-
-                <div class="col-md-3">
-                    <div class="input-group">
-                        <select onchange="this.form.submit()" class="form-control select2" name="tags[]" data-placeholder="- Select Tags -" multiple>
-
-                            <?php $sql_tags = mysqli_query($mysqli, "SELECT * FROM tags WHERE tag_type = 4");
-                            while ($row = mysqli_fetch_array($sql_tags)) {
-                                $tag_id = intval($row['tag_id']);
-                                $tag_name = nullable_htmlentities($row['tag_name']); ?>
-
-                                <option value="<?php echo $tag_id ?>" <?php if (isset($_GET['tags']) && is_array($_GET['tags']) && in_array($tag_id, $_GET['tags'])) { echo 'selected'; } ?>> <?php echo $tag_name ?> </option>
-
-                            <?php } ?>
-                        </select>
-                        <div class="input-group-append">
-                            <button class="btn btn-secondary" type="button"
-                                data-toggle="ajax-modal"
-                                data-modal-size="sm"
-                                data-ajax-url="ajax/ajax_tag_add.php"
-                                data-ajax-id="4">
-                                <i class="fas fa-plus"></i>
-                            </button>
-                        </div>
-                    </div>
-                </div>
 
                 <div class="col-md-3">
                     <div class="btn-group float-right">

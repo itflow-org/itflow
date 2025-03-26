@@ -5,6 +5,7 @@ $name = sanitizeInput($_POST['name']);
 $description = sanitizeInput($_POST['description']);
 $account_number = sanitizeInput($_POST['account_number']);
 $contact_name = sanitizeInput($_POST['contact_name']);
+$phone_country_code = preg_replace("/[^0-9]/", '', $_POST['phone_country_code']);
 $phone = preg_replace("/[^0-9]/", '', $_POST['phone']);
 $extension = preg_replace("/[^0-9]/", '', $_POST['extension']);
 $email = sanitizeInput($_POST['email']);

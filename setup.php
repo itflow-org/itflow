@@ -344,11 +344,10 @@ if (isset($_POST['add_localization_settings'])) {
     $locale = sanitizeInput($_POST['locale']);
     $currency_code = sanitizeInput($_POST['currency_code']);
     $timezone = sanitizeInput($_POST['timezone']);
-    $phone_mask = intval($_POST['phone_mask']);
 
     mysqli_query($mysqli,"UPDATE companies SET company_locale = '$locale', company_currency = '$currency_code' WHERE company_id = 1");
 
-    mysqli_query($mysqli,"UPDATE settings SET config_timezone = '$timezone', config_phone_mask = $phone_mask WHERE company_id = 1");
+    mysqli_query($mysqli,"UPDATE settings SET config_timezone = '$timezone' WHERE company_id = 1");
 
     // Create Default Cash Account
     mysqli_query($mysqli,"INSERT INTO accounts SET account_name = 'Cash', account_currency_code = '$currency_code'");
@@ -1058,7 +1057,7 @@ if (isset($_POST['add_telemetry'])) {
                                         <div class="input-group-prepend">
                                             <span class="input-group-text"><i class="fa fa-fw fa-phone"></i></span>
                                         </div>
-                                        <input type="text" class="form-control" name="phone" placeholder="Phone Number">
+                                        <input type="tel" class="form-control" name="phone" placeholder="Phone Number">
                                     </div>
                                 </div>
 
@@ -1142,19 +1141,6 @@ if (isset($_POST['add_telemetry'])) {
                                             <?php foreach ($timezones as $tz) { ?>
                                                 <option value="<?php echo $tz; ?>"><?php echo $tz; ?></option>
                                             <?php } ?>
-                                        </select>
-                                    </div>
-                                </div>
-
-                                <div class="form-group">
-                                    <label>Phone Mask</label>
-                                    <div class="input-group">
-                                        <div class="input-group-prepend">
-                                            <span class="input-group-text"><i class="fa fa-phone"></i></span>
-                                        </div>
-                                        <select class="form-control select2" name="phone_mask">
-                                            <option value="1">US Format - e.g. (412) 888-9999</option>
-                                            <option value="0">Non-US Format - e.g. 4128889999</option>
                                         </select>
                                     </div>
                                 </div>

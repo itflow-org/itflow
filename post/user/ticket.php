@@ -114,10 +114,10 @@ if (isset($_POST['add_ticket'])) {
         $ticket_assigned_to = intval($row['ticket_assigned_to']);
 
         // Get Company Phone Number
-        $sql = mysqli_query($mysqli, "SELECT company_name, company_phone FROM companies WHERE company_id = 1");
+        $sql = mysqli_query($mysqli, "SELECT company_name, company_phone, company_phone_country_code FROM companies WHERE company_id = 1");
         $row = mysqli_fetch_array($sql);
         $company_name = sanitizeInput($row['company_name']);
-        $company_phone = sanitizeInput(formatPhoneNumber($row['company_phone']));
+        $company_phone = sanitizeInput(formatPhoneNumber($row['company_phone'], $row['company_phone_country_code']));
 
 
         // EMAILING
@@ -229,10 +229,10 @@ if (isset($_POST['edit_ticket'])) {
     if ($notify && !empty($config_smtp_host)) {
 
         // Get Company Name Phone Number and Sanitize for Email Sending
-        $sql = mysqli_query($mysqli, "SELECT company_name, company_phone FROM companies WHERE company_id = 1");
+        $sql = mysqli_query($mysqli, "SELECT company_name, company_phone, company_phone_country_code FROM companies WHERE company_id = 1");
         $row = mysqli_fetch_array($sql);
         $company_name = sanitizeInput($row['company_name']);
-        $company_phone = sanitizeInput(formatPhoneNumber($row['company_phone']));
+        $company_phone = sanitizeInput(formatPhoneNumber($row['company_phone'], $row['company_phone_country_code']));
 
         // Email content
         $data = []; // Queue array
@@ -348,10 +348,10 @@ if (isset($_POST['edit_ticket_contact'])) {
     if ($notify && filter_var($contact_email, FILTER_VALIDATE_EMAIL) && !empty($config_smtp_host)) {
 
         // Get Company Phone Number
-        $sql = mysqli_query($mysqli, "SELECT company_name, company_phone FROM companies WHERE company_id = 1");
+        $sql = mysqli_query($mysqli, "SELECT company_name, company_phone, company_phone_country_code FROM companies WHERE company_id = 1");
         $row = mysqli_fetch_array($sql);
         $company_name = sanitizeInput($row['company_name']);
-        $company_phone = sanitizeInput(formatPhoneNumber($row['company_phone']));
+        $company_phone = sanitizeInput(formatPhoneNumber($row['company_phone'], $row['company_phone_country_code']));
 
         $config_ticket_from_email = sanitizeInput($config_ticket_from_email);
         $config_ticket_from_name = sanitizeInput($config_ticket_from_name);
@@ -425,10 +425,10 @@ if (isset($_POST['add_ticket_watcher'])) {
         $ticket_assigned_to = intval($row['ticket_assigned_to']);
 
         // Get Company Phone Number
-        $sql = mysqli_query($mysqli, "SELECT company_name, company_phone FROM companies WHERE company_id = 1");
+        $sql = mysqli_query($mysqli, "SELECT company_name, company_phone, company_phone_country_code FROM companies WHERE company_id = 1");
         $row = mysqli_fetch_array($sql);
         $company_name = sanitizeInput($row['company_name']);
-        $company_phone = sanitizeInput(formatPhoneNumber($row['company_phone']));
+        $company_phone = sanitizeInput(formatPhoneNumber($row['company_phone'], $row['company_phone_country_code']));
 
         // Email content
         $data = []; // Queue array
@@ -1018,10 +1018,10 @@ if (isset($_POST['bulk_resolve_tickets'])) {
                 $base_url = sanitizeInput($config_base_url);
 
                 // Get Company Info
-                $sql = mysqli_query($mysqli, "SELECT company_name, company_phone FROM companies WHERE company_id = 1");
+                $sql = mysqli_query($mysqli, "SELECT company_name, company_phone, company_phone_country_code FROM companies WHERE company_id = 1");
                 $row = mysqli_fetch_array($sql);
                 $company_name = sanitizeInput($row['company_name']);
-                $company_phone = sanitizeInput(formatPhoneNumber($row['company_phone']));
+                $company_phone = sanitizeInput(formatPhoneNumber($row['company_phone'], $row['company_phone_country_code']));
 
 
                 // EMAIL
@@ -1157,10 +1157,10 @@ if (isset($_POST['bulk_ticket_reply'])) {
             $from_email = sanitizeInput($config_ticket_from_email);
             $base_url = sanitizeInput($config_base_url);
 
-            $sql = mysqli_query($mysqli, "SELECT company_name, company_phone FROM companies WHERE company_id = 1");
+            $sql = mysqli_query($mysqli, "SELECT company_name, company_phone, company_phone_country_code FROM companies WHERE company_id = 1");
             $row = mysqli_fetch_array($sql);
             $company_name = sanitizeInput($row['company_name']);
-            $company_phone = sanitizeInput(formatPhoneNumber($row['company_phone']));
+            $company_phone = sanitizeInput(formatPhoneNumber($row['company_phone'], $row['company_phone_country_code']));
 
             // Send e-mail to client if public update & email is set up
             if ($private_note == 0 && !empty($config_smtp_host)) {
@@ -1465,10 +1465,10 @@ if (isset($_POST['add_ticket_reply'])) {
         $config_ticket_from_email = sanitizeInput($config_ticket_from_email);
         $config_base_url = sanitizeInput($config_base_url);
 
-        $sql = mysqli_query($mysqli, "SELECT company_name, company_phone FROM companies WHERE company_id = 1");
+        $sql = mysqli_query($mysqli, "SELECT company_name, company_phone, company_phone_country_code FROM companies WHERE company_id = 1");
         $row = mysqli_fetch_array($sql);
         $company_name = sanitizeInput($row['company_name']);
-        $company_phone = sanitizeInput(formatPhoneNumber($row['company_phone']));
+        $company_phone = sanitizeInput(formatPhoneNumber($row['company_phone'], $row['company_phone_country_code']));
 
         // Send e-mail to client if public update & email is set up
         if ($ticket_reply_type == 'Public' && $send_email == 1 && !empty($config_smtp_host)) {
@@ -1587,29 +1587,6 @@ if (isset($_GET['archive_ticket_reply'])) {
     $_SESSION['alert_message'] = "Ticket reply archived";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
-}
-
-if (isset($_POST['redact_ticket_reply'])) {
-
-    // Perms - Admins only
-    if (!isset($session_is_admin) || !$session_is_admin) {
-        exit(WORDING_ROLECHECK_FAILED . "<br>Tell your admin: Your role does not have admin access.");
-    }
-    validateCSRFToken($_POST['csrf_token']);
-
-    $ticket_id = intval($_POST['ticket_id']);
-    $ticket_reply_id = intval($_POST['ticket_reply_id']);
-    $ticket_reply = mysqli_real_escape_string($mysqli, $_POST['ticket_reply']);
-    $client_id = intval($_POST['client_id']);
-
-    mysqli_query($mysqli, "UPDATE ticket_replies SET ticket_reply = '$ticket_reply' WHERE ticket_reply_id = $ticket_reply_id AND ticket_reply_ticket_id = $ticket_id");
-
-    // Logging
-    logAction("Ticket", "Reply", "$session_name redacted ticket_reply", $client_id, $ticket_reply_id);
-
-    $_SESSION['alert_message'] = "Ticket reply redacted";
-
-    header("Location: ticket_redact.php?ticket_id=" . $ticket_id);
 }
 
 if (isset($_POST['merge_ticket'])) {
@@ -1745,10 +1722,10 @@ if (isset($_GET['resolve_ticket'])) {
         $config_base_url = sanitizeInput($config_base_url);
 
         // Get Company Info
-        $sql = mysqli_query($mysqli, "SELECT company_name, company_phone FROM companies WHERE company_id = 1");
+        $sql = mysqli_query($mysqli, "SELECT company_name, company_phone, company_phone_country_code FROM companies WHERE company_id = 1");
         $row = mysqli_fetch_array($sql);
         $company_name = sanitizeInput($row['company_name']);
-        $company_phone = sanitizeInput(formatPhoneNumber($row['company_phone']));
+        $company_phone = sanitizeInput(formatPhoneNumber($row['company_phone'], $row['company_phone_country_code']));
 
         // EMAIL
         $subject = "Ticket resolved - [$ticket_prefix$ticket_number] - $ticket_subject | (pending closure)";
@@ -1838,10 +1815,10 @@ if (isset($_GET['close_ticket'])) {
         $config_base_url = sanitizeInput($config_base_url);
 
         // Get Company Info
-        $sql = mysqli_query($mysqli, "SELECT company_name, company_phone FROM companies WHERE company_id = 1");
+        $sql = mysqli_query($mysqli, "SELECT company_name, company_phone, company_phone_country_code FROM companies WHERE company_id = 1");
         $row = mysqli_fetch_array($sql);
         $company_name = sanitizeInput($row['company_name']);
-        $company_phone = sanitizeInput(formatPhoneNumber($row['company_phone']));
+        $company_phone = sanitizeInput(formatPhoneNumber($row['company_phone'], $row['company_phone_country_code']));
 
         // EMAIL
         $subject = "Ticket closed - [$ticket_prefix$ticket_number] - $ticket_subject | (do not reply)";

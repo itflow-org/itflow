@@ -14,8 +14,11 @@ $location_address = nullable_htmlentities($row['location_address']);
 $location_city = nullable_htmlentities($row['location_city']);
 $location_state = nullable_htmlentities($row['location_state']);
 $location_zip = nullable_htmlentities($row['location_zip']);
-$location_phone = formatPhoneNumber($row['location_phone']);
-$location_fax = formatPhoneNumber($row['location_fax']);
+$location_phone_country_code = nullable_htmlentities($row['location_phone_country_code']);
+$location_phone = nullable_htmlentities(formatPhoneNumber($row['location_phone'], $location_phone_country_code));
+$location_extension = formatPhoneNumber($row['location_extension']);
+$location_fax_country_code = nullable_htmlentities($row['location_fax_country_code']);
+$location_fax = nullable_htmlentities(formatPhoneNumber($row['location_fax'], $location_fax_country_code));
 $location_hours = nullable_htmlentities($row['location_hours']);
 $location_photo = nullable_htmlentities($row['location_photo']);
 $location_notes = nullable_htmlentities($row['location_notes']);
@@ -198,23 +201,38 @@ ob_start();
                     </div>
                 </div>
 
-                <div class="form-group">
-                    <label>Phone</label>
-                    <div class="input-group">
-                        <div class="input-group-prepend">
-                            <span class="input-group-text"><i class="fa fa-fw fa-phone"></i></span>
+                <label>Phone / <span class="text-secondary">Extension</span></label>
+                <div class="form-row">
+                    <div class="col-9">
+                        <div class="form-group">
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text"><i class="fa fa-fw fa-phone"></i></span>
+                                </div>
+                                <input type="tel" class="form-control col-2" name="phone_country_code" value="<?php echo "+$location_phone_country_code"; ?>" placeholder="Code" maxlength="4">
+                                <input type="tel" class="form-control" name="phone" value="<?php echo $location_phone; ?>" placeholder="Phone Number" maxlength="200">
+                            </div>
                         </div>
-                        <input type="text" class="form-control" name="phone" placeholder="Phone Number" maxlength="200" value="<?php echo $location_phone; ?>">
+                    </div>
+                    <div class="col-3">
+                        <div class="form-group">
+                            <input type="text" class="form-control" name="extension" value="<?php echo $location_extension; ?>" placeholder="ext." maxlength="200">
+                        </div>
                     </div>
                 </div>
 
-                <div class="form-group">
-                    <label>Fax</label>
-                    <div class="input-group">
-                        <div class="input-group-prepend">
-                            <span class="input-group-text"><i class="fa fa-fw fa-fax"></i></span>
+                <label>Fax</label>
+                <div class="form-row">
+                    <div class="col-9">
+                        <div class="form-group">
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text"><i class="fa fa-fw fa-fax"></i></span>
+                                </div>
+                                <input type="tel" class="form-control col-2" name="fax_country_code" value="<?php echo "+$location_fax_country_code"; ?>" placeholder="Code" maxlength="4">
+                                <input type="tel" class="form-control" name="fax" value="<?php echo $location_fax; ?>" placeholder="Phone Number" maxlength="200">
+                            </div>
                         </div>
-                        <input type="text" class="form-control" name="fax" placeholder="Fax Number" maxlength="200" value="<?php echo $location_fax; ?>">
                     </div>
                 </div>
 

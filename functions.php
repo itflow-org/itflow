@@ -193,40 +193,144 @@ function truncate($text, $chars) {
     return $text . "...";
 }
 
-function formatPhoneNumber($phoneNumber) {
-    global $mysqli;
+function formatPhoneNumber($phoneNumber, $country_code = '', $show_country_code = false) {
 
-    // Get Phone Mask Option
-    $phone_mask = mysqli_fetch_array(mysqli_query($mysqli, "SELECT config_phone_mask FROM settings WHERE company_id = 1"))[0];
+    // Remove all non-digit characters
+    $digits = preg_replace('/\D/', '', $phoneNumber);
+    $formatted = '';
 
-    if ($phone_mask == 0) {
-        return $phoneNumber;
+    switch ($country_code) {
+        case '1': // USA/Canada — (123) 456-7890
+            if (strlen($digits) === 10) {
+                $formatted = '(' . substr($digits, 0, 3) . ') ' . substr($digits, 3, 3) . '-' . substr($digits, 6);
+            }
+            break;
+
+        case '44': // UK — 07123 456 789
+            if ($digits[0] === '0') $digits = substr($digits, 1);
+            if (strlen($digits) === 10) {
+                $formatted = '0' . substr($digits, 0, 4) . ' ' . substr($digits, 4, 3) . ' ' . substr($digits, 7);
+            }
+            break;
+
+        case '61': // Australia — 0412 345 678
+            if ($digits[0] === '0') $digits = substr($digits, 1);
+            if (strlen($digits) === 9) {
+                $formatted = '0' . substr($digits, 0, 4) . ' ' . substr($digits, 4, 3) . ' ' . substr($digits, 7);
+            }
+            break;
+
+        case '91': // India — 91234 56789
+            if (strlen($digits) === 10) {
+                $formatted = substr($digits, 0, 5) . ' ' . substr($digits, 5);
+            }
+            break;
+
+        case '81': // Japan — 03-1234-5678
+            if ($digits[0] === '0') $digits = substr($digits, 1);
+            if (strlen($digits) >= 9 && strlen($digits) <= 10) {
+                $formatted = '0' . substr($digits, 0, 2) . '-' . substr($digits, 2, 4) . '-' . substr($digits, 6);
+            }
+            break;
+
+        case '49': // Germany — 030 12345678
+            if ($digits[0] === '0') $digits = substr($digits, 1);
+            if (strlen($digits) >= 10) {
+                $formatted = '0' . substr($digits, 0, 3) . ' ' . substr($digits, 3);
+            }
+            break;
+
+        case '33': // France — 01 23 45 67 89
+            if ($digits[0] === '0') $digits = substr($digits, 1);
+            if (strlen($digits) === 9) {
+                $formatted = '0' . implode(' ', str_split($digits, 2));
+            }
+            break;
+
+        case '34': // Spain — 612 345 678
+            if (strlen($digits) === 9) {
+                $formatted = substr($digits, 0, 3) . ' ' . substr($digits, 3, 3) . ' ' . substr($digits, 6);
+            }
+            break;
+
+        case '39': // Italy — 312 345 6789
+            if ($digits[0] === '0') $digits = substr($digits, 1);
+            $formatted = '0' . implode(' ', str_split($digits, 3));
+            break;
+
+        case '55': // Brazil — (11) 91234-5678
+            if (strlen($digits) === 11) {
+                $formatted = '(' . substr($digits, 0, 2) . ') ' . substr($digits, 2, 5) . '-' . substr($digits, 7);
+            }
+            break;
+
+        case '7': // Russia — 8 (912) 345-67-89
+            if ($digits[0] === '8') $digits = substr($digits, 1);
+            if (strlen($digits) === 10) {
+                $formatted = '8 (' . substr($digits, 0, 3) . ') ' . substr($digits, 3, 3) . '-' . substr($digits, 6, 2) . '-' . substr($digits, 8);
+            }
+            break;
+
+        case '86': // China — 138 0013 8000
+            if (strlen($digits) === 11) {
+                $formatted = substr($digits, 0, 3) . ' ' . substr($digits, 3, 4) . ' ' . substr($digits, 7);
+            }
+            break;
+
+        case '82': // South Korea — 010-1234-5678
+            if (strlen($digits) === 11) {
+                $formatted = substr($digits, 0, 3) . '-' . substr($digits, 3, 4) . '-' . substr($digits, 7);
+            }
+            break;
+
+        case '62': // Indonesia — 0812 3456 7890
+            if ($digits[0] !== '0') $digits = '0' . $digits;
+            if (strlen($digits) === 12) {
+                $formatted = substr($digits, 0, 4) . ' ' . substr($digits, 4, 4) . ' ' . substr($digits, 8);
+            }
+            break;
+
+        case '63': // Philippines — 0912 345 6789
+            if (strlen($digits) === 11) {
+                $formatted = substr($digits, 0, 4) . ' ' . substr($digits, 4, 3) . ' ' . substr($digits, 7);
+            }
+            break;
+
+        case '234': // Nigeria — 0801 234 5678
+            if ($digits[0] !== '0') $digits = '0' . $digits;
+            if (strlen($digits) === 11) {
+                $formatted = substr($digits, 0, 4) . ' ' . substr($digits, 4, 3) . ' ' . substr($digits, 7);
+            }
+            break;
+
+        case '27': // South Africa — 082 123 4567
+            if (strlen($digits) >= 9 && strlen($digits) <= 10) {
+                $formatted = substr($digits, 0, 3) . ' ' . substr($digits, 3, 3) . ' ' . substr($digits, 6);
+            }
+            break;
+
+        case '971': // UAE — 050 123 4567
+            if (strlen($digits) === 9) {
+                $formatted = substr($digits, 0, 3) . ' ' . substr($digits, 3, 3) . ' ' . substr($digits, 6);
+            }
+            break;
+
+        default:
+            // If no match, do nothing here and use fallback below
+            break;
     }
 
-
-    $phoneNumber = $phoneNumber ? preg_replace('/[^0-9]/', '', $phoneNumber) : "";
-
-    if (strlen($phoneNumber) > 10) {
-        $countryCode = substr($phoneNumber, 0, strlen($phoneNumber) - 10);
-        $areaCode = substr($phoneNumber, -10, 3);
-        $nextThree = substr($phoneNumber, -7, 3);
-        $lastFour = substr($phoneNumber, -4, 4);
-
-        $phoneNumber = '+' . $countryCode . ' (' . $areaCode . ') ' . $nextThree . '-' . $lastFour;
-    } else if (strlen($phoneNumber) == 10) {
-        $areaCode = substr($phoneNumber, 0, 3);
-        $nextThree = substr($phoneNumber, 3, 3);
-        $lastFour = substr($phoneNumber, 6, 4);
-
-        $phoneNumber = '(' . $areaCode . ') ' . $nextThree . '-' . $lastFour;
-    } else if (strlen($phoneNumber) == 7) {
-        $nextThree = substr($phoneNumber, 0, 3);
-        $lastFour = substr($phoneNumber, 3, 4);
-
-        $phoneNumber = $nextThree . '-' . $lastFour;
+    // Fallback if formatting failed
+    if (!$formatted && strlen($digits) >= 7) {
+        $formatted = substr($digits, 0, 3) . ' ' . substr($digits, 3, 3) . ' ' . substr($digits, 6);
     }
 
-    return $phoneNumber;
+    // Still no formatting? Use raw digits
+    if (!$formatted) {
+        $formatted = $digits ?: $phoneNumber; // Use original input if digits are empty
+    }
+
+    return $show_country_code && $country_code ? "+$country_code $formatted" : $formatted;
 }
 
 function mkdirMissing($dir) {
