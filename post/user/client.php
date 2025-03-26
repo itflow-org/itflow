@@ -667,6 +667,34 @@ if (isset($_POST['export_client_pdf'])) {
     $sql_certficates = mysqli_query($mysqli,"SELECT * FROM certificates WHERE certificate_client_id = $client_id AND certificate_archived_at IS NULL ORDER BY certificate_name ASC");
     $sql_software = mysqli_query($mysqli,"SELECT * FROM software WHERE software_client_id = $client_id AND software_archived_at IS NULL ORDER BY software_name ASC");
 
+    $sql_user_licenses = mysqli_query($mysqli,"
+        SELECT 
+            contact_name,
+            software_name
+        FROM 
+            software_contacts
+        JOIN 
+            contacts ON software_contacts.contact_id = contacts.contact_id
+        JOIN 
+            software ON software_contacts.software_id = software.software_id
+        ORDER BY 
+            contact_name, software_name;"
+    );
+
+    $sql_asset_licenses = mysqli_query($mysqli,"
+        SELECT 
+            asset_name,
+            software_name
+        FROM 
+            software_assets
+        JOIN 
+            assets ON software_assets.asset_id = assets.asset_id
+        JOIN 
+            software ON software_assets.software_id = software.software_id
+        ORDER BY 
+            asset_name, software_name;"
+    );
+
     ?>
 
     <script src='plugins/pdfmake/pdfmake.min.js'></script>
@@ -1683,6 +1711,101 @@ if (isset($_POST['export_client_pdf'])) {
                 },
                 <?php } ?>
                 //Software END
+
+                //Software User License
+                <?php if(mysqli_num_rows($sql_user_licenses) > 0 && $export_software == 1){ ?>
+                {
+                    text: 'User Assigned Licenses',
+                    style: 'title'
+                },
+
+                {
+                    table: {
+                        body: [
+                            [
+                                {
+                                    text: 'User',
+                                    style: 'itemHeader'
+                                },
+                                {
+                                    text: 'Software',
+                                    style: 'itemHeader'
+                                }
+                            ],
+
+                            <?php
+                            while($row = mysqli_fetch_array($sql_user_licenses)){
+                            $contact_name = $row['contact_name'];
+                            $software_name = $row['software_name'];
+                            ?>
+
+                            [
+                                {
+                                    text: <?php echo json_encode($contact_name); ?>,
+                                    style: 'item'
+                                },
+                                {
+                                    text: <?php echo json_encode($software_name); ?>,
+                                    style: 'item'
+                                }
+                            ],
+
+                            <?php
+                            }
+                            ?>
+                        ]
+                    }
+                },
+                <?php } ?>
+                //Software END
+
+                //Software Asset License
+                <?php if(mysqli_num_rows($sql_asset_licenses) > 0 && $export_software == 1){ ?>
+                {
+                    text: 'Asset Assigned Licenses',
+                    style: 'title'
+                },
+
+                {
+                    table: {
+                        body: [
+                            [
+                                {
+                                    text: 'Asset',
+                                    style: 'itemHeader'
+                                },
+                                {
+                                    text: 'Software',
+                                    style: 'itemHeader'
+                                }
+                            ],
+
+                            <?php
+                            while($row = mysqli_fetch_array($sql_asset_licenses)){
+                            $asset_name = $row['asset_name'];
+                            $software_name = $row['software_name'];
+                            ?>
+
+                            [
+                                {
+                                    text: <?php echo json_encode($asset_name); ?>,
+                                    style: 'item'
+                                },
+                                {
+                                    text: <?php echo json_encode($software_name); ?>,
+                                    style: 'item'
+                                }
+                            ],
+
+                            <?php
+                            }
+                            ?>
+                        ]
+                    }
+                },
+                <?php } ?>
+                //Software END
+
 
                 //Networks Start
                 <?php if(mysqli_num_rows($sql_networks) > 0 && $export_networks == 1){ ?>

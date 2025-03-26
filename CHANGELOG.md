@@ -33,6 +33,7 @@ This file documents all notable changes made to ITFlow.
 - Added Projects to the client side navigation.
 - Added Create New Ticket while in project details section.
 - Brought back Batch Payment in client invoices.
+- Added client abbrevation to client and global search options.
 
 
 ### Breaking Changes
