@@ -478,7 +478,7 @@ if (isset($_GET['email_quote'])) {
     $company_city = sanitizeInput($row['company_city']);
     $company_state = sanitizeInput($row['company_state']);
     $company_zip = sanitizeInput($row['company_zip']);
-    $company_phone = sanitizeInput(formatPhoneNumber($row['company_phone']));
+    $company_phone = sanitizeInput(formatPhoneNumber($row['company_phone'], $row['company_phone_country_code']));
     $company_email = sanitizeInput($row['company_email']);
     $company_website = sanitizeInput($row['company_website']);
     $company_logo = sanitizeInput($row['company_logo']);

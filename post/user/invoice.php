@@ -770,9 +770,9 @@ if (isset($_POST['add_payment'])) {
         $client_name = sanitizeInput($row['client_name']);
         $contact_name = sanitizeInput($row['contact_name']);
         $contact_email = sanitizeInput($row['contact_email']);
-        $contact_phone = sanitizeInput(formatPhoneNumber($row['contact_phone']));
+        $contact_phone = sanitizeInput(formatPhoneNumber($row['contact_phone'], $row['contact_phone_country_code']));
         $contact_extension = preg_replace("/[^0-9]/", '',$row['contact_extension']);
-        $contact_mobile = sanitizeInput(formatPhoneNumber($row['contact_mobile']));
+        $contact_mobile = sanitizeInput(formatPhoneNumber($row['contact_mobile'], $row['contact_mobile_country_code']));
 
         $sql = mysqli_query($mysqli,"SELECT * FROM companies WHERE company_id = 1");
         $row = mysqli_fetch_array($sql);
@@ -783,7 +783,7 @@ if (isset($_POST['add_payment'])) {
         $company_city = sanitizeInput($row['company_city']);
         $company_state = sanitizeInput($row['company_state']);
         $company_zip = sanitizeInput($row['company_zip']);
-        $company_phone = sanitizeInput(formatPhoneNumber($row['company_phone']));
+        $company_phone = sanitizeInput(formatPhoneNumber($row['company_phone'], $row['company_phone_country_code']));
         $company_email = sanitizeInput($row['company_email']);
         $company_website = sanitizeInput($row['company_website']);
         $company_logo = sanitizeInput($row['company_logo']);
@@ -912,9 +912,9 @@ if (isset($_GET['add_payment_stripe'])) {
     $client_name = sanitizeInput($row['client_name']);
     $contact_name = sanitizeInput($row['contact_name']);
     $contact_email = sanitizeInput($row['contact_email']);
-    $contact_phone = sanitizeInput(formatPhoneNumber($row['contact_phone']));
+    $contact_phone = sanitizeInput(formatPhoneNumber($row['contact_phone'], $row['contact_phone_country_code']));
     $contact_extension = preg_replace("/[^0-9]/", '',$row['contact_extension']);
-    $contact_mobile = sanitizeInput(formatPhoneNumber($row['contact_mobile']));
+    $contact_mobile = sanitizeInput(formatPhoneNumber($row['contact_mobile'], $row['contact_mobile_country_code']));
 
     // Get ITFlow company details
     $sql = mysqli_query($mysqli,"SELECT * FROM companies WHERE company_id = 1");
@@ -925,7 +925,7 @@ if (isset($_GET['add_payment_stripe'])) {
     $company_city = sanitizeInput($row['company_city']);
     $company_state = sanitizeInput($row['company_state']);
     $company_zip = sanitizeInput($row['company_zip']);
-    $company_phone = sanitizeInput(formatPhoneNumber($row['company_phone']));
+    $company_phone = sanitizeInput(formatPhoneNumber($row['company_phone'], $row['company_phone_country_code']));
     $company_email = sanitizeInput($row['company_email']);
     $company_website = sanitizeInput($row['company_website']);
 
@@ -1171,11 +1171,11 @@ if (isset($_POST['add_bulk_payment'])) {
         $contact_name = sanitizeInput($row['contact_name']);
         $contact_email = sanitizeInput($row['contact_email']);
 
-        $sql_company = mysqli_query($mysqli,"SELECT company_name, company_phone FROM companies WHERE company_id = 1");
+        $sql_company = mysqli_query($mysqli,"SELECT company_name, company_phone, company_phone_country_code FROM companies WHERE company_id = 1");
         $row = mysqli_fetch_array($sql_company);
 
         $company_name = sanitizeInput($row['company_name']);
-        $company_phone = sanitizeInput(formatPhoneNumber($row['company_phone']));
+        $company_phone = sanitizeInput(formatPhoneNumber($row['company_phone'], $row['company_phone_country_code']));
 
         // Sanitize Config vars from get_settings.php
         $config_invoice_from_name = sanitizeInput($config_invoice_from_name);
@@ -1292,7 +1292,7 @@ if (isset($_GET['email_invoice'])) {
     $company_city = sanitizeInput($row['company_city']);
     $company_state = sanitizeInput($row['company_state']);
     $company_zip = sanitizeInput($row['company_zip']);
-    $company_phone = sanitizeInput(formatPhoneNumber($row['company_phone']));
+    $company_phone = sanitizeInput(formatPhoneNumber($row['company_phone'], $row['company_phone_country_code']));
     $company_email = sanitizeInput($row['company_email']);
     $company_website = sanitizeInput($row['company_website']);
     $company_logo = sanitizeInput($row['company_logo']);
@@ -1533,14 +1533,14 @@ if (isset($_GET['force_recurring'])) {
         $client_name = sanitizeInput($row['client_name']);
         $contact_name = sanitizeInput($row['contact_name']);
         $contact_email = sanitizeInput($row['contact_email']);
-        $contact_phone = sanitizeInput(formatPhoneNumber($row['contact_phone']));
+        $contact_phone = sanitizeInput(formatPhoneNumber($row['contact_phone'], $row['contact_phone_country_code']));
         $contact_extension = intval($row['contact_extension']);
-        $contact_mobile = sanitizeInput(formatPhoneNumber($row['contact_mobile']));
+        $contact_mobile = sanitizeInput(formatPhoneNumber($row['contact_mobile'], $row['contact_mobile_country_code']));
 
         $sql = mysqli_query($mysqli,"SELECT * FROM companies WHERE company_id = 1");
         $row = mysqli_fetch_array($sql);
         $company_name = sanitizeInput($row['company_name']);
-        $company_phone = sanitizeInput(formatPhoneNumber($row['company_phone']));
+        $company_phone = sanitizeInput(formatPhoneNumber($row['company_phone'], $row['company_phone_country_code']));
         $company_email = sanitizeInput($row['company_email']);
         $company_website = sanitizeInput($row['company_website']);
 
