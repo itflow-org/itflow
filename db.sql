@@ -1843,7 +1843,6 @@ CREATE TABLE `settings` (
   `config_telemetry` tinyint(1) DEFAULT 0,
   `config_timezone` varchar(200) NOT NULL DEFAULT 'America/New_York',
   `config_destructive_deletes_enable` tinyint(1) NOT NULL DEFAULT 0,
-  `config_phone_mask` tinyint(1) NOT NULL DEFAULT 1,
   `config_whitelabel_enabled` int(11) NOT NULL DEFAULT 0,
   `config_whitelabel_key` text DEFAULT NULL,
   `config_ticket_default_view` tinyint(1) NOT NULL DEFAULT 0,
@@ -2499,4 +2498,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-03-26 11:10:26
+-- Dump completed on 2025-03-26 11:13:46
