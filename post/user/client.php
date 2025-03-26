@@ -828,8 +828,8 @@ if (isset($_POST['export_client_pdf'])) {
 
                             <?php
                             while($row = mysqli_fetch_array($sql_contacts)){
-                            $contact_name = $row['contact_name'];
-                            $contact_title = $row['contact_title'];
+                            $contact_name = getFallBack($row['contact_name']);
+                            $contact_title = getFallBack($row['contact_title']);
                             $contact_phone_country_code = $row['contact_phone_country_code'];
                             $contact_phone = formatPhoneNumber($row['contact_phone'], $contact_phone_country_code);
                             $contact_extension = $row['contact_extension'];

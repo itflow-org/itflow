@@ -1502,7 +1502,7 @@ function logAuth($status, $details) {
 
 // Helper function for missing data fallback
 function getFallback($data) {
-    return !empty($data) ? $data : '<span class="text-muted">N/A</span>';
+    return !empty($data) ? $data : '-';
 }
 
 /**
