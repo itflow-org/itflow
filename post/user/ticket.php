@@ -2260,7 +2260,7 @@ if (isset($_POST['bulk_delete_recurring_tickets'])) {
         $count = count($_POST['recurring_ticket_ids']);
 
         // Cycle through array and delete each recurring scheduled ticket
-        foreach ($recurring_ticket_ids as $recurring_ticket_id) {
+        foreach ($_POST['recurring_ticket_ids'] as $recurring_ticket_id) {
 
             $recurring_ticket_id = intval($recurring_ticket_id);
             mysqli_query($mysqli, "DELETE FROM recurring_tickets WHERE recurring_ticket_id = $recurring_ticket_id");

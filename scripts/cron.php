@@ -4,9 +4,9 @@
 chdir(dirname(__FILE__));
 
 // Ensure we're running from command line
-if (php_sapi_name() !== 'cli') {
-    die("This script must be run from the command line.\n");
-}
+//if (php_sapi_name() !== 'cli') {
+//    die("This script must be run from the command line.\n");
+//}
 
 require_once "../config.php";
 
@@ -437,6 +437,13 @@ if (mysqli_num_rows($sql_recurring_tickets) > 0) {
         $a = mysqli_query($mysqli, "UPDATE recurring_tickets SET recurring_ticket_next_run = '$next_run' WHERE recurring_ticket_id = $recurring_ticket_id");
 
     }
+}
+
+// Flag any active recurring "next run" dates that are in the past
+$sql_invalid_recurring_tickets = mysqli_query($mysqli, "SELECT * FROM recurring_tickets WHERE recurring_ticket_next_run < CURDATE()");
+while ($row = mysqli_fetch_array($sql_invalid_recurring_tickets)) {
+    $subject = sanitizeInput($row['recurring_ticket_subject']);
+    appNotify("Ticket", "Recurring ticket $subject next run date is in the past!", "recurring_tickets.php");
 }
 
 // Logging
@@ -871,6 +878,14 @@ while ($row = mysqli_fetch_array($sql_recurring_invoices)) {
 
 } //End Recurring Invoices Loop
 
+// Flag any active recurring "next run" dates that are in the past
+$sql_invalid_recurring_invoices = mysqli_query($mysqli, "SELECT * FROM recurring_invoices WHERE recurring_invoice_next_date < CURDATE()");
+while ($row = mysqli_fetch_array($sql_invalid_recurring_invoices)) {
+    $invoice_prefix = sanitizeInput($row['recurring_invoice_prefix']);
+    $invoice_number = intval($row['recurring_invoice_number']);
+    appNotify("Invoice", "Recurring invoice $invoice_prefix$invoice_number next run date is in the past!", "recurring_invoices.php");
+}
+
 // Logging
 // logAction("Cron", "Task", "Cron created invoices from recurring invoices and sent emails out");
 
@@ -914,10 +929,17 @@ while ($row = mysqli_fetch_array($sql_recurring_expenses)) {
     mysqli_query($mysqli, "UPDATE recurring_expenses SET recurring_expense_last_sent = CURDATE(), recurring_expense_next_date = $next_date_query WHERE recurring_expense_id = $recurring_expense_id");
 
 
-} //End Recurring Invoices Loop
+} //End Recurring expenses loop
+
+// Flag any active recurring "next run" dates that are in the past
+$sql_invalid_recurring_expenses = mysqli_query($mysqli, "SELECT * FROM recurring_expenses WHERE recurring_expense_next_date < CURDATE() AND recurring_expense_status = 1");
+while ($row = mysqli_fetch_array($sql_invalid_recurring_expenses)) {
+    $recurring_expense_description = sanitizeInput($row['recurring_expense_description']);
+    appNotify("Expense", "Recurring expense $recurring_expense_description next run date is in the past!", "recurring_expenses.php");
+}
 
 // Logging
-logApp("Cron", "info", "Cron created expenses from recurring expenses");
+//logApp("Cron", "info", "Cron created expenses from recurring expenses");
 
 // TELEMETRY
 
