@@ -21,7 +21,7 @@
                         </li>
                         <?php if (!isset($_GET['contact_id'])) { ?>
                         <li class="nav-item">
-                            <a class="nav-link" data-toggle="pill" href="#pills-add-contacts"><i class="fa fa-fw fa-users mr-2"></i>Contacts</a>
+                            <a class="nav-link" data-toggle="pill" href="#pills-add-contacts"><i class="fa fa-fw fa-users mr-2"></i>Contact</a>
                         </li>
                         <?php } ?>
                         <li class="nav-item">
