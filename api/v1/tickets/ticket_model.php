@@ -59,3 +59,11 @@ if (isset($_POST['ticket_assigned_to'])) {
 } else {
     $assigned_to = '0';
 }
+
+if (isset($_POST['ticket_billable'])) {
+    $billable = intval($_POST['ticket_billable']);
+} elseif ($ticket_row) {
+    $billable = $ticket_row['ticket_billable'];
+} else {
+    $billable = '0';
+}
