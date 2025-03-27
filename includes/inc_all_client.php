@@ -248,13 +248,13 @@ if (isset($_GET['client_id'])) {
         ));
         $num_domains_urgent = intval($row['num']);
 
-        // Count Certificates Expiring within 45 Days
+        // Count Certificates Expiring within 7 Days
         $row = mysqli_fetch_assoc(mysqli_query(
             $mysqli,
             "SELECT COUNT('certificate_id') AS num FROM certificates
             WHERE certificate_client_id = $client_id
             AND certificate_expire IS NOT NULL
-            AND certificate_expire < CURRENT_DATE + INTERVAL 45 DAY
+            AND certificate_expire < CURRENT_DATE + INTERVAL 7 DAY
             AND certificate_archived_at IS NULL"
         ));
         $num_certificates_expiring = intval($row['num']);
@@ -267,7 +267,7 @@ if (isset($_GET['client_id'])) {
             AND certificate_expire IS NOT NULL
             AND (
                     certificate_expire < CURRENT_DATE
-                    OR certificate_expire < CURRENT_DATE + INTERVAL 7 DAY
+                    OR certificate_expire < CURRENT_DATE + INTERVAL 1 DAY
                 )
             AND certificate_archived_at IS NULL"
         ));
