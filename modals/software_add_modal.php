@@ -54,7 +54,7 @@
                                             while ($row = mysqli_fetch_array($sql)) {
                                                 $client_id = intval($row['client_id']);
                                                 $client_name = nullable_htmlentities($row['client_name']); ?>
-                                                <option <?php if ($client_id == $_GET['client']) { echo "selected"; } ?> value="<?php echo $client_id; ?>"><?php echo $client_name; ?></option>
+                                                <option <?php if ($client_id == isset($_GET['client'])) { echo "selected"; } ?> value="<?php echo $client_id; ?>"><?php echo $client_name; ?></option>
 
                                             <?php } ?>
                                         </select>

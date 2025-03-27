@@ -49,7 +49,7 @@
                                             while ($row = mysqli_fetch_array($sql)) {
                                                 $client_id = intval($row['client_id']);
                                                 $client_name = nullable_htmlentities($row['client_name']); ?>
-                                                <option <?php if ($client_id == $_GET['client']) { echo "selected"; } ?> value="<?php echo $client_id; ?>"><?php echo $client_name; ?></option>
+                                                <option <?php if ($client_id == isset($_GET['client'])) { echo "selected"; } ?> value="<?php echo $client_id; ?>"><?php echo $client_name; ?></option>
 
                                             <?php } ?>
                                         </select>
@@ -94,7 +94,7 @@
                                             $location_id = intval($row['location_id']);
                                             $location_name = nullable_htmlentities($row['location_name']);
                                         ?>
-                                        <option <?php if ($location_id == $_GET['location']) { echo "selected"; } ?> value="<?php echo $location_id; ?>"><?php echo $location_name; ?></option>
+                                        <option <?php if ($location_id == isset($_GET['location'])) { echo "selected"; } ?> value="<?php echo $location_id; ?>"><?php echo $location_name; ?></option>
 
                                         <?php
                                         }
