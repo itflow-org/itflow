@@ -82,12 +82,21 @@ if (isset($_GET['project_id'])) {
 
     // Get Closed Ticket Count
     $sql_closed_tickets = mysqli_query($mysqli, "SELECT * FROM tickets WHERE ticket_project_id = $project_id AND ticket_closed_at IS NOT NULL");
-
     $closed_ticket_count = mysqli_num_rows($sql_closed_tickets);
+
+    // Get Resolved Ticket Count
+    $sql_resolved_tickets = mysqli_query($mysqli, "SELECT * FROM tickets WHERE ticket_project_id = $project_id AND ticket_resolved_at IS NOT NULL");
+
+    $resolved_ticket_count = mysqli_num_rows($sql_resolved_tickets);
 
     $tickets_closed_percent = 100; //Default
     if ($ticket_count) {
         $tickets_closed_percent = round(($closed_ticket_count / $ticket_count) * 100);
+    }
+
+    $tickets_resolved_percent = 100; //Default
+    if ($ticket_count) {
+        $tickets_resolved_percent = round(($resolved_ticket_count / $ticket_count) * 100);
     }
 
     // Get All Tasks
@@ -214,7 +223,7 @@ if (isset($_GET['project_id'])) {
                             </div>
                         </div>
                     <?php } ?>
-                    <?php if ($tickets_closed_percent == 100 && empty($project_completed_at)) { ?>
+                    <?php if (($tickets_closed_percent == 100 || $tickets_resolved_percent == 100) && empty($project_completed_at)) { ?>
                         <a class="btn btn-dark btn-sm confirm-link" href="post.php?close_project=<?php echo $project_id; ?>">
                             <i class="fas fa-fw fa-check mr-2"></i>Close
                         </a>

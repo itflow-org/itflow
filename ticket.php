@@ -179,9 +179,7 @@ if (isset($_GET['ticket_id'])) {
             $row = mysqli_fetch_array($sql_project_manager);
             $project_manager_name = nullable_htmlentities($row['user_name']);
         }
-
-      
-
+        
         if ($contact_id) {
             //Get Contact Ticket Stats
             $ticket_related_open = mysqli_query($mysqli, "SELECT COUNT(ticket_id) AS ticket_related_open FROM tickets WHERE ticket_status != 'Closed' AND ticket_contact_id = $contact_id ");
