@@ -411,7 +411,6 @@ if (isset($_GET['project_id'])) {
                         while($row = mysqli_fetch_array($sql_tasks)){
                             $task_id = intval($row['task_id']);
                             $task_name = nullable_htmlentities($row['task_name']);
-                            $task_description = nullable_htmlentities($row['task_description']);
                             $task_completed_at = nullable_htmlentities($row['task_completed_at']);
                             ?>
                             <tr>
