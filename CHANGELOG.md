@@ -5,40 +5,53 @@ This file documents all notable changes made to ITFlow.
 ## [25.03 UNRELEASED]
 
 ### Fixed
-- Fixed missing attachments on ticket replies via the ticket email parser.
-- Fixed top half of portrait image uploads cut off at the bottom.
-- Ensure all Tables and fields use CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci on update and new installs.
-- Convert service_domains to use InnoDB instead of MyISAM.
-- Fixed intials function from breaking when using UTF8 characters which caused contacts to break.
-- Allow interfaces to start with 0.
+- Resolved missing attachments in ticket replies processed via the email parser.
+- Fixed issue where the top half of portrait image uploads appeared cut off at the bottom.
+- Ensured all tables and fields use `CHARACTER SET utf8mb4` and `COLLATE utf8mb4_general_ci` for updates and new installations.
+- Converted `service_domains` table to use InnoDB instead of MyISAM.
+- Fixed the initials function to properly handle UTF-8 characters, preventing contact-related issues.
+- Interfaces can now start with `0`.
+- Adjusted AI prompt handling to focus solely on content, avoiding unnecessary additions.
 
 ### Added / Changed
-- Added Bulk Delete Asset Functionality.
-- Ability to redact ticket replies after a ticket is closed.
-- Ability to redact text while ticket is open.
-- Switched File upload unique file naming to md5 instead of SHA256 for a huge speed boost.
-- Added the ability to assign Multiple Assets to a ticket.
-- Updated all many to many table to use Cascading Deletion with Foreign key associations to reduce error and enhance efficiency abd performance while preserving data integrity.
-- Turned on Caching for the new AJAX Modals to increase performance to reduce the amount of items it needs to reload into the browser each time the ajax modal is called.
-- Bumped DataTables from 2.2.1 to 2.2.2.
-- Bumped TinyMCE from 7.6.1 to 7.7.1 - Giving a large performance boost.
-- Added Copy to Credentials to Clipboard button in AJAX asset and contact details.
-- Many Tables have been renameed updated changed.
-- Orgainzed Theme colors by primary color and then associated color in rows.
-- Added User icon next to contact if they have a user account.
-- New Image file uploads by default are converted to optimized webp files and original images are no longer saved. Existing images will be untouched.
-- Added International Phone Number Support throughout.
-- Added User Signature to prerferences, in which will be appended on all ticket replies.
-- Dont show all tags unless defined.
-- Added Projects to the client side navigation.
-- Added Create New Ticket while in project details section.
-- Brought back Batch Payment in client invoices.
-- Added client abbrevation to client and global search options.
-- Added User / Asset Software Assigned Licenses to Client PDF Export.
-
+- Introduced bulk delete functionality for assets.
+- Added the ability to redact ticket replies after a ticket is closed.
+- Added support for redacting specific text while a ticket is open.
+- Switched file upload hashing from SHA256 to MD5 to significantly improve performance.
+- Enabled assigning multiple assets to a single ticket.
+- Updated all many-to-many tables to support cascading deletes using foreign key associations, improving efficiency, performance, and data integrity.
+- Enabled caching for AJAX modals to reduce repeated reloads and enhance browser performance.
+- Upgraded DataTables from 2.2.1 to 2.2.2.
+- Upgraded TinyMCE from 7.6.1 to 7.7.1, providing a significant performance boost.
+- Added “Copy Credentials to Clipboard” button in AJAX asset and contact views.
+- Renamed and reorganized several tables.
+- Improved theme color organization by grouping primary colors and their related shades.
+- Displayed a user icon next to contacts who have user accounts.
+- New image uploads are now converted to optimized `.webp` format by default; original files are no longer saved. Existing images remain unchanged.
+- Added international phone number support throughout the system.
+- Introduced user signatures in preferences, which are now appended to all ticket replies.
+- Optimized search filters to only display defined tags.
+- Added “Projects” to the client-side navigation.
+- Enabled “Create New Ticket” from within project details.
+- Reintroduced batch payment functionality in client invoices.
+- Included client abbreviations in both client and global search options.
+- Added assigned software license details (User/Asset) to the client PDF export.
+- Replaced client-side `pdfMake` with the PHP-based `TCPDF` library for generating client export runbooks.
+- Introduced the ability to download documents as PDFs.
+- Added a “Reference” field to tickets and invoices generated from recurring templates (not yet in active use).
 
 ### Breaking Changes
-- ATTENTION: TO UPDATE TO THIS VERSION YOU MUST USE: update_cli.php and update_cli.php --db_update from the command line to update or else you will break your install. Keep running update_cli.php --db_update until there are no more updates. BACKUP BEFORE UPDATING TO THIS VERSION. There have been many many backend changes to help us move further with development.
+> **Important:** To update to this version, you **must** run the following commands from the command line from the scripts directory:
+>
+> ```bash
+> php update_cli.php
+> php update_cli.php --db_update
+> ```
+>
+> Repeat `--db_update` until no further updates are found.
+>
+> **Back up your system before upgrading.**  
+> This version includes numerous backend changes critical for future development.
 
 ## [25.02.4]
 
