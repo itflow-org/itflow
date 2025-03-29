@@ -1,6 +1,17 @@
 <?php
 
-require_once "includes/inc_all.php";
+// If client_id is in URI then show client Side Bar and client header
+if (isset($_GET['client_id'])) {
+    require_once "includes/inc_all_client.php";
+    $client_query = "AND ticket_client_id = $client_id";
+    $client_ticket_select_query = "AND ticket_client_id = $client_id"; // Used when linking a ticket to the project
+    $client_url = "client_id=$client_id&";
+} else {
+    require_once "includes/inc_all.php";
+    $client_query = '';
+    $client_ticket_select_query = '';
+    $client_url = '';
+}
 
 if (isset($_GET['project_id'])) {
     $project_id = intval($_GET['project_id']);
@@ -71,12 +82,21 @@ if (isset($_GET['project_id'])) {
 
     // Get Closed Ticket Count
     $sql_closed_tickets = mysqli_query($mysqli, "SELECT * FROM tickets WHERE ticket_project_id = $project_id AND ticket_closed_at IS NOT NULL");
-
     $closed_ticket_count = mysqli_num_rows($sql_closed_tickets);
+
+    // Get Resolved Ticket Count
+    $sql_resolved_tickets = mysqli_query($mysqli, "SELECT * FROM tickets WHERE ticket_project_id = $project_id AND ticket_resolved_at IS NOT NULL");
+
+    $resolved_ticket_count = mysqli_num_rows($sql_resolved_tickets);
 
     $tickets_closed_percent = 100; //Default
     if ($ticket_count) {
         $tickets_closed_percent = round(($closed_ticket_count / $ticket_count) * 100);
+    }
+
+    $tickets_resolved_percent = 100; //Default
+    if ($ticket_count) {
+        $tickets_resolved_percent = round(($resolved_ticket_count / $ticket_count) * 100);
     }
 
     // Get All Tasks
@@ -181,15 +201,32 @@ if (isset($_GET['project_id'])) {
 
             <div class="col-sm-3">
                 <div class="btn-group float-right d-print-none">
-                    <?php if ($tickets_closed_percent == 100 && empty($project_completed_at)) { ?>
-                        <a class="btn btn-primary btn-sm confirm-link" href="post.php?close_project=<?php echo $project_id; ?>">
+                    <?php if (empty($project_completed_at)) { ?>
+                        <div class="dropdown mr-2">
+                            <button class="btn btn-primary btn-sm" type="button" id="dropdownMenuButton" data-toggle="dropdown">
+                                <i class="fas fa-fw fa-plus mr-2"></i>New
+                            </button>
+                            <div class="dropdown-menu">
+                                <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addTicketModal">
+                                    <i class="fas fa-fw fa-life-ring mr-2"></i>Ticket
+                                </a>
+                            </div>
+                        </div>
+                        <div class="dropdown">
+                            <button class="btn btn-outline-primary btn-sm mr-3" type="button" id="dropdownMenuButton" data-toggle="dropdown">
+                                <i class="fas fa-fw fa-link mr-2"></i>Link
+                            </button>
+                            <div class="dropdown-menu">
+                                <a class="dropdown-item" href="#" data-toggle="modal" data-target="#linkTicketModal">
+                                    <i class="fas fa-fw fa-life-ring mr-2"></i>Ticket
+                                </a>
+                            </div>
+                        </div>
+                    <?php } ?>
+                    <?php if (($tickets_closed_percent == 100 || $tickets_resolved_percent == 100) && empty($project_completed_at)) { ?>
+                        <a class="btn btn-dark btn-sm confirm-link" href="post.php?close_project=<?php echo $project_id; ?>">
                             <i class="fas fa-fw fa-check mr-2"></i>Close
                         </a>
-                    <?php } ?>
-                    <?php if (empty($project_completed_at)) { ?>
-                        <button type="button" class="btn btn-primary btn-sm" href="#" data-toggle="modal" data-target="#addProjectTicketModal">
-                            <i class="fas fa-fw fa-plus mr-2"></i>Add Ticket
-                        </button>
                     <?php } ?>
                     <div class="dropdown dropleft text-center ml-3">
                         <button class="btn btn-secondary btn-sm" type="button" id="dropdownMenuButton" data-toggle="dropdown">
@@ -383,7 +420,6 @@ if (isset($_GET['project_id'])) {
                         while($row = mysqli_fetch_array($sql_tasks)){
                             $task_id = intval($row['task_id']);
                             $task_name = nullable_htmlentities($row['task_name']);
-                            $task_description = nullable_htmlentities($row['task_description']);
                             $task_completed_at = nullable_htmlentities($row['task_completed_at']);
                             ?>
                             <tr>
@@ -410,7 +446,8 @@ if (isset($_GET['project_id'])) {
 
     <?php
 
-    require_once "modals/project_ticket_add_modal.php";
+    require_once "modals/project_link_ticket_modal.php";
+    require_once "modals/ticket_add_modal.php";
 
 }
 

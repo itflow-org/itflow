@@ -19,11 +19,11 @@ if (php_sapi_name() !== 'cli') {
 require_once "../config.php";
 
 // Set Timezone
-require_once "../inc_set_timezone.php";
+require_once "../includes/inc_set_timezone.php";
 require_once "../functions.php";
 
 // Get settings for the "default" company
-require_once "../get_settings.php";
+require_once "../includes/get_settings.php";
 
 $config_ticket_prefix = sanitizeInput($config_ticket_prefix);
 $config_ticket_from_name = sanitizeInput($config_ticket_from_name);
@@ -33,7 +33,7 @@ $config_ticket_email_parse_unknown_senders = intval($row['config_ticket_email_pa
 $sql = mysqli_query($mysqli, "SELECT * FROM companies, settings WHERE companies.company_id = settings.company_id AND companies.company_id = 1");
 $row = mysqli_fetch_array($sql);
 $company_name = sanitizeInput($row['company_name']);
-$company_phone = sanitizeInput(formatPhoneNumber($row['company_phone']));
+$company_phone = sanitizeInput(formatPhoneNumber($row['company_phone'], $row['company_phone_country_code']));
 
 // Check setting enabled
 if ($config_ticket_email_parse == 0) {
@@ -269,7 +269,8 @@ function addReply($from_email, $date, $subject, $ticket_number, $message, $attac
         mysqli_query($mysqli, "INSERT INTO ticket_replies SET ticket_reply = '$message_esc', ticket_reply_type = '$ticket_reply_type', ticket_reply_time_worked = '00:00:00', ticket_reply_by = $ticket_reply_contact, ticket_reply_ticket_id = $ticket_id");
         $reply_id = mysqli_insert_id($mysqli);
 
-        mkdirMissing('../uploads/tickets/');
+        $ticket_dir = "../uploads/tickets/" . $ticket_id . "/";
+        mkdirMissing($ticket_dir);
         foreach ($attachments as $attachment) {
             $att_name = $attachment->getFilename();
             $att_extarr = explode('.', $att_name);
@@ -277,7 +278,7 @@ function addReply($from_email, $date, $subject, $ticket_number, $message, $attac
 
             if (in_array($att_extension, $allowed_extensions)) {
                 $att_saved_filename = md5(uniqid(rand(), true)) . '.' . $att_extension;
-                $att_saved_path = "../uploads/tickets/" . $ticket_id . "/" . $att_saved_filename;
+                $att_saved_path = $ticket_dir . $att_saved_filename;
                 file_put_contents($att_saved_path, $attachment->getContent());
 
                 $ticket_attachment_name = sanitizeInput($att_name);

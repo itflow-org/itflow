@@ -18,6 +18,18 @@ if (isset($_GET['client_id'])) {
 // Perms
 enforceUserPermission('module_support');
 
+if (!$client_url) {
+    // Client Filter
+    if (isset($_GET['client']) & !empty($_GET['client'])) {
+        $client_query = 'AND (service_client_id = ' . intval($_GET['client']) . ')';
+        $client = intval($_GET['client']);
+    } else {
+        // Default - any
+        $client_query = '';
+        $client = '';
+    }
+}
+
 // Overview SQL query
 $sql = mysqli_query(
     $mysqli,
@@ -58,7 +70,38 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         </div>
                     </div>
 
-                    <div class="col-md-8">
+                    <?php if ($client_url) { ?>
+                    <div class="col-md-2"></div>
+                    <?php } else { ?>
+                    <div class="col-md-2">
+                        <div class="input-group">
+                            <select class="form-control select2" name="client" onchange="this.form.submit()">
+                                <option value="" <?php if ($client == "") { echo "selected"; } ?>>- All Clients -</option>
+
+                                <?php
+                                $sql_clients_filter = mysqli_query($mysqli, "
+                                    SELECT DISTINCT client_id, client_name 
+                                    FROM clients
+                                    JOIN services ON service_client_id = client_id
+                                    WHERE client_archived_at IS NULL 
+                                    $access_permission_query
+                                    ORDER BY client_name ASC
+                                ");
+                                while ($row = mysqli_fetch_array($sql_clients_filter)) {
+                                    $client_id = intval($row['client_id']);
+                                    $client_name = nullable_htmlentities($row['client_name']);
+                                ?>
+                                    <option <?php if ($client == $client_id) { echo "selected"; } ?> value="<?php echo $client_id; ?>"><?php echo $client_name; ?></option>
+                                <?php
+                                }
+                                ?>
+
+                            </select>
+                        </div>
+                    </div>
+                    <?php } ?>
+
+                    <div class="col-md-6">
                         <div class="float-right">
                         </div>
                     </div>

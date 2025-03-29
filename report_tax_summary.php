@@ -108,7 +108,7 @@ $sql_tax = mysqli_query($mysqli, "SELECT `tax_name` FROM `taxes`");
                             }
                         }
                         ?>
-                        <td></td>
+                        <td class="text-right"></td>
                     </tr>
 
                     </tbody>

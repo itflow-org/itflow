@@ -5,9 +5,9 @@
  */
 
 require_once '../config.php';
-require_once '../get_settings.php';
+require_once '../includes/get_settings.php';
 require_once '../functions.php';
-require_once 'check_login.php';
+require_once 'includes/check_login.php';
 require_once 'functions.php';
 
 if (isset($_POST['add_ticket'])) {
@@ -605,6 +605,7 @@ if (isset($_GET['stripe_save_card'])) {
     $sql_settings = mysqli_query($mysqli, "SELECT * FROM companies, settings WHERE companies.company_id = settings.company_id AND companies.company_id = 1");
     $row = mysqli_fetch_array($sql_settings);
     $company_name = sanitizeInput($row['company_name']);
+    $company_phone = sanitizeInput(formatPhoneNumber($row['company_phone'], $row['company_phone_country_code']));
     $config_smtp_host = $row['config_smtp_host'];
     $config_smtp_port = intval($row['config_smtp_port']);
     $config_smtp_encryption = $row['config_smtp_encryption'];

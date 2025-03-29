@@ -4,7 +4,10 @@ require_once '../includes/ajax_header.php';
 
 $user_id = intval($_GET['id']);
 
-$sql = mysqli_query($mysqli, "SELECT * FROM users, user_settings WHERE users.user_id = user_settings.user_id AND users.user_id = $user_id LIMIT 1");
+$sql = mysqli_query($mysqli, "SELECT * FROM users 
+    LEFT JOIN user_settings ON users.user_id = user_settings.user_id
+    WHERE users.user_id = $user_id LIMIT 1"
+);
 
 $row = mysqli_fetch_array($sql);
 $user_name = nullable_htmlentities($row['user_name']);
@@ -12,11 +15,11 @@ $user_email = nullable_htmlentities($row['user_email']);
 $user_avatar = nullable_htmlentities($row['user_avatar']);
 $user_token = nullable_htmlentities($row['user_token']);
 $user_config_force_mfa = intval($row['user_config_force_mfa']);
-$user_role = intval($row['user_role']);
+$user_role_id = intval($row['user_role_id']);
 $user_initials = nullable_htmlentities(initials($user_name));
 
 // Get User Client Access Permissions
-$user_client_access_sql = mysqli_query($mysqli,"SELECT client_id FROM user_permissions WHERE user_id = $user_id");
+$user_client_access_sql = mysqli_query($mysqli,"SELECT client_id FROM user_client_permissions WHERE user_id = $user_id");
 $client_access_array = [];
 while ($row = mysqli_fetch_assoc($user_client_access_sql)) {
     $client_access_array[] = intval($row['client_id']);
@@ -107,13 +110,13 @@ ob_start();
                         </div>
                         <select class="form-control select2" name="role" required>
                             <?php
-                            $sql_user_roles = mysqli_query($mysqli, "SELECT * FROM user_roles WHERE user_role_archived_at IS NULL");
+                            $sql_user_roles = mysqli_query($mysqli, "SELECT * FROM user_roles WHERE role_archived_at IS NULL");
                             while ($row = mysqli_fetch_array($sql_user_roles)) {
-                                $user_role_id = intval($row['user_role_id']);
-                                $user_role_name = nullable_htmlentities($row['user_role_name']);
+                                $role_id = intval($row['role_id']);
+                                $role_name = nullable_htmlentities($row['role_name']);
 
                                 ?>
-                                <option <?php if ($user_role == $user_role_id) {echo "selected";} ?> value="<?php echo $user_role_id; ?>"><?php echo $user_role_name; ?></option>
+                                <option <?php if ($role_id == $user_role_id) {echo "selected";} ?> value="<?php echo $role_id; ?>"><?php echo $role_name; ?></option>
                             <?php } ?>
 
                         </select>

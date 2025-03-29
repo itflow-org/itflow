@@ -189,7 +189,7 @@ if (isset($_GET['delete_project'])) {
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 }
 
-if (isset($_POST['add_project_ticket'])) {
+if (isset($_POST['link_ticket_to_project'])) {
 
     enforceUserPermission('module_support', 2);
     $project_id = intval($_POST['project_id']);

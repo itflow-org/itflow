@@ -9,18 +9,22 @@
             </div>
             <form action="post.php" method="post" autocomplete="off">
 
+                <?php if (isset($_GET['project_id'])) { ?>
+                <input type="hidden" name="project" value="<?php echo intval($_GET['project_id']); ?>">
+                <?php } ?>
+                
                 <div class="modal-body bg-white">
 
                     <?php if (isset($_GET['client_id'])) { ?>
                         <ul class="nav nav-pills nav-justified mb-3">
                             <li class="nav-item">
-                                <a class="nav-link active" data-toggle="pill" href="#pills-details"><i class="fa fa-fw fa-life-ring mr-2"></i>Details</a>
+                                <a class="nav-link active" data-toggle="pill" href="#pills-ticket-details"><i class="fa fa-fw fa-life-ring mr-2"></i>Details</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link" data-toggle="pill" href="#pills-contacts"><i class="fa fa-fw fa-users mr-2"></i>Contact</a>
+                                <a class="nav-link" data-toggle="pill" href="#pills-ticket-contacts"><i class="fa fa-fw fa-users mr-2"></i>Contact</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link" data-toggle="pill" href="#pills-assignment"><i class="fa fa-fw fa-desktop mr-2"></i>Assignment</a>
+                                <a class="nav-link" data-toggle="pill" href="#pills-ticket-assignment"><i class="fa fa-fw fa-desktop mr-2"></i>Assignment</a>
                             </li>
                         </ul>
 
@@ -30,7 +34,7 @@
 
                     <div class="tab-content">
 
-                        <div class="tab-pane fade show active" id="pills-details">
+                        <div class="tab-pane fade show active" id="pills-ticket-details">
 
                             <?php if (empty($_GET['client_id'])) { ?>
 
@@ -73,7 +77,8 @@
                                         <?php
                                             $sql_ticket_templates = mysqli_query($mysqli, "
                                                 SELECT tt.ticket_template_id, 
-                                                       tt.ticket_template_name, 
+                                                       tt.ticket_template_name,
+                                                       tt.ticket_template_subject, 
                                                        tt.ticket_template_details,
                                                        COUNT(ttt.task_template_id) as task_count
                                                 FROM ticket_templates tt
@@ -87,11 +92,12 @@
                                             while ($row = mysqli_fetch_array($sql_ticket_templates)) {
                                                 $ticket_template_id_select = intval($row['ticket_template_id']);
                                                 $ticket_template_name_select = nullable_htmlentities($row['ticket_template_name']);
+                                                $ticket_template_subject_select = nullable_htmlentities($row['ticket_template_subject']);
                                                 $ticket_template_details_select = nullable_htmlentities($row['ticket_template_details']);
                                                 $task_count = intval($row['task_count']);
                                             ?>
                                                 <option value="<?php echo $ticket_template_id_select; ?>"
-                                                        data-subject="<?php echo $ticket_template_name_select; ?>"
+                                                        data-subject="<?php echo $ticket_template_subject_select; ?>"
                                                         data-details="<?php echo $ticket_template_details_select; ?>">
                                                     <?php echo $ticket_template_name_select; ?> (<?php echo $task_count; ?> tasks)
                                                 </option>
@@ -178,9 +184,8 @@
 
                                         $sql = mysqli_query(
                                             $mysqli,
-                                            "SELECT users.user_id, user_name FROM users
-                                            LEFT JOIN user_settings on users.user_id = user_settings.user_id
-                                            WHERE user_role > 1
+                                            "SELECT user_id, user_name FROM users
+                                            WHERE user_role_id > 1
                                             AND user_type = 1
                                             AND user_status = 1
                                             AND user_archived_at IS NULL
@@ -208,7 +213,7 @@
 
                         <?php if (isset($_GET['client_id'])) { ?>
 
-                            <div class="tab-pane fade" id="pills-contacts">
+                            <div class="tab-pane fade" id="pills-ticket-contacts">
 
                                 <input type="hidden" name="client" value="<?php echo $client_id; ?>">
 
@@ -247,7 +252,7 @@
                                                 ?>
                                                 <option value="<?php echo $contact_id_select; ?>" 
                                                     <?php 
-                                                    if (isset($_GET['contact_id']) && $contact_id_select == $_GET['contact_id']) {
+                                                    if (isset($_GET['contact_id']) && $contact_id_select == intval($_GET['contact_id'])) {
                                                         echo "selected";
                                                     } elseif (empty($_GET['contact_id']) && $contact_primary_select == 1) {
                                                         echo "selected";
@@ -284,10 +289,10 @@
 
                             </div>
 
-                            <div class="tab-pane fade" id="pills-assignment">
+                            <div class="tab-pane fade" id="pills-ticket-assignment">
 
                                 <div class="form-group">
-                                    <label>Asset</label>
+                                    <label>Primary Asset</label>
                                     <div class="input-group">
                                         <div class="input-group-prepend">
                                             <span class="input-group-text"><i class="fa fa-fw fa-desktop"></i></span>
@@ -306,6 +311,31 @@
                                                     <?php if (isset($_GET['asset_id']) && $asset_id_select == $_GET['asset_id']) { echo "selected"; } 
                                                     ?>
                                                     ><?php echo "$asset_name_select - $asset_contact_name_select"; ?></option>
+
+                                            <?php } ?>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Additional Assets</label>
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text"><i class="fa fa-fw fa-desktop"></i></span>
+                                        </div>
+                                        <select class="form-control select2" name="additional_assets[]" data-tags="true" data-placeholder="- Select Additional Assets -" multiple>
+                                            <option value=""></option>
+                                            <?php
+
+                                            $sql_assets = mysqli_query($mysqli, "SELECT asset_id, asset_name, contact_name FROM assets LEFT JOIN contacts ON contact_id = asset_contact_id WHERE asset_client_id = $client_id AND asset_archived_at IS NULL ORDER BY asset_name ASC");
+                                            while ($row = mysqli_fetch_array($sql_assets)) {
+                                                $asset_id_select = intval($row['asset_id']);
+                                                $asset_name_select = nullable_htmlentities($row['asset_name']);
+                                                $asset_contact_name_select = nullable_htmlentities($row['contact_name']);
+                                            ?>
+                                                <option value="<?php echo $asset_id_select; ?>">
+                                                    <?php echo "$asset_name_select - $asset_contact_name_select"; ?>
+                                                </option>
 
                                             <?php } ?>
                                         </select>
@@ -384,14 +414,14 @@
                                             <span class="input-group-text"><i class="fa fa-fw fa-project-diagram"></i></span>
                                         </div>
                                         <select class="form-control select2" name="project">
-                                            <option value="0">- None -</option>
+                                            <option value="0">- Select Project -</option>
                                             <?php
 
                                             $sql_projects = mysqli_query($mysqli, "SELECT project_id, project_name FROM projects WHERE project_client_id = $client_id AND project_completed_at IS NULL AND project_archived_at IS NULL ORDER BY project_name ASC");
                                             while ($row = mysqli_fetch_array($sql_projects)) {
                                                 $project_id_select = intval($row['project_id']);
                                                 $project_name_select = nullable_htmlentities($row['project_name']); ?>
-                                                <option value="<?php echo $project_id_select; ?>"><?php echo $project_name_select; ?></option>
+                                                <option <?php if (isset($_GET['project_id']) && $project_id_select == $_GET['project_id']) { echo "selected"; } ?> value="<?php echo $project_id_select; ?>"><?php echo $project_name_select; ?></option>
 
                                             <?php } ?>
                                         </select>

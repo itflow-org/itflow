@@ -32,12 +32,12 @@ $sql_recent_tickets = mysqli_query(
     LIMIT 5"
 );
 
-$sql_recent_logins = mysqli_query(
+$sql_recent_credentials = mysqli_query(
     $mysqli,
-    "SELECT * FROM logins
-     WHERE login_client_id = $client_id
-     AND login_archived_at IS NULL
-     ORDER BY login_updated_at ASC
+    "SELECT * FROM credentials
+     WHERE credential_client_id = $client_id
+     AND credential_archived_at IS NULL
+     ORDER BY credential_updated_at ASC
      LIMIT 5"
 );
 
@@ -221,9 +221,11 @@ $sql_asset_retired = mysqli_query(
                             $contact_name = nullable_htmlentities($row['contact_name']);
                             $contact_title = nullable_htmlentities($row['contact_title']);
                             $contact_email = nullable_htmlentities($row['contact_email']);
-                            $contact_phone = formatPhoneNumber($row['contact_phone']);
+                            $contact_phone_country_code = nullable_htmlentities($row['contact_phone_country_code']);
+                            $contact_phone = nullable_htmlentities(formatPhoneNumber($row['contact_phone'], $contact_phone_country_code));
                             $contact_extension = nullable_htmlentities($row['contact_extension']);
-                            $contact_mobile = formatPhoneNumber($row['contact_mobile']);
+                            $contact_mobile_country_code = nullable_htmlentities($row['contact_mobile_country_code']);
+                            $contact_mobile = nullable_htmlentities(formatPhoneNumber($row['contact_mobile'], $contact_mobile_country_code));
 
                             ?>
                             <tr>
@@ -286,10 +288,10 @@ $sql_asset_retired = mysqli_query(
                                 $item_expire_at = nullable_htmlentities($row['item_expire_at']);
                                 $item_expire_at_human = timeAgo($row['item_expire_at']);
 
-                                if ($item_type == 'Login') {
-                                    $share_item_sql = mysqli_query($mysqli, "SELECT login_name FROM logins WHERE login_id = $item_related_id AND login_client_id = $client_id");
+                                if ($item_type == 'Credential') {
+                                    $share_item_sql = mysqli_query($mysqli, "SELECT credential_name FROM credentials WHERE credential_id = $item_related_id AND credential_client_id = $client_id");
                                     $share_item = mysqli_fetch_array($share_item_sql);
-                                    $item_name = nullable_htmlentities($share_item['login_name']);
+                                    $item_name = nullable_htmlentities($share_item['credential_name']);
                                     $item_icon = "fas fa-key";
                                 } elseif ($item_type == 'Document') {
                                     $share_item_sql = mysqli_query($mysqli, "SELECT document_name FROM documents WHERE document_id = $item_related_id AND document_client_id = $client_id");

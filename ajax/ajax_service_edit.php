@@ -18,23 +18,23 @@ $service_updated_at = nullable_htmlentities($row['service_updated_at']);
 $service_review_due = nullable_htmlentities($row['service_review_due']);
 $client_id = intval($row['service_client_id']);
 
-// Associated Assets (and their logins/networks/locations)
+// Associated Assets (and their credentials/networks/locations)
 $sql_assets = mysqli_query(
     $mysqli,
     "SELECT * FROM service_assets
     LEFT JOIN assets ON service_assets.asset_id = assets.asset_id
     LEFT JOIN asset_interfaces ON interface_asset_id = assets.asset_id AND interface_primary = 1
-    LEFT JOIN logins ON service_assets.asset_id = logins.login_asset_id
+    LEFT JOIN credentials ON service_assets.asset_id = credentials.credential_asset_id
     LEFT JOIN networks ON interface_network_id = networks.network_id
     LEFT JOIN locations ON assets.asset_location_id = locations.location_id
     WHERE service_id = $service_id"
 );
 
-// Associated logins
-$sql_logins = mysqli_query(
+// Associated credentials
+$sql_credentials = mysqli_query(
     $mysqli,
-    "SELECT * FROM service_logins
-    LEFT JOIN logins ON service_logins.login_id = logins.login_id
+    "SELECT * FROM service_credentials
+    LEFT JOIN credentials ON service_credentials.credential_id = credentials.credential_id
     WHERE service_id = $service_id"
 );
 
@@ -280,21 +280,21 @@ ob_start();
                 </div>
 
                 <div class="form-group">
-                    <label for="logins">Logins</label>
-                    <select multiple class="form-control select2" name="logins[]">
+                    <label for="credentials">Credentials</label>
+                    <select multiple class="form-control select2" name="credentials[]">
                         <?php
-                        $selected_ids = array_column(mysqli_fetch_all($sql_logins, MYSQLI_ASSOC), "login_id");
+                        $selected_ids = array_column(mysqli_fetch_all($sql_credentials, MYSQLI_ASSOC), "credential_id");
 
-                        $sql_all = mysqli_query($mysqli, "SELECT * FROM logins WHERE (login_archived_at > '$service_created_at' OR login_archived_at IS NULL) AND login_client_id = $client_id");
+                        $sql_all = mysqli_query($mysqli, "SELECT * FROM credentials WHERE (credential_archived_at > '$service_created_at' OR credential_archived_at IS NULL) AND credential_client_id = $client_id");
                         while ($row_all = mysqli_fetch_array($sql_all)) {
-                            $login_id = intval($row_all['login_id']);
-                            $login_name = nullable_htmlentities($row_all['login_name']);
+                            $credential_id = intval($row_all['credential_id']);
+                            $credential_name = nullable_htmlentities($row_all['credential_name']);
 
-                            if (in_array($login_id, $selected_ids)) {
-                                echo "<option value=\"$login_id\" selected>$login_name</option>";
+                            if (in_array($credential_id, $selected_ids)) {
+                                echo "<option value=\"$credential_id\" selected>$credential_name</option>";
                             }
                             else{
-                                echo "<option value=\"$login_id\">$login_name</option>";
+                                echo "<option value=\"$credential_id\">$credential_name</option>";
                             }
                         }
                         ?>

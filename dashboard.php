@@ -73,11 +73,6 @@ $sql_years_select = mysqli_query($mysqli, "
 <?php
 if ($user_config_dashboard_financial_enable == 1) {
 
-    // Ensure the user has the appropriate role to view the financial dashboard
-    if ($_SESSION['user_role'] != 3 && $_SESSION['user_role'] != 1) {
-        exit('<script type="text/javascript">window.location.href = \'dashboard_technical.php\';</script>');
-    }
-
     // Fetch financial data for the dashboard
     // Define variables to avoid errors in logs
     $largest_income_month = 0;
@@ -129,11 +124,11 @@ if ($user_config_dashboard_financial_enable == 1) {
     ");
 
     // Get recurring invoice totals
-    $sql_recurring_yearly_total = mysqli_query($mysqli, "SELECT SUM(recurring_amount) AS recurring_yearly_total FROM recurring WHERE recurring_status = 1 AND recurring_frequency = 'year' AND YEAR(recurring_created_at) <= $year");
+    $sql_recurring_yearly_total = mysqli_query($mysqli, "SELECT SUM(recurring_invoice_amount) AS recurring_yearly_total FROM recurring_invoices WHERE recurring_invoice_status = 1 AND recurring_invoice_frequency = 'year' AND YEAR(recurring_invoice_created_at) <= $year");
     $row = mysqli_fetch_array($sql_recurring_yearly_total);
     $recurring_yearly_total = floatval($row['recurring_yearly_total']);
 
-    $sql_recurring_monthly_total = mysqli_query($mysqli, "SELECT SUM(recurring_amount) AS recurring_monthly_total FROM recurring WHERE recurring_status = 1 AND recurring_frequency = 'month' AND YEAR(recurring_created_at) <= $year");
+    $sql_recurring_monthly_total = mysqli_query($mysqli, "SELECT SUM(recurring_invoice_amount) AS recurring_monthly_total FROM recurring_invoices WHERE recurring_invoice_status = 1 AND recurring_invoice_frequency = 'month' AND YEAR(recurring_invoice_created_at) <= $year");
     $row = mysqli_fetch_array($sql_recurring_monthly_total);
     $recurring_monthly_total = floatval($row['recurring_monthly_total']) + ($recurring_yearly_total / 12);
 

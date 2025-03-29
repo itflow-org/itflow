@@ -12,12 +12,24 @@ if (isset($_POST['add_document'])) {
 
     require_once 'document_model.php';
 
+    $contact_id = intval($_POST['contact'] ?? 0);
+    $asset_id = intval($_POST['asset'] ?? 0);
+
     // Document add query
-    $add_document = mysqli_query($mysqli,"INSERT INTO documents SET document_name = '$name', document_description = '$description', document_content = '$content', document_content_raw = '$content_raw', document_template = 0, document_folder_id = $folder, document_created_by = $session_user_id, document_client_id = $client_id");
+    mysqli_query($mysqli,"INSERT INTO documents SET document_name = '$name', document_description = '$description', document_content = '$content', document_content_raw = '$content_raw', document_template = 0, document_folder_id = $folder, document_created_by = $session_user_id, document_client_id = $client_id");
+    
     $document_id = mysqli_insert_id($mysqli);
 
     // Update field document_parent to be the same id as document ID as this is the only version of the document.
     mysqli_query($mysqli,"UPDATE documents SET document_parent = $document_id WHERE document_id = $document_id");
+
+    if ($contact_id) {
+        mysqli_query($mysqli,"INSERT INTO contact_documents SET contact_id = $contact_id, document_id = $document_id");
+    }
+
+    if ($asset_id) {
+        mysqli_query($mysqli,"INSERT INTO asset_documents SET asset_id = $asset_id, document_id = $document_id");
+    }
 
     // Logging
     logAction("Document", "Create", "$session_name created document $name", $client_id, $document_id);
@@ -564,6 +576,50 @@ if (isset($_POST['toggle_document_visibility'])) {
 
 }
 
+if (isset($_GET['export_document'])) {
+
+    enforceUserPermission('module_support', 2);
+
+    $document_id = intval($_GET['export_document']);
+
+    // Get Contact Name and Client ID for logging and alert message
+    $sql = mysqli_query($mysqli,"SELECT document_name, document_content, document_client_id FROM documents WHERE document_id = $document_id");
+    $row = mysqli_fetch_array($sql);
+    $document_name = sanitizeInput($row['document_name']);
+    $document_content = $row['document_content'];
+    $client_id = intval($row['document_client_id']);
+
+    // Include the TCPDF class
+    require_once('plugins/TCPDF/tcpdf.php');
+
+    $pdf = new TCPDF();
+
+    // Set document information
+    $pdf->SetCreator(PDF_CREATOR);
+    $pdf->SetAuthor("$document_name");
+    $pdf->SetTitle("$document_name");
+
+    // Add a page
+    $pdf->AddPage();
+
+    // Set font
+    $pdf->SetFont('helvetica', '', 12);
+
+    // Write HTML content to the PDF
+    $pdf->writeHTML($document_content, true, false, true, false, '');
+
+    // Output PDF to browser
+    $pdf->Output("$document_name.pdf", 'I'); // 'I' for inline display, 'D' for download
+
+    // Logging
+    logAction("Document", "Export", "$session_name exported document $document_name", $client_id, $document_id);
+
+    $_SESSION['alert_message'] = "Document <strong>$document_name</strong> exported";
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
 if (isset($_GET['archive_document'])) {
 
     enforceUserPermission('module_support', 2);
@@ -622,25 +678,6 @@ if (isset($_GET['delete_document_version'])) {
 
     mysqli_query($mysqli,"DELETE FROM documents WHERE document_id = $document_id");
 
-    // Remove Associations
-    // File Association
-    mysqli_query($mysqli,"DELETE FROM document_files WHERE document_id = $document_id");
-
-    // Contact Associations
-    mysqli_query($mysqli,"DELETE FROM contact_documents WHERE document_id = $document_id");
-
-    // Asset Associations
-    mysqli_query($mysqli,"DELETE FROM asset_documents WHERE document_id = $document_id");
-
-    // Software Associations
-    mysqli_query($mysqli,"DELETE FROM software_documents WHERE document_id = $document_id");
-
-    // Vendor Associations
-    mysqli_query($mysqli,"DELETE FROM vendor_documents WHERE document_id = $document_id");
-
-    // Service Associations
-    mysqli_query($mysqli,"DELETE FROM service_documents WHERE document_id = $document_id");
-
     //Logging
     logAction("Document Version", "Delete", "$session_name deleted document version $document_name", $client_id);
 
@@ -667,25 +704,6 @@ if (isset($_GET['delete_document'])) {
 
     // Delete all versions associated with the master document
     mysqli_query($mysqli,"DELETE FROM documents WHERE document_parent = $document_id");
-
-    // Remove Associations
-    // File Association
-    mysqli_query($mysqli,"DELETE FROM document_files WHERE document_id = $document_id");
-
-    // Contact Associations
-    mysqli_query($mysqli,"DELETE FROM contact_documents WHERE document_id = $document_id");
-
-    // Asset Associations
-    mysqli_query($mysqli,"DELETE FROM asset_documents WHERE document_id = $document_id");
-
-    // Software Associations
-    mysqli_query($mysqli,"DELETE FROM software_documents WHERE document_id = $document_id");
-
-    // Vendor Associations
-    mysqli_query($mysqli,"DELETE FROM vendor_documents WHERE document_id = $document_id");
-
-    // Service Associations
-    mysqli_query($mysqli,"DELETE FROM service_documents WHERE document_id = $document_id");
 
     //Logging
     logAction("Document", "Delete", "$session_name deleted document $document_name and all versions", $client_id);
@@ -722,25 +740,6 @@ if (isset($_POST['bulk_delete_documents'])) {
             // Delete all versions associated with the master document
             mysqli_query($mysqli,"DELETE FROM documents WHERE document_parent = $document_id");
 
-            // Remove Associations
-            // File Association
-            mysqli_query($mysqli,"DELETE FROM document_files WHERE document_id = $document_id");
-
-            // Contact Associations
-            mysqli_query($mysqli,"DELETE FROM contact_documents WHERE document_id = $document_id");
-
-            // Asset Associations
-            mysqli_query($mysqli,"DELETE FROM asset_documents WHERE document_id = $document_id");
-
-            // Software Associations
-            mysqli_query($mysqli,"DELETE FROM software_documents WHERE document_id = $document_id");
-
-            // Vendor Associations
-            mysqli_query($mysqli,"DELETE FROM vendor_documents WHERE document_id = $document_id");
-
-            // Service Associations
-            mysqli_query($mysqli,"DELETE FROM service_documents WHERE document_id = $document_id");
-
             //Logging
             logAction("Document", "Delete", "$session_name deleted document $document_name and all versions", $client_id);  
 
@@ -756,5 +755,3 @@ if (isset($_POST['bulk_delete_documents'])) {
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
 }
-
-

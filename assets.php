@@ -53,7 +53,7 @@ if ($client_url && isset($_GET['location']) && !empty($_GET['location'])) {
 } else {
     // Default - any
     $location_query = '';
-    $location_filter = '';
+    $location_filter = 0;
 }
 
 //Get Asset Counts
@@ -210,7 +210,15 @@ if (mysqli_num_rows($os_sql) > 0) {
                             <option value="">- All Locations -</option>
 
                             <?php
-                            $sql_locations_filter = mysqli_query($mysqli, "SELECT * FROM locations WHERE location_client_id = $client_id AND location_archived_at IS NULL ORDER BY location_name ASC");
+                            $sql_locations_filter = mysqli_query($mysqli, "
+                                SELECT DISTINCT location_id, location_name
+                                FROM locations
+                                LEFT JOIN assets ON asset_location_id = location_id
+                                WHERE location_client_id = $client_id 
+                                AND location_archived_at IS NULL 
+                                AND (asset_location_id != 0 OR location_id = $location_filter)
+                                ORDER BY location_name ASC
+                            ");
                             while ($row = mysqli_fetch_array($sql_locations_filter)) {
                                 $location_id = intval($row['location_id']);
                                 $location_name = nullable_htmlentities($row['location_name']);
@@ -230,7 +238,14 @@ if (mysqli_num_rows($os_sql) > 0) {
                             <option value="" <?php if ($client == "") { echo "selected"; } ?>>- All Clients -</option>
 
                             <?php
-                            $sql_clients_filter = mysqli_query($mysqli, "SELECT * FROM clients WHERE client_archived_at IS NULL $access_permission_query ORDER BY client_name ASC");
+                            $sql_clients_filter = mysqli_query($mysqli, "
+                                SELECT DISTINCT client_id, client_name 
+                                FROM clients
+                                JOIN assets ON asset_client_id = client_id
+                                WHERE client_archived_at IS NULL 
+                                $access_permission_query
+                                ORDER BY client_name ASC
+                            ");
                             while ($row = mysqli_fetch_array($sql_clients_filter)) {
                                 $client_id = intval($row['client_id']);
                                 $client_name = nullable_htmlentities($row['client_name']);
@@ -297,6 +312,11 @@ if (mysqli_num_rows($os_sql) > 0) {
                                 <button class="dropdown-item text-info"
                                     type="submit" form="bulkActions" name="bulk_unarchive_assets">
                                     <i class="fas fa-fw fa-redo mr-2"></i>Unarchive
+                                </button>
+                                <div class="dropdown-divider"></div>
+                                <button class="dropdown-item text-danger text-bold"
+                                    type="submit" form="bulkActions" name="bulk_delete_assets">
+                                    <i class="fas fa-fw fa-trash mr-2"></i>Delete
                                 </button>
                                 <?php } else { ?>
                                 <div class="dropdown-divider"></div>
@@ -519,8 +539,8 @@ if (mysqli_num_rows($os_sql) > 0) {
                             $location_name_display = $location_name;
                         }
 
-                        $sql_logins = mysqli_query($mysqli, "SELECT * FROM logins WHERE login_asset_id = $asset_id");
-                        $login_count = mysqli_num_rows($sql_logins);
+                        $sql_credentials = mysqli_query($mysqli, "SELECT * FROM credentials WHERE credential_asset_id = $asset_id");
+                        $credential_count = mysqli_num_rows($sql_credentials);
 
                         ?>
                         <tr>
@@ -664,14 +684,6 @@ if (mysqli_num_rows($os_sql) > 0) {
 
 <script src="js/bulk_actions.js"></script>
 
-<?php
-require_once "modals/asset_add_modal.php";
-require_once "modals/asset_import_modal.php";
-require_once "modals/asset_export_modal.php";
-require_once "includes/footer.php";
-
-?>
-
 <!-- JSON Autocomplete / type ahead -->
 <link rel="stylesheet" href="plugins/jquery-ui/jquery-ui.min.css">
 <script src="plugins/jquery-ui/jquery-ui.min.js"></script>
@@ -687,3 +699,9 @@ require_once "includes/footer.php";
         });
     });
 </script>
+
+<?php
+require_once "modals/asset_add_modal.php";
+require_once "modals/asset_import_modal.php";
+require_once "modals/asset_export_modal.php";
+require_once "includes/footer.php";

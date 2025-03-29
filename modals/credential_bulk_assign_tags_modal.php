@@ -49,7 +49,7 @@
             </div>
 
             <div class="modal-footer bg-white">
-                <button type="submit" name="bulk_assign_login_tags" class="btn btn-primary text-bold"><i class="fas fa-check mr-2"></i>Assign</button>
+                <button type="submit" name="bulk_assign_credential_tags" class="btn btn-primary text-bold"><i class="fas fa-check mr-2"></i>Assign</button>
                 <button type="button" class="btn btn-light" data-dismiss="modal"><i class="fa fa-times mr-2"></i>Cancel</button>
             </div>
         </div>

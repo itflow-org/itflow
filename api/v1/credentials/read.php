@@ -13,17 +13,17 @@ if (isset($_GET['api_key_decrypt_password'])) {
 }
 
 // Specific credential/login via ID (single)
-if (isset($_GET['login_id']) && !empty($api_key_decrypt_password)) {
+if (isset($_GET['credential_id']) && !empty($api_key_decrypt_password)) {
 
-    $id = intval($_GET['login_id']);
+    $id = intval($_GET['credential_id']);
 
-    $sql = mysqli_query($mysqli, "SELECT * FROM logins WHERE login_id = '$id' AND login_client_id LIKE '$client_id' LIMIT 1");
+    $sql = mysqli_query($mysqli, "SELECT * FROM credentials WHERE credential_id = '$id' AND credential_client_id LIKE '$client_id' LIMIT 1");
 
 
 } elseif (!empty($api_key_decrypt_password)) {
-    // All credentials ("logins")
+    // All credentials ("credentials")
 
-    $sql = mysqli_query($mysqli, "SELECT * FROM logins WHERE login_client_id LIKE '$client_id' ORDER BY login_id LIMIT $limit OFFSET $offset");
+    $sql = mysqli_query($mysqli, "SELECT * FROM credentials WHERE credential_client_id LIKE '$client_id' ORDER BY credential_id LIMIT $limit OFFSET $offset");
 
 }
 
@@ -37,8 +37,8 @@ if ($sql && mysqli_num_rows($sql) > 0) {
 
     $row = array();
     while ($row = mysqli_fetch_array($sql)) {
-        $row['login_username'] = apiDecryptLoginEntry($row['login_username'], $api_key_decrypt_hash, $api_key_decrypt_password);
-        $row['login_password'] = apiDecryptLoginEntry($row['login_password'], $api_key_decrypt_hash, $api_key_decrypt_password);
+        $row['credential_username'] = apiDecryptCredentialEntry($row['credential_username'], $api_key_decrypt_hash, $api_key_decrypt_password);
+        $row['credential_password'] = apiDecryptCredentialEntry($row['credential_password'], $api_key_decrypt_hash, $api_key_decrypt_password);
         $return_arr['data'][] = $row;
     }
 

@@ -17,7 +17,7 @@ if(isset($_POST['add_location'])){
         mkdir("uploads/clients/$client_id");
     }
 
-    mysqli_query($mysqli,"INSERT INTO locations SET location_name = '$name', location_description = '$description', location_country = '$country', location_address = '$address', location_city = '$city', location_state = '$state', location_zip = '$zip', location_phone = '$phone', location_fax = '$fax', location_hours = '$hours', location_notes = '$notes', location_contact_id = $contact, location_client_id = $client_id");
+    mysqli_query($mysqli,"INSERT INTO locations SET location_name = '$name', location_description = '$description', location_country = '$country', location_address = '$address', location_city = '$city', location_state = '$state', location_zip = '$zip', location_phone = '$phone', location_phone_extension = '$extension', location_fax = '$fax', location_hours = '$hours', location_notes = '$notes', location_contact_id = $contact, location_client_id = $client_id");
 
     $location_id = mysqli_insert_id($mysqli);
 
@@ -79,7 +79,7 @@ if(isset($_POST['edit_location'])){
         mkdir("uploads/clients/$client_id");
     }
 
-    mysqli_query($mysqli,"UPDATE locations SET location_name = '$name', location_description = '$description', location_country = '$country', location_address = '$address', location_city = '$city', location_state = '$state', location_zip = '$zip', location_phone = '$phone', location_fax = '$fax', location_hours = '$hours', location_notes = '$notes', location_contact_id = $contact WHERE location_id = $location_id");
+    mysqli_query($mysqli,"UPDATE locations SET location_name = '$name', location_description = '$description', location_country = '$country', location_address = '$address', location_city = '$city', location_state = '$state', location_zip = '$zip', location_phone = '$phone', location_phone_extension = '$extension', location_fax = '$fax', location_hours = '$hours', location_notes = '$notes', location_contact_id = $contact WHERE location_id = $location_id");
 
     // Update Primay location in clients if primary location is checked
     if ($location_primary == 1) {
@@ -184,10 +184,6 @@ if(isset($_GET['delete_location'])){
     $client_id = intval($row['location_client_id']);
 
     mysqli_query($mysqli,"DELETE FROM locations WHERE location_id = $location_id");
-
-    // Tags
-    // Delete existing tags
-    mysqli_query($mysqli, "DELETE FROM location_tags WHERE location_id = $location_id");
 
     // Logging
     logAction("Location", "Delete", "$session_name deleted location $location_name", $client_id);
@@ -416,7 +412,7 @@ if(isset($_POST['export_locations_csv'])){
 
 }
 
-if(isset($_POST["import_locations_csv"])){
+if (isset($_POST["import_locations_csv"])) {
 
     enforceUserPermission('module_client', 2);
 

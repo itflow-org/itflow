@@ -180,9 +180,16 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             </div>
                         </div>
                     </div>
-                    <div class="col-sm-8">
-                        <div class="btn-group float-right">
+                    <div class="col-md-8">
+                        <?php if ($client_url) { ?>
+                        <div class="float-right">
+                            <div class="btn-group float-right">
+                                <?php if ($balance > 0) { ?>
+                                    <button type="button" class="btn btn-default" data-toggle="modal" data-target="#addBulkPaymentModal"><i class="fa fa-credit-card mr-2"></i>Batch Payment</button>
+                                <?php } ?>
+                            </div>
                         </div>
+                        <?php } ?>
                     </div>
                 </div>
                 <div class="collapse mt-3 <?php if (!empty($_GET['dtf']) || $_GET['canned_date'] !== "custom" ) { echo "show"; } ?>" id="advancedFilter">
@@ -380,7 +387,6 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
 <?php
 require_once "modals/invoice_add_modal.php";
+if ($client_url) { require_once "modals/invoice_payment_add_bulk_modal.php"; }
 require_once "modals/invoice_export_modal.php";
-
 require_once "includes/footer.php";
-

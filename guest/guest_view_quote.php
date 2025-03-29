@@ -1,11 +1,11 @@
 <?php
 
-require_once "guest_header.php";
+require_once "includes/guest_header.php";
 
 
 if (!isset($_GET['quote_id'], $_GET['url_key'])) {
     echo "<br><h2>Oops, something went wrong! Please raise a ticket if you believe this is an error.</h2>";
-    require_once "guest_footer.php";
+    require_once "includes/guest_footer.php";
 
     exit();
 }
@@ -27,7 +27,7 @@ $sql = mysqli_query(
 if (mysqli_num_rows($sql) !== 1) {
     // Invalid quote/key
     echo "<br><h2>Oops, something went wrong! Please raise a ticket if you believe this is an error.</h2>";
-    require_once "guest_footer.php";
+    require_once "includes/guest_footer.php";
 
     exit();
 }
@@ -52,9 +52,11 @@ $location_city = nullable_htmlentities($row['location_city']);
 $location_state = nullable_htmlentities($row['location_state']);
 $location_zip = nullable_htmlentities($row['location_zip']);
 $contact_email = nullable_htmlentities($row['contact_email']);
-$contact_phone = formatPhoneNumber($row['contact_phone']);
+$contact_phone_country_code = nullable_htmlentities($row['contact_phone_country_code']);
+$contact_phone = nullable_htmlentities(formatPhoneNumber($row['contact_phone'], $contact_phone_country_code));
 $contact_extension = nullable_htmlentities($row['contact_extension']);
-$contact_mobile = formatPhoneNumber($row['contact_mobile']);
+$contact_mobile_country_code = nullable_htmlentities($row['contact_mobile_country_code']);
+$contact_mobile = nullable_htmlentities(formatPhoneNumber($row['contact_mobile'], $contact_mobile_country_code));
 $client_website = nullable_htmlentities($row['client_website']);
 $client_currency_code = nullable_htmlentities($row['client_currency_code']);
 $client_net_terms = intval($row['client_net_terms']);
@@ -69,7 +71,8 @@ $company_address = nullable_htmlentities($row['company_address']);
 $company_city = nullable_htmlentities($row['company_city']);
 $company_state = nullable_htmlentities($row['company_state']);
 $company_zip = nullable_htmlentities($row['company_zip']);
-$company_phone = formatPhoneNumber($row['company_phone']);
+$company_phone_country_code = nullable_htmlentities($row['company_phone_country_code']);
+$company_phone = nullable_htmlentities(formatPhoneNumber($row['company_phone'], $company_phone_country_code));
 $company_email = nullable_htmlentities($row['company_email']);
 $company_website = nullable_htmlentities($row['company_website']);
 $company_logo = nullable_htmlentities($row['company_logo']);
@@ -717,5 +720,5 @@ if ($quote_status == "Draft" || $quote_status == "Sent" || $quote_status == "Vie
 
 <?php
 require_once "guest_quote_upload_file_modal.php";
-require_once "guest_footer.php";
+require_once "includes/guest_footer.php";
 

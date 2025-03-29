@@ -29,7 +29,7 @@ if (isset($_POST['add_contact'])) {
         $user_id = mysqli_insert_id($mysqli);
     }
 
-    mysqli_query($mysqli,"INSERT INTO contacts SET contact_name = '$name', contact_title = '$title', contact_phone = '$phone', contact_extension = '$extension', contact_mobile = '$mobile', contact_email = '$email', contact_pin = '$pin', contact_notes = '$notes', contact_important = $contact_important, contact_billing = $contact_billing, contact_technical = $contact_technical, contact_department = '$department', contact_location_id = $location_id, contact_user_id = $user_id, contact_client_id = $client_id");
+    mysqli_query($mysqli,"INSERT INTO contacts SET contact_name = '$name', contact_title = '$title', contact_phone_country_code = '$phone_country_code', contact_phone = '$phone', contact_extension = '$extension', contact_mobile_country_code = '$mobile_country_code', contact_mobile = '$mobile', contact_email = '$email', contact_pin = '$pin', contact_notes = '$notes', contact_important = $contact_important, contact_billing = $contact_billing, contact_technical = $contact_technical, contact_department = '$department', contact_location_id = $location_id, contact_user_id = $user_id, contact_client_id = $client_id");
 
     $contact_id = mysqli_insert_id($mysqli);
 
@@ -122,7 +122,7 @@ if (isset($_POST['edit_contact'])) {
 
     }
 
-    mysqli_query($mysqli,"UPDATE contacts SET contact_name = '$name', contact_title = '$title', contact_phone = '$phone', contact_extension = '$extension', contact_mobile = '$mobile', contact_email = '$email', contact_pin = '$pin', contact_notes = '$notes', contact_important = $contact_important, contact_billing = $contact_billing, contact_technical = $contact_technical, contact_department = '$department', contact_location_id = $location_id, contact_user_id = $contact_user_id WHERE contact_id = $contact_id");
+    mysqli_query($mysqli,"UPDATE contacts SET contact_name = '$name', contact_title = '$title', contact_phone_country_code = '$phone_country_code', contact_phone = '$phone', contact_extension = '$extension', contact_mobile_country_code = '$phone_country_code', contact_mobile = '$mobile', contact_email = '$email', contact_pin = '$pin', contact_notes = '$notes', contact_important = $contact_important, contact_billing = $contact_billing, contact_technical = $contact_technical, contact_department = '$department', contact_location_id = $location_id, contact_user_id = $contact_user_id WHERE contact_id = $contact_id");
 
     // Upload Photo
     if (isset($_FILES['file']['tmp_name'])) {
@@ -704,14 +704,6 @@ if (isset($_POST['bulk_delete_contacts'])) {
 
             mysqli_query($mysqli, "DELETE FROM contacts WHERE contact_id = $contact_id AND contact_client_id = $client_id");
 
-            // Remove Relations
-            mysqli_query($mysqli, "DELETE FROM contact_tags WHERE contact_id = $contact_id");
-            mysqli_query($mysqli, "DELETE FROM contact_assets WHERE contact_id = $contact_id");
-            mysqli_query($mysqli, "DELETE FROM contact_documents WHERE contact_id = $contact_id");
-            mysqli_query($mysqli, "DELETE FROM contact_files WHERE contact_id = $contact_id");
-            mysqli_query($mysqli, "DELETE FROM contact_logins WHERE contact_id = $contact_id");
-            mysqli_query($mysqli, "DELETE FROM contact_notes WHERE contact_note_contact_id = $contact_id");
-
             // Individual Logging
             logAction("Contact", "Delete", "$session_name deleted $contact_name", $client_id);
 
@@ -909,14 +901,6 @@ if (isset($_GET['delete_contact'])) {
 
     mysqli_query($mysqli,"DELETE FROM contacts WHERE contact_id = $contact_id");
 
-    // Remove Relations
-    mysqli_query($mysqli, "DELETE FROM contact_tags WHERE contact_id = $contact_id");
-    mysqli_query($mysqli, "DELETE FROM contact_assets WHERE contact_id = $contact_id");
-    mysqli_query($mysqli, "DELETE FROM contact_documents WHERE contact_id = $contact_id");
-    mysqli_query($mysqli, "DELETE FROM contact_files WHERE contact_id = $contact_id");
-    mysqli_query($mysqli, "DELETE FROM contact_logins WHERE contact_id = $contact_id");
-    mysqli_query($mysqli, "DELETE FROM contact_notes WHERE contact_note_contact_id = $contact_id");
-
     //Logging
     logAction("Contact", "Delete", "$session_name deleted contact $contact_name", $client_id);
 
@@ -1049,26 +1033,26 @@ if (isset($_POST['link_contact_to_credential'])) {
 
     enforceUserPermission('module_support', 2);
 
-    $login_id = intval($_POST['login_id']);
+    $credential_id = intval($_POST['credential_id']);
     $contact_id = intval($_POST['contact_id']);
 
-    // Get login Name and Client ID for logging
-    $sql_login = mysqli_query($mysqli,"SELECT login_name, login_client_id FROM logins WHERE login_id = $login_id");
-    $row = mysqli_fetch_array($sql_login);
-    $login_name = sanitizeInput($row['login_name']);
-    $client_id = intval($row['login_client_id']);
+    // Get credential Name and Client ID for logging
+    $sql_credential = mysqli_query($mysqli,"SELECT credential_name, credential_client_id FROM credentials WHERE credential_id = $credential_id");
+    $row = mysqli_fetch_array($sql_credential);
+    $credential_name = sanitizeInput($row['credential_name']);
+    $client_id = intval($row['credential_client_id']);
 
     // Get Contact Name for logging
     $sql_contact = mysqli_query($mysqli,"SELECT contact_name FROM contacts WHERE contact_id = $contact_id");
     $row = mysqli_fetch_array($sql_contact);
     $contact_name = sanitizeInput($row['contact_name']);
 
-    mysqli_query($mysqli,"UPDATE logins SET login_contact_id = $contact_id WHERE login_id = $login_id");
+    mysqli_query($mysqli,"UPDATE credentials SET credential_contact_id = $contact_id WHERE credential_id = $credential_id");
 
     // Logging
-    logAction("Asset", "Link", "$session_name linked credential $login_name to contact $contact_name", $client_id, $login_id);
+    logAction("Asset", "Link", "$session_name linked credential $credential_name to contact $contact_name", $client_id, $credential_id);
 
-    $_SESSION['alert_message'] = "Contact <strong>$contact_name</strong> linked with credential <strong>$login_name</strong>";
+    $_SESSION['alert_message'] = "Contact <strong>$contact_name</strong> linked with credential <strong>$credential_name</strong>";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
@@ -1079,26 +1063,26 @@ if (isset($_GET['unlink_credential_from_contact'])) {
     enforceUserPermission('module_support', 2);
 
     $contact_id = intval($_GET['contact_id']);
-    $login_id = intval($_GET['login_id']);
+    $credential_id = intval($_GET['credential_id']);
 
-    // Get login Name and Client ID for logging
-    $sql_login = mysqli_query($mysqli,"SELECT login_name, login_client_id FROM logins WHERE login_id = $login_id");
-    $row = mysqli_fetch_array($sql_login);
-    $login_name = sanitizeInput($row['login_name']);
-    $client_id = intval($row['login_client_id']);
+    // Get credential Name and Client ID for logging
+    $sql_credential = mysqli_query($mysqli,"SELECT credential_name, credential_client_id FROM credentials WHERE credential_id = $credential_id");
+    $row = mysqli_fetch_array($sql_credential);
+    $credential_name = sanitizeInput($row['credential_name']);
+    $client_id = intval($row['credential_client_id']);
 
     // Get Contact Name for logging
     $sql_contact = mysqli_query($mysqli,"SELECT contact_name FROM contacts WHERE contact_id = $contact_id");
     $row = mysqli_fetch_array($sql_contact);
     $contact_name = sanitizeInput($row['contact_name']);
 
-    mysqli_query($mysqli,"UPDATE logins SET login_contact_id = 0 WHERE login_id = $login_id");
+    mysqli_query($mysqli,"UPDATE credentials SET credential_contact_id = 0 WHERE credential_id = $credential_id");
 
     //Logging
-    logAction("Credential", "Unlink", "$session_name unlinked contact $contact_name from credential $login_name", $client_id, $login_id);
+    logAction("Credential", "Unlink", "$session_name unlinked contact $contact_name from credential $credential_name", $client_id, $credential_id);
 
     $_SESSION['alert_type'] = "error";
-    $_SESSION['alert_message'] = "Credential <strong>$login_name</strong> unlinked from Contact <strong>$contact_name</strong>";
+    $_SESSION['alert_message'] = "Credential <strong>$credential_name</strong> unlinked from Contact <strong>$contact_name</strong>";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 

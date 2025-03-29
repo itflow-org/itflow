@@ -4,7 +4,7 @@ require_once '../includes/ajax_header.php';
 
 $event_id = intval($_GET['id']);
 
-$sql = mysqli_query($mysqli, "SELECT * FROM events LEFT JOIN calendars ON event_calendar_id = calendar_id WHERE event_id = $event_id LIMIT 1");
+$sql = mysqli_query($mysqli, "SELECT * FROM calendar_events LEFT JOIN calendars ON event_calendar_id = calendar_id WHERE event_id = $event_id LIMIT 1");
                      
 $row = mysqli_fetch_array($sql);
 $event_title = nullable_htmlentities($row['event_title']);

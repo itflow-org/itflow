@@ -12,7 +12,8 @@ $company_address = nullable_htmlentities($row['company_address']);
 $company_city = nullable_htmlentities($row['company_city']);
 $company_state = nullable_htmlentities($row['company_state']);
 $company_zip = nullable_htmlentities($row['company_zip']);
-$company_phone = formatPhoneNumber($row['company_phone']);
+$company_phone_country_code = formatPhoneNumber($row['company_phone_country_code']);
+$company_phone = nullable_htmlentities(formatPhoneNumber($row['company_phone'], $company_phone_country_code));
 $company_email = nullable_htmlentities($row['company_email']);
 $company_website = nullable_htmlentities($row['company_website']);
 $company_logo = nullable_htmlentities($row['company_logo']);
@@ -110,13 +111,18 @@ $company_initials = nullable_htmlentities(initials($company_name));
                                 </div>
                             </div>
 
-                            <div class="form-group">
-                                <label>Phone</label>
-                                <div class="input-group">
-                                    <div class="input-group-prepend">
-                                        <span class="input-group-text"><i class="fa fa-fw fa-phone"></i></span>
+                            <label>Phone</label>
+                            <div class="form-row">
+                                <div class="col-9">
+                                    <div class="form-group">
+                                        <div class="input-group">
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text"><i class="fa fa-fw fa-phone"></i></span>
+                                            </div>
+                                            <input type="tel" class="form-control col-2" name="phone_country_code" value="+<?php echo $company_phone_country_code; ?>" placeholder="Code" maxlength="4">
+                                            <input type="tel" class="form-control" name="phone" value="<?php echo $company_phone; ?>" placeholder="Phone Number" maxlength="200">
+                                        </div>
                                     </div>
-                                    <input type="text" class="form-control" name="phone" placeholder="Phone Number" value="<?php echo $company_phone; ?>">
                                 </div>
                             </div>
 
@@ -152,4 +158,3 @@ $company_initials = nullable_htmlentities(initials($company_name));
 
 <?php
 require_once "includes/footer.php";
-

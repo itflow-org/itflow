@@ -23,7 +23,7 @@ if (isset($_GET['query'])) {
     $sql_clients = mysqli_query($mysqli, "SELECT * FROM clients
         LEFT JOIN locations ON clients.client_id = locations.location_client_id AND location_primary = 1
         WHERE client_archived_at IS NULL
-            AND client_name LIKE '%$query%'
+            AND (client_name LIKE '%$query%' OR client_abbreviation LIKE '%$query%')
             $access_permission_query
         ORDER BY client_id DESC LIMIT 5"
     );
@@ -91,21 +91,21 @@ if (isset($_GET['query'])) {
         ORDER BY ticket_id DESC LIMIT 5"
     );
 
-    $sql_recurring_tickets = mysqli_query($mysqli, "SELECT * FROM scheduled_tickets
-        LEFT JOIN clients ON scheduled_ticket_client_id = client_id
-        WHERE (scheduled_ticket_subject LIKE '%$query%'
-            OR scheduled_ticket_details LIKE '%$query%')
+    $sql_recurring_tickets = mysqli_query($mysqli, "SELECT * FROM recurring_tickets
+        LEFT JOIN clients ON recurring_ticket_client_id = client_id
+        WHERE (recurring_ticket_subject LIKE '%$query%'
+            OR recurring_ticket_details LIKE '%$query%')
             $access_permission_query
-        ORDER BY scheduled_ticket_id DESC LIMIT 5"
+        ORDER BY recurring_ticket_id DESC LIMIT 5"
     );
 
-    $sql_logins = mysqli_query($mysqli, "SELECT * FROM logins
-        LEFT JOIN contacts ON login_contact_id = contact_id
-        LEFT JOIN clients ON login_client_id = client_id
-        WHERE login_archived_at IS NULL
-            AND (login_name LIKE '%$query%' OR login_description LIKE '%$query%')
+    $sql_credentials = mysqli_query($mysqli, "SELECT * FROM credentials
+        LEFT JOIN contacts ON credential_contact_id = contact_id
+        LEFT JOIN clients ON credential_client_id = client_id
+        WHERE credential_archived_at IS NULL
+            AND (credential_name LIKE '%$query%' OR credential_description LIKE '%$query%')
             $access_permission_query
-        ORDER BY login_id DESC LIMIT 5"
+        ORDER BY credential_id DESC LIMIT 5"
     );
 
     $sql_invoices = mysqli_query($mysqli, "SELECT * FROM invoices
@@ -172,7 +172,8 @@ if (isset($_GET['query'])) {
                             while ($row = mysqli_fetch_array($sql_clients)) {
                                 $client_id = intval($row['client_id']);
                                 $client_name = nullable_htmlentities($row['client_name']);
-                                $location_phone = formatPhoneNumber($row['location_phone']);
+                                $location_phone_country_code = nullable_htmlentities($row['location_phone_country_code']);
+                                $location_phone = nullable_htmlentities(formatPhoneNumber($row['location_phone'], $location_phone_country_code));
                                 $client_website = nullable_htmlentities($row['client_website']);
 
                                 ?>
@@ -218,9 +219,11 @@ if (isset($_GET['query'])) {
                                 $contact_id = intval($row['contact_id']);
                                 $contact_name = nullable_htmlentities($row['contact_name']);
                                 $contact_title = nullable_htmlentities($row['contact_title']);
-                                $contact_phone = formatPhoneNumber($row['contact_phone']);
+                                $contact_phone_country_code = nullable_htmlentities($row['contact_phone_country_code']);
+                                $contact_phone = nullable_htmlentities(formatPhoneNumber($row['contact_phone'], $contact_phone_country_code));
                                 $contact_extension = nullable_htmlentities($row['contact_extension']);
-                                $contact_mobile = formatPhoneNumber($row['contact_mobile']);
+                                $contact_mobile_country_code = nullable_htmlentities($row['contact_mobile_country_code']);
+                                $contact_mobile = nullable_htmlentities(formatPhoneNumber($row['contact_mobile'], $contact_mobile_country_code));
                                 $contact_email = nullable_htmlentities($row['contact_email']);
                                 $client_id = intval($row['client_id']);
                                 $client_name = nullable_htmlentities($row['client_name']);
@@ -272,7 +275,8 @@ if (isset($_GET['query'])) {
                             while ($row = mysqli_fetch_array($sql_vendors)) {
                                 $vendor_name = nullable_htmlentities($row['vendor_name']);
                                 $vendor_description = nullable_htmlentities($row['vendor_description']);
-                                $vendor_phone = formatPhoneNumber($row['vendor_phone']);
+                                $vendor_phone_country_code = nullable_htmlentities($row['vendor_phone_country_code']);
+                                $vendor_phone = nullable_htmlentities(formatPhoneNumber($row['vendor_phone'], $vendor_phone_country_code));
                                 $client_id = intval($row['client_id']);
                                 $client_name = nullable_htmlentities($row['client_name']);
 
@@ -544,18 +548,18 @@ if (isset($_GET['query'])) {
                             <?php
 
                             while ($row = mysqli_fetch_array($sql_recurring_tickets)) {
-                                $scheduled_ticket_id = intval($row['scheduled_ticket_id']);
-                                $scheduled_ticket_subject = nullable_htmlentities($row['scheduled_ticket_subject']);
-                                $scheduled_ticket_frequency = nullable_htmlentities($row['scheduled_ticket_frequency']);
-                                $scheduled_ticket_next_run = nullable_htmlentities($row['scheduled_ticket_next_run']);
+                                $recurring_ticket_id = intval($row['recurring_ticket_id']);
+                                $recurring_ticket_subject = nullable_htmlentities($row['recurring_ticket_subject']);
+                                $recurring_ticket_frequency = nullable_htmlentities($row['recurring_ticket_frequency']);
+                                $recurring_ticket_next_run = nullable_htmlentities($row['recurring_ticket_next_run']);
                                 $client_name = nullable_htmlentities($row['client_name']);
                                 $client_id = intval($row['client_id']);
 
                                 ?>
                                 <tr>
-                                    <td><a href="recurring_tickets.php"><?php echo $scheduled_ticket_subject; ?></a></td>
-                                    <td><?php echo $scheduled_ticket_frequency; ?></td>
-                                    <td><?php echo $scheduled_ticket_next_run; ?></td>
+                                    <td><a href="recurring_tickets.php"><?php echo $recurring_ticket_subject; ?></a></td>
+                                    <td><?php echo $recurring_ticket_frequency; ?></td>
+                                    <td><?php echo $recurring_ticket_next_run; ?></td>
                                     <td><a href="recurring_tickets.php?client_id=<?php echo $client_id ?>"><?php echo $client_name; ?></a></td>
                                 </tr>
 
@@ -571,9 +575,9 @@ if (isset($_GET['query'])) {
         <?php } ?>
 
 
-        <?php if (mysqli_num_rows($sql_logins) > 0) { ?>
+        <?php if (mysqli_num_rows($sql_credentials) > 0) { ?>
 
-            <!-- Logins -->
+            <!-- Credentials -->
             <div class="col-sm-6">
                 <div class="card card-dark mb-3">
                     <div class="card-header">
@@ -593,21 +597,21 @@ if (isset($_GET['query'])) {
                             <tbody>
                             <?php
 
-                            while ($row = mysqli_fetch_array($sql_logins)) {
-                                $login_name = nullable_htmlentities($row['login_name']);
-                                $login_description = nullable_htmlentities($row['login_description']);
-                                $login_client_id = intval($row['login_client_id']);
-                                $login_username = nullable_htmlentities(decryptLoginEntry($row['login_username']));
-                                $login_password = nullable_htmlentities(decryptLoginEntry($row['login_password']));
+                            while ($row = mysqli_fetch_array($sql_credentials)) {
+                                $credential_name = nullable_htmlentities($row['credential_name']);
+                                $credential_description = nullable_htmlentities($row['credential_description']);
+                                $credential_client_id = intval($row['credential_client_id']);
+                                $credential_username = nullable_htmlentities(decryptCredentialEntry($row['credential_username']));
+                                $credential_password = nullable_htmlentities(decryptCredentialEntry($row['credential_password']));
                                 $client_id = intval($row['client_id']);
                                 $client_name = nullable_htmlentities($row['client_name']);
 
                                 ?>
                                 <tr>
-                                    <td><a href="credentials.php?client_id=<?php echo $login_client_id ?>&q=<?php echo $q ?>"><?php echo $login_name; ?></a></td>
-                                    <td><?php echo $login_description; ?></td>
-                                    <td><?php echo $login_username; ?></td>
-                                    <td><a tabindex="0" class="btn btn-sm" data-toggle="popover" data-trigger="focus" data-placement="left" data-content="<?php echo $login_password; ?>"><i class="far fa-eye text-secondary"></i></a><button class="btn btn-sm clipboardjs" data-clipboard-text="<?php echo $login_password; ?>"><i class="far fa-copy text-secondary"></i></button>
+                                    <td><a href="credentials.php?client_id=<?php echo $credential_client_id ?>&q=<?php echo $q ?>"><?php echo $credential_name; ?></a></td>
+                                    <td><?php echo $credential_description; ?></td>
+                                    <td><?php echo $credential_username; ?></td>
+                                    <td><a tabindex="0" class="btn btn-sm" data-toggle="popover" data-trigger="focus" data-placement="left" data-content="<?php echo $credential_password; ?>"><i class="far fa-eye text-secondary"></i></a><button class="btn btn-sm clipboardjs" data-clipboard-text="<?php echo $credential_password; ?>"><i class="far fa-copy text-secondary"></i></button>
                                     </td>
                                     <td><a href="credentials.php?client_id=<?php echo $client_id; ?>"><?php echo $client_name; ?></a></td>
                                 </tr>

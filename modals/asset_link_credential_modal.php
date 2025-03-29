@@ -16,23 +16,23 @@
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fa fa-fw fa-key"></i></span>
                             </div>
-                            <select class="form-control select2" name="login_id">
+                            <select class="form-control select2" name="credential_id">
                                 <option value="">- Select a Credential -</option>
                                 <?php
             
-                                $sql_logins_select = mysqli_query($mysqli, "SELECT login_id, login_name FROM logins
-                                    WHERE login_client_id = $client_id
-                                    AND login_asset_id != $contact_id
-                                    AND login_asset_id = 0
-                                    AND login_archived_at IS NULL
-                                    ORDER BY login_name ASC"
+                                $sql_credentials_select = mysqli_query($mysqli, "SELECT credential_id, credential_name FROM credentials
+                                    WHERE credential_client_id = $client_id
+                                    AND credential_asset_id != $contact_id
+                                    AND credential_asset_id = 0
+                                    AND credential_archived_at IS NULL
+                                    ORDER BY credential_name ASC"
                                 );
-                                while ($row = mysqli_fetch_array($sql_logins_select)) {
-                                    $login_id = intval($row['login_id']);
-                                    $login_name = nullable_htmlentities($row['login_name']);
+                                while ($row = mysqli_fetch_array($sql_credentials_select)) {
+                                    $credential_id = intval($row['credential_id']);
+                                    $credential_name = nullable_htmlentities($row['credential_name']);
 
                                     ?>
-                                    <option value="<?php echo $login_id ?>"><?php echo $login_name; ?></option>
+                                    <option value="<?php echo $credential_id ?>"><?php echo $credential_name; ?></option>
                                     <?php
                                 }
                                 ?>

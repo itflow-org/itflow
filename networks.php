@@ -18,8 +18,27 @@ if (isset($_GET['client_id'])) {
 // Perms
 enforceUserPermission('module_support');
 
-//Rebuild URL
-$url_query_strings_sb = http_build_query(array_merge($_GET, array('sort' => $sort, 'order' => $order)));
+if (!$client_url) {
+    // Client Filter
+    if (isset($_GET['client']) & !empty($_GET['client'])) {
+        $client_query = 'AND (network_client_id = ' . intval($_GET['client']) . ')';
+        $client = intval($_GET['client']);
+    } else {
+        // Default - any
+        $client_query = '';
+        $client = '';
+    }
+}
+
+if ($client_url && isset($_GET['location']) && !empty($_GET['location'])) {
+    // Location Filter
+    $location_query = 'AND (network_location_id = ' . intval($_GET['location']) . ')';
+    $location_filter = intval($_GET['location']);
+} else {
+    // Default - any
+    $location_query = '';
+    $location_filter = 0;
+}
 
 $sql = mysqli_query(
     $mysqli,
@@ -29,6 +48,7 @@ $sql = mysqli_query(
     WHERE network_$archive_query
     AND (network_name LIKE '%$q%' OR network_description LIKE '%$q%' OR network_vlan LIKE '%$q%' OR network LIKE '%$q%' OR network_gateway LIKE '%$q%' OR network_subnet LIKE '%$q%' OR network_primary_dns LIKE '%$q%' OR network_secondary_dns LIKE '%$q%' OR network_dhcp_range LIKE '%$q%' OR location_name LIKE '%$q%' OR client_name LIKE '%$q%')
     $access_permission_query
+    $location_query
     $client_query
     ORDER BY $sort $order LIMIT $record_from, $record_to"
 );
@@ -71,7 +91,64 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     </div>
                 </div>
 
-                <div class="col-md-8">
+                <?php if ($client_url) { ?> 
+                <div class="col-md-2">
+                    <div class="input-group">
+                        <select class="form-control select2" name="location" onchange="this.form.submit()">
+                            <option value="">- All Locations -</option>
+
+                            <?php
+                            $sql_locations_filter = mysqli_query($mysqli, "
+                                SELECT DISTINCT location_id, location_name
+                                FROM locations
+                                LEFT JOIN networks ON network_location_id = location_id
+                                WHERE location_client_id = $client_id 
+                                AND location_archived_at IS NULL 
+                                AND (network_location_id != 0 OR location_id = $location_filter)
+                                ORDER BY location_name ASC
+                            ");
+                            while ($row = mysqli_fetch_array($sql_locations_filter)) {
+                                $location_id = intval($row['location_id']);
+                                $location_name = nullable_htmlentities($row['location_name']);
+                            ?>
+                                <option <?php if ($location_filter == $location_id) { echo "selected"; } ?> value="<?php echo $location_id; ?>"><?php echo $location_name; ?></option>
+                            <?php
+                            }
+                            ?>
+
+                        </select>
+                    </div>
+                </div>
+                <?php } else { ?>
+                <div class="col-md-2">
+                    <div class="input-group">
+                        <select class="form-control select2" name="client" onchange="this.form.submit()">
+                            <option value="" <?php if ($client == "") { echo "selected"; } ?>>- All Clients -</option>
+
+                            <?php
+                            $sql_clients_filter = mysqli_query($mysqli, "
+                                SELECT DISTINCT client_id, client_name 
+                                FROM clients
+                                JOIN networks ON network_client_id = client_id
+                                WHERE client_archived_at IS NULL 
+                                $access_permission_query
+                                ORDER BY client_name ASC
+                            ");
+                            while ($row = mysqli_fetch_array($sql_clients_filter)) {
+                                $client_id = intval($row['client_id']);
+                                $client_name = nullable_htmlentities($row['client_name']);
+                            ?>
+                                <option <?php if ($client == $client_id) { echo "selected"; } ?> value="<?php echo $client_id; ?>"><?php echo $client_name; ?></option>
+                            <?php
+                            }
+                            ?>
+
+                        </select>
+                    </div>
+                </div>
+                <?php } ?>
+
+                <div class="col-md-6">
                     <div class="btn-group float-right">
                         <div class="dropdown ml-2" id="bulkActionButton" hidden>
                             <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">
@@ -104,37 +181,37 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             </div>
                         </td>
                         <th>
-                            <a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sort=network_name&order=<?php echo $disp; ?>">
+                            <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=network_name&order=<?php echo $disp; ?>">
                                 Name <?php if ($sort == 'network_name') { echo $order_icon; } ?>
                             </a>
                         </th>
                         <th>
-                            <a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sort=network_vlan&order=<?php echo $disp; ?>">
+                            <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=network_vlan&order=<?php echo $disp; ?>">
                                 vLAN <?php if ($sort == 'network_vlan') { echo $order_icon; } ?>
                             </a>
                         </th>
                         <th>
-                            <a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sort=network&order=<?php echo $disp; ?>">
+                            <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=network&order=<?php echo $disp; ?>">
                                 IP / Network <?php if ($sort == 'network') { echo $order_icon; } ?>
                             </a>
                         </th>
                         <th>
-                            <a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sort=network_gateway&order=<?php echo $disp; ?>">
+                            <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=network_gateway&order=<?php echo $disp; ?>">
                                 Gateway <?php if ($sort == 'network_gateway') { echo $order_icon; } ?>
                             </a>
                         </th>
                         <th>
-                            <a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sort=network_primary_dns&order=<?php echo $disp; ?>">
+                            <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=network_primary_dns&order=<?php echo $disp; ?>">
                                 DNS <?php if ($sort == 'network_primary_dns') { echo $order_icon; } ?>
                             </a>
                         </th>
                         <th>
-                            <a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sort=network_dhcp_range&order=<?php echo $disp; ?>">
+                            <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=network_dhcp_range&order=<?php echo $disp; ?>">
                                 DHCP Range <?php if ($sort == 'network_dhcp_range') { echo $order_icon; } ?>
                             </a>
                         </th>
                         <th>
-                            <a class="text-secondary" href="?<?php echo $url_query_strings_sb; ?>&sort=location_name&order=<?php echo $disp; ?>">
+                            <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=location_name&order=<?php echo $disp; ?>">
                                 Location <?php if ($sort == 'location_name') { echo $order_icon; } ?>
                             </a>
                         </th>

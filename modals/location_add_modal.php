@@ -51,7 +51,7 @@
                                             while ($row = mysqli_fetch_array($sql)) {
                                                 $client_id = intval($row['client_id']);
                                                 $client_name = nullable_htmlentities($row['client_name']); ?>
-                                                <option value="<?php echo $client_id; ?>"><?php echo $client_name; ?></option>
+                                                <option <?php if ($client_id == isset($_GET['client'])) { echo "selected"; } ?> value="<?php echo $client_id; ?>"><?php echo $client_name; ?></option>
 
                                             <?php } ?>
                                         </select>
@@ -176,23 +176,38 @@
                             </div>
                             <?php } ?>
 
-                            <div class="form-group">
-                                <label>Phone</label>
-                                <div class="input-group">
-                                    <div class="input-group-prepend">
-                                        <span class="input-group-text"><i class="fa fa-fw fa-phone"></i></span>
+                            <label>Phone / <span class="text-secondary">Extension</span></label>
+                            <div class="form-row">
+                                <div class="col-9">
+                                    <div class="form-group">
+                                        <div class="input-group">
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text"><i class="fa fa-fw fa-phone"></i></span>
+                                            </div>
+                                            <input type="tel" class="form-control col-2" name="phone_country_code" value="+1" placeholder="Code" maxlength="4">
+                                            <input type="tel" class="form-control" name="phone" placeholder="Phone Number" maxlength="200">
+                                        </div>
                                     </div>
-                                    <input type="text" class="form-control" name="phone" placeholder="Phone Number" maxlength="200">
+                                </div>
+                                <div class="col-3">
+                                    <div class="form-group">
+                                        <input type="text" class="form-control" name="extension" placeholder="ext." maxlength="200">
+                                    </div>
                                 </div>
                             </div>
 
-                            <div class="form-group">
-                                <label>Fax</label>
-                                <div class="input-group">
-                                    <div class="input-group-prepend">
-                                        <span class="input-group-text"><i class="fa fa-fw fa-fax"></i></span>
+                            <label>Fax</label>
+                            <div class="form-row">
+                                <div class="col-9">
+                                    <div class="form-group">
+                                        <div class="input-group">
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text"><i class="fa fa-fw fa-fax"></i></span>
+                                            </div>
+                                            <input type="tel" class="form-control col-2" name="fax_country_code" value="+1" placeholder="Code" maxlength="4">
+                                            <input type="tel" class="form-control" name="fax" placeholder="Fax Number" maxlength="200">
+                                        </div>
                                     </div>
-                                    <input type="text" class="form-control" name="fax" placeholder="Fax Number" maxlength="200">
                                 </div>
                             </div>
 

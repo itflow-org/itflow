@@ -1,13 +1,13 @@
 <?php
 
 // Default Column Sortby Filter
-$sort = "scheduled_ticket_subject";
+$sort = "recurring_ticket_subject";
 $order = "ASC";
 
 // If client_id is in URI then show client Side Bar and client header
 if (isset($_GET['client_id'])) {
     require_once "includes/inc_all_client.php";
-    $client_query = "AND scheduled_ticket_client_id = $client_id";
+    $client_query = "AND recurring_ticket_client_id = $client_id";
     $client_url = "client_id=$client_id&";
 } else {
     require_once "includes/inc_all.php";
@@ -21,7 +21,7 @@ enforceUserPermission('module_support');
 // Ticket client access snippet
 $rec_ticket_permission_snippet = '';
 if (!empty($client_access_string)) {
-    $rec_ticket_permission_snippet = "AND scheduled_ticket_client_id IN ($client_access_string)";
+    $rec_ticket_permission_snippet = "AND recurring_ticket_client_id IN ($client_access_string)";
 }
 
 //Rebuild URL
@@ -30,15 +30,15 @@ $url_query_strings_sort = http_build_query($get_copy);
 // SQL
 $sql = mysqli_query(
     $mysqli,
-    "SELECT SQL_CALC_FOUND_ROWS * FROM scheduled_tickets
-    LEFT JOIN clients on scheduled_ticket_client_id = client_id
-    WHERE scheduled_tickets.scheduled_ticket_subject LIKE '%$q%'
+    "SELECT SQL_CALC_FOUND_ROWS * FROM recurring_tickets
+    LEFT JOIN clients on recurring_ticket_client_id = client_id
+    WHERE recurring_tickets.recurring_ticket_subject LIKE '%$q%'
     $rec_ticket_permission_snippet
     $client_query
     ORDER BY
         CASE 
-            WHEN '$sort' = 'scheduled_ticket_priority' THEN
-                CASE scheduled_ticket_priority
+            WHEN '$sort' = 'recurring_ticket_priority' THEN
+                CASE recurring_ticket_priority
                     WHEN 'High' THEN 1
                     WHEN 'Medium' THEN 2
                     WHEN 'Low' THEN 3
@@ -125,23 +125,23 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             </th>
                             <?php } ?>
                             <th>
-                                <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=scheduled_ticket_subject&order=<?php echo $disp; ?>">
-                                    Subject <?php if ($sort == 'scheduled_ticket_subject') { echo $order_icon; } ?>
+                                <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=recurring_ticket_subject&order=<?php echo $disp; ?>">
+                                    Subject <?php if ($sort == 'recurring_ticket_subject') { echo $order_icon; } ?>
                                 </a>
                             </th>
                             <th>
-                                <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=scheduled_ticket_priority&order=<?php echo $disp; ?>">
-                                    Priority <?php if ($sort == 'scheduled_ticket_priority') { echo $order_icon; } ?>
+                                <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=recurring_ticket_priority&order=<?php echo $disp; ?>">
+                                    Priority <?php if ($sort == 'recurring_ticket_priority') { echo $order_icon; } ?>
                                 </a>
                             </th>
                             <th>
-                                <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=scheduled_ticket_frequency&order=<?php echo $disp; ?>">
-                                    Frequency <?php if ($sort == 'scheduled_ticket_frequency') { echo $order_icon; } ?>
+                                <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=recurring_ticket_frequency&order=<?php echo $disp; ?>">
+                                    Frequency <?php if ($sort == 'recurring_ticket_frequency') { echo $order_icon; } ?>
                                 </a>
                             </th>
                             <th>
-                                <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=scheduled_ticket_next_run&order=<?php echo $disp; ?>">
-                                    Next Run Date <?php if ($sort == 'scheduled_ticket_next_run') { echo $order_icon; } ?>
+                                <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=recurring_ticket_next_run&order=<?php echo $disp; ?>">
+                                    Next Run Date <?php if ($sort == 'recurring_ticket_next_run') { echo $order_icon; } ?>
                                 </a>
                             </th>
                             <?php if (lookupUserPermission("module_support") >= 2) { ?>
@@ -155,24 +155,24 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         <?php
 
                         while ($row = mysqli_fetch_array($sql)) {
-                            $scheduled_ticket_id = intval($row['scheduled_ticket_id']);
-                            $scheduled_ticket_client_id = intval($row['client_id']);
-                            $scheduled_ticket_subject = nullable_htmlentities($row['scheduled_ticket_subject']);
-                            $scheduled_ticket_priority = nullable_htmlentities($row['scheduled_ticket_priority']);
-                            $scheduled_ticket_frequency = nullable_htmlentities($row['scheduled_ticket_frequency']);
-                            $scheduled_ticket_next_run = nullable_htmlentities($row['scheduled_ticket_next_run']);
-                            $scheduled_ticket_client_name = nullable_htmlentities($row['client_name']);
+                            $recurring_ticket_id = intval($row['recurring_ticket_id']);
+                            $recurring_ticket_client_id = intval($row['client_id']);
+                            $recurring_ticket_subject = nullable_htmlentities($row['recurring_ticket_subject']);
+                            $recurring_ticket_priority = nullable_htmlentities($row['recurring_ticket_priority']);
+                            $recurring_ticket_frequency = nullable_htmlentities($row['recurring_ticket_frequency']);
+                            $recurring_ticket_next_run = nullable_htmlentities($row['recurring_ticket_next_run']);
+                            $recurring_ticket_client_name = nullable_htmlentities($row['client_name']);
                         ?>
 
                             <tr>
                                 <td class="pr-0">
                                     <div class="form-check">
-                                        <input class="form-check-input bulk-select" type="checkbox" name="scheduled_ticket_ids[]" value="<?php echo $scheduled_ticket_id ?>">
+                                        <input class="form-check-input bulk-select" type="checkbox" name="recurring_ticket_ids[]" value="<?php echo $recurring_ticket_id ?>">
                                     </div>
                                 </td>
 
                                 <?php if (!$client_url) { ?>
-                                <th><a href="recurring_tickets.php?client_id=<?php echo $scheduled_ticket_client_id; ?>"><?php echo $scheduled_ticket_client_name ?></a>
+                                <th><a href="recurring_tickets.php?client_id=<?php echo $recurring_ticket_client_id; ?>"><?php echo $recurring_ticket_client_name ?></a>
                                 </th>
                                 <?php } ?>
 
@@ -181,17 +181,17 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                         data-toggle="ajax-modal"
                                         data-modal-size="lg"
                                         data-ajax-url="ajax/ajax_recurring_ticket_edit.php"
-                                        data-ajax-id="<?php echo $scheduled_ticket_id; ?>"
+                                        data-ajax-id="<?php echo $recurring_ticket_id; ?>"
                                         >
-                                        <?php echo $scheduled_ticket_subject ?>
+                                        <?php echo $recurring_ticket_subject ?>
                                     </a>
                                 </td>
 
-                                <td><?php echo $scheduled_ticket_priority ?></td>
+                                <td><?php echo $recurring_ticket_priority ?></td>
 
-                                <td><?php echo $scheduled_ticket_frequency ?></td>
+                                <td><?php echo $recurring_ticket_frequency ?></td>
 
-                                <td class="text-bold"><?php echo $scheduled_ticket_next_run ?></td>
+                                <td class="text-bold"><?php echo $recurring_ticket_next_run ?></td>
 
                                 <?php if (lookupUserPermission("module_support") >= 2) { ?>
                                     <td>
@@ -204,17 +204,17 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                                     data-toggle="ajax-modal"
                                                     data-modal-size="lg"
                                                     data-ajax-url="ajax/ajax_recurring_ticket_edit.php"
-                                                    data-ajax-id="<?php echo $scheduled_ticket_id; ?>"
+                                                    data-ajax-id="<?php echo $recurring_ticket_id; ?>"
                                                     >
                                                     <i class="fas fa-fw fa-edit mr-2"></i>Edit
                                                 </a>
                                                 <div class="dropdown-divider"></div>
-                                                <a class="dropdown-item" href="post.php?force_recurring_ticket=<?php echo $scheduled_ticket_id; ?>&csrf_token=<?php echo $_SESSION['csrf_token'] ?>">
+                                                <a class="dropdown-item" href="post.php?force_recurring_ticket=<?php echo $recurring_ticket_id; ?>&csrf_token=<?php echo $_SESSION['csrf_token'] ?>">
                                                     <i class="fa fa-fw fa-paper-plane text-secondary mr-2"></i>Force Reoccur
                                                 </a>
                                                 <?php if (lookupUserPermission("module_support") == 3) { ?>
                                                     <div class="dropdown-divider"></div>
-                                                    <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_recurring_ticket=<?php echo $scheduled_ticket_id; ?>&csrf_token=<?php echo $_SESSION['csrf_token'] ?>">
+                                                    <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_recurring_ticket=<?php echo $recurring_ticket_id; ?>&csrf_token=<?php echo $_SESSION['csrf_token'] ?>">
                                                         <i class="fas fa-fw fa-trash mr-2"></i>Delete
                                                     </a>
                                                 <?php } ?>

@@ -15,7 +15,7 @@ if (isset($_POST['add_user'])) {
     $password = password_hash(trim($_POST['password']), PASSWORD_DEFAULT);
     $user_specific_encryption_ciphertext = encryptUserSpecificKey(trim($_POST['password']));
 
-    mysqli_query($mysqli, "INSERT INTO users SET user_name = '$name', user_email = '$email', user_password = '$password', user_specific_encryption_ciphertext = '$user_specific_encryption_ciphertext'");
+    mysqli_query($mysqli, "INSERT INTO users SET user_name = '$name', user_email = '$email', user_password = '$password', user_specific_encryption_ciphertext = '$user_specific_encryption_ciphertext' user_role_id = $role");
 
     $user_id = mysqli_insert_id($mysqli);
 
@@ -23,7 +23,7 @@ if (isset($_POST['add_user'])) {
     if (isset($_POST['clients'])) {
         foreach($_POST['clients'] as $client_id) {
             $client_id = intval($client_id);
-            mysqli_query($mysqli,"INSERT INTO user_permissions SET user_id = $user_id, client_id = $client_id");
+            mysqli_query($mysqli,"INSERT INTO user_client_permissions SET user_id = $user_id, client_id = $client_id");
         }
     }
 
@@ -50,7 +50,7 @@ if (isset($_POST['add_user'])) {
     }
 
     // Create Settings
-    mysqli_query($mysqli, "INSERT INTO user_settings SET user_id = $user_id, user_role = $role, user_config_force_mfa = $force_mfa");
+    mysqli_query($mysqli, "INSERT INTO user_settings SET user_id = $user_id, user_config_force_mfa = $force_mfa");
 
     $sql = mysqli_query($mysqli,"SELECT * FROM companies WHERE company_id = 1");
     $row = mysqli_fetch_array($sql);
@@ -109,11 +109,11 @@ if (isset($_POST['edit_user'])) {
     $new_password = trim($_POST['new_password']);
 
     // Update Client Access
-    mysqli_query($mysqli,"DELETE FROM user_permissions WHERE user_id = $user_id");
+    mysqli_query($mysqli,"DELETE FROM user_client_permissions WHERE user_id = $user_id");
     if (isset($_POST['clients'])) {
         foreach($_POST['clients'] as $client_id) {
             $client_id = intval($client_id);
-            mysqli_query($mysqli,"INSERT INTO user_permissions SET user_id = $user_id, client_id = $client_id");
+            mysqli_query($mysqli,"INSERT INTO user_client_permissions SET user_id = $user_id, client_id = $client_id");
         }
     }
 
@@ -153,7 +153,7 @@ if (isset($_POST['edit_user'])) {
         }
     }
 
-    mysqli_query($mysqli, "UPDATE users SET user_name = '$name', user_email = '$email' WHERE user_id = $user_id");
+    mysqli_query($mysqli, "UPDATE users SET user_name = '$name', user_email = '$email', user_role_id = $role WHERE user_id = $user_id");
 
     if (!empty($new_password)) {
         $new_password = password_hash($new_password, PASSWORD_DEFAULT);
@@ -169,7 +169,7 @@ if (isset($_POST['edit_user'])) {
     }
 
     //Update User Settings
-    mysqli_query($mysqli, "UPDATE user_settings SET user_role = $role, user_config_force_mfa = $force_mfa WHERE user_id = $user_id");
+    mysqli_query($mysqli, "UPDATE user_settings SET user_config_force_mfa = $force_mfa WHERE user_id = $user_id");
 
     // Logging
     logAction("User", "Edit", "$session_name edited user $name", 0, $user_id);
@@ -280,13 +280,13 @@ if (isset($_GET['archive_user'])) {
 if (isset($_POST['export_users_csv'])) {
 
     //get records from database
-    $sql = mysqli_query($mysqli, "SELECT * FROM users ORDER BY user_name ASC");
+    $sql = mysqli_query($mysqli, "SELECT * FROM users LEFT JOIN user_roles ON user_role_id = role_id ORDER BY user_name ASC");
 
     $count = mysqli_num_rows($sql);
 
     if ($count > 0) {
-        $delimiter = ", ";
-        $filename = $session_company_name . "-Users-" . date('Y-m-d') . ".csv";
+        $delimiter = ",";
+        $filename = "Users-" . date('Y-m-d') . ".csv";
 
         //create a file pointer
         $f = fopen('php://memory', 'w');
@@ -306,16 +306,8 @@ if (isset($_POST['export_users_csv'])) {
             } else{
                 $user_status_display = "Disabled";
             }
-            $user_role = $row['user_role'];
-            if ($user_role == 3) {
-                $user_role_display = "Administrator";
-            } elseif ($user_role == 2) {
-                $user_role_display = "Technician";
-            } else {
-                $user_role_display = "Accountant";
-            }
 
-            $lineData = array($row['user_name'], $row['user_email'], $user_role_display, $user_status_display, $row['user_created_at']);
+            $lineData = array($row['user_name'], $row['user_email'], $row['role_name'], $user_status_display, $row['user_created_at']);
             fputcsv($f, $lineData, $delimiter);
         }
 

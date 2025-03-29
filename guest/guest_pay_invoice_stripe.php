@@ -1,6 +1,6 @@
 <?php
 
-require_once 'guest_header.php';
+require_once 'includes/guest_header.php';
 
 // Define wording
 DEFINE("WORDING_PAYMENT_FAILED", "<br><h2>There was an error verifying your payment. Please contact us for more information before attempting payment again.</h2>");
@@ -19,7 +19,7 @@ $config_stripe_flat_fee = floatval($stripe_vars['config_stripe_flat_fee']);
 // Check Stripe is configured
 if ($config_stripe_enable == 0 || $config_stripe_account == 0 || empty($config_stripe_publishable) || empty($config_stripe_secret)) {
     echo "<br><h2>Stripe payments not enabled/configured</h2>";
-    require_once 'guest_footer.php';
+    require_once 'includes/guest_footer.php';
     error_log("Stripe payment error - disabled. Check payments are enabled, Expense account is set, Stripe publishable and secret keys are configured.");
     exit();
 }
@@ -47,7 +47,7 @@ if (isset($_GET['invoice_id'], $_GET['url_key']) && !isset($_GET['payment_intent
     // Ensure we have a valid invoice
     if (!$sql || mysqli_num_rows($sql) !== 1) {
         echo "<br><h2>Oops, something went wrong! Please ensure you have the correct URL and have not already paid this invoice.</h2>";
-        require_once 'guest_footer.php';
+        require_once 'includes/guest_footer.php';
         error_log("Stripe payment error - Invoice with ID $invoice_id is unknown/not eligible to be paid.");
         exit();
     }
@@ -357,4 +357,4 @@ if (isset($_GET['invoice_id'], $_GET['url_key']) && !isset($_GET['payment_intent
 }
 
 
-require_once 'guest_footer.php';
+require_once 'includes/guest_footer.php';

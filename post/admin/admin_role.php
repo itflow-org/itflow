@@ -14,12 +14,12 @@ if (isset($_POST['add_role'])) {
     $description = sanitizeInput($_POST['role_description']);
     $admin = intval($_POST['role_is_admin']);
 
-    mysqli_query($mysqli, "INSERT INTO user_roles SET user_role_name = '$name', user_role_description = '$description', user_role_is_admin = $admin");
+    mysqli_query($mysqli, "INSERT INTO user_roles SET role_name = '$name', role_description = '$description', role_is_admin = $admin");
 
-    $user_role_id = mysqli_insert_id($mysqli);
+    $role_id = mysqli_insert_id($mysqli);
 
     // Logging
-    logAction("User Role", "Create", "$session_name created user role $name", 0, $user_role_id);
+    logAction("User Role", "Create", "$session_name created user role $name", 0, $role_id);
 
     $_SESSION['alert_message'] = "User Role <strong$name</strong> created";
 
@@ -37,7 +37,7 @@ if (isset($_POST['edit_role'])) {
     $description = sanitizeInput($_POST['role_description']);
     $admin = intval($_POST['role_is_admin']);
     
-    mysqli_query($mysqli, "UPDATE user_roles SET user_role_name = '$name', user_role_description = '$description', user_role_is_admin = $admin WHERE user_role_id = $role_id");
+    mysqli_query($mysqli, "UPDATE user_roles SET role_name = '$name', role_description = '$description', role_is_admin = $admin WHERE role_id = $role_id");
 
     // Update role access levels
     mysqli_query($mysqli, "DELETE FROM user_role_permissions WHERE user_role_id = $role_id");
@@ -68,7 +68,7 @@ if (isset($_GET['archive_role'])) {
     $role_id = intval($_GET['archive_role']);
 
     // Check role isn't in use
-    $sql_role_user_count = mysqli_query($mysqli, "SELECT COUNT(users.user_id) FROM users LEFT JOIN user_settings on users.user_id = user_settings.user_id WHERE user_role = $role_id AND user_archived_at IS NULL");
+    $sql_role_user_count = mysqli_query($mysqli, "SELECT COUNT(user_id) FROM users WHERE user_role_id = $role_id AND user_archived_at IS NULL");
     $role_user_count = mysqli_fetch_row($sql_role_user_count)[0];
     if ($role_user_count != 0) {
         $_SESSION['alert_type'] = "error";
@@ -77,11 +77,11 @@ if (isset($_GET['archive_role'])) {
         exit();
     }
 
-    mysqli_query($mysqli, "UPDATE user_roles SET user_role_archived_at = NOW() WHERE user_role_id = $role_id");
+    mysqli_query($mysqli, "UPDATE user_roles SET role_archived_at = NOW() WHERE role_id = $role_id");
 
     // Logging
-    $role_details = mysqli_fetch_array(mysqli_query($mysqli, "SELECT user_role_name FROM user_roles WHERE user_role_id = $role_id LIMIT 1"));
-    $role_name = sanitizeInput($role_details['user_role_name']);
+    $role_details = mysqli_fetch_array(mysqli_query($mysqli, "SELECT role_name FROM user_roles WHERE role_id = $role_id LIMIT 1"));
+    $role_name = sanitizeInput($role_details['role_name']);
     logAction("User Role", "Archive", "$session_name archived user role $role_name", 0, $role_id);
 
     $_SESSION['alert_message'] = "User Role archived";

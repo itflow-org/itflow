@@ -27,7 +27,6 @@ $(document).on('click', '[data-toggle="ajax-modal"]', function (e) {
         method: 'GET',
         data: { id: ajaxId },
         dataType: 'json',
-        cache: false, // Prevent caching if necessary
         success: function (response) {
             if (response.error) {
                 alert(response.error);
@@ -42,7 +41,7 @@ $(document).on('click', '[data-toggle="ajax-modal"]', function (e) {
             
             // Build the modal HTML using the returned title and content.
             var modalHtml = 
-                '<div class="modal fade text-sm" id="' + modalId + '" tabindex="-1">' +
+                '<div class="modal fade" id="' + modalId + '" tabindex="-1">' +
                 '    <div class="modal-dialog modal-'+ modalSize +'">' +
                 '       <div class="modal-content bg-dark">'
                             + response.content +
@@ -51,7 +50,7 @@ $(document).on('click', '[data-toggle="ajax-modal"]', function (e) {
                 '</div>';
             
             // Append the modal to the body and show it.
-            $('body').append(modalHtml);
+            $('.content-wrapper').append(modalHtml);
             var $modal = $('#' + modalId);
             $modal.modal('show');
             

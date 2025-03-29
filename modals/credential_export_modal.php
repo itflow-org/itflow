@@ -1,4 +1,4 @@
-<div class="modal" id="exportLoginModal" tabindex="-1">
+<div class="modal" id="exportCredentialModal" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content bg-dark">
             <div class="modal-header">

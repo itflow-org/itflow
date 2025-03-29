@@ -17,17 +17,13 @@ if (isset($_GET['client_id'])) {
 
 // Tags Filter
 if (isset($_GET['tags']) && is_array($_GET['tags']) && !empty($_GET['tags'])) {
-    // Sanitize each element of the status array
-    $sanitizedTags = array();
-    foreach ($_GET['tags'] as $tag) {
-        // Escape each status to prevent SQL injection
-        $sanitizedTags[] = "'" . intval($tag) . "'";
-    }
-
+    // Sanitize each element of the tags array
+    $sanitizedTags = array_map('intval', $_GET['tags']);
     // Convert the sanitized tags into a comma-separated string
-    $sanitizedTagsString = implode(",", $sanitizedTags);
-    $tag_query = "AND tags.tag_id IN ($sanitizedTagsString)";
+    $tag_filter = implode(",", $sanitizedTags);
+    $tag_query = "AND tags.tag_id IN ($tag_filter)";
 } else {
+    $tag_filter = 0;
     $tag_query = '';
 }
 
@@ -50,7 +46,7 @@ if ($client_url && isset($_GET['location']) && !empty($_GET['location'])) {
 } else {
     // Default - any
     $location_query = '';
-    $location_filter = '';
+    $location_filter = 0;
 }
 
 $sql = mysqli_query($mysqli, "SELECT SQL_CALC_FOUND_ROWS contacts.*, clients.*, locations.*, users.*, GROUP_CONCAT(tags.tag_name) FROM contacts
@@ -117,24 +113,25 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     <div class="input-group">
                         <select onchange="this.form.submit()" class="form-control select2" name="tags[]" data-placeholder="- Select Tags -" multiple>
 
-                            <?php $sql_tags = mysqli_query($mysqli, "SELECT * FROM tags WHERE tag_type = 3");
-                            while ($row = mysqli_fetch_array($sql_tags)) {
+                            <?php
+                            $sql_tags_filter = mysqli_query($mysqli, "
+                                SELECT tags.tag_id, tags.tag_name
+                                FROM tags 
+                                LEFT JOIN contact_tags ON contact_tags.tag_id = tags.tag_id
+                                LEFT JOIN contacts ON contact_tags.contact_id = contacts.contact_id
+                                WHERE tag_type = 3
+                                $client_query OR tags.tag_id IN ($tag_filter)
+                                GROUP BY tags.tag_id
+                                HAVING COUNT(contact_tags.contact_id) > 0 OR tags.tag_id IN ($tag_filter)
+                            ");
+                            while ($row = mysqli_fetch_array($sql_tags_filter)) {
                                 $tag_id = intval($row['tag_id']);
                                 $tag_name = nullable_htmlentities($row['tag_name']); ?>
 
-                                <option value="<?php echo $tag_id ?>" <?php if (isset($_GET['tags']) && is_array($_GET['tags']) && in_array($tag_id, $_GET['tags'])) { echo 'selected'; } ?>> <?php echo $tag_name ?> </option>
+                                <option value="<?php echo $tag_id ?>" <?php if (isset($_GET['tags']) && in_array($tag_id, $_GET['tags'])) { echo 'selected'; } ?>> <?php echo $tag_name ?> </option>
 
                             <?php } ?>
                         </select>
-                        <div class="input-group-append">
-                            <button class="btn btn-secondary" type="button"
-                                data-toggle="ajax-modal"
-                                data-modal-size="sm"
-                                data-ajax-url="ajax/ajax_tag_add.php"
-                                data-ajax-id="2">
-                                <i class="fas fa-plus"></i>
-                            </button>
-                        </div>
                     </div>
                 </div>
 
@@ -145,7 +142,15 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             <option value="">- All Locations -</option>
 
                             <?php
-                            $sql_locations_filter = mysqli_query($mysqli, "SELECT * FROM locations WHERE location_client_id = $client_id AND location_archived_at IS NULL ORDER BY location_name ASC");
+                            $sql_locations_filter = mysqli_query($mysqli, "
+                                SELECT DISTINCT location_id, location_name
+                                FROM locations
+                                LEFT JOIN contacts ON contact_location_id = location_id
+                                WHERE location_client_id = $client_id 
+                                AND location_archived_at IS NULL 
+                                AND (contact_location_id != 0 OR location_id = $location_filter)
+                                ORDER BY location_name ASC
+                            ");
                             while ($row = mysqli_fetch_array($sql_locations_filter)) {
                                 $location_id = intval($row['location_id']);
                                 $location_name = nullable_htmlentities($row['location_name']);
@@ -165,7 +170,14 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             <option value="" <?php if ($client == "") { echo "selected"; } ?>>- All Clients -</option>
 
                             <?php
-                            $sql_clients_filter = mysqli_query($mysqli, "SELECT * FROM clients WHERE client_archived_at IS NULL $access_permission_query ORDER BY client_name ASC");
+                            $sql_clients_filter = mysqli_query($mysqli, "
+                                SELECT DISTINCT client_id, client_name 
+                                FROM clients
+                                JOIN contacts ON contact_client_id = client_id
+                                WHERE client_archived_at IS NULL 
+                                $access_permission_query
+                                ORDER BY client_name ASC
+                            ");
                             while ($row = mysqli_fetch_array($sql_clients_filter)) {
                                 $client_id = intval($row['client_id']);
                                 $client_name = nullable_htmlentities($row['client_name']);
@@ -300,14 +312,15 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         } else {
                             $contact_extension_display = "<small class='text-secondary ml-1'>x$contact_extension</small>";
                         }
-                        $contact_phone = formatPhoneNumber($row['contact_phone']);
+                        $contact_phone_country_code = nullable_htmlentities($row['contact_phone_country_code']);
+                        $contact_phone = nullable_htmlentities(formatPhoneNumber($row['contact_phone'], $contact_phone_country_code));
                         if (empty($contact_phone)) {
                             $contact_phone_display = "";
                         } else {
                             $contact_phone_display = "<div><i class='fas fa-fw fa-phone mr-2'></i><a href='tel:$contact_phone'>$contact_phone$contact_extension_display</a></div>";
                         }
-
-                        $contact_mobile = formatPhoneNumber($row['contact_mobile']);
+                        $contact_mobile_country_code = nullable_htmlentities($row['contact_phone_country_code']);
+                        $contact_mobile = nullable_htmlentities(formatPhoneNumber($row['contact_mobile'], $contact_mobile_country_code));
                         if (empty($contact_mobile)) {
                             $contact_mobile_display = "";
                         } else {
@@ -351,6 +364,11 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         }
                         $auth_method = nullable_htmlentities($row['user_auth_method']);
                         $contact_user_id = intval($row['contact_user_id']);
+                        if ($contact_user_id) {
+                            $user_exists_display = "<span class='badge badge-pill badge-dark p-1' title='User: $auth_method'><i class='fas fa-fw fa-user'></i></span>";
+                        } else { 
+                            $user_exists_display = "";
+                        }
 
                         // Related Assets Query
                         $sql_related_assets = mysqli_query($mysqli, "SELECT * FROM assets WHERE asset_contact_id = $contact_id ORDER BY asset_id DESC");
@@ -361,13 +379,13 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             $asset_count_display = '';
                         }
 
-                        // Related Logins Query
-                        $sql_related_logins = mysqli_query($mysqli, "SELECT * FROM logins WHERE login_contact_id = $contact_id ORDER BY login_id DESC");
-                        $login_count = mysqli_num_rows($sql_related_logins);
-                        if ($login_count) { 
-                            $login_count_display = "<span class='mr-2 badge badge-pill badge-secondary p-2' title='$login_count Credentials'><i class='fas fa-fw fa-key mr-2'></i>$login_count</span>";
+                        // Related Credentials Query
+                        $sql_related_credentials = mysqli_query($mysqli, "SELECT * FROM credentials WHERE credential_contact_id = $contact_id ORDER BY credential_id DESC");
+                        $credential_count = mysqli_num_rows($sql_related_credentials);
+                        if ($credential_count) { 
+                            $credential_count_display = "<span class='mr-2 badge badge-pill badge-secondary p-2' title='$credential_count Credentials'><i class='fas fa-fw fa-key mr-2'></i>$credential_count</span>";
                         } else {
-                            $login_count_display = '';
+                            $credential_count_display = '';
                         }
 
                         // Related Software Query
@@ -445,7 +463,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                         <?php } ?>
 
                                         <div class="media-body">
-                                            <div class="<?php if($contact_important) { echo "text-bold"; } ?>"><?php echo $contact_name; ?></div>
+                                            <div class="<?php if($contact_important) { echo "text-bold"; } ?>"><?php echo $contact_name; ?> <?php echo $user_exists_display; ?></div>
                                             <?php echo $contact_title_display; ?>
                                             <div><?php echo $contact_primary_display; ?></div>
                                             <?php
@@ -463,7 +481,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             <td><?php echo $contact_info_display; ?></td>
                             <td><?php echo $location_name_display; ?></td>
                             <td>
-                                <?php echo "$asset_count_display$login_count_display$software_count_display$ticket_count_display$document_count_display"; ?>
+                                <?php echo "$asset_count_display$credential_count_display$software_count_display$ticket_count_display$document_count_display"; ?>
                             </td>
                             <?php if (!$client_url) { ?>
                             <td><a href="contacts.php?client_id=<?php echo $client_id; ?>"><?php echo $client_name; ?></a></td>

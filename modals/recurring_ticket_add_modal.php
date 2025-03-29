@@ -19,9 +19,11 @@
                         <li class="nav-item">
                             <a class="nav-link active" data-toggle="pill" href="#pills-add-details"><i class="fa fa-fw fa-life-ring mr-2"></i>Details</a>
                         </li>
+                        <?php if (!isset($_GET['contact_id'])) { ?>
                         <li class="nav-item">
-                            <a class="nav-link" data-toggle="pill" href="#pills-add-contacts"><i class="fa fa-fw fa-users mr-2"></i>Contacts</a>
+                            <a class="nav-link" data-toggle="pill" href="#pills-add-contacts"><i class="fa fa-fw fa-users mr-2"></i>Contact</a>
                         </li>
+                        <?php } ?>
                         <li class="nav-item">
                             <a class="nav-link" data-toggle="pill" href="#pills-add-schedule"><i class="fa fa-fw fa-building mr-2"></i>Schedule</a>
                         </li>
@@ -45,7 +47,7 @@
                             </div>
 
                             <div class="form-group">
-                                <textarea class="form-control tinymceTicket<?php if($config_ai_enable) { echo "AI"; } ?>" id="textInput" name="details"></textarea>
+                                <textarea class="form-control tinymceTicket<?php if($config_ai_enable) { echo "AI"; } ?>" name="details"></textarea>
                             </div>
 
                             <div class="form-group">
@@ -74,9 +76,8 @@
 
                                         $sql = mysqli_query(
                                             $mysqli,
-                                            "SELECT users.user_id, user_name FROM users
-                                            LEFT JOIN user_settings on users.user_id = user_settings.user_id
-                                            WHERE user_role > 1 AND user_status = 1 AND user_archived_at IS NULL ORDER BY user_name ASC"
+                                            "SELECT user_id, user_name FROM users
+                                            WHERE user_role_id > 1 AND user_status = 1 AND user_archived_at IS NULL ORDER BY user_name ASC"
                                         );
                                         while ($row = mysqli_fetch_array($sql)) {
                                             $user_id = intval($row['user_id']);
@@ -98,7 +99,7 @@
 
                         </div>
 
-
+                        <?php if (!isset($_GET['contact_id'])) { ?>
                         <div class="tab-pane fade" id="pills-add-contacts">
 
                             <div class="form-group">
@@ -138,8 +139,11 @@
                             <div id="contacts-section">
 
                             </div>
-
                         </div>
+                        <?php } else { ?>
+                        <input type="hidden" name="client" value="<?php echo $client_id; ?>">
+                        <input type="hidden" name="contact" value="<?php echo intval($_GET['contact_id']); ?>">
+                        <?php } ?>
 
                         <div class="tab-pane fade" id="pills-add-schedule">
 
@@ -195,6 +199,31 @@
                                                     ?>
 
                                                     ><?php echo $asset_name_select; ?>
+                                                </option>
+
+                                            <?php } ?>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Additional Assets</label>
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text"><i class="fa fa-fw fa-desktop"></i></span>
+                                        </div>
+                                        <select class="form-control select2" name="additional_assets[]" data-tags="true" data-placeholder="- Select Additional Assets -" multiple>
+                                            <option value=""></option>
+                                            <?php
+
+                                            $sql_assets = mysqli_query($mysqli, "SELECT asset_id, asset_name, contact_name FROM assets LEFT JOIN contacts ON contact_id = asset_contact_id WHERE asset_client_id = $client_id AND asset_archived_at IS NULL ORDER BY asset_name ASC");
+                                            while ($row = mysqli_fetch_array($sql_assets)) {
+                                                $asset_id_select = intval($row['asset_id']);
+                                                $asset_name_select = nullable_htmlentities($row['asset_name']);
+                                                $asset_contact_name_select = nullable_htmlentities($row['contact_name']);
+                                            ?>
+                                                <option value="<?php echo $asset_id_select; ?>"
+                                                    ><?php echo "$asset_name_select - $asset_contact_name_select"; ?>
                                                 </option>
 
                                             <?php } ?>

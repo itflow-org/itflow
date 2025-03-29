@@ -52,7 +52,7 @@ if (isset($_POST['add_vendor'])) {
 
     $client_id = intval($_POST['client_id']); // Used if this vendor is under a contact otherwise its 0 for under company
 
-    mysqli_query($mysqli,"INSERT INTO vendors SET vendor_name = '$name', vendor_description = '$description', vendor_contact_name = '$contact_name', vendor_phone = '$phone', vendor_extension = '$extension', vendor_email = '$email', vendor_website = '$website', vendor_hours = '$hours', vendor_sla = '$sla', vendor_code = '$code', vendor_account_number = '$account_number', vendor_notes = '$notes', vendor_client_id = $client_id");
+    mysqli_query($mysqli,"INSERT INTO vendors SET vendor_name = '$name', vendor_description = '$description', vendor_contact_name = '$contact_name', vendor_phone_country_code = '$phone_country_code', vendor_phone = '$phone', vendor_extension = '$extension', vendor_email = '$email', vendor_website = '$website', vendor_hours = '$hours', vendor_sla = '$sla', vendor_code = '$code', vendor_account_number = '$account_number', vendor_notes = '$notes', vendor_client_id = $client_id");
 
     $vendor_id = mysqli_insert_id($mysqli);
 
@@ -76,7 +76,7 @@ if (isset($_POST['edit_vendor'])) {
     $row = mysqli_fetch_array($sql_vendor);
     $client_id = intval($row['vendor_client_id']);
 
-    mysqli_query($mysqli,"UPDATE vendors SET vendor_name = '$name', vendor_description = '$description', vendor_contact_name = '$contact_name', vendor_phone = '$phone', vendor_extension = '$extension', vendor_email = '$email', vendor_website = '$website', vendor_hours = '$hours', vendor_sla = '$sla', vendor_code = '$code',vendor_account_number = '$account_number', vendor_notes = '$notes', vendor_template_id = $vendor_template_id WHERE vendor_id = $vendor_id");
+    mysqli_query($mysqli,"UPDATE vendors SET vendor_name = '$name', vendor_description = '$description', vendor_contact_name = '$contact_name', vendor_phone_country_code = '$phone_country_code', vendor_phone = '$phone', vendor_extension = '$extension', vendor_email = '$email', vendor_website = '$website', vendor_hours = '$hours', vendor_sla = '$sla', vendor_code = '$code',vendor_account_number = '$account_number', vendor_notes = '$notes', vendor_template_id = $vendor_template_id WHERE vendor_id = $vendor_id");
 
     // Logging
     logAction("Vendor", "Edit", "$session_name edited vendor $name", $client_id, $vendor_id);
@@ -142,12 +142,6 @@ if (isset($_GET['delete_vendor'])) {
     }
 
     mysqli_query($mysqli,"DELETE FROM vendors WHERE vendor_id = $vendor_id");
-
-    // Remove Relations
-    mysqli_query($mysqli,"DELETE FROM vendor_files WHERE vendor_id = $vendor_id");
-    mysqli_query($mysqli,"DELETE FROM vendor_documents WHERE vendor_id = $vendor_id");
-    mysqli_query($mysqli,"DELETE FROM vendor_logins WHERE vendor_id = $vendor_id");
-    mysqli_query($mysqli,"DELETE FROM service_vendors WHERE vendor_id = $vendor_id");
 
     //Logging
     mysqli_query($mysqli,"INSERT INTO logs SET log_type = 'Vendor', log_action = 'Delete', log_description = '$session_name deleted vendor $vendor_name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id");
@@ -262,12 +256,6 @@ if (isset($_POST['bulk_delete_vendors'])) {
             }
 
             mysqli_query($mysqli, "DELETE FROM vendors WHERE vendor_id = $vendor_id AND vendor_client_id = $client_id");
-
-            // Remove Relations
-            mysqli_query($mysqli,"DELETE FROM vendor_files WHERE vendor_id = $vendor_id");
-            mysqli_query($mysqli,"DELETE FROM vendor_documents WHERE vendor_id = $vendor_id");
-            mysqli_query($mysqli,"DELETE FROM vendor_logins WHERE vendor_id = $vendor_id");
-            mysqli_query($mysqli,"DELETE FROM service_vendors WHERE vendor_id = $vendor_id");
 
             // Logging
             logAction("Vendor", "Delete", "$session_name deleted vendor $vendor_name", $client_id);

@@ -39,6 +39,7 @@ header("X-Frame-Options: DENY");
     <link href='plugins/daterangepicker/daterangepicker.css' rel='stylesheet' />
     <link href="plugins/toastr/toastr.min.css" rel="stylesheet">
     <link href="plugins/DataTables/datatables.min.css" rel="stylesheet">
+    <link href="plugins/intl-tel-input/css/intlTelInput.min.css" rel="stylesheet">
     <!-- CSS to allow regular button to show as block button in mobile response view using the class btn-responsive -->
     <link href="css/itflow_custom.css" rel="stylesheet">
 

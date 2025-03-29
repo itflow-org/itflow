@@ -171,13 +171,14 @@ $page_title = $row['document_name'];
                     data-ajax-url="ajax/ajax_document_edit.php"
                     data-ajax-id="<?php echo $document_id; ?>"
                     >
-                    <i class="fas fa-fw fa-edit mr-2"></i>Edit
+                    <i class="fas fa-fw fa-edit"></i>
                 </button>
                 <button type="button" class="btn btn-secondary mr-2" data-toggle="modal" data-target="#shareModal"
                     onclick="populateShareModal(<?php echo "$client_id, 'Document', $document_id"; ?>)">
-                    <i class="fas fa-fw fa-share mr-2"></i>Share
+                    <i class="fas fa-fw fa-share"></i>
                 </button>
-                <button type="button" class="btn btn-secondary" onclick="window.print();"><i class="fas fa-fw fa-print mr-2"></i>Print</button>
+                <a class="btn btn-success mr-2" href="post.php?export_document=<?php echo $document_id; ?>"><i class='fas fa-fw fa-file-pdf'></i></a>
+                <button type="button" class="btn btn-secondary" onclick="window.print();"><i class="fas fa-fw fa-print"></i></button>
             </div>
         </div>
         <div class="card card-body bg-light">

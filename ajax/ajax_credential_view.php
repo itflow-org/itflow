@@ -2,26 +2,26 @@
 
 require_once '../includes/ajax_header.php';
 
-$login_id = intval($_GET['id']);
+$credential_id = intval($_GET['id']);
 
-$sql = mysqli_query($mysqli, "SELECT * FROM logins WHERE login_id = $login_id LIMIT 1");
+$sql = mysqli_query($mysqli, "SELECT * FROM credentials WHERE credential_id = $credential_id LIMIT 1");
                      
 $row = mysqli_fetch_array($sql);
-$login_name = nullable_htmlentities($row['login_name']);
-$login_description = nullable_htmlentities($row['login_description']);
-$login_uri = nullable_htmlentities($row['login_uri']);
-$login_uri_2 = nullable_htmlentities($row['login_uri_2']);
-$login_username = nullable_htmlentities(decryptLoginEntry($row['login_username']));
-$login_password = nullable_htmlentities(decryptLoginEntry($row['login_password']));
-$login_otp_secret = nullable_htmlentities($row['login_otp_secret']);
-$login_id_with_secret = '"' . $row['login_id'] . '","' . $row['login_otp_secret'] . '"';
-if (empty($login_otp_secret)) {
+$credential_name = nullable_htmlentities($row['credential_name']);
+$credential_description = nullable_htmlentities($row['credential_description']);
+$credential_uri = nullable_htmlentities($row['credential_uri']);
+$credential_uri_2 = nullable_htmlentities($row['credential_uri_2']);
+$credential_username = nullable_htmlentities(decryptLoginEntry($row['credential_username']));
+$credential_password = nullable_htmlentities(decryptLoginEntry($row['credential_password']));
+$credential_otp_secret = nullable_htmlentities($row['credential_otp_secret']);
+$credential_id_with_secret = '"' . $row['credential_id'] . '","' . $row['credential_otp_secret'] . '"';
+if (empty($credential_otp_secret)) {
     $otp_display = "-";
 } else {
-    $otp_display = "<span onmouseenter='showOTPViaLoginID($login_id)'><i class='far fa-clock'></i> <span id='otp_$login_id'><i>Hover..</i></span></span>";
+    $otp_display = "<span onmouseenter='showOTPViaCredentialID($credential_id)'><i class='far fa-clock'></i> <span id='otp_$credential_id'><i>Hover..</i></span></span>";
 }
-$login_note = nullable_htmlentities($row['login_note']);
-$login_created_at = nullable_htmlentities($row['login_created_at']);
+$credential_note = nullable_htmlentities($row['credential_note']);
+$credential_created_at = nullable_htmlentities($row['credential_created_at']);
 
 // Generate the HTML form content using output buffering.
 ob_start();

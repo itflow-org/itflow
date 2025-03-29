@@ -1,5 +1,5 @@
 document.getElementById('rewordButton').addEventListener('click', function() {
-    var textInput = document.getElementById('textInput');
+    var textInput = this.closest('form').querySelector('textarea');
     var ticketDescription = document.getElementById('ticketDescription');
     var rewordButton = document.getElementById('rewordButton');
     var undoButton = document.getElementById('undoButton');

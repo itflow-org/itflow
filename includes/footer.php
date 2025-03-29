@@ -33,7 +33,7 @@ if (str_contains(basename($_SERVER["PHP_SELF"]), "admin_")) { ?>
 <script src="plugins/clipboardjs/clipboard.min.js"></script>
 <script src="js/keepalive.js"></script>
 <script src="plugins/DataTables/datatables.min.js"></script>
-
+<script src="plugins/intl-tel-input/js/intlTelInput.min.js"></script>
 
 <!-- AdminLTE App -->
 <script src="plugins/adminlte/js/adminlte.min.js"></script>

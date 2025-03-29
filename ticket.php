@@ -121,9 +121,11 @@ if (isset($_GET['ticket_id'])) {
         $contact_name = nullable_htmlentities($row['contact_name']);
         $contact_title = nullable_htmlentities($row['contact_title']);
         $contact_email = nullable_htmlentities($row['contact_email']);
-        $contact_phone = formatPhoneNumber($row['contact_phone']);
+        $contact_phone_country_code = nullable_htmlentities($row['contact_phone_country_code']);
+        $contact_phone = nullable_htmlentities(formatPhoneNumber($row['contact_phone'], $contact_phone_country_code));
         $contact_extension = nullable_htmlentities($row['contact_extension']);
-        $contact_mobile = formatPhoneNumber($row['contact_mobile']);
+        $contact_mobile_country_code = nullable_htmlentities($row['contact_mobile_country_code']);
+        $contact_mobile = nullable_htmlentities(formatPhoneNumber($row['contact_mobile'], $contact_mobile_country_code));
 
         $asset_id = intval($row['asset_id']);
         $asset_ip = nullable_htmlentities($row['interface_ip']);
@@ -135,6 +137,7 @@ if (isset($_GET['ticket_id'])) {
         $asset_serial = nullable_htmlentities($row['asset_serial']);
         $asset_os = nullable_htmlentities($row['asset_os']);
         $asset_warranty_expire = nullable_htmlentities($row['asset_warranty_expire']);
+        $asset_icon = getAssetIcon($asset_type);
 
         $vendor_id = intval($row['ticket_vendor_id']);
         $vendor_name = nullable_htmlentities($row['vendor_name']);
@@ -158,6 +161,11 @@ if (isset($_GET['ticket_id'])) {
         $location_zip = nullable_htmlentities($row['location_zip']);
         $location_phone = formatPhoneNumber($row['location_phone']);
 
+        $invoice_id = intval($row['ticket_invoice_id']);
+        $invoice_prefix = nullable_htmlentities($row['invoice_prefix']);
+        $invoice_number = intval($row['invoice_number']);
+        $invoice_created_at = nullable_htmlentities($row['invoice_created_at']);
+
         $project_id = intval($row['project_id']);
         $project_prefix = nullable_htmlentities($row['project_prefix']);
         $project_number = intval($row['project_number']);
@@ -171,12 +179,7 @@ if (isset($_GET['ticket_id'])) {
             $row = mysqli_fetch_array($sql_project_manager);
             $project_manager_name = nullable_htmlentities($row['user_name']);
         }
-
-        $invoice_id = intval($row['ticket_invoice_id']);
-        $invoice_prefix = nullable_htmlentities($row['invoice_prefix']);
-        $invoice_number = intval($row['invoice_number']);
-        $invoice_created_at = nullable_htmlentities($row['invoice_created_at']);
-
+        
         if ($contact_id) {
             //Get Contact Ticket Stats
             $ticket_related_open = mysqli_query($mysqli, "SELECT COUNT(ticket_id) AS ticket_related_open FROM tickets WHERE ticket_status != 'Closed' AND ticket_contact_id = $contact_id ");
@@ -278,9 +281,8 @@ if (isset($_GET['ticket_id'])) {
         // Get Technicians to assign the ticket to
         $sql_assign_to_select = mysqli_query(
             $mysqli,
-            "SELECT users.user_id, user_name FROM users
-            LEFT JOIN user_settings on users.user_id = user_settings.user_id
-            WHERE user_role > 1
+            "SELECT user_id, user_name FROM users
+            WHERE user_role_id > 1
             AND user_type = 1
             AND user_status = 1
             AND user_archived_at IS NULL
@@ -291,6 +293,12 @@ if (isset($_GET['ticket_id'])) {
         // Get Watchers
         $sql_ticket_watchers = mysqli_query($mysqli, "SELECT * FROM ticket_watchers WHERE watcher_ticket_id = $ticket_id ORDER BY watcher_email DESC");
 
+        // Get Additional Assets
+        $sql_additional_assets = mysqli_query($mysqli, "SELECT * FROM assets, ticket_assets
+            WHERE assets.asset_id = ticket_assets.asset_id
+            AND ticket_id = $ticket_id
+            AND assets.asset_id != $asset_id"
+        );
 
         // Get Ticket Attachments
         $sql_ticket_attachments = mysqli_query(
@@ -338,19 +346,19 @@ if (isset($_GET['ticket_id'])) {
         <!-- Breadcrumbs-->
         <ol class="breadcrumb d-print-none">
             <?php if (isset($_GET['client_id'])) { ?>
-            <li class="breadcrumb-item">
-                <a href="client_overview.php?client_id=<?php echo $client_id; ?>"><?php echo $client_name; ?></a>
-            </li>
-            <li class="breadcrumb-item">
-                <a href="tickets.php?client_id=<?php echo $client_id; ?>">Tickets</a>
-            </li>
+                <li class="breadcrumb-item">
+                    <a href="client_overview.php?client_id=<?php echo $client_id; ?>"><?php echo $client_name; ?></a>
+                </li>
+                <li class="breadcrumb-item">
+                    <a href="tickets.php?client_id=<?php echo $client_id; ?>">Tickets</a>
+                </li>
             <?php } else { ?>
-            <li class="breadcrumb-item">
-                <a href="tickets.php">Tickets</a>
-            </li>
-            <li class="breadcrumb-item">
-                <a href="tickets.php?client_id=<?php echo $client_id; ?>"><?php echo $client_name; ?></a>
-            </li>
+                <li class="breadcrumb-item">
+                    <a href="tickets.php">Tickets</a>
+                </li>
+                <li class="breadcrumb-item">
+                    <a href="tickets.php?client_id=<?php echo $client_id; ?>"><?php echo $client_name; ?></a>
+                </li>
             <?php } ?>
             <li class="breadcrumb-item active"><i class="fas fa-life-ring mr-1"></i><?php echo "$ticket_prefix$ticket_number";?></li>
         </ol>
@@ -371,90 +379,90 @@ if (isset($_GET['ticket_id'])) {
 
                 <?php if (lookupUserPermission("module_support") >= 2) { ?>
                     <div class="card-tools d-print-none">
-                    <div class="btn-toolbar">
+                        <div class="btn-toolbar">
 
-                        <?php if ($config_ai_enable == 1) { ?>
-                        <button class="btn btn-info btn-sm ml-3" data-toggle="modal" data-target="#summaryModal">
-                            <i class="fas fa-fw fa-lightbulb mr-2"></i>Summary
-                        </button>
-                        <?php } ?>
-
-                        <?php if ($config_module_enable_accounting && $ticket_billable == 1 && empty($invoice_id) && lookupUserPermission("module_sales") >= 2) { ?>
-                            <a href="#" class="btn btn-light btn-sm ml-3" href="#" data-toggle="modal" data-target="#addInvoiceFromTicketModal">
-                                <i class="fas fa-fw fa-file-invoice mr-2"></i>Invoice
-                            </a>
-                        <?php }
-
-                        if (empty($ticket_closed_at)) { ?>
-
-                            <?php if (!empty($ticket_resolved_at)) { ?>
-                                <a href="post.php?reopen_ticket=<?php echo $ticket_id; ?>" class="btn btn-light btn-sm ml-3">
-                                    <i class="fas fa-fw fa-redo mr-2"></i>Reopen
-                                </a>
-                            <?php } ?>
-
-                            <?php if (empty($ticket_resolved_at) && $task_count == $completed_task_count) { ?>
-                                <a href="post.php?resolve_ticket=<?php echo $ticket_id; ?>&csrf_token=<?php echo $_SESSION['csrf_token'] ?>" class="btn btn-dark btn-sm confirm-link ml-3" id="ticket_close">
-                                    <i class="fas fa-fw fa-check mr-2"></i>Resolve
-                                </a>
-                            <?php } ?>
-
-                            <?php if (!empty($ticket_resolved_at) && $task_count == $completed_task_count) { ?>
-                                <a href="post.php?close_ticket=<?php echo $ticket_id; ?>&csrf_token=<?php echo $_SESSION['csrf_token'] ?>" class="btn btn-dark btn-sm confirm-link ml-3" id="ticket_close">
-                                    <i class="fas fa-fw fa-gavel mr-2"></i>Close
-                                </a>
-                            <?php } ?>
-
-                            <div class="dropdown dropleft text-center ml-3">
-                                <button class="btn btn-secondary btn-sm" type="button" id="dropdownMenuButton" data-toggle="dropdown">
-                                    <i class="fas fa-fw fa-ellipsis-v"></i>
+                            <?php if ($config_ai_enable == 1) { ?>
+                                <button class="btn btn-info btn-sm ml-3" data-toggle="modal" data-target="#summaryModal">
+                                    <i class="fas fa-fw fa-lightbulb mr-2"></i>Summary
                                 </button>
-                                <div class="dropdown-menu">
-                                    <a class="dropdown-item" href="#"
-                                        data-toggle = "ajax-modal"
-                                        data-modal-size = "lg"
-                                        data-ajax-url = "ajax/ajax_ticket_edit.php"
-                                        data-ajax-id = "<?php echo $ticket_id; ?>"
+                            <?php } ?>
+
+                            <?php if ($config_module_enable_accounting && $ticket_billable == 1 && empty($invoice_id) && lookupUserPermission("module_sales") >= 2) { ?>
+                                <a href="#" class="btn btn-light btn-sm ml-3" href="#" data-toggle="modal" data-target="#addInvoiceFromTicketModal">
+                                    <i class="fas fa-fw fa-file-invoice mr-2"></i>Invoice
+                                </a>
+                            <?php }
+
+                            if (empty($ticket_closed_at)) { ?>
+
+                                <?php if (empty($ticket_closed_at) && !empty($ticket_resolved_at)) { ?>
+                                    <a href="post.php?reopen_ticket=<?php echo $ticket_id; ?>" class="btn btn-light btn-sm ml-3">
+                                        <i class="fas fa-fw fa-redo mr-2"></i>Reopen
+                                    </a>
+                                <?php } ?>
+
+                                <?php if (empty($ticket_resolved_at) && $task_count == $completed_task_count) { ?>
+                                    <a href="post.php?resolve_ticket=<?php echo $ticket_id; ?>&csrf_token=<?php echo $_SESSION['csrf_token'] ?>" class="btn btn-dark btn-sm confirm-link ml-3" id="ticket_close">
+                                        <i class="fas fa-fw fa-check mr-2"></i>Resolve
+                                    </a>
+                                <?php } ?>
+
+                                <?php if (!empty($ticket_resolved_at) && $task_count == $completed_task_count) { ?>
+                                    <a href="post.php?close_ticket=<?php echo $ticket_id; ?>&csrf_token=<?php echo $_SESSION['csrf_token'] ?>" class="btn btn-dark btn-sm confirm-link ml-3" id="ticket_close">
+                                        <i class="fas fa-fw fa-gavel mr-2"></i>Close
+                                    </a>
+                                <?php } ?>
+
+                                <div class="dropdown dropleft text-center ml-3">
+                                    <button class="btn btn-secondary btn-sm" type="button" id="dropdownMenuButton" data-toggle="dropdown">
+                                        <i class="fas fa-fw fa-ellipsis-v"></i>
+                                    </button>
+                                    <div class="dropdown-menu">
+                                        <a class="dropdown-item" href="#"
+                                           data-toggle = "ajax-modal"
+                                           data-modal-size = "lg"
+                                           data-ajax-url = "ajax/ajax_ticket_edit.php"
+                                           data-ajax-id = "<?php echo $ticket_id; ?>"
                                         >
-                                        <i class="fas fa-fw fa-edit mr-2"></i>Edit
-                                    </a>
-                                    <a class="dropdown-item" href="#" data-toggle="modal" data-target="#mergeTicketModal<?php echo $ticket_id; ?>">
-                                        <i class="fas fa-fw fa-clone mr-2"></i>Merge
-                                    </a>
-                                    <?php if (empty($ticket_closed_at)) { ?>
-                                        <div class="dropdown-divider"></div>
-                                        <a class="dropdown-item"
-                                            data-toggle = "ajax-modal"
-                                            data-ajax-url = "ajax/ajax_ticket_contact.php"
-                                            data-ajax-id = "<?php echo $ticket_id; ?>"
+                                            <i class="fas fa-fw fa-edit mr-2"></i>Edit
+                                        </a>
+                                        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#mergeTicketModal<?php echo $ticket_id; ?>">
+                                            <i class="fas fa-fw fa-clone mr-2"></i>Merge
+                                        </a>
+                                        <?php if (empty($ticket_closed_at)) { ?>
+                                            <div class="dropdown-divider"></div>
+                                            <a class="dropdown-item"
+                                               data-toggle = "ajax-modal"
+                                               data-ajax-url = "ajax/ajax_ticket_contact.php"
+                                               data-ajax-id = "<?php echo $ticket_id; ?>"
                                             >
-                                            <i class="fa fa-fw fa-user mr-2"></i>Add Contact
-                                        </a>
-                                        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editTicketAssetModal<?php echo $ticket_id; ?>">
-                                            <i class="fas fa-fw fa-desktop mr-2"></i>Add Asset
-                                        </a>
-                                        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editTicketVendorModal<?php echo $ticket_id; ?>">
-                                            <i class="fas fa-fw fa-building mr-2"></i>Add Vendor
-                                        </a>
-                                        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addTicketWatcherModal">
-                                            <i class="fas fa-fw fa-users mr-2"></i>Add Watcher
-                                        </a>
-                                    <?php } ?>
-                                    <div class="dropdown-divider"></div>
-                                    <a class="dropdown-item" href="#" data-toggle="modal" id="clientChangeTicketModalLoad" data-target="#clientChangeTicketModal">
-                                        <i class="fas fa-fw fa-people-carry mr-2"></i>Change Client
-                                    </a>
-                                    <?php if (lookupUserPermission("module_support") == 3) { ?>
+                                                <i class="fa fa-fw fa-user mr-2"></i>Add Contact
+                                            </a>
+                                            <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editTicketAssetModal<?php echo $ticket_id; ?>">
+                                                <i class="fas fa-fw fa-desktop mr-2"></i>Add Asset
+                                            </a>
+                                            <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editTicketVendorModal<?php echo $ticket_id; ?>">
+                                                <i class="fas fa-fw fa-building mr-2"></i>Add Vendor
+                                            </a>
+                                            <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addTicketWatcherModal">
+                                                <i class="fas fa-fw fa-users mr-2"></i>Add Watcher
+                                            </a>
+                                        <?php } ?>
                                         <div class="dropdown-divider"></div>
-                                        <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_ticket=<?php echo $ticket_id; ?>&csrf_token=<?php echo $_SESSION['csrf_token'] ?>">
-                                            <i class="fas fa-fw fa-trash mr-2"></i>Delete
+                                        <a class="dropdown-item" href="#" data-toggle="modal" id="clientChangeTicketModalLoad" data-target="#clientChangeTicketModal">
+                                            <i class="fas fa-fw fa-people-carry mr-2"></i>Change Client
                                         </a>
-                                    <?php } ?>
+                                        <?php if (lookupUserPermission("module_support") == 3) { ?>
+                                            <div class="dropdown-divider"></div>
+                                            <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_ticket=<?php echo $ticket_id; ?>&csrf_token=<?php echo $_SESSION['csrf_token'] ?>">
+                                                <i class="fas fa-fw fa-trash mr-2"></i>Delete
+                                            </a>
+                                        <?php } ?>
+                                    </div>
                                 </div>
-                            </div>
-                        <?php } ?>
+                            <?php } ?>
+                        </div>
                     </div>
-                </div>
                 <?php } ?>
 
             </div> <!-- Card Header -->
@@ -476,7 +484,7 @@ if (isset($_GET['ticket_id'])) {
 
                             $ticket_closed_by_display = 'User';
                             if (!empty($ticket_closed_by)) {
-                                $sql_closed_by = mysqli_query($mysqli, "SELECT * FROM tickets, users WHERE ticket_closed_by = user_id");
+                                $sql_closed_by = mysqli_query($mysqli, "SELECT user_name FROM users WHERE user_id = $ticket_closed_by");
                                 $row = mysqli_fetch_array($sql_closed_by);
                                 $ticket_closed_by_display = nullable_htmlentities($row['user_name']);
                             }
@@ -498,9 +506,9 @@ if (isset($_GET['ticket_id'])) {
                         <?php } else { ?>
                             <div class="mt-1">
                                 <a href="#"
-                                    data-toggle = "ajax-modal"
-                                    data-ajax-url = "ajax/ajax_ticket_assign.php"
-                                    data-ajax-id = "<?php echo $ticket_id; ?>">
+                                   data-toggle = "ajax-modal"
+                                   data-ajax-url = "ajax/ajax_ticket_assign.php"
+                                   data-ajax-id = "<?php echo $ticket_id; ?>">
                                     <i class="fas fa-fw fa-user mr-2 text-secondary"></i><?php echo $ticket_assigned_to_display; ?>
                                 </a>
                             </div>
@@ -513,11 +521,11 @@ if (isset($_GET['ticket_id'])) {
                             <i class="fa fa-fw fa-thermometer-half text-secondary mr-2"></i>
                             <a href="#"
                                 <?php if (lookupUserPermission("module_support") >= 2 && empty($ticket_closed_at)) { ?>
-                                data-toggle = "ajax-modal"
-                                data-ajax-url = "ajax/ajax_ticket_priority.php"
-                                data-ajax-id = "<?php echo $ticket_id; ?>"
+                                    data-toggle = "ajax-modal"
+                                    data-ajax-url = "ajax/ajax_ticket_priority.php"
+                                    data-ajax-id = "<?php echo $ticket_id; ?>"
                                 <?php } ?>
-                                >
+                            >
                                 <?php echo $ticket_priority_display; ?>
                             </a>
                         </div>
@@ -539,10 +547,10 @@ if (isset($_GET['ticket_id'])) {
                                 <div class="mt-1">
                                     <i class="fa fa-fw fa-dollar-sign text-secondary mr-2"></i>Ticket is
                                     <a href="#"
-                                        data-toggle = "ajax-modal"
-                                        data-ajax-url = "ajax/ajax_ticket_billable.php"
-                                        data-ajax-id = "<?php echo $ticket_id; ?>"
-                                        >
+                                       data-toggle = "ajax-modal"
+                                       data-ajax-url = "ajax/ajax_ticket_billable.php"
+                                       data-ajax-id = "<?php echo $ticket_id; ?>"
+                                    >
                                         <?php
                                         if ($ticket_billable == 1) {
                                             echo "<span class='text-bold text-dark'>Billable</span>";
@@ -651,7 +659,11 @@ if (isset($_GET['ticket_id'])) {
                             </div>
 
                             <div class="form-group">
-                                <textarea class="form-control tinymceTicket<?php if ($config_ai_enable) { echo "AI"; } ?>" id="textInput" name="ticket_reply" placeholder="Type a response"></textarea>
+                                <textarea 
+                                    class="form-control tinymceTicket<?php if ($config_ai_enable) { echo "AI"; } ?>" name="ticket_reply"
+                                    placeholder="Type a response">
+                                    <?php echo nl2br(getFieldById('user_settings',$session_user_id,'user_config_signature','html')); ?>
+                                </textarea>
                             </div>
 
                             <div class="form-row">
@@ -780,31 +792,40 @@ if (isset($_GET['ticket_id'])) {
 
                                 <!-- Right-side content -->
                                 <div class="text-right d-flex flex-column align-items-end">
-                                    <?php if ($ticket_reply_type !== "Client" && empty($ticket_closed_at)) { ?>
-                                        <div class="card-tools d-print-none mb-2">
-                                            <div class="dropdown dropleft">
-                                                <?php if (lookupUserPermission("module_support") >= 2) { ?>
-                                                    <button class="btn btn-sm btn-tool" type="button" id="dropdownMenuButton" data-toggle="dropdown">
-                                                        <i class="fas fa-fw fa-ellipsis-v"></i>
-                                                    </button>
-                                                    <div class="dropdown-menu">
-                                                        <a class="dropdown-item"
-                                                            data-toggle = "ajax-modal"
-                                                            data-modal-size = "lg"
-                                                            data-ajax-url = "ajax/ajax_ticket_reply_edit.php"
-                                                            data-ajax-id = "<?php echo $ticket_reply_id; ?>"
-                                                            >
-                                                            <i class="fas fa-fw fa-edit text-secondary mr-2"></i>Edit
-                                                        </a>
-                                                        <div class="dropdown-divider"></div>
-                                                        <a class="dropdown-item text-danger confirm-link" href="post.php?archive_ticket_reply=<?php echo $ticket_reply_id; ?>">
-                                                            <i class="fas fa-fw fa-archive mr-2"></i>Archive
-                                                        </a>
-                                                    </div>
-                                                <?php } ?>
-                                            </div>
+                                    <div class="card-tools d-print-none mb-2">
+                                        <div class="dropdown dropleft">
+                                            <?php if (lookupUserPermission("module_support") >= 2) { ?>
+                                                <button class="btn btn-sm btn-tool" type="button" id="dropdownMenuButton" data-toggle="dropdown">
+                                                    <i class="fas fa-fw fa-ellipsis-v"></i>
+                                                </button>
+                                                <div class="dropdown-menu">
+                                                    <a href="#" class="dropdown-item"
+                                                       data-toggle = "ajax-modal"
+                                                       data-modal-size = "lg"
+                                                       data-ajax-url = "ajax/ajax_ticket_reply_redact.php"
+                                                       data-ajax-id = "<?php echo $ticket_reply_id; ?>"
+                                                    >
+                                                        <i class="fas fa-fw fa-pen text-danger mr-2"></i>Redact
+                                                    </a>
+                                                    <?php if ($ticket_reply_type !== "Client" && empty($ticket_closed_at)) { ?>
+                                                    <div class="dropdown-divider"></div>
+                                                    <a href="#" class="dropdown-item"
+                                                       data-toggle = "ajax-modal"
+                                                       data-modal-size = "lg"
+                                                       data-ajax-url = "ajax/ajax_ticket_reply_edit.php"
+                                                       data-ajax-id = "<?php echo $ticket_reply_id; ?>"
+                                                    >
+                                                        <i class="fas fa-fw fa-edit text-secondary mr-2"></i>Edit
+                                                    </a>                                                    
+                                                    <div class="dropdown-divider"></div>
+                                                    <a class="dropdown-item text-danger confirm-link" href="post.php?archive_ticket_reply=<?php echo $ticket_reply_id; ?>">
+                                                        <i class="fas fa-fw fa-archive mr-2"></i>Archive
+                                                    </a>
+                                                    <?php } ?>
+                                                </div>
+                                            <?php } ?>
                                         </div>
-                                    <?php } ?>
+                                    </div>
 
                                     <small class="text-muted">
                                         <div title="Created: <?php echo $ticket_reply_created_at; if ($ticket_reply_updated_at) { echo '. Edited: ' . $ticket_reply_updated_at; } ?>">
@@ -846,9 +867,9 @@ if (isset($_GET['ticket_id'])) {
                         <h5 class="text-secondary">Contact</h5>
                         <div>
                             <i class="fa fa-fw fa-user text-secondary mr-2"></i><a href="#" data-toggle="ajax-modal"
-                                data-modal-size="lg"
-                                data-ajax-url="ajax/ajax_contact_details.php"
-                                data-ajax-id="<?php echo $contact_id; ?>"><strong><?php echo $contact_name; ?></strong>
+                                                                                   data-modal-size="lg"
+                                                                                   data-ajax-url="ajax/ajax_contact_details.php"
+                                                                                   data-ajax-id="<?php echo $contact_id; ?>"><strong><?php echo $contact_name; ?></strong>
                             </a>
                         </div>
 
@@ -880,21 +901,21 @@ if (isset($_GET['ticket_id'])) {
 
                     </div>
                 <?php } else { ?>
-                <div class="card card-body mb-3">
-                    <h5 class="text-secondary">Contact</h5>
-                    <div>
-                        <i class="fa fa-fw fa-user text-secondary mr-2"></i>
+                    <div class="card card-body mb-3">
+                        <h5 class="text-secondary">Contact</h5>
+                        <div>
+                            <i class="fa fa-fw fa-user text-secondary mr-2"></i>
                             <a href="#"
                                 <?php if (lookupUserPermission("module_support") >= 2 && empty($ticket_closed_at)) { ?>
-                                data-toggle = "ajax-modal"
-                                data-ajax-url = "ajax/ajax_ticket_contact.php"
-                                data-ajax-id = "<?php echo $ticket_id; ?>"
+                                    data-toggle = "ajax-modal"
+                                    data-ajax-url = "ajax/ajax_ticket_contact.php"
+                                    data-ajax-id = "<?php echo $ticket_id; ?>"
                                 <?php } ?>
                             >
-                            <i>No One</i>
-                        </a>
+                                <i>No One</i>
+                            </a>
+                        </div>
                     </div>
-                </div>
                 <?php } ?>
                 <!-- End contact card -->
 
@@ -903,82 +924,82 @@ if (isset($_GET['ticket_id'])) {
                 <?php if (empty($ticket_resolved_at) || (!empty($ticket_resolved_at) && $task_count > 0)) { ?>
                     <div class="card card-body">
 
-                    <?php if (empty($ticket_resolved_at) && lookupUserPermission("module_support") >= 2) { ?>
-                        <form action="post.php" method="post" autocomplete="off">
-                            <input type="hidden" name="ticket_id" value="<?php echo $ticket_id; ?>">
-                            <div class="form-group">
-                                <div class="input-group input-group-sm">
-                                    <input type="text" class="form-control" name="name" placeholder="Create Task">
-                                    <div class="input-group-append">
-                                        <button type="submit" name="add_task" class="btn btn-secondary">
-                                            <i class="fas fa-check"></i>
-                                        </button>
+                        <?php if (empty($ticket_resolved_at) && lookupUserPermission("module_support") >= 2) { ?>
+                            <form action="post.php" method="post" autocomplete="off">
+                                <input type="hidden" name="ticket_id" value="<?php echo $ticket_id; ?>">
+                                <div class="form-group">
+                                    <div class="input-group input-group-sm">
+                                        <input type="text" class="form-control" name="name" placeholder="Create Task">
+                                        <div class="input-group-append">
+                                            <button type="submit" name="add_task" class="btn btn-secondary">
+                                                <i class="fas fa-check"></i>
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        </form>
-                    <?php } ?>
+                            </form>
+                        <?php } ?>
 
-                    <table class="table table-sm">
-                        <?php
-                        while($row = mysqli_fetch_array($sql_tasks)){
-                            $task_id = intval($row['task_id']);
-                            $task_name = nullable_htmlentities($row['task_name']);
-                            //$task_description = nullable_htmlentities($row['task_description']); // not in db yet
-                            $task_completion_estimate = intval($row['task_completion_estimate']);
-                            $task_completed_at = nullable_htmlentities($row['task_completed_at']);
-                            ?>
-                            <tr data-task-id="<?php echo $task_id; ?>">
-                                <td>
-                                    <?php if ($task_completed_at) { ?>
-                                        <i class="far fa-fw fa-check-square text-primary"></i>
-                                    <?php } elseif (lookupUserPermission("module_support") >= 2) { ?>
-                                        <a href="post.php?complete_task=<?php echo $task_id; ?>">
-                                            <i class="far fa-fw fa-square text-secondary"></i>
-                                        </a>
-                                    <?php } ?>
-                                </td>
-                                <td>
-                                    <a href="#" class="grab-cursor">
-                                        <span class="text-secondary"><?php echo $task_completion_estimate; ?>m</span>
-                                        <span class="text-dark"> - <?php echo $task_name; ?></span>
-                                    </a>
-                                </td>
-                                <td>
-                                    <div class="float-right">
-                                        <?php if (empty($ticket_resolved_at) && lookupUserPermission("module_support") >= 2) { ?>
-                                            <div class="dropdown dropleft text-center">
-                                                <button class="btn btn-link text-secondary btn-sm" type="button" data-toggle="dropdown">
-                                                    <i class="fas fa-fw fa-ellipsis-v"></i>
-                                                </button>
-                                                <div class="dropdown-menu">
-                                                    <a class="dropdown-item" href="#"
-                                                        data-toggle = "ajax-modal"
-                                                        data-ajax-url = "ajax/ajax_ticket_task_edit.php"
-                                                        data-ajax-id = "<?php echo $task_id; ?>"
-                                                        >
-                                                        <i class="fas fa-fw fa-edit mr-2"></i>Edit
-                                                    </a>
-                                                    <?php if ($task_completed_at) { ?>
-                                                        <a class="dropdown-item" href="post.php?undo_complete_task=<?php echo $task_id; ?>">
-                                                            <i class="fas fa-fw fa-arrow-circle-left mr-2"></i>Mark incomplete
-                                                        </a>
-                                                    <?php } ?>
-                                                    <div class="dropdown-divider"></div>
-                                                    <a class="dropdown-item text-danger confirm-link" href="post.php?delete_task=<?php echo $task_id; ?>&csrf_token=<?php echo $_SESSION['csrf_token'] ?>">
-                                                        <i class="fas fa-fw fa-trash-alt mr-2"></i>Delete
-                                                    </a>
-                                                </div>
-                                            </div>
+                        <table class="table table-sm">
+                            <?php
+                            while($row = mysqli_fetch_array($sql_tasks)){
+                                $task_id = intval($row['task_id']);
+                                $task_name = nullable_htmlentities($row['task_name']);
+                                //$task_description = nullable_htmlentities($row['task_description']); // not in db yet
+                                $task_completion_estimate = intval($row['task_completion_estimate']);
+                                $task_completed_at = nullable_htmlentities($row['task_completed_at']);
+                                ?>
+                                <tr data-task-id="<?php echo $task_id; ?>">
+                                    <td>
+                                        <?php if ($task_completed_at) { ?>
+                                            <i class="far fa-fw fa-check-square text-primary"></i>
+                                        <?php } elseif (lookupUserPermission("module_support") >= 2) { ?>
+                                            <a href="post.php?complete_task=<?php echo $task_id; ?>">
+                                                <i class="far fa-fw fa-square text-secondary"></i>
+                                            </a>
                                         <?php } ?>
-                                    </div>
-                                </td>
-                            </tr>
-                        <?php
-                        }
-                        ?>
-                    </table>
-                </div>
+                                    </td>
+                                    <td>
+                                        <a href="#" class="grab-cursor">
+                                            <span class="text-secondary"><?php echo $task_completion_estimate; ?>m</span>
+                                            <span class="text-dark"> - <?php echo $task_name; ?></span>
+                                        </a>
+                                    </td>
+                                    <td>
+                                        <div class="float-right">
+                                            <?php if (empty($ticket_resolved_at) && lookupUserPermission("module_support") >= 2) { ?>
+                                                <div class="dropdown dropleft text-center">
+                                                    <button class="btn btn-link text-secondary btn-sm" type="button" data-toggle="dropdown">
+                                                        <i class="fas fa-fw fa-ellipsis-v"></i>
+                                                    </button>
+                                                    <div class="dropdown-menu">
+                                                        <a class="dropdown-item" href="#"
+                                                           data-toggle = "ajax-modal"
+                                                           data-ajax-url = "ajax/ajax_ticket_task_edit.php"
+                                                           data-ajax-id = "<?php echo $task_id; ?>"
+                                                        >
+                                                            <i class="fas fa-fw fa-edit mr-2"></i>Edit
+                                                        </a>
+                                                        <?php if ($task_completed_at) { ?>
+                                                            <a class="dropdown-item" href="post.php?undo_complete_task=<?php echo $task_id; ?>">
+                                                                <i class="fas fa-fw fa-arrow-circle-left mr-2"></i>Mark incomplete
+                                                            </a>
+                                                        <?php } ?>
+                                                        <div class="dropdown-divider"></div>
+                                                        <a class="dropdown-item text-danger confirm-link" href="post.php?delete_task=<?php echo $task_id; ?>&csrf_token=<?php echo $_SESSION['csrf_token'] ?>">
+                                                            <i class="fas fa-fw fa-trash-alt mr-2"></i>Delete
+                                                        </a>
+                                                    </div>
+                                                </div>
+                                            <?php } ?>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <?php
+                            }
+                            ?>
+                        </table>
+                    </div>
                 <?php } ?>
                 <!-- End Tasks Card -->
 
@@ -1012,16 +1033,36 @@ if (isset($_GET['ticket_id'])) {
                 <!-- Asset card -->
                 <?php if ($asset_id) { ?>
                     <div class="card card-body mb-3">
-                        <h5 class="text-secondary">Asset</h5>
+                        <h5 class="text-secondary">Asset(s)</h5>
                         <div>
                             <a href="#"
                                 data-toggle="ajax-modal"
                                 data-modal-size="lg"
                                 data-ajax-url="ajax/ajax_asset_details.php?<?php echo $client_url; ?>"
                                 data-ajax-id="<?php echo $asset_id; ?>">
-                                <i class="fa fa-fw fa-desktop text-secondary mr-2"></i><strong><?php echo $asset_name; ?></strong>
+                                <i class="fa fa-fw fa-<?php echo $asset_icon; ?> text-secondary mr-2"></i><strong><?php echo $asset_name; ?></strong>
                             </a>
                         </div>
+                        <?php
+                        while ($row = mysqli_fetch_array($sql_additional_assets)) {
+                            $additional_asset_id = intval($row['asset_id']);
+                            $additional_asset_name = nullable_htmlentities($row['asset_name']);
+                            $additional_asset_type = nullable_htmlentities($row['asset_type']);
+                            $additional_asset_icon = getAssetIcon($additional_asset_type);
+                            ?>
+                            <div class="mt-1">
+                                <a href="#"
+                                    data-toggle="ajax-modal"
+                                    data-modal-size="lg"
+                                    data-ajax-url="ajax/ajax_asset_details.php?<?php echo $client_url; ?>"
+                                    data-ajax-id="<?php echo $additional_asset_id; ?>">
+                                    <i class="fa fa-fw fa-<?php echo $additional_asset_icon; ?> text-secondary mr-2"></i><?php echo $additional_asset_name; ?>
+                                </a>
+                            </div>
+                        <?php
+
+                        }
+                        ?>   
                     </div>
                 <?php } // End if asset_id ?>
                 <!-- End Asset card -->
@@ -1115,21 +1156,21 @@ require_once "includes/footer.php";
 
 <!-- Summary Modal -->
 <div class="modal fade" id="summaryModal" tabindex="-1">
-  <div class="modal-dialog modal-lg" role="document">
-    <div class="modal-content bg-dark">
-      <div class="modal-header">
-        <h5 class="modal-title" id="summaryModalTitle">Ticket Summary</h5>
-        <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
-          <span>&times;</span>
-        </button>
-      </div>
-      <div class="modal-body bg-white">
-        <div id="summaryContent" class="text-center">
-          <i class="fas fa-spinner fa-spin"></i> Generating summary...
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content bg-dark">
+            <div class="modal-header">
+                <h5 class="modal-title" id="summaryModalTitle">Ticket Summary</h5>
+                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                    <span>&times;</span>
+                </button>
+            </div>
+            <div class="modal-body bg-white">
+                <div id="summaryContent" class="text-center">
+                    <i class="fas fa-spinner fa-spin"></i> Generating summary...
+                </div>
+            </div>
         </div>
-      </div>
     </div>
-  </div>
 </div>
 
 <script src="js/show_modals.js"></script>
@@ -1145,58 +1186,57 @@ require_once "includes/footer.php";
 <script src="js/pretty_content.js"></script>
 
 <script>
-$('#summaryModal').on('shown.bs.modal', function (e) {
-    // Perform AJAX request to get the summary
-    $.ajax({
-        url: 'post.php?ai_ticket_summary',
-        method: 'POST',
-        data: { ticket_id: <?php echo $ticket_id; ?> },
-        success: function(response) {
-          $('#summaryContent').html(response);
-        },
-        error: function() {
-          $('#summaryContent').html('Error generating summary.');
-        }
+    $('#summaryModal').on('shown.bs.modal', function (e) {
+        // Perform AJAX request to get the summary
+        $.ajax({
+            url: 'post.php?ai_ticket_summary',
+            method: 'POST',
+            data: { ticket_id: <?php echo $ticket_id; ?> },
+            success: function(response) {
+                $('#summaryContent').html(response);
+            },
+            error: function() {
+                $('#summaryContent').html('Error generating summary.');
+            }
+        });
     });
-});
 </script>
 
 
 <script src="plugins/dragula/dragula.min.js"></script>
 <script>
-$(document).ready(function() {
-    var container = $('.table tbody')[0];
+    $(document).ready(function() {
+        var container = $('.table tbody')[0];
 
-    dragula([container])
-        .on('drop', function (el, target, source, sibling) {
-            // Handle the drop event to update the order in the database
-            var rows = $(container).children();
-            var positions = rows.map(function(index, row) {
-                return {
-                    id: $(row).data('taskId'),
-                    order: index
-                };
-            }).get();
+        dragula([container])
+            .on('drop', function (el, target, source, sibling) {
+                // Handle the drop event to update the order in the database
+                var rows = $(container).children();
+                var positions = rows.map(function(index, row) {
+                    return {
+                        id: $(row).data('taskId'),
+                        order: index
+                    };
+                }).get();
 
-            //console.log('New positions:', positions);
+                //console.log('New positions:', positions);
 
-            // Send the new order to the server (example using fetch)
-            $.ajax({
-                url: 'ajax.php',
-                method: 'POST',
-                data: {
-                    update_ticket_tasks_order: true,
-                    ticket_id: <?php echo $ticket_id; ?>,
-                    positions: positions
-                },
-                success: function(data) {
-                    //console.log('Order updated:', data);
-                },
-                error: function(error) {
-                    console.error('Error updating order:', error);
-                }
+                // Send the new order to the server (example using fetch)
+                $.ajax({
+                    url: 'ajax.php',
+                    method: 'POST',
+                    data: {
+                        update_ticket_tasks_order: true,
+                        ticket_id: <?php echo $ticket_id; ?>,
+                        positions: positions
+                    },
+                    success: function(data) {
+                        //console.log('Order updated:', data);
+                    },
+                    error: function(error) {
+                        console.error('Error updating order:', error);
+                    }
+                });
             });
-        });
-});
+    });
 </script>
-

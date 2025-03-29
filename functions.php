@@ -13,8 +13,7 @@ use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 
 // Function to generate both crypto & URL safe random strings
-function randomString($length = 16)
-{
+function randomString($length = 16) {
     // Generate some cryptographically safe random bytes
     //  Generate a little more than requested as we'll lose some later converting
     $random_bytes = random_bytes($length + 5);
@@ -31,8 +30,7 @@ function randomString($length = 16)
 }
 
 // Older keygen function - only used for TOTP currently
-function key32gen()
-{
+function key32gen() {
     $chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
     $chars .= "234567";
     while (1) {
@@ -46,25 +44,23 @@ function key32gen()
     return $key;
 }
 
-function nullable_htmlentities($unsanitizedInput)
-{
+function nullable_htmlentities($unsanitizedInput) {
     //return htmlentities($unsanitizedInput ?? '');
     return htmlspecialchars($unsanitizedInput ?? '', ENT_QUOTES, 'UTF-8');
 }
 
-function initials($str)
-{
-    if (!empty($str)) {
-        $ret = '';
-        foreach (explode(' ', $str) as $word)
-            $ret .= strtoupper($word[0]);
-        $ret = substr($ret, 0, 2);
-        return $ret;
+function initials($string) {
+    if (!empty($string)) {
+        $return = '';
+        foreach (explode(' ', $string) as $word) {
+            $return .= mb_strtoupper($word[0], 'UTF-8'); // Use mb_strtoupper for UTF-8 support
+        }
+        $return = substr($return, 0, 2);
+        return $return;
     }
 }
 
-function removeDirectory($path)
-{
+function removeDirectory($path) {
     if (!file_exists($path)) {
         return;
     }
@@ -76,13 +72,11 @@ function removeDirectory($path)
     rmdir($path);
 }
 
-function getUserAgent()
-{
+function getUserAgent() {
     return $_SERVER['HTTP_USER_AGENT'];
 }
 
-function getIP()
-{
+function getIP() {
     if (defined("CONST_GET_IP_METHOD")) {
         if (CONST_GET_IP_METHOD == "HTTP_X_FORWARDED_FOR") {
             $ip = getenv('HTTP_X_FORWARDED_FOR');
@@ -100,8 +94,7 @@ function getIP()
     return $ip;
 }
 
-function getWebBrowser($user_browser)
-{
+function getWebBrowser($user_browser) {
     $browser        =   "-";
     $browser_array  =   array(
         '/msie/i'       =>  "<i class='fab fa-fw fa-internet-explorer text-secondary'></i> Internet Explorer",
@@ -120,8 +113,7 @@ function getWebBrowser($user_browser)
     return $browser;
 }
 
-function getOS($user_os)
-{
+function getOS($user_os) {
     $os_platform    =   "-";
     $os_array       =   array(
         '/windows/i'            =>  "<i class='fab fa-fw fa-windows text-secondary'></i> Windows",
@@ -141,8 +133,7 @@ function getOS($user_os)
     return $os_platform;
 }
 
-function getDevice()
-{
+function getDevice() {
     $tablet_browser = 0;
     $mobile_browser = 0;
     if (preg_match('/(tablet|ipad|playbook)|(android(?!.*(mobi|opera mini)))/i', strtolower($_SERVER['HTTP_USER_AGENT']))) {
@@ -189,8 +180,7 @@ function getDevice()
     }
 }
 
-function truncate($text, $chars)
-{
+function truncate($text, $chars) {
     if (strlen($text) <= $chars) {
         return $text;
     }
@@ -203,45 +193,147 @@ function truncate($text, $chars)
     return $text . "...";
 }
 
-function formatPhoneNumber($phoneNumber)
-{
-    global $mysqli;
+function formatPhoneNumber($phoneNumber, $country_code = '', $show_country_code = false) {
 
-    // Get Phone Mask Option
-    $phone_mask = mysqli_fetch_array(mysqli_query($mysqli, "SELECT config_phone_mask FROM settings WHERE company_id = 1"))[0];
+    // Remove all non-digit characters
+    $digits = preg_replace('/\D/', '', $phoneNumber);
+    $formatted = '';
 
-    if ($phone_mask == 0) {
-        return $phoneNumber;
+    switch ($country_code) {
+        case '1': // USA/Canada — (123) 456-7890
+            if (strlen($digits) === 10) {
+                $formatted = '(' . substr($digits, 0, 3) . ') ' . substr($digits, 3, 3) . '-' . substr($digits, 6);
+            }
+            break;
+
+        case '44': // UK — 07123 456 789
+            if ($digits[0] === '0') $digits = substr($digits, 1);
+            if (strlen($digits) === 10) {
+                $formatted = '0' . substr($digits, 0, 4) . ' ' . substr($digits, 4, 3) . ' ' . substr($digits, 7);
+            }
+            break;
+
+        case '61': // Australia — 0412 345 678
+            if ($digits[0] === '0') $digits = substr($digits, 1);
+            if (strlen($digits) === 9) {
+                $formatted = '0' . substr($digits, 0, 4) . ' ' . substr($digits, 4, 3) . ' ' . substr($digits, 7);
+            }
+            break;
+
+        case '91': // India — 91234 56789
+            if (strlen($digits) === 10) {
+                $formatted = substr($digits, 0, 5) . ' ' . substr($digits, 5);
+            }
+            break;
+
+        case '81': // Japan — 03-1234-5678
+            if ($digits[0] === '0') $digits = substr($digits, 1);
+            if (strlen($digits) >= 9 && strlen($digits) <= 10) {
+                $formatted = '0' . substr($digits, 0, 2) . '-' . substr($digits, 2, 4) . '-' . substr($digits, 6);
+            }
+            break;
+
+        case '49': // Germany — 030 12345678
+            if ($digits[0] === '0') $digits = substr($digits, 1);
+            if (strlen($digits) >= 10) {
+                $formatted = '0' . substr($digits, 0, 3) . ' ' . substr($digits, 3);
+            }
+            break;
+
+        case '33': // France — 01 23 45 67 89
+            if ($digits[0] === '0') $digits = substr($digits, 1);
+            if (strlen($digits) === 9) {
+                $formatted = '0' . implode(' ', str_split($digits, 2));
+            }
+            break;
+
+        case '34': // Spain — 612 345 678
+            if (strlen($digits) === 9) {
+                $formatted = substr($digits, 0, 3) . ' ' . substr($digits, 3, 3) . ' ' . substr($digits, 6);
+            }
+            break;
+
+        case '39': // Italy — 312 345 6789
+            if ($digits[0] === '0') $digits = substr($digits, 1);
+            $formatted = '0' . implode(' ', str_split($digits, 3));
+            break;
+
+        case '55': // Brazil — (11) 91234-5678
+            if (strlen($digits) === 11) {
+                $formatted = '(' . substr($digits, 0, 2) . ') ' . substr($digits, 2, 5) . '-' . substr($digits, 7);
+            }
+            break;
+
+        case '7': // Russia — 8 (912) 345-67-89
+            if ($digits[0] === '8') $digits = substr($digits, 1);
+            if (strlen($digits) === 10) {
+                $formatted = '8 (' . substr($digits, 0, 3) . ') ' . substr($digits, 3, 3) . '-' . substr($digits, 6, 2) . '-' . substr($digits, 8);
+            }
+            break;
+
+        case '86': // China — 138 0013 8000
+            if (strlen($digits) === 11) {
+                $formatted = substr($digits, 0, 3) . ' ' . substr($digits, 3, 4) . ' ' . substr($digits, 7);
+            }
+            break;
+
+        case '82': // South Korea — 010-1234-5678
+            if (strlen($digits) === 11) {
+                $formatted = substr($digits, 0, 3) . '-' . substr($digits, 3, 4) . '-' . substr($digits, 7);
+            }
+            break;
+
+        case '62': // Indonesia — 0812 3456 7890
+            if ($digits[0] !== '0') $digits = '0' . $digits;
+            if (strlen($digits) === 12) {
+                $formatted = substr($digits, 0, 4) . ' ' . substr($digits, 4, 4) . ' ' . substr($digits, 8);
+            }
+            break;
+
+        case '63': // Philippines — 0912 345 6789
+            if (strlen($digits) === 11) {
+                $formatted = substr($digits, 0, 4) . ' ' . substr($digits, 4, 3) . ' ' . substr($digits, 7);
+            }
+            break;
+
+        case '234': // Nigeria — 0801 234 5678
+            if ($digits[0] !== '0') $digits = '0' . $digits;
+            if (strlen($digits) === 11) {
+                $formatted = substr($digits, 0, 4) . ' ' . substr($digits, 4, 3) . ' ' . substr($digits, 7);
+            }
+            break;
+
+        case '27': // South Africa — 082 123 4567
+            if (strlen($digits) >= 9 && strlen($digits) <= 10) {
+                $formatted = substr($digits, 0, 3) . ' ' . substr($digits, 3, 3) . ' ' . substr($digits, 6);
+            }
+            break;
+
+        case '971': // UAE — 050 123 4567
+            if (strlen($digits) === 9) {
+                $formatted = substr($digits, 0, 3) . ' ' . substr($digits, 3, 3) . ' ' . substr($digits, 6);
+            }
+            break;
+
+        default:
+            // If no match, do nothing here and use fallback below
+            break;
     }
 
-
-    $phoneNumber = $phoneNumber ? preg_replace('/[^0-9]/', '', $phoneNumber) : "";
-
-    if (strlen($phoneNumber) > 10) {
-        $countryCode = substr($phoneNumber, 0, strlen($phoneNumber) - 10);
-        $areaCode = substr($phoneNumber, -10, 3);
-        $nextThree = substr($phoneNumber, -7, 3);
-        $lastFour = substr($phoneNumber, -4, 4);
-
-        $phoneNumber = '+' . $countryCode . ' (' . $areaCode . ') ' . $nextThree . '-' . $lastFour;
-    } else if (strlen($phoneNumber) == 10) {
-        $areaCode = substr($phoneNumber, 0, 3);
-        $nextThree = substr($phoneNumber, 3, 3);
-        $lastFour = substr($phoneNumber, 6, 4);
-
-        $phoneNumber = '(' . $areaCode . ') ' . $nextThree . '-' . $lastFour;
-    } else if (strlen($phoneNumber) == 7) {
-        $nextThree = substr($phoneNumber, 0, 3);
-        $lastFour = substr($phoneNumber, 3, 4);
-
-        $phoneNumber = $nextThree . '-' . $lastFour;
+    // Fallback if formatting failed
+    if (!$formatted && strlen($digits) >= 7) {
+        $formatted = substr($digits, 0, 3) . ' ' . substr($digits, 3, 3) . ' ' . substr($digits, 6);
     }
 
-    return $phoneNumber;
+    // Still no formatting? Use raw digits
+    if (!$formatted) {
+        $formatted = $digits ?: $phoneNumber; // Use original input if digits are empty
+    }
+
+    return $show_country_code && $country_code ? "+$country_code $formatted" : $formatted;
 }
 
-function mkdirMissing($dir)
-{
+function mkdirMissing($dir) {
     if (!is_dir($dir)) {
         mkdir($dir);
     }
@@ -249,8 +341,7 @@ function mkdirMissing($dir)
 
 // Called during initial setup
 // Encrypts the master key with the user's password
-function setupFirstUserSpecificKey($user_password, $site_encryption_master_key)
-{
+function setupFirstUserSpecificKey($user_password, $site_encryption_master_key) {
     $iv = randomString();
     $salt = randomString();
 
@@ -268,8 +359,7 @@ function setupFirstUserSpecificKey($user_password, $site_encryption_master_key)
  * New Users: Requires the admin setting up their account have a Specific/Session key configured
  * Password Changes: Will use the current info in the session.
 */
-function encryptUserSpecificKey($user_password)
-{
+function encryptUserSpecificKey($user_password) {
     $iv = randomString();
     $salt = randomString();
 
@@ -334,13 +424,13 @@ function generateUserSessionKey($site_encryption_master_key)
     }
 }
 
-// Decrypts an encrypted password (website/asset login), returns it as a string
-function decryptLoginEntry($login_password_ciphertext)
+// Decrypts an encrypted password (website/asset credentials), returns it as a string
+function decryptCredentialEntry($credential_password_ciphertext)
 {
 
-    // Split the login into IV and Ciphertext
-    $login_iv =  substr($login_password_ciphertext, 0, 16);
-    $login_ciphertext = $salt = substr($login_password_ciphertext, 16);
+    // Split the credential into IV and Ciphertext
+    $credential_iv =  substr($credential_password_ciphertext, 0, 16);
+    $credential_ciphertext = $salt = substr($credential_password_ciphertext, 16);
 
     // Get the user session info.
     $user_encryption_session_ciphertext = $_SESSION['user_encryption_session_ciphertext'];
@@ -350,12 +440,12 @@ function decryptLoginEntry($login_password_ciphertext)
     // Decrypt the session key to get the master key
     $site_encryption_master_key = openssl_decrypt($user_encryption_session_ciphertext, 'aes-128-cbc', $user_encryption_session_key, 0, $user_encryption_session_iv);
 
-    // Decrypt the login password using the master key
-    return openssl_decrypt($login_ciphertext, 'aes-128-cbc', $site_encryption_master_key, 0, $login_iv);
+    // Decrypt the credential password using the master key
+    return openssl_decrypt($credential_ciphertext, 'aes-128-cbc', $site_encryption_master_key, 0, $credential_iv);
 }
 
-// Encrypts a website/asset login password
-function encryptLoginEntry($login_password_cleartext)
+// Encrypts a website/asset credential password
+function encryptCredentialEntry($credential_password_cleartext)
 {
     $iv = randomString();
 
@@ -367,26 +457,26 @@ function encryptLoginEntry($login_password_cleartext)
     //Decrypt the session key to get the master key
     $site_encryption_master_key = openssl_decrypt($user_encryption_session_ciphertext, 'aes-128-cbc', $user_encryption_session_key, 0, $user_encryption_session_iv);
 
-    //Encrypt the website/asset login using the master key
-    $ciphertext = openssl_encrypt($login_password_cleartext, 'aes-128-cbc', $site_encryption_master_key, 0, $iv);
+    //Encrypt the website/asset credential using the master key
+    $ciphertext = openssl_encrypt($credential_password_cleartext, 'aes-128-cbc', $site_encryption_master_key, 0, $iv);
 
     return $iv . $ciphertext;
 }
 
-function apiDecryptLoginEntry($login_ciphertext, $api_key_decrypt_hash, #[\SensitiveParameter]$api_key_decrypt_password)
+function apiDecryptCredentialEntry($credential_ciphertext, $api_key_decrypt_hash, #[\SensitiveParameter]$api_key_decrypt_password)
 {
-    // Split the login entry (username/password) into IV and Ciphertext
-    $login_iv =  substr($login_ciphertext, 0, 16);
-    $login_ciphertext = $salt = substr($login_ciphertext, 16);
+    // Split the Credential entry (username/password) into IV and Ciphertext
+    $credential_iv =  substr($credential_ciphertext, 0, 16);
+    $credential_ciphertext = $salt = substr($credential_ciphertext, 16);
 
     // Decrypt the api hash to get the master key
     $site_encryption_master_key = decryptUserSpecificKey($api_key_decrypt_hash, $api_key_decrypt_password);
 
-    // Decrypt the login password using the master key
-    return openssl_decrypt($login_ciphertext, 'aes-128-cbc', $site_encryption_master_key, 0, $login_iv);
+    // Decrypt the credential password using the master key
+    return openssl_decrypt($credential_ciphertext, 'aes-128-cbc', $site_encryption_master_key, 0, $credential_iv);
 }
 
-function apiEncryptLoginEntry(#[\SensitiveParameter]$credential_cleartext, $api_key_decrypt_hash, #[\SensitiveParameter]$api_key_decrypt_password)
+function apiEncryptCredentialEntry(#[\SensitiveParameter]$credential_cleartext, $api_key_decrypt_hash, #[\SensitiveParameter]$api_key_decrypt_password)
 {
     $iv = randomString();
 
@@ -539,9 +629,9 @@ function validateCSRFToken($token)
  * Accountant - 1
  */
 
-function validateAdminRole()
-{
-    if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 3) {
+function validateAdminRole() {
+    global $session_user_role;
+    if (!isset($session_user_role) || $session_user_role != 3) {
         $_SESSION['alert_type'] = "danger";
         $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
         header("Location: " . $_SERVER["HTTP_REFERER"]);
@@ -551,9 +641,9 @@ function validateAdminRole()
 
 // LEGACY
 // Validates a user is a tech (or admin). Stops page load and attempts to direct away from the page if not (i.e. user is an accountant)
-function validateTechRole()
-{
-    if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] == 1) {
+function validateTechRole() {
+    global $session_user_role;
+    if (!isset($session_user_role) || $session_user_role == 1) {
         $_SESSION['alert_type'] = "danger";
         $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
         header("Location: " . $_SERVER["HTTP_REFERER"]);
@@ -563,9 +653,9 @@ function validateTechRole()
 
 // LEGACY
 // Validates a user is an accountant (or admin). Stops page load and attempts to direct away from the page if not (i.e. user is a tech)
-function validateAccountantRole()
-{
-    if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] == 2) {
+function validateAccountantRole() {
+    global $session_user_role;
+    if (!isset($session_user_role) || $session_user_role == 2) {
         $_SESSION['alert_type'] = "danger";
         $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
         header("Location: " . $_SERVER["HTTP_REFERER"]);
@@ -765,7 +855,7 @@ function checkFileUpload($file, $allowed_extensions)
     $fileContent = file_get_contents($tmp);
 
     // Hash the file content using SHA-256
-    $hashedContent = hash('sha256', $fileContent);
+    $hashedContent = hash('md5', $fileContent);
 
     // Generate a secure filename using the hashed content
     $secureFilename = $hashedContent . randomString(2) . '.' . $extension;
@@ -1313,15 +1403,15 @@ function lookupUserPermission($module) {
     $sql = mysqli_query(
         $mysqli,
         "SELECT
-			urp.user_role_permission_level
+			user_role_permissions.user_role_permission_level
 		FROM
-			modules AS m
+			modules
 		JOIN
-			user_role_permissions AS urp
+			user_role_permissions
 		ON
-			m.module_id = urp.module_id
+			modules.module_id = user_role_permissions.module_id
 		WHERE
-			m.module_name = '$module' AND urp.user_role_id = $session_user_role"
+			module_name = '$module' AND user_role_permissions.user_role_id = $session_user_role"
     );
 
     $row = mysqli_fetch_array($sql);
@@ -1412,7 +1502,7 @@ function logAuth($status, $details) {
 
 // Helper function for missing data fallback
 function getFallback($data) {
-    return !empty($data) ? $data : '<span class="text-muted">N/A</span>';
+    return !empty($data) ? $data : '-';
 }
 
 /**
@@ -1483,7 +1573,7 @@ function getFieldById($table, $id, $field, $escape_method = 'sql') {
         // Apply the desired escaping method or auto-detect integer type if using SQL escaping
         switch ($escape_method) {
             case 'html':
-                return htmlspecialchars($value, ENT_QUOTES, 'UTF-8'); // Escape for HTML
+                return htmlspecialchars($value ?? '', ENT_QUOTES, 'UTF-8'); // Escape for HTML
             case 'json':
                 return json_encode($value); // Escape for JSON
             case 'int':
@@ -1500,4 +1590,29 @@ function getFieldById($table, $id, $field, $escape_method = 'sql') {
     }
 
     return null; // Return null if no record was found
+}
+
+// Recursive function to display folder options - Used in folders files and documents
+function display_folder_options($parent_folder_id, $client_id, $indent = 0) {
+    global $mysqli;
+
+    $sql_folders = mysqli_query($mysqli, "SELECT * FROM folders WHERE parent_folder = $parent_folder_id AND folder_location = 1 AND folder_client_id = $client_id ORDER BY folder_name ASC");
+    while ($row = mysqli_fetch_array($sql_folders)) {
+        $folder_id = intval($row['folder_id']);
+        $folder_name = nullable_htmlentities($row['folder_name']);
+
+        // Indentation for subfolders
+        $indentation = str_repeat('&nbsp;', $indent * 4);
+
+        // Check if this folder is selected
+        $selected = '';
+        if ((isset($_GET['folder_id']) && $_GET['folder_id'] == $folder_id) || (isset($_POST['folder']) && $_POST['folder'] == $folder_id)) {
+            $selected = 'selected';
+        }
+
+        echo "<option value=\"$folder_id\" $selected>$indentation$folder_name</option>";
+
+        // Recursively display subfolders
+        display_folder_options($folder_id, $client_id, $indent + 1);
+    }
 }

@@ -4,13 +4,13 @@
  *
  * To rebuild or modify this file with the latest versions of the included
  * software please visit:
- *   https://datatables.net/download/#bs4/dt-2.2.1
+ *   https://datatables.net/download/#bs4/dt-2.2.2
  *
  * Included libraries:
- *   DataTables 2.2.1
+ *   DataTables 2.2.2
  */
 
-/*! DataTables 2.2.1
+/*! DataTables 2.2.2
  * © SpryMedia Ltd - datatables.net/license
  */
 
@@ -519,7 +519,7 @@
 		 *
 		 *  @type string
 		 */
-		builder: "bs4/dt-2.2.1",
+		builder: "bs4/dt-2.2.2",
 	
 	
 		/**
@@ -5556,6 +5556,15 @@
 				// This flag allows the above to be satisfied.
 				var first = $(settings.nTableWrapper).is(':visible');
 	
+				// Use an empty div to attach the observer so it isn't impacted by height changes
+				var resizer = $('<div>')
+					.css({
+						width: '100%',
+						height: 0
+					})
+					.addClass('dt-autosize')
+					.appendTo(settings.nTableWrapper);
+	
 				settings.resizeObserver = new ResizeObserver(function (e) {
 					if (first) {
 						first = false;
@@ -5565,7 +5574,7 @@
 					}
 				});
 	
-				settings.resizeObserver.observe(settings.nTableWrapper);
+				settings.resizeObserver.observe(resizer[0]);
 			}
 			else {
 				// For old browsers, the best we can do is listen for a window resize
@@ -5897,10 +5906,14 @@
 			displayMaster = oSettings.aiDisplayMaster,
 			aSort;
 	
+		// Make sure the columns all have types defined
+		_fnColumnTypes(oSettings);
+	
 		// Allow a specific column to be sorted, which will _not_ alter the display
 		// master
 		if (col !== undefined) {
 			var srcCol = oSettings.aoColumns[col];
+	
 			aSort = [{
 				src:       col,
 				col:       col,
@@ -9844,12 +9857,14 @@
 		// Function to run either once the table becomes ready or
 		// immediately if it is already ready.
 		return this.tables().every(function () {
+			var api = this;
+	
 			if (this.context[0]._bInitComplete) {
-				fn.call(this);
+				fn.call(api);
 			}
 			else {
 				this.on('init.dt.DT', function () {
-					fn.call(this);
+					fn.call(api);
 				});
 			}
 		} );
@@ -9905,20 +9920,37 @@
 				jqTable.append( tfoot );
 			}
 	
+			// Clean up the header
+			$(thead).find('span.dt-column-order').remove();
+			$(thead).find('span.dt-column-title').each(function () {
+				var title = $(this).html();
+				$(this).parent().append(title);
+				$(this).remove();
+			});
+	
 			settings.colgroup.remove();
 	
 			settings.aaSorting = [];
 			settings.aaSortingFixed = [];
 			_fnSortingClasses( settings );
 	
+			$(jqTable).find('th, td').removeClass(
+				$.map(DataTable.ext.type.className, function (v) {
+					return v;
+				}).join(' ')
+			);
+	
 			$('th, td', thead)
 				.removeClass(
+					orderClasses.none + ' ' +
 					orderClasses.canAsc + ' ' +
 					orderClasses.canDesc + ' ' +
 					orderClasses.isAsc + ' ' +
 					orderClasses.isDesc
 				)
-				.css('width', '');
+				.css('width', '')
+				.removeAttr('data-dt-column')
+				.removeAttr('aria-sort');
 	
 			// Add the TR elements back into the table in their original order
 			jqTbody.children().detach();
@@ -10006,7 +10038,7 @@
 	 *  @type string
 	 *  @default Version number
 	 */
-	DataTable.version = "2.2.1";
+	DataTable.version = "2.2.2";
 	
 	/**
 	 * Private data store, containing all of the settings objects that are
@@ -13047,16 +13079,16 @@
 						cell.removeAttr('aria-sort');
 					}
 	
-					cell.attr('aria-label', orderable
-						? col.ariaTitle + ctx.api.i18n('oAria.orderable' + ariaType)
-						: col.ariaTitle
-					);
-	
 					// Make the headers tab-able for keyboard navigation
 					if (orderable) {
 						var orderSpan = cell.find('.dt-column-order');
 						
-						orderSpan.attr('role', 'button');
+						orderSpan
+							.attr('role', 'button')
+							.attr('aria-label', orderable
+								? col.ariaTitle + ctx.api.i18n('oAria.orderable' + ariaType)
+								: col.ariaTitle
+							);
 	
 						if (tabIndex !== -1) {
 							orderSpan.attr('tabindex', tabIndex);

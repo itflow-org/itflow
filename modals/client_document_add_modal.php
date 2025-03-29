@@ -9,6 +9,12 @@
             </div>
             <form action="post.php" method="post" autocomplete="off">
                 <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
+                <?php if (isset($_GET['contact_id'])) { ?>
+                <input type="hidden" name="contact" value="<?php echo intval($_GET['contact_id']); ?>">
+                <?php } ?>
+                <?php if (isset($_GET['asset_id'])) { ?>
+                <input type="hidden" name="asset" value="<?php echo intval($_GET['asset_id']); ?>">
+                <?php } ?>
                 <div class="modal-body bg-white">
 
                     <div class="form-group">
@@ -16,43 +22,18 @@
                     </div>
 
                     <div class="form-group">
-                        <textarea class="form-control tinymce<?php if($config_ai_enable) { echo "AI"; } ?>" id="textInput" name="content"></textarea>
+                        <textarea class="form-control tinymce<?php if($config_ai_enable) { echo "AI"; } ?>" name="content"></textarea>
                     </div>
 
                     <div class="form-group">
-                        <label for="folderSelect">Select Folder</label>
+                        <label>Select Folder</label>
                         <div class="input-group">
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fa fa-fw fa-folder"></i></span>
                             </div>
-                            <select class="form-control select2" name="folder" id="folderSelect">
+                            <select class="form-control select2" name="folder">
                                 <option value="0">/</option>
                                 <?php
-                                // Recursive function to display folder options
-                                function display_folder_options($parent_folder_id, $client_id, $indent = 0) {
-                                    global $mysqli;
-
-                                    $sql_folders = mysqli_query($mysqli, "SELECT * FROM folders WHERE parent_folder = $parent_folder_id AND folder_location = 0 AND folder_client_id = $client_id ORDER BY folder_name ASC");
-                                    while ($row = mysqli_fetch_array($sql_folders)) {
-                                        $folder_id = intval($row['folder_id']);
-                                        $folder_name = nullable_htmlentities($row['folder_name']);
-
-                                        // Indentation for subfolders
-                                        $indentation = str_repeat('&nbsp;', $indent * 4);
-
-                                        // Check if this folder is selected
-                                        $selected = '';
-                                        if ((isset($_GET['folder_id']) && $_GET['folder_id'] == $folder_id) || (isset($_POST['folder']) && $_POST['folder'] == $folder_id)) {
-                                            $selected = 'selected';
-                                        }
-
-                                        echo "<option value=\"$folder_id\" $selected>$indentation$folder_name</option>";
-
-                                        // Recursively display subfolders
-                                        display_folder_options($folder_id, $client_id, $indent + 1);
-                                    }
-                                }
-
                                 // Start displaying folder options from the root (parent_folder = 0)
                                 display_folder_options(0, $client_id);
                                 ?>
@@ -61,12 +42,12 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="descriptionInput">Description</label>
+                        <label>Description</label>
                         <div class="input-group">
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fa fa-fw fa-file"></i></span>
                             </div>
-                            <input type="text" class="form-control" name="description" id="descriptionInput" placeholder="Short summary of the document">
+                            <input type="text" class="form-control" name="description" placeholder="Short summary of the document">
                         </div>
                     </div>
                 </div>

@@ -206,8 +206,6 @@ if (isset($_GET['delete_domain'])) {
 
     mysqli_query($mysqli,"DELETE FROM domains WHERE domain_id = $domain_id");
 
-    mysqli_query($mysqli, "DELETE FROM domain_history WHERE domain_history_domain_id = $domain_id");#
-
     // Logging
     logAction("Domain", "Delete", "$session_name deleted domain $domain_name", $client_id);
 
