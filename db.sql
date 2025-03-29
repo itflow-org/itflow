@@ -201,7 +201,7 @@ CREATE TABLE `asset_interfaces` (
   `interface_ip` varchar(200) DEFAULT NULL,
   `interface_nat_ip` varchar(200) DEFAULT NULL,
   `interface_ipv6` varchar(200) DEFAULT NULL,
-  `interface_notes` mediumtext DEFAULT NULL,
+  `interface_notes` text DEFAULT NULL,
   `interface_primary` tinyint(1) DEFAULT 0,
   `interface_created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `interface_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
@@ -224,7 +224,7 @@ DROP TABLE IF EXISTS `asset_notes`;
 CREATE TABLE `asset_notes` (
   `asset_note_id` int(11) NOT NULL AUTO_INCREMENT,
   `asset_note_type` varchar(200) NOT NULL,
-  `asset_note` mediumtext DEFAULT NULL,
+  `asset_note` text DEFAULT NULL,
   `asset_note_created_by` int(11) NOT NULL,
   `asset_note_created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `asset_note_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
@@ -459,7 +459,7 @@ DROP TABLE IF EXISTS `client_notes`;
 CREATE TABLE `client_notes` (
   `client_note_id` int(11) NOT NULL AUTO_INCREMENT,
   `client_note_type` varchar(200) NOT NULL,
-  `client_note` mediumtext DEFAULT NULL,
+  `client_note` text DEFAULT NULL,
   `client_note_created_by` int(11) NOT NULL,
   `client_note_created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `client_note_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
@@ -639,7 +639,7 @@ DROP TABLE IF EXISTS `contact_notes`;
 CREATE TABLE `contact_notes` (
   `contact_note_id` int(11) NOT NULL AUTO_INCREMENT,
   `contact_note_type` varchar(200) NOT NULL,
-  `contact_note` mediumtext DEFAULT NULL,
+  `contact_note` text DEFAULT NULL,
   `contact_note_created_by` int(11) NOT NULL,
   `contact_note_created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `contact_note_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
@@ -782,7 +782,7 @@ DROP TABLE IF EXISTS `custom_links`;
 CREATE TABLE `custom_links` (
   `custom_link_id` int(11) NOT NULL AUTO_INCREMENT,
   `custom_link_name` varchar(200) NOT NULL,
-  `custom_link_description` mediumtext DEFAULT NULL,
+  `custom_link_description` text DEFAULT NULL,
   `custom_link_uri` varchar(500) NOT NULL,
   `custom_link_new_tab` tinyint(1) NOT NULL DEFAULT 0,
   `custom_link_icon` varchar(200) DEFAULT NULL,
@@ -1292,7 +1292,7 @@ DROP TABLE IF EXISTS `project_templates`;
 CREATE TABLE `project_templates` (
   `project_template_id` int(11) NOT NULL AUTO_INCREMENT,
   `project_template_name` varchar(200) NOT NULL,
-  `project_template_description` mediumtext DEFAULT NULL,
+  `project_template_description` text DEFAULT NULL,
   `project_template_created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `project_template_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
   `project_template_archived_at` datetime DEFAULT NULL,
@@ -1403,14 +1403,14 @@ DROP TABLE IF EXISTS `racks`;
 CREATE TABLE `racks` (
   `rack_id` int(11) NOT NULL AUTO_INCREMENT,
   `rack_name` varchar(200) NOT NULL,
-  `rack_description` mediumtext DEFAULT NULL,
+  `rack_description` text DEFAULT NULL,
   `rack_model` varchar(200) DEFAULT NULL,
   `rack_depth` varchar(50) DEFAULT NULL,
   `rack_type` varchar(50) DEFAULT NULL,
   `rack_units` int(11) NOT NULL,
   `rack_photo` varchar(200) DEFAULT NULL,
   `rack_physical_location` varchar(200) DEFAULT NULL,
-  `rack_notes` mediumtext DEFAULT NULL,
+  `rack_notes` text DEFAULT NULL,
   `rack_created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `rack_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
   `rack_archived_at` datetime DEFAULT NULL,
@@ -2175,7 +2175,7 @@ DROP TABLE IF EXISTS `ticket_templates`;
 CREATE TABLE `ticket_templates` (
   `ticket_template_id` int(11) NOT NULL AUTO_INCREMENT,
   `ticket_template_name` varchar(200) NOT NULL,
-  `ticket_template_description` mediumtext DEFAULT NULL,
+  `ticket_template_description` text DEFAULT NULL,
   `ticket_template_subject` varchar(500) DEFAULT NULL,
   `ticket_template_details` longtext DEFAULT NULL,
   `ticket_template_created_at` datetime NOT NULL DEFAULT current_timestamp(),
@@ -2498,4 +2498,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-03-29 17:35:17
+-- Dump completed on 2025-03-29 18:16:21
