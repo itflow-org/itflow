@@ -2,7 +2,7 @@
 
 This file documents all notable changes made to ITFlow.
 
-## [25.03 UNRELEASED]
+## [25.03]
 
 ### Fixed
 - Resolved missing attachments in ticket replies processed via the email parser.
