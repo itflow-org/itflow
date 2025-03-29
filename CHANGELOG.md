@@ -1,6 +1,10 @@
 # Changelog
 
 This file documents all notable changes made to ITFlow.
+## [25.03.2]
+
+### Fixed
+- Revert DB.sql change
 
 ## [25.03.1]
 
