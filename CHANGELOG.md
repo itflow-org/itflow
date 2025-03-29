@@ -2,6 +2,13 @@
 
 This file documents all notable changes made to ITFlow.
 
+## [25.03.1]
+
+### Fixed
+- Phone number missing in various sections.
+- Match Database.
+- Client Export Only display licenses users and assets from the selected client only.
+
 ## [25.03]
 
 ### Fixed

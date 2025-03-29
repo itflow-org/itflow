@@ -641,7 +641,7 @@ if (isset($_POST["export_client_pdf"])) {
     $contact_phone = nullable_htmlentities(formatPhoneNumber($row["contact_phone"], $contact_phone_country_code));
     $contact_extension = nullable_htmlentities($row["contact_extension"]);
     $contact_mobile_country_code = nullable_htmlentities($row["contact_mobile_country_code"]);
-    $contact_mobile = nullable_htmlentities(formatPhoneNumber($row["contact_phone"], $contact_mobile_country_code));
+    $contact_mobile = nullable_htmlentities(formatPhoneNumber($row["contact_mobile"], $contact_mobile_country_code));
     $contact_email = nullable_htmlentities($row["contact_email"]);
     $client_website = nullable_htmlentities($row["client_website"]);
 
@@ -716,6 +716,8 @@ if (isset($_POST["export_client_pdf"])) {
             software ON software_contacts.software_id = software.software_id
         WHERE software_archived_at IS NULL
         AND contact_archived_at IS NULL
+        AND software_client_id = $client_id
+        AND contact_client_id = $client_id
         ORDER BY 
             contact_name, software_name;"
     );
@@ -732,6 +734,8 @@ if (isset($_POST["export_client_pdf"])) {
             software ON software_assets.software_id = software.software_id
         WHERE software_archived_at IS NULL
         AND asset_archived_at IS NULL
+        AND software_client_id = $client_id
+        AND asset_client_id = $client_id
         ORDER BY 
             asset_name, software_name;"
     );
@@ -825,7 +829,7 @@ if (isset($_POST["export_client_pdf"])) {
                 $contact_extension = "x$contact_extension";
             }
             $contact_mobile_country_code = nullable_htmlentities($row["contact_mobile_country_code"]);
-            $contact_mobile = nullable_htmlentities(formatPhoneNumber($row["contact_phone"], $contact_mobile_country_code));
+            $contact_mobile = nullable_htmlentities(formatPhoneNumber($row["contact_mobile"], $contact_mobile_country_code));
             $html .= "
             <tr>
               <td>$contact_name</td>
