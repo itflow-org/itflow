@@ -639,7 +639,7 @@ DROP TABLE IF EXISTS `contact_notes`;
 CREATE TABLE `contact_notes` (
   `contact_note_id` int(11) NOT NULL AUTO_INCREMENT,
   `contact_note_type` varchar(200) NOT NULL,
-  `contact_note` mediumtext DEFAULT NULL,
+  `contact_note` text DEFAULT NULL,
   `contact_note_created_by` int(11) NOT NULL,
   `contact_note_created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `contact_note_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
@@ -2498,4 +2498,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-03-29 18:12:19
+-- Dump completed on 2025-03-29 18:16:21
