@@ -12,7 +12,12 @@ require_once 'functions.php';
 
 if (isset($_POST['add_ticket'])) {
 
-    $subject = sanitizeInput($_POST['subject']);
+	$subject =  sanitizeInput($_POST['subject']);
+
+	if($config_ticket_client_prefix_subject){
+		$subject = $config_ticket_client_prefix_subject . $subject;
+	}
+
     $details = mysqli_real_escape_string($mysqli, ($_POST['details']));
     $category = intval($_POST['category']);
 

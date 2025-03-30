@@ -42,6 +42,10 @@ $config_default_hourly_rate = floatval($row['config_default_hourly_rate']);
 $config_invoice_prefix = $row['config_invoice_prefix'];
 $config_invoice_next_number = intval($row['config_invoice_next_number']);
 $config_invoice_footer = $row['config_invoice_footer'];
+$config_invoice_localization_title = $row['config_invoice_localization_title'];
+$config_invoice_localization_tax = $row['config_invoice_localization_tax'];
+$config_invoice_localization_total = $row['config_invoice_localization_total'];
+$config_invoice_localization_subtotal = $row['config_invoice_localization_subtotal'];
 $config_invoice_from_name = $row['config_invoice_from_name'];
 $config_invoice_from_email = $row['config_invoice_from_email'];
 $config_invoice_late_fee_enable = intval($row['config_invoice_late_fee_enable']);
@@ -59,6 +63,7 @@ $config_quote_footer = $row['config_quote_footer'];
 $config_quote_from_name = $row['config_quote_from_name'];
 $config_quote_from_email = $row['config_quote_from_email'];
 $config_quote_notification_email = $row['config_quote_notification_email'];
+$config_quote_localization_title = $row['config_quote_localization_title'];
 
 // Projects
 $config_project_prefix = $row['config_project_prefix'];
@@ -66,6 +71,7 @@ $config_project_next_number = intval($row['config_project_next_number']);
 
 // Tickets
 $config_ticket_prefix = $row['config_ticket_prefix'];
+$config_ticket_client_prefix_subject = $row['config_ticket_client_prefix_subject'];
 $config_ticket_next_number = intval($row['config_ticket_next_number']);
 $config_ticket_from_name = $row['config_ticket_from_name'];
 $config_ticket_from_email = $row['config_ticket_from_email'];

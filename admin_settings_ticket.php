@@ -21,6 +21,16 @@ require_once "includes/inc_all_admin.php";
                 </div>
 
                 <div class="form-group">
+                    <label>Ticket Client Prefix Subject</label>
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text"><i class="fa fa-fw fa-life-ring"></i></span>
+                        </div>
+                        <input type="text" class="form-control" name="config_ticket_client_prefix_subject" placeholder="Add prefix to ticket subject from client" value="<?php echo nullable_htmlentities($config_ticket_client_prefix_subject); ?>" pattern="^[A-Za-z-]+$" title="Only letters and hyphens are allowed">
+                    </div>
+                </div>
+
+                <div class="form-group">
                     <label>Next Number</label>
                     <div class="input-group">
                         <div class="input-group-prepend">

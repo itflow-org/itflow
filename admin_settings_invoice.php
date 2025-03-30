@@ -67,8 +67,6 @@ require_once "includes/inc_all_admin.php";
                     </div>
                 </div>
 
-                <hr>
-
                 <h4>Recurring Invoice</h4>
 
                 <div class="form-group">
@@ -91,7 +89,51 @@ require_once "includes/inc_all_admin.php";
                     </div>
                 </div>
 
+                <h4>Invoice Localization</h4>
 
+                <div class="form-group">
+                    <label>Invoice Title</label>
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text"><i class="fa fa-fw fa-barcode"></i></span>
+                        </div>
+
+                        <input type="text" class="form-control" name="config_invoice_localization_title" placeholder="Invoice" value="<?php echo nullable_htmlentities($config_invoice_localization_title); ?>" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Invoice Tax</label>
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text"><i class="fa fa-fw fa-barcode"></i></span>
+                        </div>
+
+                        <input type="text" class="form-control" name="config_invoice_localization_tax" placeholder="Tax" value="<?php echo nullable_htmlentities($config_invoice_localization_tax); ?>" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Invoice Total</label>
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text"><i class="fa fa-fw fa-barcode"></i></span>
+                        </div>
+
+                        <input type="text" class="form-control" name="config_invoice_localization_total" placeholder="Total" value="<?php echo nullable_htmlentities($config_invoice_localization_total); ?>" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Invoice Subtotal</label>
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text"><i class="fa fa-fw fa-barcode"></i></span>
+                        </div>
+
+                        <input type="text" class="form-control" name="config_invoice_localization_subtotal" placeholder="Subtotal" value="<?php echo nullable_htmlentities($config_invoice_localization_subtotal); ?>" required>
+                    </div>
+                </div>
 
                 <hr>
 

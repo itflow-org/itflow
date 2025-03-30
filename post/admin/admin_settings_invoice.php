@@ -17,8 +17,12 @@ if (isset($_POST['edit_invoice_settings'])) {
     if (filter_var($_POST['config_invoice_paid_notification_email'], FILTER_VALIDATE_EMAIL)) {
         $config_invoice_paid_notification_email = sanitizeInput($_POST['config_invoice_paid_notification_email']);
     }
+    $config_invoice_localization_title = sanitizeInput($_POST['config_invoice_localization_title']);
+    $config_invoice_localization_tax = sanitizeInput($_POST['config_invoice_localization_tax']);
+    $config_invoice_localization_total = sanitizeInput($_POST['config_invoice_localization_total']);
+    $config_invoice_localization_subtotal = sanitizeInput($_POST['config_invoice_localization_subtotal']);
 
-    mysqli_query($mysqli,"UPDATE settings SET config_invoice_prefix = '$config_invoice_prefix', config_invoice_next_number = $config_invoice_next_number, config_invoice_footer = '$config_invoice_footer', config_invoice_late_fee_enable = $config_invoice_late_fee_enable, config_invoice_late_fee_percent = $config_invoice_late_fee_percent, config_invoice_paid_notification_email = '$config_invoice_paid_notification_email', config_recurring_invoice_prefix = '$config_recurring_invoice_prefix', config_recurring_invoice_next_number = $config_recurring_invoice_next_number WHERE company_id = 1");
+    mysqli_query($mysqli, "UPDATE settings SET config_invoice_prefix = '$config_invoice_prefix', config_invoice_next_number = $config_invoice_next_number, config_invoice_footer = '$config_invoice_footer', config_invoice_late_fee_enable = $config_invoice_late_fee_enable, config_invoice_late_fee_percent = $config_invoice_late_fee_percent, config_invoice_paid_notification_email = '$config_invoice_paid_notification_email', config_recurring_invoice_prefix = '$config_recurring_invoice_prefix', config_recurring_invoice_next_number = $config_recurring_invoice_next_number, config_invoice_localization_title = '$config_invoice_localization_title', config_invoice_localization_tax = '$config_invoice_localization_tax', config_invoice_localization_total = '$config_invoice_localization_total', config_invoice_localization_subtotal = '$config_invoice_localization_subtotal' WHERE company_id = 1");
 
     // Logging
     logAction("Settings", "Edit", "$session_name edited invoice settings");

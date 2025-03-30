@@ -10,6 +10,8 @@ require_once "includes/inc_all_admin.php";
             <form action="post.php" method="post" autocomplete="off">
                 <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token'] ?>">
 
+                <h4>Quote</h4>
+
                 <div class="form-group">
                     <label>Quote Prefix</label>
                     <div class="input-group">
@@ -42,6 +44,19 @@ require_once "includes/inc_all_admin.php";
                             <span class="input-group-text"><i class="fa fa-fw fa-bell"></i></span>
                         </div>
                         <input type="email" class="form-control" name="config_quote_notification_email" placeholder="Address to notify for quote accept/declines, leave blank for none" value="<?php echo nullable_htmlentities($config_quote_notification_email); ?>">
+                    </div>
+                </div>
+
+                <h4>Quote Localization</h4>
+
+                <div class="form-group">
+                    <label>Quote Title</label>
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text"><i class="fa fa-fw fa-barcode"></i></span>
+                        </div>
+
+                        <input type="text" class="form-control" name="config_quote_localization_title" placeholder="Quote" value="<?php echo nullable_htmlentities($config_quote_localization_title); ?>" required>
                     </div>
                 </div>
 
