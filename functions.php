@@ -320,12 +320,7 @@ function formatPhoneNumber($phoneNumber, $country_code = '', $show_country_code 
             break;
     }
 
-    // Fallback if formatting failed
-    if (!$formatted && strlen($digits) >= 7) {
-        $formatted = substr($digits, 0, 3) . ' ' . substr($digits, 3, 3) . ' ' . substr($digits, 6);
-    }
-
-    // Still no formatting? Use raw digits
+    // no formatting? Use raw digits
     if (!$formatted) {
         $formatted = $digits ?: $phoneNumber; // Use original input if digits are empty
     }
