@@ -546,7 +546,7 @@ CREATE TABLE `companies` (
   `company_state` varchar(200) DEFAULT NULL,
   `company_zip` varchar(200) DEFAULT NULL,
   `company_country` varchar(200) DEFAULT NULL,
-  `company_phone_country_code` varchar(10) DEFAULT '1',
+  `company_phone_country_code` varchar(10) DEFAULT NULL,
   `company_phone` varchar(200) DEFAULT NULL,
   `company_email` varchar(200) DEFAULT NULL,
   `company_website` varchar(200) DEFAULT NULL,
@@ -680,10 +680,10 @@ CREATE TABLE `contacts` (
   `contact_name` varchar(200) NOT NULL,
   `contact_title` varchar(200) DEFAULT NULL,
   `contact_email` varchar(200) DEFAULT NULL,
-  `contact_phone_country_code` varchar(10) DEFAULT '1',
+  `contact_phone_country_code` varchar(10) DEFAULT NULL,
   `contact_phone` varchar(200) DEFAULT NULL,
   `contact_extension` varchar(200) DEFAULT NULL,
-  `contact_mobile_country_code` varchar(10) DEFAULT '1',
+  `contact_mobile_country_code` varchar(10) DEFAULT NULL,
   `contact_mobile` varchar(200) DEFAULT NULL,
   `contact_photo` varchar(200) DEFAULT NULL,
   `contact_pin` varchar(255) DEFAULT NULL,
@@ -1115,10 +1115,10 @@ CREATE TABLE `locations` (
   `location_city` varchar(200) DEFAULT NULL,
   `location_state` varchar(200) DEFAULT NULL,
   `location_zip` varchar(200) DEFAULT NULL,
-  `location_phone_country_code` varchar(10) DEFAULT '1',
+  `location_phone_country_code` varchar(10) DEFAULT NULL,
   `location_phone` varchar(200) DEFAULT NULL,
   `location_phone_extension` varchar(10) DEFAULT NULL,
-  `location_fax_country_code` varchar(10) DEFAULT '1',
+  `location_fax_country_code` varchar(10) DEFAULT NULL,
   `location_fax` varchar(200) DEFAULT NULL,
   `location_hours` varchar(200) DEFAULT NULL,
   `location_photo` varchar(200) DEFAULT NULL,
@@ -2468,7 +2468,7 @@ CREATE TABLE `vendors` (
   `vendor_name` varchar(200) NOT NULL,
   `vendor_description` varchar(200) DEFAULT NULL,
   `vendor_contact_name` varchar(200) DEFAULT NULL,
-  `vendor_phone_country_code` varchar(10) DEFAULT '1',
+  `vendor_phone_country_code` varchar(10) DEFAULT NULL,
   `vendor_phone` varchar(200) DEFAULT NULL,
   `vendor_extension` varchar(200) DEFAULT NULL,
   `vendor_email` varchar(200) DEFAULT NULL,
@@ -2498,4 +2498,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-03-29 18:16:21
+-- Dump completed on 2025-03-31 12:05:41
