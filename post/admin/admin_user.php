@@ -15,7 +15,7 @@ if (isset($_POST['add_user'])) {
     $password = password_hash(trim($_POST['password']), PASSWORD_DEFAULT);
     $user_specific_encryption_ciphertext = encryptUserSpecificKey(trim($_POST['password']));
 
-    mysqli_query($mysqli, "INSERT INTO users SET user_name = '$name', user_email = '$email', user_password = '$password', user_specific_encryption_ciphertext = '$user_specific_encryption_ciphertext' user_role_id = $role");
+    mysqli_query($mysqli, "INSERT INTO users SET user_name = '$name', user_email = '$email', user_password = '$password', user_specific_encryption_ciphertext = '$user_specific_encryption_ciphertext', user_role_id = $role");
 
     $user_id = mysqli_insert_id($mysqli);
 
