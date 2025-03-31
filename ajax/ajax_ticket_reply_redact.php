@@ -11,9 +11,6 @@ $sql = mysqli_query($mysqli, "SELECT * FROM ticket_replies
 );
 
 $row = mysqli_fetch_array($sql);
-$ticket_reply_type = nullable_htmlentities($row['ticket_reply_type']);
-$ticket_reply_time_worked = date_create($row['ticket_reply_time_worked']);
-$ticket_reply_time_worked_formatted = date_format($ticket_reply_time_worked, 'H:i:s');
 $ticket_reply = nullable_htmlentities($row['ticket_reply']);
 $client_id = intval($row['ticket_client_id']);
 
@@ -31,10 +28,6 @@ ob_start();
 <form action="post.php" method="post" autocomplete="off">
     <input type="hidden" name="ticket_reply_id" value="<?php echo $ticket_reply_id; ?>">
     <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
-    <input type="hidden" name="ticket_reply_type" value="<?php echo $ticket_reply_type; ?>">
-    <?php if (!empty($ticket_reply_time_worked)) { ?>
-    <input type="hidden" name="time" value="<?php echo $ticket_reply_time_worked_formatted; ?>">
-    <?php } ?>
 
     <div class="modal-body bg-white">
 
@@ -44,7 +37,7 @@ ob_start();
 
     </div>
     <div class="modal-footer bg-white">
-        <button type="submit" name="edit_ticket_reply" class="btn btn-primary text-bold"><i class="fa fa-check mr-2"></i>Save</button>
+        <button type="submit" name="redact_ticket_reply" class="btn btn-primary text-bold"><i class="fa fa-check mr-2"></i>Save</button>
         <button type="button" class="btn btn-light" data-dismiss="modal"><i class="fa fa-times mr-2"></i>Cancel</button>
     </div>
 </form>

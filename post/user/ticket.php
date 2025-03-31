@@ -1572,6 +1572,25 @@ if (isset($_POST['edit_ticket_reply'])) {
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 }
 
+if (isset($_POST['redact_ticket_reply'])) {
+
+    enforceUserPermission('module_support', 2);
+
+    $ticket_reply_id = intval($_POST['ticket_reply_id']);
+    $ticket_reply = mysqli_real_escape_string($mysqli, $_POST['ticket_reply']);
+
+    $client_id = intval($_POST['client_id']);
+
+    mysqli_query($mysqli, "UPDATE ticket_replies SET ticket_reply = '$ticket_reply' WHERE ticket_reply_id = $ticket_reply_id");
+
+    // Logging
+    logAction("Ticket", "Reply", "$session_name redacted ticket_reply", $client_id, $ticket_reply_id);
+
+    $_SESSION['alert_message'] = "Ticket reply redacted";
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+}
+
 if (isset($_GET['archive_ticket_reply'])) {
 
     enforceUserPermission('module_support', 2);
