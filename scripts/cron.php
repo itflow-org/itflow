@@ -879,7 +879,7 @@ while ($row = mysqli_fetch_array($sql_recurring_invoices)) {
 } //End Recurring Invoices Loop
 
 // Flag any active recurring "next run" dates that are in the past
-$sql_invalid_recurring_invoices = mysqli_query($mysqli, "SELECT * FROM recurring_invoices WHERE recurring_invoice_next_date < CURDATE()");
+$sql_invalid_recurring_invoices = mysqli_query($mysqli, "SELECT * FROM recurring_invoices WHERE recurring_invoice_next_date < CURDATE() AND recurring_invoice_status = 1");
 while ($row = mysqli_fetch_array($sql_invalid_recurring_invoices)) {
     $invoice_prefix = sanitizeInput($row['recurring_invoice_prefix']);
     $invoice_number = intval($row['recurring_invoice_number']);
