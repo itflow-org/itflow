@@ -732,7 +732,7 @@ if (isset($_POST['bulk_assign_ticket'])) {
                 $agent_name = "No One";
             } else {
                 // Get & verify assigned agent details
-                $agent_details_sql = mysqli_query($mysqli, "SELECT user_name, user_email FROM users LEFT JOIN user_settings ON users.user_id = user_settings.user_id WHERE users.user_id = $assign_to AND user_settings.user_role > 1");
+                $agent_details_sql = mysqli_query($mysqli, "SELECT user_name, user_email FROM users LEFT JOIN user_settings ON users.user_id = user_settings.user_id WHERE users.user_id = $assign_to");
                 $agent_details = mysqli_fetch_array($agent_details_sql);
 
                 $agent_name = sanitizeInput($agent_details['user_name']);
