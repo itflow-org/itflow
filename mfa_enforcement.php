@@ -1,7 +1,7 @@
 <?php
 require_once "config.php";
 require_once "functions.php";
-require_once "check_login.php";
+require_once "includes/check_login.php";
 require_once 'plugins/totp/totp.php'; //TOTP MFA Lib
 
 // Get Company Logo
