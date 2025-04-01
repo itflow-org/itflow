@@ -1,6 +1,20 @@
 # Changelog
 
 This file documents all notable changes made to ITFlow.
+## [25.03.3]
+
+### Fixed
+- Fix adding ITFlow user.
+- Do not alert on inactive recurring invoices.
+- Fix ticket user assignment including bulk assignment.
+- Fix adding a location phone extension.
+- Do not default to +1 Country code, instead default to null.
+- Do not format numbers unless a country code is entered.
+- Fix editing network location.
+- Fix ticket redaction on client replies.
+- Remove more from user activity as it requires admin privledges.
+- Fix MFA Enforcement page.
+
 ## [25.03.2]
 
 ### Fixed

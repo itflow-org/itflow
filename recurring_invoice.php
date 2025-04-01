@@ -164,7 +164,7 @@ if (isset($_GET['recurring_invoice_id'])) {
                                 <i class="fa fa-fw fa-paper-plane text-secondary mr-2"></i>Force Send
                             </a>
                             <div class="dropdown-divider"></div>
-                            <a class="dropdown-item text-danger confirm-link" href="post.php?delete_recurring=<?php echo $recurring_invoice_id; ?>">
+                            <a class="dropdown-item text-danger confirm-link" href="post.php?delete_recurring_invoice=<?php echo $recurring_invoice_id; ?>">
                                 <i class="fa fa-fw fa-trash mr-2"></i>Delete
                             </a>
                         </div>

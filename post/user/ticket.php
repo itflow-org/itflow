@@ -576,7 +576,7 @@ if (isset($_POST['assign_ticket'])) {
         $agent_name = "No One";
     } else {
         // Get & verify assigned agent details
-        $agent_details_sql = mysqli_query($mysqli, "SELECT user_name, user_email FROM users LEFT JOIN user_settings ON users.user_id = user_settings.user_id WHERE users.user_id = $assigned_to AND user_settings.user_role > 1");
+        $agent_details_sql = mysqli_query($mysqli, "SELECT user_name, user_email FROM users WHERE users.user_id = $assigned_to");
         $agent_details = mysqli_fetch_array($agent_details_sql);
 
         $agent_name = sanitizeInput($agent_details['user_name']);
@@ -732,7 +732,7 @@ if (isset($_POST['bulk_assign_ticket'])) {
                 $agent_name = "No One";
             } else {
                 // Get & verify assigned agent details
-                $agent_details_sql = mysqli_query($mysqli, "SELECT user_name, user_email FROM users LEFT JOIN user_settings ON users.user_id = user_settings.user_id WHERE users.user_id = $assign_to AND user_settings.user_role > 1");
+                $agent_details_sql = mysqli_query($mysqli, "SELECT user_name, user_email FROM users LEFT JOIN user_settings ON users.user_id = user_settings.user_id WHERE users.user_id = $assign_to");
                 $agent_details = mysqli_fetch_array($agent_details_sql);
 
                 $agent_name = sanitizeInput($agent_details['user_name']);
@@ -1568,6 +1568,25 @@ if (isset($_POST['edit_ticket_reply'])) {
     logAction("Ticket", "Reply", "$session_name edited ticket_reply", $client_id, $ticket_reply_id);
 
     $_SESSION['alert_message'] = "Ticket reply updated";
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+}
+
+if (isset($_POST['redact_ticket_reply'])) {
+
+    enforceUserPermission('module_support', 2);
+
+    $ticket_reply_id = intval($_POST['ticket_reply_id']);
+    $ticket_reply = mysqli_real_escape_string($mysqli, $_POST['ticket_reply']);
+
+    $client_id = intval($_POST['client_id']);
+
+    mysqli_query($mysqli, "UPDATE ticket_replies SET ticket_reply = '$ticket_reply' WHERE ticket_reply_id = $ticket_reply_id");
+
+    // Logging
+    logAction("Ticket", "Reply", "$session_name redacted ticket_reply", $client_id, $ticket_reply_id);
+
+    $_SESSION['alert_message'] = "Ticket reply redacted";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 }

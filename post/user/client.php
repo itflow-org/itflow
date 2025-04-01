@@ -54,7 +54,7 @@ if (isset($_POST['add_client'])) {
 
     // Create Location
     if (!empty($location_phone) || !empty($address) || !empty($city) || !empty($state) || !empty($zip)) {
-        mysqli_query($mysqli, "INSERT INTO locations SET location_name = 'Primary', location_address = '$address', location_city = '$city', location_state = '$state', location_zip = '$zip', location_phone_country_code = '$location_phone_country_code', location_phone = '$location_phone', location_extension = '$location_extension', location_fax_country_code = '$location_fax_country_code', location_fax = '$location_fax', location_country = '$country', location_primary = 1, location_client_id = $client_id");
+        mysqli_query($mysqli, "INSERT INTO locations SET location_name = 'Primary', location_address = '$address', location_city = '$city', location_state = '$state', location_zip = '$zip', location_phone_country_code = '$location_phone_country_code', location_phone = '$location_phone', location_phone_extension = '$location_extension', location_fax_country_code = '$location_fax_country_code', location_fax = '$location_fax', location_country = '$country', location_primary = 1, location_client_id = $client_id");
 
         //Extended Logging
         $extended_log_description .= ", primary location $address added";
