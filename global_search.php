@@ -702,7 +702,6 @@ if (isset($_GET['query'])) {
                             <?php
 
                             while ($row = mysqli_fetch_array($sql_assets)) {
-                                var_dump($row);
                                 $client_id = intval($row['asset_client_id']);
                                 $client_name = nullable_htmlentities($row['client_name']);
                                 $asset_id = intval($row['asset_id']);
