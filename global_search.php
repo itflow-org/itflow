@@ -702,6 +702,7 @@ if (isset($_GET['query'])) {
                             <?php
 
                             while ($row = mysqli_fetch_array($sql_assets)) {
+                                var_dump($row);
                                 $client_id = intval($row['asset_client_id']);
                                 $client_name = nullable_htmlentities($row['client_name']);
                                 $asset_id = intval($row['asset_id']);
@@ -721,7 +722,6 @@ if (isset($_GET['query'])) {
                                 } else {
                                     $asset_serial_display = $asset_serial;
                                 }
-                                $asset_mac = nullable_htmlentities($row['asset_mac']);
                                 $asset_uri = nullable_htmlentities($row['asset_uri']);
                                 $asset_status = nullable_htmlentities($row['asset_status']);
                                 $asset_created_at = nullable_htmlentities($row['asset_created_at']);
