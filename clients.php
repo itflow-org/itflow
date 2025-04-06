@@ -59,7 +59,7 @@ $sql = mysqli_query(
     LEFT JOIN locations ON clients.client_id = locations.location_client_id AND location_primary = 1
     LEFT JOIN client_tags ON client_tags.client_id = clients.client_id
     LEFT JOIN tags ON tags.tag_id = client_tags.tag_id
-    WHERE (client_name LIKE '%$q%' OR client_type LIKE '%$q%' OR client_referral LIKE '%$q%'
+    WHERE (client_name LIKE '%$q%' OR client_abbreviation LIKE '%$q%' OR client_type LIKE '%$q%' OR client_referral LIKE '%$q%'
            OR contact_email LIKE '%$q%' OR contact_name LIKE '%$q%' OR contact_phone LIKE '%$phone_query%'
            OR contact_mobile LIKE '%$phone_query%' OR location_address LIKE '%$q%'
            OR location_city LIKE '%$q%' OR location_state LIKE '%$q%' OR location_zip LIKE '%$q%'

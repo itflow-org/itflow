@@ -44,7 +44,7 @@ if (isset($_GET['update'])) {
         $recurring_ticket_count = $row['num'];
 
         // Calendar Event Count
-        $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('event_id') AS num FROM events"));
+        $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('event_id') AS num FROM calendar_events"));
         $calendar_event_count = $row['num'];
 
         // Quote Count

@@ -599,4 +599,3 @@ if (isset($_POST['update_recurring_invoice_items_order'])) {
     echo json_encode(['status' => 'success']);
     exit;
 }
-

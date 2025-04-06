@@ -62,7 +62,7 @@ $all_tickets = mysqli_query($mysqli, "SELECT ticket_id, ticket_prefix, ticket_nu
             $ticket_contact_name = nullable_htmlentities($row['contact_name']);
 
             echo "<tr>";
-            echo "<td> <a href='ticket.php?id=$ticket_id'> $ticket_prefix$ticket_id</a></td>";
+            echo "<td> <a href='ticket.php?id=$ticket_id'> $ticket_prefix$ticket_number</a></td>";
             echo "<td> <a href='ticket.php?id=$ticket_id'> $ticket_subject</a></td>";
             echo "<td>$ticket_contact_name</td>";
             echo "<td>$ticket_status</td>";

@@ -576,6 +576,50 @@ if (isset($_POST['toggle_document_visibility'])) {
 
 }
 
+if (isset($_GET['export_document'])) {
+
+    enforceUserPermission('module_support', 2);
+
+    $document_id = intval($_GET['export_document']);
+
+    // Get Contact Name and Client ID for logging and alert message
+    $sql = mysqli_query($mysqli,"SELECT document_name, document_content, document_client_id FROM documents WHERE document_id = $document_id");
+    $row = mysqli_fetch_array($sql);
+    $document_name = sanitizeInput($row['document_name']);
+    $document_content = $row['document_content'];
+    $client_id = intval($row['document_client_id']);
+
+    // Include the TCPDF class
+    require_once('plugins/TCPDF/tcpdf.php');
+
+    $pdf = new TCPDF();
+
+    // Set document information
+    $pdf->SetCreator(PDF_CREATOR);
+    $pdf->SetAuthor("$document_name");
+    $pdf->SetTitle("$document_name");
+
+    // Add a page
+    $pdf->AddPage();
+
+    // Set font
+    $pdf->SetFont('helvetica', '', 12);
+
+    // Write HTML content to the PDF
+    $pdf->writeHTML($document_content, true, false, true, false, '');
+
+    // Output PDF to browser
+    $pdf->Output("$document_name.pdf", 'I'); // 'I' for inline display, 'D' for download
+
+    // Logging
+    logAction("Document", "Export", "$session_name exported document $document_name", $client_id, $document_id);
+
+    $_SESSION['alert_message'] = "Document <strong>$document_name</strong> exported";
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
 if (isset($_GET['archive_document'])) {
 
     enforceUserPermission('module_support', 2);

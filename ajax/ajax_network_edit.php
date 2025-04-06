@@ -90,7 +90,7 @@ ob_start();
                                 $location_id = intval($row['location_id']);
                                 $location_name = nullable_htmlentities($row['location_name']);
                                 ?>
-                                <option value="<?php echo $location_id; ?>" <?php if ($location_id = $network_location_id) { echo "selected"; } ?>>
+                                <option value="<?php echo $location_id; ?>" <?php if ($location_id == $network_location_id) { echo "selected"; } ?>>
                                     <?php echo $location_name; ?>
                                 </option>
                             <?php

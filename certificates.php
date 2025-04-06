@@ -194,9 +194,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         // Determine the class based on the number of days until expiry
                         if ($days_until_expiry <= 0) {
                             $tr_class = "table-secondary";
-                        } elseif ($days_until_expiry <= 14) {
+                        } elseif ($days_until_expiry <= 1) {
                             $tr_class = "table-danger";
-                        } elseif ($days_until_expiry <= 90) {
+                        } elseif ($days_until_expiry <= 7) {
                             $tr_class = "table-warning";
                         } else {
                             $tr_class = '';

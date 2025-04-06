@@ -14,7 +14,8 @@ if (isset($_GET['ai_reword'])) {
     $inputJSON = file_get_contents('php://input');
     $input = json_decode($inputJSON, TRUE); // Convert JSON into array.
 
-    $promptText = "reword";
+    $promptText = "Rephrase this ticket response to be clear, professional, and polite. Maintain the original meaning without adding or omitting information. Do not invent details. Keep the tone neutral and professional. Avoid technical jargon unless necessary. Please return only the reworded text as clean, properly formatted HTML, without any code block markers, backticks, or the word 'html'. Do not include any other commentary or explanations.";
+
     $userText = $input['text'];
 
     // Preparing the data for the OpenAI Chat API request.
@@ -48,9 +49,20 @@ if (isset($_GET['ai_reword'])) {
 
     // Check if the response contains the expected data and return it.
     if (isset($responseData['choices'][0]['message']['content'])) {
-        // Remove any square brackets and their contents from the response.
-        $responseData['choices'][0]['message']['content'] = preg_replace('/\[.*?\]/', '', $responseData['choices'][0]['message']['content']);
-        echo json_encode(['rewordedText' => trim($responseData['choices'][0]['message']['content'])]);
+        // Get the response content.
+        $content = $responseData['choices'][0]['message']['content'];
+        
+        // Clean any leading "html" word or other unwanted text at the beginning.
+        $content = preg_replace('/^html/i', '', $content);  // Remove any occurrence of 'html' at the start
+
+        // Clean the response content to remove backticks or code block markers.
+        $cleanedContent = str_replace('```', '', $content); // Remove backticks if they exist.
+        
+        // Trim any leading/trailing whitespace.
+        $cleanedContent = trim($cleanedContent);
+
+        // Return the cleaned response.
+        echo json_encode(['rewordedText' => $cleanedContent]);
     } else {
         // Handle errors or unexpected response structure.
         echo json_encode(['rewordedText' => 'Failed to get a response from the OpenAI API.']);

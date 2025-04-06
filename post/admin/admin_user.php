@@ -15,7 +15,7 @@ if (isset($_POST['add_user'])) {
     $password = password_hash(trim($_POST['password']), PASSWORD_DEFAULT);
     $user_specific_encryption_ciphertext = encryptUserSpecificKey(trim($_POST['password']));
 
-    mysqli_query($mysqli, "INSERT INTO users SET user_name = '$name', user_email = '$email', user_password = '$password', user_specific_encryption_ciphertext = '$user_specific_encryption_ciphertext' user_role_id = $role");
+    mysqli_query($mysqli, "INSERT INTO users SET user_name = '$name', user_email = '$email', user_password = '$password', user_specific_encryption_ciphertext = '$user_specific_encryption_ciphertext', user_role_id = $role");
 
     $user_id = mysqli_insert_id($mysqli);
 
@@ -217,7 +217,7 @@ if (isset($_GET['disable_user'])) {
 
     // Un-assign tickets
     mysqli_query($mysqli, "UPDATE tickets SET ticket_assigned_to = 0 WHERE ticket_assigned_to = $user_id AND ticket_closed_at IS NULL");
-    mysqli_query($mysqli, "UPDATE scheduled_tickets SET scheduled_ticket_assigned_to = 0 WHERE scheduled_ticket_assigned_to = $user_id");
+    mysqli_query($mysqli, "UPDATE recurring_tickets SET recurring_ticket_assigned_to = 0 WHERE recurring_ticket_assigned_to = $user_id");
 
     // Logging
     logAction("User", "Disable", "$session_name disabled user $name", 0, $user_id);

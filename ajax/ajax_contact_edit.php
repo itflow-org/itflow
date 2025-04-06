@@ -19,7 +19,7 @@ $contact_extension = nullable_htmlentities($row['contact_extension']);
 $contact_phone_country_code = nullable_htmlentities($row['contact_phone_country_code']);
 $contact_phone = nullable_htmlentities(formatPhoneNumber($row['contact_phone'], $contact_phone_country_code));
 $contact_mobile_country_code = nullable_htmlentities($row['contact_mobile_country_code']);
-$contact_mobile = nullable_htmlentities(formatPhoneNumber($row['contact_phone'], $contact_mobile_country_code));
+$contact_mobile = nullable_htmlentities(formatPhoneNumber($row['contact_mobile'], $contact_mobile_country_code));
 $contact_email = nullable_htmlentities($row['contact_email']);
 $contact_pin = nullable_htmlentities($row['contact_pin']);
 $contact_photo = nullable_htmlentities($row['contact_photo']);
@@ -121,7 +121,7 @@ ob_start();
                                 <div class="input-group-prepend">
                                     <span class="input-group-text"><i class="fa fa-fw fa-phone"></i></span>
                                 </div>
-                                <input type="tel" class="form-control col-2" name="phone_country_code" value="<?php echo "+$contact_phone_country_code"; ?>" placeholder="Code" maxlength="4">
+                                <input type="tel" class="form-control col-2" name="phone_country_code" value="<?php echo "$contact_phone_country_code"; ?>" placeholder="+" maxlength="4">
                                 <input type="tel" class="form-control" name="phone" value="<?php echo $contact_phone; ?>" placeholder="Phone Number" maxlength="200">
                             </div>
                         </div>
@@ -141,7 +141,7 @@ ob_start();
                                 <div class="input-group-prepend">
                                     <span class="input-group-text"><i class="fa fa-fw fa-mobile-alt"></i></span>
                                 </div>
-                                <input type="tel" class="form-control col-2" name="mobile_country_code" value="<?php echo "+$contact_mobile_country_code"; ?>" placeholder="Code" maxlength="4">
+                                <input type="tel" class="form-control col-2" name="mobile_country_code" value="<?php echo "$contact_mobile_country_code"; ?>" placeholder="+" maxlength="4">
                                 <input type="tel" class="form-control" name="mobile" value="<?php echo $contact_mobile; ?>" placeholder="Phone Number">
                             </div>
                         </div>

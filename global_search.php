@@ -23,7 +23,7 @@ if (isset($_GET['query'])) {
     $sql_clients = mysqli_query($mysqli, "SELECT * FROM clients
         LEFT JOIN locations ON clients.client_id = locations.location_client_id AND location_primary = 1
         WHERE client_archived_at IS NULL
-            AND client_name LIKE '%$query%'
+            AND (client_name LIKE '%$query%' OR client_abbreviation LIKE '%$query%')
             $access_permission_query
         ORDER BY client_id DESC LIMIT 5"
     );
@@ -721,7 +721,6 @@ if (isset($_GET['query'])) {
                                 } else {
                                     $asset_serial_display = $asset_serial;
                                 }
-                                $asset_mac = nullable_htmlentities($row['asset_mac']);
                                 $asset_uri = nullable_htmlentities($row['asset_uri']);
                                 $asset_status = nullable_htmlentities($row['asset_status']);
                                 $asset_created_at = nullable_htmlentities($row['asset_created_at']);
@@ -746,9 +745,9 @@ if (isset($_GET['query'])) {
                                 ?>
                                 <tr>
                                     <td>
-                                        <i class="fa fa-fw text-secondary fa-<?php echo $device_icon; ?> mr-2"></i><?php echo $asset_name; ?>
+                                        <i class="fa fa-fw text-secondary fa-<?php echo $device_icon; ?> mr-2"></i><a href="asset_details.php?client_id=<?php echo $client_id; ?>&asset_id=<?php echo $asset_id; ?>"><?php echo $asset_name; ?></a>
                                         <?php if(!empty($asset_uri)){ ?>
-                                        <a href="<?php echo $asset_uri; ?>" target="_blank"><i class="fas fa-fw fa-external-link-alt ml-2"></i></a>
+                                            <a href="<?php echo $asset_uri; ?>" target="_blank"><i class="fas fa-fw fa-external-link-alt ml-2"></i></a>
                                         <?php } ?>
                                     </td>
                                     <td><?php echo $asset_type; ?></td>

@@ -3424,17 +3424,50 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
         mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '2.1.2'");
     }
 
-	if (CURRENT_DATABASE_VERSION == '2.1.2') {
+    if (CURRENT_DATABASE_VERSION == '2.1.2') {
+        
+        // Update country_code to NULL for `contacts` table
+        mysqli_query($mysqli, "ALTER TABLE `contacts` MODIFY `contact_phone_country_code` VARCHAR(10) DEFAULT NULL");
+        mysqli_query($mysqli, "ALTER TABLE `contacts` MODIFY `contact_mobile_country_code` VARCHAR(10) DEFAULT NULL");
 
-		mysqli_query($mysqli, "ALTER TABLE `settings` ADD COLUMN `config_invoice_localization_title` VARCHAR(200) NULL DEFAULT 'Invoice' AFTER `config_invoice_footer`, ADD COLUMN `config_invoice_localization_tax` VARCHAR(200) NULL DEFAULT 'Tax' AFTER `config_invoice_localization_title`, ADD COLUMN `config_invoice_localization_total` VARCHAR(200) NULL DEFAULT 'Total' AFTER `config_invoice_localization_tax`, ADD COLUMN `config_invoice_localization_subtotal` VARCHAR(200) NULL DEFAULT 'Subtotal' AFTER `config_invoice_localization_total`, ADD COLUMN `config_quote_localization_title` VARCHAR(200) NULL DEFAULT 'Quote' AFTER `config_quote_footer`, ADD COLUMN `config_ticket_client_prefix_subject` VARCHAR(200) NULL DEFAULT NULL AFTER `config_ticket_moving_columns`");
+        // Update country_code to NULL for `locations` table
+        mysqli_query($mysqli, "ALTER TABLE `locations` MODIFY `location_phone_country_code` VARCHAR(10) DEFAULT NULL");
+        mysqli_query($mysqli, "ALTER TABLE `locations` MODIFY `location_fax_country_code` VARCHAR(10) DEFAULT NULL");
 
-		mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '2.1.3'");
-	}
+        // Update country_code to NULL for `vendors` table
+        mysqli_query($mysqli, "ALTER TABLE `vendors` MODIFY `vendor_phone_country_code` VARCHAR(10) DEFAULT NULL");
 
-    // if (CURRENT_DATABASE_VERSION == '2.1.3') {
-    //     // Insert queries here required to update to DB version 2.1.4
+        // Update country_code to NULL for `companies` table
+        mysqli_query($mysqli, "ALTER TABLE `companies` MODIFY `company_phone_country_code` VARCHAR(10) DEFAULT NULL");
+
+        // Set country_code to NULL for `contacts` table
+        mysqli_query($mysqli, "UPDATE `contacts` SET `contact_phone_country_code` = NULL");
+        mysqli_query($mysqli, "UPDATE `contacts` SET `contact_mobile_country_code` = NULL");
+
+        // Set country_code to NULL for `locations` table
+        mysqli_query($mysqli, "UPDATE `locations` SET `location_phone_country_code` = NULL");
+        mysqli_query($mysqli, "UPDATE `locations` SET `location_fax_country_code` = NULL");
+
+        // Set country_code to NULL for `vendors` table
+        mysqli_query($mysqli, "UPDATE `vendors` SET `vendor_phone_country_code` = NULL");
+
+        // Set country_code to NULL for `companies` table
+        mysqli_query($mysqli, "UPDATE `companies` SET `company_phone_country_code` = NULL");
+
+        mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '2.1.3'");
+    }
+
+  	if (CURRENT_DATABASE_VERSION == '2.1.3') {
+
+        mysqli_query($mysqli, "ALTER TABLE `settings` ADD COLUMN `config_invoice_localization_title` VARCHAR(200) NULL DEFAULT 'Invoice' AFTER `config_invoice_footer`, ADD COLUMN `config_invoice_localization_tax` VARCHAR(200) NULL DEFAULT 'Tax' AFTER `config_invoice_localization_title`, ADD COLUMN `config_invoice_localization_total` VARCHAR(200) NULL DEFAULT 'Total' AFTER `config_invoice_localization_tax`, ADD COLUMN `config_invoice_localization_subtotal` VARCHAR(200) NULL DEFAULT 'Subtotal' AFTER `config_invoice_localization_total`, ADD COLUMN `config_quote_localization_title` VARCHAR(200) NULL DEFAULT 'Quote' AFTER `config_quote_footer`, ADD COLUMN `config_ticket_client_prefix_subject` VARCHAR(200) NULL DEFAULT NULL AFTER `config_ticket_moving_columns`");
+
+        mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '2.1.4'");
+    }
+
+    // if (CURRENT_DATABASE_VERSION == '2.1.4') {
+    //     // Insert queries here required to update to DB version 2.1.5
     //     // Then, update the database to the next sequential version
-    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '2.1.4'");
+    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '2.1.5'");
     // }
 
 } else {

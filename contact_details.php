@@ -32,7 +32,7 @@ if (isset($_GET['contact_id'])) {
     $contact_phone = nullable_htmlentities(formatPhoneNumber($row['contact_phone'], $contact_phone_country_code));
     $contact_extension = nullable_htmlentities($row['contact_extension']);
     $contact_mobile_country_code = nullable_htmlentities($row['contact_mobile_country_code']);
-    $contact_mobile = nullable_htmlentities(formatPhoneNumber($row['contact_phone'], $contact_mobile_country_code));
+    $contact_mobile = nullable_htmlentities(formatPhoneNumber($row['contact_mobile'], $contact_mobile_country_code));
     $contact_email = nullable_htmlentities($row['contact_email']);
     $contact_photo = nullable_htmlentities($row['contact_photo']);
     $contact_pin = nullable_htmlentities($row['contact_pin']);

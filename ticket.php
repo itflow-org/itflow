@@ -161,6 +161,11 @@ if (isset($_GET['ticket_id'])) {
         $location_zip = nullable_htmlentities($row['location_zip']);
         $location_phone = formatPhoneNumber($row['location_phone']);
 
+        $invoice_id = intval($row['ticket_invoice_id']);
+        $invoice_prefix = nullable_htmlentities($row['invoice_prefix']);
+        $invoice_number = intval($row['invoice_number']);
+        $invoice_created_at = nullable_htmlentities($row['invoice_created_at']);
+
         $project_id = intval($row['project_id']);
         $project_prefix = nullable_htmlentities($row['project_prefix']);
         $project_number = intval($row['project_number']);
@@ -174,12 +179,7 @@ if (isset($_GET['ticket_id'])) {
             $row = mysqli_fetch_array($sql_project_manager);
             $project_manager_name = nullable_htmlentities($row['user_name']);
         }
-
-        $invoice_id = intval($row['ticket_invoice_id']);
-        $invoice_prefix = nullable_htmlentities($row['invoice_prefix']);
-        $invoice_number = intval($row['invoice_number']);
-        $invoice_created_at = nullable_htmlentities($row['invoice_created_at']);
-
+        
         if ($contact_id) {
             //Get Contact Ticket Stats
             $ticket_related_open = mysqli_query($mysqli, "SELECT COUNT(ticket_id) AS ticket_related_open FROM tickets WHERE ticket_status != 'Closed' AND ticket_contact_id = $contact_id ");

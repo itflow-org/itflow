@@ -439,6 +439,13 @@ if (mysqli_num_rows($sql_recurring_tickets) > 0) {
     }
 }
 
+// Flag any active recurring "next run" dates that are in the past
+$sql_invalid_recurring_tickets = mysqli_query($mysqli, "SELECT * FROM recurring_tickets WHERE recurring_ticket_next_run < CURDATE()");
+while ($row = mysqli_fetch_array($sql_invalid_recurring_tickets)) {
+    $subject = sanitizeInput($row['recurring_ticket_subject']);
+    appNotify("Ticket", "Recurring ticket $subject next run date is in the past!", "recurring_tickets.php");
+}
+
 // Logging
 // logAction("Cron", "Task", "Cron created sent out recurring tickets");
 
@@ -871,6 +878,14 @@ while ($row = mysqli_fetch_array($sql_recurring_invoices)) {
 
 } //End Recurring Invoices Loop
 
+// Flag any active recurring "next run" dates that are in the past
+$sql_invalid_recurring_invoices = mysqli_query($mysqli, "SELECT * FROM recurring_invoices WHERE recurring_invoice_next_date < CURDATE() AND recurring_invoice_status = 1");
+while ($row = mysqli_fetch_array($sql_invalid_recurring_invoices)) {
+    $invoice_prefix = sanitizeInput($row['recurring_invoice_prefix']);
+    $invoice_number = intval($row['recurring_invoice_number']);
+    appNotify("Invoice", "Recurring invoice $invoice_prefix$invoice_number next run date is in the past!", "recurring_invoices.php");
+}
+
 // Logging
 // logAction("Cron", "Task", "Cron created invoices from recurring invoices and sent emails out");
 
@@ -914,10 +929,17 @@ while ($row = mysqli_fetch_array($sql_recurring_expenses)) {
     mysqli_query($mysqli, "UPDATE recurring_expenses SET recurring_expense_last_sent = CURDATE(), recurring_expense_next_date = $next_date_query WHERE recurring_expense_id = $recurring_expense_id");
 
 
-} //End Recurring Invoices Loop
+} //End Recurring expenses loop
+
+// Flag any active recurring "next run" dates that are in the past
+$sql_invalid_recurring_expenses = mysqli_query($mysqli, "SELECT * FROM recurring_expenses WHERE recurring_expense_next_date < CURDATE() AND recurring_expense_status = 1");
+while ($row = mysqli_fetch_array($sql_invalid_recurring_expenses)) {
+    $recurring_expense_description = sanitizeInput($row['recurring_expense_description']);
+    appNotify("Expense", "Recurring expense $recurring_expense_description next run date is in the past!", "recurring_expenses.php");
+}
 
 // Logging
-logApp("Cron", "info", "Cron created expenses from recurring expenses");
+//logApp("Cron", "info", "Cron created expenses from recurring expenses");
 
 // TELEMETRY
 
@@ -938,7 +960,7 @@ if ($config_telemetry > 0 || $config_telemetry == 2) {
     $recurring_ticket_count = $row['num'];
 
     // Calendar Event Count
-    $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('event_id') AS num FROM events"));
+    $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('event_id') AS num FROM calendar_events"));
     $calendar_event_count = $row['num'];
 
     // Quote Count

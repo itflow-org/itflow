@@ -51,7 +51,7 @@
                                             while ($row = mysqli_fetch_array($sql)) {
                                                 $client_id = intval($row['client_id']);
                                                 $client_name = nullable_htmlentities($row['client_name']); ?>
-                                                <option <?php if ($client_id == $_GET['client']) { echo "selected"; } ?> value="<?php echo $client_id; ?>"><?php echo $client_name; ?></option>
+                                                <option <?php if ($client_id == isset($_GET['client'])) { echo "selected"; } ?> value="<?php echo $client_id; ?>"><?php echo $client_name; ?></option>
 
                                             <?php } ?>
                                         </select>
@@ -184,7 +184,7 @@
                                             <div class="input-group-prepend">
                                                 <span class="input-group-text"><i class="fa fa-fw fa-phone"></i></span>
                                             </div>
-                                            <input type="tel" class="form-control col-2" name="phone_country_code" value="+1" placeholder="Code" maxlength="4">
+                                            <input type="tel" class="form-control col-2" name="phone_country_code" placeholder="+" maxlength="4">
                                             <input type="tel" class="form-control" name="phone" placeholder="Phone Number" maxlength="200">
                                         </div>
                                     </div>
@@ -204,7 +204,7 @@
                                             <div class="input-group-prepend">
                                                 <span class="input-group-text"><i class="fa fa-fw fa-fax"></i></span>
                                             </div>
-                                            <input type="tel" class="form-control col-2" name="fax_country_code" value="+1" placeholder="Code" maxlength="4">
+                                            <input type="tel" class="form-control col-2" name="fax_country_code" placeholder="+" maxlength="4">
                                             <input type="tel" class="form-control" name="fax" placeholder="Fax Number" maxlength="200">
                                         </div>
                                     </div>

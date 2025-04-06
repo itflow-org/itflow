@@ -119,7 +119,7 @@ $company_initials = nullable_htmlentities(initials($company_name));
                                             <div class="input-group-prepend">
                                                 <span class="input-group-text"><i class="fa fa-fw fa-phone"></i></span>
                                             </div>
-                                            <input type="tel" class="form-control col-2" name="phone_country_code" value="+<?php echo $company_phone_country_code; ?>" placeholder="Code" maxlength="4">
+                                            <input type="tel" class="form-control col-2" name="phone_country_code" value="<?php echo $company_phone_country_code; ?>" placeholder="+" maxlength="4">
                                             <input type="tel" class="form-control" name="phone" value="<?php echo $company_phone; ?>" placeholder="Phone Number" maxlength="200">
                                         </div>
                                     </div>

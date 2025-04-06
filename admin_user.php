@@ -6,25 +6,14 @@ $order = "ASC";
 
 require_once "includes/inc_all_admin.php";
 
-// User Type Filter
-if (isset($_GET['type']) && $_GET['type'] == "client") {
-    $type_filter = "client";
-    $type_query = "AND user_type = 2";
-} else {
-    $type_filter = "user";
-    $type_query = "AND user_type = 1";
-}
-
 $sql = mysqli_query(
     $mysqli,
     "SELECT SQL_CALC_FOUND_ROWS * FROM users
     LEFT JOIN user_roles ON user_role_id = role_id
     LEFT JOIN user_settings ON users.user_id = user_settings.user_id
-    LEFT JOIN contacts ON users.user_id = contact_user_id
-    LEFT JOIN clients ON contact_client_id = client_id
     WHERE (user_name LIKE '%$q%' OR user_email LIKE '%$q%')
+    AND user_type = 1
     AND user_archived_at IS NULL
-    $type_query
     ORDER BY $sort $order LIMIT $record_from, $record_to"
 );
 
@@ -64,12 +53,6 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     </div>
                 </div>
                 <div class="col-md-8">
-                    <div class="btn-toolbar float-right">
-                        <div class="btn-group mr-2">
-                            <a href="?type=user" class="btn btn-<?php if ($type_filter == "user"){ echo "primary"; } else { echo "default"; } ?>"><i class="fa fa-fw fa-user-shield mr-2"></i>User</a>
-                            <a href="?type=client" class="btn btn-<?php if ($type_filter == "client"){ echo "primary"; } else { echo "default"; } ?>"><i class="fa fa-fw fa-user mr-2"></i>Client</a>
-                        </div>
-                    </div>
                 </div>
             </div>
         </form>
@@ -102,13 +85,6 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     <th>
                         Last Login
                     </th>
-                    <?php if ($type_filter === "client") { ?>
-                    <th>
-                        <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=client_name&order=<?php echo $disp; ?>">
-                            Client <?php if ($sort == 'client_name') { echo $order_icon; } ?>
-                        </a>
-                    </th>
-                    <?php } ?>
                     <th class="text-center">Action</th>
                 </tr>
                 </thead>
@@ -138,10 +114,6 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     $user_role = intval($row['user_role_id']);
                     $user_role_display = nullable_htmlentities($row['role_name']);
                     $user_initials = nullable_htmlentities(initials($user_name));
-
-                    $contact_id = intval($row['contact_id']);
-                    $client_id = intval($row['client_id']);     
-                    $client_name = nullable_htmlentities($row['client_name']);
 
                     $sql_last_login = mysqli_query(
                         $mysqli,
@@ -201,9 +173,6 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         <td><?php echo $user_status_display; ?></td>
                         <td class="text-center"><?php echo $mfa_status_display; ?></td>
                         <td><?php echo $last_login; ?></td>
-                        <?php if ($type_filter === "client") { ?>
-                        <td><?php echo $client_name; ?></td>
-                        <?php } ?>
                         <td>
                             <?php if ($user_id !== $session_user_id) {   // Prevent modifying self ?>
                             <div class="dropdown dropleft text-center">

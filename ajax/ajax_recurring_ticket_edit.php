@@ -47,7 +47,7 @@ ob_start();
                 <a class="nav-link active" data-toggle="pill" href="#pills-edit-details<?php echo $recurring_ticket_id; ?>"><i class="fa fa-fw fa-life-ring mr-2"></i>Details</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" data-toggle="pill" href="#pills-edit-contacts<?php echo $recurring_ticket_id; ?>"><i class="fa fa-fw fa-users mr-2"></i>Contacts</a>
+                <a class="nav-link" data-toggle="pill" href="#pills-edit-contacts<?php echo $recurring_ticket_id; ?>"><i class="fa fa-fw fa-users mr-2"></i>Contact</a>
             </li>
             <li class="nav-item">
                 <a class="nav-link" data-toggle="pill" href="#pills-edit-schedule<?php echo $recurring_ticket_id; ?>"><i class="fa fa-fw fa-building mr-2"></i>Schedule</a>
