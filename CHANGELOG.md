@@ -5,7 +5,13 @@ This file documents all notable changes made to ITFlow.
 ## [25.03.4]
 
 ### Fixed
-
+- Ability to remove additional assets from the ticket details screen.
+- Fix the ability to remove assets from edit ticket not working when only 1 asset exists.
+- Fix Database Backup corruption.
+- Client Portal - show ticket number instead of ticket id in ticket listing.
+- Add Purchase Reference to copy asset.
+- Add Link to asset details from the global search.
+- Fix Bulk assign ticket only showing contacts instead of ITFlow users.
 
 
 ## [25.03.3]
