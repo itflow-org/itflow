@@ -7,84 +7,68 @@
 defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
 
 if (isset($_GET['download_database'])) {
-
     validateCSRFToken($_GET['csrf_token']);
 
-    // Get All Table Names From the Database
-    $tables = array();
-    $sql = "SHOW TABLES";
-    $result = mysqli_query($mysqli, $sql);
+    global $mysqli, $database;
 
-    while ($row = mysqli_fetch_row($result)) {
+    $backupFileName = date('Y-m-d_H-i-s') . '_backup.sql';
+
+    header('Content-Type: application/sql');
+    header('Content-Disposition: attachment; filename="' . $backupFileName . '"');
+    header('Cache-Control: no-store, no-cache, must-revalidate');
+    header('Pragma: no-cache');
+    header('Expires: 0');
+
+    if (ob_get_level()) ob_end_clean();
+    flush();
+
+    // Start of dump file — charset declaration
+    echo "-- UTF-8 + Foreign Key Safe Dump\n";
+    echo "SET NAMES 'utf8mb4';\n";
+    echo "SET foreign_key_checks = 0;\n\n";
+
+    // Get all tables
+    $tables = [];
+    $res = $mysqli->query("SHOW TABLES");
+    while ($row = $res->fetch_row()) {
         $tables[] = $row[0];
     }
 
-    $sqlScript = "";
     foreach ($tables as $table) {
+        // Table structure
+        $createRes = $mysqli->query("SHOW CREATE TABLE `$table`");
+        $createRow = $createRes->fetch_assoc();
+        $createSQL = array_values($createRow)[1];
 
-        // Prepare SQLscript for creating table structure
-        $query = "SHOW CREATE TABLE $table";
-        $result = mysqli_query($mysqli, $query);
-        $row = mysqli_fetch_row($result);
+        echo "\n-- ----------------------------\n";
+        echo "-- Table structure for `$table`\n";
+        echo "-- ----------------------------\n";
+        echo "DROP TABLE IF EXISTS `$table`;\n";
+        echo $createSQL . ";\n\n";
 
-        $sqlScript .= "\n\n" . $row[1] . ";\n\n";
+        // Table data
+        $dataRes = $mysqli->query("SELECT * FROM `$table`");
+        if ($dataRes->num_rows > 0) {
+            echo "-- Dumping data for table `$table`\n";
+            while ($row = $dataRes->fetch_assoc()) {
+                $columns = array_map(fn($col) => '`' . $mysqli->real_escape_string($col) . '`', array_keys($row));
+                $values = array_map(function ($val) use ($mysqli) {
+                    if (is_null($val)) return "NULL";
+                    return "'" . $mysqli->real_escape_string($val) . "'";
+                }, array_values($row));
 
-
-        $query = "SELECT * FROM $table";
-        $result = mysqli_query($mysqli, $query);
-
-        $columnCount = mysqli_num_fields($result);
-
-        // Prepare SQLscript for dumping data for each table
-        for ($i = 0; $i < $columnCount; $i ++) {
-            while ($row = mysqli_fetch_row($result)) {
-                $sqlScript .= "INSERT INTO $table VALUES(";
-                for ($j = 0; $j < $columnCount; $j ++) {
-
-                    if (isset($row[$j])) {
-                        $sqlScript .= '"' . $row[$j] . '"';
-                    } else {
-                        $sqlScript .= '""';
-                    }
-                    if ($j < ($columnCount - 1)) {
-                        $sqlScript .= ',';
-                    }
-                }
-                $sqlScript .= ");\n";
+                echo "INSERT INTO `$table` (" . implode(", ", $columns) . ") VALUES (" . implode(", ", $values) . ");\n";
             }
+            echo "\n";
         }
-
-        $sqlScript .= "\n";
     }
 
-    if (!empty($sqlScript)) {
+    //FINAL STEP: Re-enable foreign key checks
+    echo "\nSET foreign_key_checks = 1;\n";
 
-        $company_name = $session_company_name;
-        // Save the SQL script to a backup file
-        $backup_file_name = date('Y-m-d') . '_ITFlow_backup.sql';
-        $fileHandler = fopen($backup_file_name, 'w+');
-        $number_of_lines = fwrite($fileHandler, $sqlScript);
-        fclose($fileHandler);
-
-        // Download the SQL backup file to the browser
-        header('Content-Description: File Transfer');
-        header('Content-Type: application/octet-stream');
-        header('Content-Disposition: attachment; filename=' . basename($backup_file_name));
-        header('Content-Transfer-Encoding: binary');
-        header('Expires: 0');
-        header('Cache-Control: must-revalidate');
-        header('Pragma: public');
-        header('Content-Length: ' . filesize($backup_file_name));
-        ob_clean();
-        flush();
-        readfile($backup_file_name);
-        exec('rm ' . $backup_file_name);
-    }
-
-    // Logging
-    logAction("Database", "Download", "$session_name downloaded the database");
-
+    logAction("Database", "Download", "$session_name downloaded the database.");
     $_SESSION['alert_message'] = "Database downloaded";
+    exit;
 }
 
 if (isset($_POST['backup_master_key'])) {

@@ -721,7 +721,6 @@ if (isset($_GET['query'])) {
                                 } else {
                                     $asset_serial_display = $asset_serial;
                                 }
-                                $asset_mac = nullable_htmlentities($row['asset_mac']);
                                 $asset_uri = nullable_htmlentities($row['asset_uri']);
                                 $asset_status = nullable_htmlentities($row['asset_status']);
                                 $asset_created_at = nullable_htmlentities($row['asset_created_at']);
@@ -746,9 +745,9 @@ if (isset($_GET['query'])) {
                                 ?>
                                 <tr>
                                     <td>
-                                        <i class="fa fa-fw text-secondary fa-<?php echo $device_icon; ?> mr-2"></i><?php echo $asset_name; ?>
+                                        <i class="fa fa-fw text-secondary fa-<?php echo $device_icon; ?> mr-2"></i><a href="asset_details.php?client_id=<?php echo $client_id; ?>&asset_id=<?php echo $asset_id; ?>"><?php echo $asset_name; ?></a>
                                         <?php if(!empty($asset_uri)){ ?>
-                                        <a href="<?php echo $asset_uri; ?>" target="_blank"><i class="fas fa-fw fa-external-link-alt ml-2"></i></a>
+                                            <a href="<?php echo $asset_uri; ?>" target="_blank"><i class="fas fa-fw fa-external-link-alt ml-2"></i></a>
                                         <?php } ?>
                                     </td>
                                     <td><?php echo $asset_type; ?></td>
