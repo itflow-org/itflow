@@ -1058,6 +1058,11 @@ if (isset($_GET['ticket_id'])) {
                                     data-ajax-id="<?php echo $additional_asset_id; ?>">
                                     <i class="fa fa-fw fa-<?php echo $additional_asset_icon; ?> text-secondary mr-2"></i><?php echo $additional_asset_name; ?>
                                 </a>
+                                <?php if (empty($ticket_closed_at)) { ?>
+                                    <a class="confirm-link float-right" href="post.php?delete_ticket_additional_asset=<?php echo $additional_asset_id; ?>&ticket_id=<?php echo $ticket_id; ?>" title="Remove asset from ticket">
+                                        <i class="fas fa-fw fa-trash-alt text-secondary"></i>
+                                    </a>
+                                <?php } ?>
                             </div>
                         <?php
 

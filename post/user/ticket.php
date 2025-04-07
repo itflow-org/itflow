@@ -498,6 +498,41 @@ if (isset($_GET['delete_ticket_watcher'])) {
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 }
 
+if (isset($_GET['delete_ticket_additional_asset'])) {
+
+    enforceUserPermission('module_support', 2);
+
+    $asset_id = intval($_GET['delete_ticket_additional_asset']);
+    $ticket_id = intval($_GET['ticket_id']);
+
+    // Get ticket / asset details for logging
+    $sql = mysqli_query($mysqli, "SELECT asset_name, ticket_prefix, ticket_number, ticket_status_name, ticket_client_id FROM assets
+        JOIN tickets ON ticket_id = $ticket_id 
+        JOIN ticket_statuses ON ticket_status = ticket_status_id
+        WHERE asset_id = $asset_id"
+    );
+    $row = mysqli_fetch_array($sql);
+
+    $ticket_prefix = sanitizeInput($row['ticket_prefix']);
+    $ticket_number = intval($row['ticket_number']);
+    $ticket_status_name = sanitizeInput($row['ticket_status_name']);
+    $asset_name = sanitizeInput($row['asset_name']);
+    $client_id = intval($row['ticket_client_id']);
+
+    mysqli_query($mysqli, "DELETE FROM ticket_assets WHERE ticket_id = $ticket_id AND asset_id = $asset_id");
+
+    // History
+    mysqli_query($mysqli, "INSERT INTO ticket_history SET ticket_history_status = '$ticket_status_name', ticket_history_description = '$session_name removed additional asset $asset_name', ticket_history_ticket_id = $ticket_id");
+
+    // Logging
+    logAction("Ticket", "Edit", "$session_name removed asset $asset_name from ticket $ticket_prefix$ticket_number", $client_id, $ticket_id);
+
+    $_SESSION['alert_type'] = "error";
+    $_SESSION['alert_message'] = "Removed asset <strong>$asset_name</strong> from ticket.";
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+}
+
 if (isset($_POST['edit_ticket_asset'])) {
 
     enforceUserPermission('module_support', 2);
