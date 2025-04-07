@@ -203,6 +203,10 @@ if (isset($_POST['edit_ticket'])) {
             $additional_asset_id = intval($additional_asset);
             mysqli_query($mysqli, "INSERT INTO ticket_assets SET ticket_id = $ticket_id, asset_id = $additional_asset_id");
         }
+    } else {
+        // If no additional assets are provided, delete them all
+        // This handles cases where the assets input might be cleared or not set at all.
+        mysqli_query($mysqli, "DELETE FROM ticket_assets WHERE ticket_id = $ticket_id");
     }
 
     // Get contact/ticket details after update for logging / email purposes
