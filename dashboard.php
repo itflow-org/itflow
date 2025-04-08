@@ -151,7 +151,7 @@ if ($user_config_dashboard_financial_enable == 1) {
         $row = mysqli_fetch_array($sql_unbilled_tickets);
         $unbilled_tickets = intval($row['unbilled_tickets']);
     } else {
-        $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(recurring_id) AS recurring_invoices_added FROM recurring WHERE YEAR(recurring_created_at) = $year"));
+        $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(recurring_invoice_id) AS recurring_invoices_added FROM recurring_invoices WHERE YEAR(recurring_invoice_created_at) = $year"));
         $recurring_invoices_added = intval($row['recurring_invoices_added']);
     }
 
