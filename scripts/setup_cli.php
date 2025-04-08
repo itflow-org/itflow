@@ -125,15 +125,16 @@ function getOptionOrPrompt($key, $promptMessage, $required = false, $default = '
     } else {
         if ($non_interactive && $required) {
             die("Missing required argument: --$key\n");
+        } else {
+            $val = prompt($promptMessage . (strlen($default) ? " [$default]" : ''));
+            if (empty($val) && !empty($default)) {
+                $val = $default;
+            }
+            if ($required && empty($val)) {
+                die("Error: $promptMessage is required.\n");
+            }
+            return $val;
         }
-        $val = prompt($promptMessage . (strlen($default) ? " [$default]" : ''));
-        if (empty($val) && !empty($default)) {
-            $val = $default;
-        }
-        if ($required && empty($val)) {
-            die("Error: $promptMessage is required.\n");
-        }
-        return $val;
     }
 }
 
