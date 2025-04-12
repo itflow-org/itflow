@@ -319,7 +319,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         } else {
                             $contact_phone_display = "<div><i class='fas fa-fw fa-phone mr-2'></i><a href='tel:$contact_phone'>$contact_phone$contact_extension_display</a></div>";
                         }
-                        $contact_mobile_country_code = nullable_htmlentities($row['contact_phone_country_code']);
+                        $contact_mobile_country_code = nullable_htmlentities($row['contact_mobile_country_code']);
                         $contact_mobile = nullable_htmlentities(formatPhoneNumber($row['contact_mobile'], $contact_mobile_country_code));
                         if (empty($contact_mobile)) {
                             $contact_mobile_display = "";
