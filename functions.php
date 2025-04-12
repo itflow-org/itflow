@@ -79,7 +79,7 @@ function getUserAgent() {
 function getIP() {
     if (defined("CONST_GET_IP_METHOD")) {
         if (CONST_GET_IP_METHOD == "HTTP_X_FORWARDED_FOR") {
-            $ip = getenv('HTTP_X_FORWARDED_FOR');
+            $ip = explode(',', getenv('HTTP_X_FORWARDED_FOR'))[0];
         } else {
             $ip = $_SERVER["HTTP_CF_CONNECTING_IP"] ?? $_SERVER['REMOTE_ADDR'];
         }
