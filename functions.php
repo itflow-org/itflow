@@ -1614,10 +1614,12 @@ function getFieldById($table, $id, $field, $escape_method = 'sql') {
 }
 
 // Recursive function to display folder options - Used in folders files and documents
-function display_folder_options($parent_folder_id, $client_id, $indent = 0) {
+function display_folder_options($parent_folder_id, $client_id, $folder_location = 0, $indent = 0) {
     global $mysqli;
 
-    $sql_folders = mysqli_query($mysqli, "SELECT * FROM folders WHERE parent_folder = $parent_folder_id AND folder_location = 1 AND folder_client_id = $client_id ORDER BY folder_name ASC");
+    $folder_location = intval($folder_location);
+
+    $sql_folders = mysqli_query($mysqli, "SELECT * FROM folders WHERE parent_folder = $parent_folder_id AND folder_location = $folder_location AND folder_client_id = $client_id ORDER BY folder_name ASC");
     while ($row = mysqli_fetch_array($sql_folders)) {
         $folder_id = intval($row['folder_id']);
         $folder_name = nullable_htmlentities($row['folder_name']);
@@ -1627,13 +1629,14 @@ function display_folder_options($parent_folder_id, $client_id, $indent = 0) {
 
         // Check if this folder is selected
         $selected = '';
-        if ((isset($_GET['folder_id']) && $_GET['folder_id'] == $folder_id) || (isset($_POST['folder']) && $_POST['folder'] == $folder_id)) {
+        if ((isset($_GET['folder_id']) && intval($_GET['folder_id']) === $folder_id) || 
+            (isset($_POST['folder']) && intval($_POST['folder']) === $folder_id)) {
             $selected = 'selected';
         }
 
         echo "<option value=\"$folder_id\" $selected>$indentation$folder_name</option>";
 
         // Recursively display subfolders
-        display_folder_options($folder_id, $client_id, $indent + 1);
+        display_folder_options($folder_id, $client_id, $folder_location, $indent + 1);
     }
 }
