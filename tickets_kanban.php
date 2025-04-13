@@ -105,7 +105,7 @@ $kanban = array_values($statuses);
                 <span class='badge badge-secondary'>
                     <?php echo $item['category_name']; ?>
                 </span>
-                <div class='btn btn-secondary drag-handle-class' style="display: none;">
+                <div class='btn btn-light drag-handle-class' style="display: none;">
                     <i class="drag-handle-class fas fa-bars"></i>
                 </div>
                 <br>
