@@ -20,10 +20,11 @@
   }
 }
 
-.grab-cursor {
-    cursor: grab;
+button.drag-handle {
+    cursor: grab !important;
+    touch-action: none;
+    user-select: none;
 }
-
-.grab-cursor:active {
-    cursor: grabbing;
+button.drag-handle:active {
+    cursor: grabbing !important;
 }
