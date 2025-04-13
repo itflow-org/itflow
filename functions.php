@@ -1618,6 +1618,8 @@ function display_folder_options($parent_folder_id, $client_id, $folder_location 
     global $mysqli;
 
     $folder_location = intval($folder_location);
+    // 0 = Document Folders
+    // 1 = File Folders
 
     $sql_folders = mysqli_query($mysqli, "SELECT * FROM folders WHERE parent_folder = $parent_folder_id AND folder_location = $folder_location AND folder_client_id = $client_id ORDER BY folder_name ASC");
     while ($row = mysqli_fetch_array($sql_folders)) {
