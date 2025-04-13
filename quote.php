@@ -123,7 +123,6 @@ if (isset($_GET['quote_id'])) {
     );
 
 ?>
-<link rel="stylesheet" href="plugins/dragula/dragula.min.css">
 
     <ol class="breadcrumb d-print-none">
         <?php if (isset($_GET['client_id'])) { ?>
