@@ -5,6 +5,11 @@ if (file_exists("config.php")) {
 
 }
 
+if (file_exists("db.php")) {
+    include "db.php";
+
+}
+
 include "functions.php";
 
 include "includes/database_version.php";
@@ -869,7 +874,7 @@ if (isset($_POST['add_telemetry'])) {
                                             <div class="input-group-prepend">
                                                 <span class="input-group-text"><i class="fa fa-fw fa-database"></i></span>
                                             </div>
-                                            <input type="text" class="form-control" name="database" placeholder="Database name" autofocus required>
+                                            <input type="text" class="form-control" name="database" value="<?php echo $defaultdatabase; ?>" autofocus required>
                                         </div>
                                     </div>
 
@@ -879,7 +884,7 @@ if (isset($_POST['add_telemetry'])) {
                                             <div class="input-group-prepend">
                                                 <span class="input-group-text"><i class="fa fa-fw fa-server"></i></span>
                                             </div>
-                                            <input type="text" class="form-control" name="host" value="localhost" placeholder="Database Host" required>
+                                            <input type="text" class="form-control" name="host" value="<?php echo $defaultdbhost; ?>" required>
                                         </div>
                                     </div>
 
@@ -892,7 +897,7 @@ if (isset($_POST['add_telemetry'])) {
                                             <div class="input-group-prepend">
                                                 <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
                                             </div>
-                                            <input type="text" class="form-control" name="username" placeholder="Database user account" required>
+                                            <input type="text" class="form-control" name="username" value="<?php echo $defaultdbusername; ?>" required>
                                         </div>
                                     </div>
 
@@ -902,7 +907,7 @@ if (isset($_POST['add_telemetry'])) {
                                             <div class="input-group-prepend">
                                                 <span class="input-group-text"><i class="fa fa-fw fa-lock"></i></span>
                                             </div>
-                                            <input type="password" class="form-control" data-toggle="password" name="password" placeholder="Database user password" autocomplete="new-password" required>
+                                            <input type="password" class="form-control" data-toggle="password" name="password" value="<?php echo $defaultdbpassword; ?>" autocomplete="new-password" required>
                                             <div class="input-group-append">
                                                 <span class="input-group-text"><i class="fa fa-fw fa-eye"></i></span>
                                             </div>
