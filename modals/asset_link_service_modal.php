@@ -8,7 +8,7 @@
                 </button>
             </div>
             <form action="post.php" method="post" autocomplete="off">
-                <input type="hidden" name="asset_id" value="<?php echo $asset_id; ?>">
+                <input type="hidden" name="asset_id" value="<?php echo intval($_GET['asset_id']); ?>">
                 <div class="modal-body bg-white">
 
                     <div class="form-group">

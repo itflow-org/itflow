@@ -272,26 +272,34 @@ if (isset($_GET['recurring_invoice_id'])) {
 
                                     <tr data-item-id="<?php echo $item_id; ?>">
                                         <td class="d-print-none">
-                                            <div class="dropdown">
-                                                <button class="btn btn-sm btn-light" type="button" data-toggle="dropdown">
-                                                    <i class="fas fa-ellipsis-v"></i>
-                                                </button>
-                                                <div class="dropdown-menu">
-                                                    <a class="dropdown-item" href="#"
-                                                        data-toggle="ajax-modal"
-                                                        data-ajax-url="ajax/ajax_item_edit.php"
-                                                        data-ajax-id="<?php echo $item_id; ?>"
-                                                        >
-                                                        <i class="fa fa-fw fa-edit mr-2"></i>Edit
-                                                    </a>
-                                                    <div class="dropdown-divider"></div>
-                                                    <a class="dropdown-item text-danger confirm-link" href="post.php?delete_recurring_invoice_item=<?php echo $item_id; ?>"><i class="fa fa-fw fa-trash mr-2"></i>Delete</a>
+                                            <div class="row">
+                                                <div class="col">
+                                                    <button type="button" class="btn btn-sm btn-light drag-handle">
+                                                        <i class="fas fa-bars text-muted"></i>
+                                                    </button>
+                                                </div>
+                                                <div class="col">
 
-
+                                                    <div class="dropdown">
+                                                        <button class="btn btn-sm btn-light" type="button" data-toggle="dropdown">
+                                                            <i class="fas fa-ellipsis-v"></i>
+                                                        </button>
+                                                        <div class="dropdown-menu">
+                                                            <a class="dropdown-item" href="#"
+                                                                data-toggle="ajax-modal"
+                                                                data-ajax-url="ajax/ajax_item_edit.php"
+                                                                data-ajax-id="<?php echo $item_id; ?>"
+                                                                >
+                                                                <i class="fa fa-fw fa-edit mr-2"></i>Edit
+                                                            </a>
+                                                            <div class="dropdown-divider"></div>
+                                                            <a class="dropdown-item text-danger confirm-link" href="post.php?delete_recurring_invoice_item=<?php echo $item_id; ?>"><i class="fa fa-fw fa-trash mr-2"></i>Delete</a>
+                                                        </div>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </td>
-                                        <td class="grab-cursor"><?php echo $item_name; ?></td>
+                                        <td><?php echo $item_name; ?></td>
                                         <td><?php echo nl2br($item_description); ?></td>
                                         <td class="text-center"><?php echo $item_quantity; ?></td>
                                         <td class="text-right"><?php echo numfmt_format_currency($currency_format, $item_price, $recurring_invoice_currency_code); ?></td>
@@ -483,39 +491,23 @@ require_once "includes/footer.php";
     });
 </script>
 
-<link rel="stylesheet" href="plugins/dragula/dragula.min.css">
-<script src="plugins/dragula/dragula.min.js"></script>
+<script src="plugins/SortableJS/Sortable.min.js"></script>
 <script>
-$(document).ready(function() {
-    var container = $('table#items tbody')[0];
+new Sortable(document.querySelector('table#items tbody'), {
+    handle: '.drag-handle',
+    animation: 150,
+    onEnd: function (evt) {
+        const rows = document.querySelectorAll('table#items tbody tr');
+        const positions = Array.from(rows).map((row, index) => ({
+            id: row.dataset.itemId,
+            order: index
+        }));
 
-    dragula([container])
-        .on('drop', function (el, target, source, sibling) {
-            // Handle the drop event to update the order in the database
-            var rows = $(container).children();
-            var positions = rows.map(function(index, row) {
-                return {
-                    id: $(row).data('itemId'),
-                    order: index
-                };
-            }).get();
-
-            // Send the new order to the server
-            $.ajax({
-                url: 'ajax.php',
-                method: 'POST',
-                data: {
-                    update_recurring_invoice_items_order: true,
-                    recurring_invoice_id: <?php echo $recurring_invoice_id; ?>,
-                    positions: positions
-                },
-                success: function(data) {
-                    // Handle success
-                },
-                error: function(error) {
-                    console.error('Error updating order:', error);
-                }
-            });
+        $.post('ajax.php', {
+            update_recurring_invoice_items_order: true,
+            recurring_invoice_id: <?php echo $recurring_invoice_id; ?>,
+            positions: positions
         });
+    }
 });
 </script>

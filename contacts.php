@@ -319,7 +319,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         } else {
                             $contact_phone_display = "<div><i class='fas fa-fw fa-phone mr-2'></i><a href='tel:$contact_phone'>$contact_phone$contact_extension_display</a></div>";
                         }
-                        $contact_mobile_country_code = nullable_htmlentities($row['contact_phone_country_code']);
+                        $contact_mobile_country_code = nullable_htmlentities($row['contact_mobile_country_code']);
                         $contact_mobile = nullable_htmlentities(formatPhoneNumber($row['contact_mobile'], $contact_mobile_country_code));
                         if (empty($contact_mobile)) {
                             $contact_mobile_display = "";
@@ -445,11 +445,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 </div>
                             </td>
                             <td>
-                                <a class="text-dark" href="#"
-                                    data-toggle="ajax-modal"
-                                    data-modal-size="lg"
-                                    data-ajax-url="ajax/ajax_contact_details.php?<?php echo $client_url; ?>"
-                                    data-ajax-id="<?php echo $contact_id; ?>">
+                                <a class="text-dark" href="contact_details.php?client_id=<?php echo $client_id; ?>&contact_id=<?php echo $contact_id; ?>">
                                     <div class="media">
                                         <?php if ($contact_photo) { ?>
                                             <span class="fa-stack fa-2x mr-3 text-center">

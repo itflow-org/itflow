@@ -1,4 +1,3 @@
-<link rel="stylesheet" href="plugins/dragula/dragula.min.css">
 <link rel="stylesheet" href="css/tickets_kanban.css">
 
 <?php
@@ -82,7 +81,7 @@ $kanban = array_values($statuses);
     ?>
     <div class="kanban-column card card-dark" data-status-id="<?=htmlspecialchars($kanban_column->id); ?>">
         <h6 class="panel-title"><?=htmlspecialchars($kanban_column->name); ?></h6>
-        <div id="status" data-column-name="<?=$kanban_column->name?>" data-status-id="<?=htmlspecialchars($kanban_column->id); ?>" style="height: 100%;" >
+        <div class="kanban-status" data-column-name="<?=$kanban_column->name?>" data-status-id="<?=htmlspecialchars($kanban_column->id); ?>">
             <?php
             foreach($kanban_column->tickets as $item){
                 if ($item['ticket_priority'] == "High") {
@@ -106,7 +105,7 @@ $kanban = array_values($statuses);
                 <span class='badge badge-secondary'>
                     <?php echo $item['category_name']; ?>
                 </span>
-                <div class='btn btn-secondary drag-handle-class' style="display: none;">
+                <div class='btn btn-light drag-handle-class' style="display: none;">
                     <i class="drag-handle-class fas fa-bars"></i>
                 </div>
                 <br>
@@ -154,5 +153,5 @@ echo   "const CONFIG_TICKET_MOVING_COLUMNS = " . json_encode($config_ticket_movi
 echo   "const CONFIG_TICKET_ORDERING = " . json_encode($config_ticket_ordering) . ";";
 echo "</script>";
 ?>
-<script src="plugins/dragula/dragula.min.js"></script>
+<script src="plugins/SortableJS/Sortable.min.js"></script>
 <script src="js/tickets_kanban.js"></script>

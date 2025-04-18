@@ -72,6 +72,31 @@ require_once "includes/inc_all_admin.php";
                         <input type="email" class="form-control" name="config_ticket_new_ticket_notification_email" placeholder="Address to notify for new tickets, leave blank for none" value="<?php echo nullable_htmlentities($config_ticket_new_ticket_notification_email); ?>">
                     </div>
                 </div>
+                
+                <div class="form-group">
+                    <label>Tickets Default View</label>
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text"><i class="fa fa-fw fa-eye"></i></span>
+                        </div>
+                        <select class="form-control" name="config_ticket_default_view">
+                            <option value=0 <?php if ($config_ticket_default_view == 0) { echo "selected"; } ?>>List</option>
+                            <option value=1 <?php if ($config_ticket_default_view == 1) { echo "selected"; } ?>>Compact</option>
+                            <option value=2 <?php if ($config_ticket_default_view == 2) { echo "selected"; } ?>>Kanban</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                <label>Kanban Settings</label>
+                    <div class="custom-control custom-switch">
+                        <input type="checkbox" class="custom-control-input" name="config_ticket_ordering" <?php if ($config_ticket_ordering == 1) { echo "checked"; } ?> value="1" id="ticketOrderingSwitch">
+                        <label class="custom-control-label" for="ticketOrderingSwitch">Allow ticket ordering within its column<small class="text-secondary">(uncheked will result in ordering it by priority and id)</small></label>
+                    </div>
+                    <div class="custom-control custom-switch">
+                    <input type="checkbox" class="custom-control-input" name="config_ticket_moving_columns" <?php if ($config_ticket_moving_columns == 1) { echo "checked"; } ?> value="1" id="ticketMovingColumnsSwitch">
+                        <label class="custom-control-label" for="ticketMovingColumnsSwitch">Allow moving columns</label>
+                    </div>
+                </div>
 
                 <hr>
 

@@ -14,7 +14,11 @@ if (file_exists("config.php")) {
 	<!-- Page Content -->
 	<h1>Blank Page</h1>
 	<hr>
-	<?php 
+	<?php
+
+    if (isset($config_start_page)) { ?>
+        <meta http-equiv="refresh" content="0;url=<?php echo $config_start_page; ?>">
+    <?php }
 
 	require_once "includes/footer.php";
 
