@@ -2,6 +2,14 @@
 
 This file documents all notable changes made to ITFlow.
 
+## [25.03.6]
+
+### Fixed
+- Set default to date to 2035-12-31 as 9999-12-31 and 2999-12-31 broke certain browsers.
+- Update Client PDF Export, add header added company logo.
+- Present Larger clearer Warning about updates on update page.
+- Allow to search by project reference.
+
 ## [25.03.5]
 
 ### Fixed

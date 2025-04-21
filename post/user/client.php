@@ -597,6 +597,15 @@ if (isset($_POST["export_client_pdf"])) {
     enforceUserPermission("module_sales", 1);
     enforceUserPermission("module_financial", 1);
 
+    $sql = mysqli_query($mysqli, "SELECT * FROM companies, settings WHERE companies.company_id = settings.company_id AND companies.company_id = 1");
+    $row = mysqli_fetch_array($sql);
+    $company_name = nullable_htmlentities($row['company_name']);
+    $company_phone_country_code = nullable_htmlentities($row['company_phone_country_code']);
+    $company_phone = nullable_htmlentities(formatPhoneNumber($row['company_phone'], $company_phone_country_code));
+    $company_email = nullable_htmlentities($row['company_email']);
+    $company_website = nullable_htmlentities($row['company_website']);
+    $company_logo = nullable_htmlentities($row['company_logo']);
+
     $client_id = intval($_POST["client_id"]);
     $export_contacts = intval($_POST["export_contacts"]);
     $export_locations = intval($_POST["export_locations"]);
@@ -604,7 +613,7 @@ if (isset($_POST["export_client_pdf"])) {
     $export_software = intval($_POST["export_software"]);
     $export_credentials = 0;
     if (lookupUserPermission("module_credential") >= 1) {
-        $export_credentials = intval($_POST["export_credentials"]);
+        $export_credentials = intval($_POST["export_credentials"] ?? 0);
     }
     $export_networks = intval($_POST["export_networks"]);
     $export_certificates = intval($_POST["export_certificates"]);
@@ -747,6 +756,10 @@ if (isset($_POST["export_client_pdf"])) {
     $pdf->SetAuthor($session_company_name);
     $pdf->SetTitle("$client_name - IT Documentation");
 
+    // TODO: Add page numbers to footer, but can't work out how to do it without the ugly line
+    //    $pdf->SetFooterMargin(PDF_MARGIN_FOOTER);
+    //    $pdf->setFooterData();
+
     // Enable auto page breaks with a margin from the bottom
     $pdf->SetAutoPageBreak(true, 15);
 
@@ -779,17 +792,27 @@ if (isset($_POST["export_client_pdf"])) {
     ";
 
     // Cover page section (for main content, not the TOC)
+    $html .= '<div class="cover">';
+    if (!empty($company_logo)) {
+        $pdf->Image('uploads/settings/' . $company_logo, '', '', 35, 35, '', '', 'L', false, 300, '', false, false, 1, false, false, false);
+    }
     $html .= "
-    <div class='cover'>
-      <h1>$client_name</h1>
-      <h2>IT Documentation</h2>
-      <p>Export Date: " . date("F j, Y") . "</p>
+     <h1>IT Documentation</h1>
+     <h2>$client_name</h2>
+     <h4>Prepared by $session_name on " . date("F j, Y") . "</h4>
     </div>
-    <hr>";
+    ";
+    $html .= "
+      <br>
+      <h4>$session_company_name</h4>
+      $company_phone<br>$company_email<br>
+      <hr>
+    ";
 
     // Client header information (non-table)
     $html .= "
     <div class='client-header'>
+      <h3>$client_name</h3>
       <p><strong>Address:</strong> $location_address</p>
       <p><strong>City State Zip:</strong> $location_city $location_state $location_zip</p>
       <p><strong>Phone:</strong> $contact_phone</p>
@@ -1203,6 +1226,8 @@ if (isset($_POST["export_client_pdf"])) {
               <th>Type</th>
               <th>License</th>
               <th>License Key</th>
+              <th>Purchase Date</th>
+              <th>Expiration Date</th>
               <th>Notes</th>
             </tr>
           </thead>
@@ -1212,6 +1237,8 @@ if (isset($_POST["export_client_pdf"])) {
             $software_type = nullable_htmlentities($row["software_type"]);
             $software_license_type = nullable_htmlentities($row["software_license_type"]);
             $software_key = nullable_htmlentities($row["software_key"]);
+            $software_purchase = nullable_htmlentities($row['software_purchase']);
+            $software_expire = nullable_htmlentities($row['software_expire']);
             $software_notes = nullable_htmlentities($row["software_notes"]);
             $html .= "
             <tr style='page-break-inside: avoid;'>
@@ -1219,6 +1246,8 @@ if (isset($_POST["export_client_pdf"])) {
               <td>$software_type</td>
               <td>$software_license_type</td>
               <td>$software_key</td>
+              <td>$software_purchase</td>
+              <td>$software_expire</td>
               <td>$software_notes</td>
             </tr>";
         }
@@ -1326,7 +1355,7 @@ if (isset($_POST["export_client_pdf"])) {
           <thead>
             <tr>
               <th>Domain Name</th>
-              <th>Expire</th>
+              <th>Expiration Date</th>
             </tr>
           </thead>
           <tbody>";
