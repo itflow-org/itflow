@@ -676,7 +676,7 @@ if (isset($_GET['ticket_id'])) {
                                             if ($task_count !== $completed_task_count) {
                                                 $status_snippet = "AND ticket_status_id != 4";
                                             }
-                                            $sql_ticket_status = mysqli_query($mysqli, "SELECT * FROM ticket_statuses WHERE ticket_status_id != 1 AND ticket_status_id != 5 AND ticket_status_active = 1 $status_snippet");
+                                            $sql_ticket_status = mysqli_query($mysqli, "SELECT * FROM ticket_statuses WHERE ticket_status_id != 1 AND ticket_status_id != 5 AND ticket_status_active = 1 $status_snippet ORDER BY ticket_status_order");
                                             while ($row = mysqli_fetch_array($sql_ticket_status)) {
                                                 $ticket_status_id_select = intval($row['ticket_status_id']);
                                                 $ticket_status_name_select = nullable_htmlentities($row['ticket_status_name']); ?>

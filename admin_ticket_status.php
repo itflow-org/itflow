@@ -1,7 +1,7 @@
 <?php
 
 // Default Column Sortby Filter
-$sort = "ticket_status_name";
+$sort = "ticket_status_order";
 $order = "ASC";
 
 require_once "includes/inc_all_admin.php";
@@ -79,7 +79,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     if ($ticket_status_active) {
                         $ticket_status_display = "<div class='text-success text-bold'>Active</div>";
                     } else {
-                        $ticket_status_display = "<div class='text-secondary'>Disabled</div>";
+                        $ticket_status_display = "<div class='text-secondary'>Inactive</div>";
                     }
 
                     ?>
@@ -97,7 +97,6 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             <span class='badge badge-pill text-light p-2' style="background-color: <?php echo $ticket_status_color; ?>"><?php echo $ticket_status_name; ?></span>
                         <td><?php echo $ticket_status_display; ?></td>
                         <td>
-                            <?php if ( $ticket_status_id > 5 ) { ?>
                             <div class="dropdown dropleft text-center">
                                 <button class="btn btn-secondary btn-sm" type="button" data-toggle="dropdown">
                                     <i class="fas fa-ellipsis-h"></i>
@@ -106,13 +105,14 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                     <a class="dropdown-item" href="#" data-toggle="ajax-modal" data-ajax-url="ajax/ajax_custom_ticket_status_edit.php" data-ajax-id="<?php echo $ticket_status_id; ?>">
                                         <i class="fas fa-fw fa-edit mr-2"></i>Edit
                                     </a>
-                                    <div class="dropdown-divider"></div>
-                                    <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_ticket_status=<?php echo $ticket_status_id; ?>">
-                                        <i class="fas fa-fw fa-trash mr-2"></i>Delete
-                                    </a>
+                                    <?php if (!$ticket_status_active) { ?>
+                                        <div class="dropdown-divider"></div>
+                                        <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_ticket_status=<?php echo $ticket_status_id; ?>&csrf_token=<?php echo $_SESSION['csrf_token']; ?>">
+                                            <i class="fas fa-fw fa-trash mr-2"></i>Delete
+                                        </a>
+                                    <?php } ?>
                                 </div>
                             </div>
-                            <?php } ?>
                         </td>
                     </tr>
 

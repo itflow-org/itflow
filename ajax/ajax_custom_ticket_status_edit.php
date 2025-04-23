@@ -8,6 +8,7 @@ $sql = mysqli_query($mysqli, "SELECT * FROM ticket_statuses WHERE ticket_status_
 $row = mysqli_fetch_array($sql);
 $ticket_status_name = nullable_htmlentities($row['ticket_status_name']);
 $ticket_status_color = nullable_htmlentities($row['ticket_status_color']);
+$ticket_status_order = intval($row['ticket_status_order']);
 $ticket_status_active = intval($row['ticket_status_active']);
 
 // Generate the HTML form content using output buffering.
@@ -30,7 +31,7 @@ ob_start();
                 <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
                 </div>
-                <input type="text" class="form-control" name="name" maxlength="200" value="<?php echo $ticket_status_name; ?>" required>
+                <input type="text" class="form-control" name="name" maxlength="200" value="<?php echo $ticket_status_name; ?>" required <?php if ($ticket_status_id <= 5) { echo "readonly"; } ?>>
             </div>
         </div>
 
@@ -45,6 +46,16 @@ ob_start();
         </div>
 
         <div class="form-group">
+            <label>Order</label>
+            <div class="input-group">
+                <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fa fa-fw fa-sort-numeric-down"></i></span>
+                </div>
+                <input type="number" class="form-control" name="order" placeholder="Leave blank for no order" value="<?php echo $ticket_status_order; ?>">
+            </div>
+        </div>
+
+        <div class="form-group">
             <label>Status <strong class="text-danger">*</strong></label>
             <div class="input-group">
                 <div class="input-group-prepend">
@@ -52,7 +63,7 @@ ob_start();
                 </div>
                 <select class="form-control select2" name="status" required>
                     <option <?php if ($ticket_status_active == 1) { echo "selected"; } ?> value="1">Active</option>
-                    <option <?php if ($ticket_status_active == 0) { echo "selected"; } ?> value="0">Disabled</option>
+                    <option <?php if ($ticket_status_active == 0) { echo "selected"; } ?> value="0" <?php if ($ticket_status_id <= 5) { echo "disabled"; } ?>>Inactive</option>
                 </select>
             </div>
         </div>
