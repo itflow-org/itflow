@@ -63,6 +63,7 @@ if (isset($_GET['ticket_id'])) {
 
         $ticket_prefix = nullable_htmlentities($row['ticket_prefix']);
         $ticket_number = intval($row['ticket_number']);
+        $ticket_source = nullable_htmlentities($row['ticket_source']);
         $ticket_category = intval($row['ticket_category']);
         $ticket_category_display = nullable_htmlentities($row['category_name']);
         $ticket_subject = nullable_htmlentities($row['ticket_subject']);
@@ -97,6 +98,7 @@ if (isset($_GET['ticket_id'])) {
         $ticket_vendor_ticket_number = nullable_htmlentities($row['ticket_vendor_ticket_number']);
         $ticket_created_at = nullable_htmlentities($row['ticket_created_at']);
         $ticket_created_at_ago = timeAgo($row['ticket_created_at']);
+        $ticket_created_by = intval($row['ticket_created_by']);
         $ticket_date = date('Y-m-d', strtotime($ticket_created_at));
         $ticket_updated_at = nullable_htmlentities($row['ticket_updated_at']);
         $ticket_updated_at_ago = timeAgo($row['ticket_updated_at']);
