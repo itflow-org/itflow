@@ -1,8 +1,8 @@
 <?php
-require_once "config.php";
-require_once "functions.php";
-require_once "includes/check_login.php";
-require_once 'plugins/totp/totp.php'; //TOTP MFA Lib
+require_once __DIR__ . '/config.php';
+require_once __DIR__ . '/functions.php';
+require_once __DIR__ . '/includes/check_login.php';
+require_once __DIR__ . '/plugins/totp/totp.php'; // TOTP MFA Lib
 
 // Get Company Logo
 $sql = mysqli_query($mysqli, "SELECT company_logo FROM companies");
