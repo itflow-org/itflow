@@ -150,7 +150,7 @@ if ($shell_exec_enabled) {
     $commands = ['whois', 'dig', 'git'];
 
     foreach ($commands as $command) {
-        $which = trim(shell_exec("which $command 2>/dev/null"));
+        $which = trim(shell_exec("which $command"));
         $exists = !empty($which);
         $shellCommands[] = [
             'name' => "Command '$command' available",
