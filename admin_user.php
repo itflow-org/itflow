@@ -1,239 +1,379 @@
 <?php
 
-// Default Column Sortby Filter
-$sort = "user_name";
-$order = "ASC";
+/*
+ * ITFlow - GET/POST request handler for user (agent) management
+ */
 
-require_once "includes/inc_all_admin.php";
+defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
 
-$sql = mysqli_query(
-    $mysqli,
-    "SELECT SQL_CALC_FOUND_ROWS * FROM users
-    LEFT JOIN user_roles ON user_role_id = role_id
-    LEFT JOIN user_settings ON users.user_id = user_settings.user_id
-    WHERE (user_name LIKE '%$q%' OR user_email LIKE '%$q%')
-    AND user_type = 1
-    AND user_archived_at IS NULL
-    ORDER BY $sort $order LIMIT $record_from, $record_to"
-);
+if (isset($_POST['add_user'])) {
 
-$num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
+    validateCSRFToken($_POST['csrf_token']);
 
-?>
+require_once 'post/admin/admin_user_model.php';
 
-<div class="card card-dark">
-    <div class="card-header py-2">
-        <h3 class="card-title mt-2"><i class="fas fa-fw fa-users mr-2"></i>Users</h3>
-        <div class="card-tools">
-            <div class="btn-group">
-                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addUserModal">
-                    <i class="fas fa-fw fa-user-plus mr-2"></i>New User
-                </button>
-                <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown"></button>
-                <div class="dropdown-menu">
-                    <!--<a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#userInviteModal"><i class="fas fa-paper-plane mr-2"></i>Invite User</a>-->
-                    <?php if ($num_rows[0] > 1) { ?>
-                        <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#exportUserModal"><i class="fa fa-fw fa-download mr-2"></i>Export</a>
-                        <div class="dropdown-divider"></div>
-                        <a class="dropdown-item text-danger" href="#" data-toggle="modal" data-target="#resetAllUserPassModal"><i class="fas fa-skull-crossbones mr-2"></i>IR</a>
-                    <?php } ?>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="card-body">
-        <form class="mb-4" autocomplete="off">
-            <div class="row">
-                <div class="col-md-4">
-                    <div class="input-group">
-                        <input type="search" class="form-control" name="q" value="<?php if (isset($q)) {echo stripslashes(nullable_htmlentities($q));} ?>" placeholder="Search Users">
-                        <div class="input-group-append">
-                            <button class="btn btn-primary"><i class="fa fa-search"></i></button>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-8">
-                </div>
-            </div>
-        </form>
-        <hr>
-        <div class="table-responsive-sm">
-            <table class="table table-striped table-borderless table-hover">
-                <thead class="text-dark <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
-                <tr>
-                    <th class="text-center">
-                        <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=user_name&order=<?php echo $disp; ?>">
-                            Name <?php if ($sort == 'user_name') { echo $order_icon; } ?>
-                        </a>
-                    </th>
-                    <th>
-                        <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=user_email&order=<?php echo $disp; ?>">
-                            Email <?php if ($sort == 'user_email') { echo $order_icon; } ?>
-                        </a>
-                    </th>
-                    <th>
-                        <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=role_name&order=<?php echo $disp; ?>">
-                            Role <?php if ($sort == 'role_name') { echo $order_icon; } ?>
-                        </a>
-                    </th>
-                    <th>
-                        <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=user_status&order=<?php echo $disp; ?>">
-                            Status <?php if ($sort == 'user_status') { echo $order_icon; } ?>
-                        </a>
-                    </th>
-                    <th class="text-center">MFA</th>
-                    <th>
-                        Last Login
-                    </th>
-                    <th class="text-center">Action</th>
-                </tr>
-                </thead>
-                <tbody>
-                <?php
+$name = trim($_POST['name']);
+$email = trim($_POST['email']);
+$password_plain = trim($_POST['password']);
+$password = password_hash($password_plain, PASSWORD_DEFAULT);
+$user_specific_encryption_ciphertext = encryptUserSpecificKey($password_plain);
+$role = intval($_POST['role']); // Evita injection anche qui
 
-                while ($row = mysqli_fetch_array($sql)) {
-                    $user_id = intval($row['user_id']);
-                    $user_name = nullable_htmlentities($row['user_name']);
-                    $user_email = nullable_htmlentities($row['user_email']);
-                    $user_status = intval($row['user_status']);
-                    if ($user_status == 2) {
-                        $user_status_display = "<span class='text-info'>Invited</span>";
-                    } elseif ($user_status == 1) {
-                        $user_status_display = "<span class='text-success'>Active</span>";
-                    } else{
-                        $user_status_display = "<span class='text-danger'>Disabled</span>";
-                    }
-                    $user_avatar = nullable_htmlentities($row['user_avatar']);
-                    $user_token = nullable_htmlentities($row['user_token']);
-                    if(empty($user_token)) {
-                        $mfa_status_display = "<i class='fas fa-fw fa-unlock text-danger'></i>";
-                    } else {
-                        $mfa_status_display = "<i class='fas fa-fw fa-lock text-success'></i>";
-                    }
-                    $user_config_force_mfa = intval($row['user_config_force_mfa']);
-                    $user_role = intval($row['user_role_id']);
-                    $user_role_display = nullable_htmlentities($row['role_name']);
-                    $user_initials = nullable_htmlentities(initials($user_name));
+$stmt = $mysqli->prepare("INSERT INTO users 
+    (user_name, user_email, user_password, user_specific_encryption_ciphertext, user_role_id) 
+    VALUES (?, ?, ?, ?, ?)");
+$stmt->bind_param("ssssi", $name, $email, $password, $user_specific_encryption_ciphertext, $role);
+$stmt->execute();
 
-                    $sql_last_login = mysqli_query(
-                        $mysqli,
-                        "SELECT * FROM logs
-                        WHERE log_user_id = $user_id AND log_type = 'Login'
-                        ORDER BY log_id DESC LIMIT 1"
-                    );
-                    if (mysqli_num_rows($sql_last_login) == 0) {
-                        $last_login = "<span class='text-bold'>Never logged in</span>";
-                    } else {
-                        $row = mysqli_fetch_array($sql_last_login);
-                        $log_created_at = nullable_htmlentities($row['log_created_at']);
-                        $log_ip = nullable_htmlentities($row['log_ip']);
-                        $log_user_agent = nullable_htmlentities($row['log_user_agent']);
-                        $log_user_os = getOS($log_user_agent);
-                        $log_user_browser = getWebBrowser($log_user_agent);
-                        $last_login = "$log_created_at<small class='text-secondary'><div class='mt-1'>$log_user_os</div><div class='mt-1'>$log_user_browser</div><div class='mt-1'><i class='fa fa-fw fa-globe'></i> $log_ip</div></small>";
-                    }
+$user_id = $stmt->insert_id;
 
-                    // Get User Client Access Permissions
-                    $user_client_access_sql = mysqli_query($mysqli,"SELECT client_id FROM user_client_permissions WHERE user_id = $user_id");
-                    $client_access_array = [];
-                    while ($row = mysqli_fetch_assoc($user_client_access_sql)) {
-                        $client_access_array[] = intval($row['client_id']);
-                    }
-
-                    $sql_remember_tokens = mysqli_query($mysqli, "SELECT * FROM remember_tokens WHERE remember_token_user_id = $user_id");
-                    $remember_token_count = mysqli_num_rows($sql_remember_tokens);
-
-
-
-                    ?>
-                    <tr>
-                        <td class="text-center">
-                            <a class="text-dark" href="#" 
-                                <?php if ($user_id !== $session_user_id) { // Prevent modifying self ?>
-                                data-toggle="ajax-modal"
-                                data-ajax-url="ajax/ajax_user_edit.php"
-                                data-ajax-id="<?php echo $user_id; ?>"
-                                <?php } ?>
-                                >
-                                <?php if (!empty($user_avatar)) { ?>
-                                    <img class="img-size-50 img-circle" src="<?php echo "uploads/users/$user_id/$user_avatar"; ?>">
-                                <?php } else { ?>
-                                    <span class="fa-stack fa-2x">
-                                        <i class="fa fa-circle fa-stack-2x text-secondary"></i>
-                                        <span class="fa fa-stack-1x text-white"><?php echo $user_initials; ?></span>
-                                    </span>
-                                    <br>
-                                <?php } ?>
-
-                                <div class="text-secondary"><?php echo $user_name; ?></div>
-                            </a>
-                        </td>
-                        <td><a href="mailto:<?php echo $user_email; ?>"><?php echo $user_email; ?></a></td>
-                        <td><?php echo $user_role_display; ?></td>
-                        <td><?php echo $user_status_display; ?></td>
-                        <td class="text-center"><?php echo $mfa_status_display; ?></td>
-                        <td><?php echo $last_login; ?></td>
-                        <td>
-                            <?php if ($user_id !== $session_user_id) {   // Prevent modifying self ?>
-                            <div class="dropdown dropleft text-center">
-                                <button class="btn btn-secondary btn-sm" type="button" data-toggle="dropdown">
-                                    <i class="fas fa-ellipsis-h"></i>
-                                </button>
-                                <div class="dropdown-menu">
-                                    <a class="dropdown-item" href="#"
-                                        data-toggle="ajax-modal"
-                                        data-ajax-url="ajax/ajax_user_edit.php"
-                                        data-ajax-id="<?php echo $user_id; ?>"
-                                        >
-                                        <i class="fas fa-fw fa-user-edit mr-2"></i>Edit
-                                    </a>
-                                    <?php if ($remember_token_count > 0) { ?>
-                                    <a class="dropdown-item" href="post.php?revoke_remember_me=<?php echo $user_id; ?>&csrf_token=<?php echo $_SESSION['csrf_token'] ?>"><i class="fas fa-fw fa-ban mr-2"></i>Revoke <?php echo $remember_token_count; ?> Remember Tokens
-                                    </a>
-                                    <?php } ?>
-                                    <?php if ($user_status == 0) { ?>
-                                        <a class="dropdown-item text-success" href="post.php?activate_user=<?php echo $user_id; ?>&csrf_token=<?php echo $_SESSION['csrf_token'] ?>">
-                                            <i class="fas fa-fw fa-user-check mr-2"></i>Activate
-                                        </a>
-                                    <?php }elseif ($user_status == 1) { ?>
-                                        <a class="dropdown-item text-danger" href="post.php?disable_user=<?php echo $user_id; ?>&csrf_token=<?php echo $_SESSION['csrf_token'] ?>">
-                                            <i class="fas fa-fw fa-user-slash mr-2"></i>Disable
-                                        </a>
-                                    <?php } ?>
-                                    <div class="dropdown-divider"></div>
-                                    <a class="dropdown-item text-danger" href="#" data-toggle="modal" data-target="#archiveUserModal<?php echo $user_id; ?>">
-                                        <i class="fas fa-fw fa-archive mr-2"></i>Archive
-                                    </a>
-                                </div>
-                            </div>
-                            <?php } ?>
-                        </td>
-                    </tr>
-
-                    <?php
-
-                    require "modals/admin_user_archive_modal.php";
-
-                }
-
-                ?>
-
-                </tbody>
-            </table>
-        </div>
-        <?php require_once "includes/filter_footer.php";
- ?>
-    </div>
-</div>
-<script>
-    function generatePassword() {
-        document.getElementById("password").value = "<?php echo randomString() ?>"
+    // Add Client Access Permissions if set
+    if (isset($_POST['clients'])) {
+        foreach($_POST['clients'] as $client_id) {
+            $client_id = intval($client_id);
+            mysqli_query($mysqli,"INSERT INTO user_client_permissions SET user_id = $user_id, client_id = $client_id");
+        }
     }
-</script>
 
-<?php
-require_once "modals/admin_user_add_modal.php";
-require_once "modals/admin_user_invite_modal.php";
-require_once "modals/admin_user_export_modal.php";
-require_once "modals/admin_user_all_reset_password_modal.php";
-require_once "includes/footer.php";
+    if (!file_exists("uploads/users/$user_id/")) {
+        mkdir("uploads/users/$user_id");
+    }
+
+    // Check for and process image/photo
+    $extended_alert_description = '';
+    if (isset($_FILES['file']['tmp_name'])) {
+        if ($new_file_name = checkFileUpload($_FILES['file'], array('jpg', 'jpeg', 'gif', 'png', 'webp'))) {
+
+            $file_tmp_path = $_FILES['file']['tmp_name'];
+
+            // directory in which the uploaded file will be moved
+            $upload_file_dir = "uploads/users/$user_id/";
+            $dest_path = $upload_file_dir . $new_file_name;
+            move_uploaded_file($file_tmp_path, $dest_path);
+
+            // Set Avatar
+            mysqli_query($mysqli, "UPDATE users SET user_avatar = '$new_file_name' WHERE user_id = $user_id");
+            $extended_alert_description = '. File successfully uploaded.';
+        }
+    }
+
+    // Create Settings
+    mysqli_query($mysqli, "INSERT INTO user_settings SET user_id = $user_id, user_config_force_mfa = $force_mfa");
+
+    $sql = mysqli_query($mysqli,"SELECT * FROM companies WHERE company_id = 1");
+    $row = mysqli_fetch_array($sql);
+    $company_name = sanitizeInput($row['company_name']);
+
+    // Sanitize Config vars from get_settings.php
+    $config_mail_from_name = sanitizeInput($config_mail_from_name);
+    $config_mail_from_email = sanitizeInput($config_mail_from_email);
+    $config_ticket_from_email = sanitizeInput($config_ticket_from_email);
+    $config_login_key_secret = mysqli_real_escape_string($mysqli, $config_login_key_secret);
+    $config_base_url = sanitizeInput($config_base_url);
+
+    // Send user e-mail, if specified
+    if (isset($_POST['send_email']) && !empty($config_smtp_host) && filter_var($email, FILTER_VALIDATE_EMAIL)) {
+
+        $password = mysqli_real_escape_string($mysqli, $_POST['password']);
+
+        $subject = "Your new $company_name ITFlow account";
+        $body = "Hello $name,<br><br>An ITFlow account has been setup for you. Please change your password upon login. <br><br>Username: $email <br>Password: $password<br>Login URL: https://$config_base_url/login.php?key=$config_login_key_secret<br><br>--<br>$company_name - Support<br>$config_ticket_from_email";
+
+        $data = [
+            [
+                'from' => $config_mail_from_email,
+                'from_name' => $config_mail_from_name,
+                'recipient' => $email,
+                'recipient_name' => $name,
+                'subject' => $subject,
+                'body' => $body
+            ]
+        ];
+        $mail = addToMailQueue($data);
+
+        if ($mail !== true) {
+            mysqli_query($mysqli, "INSERT INTO notifications SET notification_type = 'Mail', notification = 'Failed to send email to $email'");
+            mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Mail', log_action = 'Error', log_description = 'Failed to send email to $email regarding $subject. $mail', log_ip = '$session_ip', log_user_agent = '$session_user_agent',  log_user_id = $session_user_id, log_entity_id = $user_id");
+        }
+
+    }
+
+    // Logging
+    logAction("User", "Create", "$session_name created user $name", 0, $user_id);
+
+    $_SESSION['alert_message'] = "User <strong>$name</strong> created" . $extended_alert_description;
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
+if (isset($_POST['edit_user'])) {
+
+    validateCSRFToken($_POST['csrf_token']);
+
+    require_once 'post/admin/admin_user_model.php';
+
+    $user_id = intval($_POST['user_id']);
+    $new_password = trim($_POST['new_password']);
+
+    // Update Client Access
+    mysqli_query($mysqli,"DELETE FROM user_client_permissions WHERE user_id = $user_id");
+    if (isset($_POST['clients'])) {
+        foreach($_POST['clients'] as $client_id) {
+            $client_id = intval($client_id);
+            mysqli_query($mysqli,"INSERT INTO user_client_permissions SET user_id = $user_id, client_id = $client_id");
+        }
+    }
+
+    // Get current Avatar
+    $sql = mysqli_query($mysqli, "SELECT user_avatar FROM users WHERE user_id = $user_id");
+    $row = mysqli_fetch_array($sql);
+    $existing_file_name = sanitizeInput($row['user_avatar']);
+
+    $extended_log_description = '';
+    if (!empty($_POST['2fa'])) {
+        $two_fa = $_POST['2fa'];
+    }
+
+    if (!file_exists("uploads/users/$user_id/")) {
+        mkdir("uploads/users/$user_id");
+    }
+
+    // Check for and process image/photo
+    $extended_alert_description = '';
+    if (isset($_FILES['file']['tmp_name'])) {
+        if ($new_file_name = checkFileUpload($_FILES['file'], array('jpg', 'jpeg', 'gif', 'png', 'webp'))) {
+
+            $file_tmp_path = $_FILES['file']['tmp_name'];
+
+            // directory in which the uploaded file will be moved
+            $upload_file_dir = "uploads/users/$user_id/";
+            $dest_path = $upload_file_dir . $new_file_name;
+            move_uploaded_file($file_tmp_path, $dest_path);
+
+            // Delete old file
+            unlink("uploads/users/$user_id/$existing_file_name");
+
+            // Set Avatar
+            mysqli_query($mysqli, "UPDATE users SET user_avatar = '$new_file_name' WHERE user_id = $user_id");
+            $extended_alert_description = '. File successfully uploaded.';
+        
+        }
+    }
+
+    mysqli_query($mysqli, "UPDATE users SET user_name = '$name', user_email = '$email', user_role_id = $role WHERE user_id = $user_id");
+
+    if (!empty($new_password)) {
+        $new_password = password_hash($new_password, PASSWORD_DEFAULT);
+        $user_specific_encryption_ciphertext = encryptUserSpecificKey(trim($_POST['new_password']));
+        mysqli_query($mysqli, "UPDATE users SET user_password = '$new_password', user_specific_encryption_ciphertext = '$user_specific_encryption_ciphertext' WHERE user_id = $user_id");
+        //Extended Logging
+        $extended_log_description .= ", password changed";
+    }
+
+    if (!empty($two_fa) && $two_fa == 'disable') {
+        mysqli_query($mysqli, "UPDATE users SET user_token = '' WHERE user_id = '$user_id'");
+        mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'User', log_action = 'Modify', log_description = '$session_name disabled 2FA for $name', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_user_id = $session_user_id");
+    }
+
+    //Update User Settings
+    mysqli_query($mysqli, "UPDATE user_settings SET user_config_force_mfa = $force_mfa WHERE user_id = $user_id");
+
+    // Logging
+    logAction("User", "Edit", "$session_name edited user $name", 0, $user_id);
+
+    $_SESSION['alert_message'] = "User <strong>$name</strong> updated" . $extended_alert_description;
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
+if (isset($_GET['activate_user'])) {
+
+    validateCSRFToken($_GET['csrf_token']);
+
+    $user_id = intval($_GET['activate_user']);
+
+    // Get User Name
+    $sql = mysqli_query($mysqli, "SELECT * FROM users WHERE user_id = $user_id");
+    $row = mysqli_fetch_array($sql);
+    $user_name = sanitizeInput($row['user_name']);
+
+    mysqli_query($mysqli, "UPDATE users SET user_status = 1 WHERE user_id = $user_id");
+
+    // Logging
+    logAction("User", "Activate", "$session_name activated user $user_name", 0, $user_id);
+
+    $_SESSION['alert_message'] = "User <strong>$user_name</strong> activated";
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
+if (isset($_GET['disable_user'])) {
+
+    validateCSRFToken($_GET['csrf_token']);
+
+    $user_id = intval($_GET['disable_user']);
+
+    // Get User Name
+    $sql = mysqli_query($mysqli, "SELECT * FROM users WHERE user_id = $user_id");
+    $row = mysqli_fetch_array($sql);
+    $user_name = sanitizeInput($row['user_name']);
+
+    mysqli_query($mysqli, "UPDATE users SET user_status = 0 WHERE user_id = $user_id");
+
+    // Un-assign tickets
+    mysqli_query($mysqli, "UPDATE tickets SET ticket_assigned_to = 0 WHERE ticket_assigned_to = $user_id AND ticket_closed_at IS NULL");
+    mysqli_query($mysqli, "UPDATE scheduled_tickets SET scheduled_ticket_assigned_to = 0 WHERE scheduled_ticket_assigned_to = $user_id");
+
+    // Logging
+    logAction("User", "Disable", "$session_name disabled user $name", 0, $user_id);
+
+    $_SESSION['alert_type'] = "error";
+    $_SESSION['alert_message'] = "User <strong>$user_name</strong> disabled";
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
+if (isset($_GET['revoke_remember_me'])) {
+
+    validateCSRFToken($_GET['csrf_token']);
+
+    $user_id = intval($_GET['revoke_remember_me']);
+
+    // Get User Name
+    $row = mysqli_fetch_array(mysqli_query($mysqli, "SELECT * FROM users WHERE user_id = $user_id"));
+    $user_name = sanitizeInput($row['user_name']);
+
+    mysqli_query($mysqli, "DELETE FROM remember_tokens WHERE remember_token_user_id = $user_id");
+
+    // Logging
+    logAction("User", "Edit", "$session_name revoked all remember me tokens for user $user_name", 0, $user_id);
+
+    $_SESSION['alert_type'] = "error";
+    $_SESSION['alert_message'] = "User <strong>$user_name</strong> remember me tokens revoked";
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
+if (isset($_GET['archive_user'])) {
+
+    validateCSRFToken($_GET['csrf_token']);
+
+    // Variables from GET
+    $user_id = intval($_GET['archive_user']);
+    $password = password_hash(randomString(), PASSWORD_DEFAULT);
+
+    // Get user details
+    $sql = mysqli_query($mysqli, "SELECT * FROM users WHERE user_id = $user_id");
+    $row = mysqli_fetch_array($sql);
+    $name = sanitizeInput($row['user_name']);
+
+    // Archive user query
+    mysqli_query($mysqli, "UPDATE users SET user_name = '$name (archived)', user_password = '$password', user_status = 0, user_specific_encryption_ciphertext = '', user_archived_at = NOW() WHERE user_id = $user_id");
+
+    // Logging
+    logAction("User", "Archive", "$session_name archived user $name", 0, $user_id);
+
+    $_SESSION['alert_type'] = "error";
+    $_SESSION['alert_message'] = "User <strong>$name</strong> archived";
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
+if (isset($_POST['export_users_csv'])) {
+
+    //get records from database
+    $sql = mysqli_query($mysqli, "SELECT * FROM users LEFT JOIN user_roles ON user_role_id = role_id ORDER BY user_name ASC");
+
+    $count = mysqli_num_rows($sql);
+
+    if ($count > 0) {
+        $delimiter = ",";
+        $filename = "Users-" . date('Y-m-d') . ".csv";
+
+        //create a file pointer
+        $f = fopen('php://memory', 'w');
+
+        //set column headers
+        $fields = array('Name', 'Email', 'Role', 'Status', 'Creation Date');
+        fputcsv($f, $fields, $delimiter);
+
+        //output each row of the data, format line as csv and write to file pointer
+        while($row = $sql->fetch_assoc()) {
+
+            $user_status = intval($row['user_status']);
+            if ($user_status == 2) {
+                $user_status_display = "Invited";
+            } elseif ($user_status == 1) {
+                $user_status_display = "Active";
+            } else{
+                $user_status_display = "Disabled";
+            }
+
+            $lineData = array($row['user_name'], $row['user_email'], $row['role_name'], $user_status_display, $row['user_created_at']);
+            fputcsv($f, $lineData, $delimiter);
+        }
+
+        //move back to beginning of file
+        fseek($f, 0);
+
+        //set headers to download file rather than displayed
+        header('Content-Type: text/csv');
+        header('Content-Disposition: attachment; filename="' . $filename . '";');
+
+        //output all remaining data on a file pointer
+        fpassthru($f);
+
+        // Logging
+        logAction("User", "Export", "$session_name exported $count user(s) to a CSV file");
+    }
+    exit;
+
+}
+
+if (isset($_POST['ir_reset_user_password'])) {
+
+    // Incident response: allow mass reset of agent passwords
+
+    validateCSRFToken($_POST['csrf_token']);
+
+    // Confirm logged-in user password, for security
+    $admin_password = $_POST['admin_password'];
+    $sql = mysqli_query($mysqli, "SELECT * FROM users WHERE user_id = $session_user_id");
+    $userRow = mysqli_fetch_array($sql);
+    if (!password_verify($admin_password, $userRow['user_password'])) {
+        $_SESSION['alert_type'] = "error";
+        $_SESSION['alert_message'] = "Incorrect password.";
+        header("Location: " . $_SERVER["HTTP_REFERER"]);
+        exit;
+    }
+
+    // Get agents/users, other than the current user
+    $sql_users = mysqli_query($mysqli, "SELECT * FROM users WHERE (user_archived_at IS NULL AND user_id != $session_user_id)");
+
+    // Reset passwords
+    while ($row = mysqli_fetch_array($sql_users)) {
+        $user_id = intval($row['user_id']);
+        $user_email = sanitizeInput($row['user_email']);
+        $new_password = randomString();
+        $user_specific_encryption_ciphertext = encryptUserSpecificKey(trim($new_password));
+
+        echo $user_email . " -- " . $new_password; // Show
+        $new_password = password_hash($new_password, PASSWORD_DEFAULT);
+
+        mysqli_query($mysqli, "UPDATE users SET user_password = '$new_password', user_specific_encryption_ciphertext = '$user_specific_encryption_ciphertext' WHERE user_id = $user_id");
+
+        echo "<br><br>";
+    }
+
+    // Logging
+    logAction("User", "Edit", "$session_name reset ALL user passwords");
+
+    exit; // Stay on the plain text password page
+
+}
