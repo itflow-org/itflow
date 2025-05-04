@@ -2,6 +2,14 @@
 
 This file documents all notable changes made to ITFlow.
 
+## [25.05]
+
+### Fixed
+
+### Added / Changed
+- Expanded file upload allow-list to include .bat and .stk
+
+
 ## [25.03.6]
 
 ### Fixed
