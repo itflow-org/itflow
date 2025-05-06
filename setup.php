@@ -6,7 +6,6 @@ if (file_exists("config.php")) {
 }
 
 include "functions.php";
-
 include "includes/database_version.php";
 
 
@@ -855,10 +854,19 @@ if (isset($_POST['add_telemetry'])) {
                             <h3 class="card-title"><i class="fas fa-fw fa-database mr-2"></i>Step 2 - Connect your Database</h3>
                         </div>
                         <div class="card-body">
-                            <?php if (file_exists('config.php')) { ?>
-                                Database is already configured. Any further changes should be made by editing the config.php file,
-                                or deleting it and refreshing this page.
-                            <?php } else { ?>
+                            <?php
+                            if (file_exists('config.php')) {
+
+                                echo "<p>Database is already configured. Any further changes should be made by editing the <code>config.php</code> file.</p>";
+
+                                if (@$mysqli) {
+                                    echo "<a href='?user' class='btn btn-success text-bold mt-3'>Next Step (User Setup) <i class='fa fa-fw fa-arrow-circle-right ml-2'></i></a>";
+                                } else {
+                                    echo "<div class='alert alert-danger mt-3'>Database connection failed. Check <code>config.php</code>.</div>";
+                                }
+
+                            } else {
+                            ?>
                                 <form method="post" autocomplete="off">
 
                                     <h5>Database Connection Details</h5>
