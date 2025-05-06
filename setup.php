@@ -145,7 +145,7 @@ if (isset($_POST['add_user'])) {
         $new_file_name = md5(time() . $file_name) . '.' . $file_extension;
 
         // check if file has one of the following extensions
-        $allowed_file_extensions = array('jpg', 'gif', 'png');
+        $allowed_file_extensions = array('jpg', 'jpeg', 'gif', 'png', 'webp');
 
         if (in_array($file_extension,$allowed_file_extensions) === false) {
             $file_error = 1;
@@ -194,9 +194,6 @@ if (isset($_POST['add_company_settings'])) {
     $phone = preg_replace("/[^0-9]/", '',$_POST['phone']);
     $email = sanitizeInput($_POST['email']);
     $website = sanitizeInput($_POST['website']);
-    $locale = sanitizeInput($_POST['locale']);
-    $currency_code = sanitizeInput($_POST['currency_code']);
-    $timezone = sanitizeInput($_POST['timezone']);
 
     mysqli_query($mysqli,"INSERT INTO companies SET company_name = '$name', company_address = '$address', company_city = '$city', company_state = '$state', company_zip = '$zip', company_country = '$country', company_phone = '$phone', company_email = '$email', company_website = '$website', company_locale = '$locale', company_currency = '$currency_code'");
 
