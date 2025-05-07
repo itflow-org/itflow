@@ -110,10 +110,43 @@ if (isset($_POST['add_database'])) {
 
 if (isset($_POST['restore'])) {
 
-    // === 1. Restore SQL Dump ===
-    if (isset($_FILES["sql_file"])) {
+    if (!isset($_FILES['backup_zip']) || $_FILES['backup_zip']['error'] !== UPLOAD_ERR_OK) {
+        die("No backup file uploaded or upload failed.");
+    }
 
-        // Drop all existing tables
+    $file = $_FILES['backup_zip'];
+    $fileExt = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+    if ($fileExt !== "zip") {
+        die("Only .zip files are allowed.");
+    }
+
+    // Save uploaded file temporarily
+    $backupZip = "restore_" . time() . ".zip";
+    if (!move_uploaded_file($file["tmp_name"], $backupZip)) {
+        die("Failed to save uploaded backup file.");
+    }
+
+    $zip = new ZipArchive;
+    if ($zip->open($backupZip) !== TRUE) {
+        unlink($backupZip);
+        die("Failed to open backup zip file.");
+    }
+
+    // Extract to a temp directory
+    $tempDir = "restore_temp_" . time();
+    mkdir($tempDir);
+
+    if (!$zip->extractTo($tempDir)) {
+        $zip->close();
+        unlink($backupZip);
+        die("Failed to extract backup contents.");
+    }
+    $zip->close();
+    unlink($backupZip);
+
+    // === 1. Restore SQL Dump ===
+    $sqlPath = "$tempDir/db.sql";
+    if (file_exists($sqlPath)) {
         mysqli_query($mysqli, "SET foreign_key_checks = 0");
         $tables = mysqli_query($mysqli, "SHOW TABLES");
         while ($row = mysqli_fetch_array($tables)) {
@@ -121,88 +154,68 @@ if (isset($_POST['restore'])) {
         }
         mysqli_query($mysqli, "SET foreign_key_checks = 1");
 
-        $file = $_FILES["sql_file"];
-        $filename = $file["name"];
-        $tempPath = $file["tmp_name"];
-
-        $fileExt = pathinfo($filename, PATHINFO_EXTENSION);
-        if (strtolower($fileExt) !== "sql") {
-            die("Only .sql files are allowed.");
-        }
-
-        // Save uploaded file temporarily
-        $destination = "temp_" . time() . ".sql";
-        if (!move_uploaded_file($tempPath, $destination)) {
-            die("Failed to upload the SQL file.");
-        }
-
         $command = sprintf(
             'mysql -h%s -u%s -p%s %s < %s',
             escapeshellarg($dbhost),
             escapeshellarg($dbusername),
             escapeshellarg($dbpassword),
             escapeshellarg($database),
-            escapeshellarg($destination)
+            escapeshellarg($sqlPath)
         );
 
         exec($command, $output, $returnCode);
-        unlink($destination); // cleanup
-
         if ($returnCode !== 0) {
             die("SQL import failed. Error code: $returnCode");
         }
+    } else {
+        die("Missing db.sql in the backup archive.");
     }
 
-    // === 2. Restore Upload Folder from ZIP ===
-    if (isset($_FILES["upload_zip"])) {
-        $uploadDir = __DIR__ . "/uploads/";
+    // === 2. Restore Upload Folder ===
+    $uploadDir = __DIR__ . "/uploads/";
+    $uploadsZip = "$tempDir/uploads.zip";
 
-        $zipFile = $_FILES["upload_zip"];
-        $zipName = basename($zipFile["name"]);
-        $zipExt = strtolower(pathinfo($zipName, PATHINFO_EXTENSION));
-
-        if ($zipExt !== "zip") {
-            die("Only .zip files are allowed for upload restore.");
-        }
-
-        $tempZip = "upload_restore_" . time() . ".zip";
-        if (!move_uploaded_file($zipFile["tmp_name"], $tempZip)) {
-            die("Failed to upload the zip file.");
-        }
-
-        $zip = new ZipArchive;
-        if ($zip->open($tempZip) === TRUE) {
-            // Clear existing upload folder
-            foreach (glob($uploadDir . '*') as $file) {
-                if (is_dir($file)) {
-                    $files = array_diff(scandir($file), array('.', '..'));
-                    foreach ($files as $subfile) {
-                        unlink("$file/$subfile");
-                    }
-                    rmdir($file);
+    if (file_exists($uploadsZip)) {
+        $uploads = new ZipArchive;
+        if ($uploads->open($uploadsZip) === TRUE) {
+            // Clean existing uploads
+            foreach (glob($uploadDir . '*') as $item) {
+                if (is_dir($item)) {
+                    array_map('unlink', glob("$item/*"));
+                    rmdir($item);
                 } else {
-                    unlink($file);
+                    unlink($item);
                 }
             }
 
-            // Extract new files
-            $zip->extractTo($uploadDir);
-            $zip->close();
-            unlink($tempZip); // cleanup
+            $uploads->extractTo($uploadDir);
+            $uploads->close();
         } else {
-            unlink($tempZip);
-            die("Failed to open zip file.");
+            die("Failed to open uploads.zip in backup.");
         }
+    } else {
+        die("Missing uploads.zip in the backup archive.");
     }
 
-    // === 3. Final Setup Stages ===
+    // === 3. Read version.txt (optional log/display)
+    $versionTxt = "$tempDir/version.txt";
+    if (file_exists($versionTxt)) {
+        $versionInfo = file_get_contents($versionTxt);
+        // You could log it, show it, or ignore it
+        // e.g. logAction("Backup Restore", "Version Info", $versionInfo);
+    }
+
+    // Cleanup temp restore directory
+    array_map('unlink', glob("$tempDir/*"));
+    rmdir($tempDir);
+
+    // === 4. Final Setup Stages ===
     $myfile = fopen("config.php", "a");
     $txt = "\$config_enable_setup = 0;\n\n";
     fwrite($myfile, $txt);
     fclose($myfile);
 
-    $_SESSION['alert_message'] = "Database and uploads restored successfully";
-
+    $_SESSION['alert_message'] = "Full backup restored successfully.";
     // header("Location: login.php");
     exit;
 }
@@ -1029,18 +1042,11 @@ if (isset($_POST['add_telemetry'])) {
                         </div>
                         <div class="card-body">
                             <form method="post" enctype="multipart/form-data">
-                                <h5>Upload SQL File to Import into DB</h5>
-                                <input type="file" name="sql_file" accept=".sql" required>
-
+                                <label>Restore ITFlow Backup (.zip)</label>
+                                <input type="file" name="backup_zip" accept=".zip" required>
                                 <hr>
-
-                                <h5>Upload Folder Backup (.zip)</h5>
-                                <input type="file" name="upload_zip" accept=".zip" required>
-
-                                <hr>
-
                                 <button type="submit" name="restore" class="btn btn-primary text-bold">
-                                    Restore then login<i class="fas fa-fw fa-arrow-circle-right ml-2"></i>
+                                    Restore Backup<i class="fas fa-fw fa-upload ml-2"></i>
                                 </button>
                             </form>
                         </div>
