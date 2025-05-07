@@ -108,8 +108,9 @@ if (isset($_POST['add_database'])) {
 
 }
 
-if (isset($_POST['restore_database'])) {
+if (isset($_POST['restore'])) {
 
+    // === 1. Restore SQL Dump ===
     if (isset($_FILES["sql_file"])) {
 
         // Drop all existing tables
@@ -119,7 +120,6 @@ if (isset($_POST['restore_database'])) {
             mysqli_query($mysqli, "DROP TABLE IF EXISTS `" . $row[0] . "`");
         }
         mysqli_query($mysqli, "SET foreign_key_checks = 1");
-
 
         $file = $_FILES["sql_file"];
         $filename = $file["name"];
@@ -133,7 +133,7 @@ if (isset($_POST['restore_database'])) {
         // Save uploaded file temporarily
         $destination = "temp_" . time() . ".sql";
         if (!move_uploaded_file($tempPath, $destination)) {
-            die("Failed to upload the file.");
+            die("Failed to upload the SQL file.");
         }
 
         $command = sprintf(
@@ -148,16 +148,62 @@ if (isset($_POST['restore_database'])) {
         exec($command, $output, $returnCode);
         unlink($destination); // cleanup
 
-        if ($returnCode === 0) {
-            echo "SQL file imported successfully!";
-        } else {
-            echo "Import failed. Error code: $returnCode";
+        if ($returnCode !== 0) {
+            die("SQL import failed. Error code: $returnCode");
         }
     }
 
-    $_SESSION['alert_message'] = "Database imported successfully";
+    // === 2. Restore Upload Folder from ZIP ===
+    if (isset($_FILES["upload_zip"])) {
+        $uploadDir = __DIR__ . "/uploads/";
 
-    //header("Location: login.php");
+        $zipFile = $_FILES["upload_zip"];
+        $zipName = basename($zipFile["name"]);
+        $zipExt = strtolower(pathinfo($zipName, PATHINFO_EXTENSION));
+
+        if ($zipExt !== "zip") {
+            die("Only .zip files are allowed for upload restore.");
+        }
+
+        $tempZip = "upload_restore_" . time() . ".zip";
+        if (!move_uploaded_file($zipFile["tmp_name"], $tempZip)) {
+            die("Failed to upload the zip file.");
+        }
+
+        $zip = new ZipArchive;
+        if ($zip->open($tempZip) === TRUE) {
+            // Clear existing upload folder
+            foreach (glob($uploadDir . '*') as $file) {
+                if (is_dir($file)) {
+                    $files = array_diff(scandir($file), array('.', '..'));
+                    foreach ($files as $subfile) {
+                        unlink("$file/$subfile");
+                    }
+                    rmdir($file);
+                } else {
+                    unlink($file);
+                }
+            }
+
+            // Extract new files
+            $zip->extractTo($uploadDir);
+            $zip->close();
+            unlink($tempZip); // cleanup
+        } else {
+            unlink($tempZip);
+            die("Failed to open zip file.");
+        }
+    }
+
+    // === 3. Final Setup Stages ===
+    $myfile = fopen("config.php", "a");
+    $txt = "\$config_enable_setup = 0;\n\n";
+    fwrite($myfile, $txt);
+    fclose($myfile);
+
+    $_SESSION['alert_message'] = "Database and uploads restored successfully";
+
+    // header("Location: login.php");
     exit;
 }
 
@@ -975,20 +1021,25 @@ if (isset($_POST['add_telemetry'])) {
                         </div>
                     </div>
 
-                <?php } elseif (isset($_GET['restore_database'])) { ?>
+                <?php } elseif (isset($_GET['restore'])) { ?>
 
                     <div class="card card-dark">
                         <div class="card-header">
-                            <h3 class="card-title"><i class="fas fa-fw fa-database mr-2"></i>Step 2.5 - Restore your Database</h3>
+                            <h3 class="card-title"><i class="fas fa-fw fa-database mr-2"></i>Step 2.5 - Restore from Backup</h3>
                         </div>
                         <div class="card-body">
-
-                            <h5>Upload SQL File to Import into DB</h5>
-        
                             <form method="post" enctype="multipart/form-data">
+                                <h5>Upload SQL File to Import into DB</h5>
                                 <input type="file" name="sql_file" accept=".sql" required>
+
                                 <hr>
-                                <button type="submit" name="restore_database" class="btn btn-primary text-bold">
+
+                                <h5>Upload Folder Backup (.zip)</h5>
+                                <input type="file" name="upload_zip" accept=".zip" required>
+
+                                <hr>
+
+                                <button type="submit" name="restore" class="btn btn-primary text-bold">
                                     Restore then login<i class="fas fa-fw fa-arrow-circle-right ml-2"></i>
                                 </button>
                             </form>
