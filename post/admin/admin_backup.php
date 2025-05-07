@@ -71,6 +71,54 @@ if (isset($_GET['download_database'])) {
     exit;
 }
 
+if (isset($_GET['download_uploads'])) {
+    validateCSRFToken($_GET['csrf_token']);
+
+    function zipFolder($folderPath, $zipFilePath) {
+        $zip = new ZipArchive();
+        if ($zip->open($zipFilePath, ZipArchive::CREATE | ZipArchive::OVERWRITE) !== TRUE) {
+            die("Cannot open <$zipFilePath>\n");
+        }
+
+        $folderPath = realpath($folderPath);
+
+        $files = new RecursiveIteratorIterator(
+            new RecursiveDirectoryIterator($folderPath),
+            RecursiveIteratorIterator::LEAVES_ONLY
+        );
+
+        foreach ($files as $name => $file) {
+            if (!$file->isDir()) {
+                $filePath = $file->getRealPath();
+                $relativePath = substr($filePath, strlen($folderPath) + 1);
+                $zip->addFile($filePath, $relativePath);
+            }
+        }
+
+        $zip->close();
+    }
+
+    $uploadDir = 'uploads';
+    $zipFile = 'uploads.zip';
+
+    zipFolder($uploadDir, $zipFile);
+
+    // Trigger file download
+    if (file_exists($zipFile)) {
+        header('Content-Type: application/zip');
+        header('Content-Disposition: attachment; filename="' . basename($zipFile) . '"');
+        header('Content-Length: ' . filesize($zipFile));
+        flush();
+        readfile($zipFile);
+        unlink($zipFile); // Optional: delete after download
+        exit;
+    }
+
+    logAction("Uploads", "Download", "$session_name downloaded the uploads folder.");
+
+}
+
+
 if (isset($_POST['backup_master_key'])) {
 
     validateCSRFToken($_POST['csrf_token']);
@@ -104,3 +152,4 @@ if (isset($_POST['backup_master_key'])) {
         header("Location: " . $_SERVER["HTTP_REFERER"]);
     }
 }
+

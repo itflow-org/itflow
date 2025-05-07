@@ -108,6 +108,59 @@ if (isset($_POST['add_database'])) {
 
 }
 
+if (isset($_POST['restore_database'])) {
+
+    if (isset($_FILES["sql_file"])) {
+
+        // Drop all existing tables
+        mysqli_query($mysqli, "SET foreign_key_checks = 0");
+        $tables = mysqli_query($mysqli, "SHOW TABLES");
+        while ($row = mysqli_fetch_array($tables)) {
+            mysqli_query($mysqli, "DROP TABLE IF EXISTS `" . $row[0] . "`");
+        }
+        mysqli_query($mysqli, "SET foreign_key_checks = 1");
+
+
+        $file = $_FILES["sql_file"];
+        $filename = $file["name"];
+        $tempPath = $file["tmp_name"];
+
+        $fileExt = pathinfo($filename, PATHINFO_EXTENSION);
+        if (strtolower($fileExt) !== "sql") {
+            die("Only .sql files are allowed.");
+        }
+
+        // Save uploaded file temporarily
+        $destination = "temp_" . time() . ".sql";
+        if (!move_uploaded_file($tempPath, $destination)) {
+            die("Failed to upload the file.");
+        }
+
+        $command = sprintf(
+            'mysql -h%s -u%s -p%s %s < %s',
+            escapeshellarg($dbhost),
+            escapeshellarg($dbusername),
+            escapeshellarg($dbpassword),
+            escapeshellarg($database),
+            escapeshellarg($destination)
+        );
+
+        exec($command, $output, $returnCode);
+        unlink($destination); // cleanup
+
+        if ($returnCode === 0) {
+            echo "SQL file imported successfully!";
+        } else {
+            echo "Import failed. Error code: $returnCode";
+        }
+    }
+
+    $_SESSION['alert_message'] = "Database imported successfully";
+
+    //header("Location: login.php");
+    exit;
+}
+
 if (isset($_POST['add_user'])) {
     $user_count = mysqli_num_rows(mysqli_query($mysqli,"SELECT COUNT(*) FROM users"));
     if ($user_count < 0) {
@@ -919,6 +972,26 @@ if (isset($_POST['add_telemetry'])) {
                                     </button>
                                 </form>
                             <?php } ?>
+                        </div>
+                    </div>
+
+                <?php } elseif (isset($_GET['restore_database'])) { ?>
+
+                    <div class="card card-dark">
+                        <div class="card-header">
+                            <h3 class="card-title"><i class="fas fa-fw fa-database mr-2"></i>Step 2.5 - Restore your Database</h3>
+                        </div>
+                        <div class="card-body">
+
+                            <h5>Upload SQL File to Import into DB</h5>
+        
+                            <form method="post" enctype="multipart/form-data">
+                                <input type="file" name="sql_file" accept=".sql" required>
+                                <hr>
+                                <button type="submit" name="restore_database" class="btn btn-primary text-bold">
+                                    Restore then login<i class="fas fa-fw fa-arrow-circle-right ml-2"></i>
+                                </button>
+                            </form>
                         </div>
                     </div>
 
