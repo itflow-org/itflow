@@ -294,6 +294,7 @@ if (isset($_GET['get_active_clients'])) {
         $mysqli,
         "SELECT client_id, client_name FROM clients
         WHERE client_archived_at IS NULL
+        $access_permission_query
         ORDER BY client_accessed_at DESC"
     );
 
@@ -383,7 +384,7 @@ if (isset($_POST['update_kanban_status_position'])) {
 if (isset($_POST['update_kanban_ticket'])) {
     // Update ticket kanban order and status
     enforceUserPermission('module_support', 2);
-    
+
     // all tickets on the column
     $positions = $_POST['positions'];
 
@@ -406,7 +407,7 @@ if (isset($_POST['update_kanban_ticket'])) {
             // if ticket was not moved, just uptdate the order on kanban
             mysqli_query($mysqli, "UPDATE tickets SET ticket_order = $kanban WHERE ticket_id = $ticket_id");
             customAction('ticket_update', $ticket_id);
-        } else { 
+        } else {
             // If the ticket was moved from a resolved status to another status, we need to update ticket_resolved_at
             if ($oldStatus === $statuses['Resolved']) {
                 mysqli_query($mysqli, "UPDATE tickets SET ticket_order = $kanban, ticket_status = $status, ticket_resolved_at = NULL WHERE ticket_id = $ticket_id");
@@ -490,7 +491,7 @@ if (isset($_POST['update_kanban_ticket'])) {
                     addToMailQueue($data);
                 }
                 //End Mail IF
-                
+
             } else {
                 // If the ticket was moved from any status to another status
                 mysqli_query($mysqli, "UPDATE tickets SET ticket_order = $kanban, ticket_status = $status WHERE ticket_id = $ticket_id");
@@ -512,7 +513,7 @@ if (isset($_POST['update_ticket_tasks_order'])) {
     $positions = $_POST['positions'];
     $ticket_id = intval($_POST['ticket_id']);
 
-    foreach ($positions as $position) {   
+    foreach ($positions as $position) {
         $id = intval($position['id']);
         $order = intval($position['order']);
 
@@ -531,7 +532,7 @@ if (isset($_POST['update_task_templates_order'])) {
     $positions = $_POST['positions'];
     $ticket_template_id = intval($_POST['ticket_template_id']);
 
-    foreach ($positions as $position) {   
+    foreach ($positions as $position) {
         $id = intval($position['id']);
         $order = intval($position['order']);
 
@@ -550,7 +551,7 @@ if (isset($_POST['update_quote_items_order'])) {
     $positions = $_POST['positions'];
     $quote_id = intval($_POST['quote_id']);
 
-    foreach ($positions as $position) {   
+    foreach ($positions as $position) {
         $id = intval($position['id']);
         $order = intval($position['order']);
 
@@ -569,7 +570,7 @@ if (isset($_POST['update_invoice_items_order'])) {
     $positions = $_POST['positions'];
     $invoice_id = intval($_POST['invoice_id']);
 
-    foreach ($positions as $position) {   
+    foreach ($positions as $position) {
         $id = intval($position['id']);
         $order = intval($position['order']);
 
@@ -588,7 +589,7 @@ if (isset($_POST['update_recurring_invoice_items_order'])) {
     $positions = $_POST['positions'];
     $recurring_invoice_id = intval($_POST['recurring_invoice_id']);
 
-    foreach ($positions as $position) {   
+    foreach ($positions as $position) {
         $id = intval($position['id']);
         $order = intval($position['order']);
 
