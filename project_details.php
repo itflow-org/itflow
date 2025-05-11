@@ -259,7 +259,7 @@ if (isset($_GET['project_id'])) {
                             <?php } ?>
                             <?php if (!empty($project_archived_at) && lookupUserPermission("module_support" >= 3)) { ?>
                                 <div class="dropdown-divider"></div>
-                                <a class="dropdown-item text-danger confirm-link" href="post.php?delete_project=<?php echo $project_id; ?>">
+                                <a class="dropdown-item text-danger confirm-link" href="post.php?delete_project=<?php echo $project_id; ?>&csrf_token=<?php echo $_SESSION['csrf_token'] ?>">
                                     <i class="fas fa-fw fa-trash mr-2"></i>Delete
                                 </a>
                             <?php } ?>

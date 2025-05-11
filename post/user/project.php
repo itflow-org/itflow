@@ -170,6 +170,9 @@ if (isset($_GET['delete_project'])) {
 
     enforceUserPermission('module_support', 3);
 
+    // CSRF Check
+    validateCSRFToken($_GET['csrf_token']);
+
     $project_id = intval($_GET['delete_project']);
 
     // Get Project Name and Client ID for logging
