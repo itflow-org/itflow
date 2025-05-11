@@ -153,18 +153,20 @@
                             </a>
                         </li>
 
-                        <li class="nav-item">
-                            <a href="credentials.php?client_id=<?php echo $client_id; ?>" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "credentials.php") { echo "active"; } ?>">
-                                <i class="nav-icon fas fa-key"></i>
-                                <p>
-                                    Credentials
-                                    <?php
-                                    if ($num_credentials > 0) { ?>
-                                        <span class="right badge text-light"><?php echo $num_credentials; ?></span>
-                                    <?php } ?>
-                                </p>
-                            </a>
-                        </li>
+                        <?php if (lookupUserPermission("module_credential") >= 1) { ?>
+                            <li class="nav-item">
+                                <a href="credentials.php?client_id=<?php echo $client_id; ?>" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "credentials.php") { echo "active"; } ?>">
+                                    <i class="nav-icon fas fa-key"></i>
+                                    <p>
+                                        Credentials
+                                        <?php
+                                        if ($num_credentials > 0) { ?>
+                                            <span class="right badge text-light"><?php echo $num_credentials; ?></span>
+                                        <?php } ?>
+                                    </p>
+                                </a>
+                            </li>
+                        <?php } ?>
 
                         <li class="nav-item">
                             <a href="networks.php?client_id=<?php echo $client_id; ?>" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "networks.php") { echo "active"; } ?>">
