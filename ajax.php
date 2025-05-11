@@ -316,7 +316,9 @@ if (isset($_GET['get_client_contacts'])) {
     $contact_sql = mysqli_query(
         $mysqli,
         "SELECT contact_id, contact_name, contact_primary, contact_important, contact_technical FROM contacts
+        LEFT JOIN clients on contact_client_id = client_id
         WHERE contacts.contact_archived_at IS NULL AND contact_client_id = $client_id
+        $access_permission_query
         ORDER BY contact_primary DESC, contact_technical DESC, contact_important DESC, contact_name"
     );
 
