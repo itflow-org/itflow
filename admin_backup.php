@@ -8,7 +8,7 @@ require_once "includes/inc_all_admin.php";
     </div>
     <div class="card-body" style="text-align: center;">
         <div class="alert alert-secondary">If you are unable to back up the entire VM, you'll need to back up the files & database individually. There is no built-in restore. See the <a href="https://docs.itflow.org/backups" target="_blank">docs here</a>.</div>
-        <a class="btn btn-primary btn-lg p-3" href="post.php?download_database&csrf_token=<?php echo $_SESSION['csrf_token'] ?>"><i class="fas fa-fw fa-4x fa-download"></i><br><br>Download database</a>
+        <a class="btn btn-primary btn-lg p-3" href="post.php?download_backup&csrf_token=<?php echo $_SESSION['csrf_token'] ?>"><i class="fas fa-fw fa-4x fa-download"></i><br><br>Download Backup</a>
     </div>
 </div>
 
