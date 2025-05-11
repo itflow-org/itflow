@@ -82,7 +82,7 @@ if (isset($_GET['assigned']) & !empty($_GET['assigned'])) {
         $ticket_assigned_query = 'AND ticket_assigned_to = ' . intval($_GET['assigned']);
         $ticket_assigned_filter_id = intval($_GET['assigned']);
     }
-} 
+}
 
 //Rebuild URL
 $url_query_strings_sort = http_build_query(array_merge($_GET, array('sort' => $sort, 'order' => $order, 'status' => $status, 'assigned' => $ticket_assigned_filter_id)));
@@ -172,21 +172,23 @@ $sql_categories = mysqli_query(
                     <a href="?<?php echo $client_url; ?>status=Closed" class="text-light"><strong><?php echo $total_tickets_closed; ?></strong> Closed</a>
                 </small>
             </h3>
-            <div class="card-tools">
-                <div class="btn-group">
-                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addTicketModal">
-                        <i class="fas fa-plus mr-2"></i>New Ticket
-                    </button>
-                    <?php if ($num_rows[0] > 0) { ?>
-                    <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown"></button>
-                    <div class="dropdown-menu">
-                        <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#exportTicketModal">
-                            <i class="fa fa-fw fa-download mr-2"></i>Export
-                        </a>
+            <?php if (lookupUserPermission("module_support") >= 2) { ?>
+                <div class="card-tools">
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addTicketModal">
+                            <i class="fas fa-plus mr-2"></i>New Ticket
+                        </button>
+                        <?php if ($num_rows[0] > 0) { ?>
+                        <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown"></button>
+                        <div class="dropdown-menu">
+                            <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#exportTicketModal">
+                                <i class="fa fa-fw fa-download mr-2"></i>Export
+                            </a>
+                        </div>
+                        <?php } ?>
                     </div>
-                    <?php } ?>
                 </div>
-            </div>
+            <?php } ?>
         </div>
         <div class="card-body">
             <form autocomplete="off">
@@ -294,17 +296,17 @@ $sql_categories = mysqli_query(
                     </div>
                 </div>
 
-                <div 
-                    class="collapse 
-                        <?php 
+                <div
+                    class="collapse
+                        <?php
                         if (
-                            !empty($_GET['dtf']) 
-                            || (isset($_GET['canned_date']) && $_GET['canned_date'] !== "custom") 
-                            || (isset($_GET['status']) && is_array($_GET['status']) 
+                            !empty($_GET['dtf'])
+                            || (isset($_GET['canned_date']) && $_GET['canned_date'] !== "custom")
+                            || (isset($_GET['status']) && is_array($_GET['status'])
                             || (isset($_GET['assigned']) && $_GET['assigned']
-                        ))) 
-                            { echo "show"; } 
-                        ?>" 
+                        )))
+                            { echo "show"; }
+                        ?>"
                     id="advancedFilter"
                 >
                     <div class="row">

@@ -8,7 +8,7 @@ $order = "ASC";
 if (isset($_GET['client_id'])) {
     require_once "includes/inc_all_client.php";
     $client_query = "AND project_client_id = $client_id";
-    
+
     $client_url = "client_id=$client_id&";
 } else {
     require_once "includes/inc_all.php";
@@ -16,8 +16,12 @@ if (isset($_GET['client_id'])) {
     $client_url = '';
 }
 
-// Perms
+// Perms & Project client access snippet
 enforceUserPermission('module_support');
+$project_permission_snippet = '';
+if (!empty($client_access_string)) {
+    $project_permission_snippet = "AND project_client_id IN ($client_access_string) OR project_client_id = 0";
+}
 
 // Status Query
 
@@ -27,16 +31,10 @@ if (isset($_GET['status'])) {
     $status = intval($_GET['status']);
 }
 
-if($status == 1) {
+if ($status == 1) {
     $status_query = "IS NOT NULL";
 } else {
     $status_query = "IS NULL";
-}
-
-// Ticket client access snippet
-$project_permission_snippet = '';
-if (!empty($client_access_string)) {
-    $project_permission_snippet = "AND project_client_id IN ($client_access_string) OR project_client_id = 0";
 }
 
 //Rebuild URL
@@ -63,9 +61,11 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 <div class="card card-dark">
     <div class="card-header py-2">
         <h3 class="card-title mt-2"><i class="fas fa-fw fa-project-diagram mr-2"></i>Projects</h3>
-        <div class="card-tools">
-            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addProjectModal"><i class="fas fa-plus mr-2"></i>New Project</button>
-        </div>
+        <?php if (lookupUserPermission("module_support") >= 2) { ?>
+            <div class="card-tools">
+                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addProjectModal"><i class="fas fa-plus mr-2"></i>New Project</button>
+            </div>
+        <?php } ?>
     </div>
 
     <div class="card-body">
@@ -97,7 +97,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 <i class="fa fa-fw fa-archive mr-2"></i>Archived
                             </a>
                         </div>
-                       
+
                     </div>
                 </div>
             </div>
@@ -224,7 +224,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     $sql_closed_tickets = mysqli_query($mysqli, "SELECT * FROM tickets WHERE ticket_project_id = $project_id AND ticket_closed_at IS NOT NULL");
 
                     $closed_ticket_count = mysqli_num_rows($sql_closed_tickets);
-                    
+
                     // Ticket Closed Percent
                     if($ticket_count) {
                         $tickets_closed_percent = round(($closed_ticket_count / $ticket_count) * 100);
