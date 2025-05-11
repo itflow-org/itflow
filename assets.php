@@ -550,11 +550,7 @@ if (mysqli_num_rows($os_sql) > 0) {
                                 </div>
                             </td>
                             <td>
-                                <a class="text-dark" href="#"
-                                    data-toggle="ajax-modal"
-                                    data-modal-size="lg"
-                                    data-ajax-url="ajax/ajax_asset_details.php?<?php echo $client_url; ?>"
-                                    data-ajax-id="<?php echo $asset_id; ?>">
+                                <a class="text-dark" href="asset_details.php?client_id=<?php echo $client_id; ?>&asset_id=<?php echo $asset_id; ?>">
                                     <div class="media">
                                         <i class="fa fa-fw fa-2x fa-<?php echo $device_icon; ?> mr-3 mt-1"></i>
                                         <div class="media-body">

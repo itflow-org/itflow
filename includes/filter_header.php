@@ -100,7 +100,7 @@ if ($_GET['canned_date'] == "custom" && !empty($_GET['dtf'])) {
     $dtt = date('Y-m-d', strtotime("last day of december last year"));
 } else {
     $dtf = "NULL";
-    $dtt = date('Y-m-d');
+    $dtt = '2035-12-31';
 }
 
 // Archived

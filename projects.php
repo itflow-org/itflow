@@ -48,7 +48,7 @@ $sql_projects = mysqli_query(
     LEFT JOIN clients ON client_id = project_client_id
     LEFT JOIN users ON user_id = project_manager
     WHERE DATE(project_created_at) BETWEEN '$dtf' AND '$dtt'
-    AND (project_name LIKE '%$q%' OR project_description LIKE '%$q%' OR user_name LIKE '%$q%')
+    AND (CONCAT(project_prefix,project_number) LIKE '%$q%' OR project_name LIKE '%$q%' OR project_description LIKE '%$q%' OR user_name LIKE '%$q%')
     AND project_completed_at $status_query
     $project_permission_snippet
     AND project_$archive_query

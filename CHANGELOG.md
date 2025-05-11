@@ -2,6 +2,27 @@
 
 This file documents all notable changes made to ITFlow.
 
+## [25.03.6]
+
+### Fixed
+- Set default to date to 2035-12-31 as 9999-12-31 and 2999-12-31 broke certain browsers.
+- Update Client PDF Export, add header added company logo.
+- Present Larger clearer Warning about updates on update page.
+- Allow to search by project reference.
+
+## [25.03.5]
+
+### Fixed
+- Fixed the user listing issue when copying a trip.
+- Corrected the display of recurring invoice amounts on the dashboard.
+- Fixed the linking of entities with assets and contacts.
+- Resolved the issue with displaying the correct mobile country code in the contact listing.
+- Set the default date to `9999-12-31` to ensure future items (like invoices) are displayed by default.
+- Fixed the display issue where file folders were not showing properly during document creation.
+- Migrated from Dragula to SortableJS for a more modern, mobile-friendly solution.
+- Added Handlebars icons for drag-and-drop items.
+- Changed behavior to open Contact and Asset Details pages directly instead of using a modal.
+
 ## [25.03.4]
 
 ### Fixed

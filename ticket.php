@@ -341,7 +341,6 @@ if (isset($_GET['ticket_id'])) {
         $ticket_collaborators = nullable_htmlentities($row['user_names']);
 
         ?>
-        <link rel="stylesheet" href="plugins/dragula/dragula.min.css">
 
         <!-- Breadcrumbs-->
         <ol class="breadcrumb d-print-none">
@@ -940,7 +939,7 @@ if (isset($_GET['ticket_id'])) {
                             </form>
                         <?php } ?>
 
-                        <table class="table table-sm">
+                        <table class="table table-sm" id="tasks">
                             <?php
                             while($row = mysqli_fetch_array($sql_tasks)){
                                 $task_id = intval($row['task_id']);
@@ -960,14 +959,14 @@ if (isset($_GET['ticket_id'])) {
                                         <?php } ?>
                                     </td>
                                     <td>
-                                        <a href="#" class="grab-cursor">
-                                            <span class="text-secondary"><?php echo $task_completion_estimate; ?>m</span>
-                                            <span class="text-dark"> - <?php echo $task_name; ?></span>
-                                        </a>
+                                        <a href="#" class="drag-handle"><i class="fas fa-bars text-muted mr-1"></i></a>
+                                        <span class="text-secondary"><?php echo $task_completion_estimate; ?>m</span>
+                                        <span class="text-dark"> - <?php echo $task_name; ?></span>
                                     </td>
                                     <td>
                                         <div class="float-right">
                                             <?php if (empty($ticket_resolved_at) && lookupUserPermission("module_support") >= 2) { ?>
+                                                   
                                                 <div class="dropdown dropleft text-center">
                                                     <button class="btn btn-link text-secondary btn-sm" type="button" data-toggle="dropdown">
                                                         <i class="fas fa-fw fa-ellipsis-v"></i>
@@ -991,6 +990,7 @@ if (isset($_GET['ticket_id'])) {
                                                         </a>
                                                     </div>
                                                 </div>
+                                            
                                             <?php } ?>
                                         </div>
                                     </td>
@@ -1207,41 +1207,23 @@ require_once "includes/footer.php";
     });
 </script>
 
-
-<script src="plugins/dragula/dragula.min.js"></script>
+<script src="plugins/SortableJS/Sortable.min.js"></script>
 <script>
-    $(document).ready(function() {
-        var container = $('.table tbody')[0];
+new Sortable(document.querySelector('table#tasks tbody'), {
+    handle: '.drag-handle',
+    animation: 150,
+    onEnd: function (evt) {
+        const rows = document.querySelectorAll('table#tasks tbody tr');
+        const positions = Array.from(rows).map((row, index) => ({
+            id: row.dataset.taskId,
+            order: index
+        }));
 
-        dragula([container])
-            .on('drop', function (el, target, source, sibling) {
-                // Handle the drop event to update the order in the database
-                var rows = $(container).children();
-                var positions = rows.map(function(index, row) {
-                    return {
-                        id: $(row).data('taskId'),
-                        order: index
-                    };
-                }).get();
-
-                //console.log('New positions:', positions);
-
-                // Send the new order to the server (example using fetch)
-                $.ajax({
-                    url: 'ajax.php',
-                    method: 'POST',
-                    data: {
-                        update_ticket_tasks_order: true,
-                        ticket_id: <?php echo $ticket_id; ?>,
-                        positions: positions
-                    },
-                    success: function(data) {
-                        //console.log('Order updated:', data);
-                    },
-                    error: function(error) {
-                        console.error('Error updating order:', error);
-                    }
-                });
-            });
-    });
+        $.post('ajax.php', {
+            update_ticket_tasks_order: true,
+            ticket_id: <?php echo $ticket_id; ?>,
+            positions: positions
+        });
+    }
+});
 </script>
