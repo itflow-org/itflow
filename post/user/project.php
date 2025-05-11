@@ -25,7 +25,7 @@ if (isset($_POST['add_project'])) {
     $new_config_project_next_number = $config_project_next_number + 1;
 
     mysqli_query($mysqli, "UPDATE settings SET config_project_next_number = $new_config_project_next_number WHERE company_id = 1");
-    
+
     mysqli_query($mysqli, "INSERT INTO projects SET project_prefix = '$config_project_prefix', project_number = $project_number, project_name = '$project_name', project_description = '$project_description', project_due = '$due_date', project_manager = $project_manager, project_client_id = $client_id");
 
     $project_id = mysqli_insert_id($mysqli);
@@ -89,7 +89,7 @@ if (isset($_POST['edit_project'])) {
     $project_manager = intval($_POST['project_manager']);
     $client_id = intval($_POST['client_id']);
 
-    mysqli_query($mysqli, "UPDATE projects SET project_name = '$project_name', project_description = '$project_description', project_due = '$due_date', project_manager = $project_manager WHERE project_id = $project_id");
+    mysqli_query($mysqli, "UPDATE projects SET project_name = '$project_name', project_description = '$project_description', project_due = '$due_date', project_manager = $project_manager, project_client_id = $client_id WHERE project_id = $project_id");
 
     // Logging
     logAction("Project", "Edit", "$session_name edited project $project_name", $client_id, $project_id);
@@ -199,7 +199,7 @@ if (isset($_POST['link_ticket_to_project'])) {
     $row = mysqli_fetch_array($sql);
     $client_id = intval($row['project_client_id']);
     $project_name = sanitizeInput($row['project_name']);
-    
+
     // Add Tickets
     if (isset($_POST['tickets'])) {
 
@@ -208,14 +208,14 @@ if (isset($_POST['link_ticket_to_project'])) {
 
         foreach ($_POST['tickets'] as $ticket) {
             $ticket_id = intval($ticket);
-        
+
             // Get Ticket Info
             $sql = mysqli_query($mysqli, "SELECT ticket_prefix, ticket_number, ticket_subject FROM tickets WHERE ticket_id = $ticket_id");
             $row = mysqli_fetch_array($sql);
             $ticket_prefix = sanitizeInput($row['ticket_prefix']);
             $ticket_number = intval($row['ticket_number']);
             $ticket_subject = sanitizeInput($row['ticket_subject']);
-            
+
             mysqli_query($mysqli, "UPDATE tickets SET ticket_project_id = $project_id WHERE ticket_id = $ticket_id");
 
             // Logging
