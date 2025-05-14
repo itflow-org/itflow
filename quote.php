@@ -137,7 +137,7 @@ if (isset($_GET['quote_id'])) {
             <a href="quotes.php">Global Quotes</a>
         </li>
         <li class="breadcrumb-item">
-            <a href="quotes.php?client_id=<?php echo $client_id; ?>"><?php echo $client_name; ?>Quotes</a>
+            <a href="quotes.php?client_id=<?php echo $client_id; ?>"><?php echo $client_name; ?> Quotes</a>
         </li>
         <?php } ?>
         <li class="breadcrumb-item active"><?php echo "$quote_prefix$quote_number"; ?></li>
@@ -151,10 +151,15 @@ if (isset($_GET['quote_id'])) {
                 <div class="col-8">
                     <?php if ($quote_status == 'Draft' && lookupUserPermission("module_sales") >= 2) { ?>
                         <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">
-                            <i class="fas fa-paper-plane mr-2"></i>Send
+                            <i class="fas fa-fw fa-paper-plane mr-2"></i>Send
                         </button>
                         <div class="dropdown-menu">
-
+                            <?php if (!empty($config_smtp_host) && !empty($contact_email)) { ?>
+                                <a class="dropdown-item" href="post.php?email_quote=<?php echo $quote_id; ?>">
+                                    <i class="fas fa-fw fa-paper-plane mr-2"></i>Send Email
+                                </a>
+                                <div class="dropdown-divider"></div>
+                            <?php } ?>
                             <a class="dropdown-item" href="post.php?mark_quote_sent=<?php echo $quote_id; ?>">
                                 <i class="fas fa-fw fa-check mr-2"></i>Mark Sent
                             </a>
@@ -171,9 +176,19 @@ if (isset($_GET['quote_id'])) {
                     <?php } ?>
 
                     <?php if ($quote_status == 'Accepted') { ?>
-                        <a class="btn btn-primary" href="#" data-toggle="modal" data-target="#addQuoteToInvoiceModal<?php echo $quote_id; ?>">
-                            <i class="fas fa-check mr-2"></i>Invoice
-                        </a>
+                        <div class="btn-group fix-quote-dropdown">
+                            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addQuoteToInvoiceModal<?php echo $quote_id; ?>">
+                                <i class="fas fa-check mr-2"></i>Invoice
+                            </button>
+                            <button type="button" class="btn btn-primary dropdown-toggle dropdown-icon" data-toggle="dropdown" aria-expanded="false">
+                                <span class="sr-only">Toggle Dropdown</span>
+                            </button>
+                            <div class="dropdown-menu dropdown-menu-right">
+                                <a class="dropdown-item" href="post.php?mark_quote_invoiced=<?php echo $quote_id; ?>">
+                                    <i class="fas fa-fw fa-check mr-2"></i>Mark Invoiced
+                                </a>
+                            </div>
+                        </div>
                     <?php } ?>
 
                 </div>
@@ -1021,3 +1036,4 @@ new Sortable(document.querySelector('table#items tbody'), {
     }
 });
 </script>
+<link rel="stylesheet" href="css/quote_dropdowns_fix.css">
