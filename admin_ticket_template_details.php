@@ -20,7 +20,7 @@ $sql_ticket_templates = mysqli_query($mysqli, "SELECT * FROM ticket_templates WH
 $row = mysqli_fetch_array($sql_ticket_templates);
 
 $ticket_template_name = nullable_htmlentities($row['ticket_template_name']);
-$ticket_template_description = nullable_htmlentities($row['ticket_template_description']);
+//$ticket_template_description = nullable_htmlentities($row['ticket_template_description']);
 $ticket_template_subject = nullable_htmlentities($row['ticket_template_subject']);
 $ticket_template_details = $purifier->purify($row['ticket_template_details']);
 $ticket_template_created_at = nullable_htmlentities($row['ticket_template_created_at']);
@@ -54,7 +54,7 @@ $sql_task_templates = mysqli_query($mysqli, "SELECT * FROM task_templates WHERE 
                         <i class="fa fa-fw fa-2x fa-life-ring mr-3"></i>
                         <div class="media-body">
                             <h3 class="mb-0"><?php echo $ticket_template_name; ?></h3>
-                            <div><small class="text-secondary"><?php echo $ticket_template_description; ?></small></div>
+                            <div><small class="text-secondary"><?php //echo $ticket_template_description; ?></small></div>
                         </div>
                     </div>
                 </h3>
@@ -86,7 +86,7 @@ $sql_task_templates = mysqli_query($mysqli, "SELECT * FROM task_templates WHERE 
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fa fa-fw fa-tasks"></i></span>
                             </div>
-                            <input type="text" class="form-control" name="task_name" placeholder="Create a task" required>
+                            <input type="text" class="form-control" name="task_name" placeholder="Create a task" required maxlength="200">
                             <div class="input-group-append">
                                 <button type="submit" name="add_ticket_template_task" class="btn btn-primary"><i class="fas fa-fw fa-check"></i></button>
                             </div>
@@ -99,7 +99,7 @@ $sql_task_templates = mysqli_query($mysqli, "SELECT * FROM task_templates WHERE 
                         $task_id = intval($row['task_template_id']);
                         $task_name = nullable_htmlentities($row['task_template_name']);
                         $task_completion_estimate = intval($row['task_template_completion_estimate']);
-                        $task_description = nullable_htmlentities($row['task_template_description']);
+                        //$task_description = nullable_htmlentities($row['task_template_description']);
                         ?>
                         <tr data-task-id="<?php echo $task_id; ?>">
                             <td>
