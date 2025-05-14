@@ -146,25 +146,25 @@ if (isset($_GET['quote_id'])) {
     <div class="card">
         <div class="card-header d-print-none">
 
-            <div class="row">
+            <?php if (lookupUserPermission("module_sales") >= 2) { ?>
+                <div class="row">
 
                 <div class="col-8">
-                    <?php if ($quote_status == 'Draft' && lookupUserPermission("module_sales") >= 2) { ?>
-                        <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">
-                            <i class="fas fa-fw fa-paper-plane mr-2"></i>Send
-                        </button>
-                        <div class="dropdown-menu">
-                            <?php if (!empty($config_smtp_host) && !empty($contact_email)) { ?>
-                                <a class="dropdown-item" href="post.php?email_quote=<?php echo $quote_id; ?>">
-                                    <i class="fas fa-fw fa-paper-plane mr-2"></i>Send Email
-                                </a>
-                                <div class="dropdown-divider"></div>
-                            <?php } ?>
-                            <a class="dropdown-item" href="post.php?mark_quote_sent=<?php echo $quote_id; ?>">
-                                <i class="fas fa-fw fa-check mr-2"></i>Mark Sent
+                <?php if ($quote_status == 'Draft') { ?>
+                    <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">
+                        <i class="fas fa-fw fa-paper-plane mr-2"></i>Send
+                    </button>
+                    <div class="dropdown-menu">
+                        <?php if (!empty($config_smtp_host) && !empty($contact_email)) { ?>
+                            <a class="dropdown-item" href="post.php?email_quote=<?php echo $quote_id; ?>">
+                                <i class="fas fa-fw fa-paper-plane mr-2"></i>Send Email
                             </a>
-                        </div>
-                    <?php } ?>
+                            <div class="dropdown-divider"></div>
+                        <?php } ?>
+                        <a class="dropdown-item" href="post.php?mark_quote_sent=<?php echo $quote_id; ?>">
+                            <i class="fas fa-fw fa-check mr-2"></i>Mark Sent
+                        </a>
+                    </div>
 
                     <?php if ($quote_status == 'Sent' || $quote_status == 'Viewed') { ?>
                         <a class="btn btn-primary" href="post.php?accept_quote=<?php echo $quote_id; ?>">
@@ -192,6 +192,7 @@ if (isset($_GET['quote_id'])) {
                     <?php } ?>
 
                 </div>
+                <?php } ?>
 
                 <div class="col-4">
                     <div class="dropdown dropleft text-center float-right">
@@ -240,6 +241,7 @@ if (isset($_GET['quote_id'])) {
                     </div>
                 </div>
             </div>
+            <?php } ?>
         </div>
 
         <div class="card-body">

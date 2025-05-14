@@ -523,6 +523,7 @@ if (isset($_GET['delete_invoice'])) {
 }
 
 if (isset($_POST['add_invoice_item'])) {
+    enforceUserPermission('module_sales', 2);
 
     $invoice_id = intval($_POST['invoice_id']);
     $name = sanitizeInput($_POST['name']);
@@ -576,6 +577,7 @@ if (isset($_POST['add_invoice_item'])) {
 }
 
 if (isset($_POST['invoice_note'])) {
+    enforceUserPermission('module_sales', 2);
 
     $invoice_id = intval($_POST['invoice_id']);
     $note = sanitizeInput($_POST['note']);
@@ -598,6 +600,7 @@ if (isset($_POST['invoice_note'])) {
 }
 
 if (isset($_POST['edit_item'])) {
+    enforceUserPermission('module_sales', 2);
 
     $item_id = intval($_POST['item_id']);
     $name = sanitizeInput($_POST['name']);
@@ -694,6 +697,8 @@ if (isset($_POST['edit_item'])) {
 }
 
 if (isset($_GET['delete_invoice_item'])) {
+    enforceUserPermission('module_sales', 2);
+
     $item_id = intval($_GET['delete_invoice_item']);
 
     $sql = mysqli_query($mysqli,"SELECT * FROM invoice_items WHERE item_id = $item_id");
@@ -727,6 +732,8 @@ if (isset($_GET['delete_invoice_item'])) {
 }
 
 if (isset($_POST['add_payment'])) {
+    enforceUserPermission('module_sales', 2);
+    enforceUserPermission('module_financial', 2);
 
     $invoice_id = intval($_POST['invoice_id']);
     $balance = floatval($_POST['balance']);
@@ -890,6 +897,7 @@ if (isset($_POST['add_payment'])) {
 if (isset($_GET['add_payment_stripe'])) {
 
     enforceUserPermission('module_sales', 2);
+    enforceUserPermission('module_financial', 2);
     validateCSRFToken($_GET['csrf_token']);
 
     $invoice_id = intval($_GET['invoice_id']);
@@ -1075,6 +1083,8 @@ if (isset($_GET['add_payment_stripe'])) {
 }
 
 if (isset($_POST['add_bulk_payment'])) {
+    enforceUserPermission('module_sales', 2);
+    enforceUserPermission('module_financial', 2);
 
     $client_id = intval($_POST['client_id']);
     $date = sanitizeInput($_POST['date']);
@@ -1207,6 +1217,9 @@ if (isset($_POST['add_bulk_payment'])) {
 }
 
 if (isset($_GET['delete_payment'])) {
+    enforceUserPermission('module_sales', 2);
+    enforceUserPermission('module_financial', 2);
+
     $payment_id = intval($_GET['delete_payment']);
 
     $sql = mysqli_query($mysqli,"SELECT * FROM payments WHERE payment_id = $payment_id");

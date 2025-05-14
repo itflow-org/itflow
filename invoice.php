@@ -192,10 +192,11 @@ if (isset($_GET['invoice_id'])) {
 
         <div class="card-header d-print-none">
 
-            <div class="row">
+            <?php if (lookupUserPermission("module_sales") >= 2) { ?>
+                <div class="row">
 
                 <div class="col-8">
-                    <?php if ($invoice_status == 'Draft') { ?>
+                        <?php if ($invoice_status == 'Draft') { ?>
                         <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">
                             <i class="fas fa-fw fa-paper-plane mr-2"></i>Send
                         </button>
@@ -209,8 +210,7 @@ if (isset($_GET['invoice_id'])) {
                             <a class="dropdown-item" href="post.php?mark_invoice_sent=<?php echo $invoice_id; ?>">
                                 <i class="fas fa-fw fa-check mr-2"></i>Mark Sent
                             </a>
-                        </div>
-                    <?php } ?>
+                    </div>
 
                     <?php if ($invoice_status !== 'Paid' && $invoice_status !== 'Cancelled' && $invoice_status !== 'Draft' && $invoice_amount != 0) { ?>
                         <a class="btn btn-success" href="#" data-toggle="modal" data-target="#addPaymentModal">
@@ -230,6 +230,7 @@ if (isset($_GET['invoice_id'])) {
                     <?php } ?>
 
                 </div>
+                <?php } ?>
 
                 <div class="col-4">
 
@@ -282,6 +283,7 @@ if (isset($_GET['invoice_id'])) {
                 </div>
 
             </div>
+            <?php } ?>
 
         </div>
 
@@ -417,7 +419,7 @@ if (isset($_GET['invoice_id'])) {
                                     <?php
                                 }
                                 ?>
-                                <tr class="d-print-none" <?php if ($invoice_status == "Paid" || $invoice_status == "Cancelled") { echo "hidden"; } ?>>
+                                <tr class="d-print-none" <?php if ($invoice_status == "Paid" || $invoice_status == "Cancelled" || lookupUserPermission("module_sales") <= 1) { echo "hidden"; } ?>>
                                     <form action="post.php" method="post" autocomplete="off">
                                         <input type="hidden" name="invoice_id" value="<?php echo $invoice_id; ?>">
                                         <input type="hidden" name="item_order" value="<?php echo mysqli_num_rows($sql_invoice_items) + 1; ?>">
