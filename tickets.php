@@ -153,6 +153,7 @@ $sql_categories = mysqli_query(
     $mysqli,
     "SELECT * FROM categories
     WHERE category_type = 'Ticket'
+    AND category_archived_at IS NULL
     ORDER BY category_name"
 );
 
