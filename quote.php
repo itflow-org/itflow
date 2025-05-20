@@ -165,34 +165,34 @@ if (isset($_GET['quote_id'])) {
                             <i class="fas fa-fw fa-check mr-2"></i>Mark Sent
                         </a>
                     </div>
+                <?php } ?>
 
-                    <?php if ($quote_status == 'Sent' || $quote_status == 'Viewed') { ?>
-                        <a class="btn btn-primary" href="post.php?accept_quote=<?php echo $quote_id; ?>">
-                            <i class="fas fa-thumbs-up mr-2"></i>Accept
-                        </a>
-                        <a class="btn btn-default" href="post.php?decline_quote=<?php echo $quote_id; ?>">
-                            <i class="fas fa-thumbs-down mr-2"></i>Decline
-                        </a>
-                    <?php } ?>
+                <?php if ($quote_status == 'Sent' || $quote_status == 'Viewed') { ?>
+                    <a class="btn btn-primary" href="post.php?accept_quote=<?php echo $quote_id; ?>">
+                        <i class="fas fa-thumbs-up mr-2"></i>Accept
+                    </a>
+                    <a class="btn btn-default" href="post.php?decline_quote=<?php echo $quote_id; ?>">
+                        <i class="fas fa-thumbs-down mr-2"></i>Decline
+                    </a>
+                <?php } ?>
 
-                    <?php if ($quote_status == 'Accepted') { ?>
-                        <div class="btn-group fix-quote-dropdown">
-                            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addQuoteToInvoiceModal<?php echo $quote_id; ?>">
-                                <i class="fas fa-check mr-2"></i>Invoice
-                            </button>
-                            <button type="button" class="btn btn-primary dropdown-toggle dropdown-icon" data-toggle="dropdown" aria-expanded="false">
-                                <span class="sr-only">Toggle Dropdown</span>
-                            </button>
-                            <div class="dropdown-menu dropdown-menu-right">
-                                <a class="dropdown-item" href="post.php?mark_quote_invoiced=<?php echo $quote_id; ?>">
-                                    <i class="fas fa-fw fa-check mr-2"></i>Mark Invoiced
-                                </a>
-                            </div>
+                <?php if ($quote_status == 'Accepted') { ?>
+                    <div class="btn-group fix-quote-dropdown">
+                        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addQuoteToInvoiceModal<?php echo $quote_id; ?>">
+                            <i class="fas fa-check mr-2"></i>Invoice
+                        </button>
+                        <button type="button" class="btn btn-primary dropdown-toggle dropdown-icon" data-toggle="dropdown" aria-expanded="false">
+                            <span class="sr-only">Toggle Dropdown</span>
+                        </button>
+                        <div class="dropdown-menu dropdown-menu-right">
+                            <a class="dropdown-item" href="post.php?mark_quote_invoiced=<?php echo $quote_id; ?>">
+                                <i class="fas fa-fw fa-check mr-2"></i>Mark Invoiced
+                            </a>
                         </div>
-                    <?php } ?>
+                    </div>
+                <?php } ?>
 
                 </div>
-                <?php } ?>
 
                 <div class="col-4">
                     <div class="dropdown dropleft text-center float-right">
