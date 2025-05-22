@@ -4,7 +4,6 @@
 [![Latest Stable Version](https://poser.pugx.org/stripe/stripe-php/v/stable.svg)](https://packagist.org/packages/stripe/stripe-php)
 [![Total Downloads](https://poser.pugx.org/stripe/stripe-php/downloads.svg)](https://packagist.org/packages/stripe/stripe-php)
 [![License](https://poser.pugx.org/stripe/stripe-php/license.svg)](https://packagist.org/packages/stripe/stripe-php)
-[![Code Coverage](https://coveralls.io/repos/stripe/stripe-php/badge.svg?branch=master)](https://coveralls.io/r/stripe/stripe-php?branch=master)
 
 The Stripe PHP library provides convenient access to the Stripe API from
 applications written in the PHP language. It includes a pre-defined set of
@@ -69,8 +68,6 @@ You can continue to use the legacy integration patterns used prior to version [7
 ## Documentation
 
 See the [PHP API docs](https://stripe.com/docs/api/?lang=php#intro).
-
-See [video demonstrations][youtube-playlist] covering how to use the library.
 
 ## Legacy Version Support
 
@@ -202,22 +199,21 @@ You can disable this behavior if you prefer:
 \Stripe\Stripe::setEnableTelemetry(false);
 ```
 
-### Beta SDKs
+### Public Preview SDKs
 
-Stripe has features in the beta phase that can be accessed via the beta version of this package.
-We would love for you to try these and share feedback with us before these features reach the stable phase.
-Use the `composer require` command with an exact version specified to install the beta version of the stripe-php pacakge.
+Stripe has features in the [public preview phase](https://docs.stripe.com/release-phases) that can be accessed via versions of this package that have the `-beta.X` suffix like `12.2.0-beta.2`.
+We would love for you to try these as we incrementally release new features and improve them based on your feedback.
+
+The public preview SDKs are a different version of the same package as the stable SDKs. These versions are appended with `-beta.X` such as `15.0.0-beta.1`. To install, choose the version that includes support for the preview feature you are interested in by reviewing the [releases page](https://github.com/stripe/stripe-dotnet/releases/) and then use it in the `composer require` command:
 
 ```bash
-composer require stripe/stripe-php:v9.2.0-beta.1
+composer require stripe/stripe-php:v<replace-with-the-version-of-your-choice>
 ```
 
 > **Note**
-> There can be breaking changes between beta versions. Therefore we recommend pinning the package version to a specific beta version in your composer.json file. This way you can install the same version each time without breaking changes unless you are intentionally looking for the latest beta version.
+> There can be breaking changes between two versions of the public preview SDKs without a bump in the major version. Therefore we recommend pinning the package version to a specific version in your composer.json file. This way you can install the same version each time without breaking changes unless you are intentionally looking for the latest version of the public preview SDK.
 
-We highly recommend keeping an eye on when the beta feature you are interested in goes from beta to stable so that you can move from using a beta version of the SDK to the stable version.
-
-If your beta feature requires a `Stripe-Version` header to be sent, set the `apiVersion` property of `config` object by using the function `addBetaVersion`:
+Some preview features require a name and version to be set in the `Stripe-Version` header like `feature_beta=v3`. If the preview feature you are interested in has this requirement, use the function `addBetaVersion` (available only in the public preview SDKs):
 
 ```php
 Stripe::addBetaVersion("feature_beta", "v3");
@@ -249,7 +245,11 @@ New features and bug fixes are released on the latest major version of the Strip
 
 ## Development
 
-Get [Composer][composer]. For example, on Mac OS:
+[Contribution guidelines for this project](CONTRIBUTING.md)
+
+We use [just](https://github.com/casey/just) for conveniently running development tasks. You can use them directly, or copy the commands out of the `justfile`. To our help docs, run `just`.
+
+To get started, install [Composer][composer]. For example, on Mac OS:
 
 ```bash
 brew install composer
@@ -258,7 +258,8 @@ brew install composer
 Install dependencies:
 
 ```bash
-composer install
+just install
+# or: composer install
 ```
 
 The test suite depends on [stripe-mock], so make sure to fetch and run it from a
@@ -273,13 +274,15 @@ stripe-mock
 Install dependencies as mentioned above (which will resolve [PHPUnit](http://packagist.org/packages/phpunit/phpunit)), then you can run the test suite:
 
 ```bash
-./vendor/bin/phpunit
+just test
+# or: ./vendor/bin/phpunit
 ```
 
 Or to run an individual test file:
 
 ```bash
-./vendor/bin/phpunit tests/Stripe/UtilTest.php
+just test tests/Stripe/UtilTest.php
+# or: ./vendor/bin/phpunit tests/Stripe/UtilTest.php
 ```
 
 Update bundled CA certificates from the [Mozilla cURL release][curl]:
@@ -291,7 +294,8 @@ Update bundled CA certificates from the [Mozilla cURL release][curl]:
 The library uses [PHP CS Fixer][php-cs-fixer] for code formatting. Code must be formatted before PRs are submitted, otherwise CI will fail. Run the formatter with:
 
 ```bash
-./vendor/bin/php-cs-fixer fix -v .
+just format
+# or: ./vendor/bin/php-cs-fixer fix -v .
 ```
 
 ## Attention plugin developers
@@ -315,4 +319,3 @@ See the "SSL / TLS compatibility issues" paragraph above for full context. If yo
 [php-cs-fixer]: https://github.com/FriendsOfPHP/PHP-CS-Fixer
 [psr3]: http://www.php-fig.org/psr/psr-3/
 [stripe-mock]: https://github.com/stripe/stripe-mock
-[youtube-playlist]: https://www.youtube.com/playlist?list=PLy1nL-pvL2M6cUbiHrfMkXxZ9j9SGBxFE
