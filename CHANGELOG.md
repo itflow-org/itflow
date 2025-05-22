@@ -18,6 +18,7 @@ This file documents all notable changes made to ITFlow.
 - Bump TCPDF from 6.8.2 to 6.9.4.
 - Bump tinyMCE from 7.7.1 to 7.9.0.
 - Bump phpMailer from 6.9.2 to 6.10.0.
+- Client Portal Add Recurrung Invoices with option to Enable or Disable Auto Pay per recurring Invoice if Stripe is enabled and Client has a payment method. Also when removing saved auto payment methods delete all recurring payments for that client that are Stripe method also added this to the admin settings.
 
 ### Fixed
 - Option SMTP Encrytption None now works as intended.
