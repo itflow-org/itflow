@@ -8,6 +8,11 @@ This file documents all notable changes made to ITFlow.
 
 ### Added / Changed
 - Expanded file upload allow-list to include .bat and .stk
+- Added Full Backup and Restore Capabilities. Backup will now download a zip file that includes the SQL dump and uploads folder and a metadata text file that includes version, who backed up date etc. There is now an option in Setup to restore from a backup file.
+- Migrated Asset and Contact Links to modals which fix an issue with overlapping vars specifically asset name and contact name.
+- Added Pagination to Notification Modal.
+- Removed 500 Records Per Page option.
+- Removed unused old DB checks in the top nav.
 
 
 ## [25.03.6]
