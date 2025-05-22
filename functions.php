@@ -705,7 +705,17 @@ function sendSingleEmail($config_smtp_host, $config_smtp_username, $config_smtp_
         $mail->SMTPAuth   = $smtp_auth;                             // Enable SMTP authentication
         $mail->Username   = $config_smtp_username;                  // SMTP username
         $mail->Password   = $config_smtp_password;                  // SMTP password
-        $mail->SMTPSecure = $config_smtp_encryption;                // Enable TLS encryption, `ssl` also accepted
+        if ($config_smtp_encryption = 'None') {
+            $mail->SMTPOptions = array(
+                'ssl' => array(
+                'verify_peer' => false,
+                'verify_peer_name' => false,
+            ));
+            $mail->SMTPSecure = false;
+            $mail->SMTPAutoTLS = false;
+        } else {
+            $mail->SMTPSecure = $config_smtp_encryption;            // Enable TLS encryption, `ssl` also accepted
+        }
         $mail->Port       = $config_smtp_port;                      // TCP port to connect to
 
         //Recipients
