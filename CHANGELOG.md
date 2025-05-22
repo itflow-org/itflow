@@ -14,6 +14,9 @@ This file documents all notable changes made to ITFlow.
 - Removed 500 Records Per Page option.
 - Removed unused old DB checks in the top nav.
 
+### Fixed
+- Option SMTP Encrytption None now works as intended.
+
 
 ## [25.03.6]
 
