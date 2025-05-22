@@ -7,12 +7,17 @@ This file documents all notable changes made to ITFlow.
 ### Fixed
 
 ### Added / Changed
-- Expanded file upload allow-list to include .bat and .stk
+- Expanded file upload allow-list to include .bat and .stk.
 - Added Full Backup and Restore Capabilities. Backup will now download a zip file that includes the SQL dump and uploads folder and a metadata text file that includes version, who backed up date etc. There is now an option in Setup to restore from a backup file.
 - Migrated Asset and Contact Links to modals which fix an issue with overlapping vars specifically asset name and contact name.
 - Added Pagination to Notification Modal.
 - Removed 500 Records Per Page option.
 - Removed unused old DB checks in the top nav.
+- Bump FullCalendar from 6.1.15 to 6.1.17.
+- Bump DataTables from 2.2.2 to 2.3.1.
+- Bump TCPDF from 6.8.2 to 6.9.4.
+- Bump tinyMCE from 7.7.1 to 7.9.0.
+- Bump phpMailer from 6.9.2 to 6.10.0.
 
 ### Fixed
 - Option SMTP Encrytption None now works as intended.
