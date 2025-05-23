@@ -24,8 +24,9 @@ ob_start();
 </div>
 
 <div class="modal-body bg-white">
-    <table class="table table-sm table-hover table-borderless">
     <?php if ($num_notifications) { ?>
+    <table class="table table-sm table-hover table-borderless">
+    
 
         <?php while ($row = mysqli_fetch_array($sql)) {
 
@@ -67,13 +68,13 @@ ob_start();
             <button id="next-btn" class="btn btn-sm btn-outline-secondary"><i class="fas fa-caret-right"></i></button>
         </div>
     <?php } else { ?>
-    <div class="text-center text-secondary py-5">
+    <div class="text-center text-secondary pt-3">
         <i class='far fa-6x fa-bell-slash'></i>
         <h3 class="mt-3">No Notifications</h3>
     </div>
     <?php } ?>
 </div>
-<div class="modal-footer bg-white justify-content-end">
+<div class="modal-footer bg-white">
     <?php if ($num_notifications) { ?>
     
     <a href="post.php?dismiss_all_notifications&csrf_token=<?php echo $_SESSION[
@@ -96,7 +97,7 @@ ob_start();
 
 <script>
 $(document).ready(function () {
-    var perPage = 5;
+    var perPage = 10;
     var $items = $(".notification-item");
     var totalItems = $items.length;
     var totalPages = Math.ceil(totalItems / perPage);
