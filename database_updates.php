@@ -3459,9 +3459,12 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
 
     if (CURRENT_DATABASE_VERSION == '2.1.3') {
         mysqli_query($mysqli, "ALTER TABLE `client_stripe` ADD `stripe_pm_details` VARCHAR(200) DEFAULT NULL AFTER `stripe_pm`");
+        mysqli_query($mysqli, "ALTER TABLE `client_stripe` ADD `stripe_pm_created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP AFTER `stripe_pm_details`");
    
         mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '2.1.4'");
     }
+
+
 
     // if (CURRENT_DATABASE_VERSION == '2.1.4') {
     //     // Insert queries here required to update to DB version 2.1.5

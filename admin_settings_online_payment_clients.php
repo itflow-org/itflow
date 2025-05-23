@@ -18,6 +18,8 @@ $stripe_clients_sql = mysqli_query($mysqli, "SELECT * FROM client_stripe LEFT JO
                     <th>Client</th>
                     <th>Stripe Customer ID</th>
                     <th>Stripe Payment ID</th>
+                    <th>Payment Details</th>
+                    <th>Created</th>
                     <th class="text-center">Action</th>
                 </tr>
                 </thead>
@@ -29,13 +31,17 @@ $stripe_clients_sql = mysqli_query($mysqli, "SELECT * FROM client_stripe LEFT JO
                     $client_name = nullable_htmlentities($row['client_name']);
                     $stripe_id = nullable_htmlentities($row['stripe_id']);
                     $stripe_pm = nullable_htmlentities($row['stripe_pm']);
+                    $stripe_pm_details = nullable_htmlentities($row['stripe_pm_details']);
+                    $stripe_pm_created_at = nullable_htmlentities($row['stripe_pm_created_at']);
 
                     ?>
 
                     <tr>
-                        <td><?php echo "$client_name ($client_id)" ?></td>
+                        <td><?php echo "$client_name ($client_id)"; ?></td>
                         <td><?php echo $stripe_id; ?></td>
-                        <td><?php echo $stripe_pm ?></td>
+                        <td><?php echo $stripe_pm; ?></td>
+                        <td><?php echo $stripe_pm_details; ?></td>
+                        <td><?php echo $stripe_pm_created_at; ?></td>
                         <td>
                             <div class="dropdown dropleft text-center">
                                 <button class="btn btn-secondary btn-sm" type="button" data-toggle="dropdown">
