@@ -192,24 +192,25 @@ if (isset($_GET['invoice_id'])) {
 
         <div class="card-header d-print-none">
 
-            <?php if (lookupUserPermission("module_sales") >= 2) { ?>
-                <div class="row">
+            
+            <div class="row">
 
                 <div class="col-8">
-                        <?php if ($invoice_status == 'Draft') { ?>
-                        <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">
-                            <i class="fas fa-fw fa-paper-plane mr-2"></i>Send
-                        </button>
-                        <div class="dropdown-menu">
-                            <?php if (!empty($config_smtp_host) && !empty($contact_email)) { ?>
-                                <a class="dropdown-item" href="post.php?email_invoice=<?php echo $invoice_id; ?>">
-                                    <i class="fas fa-fw fa-paper-plane mr-2"></i>Send Email
-                                </a>
-                                <div class="dropdown-divider"></div>
-                            <?php } ?>
-                            <a class="dropdown-item" href="post.php?mark_invoice_sent=<?php echo $invoice_id; ?>">
-                                <i class="fas fa-fw fa-check mr-2"></i>Mark Sent
+                    <?php if (lookupUserPermission("module_sales") >= 2) { ?>
+                    <?php if ($invoice_status == 'Draft') { ?>
+                    <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">
+                        <i class="fas fa-fw fa-paper-plane mr-2"></i>Send
+                    </button>
+                    <div class="dropdown-menu">
+                        <?php if (!empty($config_smtp_host) && !empty($contact_email)) { ?>
+                            <a class="dropdown-item" href="post.php?email_invoice=<?php echo $invoice_id; ?>">
+                                <i class="fas fa-fw fa-paper-plane mr-2"></i>Send Email
                             </a>
+                            <div class="dropdown-divider"></div>
+                        <?php } ?>
+                        <a class="dropdown-item" href="post.php?mark_invoice_sent=<?php echo $invoice_id; ?>">
+                            <i class="fas fa-fw fa-check mr-2"></i>Mark Sent
+                        </a>
                     </div>
 
                     <?php if ($invoice_status !== 'Paid' && $invoice_status !== 'Cancelled' && $invoice_status !== 'Draft' && $invoice_amount != 0) { ?>
@@ -228,9 +229,8 @@ if (isset($_GET['invoice_id'])) {
                             Mark Non-Billable
                         </a>
                     <?php } ?>
-
+                <?php } // End lookup Perm ?>
                 </div>
-                <?php } ?>
 
                 <div class="col-4">
 
