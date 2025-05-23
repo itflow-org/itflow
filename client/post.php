@@ -597,10 +597,22 @@ if (isset($_GET['stripe_save_card'])) {
 
     // Get some card/payment method details for the email/logging
     $payment_method_details = $stripe->paymentMethods->retrieve($payment_method);
-    $card_info = sanitizeInput($payment_method_details->card->display_brand) . " " . sanitizeInput($payment_method_details->card->last4);
+    $card_type = sanitizeInput($payment_method_details->card->brand);
+    $last4 = sanitizeInput($payment_method_details->card->last4);
+    $expiry_month = sanitizeInput($payment_method_details->card->exp_month);
+    $expiry_year = sanitizeInput($payment_method_details->card->exp_year);
+
+    // Format the payment details string (Visa - 4324 | Exp 12/25)
+    $stripe_pm_details = "$card_type - $last4 | Exp $expiry_month/$expiry_year";
+
+    // Save the formatted payment details into stripe_pm_details
+    $update_query = "
+        UPDATE client_stripe
+        SET stripe_pm_details = '$stripe_pm_details'
+        WHERE client_id = $session_client_id LIMIT 1";
+    mysqli_query($mysqli, $update_query);
 
     // Send email confirmation
-
     // Company Details & Settings
     $sql_settings = mysqli_query($mysqli, "SELECT * FROM companies, settings WHERE companies.company_id = settings.company_id AND companies.company_id = 1");
     $row = mysqli_fetch_array($sql_settings);
@@ -617,7 +629,7 @@ if (isset($_GET['stripe_save_card'])) {
 
     if (!empty($config_smtp_host)) {
         $subject = "Payment method saved";
-        $body = "Hello $session_contact_name,<br><br>We’re writing to confirm that your payment details have been securely stored with Stripe, our trusted payment processor.<br><br>By agreeing to save your payment information, you have authorized us to automatically bill your card ($card_info) for any future invoices. The payment details you’ve provided are securely stored with Stripe and will be used solely for invoices. We do not have access to your full card details.<br><br>You may update or remove your payment information at any time using the portal.<br><br>Thank you for your business!<br><br>--<br>$company_name - Billing Department<br>$config_invoice_from_email<br>$company_phone";
+        $body = "Hello $session_contact_name,<br><br>We’re writing to confirm that your payment details have been securely stored with Stripe, our trusted payment processor.<br><br>By agreeing to save your payment information, you have authorized us to automatically bill your card ($stripe_pm_details) for any future invoices. The payment details you’ve provided are securely stored with Stripe and will be used solely for invoices. We do not have access to your full card details.<br><br>You may update or remove your payment information at any time using the portal.<br><br>Thank you for your business!<br><br>--<br>$company_name - Billing Department<br>$config_invoice_from_email<br>$company_phone";
 
         $data = [
             [
@@ -635,12 +647,11 @@ if (isset($_GET['stripe_save_card'])) {
     }
 
     // Logging
-    logAction("Stripe", "Update", "$session_contact_name saved payment method ($card_info) for future automatic payments (PM: $payment_method)", $session_client_id, $session_client_id);
+    logAction("Stripe", "Update", "$session_contact_name saved payment method ($stripe_pm_details) for future automatic payments (PM: $payment_method)", $session_client_id, $session_client_id);
 
     // Redirect
     $_SESSION['alert_message'] = "Payment method saved - thank you";
     header('Location: autopay.php');
-
 }
 
 if (isset($_GET['stripe_remove_pm'])) {

@@ -3457,10 +3457,16 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
         mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '2.1.3'");
     }
 
-    // if (CURRENT_DATABASE_VERSION == '2.1.3') {
-    //     // Insert queries here required to update to DB version 2.1.4
+    if (CURRENT_DATABASE_VERSION == '2.1.3') {
+        mysqli_query($mysqli, "ALTER TABLE `client_stripe` ADD `stripe_pm_details` VARCHAR(200) DEFAULT NULL AFTER `stripe_pm`");
+   
+        mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '2.1.4'");
+    }
+
+    // if (CURRENT_DATABASE_VERSION == '2.1.4') {
+    //     // Insert queries here required to update to DB version 2.1.5
     //     // Then, update the database to the next sequential version
-    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '2.1.4'");
+    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '2.1.5'");
     // }
 
 } else {
