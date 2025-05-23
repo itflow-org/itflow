@@ -482,6 +482,7 @@ CREATE TABLE `client_stripe` (
   `client_id` int(11) NOT NULL,
   `stripe_id` varchar(255) NOT NULL,
   `stripe_pm` varchar(255) DEFAULT NULL,
+  `stripe_pm_details` varchar(200) DEFAULT NULL,
   PRIMARY KEY (`client_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -2498,4 +2499,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-03-31 12:05:41
+-- Dump completed on 2025-05-23 15:42:30
