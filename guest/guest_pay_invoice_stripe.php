@@ -129,17 +129,26 @@ if (isset($_GET['invoice_id'], $_GET['url_key']) && !isset($_GET['payment_intent
                             </tr>
 
                         <?php } ?>
-
-
+                            <?php if ($invoice_discount > 0) { ?>
+                            <tr class="text-right">
+                                <td colspan="2">Discount</td>
+                                <td>
+                                    <?php echo numfmt_format_currency($currency_format, $invoice_discount, $invoice_currency_code); ?>
+                                </td>
+                            </tr>
+                            <?php } ?>
+                            <?php if (intval($amount_paid) > 0) { ?>
+                            <tr class="text-right">
+                                <td colspan="2">Paid</td>
+                                <td>
+                                    <?php echo numfmt_format_currency($currency_format, $amount_paid, $invoice_currency_code); ?>
+                                </td>
+                            </tr>
+                            <?php } ?>
 
                         </tbody>
                     </table>
                 </div>
-                <br>
-                <i><?php if ($invoice_discount > 0){ echo "Discount: " . numfmt_format_currency($currency_format, $invoice_discount, $invoice_currency_code); } ?>
-                </i>
-                <br>
-                <i><?php if (intval($amount_paid) > 0) { ?> Already paid: <?php echo numfmt_format_currency($currency_format, $amount_paid, $invoice_currency_code); } ?></i>
             </div>
         </div>
         <!-- End invoice details-->
@@ -155,10 +164,6 @@ if (isset($_GET['invoice_id'], $_GET['url_key']) && !isset($_GET['payment_intent
                         <input type="hidden" id="stripe_publishable_key" value="<?php echo $config_stripe_publishable ?>">
                         <input type="hidden" id="invoice_id" value="<?php echo $invoice_id ?>">
                         <input type="hidden" id="url_key" value="<?php echo $invoice_url_key ?>">
-                        <br>
-                        <div id="link-authentication-element">
-                            <!--Stripe.js injects the Link Authentication Element-->
-                        </div>
                         <div id="payment-element">
                             <!--Stripe.js injects the Payment Element-->
                         </div>
