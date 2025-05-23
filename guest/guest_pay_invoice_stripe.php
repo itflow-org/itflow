@@ -97,71 +97,80 @@ if (isset($_GET['invoice_id'], $_GET['url_key']) && !isset($_GET['payment_intent
 
         <!-- Show invoice details -->
         <div class="col-sm">
-            <h3>Payment for Invoice: <?php echo $invoice_prefix . $invoice_number ?></h3>
-            <br>
-            <div class="table-responsive">
-                <table class="table">
-                    <thead>
-                    <tr>
-                        <th>Product</th>
-                        <th class="text-center">Qty</th>
-                        <th class="text-right">Total</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <?php
 
-                    $item_total = 0;
-
-                    while ($row = mysqli_fetch_array($sql_invoice_items)) {
-                        $item_name = nullable_htmlentities($row['item_name']);
-                        $item_quantity = floatval($row['item_quantity']);
-                        $item_total = floatval($row['item_total']);
-                        ?>
-
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Payment for Invoice: <strong><?php echo "$invoice_prefix$invoice_number"; ?></strong></h3>
+                </div>
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
                         <tr>
-                            <td><?php echo $item_name; ?></td>
-                            <td class="text-center"><?php echo $item_quantity; ?></td>
-                            <td class="text-right"><?php echo numfmt_format_currency($currency_format, $item_total, $invoice_currency_code); ?></td>
+                            <th>Product</th>
+                            <th class="text-center">Qty</th>
+                            <th class="text-right">Total</th>
                         </tr>
+                        </thead>
+                        <tbody>
+                        <?php
 
-                    <?php } ?>
+                        $item_total = 0;
+
+                        while ($row = mysqli_fetch_array($sql_invoice_items)) {
+                            $item_name = nullable_htmlentities($row['item_name']);
+                            $item_quantity = floatval($row['item_quantity']);
+                            $item_total = floatval($row['item_total']);
+                            ?>
+
+                            <tr>
+                                <td><?php echo $item_name; ?></td>
+                                <td class="text-center"><?php echo $item_quantity; ?></td>
+                                <td class="text-right"><?php echo numfmt_format_currency($currency_format, $item_total, $invoice_currency_code); ?></td>
+                            </tr>
+
+                        <?php } ?>
 
 
 
-                    </tbody>
-                </table>
+                        </tbody>
+                    </table>
+                </div>
+                <br>
+                <i><?php if ($invoice_discount > 0){ echo "Discount: " . numfmt_format_currency($currency_format, $invoice_discount, $invoice_currency_code); } ?>
+                </i>
+                <br>
+                <i><?php if (intval($amount_paid) > 0) { ?> Already paid: <?php echo numfmt_format_currency($currency_format, $amount_paid, $invoice_currency_code); } ?></i>
             </div>
-            <br>
-            <i><?php if ($invoice_discount > 0){ echo "Discount: " . numfmt_format_currency($currency_format, $invoice_discount, $invoice_currency_code); } ?>
-            </i>
-            <br>
-            <i><?php if (intval($amount_paid) > 0) { ?> Already paid: <?php echo numfmt_format_currency($currency_format, $amount_paid, $invoice_currency_code); } ?></i>
         </div>
         <!-- End invoice details-->
 
         <!-- Show Stripe payment form -->
         <div class="col-sm offset-sm-1">
-            <h1>Payment Total:</h1>
-            <form id="payment-form">
-                <h1><?php echo numfmt_format_currency($currency_format, $balance_to_pay, $invoice_currency_code); ?></h1>
-                <input type="hidden" id="stripe_publishable_key" value="<?php echo $config_stripe_publishable ?>">
-                <input type="hidden" id="invoice_id" value="<?php echo $invoice_id ?>">
-                <input type="hidden" id="url_key" value="<?php echo $invoice_url_key ?>">
-                <br>
-                <div id="link-authentication-element">
-                    <!--Stripe.js injects the Link Authentication Element-->
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Payment Total: <strong><?php echo numfmt_format_currency($currency_format, $balance_to_pay, $invoice_currency_code); ?></strong></h3>
                 </div>
-                <div id="payment-element">
-                    <!--Stripe.js injects the Payment Element-->
+                <div class="card-body">
+                    <form id="payment-form">
+                        <input type="hidden" id="stripe_publishable_key" value="<?php echo $config_stripe_publishable ?>">
+                        <input type="hidden" id="invoice_id" value="<?php echo $invoice_id ?>">
+                        <input type="hidden" id="url_key" value="<?php echo $invoice_url_key ?>">
+                        <br>
+                        <div id="link-authentication-element">
+                            <!--Stripe.js injects the Link Authentication Element-->
+                        </div>
+                        <div id="payment-element">
+                            <!--Stripe.js injects the Payment Element-->
+                        </div>
+                        <br>
+                        <button type="submit" id="submit" class="btn btn-primary btn-lg btn-block text-bold" hidden="hidden">
+                            <div class="spinner hidden" id="spinner"></div>
+                            <span id="button-text"><i class="fas fa-check mr-2"></i>Pay Invoice</span>
+                        </button>
+                        <div id="payment-message" class="hidden"></div>
+                    </form>
                 </div>
-                <br>
-                <button type="submit" id="submit" class="btn btn-primary btn-lg btn-block text-bold" hidden="hidden">
-                    <div class="spinner hidden" id="spinner"></div>
-                    <span id="button-text"><i class="fas fa-check mr-2"></i>Pay Invoice</span>
-                </button>
-                <div id="payment-message" class="hidden"></div>
-            </form>
+            </div>
         </div>
         <!-- End Stripe payment form -->
 
