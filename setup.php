@@ -18,16 +18,22 @@ if ($config_enable_setup == 0) {
 }
 
 $mysqli_available = isset($mysqli) && $mysqli instanceof mysqli;
-$db_tables_exist = false;
+$can_show_restore = false;
+$should_skip_to_user = false;
 
-if ($mysqli_available) {
-    $check = mysqli_query($mysqli, "SHOW TABLES LIKE 'users'");
-    if ($check && mysqli_num_rows($check) > 0) {
-        $db_tables_exist = true;
+if (file_exists("config.php") && $mysqli_available) {
+    $table_result = mysqli_query($mysqli, "SHOW TABLES LIKE 'users'");
+    if ($table_result && mysqli_num_rows($table_result) > 0) {
+        $can_show_restore = true;
+        $should_skip_to_user = true;
+    } else {
+        // If DB exists but doesn't have user table yet, maybe still allow restore
+        $all_tables = mysqli_query($mysqli, "SHOW TABLES");
+        if ($all_tables && mysqli_num_rows($all_tables) > 0) {
+            $can_show_restore = true;
+        }
     }
 }
-
-$minimal_setup_mode = file_exists("config.php") && $config_enable_setup == 1 && $mysqli_available && $db_tables_exist;
 
 include_once "includes/settings_localization_array.php";
 $errorLog = ini_get('error_log') ?: "Debian/Ubuntu default is usually /var/log/apache2/error.log";
@@ -1063,21 +1069,35 @@ if (isset($_POST['add_telemetry'])) {
 
                 <?php } elseif (isset($_GET['restore'])) { ?>
 
-                    <div class="card card-dark">
-                        <div class="card-header">
-                            <h3 class="card-title"><i class="fas fa-fw fa-database mr-2"></i>Restore from Backup</h3>
+                    <?php if (!$can_show_restore) { ?>
+                        <div class="card card-danger">
+                            <div class="card-header">
+                                <h3 class="card-title"><i class="fas fa-exclamation-triangle mr-2"></i>Database Not Ready</h3>
+                            </div>
+                            <div class="card-body text-center">
+                                <p>You must configure the database before restoring a backup.</p>
+                                <a href="?database" class="btn btn-primary text-bold">
+                                    Go to Database Setup <i class="fas fa-arrow-right ml-2"></i>
+                                </a>
+                            </div>
                         </div>
-                        <div class="card-body">
-                            <form method="post" enctype="multipart/form-data">
-                                <label>Restore ITFlow Backup (.zip)</label>
-                                <input type="file" name="backup_zip" accept=".zip" required>
-                                <hr>
-                                <button type="submit" name="restore" class="btn btn-primary text-bold">
-                                    Restore Backup<i class="fas fa-fw fa-upload ml-2"></i>
-                                </button>
-                            </form>
+                    <?php } else { ?>
+                        <div class="card card-dark">
+                            <div class="card-header">
+                                <h3 class="card-title"><i class="fas fa-fw fa-database mr-2"></i>Restore from Backup</h3>
+                            </div>
+                            <div class="card-body">
+                                <form method="post" enctype="multipart/form-data">
+                                    <label>Restore ITFlow Backup (.zip)</label>
+                                    <input type="file" name="backup_zip" accept=".zip" required>
+                                    <hr>
+                                    <button type="submit" name="restore" class="btn btn-primary text-bold">
+                                        Restore Backup<i class="fas fa-fw fa-upload ml-2"></i>
+                                    </button>
+                                </form>
+                            </div>
                         </div>
-                    </div>
+                    <?php } ?>
 
                 <?php } elseif (isset($_GET['user'])) { ?>
 
@@ -1388,14 +1408,19 @@ if (isset($_POST['add_telemetry'])) {
                             ?>
                             <hr>
                             <div class="text-center">
-                                <?php if ($minimal_setup_mode): ?>
+                                <?php if ($should_skip_to_user): ?>
                                     <a href="?user" class="btn btn-primary text-bold mr-2">
                                         Create First User <i class="fas fa-fw fa-user ml-2"></i>
                                     </a>
+                                <?php endif; ?>
+
+                                <?php if ($can_show_restore): ?>
                                     <a href="?restore" class="btn btn-warning text-bold">
                                         Restore from Backup <i class="fas fa-fw fa-upload ml-2"></i>
                                     </a>
-                                <?php else: ?>
+                                <?php endif; ?>
+
+                                <?php if (!$should_skip_to_user && !$can_show_restore): ?>
                                     <a href="?checks" class="btn btn-primary text-bold">
                                         Begin Setup <i class="fas fa-fw fa-arrow-alt-circle-right ml-2"></i>
                                     </a>
