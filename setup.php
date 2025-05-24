@@ -8,7 +8,6 @@ if (file_exists("config.php")) {
 include "functions.php";
 include "includes/database_version.php";
 
-
 if (!isset($config_enable_setup)) {
     $config_enable_setup = 1;
 }
@@ -17,6 +16,18 @@ if ($config_enable_setup == 0) {
     header("Location: login.php");
     exit;
 }
+
+$mysqli_available = isset($mysqli) && $mysqli instanceof mysqli;
+$db_tables_exist = false;
+
+if ($mysqli_available) {
+    $check = mysqli_query($mysqli, "SHOW TABLES LIKE 'users'");
+    if ($check && mysqli_num_rows($check) > 0) {
+        $db_tables_exist = true;
+    }
+}
+
+$minimal_setup_mode = file_exists("config.php") && $config_enable_setup == 1 && $mysqli_available && $db_tables_exist;
 
 include_once "includes/settings_localization_array.php";
 $errorLog = ini_get('error_log') ?: "Debian/Ubuntu default is usually /var/log/apache2/error.log";
@@ -584,6 +595,7 @@ if (isset($_POST['add_telemetry'])) {
             <!-- Sidebar Menu -->
             <nav class="mt-2">
                 <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
+                    <?php if (!$minimal_setup_mode): ?>
                     <li class="nav-item">
                         <a href="?checks" class="nav-link <?php if (isset($_GET['checks'])) { echo "active"; } ?>">
                             <i class="nav-icon fas fa-check"></i>
@@ -597,6 +609,7 @@ if (isset($_POST['add_telemetry'])) {
                             <p>2 - Database</p>
                         </a>
                     </li>
+                    <?php endif; ?>
 
                     <li class="nav-item">
                         <a href="?user" class="nav-link <?php if (isset($_GET['user'])) { echo "active"; } ?>">
@@ -620,6 +633,15 @@ if (isset($_POST['add_telemetry'])) {
                         <a href="?telemetry" class="nav-link <?php if (isset($_GET['telemetry'])) { echo "active"; } ?>">
                             <i class="nav-icon fas fa-share-alt"></i>
                             <p>6 - Telemetry</p>
+                        </a>
+                    </li>
+                    
+                    <li class="nav-header">Utilities</li>
+
+                    <li class="nav-item">
+                        <a href="?restore" class="nav-link <?php if (isset($_GET['restore'])) { echo "active"; } ?>">
+                            <i class="nav-icon fas fa-upload text-warning"></i>
+                            <p>Restore Backup</p>
                         </a>
                     </li>
                 </ul>
@@ -1360,10 +1382,19 @@ if (isset($_POST['add_telemetry'])) {
                             }
                             ?>
                             <hr>
-                            <div style="text-align: center;">
-                                <a href="?checks" class="btn btn-primary text-bold">
-                                    Begin Setup<i class="fas fa-fw fa-arrow-alt-circle-right ml-2"></i>
-                                </a>
+                            <div class="text-center">
+                                <?php if ($minimal_setup_mode): ?>
+                                    <a href="?user" class="btn btn-primary text-bold mr-2">
+                                        Create First User <i class="fas fa-fw fa-user ml-2"></i>
+                                    </a>
+                                    <a href="?restore" class="btn btn-warning text-bold">
+                                        Restore from Backup <i class="fas fa-fw fa-upload ml-2"></i>
+                                    </a>
+                                <?php else: ?>
+                                    <a href="?checks" class="btn btn-primary text-bold">
+                                        Begin Setup <i class="fas fa-fw fa-arrow-alt-circle-right ml-2"></i>
+                                    </a>
+                                <?php endif; ?>
                             </div>
                         </div>
                     </div>
