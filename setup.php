@@ -233,7 +233,7 @@ if (isset($_POST['restore'])) {
     fclose($myfile);
 
     $_SESSION['alert_message'] = "Full backup restored successfully.";
-    // header("Location: login.php");
+    header("Location: login.php");
     exit;
 }
 
