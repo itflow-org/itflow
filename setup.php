@@ -595,47 +595,52 @@ if (isset($_POST['add_telemetry'])) {
             <!-- Sidebar Menu -->
             <nav class="mt-2">
                 <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
-                    <?php if (!$minimal_setup_mode): ?>
+                    <li class="nav-item">
+                        <a href="setup.php" class="nav-link <?php if (!isset($_GET) || empty($_GET)) { echo 'active'; } ?>">
+                            <i class="nav-icon fas fa-home text-info"></i>
+                            <p>1 - Welcome</p>
+                        </a>
+                    </li>
+
                     <li class="nav-item">
                         <a href="?checks" class="nav-link <?php if (isset($_GET['checks'])) { echo "active"; } ?>">
                             <i class="nav-icon fas fa-check"></i>
-                            <p>1 - Checks</p>
+                            <p>2 - Checks</p>
                         </a>
                     </li>
 
                     <li class="nav-item">
                         <a href="?database" class="nav-link <?php if (isset($_GET['database'])) { echo "active"; } ?>">
                             <i class="nav-icon fas fa-database"></i>
-                            <p>2 - Database</p>
+                            <p>3 - Database</p>
                         </a>
                     </li>
-                    <?php endif; ?>
 
                     <li class="nav-item">
                         <a href="?user" class="nav-link <?php if (isset($_GET['user'])) { echo "active"; } ?>">
                             <i class="nav-icon fas fa-user"></i>
-                            <p>3 - User</p>
+                            <p>4 - User</p>
                         </a>
                     </li>
                     <li class="nav-item">
                         <a href="?company" class="nav-link <?php if (isset($_GET['company'])) { echo "active"; } ?>">
                             <i class="nav-icon fas fa-briefcase"></i>
-                            <p>4 - Company</p>
+                            <p>5 - Company</p>
                         </a>
                     </li>
                     <li class="nav-item">
                         <a href="?localization" class="nav-link <?php if (isset($_GET['localization'])) { echo "active"; } ?>">
                             <i class="nav-icon fas fa-globe-americas"></i>
-                            <p>5 - Localization</p>
+                            <p>6 - Localization</p>
                         </a>
                     </li>
                     <li class="nav-item">
                         <a href="?telemetry" class="nav-link <?php if (isset($_GET['telemetry'])) { echo "active"; } ?>">
                             <i class="nav-icon fas fa-share-alt"></i>
-                            <p>6 - Telemetry</p>
+                            <p>7 - Telemetry</p>
                         </a>
                     </li>
-                    
+
                     <li class="nav-header">Utilities</li>
 
                     <li class="nav-item">
@@ -1060,7 +1065,7 @@ if (isset($_POST['add_telemetry'])) {
 
                     <div class="card card-dark">
                         <div class="card-header">
-                            <h3 class="card-title"><i class="fas fa-fw fa-database mr-2"></i>Step 2.5 - Restore from Backup</h3>
+                            <h3 class="card-title"><i class="fas fa-fw fa-database mr-2"></i>Restore from Backup</h3>
                         </div>
                         <div class="card-body">
                             <form method="post" enctype="multipart/form-data">
