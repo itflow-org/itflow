@@ -296,7 +296,13 @@ if ($tablesResult) {
 
     while ($table = $tablesResult->fetch_assoc()) {
         $tableName = $table['Name'];
-        $tableRows = $table['Rows'];
+
+        // Accurate row count
+        $countResult = $mysqli->query("SELECT COUNT(*) AS cnt FROM `$tableName`");
+        $countRow = $countResult->fetch_assoc();
+        $tableRows = $countRow['cnt'];
+        $countResult->free();
+
         $dataLength = $table['Data_length'];
         $indexLength = $table['Index_length'];
         $tableSize = ($dataLength + $indexLength) / (1024 * 1024); // Size in MB
@@ -335,11 +341,6 @@ if ($tablesResult) {
     $databaseStats[] = [
         'name' => 'Total database size (MB)',
         'value' => round($totalSize, 2) . ' MB',
-    ];
-} else {
-    $databaseStats[] = [
-        'name' => 'Database connection error',
-        'value' => $mysqli->error,
     ];
 }
 
