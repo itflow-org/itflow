@@ -12,10 +12,8 @@
 We operate a rolling release model. Any bug fixes will be released into latest version of ITFlow, so you must stay up-to-date.
 
 | Version | Supported          |
-| ------- | ------------------ |
-| Beta    | :x:                |
-| 24.12   | :white_check_mark: |
-| 25.1    | :white_check_mark: (When released) |
+|---------| ------------------ |
+| 25.05   | :white_check_mark: |
 
 ## Reporting a Vulnerability via GitHub Security Advisories
 
