@@ -295,7 +295,7 @@ require_once "includes/inc_all_admin.php";
                         <option value="4"><?php echo nullable_htmlentities($config_ticket_from_name); ?> (<?php echo nullable_htmlentities($config_ticket_from_email); ?>)</option>
                         <?php } ?>
 
-                        
+
                     </select>
                     <input type="email" class="form-control " name="email_to" placeholder="Email address to send to">
                     <div class="input-group-append">
@@ -319,7 +319,7 @@ require_once "includes/inc_all_admin.php";
                 <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token'] ?>">
 
                 <div class="input-group-append">
-                    <button type="submit" name="test_email_imap" class="btn btn-success"><i class="fas fa-fw fa-inbox mr-2"></i>Test</button>
+                    <button type="submit" name="test_email_imap" class="btn btn-success" disabled><i class="fas fa-fw fa-inbox mr-2"></i>Test (WIP)</button>
                 </div>
             </form>
         </div>
