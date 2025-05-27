@@ -705,7 +705,7 @@ function sendSingleEmail($config_smtp_host, $config_smtp_username, $config_smtp_
         $mail->SMTPAuth   = $smtp_auth;                             // Enable SMTP authentication
         $mail->Username   = $config_smtp_username;                  // SMTP username
         $mail->Password   = $config_smtp_password;                  // SMTP password
-        if ($config_smtp_encryption = 'None') {
+        if ($config_smtp_encryption == 'None') {
             $mail->SMTPOptions = array(
                 'ssl' => array(
                 'verify_peer' => false,
@@ -1497,7 +1497,7 @@ function appNotify($type, $details, $action = null, $client_id = 0, $entity_id =
     $sql = mysqli_query($mysqli, "SELECT user_id FROM users 
         WHERE user_type = 1 AND user_status = 1 AND user_archived_at IS NULL
     ");
-    
+
     while ($row = mysqli_fetch_array($sql)) {
         $user_id = intval($row['user_id']);
 
@@ -1545,7 +1545,7 @@ function getFallback($data) {
  * @param int    $id            The record's id.
  * @param string $field         The field (column) to retrieve.
  * @param string $escape_method The escape method: 'sql' (default, auto-detects int), 'html', 'json', or 'int'.
- * 
+ *
  * @return mixed The escaped field value, or null if not found or invalid input.
  */
 function getFieldById($table, $id, $field, $escape_method = 'sql') {
@@ -1641,7 +1641,7 @@ function display_folder_options($parent_folder_id, $client_id, $folder_location 
 
         // Check if this folder is selected
         $selected = '';
-        if ((isset($_GET['folder_id']) && intval($_GET['folder_id']) === $folder_id) || 
+        if ((isset($_GET['folder_id']) && intval($_GET['folder_id']) === $folder_id) ||
             (isset($_POST['folder']) && intval($_POST['folder']) === $folder_id)) {
             $selected = 'selected';
         }
