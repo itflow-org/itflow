@@ -424,7 +424,7 @@ if (isset($_POST['edit_contact'])) {
     logAction("Contact", "Edit", "Client contact $session_contact_name edited contact $contact_name in the client portal", $session_client_id, $contact_id);
 
     $_SESSION['alert_message'] = "Contact $contact_name updated";
-    
+
     header('Location: contacts.php');
 
     customAction('contact_update', $contact_id);
@@ -688,7 +688,7 @@ if (isset($_GET['stripe_remove_pm'])) {
     }
 
     // Remove payment method from ITFlow
-    mysqli_query($mysqli, "UPDATE client_stripe SET stripe_pm = NULL WHERE client_id = $session_client_id LIMIT 1");
+    mysqli_query($mysqli, "UPDATE client_stripe SET stripe_pm = NULL, stripe_pm_details = NULL WHERE client_id = $session_client_id LIMIT 1");
 
     // Remove Auto Pay on recurring invoices that are stripe
     $sql_recurring_invoices = mysqli_query($mysqli, "SELECT recurring_invoice_id FROM recurring_invoices WHERE recurring_invoice_client_id = $session_client_id");
@@ -697,7 +697,7 @@ if (isset($_GET['stripe_remove_pm'])) {
         $recurring_invoice_id = intval($row['recurring_invoice_id']);
         mysqli_query($mysqli, "DELETE FROM recurring_payments WHERE recurring_payment_method = 'Stripe' AND recurring_payment_recurring_invoice_id = $recurring_invoice_id");
     }
-    
+
     // Logging & Redirect
     logAction("Stripe", "Update", "$session_contact_name deleted saved Stripe payment method (PM: $payment_method)", $session_client_id, $session_client_id);
 
