@@ -23,6 +23,11 @@ This file documents all notable changes made to ITFlow.
 - Limit Stripe to just cards.
 - Added Card Details and Payment added to Client Stripe.
 - UI / UX updates to guest pay Make use of cards.
+- Don't show Checkbox columns when ticket is closed, compact ticket list now matches round pills for status and priority.
+- Ticket UI/UX allow the ticket toolbar to be a little more Mobile friendly
+- UI / UX Updates to Expenses Combine Category and Description 1 column.
+- Display Country in Invoices, Quotes, Recurring Invoices, Clients, locations, client top head.
+- Allow searching via country in Locations and Clients sections.
 
 
 ### Fixed
