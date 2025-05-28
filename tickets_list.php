@@ -7,11 +7,13 @@
                     <table class="table table-striped table-borderless table-hover">
                         <thead class="text-dark <?php if (!$num_rows[0]) { echo "d-none"; } ?>">
                         <tr>
+                            <?php if ($_GET['status'] !== 'Closed') { ?>
                             <td>
                                 <div class="form-check">
                                     <input class="form-check-input" id="selectAllCheckbox" type="checkbox" onclick="checkAll(this)" onkeydown="checkAll(this)">
                                 </div>
                             </td>
+                            <?php } ?>
                             <th>
                                 <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=ticket_number&order=<?php echo $disp; ?>">
                                     Ticket <?php if ($sort == 'ticket_number') { echo $order_icon; } ?>
@@ -183,14 +185,13 @@
                             <tr class="<?php if(empty($ticket_closed_at) && empty($ticket_updated_at)) { echo "text-bold"; }?> <?php if (empty($ticket_closed_at) && $ticket_reply_type == "Client") { echo "table-warning"; } ?>">
 
                                 <!-- Ticket Bulk Select (for open tickets) -->
+                                <?php if (empty($ticket_closed_at)) { ?>
                                 <td>
-                                    <?php if (empty($ticket_closed_at)) { ?>
-                                        <div class="form-check">
-                                            <input class="form-check-input bulk-select" type="checkbox" name="ticket_ids[]" value="<?php echo $ticket_id ?>">
-                                        </div>
-                                    <?php } ?>
+                                    <div class="form-check">
+                                        <input class="form-check-input bulk-select" type="checkbox" name="ticket_ids[]" value="<?php echo $ticket_id ?>">
+                                    </div>
                                 </td>
-
+                                <?php } ?>
                                 <!-- Ticket Number -->
                                 <td>
                                     <a href="ticket.php?<?php echo $client_url; ?>ticket_id=<?php echo $ticket_id; ?>">
@@ -280,12 +281,14 @@
                                     <div title="<?php echo $ticket_reply_created_at; ?>">
                                         <?php echo $ticket_reply_created_at_time_ago; ?>
                                     </div>
-                                    <div><?php echo $ticket_reply_by_display; ?></div>
+                                    <div class="text-secondary"><?php echo $ticket_reply_by_display; ?></div>
                                 </td>
 
                                 <!-- Ticket Created At -->
-                                <td title="<?php echo $ticket_created_at; ?>">
+                                <td>
                                     <?php echo $ticket_created_at_time_ago; ?>
+                                    <br>
+                                    <small class="text-secondary"><?php echo date("$config_date_format $config_time_format", strtotime($ticket_created_at)); ?></small>
                                 </td>
 
                             </tr>
