@@ -169,8 +169,8 @@ $sql_categories = mysqli_query(
         <div class="card-header py-2">
             <h3 class="card-title mt-2"><i class="fa fa-fw fa-life-ring mr-2"></i>Tickets
                 <small class="ml-3">
-                    <a href="?<?php echo $client_url; ?>status=Open" class="text-light"><strong><?php echo $total_tickets_open; ?></strong> Open</a> |
-                    <a href="?<?php echo $client_url; ?>status=Closed" class="text-light"><strong><?php echo $total_tickets_closed; ?></strong> Closed</a>
+                    <a href="?<?php echo $client_url; ?>status=Open" class="badge badge-pill text-light p-1 <?php if($status == 'Open') { echo "badge-light text-dark"; } ?>"><strong><?php echo $total_tickets_open; ?></strong> Open</a> |
+                    <a href="?<?php echo $client_url; ?>status=Closed" class="badge badge-pill text-light p-1 <?php if($status == 'Closed') { echo "badge-light text-dark"; } ?>"><strong><?php echo $total_tickets_closed; ?></strong> Closed</a>
                 </small>
             </h3>
             <?php if (lookupUserPermission("module_support") >= 2) { ?>
@@ -197,8 +197,8 @@ $sql_categories = mysqli_query(
                     <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
                 <?php } ?>
                 <div class="row">
-                    <div class="col-sm-4">
-                        <div class="input-group">
+                    <div class="col-sm-5">
+                        <div class="input-group mb-3">
                             <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(nullable_htmlentities($q)); } ?>" placeholder="Search Tickets">
                             <div class="input-group-append">
                                 <button class="btn btn-secondary" type="button" data-toggle="collapse" data-target="#advancedFilter"><i class="fas fa-filter"></i></button>
@@ -206,11 +206,12 @@ $sql_categories = mysqli_query(
                             </div>
                         </div>
                     </div>
-                    <div class="col-sm-8">
-                        <div class="btn-group float-right">
+                    <div class="col-sm-7">
+                        <div class="btn-group float-right mb-3">
                             <div class="btn-group">
                                 <button class="btn btn-outline-dark dropdown-toggle" id="dropdownMenuButton" data-toggle="dropdown">
-                                    <i class="fa fa-fw fa-eye mr-2"></i>View
+                                    <i class="fa fa-fw fa-eye"></i>
+                                    <span class="d-none d-xl-inline ml-2">View</span>
                                 </button>
                                 <div class="dropdown-menu">
                                     <a class="dropdown-item " href="<?=htmlspecialchars('?' . http_build_query(array_merge($_GET, ['view' => 'list']))); ?>">List</a>
@@ -224,7 +225,8 @@ $sql_categories = mysqli_query(
                             </div>
                             <div class="btn-group">
                                 <button class="btn btn-outline-dark dropdown-toggle" id="dropdownMenuButton" data-toggle="dropdown">
-                                    <i class="fa fa-fw fa-layer-group mr-2"></i>Categories
+                                    <i class="fa fa-fw fa-layer-group"></i>
+                                    <span class="d-none d-xl-inline ml-2">Categories</span>
                                 </button>
                                 <div class="dropdown-menu">
                                     <a class="dropdown-item " href="<?=htmlspecialchars('?' . http_build_query(array_merge($_GET, ['category' => 'all']))); ?>">All</a>
@@ -243,7 +245,8 @@ $sql_categories = mysqli_query(
                             </div>
                             <div class="btn-group">
                                 <button class="btn btn-outline-dark dropdown-toggle" id="categoriesDropdownMenuButton" data-toggle="dropdown">
-                                    <i class="fa fa-fw fa-envelope mr-2"></i>My Tickets
+                                    <i class="fa fa-fw fa-envelope"></i>
+                                    <span class="d-none d-xl-inline ml-2">My Tickets</span>
                                 </button>
                                 <div class="dropdown-menu">
                                     <a class="dropdown-item" href="?<?php echo $client_url; ?>status=Open&assigned=<?php echo $session_user_id ?>">Active tickets (<?php echo $user_active_assigned_tickets ?>)</a>
@@ -252,7 +255,8 @@ $sql_categories = mysqli_query(
                                 </div>
                             </div>
                             <a href="?<?php echo $client_url; ?>assigned=unassigned" class="btn btn-outline-danger">
-                                <i class="fa fa-fw fa-exclamation-triangle mr-2"></i>Unassigned Tickets | <strong> <?php echo $total_tickets_unassigned; ?></strong>
+                                <i class="fa fa-fw fa-exclamation-triangle"></i>
+                                <span class="d-none d-xl-inline ml-2">Unassigned</span> | <strong> <?php echo $total_tickets_unassigned; ?></strong>
                             </a>
 
                             <?php if (lookupUserPermission("module_support") >= 2) { ?>
