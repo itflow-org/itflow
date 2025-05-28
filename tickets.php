@@ -1,6 +1,5 @@
 <?php
 
-
 // Default Column Sortby Filter
 $sort = "ticket_number";
 $order = "DESC";
@@ -83,9 +82,6 @@ if (isset($_GET['assigned']) & !empty($_GET['assigned'])) {
         $ticket_assigned_filter_id = intval($_GET['assigned']);
     }
 }
-
-//Rebuild URL
-$url_query_strings_sort = http_build_query(array_merge($_GET, array('sort' => $sort, 'order' => $order, 'status' => $status, 'assigned' => $ticket_assigned_filter_id)));
 
 // Ticket client access snippet
 $ticket_permission_snippet = '';
