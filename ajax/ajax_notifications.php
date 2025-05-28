@@ -97,7 +97,7 @@ ob_start();
 
 <script>
 $(document).ready(function () {
-    var perPage = 10;
+    var perPage = 8;
     var $items = $(".notification-item");
     var totalItems = $items.length;
     var totalPages = Math.ceil(totalItems / perPage);
