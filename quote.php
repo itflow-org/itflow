@@ -267,6 +267,7 @@ if (isset($_GET['quote_id'])) {
                         </li>
                         <li><?php echo $company_address; ?></li>
                         <li><?php echo "$company_city $company_state $company_zip"; ?></li>
+                        <li><small><?php echo $company_country; ?></small></li>
                         <li><?php echo $company_phone; ?></li>
                         <li><?php echo $company_email; ?></li>
                     </ul>
@@ -278,6 +279,7 @@ if (isset($_GET['quote_id'])) {
                         </li>
                         <li><?php echo $location_address; ?></li>
                         <li><?php echo "$location_city $location_state $location_zip"; ?></li>
+                        <li><small><?php echo $location_country; ?></small></li>
                         <li><?php echo "$contact_phone $contact_extension"; ?></li>
                         <li><?php echo $contact_mobile; ?></li>
                         <li><?php echo $contact_email; ?></li>
@@ -671,11 +673,11 @@ require_once "includes/footer.php";
             // Billing Address
             {
                 columns: [{
-                        text: <?php echo json_encode(html_entity_decode("$company_address \n $company_city $company_state $company_zip \n $company_phone \n $company_website")) ?>,
+                        text: <?php echo json_encode(html_entity_decode("$company_address \n $company_city $company_state $company_zip \n $company_country \n $company_phone \n $company_website")) ?>,
                         style: 'invoiceBillingAddress'
                     },
                     {
-                        text: <?php echo json_encode(html_entity_decode("$location_address \n $location_city $location_state $location_zip \n $contact_email \n $contact_phone")) ?>,
+                        text: <?php echo json_encode(html_entity_decode("$location_address \n $location_city $location_state $location_zip \n $location_country \n $contact_email \n $contact_phone")) ?>,
                         style: 'invoiceBillingAddressClient'
                     },
                 ]

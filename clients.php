@@ -62,7 +62,7 @@ $sql = mysqli_query(
     WHERE (client_name LIKE '%$q%' OR client_abbreviation LIKE '%$q%' OR client_type LIKE '%$q%' OR client_referral LIKE '%$q%'
            OR contact_email LIKE '%$q%' OR contact_name LIKE '%$q%' OR contact_phone LIKE '%$phone_query%'
            OR contact_mobile LIKE '%$phone_query%' OR location_address LIKE '%$q%'
-           OR location_city LIKE '%$q%' OR location_state LIKE '%$q%' OR location_zip LIKE '%$q%'
+           OR location_city LIKE '%$q%' OR location_state LIKE '%$q%' OR location_zip LIKE '%$q%' OR location_country LIKE '%$q%'
            OR tag_name LIKE '%$q%' OR client_tax_id_number LIKE '%$q%')
       AND client_$archive_query
       AND DATE(client_created_at) BETWEEN '$dtf' AND '$dtt'
@@ -286,7 +286,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         if (empty($location_address) && empty($location_city) && empty($location_state) && empty($location_zip)) {
                             $location_address_display = "-";
                         } else {
-                            $location_address_display = "$location_address<br>$location_city $location_state $location_zip";
+                            $location_address_display = "<i class='fa fa-fw fa-map-marker-alt text-secondary mr-2'></i>$location_address<br><i class='fa fa-fw mr-2'></i>$location_city $location_state $location_zip<br><i class='fa fa-fw mr-2'></i><small>$location_country</small>";
                         }
                         $contact_id = intval($row['contact_id']);
                         $contact_name = nullable_htmlentities($row['contact_name']);

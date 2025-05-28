@@ -9,9 +9,6 @@ require_once "includes/inc_all_client.php";
 // Perms
 enforceUserPermission('module_support');
 
-// Rebuild URL
-$url_query_strings_sort = http_build_query($get_copy);
-
 $sql = mysqli_query(
     $mysqli,
     "SELECT SQL_CALC_FOUND_ROWS * FROM racks
@@ -323,7 +320,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                                 } else {
                                                     // No device in this row
                                                     ?>
-                                                    <td class="text-center">No device</td>
+                                                    <td class="text-center text-secondary">--</td>
                                                     <td></td>
                                                     <?php
                                                 }

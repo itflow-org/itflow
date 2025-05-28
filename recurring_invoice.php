@@ -194,6 +194,7 @@ if (isset($_GET['recurring_invoice_id'])) {
                         <li><h4><strong><?php echo $company_name; ?></strong></h4></li>
                         <li><?php echo $company_address; ?></li>
                         <li><?php echo "$company_city $company_state $company_zip"; ?></li>
+                        <li><small><?php echo $company_country; ?></small></li>
                         <li><?php echo $company_phone; ?></li>
                         <li><?php echo $company_email; ?></li>
                     </ul>
@@ -203,6 +204,7 @@ if (isset($_GET['recurring_invoice_id'])) {
                         <li><h4><strong><?php echo $client_name; ?></strong></h4></li>
                         <li><?php echo $location_address; ?></li>
                         <li><?php echo "$location_city $location_state $location_zip"; ?></li>
+                        <li><small><?php echo $location_country; ?></small></li>
                         <li><?php echo "$contact_phone $contact_extension"; ?></li>
                         <li><?php echo $contact_mobile; ?></li>
                         <li><?php echo $contact_email; ?></li>
