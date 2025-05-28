@@ -229,18 +229,17 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 </a>
                             </th>
                             <th>
-                                <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=vendor_name&order=<?php echo $disp; ?>">
-                                    Vendor <?php if ($sort == 'vendor_name') { echo $order_icon; } ?>
-                                </a>
-                            </th>
-                            <th>
                                 <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=category_name&order=<?php echo $disp; ?>">
                                     Category <?php if ($sort == 'category_name') { echo $order_icon; } ?>
                                 </a>
+                                /
+                                <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=expense_description&order=<?php echo $disp; ?>">
+                                    Description <?php if ($sort == 'expense_description') { echo $order_icon; } ?>
+                                </a>
                             </th>
                             <th>
-                                <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=expense_description&order=<?php echo $disp; ?>">
-                                    Description <?php if ($sort == 'expense_description') { echo $order_icon; } ?>
+                                <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=vendor_name&order=<?php echo $disp; ?>">
+                                    Vendor <?php if ($sort == 'vendor_name') { echo $order_icon; } ?>
                                 </a>
                             </th>
                             <th class="text-right">
@@ -313,9 +312,11 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                         <?php echo $expense_date; ?>
                                     </a>
                                 </td>
+                                <td>
+                                    <?php echo $category_name; ?>
+                                    <div class="text-secondary"><small><?php echo truncate($expense_description, 60); ?></small></div>
+                                </td>
                                 <td><?php echo $vendor_name; ?></td>
-                                <td><?php echo $category_name; ?></td>
-                                <td><?php echo truncate($expense_description, 50); ?></td>
                                 <td class="text-bold text-right"><?php echo numfmt_format_currency($currency_format, $expense_amount, $expense_currency_code); ?></td>
                                 <td><?php echo $account_name; ?></td>
                                 <td><?php echo $client_name_display; ?></td>

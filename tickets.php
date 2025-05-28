@@ -214,7 +214,7 @@ $sql_categories = mysqli_query(
                                     <span class="d-none d-xl-inline ml-2">View</span>
                                 </button>
                                 <div class="dropdown-menu">
-                                    <a class="dropdown-item " href="<?=htmlspecialchars('?' . http_build_query(array_merge($_GET, ['view' => 'list']))); ?>">List</a>
+                                    <a class="dropdown-item" href="<?=htmlspecialchars('?' . http_build_query(array_merge($_GET, ['view' => 'list']))); ?>">List</a>
                                     <div class="dropdown-divider"></div>
                                     <a class="dropdown-item " href="<?=htmlspecialchars('?' . http_build_query(array_merge($_GET, ['view' => 'compact']))); ?>">Compact List</a>
                                     <?php if ($status !== 'Closed') {?>
