@@ -60,7 +60,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
         <div class='card-tools'>
             <div class="float-left">
                 <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addRecurringTicketModal">
-                    <i class="fas fa-plus mr-2"></i>New Recurring Ticket
+                    <i class="fas fa-plus"></i><span class="d-none d-lg-inline ml-2">New Recurring Ticket</span>
                 </button>
             </div>
         </div>

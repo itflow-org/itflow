@@ -173,7 +173,7 @@ $sql_categories = mysqli_query(
                 <div class="card-tools">
                     <div class="btn-group">
                         <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addTicketModal">
-                            <i class="fas fa-plus mr-2"></i>New Ticket
+                            <i class="fas fa-plus"></i><span class="d-none d-lg-inline ml-2">New Ticket</span>
                         </button>
                         <?php if ($num_rows[0] > 0) { ?>
                         <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown"></button>
@@ -194,7 +194,7 @@ $sql_categories = mysqli_query(
                 <?php } ?>
                 <div class="row">
                     <div class="col-sm-5">
-                        <div class="input-group mb-3">
+                        <div class="input-group mb-3 mb-sm-0">
                             <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(nullable_htmlentities($q)); } ?>" placeholder="Search Tickets">
                             <div class="input-group-append">
                                 <button class="btn btn-secondary" type="button" data-toggle="collapse" data-target="#advancedFilter"><i class="fas fa-filter"></i></button>
@@ -203,7 +203,7 @@ $sql_categories = mysqli_query(
                         </div>
                     </div>
                     <div class="col-sm-7">
-                        <div class="btn-group float-right mb-3">
+                        <div class="btn-group float-right">
                             <div class="btn-group">
                                 <button class="btn btn-outline-dark dropdown-toggle" id="dropdownMenuButton" data-toggle="dropdown">
                                     <i class="fa fa-fw fa-eye"></i>
@@ -298,7 +298,7 @@ $sql_categories = mysqli_query(
                 </div>
 
                 <div
-                    class="collapse
+                    class="collapse mt-3
                         <?php
                         if (
                             !empty($_GET['dtf'])

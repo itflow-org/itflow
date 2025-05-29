@@ -205,7 +205,7 @@ if (mysqli_num_rows($os_sql) > 0) {
                 </div>
                 <?php if ($client_url) { ?>
                 <div class="col-md-2">
-                    <div class="input-group">
+                    <div class="input-group mb-3 mb-md-0">
                         <select class="form-control select2" name="location" onchange="this.form.submit()">
                             <option value="">- All Locations -</option>
 
@@ -233,7 +233,7 @@ if (mysqli_num_rows($os_sql) > 0) {
                 </div>
                 <?php } else { ?>
                 <div class="col-md-2">
-                    <div class="input-group">
+                    <div class="input-group mb-3 mb-md-0">
                         <select class="form-control select2" name="client" onchange="this.form.submit()">
                             <option value="" <?php if ($client == "") { echo "selected"; } ?>>- All Clients -</option>
 

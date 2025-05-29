@@ -92,7 +92,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     <div class="col-md-2"></div>
                     <?php } else { ?>
                     <div class="col-md-2">
-                        <div class="input-group">
+                        <div class="input-group mb-3 mb-md-0">
                             <select class="form-control select2" name="client" onchange="this.form.submit()">
                                 <option value="" <?php if ($client == "") { echo "selected"; } ?>>- All Clients -</option>
 
@@ -162,7 +162,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
                     <?php } ?>
                     <table class="table table-striped table-borderless table-hover">
-                        <thead class="text-dark <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
+                        <thead class="text-dark <?php if ($num_rows[0] == 0) { echo "d-none"; } ?> text-nowrap">
                         <tr>
                             <td class="pr-0">
                                 <div class="form-check">
