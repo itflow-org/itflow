@@ -29,7 +29,8 @@ if (isset($_POST['upload_files'])) {
         'jpg', 'jpeg', 'gif', 'png', 'webp', 'pdf', 'txt', 'md', 'doc', 'docx',
         'odt', 'csv', 'xls', 'xlsx', 'ods', 'pptx', 'odp', 'zip', 'tar', 'gz',
         'xml', 'msg', 'json', 'wav', 'mp3', 'ogg', 'mov', 'mp4', 'av1', 'ovpn',
-        'cfg', 'ps1', 'vsdx', 'drawio', 'pfx', 'pages', 'numbers', 'unf', 'key'
+        'cfg', 'ps1', 'vsdx', 'drawio', 'pfx', 'pages', 'numbers', 'unf', 'key',
+        'bat', 'stk'
     ];
 
     // Loop through each uploaded file
@@ -138,7 +139,7 @@ if (isset($_POST['upload_files'])) {
                     }
 
                     // Resize image
-                    imagecopyresampled($optimized_img, $src_img, 0, 0, 0, 0, 
+                    imagecopyresampled($optimized_img, $src_img, 0, 0, 0, 0,
                         $preview_new_width, $preview_new_height, $orig_width, $orig_height);
 
                     // Define WebP file path
@@ -293,7 +294,7 @@ if (isset($_POST['delete_file'])) {
     $file_reference_name = sanitizeInput($row['file_reference_name']);
     $file_has_thumbnail = intval($row['file_has_thumbnail']);
     $file_has_preview = intval($row['file_has_preview']);
-    
+
     unlink("uploads/clients/$client_id/$file_reference_name");
 
     if ($file_has_thumbnail == 1) {
@@ -325,7 +326,7 @@ if (isset($_POST['bulk_delete_files'])) {
 
         // Get selected file Count
         $file_count = count($_POST['file_ids']);
-        
+
         foreach($_POST['file_ids'] as $file_id) {
 
             $file_id = intval($file_id);
@@ -381,7 +382,7 @@ if (isset($_POST['bulk_move_files'])) {
     if (isset($_POST['file_ids'])) {
         // Get Selected file Count
         $file_count = count($_POST['file_ids']);
-        
+
         // Move Documents to Folder Loop
         foreach($_POST['file_ids'] as $file_id) {
             $file_id = intval($file_id);

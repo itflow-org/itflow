@@ -38,7 +38,7 @@ if (isset($_POST['add_ticket'])) {
     $new_config_ticket_next_number = $config_ticket_next_number + 1;
     mysqli_query($mysqli, "UPDATE settings SET config_ticket_next_number = $new_config_ticket_next_number WHERE company_id = 1");
 
-    mysqli_query($mysqli, "INSERT INTO tickets SET ticket_prefix = '$config_ticket_prefix', ticket_number = $ticket_number, ticket_category = $category, ticket_subject = '$subject', ticket_details = '$details', ticket_priority = '$priority', ticket_status = 1, ticket_billable = $config_ticket_default_billable, ticket_created_by = 0, ticket_contact_id = $session_contact_id, ticket_url_key = '$url_key', ticket_client_id = $session_client_id");
+    mysqli_query($mysqli, "INSERT INTO tickets SET ticket_prefix = '$config_ticket_prefix', ticket_number = $ticket_number, ticket_source = 'Portal', ticket_category = $category, ticket_subject = '$subject', ticket_details = '$details', ticket_priority = '$priority', ticket_status = 1, ticket_billable = $config_ticket_default_billable, ticket_created_by = $session_user_id, ticket_contact_id = $session_contact_id, ticket_url_key = '$url_key', ticket_client_id = $session_client_id");
     $ticket_id = mysqli_insert_id($mysqli);
 
     // Notify agent DL of the new ticket, if populated with a valid email
@@ -424,7 +424,7 @@ if (isset($_POST['edit_contact'])) {
     logAction("Contact", "Edit", "Client contact $session_contact_name edited contact $contact_name in the client portal", $session_client_id, $contact_id);
 
     $_SESSION['alert_message'] = "Contact $contact_name updated";
-    
+
     header('Location: contacts.php');
 
     customAction('contact_update', $contact_id);
@@ -597,10 +597,22 @@ if (isset($_GET['stripe_save_card'])) {
 
     // Get some card/payment method details for the email/logging
     $payment_method_details = $stripe->paymentMethods->retrieve($payment_method);
-    $card_info = sanitizeInput($payment_method_details->card->display_brand) . " " . sanitizeInput($payment_method_details->card->last4);
+    $card_type = sanitizeInput($payment_method_details->card->brand);
+    $last4 = sanitizeInput($payment_method_details->card->last4);
+    $expiry_month = sanitizeInput($payment_method_details->card->exp_month);
+    $expiry_year = sanitizeInput($payment_method_details->card->exp_year);
+
+    // Format the payment details string (Visa - 4324 | Exp 12/25)
+    $stripe_pm_details = "$card_type - $last4 | Exp $expiry_month/$expiry_year";
+
+    // Save the formatted payment details into stripe_pm_details
+    $update_query = "
+        UPDATE client_stripe
+        SET stripe_pm_details = '$stripe_pm_details'
+        WHERE client_id = $session_client_id LIMIT 1";
+    mysqli_query($mysqli, $update_query);
 
     // Send email confirmation
-
     // Company Details & Settings
     $sql_settings = mysqli_query($mysqli, "SELECT * FROM companies, settings WHERE companies.company_id = settings.company_id AND companies.company_id = 1");
     $row = mysqli_fetch_array($sql_settings);
@@ -617,7 +629,7 @@ if (isset($_GET['stripe_save_card'])) {
 
     if (!empty($config_smtp_host)) {
         $subject = "Payment method saved";
-        $body = "Hello $session_contact_name,<br><br>We’re writing to confirm that your payment details have been securely stored with Stripe, our trusted payment processor.<br><br>By agreeing to save your payment information, you have authorized us to automatically bill your card ($card_info) for any future invoices. The payment details you’ve provided are securely stored with Stripe and will be used solely for invoices. We do not have access to your full card details.<br><br>You may update or remove your payment information at any time using the portal.<br><br>Thank you for your business!<br><br>--<br>$company_name - Billing Department<br>$config_invoice_from_email<br>$company_phone";
+        $body = "Hello $session_contact_name,<br><br>We’re writing to confirm that your payment details have been securely stored with Stripe, our trusted payment processor.<br><br>By agreeing to save your payment information, you have authorized us to automatically bill your card ($stripe_pm_details) for any future invoices. The payment details you’ve provided are securely stored with Stripe and will be used solely for invoices. We do not have access to your full card details.<br><br>You may update or remove your payment information at any time using the portal.<br><br>Thank you for your business!<br><br>--<br>$company_name - Billing Department<br>$config_invoice_from_email<br>$company_phone";
 
         $data = [
             [
@@ -635,12 +647,11 @@ if (isset($_GET['stripe_save_card'])) {
     }
 
     // Logging
-    logAction("Stripe", "Update", "$session_contact_name saved payment method ($card_info) for future automatic payments (PM: $payment_method)", $session_client_id, $session_client_id);
+    logAction("Stripe", "Update", "$session_contact_name saved payment method ($stripe_pm_details) for future automatic payments (PM: $payment_method)", $session_client_id, $session_client_id);
 
     // Redirect
     $_SESSION['alert_message'] = "Payment method saved - thank you";
     header('Location: autopay.php');
-
 }
 
 if (isset($_GET['stripe_remove_pm'])) {
@@ -677,11 +688,65 @@ if (isset($_GET['stripe_remove_pm'])) {
     }
 
     // Remove payment method from ITFlow
-    mysqli_query($mysqli, "UPDATE client_stripe SET stripe_pm = NULL WHERE client_id = $session_client_id LIMIT 1");
-    
+    mysqli_query($mysqli, "UPDATE client_stripe SET stripe_pm = NULL, stripe_pm_details = NULL WHERE client_id = $session_client_id LIMIT 1");
+
+    // Remove Auto Pay on recurring invoices that are stripe
+    $sql_recurring_invoices = mysqli_query($mysqli, "SELECT recurring_invoice_id FROM recurring_invoices WHERE recurring_invoice_client_id = $session_client_id");
+
+    while ($row = mysqli_fetch_array($sql_recurring_invoices)) {
+        $recurring_invoice_id = intval($row['recurring_invoice_id']);
+        mysqli_query($mysqli, "DELETE FROM recurring_payments WHERE recurring_payment_method = 'Stripe' AND recurring_payment_recurring_invoice_id = $recurring_invoice_id");
+    }
+
     // Logging & Redirect
     logAction("Stripe", "Update", "$session_contact_name deleted saved Stripe payment method (PM: $payment_method)", $session_client_id, $session_client_id);
 
     $_SESSION['alert_message'] = "Payment method removed";
     header('Location: autopay.php');
+}
+
+if (isset($_POST['add_recurring_payment'])) {
+
+    $recurring_invoice_id = intval($_POST['recurring_invoice_id']);
+
+    // Get Recurring Info for logging and alerting
+    $sql = mysqli_query($mysqli, "SELECT * FROM recurring_invoices WHERE recurring_invoice_id = $recurring_invoice_id");
+    $row = mysqli_fetch_array($sql);
+    $recurring_invoice_prefix = sanitizeInput($row['recurring_invoice_prefix']);
+    $recurring_invoice_number = intval($row['recurring_invoice_number']);
+    $recurring_invoice_amount = floatval($row['recurring_invoice_amount']);
+    $recurring_invoice_currency_code = sanitizeInput($row['recurring_invoice_currency_code']);
+
+    mysqli_query($mysqli,"INSERT INTO recurring_payments SET recurring_payment_currency_code = '$recurring_invoice_currency_code', recurring_payment_account_id = $config_stripe_account, recurring_payment_method = 'Stripe', recurring_payment_recurring_invoice_id = $recurring_invoice_id");
+
+    // Get Payment ID for reference
+    $recurring_payment_id = mysqli_insert_id($mysqli);
+
+    // Logging
+    logAction("Recurring Invoice", "Auto Payment", "$session_name created Auto Pay for Recurring Invoice $recurring_invoice_prefix$recurring_invoice_number in the amount of " . numfmt_format_currency($currency_format, $recurring_invoice_amount, $recurring_invoice_currency_code), $session_client_id, $recurring_invoice_id);
+
+
+    $_SESSION['alert_message'] = "Automatic Payment enabled for Recurring Invoice $recurring_invoice_prefix$recurring_invoice_number";
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+}
+
+if (isset($_POST['delete_recurring_payment'])) {
+    $recurring_invoice_id = intval($_POST['recurring_invoice_id']);
+
+    // Get the invoice total and details
+    $sql = mysqli_query($mysqli,"SELECT * FROM recurring_invoices WHERE recurring_invoice_id = $recurring_invoice_id");
+    $row = mysqli_fetch_array($sql);
+    $recurring_invoice_prefix = sanitizeInput($row['recurring_invoice_prefix']);
+    $recurring_invoice_number = intval($row['recurring_invoice_number']);
+
+    mysqli_query($mysqli,"DELETE FROM recurring_payments WHERE recurring_payment_recurring_invoice_id = $recurring_invoice_id");
+
+    // Logging
+    logAction("Recurring Invoice", "Auto Payment", "$session_name removed auto Pay from Recurring Invoice $recurring_invoice_prefix$recurring_invoice_number", $session_client_id, $recurring_invoice_id);
+
+    $_SESSION['alert_message'] = "Automatic Payment disabled for Recurring Invoice $recurring_invoice_prefix$recurring_invoice_number";
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
 }

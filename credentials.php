@@ -124,7 +124,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                 </div>
 
                 <div class="col-md-3">
-                    <div class="input-group">
+                    <div class="input-group mb-3 mb-md-0">
                         <select onchange="this.form.submit()" class="form-control select2" name="tags[]" data-placeholder="- Select Tags -" multiple>
 
                             <?php
@@ -151,7 +151,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                 
                 <?php if ($client_url) { ?>
                 <div class="col-md-2">
-                    <div class="input-group">
+                    <div class="input-group mb-3 mb-md-0">
                         <select class="form-control select2" name="location" onchange="this.form.submit()">
                             <option value="">- All Asset Locations -</option>
 
@@ -171,7 +171,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                 </div>
                 <?php } else { ?>
                 <div class="col-md-2">
-                    <div class="input-group">
+                    <div class="input-group mb-3 mb-md-0">
                         <select class="form-control select2" name="client" onchange="this.form.submit()">
                             <option value="" <?php if ($client == "") { echo "selected"; } ?>>- All Clients -</option>
 
@@ -242,7 +242,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
             <div class="table-responsive-sm">
                 <table class="table table-striped table-borderless table-hover">
-                    <thead class="text-dark <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
+                    <thead class="text-dark <?php if ($num_rows[0] == 0) { echo "d-none"; } ?> text-nowrap">
                         <tr>
                             <td class="pr-0">
                                 <div class="form-check">
@@ -335,7 +335,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             $credential_tags_display = implode('', $credential_tag_name_display_array);
 
                             if ($credential_contact_id) { 
-                                $credential_contact_display = "<a href='#' class='mr-2 badge badge-pill badge-dark p-2' title='$contact_name'
+                                $credential_contact_display = "<a href='#' class='mr-2 mb-1 badge badge-pill badge-dark p-2' title='$contact_name'
                                     data-toggle='ajax-modal'
                                     data-modal-size='lg'
                                     data-ajax-url='ajax/ajax_contact_details.php'
@@ -346,7 +346,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             }
 
                             if ($credential_asset_id) { 
-                                $credential_asset_display = "<a href='#' class='mr-2 badge badge-pill badge-secondary p-2' title='$asset_name' data-toggle='ajax-modal'
+                                $credential_asset_display = "<a href='#' class='mr-2 mb-1 badge badge-pill badge-secondary p-2' title='$asset_name' data-toggle='ajax-modal'
                                     data-modal-size='lg'
                                     data-ajax-url='ajax/ajax_asset_details.php'
                                     data-ajax-id='$credential_asset_id'>
@@ -412,11 +412,11 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                         </div>
                                     </a>
                                 </td>
-                                <td><?php echo $credential_username_display; ?></td>
-                                <td>
+                                <td class="text-nowrap"><?php echo $credential_username_display; ?></td>
+                                <td class="text-nowrap">
                                     <button class="btn p-0" type="button" data-toggle="popover" data-trigger="focus" data-placement="top" data-content="<?php echo $credential_password; ?>"><i class="fas fa-2x fa-ellipsis-h text-secondary"></i><i class="fas fa-2x fa-ellipsis-h text-secondary"></i></button><button class="btn btn-sm clipboardjs" type="button" data-clipboard-text="<?php echo $credential_password; ?>"><i class="far fa-copy text-secondary"></i></button>
                                 </td>
-                                <td><?php echo $otp_display; ?></td>
+                                <td class="text-nowrap"><?php echo $otp_display; ?></td>
                                 <td><?php echo $credential_uri_display; ?></td>
                                 <td>
                                     <?php echo "$credential_contact_display$credential_asset_display"; ?>

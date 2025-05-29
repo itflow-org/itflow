@@ -60,7 +60,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                 <input type="hidden" name="archived" value="<?php echo $archived; ?>">
                 <div class="row">
                     <div class="col-sm-4">
-                        <div class="input-group">
+                        <div class="input-group mb-3 mb-sm-0">
                             <input type="search" class="form-control" name="q" value="<?php if (isset($q)) {echo stripslashes(nullable_htmlentities($q));} ?>" placeholder="Search Products">
                             <div class="input-group-append">
                                 <button class="btn btn-primary"><i class="fa fa-search"></i></button>
@@ -68,7 +68,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         </div>
                     </div>
                     <div class="col-sm-3">
-                        <div class="input-group">
+                        <div class="input-group mb-3 mb-sm-0">
                             <select class="form-control select2" name="category" onchange="this.form.submit()">
                                 <option value="">- All Categories -</option>
 
@@ -138,7 +138,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                 <div class="table-responsive-sm">
                     <table class="table table-striped table-borderless table-hover">
-                        <thead class="text-dark <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
+                        <thead class="text-dark <?php if ($num_rows[0] == 0) { echo "d-none"; } ?> text-nowrap">
                         <tr>
                             <td class="bg-light pr-0">
                                 <div class="form-check">

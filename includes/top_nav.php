@@ -28,37 +28,33 @@
     <!-- Right navbar links -->
     <ul class="navbar-nav ml-auto">
 
-        <?php if(CURRENT_DATABASE_VERSION > '1.4.5' ) { // Check DB Version REMOVE on Decemeber 1st 2024 -Johnny ?>
+        <!--Custom Nav Link -->
+        <?php
+        $sql_custom_links = mysqli_query($mysqli, "SELECT * FROM custom_links WHERE custom_link_location = 2 AND custom_link_archived_at IS NULL
+            ORDER BY custom_link_order ASC, custom_link_name ASC"
+        );
 
-            <!--Custom Nav Link -->
-            <?php
-            $sql_custom_links = mysqli_query($mysqli, "SELECT * FROM custom_links WHERE custom_link_location = 2 AND custom_link_archived_at IS NULL
-                ORDER BY custom_link_order ASC, custom_link_name ASC"
-            );
+        while ($row = mysqli_fetch_array($sql_custom_links)) {
+            $custom_link_name = nullable_htmlentities($row['custom_link_name']);
+            $custom_link_uri = nullable_htmlentities($row['custom_link_uri']);
+            $custom_link_icon = nullable_htmlentities($row['custom_link_icon']);
+            $custom_link_new_tab = intval($row['custom_link_new_tab']);
+            if ($custom_link_new_tab == 1) {
+                $target = "target='_blank' rel='noopener noreferrer'";
+            } else {
+                $target = "";
+            }
 
-            while ($row = mysqli_fetch_array($sql_custom_links)) {
-                $custom_link_name = nullable_htmlentities($row['custom_link_name']);
-                $custom_link_uri = nullable_htmlentities($row['custom_link_uri']);
-                $custom_link_icon = nullable_htmlentities($row['custom_link_icon']);
-                $custom_link_new_tab = intval($row['custom_link_new_tab']);
-                if ($custom_link_new_tab == 1) {
-                    $target = "target='_blank' rel='noopener noreferrer'";
-                } else {
-                    $target = "";
-                }
+            ?>
 
-                ?>
+        <li class="nav-item" title="<?php echo $custom_link_name; ?>">
+            <a href="<?php echo $custom_link_uri; ?>" <?php echo $target; ?> class="nav-link">
+                <i class="fas fa-<?php echo $custom_link_icon; ?> nav-icon"></i>
+            </a>
+        </li>
 
-            <li class="nav-item" title="<?php echo $custom_link_name; ?>">
-                <a href="<?php echo $custom_link_uri; ?>" <?php echo $target; ?> class="nav-link">
-                    <i class="fas fa-<?php echo $custom_link_icon; ?> nav-icon"></i>
-                </a>
-            </li>
-
-            <?php } ?>
-            <!-- End Custom Nav Links -->
-
-        <?php } // End DB Check ?>
+        <?php } ?>
+        <!-- End Custom Nav Links -->
 
         <!-- New Notifications Dropdown -->
         <?php

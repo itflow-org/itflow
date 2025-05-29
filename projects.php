@@ -8,7 +8,7 @@ $order = "ASC";
 if (isset($_GET['client_id'])) {
     require_once "includes/inc_all_client.php";
     $client_query = "AND project_client_id = $client_id";
-    
+
     $client_url = "client_id=$client_id&";
 } else {
     require_once "includes/inc_all.php";
@@ -16,8 +16,12 @@ if (isset($_GET['client_id'])) {
     $client_url = '';
 }
 
-// Perms
+// Perms & Project client access snippet
 enforceUserPermission('module_support');
+$project_permission_snippet = '';
+if (!empty($client_access_string)) {
+    $project_permission_snippet = "AND project_client_id IN ($client_access_string) OR project_client_id = 0";
+}
 
 // Status Query
 
@@ -27,16 +31,10 @@ if (isset($_GET['status'])) {
     $status = intval($_GET['status']);
 }
 
-if($status == 1) {
+if ($status == 1) {
     $status_query = "IS NOT NULL";
 } else {
     $status_query = "IS NULL";
-}
-
-// Ticket client access snippet
-$project_permission_snippet = '';
-if (!empty($client_access_string)) {
-    $project_permission_snippet = "AND project_client_id IN ($client_access_string) OR project_client_id = 0";
 }
 
 //Rebuild URL
@@ -63,9 +61,11 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 <div class="card card-dark">
     <div class="card-header py-2">
         <h3 class="card-title mt-2"><i class="fas fa-fw fa-project-diagram mr-2"></i>Projects</h3>
-        <div class="card-tools">
-            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addProjectModal"><i class="fas fa-plus mr-2"></i>New Project</button>
-        </div>
+        <?php if (lookupUserPermission("module_support") >= 2) { ?>
+            <div class="card-tools">
+                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addProjectModal"><i class="fas fa-plus"></i><span class="d-none d-lg-inline ml-2">New Project</span></button>
+            </div>
+        <?php } ?>
     </div>
 
     <div class="card-body">
@@ -76,7 +76,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
             <input type="hidden" name="archived" value="<?php echo $archived; ?>">
             <div class="row">
                 <div class="col-sm-4">
-                    <div class="input-group">
+                    <div class="input-group mb-3 mb-sm-0">
                         <input type="search" class="form-control" name="q" value="<?php if (isset($q)) {echo stripslashes(nullable_htmlentities($q));} ?>" placeholder="Search Projects">
                         <div class="input-group-append">
                             <button class="btn btn-secondary" type="button" data-toggle="collapse" data-target="#advancedFilter"><i class="fas fa-filter"></i></button>
@@ -91,13 +91,13 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             <a href="?<?php echo $client_url; ?>status=1" class="btn btn-<?php if ($status == 1){ echo "primary"; } else { echo "default"; } ?>"><i class="fa fa-fw fa-door-closed mr-2"></i>Closed</a>
                         </div>
 
-                        <div class="btn-group mr-2">
+                        <div class="btn-group">
                             <a href="?<?php echo $url_query_strings_sort ?>&archived=<?php if($archived == 1){ echo 0; } else { echo 1; } ?>"
                                class="btn btn-<?php if ($archived == 1) { echo "primary"; } else { echo "default"; } ?>">
                                 <i class="fa fa-fw fa-archive mr-2"></i>Archived
                             </a>
                         </div>
-                       
+
                     </div>
                 </div>
             </div>
@@ -137,7 +137,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
         <hr>
         <div class="table-responsive-sm">
             <table class="table table-striped table-hover table-borderless">
-                <thead class="<?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
+                <thead class="<?php if ($num_rows[0] == 0) { echo "d-none"; } ?> text-nowrap">
                 <tr>
                     <th>
                         <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=project_number&order=<?php echo $disp; ?>">
@@ -224,7 +224,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     $sql_closed_tickets = mysqli_query($mysqli, "SELECT * FROM tickets WHERE ticket_project_id = $project_id AND ticket_closed_at IS NOT NULL");
 
                     $closed_ticket_count = mysqli_num_rows($sql_closed_tickets);
-                    
+
                     // Ticket Closed Percent
                     if($ticket_count) {
                         $tickets_closed_percent = round(($closed_ticket_count / $ticket_count) * 100);
@@ -320,7 +320,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                             </a>
                                             <?php if (lookupUserPermission("module_support" >= 3)) { ?>
                                                 <div class="dropdown-divider"></div>
-                                                <a class="dropdown-item text-danger confirm-link" href="post.php?delete_project=<?php echo $project_id; ?>">
+                                                <a class="dropdown-item text-danger confirm-link" href="post.php?delete_project=<?php echo $project_id; ?>&csrf_token=<?php echo $_SESSION['csrf_token'] ?>">
                                                     <i class="fas fa-fw fa-archive mr-2"></i>Delete
                                                 </a>
                                             <?php } ?>

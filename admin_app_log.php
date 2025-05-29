@@ -48,14 +48,16 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
             <h3 class="card-title"><i class="fas fa-fw fa-history mr-2"></i>App Logs</h3>
         </div>
         <div class="card-body">
-            <form class="mb-4" autocomplete="off">
+            <form autocomplete="off">
                 <div class="row">
                     <div class="col-sm-4">
-                        <div class="input-group">
-                            <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(nullable_htmlentities($q)); } ?>" placeholder="Search app logs">
-                            <div class="input-group-append">
-                                <button class="btn btn-secondary" type="button" data-toggle="collapse" data-target="#advancedFilter"><i class="fas fa-filter"></i></button>
-                                <button class="btn btn-primary"><i class="fa fa-search"></i></button>
+                        <div class="form-group">
+                            <div class="input-group">
+                                <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(nullable_htmlentities($q)); } ?>" placeholder="Search app logs">
+                                <div class="input-group-append">
+                                    <button class="btn btn-secondary" type="button" data-toggle="collapse" data-target="#advancedFilter"><i class="fas fa-filter"></i></button>
+                                    <button class="btn btn-primary"><i class="fa fa-search"></i></button>
+                                </div>
                             </div>
                         </div>
                     </div>

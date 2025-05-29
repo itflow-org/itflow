@@ -62,7 +62,7 @@ $sql = mysqli_query(
     WHERE (client_name LIKE '%$q%' OR client_abbreviation LIKE '%$q%' OR client_type LIKE '%$q%' OR client_referral LIKE '%$q%'
            OR contact_email LIKE '%$q%' OR contact_name LIKE '%$q%' OR contact_phone LIKE '%$phone_query%'
            OR contact_mobile LIKE '%$phone_query%' OR location_address LIKE '%$q%'
-           OR location_city LIKE '%$q%' OR location_state LIKE '%$q%' OR location_zip LIKE '%$q%'
+           OR location_city LIKE '%$q%' OR location_state LIKE '%$q%' OR location_zip LIKE '%$q%' OR location_country LIKE '%$q%'
            OR tag_name LIKE '%$q%' OR client_tax_id_number LIKE '%$q%')
       AND client_$archive_query
       AND DATE(client_created_at) BETWEEN '$dtf' AND '$dtt'
@@ -111,7 +111,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                 <input type="hidden" name="archived" value="<?php echo $archived; ?>">
                 <div class="row">
                     <div class="col-md-4">
-                        <div class="input-group">
+                        <div class="input-group mb-3 mb-sm-0">
                             <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(nullable_htmlentities($q)); } ?>" placeholder="Search <?php if($leads_filter == 0){ echo "clients"; } else { echo "leads"; } ?>" autofocus>
                             <div class="input-group-append">
                                 <button class="btn btn-secondary" type="button" data-toggle="collapse" data-target="#advancedFilter"><i class="fas fa-filter"></i></button>
@@ -126,7 +126,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 <a href="?leads=1" class="btn btn-<?php if ($leads_filter == 1){ echo "primary"; } else { echo "default"; } ?>"><i class="fa fa-fw fa-bullhorn mr-2"></i>Leads</a>
                             </div>
 
-                            <div class="btn-group mr-2">
+                            <div class="btn-group">
                                 <a href="?<?php echo $url_query_strings_sort ?>&archived=<?php if($archived == 1){ echo 0; } else { echo 1; } ?>" 
                                     class="btn btn-<?php if ($archived == 1) { echo "primary"; } else { echo "default"; } ?>">
                                     <i class="fa fa-fw fa-archive mr-2"></i>Archived
@@ -248,7 +248,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
             <hr>
             <div class="table-responsive-sm">
                 <table class="table table-striped table-hover table-borderless">
-                    <thead class="<?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
+                    <thead class="<?php if ($num_rows[0] == 0) { echo "d-none"; } ?> text-nowrap">
                     <tr>
                         <th>
                             <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=client_name&order=<?php echo $disp; ?>">
@@ -286,7 +286,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         if (empty($location_address) && empty($location_city) && empty($location_state) && empty($location_zip)) {
                             $location_address_display = "-";
                         } else {
-                            $location_address_display = "$location_address<br>$location_city $location_state $location_zip";
+                            $location_address_display = "<i class='fa fa-fw fa-map-marker-alt text-secondary mr-2'></i>$location_address<br><i class='fa fa-fw mr-2'></i>$location_city $location_state $location_zip<br><i class='fa fa-fw mr-2'></i><small>$location_country</small>";
                         }
                         $contact_id = intval($row['contact_id']);
                         $contact_name = nullable_htmlentities($row['contact_name']);

@@ -7,12 +7,13 @@
                 <table class="table table-striped table-borderless table-hover">
                     <thead class="text-dark <?php if (!$num_rows[0]) { echo "d-none"; } ?>">
                     <tr>
+                        <?php if ($_GET['status'] !== 'Closed') { ?>
                         <td>
                             <div class="form-check">
                                 <input class="form-check-input" id="selectAllCheckbox" type="checkbox" onclick="checkAll(this)" onKeyPress="checkAll(this)">
                             </div>
                         </td>
-
+                        <?php } ?>
                         <th scope="col">
                             <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=ticket_subject&order=<?php echo $disp; ?>">
                                 Ticket <?php if ($sort == 'ticket_subject') { echo $order_icon; } ?>
@@ -164,23 +165,19 @@
                         
                         ?>
 
-                        <tr class="<?php if(empty($ticket_closed_at) && empty($ticket_updated_at)) { echo "text-bold"; }?> <?php if (empty($ticket_closed_at) && $ticket_reply_type == "Client") { echo "table-warning1"; } ?>">
+                        <tr class="<?php if(empty($ticket_closed_at) && empty($ticket_updated_at)) { echo "text-bold"; }?> <?php if (empty($ticket_closed_at) && $ticket_reply_type == "Client") { echo "table-warning"; } ?>">
 
                             <!-- Ticket Bulk Select (for open tickets) -->
+                            <?php if (empty($ticket_closed_at)) { ?>
                             <td>
-                                <?php if (empty($ticket_closed_at)) { ?>
-                                    <div class="form-check">
-                                        <input class="form-check-input bulk-select" type="checkbox" name="ticket_ids[]" value="<?php echo $ticket_id ?>">
-                                    </div>
-                                <?php } ?>
+                                <div class="form-check">
+                                    <input class="form-check-input bulk-select" type="checkbox" name="ticket_ids[]" value="<?php echo $ticket_id ?>">
+                                </div>   
                             </td>
-
-
+                            <?php } ?>
 
                             <!-- Ticket Subject -->
                             <td>
-
-                                
                                 <div class="mt-1">
                                     <a href="#"
                                         <?php if (empty($ticket_closed_at)) { ?>
@@ -189,7 +186,7 @@
                                         data-ajax-id = "<?php echo $ticket_id; ?>"
                                         <?php } ?>
                                         >
-                                        <span class='badge badge-<?php echo $ticket_priority_color; ?>'>
+                                        <span class='badge badge-pill badge-<?php echo $ticket_priority_color; ?>'>
                                             <?php echo $ticket_priority; ?>
                                         </span>
                                     </a>
@@ -200,7 +197,6 @@
                                     <?php } ?>
                                 </div>
                                 
-
                                 <a href="ticket.php?<?php echo $client_url; ?>ticket_id=<?php echo $ticket_id; ?>">
                                     <?php
                                     if (empty($ticket_closed_at) && $ticket_reply_type == "Client") {
@@ -209,8 +205,6 @@
                                         echo $ticket_subject;
                                     } ?>
                                 </a>
-                                
-
 
                                 <?php if($task_count && $completed_task_count > 0) { ?>
                                 <div class="progress mt-2" style="height: 15px; font-size: 11px; width: 150px;">
@@ -257,7 +251,7 @@
 
                             <!-- Ticket Status -->
                             <td>
-                                <span class='badge text-light p-2' style="background-color: <?php echo $ticket_status_color; ?>"><?php echo $ticket_status_name; ?></span>
+                                <span class='badge badge-pill text-light p-2' style="background-color: <?php echo $ticket_status_color; ?>"><?php echo $ticket_status_name; ?></span>
                                 <?php if (isset ($ticket_scheduled_for)) { echo "<div class=\"mt-1\"> <small class='text-secondary'> $ticket_scheduled_for </small></div>"; } ?>
                             </td>
 
@@ -270,7 +264,7 @@
                                     data-ajax-id = "<?php echo $ticket_id; ?>"
                                     <?php } ?>
                                     >
-                                    <?php echo $ticket_assigned_to_display; ?>        
+                                    <?php echo $ticket_assigned_to_display; ?>   
                                 </a>
                             </td>
 

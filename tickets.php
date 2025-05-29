@@ -1,6 +1,5 @@
 <?php
 
-
 // Default Column Sortby Filter
 $sort = "ticket_number";
 $order = "DESC";
@@ -82,10 +81,7 @@ if (isset($_GET['assigned']) & !empty($_GET['assigned'])) {
         $ticket_assigned_query = 'AND ticket_assigned_to = ' . intval($_GET['assigned']);
         $ticket_assigned_filter_id = intval($_GET['assigned']);
     }
-} 
-
-//Rebuild URL
-$url_query_strings_sort = http_build_query(array_merge($_GET, array('sort' => $sort, 'order' => $order, 'status' => $status, 'assigned' => $ticket_assigned_filter_id)));
+}
 
 // Ticket client access snippet
 $ticket_permission_snippet = '';
@@ -153,6 +149,7 @@ $sql_categories = mysqli_query(
     $mysqli,
     "SELECT * FROM categories
     WHERE category_type = 'Ticket'
+    AND category_archived_at IS NULL
     ORDER BY category_name"
 );
 
@@ -168,25 +165,27 @@ $sql_categories = mysqli_query(
         <div class="card-header py-2">
             <h3 class="card-title mt-2"><i class="fa fa-fw fa-life-ring mr-2"></i>Tickets
                 <small class="ml-3">
-                    <a href="?<?php echo $client_url; ?>status=Open" class="text-light"><strong><?php echo $total_tickets_open; ?></strong> Open</a> |
-                    <a href="?<?php echo $client_url; ?>status=Closed" class="text-light"><strong><?php echo $total_tickets_closed; ?></strong> Closed</a>
+                    <a href="?<?php echo $client_url; ?>status=Open" class="badge badge-pill text-light p-1 <?php if($status == 'Open') { echo "badge-light text-dark"; } ?>"><strong><?php echo $total_tickets_open; ?></strong> Open</a> |
+                    <a href="?<?php echo $client_url; ?>status=Closed" class="badge badge-pill text-light p-1 <?php if($status == 'Closed') { echo "badge-light text-dark"; } ?>"><strong><?php echo $total_tickets_closed; ?></strong> Closed</a>
                 </small>
             </h3>
-            <div class="card-tools">
-                <div class="btn-group">
-                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addTicketModal">
-                        <i class="fas fa-plus mr-2"></i>New Ticket
-                    </button>
-                    <?php if ($num_rows[0] > 0) { ?>
-                    <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown"></button>
-                    <div class="dropdown-menu">
-                        <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#exportTicketModal">
-                            <i class="fa fa-fw fa-download mr-2"></i>Export
-                        </a>
+            <?php if (lookupUserPermission("module_support") >= 2) { ?>
+                <div class="card-tools">
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addTicketModal">
+                            <i class="fas fa-plus"></i><span class="d-none d-lg-inline ml-2">New Ticket</span>
+                        </button>
+                        <?php if ($num_rows[0] > 0) { ?>
+                        <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown"></button>
+                        <div class="dropdown-menu">
+                            <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#exportTicketModal">
+                                <i class="fa fa-fw fa-download mr-2"></i>Export
+                            </a>
+                        </div>
+                        <?php } ?>
                     </div>
-                    <?php } ?>
                 </div>
-            </div>
+            <?php } ?>
         </div>
         <div class="card-body">
             <form autocomplete="off">
@@ -194,8 +193,8 @@ $sql_categories = mysqli_query(
                     <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
                 <?php } ?>
                 <div class="row">
-                    <div class="col-sm-4">
-                        <div class="input-group">
+                    <div class="col-sm-5">
+                        <div class="input-group mb-3 mb-sm-0">
                             <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(nullable_htmlentities($q)); } ?>" placeholder="Search Tickets">
                             <div class="input-group-append">
                                 <button class="btn btn-secondary" type="button" data-toggle="collapse" data-target="#advancedFilter"><i class="fas fa-filter"></i></button>
@@ -203,14 +202,15 @@ $sql_categories = mysqli_query(
                             </div>
                         </div>
                     </div>
-                    <div class="col-sm-8">
+                    <div class="col-sm-7">
                         <div class="btn-group float-right">
                             <div class="btn-group">
                                 <button class="btn btn-outline-dark dropdown-toggle" id="dropdownMenuButton" data-toggle="dropdown">
-                                    <i class="fa fa-fw fa-eye mr-2"></i>View
+                                    <i class="fa fa-fw fa-eye"></i>
+                                    <span class="d-none d-xl-inline ml-2">View</span>
                                 </button>
                                 <div class="dropdown-menu">
-                                    <a class="dropdown-item " href="<?=htmlspecialchars('?' . http_build_query(array_merge($_GET, ['view' => 'list']))); ?>">List</a>
+                                    <a class="dropdown-item" href="<?=htmlspecialchars('?' . http_build_query(array_merge($_GET, ['view' => 'list']))); ?>">List</a>
                                     <div class="dropdown-divider"></div>
                                     <a class="dropdown-item " href="<?=htmlspecialchars('?' . http_build_query(array_merge($_GET, ['view' => 'compact']))); ?>">Compact List</a>
                                     <?php if ($status !== 'Closed') {?>
@@ -221,7 +221,8 @@ $sql_categories = mysqli_query(
                             </div>
                             <div class="btn-group">
                                 <button class="btn btn-outline-dark dropdown-toggle" id="dropdownMenuButton" data-toggle="dropdown">
-                                    <i class="fa fa-fw fa-layer-group mr-2"></i>Categories
+                                    <i class="fa fa-fw fa-layer-group"></i>
+                                    <span class="d-none d-xl-inline ml-2">Categories</span>
                                 </button>
                                 <div class="dropdown-menu">
                                     <a class="dropdown-item " href="<?=htmlspecialchars('?' . http_build_query(array_merge($_GET, ['category' => 'all']))); ?>">All</a>
@@ -240,7 +241,8 @@ $sql_categories = mysqli_query(
                             </div>
                             <div class="btn-group">
                                 <button class="btn btn-outline-dark dropdown-toggle" id="categoriesDropdownMenuButton" data-toggle="dropdown">
-                                    <i class="fa fa-fw fa-envelope mr-2"></i>My Tickets
+                                    <i class="fa fa-fw fa-envelope"></i>
+                                    <span class="d-none d-xl-inline ml-2">My Tickets</span>
                                 </button>
                                 <div class="dropdown-menu">
                                     <a class="dropdown-item" href="?<?php echo $client_url; ?>status=Open&assigned=<?php echo $session_user_id ?>">Active tickets (<?php echo $user_active_assigned_tickets ?>)</a>
@@ -249,7 +251,8 @@ $sql_categories = mysqli_query(
                                 </div>
                             </div>
                             <a href="?<?php echo $client_url; ?>assigned=unassigned" class="btn btn-outline-danger">
-                                <i class="fa fa-fw fa-exclamation-triangle mr-2"></i>Unassigned Tickets | <strong> <?php echo $total_tickets_unassigned; ?></strong>
+                                <i class="fa fa-fw fa-exclamation-triangle"></i>
+                                <span class="d-none d-xl-inline ml-2">Unassigned</span> | <strong> <?php echo $total_tickets_unassigned; ?></strong>
                             </a>
 
                             <?php if (lookupUserPermission("module_support") >= 2) { ?>
@@ -294,17 +297,17 @@ $sql_categories = mysqli_query(
                     </div>
                 </div>
 
-                <div 
-                    class="collapse 
-                        <?php 
+                <div
+                    class="collapse mt-3
+                        <?php
                         if (
-                            !empty($_GET['dtf']) 
-                            || (isset($_GET['canned_date']) && $_GET['canned_date'] !== "custom") 
-                            || (isset($_GET['status']) && is_array($_GET['status']) 
+                            !empty($_GET['dtf'])
+                            || (isset($_GET['canned_date']) && $_GET['canned_date'] !== "custom")
+                            || (isset($_GET['status']) && is_array($_GET['status'])
                             || (isset($_GET['assigned']) && $_GET['assigned']
-                        ))) 
-                            { echo "show"; } 
-                        ?>" 
+                        )))
+                            { echo "show"; }
+                        ?>"
                     id="advancedFilter"
                 >
                     <div class="row">
@@ -368,7 +371,7 @@ $sql_categories = mysqli_query(
                                 <label>Ticket Status</label>
                                 <select onchange="this.form.submit()" class="form-control select2" name="status[]" data-placeholder="Select Status" multiple>
 
-                                        <?php $sql_ticket_status = mysqli_query($mysqli, "SELECT * FROM ticket_statuses WHERE ticket_status_active = 1");
+                                        <?php $sql_ticket_status = mysqli_query($mysqli, "SELECT * FROM ticket_statuses WHERE ticket_status_active = 1 ORDER BY ticket_status_order");
                                         while ($row = mysqli_fetch_array($sql_ticket_status)) {
                                             $ticket_status_id = intval($row['ticket_status_id']);
                                             $ticket_status_name = nullable_htmlentities($row['ticket_status_name']); ?>

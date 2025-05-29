@@ -27,10 +27,6 @@ $sql = mysqli_query(
 );
 $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
-if (isset($_GET['archived'])) {
-    $category = "Archived";
-}
-
 ?>
 
 <div class="card card-dark">
@@ -98,7 +94,7 @@ if (isset($_GET['archived'])) {
                            } else {
                                echo 'btn-default';
                            } ?>">Ticket</a>
-                        <a href="?archived=1"
+                        <a href="?<?php echo $url_query_strings_sort ?>&archived=1"
                             class="btn <?php if (isset($_GET['archived'])) {
                                 echo 'btn-primary';
                             } else {
@@ -150,7 +146,7 @@ if (isset($_GET['archived'])) {
                                     </button>
                                     <div class="dropdown-menu">
                                         <?php
-                                        if ($category == "Archived") {
+                                        if ($archived) {
                                             ?>
                                             <a class="dropdown-item text-success confirm-link"
                                                 href="post.php?unarchive_category=<?php echo $category_id; ?>">

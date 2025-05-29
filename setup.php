@@ -6,9 +6,7 @@ if (file_exists("config.php")) {
 }
 
 include "functions.php";
-
 include "includes/database_version.php";
-
 
 if (!isset($config_enable_setup)) {
     $config_enable_setup = 1;
@@ -17,6 +15,24 @@ if (!isset($config_enable_setup)) {
 if ($config_enable_setup == 0) {
     header("Location: login.php");
     exit;
+}
+
+$mysqli_available = isset($mysqli) && $mysqli instanceof mysqli;
+$can_show_restore = false;
+$should_skip_to_user = false;
+
+if (file_exists("config.php") && $mysqli_available) {
+    $table_result = mysqli_query($mysqli, "SHOW TABLES LIKE 'users'");
+    if ($table_result && mysqli_num_rows($table_result) > 0) {
+        $can_show_restore = true;
+        $should_skip_to_user = true;
+    } else {
+        // If DB exists but doesn't have user table yet, maybe still allow restore
+        $all_tables = mysqli_query($mysqli, "SHOW TABLES");
+        if ($all_tables && mysqli_num_rows($all_tables) > 0) {
+            $can_show_restore = true;
+        }
+    }
 }
 
 include_once "includes/settings_localization_array.php";
@@ -109,6 +125,118 @@ if (isset($_POST['add_database'])) {
 
 }
 
+if (isset($_POST['restore'])) {
+
+    if (!isset($_FILES['backup_zip']) || $_FILES['backup_zip']['error'] !== UPLOAD_ERR_OK) {
+        die("No backup file uploaded or upload failed.");
+    }
+
+    $file = $_FILES['backup_zip'];
+    $fileExt = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+    if ($fileExt !== "zip") {
+        die("Only .zip files are allowed.");
+    }
+
+    // Save uploaded file temporarily
+    $backupZip = "restore_" . time() . ".zip";
+    if (!move_uploaded_file($file["tmp_name"], $backupZip)) {
+        die("Failed to save uploaded backup file.");
+    }
+
+    $zip = new ZipArchive;
+    if ($zip->open($backupZip) !== TRUE) {
+        unlink($backupZip);
+        die("Failed to open backup zip file.");
+    }
+
+    // Extract to a temp directory
+    $tempDir = "restore_temp_" . time();
+    mkdir($tempDir);
+
+    if (!$zip->extractTo($tempDir)) {
+        $zip->close();
+        unlink($backupZip);
+        die("Failed to extract backup contents.");
+    }
+    $zip->close();
+    unlink($backupZip);
+
+    // === 1. Restore SQL Dump ===
+    $sqlPath = "$tempDir/db.sql";
+    if (file_exists($sqlPath)) {
+        mysqli_query($mysqli, "SET foreign_key_checks = 0");
+        $tables = mysqli_query($mysqli, "SHOW TABLES");
+        while ($row = mysqli_fetch_array($tables)) {
+            mysqli_query($mysqli, "DROP TABLE IF EXISTS `" . $row[0] . "`");
+        }
+        mysqli_query($mysqli, "SET foreign_key_checks = 1");
+
+        $command = sprintf(
+            'mysql -h%s -u%s -p%s %s < %s',
+            escapeshellarg($dbhost),
+            escapeshellarg($dbusername),
+            escapeshellarg($dbpassword),
+            escapeshellarg($database),
+            escapeshellarg($sqlPath)
+        );
+
+        exec($command, $output, $returnCode);
+        if ($returnCode !== 0) {
+            die("SQL import failed. Error code: $returnCode");
+        }
+    } else {
+        die("Missing db.sql in the backup archive.");
+    }
+
+    // === 2. Restore Upload Folder ===
+    $uploadDir = __DIR__ . "/uploads/";
+    $uploadsZip = "$tempDir/uploads.zip";
+
+    if (file_exists($uploadsZip)) {
+        $uploads = new ZipArchive;
+        if ($uploads->open($uploadsZip) === TRUE) {
+            // Clean existing uploads
+            foreach (glob($uploadDir . '*') as $item) {
+                if (is_dir($item)) {
+                    array_map('unlink', glob("$item/*"));
+                    rmdir($item);
+                } else {
+                    unlink($item);
+                }
+            }
+
+            $uploads->extractTo($uploadDir);
+            $uploads->close();
+        } else {
+            die("Failed to open uploads.zip in backup.");
+        }
+    } else {
+        die("Missing uploads.zip in the backup archive.");
+    }
+
+    // === 3. Read version.txt (optional log/display)
+    $versionTxt = "$tempDir/version.txt";
+    if (file_exists($versionTxt)) {
+        $versionInfo = file_get_contents($versionTxt);
+        // You could log it, show it, or ignore it
+        // e.g. logAction("Backup Restore", "Version Info", $versionInfo);
+    }
+
+    // Cleanup temp restore directory
+    array_map('unlink', glob("$tempDir/*"));
+    rmdir($tempDir);
+
+    // === 4. Final Setup Stages ===
+    $myfile = fopen("config.php", "a");
+    $txt = "\$config_enable_setup = 0;\n\n";
+    fwrite($myfile, $txt);
+    fclose($myfile);
+
+    $_SESSION['alert_message'] = "Full backup restored successfully.";
+    header("Location: login.php");
+    exit;
+}
+
 if (isset($_POST['add_user'])) {
     $user_count = mysqli_num_rows(mysqli_query($mysqli,"SELECT COUNT(*) FROM users"));
     if ($user_count < 0) {
@@ -146,7 +274,7 @@ if (isset($_POST['add_user'])) {
         $new_file_name = md5(time() . $file_name) . '.' . $file_extension;
 
         // check if file has one of the following extensions
-        $allowed_file_extensions = array('jpg', 'gif', 'png');
+        $allowed_file_extensions = array('jpg', 'jpeg', 'gif', 'png', 'webp');
 
         if (in_array($file_extension,$allowed_file_extensions) === false) {
             $file_error = 1;
@@ -195,9 +323,6 @@ if (isset($_POST['add_company_settings'])) {
     $phone = preg_replace("/[^0-9]/", '',$_POST['phone']);
     $email = sanitizeInput($_POST['email']);
     $website = sanitizeInput($_POST['website']);
-    $locale = sanitizeInput($_POST['locale']);
-    $currency_code = sanitizeInput($_POST['currency_code']);
-    $timezone = sanitizeInput($_POST['timezone']);
 
     mysqli_query($mysqli,"INSERT INTO companies SET company_name = '$name', company_address = '$address', company_city = '$city', company_state = '$state', company_zip = '$zip', company_country = '$country', company_phone = '$phone', company_email = '$email', company_website = '$website', company_locale = '$locale', company_currency = '$currency_code'");
 
@@ -287,7 +412,6 @@ if (isset($_POST['add_company_settings'])) {
     mysqli_query($mysqli,"INSERT INTO categories SET category_name = 'Event', category_type = 'Referral', category_color = 'red'");
     mysqli_query($mysqli,"INSERT INTO categories SET category_name = 'Affiliate', category_type = 'Referral', category_color = 'pink'");
     mysqli_query($mysqli,"INSERT INTO categories SET category_name = 'Client', category_type = 'Referral', category_color = 'lightblue'");
-    mysqli_query($mysqli,"INSERT INTO categories SET category_name = 'Influencer', category_type = 'Referral', category_color = 'turquoise'");
 
     // Payment Methods
     mysqli_query($mysqli,"INSERT INTO categories SET category_name = 'Cash', category_type = 'Payment Method', category_color = 'blue'");
@@ -478,41 +602,57 @@ if (isset($_POST['add_telemetry'])) {
             <nav class="mt-2">
                 <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
                     <li class="nav-item">
+                        <a href="setup.php" class="nav-link <?php if (!isset($_GET) || empty($_GET)) { echo 'active'; } ?>">
+                            <i class="nav-icon fas fa-home text-info"></i>
+                            <p>1 - Welcome</p>
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
                         <a href="?checks" class="nav-link <?php if (isset($_GET['checks'])) { echo "active"; } ?>">
                             <i class="nav-icon fas fa-check"></i>
-                            <p>1 - Checks</p>
+                            <p>2 - Checks</p>
                         </a>
                     </li>
 
                     <li class="nav-item">
                         <a href="?database" class="nav-link <?php if (isset($_GET['database'])) { echo "active"; } ?>">
                             <i class="nav-icon fas fa-database"></i>
-                            <p>2 - Database</p>
+                            <p>3 - Database</p>
                         </a>
                     </li>
 
                     <li class="nav-item">
                         <a href="?user" class="nav-link <?php if (isset($_GET['user'])) { echo "active"; } ?>">
                             <i class="nav-icon fas fa-user"></i>
-                            <p>3 - User</p>
+                            <p>4 - User</p>
                         </a>
                     </li>
                     <li class="nav-item">
                         <a href="?company" class="nav-link <?php if (isset($_GET['company'])) { echo "active"; } ?>">
                             <i class="nav-icon fas fa-briefcase"></i>
-                            <p>4 - Company</p>
+                            <p>5 - Company</p>
                         </a>
                     </li>
                     <li class="nav-item">
                         <a href="?localization" class="nav-link <?php if (isset($_GET['localization'])) { echo "active"; } ?>">
                             <i class="nav-icon fas fa-globe-americas"></i>
-                            <p>5 - Localization</p>
+                            <p>6 - Localization</p>
                         </a>
                     </li>
                     <li class="nav-item">
                         <a href="?telemetry" class="nav-link <?php if (isset($_GET['telemetry'])) { echo "active"; } ?>">
                             <i class="nav-icon fas fa-share-alt"></i>
-                            <p>6 - Telemetry</p>
+                            <p>7 - Telemetry</p>
+                        </a>
+                    </li>
+
+                    <li class="nav-header">Utilities</li>
+
+                    <li class="nav-item">
+                        <a href="?restore" class="nav-link <?php if (isset($_GET['restore'])) { echo "active"; } ?>">
+                            <i class="nav-icon fas fa-upload text-warning"></i>
+                            <p>Restore Backup</p>
                         </a>
                     </li>
                 </ul>
@@ -855,10 +995,19 @@ if (isset($_POST['add_telemetry'])) {
                             <h3 class="card-title"><i class="fas fa-fw fa-database mr-2"></i>Step 2 - Connect your Database</h3>
                         </div>
                         <div class="card-body">
-                            <?php if (file_exists('config.php')) { ?>
-                                Database is already configured. Any further changes should be made by editing the config.php file,
-                                or deleting it and refreshing this page.
-                            <?php } else { ?>
+                            <?php
+                            if (file_exists('config.php')) {
+
+                                echo "<p>Database is already configured. Any further changes should be made by editing the <code>config.php</code> file.</p>";
+
+                                if (@$mysqli) {
+                                    echo "<a href='?user' class='btn btn-success text-bold mt-3'>Next Step (User Setup) <i class='fa fa-fw fa-arrow-circle-right ml-2'></i></a>";
+                                } else {
+                                    echo "<div class='alert alert-danger mt-3'>Database connection failed. Check <code>config.php</code>.</div>";
+                                }
+
+                            } else {
+                            ?>
                                 <form method="post" autocomplete="off">
 
                                     <h5>Database Connection Details</h5>
@@ -917,6 +1066,38 @@ if (isset($_POST['add_telemetry'])) {
                             <?php } ?>
                         </div>
                     </div>
+
+                <?php } elseif (isset($_GET['restore'])) { ?>
+
+                    <?php if (!$can_show_restore) { ?>
+                        <div class="card card-danger">
+                            <div class="card-header">
+                                <h3 class="card-title"><i class="fas fa-exclamation-triangle mr-2"></i>Database Not Ready</h3>
+                            </div>
+                            <div class="card-body text-center">
+                                <p>You must configure the database before restoring a backup.</p>
+                                <a href="?database" class="btn btn-primary text-bold">
+                                    Go to Database Setup <i class="fas fa-arrow-right ml-2"></i>
+                                </a>
+                            </div>
+                        </div>
+                    <?php } else { ?>
+                        <div class="card card-dark">
+                            <div class="card-header">
+                                <h3 class="card-title"><i class="fas fa-fw fa-database mr-2"></i>Restore from Backup</h3>
+                            </div>
+                            <div class="card-body">
+                                <form method="post" enctype="multipart/form-data">
+                                    <label>Restore ITFlow Backup (.zip)</label>
+                                    <input type="file" name="backup_zip" accept=".zip" required>
+                                    <hr>
+                                    <button type="submit" name="restore" class="btn btn-primary text-bold">
+                                        Restore Backup<i class="fas fa-fw fa-upload ml-2"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    <?php } ?>
 
                 <?php } elseif (isset($_GET['user'])) { ?>
 
@@ -1226,10 +1407,24 @@ if (isset($_POST['add_telemetry'])) {
                             }
                             ?>
                             <hr>
-                            <div style="text-align: center;">
-                                <a href="?checks" class="btn btn-primary text-bold">
-                                    Begin Setup<i class="fas fa-fw fa-arrow-alt-circle-right ml-2"></i>
-                                </a>
+                            <div class="text-center">
+                                <?php if ($should_skip_to_user): ?>
+                                    <a href="?user" class="btn btn-primary text-bold mr-2">
+                                        Create First User <i class="fas fa-fw fa-user ml-2"></i>
+                                    </a>
+                                <?php endif; ?>
+
+                                <?php if ($can_show_restore): ?>
+                                    <a href="?restore" class="btn btn-warning text-bold">
+                                        Restore from Backup <i class="fas fa-fw fa-upload ml-2"></i>
+                                    </a>
+                                <?php endif; ?>
+
+                                <?php if (!$should_skip_to_user && !$can_show_restore): ?>
+                                    <a href="?checks" class="btn btn-primary text-bold">
+                                        Begin Setup <i class="fas fa-fw fa-arrow-alt-circle-right ml-2"></i>
+                                    </a>
+                                <?php endif; ?>
                             </div>
                         </div>
                     </div>

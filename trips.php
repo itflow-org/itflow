@@ -113,13 +113,6 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 Date <?php if ($sort == 'trip_date') { echo $order_icon; } ?>
                             </a>
                         </th>
-                        <?php if (!$client_url) { ?>
-                        <th>
-                            <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=client_name&order=<?php echo $disp; ?>">
-                                Client <?php if ($sort == 'client_name') { echo $order_icon; } ?>
-                            </a>
-                        </th>
-                        <?php } ?>
                         <th>
                             <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=user_name&order=<?php echo $disp; ?>">
                                 Driver <?php if ($sort == 'user_name') { echo $order_icon; } ?>
@@ -145,6 +138,13 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 Miles <?php if ($sort == 'trip_miles') { echo $order_icon; } ?>
                             </a>
                         </th>
+                        <?php if (!$client_url) { ?>
+                        <th>
+                            <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=client_name&order=<?php echo $disp; ?>">
+                                Client <?php if ($sort == 'client_name') { echo $order_icon; } ?>
+                            </a>
+                        </th>
+                        <?php } ?>
                         <th class="text-center">Action</th>
                     </tr>
                     </thead>
@@ -192,14 +192,14 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                     <?php echo $trip_date; ?>
                                 </a>
                             </td>
-                            <?php if (!$client_url) { ?>
-                            <td><?php echo $client_name_display; ?></td>
-                            <?php } ?>
                             <td><?php echo $user_name_display; ?></td>
                             <td><?php echo $trip_purpose; ?></td>
                             <td><?php echo $trip_source; ?></td>
                             <td><?php echo $trip_destination; ?></td>
                             <td><?php echo "$trip_miles $round_trip_display"; ?></td>
+                            <?php if (!$client_url) { ?>
+                            <td><?php echo $client_name_display; ?></td>
+                            <?php } ?>
                             <td>
                                 <div class="dropdown dropleft text-center">
                                     <button class="btn btn-secondary btn-sm" type="button" data-toggle="dropdown">

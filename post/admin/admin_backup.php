@@ -6,28 +6,24 @@
 
 defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
 
-if (isset($_GET['download_database'])) {
-    validateCSRFToken($_GET['csrf_token']);
+require_once "includes/app_version.php";
 
+if (isset($_GET['download_backup'])) {
+    validateCSRFToken($_GET['csrf_token']);
     global $mysqli, $database;
 
-    $backupFileName = date('Y-m-d_H-i-s') . '_backup.sql';
+    $timestamp = date('YmdHis');
+    $baseName = "itflow_$timestamp";
+    $sqlFile = "$baseName.sql";
+    $uploadsZip = "$baseName_uploads.zip";
+    $finalZip = "$baseName.zip";
+    $versionFile = "version.txt";
 
-    header('Content-Type: application/sql');
-    header('Content-Disposition: attachment; filename="' . $backupFileName . '"');
-    header('Cache-Control: no-store, no-cache, must-revalidate');
-    header('Pragma: no-cache');
-    header('Expires: 0');
+    // === 1. Generate SQL Dump ===
+    $sqlContent = "-- UTF-8 + Foreign Key Safe Dump\n";
+    $sqlContent .= "SET NAMES 'utf8mb4';\n";
+    $sqlContent .= "SET foreign_key_checks = 0;\n\n";
 
-    if (ob_get_level()) ob_end_clean();
-    flush();
-
-    // Start of dump file — charset declaration
-    echo "-- UTF-8 + Foreign Key Safe Dump\n";
-    echo "SET NAMES 'utf8mb4';\n";
-    echo "SET foreign_key_checks = 0;\n\n";
-
-    // Get all tables
     $tables = [];
     $res = $mysqli->query("SHOW TABLES");
     while ($row = $res->fetch_row()) {
@@ -35,39 +31,102 @@ if (isset($_GET['download_database'])) {
     }
 
     foreach ($tables as $table) {
-        // Table structure
         $createRes = $mysqli->query("SHOW CREATE TABLE `$table`");
         $createRow = $createRes->fetch_assoc();
         $createSQL = array_values($createRow)[1];
 
-        echo "\n-- ----------------------------\n";
-        echo "-- Table structure for `$table`\n";
-        echo "-- ----------------------------\n";
-        echo "DROP TABLE IF EXISTS `$table`;\n";
-        echo $createSQL . ";\n\n";
+        $sqlContent .= "\n-- ----------------------------\n";
+        $sqlContent .= "-- Table structure for `$table`\n";
+        $sqlContent .= "-- ----------------------------\n";
+        $sqlContent .= "DROP TABLE IF EXISTS `$table`;\n";
+        $sqlContent .= $createSQL . ";\n\n";
 
-        // Table data
         $dataRes = $mysqli->query("SELECT * FROM `$table`");
         if ($dataRes->num_rows > 0) {
-            echo "-- Dumping data for table `$table`\n";
+            $sqlContent .= "-- Dumping data for table `$table`\n";
             while ($row = $dataRes->fetch_assoc()) {
                 $columns = array_map(fn($col) => '`' . $mysqli->real_escape_string($col) . '`', array_keys($row));
                 $values = array_map(function ($val) use ($mysqli) {
-                    if (is_null($val)) return "NULL";
-                    return "'" . $mysqli->real_escape_string($val) . "'";
+                    return is_null($val) ? "NULL" : "'" . $mysqli->real_escape_string($val) . "'";
                 }, array_values($row));
-
-                echo "INSERT INTO `$table` (" . implode(", ", $columns) . ") VALUES (" . implode(", ", $values) . ");\n";
+                $sqlContent .= "INSERT INTO `$table` (" . implode(", ", $columns) . ") VALUES (" . implode(", ", $values) . ");\n";
             }
-            echo "\n";
+            $sqlContent .= "\n";
         }
     }
 
-    //FINAL STEP: Re-enable foreign key checks
-    echo "\nSET foreign_key_checks = 1;\n";
+    $sqlContent .= "SET foreign_key_checks = 1;\n";
+    file_put_contents($sqlFile, $sqlContent);
 
-    logAction("Database", "Download", "$session_name downloaded the database.");
-    $_SESSION['alert_message'] = "Database downloaded";
+    // === 2. Create uploads.zip ===
+    function zipFolder($folderPath, $zipFilePath) {
+        $zip = new ZipArchive();
+        if ($zip->open($zipFilePath, ZipArchive::CREATE | ZipArchive::OVERWRITE) !== TRUE) {
+            die("Cannot open <$zipFilePath>");
+        }
+
+        $folderPath = realpath($folderPath);
+        $files = new RecursiveIteratorIterator(
+            new RecursiveDirectoryIterator($folderPath),
+            RecursiveIteratorIterator::LEAVES_ONLY
+        );
+
+        foreach ($files as $file) {
+            if (!$file->isDir()) {
+                $filePath = $file->getRealPath();
+                $relativePath = substr($filePath, strlen($folderPath) + 1);
+                $zip->addFile($filePath, $relativePath);
+            }
+        }
+
+        $zip->close();
+    }
+
+    zipFolder("uploads", $uploadsZip);
+
+    // === 3. Generate version.txt ===
+    $commitHash = trim(shell_exec('git log -1 --format=%H'));
+    $gitBranch = trim(shell_exec('git rev-parse --abbrev-ref HEAD'));
+
+    $versionContent = "ITFlow Backup Metadata\n";
+    $versionContent .= "-----------------------------\n";
+    $versionContent .= "Generated: " . date('Y-m-d H:i:s') . "\n";
+    $versionContent .= "Backup File: $baseName.zip\n";
+    $versionContent .= "Generated By: $session_name\n";
+    $versionContent .= "Host: " . gethostname() . "\n";
+    $versionContent .= "Git Branch: $gitBranch\n";
+    $versionContent .= "Git Commit: $commitHash\n";
+    $versionContent .= "ITFlow Version: " . (defined('APP_VERSION') ? APP_VERSION : 'Unknown') . "\n";
+    $versionContent .= "Database Version: " . (defined('CURRENT_DATABASE_VERSION') ? CURRENT_DATABASE_VERSION : 'Unknown') . "\n";
+
+    file_put_contents($versionFile, $versionContent);
+
+    // === 4. Combine into final .zip file ===
+    $final = new ZipArchive();
+    if ($final->open($finalZip, ZipArchive::CREATE | ZipArchive::OVERWRITE) !== TRUE) {
+        die("Cannot create final backup zip.");
+    }
+
+    $final->addFile($sqlFile, "db.sql");
+    $final->addFile($uploadsZip, "uploads.zip");
+    $final->addFile($versionFile, "version.txt");
+    $final->close();
+
+    // Cleanup temp files before download
+    unlink($sqlFile);
+    unlink($uploadsZip);
+    unlink($versionFile);
+
+    // === 5. Serve the zip for download ===
+    header('Content-Type: application/zip');
+    header('Content-Disposition: attachment; filename="' . $finalZip . '"');
+    header('Content-Length: ' . filesize($finalZip));
+    flush();
+    readfile($finalZip);
+    unlink($finalZip); // remove final zip after serving
+
+    logAction("System", "Backup Download", "$session_name downloaded full backup.");
+    $_SESSION['alert_message'] = "Full backup downloaded.";
     exit;
 }
 
@@ -104,3 +163,4 @@ if (isset($_POST['backup_master_key'])) {
         header("Location: " . $_SERVER["HTTP_REFERER"]);
     }
 }
+

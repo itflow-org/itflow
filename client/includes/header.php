@@ -56,6 +56,7 @@ header("X-Frame-Options: DENY"); // Legacy
                         </a>
                         <div class="dropdown-menu" aria-labelledby="navbarDropdown1">
                             <a class="dropdown-item" href="invoices.php">Invoices</a>
+                            <a class="dropdown-item" href="recurring_invoices.php">Recurring Invoices</a>
                             <a class="dropdown-item" href="quotes.php">Quotes</a>
                             <a class="dropdown-item" href="autopay.php">Auto Payment</a>
                         </div>

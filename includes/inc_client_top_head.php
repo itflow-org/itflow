@@ -59,7 +59,12 @@
                         <div>
                             <a href="//maps.<?php echo $session_map_source; ?>.com/?q=<?php echo "$location_address $location_zip"; ?>" target="_blank">
                                 <i class="fa fa-fw fa-map-marker-alt text-secondary ml-1 mr-2"></i><?php echo $location_address; ?>
-                                <div><i class="fa fa-fw ml-1 mr-2"></i><?php echo "$location_city $location_state $location_zip"; ?></div>
+                                <div>
+                                    <i class="fa fa-fw ml-1 mr-2"></i><?php echo "$location_city $location_state $location_zip"; ?>
+                                </div>
+                                <div>
+                                    <i class="fa fa-fw ml-1 mr-2"></i><small><?php echo $location_country; ?></small>
+                                </div>
                             </a>
                         </div>
                     <?php }

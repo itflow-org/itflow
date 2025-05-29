@@ -10,7 +10,7 @@ $row = mysqli_fetch_array($sql);
 $task_template_name = nullable_htmlentities($row['task_template_name']);
 $task_template_order = intval($row['task_template_order']);
 $task_template_completion_estimate = intval($row['task_template_completion_estimate']);
-$task_template_description = nullable_htmlentities($row['task_template_description']);
+//$task_template_description = nullable_htmlentities($row['task_template_description']);
 
 // Generate the HTML form content using output buffering.
 ob_start();

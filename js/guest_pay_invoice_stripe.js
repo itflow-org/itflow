@@ -23,9 +23,6 @@ async function initialize() {
 
   elements = stripe.elements({ clientSecret });
 
-  const linkAuthenticationElement = elements.create("linkAuthentication");
-  linkAuthenticationElement.mount("#link-authentication-element");
-
   const paymentElementOptions = {
     layout: "tabs",
   };

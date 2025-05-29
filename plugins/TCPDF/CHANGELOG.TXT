@@ -1,3 +1,22 @@
+6.9.4 (2025-05-13)
+	- Update donation link.
+
+6.9.3 (2025-04-20)
+	- New fix for "Deserialization of untrusted data" (check on valid protocols).
+	- Removed global phar configuration.
+
+6.9.2 (2025-04-18)
+	- Quick fix for "Deserialization of untrusted data" security vulnerability reported by Positive Technologies.
+	- Disable phar protocol globally.
+
+6.9.1 (2025-04-03)
+	- Fixed "Path Traversal" security vulnerability reported by Positive Technologies.
+
+6.9.0 (2025-03-30)
+	- Added PHP 8.4 testing.
+	- Removed tcpdf_import.php and tcpdf_parser.php files (for a parser check the tc-lib-pdf-parser project instead).
+	- Fix composer.json.
+
 6.8.2 (2025-01-26)
 	- Fix some annotation flags values.
 	- Remove examples from packaging.

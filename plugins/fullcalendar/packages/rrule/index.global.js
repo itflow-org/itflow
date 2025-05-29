@@ -1,5 +1,5 @@
 /*!
-FullCalendar RRule Plugin v6.1.15
+FullCalendar RRule Plugin v6.1.17
 Docs & License: https://fullcalendar.io/docs/rrule-plugin
 (c) 2024 Adam Shaw
 */
@@ -32,7 +32,10 @@ FullCalendar.RRule = (function (exports, core, rruleLib, internal) {
                 let eventRRuleData = parseEventRRule(eventProps, dateEnv);
                 if (eventRRuleData) {
                     return {
-                        typeData: { rruleSet: eventRRuleData.rruleSet, isTimeZoneSpecified: eventRRuleData.isTimeZoneSpecified },
+                        typeData: {
+                            rruleSet: eventRRuleData.rruleSet,
+                            dateEnv: eventRRuleData.isTimeZoneSpecified ? undefined : dateEnv,
+                        },
                         allDayGuess: !eventRRuleData.isTimeSpecified,
                         duration: eventProps.duration,
                     };
@@ -40,19 +43,20 @@ FullCalendar.RRule = (function (exports, core, rruleLib, internal) {
             }
             return null;
         },
-        expand(eventRRuleData, framingRange, dateEnv) {
-            let dates;
-            if (eventRRuleData.isTimeZoneSpecified) {
-                dates = eventRRuleData.rruleSet.between(dateEnv.toDate(framingRange.start), // rrule lib will treat as UTC-zoned
-                dateEnv.toDate(framingRange.end), // (same)
-                true).map((date) => dateEnv.createMarker(date)); // convert UTC-zoned-date to locale datemarker
-            }
-            else {
-                // when no timezone in given start/end, the rrule lib will assume UTC,
-                // which is same as our DateMarkers. no need to manipulate
-                dates = eventRRuleData.rruleSet.between(framingRange.start, framingRange.end, true);
-            }
-            return dates;
+        expand(eventRRuleData, framingRange, calendarDateEnv) {
+            return eventRRuleData.rruleSet.between(
+            // Add one-day leeway since rrule lib only operates in UTC,
+            // but the zoned variant of framingRange is not.
+            // Also overcomes this rrule bug:
+            // https://github.com/jakubroztocil/rrule/issues/84)
+            internal.addDays(framingRange.start, -1), internal.addDays(framingRange.end, 1)).map((date) => {
+                // convert to plain-datetime
+                return calendarDateEnv.createMarker(
+                // convert to epoch-milliseconds in original timezone
+                eventRRuleData.dateEnv
+                    ? eventRRuleData.dateEnv.toDate(date)
+                    : date);
+            });
         },
     };
     function parseEventRRule(eventProps, dateEnv) {

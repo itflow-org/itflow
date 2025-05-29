@@ -45,6 +45,7 @@ if (isset($_GET['recurring_invoice_id'])) {
     $location_city = nullable_htmlentities($row['location_city']);
     $location_state = nullable_htmlentities($row['location_state']);
     $location_zip = nullable_htmlentities($row['location_zip']);
+    $location_country = nullable_htmlentities($row['location_country']);
     $contact_email = nullable_htmlentities($row['contact_email']);
     $contact_phone_country_code = nullable_htmlentities($row['contact_phone_country_code']);
     $contact_phone = nullable_htmlentities(formatPhoneNumber($row['contact_phone'], $contact_phone_country_code));
@@ -194,6 +195,7 @@ if (isset($_GET['recurring_invoice_id'])) {
                         <li><h4><strong><?php echo $company_name; ?></strong></h4></li>
                         <li><?php echo $company_address; ?></li>
                         <li><?php echo "$company_city $company_state $company_zip"; ?></li>
+                        <li><small><?php echo $company_country; ?></small></li>
                         <li><?php echo $company_phone; ?></li>
                         <li><?php echo $company_email; ?></li>
                     </ul>
@@ -203,6 +205,7 @@ if (isset($_GET['recurring_invoice_id'])) {
                         <li><h4><strong><?php echo $client_name; ?></strong></h4></li>
                         <li><?php echo $location_address; ?></li>
                         <li><?php echo "$location_city $location_state $location_zip"; ?></li>
+                        <li><small><?php echo $location_country; ?></small></li>
                         <li><?php echo "$contact_phone $contact_extension"; ?></li>
                         <li><?php echo $contact_mobile; ?></li>
                         <li><?php echo $contact_email; ?></li>
@@ -272,29 +275,24 @@ if (isset($_GET['recurring_invoice_id'])) {
 
                                     <tr data-item-id="<?php echo $item_id; ?>">
                                         <td class="d-print-none">
-                                            <div class="row">
-                                                <div class="col">
-                                                    <button type="button" class="btn btn-sm btn-light drag-handle">
-                                                        <i class="fas fa-bars text-muted"></i>
+                                            <div class="btn-group">
+                                                <button type="button" class="btn btn-sm btn-link drag-handle">
+                                                    <i class="fas fa-bars text-muted"></i>
+                                                </button>  
+                                                <div class="dropdown">
+                                                    <button class="btn btn-sm btn-light" type="button" data-toggle="dropdown">
+                                                        <i class="fas fa-ellipsis-v"></i>
                                                     </button>
-                                                </div>
-                                                <div class="col">
-
-                                                    <div class="dropdown">
-                                                        <button class="btn btn-sm btn-light" type="button" data-toggle="dropdown">
-                                                            <i class="fas fa-ellipsis-v"></i>
-                                                        </button>
-                                                        <div class="dropdown-menu">
-                                                            <a class="dropdown-item" href="#"
-                                                                data-toggle="ajax-modal"
-                                                                data-ajax-url="ajax/ajax_item_edit.php"
-                                                                data-ajax-id="<?php echo $item_id; ?>"
-                                                                >
-                                                                <i class="fa fa-fw fa-edit mr-2"></i>Edit
-                                                            </a>
-                                                            <div class="dropdown-divider"></div>
-                                                            <a class="dropdown-item text-danger confirm-link" href="post.php?delete_recurring_invoice_item=<?php echo $item_id; ?>"><i class="fa fa-fw fa-trash mr-2"></i>Delete</a>
-                                                        </div>
+                                                    <div class="dropdown-menu">
+                                                        <a class="dropdown-item" href="#"
+                                                            data-toggle="ajax-modal"
+                                                            data-ajax-url="ajax/ajax_item_edit.php"
+                                                            data-ajax-id="<?php echo $item_id; ?>"
+                                                            >
+                                                            <i class="fa fa-fw fa-edit mr-2"></i>Edit
+                                                        </a>
+                                                        <div class="dropdown-divider"></div>
+                                                        <a class="dropdown-item text-danger confirm-link" href="post.php?delete_recurring_invoice_item=<?php echo $item_id; ?>"><i class="fa fa-fw fa-trash mr-2"></i>Delete</a>
                                                     </div>
                                                 </div>
                                             </div>

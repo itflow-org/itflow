@@ -31,6 +31,14 @@ if (isset($_GET['stripe_remove_pm'])) {
     // Remove payment method from ITFlow
     mysqli_query($mysqli, "UPDATE client_stripe SET stripe_pm = NULL WHERE client_id = $client_id LIMIT 1");
 
+    // Remove Auto Pay on recurring invoices that are stripe
+    $sql_recurring_invoices = mysqli_query($mysqli, "SELECT recurring_invoice_id FROM recurring_invoices WHERE recurring_invoice_client_id = $client_id");
+
+    while ($row = mysqli_fetch_array($sql_recurring_invoices)) {
+        $recurring_invoice_id = intval($row['recurring_invoice_id']);
+        mysqli_query($mysqli, "DELETE FROM recurring_payments WHERE recurring_payment_method = 'Stripe' AND recurring_payment_recurring_invoice_id = $recurring_invoice_id");
+    }
+
     // Logging & Redirect
     logAction("Stripe", "Update", "$session_name deleted saved Stripe payment method (PM: $payment_method)", $client_id);
     $_SESSION['alert_message'] = "Payment method removed";
@@ -45,6 +53,14 @@ if (isset($_GET['stripe_reset_customer'])) {
 
     // Delete the customer id and payment method id stored in ITFlow, allowing the client to set these up again
     mysqli_query($mysqli, "DELETE FROM client_stripe WHERE client_id = $client_id");
+
+    // Remove Auto Pay on recurring invoices that are stripe
+    $sql_recurring_invoices = mysqli_query($mysqli, "SELECT recurring_invoice_id FROM recurring_invoices WHERE recurring_invoice_client_id = $client_id");
+
+    while ($row = mysqli_fetch_array($sql_recurring_invoices)) {
+        $recurring_invoice_id = intval($row['recurring_invoice_id']);
+        mysqli_query($mysqli, "DELETE FROM recurring_payments WHERE recurring_payment_method = 'Stripe' AND recurring_payment_recurring_invoice_id = $recurring_invoice_id");
+    }
 
     // Logging
     logAction("Stripe", "Delete", "$session_name reset Stripe settings for client", $client_id);

@@ -97,9 +97,7 @@ if (isset($_GET['stripe_create_pi'])) {
                 'itflow_invoice_number' => $invoice_prefix . $invoice_number,
                 'itflow_invoice_id' => $invoice_id,
             ],
-            'automatic_payment_methods' => [
-                'enabled' => true,
-            ],
+            'payment_method_types' => ['card'],
         ]);
 
         $output = [

@@ -13,6 +13,14 @@ if (isset($_GET['client_id'])) {
     $client_url = '';
 }
 
+// Perms & Project client access snippet
+enforceUserPermission('module_support');
+$project_permission_snippet = '';
+
+if (!empty($client_access_string)) {
+    $project_permission_snippet = "AND project_client_id IN ($client_access_string) OR project_client_id = 0";
+}
+
 if (isset($_GET['project_id'])) {
     $project_id = intval($_GET['project_id']);
 
@@ -21,7 +29,9 @@ if (isset($_GET['project_id'])) {
         "SELECT * FROM projects
         LEFT JOIN clients ON project_client_id = client_id
         LEFT JOIN users ON project_manager = user_id
-        WHERE project_id = $project_id LIMIT 1"
+        WHERE project_id = $project_id
+        $project_permission_snippet
+        LIMIT 1"
     );
 
     if (mysqli_num_rows($sql_project) == 0) {
@@ -67,10 +77,10 @@ if (isset($_GET['project_id'])) {
         $project_completed_date_display = "";
     }
 
-    // Override Tab Title // No Sanitizing needed as this var will opnly be used in the tab title
+    // Override Tab Title // No Sanitizing needed as this var will only be used in the tab title
     $tab_title = "{$row['project_prefix']}{$row['project_number']}";
     $page_title = $row['project_name'];
-    
+
     // Get Tickets
     $sql_tickets = mysqli_query($mysqli, "SELECT * FROM tickets
         LEFT JOIN ticket_statuses ON ticket_status = ticket_status_id
@@ -218,7 +228,7 @@ if (isset($_GET['project_id'])) {
                             </button>
                             <div class="dropdown-menu">
                                 <a class="dropdown-item" href="#" data-toggle="modal" data-target="#linkTicketModal">
-                                    <i class="fas fa-fw fa-life-ring mr-2"></i>Ticket
+                                    <i class="fas fa-fw fa-life-ring mr-2"></i>Open Ticket
                                 </a>
                             </div>
                         </div>
@@ -249,7 +259,7 @@ if (isset($_GET['project_id'])) {
                             <?php } ?>
                             <?php if (!empty($project_archived_at) && lookupUserPermission("module_support" >= 3)) { ?>
                                 <div class="dropdown-divider"></div>
-                                <a class="dropdown-item text-danger confirm-link" href="post.php?delete_project=<?php echo $project_id; ?>">
+                                <a class="dropdown-item text-danger confirm-link" href="post.php?delete_project=<?php echo $project_id; ?>&csrf_token=<?php echo $_SESSION['csrf_token'] ?>">
                                     <i class="fas fa-fw fa-trash mr-2"></i>Delete
                                 </a>
                             <?php } ?>
@@ -261,7 +271,7 @@ if (isset($_GET['project_id'])) {
     </div>
 
     <div class="row">
-        <div class="col-md-8">
+        <div class="col-md-9">
 
             <!-- Tickets card -->
             <?php if (mysqli_num_rows($sql_tickets) > 0) { ?>
@@ -409,7 +419,7 @@ if (isset($_GET['project_id'])) {
             <?php } ?>
         </div>
 
-        <div class="col-md-4">
+        <div class="col-md-3">
 
             <!-- Tasks Card -->
             <?php if (mysqli_num_rows($sql_tasks) > 0) { ?>
@@ -425,10 +435,10 @@ if (isset($_GET['project_id'])) {
                             <tr>
                                 <td>
                                     <?php if ($task_completed_at) { ?>
-                                        <i class="far fa-fw fa-check-square text-primary mr-3"></i>
+                                        <i class="far fa-check-square text-primary mr-2"></i>
                                     <?php } else { ?>
                                         <a href="post.php?complete_task=<?php echo $task_id; ?>">
-                                            <i class="far fa-fw fa-square text-secondary mr-3"></i>
+                                            <i class="far fa-square text-secondary mr-2"></i>
                                         </a>
                                     <?php } ?>
                                     <?php echo $task_name; ?>

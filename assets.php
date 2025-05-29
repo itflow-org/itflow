@@ -205,7 +205,7 @@ if (mysqli_num_rows($os_sql) > 0) {
                 </div>
                 <?php if ($client_url) { ?>
                 <div class="col-md-2">
-                    <div class="input-group">
+                    <div class="input-group mb-3 mb-md-0">
                         <select class="form-control select2" name="location" onchange="this.form.submit()">
                             <option value="">- All Locations -</option>
 
@@ -233,7 +233,7 @@ if (mysqli_num_rows($os_sql) > 0) {
                 </div>
                 <?php } else { ?>
                 <div class="col-md-2">
-                    <div class="input-group">
+                    <div class="input-group mb-3 mb-md-0">
                         <select class="form-control select2" name="client" onchange="this.form.submit()">
                             <option value="" <?php if ($client == "") { echo "selected"; } ?>>- All Clients -</option>
 
@@ -338,7 +338,7 @@ if (mysqli_num_rows($os_sql) > 0) {
 
             <div class="table-responsive">
                 <table class="table border table-hover">
-                    <thead class="thead-light <?php if (!$num_rows[0]) { echo "d-none"; } ?>">
+                    <thead class="thead-light <?php if (!$num_rows[0]) { echo "d-none"; } ?> text-nowrap">
                     <tr>
                         <td class="bg-light pr-0">
                             <div class="form-check">
@@ -519,7 +519,7 @@ if (mysqli_num_rows($os_sql) > 0) {
                         if ($contact_name) {
                             $contact_name_display = "<a href='#' 
                                 data-toggle='ajax-modal'
-                                data-modal-size='lg'
+                                data-modal-size='xl'
                                 data-ajax-url='ajax/ajax_contact_details.php'
                                 data-ajax-id='$asset_contact_id'>
                                 $contact_name $contact_archive_display

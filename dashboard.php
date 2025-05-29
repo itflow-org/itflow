@@ -41,7 +41,7 @@ $sql_years_select = mysqli_query($mysqli, "
         <input type="hidden" name="enable_technical" value="0">
 
         <label for="year" class="mr-sm-2">Select Year:</label>
-        <select id="year" onchange="this.form.submit()" class="form-control mr-sm-3 col-sm-2" name="year">
+        <select id="year" onchange="this.form.submit()" class="form-control mr-sm-3 col-sm-2 mb-3 mb-sm-0" name="year">
             <?php while ($row = mysqli_fetch_array($sql_years_select)) {
                 $year_select = $row['all_years'];
                 if (empty($year_select)) {
@@ -55,7 +55,7 @@ $sql_years_select = mysqli_query($mysqli, "
         </select>
 
         <?php if ($session_user_role == 1 || ($session_user_role == 3 && $config_module_enable_accounting == 1)) { ?>
-            <div class="custom-control custom-switch mr-sm-3">
+            <div class="custom-control custom-switch mr-3">
                 <input type="checkbox" onchange="this.form.submit()" class="custom-control-input" id="customSwitch1" name="enable_financial" value="1" <?php if ($user_config_dashboard_financial_enable == 1) { echo "checked"; } ?>>
                 <label class="custom-control-label" for="customSwitch1">Financial</label>
             </div>

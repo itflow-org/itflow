@@ -155,9 +155,10 @@ if (isset($_POST['add_quote_to_invoice'])) {
     }
 
     mysqli_query($mysqli,"UPDATE quotes SET quote_status = 'Invoiced' WHERE quote_id = $quote_id");
+    mysqli_query($mysqli,"INSERT INTO history SET history_status = 'Invoiced', history_description = 'Quote invoiced as $config_invoice_prefix$invoice_number', history_quote_id = $quote_id");
 
     // Logging
-    logAction("Invoice", "Create", "$session_name created invoice $config_invoice_prefix$config_invoice_number from quote $config_quote_prefix$quote_number", $client_id, $new_invoice_id);
+    logAction("Invoice", "Create", "$session_name created invoice $config_invoice_prefix$invoice_number from quote $config_quote_prefix$quote_number", $client_id, $new_invoice_id);
 
     customAction('invoice_create', $new_invoice_id);
 
@@ -516,6 +517,31 @@ if (isset($_GET['email_quote'])) {
     if ($quote_status == 'Draft') {
         mysqli_query($mysqli,"UPDATE quotes SET quote_status = 'Sent' WHERE quote_id = $quote_id");
     }
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
+if (isset($_GET['mark_quote_invoiced'])) {
+
+    enforceUserPermission('module_sales', 2);
+
+    $quote_id = intval($_GET['mark_quote_invoiced']);
+
+    $sql = mysqli_query($mysqli,"SELECT * FROM quotes WHERE quote_id = $quote_id");
+    $row = mysqli_fetch_array($sql);
+    $quote_prefix = sanitizeInput($row['quote_prefix']);
+    $quote_number = sanitizeInput($row['quote_number']);
+    $client_id = intval($row['quote_client_id']);
+
+    mysqli_query($mysqli,"UPDATE quotes SET quote_status = 'Invoiced' WHERE quote_id = $quote_id");
+
+    mysqli_query($mysqli,"INSERT INTO history SET history_status = 'Invoiced', history_description = 'Quote marked as invoiced', history_quote_id = $quote_id");
+
+    // Logging
+    logAction("Quote", "Sent", "$session_name marked quote $quote_prefix$quote_number as invoiced", $client_id, $quote_id);
+
+    $_SESSION['alert_message'] = "Quote marked invoiced";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 

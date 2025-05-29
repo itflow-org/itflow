@@ -50,6 +50,7 @@ $location_address = nullable_htmlentities($row['location_address']);
 $location_city = nullable_htmlentities($row['location_city']);
 $location_state = nullable_htmlentities($row['location_state']);
 $location_zip = nullable_htmlentities($row['location_zip']);
+$location_country = nullable_htmlentities($row['location_country']);
 $contact_email = nullable_htmlentities($row['contact_email']);
 $contact_phone_country_code = nullable_htmlentities($row['contact_phone_country_code']);
 $contact_phone = nullable_htmlentities(formatPhoneNumber($row['contact_phone'], $contact_phone_country_code));
@@ -71,6 +72,7 @@ $company_address = nullable_htmlentities($row['company_address']);
 $company_city = nullable_htmlentities($row['company_city']);
 $company_state = nullable_htmlentities($row['company_state']);
 $company_zip = nullable_htmlentities($row['company_zip']);
+$company_country = nullable_htmlentities($row['company_country']);
 $company_phone_country_code = nullable_htmlentities($row['company_phone_country_code']);
 $company_phone = nullable_htmlentities(formatPhoneNumber($row['company_phone'], $company_phone_country_code));
 $company_email = nullable_htmlentities($row['company_email']);
@@ -198,6 +200,7 @@ if ($balance > 0) {
                         <li><h4><strong><?php echo $company_name; ?></strong></h4></li>
                         <li><?php echo $company_address; ?></li>
                         <li><?php echo "$company_city $company_state $company_zip"; ?></li>
+                        <li><small><?php echo $company_country; ?></small></li>
                         <li><?php echo $company_phone; ?></li>
                         <li><?php echo $company_email; ?></li>
                     </ul>
@@ -209,6 +212,7 @@ if ($balance > 0) {
                         <li><h4><strong><?php echo $client_name; ?></strong></h4></li>
                         <li><?php echo $location_address; ?></li>
                         <li><?php echo "$location_city $location_state $location_zip"; ?></li>
+                        <li><small><?php echo $location_country; ?></small></li>
                         <li><?php echo "$contact_phone $contact_extension"; ?></li>
                         <li><?php echo $contact_mobile; ?></li>
                         <li><?php echo $contact_email; ?></li>
@@ -407,11 +411,11 @@ if ($balance > 0) {
                 {
                     columns: [
                         {
-                            text: <?php echo json_encode(html_entity_decode("$company_address \n $company_city $company_state $company_zip \n $company_phone \n $company_website")) ?>,
+                            text: <?php echo json_encode(html_entity_decode("$company_address \n $company_city $company_state $company_zip \n $company_country \n $company_phone \n $company_website")) ?>,
                             style: 'invoiceBillingAddress'
                         },
                         {
-                            text: <?php echo json_encode(html_entity_decode("$location_address \n $location_city $location_state $location_zip \n $contact_email \n $contact_phone")) ?>,
+                            text: <?php echo json_encode(html_entity_decode("$location_address \n $location_city $location_state $location_zip \n $location_country \n $contact_email \n $contact_phone")) ?>,
                             style: 'invoiceBillingAddressClient'
                         },
                     ]

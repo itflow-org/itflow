@@ -88,25 +88,25 @@
                     </div>
 
                     <?php if (empty($_GET['client_id'])) { ?>
-                    <div class="form-group">
-                        <label>Client</label>
-                        <div class="input-group">
-                            <div class="input-group-prepend">
-                                <span class="input-group-text"><i class="fa fa-fw fa-users"></i></span>
+                        <div class="form-group">
+                            <label>Client</label>
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text"><i class="fa fa-fw fa-users"></i></span>
+                                </div>
+                                <select class="form-control select2" name="client_id">
+                                    <option value="0">- No Client -</option>
+                                    <?php
+                                    $sql = mysqli_query($mysqli, "SELECT * FROM clients WHERE client_archived_at IS NULL $access_permission_query ORDER BY client_name ASC");
+                                    while ($row = mysqli_fetch_array($sql)) {
+                                        $client_id = intval($row['client_id']);
+                                        $client_name = nullable_htmlentities($row['client_name']);
+                                    ?>
+                                    <option value="<?php echo $client_id; ?>"><?php echo $client_name; ?></option>
+                                    <?php } ?>
+                                </select>
                             </div>
-                            <select class="form-control select2" name="client_id">
-                                <option vlaue="0">- No Client -</option>
-                                <?php
-                                $sql = mysqli_query($mysqli, "SELECT * FROM clients WHERE client_archived_at IS NULL $access_permission_query ORDER BY client_name ASC");
-                                while ($row = mysqli_fetch_array($sql)) {
-                                    $client_id = intval($row['client_id']);
-                                    $client_name = nullable_htmlentities($row['client_name']);
-                                ?>
-                                <option value="<?php echo $client_id; ?>"><?php echo $client_name; ?></option>
-                                <?php } ?>
-                            </select>
                         </div>
-                    </div>
                     <?php } ?>
 
                 </div>

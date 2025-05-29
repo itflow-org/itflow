@@ -53,10 +53,10 @@ if (isset($_GET['archive_category'])) {
     mysqli_query($mysqli,"UPDATE categories SET category_archived_at = NOW() WHERE category_id = $category_id");
 
     // Logging
-    logAction("Category", "Archive", "$session_name archived category $type $name", 0, $category_id);
+    logAction("Category", "Archive", "$session_name archived category $category_type $category_name", 0, $category_id);
 
     $_SESSION['alert_type'] = "error";
-    $_SESSION['alert_message'] = "Category $type <strong>$name</strong> archived";
+    $_SESSION['alert_message'] = "Category $category_type <strong>$category_name</strong> archived";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
@@ -75,9 +75,9 @@ if (isset($_GET['unarchive_category'])) {
     mysqli_query($mysqli,"UPDATE categories SET category_archived_at = NULL WHERE category_id = $category_id");
 
     // Logging
-    logAction("Category", "Unarchive", "$session_name unarchived category $type $name", 0, $category_id);
+    logAction("Category", "Unarchive", "$session_name unarchived category $category_type $category_name", 0, $category_id);
 
-    $_SESSION['alert_message'] = "Category $type <strong>$name</strong> unarchived";
+    $_SESSION['alert_message'] = "Category $category_type <strong>$category_name</strong> unarchived";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
@@ -96,10 +96,10 @@ if (isset($_GET['delete_category'])) {
     mysqli_query($mysqli,"DELETE FROM categories WHERE category_id = $category_id");
 
     // Logging
-    logAction("Category", "Delete", "$session_name deleted category $type $name");
+    logAction("Category", "Delete", "$session_name deleted category $category_type $category_name");
 
     $_SESSION['alert_type'] = "error";
-    $_SESSION['alert_message'] = "Category $type <strong>$name</strong> deleted";
+    $_SESSION['alert_message'] = "Category $category_type <strong>$category_name</strong> deleted";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
