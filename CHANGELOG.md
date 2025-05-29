@@ -4,36 +4,35 @@ This file documents all notable changes made to ITFlow.
 
 ## [25.05]
 
-### Fixed
-
 ### Added / Changed
-- Expanded file upload allow-list to include .bat and .stk.
-- Added Full Backup and Restore Capabilities. Backup will now download a zip file that includes the SQL dump and uploads folder and a metadata text file that includes version, who backed up date etc. There is now an option in Setup to restore from a backup file.
-- Migrated Asset and Contact Links to modals which fix an issue with overlapping vars specifically asset name and contact name.
+- Expanded file upload allow-list to include .bat and .stk file types.
+- Added full backup/restore functionality. Backup downloads a zip that includes the SQL dump and uploads folder, setup now has option to restore from zip backup. 
+- Migrated Asset and Contact Links to modals to resolve variable overlap issue.
 - Added Pagination to Notification Modal.
 - Removed 500 Records Per Page option.
 - Removed unused old DB checks in the top nav.
+- Clients can now use the portal to setup Stripe automatic payments themselves for recurring invoices
+- Automatic payments are now disabled for all recurring invoices if the saved payment method is removed
+- Added Card Details and Payment added to Client Stripe.
+- UI / UX updates to guest pay Make use of cards.
+- Don't show Checkbox columns when ticket is closed, compact ticket list now matches round pills for status and priority.
+- Ticket UI/UX update allow the ticket toolbar to be a little more mobile-friendly
+- UI / UX Updates to Expenses - Combine Category and Description into 1 column.
+- Country information is now displayed in Invoices, Quotes, Recurring Invoices, Clients, Locations, and the client top header.
+- Added country-based search filters in Locations and Clients sections.
 - Bump FullCalendar from 6.1.15 to 6.1.17.
 - Bump DataTables from 2.2.2 to 2.3.1.
 - Bump TCPDF from 6.8.2 to 6.9.4.
 - Bump tinyMCE from 7.7.1 to 7.9.0.
 - Bump phpMailer from 6.9.2 to 6.10.0.
 - Bump stripe-php from 16.4.0 to 17.2.1.
-- Client Portal Add Recurrung Invoices with option to Enable or Disable Auto Pay per recurring Invoice if Stripe is enabled and Client has a payment method. Also when removing saved auto payment methods delete all recurring payments for that client that are Stripe method also added this to the admin settings.
-- Limit Stripe to just cards.
-- Added Card Details and Payment added to Client Stripe.
-- UI / UX updates to guest pay Make use of cards.
-- Don't show Checkbox columns when ticket is closed, compact ticket list now matches round pills for status and priority.
-- Ticket UI/UX allow the ticket toolbar to be a little more Mobile friendly
-- UI / UX Updates to Expenses Combine Category and Description 1 column.
-- Display Country in Invoices, Quotes, Recurring Invoices, Clients, locations, client top head.
-- Allow searching via country in Locations and Clients sections.
 
 
 ### Fixed
-- Option SMTP Encrytption None now works as intended.
-- Debug: Table Row counts were not very accurate as they were relying on show table status and not actual row counts.
-- Show archived categories properly.
+- "None" option for SMTP encryption now functions correctly.
+- Debug table row counts now reflect actual counts instead of relying on SHOW TABLE STATUS.
+- Archived Categories now display properly.
+- Stripe saved payment methods are now limited to credit/debit cards only.
 
 ## [25.03.6]
 
