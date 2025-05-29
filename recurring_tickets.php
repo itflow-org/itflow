@@ -108,9 +108,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                 <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token'] ?>">
 
                 <table class="table table-striped table-borderless table-hover">
-                    <thead class="<?php if (!$num_rows[0]) {
-                                        echo "d-none";
-                                    } ?>">
+                    <thead class="<?php if (!$num_rows[0]) { echo "d-none"; } ?> text-nowrap">
                         <tr>
                             <td class="pr-0">
                                 <div class="form-check">

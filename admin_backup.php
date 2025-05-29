@@ -20,12 +20,12 @@ require_once "includes/inc_all_admin.php";
         <div class="card-body">
             <form action="post.php" method="POST">
                 <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token'] ?>">
-                <div class="row d-flex justify-content-center">
-                    <div class="input-group col-4">
-                        <div class="input-group-prepend">
-                            <input type="password" class="form-control" placeholder="Enter your account password" name="password" autocomplete="new-password" required>
+                <div class="d-flex justify-content-center">
+                    <div class="input-group col-sm-4">
+                        <input type="password" class="form-control" placeholder="Enter your account password" name="password" autocomplete="new-password" required>
+                        <div class="input-group-append">
+                            <button class="btn btn-primary" type="submit" name="backup_master_key"><i class="fas fa-key"></i></button>
                         </div>
-                        <button class="btn btn-primary" type="submit" name="backup_master_key"><i class="fas fa-fw fa-key mr-2"></i>Get Master Key</button>
                     </div>
                 </div>
             </form>

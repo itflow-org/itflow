@@ -519,24 +519,26 @@ $mysqli->close();
         </ul>
         <hr>
 
-        <table class="table table-bordered mb-3">
-            <tr>
-                <th>ITFlow release version</th>
-                <th><?php echo APP_VERSION; ?></th>
-            </tr>
-            <tr>
-                <td>Current DB Version</td>
-                <td><?php echo CURRENT_DATABASE_VERSION; ?></td>
-            </tr>
-            <tr>
-                <td>Current Code Commit</td>
-                <td><?php echo $commitHash; ?></td>
-            </tr>
-            <tr>
-                <td>Current Branch</td>
-                <td><?php echo $gitBranch; ?></td>
-            </tr>
-        </table>
+        <div class="table-responsive">
+            <table class="table table-bordered mb-3">
+                <tr>
+                    <th>ITFlow release version</th>
+                    <th><?php echo APP_VERSION; ?></th>
+                </tr>
+                <tr>
+                    <td>Current DB Version</td>
+                    <td><?php echo CURRENT_DATABASE_VERSION; ?></td>
+                </tr>
+                <tr>
+                    <td>Current Code Commit</td>
+                    <td><?php echo $commitHash; ?></td>
+                </tr>
+                <tr>
+                    <td>Current Branch</td>
+                    <td><?php echo $gitBranch; ?></td>
+                </tr>
+            </table>
+        </div>
 
         <!-- System Information Table -->
         <h3>System Information</h3>
@@ -553,200 +555,209 @@ $mysqli->close();
 
         <!-- PHP Extensions and Configuration Table -->
         <h3 class="mt-3">PHP Extensions and Configuration</h3>
-        <table class="table table-sm table-bordered">
-            <!-- PHP Extensions Section -->
-            <thead>
-                <tr class="table-secondary">
-                    <th colspan="3">PHP Extensions</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php foreach ($phpExtensions as $check): ?>
-                    <tr>
-                        <td><?= htmlspecialchars($check['name']); ?></td>
-                        <td class="text-center">
-                            <?php if ($check['passed']): ?>
-                                <i class="fas fa-check" style="color:green"></i>
-                            <?php else: ?>
-                                <i class="fas fa-times" style="color:red"></i>
-                            <?php endif; ?>
-                        </td>
-                        <td><?= htmlspecialchars($check['value']); ?></td>
+        <div class="table-responsive">
+            <table class="table table-sm table-bordered">
+                <!-- PHP Extensions Section -->
+                <thead>
+                    <tr class="table-secondary">
+                        <th colspan="3">PHP Extensions</th>
                     </tr>
-                <?php endforeach; ?>
-            </tbody>
-            <!-- PHP Configuration Section -->
-            <thead>
-                <tr class="table-secondary">
-                    <th colspan="3">PHP Configuration</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php foreach ($phpConfig as $check): ?>
-                    <tr>
-                        <td><?= htmlspecialchars($check['name']); ?></td>
-                        <td class="text-center">
-                            <?php if ($check['passed']): ?>
-                                <i class="fas fa-check" style="color:green"></i>
-                            <?php else: ?>
-                                <i class="fas fa-times" style="color:red"></i>
-                            <?php endif; ?>
-                        </td>
-                        <td><?= htmlspecialchars($check['value']); ?></td>
+                </thead>
+                <tbody>
+                    <?php foreach ($phpExtensions as $check): ?>
+                        <tr>
+                            <td><?= htmlspecialchars($check['name']); ?></td>
+                            <td class="text-center">
+                                <?php if ($check['passed']): ?>
+                                    <i class="fas fa-check" style="color:green"></i>
+                                <?php else: ?>
+                                    <i class="fas fa-times" style="color:red"></i>
+                                <?php endif; ?>
+                            </td>
+                            <td><?= htmlspecialchars($check['value']); ?></td>
+                        </tr>
+                    <?php endforeach; ?>
+                </tbody>
+                <!-- PHP Configuration Section -->
+                <thead>
+                    <tr class="table-secondary">
+                        <th colspan="3">PHP Configuration</th>
                     </tr>
-                <?php endforeach; ?>
-            </tbody>
-            <thead>
-                <tr class="table-secondary">
-                    <th colspan="3">Shell Commands</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php foreach ($shellCommands as $check): ?>
-                    <tr>
-                        <td><?= htmlspecialchars($check['name']); ?></td>
-                        <td class="text-center">
-                            <?php if ($check['passed']): ?>
-                                <i class="fas fa-check" style="color:green"></i>
-                            <?php else: ?>
-                                <i class="fas fa-times" style="color:red"></i>
-                            <?php endif; ?>
-                        </td>
-                        <td><?= htmlspecialchars($check['value']); ?></td>
+                </thead>
+                <tbody>
+                    <?php foreach ($phpConfig as $check): ?>
+                        <tr>
+                            <td><?= htmlspecialchars($check['name']); ?></td>
+                            <td class="text-center">
+                                <?php if ($check['passed']): ?>
+                                    <i class="fas fa-check" style="color:green"></i>
+                                <?php else: ?>
+                                    <i class="fas fa-times" style="color:red"></i>
+                                <?php endif; ?>
+                            </td>
+                            <td><?= htmlspecialchars($check['value']); ?></td>
+                        </tr>
+                    <?php endforeach; ?>
+                </tbody>
+                <thead>
+                    <tr class="table-secondary">
+                        <th colspan="3">Shell Commands</th>
                     </tr>
-                <?php endforeach; ?>
-            </tbody>
-            <thead>
-                <tr class="table-secondary">
-                    <th colspan="3">SSL Checks</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php foreach ($sslChecks as $check): ?>
-                    <tr>
-                        <td><?= htmlspecialchars($check['name']); ?></td>
-                        <td class="text-center">
-                            <?php if ($check['passed']): ?>
-                                <i class="fas fa-check" style="color:green"></i>
-                            <?php else: ?>
-                                <i class="fas fa-times" style="color:red"></i>
-                            <?php endif; ?>
-                        </td>
-                        <td><?= htmlspecialchars($check['value']); ?></td>
+                </thead>
+                <tbody>
+                    <?php foreach ($shellCommands as $check): ?>
+                        <tr>
+                            <td><?= htmlspecialchars($check['name']); ?></td>
+                            <td class="text-center">
+                                <?php if ($check['passed']): ?>
+                                    <i class="fas fa-check" style="color:green"></i>
+                                <?php else: ?>
+                                    <i class="fas fa-times" style="color:red"></i>
+                                <?php endif; ?>
+                            </td>
+                            <td><?= htmlspecialchars($check['value']); ?></td>
+                        </tr>
+                    <?php endforeach; ?>
+                </tbody>
+                <thead>
+                    <tr class="table-secondary">
+                        <th colspan="3">SSL Checks</th>
                     </tr>
-                <?php endforeach; ?>
-            </tbody>
-            <thead>
-                <tr class="table-secondary">
-                    <th colspan="3">Domain Checks</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php foreach ($domainChecks as $check): ?>
-                    <tr>
-                        <td><?= htmlspecialchars($check['name']); ?></td>
-                        <td class="text-center">
-                            <?php if ($check['passed']): ?>
-                                <i class="fas fa-check" style="color:green"></i>
-                            <?php else: ?>
-                                <i class="fas fa-times" style="color:red"></i>
-                            <?php endif; ?>
-                        </td>
-                        <td><?= htmlspecialchars($check['value']); ?></td>
+                </thead>
+                <tbody>
+                    <?php foreach ($sslChecks as $check): ?>
+                        <tr>
+                            <td><?= htmlspecialchars($check['name']); ?></td>
+                            <td class="text-center">
+                                <?php if ($check['passed']): ?>
+                                    <i class="fas fa-check" style="color:green"></i>
+                                <?php else: ?>
+                                    <i class="fas fa-times" style="color:red"></i>
+                                <?php endif; ?>
+                            </td>
+                            <td><?= htmlspecialchars($check['value']); ?></td>
+                        </tr>
+                    <?php endforeach; ?>
+                </tbody>
+                <thead>
+                    <tr class="table-secondary">
+                        <th colspan="3">Domain Checks</th>
                     </tr>
-                <?php endforeach; ?>
-            </tbody>
+                </thead>
+                <tbody>
+                    <?php foreach ($domainChecks as $check): ?>
+                        <tr>
+                            <td><?= htmlspecialchars($check['name']); ?></td>
+                            <td class="text-center">
+                                <?php if ($check['passed']): ?>
+                                    <i class="fas fa-check" style="color:green"></i>
+                                <?php else: ?>
+                                    <i class="fas fa-times" style="color:red"></i>
+                                <?php endif; ?>
+                            </td>
+                            <td><?= htmlspecialchars($check['value']); ?></td>
+                        </tr>
+                    <?php endforeach; ?>
+                </tbody>
 
-            <!-- File Permissions Table -->
-            <thead>
-                <tr class="table-secondary">
-                    <th colspan="3">File Permissions</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php foreach ($filePermissions as $check): ?>
-                    <tr>
-                        <td><?= htmlspecialchars($check['name']); ?></td>
-                        <td class="text-center">
-                            <?php if ($check['passed']): ?>
-                                <i class="fas fa-check" style="color:green"></i>
-                            <?php else: ?>
-                                <i class="fas fa-times" style="color:red"></i>
-                            <?php endif; ?>
-                        </td>
-                        <td><?= htmlspecialchars($check['value']); ?></td>
+                <!-- File Permissions Table -->
+                <thead>
+                    <tr class="table-secondary">
+                        <th colspan="3">File Permissions</th>
                     </tr>
-                <?php endforeach; ?>
-            </tbody>
-        </table>
-
+                </thead>
+                <tbody>
+                    <?php foreach ($filePermissions as $check): ?>
+                        <tr>
+                            <td><?= htmlspecialchars($check['name']); ?></td>
+                            <td class="text-center">
+                                <?php if ($check['passed']): ?>
+                                    <i class="fas fa-check" style="color:green"></i>
+                                <?php else: ?>
+                                    <i class="fas fa-times" style="color:red"></i>
+                                <?php endif; ?>
+                            </td>
+                            <td><?= htmlspecialchars($check['value']); ?></td>
+                        </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+        </div>
         
 
         <!-- Database Structure Comparison Table -->
         <h3 class="mt-3">Database Structure Comparison</h3>
-        <table class="table table-sm table-bordered">
-            <tbody>
-                <?php if (!empty($dbComparison)): ?>
-                    <?php foreach ($dbComparison as $issue): ?>
+        <div class="table-responsive">
+            <table class="table table-sm table-bordered">
+                <tbody>
+                    <?php if (!empty($dbComparison)): ?>
+                        <?php foreach ($dbComparison as $issue): ?>
+                            <tr>
+                                <td><?= htmlspecialchars($issue['name']); ?></td>
+                                <td colspan="2"><?= htmlspecialchars($issue['status']); ?></td>
+                            </tr>
+                        <?php endforeach; ?>
+                    <?php else: ?>
                         <tr>
-                            <td><?= htmlspecialchars($issue['name']); ?></td>
-                            <td colspan="2"><?= htmlspecialchars($issue['status']); ?></td>
+                            <td colspan="3">No discrepancies found between the database and db.sql file.</td>
                         </tr>
-                    <?php endforeach; ?>
-                <?php else: ?>
-                    <tr>
-                        <td colspan="3">No discrepancies found between the database and db.sql file.</td>
-                    </tr>
-                <?php endif; ?>
-            </tbody>
-        </table>
+                    <?php endif; ?>
+                </tbody>
+            </table>
+        </div>
 
         <!-- Uploads Directory Stats Table -->
         <h3 class="mt-3">Uploads Directory Stats</h3>
-        <table class="table table-sm table-bordered">
-            <tbody>
-                <?php foreach ($uploadsStats as $stat): ?>
-                    <tr>
-                        <td><?= htmlspecialchars($stat['name']); ?></td>
-                        <td colspan="2"><?= htmlspecialchars($stat['value']); ?></td>
-                    </tr>
-                <?php endforeach; ?>
-            </tbody>
-        </table>
+        <div class="table-responsive">
+            <table class="table table-sm table-bordered">
+                <tbody>
+                    <?php foreach ($uploadsStats as $stat): ?>
+                        <tr>
+                            <td><?= htmlspecialchars($stat['name']); ?></td>
+                            <td colspan="2"><?= htmlspecialchars($stat['value']); ?></td>
+                        </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+        </div>
 
         <!-- Database Stats Table -->
         <h3 class="mt-3">Database Stats</h3>
-        <table class="table table-sm table-bordered">
-            <tbody>
-                <?php foreach ($databaseStats as $stat): ?>
-                    <tr>
-                        <td><?= htmlspecialchars($stat['name']); ?></td>
-                        <td colspan="2"><?= htmlspecialchars($stat['value']); ?></td>
-                    </tr>
-                <?php endforeach; ?>
-            </tbody>
-        </table>
+        <div class="table-responsive">
+            <table class="table table-sm table-bordered">
+                <tbody>
+                    <?php foreach ($databaseStats as $stat): ?>
+                        <tr>
+                            <td><?= htmlspecialchars($stat['name']); ?></td>
+                            <td colspan="2"><?= htmlspecialchars($stat['value']); ?></td>
+                        </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+        </div>
 
         <!-- Table Stats Table -->
         <h3 class="mt-3">Table Stats</h3>
-        <table class="table table-sm table-bordered">
-            <thead>
-                <tr>
-                    <th>Table Name</th>
-                    <th>Fields / Rows</th>
-                    <th>Size (MB)</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php foreach ($tableDetails as $table): ?>
+        <div class="table-responsive">
+            <table class="table table-sm table-bordered">
+                <thead>
                     <tr>
-                        <td><?= htmlspecialchars($table['name']); ?></td>
-                        <td><?= htmlspecialchars("Fields: {$table['fields']}, Rows: {$table['rows']}"); ?></td>
-                        <td><?= htmlspecialchars($table['size'] . ' MB'); ?></td>
+                        <th>Table Name</th>
+                        <th>Fields / Rows</th>
+                        <th>Size (MB)</th>
                     </tr>
-                <?php endforeach; ?>
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    <?php foreach ($tableDetails as $table): ?>
+                        <tr>
+                            <td><?= htmlspecialchars($table['name']); ?></td>
+                            <td><?= htmlspecialchars("Fields: {$table['fields']}, Rows: {$table['rows']}"); ?></td>
+                            <td><?= htmlspecialchars($table['size'] . ' MB'); ?></td>
+                        </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+        </div>
 
     </div>
 

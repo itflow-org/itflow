@@ -5,7 +5,7 @@
 
                 <div class="table-responsive-sm">
                     <table class="table table-striped table-borderless table-hover">
-                        <thead class="text-dark <?php if (!$num_rows[0]) { echo "d-none"; } ?>">
+                        <thead class="text-dark <?php if (!$num_rows[0]) { echo "d-none"; } ?> text-nowrap">
                         <tr>
                             <?php if ($_GET['status'] !== 'Closed') { ?>
                             <td>

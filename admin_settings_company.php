@@ -113,7 +113,7 @@ $company_initials = nullable_htmlentities(initials($company_name));
 
                             <label>Phone</label>
                             <div class="form-row">
-                                <div class="col-9">
+                                <div class="col-md-9">
                                     <div class="form-group">
                                         <div class="input-group">
                                             <div class="input-group-prepend">

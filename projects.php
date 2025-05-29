@@ -91,7 +91,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             <a href="?<?php echo $client_url; ?>status=1" class="btn btn-<?php if ($status == 1){ echo "primary"; } else { echo "default"; } ?>"><i class="fa fa-fw fa-door-closed mr-2"></i>Closed</a>
                         </div>
 
-                        <div class="btn-group mr-2">
+                        <div class="btn-group">
                             <a href="?<?php echo $url_query_strings_sort ?>&archived=<?php if($archived == 1){ echo 0; } else { echo 1; } ?>"
                                class="btn btn-<?php if ($archived == 1) { echo "primary"; } else { echo "default"; } ?>">
                                 <i class="fa fa-fw fa-archive mr-2"></i>Archived
@@ -137,7 +137,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
         <hr>
         <div class="table-responsive-sm">
             <table class="table table-striped table-hover table-borderless">
-                <thead class="<?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
+                <thead class="<?php if ($num_rows[0] == 0) { echo "d-none"; } ?> text-nowrap">
                 <tr>
                     <th>
                         <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=project_number&order=<?php echo $disp; ?>">

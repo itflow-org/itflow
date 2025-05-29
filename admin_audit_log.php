@@ -75,7 +75,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
             <form class="mb-4" autocomplete="off">
                 <div class="row">
                     <div class="col-sm-4">
-                        <div class="input-group">
+                        <div class="input-group mb-3 mb-md-0">
                             <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(nullable_htmlentities($q)); } ?>" placeholder="Search audit logs">
                             <div class="input-group-append">
                                 <button class="btn btn-secondary" type="button" data-toggle="collapse" data-target="#advancedFilter"><i class="fas fa-filter"></i></button>
@@ -85,7 +85,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     </div>
                     
                     <div class="col-sm-2">
-                        <div class="form-group">
+                        <div class="input-group mb-3 mb-md-0">
                             <select class="form-control select2" name="client" onchange="this.form.submit()">
                                 <option value="">- All Clients -</option>
 
@@ -105,7 +105,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     </div>
 
                     <div class="col-sm-2">
-                        <div class="form-group">
+                        <div class="input-group mb-3 mb-md-0">
                             <select class="form-control select2" name="user" onchange="this.form.submit()">
                                 <option value="">- All Users -</option>
 
@@ -125,7 +125,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     </div>
 
                     <div class="col-sm-2">
-                        <div class="form-group">
+                        <div class="input-group mb-3 mb-md-0">
                             <select class="form-control select2" name="type" onchange="this.form.submit()">
                                 <option value="">- All Types -</option>
 
@@ -144,7 +144,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     </div>
 
                     <div class="col-sm-2">
-                        <div class="form-group">
+                        <div class="input-group mb-3 mb-md-0">
                             <select class="form-control select2" name="action" onchange="this.form.submit()">
                                 <option value="">- All Actions -</option>
 
