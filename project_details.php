@@ -271,7 +271,7 @@ if (isset($_GET['project_id'])) {
     </div>
 
     <div class="row">
-        <div class="col-md-8">
+        <div class="col-md-9">
 
             <!-- Tickets card -->
             <?php if (mysqli_num_rows($sql_tickets) > 0) { ?>
@@ -419,7 +419,7 @@ if (isset($_GET['project_id'])) {
             <?php } ?>
         </div>
 
-        <div class="col-md-4">
+        <div class="col-md-3">
 
             <!-- Tasks Card -->
             <?php if (mysqli_num_rows($sql_tasks) > 0) { ?>
@@ -435,10 +435,10 @@ if (isset($_GET['project_id'])) {
                             <tr>
                                 <td>
                                     <?php if ($task_completed_at) { ?>
-                                        <i class="far fa-fw fa-check-square text-primary mr-3"></i>
+                                        <i class="far fa-check-square text-primary mr-2"></i>
                                     <?php } else { ?>
                                         <a href="post.php?complete_task=<?php echo $task_id; ?>">
-                                            <i class="far fa-fw fa-square text-secondary mr-3"></i>
+                                            <i class="far fa-square text-secondary mr-2"></i>
                                         </a>
                                     <?php } ?>
                                     <?php echo $task_name; ?>

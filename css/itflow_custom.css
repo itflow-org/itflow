@@ -21,10 +21,9 @@
 }
 
 .drag-handle {
-    cursor: grab;
-    touch-action: none;
-    user-select: none;
+    cursor: grab !important;
 }
+
 .drag-handle:active {
-    cursor: grabbing;
+    cursor: grabbing !important;
 }

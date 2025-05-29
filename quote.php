@@ -344,31 +344,27 @@ if (isset($_GET['quote_id'])) {
                                         <tr data-item-id="<?php echo $item_id; ?>">
                                             <td class="d-print-none">
                                                 <?php if ($quote_status !== "Invoiced" && $quote_status !== "Accepted" && $quote_status !== "Declined" && lookupUserPermission("module_sales") >= 2) { ?>
-                                                    <div class="row">
-                                                        <div class="col">
-                                                            <button type="button" class="btn btn-sm btn-light drag-handle">
-                                                                <i class="fas fa-bars text-muted"></i>
-                                                            </button>
-                                                        </div>
-                                                        <div class="col">
+                                                    <div class="btn-group">
+                                                        <button type="button" class="btn btn-sm btn-link drag-handle">
+                                                            <i class="fas fa-bars text-muted"></i>
+                                                        </button>
 
-                                                            <div class="dropdown">
-                                                                <button class="btn btn-sm btn-light" type="button" data-toggle="dropdown">
-                                                                    <i class="fas fa-ellipsis-v"></i>
-                                                                </button>
-                                                                <div class="dropdown-menu">
-                                                                    <a class="dropdown-item" href="#"
-                                                                        data-toggle="ajax-modal"
-                                                                        data-ajax-url="ajax/ajax_item_edit.php"
-                                                                        data-ajax-id="<?php echo $item_id; ?>"
-                                                                        >
-                                                                        <i class="fa fa-fw fa-edit mr-2"></i>Edit
-                                                                    </a>
-                                                                    <div class="dropdown-divider"></div>
-                                                                    <a class="dropdown-item text-danger confirm-link" href="post.php?delete_quote_item=<?php echo $item_id; ?>">
-                                                                        <i class="fa fa-fw fa-trash mr-2"></i>Delete
-                                                                    </a>
-                                                                </div>
+                                                        <div class="dropdown">
+                                                            <button class="btn btn-sm btn-light" type="button" data-toggle="dropdown">
+                                                                <i class="fas fa-ellipsis-v"></i>
+                                                            </button>
+                                                            <div class="dropdown-menu">
+                                                                <a class="dropdown-item" href="#"
+                                                                    data-toggle="ajax-modal"
+                                                                    data-ajax-url="ajax/ajax_item_edit.php"
+                                                                    data-ajax-id="<?php echo $item_id; ?>"
+                                                                    >
+                                                                    <i class="fa fa-fw fa-edit mr-2"></i>Edit
+                                                                </a>
+                                                                <div class="dropdown-divider"></div>
+                                                                <a class="dropdown-item text-danger confirm-link" href="post.php?delete_quote_item=<?php echo $item_id; ?>">
+                                                                    <i class="fa fa-fw fa-trash mr-2"></i>Delete
+                                                                </a>
                                                             </div>
                                                         </div>
                                                     </div>

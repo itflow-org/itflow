@@ -45,7 +45,7 @@ $sql_task_templates = mysqli_query($mysqli, "SELECT * FROM task_templates WHERE 
 </ol>
 
 <div class="row">
-    <div class="col-8">
+    <div class="col-9">
 
         <div class="card card-dark">
             <div class="card-header">
@@ -72,7 +72,7 @@ $sql_task_templates = mysqli_query($mysqli, "SELECT * FROM task_templates WHERE 
 
     </div>
 
-    <div class="col-4">
+    <div class="col-3">
 
         <div class="card card-dark">
             <div class="card-header">
@@ -82,10 +82,7 @@ $sql_task_templates = mysqli_query($mysqli, "SELECT * FROM task_templates WHERE 
                 <form action="post.php" method="post" autocomplete="off">
                     <input type="hidden" name="ticket_template_id" value="<?php echo $ticket_template_id; ?>">
                     <div class="form-group">
-                        <div class="input-group">
-                            <div class="input-group-prepend">
-                                <span class="input-group-text"><i class="fa fa-fw fa-tasks"></i></span>
-                            </div>
+                        <div class="input-group input-group-sm">
                             <input type="text" class="form-control" name="task_name" placeholder="Create a task" required maxlength="200">
                             <div class="input-group-append">
                                 <button type="submit" name="add_ticket_template_task" class="btn btn-primary"><i class="fas fa-fw fa-check"></i></button>
@@ -103,15 +100,14 @@ $sql_task_templates = mysqli_query($mysqli, "SELECT * FROM task_templates WHERE 
                         ?>
                         <tr data-task-id="<?php echo $task_id; ?>">
                             <td>
-                                <a href="#" class="drag-handle"><i class="fas fa-bars text-muted mr-1"></i></a>
-                                <span class="text-secondary"><?php echo $task_completion_estimate; ?>m</span>
-                                <span class="text-dark"> - <?php echo $task_name; ?></span>
+                                <a href="#" class="drag-handle"><i class="fas fa-bars text-muted mr-2"></i></a>
+                                <span class="text-dark"><?php echo $task_name; ?></span>
                             </td>
                             <td class="text-right">
                                 <div class="float-right">
                                     <div class="dropdown dropleft text-center">
-                                        <button class="btn btn-link text-secondary btn-sm" type="button" data-toggle="dropdown">
-                                            <i class="fas fa-fw fa-ellipsis-v"></i>
+                                        <button class="btn btn-light text-secondary btn-sm" type="button" data-toggle="dropdown">
+                                            <i class="fas fa-ellipsis-v"></i>
                                         </button>
                                         <div class="dropdown-menu">
                                             <a class="dropdown-item" href="#"

@@ -953,47 +953,49 @@ if (isset($_GET['ticket_id'])) {
                                 <tr data-task-id="<?php echo $task_id; ?>">
                                     <td>
                                         <?php if ($task_completed_at) { ?>
-                                            <i class="far fa-fw fa-check-square text-primary"></i>
+                                            <i class="far fa-check-square text-primary"></i>
                                         <?php } elseif (lookupUserPermission("module_support") >= 2) { ?>
                                             <a href="post.php?complete_task=<?php echo $task_id; ?>">
-                                                <i class="far fa-fw fa-square text-secondary"></i>
+                                                <i class="far fa-square text-secondary"></i>
                                             </a>
                                         <?php } ?>
-                                    </td>
-                                    <td>
-                                        <a href="#" class="drag-handle"><i class="fas fa-bars text-muted mr-1"></i></a>
-                                        <span class="text-secondary"><?php echo $task_completion_estimate; ?>m</span>
-                                        <span class="text-dark"> - <?php echo $task_name; ?></span>
+                                        <span class="text-dark ml-2"><?php echo $task_name; ?></span>
                                     </td>
                                     <td>
                                         <div class="float-right">
-                                            <?php if (empty($ticket_resolved_at) && lookupUserPermission("module_support") >= 2) { ?>
-                                                   
-                                                <div class="dropdown dropleft text-center">
-                                                    <button class="btn btn-link text-secondary btn-sm" type="button" data-toggle="dropdown">
-                                                        <i class="fas fa-fw fa-ellipsis-v"></i>
-                                                    </button>
-                                                    <div class="dropdown-menu">
-                                                        <a class="dropdown-item" href="#"
-                                                           data-toggle = "ajax-modal"
-                                                           data-ajax-url = "ajax/ajax_ticket_task_edit.php"
-                                                           data-ajax-id = "<?php echo $task_id; ?>"
-                                                        >
-                                                            <i class="fas fa-fw fa-edit mr-2"></i>Edit
-                                                        </a>
-                                                        <?php if ($task_completed_at) { ?>
-                                                            <a class="dropdown-item" href="post.php?undo_complete_task=<?php echo $task_id; ?>">
-                                                                <i class="fas fa-fw fa-arrow-circle-left mr-2"></i>Mark incomplete
-                                                            </a>
-                                                        <?php } ?>
-                                                        <div class="dropdown-divider"></div>
-                                                        <a class="dropdown-item text-danger confirm-link" href="post.php?delete_task=<?php echo $task_id; ?>&csrf_token=<?php echo $_SESSION['csrf_token'] ?>">
-                                                            <i class="fas fa-fw fa-trash-alt mr-2"></i>Delete
-                                                        </a>
-                                                    </div>
-                                                </div>
+
+                                            <div class="btn-group">
                                             
-                                            <?php } ?>
+                                                <button class="btn btn-sm btn-link drag-handle"><i class="fas fa-bars text-muted mr-1"></i></button>
+
+                                                <?php if (empty($ticket_resolved_at) && lookupUserPermission("module_support") >= 2) { ?>
+                                                       
+                                                    <div class="dropdown dropleft text-center">
+                                                        <button class="btn btn-light text-secondary btn-sm" type="button" data-toggle="dropdown">
+                                                            <i class="fas fa-ellipsis-v"></i>
+                                                        </button>
+                                                        <div class="dropdown-menu">
+                                                            <a class="dropdown-item" href="#"
+                                                               data-toggle = "ajax-modal"
+                                                               data-ajax-url = "ajax/ajax_ticket_task_edit.php"
+                                                               data-ajax-id = "<?php echo $task_id; ?>"
+                                                            >
+                                                                <i class="fas fa-fw fa-edit mr-2"></i>Edit
+                                                            </a>
+                                                            <?php if ($task_completed_at) { ?>
+                                                                <a class="dropdown-item" href="post.php?undo_complete_task=<?php echo $task_id; ?>">
+                                                                    <i class="fas fa-fw fa-arrow-circle-left mr-2"></i>Mark incomplete
+                                                                </a>
+                                                            <?php } ?>
+                                                            <div class="dropdown-divider"></div>
+                                                            <a class="dropdown-item text-danger confirm-link" href="post.php?delete_task=<?php echo $task_id; ?>&csrf_token=<?php echo $_SESSION['csrf_token'] ?>">
+                                                                <i class="fas fa-fw fa-trash-alt mr-2"></i>Delete
+                                                            </a>
+                                                        </div>
+                                                    </div>
+                                                
+                                                <?php } ?>
+                                            </div>
                                         </div>
                                     </td>
                                 </tr>
