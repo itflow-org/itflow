@@ -53,6 +53,7 @@ if (isset($_GET['invoice_id'])) {
     $location_city = nullable_htmlentities($row['location_city']);
     $location_state = nullable_htmlentities($row['location_state']);
     $location_zip = nullable_htmlentities($row['location_zip']);
+    $location_country = nullable_htmlentities($row['location_country']);
     $contact_email = nullable_htmlentities($row['contact_email']);
     $contact_phone_country_code = nullable_htmlentities($row['contact_phone_country_code']);
     $contact_phone = nullable_htmlentities(formatPhoneNumber($row['contact_phone'], $contact_phone_country_code));
