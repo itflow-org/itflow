@@ -28,6 +28,7 @@ This file documents all notable changes made to ITFlow.
 - UI / UX Updates to Expenses Combine Category and Description 1 column.
 - Display Country in Invoices, Quotes, Recurring Invoices, Clients, locations, client top head.
 - Allow searching via country in Locations and Clients sections.
+- Changed the settings name from Integrations to Identity Providers to make room for future Identity SSO Prividers like Google and Custom SSO.
 
 
 ### Fixed
