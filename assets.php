@@ -338,7 +338,7 @@ if (mysqli_num_rows($os_sql) > 0) {
 
             <div class="table-responsive">
                 <table class="table border table-hover">
-                    <thead class="thead-light <?php if (!$num_rows[0]) { echo "d-none"; } ?>">
+                    <thead class="thead-light <?php if (!$num_rows[0]) { echo "d-none"; } ?> text-nowrap">
                     <tr>
                         <td class="bg-light pr-0">
                             <div class="form-check">
