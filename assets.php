@@ -9,10 +9,26 @@ if (isset($_GET['client_id'])) {
     require_once "includes/inc_all_client.php";
     $client_query = "AND asset_client_id = $client_id";
     $client_url = "client_id=$client_id&";
+    // Overide Filter Header Archived
+    if (isset($_GET['archived']) && $_GET['archived'] == 1) {
+        $archived = 1;
+        $archive_query = "asset_archived_at IS NOT NULL";
+    } else {
+        $archived = 0;
+        $archive_query = "asset_archived_at IS NULL";
+    }
 } else {
     require_once "includes/inc_client_overview_all.php";
     $client_query = '';
     $client_url = '';
+    // Overide Filter Header Archived
+    if (isset($_GET['archived']) && $_GET['archived'] == 1) {
+        $archived = 1;
+        $archive_query = "(client_archived_at IS NOT NULL OR asset_archived_at IS NOT NULL)";
+    } else {
+        $archived = 0;
+        $archive_query = "(client_archived_at IS NULL AND asset_archived_at IS NULL)";
+    }
 }
 
 // Perms
@@ -71,7 +87,7 @@ $row = mysqli_fetch_assoc(mysqli_query($mysqli, "
         LEFT JOIN contacts ON asset_contact_id = contact_id 
         LEFT JOIN locations ON asset_location_id = location_id 
         LEFT JOIN asset_interfaces ON interface_asset_id = asset_id AND interface_primary = 1
-        WHERE asset_$archive_query
+        WHERE $archive_query
         $access_permission_query
         $client_query
     ) AS filtered_assets;
@@ -105,7 +121,7 @@ $sql = mysqli_query(
     LEFT JOIN contacts ON asset_contact_id = contact_id 
     LEFT JOIN locations ON asset_location_id = location_id 
     LEFT JOIN asset_interfaces ON interface_asset_id = asset_id AND interface_primary = 1
-    WHERE asset_$archive_query
+    WHERE $archive_query
     AND (asset_name LIKE '%$q%' OR asset_description LIKE '%$q%' OR asset_type LIKE '%$q%' OR interface_ip LIKE '%$q%' OR interface_ipv6 LIKE '%$q%' OR asset_make LIKE '%$q%' OR asset_model LIKE '%$q%' OR asset_serial LIKE '%$q%' OR asset_os LIKE '%$q%' OR contact_name LIKE '%$q%' OR location_name LIKE '%$q%' OR client_name LIKE '%$q%')
     AND ($type_query)
     $access_permission_query

@@ -67,6 +67,29 @@ if (isset($_GET['archive_network'])) {
 
 }
 
+if (isset($_GET['unarchive_network'])) {
+
+    enforceUserPermission('module_support', 2);
+
+    $network_id = intval($_GET['unarchive_network']);
+
+    // Get Network Name and Client ID for logging and alert message
+    $sql = mysqli_query($mysqli,"SELECT network_name, network_client_id FROM networks WHERE network_id = $network_id");
+    $row = mysqli_fetch_array($sql);
+    $network_name = sanitizeInput($row['network_name']);
+    $client_id = intval($row['network_client_id']);
+
+    mysqli_query($mysqli,"UPDATE networks SET network_archived_at = NULL WHERE network_id = $network_id");
+
+    // logging
+    logAction("Network", "Unarchive", "$session_name restored contact $contact_name", $client_id, $network_id);
+
+    $_SESSION['alert_message'] = "Network <strong>$network_name</strong> restored";
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
 if (isset($_GET['delete_network'])) {
     enforceUserPermission('module_support', 3);
 

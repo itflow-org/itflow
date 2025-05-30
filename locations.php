@@ -9,6 +9,14 @@ if (isset($_GET['client_id'])) {
     require_once "includes/inc_all_client.php";
     $client_query = "AND location_client_id = $client_id";
     $client_url = "client_id=$client_id&";
+    // Overide Filter Header Archived
+    if (isset($_GET['archived']) && $_GET['archived'] == 1) {
+        $archived = 1;
+        $archive_query = "location_archived_at IS NOT NULL";
+    } else {
+        $archived = 0;
+        $archive_query = "location_archived_at IS NULL";
+    }
 } else {
     require_once "includes/inc_client_overview_all.php";
     $client_query = '';
@@ -24,6 +32,14 @@ if (!$client_url) {
         // Default - any
         $client_query = '';
         $client = '';
+    }
+    // Overide Filter Header Archived
+    if (isset($_GET['archived']) && $_GET['archived'] == 1) {
+        $archived = 1;
+        $archive_query = "(client_archived_at IS NOT NULL OR location_archived_at IS NOT NULL)";
+    } else {
+        $archived = 0;
+        $archive_query = "(client_archived_at IS NULL AND location_archived_at IS NULL)";
     }
 }
 
@@ -45,7 +61,7 @@ $sql = mysqli_query(
     LEFT JOIN clients ON client_id = location_client_id
     LEFT JOIN location_tags ON location_tags.location_id = locations.location_id
     LEFT JOIN tags ON tags.tag_id = location_tags.tag_id
-    WHERE location_$archive_query
+    WHERE $archive_query
     $tag_query
     AND (location_name LIKE '%$q%' OR location_description LIKE '%$q%' OR location_address LIKE '%$q%' OR location_city LIKE '%$q%' OR location_state LIKE '%$q%' OR location_zip LIKE '%$q%' OR location_country LIKE '%$q%' OR location_phone LIKE '%$phone_query%' OR tag_name LIKE '%$q%' OR client_name LIKE '%$q%')
     $access_permission_query
