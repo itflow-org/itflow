@@ -191,102 +191,103 @@ if (isset($_GET['invoice_id'])) {
 
     <div class="card">
 
-        <div class="card-header d-print-none">
+            <div class="card-header d-print-none">
 
-            
-            <div class="row">
+                <div class="row">
 
-                <div class="col-8">
-                    <?php if (lookupUserPermission("module_sales") >= 2) { ?>
-                    <?php if ($invoice_status == 'Draft') { ?>
-                    <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">
-                        <i class="fas fa-fw fa-paper-plane mr-2"></i>Send
-                    </button>
-                    <div class="dropdown-menu">
-                        <?php if (!empty($config_smtp_host) && !empty($contact_email)) { ?>
-                            <a class="dropdown-item" href="post.php?email_invoice=<?php echo $invoice_id; ?>">
-                                <i class="fas fa-fw fa-paper-plane mr-2"></i>Send Email
-                            </a>
-                            <div class="dropdown-divider"></div>
+                    <div class="col-8">
+                        <?php if (lookupUserPermission("module_sales") >= 2) { ?>
+
+                            <?php if ($invoice_status == 'Draft') { ?>
+                                <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">
+                                    <i class="fas fa-fw fa-paper-plane mr-2"></i>Send
+                                </button>
+                                <div class="dropdown-menu">
+                                    <?php if (!empty($config_smtp_host) && !empty($contact_email)) { ?>
+                                        <a class="dropdown-item" href="post.php?email_invoice=<?php echo $invoice_id; ?>">
+                                            <i class="fas fa-fw fa-paper-plane mr-2"></i>Send Email
+                                        </a>
+                                        <div class="dropdown-divider"></div>
+                                    <?php } ?>
+                                    <a class="dropdown-item" href="post.php?mark_invoice_sent=<?php echo $invoice_id; ?>">
+                                        <i class="fas fa-fw fa-check mr-2"></i>Mark Sent
+                                    </a>
+                                </div>
+                            <?php } ?>
+
+                            <?php if ($invoice_status !== 'Paid' && $invoice_status !== 'Cancelled' && $invoice_status !== 'Draft' && $invoice_amount != 0) { ?>
+                                <a class="btn btn-success" href="#" data-toggle="modal" data-target="#addPaymentModal">
+                                    <i class="fa fa-fw fa-credit-card mr-2"></i>Add Payment
+                                </a>
+                                <?php if ($invoice_status !== 'Partial' && $config_stripe_enable && $stripe_id && $stripe_pm) { ?>
+                                    <a class="btn btn-primary confirm-link" href="post.php?add_payment_stripe&invoice_id=<?php echo $invoice_id; ?>&csrf_token=<?php echo $_SESSION['csrf_token']; ?>">
+                                        <i class="fa fa-fw fa-credit-card mr-2"></i>Pay via saved card
+                                    </a>
+                                <?php } ?>
+                            <?php } ?>
+
+                            <?php if (($invoice_status == 'Sent' || $invoice_status == 'Viewed') && $invoice_amount == 0 && $invoice_status !== 'Non-Billable') { ?>
+                                <a class="btn btn-dark" href="post.php?mark_invoice_non-billable=<?php echo $invoice_id; ?>">
+                                    Mark Non-Billable
+                                </a>
+                            <?php } ?>
+
                         <?php } ?>
-                        <a class="dropdown-item" href="post.php?mark_invoice_sent=<?php echo $invoice_id; ?>">
-                            <i class="fas fa-fw fa-check mr-2"></i>Mark Sent
-                        </a>
                     </div>
 
-                    <?php if ($invoice_status !== 'Paid' && $invoice_status !== 'Cancelled' && $invoice_status !== 'Draft' && $invoice_amount != 0) { ?>
-                        <a class="btn btn-success" href="#" data-toggle="modal" data-target="#addPaymentModal">
-                            <i class="fa fa-fw fa-credit-card mr-2"></i>Add Payment
-                        </a>
-                        <?php if ($invoice_status !== 'Partial' && $config_stripe_enable && $stripe_id && $stripe_pm) { ?>
-                            <a class="btn btn-primary confirm-link" href="post.php?add_payment_stripe&invoice_id=<?php echo $invoice_id; ?>&csrf_token=<?php echo $_SESSION['csrf_token']; ?>">
-                                <i class="fa fa-fw fa-credit-card mr-2"></i>Pay via saved card
-                            </a>
-                        <?php } ?>
-                    <?php } ?>
+                    <div class="col-4">
 
-                    <?php if (($invoice_status == 'Sent' || $invoice_status == 'Viewed') && $invoice_amount == 0 && $invoice_status !== 'Non-Billable') { ?>
-                        <a class="btn btn-dark" href="post.php?mark_invoice_non-billable=<?php echo $invoice_id; ?>">
-                            Mark Non-Billable
-                        </a>
-                    <?php } ?>
-                <?php } // End lookup Perm ?>
-                </div>
-
-                <div class="col-4">
-
-                    <div class="dropdown dropleft text-center float-right">
-                        <button class="btn btn-secondary" type="button" data-toggle="dropdown">
-                            <i class="fas fa-ellipsis-v"></i>
-                        </button>
-                        <div class="dropdown-menu">
-                            <a class="dropdown-item" href="#"
-                                data-toggle = "ajax-modal"
-                                data-ajax-url = "ajax/ajax_invoice_edit.php"
-                                data-ajax-id = "<?php echo $invoice_id; ?>"
-                                >
-                                <i class="fa fa-fw fa-edit text-secondary mr-2"></i>Edit
-                            </a>
-                            <a class="dropdown-item" href="#"
-                                data-toggle = "ajax-modal"
-                                data-ajax-url = "ajax/ajax_invoice_copy.php"
-                                data-ajax-id = "<?php echo $invoice_id; ?>"
-                                >
-                                <i class="fa fa-fw fa-copy text-secondary mr-2"></i>Copy
-                            </a>
-                            <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addInvoiceRecurringModal<?php echo $invoice_id; ?>">
-                                <i class="fa fa-fw fa-sync-alt text-secondary mr-2"></i>Recurring
-                            </a>
-                            <div class="dropdown-divider"></div>
-                            <a class="dropdown-item" href="#" onclick="window.print();">
-                                <i class="fa fa-fw fa-print text-secondary mr-2"></i>Print
-                            </a>
-                            <a class="dropdown-item" href="#" onclick="pdfMake.createPdf(docDefinition).download('<?php echo strtoAZaz09(html_entity_decode("$invoice_date-$company_name-$client_name-Invoice-$invoice_prefix$invoice_number")); ?>');">
-                                <i class="fa fa-fw fa-download text-secondary mr-2"></i>Download PDF
-                            </a>
-                            <?php if (!empty($config_smtp_host) && !empty($contact_email)) { ?>
-                                <a class="dropdown-item" href="post.php?email_invoice=<?php echo $invoice_id; ?>">
-                                    <i class="fa fa-fw fa-paper-plane text-secondary mr-2"></i>Send Email
+                        <div class="dropdown dropleft text-center float-right">
+                            <button class="btn btn-secondary" type="button" data-toggle="dropdown">
+                                <i class="fas fa-ellipsis-v"></i>
+                            </button>
+                            <div class="dropdown-menu">
+                                <a class="dropdown-item" href="#"
+                                    data-toggle = "ajax-modal"
+                                    data-ajax-url = "ajax/ajax_invoice_edit.php"
+                                    data-ajax-id = "<?php echo $invoice_id; ?>"
+                                    >
+                                    <i class="fa fa-fw fa-edit text-secondary mr-2"></i>Edit
                                 </a>
-                            <?php } ?>
-                            <a class="dropdown-item" target="_blank" href="guest/guest_view_invoice.php?invoice_id=<?php echo "$invoice_id&url_key=$invoice_url_key"; ?>">
-                                <i class="fa fa-fw fa-link text-secondary mr-2"></i>Guest URL
-                            </a>
-                            <?php if ($invoice_status !== 'Cancelled' && $invoice_status !== 'Paid') { ?>
+                                <a class="dropdown-item" href="#"
+                                    data-toggle = "ajax-modal"
+                                    data-ajax-url = "ajax/ajax_invoice_copy.php"
+                                    data-ajax-id = "<?php echo $invoice_id; ?>"
+                                    >
+                                    <i class="fa fa-fw fa-copy text-secondary mr-2"></i>Copy
+                                </a>
+                                <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addInvoiceRecurringModal<?php echo $invoice_id; ?>">
+                                    <i class="fa fa-fw fa-sync-alt text-secondary mr-2"></i>Recurring
+                                </a>
                                 <div class="dropdown-divider"></div>
-                                <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?cancel_invoice=<?php echo $invoice_id; ?>">
-                                    <i class="fa fa-fw fa-times mr-2"></i>Cancel
+                                <a class="dropdown-item" href="#" onclick="window.print();">
+                                    <i class="fa fa-fw fa-print text-secondary mr-2"></i>Print
                                 </a>
-                            <?php } ?>
+                                <a class="dropdown-item" href="#" onclick="pdfMake.createPdf(docDefinition).download('<?php echo strtoAZaz09(html_entity_decode("$invoice_date-$company_name-$client_name-Invoice-$invoice_prefix$invoice_number")); ?>');">
+                                    <i class="fa fa-fw fa-download text-secondary mr-2"></i>Download PDF
+                                </a>
+                                <?php if (!empty($config_smtp_host) && !empty($contact_email)) { ?>
+                                    <a class="dropdown-item" href="post.php?email_invoice=<?php echo $invoice_id; ?>">
+                                        <i class="fa fa-fw fa-paper-plane text-secondary mr-2"></i>Send Email
+                                    </a>
+                                <?php } ?>
+                                <a class="dropdown-item" target="_blank" href="guest/guest_view_invoice.php?invoice_id=<?php echo "$invoice_id&url_key=$invoice_url_key"; ?>">
+                                    <i class="fa fa-fw fa-link text-secondary mr-2"></i>Guest URL
+                                </a>
+                                <?php if ($invoice_status !== 'Cancelled' && $invoice_status !== 'Paid') { ?>
+                                    <div class="dropdown-divider"></div>
+                                    <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?cancel_invoice=<?php echo $invoice_id; ?>">
+                                        <i class="fa fa-fw fa-times mr-2"></i>Cancel
+                                    </a>
+                                <?php } ?>
+                            </div>
                         </div>
+
                     </div>
 
                 </div>
 
             </div>
-            <?php } ?>
-
-        </div>
 
         <div class="card-body">
 
