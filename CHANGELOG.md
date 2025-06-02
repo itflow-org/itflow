@@ -7,9 +7,11 @@ This file documents all notable changes made to ITFlow.
 ### Added / Changed
 - Added Domain Expiring Card to Client Portal Dashboard for Primary and Technical Users.
 - Added Balance and Monthly Recurring Amount to Client Portal Dahboard for Primary and Technical Users.
+- Added Archive Searching to network and certificates also added unarchive capabilities to them as well.
 
 ### Fixed
 - Add Payment not showing in Invoice.
+- Updated Client Overview Entities to not show archived client's Entities even though the entity may not be archived.
 
 
 ## [25.05]
