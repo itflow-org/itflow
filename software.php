@@ -9,10 +9,26 @@ if (isset($_GET['client_id'])) {
     require_once "includes/inc_all_client.php";
     $client_query = "AND software_client_id = $client_id";
     $client_url = "client_id=$client_id&";
+    // Overide Filter Header Archived
+    if (isset($_GET['archived']) && $_GET['archived'] == 1) {
+        $archived = 1;
+        $archive_query = "software_archived_at IS NOT NULL";
+    } else {
+        $archived = 0;
+        $archive_query = "software_archived_at IS NULL";
+    }
 } else {
     require_once "includes/inc_client_overview_all.php";
     $client_query = '';
     $client_url = '';
+    // Overide Filter Header Archived
+    if (isset($_GET['archived']) && $_GET['archived'] == 1) {
+        $archived = 1;
+        $archive_query = "(client_archived_at IS NOT NULL OR software_archived_at IS NOT NULL)";
+    } else {
+        $archived = 0;
+        $archive_query = "(client_archived_at IS NULL AND software_archived_at IS NULL)";
+    }
 }
 
 // Perms
@@ -36,7 +52,7 @@ $sql = mysqli_query(
     LEFT JOIN clients ON client_id = software_client_id
     LEFT JOIN vendors ON vendor_id = software_vendor_id
     WHERE software_template = 0
-    AND software_$archive_query
+    AND $archive_query
     AND (software_name LIKE '%$q%' OR software_type LIKE '%$q%' OR software_key LIKE '%$q%' OR client_name LIKE '%$q%')
     $access_permission_query
     $client_query

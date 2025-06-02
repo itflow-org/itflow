@@ -132,6 +132,29 @@ if (isset($_GET['archive_certificate'])) {
 
 }
 
+if (isset($_GET['unarchive_certificate'])) {
+
+    enforceUserPermission('module_support', 2);
+
+    $certificate_id = intval($_GET['unarchive_certificate']);
+
+    // Get Certificate Name and Client ID for logging and alert message
+    $sql = mysqli_query($mysqli,"SELECT certificate_name, certificate_client_id FROM certificates WHERE certificate_id = $certificate_id");
+    $row = mysqli_fetch_array($sql);
+    $certificate_name = sanitizeInput($row['certificate_name']);
+    $client_id = intval($row['certificate_client_id']);
+
+    mysqli_query($mysqli,"UPDATE certificates SET certificate_archived_at = NULL WHERE certificate_id = $certificate_id");
+
+    // logging
+    logAction("Certificate", "Unarchive", "$session_name restored certificate $certificate_name", $client_id, $certificate_id);
+
+    $_SESSION['alert_message'] = "Certificate <strong>$certificate_name</strong> restored";
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
 if (isset($_GET['delete_certificate'])) {
 
     enforceUserPermission('module_support', 3);

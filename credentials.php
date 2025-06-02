@@ -9,12 +9,30 @@ if (isset($_GET['client_id'])) {
     require_once "includes/inc_all_client.php";
     $client_query = "AND credential_client_id = $client_id";
     $client_url = "client_id=$client_id&";
+    // Overide Filter Header Archived
+    if (isset($_GET['archived']) && $_GET['archived'] == 1) {
+        $archived = 1;
+        $archive_query = "c.credential_archived_at IS NOT NULL";
+    } else {
+        $archived = 0;
+        $archive_query = "c.credential_archived_at IS NULL";
+    }
+
     // Log when users load the Credentials page
     logAction("Credential", "View", "$session_name viewed the Credentials page for client", $client_id);
+
 } else {
     require_once "includes/inc_client_overview_all.php";
     $client_query = '';
     $client_url = '';
+    // Overide Filter Header Archived
+    if (isset($_GET['archived']) && $_GET['archived'] == 1) {
+        $archived = 1;
+        $archive_query = "(client_archived_at IS NOT NULL OR c.credential_archived_at IS NOT NULL)";
+    } else {
+        $archived = 0;
+        $archive_query = "(client_archived_at IS NULL AND c.credential_archived_at IS NULL)";
+    }
     // Log when users load the Credentials page
     logAction("Credential", "View", "$session_name viewed the All Credentials page");
 }
@@ -68,7 +86,7 @@ $sql = mysqli_query(
     LEFT JOIN contacts ON contact_id = credential_contact_id
     LEFT JOIN assets ON asset_id = credential_asset_id
     $location_query_innerjoin
-    WHERE c.credential_$archive_query
+    WHERE $archive_query
     $tag_query
     AND (c.credential_name LIKE '%$q%' OR c.credential_description LIKE '%$q%' OR c.credential_uri LIKE '%$q%' OR tag_name LIKE '%$q%' OR client_name LIKE '%$q%')
     $location_query
