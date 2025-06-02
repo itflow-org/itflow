@@ -2,6 +2,16 @@
 
 This file documents all notable changes made to ITFlow.
 
+## [25.05.1]
+
+### Added / Changed
+- Added Domain Expiring Card to Client Portal Dashboard for Primary and Technical Users.
+- Added Balance and Monthly Recurring Amount to Client Portal Dahboard for Primary and Technical Users.
+
+### Fixed
+- Add Payment not showing in Invoice.
+
+
 ## [25.05]
 
 ### Added / Changed
