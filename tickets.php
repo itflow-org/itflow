@@ -55,7 +55,7 @@ if (isset($_GET['billable']) && ($_GET['billable']) == '1') {
     $ticket_billable_snippet = '';
 }
 
-if (isset($_GET['category'])) {
+if (!empty($_GET['category'])) {
     $category = intval($_GET['category']);
     $category_snippet = "AND ticket_category = $category";
 } else {
@@ -219,7 +219,7 @@ $sql_categories = mysqli_query(
                                     <span class="d-none d-xl-inline ml-2">Categories</span>
                                 </button>
                                 <div class="dropdown-menu">
-                                    <a class="dropdown-item " href="<?=htmlspecialchars('?' . http_build_query(array_merge($_GET, ['category' => 'all']))); ?>">All</a>
+                                    <a class="dropdown-item " href="<?=htmlspecialchars('?' . http_build_query(array_merge($_GET, ['category' => '']))); ?>">All</a>
                                     <div class="dropdown-divider"></div>
                                     <?php
                                     while ($row = mysqli_fetch_array($sql_categories)) {
@@ -230,7 +230,7 @@ $sql_categories = mysqli_query(
                                     <a class="dropdown-item" href="<?=htmlspecialchars('?' . http_build_query(array_merge($_GET, ['category' => $category_id]))); ?>"><?php echo $category_name ?></a>
                                     <div class="dropdown-divider"></div>
                                 <?php } ?>
-                                    <a class="dropdown-item " href="<?=htmlspecialchars('?' . http_build_query(array_merge($_GET, ['category' => 'empty']))); ?>">No Category</a>
+                                    <a class="dropdown-item " href="<?=htmlspecialchars('?' . http_build_query(array_merge($_GET, ['category' => 'none']))); ?>">No Category</a>
                                 </div>
                             </div>
                             <div class="btn-group">
