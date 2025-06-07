@@ -56,14 +56,8 @@ if (isset($_GET['billable']) && ($_GET['billable']) == '1') {
 }
 
 if (isset($_GET['category'])) {
-    $category = sanitizeInput($_GET['category']);
-    if ($category == 'empty') {
-        $category_snippet = "AND ticket_category = 0 ";
-    } elseif ($category == 'all') {
-        $category_snippet = '';
-    } else {
-        $category_snippet = "AND ticket_category = " . $category;
-    }
+    $category = intval($_GET['category']);
+    $category_snippet = "AND ticket_category = $category";
 } else {
     $category_snippet = '';
 }
