@@ -14,7 +14,7 @@ if (str_contains(basename($_SERVER["PHP_SELF"]), "admin_")) { ?>
 </div> <!-- ./wrapper -->
 
 <!-- Set the browser window title to the clients name -->
-<script>document.title = "<?php echo "$tab_title - $page_title"; ?>"</script>
+<script>document.title = <?php echo json_encode("$tab_title - $page_title"); ?>;</script>
 
 <!-- REQUIRED SCRIPTS -->
 
