@@ -6,14 +6,15 @@
             <div class="table-responsive-sm">
                 <table class="table table-striped table-borderless table-hover">
                     <thead class="text-dark <?php if (!$num_rows[0]) { echo "d-none"; } ?>">
-                    <tr>
-                        <?php if ($_GET['status'] !== 'Closed') { ?>
+                    <tr>        
                         <td>
+                            <?php if ($_GET['status'] !== 'Closed') { ?>
                             <div class="form-check">
                                 <input class="form-check-input" id="selectAllCheckbox" type="checkbox" onclick="checkAll(this)" onKeyPress="checkAll(this)">
                             </div>
+                            <?php } ?>
                         </td>
-                        <?php } ?>
+                        
                         <th scope="col">
                             <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=ticket_subject&order=<?php echo $disp; ?>">
                                 Ticket <?php if ($sort == 'ticket_subject') { echo $order_icon; } ?>
@@ -167,14 +168,14 @@
 
                         <tr class="<?php if(empty($ticket_closed_at) && empty($ticket_updated_at)) { echo "text-bold"; }?> <?php if (empty($ticket_closed_at) && $ticket_reply_type == "Client") { echo "table-warning"; } ?>">
 
-                            <!-- Ticket Bulk Select (for open tickets) -->
-                            <?php if (empty($ticket_closed_at)) { ?>
                             <td>
+                                <!-- Ticket Bulk Select (for open tickets) -->
+                                <?php if (empty($ticket_closed_at)) { ?>
                                 <div class="form-check">
                                     <input class="form-check-input bulk-select" type="checkbox" name="ticket_ids[]" value="<?php echo $ticket_id ?>">
-                                </div>   
+                                </div>
+                                <?php } ?>  
                             </td>
-                            <?php } ?>
 
                             <!-- Ticket Subject -->
                             <td>

@@ -7,13 +7,15 @@
                     <table class="table table-striped table-borderless table-hover">
                         <thead class="text-dark <?php if (!$num_rows[0]) { echo "d-none"; } ?> text-nowrap">
                         <tr>
-                            <?php if ($_GET['status'] !== 'Closed') { ?>
+                            
                             <td>
+                                <?php if ($_GET['status'] !== 'Closed') { ?>
                                 <div class="form-check">
                                     <input class="form-check-input" id="selectAllCheckbox" type="checkbox" onclick="checkAll(this)" onkeydown="checkAll(this)">
                                 </div>
+                                <?php } ?>
                             </td>
-                            <?php } ?>
+
                             <th>
                                 <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=ticket_number&order=<?php echo $disp; ?>">
                                     Ticket <?php if ($sort == 'ticket_number') { echo $order_icon; } ?>
@@ -181,14 +183,15 @@
 
                             <tr class="<?php if(empty($ticket_closed_at) && empty($ticket_updated_at)) { echo "text-bold"; }?> <?php if (empty($ticket_closed_at) && $ticket_reply_type == "Client") { echo "table-warning"; } ?>">
 
-                                <!-- Ticket Bulk Select (for open tickets) -->
-                                <?php if (empty($ticket_closed_at)) { ?>
                                 <td>
+                                    <!-- Ticket Bulk Select (for open tickets) -->
+                                    <?php if (empty($ticket_closed_at)) { ?>
                                     <div class="form-check">
                                         <input class="form-check-input bulk-select" type="checkbox" name="ticket_ids[]" value="<?php echo $ticket_id ?>">
                                     </div>
+                                    <?php } ?>
                                 </td>
-                                <?php } ?>
+                                
                                 <!-- Ticket Number -->
                                 <td>
                                     <a href="ticket.php?<?php echo $client_url; ?>ticket_id=<?php echo $ticket_id; ?>">
