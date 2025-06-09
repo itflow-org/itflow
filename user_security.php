@@ -30,22 +30,20 @@ $remember_token_count = mysqli_num_rows($sql_remember_tokens);
 
             <button type="submit" name="edit_your_user_password" class="btn btn-primary"><i class="fas fa-check mr-2"></i>Change</button>
 
-            <div class="float-right">
-                <?php if (empty($session_token)) { ?>
-                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#enableMFAModal">
-                        <i class="fas fa-lock mr-2"></i>Enable MFA
-                    </button>
-
-                    <?php require_once "modals/user_mfa_modal.php"; ?>
-                
-                <?php } else { ?>
-                    <a href="post.php?disable_mfa&csrf_token=<?php echo $_SESSION['csrf_token'] ?>" class="btn btn-danger"><i class="fas fa-unlock mr-2"></i>Disable MFA</a>
-                <?php } ?>
-            </div>
-
         </form>
 
-         
+         <div class="float-right">
+            <?php if (empty($session_token)) { ?>
+                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#enableMFAModal">
+                    <i class="fas fa-lock mr-2"></i>Enable MFA
+                </button>
+
+                <?php require_once "modals/user_mfa_modal.php"; ?>
+            
+            <?php } else { ?>
+                <a href="post.php?disable_mfa&csrf_token=<?php echo $_SESSION['csrf_token'] ?>" class="btn btn-danger"><i class="fas fa-unlock mr-2"></i>Disable MFA</a>
+            <?php } ?>
+        </div>
 
     </div>
 </div>
