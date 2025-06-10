@@ -12,6 +12,11 @@ if (isset($_POST['edit_security_settings'])) {
     $config_login_remember_me_expire = intval($_POST['config_login_remember_me_expire']);
     $config_log_retention = intval($_POST['config_log_retention']);
 
+    // Disallow turning on login key without a secret
+    if (empty($config_login_key_secret)) {
+        $config_login_key_required = 0;
+    }
+
     mysqli_query($mysqli,"UPDATE settings SET config_login_message = '$config_login_message', config_login_key_required = '$config_login_key_required', config_login_key_secret = '$config_login_key_secret', config_login_remember_me_expire = $config_login_remember_me_expire, config_log_retention = $config_log_retention WHERE company_id = 1");
 
     // Logging
