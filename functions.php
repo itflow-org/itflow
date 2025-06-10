@@ -77,17 +77,21 @@ function getUserAgent() {
 }
 
 function getIP() {
-    if (defined("CONST_GET_IP_METHOD")) {
-        if (CONST_GET_IP_METHOD == "HTTP_X_FORWARDED_FOR") {
-            $ip = getenv('HTTP_X_FORWARDED_FOR');
-        } else {
-            $ip = $_SERVER["HTTP_CF_CONNECTING_IP"] ?? $_SERVER['REMOTE_ADDR'];
-        }
-    } else {
+
+    // Default way to get IP
+    $ip = $_SERVER['REMOTE_ADDR'];
+
+    // Allow overrides via config.php in-case we use a proxy - https://docs.itflow.org/config_php
+    if (defined("CONST_GET_IP_METHOD") && CONST_GET_IP_METHOD == "HTTP_X_FORWARDED_FOR") {
+        $ip = explode(',', getenv('HTTP_X_FORWARDED_FOR'))[0] ?? $_SERVER['REMOTE_ADDR'];;
+    } elseif (defined("CONST_GET_IP_METHOD") && CONST_GET_IP_METHOD == "HTTP_CF_CONNECTING_IP") {
         $ip = $_SERVER["HTTP_CF_CONNECTING_IP"] ?? $_SERVER['REMOTE_ADDR'];
     }
 
+    // Abort if something isn't right
     if (!filter_var($ip, FILTER_VALIDATE_IP)) {
+        error_log("ITFlow - Could not validate remote IP address");
+        error_log("ITFlow - IP was [$ip] using method " . CONST_GET_IP_METHOD);
         exit("Potential Security Violation");
     }
 
