@@ -211,7 +211,7 @@
 
                 while ($row = mysqli_fetch_array($sql_custom_links)) {
                     $custom_link_name = nullable_htmlentities($row['custom_link_name']);
-                    $custom_link_uri = nullable_htmlentities($row['custom_link_uri']);
+                    $custom_link_uri = sanitize_url($row['custom_link_uri']);
                     $custom_link_icon = nullable_htmlentities($row['custom_link_icon']);
                     $custom_link_new_tab = intval($row['custom_link_new_tab']);
                     if ($custom_link_new_tab == 1) {
