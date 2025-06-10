@@ -5,7 +5,6 @@ require_once '../includes/ajax_header.php';
 $service_id = intval($_GET['id']);
 
 $sql = mysqli_query($mysqli, "SELECT * FROM services WHERE service_id = $service_id LIMIT 1");
-
 $row = mysqli_fetch_array($sql);
 $service_name = nullable_htmlentities($row['service_name']);
 $service_description = nullable_htmlentities($row['service_description']);
@@ -17,6 +16,7 @@ $service_created_at = nullable_htmlentities($row['service_created_at']);
 $service_updated_at = nullable_htmlentities($row['service_updated_at']);
 $service_review_due = nullable_htmlentities($row['service_review_due']);
 $client_id = intval($row['service_client_id']);
+
 // Service Importance
 if ($service_importance == "High") {
     $service_importance_display = "<span class='p-2 badge badge-danger'>$service_importance</span>";
@@ -55,6 +55,7 @@ $sql_domains = mysqli_query(
     LEFT JOIN domains ON service_domains.domain_id = domains.domain_id
     WHERE service_id = $service_id"
 );
+
 // Associated Certificates
 $sql_certificates = mysqli_query(
     $mysqli,
@@ -62,10 +63,6 @@ $sql_certificates = mysqli_query(
     LEFT JOIN certificates ON service_certificates.certificate_id = certificates.certificate_id
     WHERE service_id = $service_id"
 );
-
-// Associated URLs ---- REMOVED for now
-//$sql_urls = mysqli_query($mysqli, "SELECT * FROM service_urls
-//WHERE service_id = '$service_id'");
 
 // Associated Vendors
 $sql_vendors = mysqli_query(
@@ -116,148 +113,98 @@ ob_start();
 
                 <!-- Assets -->
                 <?php
-                if (mysqli_num_rows($sql_assets) > 0) { ?>
-                    <h5><i class="fas fa-fw fa-desktop mr-2"></i>Assets</h5>
-                    <ul>
-                        <?php
-                        // Reset the $sql_assets pointer to the start - as we've already cycled through once
-                        mysqli_data_seek($sql_assets, 0);
-
-                        while ($row = mysqli_fetch_array($sql_assets)) {
-                            $asset_id = intval($row['asset_id']);
-                            $asset_name = nullable_htmlentities($row['asset_name']);
-                            if (!empty($row['interface_ip'])) {
-                                $ip = '('.nullable_htmlentities($row["interface_ip"]).')';
-                            } else {
-                                $ip = '';
-                            }
-                            echo "<li><a href='#' data-toggle='ajax-modal'
-                                data-modal-size='lg'
-                                data-ajax-url='ajax/ajax_asset_details.php'
-                                data-ajax-id='$asset_id'>$asset_name</a>$ip</li>";
-                        }
-                        ?>
-                    </ul>
-                    <?php
+                if (mysqli_num_rows($sql_assets) > 0) {
+                    echo "<h5><i class='fas fa-fw fa-desktop mr-2'></i>Assets</h5><ul>";
+                    mysqli_data_seek($sql_assets, 0);
+                    while ($row = mysqli_fetch_array($sql_assets)) {
+                        $asset_id = intval($row['asset_id']);
+                        $asset_name = nullable_htmlentities($row['asset_name']);
+                        $ip = !empty($row['interface_ip']) ? '(' . nullable_htmlentities($row['interface_ip']) . ')' : '';
+                        echo "<li><a href='#' data-toggle='ajax-modal' data-modal-size='lg' data-ajax-url='ajax/ajax_asset_details.php' data-ajax-id='$asset_id'>$asset_name</a>$ip</li>";
+                    }
+                    echo "</ul>";
                 }
                 ?>
 
                 <!-- Networks -->
                 <?php
+                $networks = [];
                 if ($sql_assets) {
-
-                    $networks = [];
-
-                    // Reset the $sql_assets pointer to the start
                     mysqli_data_seek($sql_assets, 0);
-
-                    // Get networks linked to assets - push name to array
                     while ($row = mysqli_fetch_array($sql_assets)) {
                         if (!empty($row['network_name'])) {
-                            $network_data = nullable_htmlentities("$row[network_name]:$row[network_vlan]");
-                            array_push($networks, $network_data);
+                            $network_data = nullable_htmlentities($row["network_name"]) . ':' . nullable_htmlentities($row["network_vlan"]);
+                            $networks[] = $network_data;
                         }
                     }
-
-                    // Remove duplicates
                     $networks = array_unique($networks);
-
-                    // Display
-                    if (!empty($networks)) { ?>
-                        <h5><i class="fas fa-fw fa-network-wired mr-2"></i>Networks</h5>
-                        <ul>
-                        <?php
+                    if (!empty($networks)) {
+                        echo "<h5><i class='fas fa-fw fa-network-wired mr-2'></i>Networks</h5><ul>";
+                        foreach ($networks as $network) {
+                            $network_parts = explode(":", $network);
+                            $network_name = $network_parts[0];
+                            $network_vlan = $network_parts[1] ?? '';
+                            echo "<li><a href='networks.php?client_id=$client_id&q=$network_name'>$network_name</a> (VLAN $network_vlan)</li>";
+                        }
+                        echo "</ul>";
                     }
-                    foreach($networks as $network) {
-                        $network = explode(":", $network);
-                        echo "<li><a href=\"networks.php?client_id=$client_id&q=$network[0]\">$network[0] </a>(VLAN $network[1])</li>";
-                    }
-
-                    ?>
-                    </ul>
-                    <?php
                 }
                 ?>
 
                 <!-- Locations -->
                 <?php
+                $location_names = [];
                 if ($sql_assets) {
-
-                    $location_names = [];
-
-                    // Reset the $sql_assets pointer to the start - as we've already cycled through once
                     mysqli_data_seek($sql_assets, 0);
-
-                    // Get locations linked to assets - push their name and vlan to arrays
                     while ($row = mysqli_fetch_array($sql_assets)) {
                         if (!empty($row['location_name'])) {
-                            array_push($location_names, $row['location_name']);
+                            $location_names[] = nullable_htmlentities($row['location_name']);
                         }
                     }
-
-                    // Remove duplicates
                     $location_names = array_unique($location_names);
-
-                    // Display
-                    if (!empty($location_names)) { ?>
-                        <h5><i class="fas fa-fw fa-map-marker-alt mr-2"></i>Locations</h5>
-                        <ul>
-                        <?php
+                    if (!empty($location_names)) {
+                        echo "<h5><i class='fas fa-fw fa-map-marker-alt mr-2'></i>Locations</h5><ul>";
+                        foreach ($location_names as $location) {
+                            echo "<li><a href='locations.php?client_id=$client_id&q=$location'>$location</a></li>";
+                        }
+                        echo "</ul>";
                     }
-                    foreach($location_names as $location) {
-                        echo "<li><a href=\"locations.php?client_id=$client_id&q=$location\">$location</a></li>";
-                    }
-                    ?>
-                    </ul>
-                    <?php
                 }
                 ?>
 
                 <!-- Domains -->
                 <?php
-                if (mysqli_num_rows($sql_domains) > 0) { ?>
-                    <h5><i class="fas fa-fw fa-globe mr-2"></i>Domains</h5>
-                    <ul>
-                        <?php
-                        // Reset the $sql_domains pointer to the start
-                        mysqli_data_seek($sql_domains, 0);
-
-                        // Showing linked domains
-                        while ($row = mysqli_fetch_array($sql_domains)) {
-                            if (!empty($row['domain_name'])) {
-                                echo "<li><a href=\"domains.php?client_id=$client_id&q=$row[domain_name]\">$row[domain_name]</a></li>";
-                            }
+                if (mysqli_num_rows($sql_domains) > 0) {
+                    echo "<h5><i class='fas fa-fw fa-globe mr-2'></i>Domains</h5><ul>";
+                    mysqli_data_seek($sql_domains, 0);
+                    while ($row = mysqli_fetch_array($sql_domains)) {
+                        if (!empty($row['domain_name'])) {
+                            $domain_name = nullable_htmlentities($row['domain_name']);
+                            echo "<li><a href='domains.php?client_id=$client_id&q=$domain_name'>$domain_name</a></li>";
                         }
-                        ?>
-                    </ul>
-                    <?php
+                    }
+                    echo "</ul>";
                 }
                 ?>
 
                 <!-- Certificates -->
                 <?php
-                if (mysqli_num_rows($sql_certificates) > 0) { ?>
-                    <h5><i class="fas fa-fw fa-lock mr-2"></i>Certificates</h5>
-                    <ul>
-                        <?php
-                        // Reset the $sql_certificates pointer to the start
-                        mysqli_data_seek($sql_certificates, 0);
-
-                        // Showing linked certs
-                        while ($row = mysqli_fetch_array($sql_certificates)) {
-                            if (!empty($row['certificate_name'])) {
-                                echo "<li><a href=\"certificates.php?client_id=$client_id&q=$row[certificate_name]\">$row[certificate_name] ($row[certificate_domain])</a></li>";
-                            }
+                if (mysqli_num_rows($sql_certificates) > 0) {
+                    echo "<h5><i class='fas fa-fw fa-lock mr-2'></i>Certificates</h5><ul>";
+                    mysqli_data_seek($sql_certificates, 0);
+                    while ($row = mysqli_fetch_array($sql_certificates)) {
+                        if (!empty($row['certificate_name'])) {
+                            $certificate_name = nullable_htmlentities($row['certificate_name']);
+                            $certificate_domain = nullable_htmlentities($row['certificate_domain']);
+                            echo "<li><a href='certificates.php?client_id=$client_id&q=$certificate_name'>$certificate_name ($certificate_domain)</a></li>";
                         }
-                        ?>
-                    </ul>
-                    <?php
+                    }
+                    echo "</ul>";
                 }
                 ?>
 
             </div>
         </div>
-
 
         <!-- Right side -->
         <div class="col-4">
@@ -267,147 +214,95 @@ ob_start();
 
                 <!-- Vendors -->
                 <?php
-                // Reset the $sql_vendors pointer to the start
-                mysqli_data_seek($sql_vendors, 0);
-
-                if (mysqli_num_rows($sql_vendors) > 0) { ?>
-                    <h5><i class="fas fa-fw fa-building mr-2"></i>Vendors</h5>
-                    <ul>
-                        <?php
-                        while ($row = mysqli_fetch_array($sql_vendors)) {
-
-                            $vendor_id = intval($row['vendor_id']);
-                            $vendor_name = nullable_htmlentities($row['vendor_name']);
-                            echo "<li><a href='#' data-toggle='ajax-modal'
-                                data-modal-size='lg'
-                                data-ajax-url='ajax/ajax_vendor_details.php'
-                                data-ajax-id='$vendor_id'>
-                                $vendor_name
-                                </a>
-                            </li>";
-                        }
-                        ?>
-                    </ul>
-                    <?php
+                if (mysqli_num_rows($sql_vendors) > 0) {
+                    echo "<h5><i class='fas fa-fw fa-building mr-2'></i>Vendors</h5><ul>";
+                    mysqli_data_seek($sql_vendors, 0);
+                    while ($row = mysqli_fetch_array($sql_vendors)) {
+                        $vendor_id = intval($row['vendor_id']);
+                        $vendor_name = nullable_htmlentities($row['vendor_name']);
+                        echo "<li><a href='#' data-toggle='ajax-modal' data-modal-size='lg' data-ajax-url='ajax/ajax_vendor_details.php' data-ajax-id='$vendor_id'>$vendor_name</a></li>";
+                    }
+                    echo "</ul>";
                 }
                 ?>
 
                 <!-- Contacts -->
                 <?php
-                if (mysqli_num_rows($sql_contacts) > 0) { ?>
-                    <h5><i class="fas fa-fw fa-users mr-2"></i>Contacts</h5>
-                    <ul>
-                        <?php
-                        // Reset the $sql_contacts pointer to the start
-                        mysqli_data_seek($sql_contacts, 0);
-
-                        while ($row = mysqli_fetch_array($sql_contacts)) {
-                            $contact_id = intval($row['contact_id']);
-                            $contact_name = nullable_htmlentities($row['contact_name']);
-                            echo "<li><a href='#' data-toggle='ajax-modal'
-                                data-modal-size='lg'
-                                data-ajax-url='ajax/ajax_contact_details.php'
-                                data-ajax-id='$contact_id'>
-                                $contact_name
-                                </a>
-                            </li>";
-                        }
-                        ?>
-                    </ul>
-                    <?php
+                if (mysqli_num_rows($sql_contacts) > 0) {
+                    echo "<h5><i class='fas fa-fw fa-users mr-2'></i>Contacts</h5><ul>";
+                    mysqli_data_seek($sql_contacts, 0);
+                    while ($row = mysqli_fetch_array($sql_contacts)) {
+                        $contact_id = intval($row['contact_id']);
+                        $contact_name = nullable_htmlentities($row['contact_name']);
+                        echo "<li><a href='#' data-toggle='ajax-modal' data-modal-size='lg' data-ajax-url='ajax/ajax_contact_details.php' data-ajax-id='$contact_id'>$contact_name</a></li>";
+                    }
+                    echo "</ul>";
                 }
                 ?>
 
                 <!-- Credentials -->
                 <?php
-                if (mysqli_num_rows($sql_assets) > 0 || mysqli_num_rows($sql_credentials) > 0) { ?>
-                    <h5><i class="fas fa-fw fa-key mr-2"></i>Credentials</h5>
-                    <ul>
-                        <?php
-                        // Reset the $sql_assets/credentials pointer to the start
-                        mysqli_data_seek($sql_assets, 0);
-                        mysqli_data_seek($sql_credentials, 0);
-
-                        // Showing credentials linked to assets
-                        while ($row = mysqli_fetch_array($sql_assets)) {
-                            if (!empty($row['credential_name'])) {
-                                echo "<li><a href=\"credentials.php?client_id=$client_id&q=$row[credential_name]\">$row[credential_name]</a></li>";
-                            }
+                if (mysqli_num_rows($sql_assets) > 0 || mysqli_num_rows($sql_credentials) > 0) {
+                    echo "<h5><i class='fas fa-fw fa-key mr-2'></i>Credentials</h5><ul>";
+                    // Credentials linked to assets
+                    mysqli_data_seek($sql_assets, 0);
+                    while ($row = mysqli_fetch_array($sql_assets)) {
+                        $credential_name = nullable_htmlentities($row['credential_name']);
+                        if (!empty($credential_name)) {
+                            echo "<li><a href='credentials.php?client_id=$client_id&q=$credential_name'>$credential_name</a></li>";
                         }
-
-                        // Showing explicitly linked credentials
-                        while ($row = mysqli_fetch_array($sql_credentials)) {
-                            if (!empty($row['credential_name'])) {
-                                echo "<li><a href=\"credentials.php?client_id=$client_id&q=$row[credential_name]\">$row[credential_name]</a></li>";
-                            }
+                    }
+                    // Explicitly linked credentials
+                    mysqli_data_seek($sql_credentials, 0);
+                    while ($row = mysqli_fetch_array($sql_credentials)) {
+                        $credential_name = nullable_htmlentities($row['credential_name']);
+                        if (!empty($credential_name)) {
+                            echo "<li><a href='credentials.php?client_id=$client_id&q=$credential_name'>$credential_name</a></li>";
                         }
-                        ?>
-                    </ul>
-                    <?php
+                    }
+                    echo "</ul>";
                 }
                 ?>
 
                 <!-- URLs -->
                 <?php
-                if ($sql_credentials || $sql_assets) { ?>
-                    <h5><i class="fas fa-fw fa-link mr-2"></i>URLs</h5>
-                    <ul>
-                        <?php
-                        // Reset the $sql_credentials pointer to the start
-                        mysqli_data_seek($sql_credentials, 0);
-
-                        // Showing URLs linked to credentials
-                        while ($row = mysqli_fetch_array($sql_credentials)) {
-                            if (!empty($row['credential_uri'])) {
-                                echo "<li><a href=\"https://$row[credential_uri]\">$row[credential_uri]</a></li>";
-                            }
-                        }
-
-                        // Reset the $sql_assets pointer to the start
-                        mysqli_data_seek($sql_assets, 0);
-
-                        // Show URLs linked to assets, that also have credentials
-                        while ($row = mysqli_fetch_array($sql_assets)) {
-                            if (!empty($row['credential_uri'])) {
-                                echo "<li><a href=\"https://$row[credential_uri]\">$row[credential_uri]</a></li>";
-                            }
-                        }
-                        ?>
-                    </ul>
-                    <?php
+                $urls = [];
+                mysqli_data_seek($sql_credentials, 0);
+                while ($row = mysqli_fetch_array($sql_credentials)) {
+                    if (!empty($row['credential_uri'])) {
+                        $urls[] = sanitize_url($row['credential_uri']);
+                    }
+                }
+                mysqli_data_seek($sql_assets, 0);
+                while ($row = mysqli_fetch_array($sql_assets)) {
+                    if (!empty($row['asset_uri'])) {
+                        $urls[] = sanitize_url($row['asset_uri']);
+                    }
+                }
+                $urls = array_unique($urls);
+                if (!empty($urls)) {
+                    echo "<h5><i class='fas fa-fw fa-link mr-2'></i>URLs</h5><ul>";
+                    foreach ($urls as $url) {
+                        $label = htmlspecialchars(parse_url($url, PHP_URL_HOST) ?: $url);
+                        echo "<li><a href='$url' target='_blank'>$label</a></li>";
+                    }
+                    echo "</ul>";
                 }
                 ?>
 
                 <!-- Documents -->
                 <?php
-                if (mysqli_num_rows($sql_docs) > 0) { ?>
-                    <h5><i class="fas fa-fw fa-file-alt mr-2"></i>Documents</h5>
-                    <ul>
-                        <?php
-                        // Reset the $sql_docs pointer to the start
-                        mysqli_data_seek($sql_docs, 0);
-
-                        while ($row = mysqli_fetch_array($sql_docs)) {
-                            $document_id = intval($row['document_id']);
-                            $document_name = nullable_htmlentities($row['document_name']);
-                            echo "<li><a href='#' data-toggle='ajax-modal'
-                                data-modal-size='lg'
-                                data-ajax-url='ajax/ajax_document_view.php'
-                                data-ajax-id='$document_id'>
-                                $document_name
-                                </a>
-                            </li>";
-                        }
-                        ?>
-                    </ul>
-                    <?php
+                if (mysqli_num_rows($sql_docs) > 0) {
+                    echo "<h5><i class='fas fa-fw fa-file-alt mr-2'></i>Documents</h5><ul>";
+                    mysqli_data_seek($sql_docs, 0);
+                    while ($row = mysqli_fetch_array($sql_docs)) {
+                        $document_id = intval($row['document_id']);
+                        $document_name = nullable_htmlentities($row['document_name']);
+                        echo "<li><a href='#' data-toggle='ajax-modal' data-modal-size='lg' data-ajax-url='ajax/ajax_document_view.php' data-ajax-id='$document_id'>$document_name</a></li>";
+                    }
+                    echo "</ul>";
                 }
                 ?>
-
-                <!--                            <h5><i class="nav-icon fas fa-file-alt"></i> Services</h5>-->
-                <!--                            <ul>-->
-                <!--                                <li>Related Service - Coming soon!</li>-->
-                <!--                            </ul>-->
 
             </div>
         </div>
@@ -416,3 +311,4 @@ ob_start();
 
 <?php
 require_once "../includes/ajax_footer.php";
+?>

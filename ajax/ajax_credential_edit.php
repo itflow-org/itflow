@@ -12,6 +12,8 @@ $credential_name = nullable_htmlentities($row['credential_name']);
 $credential_description = nullable_htmlentities($row['credential_description']);
 $credential_uri = nullable_htmlentities($row['credential_uri']);
 $credential_uri_2 = nullable_htmlentities($row['credential_uri_2']);
+$credential_uri_link = sanitize_url($row['credential_uri']);
+$credential_uri_2_link = sanitize_url($row['credential_uri_2']);
 $credential_username = nullable_htmlentities(decryptCredentialEntry($row['credential_username']));
 $credential_password = nullable_htmlentities(decryptCredentialEntry($row['credential_password']));
 $credential_otp_secret = nullable_htmlentities($row['credential_otp_secret']);
@@ -137,7 +139,7 @@ ob_start();
                         <input type="text" class="form-control" name="uri" placeholder="ex. http://192.168.1.1" maxlength="500" value="<?php echo $credential_uri; ?>">
                         <div class="input-group-append">
 
-                            <a href="<?php echo $credential_uri; ?>" class="input-group-text"><i class="fa fa-fw fa-link"></i></a>
+                            <a href="<?php echo $credential_uri_link; ?>" target="_blank" class="input-group-text"><i class="fa fa-fw fa-link"></i></a>
                         </div>
                         <div class="input-group-append">
                             <button class="input-group-text clipboardjs" type="button" data-clipboard-text="<?php echo $credential_uri; ?>"><i class="fa fa-fw fa-copy"></i></button>
@@ -153,7 +155,7 @@ ob_start();
                         </div>
                         <input type="text" class="form-control" name="uri_2" placeholder="ex. https://server.company.com:5001" maxlength="500" value="<?php echo $credential_uri_2; ?>">
                         <div class="input-group-append">
-                            <a href="<?php echo $credential_uri_2; ?>" class="input-group-text"><i class="fa fa-fw fa-link"></i></a>
+                            <a href="<?php echo $credential_uri_2_link; ?>" target="_blank" class="input-group-text"><i class="fa fa-fw fa-link"></i></a>
                         </div>
                         <div class="input-group-append">
                             <button class="input-group-text clipboardjs" type="button" data-clipboard-text="<?php echo $credential_uri_2; ?>"><i class="fa fa-fw fa-copy"></i></button>

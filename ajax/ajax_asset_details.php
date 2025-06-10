@@ -300,10 +300,10 @@ ob_start();
                         <div class="mt-2"><i class="fa fa-fw fa-ethernet text-secondary mr-2"></i><?php echo $asset_mac; ?></div>
                     <?php }
                     if ($asset_uri) { ?>
-                        <div class="mt-2"><i class="fa fa-fw fa-link text-secondary mr-2"></i><a href="<?php echo $asset_uri; ?>" target="_blank"><?php echo truncate($asset_uri, 20); ?></a></div>
+                        <div class="mt-2"><i class="fa fa-fw fa-link text-secondary mr-2"></i><a href="<?php echo $asset_uri; ?>" target="_blank" title="<?php echo $asset_uri; ?>"><?php echo truncate($asset_uri, 20); ?></a></div>
                     <?php }
                     if ($asset_uri_2) { ?>
-                        <div class="mt-2"><i class="fa fa-fw fa-link text-secondary mr-2"></i><a href="<?php echo $asset_uri_2; ?>" target="_blank"><?php echo truncate($asset_uri_2, 20); ?></a></div>
+                        <div class="mt-2"><i class="fa fa-fw fa-link text-secondary mr-2"></i><a href="<?php echo $asset_uri_2; ?>" target="_blank" title="<?php echo $asset_uri_2; ?>"><?php echo truncate($asset_uri_2, 20); ?></a></div>
                     <?php } ?>
                 </div>
             </div>

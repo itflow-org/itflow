@@ -300,13 +300,13 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             $credential_id = intval($row['c_credential_id']);
                             $credential_name = nullable_htmlentities($row['credential_name']);
                             $credential_description = nullable_htmlentities($row['credential_description']);
-                            $credential_uri = nullable_htmlentities($row['credential_uri']);
+                            $credential_uri = sanitize_url($row['credential_uri']);
                             if (empty($credential_uri)) {
                                 $credential_uri_display = "-";
                             } else {
-                                $credential_uri_display = truncate($credential_uri,40) . "<button class='btn btn-sm clipboardjs' type='button' data-clipboard-text='$credential_uri'><i class='far fa-copy text-secondary'></i></button>";
+                                $credential_uri_display = "<a href='$credential_uri'>" . truncate($credential_uri,40) . "</a><button class='btn btn-sm clipboardjs' type='button' title='$credential_uri' data-clipboard-text='$credential_uri'><i class='far fa-copy text-secondary'></i></button>";
                             }
-                            $credential_uri_2 = nullable_htmlentities($row['credential_uri_2']);
+                            $credential_uri_2 = sanitize_url($row['credential_uri_2']);
                             $credential_username = nullable_htmlentities(decryptCredentialEntry($row['credential_username']));
                             if (empty($credential_username)) {
                                 $credential_username_display = "-";
