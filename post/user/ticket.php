@@ -1012,103 +1012,120 @@ if (isset($_POST['bulk_resolve_tickets'])) {
     // Resolve Selected Tickets
     if (isset($_POST['ticket_ids'])) {
 
-        // Get a Ticket Count
-        $ticket_count = count($_POST['ticket_ids']);
+        // Intitialze the counts before the loop
+        $ticket_count = 0;
+        $skipped_count = 0;
 
         foreach ($_POST['ticket_ids'] as $ticket_id) {
             $ticket_id = intval($ticket_id);
 
-            $sql = mysqli_query($mysqli, "SELECT * FROM tickets WHERE ticket_id = $ticket_id");
-            $row = mysqli_fetch_array($sql);
+            // Check to make sure Tasks are complete before resolving
+            $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('task_id') AS num FROM tasks WHERE task_completed_at IS NULL AND task_ticket_id = $ticket_id"));
+            $num_of_open_tasks = $row['num'];
+            
+            if ($num_of_open_tasks == 0) {
+                // Count the Ticket Loop
+                $ticket_count++;
 
-            $ticket_prefix = sanitizeInput($row['ticket_prefix']);
-            $ticket_number = intval($row['ticket_number']);
-            $ticket_subject = sanitizeInput($row['ticket_subject']);
-            $current_ticket_priority = sanitizeInput($row['ticket_priority']);
-            $url_key = sanitizeInput($row['ticket_url_key']);
-            $client_id = intval($row['ticket_client_id']);
-
-            // Update ticket & insert reply
-            mysqli_query($mysqli, "UPDATE tickets SET ticket_status = 4, ticket_resolved_at = NOW() WHERE ticket_id = $ticket_id");
-
-            mysqli_query($mysqli, "INSERT INTO ticket_replies SET ticket_reply = '$details', ticket_reply_type = '$ticket_reply_type', ticket_reply_time_worked = '$ticket_reply_time_worked', ticket_reply_by = $session_user_id, ticket_reply_ticket_id = $ticket_id");
-
-            // Logging
-            logAction("Ticket", "Resolve", "$session_name resolved $ticket_prefix$ticket_number - $ticket_subject", $client_id, $ticket_id);
-
-            customAction('ticket_resolve', $ticket_id);
-
-            // Client notification email
-            if (!empty($config_smtp_host) && $config_ticket_client_general_notifications == 1 && $private_note == 0) {
-
-                // Get Contact details
-                $ticket_sql = mysqli_query($mysqli, "SELECT contact_name, contact_email FROM tickets 
-                    LEFT JOIN contacts ON ticket_contact_id = contact_id
-                    WHERE ticket_id = $ticket_id
-                ");
-                $row = mysqli_fetch_array($ticket_sql);
-
-                $contact_name = sanitizeInput($row['contact_name']);
-                $contact_email = sanitizeInput($row['contact_email']);
-
-                // Sanitize Config vars from get_settings.php
-                $from_name = sanitizeInput($config_ticket_from_name);
-                $from_email = sanitizeInput($config_ticket_from_email);
-                $base_url = sanitizeInput($config_base_url);
-
-                // Get Company Info
-                $sql = mysqli_query($mysqli, "SELECT company_name, company_phone, company_phone_country_code FROM companies WHERE company_id = 1");
+                $sql = mysqli_query($mysqli, "SELECT * FROM tickets WHERE ticket_id = $ticket_id");
                 $row = mysqli_fetch_array($sql);
-                $company_name = sanitizeInput($row['company_name']);
-                $company_phone = sanitizeInput(formatPhoneNumber($row['company_phone'], $row['company_phone_country_code']));
+
+                $ticket_prefix = sanitizeInput($row['ticket_prefix']);
+                $ticket_number = intval($row['ticket_number']);
+                $ticket_subject = sanitizeInput($row['ticket_subject']);
+                $current_ticket_priority = sanitizeInput($row['ticket_priority']);
+                $url_key = sanitizeInput($row['ticket_url_key']);
+                $client_id = intval($row['ticket_client_id']);
+
+                // Update ticket & insert reply
+                mysqli_query($mysqli, "UPDATE tickets SET ticket_status = 4, ticket_resolved_at = NOW() WHERE ticket_id = $ticket_id");
+
+                mysqli_query($mysqli, "INSERT INTO ticket_replies SET ticket_reply = '$details', ticket_reply_type = '$ticket_reply_type', ticket_reply_time_worked = '$ticket_reply_time_worked', ticket_reply_by = $session_user_id, ticket_reply_ticket_id = $ticket_id");
+
+                // Logging
+                logAction("Ticket", "Resolve", "$session_name resolved $ticket_prefix$ticket_number - $ticket_subject", $client_id, $ticket_id);
+
+                customAction('ticket_resolve', $ticket_id);
+
+                // Client notification email
+                if (!empty($config_smtp_host) && $config_ticket_client_general_notifications == 1 && $private_note == 0) {
+
+                    // Get Contact details
+                    $ticket_sql = mysqli_query($mysqli, "SELECT contact_name, contact_email FROM tickets 
+                        LEFT JOIN contacts ON ticket_contact_id = contact_id
+                        WHERE ticket_id = $ticket_id
+                    ");
+                    $row = mysqli_fetch_array($ticket_sql);
+
+                    $contact_name = sanitizeInput($row['contact_name']);
+                    $contact_email = sanitizeInput($row['contact_email']);
+
+                    // Sanitize Config vars from get_settings.php
+                    $from_name = sanitizeInput($config_ticket_from_name);
+                    $from_email = sanitizeInput($config_ticket_from_email);
+                    $base_url = sanitizeInput($config_base_url);
+
+                    // Get Company Info
+                    $sql = mysqli_query($mysqli, "SELECT company_name, company_phone, company_phone_country_code FROM companies WHERE company_id = 1");
+                    $row = mysqli_fetch_array($sql);
+                    $company_name = sanitizeInput($row['company_name']);
+                    $company_phone = sanitizeInput(formatPhoneNumber($row['company_phone'], $row['company_phone_country_code']));
 
 
-                // EMAIL
-                $subject = "Ticket resolved - [$ticket_prefix$ticket_number] - $ticket_subject | (pending closure)";
-                $body = "<i style=\'color: #808080\'>##- Please type your reply above this line -##</i><br><br>Hello $contact_name,<br><br>Your ticket regarding \"$ticket_subject\" has been marked as solved and is pending closure.<br><br>$details<br><br> If your request/issue is resolved, you can simply ignore this email. If you need further assistance, please reply or <a href=\'https://$config_base_url/guest/guest_view_ticket.php?ticket_id=$ticket_id&url_key=$url_key\'>re-open</a> to let us know! <br><br>Ticket: $ticket_prefix$ticket_number<br>Subject: $ticket_subject<br>Portal: https://$base_url/client/ticket.php?id=$ticket_id<br><br>--<br>$company_name - Support<br>$config_ticket_from_email<br>$company_phone";
+                    // EMAIL
+                    $subject = "Ticket resolved - [$ticket_prefix$ticket_number] - $ticket_subject | (pending closure)";
+                    $body = "<i style=\'color: #808080\'>##- Please type your reply above this line -##</i><br><br>Hello $contact_name,<br><br>Your ticket regarding \"$ticket_subject\" has been marked as solved and is pending closure.<br><br>$details<br><br> If your request/issue is resolved, you can simply ignore this email. If you need further assistance, please reply or <a href=\'https://$config_base_url/guest/guest_view_ticket.php?ticket_id=$ticket_id&url_key=$url_key\'>re-open</a> to let us know! <br><br>Ticket: $ticket_prefix$ticket_number<br>Subject: $ticket_subject<br>Portal: https://$base_url/client/ticket.php?id=$ticket_id<br><br>--<br>$company_name - Support<br>$config_ticket_from_email<br>$company_phone";
 
-                // Check email valid
-                if (filter_var($contact_email, FILTER_VALIDATE_EMAIL)) {
+                    // Check email valid
+                    if (filter_var($contact_email, FILTER_VALIDATE_EMAIL)) {
 
-                    $data = [];
+                        $data = [];
 
 
 
-                    // Email Ticket Contact
-                    // Queue Mail
+                        // Email Ticket Contact
+                        // Queue Mail
 
-                    $data[] = [
-                        'from' => $from_email,
-                        'from_name' => $from_name,
-                        'recipient' => $contact_email,
-                        'recipient_name' => $contact_name,
-                        'subject' => $subject,
-                        'body' => $body
-                    ];
-                }
+                        $data[] = [
+                            'from' => $from_email,
+                            'from_name' => $from_name,
+                            'recipient' => $contact_email,
+                            'recipient_name' => $contact_name,
+                            'subject' => $subject,
+                            'body' => $body
+                        ];
+                    }
 
-                // Also Email all the watchers
-                $sql_watchers = mysqli_query($mysqli, "SELECT watcher_email FROM ticket_watchers WHERE watcher_ticket_id = $ticket_id");
-                $body .= "<br><br>----------------------------------------<br>YOU ARE A COLLABORATOR ON THIS TICKET";
-                while ($row = mysqli_fetch_array($sql_watchers)) {
-                    $watcher_email = sanitizeInput($row['watcher_email']);
+                    // Also Email all the watchers
+                    $sql_watchers = mysqli_query($mysqli, "SELECT watcher_email FROM ticket_watchers WHERE watcher_ticket_id = $ticket_id");
+                    $body .= "<br><br>----------------------------------------<br>YOU ARE A COLLABORATOR ON THIS TICKET";
+                    while ($row = mysqli_fetch_array($sql_watchers)) {
+                        $watcher_email = sanitizeInput($row['watcher_email']);
 
-                    // Queue Mail
-                    $data[] = [
-                        'from' => $from_email,
-                        'from_name' => $from_name,
-                        'recipient' => $watcher_email,
-                        'recipient_name' => $watcher_email,
-                        'subject' => $subject,
-                        'body' => $body
-                    ];
-                }
-                addToMailQueue($data);
-            } // End Mail IF
+                        // Queue Mail
+                        $data[] = [
+                            'from' => $from_email,
+                            'from_name' => $from_name,
+                            'recipient' => $watcher_email,
+                            'recipient_name' => $watcher_email,
+                            'subject' => $subject,
+                            'body' => $body
+                        ];
+                    }
+                    addToMailQueue($data);
+                } // End Mail IF
+            } else {
+                 $skipped_count++;
+            } // End Task Check
         } // End Loop
     } // End Array Empty Check
 
     $_SESSION['alert_message'] = "Resolved <strong>$ticket_count</strong> Tickets";
+
+    if ($skipped_count > 0) {
+        $_SESSION['alert_type'] = "info";
+        $_SESSION['alert_message'] .= " <strong>$skipped_count</strong> ticket(s) could not be resolved because they have open tasks.";
+    }
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 }
