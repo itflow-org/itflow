@@ -21,6 +21,18 @@ if (isset($_GET['recurring_invoice_id'])) {
         WHERE recurring_invoice_id = $recurring_invoice_id LIMIT 1"
     );
 
+    if (mysqli_num_rows($sql) == 0) {
+        if (isset($_GET['client_id'])) {
+            $backlink_append = "?client_id=$client_id";
+        } else {
+            $backlink_append = '';
+        }
+        echo "<h1 class='text-secondary pt-5' style='text-align: center'>There is no Recurring Invoice here<br><small><a href='recurring_invoices.php$backlink_append'><i class='fas fa-arrow-left mr-2'></i>Back to Recurring Invoices</a></small></h1>";
+        require_once "includes/footer.php";
+
+        exit();
+    }
+
     $row = mysqli_fetch_array($sql);
     $recurring_invoice_prefix = nullable_htmlentities($row['recurring_invoice_prefix']);
     $recurring_invoice_number = intval($row['recurring_invoice_number']);

@@ -26,7 +26,12 @@ if (isset($_GET['invoice_id'])) {
     );
 
     if (mysqli_num_rows($sql) == 0) {
-        echo '<h1 class="text-secondary mt-5" style="text-align: center">Nothing to see here</h1>';
+        if (isset($_GET['client_id'])) {
+            $backlink_append = "?client_id=$client_id";
+        } else {
+            $backlink_append = '';
+        }
+        echo "<h1 class='text-secondary pt-5' style='text-align: center'>There is no Invoice here<br><small><a href='invoices.php$backlink_append'><i class='fas fa-arrow-left mr-2'></i>Back to Invoices</a></small></h1>";
         require_once "includes/footer.php";
 
         exit();
@@ -280,6 +285,10 @@ if (isset($_GET['invoice_id'])) {
                                         <i class="fa fa-fw fa-times mr-2"></i>Cancel
                                     </a>
                                 <?php } ?>
+                                <div class="dropdown-divider"></div>
+                                <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_invoice=<?php echo $invoice_id; ?>">
+                                    <i class="fas fa-fw fa-trash mr-2"></i>Delete
+                                </a>
                             </div>
                         </div>
 
