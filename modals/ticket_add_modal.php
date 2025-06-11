@@ -148,7 +148,7 @@
                                             <select class="form-control select2" name="category">
                                                 <option value="0">- Not Categorized -</option>
                                                 <?php
-                                                $sql_categories = mysqli_query($mysqli, "SELECT category_id, category_name FROM categories WHERE category_type = 'Ticket' AND category_archived_at IS NULL");
+                                                $sql_categories = mysqli_query($mysqli, "SELECT category_id, category_name FROM categories WHERE category_type = 'Ticket' AND category_archived_at IS NULL ORDER BY category_name ASC");
                                                 while ($row = mysqli_fetch_array($sql_categories)) {
                                                     $category_id = intval($row['category_id']);
                                                     $category_name = nullable_htmlentities($row['category_name']);
