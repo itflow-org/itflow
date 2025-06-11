@@ -342,6 +342,22 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                         <i class="fas fa-ellipsis-h"></i>
                                     </button>
                                     <div class="dropdown-menu">
+                                        <?php if ($invoice_status !== 'Paid' && $invoice_status !== 'Cancelled' && $invoice_status !== 'Draft' && $invoice_status !== 'Non-Billable' && $invoice_amount != 0) { ?>
+                                            <a class="dropdown-item" href="#"
+                                                data-toggle = "ajax-modal"
+                                                data-ajax-url = "ajax/ajax_invoice_pay.php"
+                                                data-ajax-id = "<?php echo $invoice_id; ?>"
+                                                >
+                                                <i class="fa fa-fw fa-credit-card mr-2"></i>Add Payment
+                                            </a>
+                                            <div class="dropdown-divider"></div>
+                                            <?php if ($invoice_status !== 'Partial' && $config_stripe_enable && $stripe_id && $stripe_pm) { ?>
+                                                <a class="dropdown-item confirm-link" href="post.php?add_payment_stripe&invoice_id=<?php echo $invoice_id; ?>&csrf_token=<?php echo $_SESSION['csrf_token']; ?>">
+                                                    <i class="fa fa-fw fa-credit-card mr-2"></i>Pay via saved card
+                                                </a>
+                                                <div class="dropdown-divider"></div>
+                                            <?php } ?>
+                                        <?php } ?>
                                         <a class="dropdown-item" href="#"
                                             data-toggle = "ajax-modal"
                                             data-ajax-url = "ajax/ajax_invoice_edit.php"

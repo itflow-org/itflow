@@ -120,7 +120,7 @@ $balance = $invoice_amount - $amount_paid;
 
 //check to see if overdue
 $invoice_color = $invoice_badge_color; // Default
-if ($invoice_status !== "Paid" && $invoice_status !== "Draft" && $invoice_status !== "Cancelled") {
+if ($invoice_status !== "Paid" && $invoice_status !== "Draft" && $invoice_status !== "Cancelled" && $invoice_status !== "Non-Billable") {
     $unixtime_invoice_due = strtotime($invoice_due) + 86400;
     if ($unixtime_invoice_due < time()) {
         $invoice_color = "text-danger";
@@ -133,7 +133,7 @@ $sql_invoice_items = mysqli_query($mysqli, "SELECT * FROM invoice_items WHERE it
 
 // Get Total Account Balance
 //Add up all the payments for the invoice and get the total amount paid to the invoice
-$sql_invoice_amounts = mysqli_query($mysqli, "SELECT SUM(invoice_amount) AS invoice_amounts FROM invoices WHERE invoice_client_id = $client_id AND invoice_status NOT LIKE 'Draft' AND invoice_status NOT LIKE 'Cancelled' ");
+$sql_invoice_amounts = mysqli_query($mysqli, "SELECT SUM(invoice_amount) AS invoice_amounts FROM invoices WHERE invoice_client_id = $client_id AND invoice_status != 'Draft' AND invoice_status != 'Cancelled' AND invoice_status != 'Non-Billable'");
 $row = mysqli_fetch_array($sql_invoice_amounts);
 
 $account_balance = floatval($row['invoice_amounts']);

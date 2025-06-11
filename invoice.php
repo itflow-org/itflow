@@ -139,7 +139,7 @@ if (isset($_GET['invoice_id'])) {
     $balance = $invoice_amount - $amount_paid;
 
     //check to see if overdue
-    if ($invoice_status !== "Paid" && $invoice_status !== "Draft" && $invoice_status !== "Cancelled") {
+    if ($invoice_status !== "Paid" && $invoice_status !== "Draft" && $invoice_status !== "Cancelled" && $invoice_status !== "Non-Billable") {
         $unixtime_invoice_due = strtotime($invoice_due) + 86400;
         if ($unixtime_invoice_due < time()) {
             $invoice_overdue = "Overdue";
@@ -220,8 +220,12 @@ if (isset($_GET['invoice_id'])) {
                                 </div>
                             <?php } ?>
 
-                            <?php if ($invoice_status !== 'Paid' && $invoice_status !== 'Cancelled' && $invoice_status !== 'Draft' && $invoice_amount != 0) { ?>
-                                <a class="btn btn-success" href="#" data-toggle="modal" data-target="#addPaymentModal">
+                            <?php if ($invoice_status !== 'Paid' && $invoice_status !== 'Cancelled' && $invoice_status !== 'Draft' && $invoice_status !== 'Non-Billable' && $invoice_amount != 0) { ?>
+                                <a class="btn btn-success" href="#"
+                                    data-toggle = "ajax-modal"
+                                    data-ajax-url = "ajax/ajax_invoice_pay.php"
+                                    data-ajax-id = "<?php echo $invoice_id; ?>"
+                                    >
                                     <i class="fa fa-fw fa-credit-card mr-2"></i>Add Payment
                                 </a>
                                 <?php if ($invoice_status !== 'Partial' && $config_stripe_enable && $stripe_id && $stripe_pm) { ?>
@@ -701,7 +705,6 @@ if (isset($_GET['invoice_id'])) {
             </div>
     <?php
     include_once "modals/invoice_add_ticket_modal.php";
-    include_once "modals/invoice_payment_add_modal.php";
     include_once "modals/invoice_recurring_add_modal.php";
     include_once "modals/invoice_note_modal.php";
 

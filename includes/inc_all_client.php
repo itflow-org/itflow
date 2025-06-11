@@ -105,7 +105,7 @@ if (isset($_GET['client_id'])) {
         $client_tags_display = implode('', $client_tag_name_display_array);
 
         //Add up all the payments for the invoice and get the total amount paid to the invoice
-        $sql_invoice_amounts = mysqli_query($mysqli, "SELECT SUM(invoice_amount) AS invoice_amounts FROM invoices WHERE invoice_client_id = $client_id AND invoice_status NOT LIKE 'Draft' AND invoice_status NOT LIKE 'Cancelled'");
+        $sql_invoice_amounts = mysqli_query($mysqli, "SELECT SUM(invoice_amount) AS invoice_amounts FROM invoices WHERE invoice_client_id = $client_id AND invoice_status != 'Draft' AND invoice_status != 'Cancelled' AND invoice_status != 'Non-Billable'");
         $row = mysqli_fetch_array($sql_invoice_amounts);
 
         $invoice_amounts = floatval($row['invoice_amounts']);
