@@ -283,7 +283,7 @@ if (isset($_GET['invoice_id'])) {
                                 <a class="dropdown-item" target="_blank" href="guest/guest_view_invoice.php?invoice_id=<?php echo "$invoice_id&url_key=$invoice_url_key"; ?>">
                                     <i class="fa fa-fw fa-link text-secondary mr-2"></i>Guest URL
                                 </a>
-                                <?php if ($invoice_status !== 'Cancelled' && $invoice_status !== 'Paid') { ?>
+                                <?php if ($invoice_status !== 'Cancelled' && $invoice_status !== 'Paid' && $invoice_status !== 'Non-Billable') { ?>
                                     <div class="dropdown-divider"></div>
                                     <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?cancel_invoice=<?php echo $invoice_id; ?>">
                                         <i class="fa fa-fw fa-times mr-2"></i>Cancel
