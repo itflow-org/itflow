@@ -7,18 +7,7 @@ $priority = sanitizeInput($_POST['priority']);
 $details = mysqli_real_escape_string($mysqli, $_POST['details']);
 $frequency = sanitizeInput($_POST['frequency']);
 $billable = intval($_POST['billable'] ?? 0);
-
-$asset_id = "0";
-if (isset($_POST['asset'])) {
-    $asset_id = intval($_POST['asset']);
-}
-
-$contact_id = "0";
-if (isset($_POST['contact'])) {
-    $contact_id = intval($_POST['contact']);
-}
-
-$assigned_to = "0";
-if (isset($_POST['assigned_to'])) {
-    $assigned_to = intval($_POST['assigned_to']);
-}
+$asset_id = intval($_POST['asset'] ?? 0);
+$contact_id = intval($_POST['contact'] ?? 0);
+$assigned_to = intval($_POST['assigned_to'] ?? 0);
+$category = intval($_POST['category'] ?? 0); 

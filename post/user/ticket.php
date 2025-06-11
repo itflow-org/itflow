@@ -2101,7 +2101,7 @@ if (isset($_POST['add_recurring_ticket'])) {
 
     $start_date = sanitizeInput($_POST['start_date']);
 
-    mysqli_query($mysqli, "INSERT INTO recurring_tickets SET recurring_ticket_subject = '$subject', recurring_ticket_details = '$details', recurring_ticket_priority = '$priority', recurring_ticket_frequency = '$frequency', recurring_ticket_billable = $billable, recurring_ticket_start_date = '$start_date', recurring_ticket_next_run = '$start_date', recurring_ticket_assigned_to = $assigned_to, recurring_ticket_created_by = $session_user_id, recurring_ticket_client_id = $client_id, recurring_ticket_contact_id = $contact_id, recurring_ticket_asset_id = $asset_id");
+    mysqli_query($mysqli, "INSERT INTO recurring_tickets SET recurring_ticket_subject = '$subject', recurring_ticket_details = '$details', recurring_ticket_priority = '$priority', recurring_ticket_frequency = '$frequency', recurring_ticket_billable = $billable, recurring_ticket_start_date = '$start_date', recurring_ticket_next_run = '$start_date', recurring_ticket_assigned_to = $assigned_to, recurring_ticket_created_by = $session_user_id, recurring_ticket_client_id = $client_id, recurring_ticket_contact_id = $contact_id, recurring_ticket_asset_id = $asset_id, recurring_ticket_category = $category");
 
     $recurring_ticket_id = mysqli_insert_id($mysqli);
 
@@ -2130,7 +2130,7 @@ if (isset($_POST['edit_recurring_ticket'])) {
     $recurring_ticket_id = intval($_POST['recurring_ticket_id']);
     $next_run_date = sanitizeInput($_POST['next_date']);
 
-    mysqli_query($mysqli, "UPDATE recurring_tickets SET recurring_ticket_subject = '$subject', recurring_ticket_details = '$details', recurring_ticket_priority = '$priority', recurring_ticket_frequency = '$frequency', recurring_ticket_billable = $billable, recurring_ticket_next_run = '$next_run_date', recurring_ticket_assigned_to = $assigned_to, recurring_ticket_asset_id = $asset_id, recurring_ticket_contact_id = $contact_id WHERE recurring_ticket_id = $recurring_ticket_id");
+    mysqli_query($mysqli, "UPDATE recurring_tickets SET recurring_ticket_subject = '$subject', recurring_ticket_details = '$details', recurring_ticket_priority = '$priority', recurring_ticket_frequency = '$frequency', recurring_ticket_billable = $billable, recurring_ticket_next_run = '$next_run_date', recurring_ticket_assigned_to = $assigned_to, recurring_ticket_asset_id = $asset_id, recurring_ticket_contact_id = $contact_id, recurring_ticket_category = $category WHERE recurring_ticket_id = $recurring_ticket_id");
 
     // Add Additional Assets
     if (isset($_POST['additional_assets'])) {
@@ -2171,6 +2171,7 @@ if (isset($_GET['force_recurring_ticket'])) {
         $contact_id = intval($row['recurring_ticket_contact_id']);
         $client_id = intval($row['recurring_ticket_client_id']);
         $asset_id = intval($row['recurring_ticket_asset_id']);
+        $category = intval($row['recurring_ticket_category']);
         $url_key = randomString(156);
 
         $ticket_status = 1; // Default
@@ -2190,7 +2191,7 @@ if (isset($_GET['force_recurring_ticket'])) {
         mysqli_query($mysqli, "UPDATE settings SET config_ticket_next_number = $new_config_ticket_next_number WHERE company_id = 1");
 
         // Raise the ticket
-        mysqli_query($mysqli, "INSERT INTO tickets SET ticket_prefix = '$config_ticket_prefix', ticket_number = $ticket_number, ticket_subject = '$subject', ticket_details = '$details', ticket_priority = '$priority', ticket_status = '$ticket_status', ticket_billable = $billable, ticket_url_key = '$url_key', ticket_created_by = $created_id, ticket_assigned_to = $assigned_id, ticket_contact_id = $contact_id, ticket_client_id = $client_id, ticket_asset_id = $asset_id, ticket_recurring_ticket_id = $recurring_ticket_id");
+        mysqli_query($mysqli, "INSERT INTO tickets SET ticket_prefix = '$config_ticket_prefix', ticket_number = $ticket_number, ticket_subject = '$subject', ticket_details = '$details', ticket_priority = '$priority', ticket_status = '$ticket_status', ticket_billable = $billable, ticket_url_key = '$url_key', ticket_created_by = $created_id, ticket_assigned_to = $assigned_id, ticket_contact_id = $contact_id, ticket_client_id = $client_id, ticket_asset_id = $asset_id, ticket_category = $category, ticket_recurring_ticket_id = $recurring_ticket_id");
         $id = mysqli_insert_id($mysqli);
 
         // Copy Additional Assets from Recurring ticket to new ticket
