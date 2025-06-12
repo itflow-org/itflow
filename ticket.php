@@ -1252,6 +1252,11 @@ require_once "includes/footer.php";
 <script src="js/show_modals.js"></script>
 
 <?php if (empty($ticket_closed_at)) { ?>
+    <!-- create js variable related to ticket timer setting -->
+    <script type="text/javascript">
+        var ticketAutoStart = <?php echo json_encode($config_ticket_timer_autostart); ?>;
+    </script>
+
     <!-- Ticket Time Tracking JS -->
     <script src="js/ticket_time_tracking.js"></script>
 

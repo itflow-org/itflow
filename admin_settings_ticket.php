@@ -54,6 +54,13 @@ require_once "includes/inc_all_admin.php";
                 <?php } ?>
 
                 <div class="form-group">
+                    <div class="custom-control custom-switch">
+                        <input type="checkbox" class="custom-control-input" name="config_ticket_timer_autostart" <?php if ($config_ticket_timer_autostart == 1) { echo "checked"; } ?> value="1" id="ticketTimerSwitch">
+                        <label class="custom-control-label" for="ticketTimerSwitch">Autostart Ticket Timer <small class="text-secondary">(This option will control if the timer starts automatically or manually)</small></label>
+                    </div>
+                </div>
+
+                <div class="form-group">
                     <label>Number of hours to auto close resolved tickets</label>
                     <div class="input-group">
                         <div class="input-group-prepend">

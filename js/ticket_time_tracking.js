@@ -1,10 +1,7 @@
-// Description: This file contains the JavaScript for the ticket time tracking feature
-
 (function() {
     document.addEventListener("DOMContentLoaded", function() {
         // Initialize variables
         var timerInterval = null;
-        var isPaused = false;
         var ticketID = getCurrentTicketID();
         var elapsedSecs = getElapsedSeconds();
 
@@ -51,10 +48,8 @@
                 localStorage.setItem(getLocalStorageKey("startTime"), Date.now().toString());
             }
             timerInterval = setInterval(countTime, 1000);
-            isPaused = false;
             document.getElementById("startStopTimer").innerHTML = "<i class='fas fa-pause'></i>";
             localStorage.setItem("ticket-timer-running-" + ticketID, "true");
-
         }
 
         function pauseTimer() {
@@ -65,10 +60,8 @@
             let currentElapsed = getElapsedSeconds();
             localStorage.setItem(getLocalStorageKey("pausedTime"), currentElapsed.toString());
             localStorage.removeItem(getLocalStorageKey("startTime"));
-            isPaused = true;
             document.getElementById("startStopTimer").innerHTML = "<i class='fas fa-play'></i>";
             localStorage.setItem("ticket-timer-running-" + ticketID, "false");
-
         }
 
         function clearTimeStorage() {
@@ -99,9 +92,7 @@
         }
 
         function handleInputFocus() {
-            if (!isPaused) {
-                pauseTimer();
-            }
+            pauseTimer();
         }
 
         function updateTimeFromInput() {
@@ -110,7 +101,6 @@
             const seconds = parseInt(document.getElementById("seconds").value, 10) || 0;
             elapsedSecs = (hours * 3600) + (minutes * 60) + seconds;
 
-            // Update local storage so the manually entered time is retained even if the page is reloaded.
             if (!timerInterval) {
                 localStorage.setItem(getLocalStorageKey("pausedTime"), elapsedSecs.toString());
             } else {
@@ -120,7 +110,6 @@
             }
         }
 
-        // Function to check status and pause timer
         function checkStatusAndPauseTimer() {
             var status = document.querySelector('select[name="status"]').value;
             if (status.includes("Pending") || status.includes("Close")) {
@@ -128,6 +117,7 @@
             }
         }
 
+        // Attach input listeners
         document.getElementById("hours").addEventListener('change', updateTimeFromInput);
         document.getElementById("minutes").addEventListener('change', updateTimeFromInput);
         document.getElementById("seconds").addEventListener('change', updateTimeFromInput);
@@ -151,25 +141,33 @@
         });
 
         document.getElementById("ticket_add_reply").addEventListener('click', function() {
-            // Wait for other synchronous actions (if any) to complete before resetting the timer.
-            setTimeout(forceResetTimer, 100); // 100ms delay should suffice, but you can adjust as needed.
+            setTimeout(forceResetTimer, 100);
         });
 
         document.getElementById("ticket_close").addEventListener('click', function() {
-            // Wait for other synchronous actions (if any) to complete before resetting the timer.
-            setTimeout(clearTimeStorage, 100); // 100ms delay should suffice, but you can adjust as needed.
+            setTimeout(clearTimeStorage, 100);
         });
 
+        // Final initialization logic
         try {
             displayTime();
+
+            // If no timer state, respect ticketAutoStart
             if (!localStorage.getItem(getLocalStorageKey("startTime")) && !localStorage.getItem(getLocalStorageKey("pausedTime"))) {
-                startTimer();
-            } else if (localStorage.getItem(getLocalStorageKey("startTime"))) {
+                if (ticketAutoStart === 1) {
+                    startTimer();
+                } else {
+                    pauseTimer();
+                }
+            }
+            // If timer already running, resume it
+            else if (localStorage.getItem(getLocalStorageKey("startTime"))) {
                 startTimer();
             }
 
             // Check and pause timer if status is pending
             checkStatusAndPauseTimer();
+
         } catch (error) {
             console.error("There was an issue initializing the timer:", error);
         }
