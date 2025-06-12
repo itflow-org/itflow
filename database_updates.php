@@ -3465,7 +3465,7 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
     }
 
     if (CURRENT_DATABASE_VERSION == '2.1.4') {
-         mysqli_query($mysqli, "ALTER TABLE `settings` ADD `config_ticket_timer_autostart` TINYINT(1) NOT NULL DEFAULT '1' AFTER `config_ticket_default_billable`");
+         mysqli_query($mysqli, "ALTER TABLE `settings` ADD `config_ticket_timer_autostart` TINYINT(1) NOT NULL DEFAULT '0' AFTER `config_ticket_default_billable`");
         mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '2.1.5'");
     }
 
