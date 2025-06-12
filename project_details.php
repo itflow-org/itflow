@@ -1,5 +1,9 @@
 <?php
 
+// Default Column Sortby Filter
+$sort = "ticket_number";
+$order = "DESC";
+
 // If client_id is in URI then show client Side Bar and client header
 if (isset($_GET['client_id'])) {
     require_once "includes/inc_all_client.php";
@@ -86,7 +90,8 @@ if (isset($_GET['project_id'])) {
         LEFT JOIN ticket_statuses ON ticket_status = ticket_status_id
         LEFT JOIN clients ON ticket_client_id = client_id
         LEFT JOIN users ON ticket_assigned_to = user_id
-        WHERE ticket_project_id = $project_id ORDER BY ticket_number ASC"
+        WHERE ticket_project_id = $project_id
+        ORDER BY $sort $order"
     );
     $ticket_count = mysqli_num_rows($sql_tickets);
 
@@ -275,145 +280,231 @@ if (isset($_GET['project_id'])) {
 
             <!-- Tickets card -->
             <?php if (mysqli_num_rows($sql_tickets) > 0) { ?>
-                <div class="card card-body card-outline card-dark mb-3">
+                <div class="card card-outline card-dark mb-3">
+                    <div class="card-header py-2">
 
-                    <h5 class="text-secondary"><i class="fa fa-fw fa-life-ring mr-2"></i>Project Tickets</h5>
-                    <div class="table-responsive-sm">
-                        <table class="table table-striped table-borderless table-hover">
-                            <thead class="text-dark">
-                            <tr>
-                                <th>Ticket</th>
-                                <th>Priority</th>
-                                <th>Status</th>
-                                <th>Assigned</th>
-                                <th>Last Response</th>
-                                <th>Client</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            <?php
+                        <h5 class="card-title mt-2 mb-2"><i class="fa fa-fw fa-life-ring mr-2"></i>Project Tickets</h5>
 
-                            while ($row = mysqli_fetch_array($sql_tickets)) {
-                                $ticket_id = intval($row['ticket_id']);
-                                $ticket_prefix = nullable_htmlentities($row['ticket_prefix']);
-                                $ticket_number = nullable_htmlentities($row['ticket_number']);
-                                $ticket_subject = nullable_htmlentities($row['ticket_subject']);
-                                $ticket_priority = nullable_htmlentities($row['ticket_priority']);
-                                $ticket_status = intval($row['ticket_status']);
-                                $ticket_status_name = nullable_htmlentities($row['ticket_status_name']);
-                                $ticket_status_color = nullable_htmlentities($row['ticket_status_color']);
-                                $ticket_billable = intval($row['ticket_billable']);
-                                $ticket_created_at = nullable_htmlentities($row['ticket_created_at']);
-                                $ticket_created_at_time_ago = timeAgo($row['ticket_created_at']);
-                                $ticket_updated_at = nullable_htmlentities($row['ticket_updated_at']);
-                                $ticket_updated_at_time_ago = timeAgo($row['ticket_updated_at']);
-                                if (empty($ticket_updated_at)) {
-                                    if ($ticket_status == 5) {
-                                        $ticket_updated_at_display = "<p>Never</p>";
-                                    } else {
-                                        $ticket_updated_at_display = "<p class='text-danger'>Never</p>";
-                                    }
-                                } else {
-                                    $ticket_updated_at_display = "$ticket_updated_at_time_ago<br><small class='text-secondary'>$ticket_updated_at</small>";
-                                }
-                                $ticket_closed_at = nullable_htmlentities($row['ticket_closed_at']);
-
-                                if ($ticket_priority == "High") {
-                                    $ticket_priority_display = "<span class='p-2 badge badge-danger'>$ticket_priority</span>";
-                                } elseif ($ticket_priority == "Medium") {
-                                    $ticket_priority_display = "<span class='p-2 badge badge-warning'>$ticket_priority</span>";
-                                } elseif ($ticket_priority == "Low") {
-                                    $ticket_priority_display = "<span class='p-2 badge badge-info'>$ticket_priority</span>";
-                                } else{
-                                    $ticket_priority_display = "-";
-                                }
-
-                                $ticket_assigned_to = intval($row['ticket_assigned_to']);
-                                if (empty($ticket_assigned_to)) {
-                                    if ($ticket_status == 5) {
-                                        $ticket_assigned_to_display = "<p>Not Assigned</p>";
-                                    } else {
-                                        $ticket_assigned_to_display = "<p class='text-danger'>Not Assigned</p>";
-                                    }
-                                } else {
-                                    $ticket_assigned_to_display = nullable_htmlentities($row['user_name']);
-                                }
-
-                                $project_id = intval($row['ticket_project_id']);
-
-                                $client_id = intval($row['client_id']);
-                                $client_name = nullable_htmlentities($row['client_name']);
-
-                                $contact_name = nullable_htmlentities($row['contact_name']);
-                                $contact_email = nullable_htmlentities($row['contact_email']);
-                                $contact_archived_at = nullable_htmlentities($row['contact_archived_at']);
-                                if (empty($contact_archived_at)) {
-                                    $contact_archived_display = "";
-                                } else {
-                                    $contact_archived_display = "Archived - ";
-                                }
-                                if (empty($contact_name)) {
-                                    $contact_display = "-";
-                                } else {
-                                    $contact_display = "$contact_archived_display$contact_name<br><small class='text-secondary'>$contact_email</small>";
-                                }
-
-                                // Get who last updated the ticket - to be shown in the last Response column
-                                $ticket_reply_type = "Client"; // Default to client for unreplied tickets
-                                $ticket_reply_by_display = ""; // Default none
-                                $sql_ticket_reply = mysqli_query($mysqli, "SELECT ticket_reply_type, contact_name, user_name FROM ticket_replies
-                                LEFT JOIN users ON ticket_reply_by = user_id
-                                LEFT JOIN contacts ON ticket_reply_by = contact_id
-                                WHERE ticket_reply_ticket_id = $ticket_id
-                                AND ticket_reply_archived_at IS NULL
-                                ORDER BY ticket_reply_id DESC LIMIT 1"
-                                );
-                                $row = mysqli_fetch_array($sql_ticket_reply);
-
-                                if ($row) {
-                                    $ticket_reply_type = nullable_htmlentities($row['ticket_reply_type']);
-                                    if ($ticket_reply_type == "Client") {
-                                        $ticket_reply_by_display = nullable_htmlentities($row['contact_name']);
-                                    } else {
-                                        $ticket_reply_by_display = nullable_htmlentities($row['user_name']);
-                                    }
-                                }
-
-                                ?>
-
-                                <tr>
-
-                                    <!-- Ticket Number / Subject -->
-                                    <td>
-                                        <a href="ticket.php?ticket_id=<?php echo $ticket_id; ?>">
-                                            <span class="badge badge-pill badge-secondary p-3 mr-2"><?php echo "$ticket_prefix$ticket_number"; ?></span>
-                                            <?php echo $ticket_subject; ?>
+                        <div class="card-tools">
+                            <?php if (lookupUserPermission("module_support") >= 2) { ?>
+                                <div class="dropdown ml-2" id="bulkActionButton" hidden>
+                                    <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">
+                                        <i class="fas fa-fw fa-layer-group mr-2"></i>Bulk Action (<span id="selectedCount">0</span>)
+                                    </button>
+                                    <div class="dropdown-menu">
+                                        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#bulkAssignTicketModal">
+                                            <i class="fas fa-fw fa-user-check mr-2"></i>Assign Tech
                                         </a>
-                                    </td>
-                                    <!-- Ticket Priority -->
-                                    <td><?php echo $ticket_priority_display; ?></a></td>
-
-                                    <!-- Ticket Status -->
-                                    <td>
-                                        <span class='badge badge-pill text-light p-2' style="background-color: <?php echo $ticket_status_color; ?>"><?php echo $ticket_status_name; ?></span>
-                                    </td>
-
-                                    <!-- Ticket Assigned agent -->
-                                    <td><?php echo $ticket_assigned_to_display; ?></td>
-
-                                    <!-- Ticket Last Response -->
-                                    <td>
-                                        <div><?php echo $ticket_updated_at_display; ?></div>
-                                        <div><?php echo $ticket_reply_by_display; ?></div>
-                                    </td>
-                                    <td><?php echo $client_name; ?></td>
-                                </tr>
-
-
+                                        <div class="dropdown-divider"></div>
+                                        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#bulkEditCategoryTicketModal">
+                                            <i class="fas fa-fw fa-layer-group mr-2"></i>Set Category
+                                        </a>
+                                        <div class="dropdown-divider"></div>
+                                        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#bulkEditPriorityTicketModal">
+                                            <i class="fas fa-fw fa-thermometer-half mr-2"></i>Update Priority
+                                        </a>
+                                        <div class="dropdown-divider"></div>
+                                        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#bulkReplyTicketModal">
+                                            <i class="fas fa-fw fa-paper-plane mr-2"></i>Bulk Update/Reply
+                                        </a>
+                                        <div class="dropdown-divider"></div>
+                                        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#bulkMergeTicketModal">
+                                            <i class="fas fa-fw fa-clone mr-2"></i>Merge
+                                        </a>
+                                        <div class="dropdown-divider"></div>
+                                        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#bulkCloseTicketsModal">
+                                            <i class="fas fa-fw fa-check mr-2"></i>Resolve
+                                        </a>
+                                    </div>
+                                </div>
                             <?php } ?>
+                        </div>
 
-                            </tbody>
-                        </table>
+                    </div>
+
+                    <div class="card-body p-0">
+                        <form id="bulkActions" action="post.php" method="post">
+                            <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token'] ?>">
+                            <div class="table-responsive-sm">
+                                <table class="table table-striped table-borderless table-hover">
+                                    <thead class="thead-light">
+                                    <tr>
+                                        <td class="bg-light pr-0">
+                                            <div class="form-check">
+                                                <input class="form-check-input" id="selectAllCheckbox" type="checkbox" onclick="checkAll(this)" onkeydown="checkAll(this)">
+                                            </div>
+                                        </td>
+                                        <th>
+                                            <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=ticket_number&order=<?php echo $disp; ?>">
+                                                Ticket <?php if ($sort == 'ticket_number') { echo $order_icon; } ?>
+                                            </a>
+                                        </th>
+                                        <th>
+                                            <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=ticket_priority&order=<?php echo $disp; ?>">
+                                                Priority <?php if ($sort == 'ticket_priority') { echo $order_icon; } ?>
+                                            </a>
+                                        </th>
+                                        <th>
+                                            <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=ticket_status&order=<?php echo $disp; ?>">
+                                                Status <?php if ($sort == 'ticket_status') { echo $order_icon; } ?>
+                                            </a>
+                                        </th>
+                                        <th>
+                                            <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=user_name&order=<?php echo $disp; ?>">
+                                                Assigned <?php if ($sort == 'user_name') { echo $order_icon; } ?>
+                                            </a>
+                                        </th>
+                                        <th>
+                                            <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=ticket_updated_at&order=<?php echo $disp; ?>">
+                                                Last Response <?php if ($sort == 'ticket_updated_at') { echo $order_icon; } ?>
+                                            </a>
+                                        </th>
+                                        <th>
+                                            <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=client_name&order=<?php echo $disp; ?>">
+                                                Client <?php if ($sort == 'client_name') { echo $order_icon; } ?>
+                                            </a>
+                                        </th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <?php
+
+                                    while ($row = mysqli_fetch_array($sql_tickets)) {
+                                        $ticket_id = intval($row['ticket_id']);
+                                        $ticket_prefix = nullable_htmlentities($row['ticket_prefix']);
+                                        $ticket_number = nullable_htmlentities($row['ticket_number']);
+                                        $ticket_subject = nullable_htmlentities($row['ticket_subject']);
+                                        $ticket_priority = nullable_htmlentities($row['ticket_priority']);
+                                        $ticket_status = intval($row['ticket_status']);
+                                        $ticket_status_name = nullable_htmlentities($row['ticket_status_name']);
+                                        $ticket_status_color = nullable_htmlentities($row['ticket_status_color']);
+                                        $ticket_billable = intval($row['ticket_billable']);
+                                        $ticket_created_at = nullable_htmlentities($row['ticket_created_at']);
+                                        $ticket_created_at_time_ago = timeAgo($row['ticket_created_at']);
+                                        $ticket_updated_at = nullable_htmlentities($row['ticket_updated_at']);
+                                        $ticket_updated_at_time_ago = timeAgo($row['ticket_updated_at']);
+                                        if (empty($ticket_updated_at)) {
+                                            if ($ticket_status == 5) {
+                                                $ticket_updated_at_display = "<p>Never</p>";
+                                            } else {
+                                                $ticket_updated_at_display = "<p class='text-danger'>Never</p>";
+                                            }
+                                        } else {
+                                            $ticket_updated_at_display = "$ticket_updated_at_time_ago<br><small class='text-secondary'>$ticket_updated_at</small>";
+                                        }
+                                        $ticket_closed_at = nullable_htmlentities($row['ticket_closed_at']);
+
+                                        if ($ticket_priority == "High") {
+                                            $ticket_priority_display = "<span class='p-2 badge badge-danger'>$ticket_priority</span>";
+                                        } elseif ($ticket_priority == "Medium") {
+                                            $ticket_priority_display = "<span class='p-2 badge badge-warning'>$ticket_priority</span>";
+                                        } elseif ($ticket_priority == "Low") {
+                                            $ticket_priority_display = "<span class='p-2 badge badge-info'>$ticket_priority</span>";
+                                        } else{
+                                            $ticket_priority_display = "-";
+                                        }
+
+                                        $ticket_assigned_to = intval($row['ticket_assigned_to']);
+                                        if (empty($ticket_assigned_to)) {
+                                            if ($ticket_status == 5) {
+                                                $ticket_assigned_to_display = "<p>Not Assigned</p>";
+                                            } else {
+                                                $ticket_assigned_to_display = "<p class='text-danger'>Not Assigned</p>";
+                                            }
+                                        } else {
+                                            $ticket_assigned_to_display = nullable_htmlentities($row['user_name']);
+                                        }
+
+                                        $project_id = intval($row['ticket_project_id']);
+
+                                        $client_id = intval($row['client_id']);
+                                        $client_name = nullable_htmlentities($row['client_name']);
+
+                                        $contact_name = nullable_htmlentities($row['contact_name']);
+                                        $contact_email = nullable_htmlentities($row['contact_email']);
+                                        $contact_archived_at = nullable_htmlentities($row['contact_archived_at']);
+                                        if (empty($contact_archived_at)) {
+                                            $contact_archived_display = "";
+                                        } else {
+                                            $contact_archived_display = "Archived - ";
+                                        }
+                                        if (empty($contact_name)) {
+                                            $contact_display = "-";
+                                        } else {
+                                            $contact_display = "$contact_archived_display$contact_name<br><small class='text-secondary'>$contact_email</small>";
+                                        }
+
+                                        // Get who last updated the ticket - to be shown in the last Response column
+                                        $ticket_reply_type = "Client"; // Default to client for unreplied tickets
+                                        $ticket_reply_by_display = ""; // Default none
+                                        $sql_ticket_reply = mysqli_query($mysqli, "SELECT ticket_reply_type, contact_name, user_name FROM ticket_replies
+                                        LEFT JOIN users ON ticket_reply_by = user_id
+                                        LEFT JOIN contacts ON ticket_reply_by = contact_id
+                                        WHERE ticket_reply_ticket_id = $ticket_id
+                                        AND ticket_reply_archived_at IS NULL
+                                        ORDER BY ticket_reply_id DESC LIMIT 1"
+                                        );
+                                        $row = mysqli_fetch_array($sql_ticket_reply);
+
+                                        if ($row) {
+                                            $ticket_reply_type = nullable_htmlentities($row['ticket_reply_type']);
+                                            if ($ticket_reply_type == "Client") {
+                                                $ticket_reply_by_display = nullable_htmlentities($row['contact_name']);
+                                            } else {
+                                                $ticket_reply_by_display = nullable_htmlentities($row['user_name']);
+                                            }
+                                        }
+
+                                        ?>
+
+                                        <tr>
+                                            <td class="pr-0 bg-light">
+                                                <!-- Ticket Bulk Select (for open tickets) -->
+                                                <?php if (empty($ticket_closed_at)) { ?>
+                                                <div class="form-check">
+                                                    <input class="form-check-input bulk-select" type="checkbox" name="ticket_ids[]" value="<?php echo $ticket_id ?>">
+                                                </div>
+                                                <?php } ?>
+                                            </td>
+                                            <!-- Ticket Number / Subject -->
+                                            <td>
+                                                <a href="ticket.php?ticket_id=<?php echo $ticket_id; ?>">
+                                                    <span class="badge badge-pill badge-secondary p-3 mr-2"><?php echo "$ticket_prefix$ticket_number"; ?></span>
+                                                    <?php echo $ticket_subject; ?>
+                                                </a>
+                                            </td>
+                                            <!-- Ticket Priority -->
+                                            <td><?php echo $ticket_priority_display; ?></a></td>
+
+                                            <!-- Ticket Status -->
+                                            <td>
+                                                <span class='badge badge-pill text-light p-2' style="background-color: <?php echo $ticket_status_color; ?>"><?php echo $ticket_status_name; ?></span>
+                                            </td>
+
+                                            <!-- Ticket Assigned agent -->
+                                            <td><?php echo $ticket_assigned_to_display; ?></td>
+
+                                            <!-- Ticket Last Response -->
+                                            <td>
+                                                <div><?php echo $ticket_updated_at_display; ?></div>
+                                                <div><?php echo $ticket_reply_by_display; ?></div>
+                                            </td>
+                                            <td><?php echo $client_name; ?></td>
+                                        </tr>
+
+
+                                    <?php } ?>
+
+                                    </tbody>
+                                </table>
+                            </div>
+                            <?php require_once "modals/ticket_bulk_assign_modal.php"; ?>
+                            <?php require_once "modals/ticket_bulk_edit_category_modal.php"; ?>
+                            <?php require_once "modals/ticket_bulk_edit_priority_modal.php"; ?>
+                            <?php require_once "modals/ticket_bulk_reply_modal.php"; ?>
+                            <?php require_once "modals/ticket_bulk_merge_modal.php"; ?>
+                            <?php require_once "modals/ticket_bulk_resolve_modal.php"; ?>
+                        </form>
                     </div>
                 </div>
             <?php } ?>
@@ -464,5 +555,7 @@ if (isset($_GET['project_id'])) {
 require_once "includes/footer.php";
 
 ?>
+
+<script src="js/bulk_actions.js"></script>
 
 <script src="js/pretty_content.js"></script>
