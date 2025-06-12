@@ -326,7 +326,7 @@ if (isset($_GET['project_id'])) {
                         <form id="bulkActions" action="post.php" method="post">
                             <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token'] ?>">
                             <div class="table-responsive-sm">
-                                <table class="table table-striped table-borderless table-hover">
+                                <table class="table table-border table-hover">
                                     <thead class="thead-light">
                                     <tr>
                                         <td class="bg-light pr-0">
@@ -514,29 +514,33 @@ if (isset($_GET['project_id'])) {
 
             <!-- Tasks Card -->
             <?php if (mysqli_num_rows($sql_tasks) > 0) { ?>
-                <div class="card card-body card-outline card-dark">
-                    <h5 class="text-secondary"><i class="fas fa-fw fa-tasks mr-2"></i>All Tasks</h5>
-                    <table class="table">
-                        <?php
-                        while($row = mysqli_fetch_array($sql_tasks)){
-                            $task_id = intval($row['task_id']);
-                            $task_name = nullable_htmlentities($row['task_name']);
-                            $task_completed_at = nullable_htmlentities($row['task_completed_at']);
-                            ?>
-                            <tr>
-                                <td>
-                                    <?php if ($task_completed_at) { ?>
-                                        <i class="far fa-check-square text-primary mr-2"></i>
-                                    <?php } else { ?>
-                                        <a href="post.php?complete_task=<?php echo $task_id; ?>">
-                                            <i class="far fa-square text-secondary mr-2"></i>
-                                        </a>
-                                    <?php } ?>
-                                    <?php echo $task_name; ?>
-                                </td>
-                            </tr>
-                        <?php } ?>
-                    </table>
+                <div class="card card-outline card-dark">
+                    <div class="card-header py-3">
+                        <h5 class="card-title"><i class="fas fa-fw fa-tasks mr-2"></i>All Tasks</h5>
+                    </div>
+                    <div class="card-body p-0">
+                        <table class="table table-sm">
+                            <?php
+                            while($row = mysqli_fetch_array($sql_tasks)){
+                                $task_id = intval($row['task_id']);
+                                $task_name = nullable_htmlentities($row['task_name']);
+                                $task_completed_at = nullable_htmlentities($row['task_completed_at']);
+                                ?>
+                                <tr>
+                                    <td>
+                                        <?php if ($task_completed_at) { ?>
+                                            <i class="far fa-check-square text-success mr-2"></i>
+                                        <?php } else { ?>
+                                            <a href="post.php?complete_task=<?php echo $task_id; ?>">
+                                                <i class="far fa-square text-secondary mr-2"></i>
+                                            </a>
+                                        <?php } ?>
+                                        <?php echo $task_name; ?>
+                                    </td>
+                                </tr>
+                            <?php } ?>
+                        </table>
+                    </div>
                 </div>
             <?php } ?>
             <!-- End Tasks Card -->
