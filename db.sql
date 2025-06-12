@@ -2245,6 +2245,7 @@ CREATE TABLE `tickets` (
   `ticket_url_key` varchar(200) DEFAULT NULL,
   `ticket_created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `ticket_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
+  `ticket_due_at` datetime DEFAULT NULL,
   `ticket_resolved_at` datetime DEFAULT NULL,
   `ticket_archived_at` datetime DEFAULT NULL,
   `ticket_first_response_at` datetime DEFAULT NULL,
@@ -2501,4 +2502,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-06-12 13:43:40
+-- Dump completed on 2025-06-12 17:12:13

@@ -30,6 +30,18 @@ if (isset($_POST['add_ticket'])) {
     $use_primary_contact = intval($_POST['use_primary_contact'] ?? 0);
     $ticket_template_id = intval($_POST['ticket_template_id']);
     $billable = intval($_POST['billable'] ?? 0);
+    // Validate/clean due field
+    $dueInput = $_POST['due'] ?? null;
+    if ($dueInput === null || trim($dueInput) === '') {
+        $due = 'NULL'; // prepare as SQL-safe string
+    } else {
+        $d = DateTime::createFromFormat('Y-m-d\TH:i', $dueInput); // for <input type="datetime-local">
+        if ($d !== false) {
+            $due = "'" . $d->format('Y-m-d H:i:s') . "'"; // wrap in quotes for SQL
+        } else {
+            $due = 'NULL'; // fallback if invalid
+        }
+    }
 
     // Add the primary contact as the ticket contact if "Use primary contact" is checked
     if ($use_primary_contact == 1) {
@@ -53,7 +65,7 @@ if (isset($_POST['add_ticket'])) {
 
     mysqli_query($mysqli, "UPDATE settings SET config_ticket_next_number = $new_config_ticket_next_number WHERE company_id = 1");
 
-    mysqli_query($mysqli, "INSERT INTO tickets SET ticket_prefix = '$config_ticket_prefix', ticket_number = $ticket_number, ticket_source = 'Agent', ticket_category = $category_id, ticket_subject = '$subject', ticket_details = '$details', ticket_priority = '$priority', ticket_billable = '$billable', ticket_status = '$ticket_status', ticket_vendor_ticket_number = '$vendor_ticket_number', ticket_vendor_id = $vendor_id, ticket_location_id = $location_id, ticket_asset_id = $asset_id, ticket_created_by = $session_user_id, ticket_assigned_to = $assigned_to, ticket_contact_id = $contact, ticket_url_key = '$url_key', ticket_client_id = $client_id, ticket_invoice_id = 0, ticket_project_id = $project_id");
+    mysqli_query($mysqli, "INSERT INTO tickets SET ticket_prefix = '$config_ticket_prefix', ticket_number = $ticket_number, ticket_source = 'Agent', ticket_category = $category_id, ticket_subject = '$subject', ticket_details = '$details', ticket_priority = '$priority', ticket_billable = '$billable', ticket_status = '$ticket_status', ticket_vendor_ticket_number = '$vendor_ticket_number', ticket_vendor_id = $vendor_id, ticket_location_id = $location_id, ticket_asset_id = $asset_id, ticket_created_by = $session_user_id, ticket_assigned_to = $assigned_to, ticket_contact_id = $contact, ticket_url_key = '$url_key', ticket_due_at = $due, ticket_client_id = $client_id, ticket_invoice_id = 0, ticket_project_id = $project_id");
 
     $ticket_id = mysqli_insert_id($mysqli);
 
@@ -193,8 +205,20 @@ if (isset($_POST['edit_ticket'])) {
     $asset_id = intval($_POST['asset']);
     $location_id = intval($_POST['location']);
     $project_id = intval($_POST['project']);
+    // Validate/clean due field
+    $dueInput = $_POST['due'] ?? null;
+    if ($dueInput === null || trim($dueInput) === '') {
+        $due = 'NULL'; // prepare as SQL-safe string
+    } else {
+        $d = DateTime::createFromFormat('Y-m-d\TH:i', $dueInput); // for <input type="datetime-local">
+        if ($d !== false) {
+            $due = "'" . $d->format('Y-m-d H:i:s') . "'"; // wrap in quotes for SQL
+        } else {
+            $due = 'NULL'; // fallback if invalid
+        }
+    }
 
-    mysqli_query($mysqli, "UPDATE tickets SET ticket_category = $category_id, ticket_subject = '$ticket_subject', ticket_priority = '$ticket_priority', ticket_billable = $billable, ticket_details = '$details', ticket_vendor_ticket_number = '$vendor_ticket_number', ticket_contact_id = $contact_id, ticket_vendor_id = $vendor_id, ticket_location_id = $location_id, ticket_asset_id = $asset_id, ticket_project_id = $project_id WHERE ticket_id = $ticket_id");
+    mysqli_query($mysqli, "UPDATE tickets SET ticket_category = $category_id, ticket_subject = '$ticket_subject', ticket_priority = '$ticket_priority', ticket_billable = $billable, ticket_details = '$details', ticket_due_at = $due, ticket_vendor_ticket_number = '$vendor_ticket_number', ticket_contact_id = $contact_id, ticket_vendor_id = $vendor_id, ticket_location_id = $location_id, ticket_asset_id = $asset_id, ticket_project_id = $project_id WHERE ticket_id = $ticket_id");
 
     // Add Additional Assets
     if (isset($_POST['additional_assets'])) {

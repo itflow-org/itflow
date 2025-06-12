@@ -172,31 +172,46 @@
 
                             </div>
 
-                            <div class="form-group">
-                                <label>Assign to</label>
-                                <div class="input-group">
-                                    <div class="input-group-prepend">
-                                        <span class="input-group-text"><i class="fa fa-fw fa-user-check"></i></span>
-                                    </div>
-                                    <select class="form-control select2" name="assigned_to">
-                                        <option value="0">Not Assigned</option>
-                                        <?php
+                            <div class="row">
+                                <div class="col">
+                                    <div class="form-group">
+                                        <label>Assign to</label>
+                                        <div class="input-group">
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text"><i class="fa fa-fw fa-user-check"></i></span>
+                                            </div>
+                                            <select class="form-control select2" name="assigned_to">
+                                                <option value="0">Not Assigned</option>
+                                                <?php
 
-                                        $sql = mysqli_query(
-                                            $mysqli,
-                                            "SELECT user_id, user_name FROM users
-                                            WHERE user_role_id > 1
-                                            AND user_type = 1
-                                            AND user_status = 1
-                                            AND user_archived_at IS NULL
-                                            ORDER BY user_name ASC"
-                                        );
-                                        while ($row = mysqli_fetch_array($sql)) {
-                                            $user_id = intval($row['user_id']);
-                                            $user_name = nullable_htmlentities($row['user_name']); ?>
-                                            <option <?php if ($session_user_id == $user_id) { echo "selected"; } ?> value="<?php echo $user_id; ?>"><?php echo $user_name; ?></option>
-                                        <?php } ?>
-                                    </select>
+                                                $sql = mysqli_query(
+                                                    $mysqli,
+                                                    "SELECT user_id, user_name FROM users
+                                                    WHERE user_role_id > 1
+                                                    AND user_type = 1
+                                                    AND user_status = 1
+                                                    AND user_archived_at IS NULL
+                                                    ORDER BY user_name ASC"
+                                                );
+                                                while ($row = mysqli_fetch_array($sql)) {
+                                                    $user_id = intval($row['user_id']);
+                                                    $user_name = nullable_htmlentities($row['user_name']); ?>
+                                                    <option <?php if ($session_user_id == $user_id) { echo "selected"; } ?> value="<?php echo $user_id; ?>"><?php echo $user_name; ?></option>
+                                                <?php } ?>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col">
+                                    <div class="form-group">
+                                        <label>Due</label>
+                                        <div class="input-group">
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text"><i class="fa fa-fw fa-calendar-check"></i></span>
+                                            </div>
+                                            <input type="datetime-local" class="form-control" name="due">
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
 
