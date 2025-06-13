@@ -555,6 +555,7 @@ CREATE TABLE `companies` (
   `company_logo` varchar(250) DEFAULT NULL,
   `company_locale` varchar(200) DEFAULT NULL,
   `company_currency` varchar(200) NOT NULL,
+  `company_tax_id` varchar(200) DEFAULT NULL,
   `company_created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `company_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
   PRIMARY KEY (`company_id`)
@@ -1794,6 +1795,7 @@ CREATE TABLE `settings` (
   `config_invoice_late_fee_enable` tinyint(1) NOT NULL DEFAULT 0,
   `config_invoice_late_fee_percent` decimal(5,2) NOT NULL DEFAULT 0.00,
   `config_invoice_paid_notification_email` varchar(200) DEFAULT NULL,
+  `config_invoice_show_tax_id` tinyint(1) NOT NULL DEFAULT 0,
   `config_recurring_invoice_prefix` varchar(200) DEFAULT NULL,
   `config_recurring_invoice_next_number` int(11) NOT NULL DEFAULT 1,
   `config_quote_prefix` varchar(200) DEFAULT NULL,
@@ -2502,4 +2504,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-06-12 17:12:13
+-- Dump completed on 2025-06-13 15:50:44

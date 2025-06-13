@@ -77,6 +77,12 @@ $company_phone_country_code = nullable_htmlentities($row['company_phone_country_
 $company_phone = nullable_htmlentities(formatPhoneNumber($row['company_phone'], $company_phone_country_code));
 $company_email = nullable_htmlentities($row['company_email']);
 $company_website = nullable_htmlentities($row['company_website']);
+$company_tax_id = nullable_htmlentities($row['company_tax_id']);
+if ($config_invoice_show_tax_id && !empty($company_tax_id)) {
+    $company_tax_id_display = "Tax ID: $company_tax_id";
+} else {
+    $company_tax_id_display = "";
+}
 $company_logo = nullable_htmlentities($row['company_logo']);
 if (!empty($company_logo)) {
     $company_logo_base64 = base64_encode(file_get_contents("../uploads/settings/$company_logo"));
@@ -203,6 +209,9 @@ if ($balance > 0) {
                         <li><small><?php echo $company_country; ?></small></li>
                         <li><?php echo $company_phone; ?></li>
                         <li><?php echo $company_email; ?></li>
+                        <?php if ($company_tax_id_display) { ?>
+                        <li><?php echo $company_tax_id_display; ?></li>
+                        <?php } ?>
                     </ul>
 
                 </div>
@@ -411,7 +420,7 @@ if ($balance > 0) {
                 {
                     columns: [
                         {
-                            text: <?php echo json_encode(html_entity_decode("$company_address \n $company_city $company_state $company_zip \n $company_country \n $company_phone \n $company_website")) ?>,
+                            text: <?php echo json_encode(html_entity_decode("$company_address \n $company_city $company_state $company_zip \n $company_country \n $company_phone \n $company_website \n $company_tax_id_display")) ?>,
                             style: 'invoiceBillingAddress'
                         },
                         {

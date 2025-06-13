@@ -47,6 +47,7 @@ $config_invoice_from_email = $row['config_invoice_from_email'];
 $config_invoice_late_fee_enable = intval($row['config_invoice_late_fee_enable']);
 $config_invoice_late_fee_percent = floatval($row['config_invoice_late_fee_percent']);
 $config_invoice_paid_notification_email = $row['config_invoice_paid_notification_email'];
+$config_invoice_show_tax_id = intval($row['config_invoice_show_tax_id']);
 
 // Recurring Invoices
 $config_recurring_invoice_prefix = $row['config_recurring_invoice_prefix'];

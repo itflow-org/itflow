@@ -323,8 +323,9 @@ if (isset($_POST['add_company_settings'])) {
     $phone = preg_replace("/[^0-9]/", '',$_POST['phone']);
     $email = sanitizeInput($_POST['email']);
     $website = sanitizeInput($_POST['website']);
+    $tax_id = sanitizeInput($_POST['tax_id']);
 
-    mysqli_query($mysqli,"INSERT INTO companies SET company_name = '$name', company_address = '$address', company_city = '$city', company_state = '$state', company_zip = '$zip', company_country = '$country', company_phone = '$phone', company_email = '$email', company_website = '$website', company_locale = '$locale', company_currency = '$currency_code'");
+    mysqli_query($mysqli,"INSERT INTO companies SET company_name = '$name', company_address = '$address', company_city = '$city', company_state = '$state', company_zip = '$zip', company_country = '$country', company_phone = '$phone', company_email = '$email', company_website = '$website', company_tax_id = '$tax_id'");
 
     //Check to see if a file is attached
     if ($_FILES['file']['tmp_name'] != '') {
@@ -1259,6 +1260,16 @@ if (isset($_POST['add_telemetry'])) {
                                             <span class="input-group-text"><i class="fa fa-fw fa-globe"></i></span>
                                         </div>
                                         <input type="text" class="form-control" name="website" placeholder="Website address">
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Tax ID</label>
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text"><i class="fa fa-fw fa-balance-scale"></i></span>
+                                        </div>
+                                        <input type="text" class="form-control" name="tax_id" placeholder="Tax ID" maxlength="200">
                                     </div>
                                 </div>
 
