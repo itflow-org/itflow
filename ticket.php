@@ -647,13 +647,13 @@ if (isset($_GET['ticket_id'])) {
 
                             <div class="form-group">
                                 <div class="btn-group btn-block btn-group-toggle" data-toggle="buttons">
-                                    <label class="btn btn-outline-secondary active">
+                                    <label class="btn btn-outline-dark active">
                                         <input type="radio" name="public_reply_type" value="0" checked>Internal Note
                                     </label>
-                                    <label class="btn btn-outline-secondary">
+                                    <label class="btn btn-outline-info">
                                         <input type="radio" name="public_reply_type" value="2">Public Comment & Email
                                     </label>
-                                    <label class="btn btn-outline-secondary">
+                                    <label class="btn btn-outline-info">
                                         <input type="radio" name="public_reply_type" value="1">Public Comment
                                     </label>
                                 </div>

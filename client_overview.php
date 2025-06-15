@@ -193,7 +193,7 @@ $sql_asset_retired = mysqli_query(
 
         <!-- Notes -->
 
-        <div class="col-md-4">
+        <div class="col-md-8">
 
             <div class="card card-dark mb-3">
                 <div class="card-header">
@@ -226,19 +226,42 @@ $sql_asset_retired = mysqli_query(
                             $contact_extension = nullable_htmlentities($row['contact_extension']);
                             $contact_mobile_country_code = nullable_htmlentities($row['contact_mobile_country_code']);
                             $contact_mobile = nullable_htmlentities(formatPhoneNumber($row['contact_mobile'], $contact_mobile_country_code));
+                            $contact_photo = nullable_htmlentities($row['contact_photo']);
+                            $contact_initials = initials($contact_name);
 
                             ?>
                             <tr>
                                 <td>
-                                    <a href="#" class="text-bold"
-                                        data-toggle="ajax-modal"
+                                    <a href="#" data-toggle="ajax-modal"
                                         data-modal-size="lg"
                                         data-ajax-url="ajax/ajax_contact_details.php"
                                         data-ajax-id="<?php echo $contact_id; ?>">
-                                        <?php echo $contact_name; ?>
+                                        <div class="media">
+                                            <?php if ($contact_photo) { ?>
+                                                <span class="fa-stack fa-2x mr-2 text-center">
+                                                    <img class="img-size-50 img-circle" src="<?php echo "uploads/clients/$client_id/$contact_photo"; ?>">
+                                                </span>
+                                            <?php } else { ?>
+                                                <span class="fa-stack fa-2x mr-2">
+                                                    <i class="fa fa-circle fa-stack-2x text-secondary"></i>
+                                                    <span class="fa fa-stack-1x text-white"><?php echo $contact_initials; ?></span>
+                                                </span>
+                                            <?php } ?>
+
+                                            <div class="media-body">
+                                                <div class="text-bold"><?php echo $contact_name; ?></div>
+                                                <small class="text-secondary"><?php echo $contact_title; ?></small>
+                                                <div><?php echo $contact_primary_display; ?></div>
+                                                <?php
+                                                if (!empty($contact_tags_display)) { ?>
+                                                    <div class="mt-1">
+                                                        <?php echo $contact_tags_display; ?>
+                                                    </div>
+                                                <?php } ?>   
+                                            </div>
+                                        </div>
                                     </a>
-                                    <br>
-                                    <small class="text-secondary"><?php echo $contact_title; ?></small>
+                                    
                                 </td>
                                 <td>
                                     <?php if (!empty($contact_phone)) { ?>
@@ -613,7 +636,7 @@ $sql_asset_retired = mysqli_query(
 
             <!-- Recent Activities -->
 
-            <div class="col-md-4">
+            <div class="col-md-6">
 
                 <div class="card card-dark mb-3">
                     <div class="card-header">

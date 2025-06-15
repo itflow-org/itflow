@@ -535,7 +535,7 @@ if (mysqli_num_rows($os_sql) > 0) {
                         if ($contact_name) {
                             $contact_name_display = "<a href='#' 
                                 data-toggle='ajax-modal'
-                                data-modal-size='xl'
+                                data-modal-size='lg'
                                 data-ajax-url='ajax/ajax_contact_details.php'
                                 data-ajax-id='$asset_contact_id'>
                                 $contact_name $contact_archive_display
