@@ -178,87 +178,71 @@ if ($balance > 0) {
             </div>
         </div>
         <div class="card-body">
-            <div class="row mb-4">
-                <div class="col-2">
-                    <img class="img-fluid" src="<?php echo "../uploads/settings/$company_logo"; ?>">
+
+            <div class="row mb-3">
+                <div class="col-sm-2">
+                    <img class="img-fluid" src="<?php echo "../uploads/settings/$company_logo"; ?>" alt="Company logo">
                 </div>
-                <div class="col-10">
-                    <?php if ($invoice_status == "Paid") { ?>
-                        <div class="ribbon-wrapper">
-                            <div class="ribbon bg-success">
-                                <?php echo $invoice_status; ?>
-                            </div>
-                        </div>
-                    <?php } ?>
-                    <?php if ($invoice_status == "Cancelled") { ?>
-                        <div class="ribbon-wrapper">
-                            <div class="ribbon bg-danger">
-                                <?php echo $invoice_status; ?>
-                            </div>
-                        </div>
-                    <?php } ?>
-                    <h3 class="text-right mt-5"><strong>Invoice</strong><br><small class="text-secondary"><?php echo "$invoice_prefix$invoice_number"; ?></small></h3>
-                </div>
-            </div>
-            <div class="row mb-4">
-                <div class="col">
+                <div class="col-sm-6">
                     <ul class="list-unstyled">
                         <li><h4><strong><?php echo $company_name; ?></strong></h4></li>
                         <li><?php echo $company_address; ?></li>
-                        <li><?php echo "$company_city $company_state $company_zip"; ?></li>
-                        <li><small><?php echo $company_country; ?></small></li>
-                        <li><?php echo $company_phone; ?></li>
-                        <li><?php echo $company_email; ?></li>
+                        <li><?php echo "$company_city $company_state $company_zip, $company_country"; ?></li>
+                        <li><?php echo "$company_email | $company_phone"; ?></li>
+                        <li><?php echo $company_website; ?></li>
                         <?php if ($company_tax_id_display) { ?>
                         <li><?php echo $company_tax_id_display; ?></li>
                         <?php } ?>
                     </ul>
-
                 </div>
-                <div class="col">
 
-                    <ul class="list-unstyled text-right">
-                        <li><h4><strong><?php echo $client_name; ?></strong></h4></li>
-                        <li><?php echo $location_address; ?></li>
-                        <li><?php echo "$location_city $location_state $location_zip"; ?></li>
-                        <li><small><?php echo $location_country; ?></small></li>
-                        <li><?php echo "$contact_phone $contact_extension"; ?></li>
-                        <li><?php echo $contact_mobile; ?></li>
-                        <li><?php echo $contact_email; ?></li>
-                    </ul>
-
-                </div>
-            </div>
-            <div class="row mb-4">
-                <div class="col-sm-8">
-                </div>
                 <div class="col-sm-4">
-                    <table class="table">
+                    <h3 class="text-right"><strong>INVOICE</strong></h3>
+                    <h5 class="badge badge-<?php echo $invoice_badge_color; ?> p-2 float-right">
+                        <?php echo "$invoice_status"; ?>
+                    </h5>
+                    <table class="table table-sm table-borderless">
                         <tr>
-                            <td>Date</td>
+                            <th>Invoice #:</th>
+                            <td class="text-right"><?php echo "$invoice_prefix$invoice_number"; ?></td>
+                        </tr>
+                        <tr>
+                            <th>Date:</th>
                             <td class="text-right"><?php echo $invoice_date; ?></td>
                         </tr>
-                        <tr class="text-bold">
-                            <td>Due</td>
+                        <tr>
+                            <th>Due:</th>
                             <td class="text-right"><?php echo $invoice_due; ?></td>
                         </tr>
                     </table>
                 </div>
+
+            </div>
+            <div class="row mb-3 bg-light p-3">
+                <div class="col">
+                    <h6><strong>Bill To:</strong></h6>
+                    <ul class="list-unstyled mb-0">
+                        <li><?php echo $client_name; ?></li>
+                        <li><?php echo $location_address; ?></li>
+                        <li><?php echo "$location_city $location_state $location_zip, $location_country"; ?></li>
+                        <li><?php echo "$contact_email | $contact_phone $contact_extension"; ?></li>
+                    </ul>
+                </div>
             </div>
 
-            <div class="row mb-4">
+            <div class="row mb-3">
                 <div class="col-md-12">
                     <div class="card">
                         <div class="table-responsive">
-                            <table class="table">
-                                <thead>
+                            <table class="table table-borderless">
+                                <thead class="bg-light">
                                 <tr>
-                                    <th>Product</th>
+                                    <th>Item</th>
                                     <th>Description</th>
                                     <th class="text-center">Qty</th>
-                                    <th class="text-right">Price</th>
+                                    <th class="text-right">Unit Price</th>
                                     <th class="text-right">Tax</th>
-                                    <th class="text-right">Total</th>
+                                    <th class="text-right">Amount</th>
                                 </tr>
                                 </thead>
                                 <tbody>
@@ -298,7 +282,7 @@ if ($balance > 0) {
                 </div>
             </div>
 
-            <div class="row mb-4">
+            <div class="row mb-3">
                 <div class="col-sm-7">
                     <?php if (!empty($invoice_note)) { ?>
                         <div class="card">
@@ -311,41 +295,41 @@ if ($balance > 0) {
                 <div class="col-sm-3 offset-sm-2">
                     <table class="table table-borderless">
                         <tbody>
-                        <tr class="border-bottom">
-                            <td>Subtotal</td>
+                        <tr>
+                            <td>Subtotal:</td>
                             <td class="text-right"><?php echo numfmt_format_currency($currency_format, $sub_total, $invoice_currency_code); ?></td>
                         </tr>
                         <?php
                         if ($invoice_discount > 0) {
                             ?>
-                            <tr class="border-bottom">
-                                <td>Discount</td>
+                            <tr>
+                                <td>Discount:</td>
                                 <td class="text-right">-<?php echo numfmt_format_currency($currency_format, $invoice_discount, $invoice_currency_code); ?></td>
                             </tr>
                         <?php
                         }
                         ?>
                         <?php if ($total_tax > 0) { ?>
-                            <tr class="border-bottom">
-                                <td>Tax</td>
+                            <tr>
+                                <td>Tax:</td>
                                 <td class="text-right"><?php echo numfmt_format_currency($currency_format, $total_tax, $invoice_currency_code); ?></td>
                             </tr>
                         <?php } ?>
-                        <tr class="border-bottom">
-                            <td>Total</td>
+                        <tr>
+                            <td>Total:</td>
                             <td class="text-right"><?php echo numfmt_format_currency($currency_format, $invoice_amount, $invoice_currency_code); ?></td>
                         </tr>
                         <?php if ($amount_paid > 0) { ?>
-                            <tr class="border-bottom">
-                                <td><div class="text-success">Paid</div></td>
+                            <tr>
+                                <td><div class="text-success">Paid:</div></td>
                                 <td class="text-right text-success"><?php echo numfmt_format_currency($currency_format, $amount_paid, $invoice_currency_code); ?></td>
                             </tr>
                         <?php
                         } 
                         ?>
-                        <tr class="border-bottom">
-                            <td><strong>Balance</strong></td>
-                            <td class="text-right"><strong><?php echo numfmt_format_currency($currency_format, $balance, $invoice_currency_code); ?></strong></td>
+                        <tr class="border-top h5 text-bold">
+                            <td>Balance:</td>
+                            <td class="text-right"><?php echo numfmt_format_currency($currency_format, $balance, $invoice_currency_code); ?></td>
                         </tr>
 
                         </tbody>
@@ -355,7 +339,7 @@ if ($balance > 0) {
 
             <hr class="mt-5">
 
-            <div class="text-center"><?php echo nl2br($config_invoice_footer); ?></div>
+            <div class="text-center text-secondary"><?php echo nl2br($config_invoice_footer); ?></div>
         </div>
     </div>
 

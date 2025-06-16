@@ -87,6 +87,21 @@ $config_quote_footer = nullable_htmlentities($row['config_quote_footer']);
 //Set Currency Format
 $currency_format = numfmt_create($company_locale, NumberFormatter::CURRENCY);
 
+//Set Badge color based off of quote status
+if ($quote_status == "Sent") {
+    $quote_badge_color = "warning text-white";
+} elseif ($quote_status == "Viewed") {
+    $quote_badge_color = "primary";
+} elseif ($quote_status == "Accepted") {
+    $quote_badge_color = "success";
+} elseif ($quote_status == "Declined") {
+    $quote_badge_color = "danger";
+} elseif ($quote_status == "Invoiced") {
+    $quote_badge_color = "info";
+} else {
+    $quote_badge_color = "secondary";
+}
+
 //Update status to Viewed only if invoice_status = "Sent"
 if ($quote_status == 'Sent') {
     mysqli_query($mysqli, "UPDATE quotes SET quote_status = 'Viewed' WHERE quote_id = $quote_id");
@@ -115,82 +130,69 @@ if ($quote_status == "Draft" || $quote_status == "Sent" || $quote_status == "Vie
         </div>
         <div class="card-body">
 
-            <div class="row mb-4">
+            <div class="row mb-3">
                 <div class="col-sm-2">
-                    <img class="img-fluid" src="<?php echo "../uploads/settings/$company_logo"; ?>">
+                    <img class="img-fluid" src="<?php echo "../uploads/settings/$company_logo"; ?>" alt="Company logo">
                 </div>
-                <div class="col-sm-10">
-                    <?php if ($quote_status == "Accepted" || $quote_status == "Declined") { ?>
-                    <div class="ribbon-wrapper">
-                        <div class="ribbon bg-success <?php if ($quote_status == 'Declined') { echo 'bg-danger'; } ?>">
-                            <?php echo $quote_status; ?>
-                        </div>
-                    </div>
-                    <?php } ?> 
-                    <h3 class="text-right mt-5"><strong>Quote</strong><br><small class="text-secondary"><?php echo "$quote_prefix$quote_number"; ?></small></h3>
-                </div>
-            </div>
-
-            <div class="row mb-4">
-
-                <div class="col-sm">
+                <div class="col-sm-6">
                     <ul class="list-unstyled">
                         <li><h4><strong><?php echo $company_name; ?></strong></h4></li>
                         <li><?php echo $company_address; ?></li>
-                        <li><?php echo "$company_city $company_state $company_zip"; ?></li>
-                        <li><small><?php echo $company_country; ?></small></li>
-                        <li><?php echo $company_phone; ?></li>
-                        <li><?php echo $company_email; ?></li>
+                        <li><?php echo "$company_city $company_state $company_zip, $company_country"; ?></li>
+                        <li><?php echo "$company_email | $company_phone"; ?></li>
+                        <li><?php echo $company_website; ?></li>
                     </ul>
-
                 </div>
 
-                <div class="col-sm">
-
-                    <ul class="list-unstyled text-right">
-                        <li><h4><strong><?php echo $client_name; ?></strong></h4></li>
-                        <li><?php echo $location_address; ?></li>
-                        <li><?php echo "$location_city $location_state $location_zip"; ?></li>
-                        <li><small><?php echo $location_country; ?></small></li>
-                        <li><?php echo "$contact_phone $contact_extension"; ?></li>
-                        <li><?php echo $contact_mobile; ?></li>
-                        <li><?php echo $contact_email; ?></li>
-                    </ul>
-
-                </div>
-            </div>
-            <div class="row mb-4">
-                <div class="col-sm-8">
-                </div>
                 <div class="col-sm-4">
-                    <table class="table">
+                    <h3 class="text-right"><strong>QUOTE</strong></h3>
+                    <h5 class="badge badge-<?php echo $quote_badge_color; ?> p-2 float-right">
+                        <?php echo "$quote_status"; ?>
+                    </h5>
+                    <table class="table table-sm table-borderless">
                         <tr>
-                            <td>Date</td>
+                            <th>Quote #:</th>
+                            <td class="text-right"><?php echo "$quote_prefix$quote_number"; ?></td>
+                        </tr>
+                        <tr>
+                            <th>Date:</th>
                             <td class="text-right"><?php echo $quote_date; ?></td>
                         </tr>
-                        <tr class="text-bold">
-                            <td>Expire</td>
+                        <tr>
+                            <th>Expires:</th>
                             <td class="text-right"><?php echo $quote_expire; ?></td>
                         </tr>
                     </table>
+                </div>
+
+            </div>
+            <div class="row mb-3 bg-light p-3">
+                <div class="col">
+                    <h6><strong>To:</strong></h6>
+                    <ul class="list-unstyled mb-0">
+                        <li><?php echo $client_name; ?></li>
+                        <li><?php echo $location_address; ?></li>
+                        <li><?php echo "$location_city $location_state $location_zip, $location_country"; ?></li>
+                        <li><?php echo "$contact_email | $contact_phone $contact_extension"; ?></li>
+                    </ul>
                 </div>
             </div>
 
             <?php $sql_items = mysqli_query($mysqli, "SELECT * FROM invoice_items WHERE item_quote_id = $quote_id ORDER BY item_order ASC"); ?>
 
-            <div class="row mb-4">
+            <div class="row mb-3">
                 <div class="col-md-12">
                     <div class="card">
                         <div class="table-responsive">
-                            <table class="table">
-                                <thead>
+                            <table class="table table-borderless">
+                                <thead class="bg-light">
                                 <tr>
-                                    <th>Product</th>
+                                    <th>Item</th>
                                     <th>Description</th>
                                     <th class="text-center">Qty</th>
-                                    <th class="text-right">Price</th>
+                                    <th class="text-right">Unit Price</th>
                                     <th class="text-right">Tax</th>
-                                    <th class="text-right">Total</th>
+                                    <th class="text-right">Amount</th>
                                 </tr>
                                 </thead>
                                 <tbody>
@@ -233,7 +235,7 @@ if ($quote_status == "Draft" || $quote_status == "Sent" || $quote_status == "Vie
                 </div>
             </div>
 
-            <div class="row mb-4">
+            <div class="row mb-3">
                 <div class="col-sm-7">
                     <?php if (!empty($quote_note)) { ?>
                         <div class="card">
@@ -247,24 +249,24 @@ if ($quote_status == "Draft" || $quote_status == "Sent" || $quote_status == "Vie
                 <div class="col-sm-3 offset-sm-2">
                     <table class="table table-borderless">
                         <tbody>
-                        <tr class="border-bottom">
-                            <td>Subtotal</td>
+                        <tr>
+                            <td>Subtotal:</td>
                             <td class="text-right"><?php echo numfmt_format_currency($currency_format, $sub_total, $quote_currency_code); ?></td>
                         </tr>
                         <?php if ($quote_discount > 0) { ?>
-                            <tr class="border-bottom">
-                                <td>Discount</td>
+                            <tr>
+                                <td>Discount:</td>
                                 <td class="text-right"><?php echo numfmt_format_currency($currency_format, -$quote_discount, $quote_currency_code); ?></td>
                             </tr>
                         <?php } ?>
                         <?php if ($total_tax > 0) { ?>
-                            <tr class="border-bottom">
-                                <td>Tax</td>
+                            <tr>
+                                <td>Tax:</td>
                                 <td class="text-right"><?php echo numfmt_format_currency($currency_format, $total_tax, $quote_currency_code); ?></td>
                             </tr>
                         <?php } ?>
-                        <tr class="border-bottom">
-                            <td><strong>Total</strong></td>
+                        <tr class="border-top h5 text-bold">
+                            <td><strong>Total:</strong></td>
                             <td class="text-right"><strong><?php echo numfmt_format_currency($currency_format, $quote_amount, $quote_currency_code); ?></strong></td>
                         </tr>
                         </tbody>

@@ -247,79 +247,70 @@ if (isset($_GET['quote_id'])) {
 
         <div class="card-body">
 
-            <div class="row mb-4">
-                <div class="col-2">
+            <div class="row mb-3">
+                <div class="col-sm-2">
                     <img class="img-fluid" src="<?php echo "uploads/settings/$company_logo"; ?>" alt="Company logo">
                 </div>
-                <div class="col-10">
-                    <div class="ribbon-wrapper">
-                        <div class="ribbon bg-<?php echo $quote_badge_color; ?>">
-                            <?php echo $quote_status; ?>
-                        </div>
-                    </div>
-                    <h3 class="text-right mt-5"><strong>Quote</strong><br><small class="text-secondary"><?php echo "$quote_prefix$quote_number"; ?></small></h3>
-                </div>
-            </div>
-            <div class="row mb-4">
-                <div class="col">
+                <div class="col-sm-6">
                     <ul class="list-unstyled">
-                        <li>
-                            <h4><strong><?php echo $company_name; ?></strong></h4>
-                        </li>
+                        <li><h4><strong><?php echo $company_name; ?></strong></h4></li>
                         <li><?php echo $company_address; ?></li>
-                        <li><?php echo "$company_city $company_state $company_zip"; ?></li>
-                        <li><small><?php echo $company_country; ?></small></li>
-                        <li><?php echo $company_phone; ?></li>
-                        <li><?php echo $company_email; ?></li>
+                        <li><?php echo "$company_city $company_state $company_zip, $company_country"; ?></li>
+                        <li><?php echo "$company_email | $company_phone"; ?></li>
+                        <li><?php echo $company_website; ?></li>
                     </ul>
                 </div>
-                <div class="col">
-                    <ul class="list-unstyled text-right">
-                        <li>
-                            <h4><strong><?php echo $client_name; ?></strong></h4>
-                        </li>
-                        <li><?php echo $location_address; ?></li>
-                        <li><?php echo "$location_city $location_state $location_zip"; ?></li>
-                        <li><small><?php echo $location_country; ?></small></li>
-                        <li><?php echo "$contact_phone $contact_extension"; ?></li>
-                        <li><?php echo $contact_mobile; ?></li>
-                        <li><?php echo $contact_email; ?></li>
-                    </ul>
-                </div>
-            </div>
-            <div class="row mb-4">
-                <div class="col-sm-8">
-                </div>
+
                 <div class="col-sm-4">
-                    <table class="table">
+                    <h3 class="text-right"><strong>QUOTE</strong></h3>
+                    <h5 class="badge badge-<?php echo $quote_badge_color; ?> p-2 float-right">
+                        <?php echo "$quote_status"; ?>
+                    </h5>
+                    <table class="table table-sm table-borderless">
                         <tr>
-                            <td>Date</td>
+                            <th>Quote #:</th>
+                            <td class="text-right"><?php echo "$quote_prefix$quote_number"; ?></td>
+                        </tr>
+                        <tr>
+                            <th>Date:</th>
                             <td class="text-right"><?php echo $quote_date; ?></td>
                         </tr>
-                        <tr class="text-bold">
-                            <td>Expire</td>
+                        <tr>
+                            <th>Expires:</th>
                             <td class="text-right"><?php echo $quote_expire; ?></td>
                         </tr>
                     </table>
+                </div>
+
+            </div>
+            <div class="row mb-3 bg-light p-3">
+                <div class="col">
+                    <h6><strong>To:</strong></h6>
+                    <ul class="list-unstyled mb-0">
+                        <li><?php echo $client_name; ?></li>
+                        <li><?php echo $location_address; ?></li>
+                        <li><?php echo "$location_city $location_state $location_zip, $location_country"; ?></li>
+                        <li><?php echo "$contact_email | $contact_phone $contact_extension"; ?></li>
+                    </ul>
                 </div>
             </div>
 
             <?php $sql_items = mysqli_query($mysqli, "SELECT * FROM invoice_items WHERE item_quote_id = $quote_id ORDER BY item_order ASC"); ?>
 
-            <div class="row mb-4">
+            <div class="row mb-3">
                 <div class="col-md-12">
                     <div class="card">
                         <div class="table-responsive">
-                            <table class="table" id="items">
-                                <thead>
+                            <table class="table table-borderless" id="items">
+                                <thead class="bg-light">
                                     <tr>
                                         <th class="d-print-none"></th>
                                         <th>Item</th>
                                         <th>Description</th>
-                                        <th class="text-center">Quantity</th>
-                                        <th class="text-right">Price</th>
+                                        <th class="text-center">Qty</th>
+                                        <th class="text-right">Unit Price</th>
                                         <th class="text-right">Tax</th>
-                                        <th class="text-right">Total</th>
+                                        <th class="text-right">Amount</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -391,12 +382,12 @@ if (isset($_GET['quote_id'])) {
                                         <form action="post.php" method="post" autocomplete="off">
                                             <input type="hidden" name="quote_id" value="<?php echo $quote_id; ?>">
                                             <input type="hidden" name="item_order" value="<?php
-                                                                                            //find largest order number and add 1
-                                                                                            $sql = mysqli_query($mysqli, "SELECT MAX(item_order) AS item_order FROM invoice_items WHERE item_quote_id = $quote_id");
-                                                                                            $row = mysqli_fetch_array($sql);
-                                                                                            $item_order = intval($row['item_order']) + 1;
-                                                                                            echo $item_order;
-                                                                                            ?>">
+                                            //find largest order number and add 1
+                                            $sql = mysqli_query($mysqli, "SELECT MAX(item_order) AS item_order FROM invoice_items WHERE item_quote_id = $quote_id");
+                                            $row = mysqli_fetch_array($sql);
+                                            $item_order = intval($row['item_order']) + 1;
+                                            echo $item_order;
+                                            ?>">
                                             <td></td>
                                             <td>
                                                 <input type="text" class="form-control" name="name" id="name" placeholder="Item" required>
@@ -405,7 +396,7 @@ if (isset($_GET['quote_id'])) {
                                                 <textarea class="form-control" rows="2" name="description" id="desc" placeholder="Enter a Description"></textarea>
                                             </td>
                                             <td>
-                                                <input type="text" class="form-control" inputmode="numeric" pattern="-?[0-9]*\.?[0-9]{0,2}" id="qty" style="text-align: center;" name="qty" placeholder="Quantity">
+                                                <input type="text" class="form-control" inputmode="numeric" pattern="-?[0-9]*\.?[0-9]{0,2}" id="qty" style="text-align: center;" name="qty" placeholder="Qty">
                                             </td>
                                             <td>
                                                 <input type="text" class="form-control" inputmode="numeric" pattern="-?[0-9]*\.?[0-9]{0,2}" id="price" style="text-align: right;" name="price" placeholder="Price (<?php echo $quote_currency_code; ?>)">
@@ -442,11 +433,11 @@ if (isset($_GET['quote_id'])) {
                 </div>
             </div>
 
-            <div class="row mb-4">
+            <div class="row mb-3">
                 <div class="col-sm-7">
                     <div class="card">
                         <div class="card-header text-bold">
-                            Notes
+                            Notes:
                             <div class="card-tools d-print-none">
                                 <?php if (lookupUserPermission("module_sales") >= 2) { ?>
                                     <a href="#" class="btn btn-light btn-tool" data-toggle="modal" data-target="#quoteNoteModal">
@@ -464,25 +455,25 @@ if (isset($_GET['quote_id'])) {
                 <div class="col-sm-3 offset-sm-2">
                     <table class="table table-borderless">
                         <tbody>
-                            <tr class="border-bottom">
-                                <td>Subtotal</td>
+                            <tr>
+                                <td>Subtotal:</td>
                                 <td class="text-right"><?php echo numfmt_format_currency($currency_format, $sub_total, $quote_currency_code); ?></td>
                             </tr>
                             <?php if ($quote_discount > 0) { ?>
-                                <tr class="border-bottom">
-                                    <td>Discount</td>
+                                <tr>
+                                    <td>Discount:</td>
                                     <td class="text-right">-<?php echo numfmt_format_currency($currency_format, $quote_discount, $quote_currency_code); ?></td>
                                 </tr>
                             <?php } ?>
                             <?php if ($total_tax > 0) { ?>
-                                <tr class="border-bottom">
-                                    <td>Tax</td>
+                                <tr>
+                                    <td>Tax:</td>
                                     <td class="text-right"><?php echo numfmt_format_currency($currency_format, $total_tax, $quote_currency_code); ?></td>
                                 </tr>
                             <?php } ?>
-                            <tr class="border-bottom">
-                                <td><strong>Total</strong></td>
-                                <td class="text-right"><strong><?php echo numfmt_format_currency($currency_format, $quote_amount, $quote_currency_code); ?></strong></td>
+                            <tr class="h5 text-bold border-top">
+                                <td>Total:</td>
+                                <td class="text-right"><?php echo numfmt_format_currency($currency_format, $quote_amount, $quote_currency_code); ?></td>
                             </tr>
                         </tbody>
                     </table>
@@ -597,7 +588,6 @@ if (isset($_GET['quote_id'])) {
 }
 
 require_once "includes/footer.php";
-
 
 ?>
 

@@ -449,7 +449,7 @@ if (isset($_GET['invoice_id'])) {
                                             <textarea class="form-control" rows="2" id="desc" name="description" placeholder="Enter a Description"></textarea>
                                         </td>
                                         <td>
-                                            <input type="text" inputmode="numeric" pattern="[0-9]*\.?[0-9]{0,2}" class="form-control" style="text-align: center;" id="qty" name="qty" placeholder="Quantity">
+                                            <input type="text" inputmode="numeric" pattern="[0-9]*\.?[0-9]{0,2}" class="form-control" style="text-align: center;" id="qty" name="qty" placeholder="Qty">
                                         </td>
                                         <td>
                                             <input type="text" class="form-control" inputmode="numeric" pattern="-?[0-9]*\.?[0-9]{0,2}" style="text-align: right;" id="price" name="price" placeholder="Price (<?php echo $invoice_currency_code; ?>)">
@@ -535,9 +535,9 @@ if (isset($_GET['invoice_id'])) {
                             </tr>
                         <?php } ?>
 
-                        <tr class="h5 border-top">
-                            <td><strong>Balance:</strong></td>
-                            <td class="text-right"><strong><?php echo numfmt_format_currency($currency_format, $balance, $invoice_currency_code); ?></strong></td>
+                        <tr class="h5 text-bold border-top">
+                            <td>Balance:</td>
+                            <td class="text-right"><?php echo numfmt_format_currency($currency_format, $balance, $invoice_currency_code); ?></td>
                         </tr>
                         </tbody>
                     </table>
@@ -593,7 +593,7 @@ if (isset($_GET['invoice_id'])) {
                 </div>
             </div>
         </div>
-        <div class="col-sm d-print-none">
+        <div class="col-sm d-print-none <?php if (mysqli_num_rows($sql_payments) == 0) { echo "d-none"; } ?>">
             <div class="card">
                 <div class="card-header text-bold">
                     <i class="fa fa-credit-card mr-2"></i>Payments
@@ -609,7 +609,7 @@ if (isset($_GET['invoice_id'])) {
                 <div class="card-body">
                     <div class="table-responsive">
                         <table class="table">
-                            <thead class="<?php if (mysqli_num_rows($sql_payments) == 0) { echo "d-none"; } ?>">
+                            <thead>
                                 <tr>
                                     <th>Date</th>
                                     <th class="text-right">Amount</th>
@@ -646,7 +646,7 @@ if (isset($_GET['invoice_id'])) {
                 </div>
             </div>
         </div>
-        <div class="col-sm d-print-none">
+        <div class="col-sm d-print-none <?php if (mysqli_num_rows($sql_tickets) == 0) { echo "d-none"; } ?>">
             <div class="card">
                 <div class="card-header text-bold">
                     <i class="fa fa-life-ring mr-2"></i>Tickets
@@ -675,7 +675,7 @@ if (isset($_GET['invoice_id'])) {
                 <div class="card-body">
                     <div class="table-responsive">
                         <table class="table">
-                            <thead class="<?php if (mysqli_num_rows($sql_tickets) == 0) { echo "d-none"; } ?>">
+                            <thead>
                                 <tr>
                                     <th>Date</th>
                                     <th>Subject</th>
