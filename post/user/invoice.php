@@ -2002,9 +2002,7 @@ if (isset($_GET['export_invoice_pdf'])) {
     // Totals
     $html .= '<table width="100%" cellspacing="0" cellpadding="4">
     <tr>
-        <td width="70%" rowspan="6" valign="top">
-            <strong>Notes:</strong><br>' . nl2br($invoice_note) . '
-        </td>
+        <td width="70%" rowspan="6" valign="top"><i>' . nl2br($invoice_note) . '</i></td>
         <td width="30%">
             <table width="100%" cellpadding="3" cellspacing="0">
                 <tr><td>Subtotal:</td><td align="right">' . numfmt_format_currency($currency_format, $sub_total, $invoice_currency_code) . '</td></tr>';
