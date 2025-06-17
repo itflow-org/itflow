@@ -91,9 +91,6 @@ if (isset($_GET['quote_id'])) {
     $company_email = nullable_htmlentities($row['company_email']);
     $company_website = nullable_htmlentities($row['company_website']);
     $company_logo = nullable_htmlentities($row['company_logo']);
-    if (!empty($company_logo)) {
-        $company_logo_base64 = base64_encode(file_get_contents("uploads/settings/$company_logo"));
-    }
 
     $sql_history = mysqli_query($mysqli, "SELECT * FROM history WHERE history_quote_id = $quote_id ORDER BY history_id DESC");
 
