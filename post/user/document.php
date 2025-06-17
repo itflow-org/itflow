@@ -20,9 +20,6 @@ if (isset($_POST['add_document'])) {
     
     $document_id = mysqli_insert_id($mysqli);
 
-    // Update field document_parent to be the same id as document ID as this is the only version of the document.
-    mysqli_query($mysqli,"UPDATE documents SET document_parent = $document_id WHERE document_id = $document_id");
-
     if ($contact_id) {
         mysqli_query($mysqli,"INSERT INTO contact_documents SET contact_id = $contact_id, document_id = $document_id");
     }
@@ -66,9 +63,6 @@ if (isset($_POST['add_document_from_template'])) {
 
     $document_id = mysqli_insert_id($mysqli);
 
-    // Update field document_parent to be the same id as document ID as this is the only version of the document.
-    mysqli_query($mysqli,"UPDATE documents SET document_parent = $document_id WHERE document_id = $document_id");
-
     // Logging
     logAction("Document", "Create", "$session_name created document $name from template $document_template_name", $client_id, $document_id);
 
@@ -84,45 +78,48 @@ if (isset($_POST['edit_document'])) {
 
     require_once 'document_model.php';
     $document_id = intval($_POST['document_id']);
-    $document_created_by = intval($_POST['created_by']);
-    $document_parent = intval($_POST['document_parent']);
+
+    // Save Original Document as a Version
+    $sql_original_document = mysqli_query($mysqli, "SELECT * FROM documents 
+        WHERE document_client_id = $client_id AND document_id = $document_id"
+    );
+
+    $row = mysqli_fetch_array($sql_original_document);
+
+    $original_document_name = sanitizeInput($row['document_name']);
+    $original_document_description = sanitizeInput($row['document_description']);
+    $original_document_content = mysqli_escape_string($mysqli, $row['document_content']);
+    $original_document_created_by = intval($row['document_created_by']);
+    $original_document_updated_by = intval($row['document_updated_by']);
+    $original_document_created_at = sanitizeInput($row['document_created_at']);
+    $original_document_updated_at = sanitizeInput($row['document_updated_at']);
+
+    if ($original_document_updated_at) {
+        $document_version_created_at = $original_document_updated_at;
+    } else {
+        $document_version_created_at = $original_document_created_at;
+    }
+
+    if ($original_document_updated_by) {
+        $document_version_created_by = $original_document_updated_by;
+    } else {
+        $document_version_created_by = $original_document_created_by;
+    }
 
     // Document add query
-    mysqli_query($mysqli,"INSERT INTO documents SET document_name = '$name', document_description = '$description', document_content = '$content', document_content_raw = '$content_raw', document_template = 0, document_folder_id = $folder, document_created_by = $document_created_by, document_updated_by = $session_user_id, document_client_id = $client_id");
+    mysqli_query($mysqli,"INSERT INTO document_versions SET document_version_name = '$original_document_name', document_version_description = '$original_document_description', document_version_content = '$original_document_content', document_version_created_by = $document_version_created_by, document_version_created_at = '$document_version_created_at', document_version_document_id = $document_id");
 
-    $new_document_id = mysqli_insert_id($mysqli);
+    $document_version_id = mysqli_insert_id($mysqli);
 
-    // Update the parent ID of the new document to match its new document ID
-    mysqli_query($mysqli,"UPDATE documents SET document_parent = $new_document_id WHERE document_id = $new_document_id");
-
-    // Link all exisiting links with old document with new document
-    mysqli_query($mysqli,"UPDATE documents SET document_parent = $new_document_id, document_archived_at = NOW() WHERE document_parent = $document_id");
-
-    // Update Links to the new parent document
-    // document files
-    mysqli_query($mysqli,"UPDATE document_files SET document_id = $new_document_id WHERE document_id = $document_id");
-
-    // contact documents
-    mysqli_query($mysqli,"UPDATE contact_documents SET document_id = $new_document_id WHERE document_id = $document_id");
-
-    // asset documents
-    mysqli_query($mysqli,"UPDATE asset_documents SET document_id = $new_document_id WHERE document_id = $document_id");
-
-    // software documents
-    mysqli_query($mysqli,"UPDATE software_documents SET document_id = $new_document_id WHERE document_id = $document_id");
-
-    // vendor documents
-    mysqli_query($mysqli,"UPDATE vendor_documents SET document_id = $new_document_id WHERE document_id = $document_id");
-
-    // Service document
-    mysqli_query($mysqli,"UPDATE service_documents SET document_id = $new_document_id WHERE document_id = $document_id");
+    // Update Document
+    mysqli_query($mysqli,"UPDATE documents SET document_name = '$name', document_description = '$description', document_content = '$content', document_content_raw = '$content_raw', document_folder_id = $folder, document_updated_by = $session_user_id WHERE document_id = $document_id");
 
     //Logging
-    logAction("Document", "Edit", "$session_name edited document $name, previous version kept", $client_id, $new_document_id);
+    logAction("Document", "Edit", "$session_name edited document $name, previous version kept", $client_id, $document_version_id);
 
     $_SESSION['alert_message'] = "Document <strong>$name</strong> edited, previous version kept";
 
-    header("Location: client_document_details.php?client_id=$client_id&document_id=$new_document_id");
+    header("Location: client_document_details.php?client_id=$client_id&document_id=$document_id");
 }
 
 if (isset($_POST['move_document'])) {
@@ -667,24 +664,23 @@ if (isset($_GET['delete_document_version'])) {
 
     enforceUserPermission('module_support', 3);
 
-    $document_id = intval($_GET['delete_document_version']);
+    $document_version_id = intval($_GET['delete_document_version']);
 
-    // Get Document Parent ID
-    $sql = mysqli_query($mysqli,"SELECT document_name, document_parent, document_client_id FROM documents WHERE document_id = $document_id");
+    // Get Document
+    $sql = mysqli_query($mysqli,"SELECT document_version_name, document_client_id FROM documents, document_versions WHERE document_version_document_id = document_id AND document_version_id = $document_version_id");
     $row = mysqli_fetch_array($sql);
     $client_id = intval($row['document_client_id']);
-    $document_parent = intval($row['document_parent']);
-    $document_name = sanitizeInput($row['document_name']);
+    $document_version_name = sanitizeInput($row['document_version_name']);
 
-    mysqli_query($mysqli,"DELETE FROM documents WHERE document_id = $document_id");
+    mysqli_query($mysqli,"DELETE FROM document_versions WHERE document_version_id = $document_version_id");
 
     //Logging
-    logAction("Document Version", "Delete", "$session_name deleted document version $document_name", $client_id);
+    logAction("Document Version", "Delete", "$session_name deleted document version $document_version_name", $client_id);
 
     $_SESSION['alert_type'] = "error";
-    $_SESSION['alert_message'] = "Document $document_name version deleted";
+    $_SESSION['alert_message'] = "Document $document_version_name version deleted";
 
-    header("Location: client_document_details.php?client_id=$client_id&document_id=$document_parent");
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
 
 }
 
@@ -703,7 +699,7 @@ if (isset($_GET['delete_document'])) {
     mysqli_query($mysqli,"DELETE FROM documents WHERE document_id = $document_id");
 
     // Delete all versions associated with the master document
-    mysqli_query($mysqli,"DELETE FROM documents WHERE document_parent = $document_id");
+    mysqli_query($mysqli,"DELETE FROM document_versions WHERE document_version_document_id = $document_id");
 
     //Logging
     logAction("Document", "Delete", "$session_name deleted document $document_name and all versions", $client_id);
@@ -738,7 +734,7 @@ if (isset($_POST['bulk_delete_documents'])) {
             mysqli_query($mysqli,"DELETE FROM documents WHERE document_id = $document_id");
 
             // Delete all versions associated with the master document
-            mysqli_query($mysqli,"DELETE FROM documents WHERE document_parent = $document_id");
+            mysqli_query($mysqli,"DELETE FROM document_versions WHERE document_version_document_id = $document_id");
 
             //Logging
             logAction("Document", "Delete", "$session_name deleted document $document_name and all versions", $client_id);  

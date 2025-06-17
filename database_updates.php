@@ -3473,10 +3473,34 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
         mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '2.1.5'");
     }
 
-    // if (CURRENT_DATABASE_VERSION == '2.1.5') {
-    //     // Insert queries here required to update to DB version 2.1.6
+    if (CURRENT_DATABASE_VERSION == '2.1.5') {
+
+        mysqli_query($mysqli, "CREATE TABLE `document_versions` (
+            `document_version_id` INT(11) NOT NULL AUTO_INCREMENT,
+            `document_version_name` VARCHAR(200) NOT NULL,
+            `document_version_description` TEXT DEFAULT NULL,
+            `document_version_content` LONGTEXT NOT NULL,
+            `document_version_created_by` INT(11) DEFAULT 0,
+            `document_version_created_at` DATETIME NOT NULL,
+            `document_version_document_id` INT(11) NOT NULL,
+            PRIMARY KEY (`document_version_id`)
+        )");
+
+        // Delete all Current Document Versions
+        mysqli_query($mysqli, "
+            DELETE FROM `documents`
+            WHERE `document_parent` > 0 AND `document_parent` != `document_id`
+        ");
+
+        mysqli_query($mysqli, "ALTER TABLE `documents` DROP `document_parent`");
+
+        mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '2.1.6'");
+    }
+
+    // if (CURRENT_DATABASE_VERSION == '2.1.6') {
+    //     // Insert queries here required to update to DB version 2.1.7
     //     // Then, update the database to the next sequential version
-    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '2.1.6'");
+    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '2.1.7'");
     // }
 
 } else {
