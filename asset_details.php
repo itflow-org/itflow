@@ -177,7 +177,6 @@ if (isset($_GET['asset_id'])) {
         LEFT JOIN users ON document_created_by = user_id
         WHERE asset_documents.asset_id = $asset_id 
         AND asset_documents.document_id = documents.document_id
-        AND document_template = 0
         AND document_archived_at IS NULL
         ORDER BY document_name ASC"
     );

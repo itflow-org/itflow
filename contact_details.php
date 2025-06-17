@@ -143,7 +143,6 @@ if (isset($_GET['contact_id'])) {
         LEFT JOIN users ON document_created_by = user_id
         WHERE contact_documents.contact_id = $contact_id 
         AND contact_documents.document_id = documents.document_id
-        AND document_template = 0
         AND document_archived_at IS NULL
         ORDER BY document_name ASC"
     );
