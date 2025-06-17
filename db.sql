@@ -831,6 +831,27 @@ CREATE TABLE `document_files` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `document_templates`
+--
+
+DROP TABLE IF EXISTS `document_templates`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `document_templates` (
+  `document_template_id` int(11) NOT NULL AUTO_INCREMENT,
+  `document_template_name` varchar(200) NOT NULL,
+  `document_template_description` text DEFAULT NULL,
+  `document_template_content` longtext NOT NULL,
+  `document_template_created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `document_template_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
+  `document_template_archived_at` datetime DEFAULT NULL,
+  `document_template_created_by` int(11) NOT NULL DEFAULT 0,
+  `document_template_updated_by` int(11) NOT NULL DEFAULT 0,
+  PRIMARY KEY (`document_template_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `document_versions`
 --
 
@@ -868,7 +889,6 @@ CREATE TABLE `documents` (
   `document_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
   `document_archived_at` datetime DEFAULT NULL,
   `document_accessed_at` datetime DEFAULT NULL,
-  `document_template` tinyint(1) NOT NULL DEFAULT 0,
   `document_folder_id` int(11) NOT NULL DEFAULT 0,
   `document_created_by` int(11) NOT NULL DEFAULT 0,
   `document_updated_by` int(11) NOT NULL DEFAULT 0,
@@ -2522,4 +2542,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-06-17 17:56:40
+-- Dump completed on 2025-06-17 19:00:19

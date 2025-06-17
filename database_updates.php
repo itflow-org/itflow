@@ -3497,10 +3497,58 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
         mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '2.1.6'");
     }
 
-    // if (CURRENT_DATABASE_VERSION == '2.1.6') {
-    //     // Insert queries here required to update to DB version 2.1.7
+    if (CURRENT_DATABASE_VERSION == '2.1.6') {
+        mysqli_query($mysqli, "CREATE TABLE `document_templates` (
+            `document_template_id` INT(11) NOT NULL AUTO_INCREMENT,
+            `document_template_name` VARCHAR(200) NOT NULL,
+            `document_template_description` TEXT DEFAULT NULL,
+            `document_template_content` LONGTEXT NOT NULL,
+            `document_template_created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            `document_template_updated_at` DATETIME NULL ON UPDATE CURRENT_TIMESTAMP,
+            `document_template_archived_at` DATETIME NULL DEFAULT NULL,
+            `document_template_created_by` INT(11) NOT NULL DEFAULT 0,
+            `document_template_updated_by` INT(11) NOT NULL DEFAULT 0,
+            PRIMARY KEY (`document_template_id`)
+        )");
+
+        // Copy Document Templates over to new document templates table
+        mysqli_query($mysqli, "
+            INSERT INTO document_templates (
+                document_template_name,
+                document_template_description,
+                document_template_content,
+                document_template_created_at,
+                document_template_updated_at,
+                document_template_archived_at,
+                document_template_created_by,
+                document_template_updated_by
+            )
+            SELECT
+                document_name,
+                document_description,
+                document_content,
+                document_created_at,
+                document_updated_at,
+                document_archived_at,
+                document_created_by,
+                document_updated_by
+            FROM
+                documents
+            WHERE
+                document_template = 1
+        ");
+
+        mysqli_query($mysqli, "DELETE FROM documents WHERE document_template = 1");
+
+        mysqli_query($mysqli, "ALTER TABLE `documents` DROP `document_template`");
+
+        mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '2.1.7'");
+    }
+
+    // if (CURRENT_DATABASE_VERSION == '2.1.7') {
+    //     // Insert queries here required to update to DB version 2.1.8
     //     // Then, update the database to the next sequential version
-    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '2.1.7'");
+    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '2.1.8'");
     // }
 
 } else {

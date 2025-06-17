@@ -1,27 +1,19 @@
 <?php
 
     // Default Column Sort by Filter
-    $sort = "document_name";
+    $sort = "document_template_name";
     $order = "ASC";
 
     require_once "includes/inc_all_admin.php";
-
-    // Search query SQL snippet
-    if (!empty($q)) {
-        $query_snippet = "AND (MATCH(document_content_raw) AGAINST ('$q') OR document_name LIKE '%$q%')";
-    } else {
-        $query_snippet = ""; // empty
-    }
 
     // Rebuild URL
     $url_query_strings_sort = http_build_query($get_copy);
 
     $sql = mysqli_query(
         $mysqli,
-        "SELECT SQL_CALC_FOUND_ROWS * FROM documents
-        LEFT JOIN users ON document_created_by = user_id
-        WHERE document_template = 1
-        $query_snippet
+        "SELECT SQL_CALC_FOUND_ROWS * FROM document_templates
+        LEFT JOIN users ON document_template_created_by = user_id
+        WHERE user_name LIKE '%$q%' OR document_template_name LIKE '%$q%'
         ORDER BY $sort $order LIMIT $record_from, $record_to"
     );
 
@@ -55,18 +47,18 @@
                 <thead class="text-dark <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
                     <tr>
                         <th>
-                            <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=document_name&order=<?php echo $disp; ?>">
-                                Template Name <?php if ($sort == 'document_name') { echo $order_icon; } ?>
+                            <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=document_template_name&order=<?php echo $disp; ?>">
+                                Template Name <?php if ($sort == 'document_template_name') { echo $order_icon; } ?>
                             </a>
                         </th>
                         <th>
-                            <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=document_created_at&order=<?php echo $disp; ?>">
-                                Created <?php if ($sort == 'document_created_at') { echo $order_icon; } ?>
+                            <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=document_template_created_at&order=<?php echo $disp; ?>">
+                                Created <?php if ($sort == 'document_template_created_at') { echo $order_icon; } ?>
                             </a>
                         </th>
                         <th>
-                            <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=document_updated_at&order=<?php echo $disp; ?>">
-                                Updated <?php if ($sort == 'document_updated_at') { echo $order_icon; } ?>
+                            <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=document_template_updated_at&order=<?php echo $disp; ?>">
+                                Updated <?php if ($sort == 'document_template_updated_at') { echo $order_icon; } ?>
                             </a>
                         </th>
                         <th class="text-center">
@@ -78,27 +70,26 @@
                     <?php
 
                         while ($row = mysqli_fetch_array($sql)) {
-                            $document_id = intval($row['document_id']);
-                            $document_name = nullable_htmlentities($row['document_name']);
-                            $document_description = nullable_htmlentities($row['document_description']);
-                            $document_content = nullable_htmlentities($row['document_content']);
-                            $document_created_by_name = nullable_htmlentities($row['user_name']);
-                            $document_created_at = nullable_htmlentities($row['document_created_at']);
-                            $document_updated_at = nullable_htmlentities($row['document_updated_at']);
-                            $document_folder_id = intval($row['document_folder_id']);
+                            $document_template_id = intval($row['document_template_id']);
+                            $document_template_name = nullable_htmlentities($row['document_template_name']);
+                            $document_template_description = nullable_htmlentities($row['document_template_description']);
+                            $document_template_content = nullable_htmlentities($row['document_template_content']);
+                            $document_template_created_by_name = nullable_htmlentities($row['user_name']);
+                            $document_template_created_at = nullable_htmlentities($row['document_template_created_at']);
+                            $document_template_updated_at = nullable_htmlentities($row['document_template_updated_at']);
 
                     ?>
 
                     <tr>
                         <td>
-                            <a class="text-bold" href="admin_document_template_details.php?document_id=<?php echo $document_id; ?>"><i class="fas fa-fw fa-file-alt text-dark"></i> <?php echo $document_name; ?></a>
-                            <div class="mt-1 text-secondary"><?php echo $document_description; ?></div>
+                            <a class="text-bold" href="admin_document_template_details.php?document_template_id=<?php echo $document_template_id; ?>"><i class="fas fa-fw fa-file-alt text-dark"></i> <?php echo $document_template_name; ?></a>
+                            <div class="mt-1 text-secondary"><?php echo $document_template_description; ?></div>
                         </td>
                         <td>
-                            <?php echo $document_created_at; ?>
-                            <div class="text-secondary"><?php echo $document_created_by_name; ?></div>
+                            <?php echo $document_template_created_at; ?>
+                            <div class="text-secondary"><?php echo $document_template_created_by_name; ?></div>
                         </td>
-                        <td><?php echo $document_updated_at; ?></td>
+                        <td><?php echo $document_template_updated_at; ?></td>
                         <td>
                             <div class="dropdown dropleft text-center">
                                 <button class="btn btn-secondary btn-sm" type="button" data-toggle="dropdown">
@@ -109,12 +100,12 @@
                                         data-toggle="ajax-modal"
                                         data-modal-size="xl"
                                         data-ajax-url="ajax/ajax_document_template_edit.php"
-                                        data-ajax-id="<?php echo $document_id; ?>"
+                                        data-ajax-id="<?php echo $document_template_id; ?>"
                                         >
                                         <i class="fas fa-fw fa-edit mr-2"></i>Edit
                                     </a>
                                     <div class="dropdown-divider"></div>
-                                    <a class="dropdown-item text-danger text-bold" href="post.php?delete_document=<?php echo $document_id; ?>">
+                                    <a class="dropdown-item text-danger text-bold" href="post.php?delete_document_template=<?php echo $document_template_id; ?>">
                                         <i class="fas fa-fw fa-trash mr-2"></i>Delete
                                     </a>
                                 </div>

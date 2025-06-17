@@ -49,17 +49,17 @@ if (isset($_POST['add_document_from_template'])) {
     $document_template_id = intval($_POST['document_template_id']);
     $folder = intval($_POST['folder']);
 
-    //GET Document Info
-    $sql_document = mysqli_query($mysqli,"SELECT * FROM documents WHERE document_id = $document_template_id");
+    // GET Document Template Info
+    $sql_document = mysqli_query($mysqli,"SELECT * FROM document_templates WHERE document_template_id = $document_template_id");
 
     $row = mysqli_fetch_array($sql_document);
 
-    $document_template_name = sanitizeInput($row['document_name']);
-    $content = mysqli_real_escape_string($mysqli,$row['document_content']);
+    $document_template_name = sanitizeInput($row['document_template_name']);
+    $content = mysqli_real_escape_string($mysqli,$row['document_template_content']);
     $content_raw = sanitizeInput($_POST['name'] . " " . str_replace("<", " <", $row['document_content']));
 
     // Document add query
-    mysqli_query($mysqli,"INSERT INTO documents SET document_name = '$document_name', document_description = '$document_description', document_content = '$content', document_content_raw = '$content_raw', document_template = 0, document_folder_id = $folder, document_created_by = $session_user_id, document_client_id = $client_id");
+    mysqli_query($mysqli,"INSERT INTO documents SET document_name = '$document_name', document_description = '$document_description', document_content = '$content', document_content_raw = '$content_raw', document_folder_id = $folder, document_created_by = $session_user_id, document_client_id = $client_id");
 
     $document_id = mysqli_insert_id($mysqli);
 
@@ -515,29 +515,6 @@ if (isset($_GET['unlink_software_from_document'])) {
 
     $_SESSION['alert_type'] = "error";
     $_SESSION['alert_message'] = "Software <strong>$software_name</strong> unlinked from Document <strong>$document_name</strong>";
-
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
-
-}
-
-if (isset($_POST['edit_document_template'])) {
-
-    enforceUserPermission('module_support', 2);
-
-    $document_id = intval($_POST['document_id']);
-    $name = sanitizeInput($_POST['name']);
-    $description = sanitizeInput($_POST['description']);
-    $content = mysqli_real_escape_string($mysqli,$_POST['content']);
-    $content_raw = sanitizeInput($_POST['name'] . " " . str_replace("<", " <", $_POST['content']));
-    // Content Raw is used for FULL INDEX searching. Adding a space before HTML tags to allow spaces between newlines, bulletpoints, etc. for searching.
-
-    // Document edit query
-    mysqli_query($mysqli,"UPDATE documents SET document_name = '$name', document_description = '$description', document_content = '$content', document_content_raw = '$content_raw', document_updated_by = $session_user_id WHERE document_id = $document_id");
-
-    // Logging
-    logAction("Document Template", "Edit", "$session_name edited document template $name", 0, $document_id);
-
-    $_SESSION['alert_message'] = "Document Template <strong>$name</strong> edited";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
