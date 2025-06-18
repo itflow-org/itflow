@@ -199,7 +199,7 @@ function truncate($text, $chars) {
 
 function formatPhoneNumber($phoneNumber, $country_code = '', $show_country_code = false) {
     // Remove all non-digit characters
-    $digits = preg_replace('/\D/', '', $phoneNumber);
+    $digits = preg_replace('/\D/', '', $phoneNumber ?? '');
     $formatted = '';
 
     // If no digits at all, fallback early
