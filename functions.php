@@ -1659,7 +1659,7 @@ function display_folder_options($parent_folder_id, $client_id, $folder_location 
 
 function sanitize_url($url) {
     $allowed = ['http', 'https', 'file', 'ftp', 'ftps', 'sftp', 'dav', 'webdav', 'caldav', 'carddav',  'ssh', 'telnet', 'smb', 'rdp', 'vnc', 'rustdesk', 'anydesk', 'connectwise', 'splashtop', 'sip', 'sips', 'ldap', 'ldaps'];
-    $parts = parse_url($url);
+    $parts = parse_url($url ?? '');
     if (isset($parts['scheme']) && !in_array(strtolower($parts['scheme']), $allowed)) {
         // Remove the scheme and colon
         $pos = strpos($url, ':');
@@ -1673,5 +1673,5 @@ function sanitize_url($url) {
     }
 
     // Safe schemes: return escaped original URL
-    return htmlspecialchars($url, ENT_QUOTES, 'UTF-8');
+    return htmlspecialchars($url ?? '', ENT_QUOTES, 'UTF-8');
 }
