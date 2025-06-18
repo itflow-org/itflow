@@ -160,3 +160,55 @@ if (isset($_GET['undo_complete_task'])) {
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
 }
+
+if (isset($_GET['complete_all_tasks'])) {
+
+    enforceUserPermission('module_support', 2);
+
+    $ticket_id = intval($_GET['complete_all_tasks']);
+
+    // Get Client ID
+    $sql = mysqli_query($mysqli, "SELECT * FROM tickets WHERE ticket_id = $ticket_id");
+    $row = mysqli_fetch_array($sql);
+    $client_id = intval($row['ticket_client_id']);
+
+    mysqli_query($mysqli, "UPDATE tasks SET task_completed_at = NOW(), task_completed_by = $session_user_id WHERE task_ticket_id = $ticket_id AND task_completed_at IS NULL");
+
+    // Add reply
+    mysqli_query($mysqli, "INSERT INTO ticket_replies SET ticket_reply = 'Marked all tasks complete', ticket_reply_type = 'Internal', ticket_reply_by = $session_user_id, ticket_reply_ticket_id = $ticket_id");
+
+    $ticket_reply_id = mysqli_insert_id($mysqli);
+
+    // Logging
+    logAction("Ticket", "Edit", "$session_name marked all tasks complete for ticket", $client_id, $ticket_id);
+
+    $_SESSION['alert_message'] = "Marked all tasks Complete";
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+}
+
+if (isset($_GET['undo_complete_all_tasks'])) {
+
+    enforceUserPermission('module_support', 2);
+
+    $ticket_id = intval($_GET['undo_complete_all_tasks']);
+
+    // Get Client ID
+    $sql = mysqli_query($mysqli, "SELECT * FROM tickets WHERE ticket_id = $ticket_id");
+    $row = mysqli_fetch_array($sql);
+    $client_id = intval($row['ticket_client_id']);
+
+    mysqli_query($mysqli, "UPDATE tasks SET task_completed_at = NULL, task_completed_by = NULL WHERE task_ticket_id = $ticket_id AND task_completed_at IS NOT NULL");
+
+    // Add reply
+    mysqli_query($mysqli, "INSERT INTO ticket_replies SET ticket_reply = 'Marked all tasks incomplete', ticket_reply_type = 'Internal', ticket_reply_by = $session_user_id, ticket_reply_ticket_id = $ticket_id");
+
+    $ticket_reply_id = mysqli_insert_id($mysqli);
+
+    // Logging
+    logAction("Ticket", "Edit", "$session_name marked all tasks as incomplete for ticket", $client_id, $ticket_id);
+
+    $_SESSION['alert_message'] = "Marked all tasks Incomplete";
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+}

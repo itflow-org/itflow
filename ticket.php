@@ -929,11 +929,11 @@ if (isset($_GET['ticket_id'])) {
                                         <i class="fas fa-ellipsis-v"></i>
                                     </button>
                                     <div class="dropdown-menu">
-                                        <a class="dropdown-item text-success" href="#">
+                                        <a class="dropdown-item text-success" href="post.php?complete_all_tasks=<?php echo $ticket_id; ?>">
                                             <i class="fas fa-fw fa-check-double mr-2"></i>Mark All Complete
                                         </a>
                                         <div class="dropdown-divider"></div>
-                                        <a class="dropdown-item" href="#">
+                                        <a class="dropdown-item" href="post.php?undo_complete_all_tasks=<?php echo $ticket_id; ?>">
                                             <i class="far fa-fw fa-square mr-2"></i>Mark All Incomplete
                                         </a>
                                         <div class="dropdown-divider"></div>
