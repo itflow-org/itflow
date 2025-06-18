@@ -115,7 +115,7 @@
                         if (empty($contact_name)) {
                             $contact_display = "-";
                         } else {
-                            $contact_display = "$contact_name<br><small class='text-secondary'>$contact_email</small>";
+                            $contact_display = "<div><a href='contact_details.php?client_id=$client_id&contact_id=$contact_id'>$contact_name</a></div>";
                         }
 
                         // Get who last updated the ticket - to be shown in the last Response column
