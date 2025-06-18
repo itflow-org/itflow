@@ -802,10 +802,10 @@ if (isset($_POST["import_assets_csv"])) {
         $_SESSION['alert_message'] = "Bad file size (empty?)";
     }
 
-    //(Else)Check column count (name, desc, type, make, model, serial, os, assigned to, location)
+    //(Else)Check column count (name, desc, type, make, model, serial, os, purchase date, assigned to, location)
     $f = fopen($file_name, "r");
     $f_columns = fgetcsv($f, 1000, ",");
-    if (!$error & count($f_columns) != 10) {
+    if (!$error & count($f_columns) != 11) {
         $error = true;
         $_SESSION['alert_message'] = "Invalid column count.";
     }
@@ -823,54 +823,85 @@ if (isset($_POST["import_assets_csv"])) {
             $contact_id = $location_id = 0;
 
             $duplicate_detect = 0;
+
+            // Name
             if (isset($column[0])) {
                 $name = sanitizeInput($column[0]);
                 if (mysqli_num_rows(mysqli_query($mysqli,"SELECT * FROM assets WHERE asset_name = '$name' AND asset_client_id = $client_id")) > 0) {
                     $duplicate_detect = 1;
                 }
             }
+
+            // Desc
             if (!empty($column[1])) {
                 $description = sanitizeInput($column[1]);
             }
+
+            // Type
             if (!empty($column[2])) {
                 $type = sanitizeInput($column[2]);
             }
+
+            // Make
             if (!empty($column[3])) {
                 $make = sanitizeInput($column[3]);
             }
+
+            // Model
             if (!empty($column[4])) {
                 $model = sanitizeInput($column[4]);
             }
+
+            // Serial
             if (!empty($column[5])) {
                 $serial = sanitizeInput($column[5]);
             }
+
+            // OS
             if (!empty($column[6])) {
                 $os = sanitizeInput($column[6]);
             }
+
+            // Purchase date
             if (!empty($column[7])) {
-                $contact = sanitizeInput($column[7]);
+                $purchase_date = sanitizeInput($column[7]);
+
+                if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $purchase_date) ||  empty($purchase_date)) {
+                    $purchase_date = "NULL";
+                } else {
+                    $purchase_date = "'" . $purchase_date . "'";
+                }
+            }
+
+            // Assigned to (contact)
+            if (!empty($column[8])) {
+                $contact = sanitizeInput($column[8]);
                 if ($contact) {
                     $sql_contact = mysqli_query($mysqli,"SELECT * FROM contacts WHERE contact_name = '$contact' AND contact_client_id = $client_id");
                     $row = mysqli_fetch_assoc($sql_contact);
                     $contact_id = intval($row['contact_id']);
                 }
             }
-            if (!empty($column[8])) {
-                $location = sanitizeInput($column[8]);
+
+            // Location (lookup)
+            if (!empty($column[9])) {
+                $location = sanitizeInput($column[9]);
                 if ($location) {
                     $sql_location = mysqli_query($mysqli,"SELECT * FROM locations WHERE location_name = '$location' AND location_client_id = $client_id");
                     $row = mysqli_fetch_assoc($sql_location);
                     $location_id = intval($row['location_id']);
                 }
             }
-            if (!empty($column[9])) {
-                $physical_location = sanitizeInput($column[9]);
+
+            // Physical location (varchar)
+            if (!empty($column[10])) {
+                $physical_location = sanitizeInput($column[10]);
             }
 
             // Check if duplicate was detected
             if ($duplicate_detect == 0) {
                 //Add
-                mysqli_query($mysqli,"INSERT INTO assets SET asset_name = '$name', asset_description = '$description', asset_type = '$type', asset_make = '$make', asset_model = '$model', asset_serial = '$serial', asset_os = '$os', asset_physical_location = '$physical_location', asset_contact_id = $contact_id, asset_location_id = $location_id, asset_client_id = $client_id");
+                mysqli_query($mysqli,"INSERT INTO assets SET asset_name = '$name', asset_description = '$description', asset_type = '$type', asset_make = '$make', asset_model = '$model', asset_serial = '$serial', asset_os = '$os', asset_purchase_date = $purchase_date, asset_physical_location = '$physical_location', asset_contact_id = $contact_id, asset_location_id = $location_id, asset_client_id = $client_id");
 
                 $asset_id = mysqli_insert_id($mysqli);
                 
@@ -913,7 +944,7 @@ if (isset($_GET['download_assets_csv_template'])) {
     $f = fopen('php://memory', 'w');
 
     //set column headers
-    $fields = array('Name', 'Description', 'Type', 'Make', 'Model', 'Serial', 'OS', 'Assigned To', 'Location', 'Physical Location');
+    $fields = array('Name', 'Description', 'Type', 'Make', 'Model', 'Serial', 'OS', 'Purchase Date', 'Assigned To', 'Location', 'Physical Location');
     fputcsv($f, $fields, $delimiter);
 
     //move back to beginning of file
