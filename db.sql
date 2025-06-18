@@ -1941,14 +1941,12 @@ CREATE TABLE `software` (
   `software_purchase` date DEFAULT NULL,
   `software_expire` date DEFAULT NULL,
   `software_notes` text DEFAULT NULL,
-  `software_template` tinyint(1) NOT NULL DEFAULT 0,
   `software_created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `software_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
   `software_archived_at` datetime DEFAULT NULL,
   `software_accessed_at` datetime DEFAULT NULL,
   `software_vendor_id` int(11) DEFAULT 0,
   `software_client_id` int(11) NOT NULL,
-  `software_template_id` int(11) NOT NULL DEFAULT 0,
   PRIMARY KEY (`software_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -2035,6 +2033,28 @@ CREATE TABLE `software_files` (
   KEY `file_id` (`file_id`),
   CONSTRAINT `software_files_ibfk_1` FOREIGN KEY (`software_id`) REFERENCES `software` (`software_id`) ON DELETE CASCADE,
   CONSTRAINT `software_files_ibfk_2` FOREIGN KEY (`file_id`) REFERENCES `files` (`file_id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `software_templates`
+--
+
+DROP TABLE IF EXISTS `software_templates`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `software_templates` (
+  `software_template_id` int(11) NOT NULL AUTO_INCREMENT,
+  `software_template_name` varchar(200) NOT NULL,
+  `software_template_description` text DEFAULT NULL,
+  `software_template_version` varchar(200) DEFAULT NULL,
+  `software_template_type` varchar(200) NOT NULL,
+  `software_template_license_type` varchar(200) DEFAULT NULL,
+  `software_template_notes` text DEFAULT NULL,
+  `software_template_created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `software_template_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
+  `software_template_archived_at` datetime DEFAULT NULL,
+  PRIMARY KEY (`software_template_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -2501,6 +2521,35 @@ CREATE TABLE `vendor_files` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `vendor_templates`
+--
+
+DROP TABLE IF EXISTS `vendor_templates`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `vendor_templates` (
+  `vendor_template_id` int(11) NOT NULL AUTO_INCREMENT,
+  `vendor_template_name` varchar(200) NOT NULL,
+  `vendor_template_description` varchar(200) DEFAULT NULL,
+  `vendor_template_contact_name` varchar(200) DEFAULT NULL,
+  `vendor_template_phone_country_code` varchar(10) DEFAULT NULL,
+  `vendor_template_phone` varchar(200) DEFAULT NULL,
+  `vendor_template_extension` varchar(200) DEFAULT NULL,
+  `vendor_template_email` varchar(200) DEFAULT NULL,
+  `vendor_template_website` varchar(200) DEFAULT NULL,
+  `vendor_template_hours` varchar(200) DEFAULT NULL,
+  `vendor_template_sla` varchar(200) DEFAULT NULL,
+  `vendor_template_code` varchar(200) DEFAULT NULL,
+  `vendor_template_account_number` varchar(200) DEFAULT NULL,
+  `vendor_template_notes` text DEFAULT NULL,
+  `vendor_template_created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `vendor_template_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
+  `vendor_template_archived_at` datetime DEFAULT NULL,
+  PRIMARY KEY (`vendor_template_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `vendors`
 --
 
@@ -2522,7 +2571,6 @@ CREATE TABLE `vendors` (
   `vendor_code` varchar(200) DEFAULT NULL,
   `vendor_account_number` varchar(200) DEFAULT NULL,
   `vendor_notes` text DEFAULT NULL,
-  `vendor_template` tinyint(1) NOT NULL DEFAULT 0,
   `vendor_created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `vendor_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
   `vendor_archived_at` datetime DEFAULT NULL,
@@ -2542,4 +2590,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-06-17 19:00:19
+-- Dump completed on 2025-06-17 22:44:10

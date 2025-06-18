@@ -303,7 +303,7 @@ while ($row = mysqli_fetch_array($sql)) {
             }
 
             //Vendors Added Created
-            $sql = mysqli_query($mysqli, "SELECT * FROM clients LEFT JOIN vendors ON client_id = vendor_client_id $client_query AND vendor_template = 0 ");
+            $sql = mysqli_query($mysqli, "SELECT * FROM clients LEFT JOIN vendors ON client_id = vendor_client_id $client_query");
             while ($row = mysqli_fetch_array($sql)) {
                 $event_id = intval($row['vendor_id']);
                 $client_id = intval($row['client_id']);

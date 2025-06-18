@@ -2,16 +2,16 @@
 
 require_once '../includes/ajax_header.php';
 
-$software_id = intval($_GET['id']);
+$software_template_id = intval($_GET['id']);
 
-$sql = mysqli_query($mysqli, "SELECT * FROM software WHERE software_id = $software_id LIMIT 1");
+$sql = mysqli_query($mysqli, "SELECT * FROM software_templates WHERE software_template_id = $software_template_id LIMIT 1");
 $row = mysqli_fetch_array($sql);
-$software_name = nullable_htmlentities($row['software_name']);
-$software_version = nullable_htmlentities($row['software_version']);
-$software_description = nullable_htmlentities($row['software_description']);
-$software_type = nullable_htmlentities($row['software_type']);
-$software_license_type = nullable_htmlentities($row['software_license_type']);
-$software_notes = nullable_htmlentities($row['software_notes']);
+$software_name = nullable_htmlentities($row['software_template_name']);
+$software_version = nullable_htmlentities($row['software_template_version']);
+$software_description = nullable_htmlentities($row['software_template_description']);
+$software_type = nullable_htmlentities($row['software_template_type']);
+$software_license_type = nullable_htmlentities($row['software_template_license_type']);
+$software_notes = nullable_htmlentities($row['software_template_notes']);
 
 // Generate the HTML form content using output buffering.
 ob_start();
@@ -24,7 +24,7 @@ ob_start();
     </button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
-    <input type="hidden" name="software_id" value="<?php echo $software_id; ?>">
+    <input type="hidden" name="software_template_id" value="<?php echo $software_template_id; ?>">
     <div class="modal-body bg-white">
 
         <div class="form-group">

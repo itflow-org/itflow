@@ -43,7 +43,6 @@ if (isset($_GET['query'])) {
     $sql_vendors = mysqli_query($mysqli, "SELECT * FROM vendors
         LEFT JOIN clients ON vendor_client_id = client_id
         WHERE vendor_archived_at IS NULL
-            AND vendor_template = 0
             AND (vendor_name LIKE '%$query%' OR vendor_phone LIKE '%$phone_query%')
             $access_permission_query
         ORDER BY vendor_id DESC LIMIT 5"

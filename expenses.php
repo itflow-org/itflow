@@ -154,7 +154,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                     <option value="">- All Vendors -</option>
 
                                     <?php
-                                    $sql_vendors_filter = mysqli_query($mysqli, "SELECT * FROM vendors WHERE vendor_client_id = 0 AND vendor_template = 0 ORDER BY vendor_name ASC");
+                                    $sql_vendors_filter = mysqli_query($mysqli, "SELECT * FROM vendors WHERE vendor_client_id = 0 ORDER BY vendor_name ASC");
                                     while ($row = mysqli_fetch_array($sql_vendors_filter)) {
                                         $vendor_id = intval($row['vendor_id']);
                                         $vendor_name = nullable_htmlentities($row['vendor_name']);
@@ -348,7 +348,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                                 <i class="fas fa-fw fa-copy mr-2"></i>Copy
                                             </a>
                                             <div class="dropdown-divider"></div>
-                                            <a class="dropdown-item"
+                                            <a class="dropdown-item" href="#"
                                                 data-toggle="ajax-modal"
                                                 data-modal-size="lg"
                                                 data-ajax-url="ajax/ajax_expense_refund.php"

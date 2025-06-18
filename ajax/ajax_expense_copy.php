@@ -105,7 +105,7 @@ ob_start();
                     <select class="form-control select2" name="vendor" required>
                         <?php
 
-                        $sql_vendors = mysqli_query($mysqli, "SELECT vendor_id, vendor_name FROM vendors WHERE vendor_client_id = 0 AND vendor_template = 0 ORDER BY vendor_name ASC");
+                        $sql_vendors = mysqli_query($mysqli, "SELECT vendor_id, vendor_name FROM vendors WHERE vendor_client_id = 0 ORDER BY vendor_name ASC");
                         while ($row = mysqli_fetch_array($sql_vendors)) {
                             $vendor_id_select = intval($row['vendor_id']);
                             $vendor_name_select = nullable_htmlentities($row['vendor_name']);

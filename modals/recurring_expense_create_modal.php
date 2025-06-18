@@ -125,7 +125,7 @@
                                     <option value="">- Vendor -</option>
                                     <?php
 
-                                    $sql = mysqli_query($mysqli, "SELECT vendor_id, vendor_name FROM vendors WHERE vendor_client_id = 0 AND vendor_template = 0 AND vendor_archived_at IS NULL ORDER BY vendor_name ASC");
+                                    $sql = mysqli_query($mysqli, "SELECT vendor_id, vendor_name FROM vendors WHERE vendor_client_id = 0 AND vendor_archived_at IS NULL ORDER BY vendor_name ASC");
                                     while ($row = mysqli_fetch_array($sql)) {
                                         $vendor_id = intval($row['vendor_id']);
                                         $vendor_name = nullable_htmlentities($row['vendor_name']);

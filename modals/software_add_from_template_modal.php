@@ -20,10 +20,10 @@
                             <select class="form-control" name="software_template_id" required>
                                 <option value="">- Select Template -</option>
                                 <?php
-                                $sql_software_templates = mysqli_query($mysqli, "SELECT * FROM software WHERE software_template = 1 AND software_archived_at IS NULL ORDER BY software_name ASC");
+                                $sql_software_templates = mysqli_query($mysqli, "SELECT * FROM software_templates WHERE software_template_archived_at IS NULL ORDER BY software_template_name ASC");
                                 while ($row = mysqli_fetch_array($sql_software_templates)) {
-                                    $software_template_id = intval($row['software_id']);
-                                    $software_template_name = nullable_htmlentities($row['software_name']);
+                                    $software_template_id = intval($row['software_template_id']);
+                                    $software_template_name = nullable_htmlentities($row['software_template_name']);
 
                                     ?>
                                     <option value="<?php echo $software_template_id ?>"><?php echo $software_template_name; ?></option>

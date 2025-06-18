@@ -20,7 +20,6 @@ $sql = mysqli_query(
     "SELECT SQL_CALC_FOUND_ROWS * FROM vendors
     LEFT JOIN clients ON client_id = vendor_client_id
     WHERE vendor_$archive_query
-    AND vendor_template = 0
     AND (vendor_name LIKE '%$q%' OR vendor_description LIKE '%$q%' OR vendor_account_number LIKE '%$q%' OR vendor_website LIKE '%$q%' OR vendor_contact_name LIKE '%$q%' OR vendor_email LIKE '%$q%' OR vendor_phone LIKE '%$phone_query%')
     $client_query
     $access_permission_query

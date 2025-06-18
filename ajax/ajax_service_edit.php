@@ -211,7 +211,7 @@ ob_start();
                         <?php
                         $selected_ids = array_column(mysqli_fetch_all($sql_vendors, MYSQLI_ASSOC), "vendor_id");
 
-                        $sql_all = mysqli_query($mysqli, "SELECT * FROM vendors WHERE (vendor_archived_at > '$service_created_at' OR vendor_archived_at IS NULL) AND vendor_template = 0 AND vendor_client_id = $client_id");
+                        $sql_all = mysqli_query($mysqli, "SELECT * FROM vendors WHERE (vendor_archived_at > '$service_created_at' OR vendor_archived_at IS NULL) AND vendor_client_id = $client_id");
                         while ($row_all = mysqli_fetch_array($sql_all)) {
                             $vendor_id = intval($row_all['vendor_id']);
                             $vendor_name = nullable_htmlentities($row_all['vendor_name']);
