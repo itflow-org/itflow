@@ -42,3 +42,24 @@ if (isset($_POST['edit_document_template'])) {
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
 }
+
+if (isset($_GET['delete_document_template'])) {
+
+    $document_template_id = intval($_GET['delete_document_template']);
+
+    // Get Document Template Name for logging
+    $sql = mysqli_query($mysqli,"SELECT document_template_name FROM document_templates WHERE document_template_id = $document_template_id");
+    $row = mysqli_fetch_array($sql);
+    $document_template_name = sanitizeInput($row['document_template_name']);
+
+    mysqli_query($mysqli,"DELETE FROM document_templates WHERE document_template_id = $document_template_id");
+
+    //Logging
+    logAction("Document Template", "Delete", "$session_name deleted document template $document_template_name");
+
+    $_SESSION['alert_type'] = "error";
+    $_SESSION['alert_message'] = "Document Template <strong>$document_template_name</strong> deleted";
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
