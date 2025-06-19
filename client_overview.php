@@ -654,7 +654,7 @@ $sql_asset_retired = mysqli_query(
 
                                 ?>
                                 <tr>
-                                    <td><?php echo $log_created_at_time_ago; ?></td>
+                                    <td class="text-nowrap text-secondary"><?php echo $log_created_at_time_ago; ?></td>
                                     <td><?php echo $log_description; ?></td>
                                 </tr>
 

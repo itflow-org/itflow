@@ -90,22 +90,20 @@
 
                     if (!empty($contact_name)) { ?>
                         <div>
-                            <i class="fa fa-fw fa-user text-secondary ml-1 mr-2"></i> <?php echo $contact_name; ?>
+                            <i class="fa fa-fw fa-user text-secondary ml-1 mr-2"></i><?php echo $contact_name; ?>
                         </div>
                     <?php }
 
                     if (!empty($contact_email)) { ?>
                         <div class="mt-1">
-                            <i class="fa fa-fw fa-envelope text-secondary ml-1 mr-2"></i>
-                            <a href="mailto:<?php echo $contact_email; ?>"> <?php echo $contact_email; ?></a>
+                            <i class="fa fa-fw fa-envelope text-secondary ml-1 mr-2"></i><a href="mailto:<?php echo $contact_email; ?>"><?php echo $contact_email; ?></a>
                         </div>
                         <?php
                     }
 
                     if (!empty($contact_phone)) { ?>
                         <div class="mt-1">
-                            <i class="fa fa-fw fa-phone text-secondary ml-1 mr-2"></i>
-                            <a href="tel:<?php echo $contact_phone; ?>"><?php echo $contact_phone; ?></a>
+                            <i class="fa fa-fw fa-phone text-secondary ml-1 mr-2"></i><a href="tel:<?php echo $contact_phone; ?>"><?php echo $contact_phone; ?></a>
 
                             <?php
                             if (!empty($contact_extension)) {
@@ -118,8 +116,7 @@
 
                     if (!empty($contact_mobile)) { ?>
                         <div class="mt-1">
-                            <i class="fa fa-fw fa-mobile-alt text-secondary ml-1 mr-2"></i>
-                            <a href="tel:<?php echo $contact_mobile; ?>"><?php echo $contact_mobile; ?></a>
+                            <i class="fa fa-fw fa-mobile-alt text-secondary ml-1 mr-2"></i><a href="tel:<?php echo $contact_mobile; ?>"><?php echo $contact_mobile; ?></a>
                         </div>
                     <?php } ?>
 
