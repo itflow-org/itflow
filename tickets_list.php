@@ -105,6 +105,7 @@
 
                             $client_id = intval($row['ticket_client_id']);
                             $client_name = nullable_htmlentities($row['client_name']);
+                            $contact_id = intval($row['contact_id']);
                             $contact_name = nullable_htmlentities($row['contact_name']);
                             $contact_email = nullable_htmlentities($row['contact_email']);
 
