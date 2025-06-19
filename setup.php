@@ -125,8 +125,6 @@ if (isset($_POST['add_database'])) {
 
 }
 
-<?php
-
 if (isset($_POST['restore'])) {
 
     // === 1. Validate uploaded file ===
