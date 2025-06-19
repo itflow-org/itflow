@@ -125,8 +125,11 @@ if (isset($_POST['add_database'])) {
 
 }
 
+<?php
+
 if (isset($_POST['restore'])) {
 
+    // === 1. Validate uploaded file ===
     if (!isset($_FILES['backup_zip']) || $_FILES['backup_zip']['error'] !== UPLOAD_ERR_OK) {
         die("No backup file uploaded or upload failed.");
     }
@@ -137,31 +140,41 @@ if (isset($_POST['restore'])) {
         die("Only .zip files are allowed.");
     }
 
-    // Save uploaded file temporarily
-    $backupZip = "restore_" . time() . ".zip";
-    if (!move_uploaded_file($file["tmp_name"], $backupZip)) {
+    // === 2. Move to secure temp location ===
+    $tempZip = tempnam(sys_get_temp_dir(), "restore_");
+    if (!move_uploaded_file($file["tmp_name"], $tempZip)) {
         die("Failed to save uploaded backup file.");
     }
 
     $zip = new ZipArchive;
-    if ($zip->open($backupZip) !== TRUE) {
-        unlink($backupZip);
+    if ($zip->open($tempZip) !== TRUE) {
+        unlink($tempZip);
         die("Failed to open backup zip file.");
     }
 
-    // Extract to a temp directory
-    $tempDir = "restore_temp_" . time();
-    mkdir($tempDir);
+    // === 3. Zip-slip protection and extract to unique dir ===
+    $tempDir = sys_get_temp_dir() . "/restore_temp_" . uniqid();
+    mkdir($tempDir, 0700, true);
+
+    for ($i = 0; $i < $zip->numFiles; $i++) {
+        $stat = $zip->statIndex($i);
+        if (strpos($stat['name'], '..') !== false) {
+            $zip->close();
+            unlink($tempZip);
+            die("Invalid file path in ZIP.");
+        }
+    }
 
     if (!$zip->extractTo($tempDir)) {
         $zip->close();
-        unlink($backupZip);
+        unlink($tempZip);
         die("Failed to extract backup contents.");
     }
-    $zip->close();
-    unlink($backupZip);
 
-    // === 1. Restore SQL Dump ===
+    $zip->close();
+    unlink($tempZip);
+
+    // === 4. Restore SQL ===
     $sqlPath = "$tempDir/db.sql";
     if (file_exists($sqlPath)) {
         mysqli_query($mysqli, "SET foreign_key_checks = 0");
@@ -171,24 +184,27 @@ if (isset($_POST['restore'])) {
         }
         mysqli_query($mysqli, "SET foreign_key_checks = 1");
 
+        // Use env var to avoid exposing password
+        putenv("MYSQL_PWD=$dbpassword");
         $command = sprintf(
-            'mysql -h%s -u%s -p%s %s < %s',
+            'mysql -h%s -u%s %s < %s',
             escapeshellarg($dbhost),
             escapeshellarg($dbusername),
-            escapeshellarg($dbpassword),
             escapeshellarg($database),
             escapeshellarg($sqlPath)
         );
 
         exec($command, $output, $returnCode);
         if ($returnCode !== 0) {
+            deleteDir($tempDir);
             die("SQL import failed. Error code: $returnCode");
         }
     } else {
+        deleteDir($tempDir);
         die("Missing db.sql in the backup archive.");
     }
 
-    // === 2. Restore Upload Folder ===
+    // === 5. Restore uploads directory ===
     $uploadDir = __DIR__ . "/uploads/";
     $uploadsZip = "$tempDir/uploads.zip";
 
@@ -196,42 +212,51 @@ if (isset($_POST['restore'])) {
         $uploads = new ZipArchive;
         if ($uploads->open($uploadsZip) === TRUE) {
             // Clean existing uploads
-            foreach (glob($uploadDir . '*') as $item) {
-                if (is_dir($item)) {
-                    array_map('unlink', glob("$item/*"));
-                    rmdir($item);
-                } else {
-                    unlink($item);
-                }
+            foreach (new RecursiveIteratorIterator(
+                new RecursiveDirectoryIterator($uploadDir, FilesystemIterator::SKIP_DOTS),
+                RecursiveIteratorIterator::CHILD_FIRST
+            ) as $item) {
+                $item->isDir() ? rmdir($item) : unlink($item);
             }
 
             $uploads->extractTo($uploadDir);
             $uploads->close();
         } else {
+            deleteDir($tempDir);
             die("Failed to open uploads.zip in backup.");
         }
     } else {
+        deleteDir($tempDir);
         die("Missing uploads.zip in the backup archive.");
     }
 
-    // === 3. Read version.txt (optional log/display)
+    // === 6. Read version.txt (optional display/logging) ===
     $versionTxt = "$tempDir/version.txt";
     if (file_exists($versionTxt)) {
         $versionInfo = file_get_contents($versionTxt);
-        // You could log it, show it, or ignore it
-        // e.g. logAction("Backup Restore", "Version Info", $versionInfo);
+        logAction("Backup Restore", "Version Info", $versionInfo);
     }
 
-    // Cleanup temp restore directory
-    array_map('unlink', glob("$tempDir/*"));
-    rmdir($tempDir);
+    // === 7. Clean up temp dir ===
+    function deleteDir($dir) {
+        if (!is_dir($dir)) return;
+        $items = new RecursiveIteratorIterator(
+            new RecursiveDirectoryIterator($dir, FilesystemIterator::SKIP_DOTS),
+            RecursiveIteratorIterator::CHILD_FIRST
+        );
+        foreach ($items as $item) {
+            $item->isDir() ? rmdir($item) : unlink($item);
+        }
+        rmdir($dir);
+    }
+    deleteDir($tempDir);
 
-    // === 4. Final Setup Stages ===
+    // === 8. Optional: finalize setup flag ===
     $myfile = fopen("config.php", "a");
-    $txt = "\$config_enable_setup = 0;\n\n";
-    fwrite($myfile, $txt);
+    fwrite($myfile, "\$config_enable_setup = 0;\n\n");
     fclose($myfile);
 
+    // === 9. Done ===
     $_SESSION['alert_message'] = "Full backup restored successfully.";
     header("Location: login.php");
     exit;
