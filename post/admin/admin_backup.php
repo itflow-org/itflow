@@ -8,44 +8,9 @@ defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
 
 require_once "includes/app_version.php";
 
-if (!function_exists('zipFolder')) {
-    function zipFolder($folderPath, $zipFilePath) {
-        $zip = new ZipArchive();
-        if ($zip->open($zipFilePath, ZipArchive::CREATE | ZipArchive::OVERWRITE) !== TRUE) {
-            error_log("Failed to open zip file: $zipFilePath");
-            http_response_code(500);
-            exit("Internal Server Error: Cannot open zip archive.");
-        }
-
-        $folderPath = realpath($folderPath);
-        if (!$folderPath) {
-            error_log("Invalid folder path: $folderPath");
-            http_response_code(500);
-            exit("Internal Server Error: Invalid folder path.");
-        }
-
-        $files = new RecursiveIteratorIterator(
-            new RecursiveDirectoryIterator($folderPath),
-            RecursiveIteratorIterator::LEAVES_ONLY
-        );
-
-        foreach ($files as $file) {
-            if (!$file->isDir()) {
-                $filePath = $file->getRealPath();
-                $relativePath = substr($filePath, strlen($folderPath) + 1);
-                $zip->addFile($filePath, $relativePath);
-            }
-        }
-
-        $zip->close();
-    }
-}
-
-<?php
-
 if (isset($_GET['download_backup'])) {
     validateCSRFToken($_GET['csrf_token']);
-
+    
     $timestamp = date('YmdHis');
     $baseName = "itflow_$timestamp";
 
