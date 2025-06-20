@@ -10,28 +10,91 @@ require_once "includes/app_version.php";
 
 if (isset($_GET['download_backup'])) {
     validateCSRFToken($_GET['csrf_token']);
-    global $mysqli, $database;
-
+    
     $timestamp = date('YmdHis');
     $baseName = "itflow_$timestamp";
-    $sqlFile = "$baseName.sql";
-    $uploadsZip = "$baseName_uploads.zip";
-    $finalZip = "$baseName.zip";
-    $versionFile = "version.txt";
 
-    // === 1. Generate SQL Dump ===
+    // === 0. Scoped cleanup ===
+    $cleanupFiles = [];
+
+    $registerTempFileForCleanup = function ($file) use (&$cleanupFiles) {
+        $cleanupFiles[] = $file;
+    };
+
+    register_shutdown_function(function () use (&$cleanupFiles) {
+        foreach ($cleanupFiles as $file) {
+            if (is_file($file)) {
+                @unlink($file);
+            }
+        }
+    });
+
+    // === 1. Local helper function: zipFolder
+    $zipFolder = function ($folderPath, $zipFilePath) {
+        $zip = new ZipArchive();
+        if ($zip->open($zipFilePath, ZipArchive::CREATE | ZipArchive::OVERWRITE) !== TRUE) {
+            error_log("Failed to open zip file: $zipFilePath");
+            http_response_code(500);
+            exit("Internal Server Error: Cannot open zip archive.");
+        }
+
+        $folderPath = realpath($folderPath);
+        if (!$folderPath) {
+            error_log("Invalid folder path: $folderPath");
+            http_response_code(500);
+            exit("Internal Server Error: Invalid folder path.");
+        }
+
+        $files = new RecursiveIteratorIterator(
+            new RecursiveDirectoryIterator($folderPath),
+            RecursiveIteratorIterator::LEAVES_ONLY
+        );
+
+        foreach ($files as $file) {
+            if (!$file->isDir()) {
+                $filePath = $file->getRealPath();
+                $relativePath = substr($filePath, strlen($folderPath) + 1);
+                $zip->addFile($filePath, $relativePath);
+            }
+        }
+
+        $zip->close();
+    };
+
+    // === 2. Create all temp files
+    $sqlFile = tempnam(sys_get_temp_dir(), $baseName . "_sql_");
+    $uploadsZip = tempnam(sys_get_temp_dir(), $baseName . "_uploads_");
+    $versionFile = tempnam(sys_get_temp_dir(), $baseName . "_version_");
+    $finalZip = tempnam(sys_get_temp_dir(), $baseName . "_backup_");
+
+    foreach ([$sqlFile, $uploadsZip, $versionFile, $finalZip] as $f) {
+        $registerTempFileForCleanup($f);
+        chmod($f, 0600);
+    }
+
+    // === 3. Generate SQL Dump
     $sqlContent = "-- UTF-8 + Foreign Key Safe Dump\n";
     $sqlContent .= "SET NAMES 'utf8mb4';\n";
     $sqlContent .= "SET foreign_key_checks = 0;\n\n";
 
     $tables = [];
     $res = $mysqli->query("SHOW TABLES");
+    if (!$res) {
+        error_log("MySQL Error: " . $mysqli->error);
+        exit("Error retrieving tables.");
+    }
+
     while ($row = $res->fetch_row()) {
         $tables[] = $row[0];
     }
 
     foreach ($tables as $table) {
         $createRes = $mysqli->query("SHOW CREATE TABLE `$table`");
+        if (!$createRes) {
+            error_log("MySQL Error: " . $mysqli->error);
+            continue;
+        }
+
         $createRow = $createRes->fetch_assoc();
         $createSQL = array_values($createRow)[1];
 
@@ -42,7 +105,7 @@ if (isset($_GET['download_backup'])) {
         $sqlContent .= $createSQL . ";\n\n";
 
         $dataRes = $mysqli->query("SELECT * FROM `$table`");
-        if ($dataRes->num_rows > 0) {
+        if ($dataRes && $dataRes->num_rows > 0) {
             $sqlContent .= "-- Dumping data for table `$table`\n";
             while ($row = $dataRes->fetch_assoc()) {
                 $columns = array_map(fn($col) => '`' . $mysqli->real_escape_string($col) . '`', array_keys($row));
@@ -58,53 +121,33 @@ if (isset($_GET['download_backup'])) {
     $sqlContent .= "SET foreign_key_checks = 1;\n";
     file_put_contents($sqlFile, $sqlContent);
 
-    // === 2. Create uploads.zip ===
-    function zipFolder($folderPath, $zipFilePath) {
-        $zip = new ZipArchive();
-        if ($zip->open($zipFilePath, ZipArchive::CREATE | ZipArchive::OVERWRITE) !== TRUE) {
-            die("Cannot open <$zipFilePath>");
-        }
+    // === 4. Zip the uploads folder
+    $zipFolder("uploads", $uploadsZip);
 
-        $folderPath = realpath($folderPath);
-        $files = new RecursiveIteratorIterator(
-            new RecursiveDirectoryIterator($folderPath),
-            RecursiveIteratorIterator::LEAVES_ONLY
-        );
-
-        foreach ($files as $file) {
-            if (!$file->isDir()) {
-                $filePath = $file->getRealPath();
-                $relativePath = substr($filePath, strlen($folderPath) + 1);
-                $zip->addFile($filePath, $relativePath);
-            }
-        }
-
-        $zip->close();
-    }
-
-    zipFolder("uploads", $uploadsZip);
-
-    // === 3. Generate version.txt ===
-    $commitHash = trim(shell_exec('git log -1 --format=%H'));
-    $gitBranch = trim(shell_exec('git rev-parse --abbrev-ref HEAD'));
+    // === 5. Create version.txt
+    $commitHash = trim(shell_exec('git log -1 --format=%H')) ?: 'N/A';
+    $gitBranch = trim(shell_exec('git rev-parse --abbrev-ref HEAD')) ?: 'N/A';
 
     $versionContent = "ITFlow Backup Metadata\n";
     $versionContent .= "-----------------------------\n";
     $versionContent .= "Generated: " . date('Y-m-d H:i:s') . "\n";
-    $versionContent .= "Backup File: $baseName.zip\n";
+    $versionContent .= "Backup File: " . basename($finalZip) . "\n";
     $versionContent .= "Generated By: $session_name\n";
     $versionContent .= "Host: " . gethostname() . "\n";
     $versionContent .= "Git Branch: $gitBranch\n";
     $versionContent .= "Git Commit: $commitHash\n";
     $versionContent .= "ITFlow Version: " . (defined('APP_VERSION') ? APP_VERSION : 'Unknown') . "\n";
     $versionContent .= "Database Version: " . (defined('CURRENT_DATABASE_VERSION') ? CURRENT_DATABASE_VERSION : 'Unknown') . "\n";
+    $versionContent .= "Checksum (SHA256): \n";
 
     file_put_contents($versionFile, $versionContent);
 
-    // === 4. Combine into final .zip file ===
+    // === 6. Build final ZIP
     $final = new ZipArchive();
     if ($final->open($finalZip, ZipArchive::CREATE | ZipArchive::OVERWRITE) !== TRUE) {
-        die("Cannot create final backup zip.");
+        error_log("Failed to create final zip: $finalZip");
+        http_response_code(500);
+        exit("Internal Server Error: Unable to create backup archive.");
     }
 
     $final->addFile($sqlFile, "db.sql");
@@ -112,23 +155,30 @@ if (isset($_GET['download_backup'])) {
     $final->addFile($versionFile, "version.txt");
     $final->close();
 
-    // Cleanup temp files before download
-    unlink($sqlFile);
-    unlink($uploadsZip);
-    unlink($versionFile);
+    chmod($finalZip, 0600);
 
-    // === 5. Serve the zip for download ===
+    $checksum = hash_file('sha256', $finalZip);
+    file_put_contents($versionFile, $versionContent . "$checksum\n");
+
+    // === 7. Serve final ZIP
     header('Content-Type: application/zip');
-    header('Content-Disposition: attachment; filename="' . $finalZip . '"');
+    header('Content-Disposition: attachment; filename="' . basename($finalZip) . '"');
     header('Content-Length: ' . filesize($finalZip));
+    header('Pragma: public');
+    header('Expires: 0');
+    header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
+    header('Content-Transfer-Encoding: binary');
+
     flush();
-    readfile($finalZip);
-    unlink($finalZip); // remove final zip after serving
+    $fp = fopen($finalZip, 'rb');
+    fpassthru($fp);
+    fclose($fp);
 
     logAction("System", "Backup Download", "$session_name downloaded full backup.");
     $_SESSION['alert_message'] = "Full backup downloaded.";
     exit;
 }
+
 
 if (isset($_POST['backup_master_key'])) {
 

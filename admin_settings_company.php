@@ -19,6 +19,7 @@ $company_website = nullable_htmlentities($row['company_website']);
 $company_logo = nullable_htmlentities($row['company_logo']);
 $company_locale = nullable_htmlentities($row['company_locale']);
 $company_currency = nullable_htmlentities($row['company_currency']);
+$company_tax_id = nullable_htmlentities($row['company_tax_id']);
 
 $company_initials = nullable_htmlentities(initials($company_name));
 
@@ -143,6 +144,16 @@ $company_initials = nullable_htmlentities(initials($company_name));
                                         <span class="input-group-text"><i class="fa fa-fw fa-globe"></i></span>
                                     </div>
                                     <input type="text" class="form-control" name="website" placeholder="Website address" value="<?php echo $company_website; ?>">
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Tax ID</label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text"><i class="fa fa-fw fa-balance-scale"></i></span>
+                                    </div>
+                                    <input type="text" class="form-control" name="tax_id" value="<?php echo $company_tax_id; ?>" placeholder="Tax ID" maxlength="200">
                                 </div>
                             </div>
 

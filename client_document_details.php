@@ -35,7 +35,6 @@ $document_created_at = nullable_htmlentities($row['document_created_at']);
 $document_updated_at = nullable_htmlentities($row['document_updated_at']);
 $document_archived_at = nullable_htmlentities($row['document_archived_at']);
 $document_folder_id = intval($row['document_folder_id']);
-$document_parent = intval($row['document_parent']);
 $document_client_visible = intval($row['document_client_visible']);
 
 // Override Tab Title // No Sanitizing needed as this var will opnly be used in the tab title
@@ -115,45 +114,44 @@ $page_title = $row['document_name'];
 
                 <table class="table table-sm">
                     <thead class="thead-light">
-                        <th>Revision</th>
+                        <th>Version</th>
                         <th>Date</th>
+                        <th>Name</th>
                         <th>Description</th>
                         <th>Author</th>
                     </thead>
                     <tbody>
                         <?php
-                        $sql_document_revisions = mysqli_query($mysqli, "SELECT * FROM documents
-                            LEFT JOIN users ON document_updated_by = user_id
-                            WHERE document_parent = $document_parent
-                            ORDER BY document_created_at ASC"
+                        $sql_document_versions = mysqli_query($mysqli, "SELECT * FROM document_versions
+                            LEFT JOIN users ON document_version_created_by = user_id
+                            WHERE document_version_document_id = $document_id
+                            ORDER BY document_version_created_at ASC"
                         );
 
-                        $revision_count = 1; // Initialize the revision counter
+                        $document_version_count = 1; // Initialize the document version counter
 
-                        while ($row = mysqli_fetch_array($sql_document_revisions)) {
-                            $revision_document_id = intval($row['document_id']);
-                            $revision_document_name = nullable_htmlentities($row['document_name']);
-                            $revision_document_description = nullable_htmlentities($row['document_description']);
-                            if ($revision_document_description ) {
-                                $revision_document_description_display = $revision_document_description;
+                        while ($row = mysqli_fetch_array($sql_document_versions)) {
+                            $document_version_id = intval($row['document_version_id']);
+                            $document_version_name = nullable_htmlentities($row['document_version_name']);
+                            $document_version_description = nullable_htmlentities($row['document_version_description']);
+                            if ($document_version_description ) {
+                                $document_version_description_display = $document_version_description;
                             } else {
-                                $revision_document_description_display = "-";
+                                $document_version_description_display = "-";
                             }
-                            $revision_document_author = nullable_htmlentities($row['user_name']);
-                            if (empty($revision_document_author)) {
-                                $revision_document_author = $document_created_by_name;
-                            }
-                            $revision_document_created_date = date('Y-m-d', strtotime($row['document_created_at']));
+                            $document_version_author = nullable_htmlentities($row['user_name']);
+                            $document_version_created_date = date('Y-m-d', strtotime($row['document_version_created_at']));
 
                         ?>
                         <tr>
-                            <td><?php echo "$revision_count.0"; ?></td>
-                            <td><?php echo $revision_document_created_date; ?></td>
-                            <td><?php echo $revision_document_description_display; ?></td>
-                            <td><?php echo $revision_document_author; ?></td>
+                            <td><?php echo $document_version_count; ?></td>
+                            <td><?php echo $document_version_created_date; ?></td>
+                            <td><?php echo $document_version_name; ?></td>
+                            <td><?php echo $document_version_description_display; ?></td>
+                            <td><?php echo $document_version_author; ?></td>
                         </tr>
                         <?php 
-                        $revision_count++; // Increment the counter
+                        $document_version_count++; // Increment the counter
                         } 
                         ?>
                     </tbody>
@@ -378,29 +376,30 @@ $page_title = $row['document_name'];
             <h6><i class="fas fa-history mr-2"></i>Revisions</h6>
             <?php
 
-            $sql_document_revisions = mysqli_query($mysqli, "SELECT * FROM documents
-                LEFT JOIN users ON document_created_by = user_id
-                WHERE document_parent = $document_parent
-                ORDER BY document_created_at DESC"
+            $sql_document_versions = mysqli_query($mysqli, "SELECT * FROM document_versions
+                LEFT JOIN users ON document_version_created_by = user_id
+                WHERE document_version_document_id = $document_id
+                ORDER BY document_version_created_at DESC"
             );
 
-            while ($row = mysqli_fetch_array($sql_document_revisions)) {
-                $revision_document_id = intval($row['document_id']);
-                $revision_document_name = nullable_htmlentities($row['document_name']);
-                $revision_document_description = nullable_htmlentities($row['document_description']);
-                $revision_document_created_by_name = nullable_htmlentities($row['user_name']);
-                $revision_document_created_date = nullable_htmlentities($row['document_created_at']);
+            while ($row = mysqli_fetch_array($sql_document_versions)) {
+                $document_version_id = intval($row['document_version_id']);
+                $document_version_name = nullable_htmlentities($row['document_version_name']);
+                $document_version_description = nullable_htmlentities($row['document_version_description']);
+                $document_version_author = nullable_htmlentities($row['user_name']);
+                $document_version_created_date = nullable_htmlentities($row['document_version_created_at']);
 
                 ?>
-                <div class="mt-1 <?php if($document_id == $revision_document_id){ echo "text-bold"; } ?>">
-                    <i class="fas fa-fw fa-history text-secondary mr-2"></i><a href="?client_id=<?php echo $client_id; ?>&document_id=<?php echo $revision_document_id; ?>"><?php echo "  $revision_document_created_date"; ?></a><?php if($document_parent == $revision_document_id){ echo "<span class='float-right'>(Parent)</span>"; 
-                        } else { ?>
-                        <a class="confirm-link float-right" href="post.php?delete_document_version=<?php echo $revision_document_id; ?>">
-                            <i class="fas fa-fw fa-trash-alt text-secondary"></i>
-                        </a>
-                    <?php 
-                    } 
-                    ?>
+                <div class="mt-1 <?php if($document_id === $document_version_id){ echo "text-bold"; } ?>">
+                    <i class="fas fa-fw fa-history text-secondary mr-2"></i>
+                    <a href="#"
+                        data-toggle="ajax-modal"
+                        data-modal-size="lg"
+                        data-ajax-url="ajax/ajax_document_version_view.php"
+                        data-ajax-id="<?php echo $document_version_id; ?>"><?php echo "$document_version_created_date | $document_version_author"; ?></a> 
+                    <a class="confirm-link float-right" href="post.php?delete_document_version=<?php echo $document_version_id; ?>">
+                        <i class="fas fa-fw fa-trash-alt text-secondary"></i>
+                    </a>
                 </div>
                 <?php
                 }

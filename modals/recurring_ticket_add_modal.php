@@ -50,18 +50,56 @@
                                 <textarea class="form-control tinymceTicket<?php if($config_ai_enable) { echo "AI"; } ?>" name="details"></textarea>
                             </div>
 
-                            <div class="form-group">
-                                <label>Priority <strong class="text-danger">*</strong></label>
-                                <div class="input-group">
-                                    <div class="input-group-prepend">
-                                        <span class="input-group-text"><i class="fa fa-fw fa-thermometer-half"></i></span>
+                            <div class="row">
+                                
+                                <div class="col">
+                                    <div class="form-group">
+                                        <label>Priority <strong class="text-danger">*</strong></label>
+                                        <div class="input-group">
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text"><i class="fa fa-fw fa-thermometer-half"></i></span>
+                                            </div>
+                                            <select class="form-control select2" name="priority" required>
+                                                <option>Low</option>
+                                                <option>Medium</option>
+                                                <option>High</option>
+                                            </select>
+                                        </div>
                                     </div>
-                                    <select class="form-control select2" name="priority" required>
-                                        <option>Low</option>
-                                        <option>Medium</option>
-                                        <option>High</option>
-                                    </select>
                                 </div>
+
+                                <div class="col">
+                                    <div class="form-group">
+                                        <label>Category</label>
+                                        <div class="input-group">
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text"><i class="fa fa-fw fa-layer-group"></i></span>
+                                            </div>
+                                            <select class="form-control select2" name="category">
+                                                <option value="0">- Not Categorized -</option>
+                                                <?php
+                                                $sql_categories = mysqli_query($mysqli, "SELECT category_id, category_name FROM categories WHERE category_type = 'Ticket' AND category_archived_at IS NULL ORDER BY category_name ASC");
+                                                while ($row = mysqli_fetch_array($sql_categories)) {
+                                                    $category_id = intval($row['category_id']);
+                                                    $category_name = nullable_htmlentities($row['category_name']);
+
+                                                    ?>
+                                                    <option value="<?php echo $category_id; ?>"><?php echo $category_name; ?></option>
+                                                <?php } ?>
+
+                                            </select>
+                                            <div class="input-group-append">
+                                                <button class="btn btn-secondary" type="button"
+                                                    data-toggle="ajax-modal"
+                                                    data-modal-size="sm"
+                                                    data-ajax-url="ajax/ajax_category_add.php?category=Ticket">
+                                                    <i class="fas fa-fw fa-plus"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
                             </div>
 
                             <div class="form-group">

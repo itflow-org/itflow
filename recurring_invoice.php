@@ -21,6 +21,18 @@ if (isset($_GET['recurring_invoice_id'])) {
         WHERE recurring_invoice_id = $recurring_invoice_id LIMIT 1"
     );
 
+    if (mysqli_num_rows($sql) == 0) {
+        if (isset($_GET['client_id'])) {
+            $backlink_append = "?client_id=$client_id";
+        } else {
+            $backlink_append = '';
+        }
+        echo "<h1 class='text-secondary pt-5' style='text-align: center'>There is no Recurring Invoice here<br><small><a href='recurring_invoices.php$backlink_append'><i class='fas fa-arrow-left mr-2'></i>Back to Recurring Invoices</a></small></h1>";
+        require_once "includes/footer.php";
+
+        exit();
+    }
+
     $row = mysqli_fetch_array($sql);
     $recurring_invoice_prefix = nullable_htmlentities($row['recurring_invoice_prefix']);
     $recurring_invoice_number = intval($row['recurring_invoice_number']);
@@ -176,81 +188,74 @@ if (isset($_GET['recurring_invoice_id'])) {
 
         <div class="card-body">
 
-            <div class="row mb-4">
-                <div class="col-2">
-                    <img class="img-fluid" alt="Company logo" src="<?php echo "uploads/settings/$company_logo"; ?>">
+            <div class="row mb-3">
+                <div class="col-sm-2">
+                    <img class="img-fluid" src="<?php echo "uploads/settings/$company_logo"; ?>" alt="Company logo">
                 </div>
-                <div class="col-10">
-                    <div class="ribbon-wrapper">
-                        <div class="ribbon bg-<?php echo $status_badge_color; ?>">
-                            <?php echo $status; ?>
-                        </div>
-                    </div>
-                    <h3 class="text-right mt-5"><strong>Recurring Invoice</strong><br><small class="text-secondary"><?php echo ucwords($recurring_invoice_frequency); ?>ly</small></h3>
-                </div>
-            </div>
-            <div class="row mb-4">
-                <div class="col">
+                <div class="col-sm-6">
                     <ul class="list-unstyled">
                         <li><h4><strong><?php echo $company_name; ?></strong></h4></li>
                         <li><?php echo $company_address; ?></li>
-                        <li><?php echo "$company_city $company_state $company_zip"; ?></li>
-                        <li><small><?php echo $company_country; ?></small></li>
-                        <li><?php echo $company_phone; ?></li>
-                        <li><?php echo $company_email; ?></li>
+                        <li><?php echo "$company_city $company_state $company_zip, $company_country"; ?></li>
+                        <li><?php echo "$company_email | $company_phone"; ?></li>
+                        <li><?php echo $company_website; ?></li>
                     </ul>
                 </div>
-                <div class="col">
-                    <ul class="list-unstyled text-right">
-                        <li><h4><strong><?php echo $client_name; ?></strong></h4></li>
-                        <li><?php echo $location_address; ?></li>
-                        <li><?php echo "$location_city $location_state $location_zip"; ?></li>
-                        <li><small><?php echo $location_country; ?></small></li>
-                        <li><?php echo "$contact_phone $contact_extension"; ?></li>
-                        <li><?php echo $contact_mobile; ?></li>
-                        <li><?php echo $contact_email; ?></li>
-                    </ul>
-                </div>
-            </div>
-            <div class="row mb-4">
-                <div class="col-sm-8">
-                </div>
+
                 <div class="col-sm-4">
-                    <table class="table">
+                    <h3 class="text-right"><strong>RECURRING INVOICE</strong></h3>
+                    <h5 class="badge badge-<?php echo $status_badge_color; ?> p-2 float-right">
+                        <?php echo $status; ?>
+                    </h5>
+                    <table class="table table-sm table-borderless">
                         <tr>
-                            <td>Next Date</td>
-                            <td class="text-right text-bold"><?php echo $recurring_invoice_next_date; ?></td>
+                            <th>Frequency:</th>
+                            <th class="text-right"><?php echo ucwords($recurring_invoice_frequency); ?>ly</th>
                         </tr>
                         <tr>
-                            <td>Last Sent</td>
+                            <th>Next Date:</th>
+                            <td class="text-right"><?php echo $recurring_invoice_next_date; ?></td>
+                        </tr>
+                        <tr>
+                            <th>Last Sent:</th>
                             <td class="text-right"><?php echo $recurring_invoice_last_sent; ?></td>
                         </tr>
                         <tr>
-                            <td>Created</td>
-                            <td class="text-right text-secondary"><?php echo $recurring_invoice_created_at; ?></td>
+                            <th>Created:</th>
+                            <td class="text-right"><?php echo $recurring_invoice_created_at; ?></td>
                         </tr>
-
-
                     </table>
+                </div>
+
+            </div>
+            <div class="row mb-3 bg-light p-3">
+                <div class="col">
+                    <h6><strong>Bill To:</strong></h6>
+                    <ul class="list-unstyled mb-0">
+                        <li><?php echo $client_name; ?></li>
+                        <li><?php echo $location_address; ?></li>
+                        <li><?php echo "$location_city $location_state $location_zip, $location_country"; ?></li>
+                        <li><?php echo "$contact_email | $contact_phone $contact_extension"; ?></li>
+                    </ul>
                 </div>
             </div>
 
             <?php $sql_items = mysqli_query($mysqli, "SELECT * FROM invoice_items WHERE item_recurring_invoice_id = $recurring_invoice_id ORDER BY item_order ASC"); ?>
 
-            <div class="row mb-4">
+            <div class="row mb-3">
                 <div class="col-md-12">
                     <div class="card">
                         <div class="table-responsive">
-                            <table class="table" id="items">
-                                <thead>
+                            <table class="table table-borderless" id="items">
+                                <thead class="bg-light">
                                     <tr>
                                         <th class="d-print-none"></th>
                                         <th>Item</th>
                                         <th>Description</th>
-                                        <th class="text-center">Quantity</th>
+                                        <th class="text-center">Qty</th>
                                         <th class="text-right">Price</th>
                                         <th class="text-right">Tax</th>
-                                        <th class="text-right">Total</th>
+                                        <th class="text-right">Amount</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -329,7 +334,7 @@ if (isset($_GET['recurring_invoice_id'])) {
                                                 <textarea class="form-control"  rows="2" id="desc" name="description" placeholder="Enter a Description"></textarea>
                                             </td>
                                             <td>
-                                                <input type="text" inputmode="numeric" pattern="[0-9]*\.?[0-9]{0,2}" class="form-control" style="text-align: center;" id="qty" name="qty" placeholder="Quantity">
+                                                <input type="text" inputmode="numeric" pattern="[0-9]*\.?[0-9]{0,2}" class="form-control" style="text-align: center;" id="qty" name="qty" placeholder="Qty">
                                             </td>
                                             <td>
                                                 <input type="text" inputmode="numeric" pattern="[0-9]*\.?[0-9]{0,2}" class="form-control" style="text-align: right;" id="price" name="price" placeholder="Price (<?php echo $recurring_invoice_currency_code; ?>)">
@@ -366,7 +371,7 @@ if (isset($_GET['recurring_invoice_id'])) {
                 </div>
             </div>
 
-            <div class="row mb-4">
+            <div class="row mb-3">
                 <div class="col-sm-7">
                     <div class="card">
                         <div class="card-header text-bold">
@@ -385,23 +390,23 @@ if (isset($_GET['recurring_invoice_id'])) {
                 <div class="col-sm-3 offset-sm-2">
                     <table class="table table-borderless">
                         <tbody>
-                            <tr class="border-bottom">
+                            <tr>
                                 <td>Subtotal</td>
                                 <td class="text-right"><?php echo numfmt_format_currency($currency_format, $sub_total, $recurring_invoice_currency_code); ?></td>
                             </tr>
                             <?php if ($recurring_invoice_discount > 0) { ?>
-                                <tr class="border-bottom">
+                                <tr>
                                     <td>Discount</td>
                                     <td class="text-right">-<?php echo numfmt_format_currency($currency_format, $recurring_invoice_discount, $recurring_invoice_currency_code); ?></td>
                                 </tr>
                             <?php } ?>
                             <?php if ($total_tax > 0) { ?>
-                                <tr class="border-bottom">
+                                <tr>
                                     <td>Tax</td>
                                     <td class="text-right"><?php echo numfmt_format_currency($currency_format, $total_tax, $recurring_invoice_currency_code); ?></td>
                                 </tr>
                             <?php } ?>
-                            <tr class="border-bottom text-bold">
+                            <tr class="border-top h5 text-bold">
                                 <td>Total</td>
                                 <td class="text-right"><?php echo numfmt_format_currency($currency_format, $recurring_invoice_amount, $recurring_invoice_currency_code); ?></td>
                             </tr>

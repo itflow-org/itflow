@@ -6,14 +6,15 @@
             <div class="table-responsive-sm">
                 <table class="table table-striped table-borderless table-hover">
                     <thead class="text-dark <?php if (!$num_rows[0]) { echo "d-none"; } ?>">
-                    <tr>
-                        <?php if ($_GET['status'] !== 'Closed') { ?>
+                    <tr>        
                         <td>
+                            <?php if ($_GET['status'] !== 'Closed') { ?>
                             <div class="form-check">
                                 <input class="form-check-input" id="selectAllCheckbox" type="checkbox" onclick="checkAll(this)" onKeyPress="checkAll(this)">
                             </div>
+                            <?php } ?>
                         </td>
-                        <?php } ?>
+                        
                         <th scope="col">
                             <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=ticket_subject&order=<?php echo $disp; ?>">
                                 Ticket <?php if ($sort == 'ticket_subject') { echo $order_icon; } ?>
@@ -88,6 +89,7 @@
 
                         $client_id = intval($row['ticket_client_id']);
                         $client_name = nullable_htmlentities($row['client_name']);
+                        $contact_id = intval($row['contact_id']);
                         $contact_name = nullable_htmlentities($row['contact_name']);
                         $contact_email = nullable_htmlentities($row['contact_email']);
                         $asset_name = nullable_htmlentities($row['asset_name']);
@@ -114,7 +116,7 @@
                         if (empty($contact_name)) {
                             $contact_display = "-";
                         } else {
-                            $contact_display = "$contact_name<br><small class='text-secondary'>$contact_email</small>";
+                            $contact_display = "<div><a href='contact_details.php?client_id=$client_id&contact_id=$contact_id'>$contact_name</a></div>";
                         }
 
                         // Get who last updated the ticket - to be shown in the last Response column
@@ -167,14 +169,14 @@
 
                         <tr class="<?php if(empty($ticket_closed_at) && empty($ticket_updated_at)) { echo "text-bold"; }?> <?php if (empty($ticket_closed_at) && $ticket_reply_type == "Client") { echo "table-warning"; } ?>">
 
-                            <!-- Ticket Bulk Select (for open tickets) -->
-                            <?php if (empty($ticket_closed_at)) { ?>
                             <td>
+                                <!-- Ticket Bulk Select (for open tickets) -->
+                                <?php if (empty($ticket_closed_at)) { ?>
                                 <div class="form-check">
                                     <input class="form-check-input bulk-select" type="checkbox" name="ticket_ids[]" value="<?php echo $ticket_id ?>">
-                                </div>   
+                                </div>
+                                <?php } ?>  
                             </td>
-                            <?php } ?>
 
                             <!-- Ticket Subject -->
                             <td>

@@ -47,6 +47,7 @@ $config_invoice_from_email = $row['config_invoice_from_email'];
 $config_invoice_late_fee_enable = intval($row['config_invoice_late_fee_enable']);
 $config_invoice_late_fee_percent = floatval($row['config_invoice_late_fee_percent']);
 $config_invoice_paid_notification_email = $row['config_invoice_paid_notification_email'];
+$config_invoice_show_tax_id = intval($row['config_invoice_show_tax_id']);
 
 // Recurring Invoices
 $config_recurring_invoice_prefix = $row['config_recurring_invoice_prefix'];
@@ -78,6 +79,7 @@ $config_ticket_default_billable = intval($row['config_ticket_default_billable'])
 $config_ticket_default_view = intval($row['config_ticket_default_view']);
 $config_ticket_moving_columns = intval($row['config_ticket_moving_columns']);
 $config_ticket_ordering = intval($row['config_ticket_ordering']);
+$config_ticket_timer_autostart = intval($row['config_ticket_timer_autostart']);
 
 // Cron
 $config_enable_cron = intval($row['config_enable_cron']);

@@ -14,15 +14,15 @@ if (isset($_POST['add_software_from_template'])) {
     $client_id = intval($_POST['client_id']);
     $software_template_id = intval($_POST['software_template_id']);
 
-    // GET Software Info
-    $sql_software = mysqli_query($mysqli,"SELECT * FROM software WHERE software_id = $software_template_id");
-    $row = mysqli_fetch_array($sql_software);
-    $name = sanitizeInput($row['software_name']);
-    $version = sanitizeInput($row['software_version']);
-    $description = sanitizeInput($row['software_description']);
-    $type = sanitizeInput($row['software_type']);
-    $license_type = sanitizeInput($row['software_license_type']);
-    $notes = sanitizeInput($row['software_notes']);
+    // GET Software Template Info
+    $sql_software_templates = mysqli_query($mysqli,"SELECT * FROM software_templates WHERE software_template_id = $software_template_id");
+    $row = mysqli_fetch_array($sql_software_templates);
+    $name = sanitizeInput($row['software_template_name']);
+    $version = sanitizeInput($row['software_template_version']);
+    $description = sanitizeInput($row['software_template_description']);
+    $type = sanitizeInput($row['software_template_type']);
+    $license_type = sanitizeInput($row['software_template_license_type']);
+    $notes = sanitizeInput($row['software_template_notes']);
     $vendor = sanitizeInput($_POST['vendor'] ?? 0);
 
     // Software add query

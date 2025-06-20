@@ -319,6 +319,7 @@ if (mysqli_num_rows($sql_recurring_tickets) > 0) {
         $client_id = intval($row['recurring_ticket_client_id']);
         $contact_id = intval($row['recurring_ticket_contact_id']);
         $asset_id = intval($row['recurring_ticket_asset_id']);
+        $category = intval($row['recurring_ticket_category']);
 
         $ticket_status = 1; // Default
         if ($assigned_id > 0) {
@@ -334,7 +335,7 @@ if (mysqli_num_rows($sql_recurring_tickets) > 0) {
         mysqli_query($mysqli, "UPDATE settings SET config_ticket_next_number = $new_config_ticket_next_number WHERE company_id = 1");
 
         // Raise the ticket
-        mysqli_query($mysqli, "INSERT INTO tickets SET ticket_prefix = '$config_ticket_prefix', ticket_number = $ticket_number, ticket_source = 'Recurring', ticket_subject = '$subject', ticket_details = '$details', ticket_priority = '$priority', ticket_status = '$ticket_status', ticket_billable = $billable, ticket_created_by = $created_id, ticket_assigned_to = $assigned_id, ticket_contact_id = $contact_id, ticket_client_id = $client_id, ticket_asset_id = $asset_id, ticket_recurring_ticket_id = $recurring_ticket_id");
+        mysqli_query($mysqli, "INSERT INTO tickets SET ticket_prefix = '$config_ticket_prefix', ticket_number = $ticket_number, ticket_source = 'Recurring', ticket_subject = '$subject', ticket_details = '$details', ticket_priority = '$priority', ticket_status = '$ticket_status', ticket_billable = $billable, ticket_created_by = $created_id, ticket_assigned_to = $assigned_id, ticket_contact_id = $contact_id, ticket_client_id = $client_id, ticket_asset_id = $asset_id, ticket_category = $category, ticket_recurring_ticket_id = $recurring_ticket_id");
         $id = mysqli_insert_id($mysqli);
 
         // Copy Additional Assets from Recurring ticket to new ticket
@@ -727,167 +728,193 @@ while ($row = mysqli_fetch_array($sql_recurring_invoices)) {
 
     } //End if Autosend is on
 
-    // Create Payment from Auto Payment
-    if ($recurring_payment_recurring_invoice_id) {
-
-        if ($recurring_payment_method == "Stripe") {
-            // Stripe payment
-
-            // Get Stripe info for client
-            $stripe_client_details = mysqli_fetch_array(mysqli_query($mysqli, "SELECT * FROM client_stripe WHERE client_id = $client_id  LIMIT 1"));
-            $stripe_id = sanitizeInput($stripe_client_details['stripe_id']);
-            $stripe_pm = sanitizeInput($stripe_client_details['stripe_pm']);
-
-            if ($config_stripe_enable && $stripe_id && $stripe_pm) {
-
-                // Initialize
-                require_once __DIR__ . '/../plugins/stripe-php/init.php';
-                $stripe = new \Stripe\StripeClient($config_stripe_secret);
-
-                $balance_to_pay = round($invoice_amount, 2);
-                $pi_description = "ITFlow: $client_name payment of $recurring_payment_currency_code $balance_to_pay for $invoice_prefix$invoice_number";
-
-                // Create a payment intent
-                try {
-                    $payment_intent = $stripe->paymentIntents->create([
-                        'amount' => intval($balance_to_pay * 100), // Times by 100 as Stripe expects values in cents
-                        'currency' => $recurring_payment_currency_code,
-                        'customer' => $stripe_id,
-                        'payment_method' => $stripe_pm,
-                        'off_session' => true,
-                        'confirm' => true,
-                        'description' => $pi_description,
-                        'metadata' => [
-                            'itflow_client_id' => $client_id,
-                            'itflow_client_name' => $client_name,
-                            'itflow_invoice_number' => $invoice_prefix . $invoice_number,
-                            'itflow_invoice_id' => $new_invoice_id,
-                        ]
-                    ]);
-
-                    // Get details from PI
-                    $pi_id = sanitizeInput($payment_intent->id);
-                    $pi_date = date('Y-m-d', $payment_intent->created);
-                    $pi_amount_paid = floatval(($payment_intent->amount_received / 100));
-                    $pi_currency = strtoupper(sanitizeInput($payment_intent->currency));
-                    $pi_livemode = $payment_intent->livemode;
-
-                } catch (Exception $e) {
-                    $error = $e->getMessage();
-                    error_log("Stripe payment error - encountered exception during payment intent for invoice ID $new_invoice_id / $invoice_prefix$invoice_number: $error");
-                    logApp("Stripe", "error", "Exception during PI for invoice ID $new_invoice_id: $error");
-                    echo $error;
-                }
-
-                if ($payment_intent->status == "succeeded" && intval($balance_to_pay) == intval($pi_amount_paid)) {
-
-                    // Update Invoice Status
-                    mysqli_query($mysqli, "UPDATE invoices SET invoice_status = 'Paid' WHERE invoice_id = $new_invoice_id");
-
-                    // Add Payment to History
-                    mysqli_query($mysqli, "INSERT INTO payments SET payment_date = '$pi_date', payment_amount = $pi_amount_paid, payment_currency_code = '$pi_currency', payment_account_id = $recurring_payment_account_id, payment_method = 'Stripe', payment_reference = 'Stripe - $pi_id', payment_invoice_id = $new_invoice_id");
-                    mysqli_query($mysqli, "INSERT INTO history SET history_status = 'Paid', history_description = 'Online Payment added (autopay)', history_invoice_id = $new_invoice_id");
-
-                    // Email receipt
-                    if (!empty($config_smtp_host)) {
-                        $subject = "Payment Received - Invoice $invoice_prefix$invoice_number";
-                        $body = "Hello $contact_name,<br><br>We have received online payment for the amount of " . numfmt_format_currency($currency_format, $invoice_amount, $recurring_payment_currency_code) . " for invoice <a href=\'https://$config_base_url/guest/guest_view_invoice.php?invoice_id=$new_invoice_id&url_key=$invoice_url_key\'>$invoice_prefix$invoice_number</a>. Please keep this email as a receipt for your records.<br><br>Amount Paid: " . numfmt_format_currency($currency_format, $invoice_amount, $recurring_payment_currency_code) . "<br><br>Thank you for your business!<br><br><br>--<br>$company_name - Billing Department<br>$config_invoice_from_email<br>$company_phone";
-
-                        // Queue Mail
-                        $data = [
-                            [
-                                'from' => $config_invoice_from_email,
-                                'from_name' => $config_invoice_from_name,
-                                'recipient' => $contact_email,
-                                'recipient_name' => $contact_name,
-                                'subject' => $subject,
-                                'body' => $body,
-                            ]
-                        ];
-
-                        // Email the internal notification address too
-                        if (!empty($config_invoice_paid_notification_email)) {
-                            $subject = "Payment Received - $client_name - Invoice $invoice_prefix$invoice_number";
-                            $body = "Hello, <br><br>This is a notification that an invoice has been paid in ITFlow. Below is a copy of the receipt sent to the client:-<br><br>--------<br><br>Hello $contact_name,<br><br>We have received online payment for the amount of " . numfmt_format_currency($currency_format, $invoice_amount, $recurring_payment_currency_code) . " for invoice <a href=\'https://$config_base_url/guest/guest_view_invoice.php?invoice_id=$new_invoice_id&url_key=$invoice_url_key\'>$invoice_prefix$invoice_number</a>. Please keep this email as a receipt for your records.<br><br>Amount Paid: " . numfmt_format_currency($currency_format, $invoice_amount, $recurring_payment_currency_code) . "<br><br>Thank you for your business!<br><br><br>--<br>$company_name - Billing Department<br>$config_invoice_from_email<br>$company_phone";
-
-                            $data[] = [
-                                'from' => $config_invoice_from_email,
-                                'from_name' => $config_invoice_from_name,
-                                'recipient' => $config_invoice_paid_notification_email,
-                                'recipient_name' => $contact_name,
-                                'subject' => $subject,
-                                'body' => $body,
-                            ];
-                        }
-
-                        $mail = addToMailQueue($data);
-
-                        // Email Logging
-                        $email_id = mysqli_insert_id($mysqli);
-                        mysqli_query($mysqli,"INSERT INTO history SET history_status = 'Sent', history_description = 'Payment Receipt sent to mail queue ID: $email_id!', history_invoice_id = $new_invoice_id");
-                        logAction("Invoice", "Payment", "Payment receipt for invoice $invoice_prefix$invoice_number queued to $contact_email Email ID: $email_id", $client_id, $new_invoice_id);
-                    }
-
-                    // Log info
-                    $extended_log_desc = '';
-                    if (!$pi_livemode) {
-                        $extended_log_desc = '(DEV MODE)';
-                    }
-
-                    // Create Stripe payment gateway fee as an expense (if configured)
-                    if ($config_stripe_expense_vendor > 0 && $config_stripe_expense_category > 0) {
-                        $gateway_fee = round($invoice_amount * $config_stripe_percentage_fee + $config_stripe_flat_fee, 2);
-                        mysqli_query($mysqli,"INSERT INTO expenses SET expense_date = '$pi_date', expense_amount = $gateway_fee, expense_currency_code = '$company_currency', expense_account_id = $config_stripe_account, expense_vendor_id = $config_stripe_expense_vendor, expense_client_id = $client_id, expense_category_id = $config_stripe_expense_category, expense_description = 'Stripe Transaction for Invoice $invoice_prefix$invoice_number In the Amount of $balance_to_pay', expense_reference = 'Stripe - $pi_id $extended_log_desc'");
-                    }
-
-                    // Notify/log
-                    appNotify("Invoice Paid", "Invoice $invoice_prefix$invoice_number automatically paid", "invoice.php?invoice_id=$new_invoice_id", $client_id);
-                    logAction("Invoice", "Payment", "Auto Stripe payment amount of " . numfmt_format_currency($currency_format, $recurring_amount, $recurring_payment_currency_code) . " added to invoice $invoice_prefix$invoice_number - $pi_id $extended_log_desc", $client_id, $new_invoice_id);
-                    customAction('invoice_pay', $new_invoice_id);
-
-                } else {
-                    mysqli_query($mysqli, "INSERT INTO history SET history_status = 'Payment failed', history_description = 'Stripe autopay failed due to payment error', history_invoice_id = $new_invoice_id");
-                    logAction("Invoice", "Payment", "Failed auto Payment amount of invoice $invoice_prefix$invoice_number due to Stripe payment error", $client_id, $new_invoice_id);
-                }
-
-            } else {
-                logAction("Invoice", "Payment", "Failed auto Payment amount of invoice $invoice_prefix$invoice_number due to Stripe configuration error", $client_id, $new_invoice_id);
-            }
-
-        } else {
-            // Else: Cash/Bank payment
-
-            //TODO: Should we send a receipt for auto bank payments, even when nobody actually confirms receipt?
-
-            mysqli_query($mysqli,"INSERT INTO payments SET payment_date = CURDATE(), payment_amount = $recurring_amount, payment_currency_code = '$recurring_payment_currency_code', payment_account_id = $recurring_payment_account_id, payment_method = '$recurring_payment_method', payment_reference = 'Paid via AutoPay', payment_invoice_id = $new_invoice_id");
-
-            // Get Payment ID for reference
-            $payment_id = mysqli_insert_id($mysqli);
-
-            // Update Invoice Status
-            mysqli_query($mysqli,"UPDATE invoices SET invoice_status = 'Paid' WHERE invoice_id = $new_invoice_id");
-
-            //Add Payment to History
-            mysqli_query($mysqli,"INSERT INTO history SET history_status = 'Paid', history_description = 'Payment added via Auto Pay', history_invoice_id = $new_invoice_id");
-
-            // Logging
-            logAction("Invoice", "Payment", "Auto Payment amount of " . numfmt_format_currency($currency_format, $recurring_amount, $recurring_payment_currency_code) . " added to invoice $invoice_prefix$invoice_number", $client_id, $new_invoice_id);
-        }
-
-    } //End Auto Payment
-
 } //End Recurring Invoices Loop
 
-// Flag any active recurring "next run" dates that are in the past
+// Start Flag any active recurring "next run" dates that are in the past
 $sql_invalid_recurring_invoices = mysqli_query($mysqli, "SELECT * FROM recurring_invoices WHERE recurring_invoice_next_date < CURDATE() AND recurring_invoice_status = 1");
 while ($row = mysqli_fetch_array($sql_invalid_recurring_invoices)) {
     $invoice_prefix = sanitizeInput($row['recurring_invoice_prefix']);
     $invoice_number = intval($row['recurring_invoice_number']);
     appNotify("Invoice", "Recurring invoice $invoice_prefix$invoice_number next run date is in the past!", "recurring_invoices.php");
 }
+// End Flag any active recurring "next run" dates that are in the past
 
-// Logging
-// logAction("Cron", "Task", "Cron created invoices from recurring invoices and sent emails out");
+
+// Start Recurring Payments
+//Loop through all invoices that match today's due date and is unpaid and has automatic payment turned on
+$sql_recurring_payments = mysqli_query($mysqli, "SELECT * FROM recurring_payments
+    LEFT JOIN invoices ON invoice_recurring_invoice_id = recurring_payment_recurring_invoice_id
+    LEFT JOIN clients ON client_id = invoice_client_id
+    LEFT JOIN contacts ON client_id = contact_client_id AND contact_primary = 1
+    WHERE invoice_due = CURDATE() AND (invoice_status = 'Sent' OR invoice_status = 'Viewed')
+");
+
+while ($row = mysqli_fetch_array($sql_recurring_payments)) {
+
+    $invoice_id = intval($row['invoice_id']);
+    $invoice_prefix = sanitizeInput($row['invoice_prefix']);
+    $invoice_number = intval($row['invoice_number']);
+    $invoice_scope = sanitizeInput($row['invoice_scope']);
+    $invoice_date = sanitizeInput($row['invoice_date']);
+    $invoice_due = sanitizeInput($row['invoice_due']);
+    $invoice_amount = floatval($row['invoice_amount']);
+    $invoice_url_key = sanitizeInput($row['invoice_url_key']);
+    $recurring_payment_account_id = intval($row['recurring_payment_account_id']);
+    $recurring_payment_method = sanitizeInput($row['recurring_payment_method']);
+    $recurring_payment_currency_code = sanitizeInput($row['recurring_payment_currency_code']);
+    $client_id = intval($row['client_id']);
+    $client_name = sanitizeInput($row['client_name']);
+    $contact_name = sanitizeInput($row['contact_name']);
+    $contact_email = sanitizeInput($row['contact_email']);
+
+    // Create Payment from Auto Payment
+
+    // Handle Stripe payment
+    if ($recurring_payment_method == "Stripe") {
+        
+        // Get Stripe info for client
+        $stripe_client_details = mysqli_fetch_array(mysqli_query($mysqli, "SELECT * FROM client_stripe WHERE client_id = $client_id  LIMIT 1"));
+        $stripe_id = sanitizeInput($stripe_client_details['stripe_id']);
+        $stripe_pm = sanitizeInput($stripe_client_details['stripe_pm']);
+
+        if ($config_stripe_enable && $stripe_id && $stripe_pm) {
+
+            // Initialize
+            require_once __DIR__ . '/../plugins/stripe-php/init.php';
+            $stripe = new \Stripe\StripeClient($config_stripe_secret);
+
+            $balance_to_pay = round($invoice_amount, 2);
+            $pi_description = "ITFlow: $client_name payment of $recurring_payment_currency_code $balance_to_pay for $invoice_prefix$invoice_number";
+
+            // Create a payment intent
+            try {
+                $payment_intent = $stripe->paymentIntents->create([
+                    'amount' => intval($balance_to_pay * 100), // Times by 100 as Stripe expects values in cents
+                    'currency' => $recurring_payment_currency_code,
+                    'customer' => $stripe_id,
+                    'payment_method' => $stripe_pm,
+                    'off_session' => true,
+                    'confirm' => true,
+                    'description' => $pi_description,
+                    'metadata' => [
+                        'itflow_client_id' => $client_id,
+                        'itflow_client_name' => $client_name,
+                        'itflow_invoice_number' => $invoice_prefix . $invoice_number,
+                        'itflow_invoice_id' => $invoice_id,
+                    ]
+                ]);
+
+                // Get details from PI
+                $pi_id = sanitizeInput($payment_intent->id);
+                $pi_date = date('Y-m-d', $payment_intent->created);
+                $pi_amount_paid = floatval(($payment_intent->amount_received / 100));
+                $pi_currency = strtoupper(sanitizeInput($payment_intent->currency));
+                $pi_livemode = $payment_intent->livemode;
+
+            } catch (Exception $e) {
+                $error = $e->getMessage();
+                error_log("Stripe payment error - encountered exception during payment intent for invoice ID $invoice_id / $invoice_prefix$invoice_number: $error");
+                logApp("Stripe", "error", "Exception during PI for invoice ID $invoice_id: $error");
+                echo $error;
+            }
+
+            if ($payment_intent->status == "succeeded" && intval($balance_to_pay) == intval($pi_amount_paid)) {
+
+                // Update Invoice Status
+                mysqli_query($mysqli, "UPDATE invoices SET invoice_status = 'Paid' WHERE invoice_id = $invoice_id");
+
+                // Add Payment to History
+                mysqli_query($mysqli, "INSERT INTO payments SET payment_date = '$pi_date', payment_amount = $pi_amount_paid, payment_currency_code = '$pi_currency', payment_account_id = $recurring_payment_account_id, payment_method = 'Stripe', payment_reference = 'Stripe - $pi_id', payment_invoice_id = $invoice_id");
+                mysqli_query($mysqli, "INSERT INTO history SET history_status = 'Paid', history_description = 'Online Payment added (autopay)', history_invoice_id = $invoice_id");
+
+                // Email receipt
+                if (!empty($config_smtp_host)) {
+                    $subject = "Payment Received - Invoice $invoice_prefix$invoice_number";
+                    $body = "Hello $contact_name,<br><br>We have received online payment for the amount of " . numfmt_format_currency($currency_format, $invoice_amount, $recurring_payment_currency_code) . " for invoice <a href=\'https://$config_base_url/guest/guest_view_invoice.php?invoice_id=$invoice_id&url_key=$invoice_url_key\'>$invoice_prefix$invoice_number</a>. Please keep this email as a receipt for your records.<br><br>Amount Paid: " . numfmt_format_currency($currency_format, $invoice_amount, $recurring_payment_currency_code) . "<br><br>Thank you for your business!<br><br><br>--<br>$company_name - Billing Department<br>$config_invoice_from_email<br>$company_phone";
+
+                    // Queue Mail
+                    $data = [
+                        [
+                            'from' => $config_invoice_from_email,
+                            'from_name' => $config_invoice_from_name,
+                            'recipient' => $contact_email,
+                            'recipient_name' => $contact_name,
+                            'subject' => $subject,
+                            'body' => $body,
+                        ]
+                    ];
+
+                    // Email the internal notification address too
+                    if (!empty($config_invoice_paid_notification_email)) {
+                        $subject = "Payment Received - $client_name - Invoice $invoice_prefix$invoice_number";
+                        $body = "Hello, <br><br>This is a notification that an invoice has been paid in ITFlow. Below is a copy of the receipt sent to the client:-<br><br>--------<br><br>Hello $contact_name,<br><br>We have received online payment for the amount of " . numfmt_format_currency($currency_format, $invoice_amount, $recurring_payment_currency_code) . " for invoice <a href=\'https://$config_base_url/guest/guest_view_invoice.php?invoice_id=$invoice_id&url_key=$invoice_url_key\'>$invoice_prefix$invoice_number</a>. Please keep this email as a receipt for your records.<br><br>Amount Paid: " . numfmt_format_currency($currency_format, $invoice_amount, $recurring_payment_currency_code) . "<br><br>Thank you for your business!<br><br><br>--<br>$company_name - Billing Department<br>$config_invoice_from_email<br>$company_phone";
+
+                        $data[] = [
+                            'from' => $config_invoice_from_email,
+                            'from_name' => $config_invoice_from_name,
+                            'recipient' => $config_invoice_paid_notification_email,
+                            'recipient_name' => $contact_name,
+                            'subject' => $subject,
+                            'body' => $body,
+                        ];
+                    }
+
+                    $mail = addToMailQueue($data);
+
+                    // Email Logging
+                    $email_id = mysqli_insert_id($mysqli);
+                    mysqli_query($mysqli,"INSERT INTO history SET history_status = 'Sent', history_description = 'Payment Receipt sent to mail queue ID: $email_id!', history_invoice_id = $invoice_id");
+                    logAction("Invoice", "Payment", "Payment receipt for invoice $invoice_prefix$invoice_number queued to $contact_email Email ID: $email_id", $client_id, $invoice_id);
+                }
+
+                // Log info
+                $extended_log_desc = '';
+                if (!$pi_livemode) {
+                    $extended_log_desc = '(DEV MODE)';
+                }
+
+                // Create Stripe payment gateway fee as an expense (if configured)
+                if ($config_stripe_expense_vendor > 0 && $config_stripe_expense_category > 0) {
+                    $gateway_fee = round($invoice_amount * $config_stripe_percentage_fee + $config_stripe_flat_fee, 2);
+                    mysqli_query($mysqli,"INSERT INTO expenses SET expense_date = '$pi_date', expense_amount = $gateway_fee, expense_currency_code = '$company_currency', expense_account_id = $config_stripe_account, expense_vendor_id = $config_stripe_expense_vendor, expense_client_id = $client_id, expense_category_id = $config_stripe_expense_category, expense_description = 'Stripe Transaction for Invoice $invoice_prefix$invoice_number In the Amount of $balance_to_pay', expense_reference = 'Stripe - $pi_id $extended_log_desc'");
+                }
+
+                // Notify/log
+                appNotify("Invoice Paid", "Invoice $invoice_prefix$invoice_number automatically paid", "invoice.php?invoice_id=$invoice_id", $client_id);
+                logAction("Invoice", "Payment", "Auto Stripe payment amount of " . numfmt_format_currency($currency_format, $invoice_amount, $recurring_payment_currency_code) . " added to invoice $invoice_prefix$invoice_number - $pi_id $extended_log_desc", $client_id, $invoice_id);
+                customAction('invoice_pay', $invoice_id);
+
+            } else {
+                mysqli_query($mysqli, "INSERT INTO history SET history_status = 'Payment failed', history_description = 'Stripe autopay failed due to payment error', history_invoice_id = $invoice_id");
+                logAction("Invoice", "Payment", "Failed auto Payment amount of invoice $invoice_prefix$invoice_number due to Stripe payment error", $client_id, $invoice_id);
+            }
+
+        } else {
+            logAction("Invoice", "Payment", "Failed auto Payment amount of invoice $invoice_prefix$invoice_number due to Stripe configuration error", $client_id, $invoice_id);
+        }
+
+    } else {
+        // Else: Cash/Bank payment
+
+        //TODO: Should we send a receipt for auto bank payments, even when nobody actually confirms receipt?
+
+        mysqli_query($mysqli,"INSERT INTO payments SET payment_date = CURDATE(), payment_amount = $invoice_amount, payment_currency_code = '$recurring_payment_currency_code', payment_account_id = $recurring_payment_account_id, payment_method = '$recurring_payment_method', payment_reference = 'Paid via AutoPay', payment_invoice_id = $invoice_id");
+
+        // Get Payment ID for reference
+        $payment_id = mysqli_insert_id($mysqli);
+
+        // Update Invoice Status
+        mysqli_query($mysqli,"UPDATE invoices SET invoice_status = 'Paid' WHERE invoice_id = $invoice_id");
+
+        //Add Payment to History
+        mysqli_query($mysqli,"INSERT INTO history SET history_status = 'Paid', history_description = 'Payment added via Auto Pay', history_invoice_id = $invoice_id");
+
+        // Logging
+        logAction("Invoice", "Payment", "Auto Payment amount of " . numfmt_format_currency($currency_format, $invoice_amount, $recurring_payment_currency_code) . " added to invoice $invoice_prefix$invoice_number", $client_id, $invoice_id);
+    } // End Payment Ifs
+
+} // End Recurring Payments
+
 
 // Recurring Expenses
 // Loop through all recurring expenses that match today's date and is active
@@ -996,7 +1023,7 @@ if ($config_telemetry > 0 || $config_telemetry == 2) {
     $payment_count = $row['num'];
 
     // Company Vendor Count
-    $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('vendor_id') AS num FROM vendors WHERE vendor_template = 0 AND vendor_client_id = 0"));
+    $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('vendor_id') AS num FROM vendors WHERE vendor_client_id = 0"));
     $company_vendor_count = $row['num'];
 
     // Expense Count
@@ -1024,11 +1051,11 @@ if ($config_telemetry > 0 || $config_telemetry == 2) {
     $asset_count = $row['num'];
 
     // Software Count
-    $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('software_id') AS num FROM software WHERE software_template = 0"));
+    $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('software_id') AS num FROM software"));
     $software_count = $row['num'];
 
     // Software Template Count
-    $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('software_id') AS num FROM software WHERE software_template = 1"));
+    $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('software_template_id') AS num FROM software_templates"));
     $software_template_count = $row['num'];
 
     // Credential Count
@@ -1052,11 +1079,11 @@ if ($config_telemetry > 0 || $config_telemetry == 2) {
     $service_count = $row['num'];
 
     // Client Vendor Count
-    $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('vendor_id') AS num FROM vendors WHERE vendor_template = 0 AND vendor_client_id > 0"));
+    $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('vendor_id') AS num FROM vendors WHERE vendor_client_id > 0"));
     $client_vendor_count = $row['num'];
 
     // Vendor Template Count
-    $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('vendor_id') AS num FROM vendors WHERE vendor_template = 1"));
+    $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('vendor_template_id') AS num FROM vendor_templates"));
     $vendor_template_count = $row['num'];
 
     // File Count
@@ -1064,11 +1091,11 @@ if ($config_telemetry > 0 || $config_telemetry == 2) {
     $file_count = $row['num'];
 
     // Document Count
-    $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('document_id') AS num FROM documents WHERE document_template = 0"));
+    $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('document_id') AS num FROM documents"));
     $document_count = $row['num'];
 
     // Document Template Count
-    $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('document_id') AS num FROM documents WHERE document_template = 1"));
+    $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('document_template_id') AS num FROM document_templates"));
     $document_template_count = $row['num'];
 
     // Shared Item Count

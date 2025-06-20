@@ -486,8 +486,8 @@ if (mysqli_num_rows($os_sql) > 0) {
                         $asset_ipv6 = nullable_htmlentities($row['interface_ipv6']);
                         $asset_nat_ip = nullable_htmlentities($row['interface_nat_ip']);
                         $asset_mac = nullable_htmlentities($row['interface_mac']);
-                        $asset_uri = nullable_htmlentities($row['asset_uri']);
-                        $asset_uri_2 = nullable_htmlentities($row['asset_uri_2']);
+                        $asset_uri = sanitize_url($row['asset_uri']);
+                        $asset_uri_2 = sanitize_url($row['asset_uri_2']);
                         $asset_status = nullable_htmlentities($row['asset_status']);
                         $asset_purchase_reference = nullable_htmlentities($row['asset_purchase_reference']);
                         $asset_purchase_date = nullable_htmlentities($row['asset_purchase_date']);
@@ -535,7 +535,7 @@ if (mysqli_num_rows($os_sql) > 0) {
                         if ($contact_name) {
                             $contact_name_display = "<a href='#' 
                                 data-toggle='ajax-modal'
-                                data-modal-size='xl'
+                                data-modal-size='lg'
                                 data-ajax-url='ajax/ajax_contact_details.php'
                                 data-ajax-id='$asset_contact_id'>
                                 $contact_name $contact_archive_display

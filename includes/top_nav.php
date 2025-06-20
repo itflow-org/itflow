@@ -1,5 +1,5 @@
 <!-- Navbar -->
-<nav class="main-header navbar navbar-expand navbar-<?php echo nullable_htmlentities($config_theme); ?> navbar-dark">
+<nav class="main-header navbar navbar-expand navbar-<?php if (isset($_GET['client_id'])) { echo "gray"; } else { echo nullable_htmlentities($config_theme); } ?> navbar-dark">
 
     <!-- Left navbar links -->
     <ul class="navbar-nav">
@@ -36,7 +36,7 @@
 
         while ($row = mysqli_fetch_array($sql_custom_links)) {
             $custom_link_name = nullable_htmlentities($row['custom_link_name']);
-            $custom_link_uri = nullable_htmlentities($row['custom_link_uri']);
+            $custom_link_uri = sanitize_url($row['custom_link_uri']);
             $custom_link_icon = nullable_htmlentities($row['custom_link_icon']);
             $custom_link_new_tab = intval($row['custom_link_new_tab']);
             if ($custom_link_new_tab == 1) {

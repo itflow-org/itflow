@@ -77,17 +77,21 @@ function getUserAgent() {
 }
 
 function getIP() {
-    if (defined("CONST_GET_IP_METHOD")) {
-        if (CONST_GET_IP_METHOD == "HTTP_X_FORWARDED_FOR") {
-            $ip = getenv('HTTP_X_FORWARDED_FOR');
-        } else {
-            $ip = $_SERVER["HTTP_CF_CONNECTING_IP"] ?? $_SERVER['REMOTE_ADDR'];
-        }
-    } else {
+
+    // Default way to get IP
+    $ip = $_SERVER['REMOTE_ADDR'];
+
+    // Allow overrides via config.php in-case we use a proxy - https://docs.itflow.org/config_php
+    if (defined("CONST_GET_IP_METHOD") && CONST_GET_IP_METHOD == "HTTP_X_FORWARDED_FOR") {
+        $ip = explode(',', getenv('HTTP_X_FORWARDED_FOR'))[0] ?? $_SERVER['REMOTE_ADDR'];
+    } elseif (defined("CONST_GET_IP_METHOD") && CONST_GET_IP_METHOD == "HTTP_CF_CONNECTING_IP") {
         $ip = $_SERVER["HTTP_CF_CONNECTING_IP"] ?? $_SERVER['REMOTE_ADDR'];
     }
 
+    // Abort if something isn't right
     if (!filter_var($ip, FILTER_VALIDATE_IP)) {
+        error_log("ITFlow - Could not validate remote IP address");
+        error_log("ITFlow - IP was [$ip] using method " . CONST_GET_IP_METHOD);
         exit("Potential Security Violation");
     }
 
@@ -195,7 +199,7 @@ function truncate($text, $chars) {
 
 function formatPhoneNumber($phoneNumber, $country_code = '', $show_country_code = false) {
     // Remove all non-digit characters
-    $digits = preg_replace('/\D/', '', $phoneNumber);
+    $digits = preg_replace('/\D/', '', $phoneNumber ?? '');
     $formatted = '';
 
     // If no digits at all, fallback early
@@ -1651,4 +1655,23 @@ function display_folder_options($parent_folder_id, $client_id, $folder_location 
         // Recursively display subfolders
         display_folder_options($folder_id, $client_id, $folder_location, $indent + 1);
     }
+}
+
+function sanitize_url($url) {
+    $allowed = ['http', 'https', 'file', 'ftp', 'ftps', 'sftp', 'dav', 'webdav', 'caldav', 'carddav',  'ssh', 'telnet', 'smb', 'rdp', 'vnc', 'rustdesk', 'anydesk', 'connectwise', 'splashtop', 'sip', 'sips', 'ldap', 'ldaps'];
+    $parts = parse_url($url ?? '');
+    if (isset($parts['scheme']) && !in_array(strtolower($parts['scheme']), $allowed)) {
+        // Remove the scheme and colon
+        $pos = strpos($url, ':');
+        $without_scheme = $url;
+        if ($pos !== false) {
+            $without_scheme = substr($url, $pos + 1); // This keeps slashes (e.g. //pizza.com)
+        }
+        // Prepend 'unsupported://' (strip any leading slashes from $without_scheme to avoid triple slashes)
+        $unsupported = 'unsupported://' . ltrim($without_scheme, '/');
+        return htmlspecialchars($unsupported, ENT_QUOTES, 'UTF-8');
+    }
+
+    // Safe schemes: return escaped original URL
+    return htmlspecialchars($url ?? '', ENT_QUOTES, 'UTF-8');
 }

@@ -91,7 +91,7 @@ if ($user_config_dashboard_financial_enable == 1) {
     $row = mysqli_fetch_array($sql_total_expenses);
     $total_expenses = floatval($row['total_expenses']);
 
-    $sql_invoice_totals = mysqli_query($mysqli, "SELECT SUM(invoice_amount) AS invoice_totals FROM invoices WHERE invoice_status NOT LIKE 'Draft' AND invoice_status NOT LIKE 'Cancelled' AND YEAR(invoice_date) = $year");
+    $sql_invoice_totals = mysqli_query($mysqli, "SELECT SUM(invoice_amount) AS invoice_totals FROM invoices WHERE invoice_status != 'Draft' AND invoice_status != 'Cancelled' AND invoice_status != 'Non-Billable' AND YEAR(invoice_date) = $year");
     $row = mysqli_fetch_array($sql_invoice_totals);
     $invoice_totals = floatval($row['invoice_totals']);
 
@@ -99,7 +99,7 @@ if ($user_config_dashboard_financial_enable == 1) {
     $row = mysqli_fetch_array($sql_total_payments_to_invoices_all_years);
     $total_payments_to_invoices_all_years = floatval($row['total_payments_to_invoices_all_years']);
 
-    $sql_invoice_totals_all_years = mysqli_query($mysqli, "SELECT SUM(invoice_amount) AS invoice_totals_all_years FROM invoices WHERE invoice_status NOT LIKE 'Draft' AND invoice_status NOT LIKE 'Cancelled'");
+    $sql_invoice_totals_all_years = mysqli_query($mysqli, "SELECT SUM(invoice_amount) AS invoice_totals_all_years FROM invoices WHERE invoice_status != 'Draft' AND invoice_status != 'Cancelled' AND invoice_status != 'Non-Billable'");
     $row = mysqli_fetch_array($sql_invoice_totals_all_years);
     $invoice_totals_all_years = floatval($row['invoice_totals_all_years']);
 
@@ -158,7 +158,7 @@ if ($user_config_dashboard_financial_enable == 1) {
     $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(client_id) AS clients_added FROM clients WHERE YEAR(client_created_at) = $year AND client_archived_at IS NULL"));
     $clients_added = intval($row['clients_added']);
 
-    $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(vendor_id) AS vendors_added FROM vendors WHERE YEAR(vendor_created_at) = $year AND vendor_client_id = 0 AND vendor_template = 0 AND vendor_archived_at IS NULL"));
+    $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(vendor_id) AS vendors_added FROM vendors WHERE YEAR(vendor_created_at) = $year AND vendor_client_id = 0 AND vendor_archived_at IS NULL"));
     $vendors_added = intval($row['vendors_added']);
 ?>
 <div class="card card-body">
@@ -808,7 +808,7 @@ if ($user_config_dashboard_technical_enable == 1) {
                         <?php
                         $largest_invoice_month = 0;
                         for ($month = 1; $month <= 12; $month++) {
-                            $sql_projected = mysqli_query($mysqli, "SELECT SUM(invoice_amount) AS invoice_amount_for_month FROM invoices WHERE YEAR(invoice_due) = $year AND MONTH(invoice_due) = $month AND invoice_status NOT LIKE 'Cancelled' AND invoice_status NOT LIKE 'Draft'");
+                            $sql_projected = mysqli_query($mysqli, "SELECT SUM(invoice_amount) AS invoice_amount_for_month FROM invoices WHERE YEAR(invoice_due) = $year AND MONTH(invoice_due) = $month AND invoice_status != 'Cancelled' AND invoice_status != 'Draft' AND invoice_status != 'Non-Billable'");
                             $row = mysqli_fetch_array($sql_projected);
                             $invoice_for_month = floatval($row['invoice_amount_for_month']);
 

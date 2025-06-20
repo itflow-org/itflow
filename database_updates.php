@@ -3464,12 +3464,216 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
         mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '2.1.4'");
     }
 
+    if (CURRENT_DATABASE_VERSION == '2.1.4') {
+        mysqli_query($mysqli, "ALTER TABLE `settings` ADD `config_ticket_timer_autostart` TINYINT(1) NOT NULL DEFAULT '0' AFTER `config_ticket_default_billable`");
+        mysqli_query($mysqli, "ALTER TABLE `tickets` ADD `ticket_due_at` DATETIME DEFAULT NULL AFTER `ticket_updated_at`");
+        mysqli_query($mysqli, "ALTER TABLE `companies` ADD `company_tax_id` VARCHAR(200) DEFAULT NULL AFTER `company_currency`");
+        mysqli_query($mysqli, "ALTER TABLE `settings` ADD `config_invoice_show_tax_id` TINYINT(1) NOT NULL DEFAULT '0' AFTER `config_invoice_paid_notification_email`");
 
+        mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '2.1.5'");
+    }
 
-    // if (CURRENT_DATABASE_VERSION == '2.1.4') {
-    //     // Insert queries here required to update to DB version 2.1.5
+    if (CURRENT_DATABASE_VERSION == '2.1.5') {
+
+        mysqli_query($mysqli, "CREATE TABLE `document_versions` (
+            `document_version_id` INT(11) NOT NULL AUTO_INCREMENT,
+            `document_version_name` VARCHAR(200) NOT NULL,
+            `document_version_description` TEXT DEFAULT NULL,
+            `document_version_content` LONGTEXT NOT NULL,
+            `document_version_created_by` INT(11) DEFAULT 0,
+            `document_version_created_at` DATETIME NOT NULL,
+            `document_version_document_id` INT(11) NOT NULL,
+            PRIMARY KEY (`document_version_id`)
+        )");
+
+        // Delete all Current Document Versions
+        mysqli_query($mysqli, "
+            DELETE FROM `documents`
+            WHERE `document_parent` > 0 AND `document_parent` != `document_id`
+        ");
+
+        mysqli_query($mysqli, "ALTER TABLE `documents` DROP `document_parent`");
+
+        mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '2.1.6'");
+    }
+
+    if (CURRENT_DATABASE_VERSION == '2.1.6') {
+        mysqli_query($mysqli, "CREATE TABLE `document_templates` (
+            `document_template_id` INT(11) NOT NULL AUTO_INCREMENT,
+            `document_template_name` VARCHAR(200) NOT NULL,
+            `document_template_description` TEXT DEFAULT NULL,
+            `document_template_content` LONGTEXT NOT NULL,
+            `document_template_created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            `document_template_updated_at` DATETIME NULL ON UPDATE CURRENT_TIMESTAMP,
+            `document_template_archived_at` DATETIME NULL DEFAULT NULL,
+            `document_template_created_by` INT(11) NOT NULL DEFAULT 0,
+            `document_template_updated_by` INT(11) NOT NULL DEFAULT 0,
+            PRIMARY KEY (`document_template_id`)
+        )");
+
+        // Copy Document Templates over to new document templates table
+        mysqli_query($mysqli, "
+            INSERT INTO document_templates (
+                document_template_name,
+                document_template_description,
+                document_template_content,
+                document_template_created_at,
+                document_template_updated_at,
+                document_template_archived_at,
+                document_template_created_by,
+                document_template_updated_by
+            )
+            SELECT
+                document_name,
+                document_description,
+                document_content,
+                document_created_at,
+                document_updated_at,
+                document_archived_at,
+                document_created_by,
+                document_updated_by
+            FROM
+                documents
+            WHERE
+                document_template = 1
+        ");
+
+        mysqli_query($mysqli, "DELETE FROM documents WHERE document_template = 1");
+
+        mysqli_query($mysqli, "ALTER TABLE `documents` DROP `document_template`");
+
+        mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '2.1.7'");
+    }
+
+    if (CURRENT_DATABASE_VERSION == '2.1.7') {
+        mysqli_query($mysqli, "CREATE TABLE `software_templates` (
+            `software_template_id` INT(11) NOT NULL AUTO_INCREMENT,
+            `software_template_name` VARCHAR(200) NOT NULL,
+            `software_template_description` TEXT DEFAULT NULL,
+            `software_template_version` VARCHAR(200) DEFAULT NULL,
+            `software_template_type` VARCHAR(200) NOT NULL,
+            `software_template_license_type` VARCHAR(200) DEFAULT NULL,
+            `software_template_notes` TEXT DEFAULT NULL,
+            `software_template_created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            `software_template_updated_at` DATETIME NULL ON UPDATE CURRENT_TIMESTAMP,
+            `software_template_archived_at` DATETIME NULL DEFAULT NULL,
+            PRIMARY KEY (`software_template_id`)
+        )");
+
+        // Copy software Templates over to new software templates table
+        mysqli_query($mysqli, "
+            INSERT INTO software_templates (
+                software_template_name,
+                software_template_description,
+                software_template_version,
+                software_template_type,
+                software_template_license_type,
+                software_template_notes,
+                software_template_created_at,
+                software_template_updated_at,
+                software_template_archived_at
+            )
+            SELECT
+                software_name,
+                software_description,
+                software_version,
+                software_type,
+                software_license_type,
+                software_notes,
+                software_created_at,
+                software_updated_at,
+                software_archived_at
+            FROM
+                software
+            WHERE
+                software_template = 1
+        ");
+
+        mysqli_query($mysqli, "DELETE FROM software WHERE software_template = 1");
+
+        mysqli_query($mysqli, "ALTER TABLE `software` DROP `software_template`");
+
+        mysqli_query($mysqli, "ALTER TABLE `software` DROP `software_template_id`");
+
+        mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '2.1.8'");
+    }
+
+    if (CURRENT_DATABASE_VERSION == '2.1.8') {
+        mysqli_query($mysqli, "CREATE TABLE `vendor_templates` (
+            `vendor_template_id` INT(11) NOT NULL AUTO_INCREMENT,
+            `vendor_template_name` VARCHAR(200) NOT NULL,
+            `vendor_template_description` VARCHAR(200) DEFAULT NULL,
+            `vendor_template_contact_name` VARCHAR(200) DEFAULT NULL,
+            `vendor_template_phone_country_code` VARCHAR(10) DEFAULT NULL,
+            `vendor_template_phone` VARCHAR(200) DEFAULT NULL,
+            `vendor_template_extension` VARCHAR(200) DEFAULT NULL,
+            `vendor_template_email` VARCHAR(200) DEFAULT NULL,
+            `vendor_template_website` VARCHAR(200) DEFAULT NULL,
+            `vendor_template_hours` VARCHAR(200) DEFAULT NULL,
+            `vendor_template_sla` VARCHAR(200) DEFAULT NULL,
+            `vendor_template_code` VARCHAR(200) DEFAULT NULL,
+            `vendor_template_account_number` VARCHAR(200) DEFAULT NULL,
+            `vendor_template_notes` TEXT DEFAULT NULL,
+            `vendor_template_created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            `vendor_template_updated_at` DATETIME NULL ON UPDATE CURRENT_TIMESTAMP,
+            `vendor_template_archived_at` DATETIME NULL DEFAULT NULL,
+            PRIMARY KEY (`vendor_template_id`)
+        )");
+
+        // Copy Vendor Templates over to new vendor templates table
+        mysqli_query($mysqli, "
+            INSERT INTO vendor_templates (
+                vendor_template_name,
+                vendor_template_description,
+                vendor_template_contact_name,
+                vendor_template_phone_country_code,
+                vendor_template_phone,
+                vendor_template_extension,
+                vendor_template_email,
+                vendor_template_website,
+                vendor_template_hours,
+                vendor_template_sla,
+                vendor_template_code,
+                vendor_template_account_number,
+                vendor_template_notes,
+                vendor_template_created_at,
+                vendor_template_updated_at,
+                vendor_template_archived_at
+            )
+            SELECT
+                vendor_name,
+                vendor_description,
+                vendor_contact_name,
+                vendor_phone_country_code,
+                vendor_phone,
+                vendor_extension,
+                vendor_email,
+                vendor_website,
+                vendor_hours,
+                vendor_sla,
+                vendor_code,
+                vendor_account_number,
+                vendor_notes,
+                vendor_created_at,
+                vendor_updated_at,
+                vendor_archived_at
+            FROM
+                vendors
+            WHERE
+                vendor_template = 1
+        ");
+
+        mysqli_query($mysqli, "DELETE FROM vendors WHERE vendor_template = 1");
+
+        mysqli_query($mysqli, "ALTER TABLE `vendors` DROP `vendor_template`");
+
+        mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '2.1.9'");
+    }
+
+    // if (CURRENT_DATABASE_VERSION == '2.1.9') {
+    //     // Insert queries here required to update to DB version 2.2.0
     //     // Then, update the database to the next sequential version
-    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '2.1.5'");
+    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '2.2.0'");
     // }
 
 } else {

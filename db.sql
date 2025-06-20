@@ -555,6 +555,7 @@ CREATE TABLE `companies` (
   `company_logo` varchar(250) DEFAULT NULL,
   `company_locale` varchar(200) DEFAULT NULL,
   `company_currency` varchar(200) NOT NULL,
+  `company_tax_id` varchar(200) DEFAULT NULL,
   `company_created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `company_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
   PRIMARY KEY (`company_id`)
@@ -830,6 +831,46 @@ CREATE TABLE `document_files` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `document_templates`
+--
+
+DROP TABLE IF EXISTS `document_templates`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `document_templates` (
+  `document_template_id` int(11) NOT NULL AUTO_INCREMENT,
+  `document_template_name` varchar(200) NOT NULL,
+  `document_template_description` text DEFAULT NULL,
+  `document_template_content` longtext NOT NULL,
+  `document_template_created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `document_template_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
+  `document_template_archived_at` datetime DEFAULT NULL,
+  `document_template_created_by` int(11) NOT NULL DEFAULT 0,
+  `document_template_updated_by` int(11) NOT NULL DEFAULT 0,
+  PRIMARY KEY (`document_template_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `document_versions`
+--
+
+DROP TABLE IF EXISTS `document_versions`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `document_versions` (
+  `document_version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `document_version_name` varchar(200) NOT NULL,
+  `document_version_description` text DEFAULT NULL,
+  `document_version_content` longtext NOT NULL,
+  `document_version_created_by` int(11) DEFAULT 0,
+  `document_version_created_at` datetime NOT NULL,
+  `document_version_document_id` int(11) NOT NULL,
+  PRIMARY KEY (`document_version_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `documents`
 --
 
@@ -843,13 +884,11 @@ CREATE TABLE `documents` (
   `document_content` longtext NOT NULL,
   `document_content_raw` longtext NOT NULL,
   `document_important` tinyint(1) NOT NULL DEFAULT 0,
-  `document_parent` int(11) NOT NULL DEFAULT 0,
   `document_client_visible` int(11) NOT NULL DEFAULT 1,
   `document_created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `document_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
   `document_archived_at` datetime DEFAULT NULL,
   `document_accessed_at` datetime DEFAULT NULL,
-  `document_template` tinyint(1) NOT NULL DEFAULT 0,
   `document_folder_id` int(11) NOT NULL DEFAULT 0,
   `document_created_by` int(11) NOT NULL DEFAULT 0,
   `document_updated_by` int(11) NOT NULL DEFAULT 0,
@@ -1794,6 +1833,7 @@ CREATE TABLE `settings` (
   `config_invoice_late_fee_enable` tinyint(1) NOT NULL DEFAULT 0,
   `config_invoice_late_fee_percent` decimal(5,2) NOT NULL DEFAULT 0.00,
   `config_invoice_paid_notification_email` varchar(200) DEFAULT NULL,
+  `config_invoice_show_tax_id` tinyint(1) NOT NULL DEFAULT 0,
   `config_recurring_invoice_prefix` varchar(200) DEFAULT NULL,
   `config_recurring_invoice_next_number` int(11) NOT NULL DEFAULT 1,
   `config_quote_prefix` varchar(200) DEFAULT NULL,
@@ -1812,6 +1852,7 @@ CREATE TABLE `settings` (
   `config_ticket_autoclose_hours` int(5) NOT NULL DEFAULT 72,
   `config_ticket_new_ticket_notification_email` varchar(200) DEFAULT NULL,
   `config_ticket_default_billable` tinyint(1) NOT NULL DEFAULT 0,
+  `config_ticket_timer_autostart` tinyint(1) NOT NULL DEFAULT 0,
   `config_enable_cron` tinyint(1) NOT NULL DEFAULT 0,
   `config_recurring_auto_send_invoice` tinyint(1) NOT NULL DEFAULT 1,
   `config_enable_alert_domain_expire` tinyint(1) NOT NULL DEFAULT 1,
@@ -1900,14 +1941,12 @@ CREATE TABLE `software` (
   `software_purchase` date DEFAULT NULL,
   `software_expire` date DEFAULT NULL,
   `software_notes` text DEFAULT NULL,
-  `software_template` tinyint(1) NOT NULL DEFAULT 0,
   `software_created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `software_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
   `software_archived_at` datetime DEFAULT NULL,
   `software_accessed_at` datetime DEFAULT NULL,
   `software_vendor_id` int(11) DEFAULT 0,
   `software_client_id` int(11) NOT NULL,
-  `software_template_id` int(11) NOT NULL DEFAULT 0,
   PRIMARY KEY (`software_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -1994,6 +2033,28 @@ CREATE TABLE `software_files` (
   KEY `file_id` (`file_id`),
   CONSTRAINT `software_files_ibfk_1` FOREIGN KEY (`software_id`) REFERENCES `software` (`software_id`) ON DELETE CASCADE,
   CONSTRAINT `software_files_ibfk_2` FOREIGN KEY (`file_id`) REFERENCES `files` (`file_id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `software_templates`
+--
+
+DROP TABLE IF EXISTS `software_templates`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `software_templates` (
+  `software_template_id` int(11) NOT NULL AUTO_INCREMENT,
+  `software_template_name` varchar(200) NOT NULL,
+  `software_template_description` text DEFAULT NULL,
+  `software_template_version` varchar(200) DEFAULT NULL,
+  `software_template_type` varchar(200) NOT NULL,
+  `software_template_license_type` varchar(200) DEFAULT NULL,
+  `software_template_notes` text DEFAULT NULL,
+  `software_template_created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `software_template_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
+  `software_template_archived_at` datetime DEFAULT NULL,
+  PRIMARY KEY (`software_template_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -2244,6 +2305,7 @@ CREATE TABLE `tickets` (
   `ticket_url_key` varchar(200) DEFAULT NULL,
   `ticket_created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `ticket_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
+  `ticket_due_at` datetime DEFAULT NULL,
   `ticket_resolved_at` datetime DEFAULT NULL,
   `ticket_archived_at` datetime DEFAULT NULL,
   `ticket_first_response_at` datetime DEFAULT NULL,
@@ -2459,6 +2521,35 @@ CREATE TABLE `vendor_files` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `vendor_templates`
+--
+
+DROP TABLE IF EXISTS `vendor_templates`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `vendor_templates` (
+  `vendor_template_id` int(11) NOT NULL AUTO_INCREMENT,
+  `vendor_template_name` varchar(200) NOT NULL,
+  `vendor_template_description` varchar(200) DEFAULT NULL,
+  `vendor_template_contact_name` varchar(200) DEFAULT NULL,
+  `vendor_template_phone_country_code` varchar(10) DEFAULT NULL,
+  `vendor_template_phone` varchar(200) DEFAULT NULL,
+  `vendor_template_extension` varchar(200) DEFAULT NULL,
+  `vendor_template_email` varchar(200) DEFAULT NULL,
+  `vendor_template_website` varchar(200) DEFAULT NULL,
+  `vendor_template_hours` varchar(200) DEFAULT NULL,
+  `vendor_template_sla` varchar(200) DEFAULT NULL,
+  `vendor_template_code` varchar(200) DEFAULT NULL,
+  `vendor_template_account_number` varchar(200) DEFAULT NULL,
+  `vendor_template_notes` text DEFAULT NULL,
+  `vendor_template_created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `vendor_template_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
+  `vendor_template_archived_at` datetime DEFAULT NULL,
+  PRIMARY KEY (`vendor_template_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `vendors`
 --
 
@@ -2480,7 +2571,6 @@ CREATE TABLE `vendors` (
   `vendor_code` varchar(200) DEFAULT NULL,
   `vendor_account_number` varchar(200) DEFAULT NULL,
   `vendor_notes` text DEFAULT NULL,
-  `vendor_template` tinyint(1) NOT NULL DEFAULT 0,
   `vendor_created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `vendor_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
   `vendor_archived_at` datetime DEFAULT NULL,
@@ -2500,4 +2590,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-05-24 13:23:21
+-- Dump completed on 2025-06-17 22:44:10

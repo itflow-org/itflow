@@ -27,8 +27,9 @@ enforceUserPermission('module_financial');
                 invoices
             ON 
                 clients.client_id = invoices.invoice_client_id 
-                AND invoices.invoice_status NOT LIKE 'Draft' 
-                AND invoices.invoice_status NOT LIKE 'Cancelled'
+                AND invoices.invoice_status != 'Draft' 
+                AND invoices.invoice_status != 'Cancelled'
+                AND invoice_status != 'Non-Billable'
             LEFT JOIN
                 (SELECT 
                     payment_invoice_id, 

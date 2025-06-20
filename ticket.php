@@ -647,13 +647,13 @@ if (isset($_GET['ticket_id'])) {
 
                             <div class="form-group">
                                 <div class="btn-group btn-block btn-group-toggle" data-toggle="buttons">
-                                    <label class="btn btn-outline-secondary active">
+                                    <label class="btn btn-outline-dark active">
                                         <input type="radio" name="public_reply_type" value="0" checked>Internal Note
                                     </label>
-                                    <label class="btn btn-outline-secondary">
+                                    <label class="btn btn-outline-info">
                                         <input type="radio" name="public_reply_type" value="2">Public Comment & Email
                                     </label>
-                                    <label class="btn btn-outline-secondary">
+                                    <label class="btn btn-outline-info">
                                         <input type="radio" name="public_reply_type" value="1">Public Comment
                                     </label>
                                 </div>
@@ -864,57 +864,53 @@ if (isset($_GET['ticket_id'])) {
 
                 <!-- Contact card -->
                 <?php if ($contact_id) { ?>
-                    <div class="card card-body mb-3">
-                        <h5 class="text-secondary">Contact</h5>
-                        <div>
-                            <i class="fa fa-fw fa-user text-secondary mr-2"></i><a href="#" data-toggle="ajax-modal"
-                                                                                   data-modal-size="lg"
-                                                                                   data-ajax-url="ajax/ajax_contact_details.php"
-                                                                                   data-ajax-id="<?php echo $contact_id; ?>"><strong><?php echo $contact_name; ?></strong>
-                            </a>
-                        </div>
-
-                        <?php
-
-                        if (!empty($location_name)) { ?>
-                            <div class="mt-2">
-                                <i class="fa fa-fw fa-map-marker-alt text-secondary mr-2"></i><?php echo $location_name; ?>
-                            </div>
-                        <?php }
-
-                        if (!empty($contact_email)) { ?>
-                            <div class="mt-2">
-                                <i class="fa fa-fw fa-envelope text-secondary mr-2"></i><a href="mailto:<?php echo $contact_email; ?>"><?php echo $contact_email; ?></a>
-                            </div>
-                        <?php }
-
-                        if (!empty($contact_phone)) { ?>
-                            <div class="mt-2">
-                                <i class="fa fa-fw fa-phone text-secondary mr-2"></i><a href="tel:<?php echo $contact_phone; ?>"><?php echo $contact_phone; ?></a>
-                            </div>
-                        <?php }
-
-                        if (!empty($contact_mobile)) { ?>
-                            <div class="mt-2">
-                                <i class="fa fa-fw fa-mobile-alt text-secondary mr-2"></i><a href="tel:<?php echo $contact_mobile; ?>"><?php echo $contact_mobile; ?></a>
-                            </div>
-                        <?php } ?>
-
-                    </div>
-                <?php } else { ?>
-                    <div class="card card-body mb-3">
-                        <h5 class="text-secondary">Contact</h5>
-                        <div>
-                            <i class="fa fa-fw fa-user text-secondary mr-2"></i>
-                            <a href="#"
-                                <?php if (lookupUserPermission("module_support") >= 2 && empty($ticket_closed_at)) { ?>
-                                    data-toggle = "ajax-modal"
-                                    data-ajax-url = "ajax/ajax_ticket_contact.php"
-                                    data-ajax-id = "<?php echo $ticket_id; ?>"
+                    <div class="card">
+                        <div class="card-header py-2">
+                            <h5 class="card-title"><i class="fas fa-fw fa-user-check mr-2 mt-2"></i>Primary Contact</h5>
+                            <div class="card-tools">
+                                <?php if (empty($ticket_resolved_at) && lookupUserPermission("module_support") >= 2) { ?>
+                                    <a class="btn btn-light text-secondary btn-sm" href="#" data-toggle="ajax-modal" data-ajax-url="ajax/ajax_ticket_contact.php" data-ajax-id="<?php echo $ticket_id; ?>">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
                                 <?php } ?>
-                            >
-                                <i>No One</i>
-                            </a>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                          
+                            <div>
+                                <i class="fa fa-fw fa-user text-secondary mr-2"></i><a href="#" data-toggle="ajax-modal"
+                                   data-modal-size="lg"
+                                   data-ajax-url="ajax/ajax_contact_details.php"
+                                   data-ajax-id="<?php echo $contact_id; ?>"><strong><?php echo $contact_name; ?></strong>
+                                </a>
+                            </div>
+
+                            <?php
+
+                            if (!empty($location_name)) { ?>
+                                <div class="mt-2">
+                                    <i class="fa fa-fw fa-map-marker-alt text-secondary mr-2"></i><?php echo $location_name; ?>
+                                </div>
+                            <?php }
+
+                            if (!empty($contact_email)) { ?>
+                                <div class="mt-2">
+                                    <i class="fa fa-fw fa-envelope text-secondary mr-2"></i><a href="mailto:<?php echo $contact_email; ?>"><?php echo $contact_email; ?></a>
+                                </div>
+                            <?php }
+
+                            if (!empty($contact_phone)) { ?>
+                                <div class="mt-2">
+                                    <i class="fa fa-fw fa-phone text-secondary mr-2"></i><a href="tel:<?php echo $contact_phone; ?>"><?php echo $contact_phone; ?></a>
+                                </div>
+                            <?php }
+
+                            if (!empty($contact_mobile)) { ?>
+                                <div class="mt-2">
+                                    <i class="fa fa-fw fa-mobile-alt text-secondary mr-2"></i><a href="tel:<?php echo $contact_mobile; ?>"><?php echo $contact_mobile; ?></a>
+                                </div>
+                            <?php } ?>
+
                         </div>
                     </div>
                 <?php } ?>
@@ -923,86 +919,113 @@ if (isset($_GET['ticket_id'])) {
 
                 <!-- Tasks Card -->
                 <?php if (empty($ticket_resolved_at) || (!empty($ticket_resolved_at) && $task_count > 0)) { ?>
-                    <div class="card card-body">
-
-                        <?php if (empty($ticket_resolved_at) && lookupUserPermission("module_support") >= 2) { ?>
-                            <form action="post.php" method="post" autocomplete="off">
-                                <input type="hidden" name="ticket_id" value="<?php echo $ticket_id; ?>">
-                                <div class="form-group">
-                                    <div class="input-group input-group-sm">
-                                        <input type="text" class="form-control" name="name" placeholder="Create Task" required maxlength="255">
-                                        <div class="input-group-append">
-                                            <button type="submit" name="add_task" class="btn btn-secondary">
-                                                <i class="fas fa-check"></i>
-                                            </button>
-                                        </div>
+                    <div class="card">
+                        <div class="card-header py-2">
+                            <h5 class="card-title"><i class="fas fa-fw fa-tasks mr-2 mt-2"></i>Tasks</h5>
+                            <div class="card-tools">
+                                <?php if (empty($ticket_resolved_at) && lookupUserPermission("module_support") >= 2) { ?>
+                                <div class="dropdown dropleft text-center">
+                                    <button class="btn btn-light text-secondary btn-sm" type="button" data-toggle="dropdown">
+                                        <i class="fas fa-ellipsis-v"></i>
+                                    </button>
+                                    <div class="dropdown-menu">
+                                        <a class="dropdown-item text-success" href="post.php?complete_all_tasks=<?php echo $ticket_id; ?>">
+                                            <i class="fas fa-fw fa-check-double mr-2"></i>Mark All Complete
+                                        </a>
+                                        <div class="dropdown-divider"></div>
+                                        <a class="dropdown-item" href="post.php?undo_complete_all_tasks=<?php echo $ticket_id; ?>">
+                                            <i class="far fa-fw fa-square mr-2"></i>Mark All Incomplete
+                                        </a>
+                                        <div class="dropdown-divider"></div>
+                                        <a class="dropdown-item text-danger confirm-link" href="#">
+                                            <i class="fas fa-fw fa-trash-alt mr-2"></i>Delete All
+                                        </a>
                                     </div>
                                 </div>
-                            </form>
-                        <?php } ?>
+                                <?php } ?>
+                            </div>
+                        </div>
+                        <div class="card-body p-0">
 
-                        <table class="table table-sm" id="tasks">
-                            <?php
-                            while($row = mysqli_fetch_array($sql_tasks)){
-                                $task_id = intval($row['task_id']);
-                                $task_name = nullable_htmlentities($row['task_name']);
-                                //$task_description = nullable_htmlentities($row['task_description']); // not in db yet
-                                $task_completion_estimate = intval($row['task_completion_estimate']);
-                                $task_completed_at = nullable_htmlentities($row['task_completed_at']);
-                                ?>
-                                <tr data-task-id="<?php echo $task_id; ?>">
-                                    <td>
-                                        <?php if ($task_completed_at) { ?>
-                                            <i class="far fa-check-square text-primary"></i>
-                                        <?php } elseif (lookupUserPermission("module_support") >= 2) { ?>
-                                            <a href="post.php?complete_task=<?php echo $task_id; ?>">
-                                                <i class="far fa-square text-secondary"></i>
-                                            </a>
-                                        <?php } ?>
-                                        <span class="text-dark ml-2"><?php echo $task_name; ?></span>
-                                    </td>
-                                    <td>
-                                        <div class="float-right">
-
-                                            <div class="btn-group">
-                                            
-                                                <button class="btn btn-sm btn-link drag-handle"><i class="fas fa-bars text-muted mr-1"></i></button>
-
-                                                <?php if (empty($ticket_resolved_at) && lookupUserPermission("module_support") >= 2) { ?>
-                                                       
-                                                    <div class="dropdown dropleft text-center">
-                                                        <button class="btn btn-light text-secondary btn-sm" type="button" data-toggle="dropdown">
-                                                            <i class="fas fa-ellipsis-v"></i>
-                                                        </button>
-                                                        <div class="dropdown-menu">
-                                                            <a class="dropdown-item" href="#"
-                                                               data-toggle = "ajax-modal"
-                                                               data-ajax-url = "ajax/ajax_ticket_task_edit.php"
-                                                               data-ajax-id = "<?php echo $task_id; ?>"
-                                                            >
-                                                                <i class="fas fa-fw fa-edit mr-2"></i>Edit
-                                                            </a>
-                                                            <?php if ($task_completed_at) { ?>
-                                                                <a class="dropdown-item" href="post.php?undo_complete_task=<?php echo $task_id; ?>">
-                                                                    <i class="fas fa-fw fa-arrow-circle-left mr-2"></i>Mark incomplete
-                                                                </a>
-                                                            <?php } ?>
-                                                            <div class="dropdown-divider"></div>
-                                                            <a class="dropdown-item text-danger confirm-link" href="post.php?delete_task=<?php echo $task_id; ?>&csrf_token=<?php echo $_SESSION['csrf_token'] ?>">
-                                                                <i class="fas fa-fw fa-trash-alt mr-2"></i>Delete
-                                                            </a>
-                                                        </div>
-                                                    </div>
-                                                
-                                                <?php } ?>
+                            <?php if (empty($ticket_resolved_at) && lookupUserPermission("module_support") >= 2) { ?>
+                                <form action="post.php" method="post" autocomplete="off">
+                                    <input type="hidden" name="ticket_id" value="<?php echo $ticket_id; ?>">
+                                    <div class="form-group px-2 pt-3">
+                                        <div class="input-group input-group-sm">
+                                            <input type="text" class="form-control" name="name" placeholder="Create Task" required maxlength="255">
+                                            <div class="input-group-append">
+                                                <button type="submit" name="add_task" class="btn btn-outline-primary">
+                                                    <i class="fas fa-check"></i>
+                                                </button>
                                             </div>
                                         </div>
-                                    </td>
-                                </tr>
+                                    </div>
+                                </form>
+                            <?php } ?>
+
+                            <table class="table table-sm" id="tasks">
                                 <?php
-                            }
-                            ?>
-                        </table>
+                                while($row = mysqli_fetch_array($sql_tasks)){
+                                    $task_id = intval($row['task_id']);
+                                    $task_name = nullable_htmlentities($row['task_name']);
+                                    //$task_description = nullable_htmlentities($row['task_description']); // not in db yet
+                                    $task_completion_estimate = intval($row['task_completion_estimate']);
+                                    $task_completed_at = nullable_htmlentities($row['task_completed_at']);
+                                    ?>
+                                    <tr data-task-id="<?php echo $task_id; ?>">
+                                        <td>
+                                            <?php if ($task_completed_at) { ?>
+                                                <i class="far fa-check-square text-success"></i>
+                                            <?php } elseif (lookupUserPermission("module_support") >= 2) { ?>
+                                                <a href="post.php?complete_task=<?php echo $task_id; ?>">
+                                                    <i class="far fa-square text-dark"></i>
+                                                </a>
+                                            <?php } ?>
+                                            <span class="text-dark ml-2"><?php echo $task_name; ?></span>
+                                        </td>
+                                        <td>
+                                            <div class="float-right">
+
+                                                <div class="btn-group">
+                                                
+                                                    <button class="btn btn-sm btn-link drag-handle"><i class="fas fa-bars text-muted mr-1"></i></button>
+
+                                                    <?php if (empty($ticket_resolved_at) && lookupUserPermission("module_support") >= 2) { ?>
+                                                           
+                                                        <div class="dropdown dropleft text-center">
+                                                            <button class="btn btn-light text-secondary btn-sm" type="button" data-toggle="dropdown">
+                                                                <i class="fas fa-ellipsis-v"></i>
+                                                            </button>
+                                                            <div class="dropdown-menu">
+                                                                <a class="dropdown-item" href="#"
+                                                                   data-toggle = "ajax-modal"
+                                                                   data-ajax-url = "ajax/ajax_ticket_task_edit.php"
+                                                                   data-ajax-id = "<?php echo $task_id; ?>"
+                                                                >
+                                                                    <i class="fas fa-fw fa-edit mr-2"></i>Edit
+                                                                </a>
+                                                                <?php if ($task_completed_at) { ?>
+                                                                    <a class="dropdown-item" href="post.php?undo_complete_task=<?php echo $task_id; ?>">
+                                                                        <i class="fas fa-fw fa-arrow-circle-left mr-2"></i>Mark incomplete
+                                                                    </a>
+                                                                <?php } ?>
+                                                                <div class="dropdown-divider"></div>
+                                                                <a class="dropdown-item text-danger confirm-link" href="post.php?delete_task=<?php echo $task_id; ?>&csrf_token=<?php echo $_SESSION['csrf_token'] ?>">
+                                                                    <i class="fas fa-fw fa-trash-alt mr-2"></i>Delete
+                                                                </a>
+                                                            </div>
+                                                        </div>
+                                                    
+                                                    <?php } ?>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <?php
+                                }
+                                ?>
+                            </table>
+                        </div>
                     </div>
                 <?php } ?>
                 <!-- End Tasks Card -->
@@ -1011,67 +1034,89 @@ if (isset($_GET['ticket_id'])) {
                 <!-- Ticket watchers card -->
                 <?php if (empty($ticket_closed_at) && mysqli_num_rows($sql_ticket_watchers) > 0) { ?>
 
-                    <div class="card card-body card-outline card-dark mb-3">
-                        <h5 class="text-secondary">Watchers</h5>
-
-                        <?php
-                        // Get Watchers
-                        while ($row = mysqli_fetch_array($sql_ticket_watchers)) {
-                            $watcher_id = intval($row['watcher_id']);
-                            $ticket_watcher_email = nullable_htmlentities($row['watcher_email']);
-                            ?>
-                            <div class='mt-1'>
-                                <i class="fa fa-fw fa-eye text-secondary mr-2"></i><?php echo $ticket_watcher_email; ?>
-                                <?php if (empty($ticket_closed_at)) { ?>
-                                    <a class="confirm-link float-right" href="post.php?delete_ticket_watcher=<?php echo $watcher_id; ?>">
-                                        <i class="fas fa-fw fa-trash-alt text-secondary"></i>
+                    <div class="card">
+                        <div class="card-header py-2">
+                            <h5 class="card-title"><i class="fas fa-fw fa-eye mr-2 mt-2"></i>Watchers</h5>
+                            <div class="card-tools">
+                                <?php if (empty($ticket_resolved_at) && lookupUserPermission("module_support") >= 2) { ?>
+                                    <a class="btn btn-light text-secondary btn-sm" href="#" data-toggle="modal" data-target="#addTicketWatcherModal">
+                                        <i class="fas fa-edit"></i>
                                     </a>
                                 <?php } ?>
                             </div>
+                        </div>
+                        <div class="card-body">
 
-                        <?php } ?>
+                            <?php
+                            // Get Watchers
+                            while ($row = mysqli_fetch_array($sql_ticket_watchers)) {
+                                $watcher_id = intval($row['watcher_id']);
+                                $ticket_watcher_email = nullable_htmlentities($row['watcher_email']);
+                                ?>
+                                <div class='mt-1'>
+                                    <i class="fa fa-fw fa-eye text-secondary mr-2"></i><?php echo $ticket_watcher_email; ?>
+                                    <?php if (empty($ticket_closed_at)) { ?>
+                                        <a class="confirm-link float-right" href="post.php?delete_ticket_watcher=<?php echo $watcher_id; ?>">
+                                            <i class="fas fa-fw fa-trash-alt text-secondary"></i>
+                                        </a>
+                                    <?php } ?>
+                                </div>
+
+                            <?php } ?>
+                        </div>
                     </div>
                 <?php } ?>
                 <!-- End Ticket watchers card -->
 
                 <!-- Asset card -->
                 <?php if ($asset_id) { ?>
-                    <div class="card card-body mb-3">
-                        <h5 class="text-secondary">Asset(s)</h5>
-                        <div>
-                            <a href="#"
-                                data-toggle="ajax-modal"
-                                data-modal-size="lg"
-                                data-ajax-url="ajax/ajax_asset_details.php?<?php echo $client_url; ?>"
-                                data-ajax-id="<?php echo $asset_id; ?>">
-                                <i class="fa fa-fw fa-<?php echo $asset_icon; ?> text-secondary mr-2"></i><strong><?php echo $asset_name; ?></strong>
-                            </a>
+                    <div class="card mb-3">
+                        <div class="card-header py-2">
+                            <h5 class="card-title"><i class="fas fa-fw fa-desktop mr-2 mt-2"></i>Primary Asset</h5>
+                            <div class="card-tools">
+                                <?php if (empty($ticket_resolved_at) && lookupUserPermission("module_support") >= 2) { ?>
+                                    <a class="btn btn-light text-secondary btn-sm" href="#" data-toggle="modal" data-target="#editTicketAssetModal<?php echo $ticket_id; ?>">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                <?php } ?>
+                            </div>
                         </div>
-                        <?php
-                        while ($row = mysqli_fetch_array($sql_additional_assets)) {
-                            $additional_asset_id = intval($row['asset_id']);
-                            $additional_asset_name = nullable_htmlentities($row['asset_name']);
-                            $additional_asset_type = nullable_htmlentities($row['asset_type']);
-                            $additional_asset_icon = getAssetIcon($additional_asset_type);
-                            ?>
-                            <div class="mt-1">
+                        <div class="card-body">
+                            <div>
                                 <a href="#"
                                     data-toggle="ajax-modal"
                                     data-modal-size="lg"
                                     data-ajax-url="ajax/ajax_asset_details.php?<?php echo $client_url; ?>"
-                                    data-ajax-id="<?php echo $additional_asset_id; ?>">
-                                    <i class="fa fa-fw fa-<?php echo $additional_asset_icon; ?> text-secondary mr-2"></i><?php echo $additional_asset_name; ?>
+                                    data-ajax-id="<?php echo $asset_id; ?>">
+                                    <i class="fa fa-fw fa-<?php echo $asset_icon; ?> text-secondary mr-2"></i><strong><?php echo $asset_name; ?></strong>
                                 </a>
-                                <?php if (empty($ticket_closed_at)) { ?>
-                                    <a class="confirm-link float-right" href="post.php?delete_ticket_additional_asset=<?php echo $additional_asset_id; ?>&ticket_id=<?php echo $ticket_id; ?>" title="Remove asset from ticket">
-                                        <i class="fas fa-fw fa-trash-alt text-secondary"></i>
-                                    </a>
-                                <?php } ?>
                             </div>
-                        <?php
+                            <?php
+                            while ($row = mysqli_fetch_array($sql_additional_assets)) {
+                                $additional_asset_id = intval($row['asset_id']);
+                                $additional_asset_name = nullable_htmlentities($row['asset_name']);
+                                $additional_asset_type = nullable_htmlentities($row['asset_type']);
+                                $additional_asset_icon = getAssetIcon($additional_asset_type);
+                                ?>
+                                <div class="mt-1">
+                                    <a href="#"
+                                        data-toggle="ajax-modal"
+                                        data-modal-size="lg"
+                                        data-ajax-url="ajax/ajax_asset_details.php?<?php echo $client_url; ?>"
+                                        data-ajax-id="<?php echo $additional_asset_id; ?>">
+                                        <i class="fa fa-fw fa-<?php echo $additional_asset_icon; ?> text-secondary mr-2"></i><?php echo $additional_asset_name; ?>
+                                    </a>
+                                    <?php if (empty($ticket_closed_at)) { ?>
+                                        <a class="confirm-link float-right" href="post.php?delete_ticket_additional_asset=<?php echo $additional_asset_id; ?>&ticket_id=<?php echo $ticket_id; ?>" title="Remove asset from ticket">
+                                            <i class="fas fa-fw fa-trash-alt text-secondary"></i>
+                                        </a>
+                                    <?php } ?>
+                                </div>
+                            <?php
 
-                        }
-                        ?>   
+                            }
+                            ?>   
+                        </div>
                     </div>
                 <?php } // End if asset_id ?>
                 <!-- End Asset card -->
@@ -1079,62 +1124,84 @@ if (isset($_GET['ticket_id'])) {
 
                 <!-- Vendor card -->
                 <?php if ($vendor_id) { ?>
-                    <div class="card card-body mb-3">
-                        <h5 class="text-secondary">Vendor</h5>
-
-                        <div>
-                            <i class="fa fa-fw fa-building text-secondary mr-2"></i><strong><?php echo $vendor_name; ?></strong>
+                    <div class="card mb-3">
+                        <div class="card-header py-2">
+                            <h5 class="card-title"><i class="fas fa-fw fa-building mr-2 mt-2"></i>Vendor</h5>
+                            <div class="card-tools">
+                                <?php if (empty($ticket_resolved_at) && lookupUserPermission("module_support") >= 2) { ?>
+                                    <a class="btn btn-light text-secondary btn-sm" href="#" data-toggle="modal" data-target="#editTicketVendorModal<?php echo $ticket_id; ?>">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                <?php } ?>
+                            </div>
                         </div>
-                        <?php
+                        <div class="card-body">
 
-                        if (!empty($vendor_contact_name)) { ?>
-                            <div class="mt-1">
-                                <i class="fa fa-fw fa-user text-secondary mr-2"></i><?php echo $vendor_contact_name; ?>
+                            <div>
+                                <i class="fa fa-fw fa-building text-secondary mr-2"></i><strong><?php echo $vendor_name; ?></strong>
                             </div>
-                        <?php }
+                            <?php
 
-                        if (!empty($ticket_vendor_ticket_number)) { ?>
-                            <div class="mt-1">
-                                <i class="fa fa-fw fa-tag text-secondary mr-2"></i><?php echo $ticket_vendor_ticket_number; ?>
-                            </div>
-                        <?php }
+                            if (!empty($vendor_contact_name)) { ?>
+                                <div class="mt-1">
+                                    <i class="fa fa-fw fa-user text-secondary mr-2"></i><?php echo $vendor_contact_name; ?>
+                                </div>
+                            <?php }
 
-                        if (!empty($vendor_email)) { ?>
-                            <div class="mt-1">
-                                <i class="fa fa-fw fa-envelope text-secondary mr-2"></i><a href="mailto:<?php echo $vendor_email; ?>"><?php echo $vendor_email; ?></a>
-                            </div>
-                        <?php }
+                            if (!empty($ticket_vendor_ticket_number)) { ?>
+                                <div class="mt-1">
+                                    <i class="fa fa-fw fa-tag text-secondary mr-2"></i><?php echo $ticket_vendor_ticket_number; ?>
+                                </div>
+                            <?php }
 
-                        if (!empty($vendor_phone)) { ?>
-                            <div class="mt-1">
-                                <i class="fa fa-fw fa-phone text-secondary mr-2"></i><?php echo $vendor_phone; ?>
-                            </div>
-                        <?php }
+                            if (!empty($vendor_email)) { ?>
+                                <div class="mt-1">
+                                    <i class="fa fa-fw fa-envelope text-secondary mr-2"></i><a href="mailto:<?php echo $vendor_email; ?>"><?php echo $vendor_email; ?></a>
+                                </div>
+                            <?php }
 
-                        if (!empty($vendor_website)) { ?>
-                            <div class="mt-1">
-                                <i class="fa fa-fw fa-globe text-secondary mr-2"></i><?php echo $vendor_website; ?>
-                            </div>
-                        <?php } ?>
+                            if (!empty($vendor_phone)) { ?>
+                                <div class="mt-1">
+                                    <i class="fa fa-fw fa-phone text-secondary mr-2"></i><?php echo $vendor_phone; ?>
+                                </div>
+                            <?php }
 
+                            if (!empty($vendor_website)) { ?>
+                                <div class="mt-1">
+                                    <i class="fa fa-fw fa-globe text-secondary mr-2"></i><?php echo $vendor_website; ?>
+                                </div>
+                            <?php } ?>
+
+                        </div>
                     </div>
                 <?php } //End Else ?>
                 <!-- End Vendor card -->
 
                 <!-- project card -->
                 <?php if ($project_id) { ?>
-                    <div class="card card-body mb-3">
-                        <h5 class="text-secondary">Project</h5>
-                        <div>
-                            <i class="fa fa-fw fa-project-diagram text-secondary mr-3"></i><a href="project_details.php?project_id=<?php echo $project_id; ?>" target="_blank"><strong><?php echo $project_name; ?><i class="fa fa-fw fa-external-link-alt text-secondary ml-2"></i></strong>
-                            </a>
-                        </div>
-
-                        <?php if ($project_manager) { ?>
-                            <div class="mt-2">
-                                <i class="fa fa-fw fa-user-tie text-secondary mr-3"></i><?php echo $project_manager_name; ?>
+                    <div class="card">
+                        <div class="card-header py-2">
+                            <h5 class="card-title"><i class="fas fa-fw fa-project-diagram mr-2 mt-2"></i>Project</h5>
+                            <div class="card-tools">
+                                <?php if (empty($ticket_resolved_at) && lookupUserPermission("module_support") >= 2) { ?>
+                                    <a class="btn btn-light text-secondary btn-sm" href="#">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                <?php } ?>
                             </div>
-                        <?php } ?>
+                        </div>
+                        <div class="card-body">
+                            <div>
+                                <i class="fa fa-fw fa-project-diagram text-secondary mr-3"></i><a href="project_details.php?project_id=<?php echo $project_id; ?>" target="_blank"><strong><?php echo $project_name; ?><i class="fa fa-fw fa-external-link-alt text-secondary ml-2"></i></strong>
+                                </a>
+                            </div>
+
+                            <?php if ($project_manager) { ?>
+                                <div class="mt-2">
+                                    <i class="fa fa-fw fa-user-tie text-secondary mr-3"></i><?php echo $project_manager_name; ?>
+                                </div>
+                            <?php } ?>
+                        </div>
                     </div>
                 <?php } ?>
                 <!-- End project card -->
@@ -1185,6 +1252,11 @@ require_once "includes/footer.php";
 <script src="js/show_modals.js"></script>
 
 <?php if (empty($ticket_closed_at)) { ?>
+    <!-- create js variable related to ticket timer setting -->
+    <script type="text/javascript">
+        var ticketAutoStart = <?php echo json_encode($config_ticket_timer_autostart); ?>;
+    </script>
+
     <!-- Ticket Time Tracking JS -->
     <script src="js/ticket_time_tracking.js"></script>
 

@@ -2,23 +2,22 @@
 
 require_once '../includes/ajax_header.php';
 
-$vendor_id = intval($_GET['id']);
+$vendor_template_id = intval($_GET['id']);
 
-$sql = mysqli_query($mysqli, "SELECT * FROM vendors WHERE vendor_id = $vendor_id LIMIT 1");
+$sql = mysqli_query($mysqli, "SELECT * FROM vendor_templates WHERE vendor_template_id = $vendor_template_id LIMIT 1");
 $row = mysqli_fetch_array($sql);
-$vendor_name = nullable_htmlentities($row['vendor_name']);
-$vendor_description = nullable_htmlentities($row['vendor_description']);
-$vendor_account_number = nullable_htmlentities($row['vendor_account_number']);
-$vendor_contact_name = nullable_htmlentities($row['vendor_contact_name']);
-$vendor_phone = formatPhoneNumber($row['vendor_phone']);
-$vendor_extension = nullable_htmlentities($row['vendor_extension']);
-$vendor_email = nullable_htmlentities($row['vendor_email']);
-$vendor_website = nullable_htmlentities($row['vendor_website']);
-$vendor_hours = nullable_htmlentities($row['vendor_hours']);
-$vendor_sla = nullable_htmlentities($row['vendor_sla']);
-$vendor_code = nullable_htmlentities($row['vendor_code']);
-$vendor_notes = nullable_htmlentities($row['vendor_notes']);
-$vendor_template = intval($row['vendor_template']);
+$vendor_name = nullable_htmlentities($row['vendor_template_name']);
+$vendor_description = nullable_htmlentities($row['vendor_template_description']);
+$vendor_account_number = nullable_htmlentities($row['vendor_template_account_number']);
+$vendor_contact_name = nullable_htmlentities($row['vendor_template_contact_name']);
+$vendor_phone = formatPhoneNumber($row['vendor_template_phone']);
+$vendor_extension = nullable_htmlentities($row['vendor_template_extension']);
+$vendor_email = nullable_htmlentities($row['vendor_template_email']);
+$vendor_website = nullable_htmlentities($row['vendor_template_website']);
+$vendor_hours = nullable_htmlentities($row['vendor_template_hours']);
+$vendor_sla = nullable_htmlentities($row['vendor_template_sla']);
+$vendor_code = nullable_htmlentities($row['vendor_template_code']);
+$vendor_notes = nullable_htmlentities($row['vendor_template_notes']);
 
 // Generate the HTML form content using output buffering.
 ob_start();
@@ -31,18 +30,18 @@ ob_start();
     </button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
-    <input type="hidden" name="vendor_id" value="<?php echo $vendor_id; ?>">
+    <input type="hidden" name="vendor_template_id" value="<?php echo $vendor_template_id; ?>">
     <div class="modal-body bg-white">
 
         <ul class="nav nav-pills nav-justified mb-3">
             <li class="nav-item">
-                <a class="nav-link active" data-toggle="pill" href="#pills-details<?php echo $vendor_id; ?>">Details</a>
+                <a class="nav-link active" data-toggle="pill" href="#pills-details<?php echo $vendor_template_id; ?>">Details</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" data-toggle="pill" href="#pills-support<?php echo $vendor_id; ?>">Support</a>
+                <a class="nav-link" data-toggle="pill" href="#pills-support<?php echo $vendor_template_id; ?>">Support</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" data-toggle="pill" href="#pills-notes<?php echo $vendor_id; ?>">Notes</a>
+                <a class="nav-link" data-toggle="pill" href="#pills-notes<?php echo $vendor_template_id; ?>">Notes</a>
             </li>
         </ul>
 
@@ -52,7 +51,7 @@ ob_start();
 
         <div class="tab-content">
 
-            <div class="tab-pane fade show active" id="pills-details<?php echo $vendor_id; ?>">
+            <div class="tab-pane fade show active" id="pills-details<?php echo $vendor_template_id; ?>">
 
 
                 <div class="form-group">
@@ -117,14 +116,14 @@ ob_start();
 
                 <div class="form-group">
                     <div class="custom-control custom-checkbox">
-                        <input type="checkbox" class="custom-control-input" id="updateVendorsCheckbox<?php echo $vendor_id; ?>" name="update_base_vendors" value="1" >
-                        <label class="custom-control-label" for="updateVendorsCheckbox<?php echo $vendor_id; ?>">Update All Base Vendors</label>
+                        <input type="checkbox" class="custom-control-input" id="updateVendorsCheckbox<?php echo $vendor_template_id; ?>" name="update_base_vendors" value="1" >
+                        <label class="custom-control-label" for="updateVendorsCheckbox<?php echo $vendor_template_id; ?>">Update All Base Vendors</label>
                     </div>
                 </div>
 
             </div>
 
-            <div class="tab-pane fade" id="pills-support<?php echo $vendor_id; ?>">
+            <div class="tab-pane fade" id="pills-support<?php echo $vendor_template_id; ?>">
 
                 <label>Support Phone</label>
                 <div class="form-row">
@@ -225,7 +224,7 @@ ob_start();
 
             </div>
 
-            <div class="tab-pane fade" id="pills-notes<?php echo $vendor_id; ?>">
+            <div class="tab-pane fade" id="pills-notes<?php echo $vendor_template_id; ?>">
 
                 <div class="form-group">
                     <textarea class="form-control" rows="8" placeholder="Enter some notes" name="notes"><?php echo $vendor_notes; ?></textarea>

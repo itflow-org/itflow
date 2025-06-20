@@ -55,15 +55,9 @@ if (isset($_GET['billable']) && ($_GET['billable']) == '1') {
     $ticket_billable_snippet = '';
 }
 
-if (isset($_GET['category'])) {
-    $category = sanitizeInput($_GET['category']);
-    if ($category == 'empty') {
-        $category_snippet = "AND ticket_category = 0 ";
-    } elseif ($category == 'all') {
-        $category_snippet = '';
-    } else {
-        $category_snippet = "AND ticket_category = " . $category;
-    }
+if (!empty($_GET['category'])) {
+    $category = intval($_GET['category']);
+    $category_snippet = "AND ticket_category = $category";
 } else {
     $category_snippet = '';
 }
@@ -225,7 +219,7 @@ $sql_categories = mysqli_query(
                                     <span class="d-none d-xl-inline ml-2">Categories</span>
                                 </button>
                                 <div class="dropdown-menu">
-                                    <a class="dropdown-item " href="<?=htmlspecialchars('?' . http_build_query(array_merge($_GET, ['category' => 'all']))); ?>">All</a>
+                                    <a class="dropdown-item " href="<?=htmlspecialchars('?' . http_build_query(array_merge($_GET, ['category' => '']))); ?>">All</a>
                                     <div class="dropdown-divider"></div>
                                     <?php
                                     while ($row = mysqli_fetch_array($sql_categories)) {
@@ -236,7 +230,7 @@ $sql_categories = mysqli_query(
                                     <a class="dropdown-item" href="<?=htmlspecialchars('?' . http_build_query(array_merge($_GET, ['category' => $category_id]))); ?>"><?php echo $category_name ?></a>
                                     <div class="dropdown-divider"></div>
                                 <?php } ?>
-                                    <a class="dropdown-item " href="<?=htmlspecialchars('?' . http_build_query(array_merge($_GET, ['category' => 'empty']))); ?>">No Category</a>
+                                    <a class="dropdown-item " href="<?=htmlspecialchars('?' . http_build_query(array_merge($_GET, ['category' => 'none']))); ?>">No Category</a>
                                 </div>
                             </div>
                             <div class="btn-group">
@@ -257,39 +251,39 @@ $sql_categories = mysqli_query(
 
                             <?php if (lookupUserPermission("module_support") >= 2) { ?>
                                 <div class="dropdown ml-2" id="bulkActionButton" hidden>
-                                <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">
-                                    <i class="fas fa-fw fa-layer-group mr-2"></i>Bulk Action (<span id="selectedCount">0</span>)
-                                </button>
-                                <div class="dropdown-menu">
-                                    <a class="dropdown-item" href="#" data-toggle="modal" data-target="#bulkAssignTicketModal">
-                                        <i class="fas fa-fw fa-user-check mr-2"></i>Assign Tech
-                                    </a>
-                                    <div class="dropdown-divider"></div>
-                                    <a class="dropdown-item" href="#" data-toggle="modal" data-target="#bulkEditCategoryTicketModal">
-                                        <i class="fas fa-fw fa-layer-group mr-2"></i>Set Category
-                                    </a>
-                                    <div class="dropdown-divider"></div>
-                                    <a class="dropdown-item" href="#" data-toggle="modal" data-target="#bulkEditPriorityTicketModal">
-                                        <i class="fas fa-fw fa-thermometer-half mr-2"></i>Update Priority
-                                    </a>
-                                    <div class="dropdown-divider"></div>
-                                    <a class="dropdown-item" href="#" data-toggle="modal" data-target="#bulkReplyTicketModal">
-                                        <i class="fas fa-fw fa-paper-plane mr-2"></i>Bulk Update/Reply
-                                    </a>
-                                    <div class="dropdown-divider"></div>
-                                    <a class="dropdown-item" href="#" data-toggle="modal" data-target="#bulkAssignTicketToProjectModal">
-                                        <i class="fas fa-fw fa-project-diagram mr-2"></i>Add to Project
-                                    </a>
-                                    <div class="dropdown-divider"></div>
-                                    <a class="dropdown-item" href="#" data-toggle="modal" data-target="#bulkMergeTicketModal">
-                                        <i class="fas fa-fw fa-clone mr-2"></i>Merge
-                                    </a>
-                                    <div class="dropdown-divider"></div>
-                                    <a class="dropdown-item" href="#" data-toggle="modal" data-target="#bulkCloseTicketsModal">
-                                        <i class="fas fa-fw fa-check mr-2"></i>Resolve
-                                    </a>
+                                    <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">
+                                        <i class="fas fa-fw fa-layer-group mr-2"></i>Bulk Action (<span id="selectedCount">0</span>)
+                                    </button>
+                                    <div class="dropdown-menu">
+                                        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#bulkAssignTicketModal">
+                                            <i class="fas fa-fw fa-user-check mr-2"></i>Assign Tech
+                                        </a>
+                                        <div class="dropdown-divider"></div>
+                                        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#bulkEditCategoryTicketModal">
+                                            <i class="fas fa-fw fa-layer-group mr-2"></i>Set Category
+                                        </a>
+                                        <div class="dropdown-divider"></div>
+                                        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#bulkEditPriorityTicketModal">
+                                            <i class="fas fa-fw fa-thermometer-half mr-2"></i>Update Priority
+                                        </a>
+                                        <div class="dropdown-divider"></div>
+                                        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#bulkReplyTicketModal">
+                                            <i class="fas fa-fw fa-paper-plane mr-2"></i>Bulk Update/Reply
+                                        </a>
+                                        <div class="dropdown-divider"></div>
+                                        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#bulkAssignTicketToProjectModal">
+                                            <i class="fas fa-fw fa-project-diagram mr-2"></i>Add to Project
+                                        </a>
+                                        <div class="dropdown-divider"></div>
+                                        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#bulkMergeTicketModal">
+                                            <i class="fas fa-fw fa-clone mr-2"></i>Merge
+                                        </a>
+                                        <div class="dropdown-divider"></div>
+                                        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#bulkCloseTicketsModal">
+                                            <i class="fas fa-fw fa-check mr-2"></i>Resolve
+                                        </a>
+                                    </div>
                                 </div>
-                            </div>
                             <?php } ?>
 
                         </div>

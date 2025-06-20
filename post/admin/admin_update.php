@@ -80,7 +80,7 @@ if (isset($_GET['update'])) {
         $payment_count = $row['num'];
 
         // Company Vendor Count
-        $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('vendor_id') AS num FROM vendors WHERE vendor_template = 0 AND vendor_client_id = 0"));
+        $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('vendor_id') AS num FROM vendors WHERE vendor_client_id = 0"));
         $company_vendor_count = $row['num'];
 
         // Expense Count
@@ -108,11 +108,11 @@ if (isset($_GET['update'])) {
         $asset_count = $row['num'];
 
         // Software Count
-        $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('software_id') AS num FROM software WHERE software_template = 0"));
+        $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('software_id') AS num FROM software"));
         $software_count = $row['num'];
 
         // Software Template Count
-        $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('software_id') AS num FROM software WHERE software_template = 1"));
+        $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('software_template_id') AS num FROM software_templates"));
         $software_template_count = $row['num'];
 
         // Password Count
@@ -136,11 +136,11 @@ if (isset($_GET['update'])) {
         $service_count = $row['num'];
 
         // Client Vendor Count
-        $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('vendor_id') AS num FROM vendors WHERE vendor_template = 0 AND vendor_client_id > 0"));
+        $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('vendor_id') AS num FROM vendors WHERE vendor_client_id > 0"));
         $client_vendor_count = $row['num'];
 
         // Vendor Template Count
-        $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('vendor_id') AS num FROM vendors WHERE vendor_template = 1"));
+        $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('vendor_template_id') AS num FROM vendor_templates"));
         $vendor_template_count = $row['num'];
 
         // File Count
@@ -148,11 +148,11 @@ if (isset($_GET['update'])) {
         $file_count = $row['num'];
 
         // Document Count
-        $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('document_id') AS num FROM documents WHERE document_template = 0"));
+        $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('document_id') AS num FROM documents"));
         $document_count = $row['num'];
 
         // Document Template Count
-        $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('document_id') AS num FROM documents WHERE document_template = 1"));
+        $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT COUNT('document_template_id') AS num FROM document_templates"));
         $document_template_count = $row['num'];
 
         // Shared Item Count

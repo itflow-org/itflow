@@ -29,8 +29,6 @@ $sql_vendor_expenses = mysqli_query($mysqli, "
         vendors 
     LEFT JOIN 
         expenses ON vendors.vendor_id = expenses.expense_vendor_id $year_condition
-    WHERE 
-        vendors.vendor_template = 0 
     GROUP BY 
         vendors.vendor_id
     HAVING

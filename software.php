@@ -51,9 +51,8 @@ $sql = mysqli_query(
     "SELECT SQL_CALC_FOUND_ROWS * FROM software
     LEFT JOIN clients ON client_id = software_client_id
     LEFT JOIN vendors ON vendor_id = software_vendor_id
-    WHERE software_template = 0
+    WHERE (software_name LIKE '%$q%' OR software_type LIKE '%$q%' OR software_key LIKE '%$q%' OR client_name LIKE '%$q%')
     AND $archive_query
-    AND (software_name LIKE '%$q%' OR software_type LIKE '%$q%' OR software_key LIKE '%$q%' OR client_name LIKE '%$q%')
     $access_permission_query
     $client_query
     ORDER BY $sort $order LIMIT $record_from, $record_to");

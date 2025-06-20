@@ -19,8 +19,8 @@ $sql = mysqli_query(
     $mysqli,
     "SELECT SQL_CALC_FOUND_ROWS * FROM vendors
     LEFT JOIN clients ON client_id = vendor_client_id
+    LEFT JOIN vendor_templates ON vendors.vendor_template_id = vendor_templates.vendor_template_id 
     WHERE vendor_$archive_query
-    AND vendor_template = 0
     AND (vendor_name LIKE '%$q%' OR vendor_description LIKE '%$q%' OR vendor_account_number LIKE '%$q%' OR vendor_website LIKE '%$q%' OR vendor_contact_name LIKE '%$q%' OR vendor_email LIKE '%$q%' OR vendor_phone LIKE '%$phone_query%')
     $client_query
     $access_permission_query
@@ -140,6 +140,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 Website <?php if ($sort == 'vendor_website') { echo $order_icon; } ?>
                             </a>
                         </th>
+                        <th></th>
                         <th class="text-center">Action</th>
                     </tr>
                     </thead>
@@ -157,7 +158,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         }
                         $vendor_account_number = nullable_htmlentities($row['vendor_account_number']);
                         if ($vendor_account_number) {
-                            $vendor_account_number_display = "<div><small class='text-secondary'>Account #: $vendor_account_number</small></div>";
+                            $vendor_account_number_display = "<div class='text-secondary'>Account #: $vendor_account_number</div>";
                         } else {
                             $vendor_account_number_display = '';
                         }
@@ -184,8 +185,13 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         $vendor_created_at = nullable_htmlentities($row['vendor_created_at']);
                         $vendor_archived_at = nullable_htmlentities($row['vendor_archived_at']);
                         $vendor_template_id = intval($row['vendor_template_id']);
+                        $vendor_template_name = nullable_htmlentities($row['vendor_template_name']);
+                        if ($vendor_template_id) {
+                            $vendor_template_display = "<div class='text-secondary' title='Base Vendor Template'><i class='fas fa-puzzle-piece mr-1'></i>$vendor_template_name</div>";
+                        } else {
+                            $vendor_template_display = "";
+                        }
 
-                        
                         ?>
                         <tr>
                             <td class="pr-0">
@@ -230,6 +236,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 <?php } ?>
                             </td>
                              <td><?php echo $vendor_website_display; ?></td>
+                             <td><?php echo $vendor_template_display; ?></td>
                             <td>
                                 <div class="dropdown dropleft text-center">
                                     <button class="btn btn-secondary btn-sm" type="button" data-toggle="dropdown">

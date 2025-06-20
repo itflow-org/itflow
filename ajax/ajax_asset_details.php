@@ -24,8 +24,8 @@ $asset_make = nullable_htmlentities($row['asset_make']);
 $asset_model = nullable_htmlentities($row['asset_model']);
 $asset_serial = nullable_htmlentities($row['asset_serial']);
 $asset_os = nullable_htmlentities($row['asset_os']);
-$asset_uri = nullable_htmlentities($row['asset_uri']);
-$asset_uri_2 = nullable_htmlentities($row['asset_uri_2']);
+$asset_uri = sanitize_url($row['asset_uri']);
+$asset_uri_2 = sanitize_url($row['asset_uri_2']);
 $asset_status = nullable_htmlentities($row['asset_status']);
 $asset_purchase_reference = nullable_htmlentities($row['asset_purchase_reference']);
 $asset_purchase_date = nullable_htmlentities($row['asset_purchase_date']);
@@ -262,25 +262,25 @@ ob_start();
                 </div>
                 <div class="card-body">
                     <?php if ($asset_type) { ?>
-                        <div><i class="fa fa-fw fa-tag text-secondary mr-3"></i><?php echo $asset_type; ?></div>
+                        <div><i class="fa fa-fw fa-tag text-secondary mr-2"></i><?php echo $asset_type; ?></div>
                     <?php }
                     if ($asset_make) { ?>
-                        <div class="mt-2"><i class="fa fa-fw fa-circle text-secondary mr-3"></i><?php echo "$asset_make $asset_model"; ?></div>
+                        <div class="mt-2"><i class="fa fa-fw fa-circle text-secondary mr-2"></i><?php echo "$asset_make $asset_model"; ?></div>
                     <?php }
                     if ($asset_os) { ?>
-                        <div class="mt-2"><i class="fab fa-fw fa-windows text-secondary mr-3"></i><?php echo "$asset_os"; ?></div>
+                        <div class="mt-2"><i class="fab fa-fw fa-windows text-secondary mr-2"></i><?php echo "$asset_os"; ?></div>
                     <?php }
                     if ($asset_serial) { ?>
-                        <div class="mt-2"><i class="fa fa-fw fa-barcode text-secondary mr-3"></i><?php echo $asset_serial; ?></div>
+                        <div class="mt-2"><i class="fa fa-fw fa-barcode text-secondary mr-2"></i><?php echo $asset_serial; ?></div>
                     <?php }
                     if ($asset_purchase_date) { ?>
-                        <div class="mt-2"><i class="fa fa-fw fa-shopping-cart text-secondary mr-3"></i><?php echo date('Y-m-d', strtotime($asset_purchase_date)); ?></div>
+                        <div class="mt-2"><i class="fa fa-fw fa-shopping-cart text-secondary mr-2"></i><?php echo date('Y-m-d', strtotime($asset_purchase_date)); ?></div>
                     <?php }
                     if ($asset_install_date) { ?>
-                        <div class="mt-2"><i class="fa fa-fw fa-calendar-check text-secondary mr-3"></i><?php echo date('Y-m-d', strtotime($asset_install_date)); ?></div>
+                        <div class="mt-2"><i class="fa fa-fw fa-calendar-check text-secondary mr-2"></i><?php echo date('Y-m-d', strtotime($asset_install_date)); ?></div>
                     <?php }
                     if ($asset_warranty_expire) { ?>
-                        <div class="mt-2"><i class="fa fa-fw fa-exclamation-triangle text-secondary mr-3"></i><?php echo date('Y-m-d', strtotime($asset_warranty_expire)); ?></div>
+                        <div class="mt-2"><i class="fa fa-fw fa-exclamation-triangle text-secondary mr-2"></i><?php echo date('Y-m-d', strtotime($asset_warranty_expire)); ?></div>
                     <?php } ?>
                 </div>
             </div>
@@ -291,19 +291,19 @@ ob_start();
                 </div>
                 <div class="card-body">
                     <?php if ($asset_ip) { ?>
-                        <div><i class="fa fa-fw fa-globe text-secondary mr-3"></i><?php echo $asset_ip; ?></div>
+                        <div><i class="fa fa-fw fa-globe text-secondary mr-2"></i><?php echo $asset_ip; ?></div>
                     <?php } ?>
                     <?php if ($asset_nat_ip) { ?>
-                        <div class="mt-2"><i class="fa fa-fw fa-random text-secondary mr-3"></i><?php echo $asset_nat_ip; ?></div>
+                        <div class="mt-2"><i class="fa fa-fw fa-random text-secondary mr-2"></i><?php echo $asset_nat_ip; ?></div>
                     <?php }
                     if ($asset_mac) { ?>
-                        <div class="mt-2"><i class="fa fa-fw fa-ethernet text-secondary mr-3"></i><?php echo $asset_mac; ?></div>
+                        <div class="mt-2"><i class="fa fa-fw fa-ethernet text-secondary mr-2"></i><?php echo $asset_mac; ?></div>
                     <?php }
                     if ($asset_uri) { ?>
-                        <div class="mt-2"><i class="fa fa-fw fa-link text-secondary mr-3"></i><a href="<?php echo $asset_uri; ?>" target="_blank">Link</a></div>
+                        <div class="mt-2"><i class="fa fa-fw fa-link text-secondary mr-2"></i><a href="<?php echo $asset_uri; ?>" target="_blank" title="<?php echo $asset_uri; ?>"><?php echo truncate($asset_uri, 20); ?></a></div>
                     <?php }
                     if ($asset_uri_2) { ?>
-                        <div class="mt-2"><i class="fa fa-fw fa-link text-secondary mr-3"></i><a href="<?php echo $asset_uri_2; ?>" target="_blank">Link 2</a></div>
+                        <div class="mt-2"><i class="fa fa-fw fa-link text-secondary mr-2"></i><a href="<?php echo $asset_uri_2; ?>" target="_blank" title="<?php echo $asset_uri_2; ?>"><?php echo truncate($asset_uri_2, 20); ?></a></div>
                     <?php } ?>
                 </div>
             </div>
@@ -315,19 +315,19 @@ ob_start();
                 </div>
                 <div class="card-body">
                     <?php if ($location_name) { ?>
-                        <div><i class="fa fa-fw fa-map-marker-alt text-secondary mr-3"></i><?php echo $location_name_display; ?></div>
+                        <div><i class="fa fa-fw fa-map-marker-alt text-secondary mr-2"></i><?php echo $location_name_display; ?></div>
                     <?php }
                     if ($contact_name) { ?>
-                        <div class="mt-2"><i class="fa fa-fw fa-user text-secondary mr-3"></i><?php echo $contact_name_display; ?></div>
+                        <div class="mt-2"><i class="fa fa-fw fa-user text-secondary mr-2"></i><?php echo $contact_name_display; ?></div>
                     <?php }
                     if ($contact_email) { ?>
-                        <div class="mt-2"><i class="fa fa-fw fa-envelope text-secondary mr-3"></i><a href='mailto:<?php echo $contact_email; ?>'><?php echo $contact_email; ?></a><button class='btn btn-sm clipboardjs' data-clipboard-text='<?php echo $contact_email; ?>'><i class='far fa-copy text-secondary'></i></button></div>
+                        <div class="mt-2"><i class="fa fa-fw fa-envelope text-secondary mr-2"></i><a href='mailto:<?php echo $contact_email; ?>'><?php echo $contact_email; ?></a><button class='btn btn-sm clipboardjs' data-clipboard-text='<?php echo $contact_email; ?>'><i class='far fa-copy text-secondary'></i></button></div>
                     <?php }
                     if ($contact_phone) { ?>
-                        <div class="mt-2"><i class="fa fa-fw fa-phone text-secondary mr-3"></i><?php echo formatPhoneNumber($contact_phone); echo " $contact_extension"; ?></div>
+                        <div class="mt-2"><i class="fa fa-fw fa-phone text-secondary mr-2"></i><?php echo formatPhoneNumber($contact_phone); echo " $contact_extension"; ?></div>
                     <?php }
                     if ($contact_mobile) { ?>
-                        <div class="mt-2"><i class="fa fa-fw fa-mobile-alt text-secondary mr-3"></i><?php echo formatPhoneNumber($contact_mobile); ?></div>
+                        <div class="mt-2"><i class="fa fa-fw fa-mobile-alt text-secondary mr-2"></i><?php echo formatPhoneNumber($contact_mobile); ?></div>
                     <?php } ?>
                 
                 </div>

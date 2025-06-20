@@ -10,12 +10,7 @@ $row = mysqli_fetch_array($sql);
 $document_name = nullable_htmlentities($row['document_name']);
 $document_description = nullable_htmlentities($row['document_description']);
 $document_content = nullable_htmlentities($row['document_content']);
-$document_created_by_id = intval($row['document_created_by']);
-$document_created_at = nullable_htmlentities($row['document_created_at']);
-$document_updated_at = nullable_htmlentities($row['document_updated_at']);
-$document_archived_at = nullable_htmlentities($row['document_archived_at']);
 $document_folder_id = intval($row['document_folder_id']);
-$document_parent = intval($row['document_parent']);
 $document_client_visible = intval($row['document_client_visible']);
 $client_id = intval($row['document_client_id']);
 
@@ -30,10 +25,8 @@ ob_start();
     </button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
-    <input type="hidden" name="document_id" value="<?php if($document_parent == 0){ echo $document_id; } else { echo $document_parent; } ?>">
-    <input type="hidden" name="document_parent" value="<?php echo $document_parent; ?>">
+    <input type="hidden" name="document_id" value="<?php echo $document_id; ?>">
     <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
-    <input type="hidden" name="created_by" value="<?php echo $document_created_by_id; ?>">
     <div class="modal-body bg-white">
 
         <div class="form-group">

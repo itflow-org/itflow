@@ -16,6 +16,7 @@ if (isset($_POST['edit_company'])) {
     $phone = preg_replace("/[^0-9]/", '',$_POST['phone']);
     $email = sanitizeInput($_POST['email']);
     $website = sanitizeInput($_POST['website']);
+    $tax_id = sanitizeInput($_POST['tax_id']);
 
     $sql = mysqli_query($mysqli,"SELECT company_logo FROM companies WHERE company_id = 1");
     $row = mysqli_fetch_array($sql);
@@ -41,7 +42,7 @@ if (isset($_POST['edit_company'])) {
         }
     }
 
-    mysqli_query($mysqli,"UPDATE companies SET company_name = '$name', company_address = '$address', company_city = '$city', company_state = '$state', company_zip = '$zip', company_country = '$country', company_phone_country_code = '$phone_country_code', company_phone = '$phone', company_email = '$email', company_website = '$website' WHERE company_id = 1");
+    mysqli_query($mysqli,"UPDATE companies SET company_name = '$name', company_address = '$address', company_city = '$city', company_state = '$state', company_zip = '$zip', company_country = '$country', company_phone_country_code = '$phone_country_code', company_phone = '$phone', company_email = '$email', company_website = '$website', company_tax_id = '$tax_id' WHERE company_id = 1");
 
     // Logging
     logAction("Settings", "Edit", "$session_name edited company details");

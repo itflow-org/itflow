@@ -37,12 +37,21 @@ require_once "includes/inc_all_admin.php";
                     <textarea class="form-control" rows="4" name="config_invoice_footer"><?php echo nullable_htmlentities($config_invoice_footer); ?></textarea>
                 </div>
 
+                <h5>Show Tax ID On Invoices</h5>
+
+                <div class="form-group">
+                    <div class="custom-control custom-switch">
+                        <input type="checkbox" class="custom-control-input" name="config_invoice_show_tax_id" <?php if ($config_invoice_show_tax_id == 1) { echo "checked"; } ?> value="1" id="customSwitch1">
+                        <label class="custom-control-label" for="customSwitch1">Show Tax ID</label>
+                    </div>
+                </div>
+
                 <h5>Invoice Late Fees</h5>
 
-                 <div class="form-group">
+                <div class="form-group">
                     <div class="custom-control custom-switch">
-                        <input type="checkbox" class="custom-control-input" name="config_invoice_late_fee_enable" <?php if ($config_invoice_late_fee_enable == 1) { echo "checked"; } ?> value="1" id="customSwitch1">
-                        <label class="custom-control-label" for="customSwitch1">Enable Late Fee</label>
+                        <input type="checkbox" class="custom-control-input" name="config_invoice_late_fee_enable" <?php if ($config_invoice_late_fee_enable == 1) { echo "checked"; } ?> value="1" id="customSwitch2">
+                        <label class="custom-control-label" for="customSwitch2">Enable Late Fee</label>
                     </div>
                 </div>
 

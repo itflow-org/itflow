@@ -4,7 +4,7 @@ $sql_invoices = mysqli_query($mysqli, "SELECT * FROM invoices WHERE invoice_stat
 ?>
 
 <div class="modal" id="addInvoiceFromTicketModal" tabindex="-1">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-lg">
         <div class="modal-content bg-dark">
             <div class="modal-header">
                 <h5 class="modal-title"><i class="fa fa-fw fa-file-invoice-dollar mr-2"></i>Invoice ticket</h5>
@@ -24,10 +24,6 @@ $sql_invoices = mysqli_query($mysqli, "SELECT * FROM invoices WHERE invoice_stat
                         <li class="nav-item">
                             <a class="nav-link" data-toggle="pill" href="#pills-add-to-invoice"><i class="fa fa-fw fa-plus mr-2"></i>Add to Existing Invoice</a>
                         </li>
-                        <?php } else { ?>
-                            <div class="alert alert-warning" role="alert">
-                                <i class="fa fa-fw fa-exclamation-triangle mr-2"></i>No draft invoices found. Please create a new invoice first.
-                            </div>
                         <?php } ?>
                     </ul>
 
@@ -37,39 +33,46 @@ $sql_invoices = mysqli_query($mysqli, "SELECT * FROM invoices WHERE invoice_stat
 
                             <div class="tab-pane fade show active" id="pills-create-invoice">
 
-                            <div class="form-group">
-                                <label>Invoice Date <strong class="text-danger">*</strong></label>
-                                <div class="input-group">
-                                    <div class="input-group-prepend">
-                                        <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
+                            <div class="row">
+                                <div class="col-sm-6">
+                            
+                                    <div class="form-group">
+                                        <label>Invoice Date <strong class="text-danger">*</strong></label>
+                                        <div class="input-group">
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
+                                            </div>
+                                            <input type="date" class="form-control" name="date" max="2999-12-31" value="<?php echo date("Y-m-d"); ?>">
+                                        </div>
                                     </div>
-                                    <input type="date" class="form-control" name="date" max="2999-12-31" value="<?php echo date("Y-m-d"); ?>">
+
                                 </div>
-                            </div>
+                                <div class="col-sm-6">
+                                    <div class="form-group">
+                                        <label>Invoice Category <strong class="text-danger">*</strong></label>
+                                        <div class="input-group">
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text"><i class="fa fa-fw fa-list"></i></span>
+                                            </div>
+                                            <select class="form-control select2" name="category">
+                                                <option value="">- Category -</option>
+                                                <?php
 
-                            <div class="form-group">
-                                <label>Invoice Category <strong class="text-danger">*</strong></label>
-                                <div class="input-group">
-                                    <div class="input-group-prepend">
-                                        <span class="input-group-text"><i class="fa fa-fw fa-list"></i></span>
-                                    </div>
-                                    <select class="form-control select2" name="category">
-                                        <option value="">- Category -</option>
-                                        <?php
+                                                $sql = mysqli_query($mysqli, "SELECT * FROM categories WHERE category_type = 'Income' AND category_archived_at IS NULL ORDER BY category_name ASC");
+                                                while ($row = mysqli_fetch_array($sql)) {
+                                                    $category_id = intval($row['category_id']);
+                                                    $category_name = nullable_htmlentities($row['category_name']);
+                                                    ?>
+                                                    <option value="<?php echo $category_id; ?>"><?php echo $category_name; ?></option>
 
-                                        $sql = mysqli_query($mysqli, "SELECT * FROM categories WHERE category_type = 'Income' AND category_archived_at IS NULL ORDER BY category_name ASC");
-                                        while ($row = mysqli_fetch_array($sql)) {
-                                            $category_id = intval($row['category_id']);
-                                            $category_name = nullable_htmlentities($row['category_name']);
-                                            ?>
-                                            <option value="<?php echo $category_id; ?>"><?php echo $category_name; ?></option>
-
-                                            <?php
-                                        }
-                                        ?>
-                                    </select>
-                                    <div class="input-group-append">
-                                        <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#addQuickCategoryIncomeModal"><i class="fas fa-fw fa-plus"></i></button>
+                                                    <?php
+                                                }
+                                                ?>
+                                            </select>
+                                            <div class="input-group-append">
+                                                <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#addQuickCategoryIncomeModal"><i class="fas fa-fw fa-plus"></i></button>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -91,7 +94,7 @@ $sql_invoices = mysqli_query($mysqli, "SELECT * FROM invoices WHERE invoice_stat
                         
                         if (mysqli_num_rows($sql_invoices) > 0) { ?>
 
-                            <div class="tab-pane fade show active" id="pills-add-to-invoice">
+                        <div class="tab-pane fade" id="pills-add-to-invoice">
                             <div class="form-group">
                                 <label>Invoice</label>
                                 <div class="input-group">

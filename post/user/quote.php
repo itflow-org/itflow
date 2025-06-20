@@ -601,3 +601,214 @@ if(isset($_POST['export_quotes_csv'])){
     exit;
 
 }
+
+if (isset($_GET['export_quote_pdf'])) {
+
+    $quote_id = intval($_GET['export_quote_pdf']);
+
+    $sql = mysqli_query(
+        $mysqli,
+        "SELECT * FROM quotes
+        LEFT JOIN clients ON quote_client_id = client_id
+        LEFT JOIN contacts ON clients.client_id = contacts.contact_client_id AND contact_primary = 1
+        LEFT JOIN locations ON clients.client_id = locations.location_client_id AND location_primary = 1
+        WHERE quote_id = $quote_id
+        $access_permission_query
+        LIMIT 1"
+    );
+
+    $row = mysqli_fetch_array($sql);
+    $quote_id = intval($row['quote_id']);
+    $quote_prefix = nullable_htmlentities($row['quote_prefix']);
+    $quote_number = intval($row['quote_number']);
+    $quote_scope = nullable_htmlentities($row['quote_scope']);
+    $quote_status = nullable_htmlentities($row['quote_status']);
+    $quote_date = nullable_htmlentities($row['quote_date']);
+    $quote_expire = nullable_htmlentities($row['quote_expire']);
+    $quote_amount = floatval($row['quote_amount']);
+    $quote_discount = floatval($row['quote_discount_amount']);
+    $quote_currency_code = nullable_htmlentities($row['quote_currency_code']);
+    $quote_note = nullable_htmlentities($row['quote_note']);
+    $quote_url_key = nullable_htmlentities($row['quote_url_key']);
+    $quote_created_at = nullable_htmlentities($row['quote_created_at']);
+    $category_id = intval($row['quote_category_id']);
+    $client_id = intval($row['client_id']);
+    $client_name = nullable_htmlentities($row['client_name']);
+    $location_address = nullable_htmlentities($row['location_address']);
+    $location_city = nullable_htmlentities($row['location_city']);
+    $location_state = nullable_htmlentities($row['location_state']);
+    $location_zip = nullable_htmlentities($row['location_zip']);
+    $location_country = nullable_htmlentities($row['location_country']);
+    $contact_email = nullable_htmlentities($row['contact_email']);
+    $contact_phone_country_code = nullable_htmlentities($row['contact_phone_country_code']);
+    $contact_phone = nullable_htmlentities(formatPhoneNumber($row['contact_phone'], $contact_phone_country_code));
+    $contact_extension = nullable_htmlentities($row['contact_extension']);
+    $contact_mobile_country_code = nullable_htmlentities($row['contact_mobile_country_code']);
+    $contact_mobile = nullable_htmlentities(formatPhoneNumber($row['contact_mobile'], $contact_mobile_country_code));
+    $client_website = nullable_htmlentities($row['client_website']);
+    $client_currency_code = nullable_htmlentities($row['client_currency_code']);
+    $client_net_terms = intval($row['client_net_terms']);
+    if ($client_net_terms == 0) {
+        $client_net_terms = $config_default_net_terms;
+    }
+
+    $sql = mysqli_query($mysqli, "SELECT * FROM companies, settings WHERE companies.company_id = settings.company_id AND companies.company_id = 1");
+    $row = mysqli_fetch_array($sql);
+
+    $company_id = intval($row['company_id']);
+    $company_name = nullable_htmlentities($row['company_name']);
+    $company_country = nullable_htmlentities($row['company_country']);
+    $company_address = nullable_htmlentities($row['company_address']);
+    $company_city = nullable_htmlentities($row['company_city']);
+    $company_state = nullable_htmlentities($row['company_state']);
+    $company_zip = nullable_htmlentities($row['company_zip']);
+    $company_phone_country_code = nullable_htmlentities($row['company_phone_country_code']);
+    $company_phone = nullable_htmlentities(formatPhoneNumber($row['company_phone'], $company_phone_country_code));
+    $company_email = nullable_htmlentities($row['company_email']);
+    $company_website = nullable_htmlentities($row['company_website']);
+    $company_logo = nullable_htmlentities($row['company_logo']);
+
+    //Set Badge color based off of quote status
+    if ($quote_status == "Sent") {
+        $quote_badge_color = "warning text-white";
+    } elseif ($quote_status == "Viewed") {
+        $quote_badge_color = "primary";
+    } elseif ($quote_status == "Accepted") {
+        $quote_badge_color = "success";
+    } elseif ($quote_status == "Declined") {
+        $quote_badge_color = "danger";
+    } elseif ($quote_status == "Invoiced") {
+        $quote_badge_color = "info";
+    } else {
+        $quote_badge_color = "secondary";
+    }
+
+    require_once("plugins/TCPDF/tcpdf.php");
+
+    // Start TCPDF
+    $pdf = new TCPDF('P', 'mm', 'A4', true, 'UTF-8', false);
+    $pdf->SetMargins(15, 15, 15);
+    $pdf->setPrintHeader(false);
+    $pdf->setPrintFooter(false);
+    $pdf->AddPage();
+    $pdf->SetFont('helvetica', '', 10);
+
+    // Logo + Right Columns
+    $html = '<table width="100%" cellspacing="0" cellpadding="5">
+    <tr>
+        <td width="40%">';
+    if (!empty($company_logo)) {
+        $logo_path = "uploads/settings/$company_logo";
+        if (file_exists($logo_path)) {
+            $pdf->Image($logo_path, $pdf->GetX(), $pdf->GetY(), 40);
+        }
+    }
+    $html .= '</td>
+        <td width="60%" align="right">
+            <span style="font-size:18pt; font-weight:bold;">QUOTE</span><br>
+            <span style="font-size:14pt;">' . $quote_prefix . $quote_number . '</span><br>';
+    if (strtolower($quote_status) === 'accepted') {
+        $html .= '<span style="color:green; font-weight:bold;">ACCEPTED</span><br>';
+    }
+    if (strtolower($quote_status) === 'declined') {
+        $html .= '<span style="color:red; font-weight:bold;">DECLINED</span><br>';
+    }
+    $html .= '</td>
+    </tr>
+    </table><br><br>';
+
+    // Billing titles
+    $html .= '<table width="100%" cellspacing="0" cellpadding="2">
+    <tr>
+        <td width="50%" style="font-size:14pt; font-weight:bold;">' . $company_name . '</td>
+        <td width="50%" align="right" style="font-size:14pt; font-weight:bold;">' . $client_name . '</td>
+    </tr>
+    <tr>
+        <td style="font-size:10pt; line-height:1.4;">' . nl2br("$company_address\n$company_city $company_state $company_zip\n$company_country\n$company_phone\n$company_website") . '</td>
+        <td style="font-size:10pt; line-height:1.4;" align="right">' . nl2br("$location_address\n$location_city $location_state $location_zip\n$location_country\n$contact_email\n$contact_phone") . '</td>
+    </tr>
+    </table><br>';
+
+    // Date table
+    $html .= '<table border="0" cellpadding="3" cellspacing="0" width="100%">
+    <tr>
+        <td width="60%"></td>
+        <td width="20%" style="font-size:10pt;"><strong>Date:</strong></td>
+        <td width="20%" style="font-size:10pt;" align="right">' . $quote_date . '</td>
+    </tr>
+    <tr>
+        <td></td>
+        <td style="font-size:10pt;"><strong>Expires:</strong></td>
+        <td style="font-size:10pt;" align="right">' . $quote_expire . '</td>
+    </tr>
+    </table><br><br>';
+
+    // Items header
+    $html .= '
+    <table border="0" cellpadding="5" cellspacing="0" width="100%">
+    <tr style="background-color:#f0f0f0;">
+        <th align="left" width="40%"><strong>Item</strong></th>
+        <th align="center" width="10%"><strong>Qty</strong></th>
+        <th align="right" width="15%"><strong>Price</strong></th>
+        <th align="right" width="15%"><strong>Tax</strong></th>
+        <th align="right" width="20%"><strong>Amount</strong></th>
+    </tr>';
+
+    // Load items
+    $sql_items = mysqli_query($mysqli, "SELECT * FROM invoice_items WHERE item_quote_id = $quote_id ORDER BY item_order ASC");
+    while ($item = mysqli_fetch_array($sql_items)) {
+        $name = $item['item_name'];
+        $desc = $item['item_description'];
+        $qty = $item['item_quantity'];
+        $price = $item['item_price'];
+        $tax = $item['item_tax'];
+        $total = $item['item_total'];
+
+        $sub_total += $price * $qty;
+        $total_tax += $tax;
+
+        $html .= '
+        <tr>
+            <td>
+                <strong>' . $name . '</strong><br>
+                <span style="font-style:italic; font-size:9pt;">' . nl2br($desc) . '</span>
+            </td>
+            <td align="center">' . number_format($qty, 2) . '</td>
+            <td align="right">' . numfmt_format_currency($currency_format, $price, $quote_currency_code) . '</td>
+            <td align="right">' . numfmt_format_currency($currency_format, $tax, $quote_currency_code) . '</td>
+            <td align="right">' . numfmt_format_currency($currency_format, $total, $quote_currency_code) . '</td>
+        </tr>';
+    }
+
+    $html .= '</table><br><hr><br><br>';
+
+    // Totals
+    $html .= '<table width="100%" cellspacing="0" cellpadding="4">
+    <tr>
+        <td width="70%" rowspan="6" valign="top"><i>' . nl2br($quote_note) . '</i></td>
+        <td width="30%">
+            <table width="100%" cellpadding="3" cellspacing="0">
+                <tr><td>Subtotal:</td><td align="right">' . numfmt_format_currency($currency_format, $sub_total, $quote_currency_code) . '</td></tr>';
+    if ($quote_discount > 0) {
+        $html .= '<tr><td>Discount:</td><td align="right">-' . numfmt_format_currency($currency_format, $quote_discount, $quote_currency_code) . '</td></tr>';
+    }
+    if ($total_tax > 0) {
+        $html .= '<tr><td>Tax:</td><td align="right">' . numfmt_format_currency($currency_format, $total_tax, $quote_currency_code) . '</td></tr>';
+    }
+    $html .= '
+    <tr><td><h3><strong>Total:</strong></h3></td><td align="right"><h3><strong>' . numfmt_format_currency($currency_format, $quote_amount, $quote_currency_code) . '</strong></h3></td></tr>
+    </table>
+        </td>
+    </tr>
+    </table><br><br>';
+
+    // Footer
+    $html .= '<div style="text-align:center; font-size:9pt; color:gray;">' . nl2br($config_quote_footer) . '</div>';
+
+    $pdf->writeHTML($html, true, false, true, false, '');
+
+    $filename = preg_replace('/[^A-Za-z0-9_\-]/', '_', "{$quote_date}_{$company_name}_{$client_name}_Quote_{$quote_prefix}{$quote_number}");
+    $pdf->Output("$filename.pdf", 'I');
+    exit;
+
+}

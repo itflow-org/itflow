@@ -61,7 +61,7 @@ $sql_total_overdue_partial_amount = mysqli_query($mysqli, "SELECT SUM(payment_am
 $row = mysqli_fetch_array($sql_total_overdue_partial_amount);
 $total_overdue_partial_amount = floatval($row['total_overdue_partial_amount']);
 
-$sql_total_overdue_amount = mysqli_query($mysqli, "SELECT SUM(invoice_amount) AS total_overdue_amount FROM invoices WHERE invoice_status NOT LIKE 'Draft' AND invoice_status NOT LIKE 'Paid' AND invoice_status NOT LIKE 'Cancelled' AND invoice_due < CURDATE() $client_query");
+$sql_total_overdue_amount = mysqli_query($mysqli, "SELECT SUM(invoice_amount) AS total_overdue_amount FROM invoices WHERE invoice_status != 'Draft' AND invoice_status != 'Paid' AND invoice_status != 'Cancelled' AND invoice_status != 'Non-Billable' AND invoice_due < CURDATE() $client_query");
 $row = mysqli_fetch_array($sql_total_overdue_amount);
 $total_overdue_amount = floatval($row['total_overdue_amount']);
 
@@ -342,6 +342,22 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                         <i class="fas fa-ellipsis-h"></i>
                                     </button>
                                     <div class="dropdown-menu">
+                                        <?php if ($invoice_status !== 'Paid' && $invoice_status !== 'Cancelled' && $invoice_status !== 'Draft' && $invoice_status !== 'Non-Billable' && $invoice_amount != 0) { ?>
+                                            <a class="dropdown-item" href="#"
+                                                data-toggle = "ajax-modal"
+                                                data-ajax-url = "ajax/ajax_invoice_pay.php"
+                                                data-ajax-id = "<?php echo $invoice_id; ?>"
+                                                >
+                                                <i class="fa fa-fw fa-credit-card mr-2"></i>Add Payment
+                                            </a>
+                                            <div class="dropdown-divider"></div>
+                                            <?php if ($invoice_status !== 'Partial' && $config_stripe_enable && $stripe_id && $stripe_pm) { ?>
+                                                <a class="dropdown-item confirm-link" href="post.php?add_payment_stripe&invoice_id=<?php echo $invoice_id; ?>&csrf_token=<?php echo $_SESSION['csrf_token']; ?>">
+                                                    <i class="fa fa-fw fa-credit-card mr-2"></i>Pay via saved card
+                                                </a>
+                                                <div class="dropdown-divider"></div>
+                                            <?php } ?>
+                                        <?php } ?>
                                         <a class="dropdown-item" href="#"
                                             data-toggle = "ajax-modal"
                                             data-ajax-url = "ajax/ajax_invoice_edit.php"
@@ -359,9 +375,15 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                         <div class="dropdown-divider"></div>
                                         <?php if (!empty($config_smtp_host)) { ?>
                                             <a class="dropdown-item" href="post.php?email_invoice=<?php echo $invoice_id; ?>">
-                                                <i class="fas fa-fw fa-paper-plane mr-2"></i>Send
+                                                <i class="fas fa-fw fa-paper-plane mr-2"></i>Send Email
                                             </a>
                                             <div class="dropdown-divider"></div>
+                                        <?php } ?>
+                                        <?php if ($invoice_status == 'Draft') { ?>
+                                        <a class="dropdown-item" href="post.php?mark_invoice_sent=<?php echo $invoice_id; ?>">
+                                            <i class="fas fa-fw fa-check mr-2"></i>Mark Sent
+                                        </a>
+                                        <div class="dropdown-divider"></div>
                                         <?php } ?>
                                         <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_invoice=<?php echo $invoice_id; ?>">
                                             <i class="fas fa-fw fa-trash mr-2"></i>Delete
