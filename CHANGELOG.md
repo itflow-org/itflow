@@ -2,6 +2,43 @@
 
 This file documents all notable changes made to ITFlow.
 
+## [25.06]
+
+### Breaking CHANGES
+- Old Document Verions will be deleted due to the major backend rewrite how document versions work.
+
+### Added / Changed
+- Improved function for retrieving remote IP address for logging purposes.
+- Ticket categories are now sorted alphabetically.
+- Visiting a deleted invoice or recurring invoice now redirects to the listing page; delete option added to invoice details page.
+- Added "Mark as Sent" and "Make Payment" actions directly on the invoice listing page.
+- Introduced Ticket Category UI for recurring tickets.
+- In Project Details, bulk actions and sorting are now available for tickets.
+- Updated ticket details UI to use full card stacks with edit icons for stackable items (e.g., asset, watchers, contact).
+- Added a new setting to toggle AutoStart Timer in ticket details (disabled by default).
+- Applied gray accent theme in the client section to visually distinguish from the global view.
+- Introduced Ticket Due Date functionality (currently supports add/edit only; more updates coming next release).
+- Added settings option to display Company Tax ID on invoices.
+- Client overview now displays badge counts for all entities.
+- Overhauled UI for Invoice, Quote, and Recurring Invoice details; switched PDF generation to TCPDF PHP from PDFMake JS.
+- Document versioning has been moved to a separate backend table to resolve permanent link issues -- SEE Breaking CHANGES.
+- Migrated Document Templates, Vendor Templates, and Software/License Templates to dedicated tables.
+- Added functionality to mark all tasks in a ticket as complete or incomplete.
+- Asset CSV import now supports a purchase date field.
+- Recurring Payments have been restructured to auto-charge on the invoice due date instead of at generation time.
+- Added "Base Template" label for vendor templates when available.
+- Backup and restore processes now use a temporary directory; files are cleaned up automatically if operations fail.
+- Added confirmation prompt when accepting or declining a quote.
+- Other minor code UI/UX cleanups and refactoring throughout the app.
+
+### Fixed
+- Resolved issue with enabling MFA.
+- Fixed UI regression where ticket listing columns would misalign.
+- Non-billable invoices are no longer included in calculations.
+- Addressed multiple minor reported security vulnerabilities.
+- Tickets with open tasks are no longer resolved in bulk; a warning is shown along with a count of affected tickets.
+
+
 ## [25.05.1]
 
 ### Added / Changed
