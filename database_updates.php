@@ -3670,13 +3670,18 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
         mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '2.1.9'");
     }
 
-    // if (CURRENT_DATABASE_VERSION == '2.1.9') {
-    //     // Insert queries here required to update to DB version 2.2.0
+    if (CURRENT_DATABASE_VERSION == '2.1.9') {
+        mysqli_query($mysqli, "ALTER TABLE `companies` MODIFY `company_currency` VARCHAR(200) DEFAULT 'USD'");
+        mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '2.2.0'");
+    }
+
+    // if (CURRENT_DATABASE_VERSION == '2.2.0') {
+    //     // Insert queries here required to update to DB version 2.2.1
     //     // Then, update the database to the next sequential version
-    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '2.2.0'");
+    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '2.2.1'");
     // }
 
 } else {
     // Up-to-date
 }
-
+ 
