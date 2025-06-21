@@ -2,6 +2,11 @@
 
 This file documents all notable changes made to ITFlow.
 
+## [25.06.1]
+
+### Fixed
+- Fixed a regression in setup causing it to crash and never complete, due to missing default for currency.
+
 ## [25.06]
 
 ### Breaking CHANGES
