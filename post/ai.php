@@ -51,13 +51,13 @@ if (isset($_GET['ai_reword'])) {
     if (isset($responseData['choices'][0]['message']['content'])) {
         // Get the response content.
         $content = $responseData['choices'][0]['message']['content'];
-        
+
         // Clean any leading "html" word or other unwanted text at the beginning.
         $content = preg_replace('/^html/i', '', $content);  // Remove any occurrence of 'html' at the start
 
         // Clean the response content to remove backticks or code block markers.
         $cleanedContent = str_replace('```', '', $content); // Remove backticks if they exist.
-        
+
         // Trim any leading/trailing whitespace.
         $cleanedContent = trim($cleanedContent);
 
@@ -65,7 +65,7 @@ if (isset($_GET['ai_reword'])) {
         echo json_encode(['rewordedText' => $cleanedContent]);
     } else {
         // Handle errors or unexpected response structure.
-        echo json_encode(['rewordedText' => 'Failed to get a response from the OpenAI API.']);
+        echo json_encode(['rewordedText' => 'Failed to get a response from the AI API.']);
     }
 
 }
