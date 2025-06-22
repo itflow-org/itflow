@@ -2776,7 +2776,7 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
         //Dropping patch panel as a patch panel can be documented as an asset with interfaces.
         mysqli_query($mysqli, "DROP TABLE `patch_panel_ports`");
         mysqli_query($mysqli, "DROP TABLE `patch_panels`");
-        
+
         mysqli_query($mysqli, "RENAME TABLE `events` TO `calendar_events`");
         mysqli_query($mysqli, "RENAME TABLE `event_attendees` TO `calendar_event_attendees`");
 
@@ -2957,7 +2957,7 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
             ALTER TABLE `calendar_events`
             ADD FOREIGN KEY (`event_calendar_id`) REFERENCES `calendars`(`calendar_id`) ON DELETE CASCADE
         ");
-    
+
         mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '2.0.3'");
     }
 
@@ -2974,7 +2974,7 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
             ALTER TABLE `certificate_history`
             ADD FOREIGN KEY (`certificate_history_certificate_id`) REFERENCES `certificates`(`certificate_id`) ON DELETE CASCADE
         ");
-    
+
         mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '2.0.4'");
     }
 
@@ -3335,14 +3335,14 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
             ADD FOREIGN KEY (`vendor_id`) REFERENCES `vendors`(`vendor_id`) ON DELETE CASCADE,
             ADD FOREIGN KEY (`file_id`) REFERENCES `files`(`file_id`) ON DELETE CASCADE
         ");
-    
+
         mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '2.0.5'");
     }
 
     if (CURRENT_DATABASE_VERSION == '2.0.5') {
 
         // CONVERT All tables TO CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci
-        
+
         $tables = [
             'accounts', 'api_keys', 'app_logs', 'asset_credentials', 'asset_custom', 'asset_documents',
             'asset_files', 'asset_history', 'asset_interface_links', 'asset_interfaces', 'asset_notes', 'assets',
@@ -3381,14 +3381,14 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
     }
 
     if (CURRENT_DATABASE_VERSION == '2.0.7') {
-        
+
         mysqli_query($mysqli, "ALTER TABLE `files` DROP `file_hash`");
 
         mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '2.0.8'");
     }
 
     if (CURRENT_DATABASE_VERSION == '2.0.8') {
-        
+
         mysqli_query($mysqli, "ALTER TABLE `files` DROP `file_has_thumbnail`");
         mysqli_query($mysqli, "ALTER TABLE `files` DROP `file_has_preview`");
         mysqli_query($mysqli, "ALTER TABLE `files` DROP `file_asset_id`");
@@ -3397,7 +3397,7 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
     }
 
     if (CURRENT_DATABASE_VERSION == '2.0.9') {
-        
+
         mysqli_query($mysqli, "ALTER TABLE `contacts` ADD `contact_phone_country_code` VARCHAR(10) DEFAULT 1 AFTER `contact_email`");
         mysqli_query($mysqli, "ALTER TABLE `contacts` ADD `contact_mobile_country_code` VARCHAR(10) DEFAULT 1 AFTER `contact_extension`");
 
@@ -3425,7 +3425,7 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
     }
 
     if (CURRENT_DATABASE_VERSION == '2.1.2') {
-        
+
         // Update country_code to NULL for `contacts` table
         mysqli_query($mysqli, "ALTER TABLE `contacts` MODIFY `contact_phone_country_code` VARCHAR(10) DEFAULT NULL");
         mysqli_query($mysqli, "ALTER TABLE `contacts` MODIFY `contact_mobile_country_code` VARCHAR(10) DEFAULT NULL");
@@ -3460,7 +3460,7 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
     if (CURRENT_DATABASE_VERSION == '2.1.3') {
         mysqli_query($mysqli, "ALTER TABLE `client_stripe` ADD `stripe_pm_details` VARCHAR(200) DEFAULT NULL AFTER `stripe_pm`");
         mysqli_query($mysqli, "ALTER TABLE `client_stripe` ADD `stripe_pm_created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP AFTER `stripe_pm_details`");
-   
+
         mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '2.1.4'");
     }
 
@@ -3675,13 +3675,17 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
         mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '2.2.0'");
     }
 
-    // if (CURRENT_DATABASE_VERSION == '2.2.0') {
-    //     // Insert queries here required to update to DB version 2.2.1
+     if (CURRENT_DATABASE_VERSION == '2.2.0') {
+         mysqli_query($mysqli, "ALTER TABLE `tickets` ADD `ticket_quote_id` INT(11) NOT NULL DEFAULT 0 AFTER `ticket_asset_id`");
+         mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '2.2.1'");
+     }
+
+    // if (CURRENT_DATABASE_VERSION == '2.2.1') {
+    //     // Insert queries here required to update to DB version 2.2.2
     //     // Then, update the database to the next sequential version
-    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '2.2.1'");
+    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '2.2.2'");
     // }
 
 } else {
     // Up-to-date
 }
- 
