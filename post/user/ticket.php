@@ -2419,7 +2419,7 @@ if (isset($_POST['edit_ticket_schedule'])) {
     $ticket_link_html = "<a href=\"$full_ticket_url\">$ticket_link</a>";
 
     mysqli_query($mysqli,"UPDATE tickets 
-        SET ticket_schedule = '$schedule', ticket_onsite = $onsite, ticket_status = 3
+        SET ticket_schedule = '$schedule', ticket_onsite = $onsite
         WHERE ticket_id = $ticket_id"
     );
 
@@ -2590,7 +2590,7 @@ if (isset($_GET['cancel_ticket_schedule'])) {
     $ticket_schedule = sanitizeInput($row['ticket_schedule']);
     $ticket_cal_str = sanitizeInput($row['ticket_cal_str']);
 
-    mysqli_query($mysqli, "UPDATE tickets SET ticket_schedule = NULL, ticket_status = 2 WHERE ticket_id = $ticket_id");
+    mysqli_query($mysqli, "UPDATE tickets SET ticket_schedule = NULL WHERE ticket_id = $ticket_id");
 
     // Sanitize Config Vars
     $config_ticket_from_email = sanitizeInput($config_ticket_from_email);
