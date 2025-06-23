@@ -694,14 +694,11 @@ if (isset($_GET['export_quote_pdf'])) {
     $pdf->SetFont('helvetica', '', 10);
 
     // Logo + Right Columns
-    $html = '<table width="100%" cellspacing="0" cellpadding="5">
+    $html = '<table width="100%" cellspacing="0" cellpadding="3">
     <tr>
         <td width="40%">';
-    if (!empty($company_logo)) {
-        $logo_path = "uploads/settings/$company_logo";
-        if (file_exists($logo_path)) {
-            $pdf->Image($logo_path, $pdf->GetX(), $pdf->GetY(), 40);
-        }
+    if (!empty($company_logo) && file_exists("uploads/settings/$company_logo")) {
+        $html .= '<img src="uploads/settings/' . $company_logo . '" width="120">';
     }
     $html .= '</td>
         <td width="60%" align="right">
@@ -715,7 +712,7 @@ if (isset($_GET['export_quote_pdf'])) {
     }
     $html .= '</td>
     </tr>
-    </table><br><br>';
+    </table><br>';
 
     // Billing titles
     $html .= '<table width="100%" cellspacing="0" cellpadding="2">
@@ -730,7 +727,7 @@ if (isset($_GET['export_quote_pdf'])) {
     </table><br>';
 
     // Date table
-    $html .= '<table border="0" cellpadding="3" cellspacing="0" width="100%">
+    $html .= '<table border="0" cellpadding="2" cellspacing="0" width="100%">
     <tr>
         <td width="60%"></td>
         <td width="20%" style="font-size:10pt;"><strong>Date:</strong></td>
