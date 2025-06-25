@@ -118,7 +118,7 @@ if ($row) {
                 </div>
             </div>
 
-            <?php if ($contact_primary) { echo "<i>Cannot edit the primary contact</i>"; } else { ?>
+            <?php if ($contact_primary || $contact_id == $_SESSION['contact_id']) { echo "<i>Cannot edit this contact</i>"; } else { ?>
                 <button class="btn btn-primary" name="edit_contact">Save</button>
             <?php } ?>
         </form>
