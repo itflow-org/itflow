@@ -53,6 +53,7 @@ $extensions = [
     'php-curl' => 'curl',
     'php-mbstring' => 'mbstring',
     'php-gd' => 'gd',
+    'php-zip' => 'zip',
 ];
 
 foreach ($extensions as $name => $ext) {
