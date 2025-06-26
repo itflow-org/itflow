@@ -370,6 +370,7 @@ if(isset($_POST['export_locations_csv'])){
         $client_query = "AND location_client_id = $client_id";
     } else {
         $client_query = '';
+        $client_id = 0;
     }
 
     //Locations
@@ -406,7 +407,7 @@ if(isset($_POST['export_locations_csv'])){
     }
 
     // Logging
-    logAction("Location", "Export", "$session_name exported $num_rows location(s) to a CSV file");
+    logAction("Location", "Export", "$session_name exported $num_rows location(s) to a CSV file", $client_id);
 
     exit;
 

@@ -215,21 +215,21 @@ if (isset($_POST['export_client_software_csv'])) {
 
     enforceUserPermission('module_support');
 
-    $client_id = intval($_POST['client_id']);
+    if (isset($_POST['client_id'])) {
+        $client_id = intval($_POST['client_id']);
+        $client_query = "WHERE software_client_id = $client_id";
+    } else {
+        $client_query = '';
+        $client_id = 0; //Logging
+    }
 
-    //get records from database
-    $sql = mysqli_query($mysqli,"SELECT client_name FROM clients WHERE client_id = $client_id");
-    $row = mysqli_fetch_array($sql);
-
-    $client_name = $row['client_name'];
-
-    $sql = mysqli_query($mysqli,"SELECT * FROM software WHERE software_client_id = $client_id ORDER BY software_name ASC");
+    $sql = mysqli_query($mysqli,"SELECT * FROM software $client_query ORDER BY software_name ASC");
 
     $num_rows = mysqli_num_rows($sql);
 
     if ($num_rows > 0) {
         $delimiter = ",";
-        $filename = $client_name . "-Software-" . date('Y-m-d') . ".csv";
+        $filename = "Software-" . date('Y-m-d') . ".csv";
 
         //create a file pointer
         $f = fopen('php://memory', 'w');

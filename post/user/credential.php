@@ -321,6 +321,7 @@ if (isset($_POST['export_credentials_csv'])) {
         $client_query = "AND credential_client_id = $client_id";
     } else {
         $client_query = '';
+        $client_id = 0;
     }
 
     //get records from database
@@ -360,7 +361,7 @@ if (isset($_POST['export_credentials_csv'])) {
     }
 
     // Logging
-    logAction("Credential", "Export", "$session_name exported $num_rows credential(s) to a CSV file");
+    logAction("Credential", "Export", "$session_name exported $num_rows credential(s) to a CSV file", $client_id);
 
     exit;
 

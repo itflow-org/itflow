@@ -160,6 +160,7 @@ if (isset($_POST['export_networks_csv'])) {
         $client_query = "AND network_client_id = $client_id";
     } else {
         $client_query = '';
+        $client_id = 0;
     }
 
     $sql = mysqli_query($mysqli,"SELECT * FROM networks WHERE network_archived_at IS NULL $client_query ORDER BY network_name ASC");
@@ -195,7 +196,7 @@ if (isset($_POST['export_networks_csv'])) {
     }
 
     // Logging
-    logAction("Network", "Export", "$session_name deleted $num_rows network(s) to a CSV file");
+    logAction("Network", "Export", "$session_name deleted $num_rows network(s) to a CSV file", $client_id);
 
     exit;
 

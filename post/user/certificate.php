@@ -225,6 +225,7 @@ if (isset($_POST['export_certificates_csv'])) {
         $client_query = "AND certificate_client_id = $client_id";
     } else {
         $client_query = '';
+        $client_id = 0;
     }
 
     $sql = mysqli_query($mysqli,"SELECT * FROM certificates WHERE certificate_archived_at IS NULL $client_query ORDER BY certificate_name ASC");
@@ -260,7 +261,7 @@ if (isset($_POST['export_certificates_csv'])) {
     }
 
     // Logging
-    logAction("Certificate", "Export", "$session_name exported $num_rows certificate(s) to a CSV file");
+    logAction("Certificate", "Export", "$session_name exported $num_rows certificate(s) to a CSV file", $client_id);
 
     exit;
 

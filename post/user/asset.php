@@ -975,6 +975,7 @@ if (isset($_POST['export_assets_csv'])) {
         $client_name = $client_row['client_name'];
     } else {
         $client_query = '';
+        $client_id = 0; // for Logging
     }
 
     // Get records from database

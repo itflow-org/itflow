@@ -336,6 +336,7 @@ if (isset($_POST['export_domains_csv'])) {
         $client_query = "WHERE domain_client_id = $client_id";
     } else {
         $client_query = '';
+        $client_id = 0;
     }
 
     $sql = mysqli_query($mysqli,"SELECT * FROM domains $client_query ORDER BY domain_name ASC");
@@ -371,7 +372,7 @@ if (isset($_POST['export_domains_csv'])) {
     }
 
     // Logging
-    logAction("Domain", "Export", "$session_name exported $num_rows domain(s)");
+    logAction("Domain", "Export", "$session_name exported $num_rows domain(s)", $client_id);
 
     exit;
 

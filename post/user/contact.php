@@ -1216,6 +1216,7 @@ if (isset($_POST['export_contacts_csv'])) {
         $client_query = "AND contact_client_id = $client_id";
     } else {
         $client_query = '';
+        $client_id = 0; //Logging
     }
 
     //Contacts
@@ -1252,7 +1253,7 @@ if (isset($_POST['export_contacts_csv'])) {
     }
 
     //Logging
-    logAction("Contact", "Export", "$session_name exported $num_rows contact(s) to a CSV file");
+    logAction("Contact", "Export", "$session_name exported $num_rows contact(s) to a CSV file", $client_id);
 
     exit;
 
