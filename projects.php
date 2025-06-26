@@ -23,17 +23,12 @@ if (!empty($client_access_string)) {
     $project_permission_snippet = "AND project_client_id IN ($client_access_string) OR project_client_id = 0";
 }
 
-// Status Query
-
-$status = 0;
-
-if (isset($_GET['status'])) {
-    $status = intval($_GET['status']);
-}
-
-if ($status == 1) {
+// Project Completed Status Query
+if (isset($_GET['status']) && $_GET['status'] == 1) {
+    $status = 1; // Closed
     $status_query = "IS NOT NULL";
 } else {
+    $status = 0; // Open
     $status_query = "IS NULL";
 }
 
@@ -73,6 +68,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
             <?php if ($client_url) { ?>
                 <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
             <?php } ?>
+            <input type="hidden" name="status" value="<?php echo $status; ?>">
             <input type="hidden" name="archived" value="<?php echo $archived; ?>">
             <div class="row">
                 <div class="col-sm-4">
