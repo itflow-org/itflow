@@ -159,8 +159,21 @@ $sql_asset_retired = mysqli_query(
     ORDER BY asset_install_date ASC"
 );
 
-?>
+// Assigned Assets
+$sql_assigned_assets = mysqli_query(
+    $mysqli,
+    "SELECT * FROM assets
+    WHERE asset_contact_id = $session_contact_id
+        AND asset_archived_at IS NULL
+    ORDER BY asset_name ASC"
+);
 
+?>
+<div class="row">
+    <div class="col-md-2">
+        <a href="ticket_add.php" class="btn btn-primary btn-block mb-3">New ticket</a>
+    </div>
+</div>
 <?php 
 // Billing Cards
 if ($session_contact_primary == 1 || $session_contact_is_billing_contact) { ?>
@@ -237,8 +250,37 @@ if ($session_contact_primary == 1 || $session_contact_is_technical_contact) {
 
 <?php } ?>
 
-<div class="col-md-2 offset-1">
-    <a href="ticket_add.php" class="btn btn-primary btn-block">New ticket</a>
+<?php
+// Everone Cards
+?>
+<div class="row">
+    <?php if (mysqli_num_rows($sql_assigned_assets) > 0) { ?>
+    <div class="col-sm-3">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Your Assigned Assets</h3>
+            </div>
+            <div class="card-body">
+                <table>
+                <?php
+
+                while ($row = mysqli_fetch_array($sql_assigned_assets)) {
+                    $asset_name = nullable_htmlentities($row['asset_name']);
+                    $asset_type = nullable_htmlentities($row['asset_type']);
+
+                    ?>
+                    <tr>
+                        <td><i class="fa fa-fw fa-desktop text-secondary mr-2"></i><?php echo $asset_name; ?></td>
+                        <td class="text-secondary">(<?php echo $asset_type; ?>)</td>
+                    </tr>
+                    <?php
+                }
+                ?>
+                </table>
+            </div>
+        </div>
+    </div>
+    <?php } ?>
 </div>
 
 <?php require_once "includes/footer.php"; ?>
