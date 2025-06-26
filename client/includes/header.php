@@ -70,6 +70,7 @@ header("X-Frame-Options: DENY"); // Legacy
                         </a>
                         <div class="dropdown-menu" aria-labelledby="navbarDropdown2">
                             <a class="dropdown-item" href="contacts.php">Contacts</a>
+                            <a class="dropdown-item" href="assets.php">Assets</a>
                             <a class="dropdown-item" href="documents.php">Documents</a>
                             <a class="dropdown-item" href="domains.php">Domains</a>
                             <a class="dropdown-item" href="certificates.php">Certificates</a>
