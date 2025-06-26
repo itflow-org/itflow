@@ -1983,9 +1983,8 @@ if (isset($_GET['export_invoice_pdf'])) {
 
         $html .= '
         <tr>
-            <td>
-                <strong>' . $name . '</strong><br>
-                <span style="font-style:italic; font-size:9pt;">' . nl2br($desc) . '</span>
+            <td><strong>' . $name . '</strong>
+            <br><span style="font-style:italic; font-size:9pt;">' . nl2br($desc) . '</span>
             </td>
             <td align="center">' . number_format($qty, 2) . '</td>
             <td align="right">' . numfmt_format_currency($currency_format, $price, $invoice_currency_code) . '</td>
