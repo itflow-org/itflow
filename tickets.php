@@ -186,6 +186,7 @@ $sql_categories = mysqli_query(
                 <?php if ($client_url) { ?>
                     <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
                 <?php } ?>
+                <input type="hidden" name="status" value="<?php echo $status; ?>">
                 <div class="row">
                     <div class="col-sm-5">
                         <div class="input-group mb-3 mb-sm-0">
