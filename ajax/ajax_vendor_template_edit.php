@@ -10,7 +10,8 @@ $vendor_name = nullable_htmlentities($row['vendor_template_name']);
 $vendor_description = nullable_htmlentities($row['vendor_template_description']);
 $vendor_account_number = nullable_htmlentities($row['vendor_template_account_number']);
 $vendor_contact_name = nullable_htmlentities($row['vendor_template_contact_name']);
-$vendor_phone = formatPhoneNumber($row['vendor_template_phone']);
+$vendor_phone_country_code = intval($row['vendor_template_phone_country_code']);
+$vendor_phone = formatPhoneNumber($row['vendor_template_phone'], $vendor_phone_country_code);
 $vendor_extension = nullable_htmlentities($row['vendor_template_extension']);
 $vendor_email = nullable_htmlentities($row['vendor_template_email']);
 $vendor_website = nullable_htmlentities($row['vendor_template_website']);
@@ -133,17 +134,20 @@ ob_start();
                                 <div class="input-group-prepend">
                                     <span class="input-group-text"><i class="fa fa-fw fa-phone"></i></span>
                                 </div>
+                                <input type="tel" class="form-control col-2" name="phone_country_code" placeholder="+" maxlength="4" value="<?php echo $vendor_phone_country_code; ?>">
                                 <input type="tel" class="form-control" name="phone" value="<?php echo $vendor_phone; ?>">
-                                <div class="input-group-append">
-                                    <div class="input-group-text">
-                                        <input type="checkbox" name="global_update_vendor_phone" value="1">
-                                    </div>
-                                </div>
                             </div>
                         </div>
                     </div>
                     <div class="col-4">
-                        <input type="text" class="form-control" name="extension" placeholder="Prompts" maxlength="200" value="<?php echo $vendor_extension; ?>">
+                        <div class="input-group">
+                            <input type="text" class="form-control" name="extension" placeholder="Prompts" maxlength="200" value="<?php echo $vendor_extension; ?>">
+                            <div class="input-group-append">
+                                <div class="input-group-text">
+                                    <input type="checkbox" name="global_update_vendor_phone" value="1">
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 

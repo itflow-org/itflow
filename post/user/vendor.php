@@ -13,25 +13,26 @@ if (isset($_POST['add_vendor_from_template'])) {
     $vendor_template_id = intval($_POST['vendor_template_id']);
 
     //GET Vendor Info
-    $sql_vendor = mysqli_query($mysqli,"SELECT * FROM vendors WHERE vendor_id = $vendor_template_id");
+    $sql_vendor_templates = mysqli_query($mysqli,"SELECT * FROM vendor_templates WHERE vendor_template_id = $vendor_template_id");
 
-    $row = mysqli_fetch_array($sql_vendor);
+    $row = mysqli_fetch_array($sql_vendor_templates);
 
-    $name = sanitizeInput($row['vendor_name']);
-    $description = sanitizeInput($row['vendor_description']);
-    $account_number = sanitizeInput($row['vendor_account_number']);
-    $contact_name = sanitizeInput($row['vendor_contact_name']);
-    $phone = preg_replace("/[^0-9]/", '',$row['vendor_phone']);
-    $extension = preg_replace("/[^0-9]/", '',$row['vendor_extension']);
-    $email = sanitizeInput($row['vendor_email']);
-    $website = sanitizeInput($row['vendor_website']);
-    $hours = sanitizeInput($row['vendor_hours']);
-    $sla = sanitizeInput($row['vendor_sla']);
-    $code = sanitizeInput($row['vendor_code']);
-    $notes = sanitizeInput($row['vendor_notes']);
+    $name = sanitizeInput($row['vendor_template_name']);
+    $description = sanitizeInput($row['vendor_template_description']);
+    $account_number = sanitizeInput($row['vendor_template_account_number']);
+    $contact_name = sanitizeInput($row['vendor_template_contact_name']);
+    $phone_country_code = preg_replace("/[^0-9]/", '',$row['vendor_template_phone_country_code']);
+    $phone = preg_replace("/[^0-9]/", '',$row['vendor_template_phone']);
+    $extension = preg_replace("/[^0-9]/", '',$row['vendor_template_extension']);
+    $email = sanitizeInput($row['vendor_template_email']);
+    $website = sanitizeInput($row['vendor_template_website']);
+    $hours = sanitizeInput($row['vendor_template_hours']);
+    $sla = sanitizeInput($row['vendor_template_sla']);
+    $code = sanitizeInput($row['vendor_template_code']);
+    $notes = sanitizeInput($row['vendor_template_notes']);
 
     // Vendor add query
-    mysqli_query($mysqli,"INSERT INTO vendors SET vendor_name = '$name', vendor_description = '$description', vendor_contact_name = '$contact_name', vendor_phone = '$phone', vendor_extension = '$extension', vendor_email = '$email', vendor_website = '$website', vendor_hours = '$hours', vendor_sla = '$sla', vendor_code = '$code', vendor_account_number = '$account_number', vendor_notes = '$notes', vendor_client_id = $client_id, vendor_template_id = $vendor_template_id");
+    mysqli_query($mysqli,"INSERT INTO vendors SET vendor_name = '$name', vendor_description = '$description', vendor_contact_name = '$contact_name', vendor_phone_country_code = '$phone_country_code', vendor_phone = '$phone', vendor_extension = '$extension', vendor_email = '$email', vendor_website = '$website', vendor_hours = '$hours', vendor_sla = '$sla', vendor_code = '$code', vendor_account_number = '$account_number', vendor_notes = '$notes', vendor_client_id = $client_id, vendor_template_id = $vendor_template_id");
 
     $vendor_id = mysqli_insert_id($mysqli);
 

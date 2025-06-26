@@ -191,9 +191,10 @@ if (mysqli_num_rows($os_sql) > 0) {
                     <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#importAssetModal">
                         <i class="fa fa-fw fa-upload mr-2"></i>Import
                     </a>
+                    <div class="dropdown-divider"></div>
                     <?php } ?>
                     <?php if ($num_rows[0] > 0) { ?>
-                        <div class="dropdown-divider"></div>
+                        
                         <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#exportAssetModal">
                             <i class="fa fa-fw fa-download mr-2"></i>Export
                         </a>

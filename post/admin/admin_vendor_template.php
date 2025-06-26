@@ -77,7 +77,7 @@ if (isset($_POST['edit_vendor_template'])) {
     }
 
     if ($_POST['global_update_vendor_phone'] == 1) {
-        $sql_global_update_vendor_phone = ", vendor_phone = '$phone', vendor_extension = '$extension'";
+        $sql_global_update_vendor_phone = ", vendor_phone_country_code = '$phone_country_code', vendor_phone = '$phone', vendor_extension = '$extension'";
     } else {
         $sql_global_update_vendor_phone = "";
     }
@@ -119,7 +119,7 @@ if (isset($_POST['edit_vendor_template'])) {
     }
 
     // Update just the template
-    mysqli_query($mysqli,"UPDATE vendor_templates SET vendor_template_name = '$name', vendor_template_description = '$description', vendor_template_contact_name = '$contact_name', vendor_template_phone = '$phone', vendor_template_extension = '$extension', vendor_template_email = '$email', vendor_template_website = '$website', vendor_template_hours = '$hours', vendor_template_sla = '$sla', vendor_template_code = '$code', vendor_template_account_number = '$account_number', vendor_template_notes = '$notes' WHERE vendor_template_id = $vendor_template_id");
+    mysqli_query($mysqli,"UPDATE vendor_templates SET vendor_template_name = '$name', vendor_template_description = '$description', vendor_template_contact_name = '$contact_name', vendor_template_phone_country_code = '$phone_country_code', vendor_template_phone = '$phone', vendor_template_extension = '$extension', vendor_template_email = '$email', vendor_template_website = '$website', vendor_template_hours = '$hours', vendor_template_sla = '$sla', vendor_template_code = '$code', vendor_template_account_number = '$account_number', vendor_template_notes = '$notes' WHERE vendor_template_id = $vendor_template_id");
 
     if ($_POST['update_base_vendors'] == 1) {
         // Update client related vendors if anything is checked
