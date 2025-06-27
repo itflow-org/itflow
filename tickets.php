@@ -283,6 +283,12 @@ $sql_categories = mysqli_query(
                                         <a class="dropdown-item" href="#" data-toggle="modal" data-target="#bulkCloseTicketsModal">
                                             <i class="fas fa-fw fa-check mr-2"></i>Resolve
                                         </a>
+                                        <?php if (lookupUserPermission("module_support") === 3) { ?>
+                                        <div class="dropdown-divider"></div>
+                                        <button class="dropdown-item text-danger text-bold confirm-link" type="submit" form="bulkActions" name="bulk_delete_tickets">
+                                            <i class="fas fa-fw fa-trash mr-2"></i>Delete
+                                        </button>
+                                        <?php } ?>
                                     </div>
                                 </div>
                             <?php } ?>

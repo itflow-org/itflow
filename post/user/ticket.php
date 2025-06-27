@@ -747,6 +747,15 @@ if (isset($_GET['delete_ticket'])) {
 
         // Delete all ticket views
         mysqli_query($mysqli, "DELETE FROM ticket_views WHERE view_ticket_id = $ticket_id");
+        
+        // Delete ticket watchers
+        mysqli_query($mysqli, "DELETE FROM ticket_watchers WHERE watcher_ticket_id = $ticket_id");
+
+        // Delete Ticket Attachements
+        mysqli_query($mysqli, "DELETE FROM ticket_attachments WHERE ticket_attachment_ticket_id = $ticket_id");
+        removeDirectory("uploads/tickets/$ticket_id");
+
+        // No Need to delete ticket assets as this is cascadely deleted via the database. 
 
         // Logging
         logAction("Ticket", "Delete", "$session_name deleted $ticket_prefix$ticket_number along with all replies", $client_id);
@@ -758,6 +767,50 @@ if (isset($_GET['delete_ticket'])) {
 
         header("Location: tickets.php");
     }
+}
+
+if (isset($_POST['bulk_delete_tickets'])) {
+
+    enforceUserPermission('module_support', 3);
+    validateCSRFToken($_POST['csrf_token']);
+
+    if (isset($_POST['ticket_ids'])) {
+
+        $count = count($_POST['ticket_ids']);
+
+        // Cycle through array and delete each recurring scheduled ticket
+        foreach ($_POST['ticket_ids'] as $ticket_id) {
+
+            $ticket_id = intval($ticket_id);
+            mysqli_query($mysqli, "DELETE FROM tickets WHERE ticket_id = $ticket_id");
+
+            // Delete all ticket replies
+            mysqli_query($mysqli, "DELETE FROM ticket_replies WHERE ticket_reply_ticket_id = $ticket_id");
+
+            // Delete all ticket views
+            mysqli_query($mysqli, "DELETE FROM ticket_views WHERE view_ticket_id = $ticket_id");
+
+            // Delete ticket watchers
+            mysqli_query($mysqli, "DELETE FROM ticket_watchers WHERE watcher_ticket_id = $ticket_id");
+
+            // Delete Ticket Attachements
+            mysqli_query($mysqli, "DELETE FROM ticket_attachments WHERE ticket_attachment_ticket_id = $ticket_id");
+            removeDirectory("uploads/tickets/$ticket_id");
+
+            // No Need to delete ticket assets as this is cascadely deleted via the database. 
+
+            // Logging
+            logAction("Ticket", "Delete", "$session_name deleted ticket", 0, $ticket_id);
+
+        }
+
+        // Logging
+        logAction("Ticket", "Bulk Delete", "$session_name deleted $count ticket(s)");
+
+        $_SESSION['alert_message'] = "Deleted <strong>$count</strong> ticket(s)";
+    }
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
 }
 
 if (isset($_POST['bulk_assign_ticket'])) {
