@@ -1251,6 +1251,133 @@ if (isset($_GET['delete_asset_interface'])) {
     exit;
 }
 
+if (isset($_POST['bulk_edit_asset_interface_type'])) {
+
+    enforceUserPermission('module_support', 2);
+    validateCSRFToken($_POST['csrf_token']);
+
+    $type = sanitizeInput($_POST['bulk_type']);
+
+    if (isset($_POST['interface_ids'])) {
+
+        // Get Count
+        $interface_count = count($_POST['interface_ids']);
+
+        foreach($_POST['interface_ids'] as $interface_id) {
+            $interface_id = intval($interface_id);
+
+            // Get Asset Name and Client ID for logging and alert message
+            $sql = mysqli_query($mysqli, "
+                SELECT asset_name, asset_client_id, asset_id
+                FROM asset_interfaces 
+                LEFT JOIN assets ON asset_id = interface_asset_id
+                WHERE interface_id = $interface_id
+            ");
+            $row = mysqli_fetch_array($sql);
+            $asset_id  = intval($row['asset_id']);
+            $asset_name= sanitizeInput($row['asset_name']);
+            $client_id = intval($row['asset_client_id']);
+
+            // Update inteface type
+            mysqli_query($mysqli,"UPDATE asset_interfaces SET interface_type = '$type' WHERE interface_id = $interface_id");
+
+            // Individual Logging
+            logAction("Asset Interface", "Edit", "$session_name set interface type to $type for asset $asset_name", $client_id, $asset_id);
+        }
+        // Bulk Logging
+        logAction("Asset Interface", "Bulk Edit", "$session_name set interface type to $type on $interface_count interfaces for asset $asset_name", $client_id);
+        $_SESSION['alert_message'] = "Type set to <strong>$type</strong> on <strong>$interface_count</strong> interfaces.";
+    }
+        header("Location: " . $_SERVER["HTTP_REFERER"]);
+        exit;
+}
+
+if (isset($_POST['bulk_edit_asset_interface_network'])) {
+
+    enforceUserPermission('module_support', 2);
+    validateCSRFToken($_POST['csrf_token']);
+
+    $network_id = intval($_POST['bulk_network']);
+    
+    // Get Network Name for logging
+    $sql = mysqli_query($mysqli, "SELECT network_name FROM networks WHERE network_id = $network_id");
+    $row = mysqli_fetch_array($sql);
+    $network_name = sanitizeInput($row['network_name']);
+
+    if (isset($_POST['interface_ids'])) {
+
+        // Get Count
+        $interface_count = count($_POST['interface_ids']);
+
+        foreach($_POST['interface_ids'] as $interface_id) {
+            $interface_id = intval($interface_id);
+
+            // Get Asset Name and Client ID for logging and alert message
+            $sql = mysqli_query($mysqli, "
+                SELECT asset_name, asset_client_id, asset_id
+                FROM asset_interfaces 
+                LEFT JOIN assets ON asset_id = interface_asset_id
+                WHERE interface_id = $interface_id
+            ");
+            $row = mysqli_fetch_array($sql);
+            $asset_id  = intval($row['asset_id']);
+            $asset_name= sanitizeInput($row['asset_name']);
+            $client_id = intval($row['asset_client_id']);
+
+            // Update inteface type
+            mysqli_query($mysqli,"UPDATE asset_interfaces SET interface_network_id = $network_id WHERE interface_id = $interface_id");
+
+            // Individual Logging
+            logAction("Asset Interface", "Edit", "$session_name set network to $network_name for asset $asset_name", $client_id, $asset_id);
+        }
+        // Bulk Logging
+        logAction("Asset Interface", "Bulk Edit", "$session_name set network to $network_name on $interface_count interfaces for asset $asset_name", $client_id);
+        $_SESSION['alert_message'] = "Network set to <strong>$network_name</strong> on <strong>$interface_count</strong> interfaces.";
+    }
+        header("Location: " . $_SERVER["HTTP_REFERER"]);
+        exit;
+}
+
+if (isset($_POST['bulk_delete_asset_interfaces'])) {
+
+    enforceUserPermission('module_support', 2);
+    validateCSRFToken($_POST['csrf_token']);
+
+    if (isset($_POST['interface_ids'])) {
+
+        // Get Count
+        $interface_count = count($_POST['interface_ids']);
+
+        foreach($_POST['interface_ids'] as $interface_id) {
+            $interface_id = intval($interface_id);
+
+            // Get Asset Name and Client ID for logging and alert message
+            $sql = mysqli_query($mysqli, "
+                SELECT asset_name, interface_name, asset_client_id, asset_id
+                FROM asset_interfaces
+                LEFT JOIN assets ON asset_id = interface_asset_id
+                WHERE interface_id = $interface_id
+            ");
+            $row = mysqli_fetch_array($sql);
+            $asset_id = intval($row['asset_id']);
+            $interface_name = sanitizeInput($row['interface_name']);
+            $asset_name = sanitizeInput($row['asset_name']);
+            $client_id = intval($row['asset_client_id']);
+
+            mysqli_query($mysqli, "DELETE FROM asset_interfaces WHERE interface_id = $interface_id");
+
+            // Individual Logging
+            logAction("Asset Interface", "Delete", "$session_name deleted interface $interface_name from asset $asset_name", $client_id, $asset_id);
+        }
+        // Bulk Logging
+        logAction("Asset Interface", "Bulk Delete", "$session_name deleted $interface_count interfaces for asset $asset_name", $client_id);
+        $_SESSION['alert_type'] = "error";
+        $_SESSION['alert_message'] = "<strong>$interface_count</strong> interfaces deleted.";
+    }
+        header("Location: " . $_SERVER["HTTP_REFERER"]);
+        exit;
+}
+
 if (isset($_POST["import_client_asset_interfaces_csv"])) {
 
     enforceUserPermission('module_support', 2);

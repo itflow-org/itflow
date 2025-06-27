@@ -437,109 +437,145 @@ if (isset($_GET['asset_id'])) {
                                     <i class="fa fa-fw fa-download mr-2"></i>Export
                                 </a>
                             </div>
+
+                            <div class="dropdown ml-2" id="bulkActionButton" hidden>
+                                <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">
+                                    <i class="fas fa-fw fa-layer-group mr-2"></i>Bulk Action (<span id="selectedCount">0</span>)
+                                </button>
+                                <div class="dropdown-menu">
+                                    <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#bulkAssignNetworkModal">
+                                        <i class="fas fa-fw fa-network-wired mr-2"></i>Assign Network
+                                    </a>
+                                    <div class="dropdown-divider"></div>
+                                    <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#bulkSetInterfaceTypeModal">
+                                        <i class="fas fa-fw fa-ethernet mr-2"></i>Set Type
+                                    </a>
+                                    <?php if (lookupUserPermission("module_support") === 3) { ?>
+                                    <div class="dropdown-divider"></div>
+                                    <button class="dropdown-item text-danger text-bold confirm-link" type="submit" form="bulkActions" name="bulk_delete_asset_interfaces">
+                                        <i class="fas fa-fw fa-trash mr-2"></i>Delete
+                                    </button>
+                                    <?php } ?>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
                 <div class="card-body">
-                    <div class="table-responsive-sm">
-                        <table class="table table-striped table-borderless table-hover table-sm">
-                            <thead class="<?php if ($interface_count == 0) { echo "d-none"; } ?>">
-                                <tr>
-                                    <th>Name / Port</th>
-                                    <th>Type</th>
-                                    <th>MAC</th>
-                                    <th>IP</th>
-                                    <th>Network</th>
-                                    <th>Connected To</th>
-                                    <th class="text-center">Action</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                            <?php while ($row = mysqli_fetch_array($sql_related_interfaces)) { ?>
-                                <?php
-                                    $interface_id       = intval($row['interface_id']);
-                                    $interface_name     = nullable_htmlentities($row['interface_name']);
-                                    $interface_description = nullable_htmlentities($row['interface_description']);
-                                    $interface_type     = nullable_htmlentities($row['interface_type']);
-                                    $interface_mac      = nullable_htmlentities($row['interface_mac']);
-                                    $interface_ip       = nullable_htmlentities($row['interface_ip']);
-                                    $interface_nat_ip   = nullable_htmlentities($row['interface_nat_ip']);
-                                    $interface_ipv6     = nullable_htmlentities($row['interface_ipv6']);
-                                    $interface_primary  = intval($row['interface_primary']);
-                                    $network_id         = intval($row['network_id']);
-                                    $network_name       = nullable_htmlentities($row['network_name']);
-                                    $interface_notes    = nullable_htmlentities($row['interface_notes']);
-
-                                    // Prepare display text
-                                    $interface_mac_display = $interface_mac ?: '-';
-                                    $interface_ip_display  = $interface_ip ?: '-';
-                                    $interface_type_display = $interface_type ?: '-';
-                                    $network_name_display  = $network_name 
-                                        ? "<i class='fas fa-fw fa-network-wired mr-1'></i>$network_name" 
-                                        : '-';
-
-                                    // Connected interface details
-                                    $connected_asset_id = intval($row['connected_asset_id']);
-                                    $connected_asset_name = nullable_htmlentities($row['connected_asset_name']);
-                                    $connected_asset_type = nullable_htmlentities($row['connected_asset_type']);
-                                    $connected_asset_icon = getAssetIcon($connected_asset_type);
-                                    $connected_interface_name = nullable_htmlentities($row['connected_interface_name']);
-
-
-                                    // Show either "-" or "AssetName - Port"
-                                    if ($connected_asset_name) {
-                                        $connected_to_display = "<a href='#'
-                                            data-toggle='ajax-modal'
-                                            data-modal-size='lg'
-                                            data-ajax-url='ajax/ajax_asset_details.php'
-                                            data-ajax-id='$connected_asset_id'>
-                                            <strong><i class='fa fa-fw fa-$connected_asset_icon mr-1'></i>$connected_asset_name</strong> - $connected_interface_name
-                                        </a>";
-                                    } else {
-                                        $connected_to_display = "-";
-                                    }
-                                ?>
-                                <tr>
-                                    <td>
-                                        <i class="fa fa-fw fa-ethernet text-secondary mr-1"></i>
-                                        <a class="text-dark" href="#" 
-                                            data-toggle="ajax-modal"
-                                            data-ajax-url="ajax/ajax_asset_interface_edit.php"
-                                            data-ajax-id="<?php echo $interface_id; ?>">
-                                            <?php echo $interface_name; ?> <?php if($interface_primary) { echo "<small class='text-primary'>(Primary)</small>"; } ?>
-                                        </a>
-                                    </td>
-                                    <td><?php echo $interface_type_display; ?></td>
-                                    <td><?php echo $interface_mac_display; ?></td>
-                                    <td><?php echo $interface_ip_display; ?></td>
-                                    <td><?php echo $network_name_display; ?></td>
-                                    <td><?php echo $connected_to_display; ?></td>
-                                    <td>
-                                        <div class="dropdown dropleft text-center">
-                                            <button class="btn btn-secondary btn-sm" type="button" data-toggle="dropdown">
-                                                <i class="fas fa-ellipsis-h"></i>
-                                            </button>
-                                            <div class="dropdown-menu">
-                                                <a class="dropdown-item" href="#"
-                                                    data-toggle="ajax-modal"
-                                                    data-ajax-url="ajax/ajax_asset_interface_edit.php"
-                                                    data-ajax-id="<?php echo $interface_id; ?>">
-                                                    <i class="fas fa-fw fa-edit mr-2"></i>Edit
-                                                </a>
-                                                <?php if ($session_user_role == 3 && $interface_primary == 0): ?>
-                                                    <div class="dropdown-divider"></div>
-                                                    <a class="dropdown-item text-danger text-bold" href="post.php?delete_asset_interface=<?php echo $interface_id; ?>&csrf_token=<?php echo $_SESSION['csrf_token']; ?>">
-                                                        <i class="fas fa-fw fa-trash mr-2"></i>Delete
-                                                    </a>
-                                                <?php endif; ?>
+                    <form id="bulkActions" action="post.php" method="post">
+                        <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token'] ?>">
+                        <div class="table-responsive-sm">
+                            <table class="table table-striped table-borderless table-hover table-sm">
+                                <thead class="<?php if ($interface_count == 0) { echo "d-none"; } ?>">
+                                    <tr>
+                                        <td class="bg-light pr-0">
+                                            <div class="form-check">
+                                                <input class="form-check-input" id="selectAllCheckbox" type="checkbox" onclick="checkAll(this)" onkeydown="checkAll(this)">
                                             </div>
-                                        </div>
-                                    </td>
-                                </tr>
-                            <?php } ?>
-                            </tbody>
-                        </table>
-                    </div>
+                                        </td>
+                                        <th>Name / Port</th>
+                                        <th>Type</th>
+                                        <th>MAC</th>
+                                        <th>IP</th>
+                                        <th>Network</th>
+                                        <th>Connected To</th>
+                                        <th class="text-center">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                <?php while ($row = mysqli_fetch_array($sql_related_interfaces)) { ?>
+                                    <?php
+                                        $interface_id       = intval($row['interface_id']);
+                                        $interface_name     = nullable_htmlentities($row['interface_name']);
+                                        $interface_description = nullable_htmlentities($row['interface_description']);
+                                        $interface_type     = nullable_htmlentities($row['interface_type']);
+                                        $interface_mac      = nullable_htmlentities($row['interface_mac']);
+                                        $interface_ip       = nullable_htmlentities($row['interface_ip']);
+                                        $interface_nat_ip   = nullable_htmlentities($row['interface_nat_ip']);
+                                        $interface_ipv6     = nullable_htmlentities($row['interface_ipv6']);
+                                        $interface_primary  = intval($row['interface_primary']);
+                                        $network_id         = intval($row['network_id']);
+                                        $network_name       = nullable_htmlentities($row['network_name']);
+                                        $interface_notes    = nullable_htmlentities($row['interface_notes']);
+
+                                        // Prepare display text
+                                        $interface_mac_display = $interface_mac ?: '-';
+                                        $interface_ip_display  = $interface_ip ?: '-';
+                                        $interface_type_display = $interface_type ?: '-';
+                                        $network_name_display  = $network_name 
+                                            ? "<i class='fas fa-fw fa-network-wired mr-1'></i>$network_name" 
+                                            : '-';
+
+                                        // Connected interface details
+                                        $connected_asset_id = intval($row['connected_asset_id']);
+                                        $connected_asset_name = nullable_htmlentities($row['connected_asset_name']);
+                                        $connected_asset_type = nullable_htmlentities($row['connected_asset_type']);
+                                        $connected_asset_icon = getAssetIcon($connected_asset_type);
+                                        $connected_interface_name = nullable_htmlentities($row['connected_interface_name']);
+
+
+                                        // Show either "-" or "AssetName - Port"
+                                        if ($connected_asset_name) {
+                                            $connected_to_display = "<a href='#'
+                                                data-toggle='ajax-modal'
+                                                data-modal-size='lg'
+                                                data-ajax-url='ajax/ajax_asset_details.php'
+                                                data-ajax-id='$connected_asset_id'>
+                                                <strong><i class='fa fa-fw fa-$connected_asset_icon mr-1'></i>$connected_asset_name</strong> - $connected_interface_name
+                                            </a>";
+                                        } else {
+                                            $connected_to_display = "-";
+                                        }
+                                    ?>
+                                    <tr>
+                                        <td class="pr-0 bg-light">
+                                            <div class="form-check">
+                                                <input class="form-check-input bulk-select" type="checkbox" name="interface_ids[]" value="<?php echo $interface_id ?>">
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <i class="fa fa-fw fa-ethernet text-secondary mr-1"></i>
+                                            <a class="text-dark" href="#" 
+                                                data-toggle="ajax-modal"
+                                                data-ajax-url="ajax/ajax_asset_interface_edit.php"
+                                                data-ajax-id="<?php echo $interface_id; ?>">
+                                                <?php echo $interface_name; ?> <?php if($interface_primary) { echo "<small class='text-primary'>(Primary)</small>"; } ?>
+                                            </a>
+                                        </td>
+                                        <td><?php echo $interface_type_display; ?></td>
+                                        <td><?php echo $interface_mac_display; ?></td>
+                                        <td><?php echo $interface_ip_display; ?></td>
+                                        <td><?php echo $network_name_display; ?></td>
+                                        <td><?php echo $connected_to_display; ?></td>
+                                        <td>
+                                            <div class="dropdown dropleft text-center">
+                                                <button class="btn btn-secondary btn-sm" type="button" data-toggle="dropdown">
+                                                    <i class="fas fa-ellipsis-h"></i>
+                                                </button>
+                                                <div class="dropdown-menu">
+                                                    <a class="dropdown-item" href="#"
+                                                        data-toggle="ajax-modal"
+                                                        data-ajax-url="ajax/ajax_asset_interface_edit.php"
+                                                        data-ajax-id="<?php echo $interface_id; ?>">
+                                                        <i class="fas fa-fw fa-edit mr-2"></i>Edit
+                                                    </a>
+                                                    <?php if ($session_user_role == 3 && $interface_primary == 0): ?>
+                                                        <div class="dropdown-divider"></div>
+                                                        <a class="dropdown-item text-danger text-bold" href="post.php?delete_asset_interface=<?php echo $interface_id; ?>&csrf_token=<?php echo $_SESSION['csrf_token']; ?>">
+                                                            <i class="fas fa-fw fa-trash mr-2"></i>Delete
+                                                        </a>
+                                                    <?php endif; ?>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                <?php } ?>
+                                </tbody>
+                            </table>
+                        </div>
+                        <?php require_once "modals/asset_interface_bulk_edit_type_modal.php"; ?>
+                        <?php require_once "modals/asset_interface_bulk_edit_network_modal.php"; ?>
+                    </form>
                 </div>
             </div>
 
@@ -1192,6 +1228,8 @@ if (isset($_GET['asset_id'])) {
 
 <!-- Include script to get TOTP code via the credential ID -->
 <script src="js/credential_show_otp_via_id.js"></script>
+
+<script src="js/bulk_actions.js"></script>
 
 <?php
 
