@@ -450,6 +450,10 @@ if (isset($_GET['asset_id'])) {
                                     <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#bulkSetInterfaceTypeModal">
                                         <i class="fas fa-fw fa-ethernet mr-2"></i>Set Type
                                     </a>
+                                    <div class="dropdown-divider"></div>
+                                    <button class="dropdown-item text-dark" type="submit" form="bulkActions" name="bulk_edit_asset_interface_ip_dhcp">
+                                        <i class="fas fa-fw fa-list-ul mr-2"></i>Set to DHCP
+                                    </button>
                                     <?php if (lookupUserPermission("module_support") === 3) { ?>
                                     <div class="dropdown-divider"></div>
                                     <button class="dropdown-item text-danger text-bold confirm-link" type="submit" form="bulkActions" name="bulk_delete_asset_interfaces">

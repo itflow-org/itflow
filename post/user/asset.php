@@ -1338,6 +1338,45 @@ if (isset($_POST['bulk_edit_asset_interface_network'])) {
         exit;
 }
 
+if (isset($_POST['bulk_edit_asset_interface_ip_dhcp'])) {
+
+    enforceUserPermission('module_support', 2);
+    validateCSRFToken($_POST['csrf_token']);
+
+    if (isset($_POST['interface_ids'])) {
+
+        // Get Count
+        $interface_count = count($_POST['interface_ids']);
+
+        foreach($_POST['interface_ids'] as $interface_id) {
+            $interface_id = intval($interface_id);
+
+            // Get Asset Name and Client ID for logging and alert message
+            $sql = mysqli_query($mysqli, "
+                SELECT asset_name, asset_client_id, asset_id
+                FROM asset_interfaces 
+                LEFT JOIN assets ON asset_id = interface_asset_id
+                WHERE interface_id = $interface_id
+            ");
+            $row = mysqli_fetch_array($sql);
+            $asset_id  = intval($row['asset_id']);
+            $asset_name= sanitizeInput($row['asset_name']);
+            $client_id = intval($row['asset_client_id']);
+
+            // Update inteface type
+            mysqli_query($mysqli,"UPDATE asset_interfaces SET interface_ip = 'DHCP' WHERE interface_id = $interface_id");
+
+            // Individual Logging
+            logAction("Asset Interface", "Edit", "$session_name set interface IP to DHCP for asset $asset_name", $client_id, $asset_id);
+        }
+        // Bulk Logging
+        logAction("Asset Interface", "Bulk Edit", "$session_name set interface IP to DHCP on $interface_count interfaces for asset $asset_name", $client_id);
+        $_SESSION['alert_message'] = "Interface IP set to <strong>DHCP</strong> on <strong>$interface_count</strong> interfaces.";
+    }
+        header("Location: " . $_SERVER["HTTP_REFERER"]);
+        exit;
+}
+
 if (isset($_POST['bulk_delete_asset_interfaces'])) {
 
     enforceUserPermission('module_support', 2);
