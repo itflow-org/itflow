@@ -8,7 +8,6 @@ header("Content-Security-Policy: default-src 'self'");
 
 require_once "includes/inc_all.php";
 
- 
 // Billing Card Queries
  //Add up all the payments for the invoice and get the total amount paid to the invoice
 $sql_invoice_amounts = mysqli_query($mysqli, "SELECT SUM(invoice_amount) AS invoice_amounts FROM invoices WHERE invoice_client_id = $session_client_id AND invoice_status != 'Draft' AND invoice_status != 'Cancelled' AND invoice_status != 'Non-Billable'");
@@ -174,12 +173,12 @@ $sql_assigned_assets = mysqli_query(
         <a href="ticket_add.php" class="btn btn-primary btn-block mb-3">New ticket</a>
     </div>
 </div>
-<?php 
+<?php
 // Billing Cards
 if ($session_contact_primary == 1 || $session_contact_is_billing_contact) { ?>
 
 <div class="row">
-    
+
     <?php if ($balance > 0) { ?>
     <div class="col-sm-3 offset-1">
         <div class="card">
@@ -210,9 +209,9 @@ if ($session_contact_primary == 1 || $session_contact_is_billing_contact) { ?>
 
 <?php } //End Billing Cards ?>
 
-<?php 
+<?php
 // Technical Cards
-if ($session_contact_primary == 1 || $session_contact_is_technical_contact) { 
+if ($session_contact_primary == 1 || $session_contact_is_technical_contact) {
 ?>
 
 <div class="row">

@@ -139,10 +139,13 @@ header("X-Frame-Options: DENY"); // Legacy
         </div>
 
         <div class="col-md-11 p-0">
+                <?php if ($session_company_logo) { ?>
+                    <img height="48" width="142" class="img-fluid float-right" src="<?php echo "../uploads/settings/$session_company_logo"; ?>">
+                <?php } ?>
             <h4>Welcome, <strong><?php echo stripslashes(nullable_htmlentities($session_contact_name)); ?></strong>!</h4>
-            <hr>
         </div>
     </div>
+    <hr>
 
     <?php
     //Alert Feedback
