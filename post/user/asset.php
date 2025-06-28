@@ -452,8 +452,6 @@ if (isset($_POST['bulk_edit_asset_status'])) {
 }
 
 if (isset($_POST['bulk_archive_assets'])) {
-    var_dump($_POST);
-    exit;
 
     enforceUserPermission('module_support', 2);
 
