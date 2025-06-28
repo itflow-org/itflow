@@ -330,6 +330,79 @@ if (isset($_GET['get_client_contacts'])) {
 }
 
 /*
+ * Returns ordered list of active assets for a specified client
+ */
+if (isset($_GET['get_client_assets'])) {
+    enforceUserPermission('module_client');
+
+    $client_id = intval($_GET['client_id']);
+
+    $asset_sql = mysqli_query(
+        $mysqli,
+        "SELECT asset_id, asset_name, contact_name FROM assets
+        LEFT JOIN clients on asset_client_id = client_id
+        LEFT JOIN contacts ON contact_id = asset_contact_id
+        WHERE assets.asset_archived_at IS NULL AND asset_client_id = $client_id
+        $access_permission_query
+        ORDER BY asset_important DESC, asset_name"
+    );
+
+    while ($row = mysqli_fetch_array($asset_sql)) {
+        $response['assets'][] = $row;
+    }
+
+    echo json_encode($response);
+}
+
+/*
+ * Returns locations for a specified client
+ */
+if (isset($_GET['get_client_locations'])) {
+    enforceUserPermission('module_client');
+
+    $client_id = intval($_GET['client_id']);
+
+    $locations_sql = mysqli_query(
+        $mysqli,
+        "SELECT location_id, location_name FROM locations
+        LEFT JOIN clients on location_client_id = client_id
+        WHERE locations.location_archived_at IS NULL AND location_client_id = $client_id
+        $access_permission_query
+        ORDER BY location_primary DESC, location_name ASC"
+    );
+
+    while ($row = mysqli_fetch_array($locations_sql)) {
+        $response['locations'][] = $row;
+    }
+
+    echo json_encode($response);
+}
+
+/*
+ * Returns ordered list of vendors for a specified client
+ */
+if (isset($_GET['get_client_vendors'])) {
+    enforceUserPermission('module_client');
+
+    $client_id = intval($_GET['client_id']);
+
+    $vendors_sql = mysqli_query(
+        $mysqli,
+        "SELECT vendor_id, vendor_name FROM vendors
+        LEFT JOIN clients on vendor_client_id = client_id
+        WHERE vendors.vendor_archived_at IS NULL AND vendor_client_id = $client_id
+        $access_permission_query
+        ORDER BY vendor_name ASC"
+    );
+
+    while ($row = mysqli_fetch_array($vendors_sql)) {
+        $response['vendors'][] = $row;
+    }
+
+    echo json_encode($response);
+}
+
+/*
  * NEW TOTP getter for client login/passwords page
  * When provided with a login ID, checks permissions and returns the 6-digit code
  */
