@@ -888,11 +888,12 @@ if (isset($_GET['ticket_id'])) {
                         <?php } ?>
 
                         <!-- Internal collaborators -->
-                        <?php if ($ticket_collaborators) { ?>
-                            <div class="mt-1">
-                                <i class="fas fa-fw fa-users mr-2 text-secondary"></i><strong>Collaborators: </strong><?php echo $ticket_collaborators; ?>
-                            </div>
-                        <?php } ?>
+                        <!-- Commented - there is still something wrong with this -->
+<!--                        --><?php //if ($ticket_collaborators) { ?>
+<!--                            <div class="mt-1">-->
+<!--                                <i class="fas fa-fw fa-users mr-2 text-secondary"></i><strong>Collaborators: </strong>--><?php //echo $ticket_collaborators; ?>
+<!--                            </div>-->
+<!--                        --><?php //} ?>
 
                         <!-- Resolved -->
                         <?php if (!empty($ticket_resolved_at)) { ?>
