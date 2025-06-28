@@ -423,66 +423,73 @@ if (isset($_POST['add_ticket_watcher'])) {
     $ticket_id = intval($_POST['ticket_id']);
     $client_id = intval($_POST['client_id']);
     $ticket_number = sanitizeInput($_POST['ticket_number']);
-    $watcher_email = sanitizeInput($_POST['watcher_email']);
+    $watcher_emails = preg_split("/,| |;/", $_POST['watcher_email']); // Split on comma, semicolon or space, we sanitize later
     $notify = intval($_POST['watcher_notify']);
 
-    mysqli_query($mysqli, "INSERT INTO ticket_watchers SET watcher_email = '$watcher_email', watcher_ticket_id = $ticket_id");
+    // Process each watcher in list
+    foreach ($watcher_emails as $watcher_email) {
 
-    // Notify watcher
-    if ($notify && !empty($config_smtp_host)) {
-
-        // Get contact/ticket details
-        $sql = mysqli_query($mysqli, "SELECT ticket_prefix, ticket_number, ticket_category, ticket_subject, ticket_details, ticket_priority, ticket_status_name, ticket_url_key, ticket_created_by, ticket_assigned_to, ticket_client_id FROM tickets 
-            LEFT JOIN clients ON ticket_client_id = client_id
-            LEFT JOIN contacts ON ticket_contact_id = contact_id
-            LEFT JOIN ticket_statuses ON ticket_status = ticket_status_id                                                                                         
-            WHERE ticket_id = $ticket_id
-            AND ticket_closed_at IS NULL");
-        $row = mysqli_fetch_array($sql);
-
-        $ticket_prefix = sanitizeInput($row['ticket_prefix']);
-        $ticket_number = intval($row['ticket_number']);
-        $ticket_category = sanitizeInput($row['ticket_category']);
-        $ticket_subject = sanitizeInput($row['ticket_subject']);
-        $ticket_details = mysqli_escape_string($mysqli, $row['ticket_details']);
-        $ticket_priority = sanitizeInput($row['ticket_priority']);
-        $ticket_status = sanitizeInput($row['ticket_status_name']);
-        $url_key = sanitizeInput($row['ticket_url_key']);
-        $client_id = intval($row['ticket_client_id']);
-        $ticket_created_by = intval($row['ticket_created_by']);
-        $ticket_assigned_to = intval($row['ticket_assigned_to']);
-
-        // Get Company Phone Number
-        $sql = mysqli_query($mysqli, "SELECT company_name, company_phone, company_phone_country_code FROM companies WHERE company_id = 1");
-        $row = mysqli_fetch_array($sql);
-        $company_name = sanitizeInput($row['company_name']);
-        $company_phone = sanitizeInput(formatPhoneNumber($row['company_phone'], $row['company_phone_country_code']));
-
-        // Email content
-        $data = []; // Queue array
-
-        $subject = "Ticket Notification - [$ticket_prefix$ticket_number] - $ticket_subject";
-        $body = "<i style=\'color: #808080\'>##- Please type your reply above this line -##</i><br><br>Hello,<br><br>You have been added as a collaborator on this ticket regarding \"$ticket_subject\".<br><br>--------------------------------<br>$ticket_details--------------------------------<br><br>Ticket: $ticket_prefix$ticket_number<br>Subject: $ticket_subject<br>Status: $ticket_status<br>Guest link: https://$config_base_url/guest/guest_view_ticket.php?ticket_id=$ticket_id&url_key=$url_key<br><br>--<br>$company_name - Support<br>$config_ticket_from_email<br>$company_phone";
-
-        // Only add watcher to email queue if email is valid
         if (filter_var($watcher_email, FILTER_VALIDATE_EMAIL)) {
-            $data[] = [
-                'from' => $config_ticket_from_email,
-                'from_name' => $config_ticket_from_name,
-                'recipient' => $watcher_email,
-                'recipient_name' => $watcher_email,
-                'subject' => $subject,
-                'body' => $body
-            ];
+
+            $watcher_email = sanitizeInput($watcher_email);
+
+            mysqli_query($mysqli, "INSERT INTO ticket_watchers SET watcher_email = '$watcher_email', watcher_ticket_id = $ticket_id");
+
+            // Notify watcher
+            if ($notify && !empty($config_smtp_host)) {
+
+                // Get contact/ticket details
+                $sql = mysqli_query($mysqli, "SELECT ticket_prefix, ticket_number, ticket_category, ticket_subject, ticket_details, ticket_priority, ticket_status_name, ticket_url_key, ticket_created_by, ticket_assigned_to, ticket_client_id FROM tickets 
+                LEFT JOIN clients ON ticket_client_id = client_id
+                LEFT JOIN contacts ON ticket_contact_id = contact_id
+                LEFT JOIN ticket_statuses ON ticket_status = ticket_status_id                                                                                         
+                WHERE ticket_id = $ticket_id
+                AND ticket_closed_at IS NULL");
+                $row = mysqli_fetch_array($sql);
+
+                $ticket_prefix = sanitizeInput($row['ticket_prefix']);
+                $ticket_number = intval($row['ticket_number']);
+                $ticket_category = sanitizeInput($row['ticket_category']);
+                $ticket_subject = sanitizeInput($row['ticket_subject']);
+                $ticket_details = mysqli_escape_string($mysqli, $row['ticket_details']);
+                $ticket_priority = sanitizeInput($row['ticket_priority']);
+                $ticket_status = sanitizeInput($row['ticket_status_name']);
+                $url_key = sanitizeInput($row['ticket_url_key']);
+                $client_id = intval($row['ticket_client_id']);
+                $ticket_created_by = intval($row['ticket_created_by']);
+                $ticket_assigned_to = intval($row['ticket_assigned_to']);
+
+                // Get Company Phone Number
+                $sql = mysqli_query($mysqli, "SELECT company_name, company_phone, company_phone_country_code FROM companies WHERE company_id = 1");
+                $row = mysqli_fetch_array($sql);
+                $company_name = sanitizeInput($row['company_name']);
+                $company_phone = sanitizeInput(formatPhoneNumber($row['company_phone'], $row['company_phone_country_code']));
+
+                // Email content
+                $data = []; // Queue array
+
+                $subject = "Ticket Notification - [$ticket_prefix$ticket_number] - $ticket_subject";
+                $body = "<i style=\'color: #808080\'>##- Please type your reply above this line -##</i><br><br>Hello,<br><br>You have been added as a collaborator on this ticket regarding \"$ticket_subject\".<br><br>--------------------------------<br>$ticket_details--------------------------------<br><br>Ticket: $ticket_prefix$ticket_number<br>Subject: $ticket_subject<br>Status: $ticket_status<br>Guest link: https://$config_base_url/guest/guest_view_ticket.php?ticket_id=$ticket_id&url_key=$url_key<br><br>--<br>$company_name - Support<br>$config_ticket_from_email<br>$company_phone";
+
+                $data[] = [
+                    'from' => $config_ticket_from_email,
+                    'from_name' => $config_ticket_from_name,
+                    'recipient' => $watcher_email,
+                    'recipient_name' => $watcher_email,
+                    'subject' => $subject,
+                    'body' => $body
+                ];
+
+                addToMailQueue($data);
+            }
+
+            // Logging
+            logAction("Ticket", "Edit", "$session_name added $watcher_email as a watcher for ticket $config_ticket_prefix$ticket_number", $client_id, $ticket_id);
         }
 
-        addToMailQueue($data);
     }
 
-    // Logging
-    logAction("Ticket", "Edit", "$session_name added $watcher_email as a watcher for ticket $ticket_prefix$ticket_number", $client_id, $ticket_id);
-
-    $_SESSION['alert_message'] = "Added <strong>$watcher_email</strong> as a watcher";
+    $_SESSION['alert_message'] = "Added watcher(s)";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 }
@@ -747,7 +754,7 @@ if (isset($_GET['delete_ticket'])) {
 
         // Delete all ticket views
         mysqli_query($mysqli, "DELETE FROM ticket_views WHERE view_ticket_id = $ticket_id");
-        
+
         // Delete ticket watchers
         mysqli_query($mysqli, "DELETE FROM ticket_watchers WHERE watcher_ticket_id = $ticket_id");
 
@@ -755,7 +762,7 @@ if (isset($_GET['delete_ticket'])) {
         mysqli_query($mysqli, "DELETE FROM ticket_attachments WHERE ticket_attachment_ticket_id = $ticket_id");
         removeDirectory("uploads/tickets/$ticket_id");
 
-        // No Need to delete ticket assets as this is cascadely deleted via the database. 
+        // No Need to delete ticket assets as this is cascadely deleted via the database.
 
         // Logging
         logAction("Ticket", "Delete", "$session_name deleted $ticket_prefix$ticket_number along with all replies", $client_id);
@@ -797,7 +804,7 @@ if (isset($_POST['bulk_delete_tickets'])) {
             mysqli_query($mysqli, "DELETE FROM ticket_attachments WHERE ticket_attachment_ticket_id = $ticket_id");
             removeDirectory("uploads/tickets/$ticket_id");
 
-            // No Need to delete ticket assets as this is cascadely deleted via the database. 
+            // No Need to delete ticket assets as this is cascadely deleted via the database.
 
             // Logging
             logAction("Ticket", "Delete", "$session_name deleted ticket", 0, $ticket_id);
@@ -989,7 +996,7 @@ if (isset($_POST['bulk_edit_ticket_category'])) {
             $sql = mysqli_query($mysqli, "SELECT category_name FROM categories WHERE category_id = $category_id");
             $row = mysqli_fetch_array($sql);
             $category_name = sanitizeInput($row['category_name']);
-        
+
             // Update ticket
             mysqli_query($mysqli, "UPDATE tickets SET ticket_category = '$category_id' WHERE ticket_id = $ticket_id");
 
@@ -1100,7 +1107,7 @@ if (isset($_POST['bulk_resolve_tickets'])) {
             // Check to make sure Tasks are complete before resolving
             $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('task_id') AS num FROM tasks WHERE task_completed_at IS NULL AND task_ticket_id = $ticket_id"));
             $num_of_open_tasks = $row['num'];
-            
+
             if ($num_of_open_tasks == 0) {
                 // Count the Ticket Loop
                 $ticket_count++;
