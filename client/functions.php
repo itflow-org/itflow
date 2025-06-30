@@ -37,3 +37,48 @@ function verifyContactTicketAccess($requested_ticket_id, $expected_ticket_state)
     return false;
 
 }
+
+/*
+ * Returns appropriate FontAwesome icon for file extension
+ */
+function getFileIcon($file_extension) {
+    $file_extension = strtolower($file_extension);
+    
+    // Document icons
+    if (in_array($file_extension, ['pdf'])) {
+        return 'file-pdf';
+    } elseif (in_array($file_extension, ['doc', 'docx'])) {
+        return 'file-word';
+    } elseif (in_array($file_extension, ['xls', 'xlsx'])) {
+        return 'file-excel';
+    } elseif (in_array($file_extension, ['ppt', 'pptx'])) {
+        return 'file-powerpoint';
+    } elseif (in_array($file_extension, ['txt', 'md', 'rtf'])) {
+        return 'file-alt';
+    } elseif (in_array($file_extension, ['zip', 'rar', '7z', 'tar', 'gz'])) {
+        return 'file-archive';
+    } elseif (in_array($file_extension, ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp'])) {
+        return 'file-image';
+    } elseif (in_array($file_extension, ['mp4', 'avi', 'mov', 'wmv', 'flv'])) {
+        return 'file-video';
+    } elseif (in_array($file_extension, ['mp3', 'wav', 'ogg', 'flac'])) {
+        return 'file-audio';
+    } elseif (in_array($file_extension, ['html', 'htm', 'css', 'js', 'php', 'py', 'java'])) {
+        return 'file-code';
+    } else {
+        return 'file';
+    }
+}
+
+/*
+ * Formats bytes into human readable file sizes
+ */
+function formatBytes($bytes, $precision = 2) {
+    $units = array('B', 'KB', 'MB', 'GB', 'TB');
+    
+    for ($i = 0; $bytes > 1024 && $i < count($units) - 1; $i++) {
+        $bytes /= 1024;
+    }
+    
+    return round($bytes, $precision) . ' ' . $units[$i];
+}

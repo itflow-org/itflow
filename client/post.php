@@ -629,7 +629,7 @@ if (isset($_GET['stripe_save_card'])) {
 
     if (!empty($config_smtp_host)) {
         $subject = "Payment method saved";
-        $body = "Hello $session_contact_name,<br><br>We’re writing to confirm that your payment details have been securely stored with Stripe, our trusted payment processor.<br><br>By agreeing to save your payment information, you have authorized us to automatically bill your card ($stripe_pm_details) for any future invoices. The payment details you’ve provided are securely stored with Stripe and will be used solely for invoices. We do not have access to your full card details.<br><br>You may update or remove your payment information at any time using the portal.<br><br>Thank you for your business!<br><br>--<br>$company_name - Billing Department<br>$config_invoice_from_email<br>$company_phone";
+        $body = "Hello $session_contact_name,<br><br>We're writing to confirm that your payment details have been securely stored with Stripe, our trusted payment processor.<br><br>By agreeing to save your payment information, you have authorized us to automatically bill your card ($stripe_pm_details) for any future invoices. The payment details you've provided are securely stored with Stripe and will be used solely for invoices. We do not have access to your full card details.<br><br>You may update or remove your payment information at any time using the portal.<br><br>Thank you for your business!<br><br>--<br>$company_name - Billing Department<br>$config_invoice_from_email<br>$company_phone";
 
         $data = [
             [
@@ -750,3 +750,130 @@ if (isset($_POST['delete_recurring_payment'])) {
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
 }
+
+if (isset($_POST['client_add_document'])) {
+
+    // Permission check - only primary or technical contacts can create documents
+    if ($session_contact_primary == 0 && !$session_contact_is_technical_contact) {
+        header("Location: post.php?logout");
+        exit();
+    }
+
+    $document_name = sanitizeInput($_POST['document_name']);
+    $document_description = sanitizeInput($_POST['document_description']);
+    $document_content = mysqli_real_escape_string($mysqli, $_POST['document_content']);
+    $document_content_raw = sanitizeInput($document_name . " " . strip_tags($_POST['document_content']));
+
+    // Create document
+    mysqli_query($mysqli, "INSERT INTO documents SET 
+        document_name = '$document_name', 
+        document_description = '$document_description', 
+        document_content = '$document_content', 
+        document_content_raw = '$document_content_raw', 
+        document_client_visible = 1, 
+        document_client_id = $session_client_id, 
+        document_created_by = $session_contact_id");
+
+    $document_id = mysqli_insert_id($mysqli);
+
+    // Logging
+    logAction("Document", "Create", "Client contact $session_contact_name created document $document_name", $session_client_id, $document_id);
+
+    $_SESSION['alert_message'] = "Document <strong>$document_name</strong> created successfully";
+
+    header('Location: documents.php');
+}
+
+if (isset($_POST['client_upload_document'])) {
+
+    // Permission check - only primary or technical contacts can upload documents
+    if ($session_contact_primary == 0 && !$session_contact_is_technical_contact) {
+        header("Location: post.php?logout");
+        exit();
+    }
+
+    $document_name = sanitizeInput($_POST['document_name']);
+    $document_description = sanitizeInput($_POST['document_description']);
+    $client_dir = "../uploads/clients/$session_client_id";
+
+    // Create client directory if it doesn't exist
+    if (!is_dir($client_dir)) {
+        mkdir($client_dir, 0755, true);
+    }
+
+    // Allowed file extensions for documents
+    $allowedExtensions = ['pdf', 'doc', 'docx', 'txt', 'md', 'odt', 'rtf'];
+
+    // Check if file was uploaded
+    if (isset($_FILES['document_file']) && $_FILES['document_file']['error'] == 0) {
+        
+        // Validate and get a safe file reference name
+        if ($file_reference_name = checkFileUpload($_FILES['document_file'], $allowedExtensions)) {
+
+            $file_tmp_path = $_FILES['document_file']['tmp_name'];
+            $file_name = sanitizeInput($_FILES['document_file']['name']);
+            $extParts = explode('.', $file_name);
+            $file_extension = strtolower(end($extParts));
+            $file_mime_type = sanitizeInput($_FILES['document_file']['type']);
+            $file_size = intval($_FILES['document_file']['size']);
+
+            // Define destination path and move the uploaded file
+            $dest_path = $client_dir . "/" . $file_reference_name;
+
+            if (move_uploaded_file($file_tmp_path, $dest_path)) {
+
+                // Create document entry
+                $document_content = "<p>Uploaded file: <strong>$file_name</strong></p><p>$document_description</p>";
+                $document_content_raw = "$document_name $file_name $document_description";
+
+                mysqli_query($mysqli, "INSERT INTO documents SET 
+                    document_name = '$document_name', 
+                    document_description = '$document_description', 
+                    document_content = '$document_content', 
+                    document_content_raw = '$document_content_raw', 
+                    document_client_visible = 1, 
+                    document_client_id = $session_client_id, 
+                    document_created_by = $session_contact_id");
+
+                $document_id = mysqli_insert_id($mysqli);
+
+                // Create file entry
+                mysqli_query($mysqli, "INSERT INTO files SET 
+                    file_reference_name = '$file_reference_name', 
+                    file_name = '$file_name', 
+                    file_description = 'Attached to document: $document_name', 
+                    file_ext = '$file_extension', 
+                    file_mime_type = '$file_mime_type', 
+                    file_size = $file_size, 
+                    file_created_by = $session_contact_id, 
+                    file_client_id = $session_client_id");
+
+                $file_id = mysqli_insert_id($mysqli);
+
+                // Link file to document
+                mysqli_query($mysqli, "INSERT INTO document_files SET document_id = $document_id, file_id = $file_id");
+
+                // Logging
+                logAction("Document", "Upload", "Client contact $session_contact_name uploaded document $document_name with file $file_name", $session_client_id, $document_id);
+
+                $_SESSION['alert_message'] = "Document <strong>$document_name</strong> uploaded successfully";
+
+            } else {
+                $_SESSION['alert_type'] = 'error';
+                $_SESSION['alert_message'] = 'Error uploading file. Please try again.';
+            }
+
+        } else {
+            $_SESSION['alert_type'] = 'error';
+            $_SESSION['alert_message'] = 'Invalid file type. Please upload PDF, Word documents, or text files only.';
+        }
+
+    } else {
+        $_SESSION['alert_type'] = 'error';
+        $_SESSION['alert_message'] = 'Please select a file to upload.';
+    }
+
+    header('Location: documents.php');
+}
+
+?>
