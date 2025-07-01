@@ -103,5 +103,5 @@ if (isset($_POST['contact_location_id'])) {
 } elseif ($contact_row) {
     $location_id = $contact_row['contact_location_id'];
 } else {
-    $location_id = '';
+    $location_id = '0';
 }
