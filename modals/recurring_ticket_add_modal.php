@@ -51,7 +51,7 @@
                             </div>
 
                             <div class="row">
-                                
+
                                 <div class="col">
                                     <div class="form-group">
                                         <label>Priority <strong class="text-danger">*</strong></label>
@@ -233,7 +233,7 @@
                                                 $asset_name_select = nullable_htmlentities($row['asset_name']);
                                                 ?>
                                                 <option value="<?php echo $asset_id_select; ?>"
-                                                    <?php if (isset($_GET['asset_id']) && $asset_id_select == $_GET['asset_id']) { echo "selected"; } 
+                                                    <?php if (isset($_GET['asset_id']) && $asset_id_select == $_GET['asset_id']) { echo "selected"; }
                                                     ?>
 
                                                     ><?php echo $asset_name_select; ?>
@@ -288,4 +288,4 @@
 <!-- Recurring Ticket Client/Contact JS -->
 <link rel="stylesheet" href="plugins/jquery-ui/jquery-ui.min.css">
 <script src="plugins/jquery-ui/jquery-ui.min.js"></script>
-<script src="js/recurring_tickets_add_modal.js"></script>
+<script src="js/tickets_add_modal.js"></script>

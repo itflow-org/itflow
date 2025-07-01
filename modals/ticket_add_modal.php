@@ -2,7 +2,7 @@
     <div class="modal-dialog modal-lg">
         <div class="modal-content bg-dark">
             <div class="modal-header">
-                <h5 class="modal-title"><i class="fas fa-fw fa-life-ring mr-2"></i>New Ticket</h5>
+                <h5 class="modal-title"><i class="fas fa-fw fa-life-ring mr-2"></i>New Ticket (v1)</h5>
                 <button type="button" class="close text-white" data-dismiss="modal">
                     <span>&times;</span>
                 </button>
@@ -12,7 +12,7 @@
                 <?php if (isset($_GET['project_id'])) { ?>
                 <input type="hidden" name="project" value="<?php echo intval($_GET['project_id']); ?>">
                 <?php } ?>
-                
+
                 <div class="modal-body bg-white">
 
                     <?php if (isset($_GET['client_id'])) { ?>
@@ -121,7 +121,7 @@
                             </div>
 
                             <div class="row">
-                                
+
                                 <div class="col">
                                     <div class="form-group">
                                         <label>Priority <strong class="text-danger">*</strong></label>
@@ -265,16 +265,16 @@
                                                 }
 
                                                 ?>
-                                                <option value="<?php echo $contact_id_select; ?>" 
-                                                    <?php 
+                                                <option value="<?php echo $contact_id_select; ?>"
+                                                    <?php
                                                     if (isset($_GET['contact_id']) && $contact_id_select == intval($_GET['contact_id'])) {
                                                         echo "selected";
                                                     } elseif (empty($_GET['contact_id']) && $contact_primary_select == 1) {
                                                         echo "selected";
-                                                    } 
+                                                    }
                                                     ?>
                                                     >
-                                                    <?php echo "$contact_name_select$contact_title_display$contact_primary_display$contact_technical_display"; ?> 
+                                                    <?php echo "$contact_name_select$contact_title_display$contact_primary_display$contact_technical_display"; ?>
                                                 </option>
 
                                             <?php } ?>
@@ -322,8 +322,8 @@
                                                 $asset_name_select = nullable_htmlentities($row['asset_name']);
                                                 $asset_contact_name_select = nullable_htmlentities($row['contact_name']);
                                             ?>
-                                                <option value="<?php echo $asset_id_select; ?>" 
-                                                    <?php if (isset($_GET['asset_id']) && $asset_id_select == $_GET['asset_id']) { echo "selected"; } 
+                                                <option value="<?php echo $asset_id_select; ?>"
+                                                    <?php if (isset($_GET['asset_id']) && $asset_id_select == $_GET['asset_id']) { echo "selected"; }
                                                     ?>
                                                     ><?php echo "$asset_name_select - $asset_contact_name_select"; ?></option>
 
@@ -380,7 +380,7 @@
                                 </div>
 
                                 <div class="row">
-                                
+
                                     <div class="col">
 
                                         <div class="form-group">
@@ -417,7 +417,7 @@
                                                 <input type="text" class="form-control" name="vendor_ticket_number" placeholder="Vendor ticket number">
                                             </div>
                                         </div>
-                                    
+
                                     </div>
 
                                 </div>

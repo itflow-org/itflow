@@ -61,6 +61,8 @@ if (isset($_GET['remove_company_logo'])) {
 
     unlink("uploads/settings/$company_logo");
 
+    mysqli_query($mysqli,"UPDATE companies SET company_logo = NULL WHERE company_id = 1");
+
     // Logging
     logAction("Settings", "Edit", "$session_name deleted company logo");
 

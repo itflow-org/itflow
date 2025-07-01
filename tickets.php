@@ -166,7 +166,7 @@ $sql_categories = mysqli_query(
             <?php if (lookupUserPermission("module_support") >= 2) { ?>
                 <div class="card-tools">
                     <div class="btn-group">
-                        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addTicketModal">
+                        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addTicketModalv2">
                             <i class="fas fa-plus"></i><span class="d-none d-lg-inline ml-2">New Ticket</span>
                         </button>
                         <?php if ($num_rows[0] > 0) { ?>
@@ -438,6 +438,6 @@ if (isset($_GET["view"])) {
 <script src="js/bulk_actions.js"></script>
 
 <?php
-require_once "modals/ticket_add_modal.php";
+require_once "modals/ticket_add_modal_v2.php";
 require_once "modals/ticket_export_modal.php";
 require_once "includes/footer.php";

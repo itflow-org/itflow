@@ -35,17 +35,17 @@ $company_initials = nullable_htmlentities(initials($company_name));
 
                     <div class="row">
                         <div class="col-md-3 text-center">
-                            <?php if($company_logo) { ?>
-                            <img class="img-thumbnail" src="<?php echo "uploads/settings/$company_logo"; ?>">
-                            <a href="post.php?remove_company_logo" class="btn btn-outline-danger btn-block">Remove Logo</a>
-                            <hr>
+                            <?php if ($company_logo) { ?>
+                                <img class="img-thumbnail" src="<?php echo "uploads/settings/$company_logo"; ?>">
+                                <a href="post.php?remove_company_logo" class="btn btn-outline-danger btn-block">Remove Logo</a>
+                                <hr>
                             <?php } ?>
                             <div class="form-group">
                                 <label>Upload company logo</label>
                                 <input type="file" class="form-control-file" name="file" accept=".jpg, .jpeg, .png">
                             </div>
                         </div>
-                        
+
                         <div class="col-md-9">
                             <div class="form-group">
                                 <label>Name <strong class="text-danger">*</strong></label>
