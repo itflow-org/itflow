@@ -339,8 +339,13 @@ if (isset($_GET['contact_id'])) {
             </div>
 
             <div class="card card-dark <?php if ($asset_count == 0) { echo "d-none"; } ?>">
-                <div class="card-header">
-                    <h3 class="card-title"><i class="fa fa-fw fa-desktop mr-2"></i>Related Assets</h3>
+                <div class="card-header py-2">
+                    <h3 class="card-title mt-2"><i class="fa fa-fw fa-desktop mr-2"></i>Related Assets</h3>
+                    <div class="card-tools">
+                        <button type="button" class="btn btn-primary" data-toggle="ajax-modal" data-ajax-url="ajax/ajax_contact_link_asset.php" data-ajax-id="<?php echo $contact_id; ?>">
+                            <i class="fas fa-link mr-2"></i>Link Document
+                        </button>
+                    </div>
                 </div>
                 <div class="card-body">
                     <div class="table-responsive-sm">
@@ -480,8 +485,13 @@ if (isset($_GET['contact_id'])) {
             </div>
 
             <div class="card card-dark <?php if ($credential_count == 0) { echo "d-none"; } ?>">
-                <div class="card-header">
-                    <h3 class="card-title"><i class="fa fa-fw fa-key mr-2"></i>Credentials</h3>
+                <div class="card-header py-2">
+                    <h3 class="card-title mt-2"><i class="fa fa-fw fa-key mr-2"></i>Credentials</h3>
+                    <div class="card-tools">
+                        <button type="button" class="btn btn-primary" data-toggle="ajax-modal" data-ajax-url="ajax/ajax_contact_link_credential.php" data-ajax-id="<?php echo $contact_id; ?>">
+                            <i class="fas fa-link mr-2"></i>Link Credential
+                        </button>
+                    </div>
                 </div>
                 <div class="card-body">
                     <div class="table-responsive-sm">
@@ -620,7 +630,7 @@ if (isset($_GET['contact_id'])) {
                 <div class="card-header py-2">
                     <h3 class="card-title mt-2"><i class="fa fa-fw fa-cube mr-2"></i>Related Licenses</h3>
                     <div class="card-tools">
-                        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#linkSoftwareModal">
+                        <button type="button" class="btn btn-primary" data-toggle="ajax-modal" data-ajax-url="ajax/ajax_contact_link_software.php" data-ajax-id="<?php echo $contact_id; ?>">
                             <i class="fas fa-link mr-2"></i>Link License
                         </button>
                     </div>
@@ -869,7 +879,7 @@ if (isset($_GET['contact_id'])) {
                 <div class="card-header py-2">
                     <h3 class="card-title mt-2"><i class="fa fa-fw fa-stream mr-2"></i>Linked Services</h3>
                     <div class="card-tools">
-                        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#linkServiceModal">
+                        <button type="button" class="btn btn-primary" data-toggle="ajax-modal" data-ajax-url="ajax/ajax_contact_link_service.php" data-ajax-id="<?php echo $contact_id; ?>">
                             <i class="fas fa-link mr-2"></i>Link Service
                         </button>
                     </div>
@@ -927,7 +937,7 @@ if (isset($_GET['contact_id'])) {
                 <div class="card-header py-2">
                     <h3 class="card-title mt-2"><i class="fa fa-fw fa-folder mr-2"></i>Linked Documents</h3>
                     <div class="card-tools">
-                        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#linkDocumentModal">
+                        <button type="button" class="btn btn-primary" data-toggle="ajax-modal" data-ajax-url="ajax/ajax_contact_link_document.php" data-ajax-id="<?php echo $contact_id; ?>">
                             <i class="fas fa-link mr-2"></i>Link Document
                         </button>
                     </div>
@@ -996,7 +1006,7 @@ if (isset($_GET['contact_id'])) {
                 <div class="card-header py-2">
                     <h3 class="card-title mt-2"><i class="fa fa-fw fa-folder mr-2"></i>Linked Files</h3>
                     <div class="card-tools">
-                        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#linkFileModal">
+                        <button type="button" class="btn btn-primary" data-toggle="ajax-modal" data-ajax-url="ajax/ajax_contact_link_file.php" data-ajax-id="<?php echo $contact_id; ?>">
                             <i class="fas fa-link mr-2"></i>Link File
                         </button>
                     </div>
