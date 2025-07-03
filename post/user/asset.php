@@ -210,11 +210,11 @@ if (isset($_POST['bulk_assign_asset_location'])) {
     $row = mysqli_fetch_array($sql);
     $location_name = sanitizeInput($row['location_name']);
     $client_id = intval($row['location_client_id']);
-    
-    // Assign Location to Selected Contacts
+
+    // Assign Location to Selected Assets
     if (isset($_POST['asset_ids'])) {
 
-        // Get Selected Contacts Count
+        // Get Selected Asset Count
         $asset_count = count($_POST['asset_ids']);
 
         foreach($_POST['asset_ids'] as $asset_id) {
@@ -231,15 +231,54 @@ if (isset($_POST['bulk_assign_asset_location'])) {
             logAction("Asset", "Edit", "$session_name assigned asset $asset_name to location $location_name", $client_id, $asset_id);
 
         } // End Assign Location Loop
-        
+
         // Bulk Logging
         logAction("Asset", "Bulk Edit", "$session_name assigned $asset_count assets to location $location_name", $client_id);
-        
+
         $_SESSION['alert_message'] = "You assigned <strong>$asset_count</strong> assets to location <strong>$location_name</strong>";
     }
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 
+}
+
+if (isset($_POST['bulk_assign_asset_physical_location'])) {
+
+    enforceUserPermission('module_support', 2);
+
+    validateCSRFToken($_POST['csrf_token']);
+
+    $physical_location = sanitizeInput($_POST['physical_location']);
+
+    // Assign Physical Location to Selected Assets
+    if (isset($_POST['asset_ids'])) {
+
+        // Get Selected Assets Count
+        $asset_count = count($_POST['asset_ids']);
+
+        foreach($_POST['asset_ids'] as $asset_id) {
+            $asset_id = intval($asset_id);
+
+            // Get Asset Details for Logging
+            $sql = mysqli_query($mysqli,"SELECT asset_name, asset_client_id FROM assets WHERE asset_id = $asset_id");
+            $row = mysqli_fetch_array($sql);
+            $asset_name = sanitizeInput($row['asset_name']);
+            $client_id = intval($row['asset_client_id']);
+
+            mysqli_query($mysqli,"UPDATE assets SET asset_physical_location = '$physical_location' WHERE asset_id = $asset_id");
+
+            //Logging
+            logAction("Asset", "Edit", "$session_name set asset $asset_name to physical location $physical_location", $client_id, $asset_id);
+
+        } // End Assign Location Loop
+
+        // Bulk Logging
+        logAction("Asset", "Bulk Edit", "$session_name set $asset_count assets to physical location $physical_location", $client_id);
+
+        $_SESSION['alert_message'] = "You moved <strong>$asset_count</strong> assets to location <strong>$location_name</strong>";
+    }
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
 }
 
 if (isset($_POST['bulk_transfer_client_asset'])) {
@@ -249,7 +288,7 @@ if (isset($_POST['bulk_transfer_client_asset'])) {
     validateCSRFToken($_POST['csrf_token']);
 
     $new_client_id = intval($_POST['bulk_client_id']);
-    
+
     // Transfer selected asset to new client
     if (isset($_POST['asset_ids'])) {
 
@@ -300,7 +339,7 @@ if (isset($_POST['bulk_transfer_client_asset'])) {
             // Archive/log the current asset
             $notes = $asset_notes . "\r\n\r\n---\r\n* " . date('Y-m-d H:i:s') . ": Transferred asset $asset_name (old asset ID: $current_asset_id) from $current_client_name to $new_client_name (new asset ID: $new_asset_id)";
             mysqli_query($mysqli,"UPDATE assets SET asset_archived_at = NOW() WHERE asset_id = $current_asset_id");
-            
+
             // Log Archive
             logAction("Asset", "Archive", "$session_name archived asset $asset_name (via transfer)", $current_client_id, $current_asset_id);
 
@@ -320,7 +359,7 @@ if (isset($_POST['bulk_transfer_client_asset'])) {
 
         // Bulk Logging
         logAction("Asset", "Bulk Transfer", "$session_name transferred $asset_count assets to $new_client_name", $new_client_id);
-        
+
         $_SESSION['alert_message'] = "Transferred <strong>$asset_count</strong> assets to <strong>$new_client_name</strong>.";
     }
 
@@ -340,7 +379,7 @@ if (isset($_POST['bulk_assign_asset_contact'])) {
     $row = mysqli_fetch_array($sql);
     $contact_name = sanitizeInput($row['contact_name']);
     $client_id = intval($row['contact_client_id']);
-    
+
     // Assign Contact to Selected Assets
     if (isset($_POST['asset_ids'])) {
 
@@ -364,7 +403,7 @@ if (isset($_POST['bulk_assign_asset_contact'])) {
 
         // Bulk Logging
         logAction("Asset", "Bulk Edit", "$session_name assigned $asset_count assets to contact $contact_name", $client_id);
-        
+
         $_SESSION['alert_message'] = "You assigned <strong>$asset_count</strong> assets to contact <strong>$contact_name</strong>";
     }
 
@@ -379,7 +418,7 @@ if (isset($_POST['bulk_edit_asset_status'])) {
     validateCSRFToken($_POST['csrf_token']);
 
     $status = sanitizeInput($_POST['bulk_status']);
-    
+
     // Assign Status to Selected Assets
     if (isset($_POST['asset_ids'])) {
 
@@ -404,7 +443,7 @@ if (isset($_POST['bulk_edit_asset_status'])) {
 
         // Bulk Logging
         logAction("Asset", "Bulk Edit", "$session_name set status to $status on $asset_count assets", $client_id);
-        
+
         $_SESSION['alert_message'] = "You set the status <strong>$status</strong> on <strong>$asset_count</strong> assets.";
     }
 
@@ -904,7 +943,7 @@ if (isset($_POST["import_assets_csv"])) {
                 mysqli_query($mysqli,"INSERT INTO assets SET asset_name = '$name', asset_description = '$description', asset_type = '$type', asset_make = '$make', asset_model = '$model', asset_serial = '$serial', asset_os = '$os', asset_purchase_date = $purchase_date, asset_physical_location = '$physical_location', asset_contact_id = $contact_id, asset_location_id = $location_id, asset_client_id = $client_id");
 
                 $asset_id = mysqli_insert_id($mysqli);
-                
+
                 // Add Primary Interface
                 mysqli_query($mysqli,"INSERT INTO asset_interfaces SET interface_name = '1', interface_primary = 1, interface_asset_id = $asset_id");
 
@@ -1055,11 +1094,11 @@ if (isset($_POST['add_asset_interface'])) {
             interface_asset_id   = $asset_id
     ";
     mysqli_query($mysqli, $sql_insert);
-    
+
     $new_interface_id = mysqli_insert_id($mysqli);
 
     // If Primary Interface Checked set all interfaces primary to 0 then set the new interface as primary with a 1
-    if ($primary_interface) { 
+    if ($primary_interface) {
         mysqli_query($mysqli,"UPDATE asset_interfaces SET interface_primary = 0 WHERE interface_asset_id = $asset_id");
         mysqli_query($mysqli,"UPDATE asset_interfaces SET interface_primary = 1 WHERE interface_id = $new_interface_id");
     }
@@ -1076,10 +1115,10 @@ if (isset($_POST['add_asset_interface'])) {
 
     // 6) Logging
     logAction(
-        "Asset Interface", 
-        "Create", 
-        "$session_name created interface $name for asset $asset_name", 
-        $client_id, 
+        "Asset Interface",
+        "Create",
+        "$session_name created interface $name for asset $asset_name",
+        $client_id,
         $asset_id
     );
 
@@ -1111,7 +1150,7 @@ if (isset($_POST['add_asset_multiple_interfaces'])) {
 
         // Format $interface_number as a 2-digit number
         $formatted_interface_number = str_pad($interface_number, 2, '0', STR_PAD_LEFT);
-    
+
         $sql_insert = "
             INSERT INTO asset_interfaces SET
                 interface_name       = '$name_prefix$formatted_interface_number',
@@ -1138,7 +1177,7 @@ if (isset($_POST['edit_asset_interface'])) {
 
     // Interface info
     $interface_id = intval($_POST['interface_id']);
-    require_once 'asset_interface_model.php'; 
+    require_once 'asset_interface_model.php';
     // sets: $name, $mac, $ip, $ipv6, $port, $notes, $network, $connected_to, etc.
 
     // 1) Get Asset Name and Client ID for logging and alert message
@@ -1170,7 +1209,7 @@ if (isset($_POST['edit_asset_interface'])) {
     mysqli_query($mysqli, $sql_update);
 
     // If Primary Interface Checked set all interfaces primary to 0 then set the new interface as primary with a 1
-    if ($primary_interface) { 
+    if ($primary_interface) {
         mysqli_query($mysqli,"UPDATE asset_interfaces SET interface_primary = 0 WHERE interface_asset_id = $asset_id");
         mysqli_query($mysqli,"UPDATE asset_interfaces SET interface_primary = 1 WHERE interface_id = $interface_id");
     }
@@ -1195,10 +1234,10 @@ if (isset($_POST['edit_asset_interface'])) {
 
     // 5) Logging
     logAction(
-        "Asset Interface", 
-        "Edit", 
-        "$session_name edited interface $name for asset $asset_name", 
-        $client_id, 
+        "Asset Interface",
+        "Edit",
+        "$session_name edited interface $name for asset $asset_name",
+        $client_id,
         $asset_id
     );
 
@@ -1236,10 +1275,10 @@ if (isset($_GET['delete_asset_interface'])) {
 
     // 3) Logging
     logAction(
-        "Asset Interface", 
-        "Delete", 
-        "$session_name deleted interface $interface_name from asset $asset_name", 
-        $client_id, 
+        "Asset Interface",
+        "Delete",
+        "$session_name deleted interface $interface_name from asset $asset_name",
+        $client_id,
         $asset_id
     );
 
@@ -1298,7 +1337,7 @@ if (isset($_POST['bulk_edit_asset_interface_network'])) {
     validateCSRFToken($_POST['csrf_token']);
 
     $network_id = intval($_POST['bulk_network']);
-    
+
     // Get Network Name for logging
     $sql = mysqli_query($mysqli, "SELECT network_name FROM networks WHERE network_id = $network_id");
     $row = mysqli_fetch_array($sql);

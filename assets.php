@@ -194,7 +194,7 @@ if (mysqli_num_rows($os_sql) > 0) {
                     <div class="dropdown-divider"></div>
                     <?php } ?>
                     <?php if ($num_rows[0] > 0) { ?>
-                        
+
                         <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#exportAssetModal">
                             <i class="fa fa-fw fa-download mr-2"></i>Export
                         </a>
@@ -316,6 +316,9 @@ if (mysqli_num_rows($os_sql) > 0) {
                                 <a class="dropdown-item" href="#" data-toggle="modal" data-target="#bulkAssignLocationModal">
                                     <i class="fas fa-fw fa-map-marker-alt mr-2"></i>Assign Location
                                 </a>
+                                <a class="dropdown-item" href="#" data-toggle="modal" data-target="#bulkAssignPhysicalLocationModal">
+                                    <i class="fas fa-fw fa-map-marker-alt mr-2"></i>Set Physical Location
+                                </a>
                                 <div class="dropdown-divider"></div>
                                 <a class="dropdown-item" href="#" data-toggle="modal" data-target="#bulkEditStatusModal">
                                     <i class="fas fa-fw fa-info mr-2"></i>Set Status
@@ -325,28 +328,28 @@ if (mysqli_num_rows($os_sql) > 0) {
                                     <i class="fas fa-fw fa-life-ring mr-2"></i>Create Tickets
                                 </a>
                                 <?php if ($archived) { ?>
-                                <div class="dropdown-divider"></div>
-                                <button class="dropdown-item text-info"
-                                    type="submit" form="bulkActions" name="bulk_unarchive_assets">
-                                    <i class="fas fa-fw fa-redo mr-2"></i>Unarchive
-                                </button>
-                                <div class="dropdown-divider"></div>
-                                <button class="dropdown-item text-danger text-bold"
-                                    type="submit" form="bulkActions" name="bulk_delete_assets">
-                                    <i class="fas fa-fw fa-trash mr-2"></i>Delete
-                                </button>
+                                    <div class="dropdown-divider"></div>
+                                    <button class="dropdown-item text-info"
+                                        type="submit" form="bulkActions" name="bulk_unarchive_assets">
+                                        <i class="fas fa-fw fa-redo mr-2"></i>Unarchive
+                                    </button>
+                                    <div class="dropdown-divider"></div>
+                                    <button class="dropdown-item text-danger text-bold"
+                                        type="submit" form="bulkActions" name="bulk_delete_assets">
+                                        <i class="fas fa-fw fa-trash mr-2"></i>Delete
+                                    </button>
                                 <?php } else { ?>
-                                <div class="dropdown-divider"></div>
-                                <button class="dropdown-item text-danger confirm-link"
-                                    type="submit" form="bulkActions" name="bulk_archive_assets">
-                                    <i class="fas fa-fw fa-archive mr-2"></i>Archive
-                                </button>
+                                    <div class="dropdown-divider"></div>
+                                    <button class="dropdown-item text-danger confirm-link"
+                                        type="submit" form="bulkActions" name="bulk_archive_assets">
+                                        <i class="fas fa-fw fa-archive mr-2"></i>Archive
+                                    </button>
                                 <?php } ?>
                             </div>
                         </div>
                     </div>
                 </div>
-                
+
             </div>
         </form>
         <hr>
@@ -544,7 +547,7 @@ if (mysqli_num_rows($os_sql) > 0) {
                         } else {
                             $contact_name_display = "-";
                         }
-                        
+
                         $location_name = nullable_htmlentities($row['location_name']);
                         if (empty($location_name)) {
                             $location_name = "-";
@@ -686,6 +689,7 @@ if (mysqli_num_rows($os_sql) > 0) {
                 </table>
             </div>
             <?php require_once "modals/asset_bulk_assign_location_modal.php"; ?>
+            <?php require_once "modals/asset_bulk_assign_physical_location_modal.php"; ?>
             <?php require_once "modals/asset_bulk_assign_contact_modal.php"; ?>
             <?php require_once "modals/asset_bulk_transfer_client_modal.php"; ?>
             <?php require_once "modals/asset_bulk_edit_status_modal.php"; ?>
