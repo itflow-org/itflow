@@ -719,8 +719,13 @@ if (isset($_GET['asset_id'])) {
             </div>
             
             <div class="card card-dark <?php if ($software_count == 0) { echo "d-none"; } ?>">
-                <div class="card-header">
-                    <h3 class="card-title"><i class="fa fa-fw fa-cube mr-2"></i>Licenses</h3>
+                <div class="card-header py-2">
+                    <h3 class="card-title mt-2"><i class="fa fa-fw fa-cube mr-2"></i>Licenses</h3>
+                    <div class="card-tools">
+                        <button type="button" class="btn btn-primary" data-toggle="ajax-modal" data-ajax-url="ajax/ajax_asset_link_software.php" data-ajax-id="<?php echo $asset_id; ?>">
+                            <i class="fas fa-link mr-2"></i>Link Software
+                        </button>
+                    </div>
                 </div>
                 <div class="card-body">
                     <div class="table-responsive-sm">
@@ -806,7 +811,7 @@ if (isset($_GET['asset_id'])) {
                 <div class="card-header py-2">
                     <h3 class="card-title mt-2"><i class="fa fa-fw fa-folder mr-2"></i>Documents</h3>
                     <div class="card-tools">
-                        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#linkDocumentModal">
+                        <button type="button" class="btn btn-primary" data-toggle="ajax-modal" data-ajax-url="ajax/ajax_asset_link_document.php" data-ajax-id="<?php echo $asset_id; ?>">
                             <i class="fas fa-link mr-2"></i>Link Document
                         </button>
                     </div>
@@ -872,23 +877,27 @@ if (isset($_GET['asset_id'])) {
             </div>
 
             <div class="card card-dark <?php if ($files_count == 0) { echo "d-none"; } ?>">
-                <div class="card-header">
-                    <h3 class="card-title"><i class="fa fa-fw fa-cube mr-2"></i>Files</h3>
-                    <div class="btn-group float-right">
-                        <?php
+                <div class="card-header py-2">
+                    <h3 class="card-title mt-2"><i class="fa fa-fw fa-cube mr-2"></i>Files</h3>
+                    <div class="card-tools">
+                        <div class="btn-group">
+                            <?php
                             if ($view == 0) {
-                        ?>
-                        <a href="?client_id=<?=$client_id?>&asset_id=<?=$asset_id?>&view=0" class="btn btn-primary"><i class="fas fa-list-ul"></i></a>
-                        <a href="?client_id=<?=$client_id?>&asset_id=<?=$asset_id?>&view=1" class="btn btn-outline-secondary"><i class="fas fa-th-large"></i></a>
-                        <?php
-                            } else {
-                        ?>
-                        <a href="?client_id=<?=$client_id?>&asset_id=<?=$asset_id?>&view=0" class="btn btn-outline-secondary"><i class="fas fa-list-ul"></i></a>
-                        <a href="?client_id=<?=$client_id?>&asset_id=<?=$asset_id?>&view=1" class="btn btn-primary"><i class="fas fa-th-large"></i></a>
-                        <?php
-                            }
-                        ?>
-
+                            ?>
+                            <a href="?client_id=<?=$client_id?>&asset_id=<?=$asset_id?>&view=0" class="btn btn-primary"><i class="fas fa-list-ul"></i></a>
+                            <a href="?client_id=<?=$client_id?>&asset_id=<?=$asset_id?>&view=1" class="btn btn-outline-secondary"><i class="fas fa-th-large"></i></a>
+                            <?php
+                                } else {
+                            ?>
+                            <a href="?client_id=<?=$client_id?>&asset_id=<?=$asset_id?>&view=0" class="btn btn-outline-secondary"><i class="fas fa-list-ul"></i></a>
+                            <a href="?client_id=<?=$client_id?>&asset_id=<?=$asset_id?>&view=1" class="btn btn-primary"><i class="fas fa-th-large"></i></a>
+                            <?php
+                                }
+                            ?>
+                        </div>
+                        <button type="button" class="btn btn-primary" data-toggle="ajax-modal" data-ajax-url="ajax/ajax_asset_link_file.php" data-ajax-id="<?php echo $asset_id; ?>">
+                            <i class="fas fa-link mr-2"></i>Link File
+                        </button>
                     </div>
                 </div>
                 <div class="card-body">
@@ -1133,7 +1142,7 @@ if (isset($_GET['asset_id'])) {
                 <div class="card-header py-2">
                     <h3 class="card-title mt-2"><i class="fa fa-fw fa-stream mr-2"></i>Linked Services</h3>
                     <div class="card-tools">
-                        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#linkServiceModal">
+                        <button type="button" class="btn btn-primary" data-toggle="ajax-modal" data-ajax-url="ajax/ajax_asset_link_service.php" data-ajax-id="<?php echo $asset_id; ?>">
                             <i class="fas fa-link mr-2"></i>Link Service
                         </button>
                     </div>
