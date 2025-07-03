@@ -275,7 +275,7 @@ if (isset($_POST['bulk_assign_asset_physical_location'])) {
         // Bulk Logging
         logAction("Asset", "Bulk Edit", "$session_name set $asset_count assets to physical location $physical_location", $client_id);
 
-        $_SESSION['alert_message'] = "You moved <strong>$asset_count</strong> assets to location <strong>$location_name</strong>";
+        $_SESSION['alert_message'] = "You moved <strong>$asset_count</strong> assets to location <strong>$physical_location</strong>";
     }
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);

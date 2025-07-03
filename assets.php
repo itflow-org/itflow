@@ -305,17 +305,15 @@ if (mysqli_num_rows($os_sql) > 0) {
                                 <i class="fas fa-fw fa-layer-group mr-2"></i>Bulk Action (<span id="selectedCount"></span>)
                             </button>
                             <div class="dropdown-menu">
+                                <?php if ($client_url) { ?>
                                 <a class="dropdown-item" href="#" data-toggle="modal" data-target="#bulkAssignContactModal">
                                     <i class="fas fa-fw fa-user mr-2"></i>Assign Contact
-                                </a>
-                                <div class="dropdown-divider"></div>
-                                <a class="dropdown-item" href="#" data-toggle="modal" data-target="#bulkTransferAssetClientModal">
-                                    <i class="fas fa-fw fa-arrow-right mr-2"></i>Transfer to Client
                                 </a>
                                 <div class="dropdown-divider"></div>
                                 <a class="dropdown-item" href="#" data-toggle="modal" data-target="#bulkAssignLocationModal">
                                     <i class="fas fa-fw fa-map-marker-alt mr-2"></i>Assign Location
                                 </a>
+                                <?php } ?>
                                 <a class="dropdown-item" href="#" data-toggle="modal" data-target="#bulkAssignPhysicalLocationModal">
                                     <i class="fas fa-fw fa-map-marker-alt mr-2"></i>Set Physical Location
                                 </a>
@@ -326,6 +324,10 @@ if (mysqli_num_rows($os_sql) > 0) {
                                 <div class="dropdown-divider"></div>
                                 <a class="dropdown-item" href="#" data-toggle="modal" data-target="#bulkAddTicketModal">
                                     <i class="fas fa-fw fa-life-ring mr-2"></i>Create Tickets
+                                </a>
+                                <div class="dropdown-divider"></div>
+                                <a class="dropdown-item" href="#" data-toggle="modal" data-target="#bulkTransferAssetClientModal">
+                                    <i class="fas fa-fw fa-arrow-right mr-2"></i>Transfer to Client
                                 </a>
                                 <?php if ($archived) { ?>
                                     <div class="dropdown-divider"></div>
@@ -688,9 +690,13 @@ if (mysqli_num_rows($os_sql) > 0) {
                     </tbody>
                 </table>
             </div>
-            <?php require_once "modals/asset_bulk_assign_location_modal.php"; ?>
+            <?php
+            if ($client_url) {
+                require_once "modals/asset_bulk_assign_contact_modal.php";  
+                require_once "modals/asset_bulk_assign_location_modal.php";
+            }
+            ?>
             <?php require_once "modals/asset_bulk_assign_physical_location_modal.php"; ?>
-            <?php require_once "modals/asset_bulk_assign_contact_modal.php"; ?>
             <?php require_once "modals/asset_bulk_transfer_client_modal.php"; ?>
             <?php require_once "modals/asset_bulk_edit_status_modal.php"; ?>
             <?php require_once "modals/asset_bulk_add_ticket_modal.php"; ?>
@@ -719,6 +725,8 @@ if (mysqli_num_rows($os_sql) > 0) {
 
 <?php
 require_once "modals/asset_add_modal.php";
-require_once "modals/asset_import_modal.php";
 require_once "modals/asset_export_modal.php";
+if ($client_url) {
+    require_once "modals/asset_import_modal.php";
+}
 require_once "includes/footer.php";

@@ -95,12 +95,14 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                 </button>
                 <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown"></button>
                 <div class="dropdown-menu">
+                    <?php if ($client_url) { ?>
                     <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#contactInviteModal"><i class="fas fa-fw fa-paper-plane mr-2"></i>Invite</a>
                     <div class="dropdown-divider"></div>
                     <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#importContactModal">
                         <i class="fa fa-fw fa-upload mr-2"></i>Import
                     </a>
                     <div class="dropdown-divider"></div>
+                    <?php } ?>
                     <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#exportContactModal">
                         <i class="fa fa-fw fa-download mr-2"></i>Export
                     </a>
@@ -151,7 +153,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     </div>
                 </div>
 
-                <?php if ($client_url) { ?> 
+                <?php if ($client_url) { ?>
                 <div class="col-md-2">
                     <div class="input-group mb-3 mb-md-0">
                         <select class="form-control select2" name="location" onchange="this.form.submit()">
@@ -219,10 +221,12 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 <i class="fas fa-fw fa-layer-group mr-2"></i>Bulk Action (<span id="selectedCount">0</span>)
                             </button>
                             <div class="dropdown-menu">
+                                <?php if ($client_url) { ?> 
                                 <a class="dropdown-item" href="#" data-toggle="modal" data-target="#bulkAssignLocationModal">
                                     <i class="fas fa-fw fa-map-marker-alt mr-2"></i>Assign Location
                                 </a>
                                 <div class="dropdown-divider"></div>
+                                <?php } ?>
                                 <a class="dropdown-item" href="#" data-toggle="modal" data-target="#bulkEditPhoneModal">
                                     <i class="fas fa-fw fa-phone-alt mr-2"></i>Set Phone Number
                                 </a>
@@ -556,7 +560,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     </tbody>
                 </table>
             </div>
-            <?php require_once "modals/contact_bulk_assign_location_modal.php"; ?>
+            <?php if ($client_url) { require_once "modals/contact_bulk_assign_location_modal.php"; } ?>
             <?php require_once "modals/contact_bulk_edit_phone_modal.php"; ?>
             <?php require_once "modals/contact_bulk_edit_department_modal.php"; ?>
             <?php require_once "modals/contact_bulk_edit_role_modal.php"; ?>
@@ -610,7 +614,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 <?php
 
 require_once "modals/contact_add_modal.php";
-require_once "modals/contact_invite_modal.php";
-require_once "modals/contact_import_modal.php";
 require_once "modals/contact_export_modal.php";
+if ($client_url) {
+    require_once "modals/contact_invite_modal.php";
+    require_once "modals/contact_import_modal.php";
+}
 require_once "includes/footer.php";
