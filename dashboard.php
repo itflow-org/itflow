@@ -155,8 +155,11 @@ if ($user_config_dashboard_financial_enable == 1) {
         $recurring_invoices_added = intval($row['recurring_invoices_added']);
     }
 
-    $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(client_id) AS clients_added FROM clients WHERE YEAR(client_created_at) = $year AND client_archived_at IS NULL"));
+    $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(client_id) AS clients_added FROM clients WHERE YEAR(client_created_at) = $year AND client_lead = 0 AND client_archived_at IS NULL"));
     $clients_added = intval($row['clients_added']);
+
+    $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(client_id) AS leads_added FROM clients WHERE YEAR(client_created_at) = $year AND client_lead = 1 AND client_archived_at IS NULL"));
+    $leads_added = intval($row['leads_added']);
 
     $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(vendor_id) AS vendors_added FROM vendors WHERE YEAR(vendor_created_at) = $year AND vendor_client_id = 0 AND vendor_archived_at IS NULL"));
     $vendors_added = intval($row['vendors_added']);
@@ -208,7 +211,7 @@ if ($user_config_dashboard_financial_enable == 1) {
         </div>
         <!-- ./col -->
 
-        <div class="col-lg-4 col-md-6 col-sm-12">
+        <div class="col-lg-6 col-md-6 col-sm-12">
             <!-- small box -->
             <a class="small-box bg-info" href="report_recurring_by_client.php">
                 <div class="inner">
@@ -222,7 +225,7 @@ if ($user_config_dashboard_financial_enable == 1) {
         </div>
         <!-- ./col -->
 
-        <div class="col-lg-4 col-md-6 col-sm-12">
+        <div class="col-lg-6 col-md-6 col-sm-12">
             <!-- small box -->
             <a class="small-box bg-pink" href="recurring_expenses.php">
                 <div class="inner">
@@ -237,7 +240,7 @@ if ($user_config_dashboard_financial_enable == 1) {
         <!-- ./col -->
 
         <?php if ($config_module_enable_ticketing && $config_module_enable_accounting) { ?>
-            <div class="col-lg-4 col-md-6 col-sm-12">
+            <div class="col-lg-2 col-md-6 col-sm-12">
                 <!-- small box -->
                 <a class="small-box bg-secondary" href="report_tickets_unbilled.php">
                     <div class="inner">
@@ -250,7 +253,7 @@ if ($user_config_dashboard_financial_enable == 1) {
                 </a>
             </div>
         <?php } else { ?>
-            <div class="col-lg-4 col-md-6 col-sm-12">
+            <div class="col-lg-3 col-md-6 col-sm-12">
                 <!-- small box -->
                 <a class="small-box bg-secondary" href="recurring_invoices.php?dtf=<?php echo $year; ?>-01-01&dtt=<?php echo $year; ?>-12-31">
                     <div class="inner">
@@ -264,7 +267,21 @@ if ($user_config_dashboard_financial_enable == 1) {
             </div>
         <?php } ?>
 
-        <div class="col-lg-4 col-6">
+        <div class="col-lg-2 col-6">
+            <!-- small box -->
+            <a class="small-box bg-secondary" href="clients.php?leads=1&dtf=<?php echo $year; ?>-01-01&dtt=<?php echo $year; ?>-12-31">
+                <div class="inner">
+                    <h3><?php echo $leads_added; ?></h3>
+                    <p>New Leads</p>
+                </div>
+                <div class="icon">
+                    <i class="fa fa-users"></i>
+                </div>
+            </a>
+        </div>
+        <!-- ./col -->
+
+        <div class="col-lg-2 col-6">
             <!-- small box -->
             <a class="small-box bg-secondary" href="clients.php?dtf=<?php echo $year; ?>-01-01&dtt=<?php echo $year; ?>-12-31">
                 <div class="inner">
@@ -278,7 +295,7 @@ if ($user_config_dashboard_financial_enable == 1) {
         </div>
         <!-- ./col -->
 
-        <div class="col-lg-4 col-6">
+        <div class="col-lg-2 col-6">
             <!-- small box -->
             <a class="small-box bg-secondary" href="vendors.php?dtf=<?php echo $year; ?>-01-01&dtt=<?php echo $year; ?>-12-31">
                 <div class="inner">
@@ -292,7 +309,7 @@ if ($user_config_dashboard_financial_enable == 1) {
         </div>
         <!-- ./col -->
 
-        <div class="col-lg-4 col-md-6 col-sm-12">
+        <div class="col-lg-3 col-md-6 col-sm-12">
             <!-- small box -->
             <a class="small-box bg-secondary" href="trips.php?dtf=<?php echo $year; ?>-01-01&dtt=<?php echo $year; ?>-12-31">
                 <div class="inner">
