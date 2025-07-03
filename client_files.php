@@ -100,7 +100,7 @@ while ($folder_id > 0) {
         <div class="card-tools">
             <div class="btn-group">
                 <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#uploadFilesModal">
-                    <i class="fas fa-fw fa-cloud-upload-alt mr-2"></i>Upload File
+                    <i class="fas fa-fw fa-cloud-upload-alt mr-2"></i>Upload
                 </button>
                 <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown"></button>
                 <div class="dropdown-menu">

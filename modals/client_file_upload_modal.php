@@ -2,7 +2,7 @@
     <div class="modal-dialog">
         <div class="modal-content bg-dark">
             <div class="modal-header">
-                <h5 class="modal-title"><i class="fa fa-fw fa-cloud-upload-alt mr-2"></i>Upload Files</h5>
+                <h5 class="modal-title"><i class="fa fa-fw fa-cloud-upload-alt mr-2"></i>Upload File(s)</h5>
                 <button type="button" class="close text-white" data-dismiss="modal">
                     <span>&times;</span>
                 </button>
@@ -23,7 +23,7 @@
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fa fa-fw fa-angle-right"></i></span>
                             </div>
-                            <input type="text" class="form-control" name="description" maxlength="250" placeholder="Description of the file">
+                            <input type="text" class="form-control" name="description" maxlength="250" placeholder="Description of the file(s)">
                         </div>
                     </div>
 
