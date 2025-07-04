@@ -13,6 +13,10 @@
 
                 <div class="modal-body bg-white">
 
+                    <div class="alert alert-info">An income account named after the provider will always be created and used for income of payed invoices.
+                    If the "Payment Provider Expenses" option is enabled, a matching vendor will also be automatically created (if it doesn't already exist), and used for expense tracking. Additionally, an expense category named "Payment Processing" will be created if it does not already exist.
+                    </div>
+
                     <div class="form-group">
                         <label>Provider <strong class="text-danger">*</strong></label>
                         <div class="input-group">
