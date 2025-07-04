@@ -487,6 +487,26 @@ CREATE TABLE `certificates` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `cient_saved_payment_methods`
+--
+
+DROP TABLE IF EXISTS `cient_saved_payment_methods`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `cient_saved_payment_methods` (
+  `saved_payment_id` int(11) NOT NULL AUTO_INCREMENT,
+  `saved_payment_provider_client` varchar(200) NOT NULL,
+  `saved_payment_provider_method` varchar(200) NOT NULL,
+  `saved_payment_details` varchar(200) DEFAULT NULL,
+  `saved_payment_client_id` int(11) NOT NULL,
+  `saved_payment_provider_id` int(11) NOT NULL,
+  `saved_payment_created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `saved_payment_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
+  PRIMARY KEY (`saved_payment_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `client_notes`
 --
 
@@ -1297,6 +1317,50 @@ CREATE TABLE `notifications` (
   `notification_user_id` int(11) NOT NULL DEFAULT 0,
   `notification_entity_id` int(11) DEFAULT 0,
   PRIMARY KEY (`notification_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `payment_methods`
+--
+
+DROP TABLE IF EXISTS `payment_methods`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `payment_methods` (
+  `payment_method_id` int(11) NOT NULL AUTO_INCREMENT,
+  `payment_method_name` varchar(200) NOT NULL,
+  `payment_method_description` varchar(250) DEFAULT NULL,
+  `payment_method_provider_id` int(1) DEFAULT 0,
+  `payment_method_created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `payment_method_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
+  PRIMARY KEY (`payment_method_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `payment_providers`
+--
+
+DROP TABLE IF EXISTS `payment_providers`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `payment_providers` (
+  `payment_provider_id` int(11) NOT NULL AUTO_INCREMENT,
+  `payment_provider_name` varchar(200) NOT NULL,
+  `payment_provider_description` varchar(250) DEFAULT NULL,
+  `payment_provider_public_key` varchar(250) DEFAULT NULL,
+  `payment_provider_private_key` varchar(250) DEFAULT NULL,
+  `payment_provider_threshold` decimal(15,2) DEFAULT NULL,
+  `payment_provider_active` tinyint(1) NOT NULL DEFAULT 1,
+  `payment_provider_account` int(11) NOT NULL,
+  `payment_provider_expense_vendor` int(11) NOT NULL DEFAULT 0,
+  `payment_provider_expense_category` int(11) NOT NULL DEFAULT 0,
+  `payment_provider_expense_percentage_fee` decimal(4,4) DEFAULT NULL,
+  `payment_provider_expense_flat_fee` decimal(15,2) DEFAULT NULL,
+  `payment_provider_created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `payment_provider_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
+  PRIMARY KEY (`payment_provider_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -2628,4 +2692,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-07-04 15:39:35
+-- Dump completed on 2025-07-04 16:50:41

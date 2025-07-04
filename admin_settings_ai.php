@@ -12,7 +12,7 @@ require_once "includes/inc_all_admin.php";
             <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token'] ?>">
 
             <div class="form-group">
-                <label>AI Provider</label>
+                <label>AI Provider <strong class="text-danger">*</strong></label>
                 <div class="input-group">
                     <div class="input-group-prepend">
                         <span class="input-group-text"><i class="fa fa-fw fa-robot"></i></span>

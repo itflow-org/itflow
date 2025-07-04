@@ -3705,10 +3705,54 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
         mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '2.2.2'");
     }
 
-    // if (CURRENT_DATABASE_VERSION == '2.2.2') {
-    //     // Insert queries here required to update to DB version 2.2.3
+    if (CURRENT_DATABASE_VERSION == '2.2.2') {
+        mysqli_query($mysqli, "CREATE TABLE `payment_methods` (
+            `payment_method_id` INT(11) NOT NULL AUTO_INCREMENT,
+            `payment_method_name` VARCHAR(200) NOT NULL,
+            `payment_method_description` VARCHAR(250) DEFAULT NULL,
+            `payment_method_provider_id` INT(1) DEFAULT 0,
+            `payment_method_created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            `payment_method_updated_at` DATETIME NULL ON UPDATE CURRENT_TIMESTAMP,
+            PRIMARY KEY (`payment_method_id`)
+        )");
+
+        mysqli_query($mysqli, "CREATE TABLE `payment_providers` (
+            `payment_provider_id` INT(11) NOT NULL AUTO_INCREMENT,
+            `payment_provider_name` VARCHAR(200) NOT NULL,
+            `payment_provider_description` VARCHAR(250) DEFAULT NULL,
+            `payment_provider_public_key` VARCHAR(250) DEFAULT NULL,
+            `payment_provider_private_key` VARCHAR(250) DEFAULT NULL,
+            `payment_provider_threshold` DECIMAL(15,2) DEFAULT NULL,
+            `payment_provider_active` TINYINT(1) NOT NULL DEFAULT 1,
+            `payment_provider_account` INT(11) NOT NULL,
+            `payment_provider_expense_vendor` INT(11) NOT NULL DEFAULT 0,
+            `payment_provider_expense_category` INT(11) NOT NULL DEFAULT 0,
+            `payment_provider_expense_percentage_fee` DECIMAL(4,4) DEFAULT NULL,
+            `payment_provider_expense_flat_fee` DECIMAL(15,2) DEFAULT NULL,
+            `payment_provider_created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            `payment_provider_updated_at` DATETIME NULL ON UPDATE CURRENT_TIMESTAMP,
+            PRIMARY KEY (`payment_provider_id`)
+        )");
+
+        mysqli_query($mysqli, "CREATE TABLE `cient_saved_payment_methods` (
+            `saved_payment_id` INT(11) NOT NULL AUTO_INCREMENT,
+            `saved_payment_provider_client` VARCHAR(200) NOT NULL,
+            `saved_payment_provider_method` VARCHAR(200) NOT NULL,
+            `saved_payment_details` VARCHAR(200) DEFAULT NULL,
+            `saved_payment_client_id` INT(11) NOT NULL,
+            `saved_payment_provider_id` INT(11) NOT NULL,
+            `saved_payment_created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            `saved_payment_updated_at` DATETIME NULL ON UPDATE CURRENT_TIMESTAMP,
+            PRIMARY KEY (`saved_payment_id`)
+        )");
+
+        mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '2.2.3'");
+    }
+
+    // if (CURRENT_DATABASE_VERSION == '2.2.3') {
+    //     // Insert queries here required to update to DB version 2.2.4
     //     // Then, update the database to the next sequential version
-    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '2.2.3'");
+    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '2.2.4'");
     // }
 
 } else {

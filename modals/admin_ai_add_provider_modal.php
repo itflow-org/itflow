@@ -1,0 +1,69 @@
+<div class="form-group">
+    <div class="modal" id="addAIProviderModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content bg-dark">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="fa fa-fw fa-robot mr-2"></i>New AI Provider</h5>
+                <button type="button" class="close text-white" data-dismiss="modal">
+                    <span>&times;</span>
+                </button>
+            </div>
+            <form action="post.php" method="post" autocomplete="off">
+                <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token'] ?>">
+
+                <div class="modal-body bg-white">
+
+                    <div class="form-group">
+                        <label>Provider Name <strong class="text-danger">*</strong></label>
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text"><i class="fa fa-fw fa-robot"></i></span>
+                            </div>
+                            <input type="text" class="form-control" name="provider" placeholder="ex OpenAI">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>URL <strong class="text-danger">*</strong></label>
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text"><i class="fa fa-fw fa-globe"></i></span>
+                            </div>
+                            <input type="url" class="form-control" name="url" placeholder="ex https://ai.company.ext/api">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>API Key</label>
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text"><i class="fa fa-fw fa-key"></i></span>
+                            </div>
+                            <input type="text" class="form-control" name="api_key" placeholder="Enter API key here">
+                        </div>
+                    </div>
+
+                    <hr>
+
+                    <div class="form-group">
+                        <label>AI Model</label>
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text"><i class="fa fa-fw fa-robot"></i></span>
+                            </div>
+                            <input type="text" class="form-control" name="model" placeholder="ex gpt-4">
+                        </div>
+                        <small class="text-muted">
+                            More AI models can be added after adding the provider.
+                        </small>
+                    </div>
+
+                </div>
+                <div class="modal-footer bg-white">
+                    <button type="submit" name="add_ai_provider" class="btn btn-primary text-bold"><i class="fa fa-check mr-2"></i>Create</button>
+                    <button type="button" class="btn btn-light" data-dismiss="modal"><i class="fa fa-times mr-2"></i>Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
