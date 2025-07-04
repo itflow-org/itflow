@@ -54,6 +54,12 @@
                             <p>Taxes</p>
                         </a>
                     </li>
+                     <li class="nav-item">
+                        <a href="admin_payment_provider.php" class="nav-link <?php echo (basename($_SERVER['PHP_SELF']) == 'admin_payment_provider.php' ? 'active' : ''); ?>">
+                            <i class="nav-icon far fa-credit-card"></i>
+                            <p>Payment Providers</p>
+                        </a>
+                    </li>
                 <?php } ?>
                 <?php if ($config_module_enable_ticketing) { ?>
                     <li class="nav-item">
