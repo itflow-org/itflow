@@ -1,4 +1,4 @@
-/*M!999999\- enable the sandbox mode */
+/*M!999999\- enable the sandbox mode */ 
 -- MariaDB dump 10.19  Distrib 10.11.11-MariaDB, for debian-linux-gnu (x86_64)
 --
 -- Host: localhost    Database: itflow_dev
@@ -35,6 +35,43 @@ CREATE TABLE `accounts` (
   `account_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
   `account_archived_at` datetime DEFAULT NULL,
   PRIMARY KEY (`account_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `ai_provider_models`
+--
+
+DROP TABLE IF EXISTS `ai_provider_models`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `ai_provider_models` (
+  `ai_model_provider_id` int(11) NOT NULL AUTO_INCREMENT,
+  `ai_model_provider_name` varchar(200) NOT NULL,
+  `ai_model_prompt` text DEFAULT NULL,
+  `ai_model_use_case` varchar(200) DEFAULT NULL,
+  `ai_model_created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `ai_model_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
+  `ai_model_ai_provider_id` int(11) NOT NULL,
+  PRIMARY KEY (`ai_model_provider_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `ai_providers`
+--
+
+DROP TABLE IF EXISTS `ai_providers`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `ai_providers` (
+  `ai_provider_id` int(11) NOT NULL AUTO_INCREMENT,
+  `ai_provider_name` varchar(200) NOT NULL,
+  `ai_provider_api_url` varchar(200) NOT NULL,
+  `ai_provider_api_key` varchar(200) DEFAULT NULL,
+  `ai_created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `ai_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
+  PRIMARY KEY (`ai_provider_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -2591,4 +2628,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-06-21 18:33:02
+-- Dump completed on 2025-07-04 15:39:35
