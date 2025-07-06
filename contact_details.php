@@ -1095,7 +1095,7 @@ if (isset($_GET['contact_id'])) {
                             while ($row = mysqli_fetch_array($sql_related_notes)) {
                                 $contact_note_id = intval($row['contact_note_id']);
                                 $contact_note_type = nullable_htmlentities($row['contact_note_type']);
-                                $contact_note = nullable_htmlentities($row['contact_note']);
+                                $contact_note = nl2br(nullable_htmlentities($row['contact_note']));
                                 $note_by = nullable_htmlentities($row['user_name']);
                                 $contact_note_created_at = nullable_htmlentities($row['contact_note_created_at']);
 
