@@ -40,8 +40,8 @@ $num_rows = mysqli_num_rows($sql);
                         </a>
                     </th>
                     <th>
-                        <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=payment_provider_treshold&order=<?php echo $disp; ?>">
-                            Threshold <?php if ($sort == 'payment_provider_treshold') { echo $order_icon; } ?>
+                        <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=payment_provider_threshold&order=<?php echo $disp; ?>">
+                            Threshold <?php if ($sort == 'payment_provider_threshold') { echo $order_icon; } ?>
                         </a>
                     </th>
                     <th>
@@ -86,10 +86,10 @@ $num_rows = mysqli_num_rows($sql);
                             <span class="text-secondary"><?php echo $provider_description; ?></span>
                         </td>
                         <td><?php echo $account_name; ?></td>
-                        <td><?php echo numfmt_format_currency($currency_format, $threshold, $session_company_currency_code); ?></td>
+                        <td><?php echo numfmt_format_currency($currency_format, $threshold, $session_company_currency); ?></td>
                         <td><?php echo $vendor_name; ?></td>
                         <td><?php echo $category; ?></td>
-                        <td><?php echo $percent_fee; ?> + <?php echo numfmt_format_currency($currency_format, $flat_fee, $session_company_currency_code); ?></td>
+                        <td><?php echo $percent_fee; ?> + <?php echo numfmt_format_currency($currency_format, $flat_fee, $session_company_currency); ?></td>
                         <td>
                             <div class="dropdown dropleft text-center">
                                 <button class="btn btn-secondary btn-sm" type="button" data-toggle="dropdown">

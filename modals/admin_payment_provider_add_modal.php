@@ -14,7 +14,7 @@
                 <div class="modal-body bg-white">
 
                     <div class="alert alert-info">An income account named after the provider will always be created and used for income of payed invoices.
-                    If the "Payment Provider Expenses" option is enabled, a matching vendor will also be automatically created (if it doesn't already exist), and used for expense tracking. Additionally, an expense category named "Payment Processing" will be created if it does not already exist.
+                    If "Enable Expense" option is enabled, a matching vendor will also be automatically created (if it doesn't already exist), and used for expense tracking. Additionally, an expense category named "Payment Processing" will be created if it does not already exist.
                     </div>
 
                     <div class="form-group">
@@ -49,75 +49,12 @@
                         </div>
                     </div>
 
-                    <div class="form-group">
-                        <label>Account <strong class="text-danger">*</strong></label>
-                        <div class="input-group">
-                            <div class="input-group-prepend">
-                                <span class="input-group-text"><i class="fas fa-fw fa-piggy-bank"></i></span>
-                            </div>
-                            <select class="form-control select2" name="account">
-                                <option value="">- Select an Account -</option>
-                                <?php
-                                $sql_accounts = mysqli_query($mysqli, "SELECT * FROM accounts WHERE account_archived_at IS NULL ORDER BY account_name ASC");
-                                while ($row = mysqli_fetch_array($sql_accounts)) {
-                                    $account_id = intval($row['account_id']);
-                                    $account_name = nullable_htmlentities($row['account_name']);
-                                    ?>
-
-                                    <option value="<?php echo $account_id ?>"><?php echo $account_name ?></option>
-                                    <?php
-                                }
-                                ?>
-                            </select>
-                        </div>
-                    </div>
-
                     <hr>
 
                     <div class="form-group">
-                        <label>Expense Vendor</label>
-                        <div class="input-group">
-                            <div class="input-group-prepend">
-                                <span class="input-group-text"><i class="fa fa-fw fa-building"></i></span>
-                            </div>
-                            <select class="form-control select2" name="expense_vendor">
-                                <option value="">- Do not expense Payment Provider fees -</option>
-                                <?php
-
-                                $sql_select = mysqli_query($mysqli, "SELECT vendor_id, vendor_name FROM vendors WHERE vendor_client_id = 0 AND vendor_archived_at IS NULL ORDER BY vendor_name ASC");
-                                while ($row = mysqli_fetch_array($sql_select)) {
-                                    $vendor_id = intval($row['vendor_id']);
-                                    $vendor_name = nullable_htmlentities($row['vendor_name']);
-                                    ?>
-                                    <option value="<?php echo $vendor_id; ?>"><?php echo $vendor_name; ?></option>
-                                <?php
-                                }
-                                ?>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Expense Category</label>
-                        <div class="input-group">
-                            <div class="input-group-prepend">
-                                <span class="input-group-text"><i class="fa fa-fw fa-list"></i></span>
-                            </div>
-                            <select class="form-control select2" name="expense_category">
-                                <option value="">- Do not expense Payment Provider fees -</option>
-                                <?php
-
-                                $sql_select = mysqli_query($mysqli, "SELECT category_id, category_name FROM categories WHERE category_type = 'Expense' AND category_archived_at IS NULL ORDER BY category_name ASC");
-                                while ($row = mysqli_fetch_array($sql_select)) {
-                                    $category_id = intval($row['category_id']);
-                                    $category_name = nullable_htmlentities($row['category_name']);
-                                    ?>
-                                    <option value="<?php echo $category_id; ?>"><?php echo $category_name; ?></option>
-                                    <?php
-                                }
-
-                                ?>
-                            </select>
+                        <div class="custom-control custom-switch">
+                            <input type="checkbox" class="custom-control-input" name="enable_expense" checked value="1" id="enableExpenseSwitch">
+                            <label class="custom-control-label" for="enableExpenseSwitch">Enable Expense</label>
                         </div>
                     </div>
 

@@ -3686,20 +3686,20 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
             `ai_provider_name` VARCHAR(200) NOT NULL,
             `ai_provider_api_url` VARCHAR(200) NOT NULL,
             `ai_provider_api_key` VARCHAR(200) DEFAULT NULL,
-            `ai_created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-            `ai_updated_at` DATETIME NULL ON UPDATE CURRENT_TIMESTAMP,
+            `ai_provider_created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            `ai_provider_updated_at` DATETIME NULL ON UPDATE CURRENT_TIMESTAMP,
             PRIMARY KEY (`ai_provider_id`)
         )");
 
-        mysqli_query($mysqli, "CREATE TABLE `ai_provider_models` (
-            `ai_model_provider_id` INT(11) NOT NULL AUTO_INCREMENT,
-            `ai_model_provider_name` VARCHAR(200) NOT NULL,
+        mysqli_query($mysqli, "CREATE TABLE `ai_models` (
+            `ai_model_id` INT(11) NOT NULL AUTO_INCREMENT,
+            `ai_model_name` VARCHAR(200) NOT NULL,
             `ai_model_prompt` TEXT DEFAULT NULL,
             `ai_model_use_case` VARCHAR(200) DEFAULT NULL,
             `ai_model_created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
             `ai_model_updated_at` DATETIME NULL ON UPDATE CURRENT_TIMESTAMP,
             `ai_model_ai_provider_id` INT(11) NOT NULL,
-            PRIMARY KEY (`ai_model_provider_id`)
+            PRIMARY KEY (`ai_model_id`)
         )");
 
         mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '2.2.2'");
