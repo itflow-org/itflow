@@ -117,42 +117,27 @@ if (isset($_POST['test_email_smtp'])) {
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 }
 
-
-// Test IMAP
-// Autoload Composer dependencies
-// require_once __DIR__ . '/../plugins/php-imap/vendor/autoload.php';
-
-// Webklex PHP-IMAP
-//use Webklex\PHPIMAP\ClientManager;
-
 if (isset($_POST['test_email_imap'])) {
-    /*
-        validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken($_POST['csrf_token']);
 
-        try {
-            // Initialize the client manager and create the client
-            $clientManager = new ClientManager();
-            $client = $clientManager->make([
-                'host'          => $config_imap_host,
-                'port'          => $config_imap_port,
-                'encryption'    => $config_imap_encryption,
-                'validate_cert' => true,
-                'username'      => $config_imap_username,
-                'password'      => $config_imap_password,
-                'protocol'      => 'imap'
-            ]);
+    // Setup your IMAP connection parameters
+    $hostname = "{" . $config_imap_host . ":" . $config_imap_port . "/" . $config_imap_encryption . "/novalidate-cert}INBOX";
+    $username = $config_imap_username;
+    $password = $config_imap_password;
 
-            // Connect to the IMAP server
-            $client->connect();
+    try {
+        $inbox = @imap_open($hostname, $username, $password);
 
+        if ($inbox) {
+            imap_close($inbox);
             $_SESSION['alert_message'] = "Connected successfully";
-        } catch (Exception $e) {
-            $_SESSION['alert_type'] = "error";
-            $_SESSION['alert_message'] = "Test IMAP connection failed: " . $e->getMessage();
+        } else {
+            throw new Exception(imap_last_error());
         }
-    */
-    $_SESSION['alert_message'] = "Test is Work In Progress";
+    } catch (Exception $e) {
+        $_SESSION['alert_type'] = "error";
+        $_SESSION['alert_message'] = "Test IMAP connection failed: " . $e->getMessage();
+    }
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
-
 }

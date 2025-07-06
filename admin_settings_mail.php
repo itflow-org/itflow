@@ -319,7 +319,7 @@ require_once "includes/inc_all_admin.php";
                 <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token'] ?>">
 
                 <div class="input-group-append">
-                    <button type="submit" name="test_email_imap" class="btn btn-success" disabled><i class="fas fa-fw fa-inbox mr-2"></i>Test (WIP)</button>
+                    <button type="submit" name="test_email_imap" class="btn btn-success"><i class="fas fa-fw fa-inbox mr-2"></i>Test</button>
                 </div>
             </form>
         </div>
