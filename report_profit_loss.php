@@ -1,8 +1,8 @@
 <?php
 
-require_once "inc_all_reports.php";
+require_once "includes/inc_all_reports.php";
 
-validateAccountantRole();
+enforceUserPermission('module_financial');
 
 if (isset($_GET['year'])) {
     $year = intval($_GET['year']);
@@ -377,7 +377,7 @@ $sql_categories_expense = mysqli_query($mysqli, "SELECT * FROM categories WHERE 
 
                         ?>
 
-                        <th class="text-right"><?php echo numfmt_format_currency($currency_format, $expense_amount_for_quarter_two, $session_company_currency); ?></th>
+                        <th class="text-right"><?php echo numfmt_format_currency($currency_format, $expense_total_amount_for_quarter_two, $session_company_currency); ?></th>
 
                         <?php
 
@@ -433,5 +433,5 @@ $sql_categories_expense = mysqli_query($mysqli, "SELECT * FROM categories WHERE 
         </div>
     </div>
 
-<?php require_once "footer.php";
+<?php require_once "includes/footer.php";
 

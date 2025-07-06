@@ -1,8 +1,8 @@
 <?php
 
-require_once "inc_all_reports.php";
+require_once "includes/inc_all_reports.php";
 
-validateAccountantRole();
+enforceUserPermission('module_financial');
 
 if (isset($_GET['year'])) {
     $year = intval($_GET['year']);
@@ -115,7 +115,7 @@ $sql_categories = mysqli_query($mysqli, "SELECT * FROM categories WHERE category
     </div>
 </div>
 
-<?php require_once "footer.php";
+<?php require_once "includes/footer.php";
  ?>
 
 <script>

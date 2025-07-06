@@ -4,11 +4,7 @@
 $sort = "api_key_name";
 $order = "ASC";
 
-require_once "inc_all_admin.php";
-
-
-//Rebuild URL
-$url_query_strings_sort = http_build_query($get_copy);
+require_once "includes/inc_all_admin.php";
 
 $sql = mysqli_query(
     $mysqli,
@@ -78,11 +74,31 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                     <input class="form-check-input" type="checkbox" onclick="checkAll(this)">
                                 </div>
                             </td>
-                            <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=api_key_name&order=<?php echo $disp; ?>">Name</a></th>
-                            <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=api_key_client_id&order=<?php echo $disp; ?>">Client</a></th>
-                            <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=api_key_secret&order=<?php echo $disp; ?>">Secret</a></th>
-                            <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=api_key_created_at&order=<?php echo $disp; ?>">Created</a></th>
-                            <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=api_key_expire&order=<?php echo $disp; ?>">Expires</a></th>
+                            <th>
+                                <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=api_key_name&order=<?php echo $disp; ?>">
+                                    Name <?php if ($sort == 'api_key_name') { echo $order_icon; } ?>
+                                </a>
+                            </th>
+                            <th>
+                                <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=api_key_client_id&order=<?php echo $disp; ?>">
+                                    Client <?php if ($sort == 'api_key_client_id') { echo $order_icon; } ?>
+                                </a>
+                            </th>
+                            <th>
+                                <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=api_key_secret&order=<?php echo $disp; ?>">
+                                    Secret <?php if ($sort == 'api_key_secret') { echo $order_icon; } ?>
+                                </a>
+                            </th>
+                            <th>
+                                <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=api_key_created_at&order=<?php echo $disp; ?>">
+                                    Created <?php if ($sort == 'api_key_created_at') { echo $order_icon; } ?>
+                                </a>
+                            </th>
+                            <th>
+                                <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=api_key_expire&order=<?php echo $disp; ?>">
+                                    Expires <?php if ($sort == 'api_key_expire') { echo $order_icon; } ?>
+                                </a>
+                            </th>
                             <th class="text-center">Action</th>
                         </tr>
                         </thead>
@@ -146,7 +162,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                 </form>
 
             </div>
-            <?php require_once "pagination.php";
+            <?php require_once "includes/filter_footer.php";
  ?>
         </div>
     </div>
@@ -154,7 +170,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
     <script src="js/bulk_actions.js"></script>
 
 <?php
-require_once "admin_api_key_add_modal.php";
+require_once "modals/admin_api_key_add_modal.php";
 
-require_once "footer.php";
+require_once "includes/footer.php";
 

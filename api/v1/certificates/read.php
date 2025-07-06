@@ -12,18 +12,11 @@ if (isset($_GET['certificate_id'])) {
 
 } elseif (isset($_GET['certificate_name'])) {
     // Certificate by name
-
     $name = mysqli_real_escape_string($mysqli, $_GET['certificate_name']);
     $sql = mysqli_query($mysqli, "SELECT * FROM certificates WHERE certificate_name = '$name' AND certificate_client_id LIKE '$client_id' ORDER BY certificate_id LIMIT $limit OFFSET $offset");
 
-} elseif (isset($_GET['client_id'])) {
-    // Certificate via client ID
-
-    $sql = mysqli_query($mysqli, "SELECT * FROM certificates WHERE certificate_client_id = '$client_id' ORDER BY certificate_id LIMIT $limit OFFSET $offset");
-
 } else {
-    // All certificates
-
+    // All certificates (by client ID or all in general if key permits)
     $sql = mysqli_query($mysqli, "SELECT * FROM certificates WHERE certificate_client_id LIKE '$client_id' ORDER BY certificate_id LIMIT $limit OFFSET $offset");
 }
 

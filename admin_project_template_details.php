@@ -1,6 +1,6 @@
 <?php
 
-require_once "inc_all_admin.php";
+require_once "includes/inc_all_admin.php";
 
 
 if (isset($_GET['project_template_id'])) {
@@ -13,14 +13,14 @@ if (isset($_GET['project_template_id'])) {
     );
 
     if (mysqli_num_rows($sql_project_templates) == 0) {
-        echo "<center><h1 class='text-secondary mt-5'>Nothing to see here</h1><a class='btn btn-lg btn-secondary mt-3' href='project.php'><i class='fa fa-fw fa-arrow-left'></i> Go Back</a></center>";
+        echo "<center><h1 class='text-secondary mt-5'>Nothing to see here</h1><a class='btn btn-lg btn-secondary mt-3' href='admin_project_template.php'><i class='fa fa-fw fa-arrow-left'></i> Go Back</a></center>";
 
         include_once "footer.php";
         exit;
     }
 
     $row = mysqli_fetch_array($sql_project_templates);
-    
+
     $project_template_name = nullable_htmlentities($row['project_template_name']);
     $project_template_description = nullable_htmlentities($row['project_template_description']);
     $project_template_created_at = date("Y-m-d", strtotime($row['project_template_created_at']));
@@ -48,10 +48,10 @@ if (isset($_GET['project_template_id'])) {
 <!-- Breadcrumbs-->
 <ol class="breadcrumb d-print-none">
     <li class="breadcrumb-item">
-        <a href="admin_users.php">Admin</a>
+        <a href="admin_user.php">Admin</a>
     </li>
     <li class="breadcrumb-item">
-        <a href="admin_project_templates.php">Project Templates</a>
+        <a href="admin_project_template.php">Project Templates</a>
     </li>
     <li class="breadcrumb-item active">Project Template Details</li>
 </ol>
@@ -88,7 +88,7 @@ if (isset($_GET['project_template_id'])) {
                 </div>
             </div>
         </div>
-        
+
         <div class="col-sm-2">
             <div class="btn-group float-right">
                 <button type="button" class="btn btn-primary btn-sm" href="#" data-toggle="modal" data-target="#addProjectTemplateTicketTemplateModal">
@@ -105,7 +105,7 @@ if (isset($_GET['project_template_id'])) {
                         <?php if ($session_user_role == 3) { ?>
                             <div class="dropdown-divider"></div>
                             <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?archive_project_template=<?php echo $project_template_id; ?>">
-                                <i class="fas fa-fw fa-archive mr-2"></i>Archive
+                                <i class="fas fa-fw fa-archive mr-2"></i>Archive (not yet implemented)
                             </a>
                         <?php } ?>
                         <?php if ($session_user_role == 3) { ?>
@@ -123,7 +123,7 @@ if (isset($_GET['project_template_id'])) {
 
 <div class="row">
     <div class="col-md-8">
-        
+
         <!-- Tickets card -->
         <?php if (mysqli_num_rows($sql_ticket_templates) > 0) { ?>
             <div class="card card-body card-outline card-dark mb-3">
@@ -165,7 +165,7 @@ if (isset($_GET['project_template_id'])) {
                                 </td>
                                 <td>
                                     <a href="admin_ticket_template_details.php?ticket_template_id=<?php echo $ticket_template_id; ?>">
-                                        <?php echo $ticket_template_name; ?>        
+                                        <?php echo $ticket_template_name; ?>
                                     </a>
                                 </td>
                                 <td><?php echo $ticket_template_description; ?></td>
@@ -192,7 +192,7 @@ if (isset($_GET['project_template_id'])) {
     </div>
 
     <div class="col-md-4">
-        
+
         <!-- Task Templates Card -->
         <?php if (mysqli_num_rows($sql_task_templates) > 0) { ?>
         <div class="card card-body card-outline card-dark">
@@ -222,12 +222,12 @@ if (isset($_GET['project_template_id'])) {
 
 <?php
 
-require_once "admin_project_template_edit_modal.php";
-require_once "admin_project_template_ticket_template_add_modal.php";
+require_once "modals/admin_project_template_edit_modal.php";
+require_once "modals/admin_project_template_ticket_template_add_modal.php";
 
 }
 
-require_once "footer.php";
+require_once "includes/footer.php";
 
 ?>
 

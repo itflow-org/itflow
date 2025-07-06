@@ -1,8 +1,8 @@
 <?php
 
-require_once "inc_all_reports.php";
+require_once "includes/inc_all_reports.php";
 
-validateTechRole();
+enforceUserPermission('module_support');
 
 if (isset($_GET['year'])) {
     $year = intval($_GET['year']);
@@ -83,7 +83,7 @@ $sql_tickets = mysqli_query($mysqli, "SELECT ticket_id FROM tickets");
     </div>
 </div>
 
-<?php require_once "footer.php";
+<?php require_once "includes/footer.php";
  ?>
 
 <script>

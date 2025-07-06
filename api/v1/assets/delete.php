@@ -17,12 +17,15 @@ if (!empty($asset_id)) {
 
     $delete_sql = mysqli_query($mysqli, "DELETE FROM assets WHERE asset_id = $asset_id AND asset_client_id = $client_id LIMIT 1");
 
+    // Delete Interfaces
+    mysqli_query($mysqli,"DELETE FROM asset_interfaces WHERE interface_asset_id = $asset_id");
+
     // Check delete & get affected rows
     if ($delete_sql && !empty($asset_name)) {
         $delete_count = mysqli_affected_rows($mysqli);
 
-        //Logging
-        mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Asset', log_action = 'Deleted', log_description = '$asset_name via API ($api_key_name)', log_ip = '$ip', log_user_agent = '$user_agent', log_client_id = $client_id");
+        // Logging
+        logAction("Asset", "Delete", "$asset_name via API ($api_key_name)", $client_id);
     }
 }
 

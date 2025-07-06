@@ -1,21 +1,20 @@
 <?php
 
-require_once "inc_all_reports.php";
+require_once "includes/inc_all_reports.php";
 
-validateAccountantRole();
+enforceUserPermission('module_financial');
 
 $year = isset($_GET['year']) ? intval($_GET['year']) : date('Y');
 
 $view = isset($_GET['view']) ? $_GET['view'] : 'quarterly';
-$company_currency = getSettingValue($mysqli, 'company_currency');
 
+$currency_row = mysqli_fetch_array(mysqli_query($mysqli,"SELECT company_currency FROM companies WHERE company_id = 1"));
+$company_currency = nullable_htmlentities($currency_row['company_currency']);
 
-//GET unique years from expenses, payments and revenues
+// GET unique years from expenses, payments and revenues
 $sql_all_years = mysqli_query($mysqli, "SELECT DISTINCT(YEAR(item_created_at)) AS all_years FROM invoice_items ORDER BY all_years DESC");
 
-$sql_tax = mysqli_query($mysqli, 
-    "SELECT `tax_name`
-    FROM `taxes`");
+$sql_tax = mysqli_query($mysqli, "SELECT `tax_name` FROM `taxes`");
 
 ?>
 
@@ -42,7 +41,7 @@ $sql_tax = mysqli_query($mysqli,
 
                 </select>
 
-                        <!-- View Selection Dropdown -->
+                <!-- View Selection Dropdown -->
                 <select onchange="this.form.submit()" class="form-control" name="view">
                     <option value="monthly" <?php if ($view == 'monthly') echo "selected"; ?>>Monthly</option>
                     <option value="quarterly" <?php if ($view == 'quarterly') echo "selected"; ?>>Quarterly</option>
@@ -70,52 +69,53 @@ $sql_tax = mysqli_query($mysqli,
                     </tr>
                     </thead>
                     <tbody>
-                        <?php
-                        while ($row = mysqli_fetch_array($sql_tax)) {
-                            echo "<tr>";
-                            echo "<td>" . $row['tax_name'] . "</td>";
+                    <?php
+                    while ($row = mysqli_fetch_array($sql_tax)) {
+                        $tax_name = sanitizeInput($row['tax_name']);
+                        echo "<tr>";
+                        echo "<td>" . $row['tax_name'] . "</td>";
 
-                            if ($view == 'monthly') {
-                                for ($i = 1; $i <= 12; $i++) {
-                                    $monthly_tax = getMonthlyTax($row['tax_name'], $i, $year, $mysqli);
-                                    echo "<td class='text-right'>" . numfmt_format_currency($currency_format, $monthly_tax, $company_currency) . "</td>";
-                                }
-                            } else {
-                                for ($q = 1; $q <= 4; $q++) {
-                                    $quarterly_tax = getQuarterlyTax($row['tax_name'], $q, $year, $mysqli);
-                                    echo "<td class='text-right'>" . numfmt_format_currency($currency_format, $quarterly_tax, $company_currency) . "</td>";
-                                }
+                        if ($view == 'monthly') {
+                            for ($i = 1; $i <= 12; $i++) {
+                                $monthly_tax = getMonthlyTax($tax_name, $i, $year, $mysqli);
+                                echo "<td class='text-right'>" . numfmt_format_currency($currency_format, $monthly_tax, $company_currency) . "</td>";
                             }
+                        } else {
+                            for ($q = 1; $q <= 4; $q++) {
+                                $quarterly_tax = getQuarterlyTax($tax_name, $q, $year, $mysqli);
+                                echo "<td class='text-right'>" . numfmt_format_currency($currency_format, $quarterly_tax, $company_currency) . "</td>";
+                            }
+                        }
 
-                            // Calculate total for row and echo bold
-                            $total_tax = getTotalTax($row['tax_name'], $year, $mysqli);
-                            echo "<td class='text-right text-bold'>" . numfmt_format_currency($currency_format, $total_tax, $company_currency) . "</td>";
-                            echo "</tr>";
+                        // Calculate total for row and echo bold
+                        $total_tax = getTotalTax($tax_name, $year, $mysqli);
+                        echo "<td class='text-right text-bold'>" . numfmt_format_currency($currency_format, $total_tax, $company_currency) . "</td>";
+                        echo "</tr>";
+                    }
+                    ?>
+                    <tr>
+                        <th>Total</th>
+                        <?php
+                        if ($view == 'monthly') {
+                            for ($i = 1; $i <= 12; $i++) {
+                                $monthly_tax = getMonthlyTax($tax_name, $i, $year, $mysqli);
+                                echo "<th class='text-right'>" . numfmt_format_currency($currency_format, $monthly_tax, $company_currency) . "</th>";
+                            }
+                        } else {
+                            for ($q = 1; $q <= 4; $q++) {
+                                $quarterly_tax = getQuarterlyTax($tax_name, $q, $year, $mysqli);
+                                echo "<th class='text-right'>" . numfmt_format_currency($currency_format, $quarterly_tax, $company_currency) . "</th>";
+                            }
                         }
                         ?>
-                        <tr>
-                            <th>Total</th>
-                                <?php
-                                if ($view == 'monthly') {
-                                    for ($i = 1; $i <= 12; $i++) {
-                                        $monthly_tax = getMonthlyTax($row['tax_name'], $i, $year, $mysqli);
-                                        echo "<th class='text-right'>" . numfmt_format_currency($currency_format, $monthly_tax, $company_currency) . "</th>";
-                                    }
-                                } else {
-                                    for ($q = 1; $q <= 4; $q++) {
-                                        $quarterly_tax = getQuarterlyTax($row['tax_name'], $q, $year, $mysqli);
-                                        echo "<th class='text-right'>" . numfmt_format_currency($currency_format, $quarterly_tax, $company_currency) . "</th>";
-                                    }
-                                }
-                            ?>
-                            <td></td>
-                        </tr>
-                        
+                        <td class="text-right"></td>
+                    </tr>
+
                     </tbody>
                 </table>
             </div>
         </div>
     </div>
 
-<?php require_once "footer.php";
+<?php require_once "includes/footer.php";
 

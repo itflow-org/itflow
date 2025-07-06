@@ -1,0 +1,29 @@
+/* 
+   For screens below 576px (xs): 
+   - Make the button full-width, display:block 
+*/
+@media (max-width: 575.98px) {
+  .btn-responsive {
+    display: block;
+    width: 100%;
+  }
+}
+
+/* 
+   For screens 576px (sm) and above:
+   - Revert to an inline style 
+*/
+@media (min-width: 576px) {
+  .btn-responsive {
+    display: inline-block;
+    width: auto;
+  }
+}
+
+.drag-handle {
+    cursor: grab !important;
+}
+
+.drag-handle:active {
+    cursor: grabbing !important;
+}

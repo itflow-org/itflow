@@ -1,7 +1,7 @@
 <?php 
 
 if (file_exists("config.php")) {
-    include "inc_all.php";
+    require_once "includes/inc_all.php";
  ?>
 	<!-- Breadcrumbs-->
 	<ol class="breadcrumb">
@@ -14,9 +14,13 @@ if (file_exists("config.php")) {
 	<!-- Page Content -->
 	<h1>Blank Page</h1>
 	<hr>
-	<?php 
+	<?php
 
-	include "footer.php";
+    if (isset($config_start_page)) { ?>
+        <meta http-equiv="refresh" content="0;url=<?php echo $config_start_page; ?>">
+    <?php }
+
+	require_once "includes/footer.php";
 
 
 } else {

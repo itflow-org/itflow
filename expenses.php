@@ -4,19 +4,40 @@
 $sort = "expense_date";
 $order = "DESC";
 
-require_once "inc_all.php";
+require_once "includes/inc_all.php";
+
+// Perms
+enforceUserPermission('module_financial');
 
 // Account Filter
 if (isset($_GET['account']) & !empty($_GET['account'])) {
     $account_query = 'AND (expense_account_id = ' . intval($_GET['account']) . ')';
-    $account = intval($_GET['account']);
+    $account_filter = intval($_GET['account']);
 } else {
     // Default - any
     $account_query = '';
+    $account_filter = '';
 }
 
-//Rebuild URL
-$url_query_strings_sort = http_build_query($get_copy);
+// Vendor Filter
+if (isset($_GET['vendor']) & !empty($_GET['vendor'])) {
+    $vendor_query = 'AND (vendor_id = ' . intval($_GET['vendor']) . ')';
+    $vendor_filter = intval($_GET['vendor']);
+} else {
+    // Default - any
+    $vendor_query = '';
+    $vendor_filter = '';
+}
+
+// Category Filter
+if (isset($_GET['category']) & !empty($_GET['category'])) {
+    $category_query = 'AND (category_id = ' . intval($_GET['category']) . ')';
+    $category_filter = intval($_GET['category']);
+} else {
+    // Default - any
+    $category_query = '';
+    $category_filter = '';
+}
 
 $sql = mysqli_query(
     $mysqli,
@@ -27,6 +48,8 @@ $sql = mysqli_query(
     LEFT JOIN clients ON expense_client_id = client_id
     WHERE expense_vendor_id > 0
     AND DATE(expense_date) BETWEEN '$dtf' AND '$dtt'
+    $vendor_query
+    $category_query
     AND (vendor_name LIKE '%$q%' OR client_name LIKE '%$q%' OR category_name LIKE '%$q%' OR account_name LIKE '%$q%' OR expense_description LIKE '%$q%' OR expense_amount LIKE '%$q%')
     $account_query
     ORDER BY $sort $order LIMIT $record_from, $record_to"
@@ -40,7 +63,15 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
         <div class="card-header py-2">
             <h3 class="card-title mt-2"><i class="fas fa-fw fa-shopping-cart mr-2"></i>Expenses</h3>
             <div class="card-tools">
-                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addExpenseModal"><i class="fas fa-plus mr-2"></i>New Expense</button>
+                <div class="btn-group">
+                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addExpenseModal"><i class="fas fa-plus mr-2"></i>New Expense</button>
+                    <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown"></button>
+                    <div class="dropdown-menu">
+                        <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#exportExpensesModal">
+                            <i class="fa fa-fw fa-download mr-2"></i>Export
+                        </a>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -74,12 +105,19 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                     <a class="dropdown-item" href="#" data-toggle="modal" data-target="#bulkEditClientModal">
                                         <i class="fas fa-fw fa-user mr-2"></i>Set Client
                                     </a>
+                                    <?php if ($session_user_role == 3) { ?>
+                                    <div class="dropdown-divider"></div>
+                                    <button class="dropdown-item text-danger text-bold"
+                                            type="submit" form="bulkActions" name="bulk_delete_expenses">
+                                        <i class="fas fa-fw fa-trash mr-2"></i>Delete
+                                    </button>
+                                    <?php } ?>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-                <div class="collapse mt-3 <?php if ($_GET['dtf'] || $_GET['canned_date'] !== "custom" || $_GET['account']) { echo "show"; } ?>" id="advancedFilter">
+                <div class="collapse mt-3 <?php if (isset($_GET['dtf']) || $_GET['canned_date'] !== "custom" || $account_filter || $vendor_filter || $category_filter) { echo "show"; } ?>" id="advancedFilter">
                     <div class="row">
                         <div class="col-md-2">
                             <div class="form-group">
@@ -111,17 +149,17 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         </div>
                         <div class="col-sm-2">
                             <div class="form-group">
-                                <label>Account</label>
-                                <select class="form-control select2" name="account" onchange="this.form.submit()">
-                                    <option value="" <?php if ($account == "") { echo "selected"; } ?>>- All Accounts -</option>
+                                <label>Vendor</label>
+                                <select class="form-control select2" name="vendor" onchange="this.form.submit()">
+                                    <option value="">- All Vendors -</option>
 
                                     <?php
-                                    $sql_accounts_filter = mysqli_query($mysqli, "SELECT * FROM accounts WHERE account_archived_at IS NULL ORDER BY account_name ASC");
-                                    while ($row = mysqli_fetch_array($sql_accounts_filter)) {
-                                        $account_id = intval($row['account_id']);
-                                        $account_name = nullable_htmlentities($row['account_name']);
+                                    $sql_vendors_filter = mysqli_query($mysqli, "SELECT * FROM vendors WHERE vendor_client_id = 0 ORDER BY vendor_name ASC");
+                                    while ($row = mysqli_fetch_array($sql_vendors_filter)) {
+                                        $vendor_id = intval($row['vendor_id']);
+                                        $vendor_name = nullable_htmlentities($row['vendor_name']);
                                     ?>
-                                        <option <?php if ($account == $account_id) { echo "selected"; } ?> value="<?php echo $account_id; ?>"><?php echo $account_name; ?></option>
+                                        <option <?php if ($vendor_filter == $vendor_id) { echo "selected"; } ?> value="<?php echo $vendor_id; ?>"><?php echo $vendor_name; ?></option>
                                     <?php
                                     }
                                     ?>
@@ -129,16 +167,53 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 </select>
                             </div>
                         </div>
-                        <div class="col-md-4">
-                            <div class="float-right">
-                                <button type="button" class="btn btn-default mt-4" data-toggle="modal" data-target="#exportExpensesModal"><i class="fa fa-fw fa-download mr-2"></i>Export</button>
+                        <div class="col-sm-2">
+                            <div class="form-group">
+                                <label>Category</label>
+                                <select class="form-control select2" name="category" onchange="this.form.submit()">
+                                    <option value="">- All Categories -</option>
+
+                                    <?php
+                                    $sql_categories_filter = mysqli_query($mysqli, "SELECT * FROM categories WHERE category_type = 'Expense' ORDER BY category_name ASC");
+                                    while ($row = mysqli_fetch_array($sql_categories_filter)) {
+                                        $category_id = intval($row['category_id']);
+                                        $category_name = nullable_htmlentities($row['category_name']);
+                                    ?>
+                                        <option <?php if ($category_filter == $category_id) { echo "selected"; } ?> value="<?php echo $category_id; ?>"><?php echo $category_name; ?></option>
+                                    <?php
+                                    }
+                                    ?>
+
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-sm-2">
+                            <div class="form-group">
+                                <label>Account</label>
+                                <select class="form-control select2" name="account" onchange="this.form.submit()">
+                                    <option value="">- All Accounts -</option>
+
+                                    <?php
+                                    $sql_accounts_filter = mysqli_query($mysqli, "SELECT * FROM accounts WHERE account_archived_at IS NULL ORDER BY account_name ASC");
+                                    while ($row = mysqli_fetch_array($sql_accounts_filter)) {
+                                        $account_id = intval($row['account_id']);
+                                        $account_name = nullable_htmlentities($row['account_name']);
+                                    ?>
+                                        <option <?php if ($account_filter == $account_id) { echo "selected"; } ?> value="<?php echo $account_id; ?>"><?php echo $account_name; ?></option>
+                                    <?php
+                                    }
+                                    ?>
+
+                                </select>
                             </div>
                         </div>
                     </div>
                 </div>
             </form>
             <hr>
-            <form id="bulkActions" action="post.php" method="post">
+            <form id="bulkActions" action="post.php" method="post" enctype="multipart/form-data">
+                <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token'] ?>">
+
                 <div class="table-responsive-sm">
                     <table class="table table-striped table-borderless table-hover">
                         <thead class="text-dark <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
@@ -148,13 +223,40 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                     <input class="form-check-input" id="selectAllCheckbox" type="checkbox" onclick="checkAll(this)">
                                 </div>
                             </td>
-                            <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=expense_date&order=<?php echo $disp; ?>">Date</a></th>
-                            <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=vendor_name&order=<?php echo $disp; ?>">Vendor</a></th>
-                            <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=category_name&order=<?php echo $disp; ?>">Category</a></th>
-                            <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=expense_description&order=<?php echo $disp; ?>">Description</a></th>
-                            <th class="text-right"><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=expense_amount&order=<?php echo $disp; ?>">Amount</a></th>
-                            <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=account_name&order=<?php echo $disp; ?>">Account</a></th>
-                            <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=client_name&order=<?php echo $disp; ?>">Client</a></th>
+                            <th>
+                                <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=expense_date&order=<?php echo $disp; ?>">
+                                    Date <?php if ($sort == 'expense_date') { echo $order_icon; } ?>
+                                </a>
+                            </th>
+                            <th>
+                                <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=category_name&order=<?php echo $disp; ?>">
+                                    Category <?php if ($sort == 'category_name') { echo $order_icon; } ?>
+                                </a>
+                                /
+                                <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=expense_description&order=<?php echo $disp; ?>">
+                                    Description <?php if ($sort == 'expense_description') { echo $order_icon; } ?>
+                                </a>
+                            </th>
+                            <th>
+                                <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=vendor_name&order=<?php echo $disp; ?>">
+                                    Vendor <?php if ($sort == 'vendor_name') { echo $order_icon; } ?>
+                                </a>
+                            </th>
+                            <th class="text-right">
+                                <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=expense_amount&order=<?php echo $disp; ?>">
+                                    Amount <?php if ($sort == 'expense_amount') { echo $order_icon; } ?>
+                                </a>
+                            </th>
+                            <th>
+                                <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=account_name&order=<?php echo $disp; ?>">
+                                    Account <?php if ($sort == 'account_name') { echo $order_icon; } ?>
+                                </a>
+                            </th>
+                            <th>
+                                <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=client_name&order=<?php echo $disp; ?>">
+                                    Client <?php if ($sort == 'client_name') { echo $order_icon; } ?>
+                                </a>
+                            </th>
                             <th class="text-center">Action</th>
                         </tr>
                         </thead>
@@ -187,7 +289,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             if (empty($expense_receipt)) {
                                 $receipt_attached = "";
                             } else {
-                                $receipt_attached = "<a class='text-secondary mr-2' target='_blank' href='uploads/expenses/$expense_receipt' download='$expense_date-$vendor_name-$category_name-$expense_id.pdf'><i class='fa fa-file-pdf'></i></a>";
+                                $path_info = pathinfo($expense_receipt);
+                                $ext = $path_info['extension'];
+                                $receipt_attached = "<a class='text-secondary mr-2' target='_blank' href='uploads/expenses/$expense_receipt' download='$expense_date-$vendor_name-$category_name-$expense_id.$ext'><i class='fa fa-file'></i></a>";
                             }
 
                             ?>
@@ -198,10 +302,21 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                         <input class="form-check-input bulk-select" type="checkbox" name="expense_ids[]" value="<?php echo $expense_id ?>">
                                     </div>
                                 </td>
-                                <td><?php echo $receipt_attached; ?> <a class="text-dark" href="#" title="Created: <?php echo $expense_created_at; ?>" data-toggle="modal" data-target="#editExpenseModal<?php echo $expense_id; ?>"><?php echo $expense_date; ?></a></td>
+                                <td>
+                                    <?php echo $receipt_attached; ?>
+                                    <a class="text-dark" href="#" title="Created: <?php echo $expense_created_at; ?>"
+                                        data-toggle="ajax-modal"
+                                        data-modal-size="lg"
+                                        data-ajax-url="ajax/ajax_expense_edit.php"
+                                        data-ajax-id="<?php echo $expense_id; ?>">
+                                        <?php echo $expense_date; ?>
+                                    </a>
+                                </td>
+                                <td>
+                                    <?php echo $category_name; ?>
+                                    <div class="text-secondary"><small><?php echo truncate($expense_description, 60); ?></small></div>
+                                </td>
                                 <td><?php echo $vendor_name; ?></td>
-                                <td><?php echo $category_name; ?></td>
-                                <td><?php echo truncate($expense_description, 50); ?></td>
                                 <td class="text-bold text-right"><?php echo numfmt_format_currency($currency_format, $expense_amount, $expense_currency_code); ?></td>
                                 <td><?php echo $account_name; ?></td>
                                 <td><?php echo $client_name_display; ?></td>
@@ -218,14 +333,26 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                                 </a>
                                                 <div class="dropdown-divider"></div>
                                             <?php } ?>
-                                            <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editExpenseModal<?php echo $expense_id; ?>">
+                                            <a class="dropdown-item" href="#"
+                                                data-toggle="ajax-modal"
+                                                data-modal-size="lg"
+                                                data-ajax-url="ajax/ajax_expense_edit.php"
+                                                data-ajax-id="<?php echo $expense_id; ?>">
                                                 <i class="fas fa-fw fa-edit mr-2"></i>Edit
                                             </a>
-                                            <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addExpenseCopyModal<?php echo $expense_id; ?>">
+                                            <a class="dropdown-item" href="#"
+                                                data-toggle="ajax-modal"
+                                                data-modal-size="lg"
+                                                data-ajax-url="ajax/ajax_expense_copy.php"
+                                                data-ajax-id="<?php echo $expense_id; ?>">
                                                 <i class="fas fa-fw fa-copy mr-2"></i>Copy
                                             </a>
                                             <div class="dropdown-divider"></div>
-                                            <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addExpenseRefundModal<?php echo $expense_id; ?>">
+                                            <a class="dropdown-item" href="#"
+                                                data-toggle="ajax-modal"
+                                                data-modal-size="lg"
+                                                data-ajax-url="ajax/ajax_expense_refund.php"
+                                                data-ajax-id="<?php echo $expense_id; ?>">
                                                 <i class="fas fa-fw fa-undo-alt mr-2"></i>Refund
                                             </a>
                                             <div class="dropdown-divider"></div>
@@ -238,28 +365,17 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             </tr>
 
                             <?php
-
-                            require "expense_edit_modal.php";
-
-                            require "expense_copy_modal.php";
-
-                            require "expense_refund_modal.php";
-
-                            require "expense_export_modal.php";
-
-
                         }
-
                         ?>
 
                         </tbody>
                     </table>
                 </div>
-                <?php require_once "expense_bulk_edit_category_modal.php"; ?>
-                <?php require_once "expense_bulk_edit_account_modal.php"; ?>
-                <?php require_once "expense_bulk_edit_client_modal.php"; ?>
+                <?php require_once "modals/expense_bulk_edit_category_modal.php"; ?>
+                <?php require_once "modals/expense_bulk_edit_account_modal.php"; ?>
+                <?php require_once "modals/expense_bulk_edit_client_modal.php"; ?>
             </form>
-            <?php require_once "pagination.php";
+            <?php require_once "includes/filter_footer.php";
  ?>
         </div>
     </div>
@@ -267,6 +383,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 <script src="js/bulk_actions.js"></script>
 
 <?php
-require_once "expense_add_modal.php";
+require_once "modals/expense_add_modal.php";
+require_once "modals/expense_export_modal.php";
 
-require_once "footer.php";
+require_once "includes/footer.php";

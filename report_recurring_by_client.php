@@ -1,16 +1,16 @@
 <?php
 
-require_once "inc_all_reports.php";
+require_once "includes/inc_all_reports.php";
 
 validateAccountantRole();
 
 $sql = mysqli_query($mysqli, "
-    SELECT clients.client_id, clients.client_name,
-        SUM(CASE WHEN recurring.recurring_frequency = 'month' THEN recurring.recurring_amount
-            WHEN recurring.recurring_frequency = 'year' THEN recurring.recurring_amount / 12 END) AS recurring_monthly_total
+    SELECT client_id, client_name,
+        SUM(CASE WHEN recurring_invoice_frequency = 'month' THEN recurring_invoice_amount
+            WHEN recurring_invoice_frequency = 'year' THEN recurring_invoice_amount / 12 END) AS recurring_monthly_total
     FROM clients
-    LEFT JOIN recurring ON clients.client_id = recurring.recurring_client_id
-    WHERE recurring.recurring_status = 1
+    LEFT JOIN recurring_invoices ON client_id = recurring_invoice_client_id
+    WHERE recurring_invoice_status = 1
     GROUP BY clients.client_id
     HAVING recurring_monthly_total > 0
     ORDER BY recurring_monthly_total DESC
@@ -63,5 +63,5 @@ $sql = mysqli_query($mysqli, "
     </div>
 </div>
 
-<?php require_once "footer.php";
+<?php require_once "includes/footer.php";
  ?>

@@ -1,6 +1,6 @@
 <?php
 
-require_once "inc_all.php";
+require_once "includes/inc_all.php";
 
 // Initialize the HTML Purifier to prevent XSS
 require "plugins/htmlpurifier/HTMLPurifier.standalone.php";
@@ -23,7 +23,8 @@ if (isset($_GET['query'])) {
     $sql_clients = mysqli_query($mysqli, "SELECT * FROM clients
         LEFT JOIN locations ON clients.client_id = locations.location_client_id AND location_primary = 1
         WHERE client_archived_at IS NULL
-            AND client_name LIKE '%$query%'
+            AND (client_name LIKE '%$query%' OR client_abbreviation LIKE '%$query%')
+            $access_permission_query
         ORDER BY client_id DESC LIMIT 5"
     );
 
@@ -35,14 +36,15 @@ if (isset($_GET['query'])) {
             OR contact_email LIKE '%$query%'
             OR contact_phone LIKE '%$phone_query%'
             OR contact_mobile LIKE '%$phone_query%')
+            $access_permission_query
         ORDER BY contact_id DESC LIMIT 5"
     );
 
     $sql_vendors = mysqli_query($mysqli, "SELECT * FROM vendors
         LEFT JOIN clients ON vendor_client_id = client_id
         WHERE vendor_archived_at IS NULL
-            AND vendor_template = 0
             AND (vendor_name LIKE '%$query%' OR vendor_phone LIKE '%$phone_query%')
+            $access_permission_query
         ORDER BY vendor_id DESC LIMIT 5"
     );
 
@@ -50,6 +52,7 @@ if (isset($_GET['query'])) {
         LEFT JOIN clients ON domain_client_id = client_id
         WHERE domain_archived_at IS NULL
             AND domain_name LIKE '%$query%'
+            $access_permission_query
         ORDER BY domain_id DESC LIMIT 5"
     );
 
@@ -63,6 +66,7 @@ if (isset($_GET['query'])) {
         LEFT JOIN clients on document_client_id = clients.client_id
         WHERE document_archived_at IS NULL
             AND MATCH(document_content_raw) AGAINST ('$query')
+            $access_permission_query
         ORDER BY document_id DESC LIMIT 5"
     );
 
@@ -72,6 +76,7 @@ if (isset($_GET['query'])) {
         WHERE file_archived_at IS NULL
             AND (file_name LIKE '%$query%'
             OR file_description LIKE '%$query%')
+            $access_permission_query
         ORDER BY file_id DESC LIMIT 5"
     );
 
@@ -81,22 +86,25 @@ if (isset($_GET['query'])) {
         WHERE ticket_archived_at IS NULL
             AND (ticket_subject LIKE '%$query%'
             OR ticket_number = '$ticket_num_query')
+            $access_permission_query
         ORDER BY ticket_id DESC LIMIT 5"
     );
 
-    $sql_recurring_tickets = mysqli_query($mysqli, "SELECT * FROM scheduled_tickets
-        LEFT JOIN clients ON scheduled_ticket_client_id = client_id
-        WHERE scheduled_ticket_subject LIKE '%$query%'
-            OR scheduled_ticket_details LIKE '%$query%'
-        ORDER BY scheduled_ticket_id DESC LIMIT 5"
+    $sql_recurring_tickets = mysqli_query($mysqli, "SELECT * FROM recurring_tickets
+        LEFT JOIN clients ON recurring_ticket_client_id = client_id
+        WHERE (recurring_ticket_subject LIKE '%$query%'
+            OR recurring_ticket_details LIKE '%$query%')
+            $access_permission_query
+        ORDER BY recurring_ticket_id DESC LIMIT 5"
     );
 
-    $sql_logins = mysqli_query($mysqli, "SELECT * FROM logins
-        LEFT JOIN contacts ON login_contact_id = contact_id
-        LEFT JOIN clients ON login_client_id = client_id
-        WHERE login_archived_at IS NULL
-            AND (login_name LIKE '%$query%' OR login_description LIKE '%$query%')
-        ORDER BY login_id DESC LIMIT 5"
+    $sql_credentials = mysqli_query($mysqli, "SELECT * FROM credentials
+        LEFT JOIN contacts ON credential_contact_id = contact_id
+        LEFT JOIN clients ON credential_client_id = client_id
+        WHERE credential_archived_at IS NULL
+            AND (credential_name LIKE '%$query%' OR credential_description LIKE '%$query%')
+            $access_permission_query
+        ORDER BY credential_id DESC LIMIT 5"
     );
 
     $sql_invoices = mysqli_query($mysqli, "SELECT * FROM invoices
@@ -104,6 +112,7 @@ if (isset($_GET['query'])) {
         LEFT JOIN categories ON invoice_category_id = category_id
         WHERE invoice_archived_at IS NULL
             AND (CONCAT(invoice_prefix,invoice_number) LIKE '%$query%' OR invoice_scope LIKE '%$query%')
+            $access_permission_query
         ORDER BY invoice_number DESC LIMIT 5"
     );
 
@@ -111,8 +120,10 @@ if (isset($_GET['query'])) {
         LEFT JOIN contacts ON asset_contact_id = contact_id
         LEFT JOIN locations ON asset_location_id = location_id
         LEFT JOIN clients ON asset_client_id = client_id
+        LEFT JOIN asset_interfaces ON interface_asset_id = asset_id AND interface_primary = 1
         WHERE asset_archived_at IS NULL
-            AND (asset_name LIKE '%$query%' OR asset_description LIKE '%$query%' OR asset_type LIKE '%$query%' OR asset_make LIKE '%$query%' OR asset_model LIKE '%$query%' OR asset_serial LIKE '%$query%' OR asset_os LIKE '%$query%' OR asset_ip LIKE '%$query%' OR asset_nat_ip LIKE '%$query%' OR asset_mac LIKE '%$query%' OR asset_status LIKE '%$query%')
+            AND (asset_name LIKE '%$query%' OR asset_description LIKE '%$query%' OR asset_type LIKE '%$query%' OR asset_make LIKE '%$query%' OR asset_model LIKE '%$query%' OR asset_serial LIKE '%$query%' OR asset_os LIKE '%$query%' OR interface_ip LIKE '%$query%' OR interface_nat_ip LIKE '%$query%' OR interface_mac LIKE '%$query%' OR asset_status LIKE '%$query%')
+            $access_permission_query
         ORDER BY asset_name DESC LIMIT 5"
     );
 
@@ -121,6 +132,7 @@ if (isset($_GET['query'])) {
         LEFT JOIN clients ON ticket_client_id = client_id
         WHERE ticket_reply_archived_at IS NULL
             AND (ticket_reply LIKE '%$query%')
+            $access_permission_query
         ORDER BY ticket_id DESC, ticket_reply_id ASC LIMIT 20"
     );
 
@@ -128,22 +140,22 @@ if (isset($_GET['query'])) {
 
     ?>
 
+<div class="card card-dark">
+    <div class="card-header mb-3">
+        <h4 class="card-title text-center"><i class="fas fa-fw fa-search mr-2"></i>Global Search</h4>
+    </div>
+
+    <div class="card-body">
 
     <div class="row">
-
-        <div class="col-sm-12">
-            <h4 class="text-center"><i class="fas fa-fw fa-search mr-2"></i>Global Search</h4>
-            <hr>
-        </div>
-
         <?php if (mysqli_num_rows($sql_clients) > 0) { ?>
 
             <!-- Clients-->
 
             <div class="col-sm-6">
-                <div class="card mb-3">
+                <div class="card card-dark mb-3">
                     <div class="card-header">
-                        <h6 class="mt-1"><i class="fas fa-fw fa-users mr-2"></i>Clients</h6>
+                        <h6 class="card-title"><i class="fas fa-fw fa-users mr-2"></i>Clients</h6>
                     </div>
                     <div class="card-body">
                         <table class="table table-striped table-borderless">
@@ -159,7 +171,8 @@ if (isset($_GET['query'])) {
                             while ($row = mysqli_fetch_array($sql_clients)) {
                                 $client_id = intval($row['client_id']);
                                 $client_name = nullable_htmlentities($row['client_name']);
-                                $location_phone = formatPhoneNumber($row['location_phone']);
+                                $location_phone_country_code = nullable_htmlentities($row['location_phone_country_code']);
+                                $location_phone = nullable_htmlentities(formatPhoneNumber($row['location_phone'], $location_phone_country_code));
                                 $client_website = nullable_htmlentities($row['client_website']);
 
                                 ?>
@@ -183,9 +196,9 @@ if (isset($_GET['query'])) {
             <!-- Contacts-->
 
             <div class="col-sm-6">
-                <div class="card mb-3">
+                <div class="card card-dark mb-3">
                     <div class="card-header">
-                        <h6 class="mt-1"><i class="fas fa-fw fa-users mr-2"></i>Contacts</h6>
+                        <h6 class="card-title"><i class="fas fa-fw fa-users mr-2"></i>Contacts</h6>
                     </div>
                     <div class="card-body">
                         <table class="table table-striped table-borderless">
@@ -205,9 +218,11 @@ if (isset($_GET['query'])) {
                                 $contact_id = intval($row['contact_id']);
                                 $contact_name = nullable_htmlentities($row['contact_name']);
                                 $contact_title = nullable_htmlentities($row['contact_title']);
-                                $contact_phone = formatPhoneNumber($row['contact_phone']);
+                                $contact_phone_country_code = nullable_htmlentities($row['contact_phone_country_code']);
+                                $contact_phone = nullable_htmlentities(formatPhoneNumber($row['contact_phone'], $contact_phone_country_code));
                                 $contact_extension = nullable_htmlentities($row['contact_extension']);
-                                $contact_mobile = formatPhoneNumber($row['contact_mobile']);
+                                $contact_mobile_country_code = nullable_htmlentities($row['contact_mobile_country_code']);
+                                $contact_mobile = nullable_htmlentities(formatPhoneNumber($row['contact_mobile'], $contact_mobile_country_code));
                                 $contact_email = nullable_htmlentities($row['contact_email']);
                                 $client_id = intval($row['client_id']);
                                 $client_name = nullable_htmlentities($row['client_name']);
@@ -215,7 +230,7 @@ if (isset($_GET['query'])) {
 
                                 ?>
                                 <tr>
-                                    <td><a href="client_contact_details.php?client_id=<?php echo $client_id; ?>&contact_id=<?php echo $contact_id; ?>"><?php echo $contact_name; ?></a>
+                                    <td><a href="contact_details.php?client_id=<?php echo $client_id; ?>&contact_id=<?php echo $contact_id; ?>"><?php echo $contact_name; ?></a>
                                         <br><small class="text-secondary"><?php echo $contact_title; ?></small>
                                     </td>
                                     <td><?php echo $contact_email; ?></td>
@@ -239,9 +254,9 @@ if (isset($_GET['query'])) {
 
             <!-- Vendors -->
             <div class="col-sm-6">
-                <div class="card mb-3">
+                <div class="card card-dark mb-3">
                     <div class="card-header">
-                        <h6 class="mt-1"><i class="fas fa-fw fa-building mr-2"></i>Vendors</h6>
+                        <h6 class="card-title"><i class="fas fa-fw fa-building mr-2"></i>Vendors</h6>
                     </div>
                     <div class="card-body">
                         <table class="table table-striped table-borderless">
@@ -259,7 +274,8 @@ if (isset($_GET['query'])) {
                             while ($row = mysqli_fetch_array($sql_vendors)) {
                                 $vendor_name = nullable_htmlentities($row['vendor_name']);
                                 $vendor_description = nullable_htmlentities($row['vendor_description']);
-                                $vendor_phone = formatPhoneNumber($row['vendor_phone']);
+                                $vendor_phone_country_code = nullable_htmlentities($row['vendor_phone_country_code']);
+                                $vendor_phone = nullable_htmlentities(formatPhoneNumber($row['vendor_phone'], $vendor_phone_country_code));
                                 $client_id = intval($row['client_id']);
                                 $client_name = nullable_htmlentities($row['client_name']);
 
@@ -268,7 +284,7 @@ if (isset($_GET['query'])) {
                                     <td><a href="vendors.php?q=<?php echo $q ?>"><?php echo $vendor_name; ?></a></td>
                                     <td><?php echo $vendor_description; ?></td>
                                     <td><?php echo $vendor_phone; ?></td>
-                                    <td><a href="client_vendors.php?client_id=<?php echo $client_id; ?>"><?php echo $client_name; ?></a></td>
+                                    <td><a href="vendors.php?client_id=<?php echo $client_id; ?>"><?php echo $client_name; ?></a></td>
                                 </tr>
 
                             <?php } ?>
@@ -286,9 +302,9 @@ if (isset($_GET['query'])) {
 
             <!-- Domains -->
             <div class="col-sm-6">
-                <div class="card mb-3">
+                <div class="card card-dark mb-3">
                     <div class="card-header">
-                        <h6 class="mt-1"><i class="fas fa-fw fa-globe mr-2"></i>Domains</h6>
+                        <h6 class="card-title"><i class="fas fa-fw fa-globe mr-2"></i>Domains</h6>
                     </div>
                     <div class="card-body">
                         <table class="table table-striped table-borderless">
@@ -311,7 +327,7 @@ if (isset($_GET['query'])) {
 
                                 ?>
                                 <tr>
-                                    <td><a href="client_domains.php?client_id=<?php echo $client_id; ?>&domain_id=<?php echo $domain_id; ?>"><?php echo $domain_name; ?></a>
+                                    <td><a href="domains.php?client_id=<?php echo $client_id; ?>&domain_id=<?php echo $domain_id; ?>"><?php echo $domain_name; ?></a>
                                     <td><?php echo $domain_expiry; ?></td>
                                     <td><a href="client_overview.php?client_id=<?php echo $client_id; ?>"><?php echo $client_name; ?></a></td>
                                 </tr>
@@ -330,9 +346,9 @@ if (isset($_GET['query'])) {
 
             <!-- Products -->
             <div class="col-sm-6">
-                <div class="card mb-3">
+                <div class="card card-dark mb-3">
                     <div class="card-header">
-                        <h6 class="mt-1"><i class="fas fa-fw fa-box mr-2"></i>Products</h6>
+                        <h6 class="card-title"><i class="fas fa-fw fa-box mr-2"></i>Products</h6>
                     </div>
                     <div class="card-body">
                         <table class="table table-striped table-borderless">
@@ -369,9 +385,9 @@ if (isset($_GET['query'])) {
 
             <!-- Documents -->
             <div class="col-sm-6">
-                <div class="card mb-3">
+                <div class="card card-dark mb-3">
                     <div class="card-header">
-                        <h6 class="mt-1"><i class="fas fa-fw fa-file-alt mr-2"></i>Documents</h6>
+                        <h6 class="card-title"><i class="fas fa-fw fa-file-alt mr-2"></i>Documents</h6>
                     </div>
                     <div class="card-body">
                         <table class="table table-striped table-borderless">
@@ -413,9 +429,9 @@ if (isset($_GET['query'])) {
 
             <!-- Files -->
             <div class="col-sm-6">
-                <div class="card mb-3">
+                <div class="card card-dark mb-3">
                     <div class="card-header">
-                        <h6 class="mt-1"><i class="fas fa-fw fa-paperclip mr-2"></i>Files</h6>
+                        <h6 class="card-title"><i class="fas fa-fw fa-paperclip mr-2"></i>Files</h6>
                     </div>
                     <div class="card-body">
                         <table class="table table-striped table-borderless">
@@ -463,9 +479,9 @@ if (isset($_GET['query'])) {
 
             <!-- Tickets -->
             <div class="col-sm-6">
-                <div class="card mb-3">
+                <div class="card card-dark mb-3">
                     <div class="card-header">
-                        <h6 class="mt-1"><i class="fas fa-fw fa-life-ring mr-2"></i>Tickets</h6>
+                        <h6 class="card-title"><i class="fas fa-fw fa-life-ring mr-2"></i>Tickets</h6>
                     </div>
                     <div class="card-body">
                         <table class="table table-striped table-borderless">
@@ -494,7 +510,7 @@ if (isset($_GET['query'])) {
                                     <td><a href="ticket.php?ticket_id=<?php echo $ticket_id ?>"><?php echo $ticket_prefix . $ticket_number; ?></a></td>
                                     <td><?php echo $ticket_subject; ?></td>
                                     <td><?php echo $ticket_status_name; ?></td>
-                                    <td><a href="client_tickets.php?client_id=<?php echo $client_id ?>"><?php echo $client_name; ?></a></td>
+                                    <td><a href="tickets.php?client_id=<?php echo $client_id ?>"><?php echo $client_name; ?></a></td>
                                 </tr>
 
                             <?php } ?>
@@ -513,9 +529,9 @@ if (isset($_GET['query'])) {
 
             <!-- Recurring Tickets -->
             <div class="col-sm-6">
-                <div class="card mb-3">
+                <div class="card card-dark mb-3">
                     <div class="card-header">
-                        <h6 class="mt-1"><i class="fas fa-fw fa-undo-alt mr-2"></i>Recurring Tickets</h6>
+                        <h6 class="card-title"><i class="fas fa-fw fa-undo-alt mr-2"></i>Recurring Tickets</h6>
                     </div>
                     <div class="card-body">
                         <table class="table table-striped table-borderless">
@@ -531,19 +547,19 @@ if (isset($_GET['query'])) {
                             <?php
 
                             while ($row = mysqli_fetch_array($sql_recurring_tickets)) {
-                                $scheduled_ticket_id = intval($row['scheduled_ticket_id']);
-                                $scheduled_ticket_subject = nullable_htmlentities($row['scheduled_ticket_subject']);
-                                $scheduled_ticket_frequency = nullable_htmlentities($row['scheduled_ticket_frequency']);
-                                $scheduled_ticket_next_run = nullable_htmlentities($row['scheduled_ticket_next_run']);
+                                $recurring_ticket_id = intval($row['recurring_ticket_id']);
+                                $recurring_ticket_subject = nullable_htmlentities($row['recurring_ticket_subject']);
+                                $recurring_ticket_frequency = nullable_htmlentities($row['recurring_ticket_frequency']);
+                                $recurring_ticket_next_run = nullable_htmlentities($row['recurring_ticket_next_run']);
                                 $client_name = nullable_htmlentities($row['client_name']);
                                 $client_id = intval($row['client_id']);
 
                                 ?>
                                 <tr>
-                                    <td><a href="recurring_tickets.php"><?php echo $scheduled_ticket_subject; ?></a></td>
-                                    <td><?php echo $scheduled_ticket_frequency; ?></td>
-                                    <td><?php echo $scheduled_ticket_next_run; ?></td>
-                                    <td><a href="client_recurring_tickets.php?client_id=<?php echo $client_id ?>"><?php echo $client_name; ?></a></td>
+                                    <td><a href="recurring_tickets.php"><?php echo $recurring_ticket_subject; ?></a></td>
+                                    <td><?php echo $recurring_ticket_frequency; ?></td>
+                                    <td><?php echo $recurring_ticket_next_run; ?></td>
+                                    <td><a href="recurring_tickets.php?client_id=<?php echo $client_id ?>"><?php echo $client_name; ?></a></td>
                                 </tr>
 
                             <?php } ?>
@@ -558,13 +574,13 @@ if (isset($_GET['query'])) {
         <?php } ?>
 
 
-        <?php if (mysqli_num_rows($sql_logins) > 0) { ?>
+        <?php if (mysqli_num_rows($sql_credentials) > 0) { ?>
 
-            <!-- Logins -->
+            <!-- Credentials -->
             <div class="col-sm-6">
-                <div class="card mb-3">
+                <div class="card card-dark mb-3">
                     <div class="card-header">
-                        <h6 class="mt-1"><i class="fas fa-fw fa-key mr-2"></i>Credentials</h6>
+                        <h3 class="card-title"><i class="fas fa-fw fa-key mr-2"></i>Credentials</h3>
                     </div>
                     <div class="card-body">
                         <table class="table table-striped table-borderless">
@@ -580,23 +596,23 @@ if (isset($_GET['query'])) {
                             <tbody>
                             <?php
 
-                            while ($row = mysqli_fetch_array($sql_logins)) {
-                                $login_name = nullable_htmlentities($row['login_name']);
-                                $login_description = nullable_htmlentities($row['login_description']);
-                                $login_client_id = intval($row['login_client_id']);
-                                $login_username = nullable_htmlentities(decryptLoginEntry($row['login_username']));
-                                $login_password = nullable_htmlentities(decryptLoginEntry($row['login_password']));
+                            while ($row = mysqli_fetch_array($sql_credentials)) {
+                                $credential_name = nullable_htmlentities($row['credential_name']);
+                                $credential_description = nullable_htmlentities($row['credential_description']);
+                                $credential_client_id = intval($row['credential_client_id']);
+                                $credential_username = nullable_htmlentities(decryptCredentialEntry($row['credential_username']));
+                                $credential_password = nullable_htmlentities(decryptCredentialEntry($row['credential_password']));
                                 $client_id = intval($row['client_id']);
                                 $client_name = nullable_htmlentities($row['client_name']);
 
                                 ?>
                                 <tr>
-                                    <td><a href="client_logins.php?client_id=<?php echo $login_client_id ?>&q=<?php echo $q ?>"><?php echo $login_name; ?></a></td>
-                                    <td><?php echo $login_description; ?></td>
-                                    <td><?php echo $login_username; ?></td>
-                                    <td><a tabindex="0" class="btn btn-sm" data-toggle="popover" data-trigger="focus" data-placement="left" data-content="<?php echo $login_password; ?>"><i class="far fa-eye text-secondary"></i></a><button class="btn btn-sm clipboardjs" data-clipboard-text="<?php echo $login_password; ?>"><i class="far fa-copy text-secondary"></i></button>
+                                    <td><a href="credentials.php?client_id=<?php echo $credential_client_id ?>&q=<?php echo $q ?>"><?php echo $credential_name; ?></a></td>
+                                    <td><?php echo $credential_description; ?></td>
+                                    <td><?php echo $credential_username; ?></td>
+                                    <td><a tabindex="0" class="btn btn-sm" data-toggle="popover" data-trigger="focus" data-placement="left" data-content="<?php echo $credential_password; ?>"><i class="far fa-eye text-secondary"></i></a><button class="btn btn-sm clipboardjs" data-clipboard-text="<?php echo $credential_password; ?>"><i class="far fa-copy text-secondary"></i></button>
                                     </td>
-                                    <td><a href="client_logins.php?client_id=<?php echo $client_id; ?>"><?php echo $client_name; ?></a></td>
+                                    <td><a href="credentials.php?client_id=<?php echo $client_id; ?>"><?php echo $client_name; ?></a></td>
                                 </tr>
 
                             <?php } ?>
@@ -615,9 +631,9 @@ if (isset($_GET['query'])) {
             <!-- Contacts-->
 
             <div class="col-sm-6">
-                <div class="card mb-3">
+                <div class="card card-dark mb-3">
                     <div class="card-header">
-                        <h6 class="mt-1"><i class="fas fa-fw fa-file-invoice mr-2"></i>Invoices</h6>
+                        <h6 class="card-title"><i class="fas fa-fw fa-file-invoice mr-2"></i>Invoices</h6>
                     </div>
                     <div class="card-body">
                         <table class="table table-striped table-borderless">
@@ -666,9 +682,9 @@ if (isset($_GET['query'])) {
             <!-- Contacts-->
 
             <div class="col-sm-6">
-                <div class="card mb-3">
+                <div class="card card-dark mb-3">
                     <div class="card-header">
-                        <h6 class="mt-1"><i class="fas fa-fw fa-desktop mr-2"></i>Assets</h6>
+                        <h6 class="card-title"><i class="fas fa-fw fa-desktop mr-2"></i>Assets</h6>
                     </div>
                     <div class="card-body">
                         <table class="table table-striped table-borderless">
@@ -685,6 +701,8 @@ if (isset($_GET['query'])) {
                             <?php
 
                             while ($row = mysqli_fetch_array($sql_assets)) {
+                                $client_id = intval($row['asset_client_id']);
+                                $client_name = nullable_htmlentities($row['client_name']);
                                 $asset_id = intval($row['asset_id']);
                                 $asset_type = nullable_htmlentities($row['asset_type']);
                                 $asset_name = nullable_htmlentities($row['asset_name']);
@@ -702,7 +720,6 @@ if (isset($_GET['query'])) {
                                 } else {
                                     $asset_serial_display = $asset_serial;
                                 }
-                                $asset_mac = nullable_htmlentities($row['asset_mac']);
                                 $asset_uri = nullable_htmlentities($row['asset_uri']);
                                 $asset_status = nullable_htmlentities($row['asset_status']);
                                 $asset_created_at = nullable_htmlentities($row['asset_created_at']);
@@ -715,7 +732,7 @@ if (isset($_GET['query'])) {
                                 if (empty($contact_name)) {
                                     $contact_name_display = "-";
                                 }else{
-                                    $contact_name_display = "<a href='client_contact_details.php?client_id=$client_id&contact_id=$contact_id'>$contact_name</a>";
+                                    $contact_name_display = "<a href='contact_details.php?client_id=$client_id&contact_id=$contact_id'>$contact_name</a>";
                                 }
                                 $contact_archived_at = nullable_htmlentities($row['contact_archived_at']);
                                 if (empty($contact_archived_at)) {
@@ -724,20 +741,17 @@ if (isset($_GET['query'])) {
                                     $contact_archived_display = "Archived - ";
                                 }
 
-                                $client_id = intval($row['asset_client_id']);
-                                $client_name = nullable_htmlentities($row['client_name']);
-
                                 ?>
                                 <tr>
                                     <td>
-                                        <i class="fa fa-fw text-secondary fa-<?php echo $device_icon; ?> mr-2"></i><?php echo $asset_name; ?>
+                                        <i class="fa fa-fw text-secondary fa-<?php echo $device_icon; ?> mr-2"></i><a href="asset_details.php?client_id=<?php echo $client_id; ?>&asset_id=<?php echo $asset_id; ?>"><?php echo $asset_name; ?></a>
                                         <?php if(!empty($asset_uri)){ ?>
-                                        <a href="<?php echo $asset_uri; ?>" target="_blank"><i class="fas fa-fw fa-external-link-alt ml-2"></i></a>
+                                            <a href="<?php echo $asset_uri; ?>" target="_blank"><i class="fas fa-fw fa-external-link-alt ml-2"></i></a>
                                         <?php } ?>
                                     </td>
                                     <td><?php echo $asset_type; ?></td>
                                     <td><?php echo $asset_serial_display; ?></td>
-                                    <td><a href="client_assets.php?client_id=<?php echo $client_id; ?>"><?php echo $client_name; ?></a></td>
+                                    <td><a href="assets.php?client_id=<?php echo $client_id; ?>"><?php echo $client_name; ?></a></td>
                                     <td><?php echo $contact_name_display; ?></td>
                                 </tr>
 
@@ -758,9 +772,9 @@ if (isset($_GET['query'])) {
 
             <div class="col-sm-6">
 
-                <div class="card">
+                <div class="card card-dark">
                     <div class="card-header">
-                        <h6 class="mt-1"><i class="fas fa-fw fa-reply mr-2"></i>Ticket Replies</h6>
+                        <h6 class="card-title"><i class="fas fa-fw fa-reply mr-2"></i>Ticket Replies</h6>
                     </div>
                     <div class="card-body">
 
@@ -825,16 +839,21 @@ if (isset($_GET['query'])) {
                 </div>
 
             </div>
+        </div>
 
         <?php } ?>
 
     </div>
 
+</div>
+
+</div>
+
 <?php
 
 }
 
-require_once "footer.php";
+require_once "includes/footer.php";
 
 ?>
 

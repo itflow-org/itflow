@@ -22,3 +22,8 @@ plugins/htmlpurifier/standalone/HTMLPurifier/DefinitionCache/Serializer/URI/*
 plugins/htmlpurifier/standalone/HTMLPurifier/DefinitionCache/Serializer/CSS/*
 !plugins/htmlpurifier/standalone/HTMLPurifier/DefinitionCache/Serializer/CSS/.gitkeep
 .vscode/settings.json
+xcustom/*
+!xcustom/readme.php
+post/xcustom
+!post/xcustom/readme.php
+.zed

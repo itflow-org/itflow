@@ -4,10 +4,7 @@
 $sort = "email_id";
 $order = "DESC";
 
-require_once "inc_all_admin.php";
-
-//Rebuild URL
-$url_query_strings_sort = http_build_query($get_copy);
+require_once "includes/inc_all_admin.php";
 
 $sql = mysqli_query(
     $mysqli,
@@ -92,6 +89,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
             <hr>
             <form id="bulkActions" action="post.php" method="post">
                 <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token'] ?>">
+
                 <div class="table-responsive-sm">
                     <table class="table table-sm table-striped table-borderless table-hover">
                         <thead class="text-dark <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
@@ -101,14 +99,37 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                     <input class="form-check-input" id="selectAllCheckbox" type="checkbox" onclick="checkAll(this)">
                                 </div>
                             </td>
-                            <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=email_id&order=<?php echo $disp; ?>">ID</a></th>
-                            <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=email_queued_at&order=<?php echo $disp; ?>">Queued</a></th>
-                            <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=email_from&order=<?php echo $disp; ?>">From</a></th>
-                            <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=email_recipient&order=<?php echo $disp; ?>">To</a></th>
-                            <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=email_subject&order=<?php echo $disp; ?>">Subject</a></th>
-                            <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=email_status&order=<?php echo $disp; ?>">Status</a></th>
-                            <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=email_attempts&order=<?php echo $disp; ?>">Attempts</a></th>
-                            <th>Action</th>
+                            <th>
+                                <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=email_queued_at&order=<?php echo $disp; ?>">
+                                    Queued <?php if ($sort == 'email_queued_at') { echo $order_icon; } ?>
+                                </a>
+                            </th>
+                            <th>
+                                <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=email_from&order=<?php echo $disp; ?>">
+                                    From <?php if ($sort == 'email_from') { echo $order_icon; } ?>
+                                </a>
+                            </th>
+                            <th>
+                                <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=email_recipient&order=<?php echo $disp; ?>">
+                                    To <?php if ($sort == 'email_recipient') { echo $order_icon; } ?>
+                                </a>
+                            </th>
+                            <th>
+                                <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=email_subject&order=<?php echo $disp; ?>">
+                                    Subject <?php if ($sort == 'email_subject') { echo $order_icon; } ?>
+                                </a>
+                            </th>
+                            <th>
+                                <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=email_status&order=<?php echo $disp; ?>">
+                                    Status <?php if ($sort == 'email_status') { echo $order_icon; } ?>
+                                </a>
+                            </th>
+                            <th>
+                                <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=email_attempts&order=<?php echo $disp; ?>">
+                                    Attempts <?php if ($sort == 'email_attempts') { echo $order_icon; } ?>
+                                </a>
+                            </th>
+                            <th class="text-center">Action</th>
                         </tr>
                         </thead>
                         <tbody>
@@ -146,15 +167,19 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                     </div>
                                     <?php } ?>
                                 </td>
-                                <td><?php echo $email_id; ?></td>
                                 <td><?php echo $email_queued_at; ?></td>
                                 <td><?php echo "$email_from<br><small class='text-secondary'>$email_from_name</small>"?></td>
                                 <td><?php echo "$email_recipient<br><small class='text-secondary'>$email_recipient_name</small>"?></td>
                                 <td><?php echo $email_subject; ?></td>
                                 <td><?php echo $email_status_display; ?></td>
                                 <td><?php echo $email_attempts; ?></td>
-                                <td>
-                                    <a class="btn btn-sm btn-secondary" href="admin_mail_queue_message_view.php?email_id=<?php echo $email_id; ?>">
+                                <td class="text-center">
+                                    <a class="btn btn-sm btn-secondary" href="#"
+                                        data-toggle = "ajax-modal"
+                                        data-modal-size = "lg"
+                                        data-ajax-url = "ajax/ajax_admin_mail_queue_message_view.php"
+                                        data-ajax-id = "<?php echo $email_id; ?>"
+                                        >
                                         <i class="fas fa-fw fa-eye"></i>
                                     </a>
 
@@ -180,11 +205,11 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                 </div>
             </form>
 
-            <?php require_once "pagination.php"; ?>
+            <?php require_once "includes/filter_footer.php"; ?>
         </div>
     </div>
 
 <script src="js/bulk_actions.js"></script>
 
 <?php
-require_once "footer.php";
+require_once "includes/footer.php";

@@ -66,14 +66,6 @@ if (isset($_POST['contact_notes'])) {
     $notes = '';
 }
 
-if (isset($_POST['contact_auth_method'])) {
-    $auth_method = sanitizeInput($_POST['contact_auth_method']);
-} elseif ($contact_row) {
-    $auth_method = $contact_row['contact_auth_method'];
-} else {
-    $auth_method = '';
-}
-
 if (isset($_POST['contact_primary'])) {
     $primary = intval($_POST['contact_primary']);
 } elseif ($contact_row) {

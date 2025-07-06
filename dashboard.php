@@ -1,12 +1,10 @@
 <?php
-require_once "inc_all.php";
+require_once "includes/inc_all.php";
 
-if (isset($_GET['year'])) {
-    $year = intval($_GET['year']);
-} else {
-    $year = date('Y');
-}
+// Get current year or the selected year
+$year = isset($_GET['year']) ? intval($_GET['year']) : date('Y');
 
+// Update user settings based on GET parameters
 if (isset($_GET['enable_financial'])) {
     $enable_financial = intval($_GET['enable_financial']);
     mysqli_query($mysqli, "UPDATE user_settings SET user_config_dashboard_financial_enable = $enable_financial WHERE user_id = $session_user_id");
@@ -23,10 +21,9 @@ $row = mysqli_fetch_array($sql_user_dashboard_settings);
 $user_config_dashboard_financial_enable = intval($row['user_config_dashboard_financial_enable']);
 $user_config_dashboard_technical_enable = intval($row['user_config_dashboard_technical_enable']);
 
-//GET unique years from expenses, payments invoices and revenues
-$sql_years_select = mysqli_query(
-    $mysqli,
-    "SELECT YEAR(expense_date) AS all_years FROM expenses
+// Get unique years from expenses, payments, invoices, revenues, tickets, clients, and users
+$sql_years_select = mysqli_query($mysqli, "
+    SELECT YEAR(expense_date) AS all_years FROM expenses
     UNION DISTINCT SELECT YEAR(payment_date) FROM payments
     UNION DISTINCT SELECT YEAR(revenue_date) FROM revenues
     UNION DISTINCT SELECT YEAR(invoice_date) FROM invoices
@@ -34,89 +31,75 @@ $sql_years_select = mysqli_query(
     UNION DISTINCT SELECT YEAR(client_created_at) FROM clients
     UNION DISTINCT SELECT YEAR(user_created_at) FROM users
     ORDER BY all_years DESC
-"
-);
+");
 
 ?>
+
 <div class="card card-body">
     <form class="form-inline">
         <input type="hidden" name="enable_financial" value="0">
         <input type="hidden" name="enable_technical" value="0">
 
-        <select onchange="this.form.submit()" class="form-control mr-sm-3 col-sm-2" name="year">
-            <?php
-
-            while ($row = mysqli_fetch_array($sql_years_select)) {
+        <label for="year" class="mr-sm-2">Select Year:</label>
+        <select id="year" onchange="this.form.submit()" class="form-control mr-sm-3 col-sm-2 mb-3 mb-sm-0" name="year">
+            <?php while ($row = mysqli_fetch_array($sql_years_select)) {
                 $year_select = $row['all_years'];
                 if (empty($year_select)) {
                     $year_select = date('Y');
                 }
             ?>
-                <option <?php if ($year == $year_select) { echo "selected"; } ?>> <?php echo $year_select; ?></option>
-
-            <?php
-            }
-            ?>
+                <option value="<?php echo $year_select; ?>" <?php if ($year == $year_select) { echo "selected"; } ?>>
+                    <?php echo $year_select; ?>
+                </option>
+            <?php } ?>
         </select>
 
-        <?php if ($session_user_role == 1 || $session_user_role == 3 && $config_module_enable_accounting == 1) { ?>
-            <div class="custom-control custom-switch mr-sm-3">
+        <?php if ($session_user_role == 1 || ($session_user_role == 3 && $config_module_enable_accounting == 1)) { ?>
+            <div class="custom-control custom-switch mr-3">
                 <input type="checkbox" onchange="this.form.submit()" class="custom-control-input" id="customSwitch1" name="enable_financial" value="1" <?php if ($user_config_dashboard_financial_enable == 1) { echo "checked"; } ?>>
-                <label class="custom-control-label" for="customSwitch1">Toggle Financial</label>
+                <label class="custom-control-label" for="customSwitch1">Financial</label>
             </div>
         <?php } ?>
 
         <?php if ($session_user_role >= 2 && $config_module_enable_ticketing == 1) { ?>
             <div class="custom-control custom-switch">
                 <input type="checkbox" onchange="this.form.submit()" class="custom-control-input" id="customSwitch2" name="enable_technical" value="1" <?php if ($user_config_dashboard_technical_enable == 1) { echo "checked"; } ?>>
-                <label class="custom-control-label" for="customSwitch2">Toggle Technical</label>
+                <label class="custom-control-label" for="customSwitch2">Technical</label>
             </div>
         <?php } ?>
-
     </form>
 </div>
 
 <?php
-
 if ($user_config_dashboard_financial_enable == 1) {
 
-    // Enforce accountant / admin role for the financial dashboard
-    if ($_SESSION['user_role'] != 3 && $_SESSION['user_role'] != 1) {
-        exit('<script type="text/javascript">window.location.href = \'dashboard_technical.php\';</script>');
-    }
-
-
-    //Define var so it doesnt throw errors in logs
+    // Fetch financial data for the dashboard
+    // Define variables to avoid errors in logs
     $largest_income_month = 0;
 
-
-    //Get Total income
     $sql_total_payments_to_invoices = mysqli_query($mysqli, "SELECT SUM(payment_amount) AS total_payments_to_invoices FROM payments WHERE YEAR(payment_date) = $year");
     $row = mysqli_fetch_array($sql_total_payments_to_invoices);
     $total_payments_to_invoices = floatval($row['total_payments_to_invoices']);
-    //Do not grab transfer payment as these have a category_id of 0
+
     $sql_total_revenues = mysqli_query($mysqli, "SELECT SUM(revenue_amount) AS total_revenues FROM revenues WHERE YEAR(revenue_date) = $year AND revenue_category_id > 0");
     $row = mysqli_fetch_array($sql_total_revenues);
     $total_revenues = floatval($row['total_revenues']);
 
     $total_income = $total_payments_to_invoices + $total_revenues;
 
-    //Get Total expenses and do not grab transfer expenses as these have a vendor of 0
     $sql_total_expenses = mysqli_query($mysqli, "SELECT SUM(expense_amount) AS total_expenses FROM expenses WHERE expense_vendor_id > 0 AND YEAR(expense_date) = $year");
     $row = mysqli_fetch_array($sql_total_expenses);
     $total_expenses = floatval($row['total_expenses']);
 
-    //Total up all the Invoices that are not draft or cancelled
-    $sql_invoice_totals = mysqli_query($mysqli, "SELECT SUM(invoice_amount) AS invoice_totals FROM invoices WHERE invoice_status NOT LIKE 'Draft' AND invoice_status NOT LIKE 'Cancelled' AND YEAR(invoice_date) = $year");
+    $sql_invoice_totals = mysqli_query($mysqli, "SELECT SUM(invoice_amount) AS invoice_totals FROM invoices WHERE invoice_status != 'Draft' AND invoice_status != 'Cancelled' AND invoice_status != 'Non-Billable' AND YEAR(invoice_date) = $year");
     $row = mysqli_fetch_array($sql_invoice_totals);
     $invoice_totals = floatval($row['invoice_totals']);
 
-    //Quaeries from Receivables
     $sql_total_payments_to_invoices_all_years = mysqli_query($mysqli, "SELECT SUM(payment_amount) AS total_payments_to_invoices_all_years FROM payments");
     $row = mysqli_fetch_array($sql_total_payments_to_invoices_all_years);
     $total_payments_to_invoices_all_years = floatval($row['total_payments_to_invoices_all_years']);
 
-    $sql_invoice_totals_all_years = mysqli_query($mysqli, "SELECT SUM(invoice_amount) AS invoice_totals_all_years FROM invoices WHERE invoice_status NOT LIKE 'Draft' AND invoice_status NOT LIKE 'Cancelled'");
+    $sql_invoice_totals_all_years = mysqli_query($mysqli, "SELECT SUM(invoice_amount) AS invoice_totals_all_years FROM invoices WHERE invoice_status != 'Draft' AND invoice_status != 'Cancelled' AND invoice_status != 'Non-Billable'");
     $row = mysqli_fetch_array($sql_invoice_totals_all_years);
     $invoice_totals_all_years = floatval($row['invoice_totals_all_years']);
 
@@ -126,68 +109,57 @@ if ($user_config_dashboard_financial_enable == 1) {
 
     $sql_accounts = mysqli_query($mysqli, "SELECT * FROM accounts WHERE account_archived_at IS NULL ORDER BY account_name ASC");
 
-    $sql_latest_invoice_payments = mysqli_query(
-        $mysqli,
-        "SELECT * FROM payments, invoices, clients
-    WHERE payment_invoice_id = invoice_id
-    AND invoice_client_id = client_id
-    ORDER BY payment_id DESC LIMIT 5"
-    );
+    $sql_latest_invoice_payments = mysqli_query($mysqli, "
+        SELECT * FROM payments
+        JOIN invoices ON payment_invoice_id = invoice_id
+        JOIN clients ON invoice_client_id = client_id
+        ORDER BY payment_id DESC LIMIT 5
+    ");
 
-    $sql_latest_expenses = mysqli_query(
-        $mysqli,
-        "SELECT * FROM expenses, vendors, categories
-    WHERE expense_vendor_id = vendor_id
-    AND expense_category_id = category_id
-    ORDER BY expense_id DESC LIMIT 5"
-    );
+    $sql_latest_expenses = mysqli_query($mysqli, "
+        SELECT * FROM expenses
+        JOIN vendors ON expense_vendor_id = vendor_id
+        JOIN categories ON expense_category_id = category_id
+        ORDER BY expense_id DESC LIMIT 5
+    ");
 
-    //Get Yearly Recurring Income Total
-    $sql_recurring_yearly_total = mysqli_query($mysqli, "SELECT SUM(recurring_amount) AS recurring_yearly_total FROM recurring WHERE recurring_status = 1 AND recurring_frequency = 'year' AND YEAR(recurring_created_at) <= $year");
+    // Get recurring invoice totals
+    $sql_recurring_yearly_total = mysqli_query($mysqli, "SELECT SUM(recurring_invoice_amount) AS recurring_yearly_total FROM recurring_invoices WHERE recurring_invoice_status = 1 AND recurring_invoice_frequency = 'year' AND YEAR(recurring_invoice_created_at) <= $year");
     $row = mysqli_fetch_array($sql_recurring_yearly_total);
     $recurring_yearly_total = floatval($row['recurring_yearly_total']);
 
-    //Get Monthly Recurring Income Total
-    $sql_recurring_monthly_total = mysqli_query($mysqli, "SELECT SUM(recurring_amount) AS recurring_monthly_total FROM recurring WHERE recurring_status = 1 AND recurring_frequency = 'month' AND YEAR(recurring_created_at) <= $year");
+    $sql_recurring_monthly_total = mysqli_query($mysqli, "SELECT SUM(recurring_invoice_amount) AS recurring_monthly_total FROM recurring_invoices WHERE recurring_invoice_status = 1 AND recurring_invoice_frequency = 'month' AND YEAR(recurring_invoice_created_at) <= $year");
     $row = mysqli_fetch_array($sql_recurring_monthly_total);
     $recurring_monthly_total = floatval($row['recurring_monthly_total']) + ($recurring_yearly_total / 12);
 
-    //Get Yearly Recurring Expenses Total
+    // Recurring expenses totals
     $sql_recurring_expense_yearly_total = mysqli_query($mysqli, "SELECT SUM(recurring_expense_amount) AS recurring_expense_yearly_total FROM recurring_expenses WHERE recurring_expense_status = 1 AND recurring_expense_frequency = 2 AND YEAR(recurring_expense_created_at) <= $year");
     $row = mysqli_fetch_array($sql_recurring_expense_yearly_total);
     $recurring_expense_yearly_total = floatval($row['recurring_expense_yearly_total']);
 
-    //Get Monthly Recurring Expenses Total
     $sql_recurring_expense_monthly_total = mysqli_query($mysqli, "SELECT SUM(recurring_expense_amount) AS recurring_expense_monthly_total FROM recurring_expenses WHERE recurring_expense_status = 1 AND recurring_expense_frequency = 1 AND YEAR(recurring_expense_created_at) <= $year");
     $row = mysqli_fetch_array($sql_recurring_expense_monthly_total);
     $recurring_expense_monthly_total = floatval($row['recurring_expense_monthly_total']) + ($recurring_expense_yearly_total / 12);
 
-    //Get Total Miles Driven
+    // Get miles driven
     $sql_miles_driven = mysqli_query($mysqli, "SELECT SUM(trip_miles) AS total_miles FROM trips WHERE YEAR(trip_date) = $year");
     $row = mysqli_fetch_array($sql_miles_driven);
     $total_miles = floatval($row['total_miles']);
 
     if ($config_module_enable_ticketing && $config_module_enable_accounting) {
-        //Get Unbilled, closed tickets
-        $sql_unbilled_tickets = mysqli_query($mysqli, "SELECT COUNT('ticket_id') AS unbilled_tickets FROM tickets WHERE ticket_closed_at IS NOT NULL AND ticket_billable = 1 AND ticket_invoice_id = 0 AND YEAR(ticket_created_at) = $year");
+        $sql_unbilled_tickets = mysqli_query($mysqli, "SELECT COUNT(ticket_id) AS unbilled_tickets FROM tickets WHERE ticket_closed_at IS NOT NULL AND ticket_billable = 1 AND ticket_invoice_id = 0 AND YEAR(ticket_created_at) = $year");
         $row = mysqli_fetch_array($sql_unbilled_tickets);
         $unbilled_tickets = intval($row['unbilled_tickets']);
     } else {
-        //Get Total Recurring Invoices added
-        $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('recurring_id') AS recurring_invoices_added FROM recurring WHERE YEAR(recurring_created_at) = $year"));
+        $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(recurring_invoice_id) AS recurring_invoices_added FROM recurring_invoices WHERE YEAR(recurring_invoice_created_at) = $year"));
         $recurring_invoices_added = intval($row['recurring_invoices_added']);
     }
 
-
-    //Get Total Clients added
-    $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('client_id') AS clients_added FROM clients WHERE YEAR(client_created_at) = $year AND client_archived_at IS NULL"));
+    $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(client_id) AS clients_added FROM clients WHERE YEAR(client_created_at) = $year AND client_archived_at IS NULL"));
     $clients_added = intval($row['clients_added']);
 
-
-    //Get Total Vendors added
-    $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('vendor_id') AS vendors_added FROM vendors WHERE YEAR(vendor_created_at) = $year AND vendor_client_id = 0 AND vendor_template = 0 AND vendor_archived_at IS NULL"));
+    $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(vendor_id) AS vendors_added FROM vendors WHERE YEAR(vendor_created_at) = $year AND vendor_client_id = 0 AND vendor_archived_at IS NULL"));
     $vendors_added = intval($row['vendors_added']);
-
 ?>
 <div class="card card-body">
     <!-- Icon Cards-->
@@ -199,7 +171,7 @@ if ($user_config_dashboard_financial_enable == 1) {
                     <h3><?php echo numfmt_format_currency($currency_format, $total_income, "$session_company_currency"); ?></h3>
                     <p>Income</p>
                     <hr>
-                    <small>Receivables: <?php echo numfmt_format_currency($currency_format, $receivables, "$session_company_currency"); ?></h3></small>
+                    <small>Receivables: <?php echo numfmt_format_currency($currency_format, $receivables, "$session_company_currency"); ?></small>
                 </div>
                 <div class="icon">
                     <i class="fa fa-hand-holding-usd"></i>
@@ -252,7 +224,7 @@ if ($user_config_dashboard_financial_enable == 1) {
 
         <div class="col-lg-4 col-md-6 col-sm-12">
             <!-- small box -->
-            <a class="small-box bg-pink" href="report_expense_by_vendor.php">
+            <a class="small-box bg-pink" href="recurring_expenses.php">
                 <div class="inner">
                     <h3><?php echo numfmt_format_currency($currency_format, $recurring_expense_monthly_total, "$session_company_currency"); ?></h3>
                     <p>Monthly Recurring Expense</p>
@@ -265,24 +237,19 @@ if ($user_config_dashboard_financial_enable == 1) {
         <!-- ./col -->
 
         <?php if ($config_module_enable_ticketing && $config_module_enable_accounting) { ?>
-
             <div class="col-lg-4 col-md-6 col-sm-12">
                 <!-- small box -->
                 <a class="small-box bg-secondary" href="report_tickets_unbilled.php">
                     <div class="inner">
                         <h3><?php echo $unbilled_tickets; ?></h3>
-                        <p>Unbilled Ticket<?php if ($unbilled_tickets > 1 || $unbilled_tickets = 0) {
-                                                echo "s";
-                                            } ?></p>
+                        <p>Unbilled Ticket<?php if ($unbilled_tickets > 1 || $unbilled_tickets == 0) { echo "s"; } ?></p>
                     </div>
                     <div class="icon">
                         <i class="fa fa-ticket-alt"></i>
                     </div>
                 </a>
             </div>
-
         <?php } else { ?>
-
             <div class="col-lg-4 col-md-6 col-sm-12">
                 <!-- small box -->
                 <a class="small-box bg-secondary" href="recurring_invoices.php?dtf=<?php echo $year; ?>-01-01&dtt=<?php echo $year; ?>-12-31">
@@ -295,7 +262,6 @@ if ($user_config_dashboard_financial_enable == 1) {
                     </div>
                 </a>
             </div>
-            <!-- ./col -->
         <?php } ?>
 
         <div class="col-lg-4 col-6">
@@ -420,12 +386,10 @@ if ($user_config_dashboard_financial_enable == 1) {
                 <div class="table-responsive">
                     <table class="table">
                         <tbody>
-                            <?php
-                            while ($row = mysqli_fetch_array($sql_accounts)) {
+                            <?php while ($row = mysqli_fetch_array($sql_accounts)) {
                                 $account_id = intval($row['account_id']);
                                 $account_name = nullable_htmlentities($row['account_name']);
                                 $opening_balance = floatval($row['opening_balance']);
-
                             ?>
                                 <tr>
                                     <td><?php echo $account_name; ?></td>
@@ -450,15 +414,13 @@ if ($user_config_dashboard_financial_enable == 1) {
                                     ?>
                                     <td class="text-right"><?php echo numfmt_format_currency($currency_format, $balance, "$session_company_currency"); ?></td>
                                 </tr>
-                            <?php
-                            }
-                            ?>
-
+                            <?php } ?>
                         </tbody>
                     </table>
                 </div>
             </div>
         </div> <!-- .col -->
+
         <div class="col-md-4">
             <div class="card card-dark mb-3">
                 <div class="card-header">
@@ -480,8 +442,7 @@ if ($user_config_dashboard_financial_enable == 1) {
                             </tr>
                         </thead>
                         <tbody>
-                            <?php
-                            while ($row = mysqli_fetch_array($sql_latest_invoice_payments)) {
+                            <?php while ($row = mysqli_fetch_array($sql_latest_invoice_payments)) {
                                 $payment_date = nullable_htmlentities($row['payment_date']);
                                 $payment_amount = floatval($row['payment_amount']);
                                 $invoice_prefix = nullable_htmlentities($row['invoice_prefix']);
@@ -494,14 +455,13 @@ if ($user_config_dashboard_financial_enable == 1) {
                                     <td><?php echo "$invoice_prefix$invoice_number"; ?></td>
                                     <td class="text-right"><?php echo numfmt_format_currency($currency_format, $payment_amount, "$session_company_currency"); ?></td>
                                 </tr>
-                            <?php
-                            }
-                            ?>
+                            <?php } ?>
                         </tbody>
                     </table>
                 </div>
             </div>
         </div> <!-- .col -->
+
         <div class="col-md-4">
             <div class="card card-dark mb-3">
                 <div class="card-header">
@@ -523,13 +483,11 @@ if ($user_config_dashboard_financial_enable == 1) {
                             </tr>
                         </thead>
                         <tbody>
-                            <?php
-                            while ($row = mysqli_fetch_array($sql_latest_expenses)) {
+                            <?php while ($row = mysqli_fetch_array($sql_latest_expenses)) {
                                 $expense_date = nullable_htmlentities($row['expense_date']);
                                 $expense_amount = floatval($row['expense_amount']);
                                 $vendor_name = nullable_htmlentities($row['vendor_name']);
                                 $category_name = nullable_htmlentities($row['category_name']);
-
                             ?>
                                 <tr>
                                     <td><?php echo $expense_date; ?></td>
@@ -537,14 +495,13 @@ if ($user_config_dashboard_financial_enable == 1) {
                                     <td><?php echo $category_name; ?></td>
                                     <td class="text-right"><?php echo numfmt_format_currency($currency_format, $expense_amount, "$session_company_currency"); ?></td>
                                 </tr>
-                            <?php
-                            }
-                            ?>
+                            <?php } ?>
                         </tbody>
                     </table>
                 </div>
             </div>
         </div> <!-- .col -->
+
         <div class="col-md-12">
             <div class="card card-dark mb-3">
                 <div class="card-header">
@@ -564,103 +521,54 @@ if ($user_config_dashboard_financial_enable == 1) {
             </div>
         </div>
     </div> <!-- row -->
-</div> <!--card -->
+</div> <!-- card -->
 
 <?php } ?>
 
 <!-- Technical Dashboard -->
 
 <?php
-
 if ($user_config_dashboard_technical_enable == 1) {
 
-    // Get Total Clients added
-    $sql_clients = mysqli_fetch_assoc(mysqli_query(
-        $mysqli,
-        "SELECT COUNT('client_id') AS clients_added FROM clients
-    WHERE YEAR(client_created_at) = $year"
-    ));
+    // Fetch technical data for the dashboard
+    $sql_clients = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(client_id) AS clients_added FROM clients WHERE YEAR(client_created_at) = $year"));
     $clients_added = $sql_clients['clients_added'];
 
-    // Get Total contacts added
-    $sql_contacts = mysqli_fetch_assoc(mysqli_query(
-        $mysqli,
-        "SELECT COUNT('contact_id') AS contacts_added FROM contacts
-    WHERE YEAR(contact_created_at) = $year"
-    ));
+    $sql_contacts = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(contact_id) AS contacts_added FROM contacts WHERE YEAR(contact_created_at) = $year"));
     $contacts_added = $sql_contacts['contacts_added'];
 
-    // Get Total assets added
-    $sql_assets = mysqli_fetch_assoc(mysqli_query(
-        $mysqli,
-        "SELECT COUNT('asset_id') AS assets_added FROM assets
-    WHERE YEAR(asset_created_at) = $year"
-    ));
+    $sql_assets = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(asset_id) AS assets_added FROM assets WHERE YEAR(asset_created_at) = $year"));
     $assets_added = $sql_assets['assets_added'];
 
-    // Ticket count
-    $sql_tickets = mysqli_fetch_assoc(mysqli_query(
-        $mysqli,
-        "SELECT COUNT('ticket_id') AS active_tickets
-    FROM tickets
-    WHERE ticket_closed_at IS NULL"
-    ));
+    $sql_tickets = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(ticket_id) AS active_tickets FROM tickets WHERE ticket_closed_at IS NULL"));
     $active_tickets = $sql_tickets['active_tickets'];
 
-    // Your Ticket count
-    $sql_your_tickets = mysqli_fetch_assoc(mysqli_query(
-        $mysqli,
-        "SELECT COUNT('ticket_id') AS your_tickets
-    FROM tickets
-    WHERE ticket_closed_at IS NULL
-    AND ticket_assigned_to = $session_user_id"
-    ));
+    $sql_your_tickets = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(ticket_id) AS your_tickets FROM tickets WHERE ticket_closed_at IS NULL AND ticket_assigned_to = $session_user_id"));
     $your_tickets = $sql_your_tickets['your_tickets'];
 
-    // Expiring domains (but not ones that have already expired)
-    $sql_domains_expiring = mysqli_fetch_assoc(mysqli_query(
-        $mysqli,
-        "SELECT COUNT('domain_id') as expiring_domains
-    FROM domains
-    WHERE domain_expire IS NOT NULL
-    AND domain_expire > CURRENT_DATE
-    AND domain_expire < CURRENT_DATE + INTERVAL 30 DAY
-    AND domain_archived_at IS NULL"
-    ));
+    $sql_domains_expiring = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(domain_id) AS expiring_domains FROM domains WHERE domain_expire IS NOT NULL AND domain_expire > CURRENT_DATE AND domain_expire < CURRENT_DATE + INTERVAL 30 DAY AND domain_archived_at IS NULL"));
     $expiring_domains = $sql_domains_expiring['expiring_domains'];
 
-    // Expiring Certificates (but not ones that have already expired)
-    $sql_certs_expiring = mysqli_fetch_assoc(mysqli_query(
-        $mysqli,
-        "SELECT COUNT('certificate_id') as expiring_certs
-    FROM certificates
-    WHERE certificate_expire IS NOT NULL
-    AND certificate_expire > CURRENT_DATE
-    AND certificate_expire < CURRENT_DATE + INTERVAL 30 DAY
-    AND certificate_archived_at IS NULL"
-    ));
+    $sql_certs_expiring = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(certificate_id) AS expiring_certs FROM certificates WHERE certificate_expire IS NOT NULL AND certificate_expire > CURRENT_DATE AND certificate_expire < CURRENT_DATE + INTERVAL 30 DAY AND certificate_archived_at IS NULL"));
     $expiring_certificates = $sql_certs_expiring['expiring_certs'];
 
-    $sql_your_tickets = mysqli_query(
-        $mysqli,
-        "SELECT * FROM tickets
-            LEFT JOIN ticket_statuses ON ticket_status = ticket_status_id
-            LEFT JOIN clients ON ticket_client_id = client_id
-            LEFT JOIN contacts ON ticket_contact_id = contact_id
-            WHERE ticket_assigned_to = $session_user_id
-            AND ticket_closed_at IS NULL
-            ORDER BY ticket_number DESC"
-        );
-
+    $sql_your_tickets = mysqli_query($mysqli, "
+        SELECT * FROM tickets
+        LEFT JOIN ticket_statuses ON ticket_status = ticket_status_id
+        LEFT JOIN clients ON ticket_client_id = client_id
+        LEFT JOIN contacts ON ticket_contact_id = contact_id
+        WHERE ticket_assigned_to = $session_user_id
+        AND ticket_closed_at IS NULL
+        ORDER BY ticket_number DESC
+    ");
 ?>
 
 <div class="card card-body">
     <!-- Icon Cards-->
     <div class="row">
-
         <div class="col-lg-4 col-6">
             <!-- small box -->
-            <a class="small-box bg-secondary" href="clients.php?date_from=<?php echo $year; ?>-01-01&date_to=<?php echo $year; ?>-12-31">
+            <a class="small-box bg-secondary" href="clients.php?dtf=<?php echo $year; ?>-01-01&dtt=<?php echo $year; ?>-12-31">
                 <div class="inner">
                     <h3><?php echo $clients_added; ?></h3>
                     <p>New Clients</p>
@@ -673,7 +581,7 @@ if ($user_config_dashboard_technical_enable == 1) {
         <!-- ./col -->
 
         <div class="col-lg-4 col-6">
-            <a class="small-box bg-success">
+            <a class="small-box bg-success" href="contacts.php">
                 <div class="inner">
                     <h3><?php echo $contacts_added; ?></h3>
                     <p>New Contacts</p>
@@ -686,7 +594,7 @@ if ($user_config_dashboard_technical_enable == 1) {
         <!-- ./col -->
 
         <div class="col-lg-4 col-6">
-            <a class="small-box bg-info" href="/report_all_assets_by_client.php">
+            <a class="small-box bg-info" href="assets.php">
                 <div class="inner">
                     <h3><?php echo $assets_added; ?></h3>
                     <p>New Assets</p>
@@ -712,7 +620,7 @@ if ($user_config_dashboard_technical_enable == 1) {
         <!-- ./col -->
 
         <div class="col-lg-4 col-6">
-            <a class="small-box bg-warning">
+            <a class="small-box bg-warning" href="domains.php?sort=domain_expire&order=ASC">
                 <div class="inner">
                     <h3><?php echo $expiring_domains; ?></h3>
                     <p>Expiring Domains</p>
@@ -725,7 +633,7 @@ if ($user_config_dashboard_technical_enable == 1) {
         <!-- ./col -->
 
         <div class="col-lg-4 col-6">
-            <a class="small-box bg-primary">
+            <a class="small-box bg-primary" href="certificates.php?sort=certificate_expire&order=ASC">
                 <div class="inner">
                     <h3><?php echo $expiring_certificates; ?></h3>
                     <p>Expiring Certificates</p>
@@ -736,8 +644,7 @@ if ($user_config_dashboard_technical_enable == 1) {
             </a>
         </div>
         <!-- ./col -->
-
-    </div> <!-- rows -->
+    </div> <!-- row -->
 
     <?php if ($your_tickets) { ?>
         <div class="row">
@@ -765,9 +672,7 @@ if ($user_config_dashboard_technical_enable == 1) {
                                 </tr>
                             </thead>
                             <tbody>
-                                <?php
-
-                                while ($row = mysqli_fetch_array($sql_your_tickets)) {
+                                <?php while ($row = mysqli_fetch_array($sql_your_tickets)) {
                                     $ticket_id = intval($row['ticket_id']);
                                     $ticket_prefix = nullable_htmlentities($row['ticket_prefix']);
                                     $ticket_number = intval($row['ticket_number']);
@@ -780,83 +685,41 @@ if ($user_config_dashboard_technical_enable == 1) {
                                     $ticket_created_at_time_ago = timeAgo($row['ticket_created_at']);
                                     $ticket_updated_at = nullable_htmlentities($row['ticket_updated_at']);
                                     $ticket_updated_at_time_ago = timeAgo($row['ticket_updated_at']);
-                                    if (empty($ticket_updated_at)) {
-                                        if (!empty($ticket_closed_at)) {
-                                            $ticket_updated_at_display = "<p>Never</p>";
-                                        } else {
-                                            $ticket_updated_at_display = "<p class='text-danger'>Never</p>";
-                                        }
-                                    } else {
-                                        $ticket_updated_at_display = "$ticket_updated_at_time_ago";
-                                    }
+
+                                    $ticket_updated_at_display = empty($ticket_updated_at) ? (empty($ticket_closed_at) ? "<p class='text-danger'>Never</p>" : "<p>Never</p>") : $ticket_updated_at_time_ago;
+
                                     $client_id = intval($row['ticket_client_id']);
                                     $client_name = nullable_htmlentities($row['client_name']);
                                     $contact_id = intval($row['ticket_contact_id']);
                                     $contact_name = nullable_htmlentities($row['contact_name']);
 
-                                    
-
-                                    if ($ticket_priority == "High") {
-                                        $ticket_priority_color = "danger";
-                                    } elseif ($ticket_priority == "Medium") {
-                                        $ticket_priority_color = "warning";
-                                    } else {
-                                        $ticket_priority_color = "info";
-                                    }
-
-                                    if (empty($contact_name)) {
-                                        $contact_display = "-";
-                                    } else {
-                                        $contact_display = "<a href='client_contact_details.php?client_id=$client_id&contact_id=$contact_id'>$contact_name</a>";
-                                    }
-
+                                    $ticket_priority_color = $ticket_priority == "High" ? "danger" : ($ticket_priority == "Medium" ? "warning" : "info");
+                                    $contact_display = empty($contact_name) ? "-" : "<a href='contact_details.php?client_id=$client_id&contact_id=$contact_id'>$contact_name</a>";
                                 ?>
-
-                                    <tr class="<?php if (empty($ticket_updated_at)) {
-                                                    echo "text-bold";
-                                                } ?>">
+                                    <tr class="<?php echo empty($ticket_updated_at) ? 'text-bold' : ''; ?>">
                                         <td><a class="text-dark" href="ticket.php?ticket_id=<?php echo $ticket_id; ?>"><?php echo "$ticket_prefix$ticket_number"; ?></a></td>
-                                        <td>
-                                            <a href="ticket.php?ticket_id=<?php echo $ticket_id; ?>"><?php echo $ticket_subject; ?></a>
-                                        </td>
-                                        <td>
-                                            <a href="client_tickets.php?client_id=<?php echo $client_id; ?>"><strong><?php echo $client_name; ?></strong></a>
-                                        </td>
+                                        <td><a href="ticket.php?ticket_id=<?php echo $ticket_id; ?>"><?php echo $ticket_subject; ?></a></td>
+                                        <td><a href="tickets.php?client_id=<?php echo $client_id; ?>"><strong><?php echo $client_name; ?></strong></a></td>
                                         <td><?php echo $contact_display; ?></td>
                                         <td><span class='p-2 badge badge-pill badge-<?php echo $ticket_priority_color; ?>'><?php echo $ticket_priority; ?></span></td>
-                                        <td>
-                                            <span class='badge badge-pill text-light p-2' style="background-color: <?php echo $ticket_status_color; ?>"><?php echo $ticket_status_name; ?></span>
-                                        </td>
+                                        <td><span class='badge badge-pill text-light p-2' style="background-color: <?php echo $ticket_status_color; ?>"><?php echo $ticket_status_name; ?></span></td>
                                         <td><?php echo $ticket_updated_at_display; ?></td>
                                     </tr>
-
-                                <?php
-
-                                }
-
-                                ?>
-
+                                <?php } ?>
                             </tbody>
                         </table>
                     </div>
-
                 </div>
-
             </div>
-
         </div>
-    </div> <!-- Card -->
-
     <?php } ?>
-
-
+</div> <!-- card -->
 
 <?php } ?>
 
-<!-- End Tech Dashboard -->
+<?php require_once "includes/footer.php"; ?>
 
-<?php require_once "footer.php";
-?>
+<?php if ($user_config_dashboard_financial_enable == 1) { ?>
 
 <script>
     // Set new default font family and font color to mimic Bootstrap's default styling
@@ -895,17 +758,9 @@ if ($user_config_dashboard_technical_enable == 1) {
                             if ($income_for_month > 0 && $income_for_month > $largest_income_month) {
                                 $largest_income_month = $income_for_month;
                             }
-
-
                         ?>
                             <?php echo "$income_for_month,"; ?>
-
-                        <?php
-
-                        }
-
-                        ?>
-
+                        <?php } ?>
                     ],
                 },
                 {
@@ -934,17 +789,9 @@ if ($user_config_dashboard_technical_enable == 1) {
                             if ($income_for_month > 0 && $income_for_month > $largest_income_month) {
                                 $largest_income_month = $income_for_month;
                             }
-
-
                         ?>
                             <?php echo "$income_for_month,"; ?>
-
-                        <?php
-
-                        }
-
-                        ?>
-
+                        <?php } ?>
                     ],
                 },
                 {
@@ -959,27 +806,18 @@ if ($user_config_dashboard_technical_enable == 1) {
                     pointBorderWidth: 2,
                     data: [
                         <?php
-
                         $largest_invoice_month = 0;
-
                         for ($month = 1; $month <= 12; $month++) {
-                            $sql_projected = mysqli_query($mysqli, "SELECT SUM(invoice_amount) AS invoice_amount_for_month FROM invoices WHERE YEAR(invoice_due) = $year AND MONTH(invoice_due) = $month AND invoice_status NOT LIKE 'Cancelled' AND invoice_status NOT LIKE 'Draft'");
+                            $sql_projected = mysqli_query($mysqli, "SELECT SUM(invoice_amount) AS invoice_amount_for_month FROM invoices WHERE YEAR(invoice_due) = $year AND MONTH(invoice_due) = $month AND invoice_status != 'Cancelled' AND invoice_status != 'Draft' AND invoice_status != 'Non-Billable'");
                             $row = mysqli_fetch_array($sql_projected);
                             $invoice_for_month = floatval($row['invoice_amount_for_month']);
 
                             if ($invoice_for_month > 0 && $invoice_for_month > $largest_invoice_month) {
                                 $largest_invoice_month = $invoice_for_month;
                             }
-
                         ?>
                             <?php echo "$invoice_for_month,"; ?>
-
-                        <?php
-
-                        }
-
-                        ?>
-
+                        <?php } ?>
                     ],
                 },
                 {
@@ -995,9 +833,7 @@ if ($user_config_dashboard_technical_enable == 1) {
                     pointBorderWidth: 2,
                     data: [
                         <?php
-
                         $largest_expense_month = 0;
-
                         for ($month = 1; $month <= 12; $month++) {
                             $sql_expenses = mysqli_query($mysqli, "SELECT SUM(expense_amount) AS expense_amount_for_month FROM expenses WHERE YEAR(expense_date) = $year AND MONTH(expense_date) = $month AND expense_vendor_id > 0");
                             $row = mysqli_fetch_array($sql_expenses);
@@ -1006,17 +842,9 @@ if ($user_config_dashboard_technical_enable == 1) {
                             if ($expenses_for_month > 0 && $expenses_for_month > $largest_expense_month) {
                                 $largest_expense_month = $expenses_for_month;
                             }
-
-
                         ?>
                             <?php echo "$expenses_for_month,"; ?>
-
-                        <?php
-
-                        }
-
-                        ?>
-
+                        <?php } ?>
                     ],
                 }
             ],
@@ -1076,26 +904,18 @@ if ($user_config_dashboard_technical_enable == 1) {
                 pointBorderWidth: 2,
                 data: [
                     <?php
+                    $largest_trip_miles_month = 0;
                     for ($month = 1; $month <= 12; $month++) {
                         $sql_trips = mysqli_query($mysqli, "SELECT SUM(trip_miles) AS trip_miles_for_month FROM trips WHERE YEAR(trip_date) = $year AND MONTH(trip_date) = $month");
                         $row = mysqli_fetch_array($sql_trips);
                         $trip_miles_for_month = floatval($row['trip_miles_for_month']);
-                        $largest_trip_miles_month = 0;
 
                         if ($trip_miles_for_month > 0 && $trip_miles_for_month > $largest_trip_miles_month) {
                             $largest_trip_miles_month = $trip_miles_for_month;
                         }
-
-
                     ?>
                         <?php echo "$trip_miles_for_month,"; ?>
-
-                    <?php
-
-                    }
-
-                    ?>
-
+                    <?php } ?>
                 ],
             }],
         },
@@ -1130,10 +950,6 @@ if ($user_config_dashboard_technical_enable == 1) {
         }
     });
 
-    // Set new default font family and font color to mimic Bootstrap's default styling
-    Chart.defaults.global.defaultFontFamily = '-apple-system,system-ui,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif';
-    Chart.defaults.global.defaultFontColor = '#292b2c';
-
     // Pie Chart Example
     var ctx = document.getElementById("incomeByCategoryPieChart");
     var myPieChart = new Chart(ctx, {
@@ -1155,7 +971,6 @@ if ($user_config_dashboard_technical_enable == 1) {
                     echo "'Others',";
                 }
                 ?>
-
             ],
             datasets: [{
                 data: [
@@ -1169,7 +984,6 @@ if ($user_config_dashboard_technical_enable == 1) {
                         echo "$other_income,";
                     }
                     ?>
-
                 ],
                 backgroundColor: [
                     <?php
@@ -1182,7 +996,6 @@ if ($user_config_dashboard_technical_enable == 1) {
                         echo "'#999999',"; // color for 'Others' category
                     }
                     ?>
-
                 ],
             }],
         },
@@ -1193,10 +1006,6 @@ if ($user_config_dashboard_technical_enable == 1) {
             }
         }
     });
-
-    // Set new default font family and font color to mimic Bootstrap's default styling
-    Chart.defaults.global.defaultFontFamily = '-apple-system,system-ui,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif';
-    Chart.defaults.global.defaultFontColor = '#292b2c';
 
     // Pie Chart Example
     var ctx = document.getElementById("expenseByCategoryPieChart");
@@ -1219,7 +1028,6 @@ if ($user_config_dashboard_technical_enable == 1) {
                     echo "'Others',";
                 }
                 ?>
-
             ],
             datasets: [{
                 data: [
@@ -1233,7 +1041,6 @@ if ($user_config_dashboard_technical_enable == 1) {
                         echo "$other_expense,";
                     }
                     ?>
-
                 ],
                 backgroundColor: [
                     <?php
@@ -1246,7 +1053,6 @@ if ($user_config_dashboard_technical_enable == 1) {
                         echo "'#999999',"; // color for 'Others' category
                     }
                     ?>
-
                 ],
             }],
         },
@@ -1279,7 +1085,6 @@ if ($user_config_dashboard_technical_enable == 1) {
                     echo "'Others',";
                 }
                 ?>
-
             ],
             datasets: [{
                 data: [
@@ -1293,7 +1098,6 @@ if ($user_config_dashboard_technical_enable == 1) {
                         echo "$other_expense,";
                     }
                     ?>
-
                 ],
                 backgroundColor: [
                     <?php
@@ -1306,7 +1110,6 @@ if ($user_config_dashboard_technical_enable == 1) {
                         echo "'#999999',"; // color for 'Others' vendor
                     }
                     ?>
-
                 ],
             }],
         },
@@ -1318,3 +1121,5 @@ if ($user_config_dashboard_technical_enable == 1) {
         }
     });
 </script>
+
+<?php } ?>

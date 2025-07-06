@@ -20,9 +20,10 @@ if (!empty($name) && $client_id == 0) {
     // Check insert & get insert ID
     if ($insert_sql) {
         $insert_id = mysqli_insert_id($mysqli);
-        //Logging
-        mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Client', log_action = 'Created', log_description = '$name via API ($api_key_name)', log_ip = '$ip', log_user_agent = '$user_agent', log_client_id = $insert_id");
-        mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'API', log_action = 'Success', log_description = 'Created client $name via API ($api_key_name)', log_ip = '$ip', log_user_agent = '$user_agent', log_client_id = $insert_id");
+        
+        // Logging
+        logAction("Client", "Create", "$name via API ($api_key_name)", $insert_id);
+        logAction("API", "Success", "Created client $name via API ($api_key_name)", $insert_id);
     }
 
 }

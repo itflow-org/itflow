@@ -29,11 +29,11 @@ if (isset($_POST['ticket_priority'])) {
 
 
 if (isset($_POST['ticket_details'])) {
-    $details = sanitizeInput($_POST['ticket_details']);
+    $details = sanitizeInput($_POST['ticket_details']) . "<br>";
 } elseif ($ticket_row) {
     $details = $ticket_row['ticket_details'];
 } else {
-    $details = '< blank >';
+    $details = '< blank ><br>';
 }
 
 if (isset($_POST['ticket_vendor_id'])) {
@@ -58,4 +58,12 @@ if (isset($_POST['ticket_assigned_to'])) {
     $assigned_to = $ticket_row['ticket_assigned_to'];
 } else {
     $assigned_to = '0';
+}
+
+if (isset($_POST['ticket_billable'])) {
+    $billable = intval($_POST['ticket_billable']);
+} elseif ($ticket_row) {
+    $billable = $ticket_row['ticket_billable'];
+} else {
+    $billable = '0';
 }

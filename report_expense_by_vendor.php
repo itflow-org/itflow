@@ -1,8 +1,8 @@
 <?php
 
-require_once "inc_all_reports.php";
+require_once "includes/inc_all_reports.php";
 
-validateAccountantRole();
+enforceUserPermission('module_financial');
 
 if (isset($_GET['year'])) {
     if ($_GET['year'] === 'all') {
@@ -29,8 +29,6 @@ $sql_vendor_expenses = mysqli_query($mysqli, "
         vendors 
     LEFT JOIN 
         expenses ON vendors.vendor_id = expenses.expense_vendor_id $year_condition
-    WHERE 
-        vendors.vendor_template = 0 
     GROUP BY 
         vendors.vendor_id
     HAVING
@@ -95,5 +93,5 @@ $sql_vendor_expenses = mysqli_query($mysqli, "
     </div>
 </div>
 
-<?php require_once "footer.php";
+<?php require_once "includes/footer.php";
  ?>

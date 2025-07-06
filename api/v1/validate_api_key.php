@@ -7,8 +7,8 @@
  */
 
 // Includes
-require_once(__DIR__ . '../../../functions.php');
-require_once(__DIR__ . "../../../config.php");
+require_once __DIR__ . '../../../functions.php';
+require_once __DIR__ . "../../../config.php";
 
 // JSON header
 header('Content-Type: application/json');
@@ -19,6 +19,10 @@ $_POST = json_decode(file_get_contents('php://input'), true);
 // Get IP & UA
 $ip = sanitizeInput(getIP());
 $user_agent = sanitizeInput($_SERVER['HTTP_USER_AGENT']);
+
+// Temp Added this to work with the new logAction function
+$session_ip = $ip;
+$session_user_agent = $user_agent;
 
 // Setup return array
 $return_arr = array();
@@ -88,6 +92,7 @@ if (isset($api_key)) {
         // Set client ID, company ID & key name
         $row = mysqli_fetch_array($sql);
         $api_key_name = htmlentities($row['api_key_name']);
+        $api_key_decrypt_hash = $row['api_key_decrypt_hash']; // No sanitization
         $client_id = intval($row['api_key_client_id']);
 
         // Set limit & offset for queries

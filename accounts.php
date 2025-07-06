@@ -4,16 +4,15 @@
 $sort = "account_name";
 $order = "ASC";
 
-require_once "inc_all.php";
+require_once "includes/inc_all.php";
 
-//Rebuild URL
-$url_query_strings_sort = http_build_query($get_copy);
+// Perms
+enforceUserPermission('module_financial');
 
 $sql = mysqli_query(
     $mysqli,
     "SELECT SQL_CALC_FOUND_ROWS * FROM accounts
-    LEFT JOIN account_types ON account_types.account_type_id = accounts.account_type 
-    WHERE (account_name LIKE '%$q%' OR account_type_name LIKE '%$q%')
+    WHERE (account_name LIKE '%$q%')
     AND account_archived_at IS NULL
     ORDER BY $sort $order LIMIT $record_from, $record_to"
 );
@@ -43,9 +42,16 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                 <table class="table table-striped table-borderless table-hover">
                     <thead class="text-dark <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
                     <tr>
-                        <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=account_name&order=<?php echo $disp; ?>">Name</a></th>
-                        <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=account_type_name&order=<?php echo $disp; ?>">Type</a></th>
-                        <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=account_currency_code&order=<?php echo $disp; ?>">Currency</a></th>
+                        <th>
+                            <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=account_name&order=<?php echo $disp; ?>">
+                                Name <?php if ($sort == 'account_name') { echo $order_icon; } ?>
+                            </a>
+                        </th>
+                        <th>
+                            <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=account_currency_code&order=<?php echo $disp; ?>">
+                                Currency <?php if ($sort == 'account_currency_code') { echo $order_icon; } ?>
+                            </a>
+                        </th>
                         <th class="text-right">Balance</th>
                         <th class="text-center">Action</th>
                     </tr>
@@ -59,8 +65,6 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         $opening_balance = floatval($row['opening_balance']);
                         $account_currency_code = nullable_htmlentities($row['account_currency_code']);
                         $account_notes = nullable_htmlentities($row['account_notes']);
-                        $account_type = intval($row['account_type']);
-                        $account_type_name = nullable_htmlentities($row['account_type_name']);
 
                         $sql_payments = mysqli_query($mysqli, "SELECT SUM(payment_amount) AS total_payments FROM payments WHERE payment_account_id = $account_id");
                         $row = mysqli_fetch_array($sql_payments);
@@ -78,8 +82,15 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         ?>
 
                         <tr>
-                            <td><a class="text-dark" href="#" data-toggle="modal" data-target="#editAccountModal<?php echo $account_id; ?>"><?php echo $account_name; ?></a></td>
-                            <td><?php echo $account_type_name; ?></td>
+                            <td>
+                                <a class="text-dark" href="#"
+                                    data-toggle="ajax-modal"
+                                    data-ajax-url="ajax/ajax_account_edit.php"
+                                    data-ajax-id="<?php echo $account_id; ?>"
+                                    >
+                                    <?php echo $account_name; ?>
+                                </a>
+                            </td>
                             <td><?php echo $account_currency_code; ?></td>
                             <td class="text-right"><?php echo numfmt_format_currency($currency_format, $balance, $account_currency_code); ?></td>
                             <td>
@@ -88,12 +99,16 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                         <i class="fas fa-ellipsis-h"></i>
                                     </button>
                                     <div class="dropdown-menu">
-                                        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editAccountModal<?php echo $account_id; ?>">
+                                        <a class="dropdown-item" href="#"
+                                            data-toggle="ajax-modal"
+                                            data-ajax-url="ajax/ajax_account_edit.php"
+                                            data-ajax-id="<?php echo $account_id; ?>"
+                                            >
                                             <i class="fas fa-fw fa-edit mr-2"></i>Edit
                                         </a>
                                         <?php if ($balance == 0 && $account_id != $config_stripe_account) { //Cannot Archive an Account until it reaches 0 Balance and cant be selected as an online account ?>
                                             <div class="dropdown-divider"></div>
-                                            <a class="dropdown-item text-danger" href="post.php?archive_account=<?php echo $account_id; ?>">
+                                            <a class="dropdown-item text-danger" href="post.php?archive_account=<?php echo $account_id; ?>&csrf_token=<?php echo $_SESSION['csrf_token'] ?>">
                                                 <i class="fas fa-fw fa-archive mr-2"></i>Archive
                                             </a>
                                         <?php } ?>
@@ -103,18 +118,17 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         </tr>
 
                         <?php
-                        include "account_edit_modal.php";
                     }
                     ?>
 
                     </tbody>
                 </table>
             </div>
-            <?php require_once "pagination.php"; ?>
+            <?php require_once "includes/filter_footer.php"; ?>
         </div>
     </div>
 
 <?php
 
-require_once "account_add_modal.php";
-require_once "footer.php";
+require_once "modals/account_add_modal.php";
+require_once "includes/footer.php";

@@ -1,5 +1,5 @@
 <?php
-require_once "inc_all_user.php";
+require_once "includes/inc_all_user.php";
 
 
 $sql_recent_logins = mysqli_query($mysqli, "SELECT * FROM logs
@@ -41,9 +41,11 @@ $sql_recent_logs = mysqli_query($mysqli, "SELECT * FROM logs
         <?php } ?>
         </tbody>
     </table>
-    <div class="card-footer">
-        <a href="admin_logs.php?q=<?php echo "$session_name successfully logged in"; ?>">See More...</a>
-    </div>
+    <?php if (isset($session_is_admin) && $session_is_admin === true) { ?>
+        <div class="card-footer">
+            <a href="admin_audit_log.php?q=<?php echo "$session_name successfully logged in"; ?>">See More...</a>
+        </div>
+    <?php } ?>
 </div>
 
 <div class="card card-dark">
@@ -86,10 +88,12 @@ $sql_recent_logs = mysqli_query($mysqli, "SELECT * FROM logs
         ?>
         </tbody>
     </table>
-    <div class="card-footer">
-        <a href="admin_logs.php?q=<?php echo nullable_htmlentities($session_name); ?>">See More...</a>
-    </div>
+    <?php if (isset($session_is_admin) && $session_is_admin === true) { ?>
+        <div class="card-footer">
+            <a href="admin_audit_log.php?q=<?php echo nullable_htmlentities($session_name); ?>">See More...</a>
+        </div>
+    <?php } ?>
 </div>
 
 <?php
-require_once "footer.php";
+require_once "includes/footer.php";
