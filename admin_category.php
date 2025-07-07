@@ -77,13 +77,6 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             } else {
                                 echo 'btn-default';
                             } ?>">Referral</a>
-                        <a href="?category=Payment Method"
-                            class="btn <?php if ($category == 'Payment Method') {
-                                echo 'btn-primary';
-                            } else {
-                                echo 'btn-default';
-                            } ?>">Payment
-                            Method</a>
                         <a href="?category=Ticket"
                            class="btn <?php if ($category == 'Ticket') {
                                echo 'btn-primary';

@@ -66,6 +66,12 @@
                             <p>Payment Providers</p>
                         </a>
                     </li>
+                    <li class="nav-item">
+                        <a href="admin_saved_payment_method.php" class="nav-link <?php echo (basename($_SERVER['PHP_SELF']) == 'admin_saved_payment_method.php' ? 'active' : ''); ?>">
+                            <i class="nav-icon far fa-credit-card"></i>
+                            <p>Saved Payments</p>
+                        </a>
+                    </li>
                 <?php } ?>
                 <?php if ($config_module_enable_ticketing) { ?>
                     <li class="nav-item">

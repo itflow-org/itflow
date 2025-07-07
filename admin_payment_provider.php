@@ -57,6 +57,9 @@ $num_rows = mysqli_num_rows($sql);
                     <th>
                         <a class="text-dark">Fee</a>
                     </th>
+                    <th>
+                        <a class="text-dark">Saved Payment Methods</a>
+                    </th>
                     <th class="text-center">Action</th>
                 </tr>
                 </thead>
@@ -72,6 +75,9 @@ $num_rows = mysqli_num_rows($sql);
                     $category = nullable_htmlentities($row['category_name']);
                     $percent_fee = floatval($row['payment_provider_expense_percentage_fee']) * 100;
                     $flat_fee = floatval($row['payment_provider_expense_flat_fee']);
+
+                    $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('saved_payment_id') AS saved_payment_count FROM client_saved_payment_methods WHERE saved_payment_provider_id = $provider_id"));
+                    $saved_payment_count = intval($row['saved_payment_count']);
 
                     ?>
                     <tr>
@@ -90,6 +96,7 @@ $num_rows = mysqli_num_rows($sql);
                         <td><?php echo $vendor_name; ?></td>
                         <td><?php echo $category; ?></td>
                         <td><?php echo $percent_fee; ?> + <?php echo numfmt_format_currency($currency_format, $flat_fee, $session_company_currency); ?></td>
+                        <td><?php echo $saved_payment_count; ?></td>
                         <td>
                             <div class="dropdown dropleft text-center">
                                 <button class="btn btn-secondary btn-sm" type="button" data-toggle="dropdown">
