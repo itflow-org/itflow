@@ -66,7 +66,6 @@ if (isset($_POST['edit_payment_provider'])) {
     validateCSRFToken($_POST['csrf_token']);
 
     $provider_id = intval($_POST['provider_id']);
-    $provider = sanitizeInput($_POST['provider']);
     $description = sanitizeInput($_POST['description']);
     $public_key = sanitizeInput($_POST['public_key']);
     $private_key = sanitizeInput($_POST['private_key']);
@@ -75,7 +74,7 @@ if (isset($_POST['edit_payment_provider'])) {
     $percentage_fee = floatval($_POST['percentage_fee']) / 100;
     $flat_fee = floatval($_POST['flat_fee']);
 
-    mysqli_query($mysqli,"UPDATE payment_providers SET payment_provider_name = '$name', payment_provider_url = '$url', payment_provider_api_key = '$api_key', payment_provider_percentage_fee = $percentage_fee, payment_provider_flat_fee = $flat_fee WHERE payment_provider_id = $provider_id");
+    mysqli_query($mysqli,"UPDATE payment_providers SET payment_provider_public_key = '$public_key', payment_provider_private_key = '$private_key', payment_provider_expense_percentage_fee = $percentage_fee, payment_provider_expense_flat_fee = $flat_fee WHERE payment_provider_id = $provider_id");
 
     // Logging
     logAction("Payment Provider", "Edit", "$session_name edited Payment Provider $provider");

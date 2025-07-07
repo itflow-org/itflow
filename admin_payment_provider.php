@@ -70,8 +70,8 @@ $num_rows = mysqli_num_rows($sql);
                     $threshold = floatval($row['payment_provider_treshold']);
                     $vendor_name = nullable_htmlentities($row['vendor_name']);
                     $category = nullable_htmlentities($row['category_name']);
-                    $percent_fee = floatval($row['payment_provider_percentage_fee']);
-                    $flat_fee = floatval($row['payment_provider_flat_fee']);
+                    $percent_fee = floatval($row['payment_provider_expense_percentage_fee']) * 100;
+                    $flat_fee = floatval($row['payment_provider_expense_flat_fee']);
 
                     ?>
                     <tr>

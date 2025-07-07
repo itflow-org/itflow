@@ -54,7 +54,13 @@
                             <p>Taxes</p>
                         </a>
                     </li>
-                     <li class="nav-item">
+                    <li class="nav-item">
+                        <a href="admin_payment_method.php" class="nav-link <?php echo (basename($_SERVER['PHP_SELF']) == 'admin_payment_method.php' ? 'active' : ''); ?>">
+                            <i class="nav-icon fas fa-hand-holding-usd"></i>
+                            <p>Payment Methods</p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
                         <a href="admin_payment_provider.php" class="nav-link <?php echo (basename($_SERVER['PHP_SELF']) == 'admin_payment_provider.php' ? 'active' : ''); ?>">
                             <i class="nav-icon far fa-credit-card"></i>
                             <p>Payment Providers</p>

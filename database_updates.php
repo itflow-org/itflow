@@ -3710,7 +3710,7 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
             `payment_method_id` INT(11) NOT NULL AUTO_INCREMENT,
             `payment_method_name` VARCHAR(200) NOT NULL,
             `payment_method_description` VARCHAR(250) DEFAULT NULL,
-            `payment_method_provider_id` INT(1) DEFAULT 0,
+            `payment_method_provider_id` INT(11) DEFAULT 0,
             `payment_method_created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
             `payment_method_updated_at` DATETIME NULL ON UPDATE CURRENT_TIMESTAMP,
             PRIMARY KEY (`payment_method_id`)

@@ -39,21 +39,21 @@ CREATE TABLE `accounts` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Table structure for table `ai_provider_models`
+-- Table structure for table `ai_models`
 --
 
-DROP TABLE IF EXISTS `ai_provider_models`;
+DROP TABLE IF EXISTS `ai_models`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8mb4 */;
-CREATE TABLE `ai_provider_models` (
-  `ai_model_provider_id` int(11) NOT NULL AUTO_INCREMENT,
-  `ai_model_provider_name` varchar(200) NOT NULL,
+CREATE TABLE `ai_models` (
+  `ai_model_id` int(11) NOT NULL AUTO_INCREMENT,
+  `ai_model_name` varchar(200) NOT NULL,
   `ai_model_prompt` text DEFAULT NULL,
   `ai_model_use_case` varchar(200) DEFAULT NULL,
   `ai_model_created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `ai_model_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
   `ai_model_ai_provider_id` int(11) NOT NULL,
-  PRIMARY KEY (`ai_model_provider_id`)
+  PRIMARY KEY (`ai_model_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -69,8 +69,8 @@ CREATE TABLE `ai_providers` (
   `ai_provider_name` varchar(200) NOT NULL,
   `ai_provider_api_url` varchar(200) NOT NULL,
   `ai_provider_api_key` varchar(200) DEFAULT NULL,
-  `ai_created_at` datetime NOT NULL DEFAULT current_timestamp(),
-  `ai_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
+  `ai_provider_created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `ai_provider_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
   PRIMARY KEY (`ai_provider_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -1331,7 +1331,7 @@ CREATE TABLE `payment_methods` (
   `payment_method_id` int(11) NOT NULL AUTO_INCREMENT,
   `payment_method_name` varchar(200) NOT NULL,
   `payment_method_description` varchar(250) DEFAULT NULL,
-  `payment_method_provider_id` int(1) DEFAULT 0,
+  `payment_method_provider_id` int(11) DEFAULT 0,
   `payment_method_created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `payment_method_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
   PRIMARY KEY (`payment_method_id`)
@@ -2692,4 +2692,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-07-04 16:50:41
+-- Dump completed on 2025-07-07 16:36:58

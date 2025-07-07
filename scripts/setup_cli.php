@@ -285,9 +285,12 @@ mysqli_query($mysqli,"INSERT INTO categories SET category_name = 'Advertising', 
 mysqli_query($mysqli,"INSERT INTO categories SET category_name = 'Service', category_type = 'Income', category_color = 'blue'");
 mysqli_query($mysqli,"INSERT INTO categories SET category_name = 'Friend', category_type = 'Referral', category_color = 'blue'");
 mysqli_query($mysqli,"INSERT INTO categories SET category_name = 'Search Engine', category_type = 'Referral', category_color = 'red'");
-mysqli_query($mysqli,"INSERT INTO categories SET category_name = 'Cash', category_type = 'Payment Method', category_color = 'blue'");
-mysqli_query($mysqli,"INSERT INTO categories SET category_name = 'Check', category_type = 'Payment Method', category_color = 'red'");
-mysqli_query($mysqli,"INSERT INTO categories SET category_name = 'Bank Transfer', category_type = 'Payment Method', category_color = 'green'");
+
+// Payment Methods
+mysqli_query($mysqli,"INSERT INTO payment_methods SET category_name = 'Cash'");
+mysqli_query($mysqli,"INSERT INTO payment_methods SET category_name = 'Check'");
+mysqli_query($mysqli,"INSERT INTO payment_methods SET category_name = 'ACH'");
+mysqli_query($mysqli,"INSERT INTO payment_methods SET category_name = 'Credit Card'");
 
 // Calendar
 mysqli_query($mysqli,"INSERT INTO calendars SET calendar_name = 'Default', calendar_color = 'blue'");
