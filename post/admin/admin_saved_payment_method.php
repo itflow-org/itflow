@@ -58,8 +58,7 @@ if (isset($_GET['delete_saved_payment'])) {
     // Remove payment method from ITFlow
     mysqli_query($mysqli, "DELETE FROM client_saved_payment_methods WHERE saved_payment_id = $saved_payment_id");
 
-    // Remove All Associted Auto Payment Methods on recurring invoices
-    mysqli_query($mysqli, "DELETE FROM recurring_payments WHERE recurring_payment_saved_payment_id = $saved_payment_id");
+    // SQL Cascade delete will Remove All Associated Auto Payment Methods on recurring invoices in the recurring payments table.
 
     // Logging & Redirect
     logAction("Payment Provider", "Update", "$session_name deleted saved payment method $saved_payment_description (PM: $payment_method)", $client_id);
