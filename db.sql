@@ -53,7 +53,9 @@ CREATE TABLE `ai_models` (
   `ai_model_created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `ai_model_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
   `ai_model_ai_provider_id` int(11) NOT NULL,
-  PRIMARY KEY (`ai_model_id`)
+  PRIMARY KEY (`ai_model_id`),
+  KEY `ai_model_ai_provider_id` (`ai_model_ai_provider_id`),
+  CONSTRAINT `ai_models_ibfk_1` FOREIGN KEY (`ai_model_ai_provider_id`) REFERENCES `ai_providers` (`ai_provider_id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -487,26 +489,6 @@ CREATE TABLE `certificates` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Table structure for table `cient_saved_payment_methods`
---
-
-DROP TABLE IF EXISTS `cient_saved_payment_methods`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
-CREATE TABLE `cient_saved_payment_methods` (
-  `saved_payment_id` int(11) NOT NULL AUTO_INCREMENT,
-  `saved_payment_provider_client` varchar(200) NOT NULL,
-  `saved_payment_provider_method` varchar(200) NOT NULL,
-  `saved_payment_details` varchar(200) DEFAULT NULL,
-  `saved_payment_client_id` int(11) NOT NULL,
-  `saved_payment_provider_id` int(11) NOT NULL,
-  `saved_payment_created_at` datetime NOT NULL DEFAULT current_timestamp(),
-  `saved_payment_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
-  PRIMARY KEY (`saved_payment_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
 -- Table structure for table `client_notes`
 --
 
@@ -525,6 +507,48 @@ CREATE TABLE `client_notes` (
   PRIMARY KEY (`client_note_id`),
   KEY `client_note_client_id` (`client_note_client_id`),
   CONSTRAINT `client_notes_ibfk_1` FOREIGN KEY (`client_note_client_id`) REFERENCES `clients` (`client_id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `client_payment_provider`
+--
+
+DROP TABLE IF EXISTS `client_payment_provider`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `client_payment_provider` (
+  `client_id` int(11) NOT NULL,
+  `payment_provider_id` int(11) NOT NULL,
+  `payment_provider_client` varchar(200) NOT NULL,
+  `client_payment_provider_created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`client_id`,`payment_provider_id`),
+  KEY `payment_provider_id` (`payment_provider_id`),
+  CONSTRAINT `client_payment_provider_ibfk_1` FOREIGN KEY (`client_id`) REFERENCES `clients` (`client_id`) ON DELETE CASCADE,
+  CONSTRAINT `client_payment_provider_ibfk_2` FOREIGN KEY (`payment_provider_id`) REFERENCES `payment_providers` (`payment_provider_id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `client_saved_payment_methods`
+--
+
+DROP TABLE IF EXISTS `client_saved_payment_methods`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `client_saved_payment_methods` (
+  `saved_payment_id` int(11) NOT NULL AUTO_INCREMENT,
+  `saved_payment_provider_method` varchar(200) NOT NULL,
+  `saved_payment_description` varchar(200) DEFAULT NULL,
+  `saved_payment_client_id` int(11) NOT NULL,
+  `saved_payment_provider_id` int(11) NOT NULL,
+  `saved_payment_created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `saved_payment_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
+  PRIMARY KEY (`saved_payment_id`),
+  KEY `saved_payment_client_id` (`saved_payment_client_id`),
+  KEY `saved_payment_provider_id` (`saved_payment_provider_id`),
+  CONSTRAINT `client_saved_payment_methods_ibfk_1` FOREIGN KEY (`saved_payment_client_id`) REFERENCES `clients` (`client_id`) ON DELETE CASCADE,
+  CONSTRAINT `client_saved_payment_methods_ibfk_2` FOREIGN KEY (`saved_payment_provider_id`) REFERENCES `payment_providers` (`payment_provider_id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -1331,7 +1355,6 @@ CREATE TABLE `payment_methods` (
   `payment_method_id` int(11) NOT NULL AUTO_INCREMENT,
   `payment_method_name` varchar(200) NOT NULL,
   `payment_method_description` varchar(250) DEFAULT NULL,
-  `payment_method_provider_id` int(11) DEFAULT 0,
   `payment_method_created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `payment_method_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
   PRIMARY KEY (`payment_method_id`)
@@ -1661,7 +1684,10 @@ CREATE TABLE `recurring_payments` (
   `recurring_payment_account_id` int(11) NOT NULL,
   `recurring_payment_recurring_expense_id` int(11) NOT NULL DEFAULT 0,
   `recurring_payment_recurring_invoice_id` int(11) NOT NULL,
-  PRIMARY KEY (`recurring_payment_id`)
+  `recurring_payment_saved_payment_id` int(11) DEFAULT NULL,
+  PRIMARY KEY (`recurring_payment_id`),
+  KEY `fk_recurring_saved_payment` (`recurring_payment_saved_payment_id`),
+  CONSTRAINT `fk_recurring_saved_payment` FOREIGN KEY (`recurring_payment_saved_payment_id`) REFERENCES `client_saved_payment_methods` (`saved_payment_id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -2692,4 +2718,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-07-07 16:36:58
+-- Dump completed on 2025-07-08 14:06:43
