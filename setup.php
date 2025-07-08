@@ -438,10 +438,10 @@ if (isset($_POST['add_company_settings'])) {
     mysqli_query($mysqli,"INSERT INTO categories SET category_name = 'Client', category_type = 'Referral', category_color = 'lightblue'");
 
     // Payment Methods
-    mysqli_query($mysqli,"INSERT INTO payment_methods SET category_name = 'Cash'");
-    mysqli_query($mysqli,"INSERT INTO payment_methods SET category_name = 'Check'");
-    mysqli_query($mysqli,"INSERT INTO payment_methods SET category_name = 'ACH'");
-    mysqli_query($mysqli,"INSERT INTO payment_methods SET category_name = 'Credit Card'");
+    mysqli_query($mysqli,"INSERT INTO payment_methods SET payment_method_name = 'Cash'");
+    mysqli_query($mysqli,"INSERT INTO payment_methods SET payment_method_name = 'Check'");
+    mysqli_query($mysqli,"INSERT INTO payment_methods SET payment_method_name = 'ACH'");
+    mysqli_query($mysqli,"INSERT INTO payment_methods SET payment_method_name = 'Credit Card'");
 
     // Default Calendar
     mysqli_query($mysqli,"INSERT INTO calendars SET calendar_name = 'Default', calendar_color = 'blue'");
