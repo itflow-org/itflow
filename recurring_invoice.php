@@ -139,12 +139,10 @@ if (isset($_GET['recurring_invoice_id'])) {
             <div class="row">
 
                 <div class="col-4">
-                    <?php if ($config_recurring_invoice_auto_send_invoice) { ?>
-                        <?php if ($recurring_invoice_email_notify) { ?>
-                            <a href="post.php?recurring_invoice_email_notify=0&recurring_invoice_id=<?php echo $recurring_invoice_id; ?>" class="btn btn-primary"><i class="fas fa-fw fa-bell mr-2"></i>Email Notify</a>
-                        <?php } else { ?>
-                            <a href="post.php?recurring_invoice_email_notify=1&recurring_invoice_id=<?php echo $recurring_invoice_id; ?>" class="btn btn-outline-danger"><i class="fas fa-fw fa-bell-slash mr-2"></i>Email Notify</a>
-                        <?php } ?>
+                    <?php if ($recurring_invoice_email_notify) { ?>
+                        <a href="post.php?recurring_invoice_email_notify=0&recurring_invoice_id=<?php echo $recurring_invoice_id; ?>" class="btn btn-primary"><i class="fas fa-fw fa-bell mr-2"></i>Email Notify</a>
+                    <?php } else { ?>
+                        <a href="post.php?recurring_invoice_email_notify=1&recurring_invoice_id=<?php echo $recurring_invoice_id; ?>" class="btn btn-outline-danger"><i class="fas fa-fw fa-bell-slash mr-2"></i>Email Notify</a>
                     <?php } ?>
 
                     <?php if ($recurring_payment_recurring_invoice_id) { ?>
