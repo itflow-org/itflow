@@ -134,6 +134,8 @@
                                 $contact_display = "<div><a href='contact_details.php?client_id=$client_id&contact_id=$contact_id'>$contact_name</a></div>";
                             }
 
+                            $ticket_invoice_id = intval($row['ticket_invoice_id']);
+
                             // Get who last updated the ticket - to be shown in the last Response column
 
                             // Defaults to prevent undefined errors
@@ -227,6 +229,9 @@
                                 <!-- Ticket Billable (if accounting enabled -->
                                 <?php if ($config_module_enable_accounting && lookupUserPermission("module_sales") >= 2) { ?>
                                     <td class="text-center">
+                                        <?php if ($ticket_invoice_id) { ?>
+                                        <a href="invoice.php?client_id=<?php echo $client_id; ?>&invoice_id=<?php echo $ticket_invoice_id; ?>"><span class='badge badge-pill badge-success p-2'>Invoiced</span></a>
+                                        <?php } else { ?>
                                         <a href="#" 
                                             data-toggle = "ajax-modal"
                                             data-ajax-url = "ajax/ajax_ticket_billable.php"
@@ -240,6 +245,7 @@
                                             }
                                             ?>
                                         </a>
+                                        <?php } ?>
                                     </td>
                                 <?php } ?>
 

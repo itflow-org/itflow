@@ -29,6 +29,7 @@
                                 <span class="input-group-text"><i class="fa fa-fw fa-dollar-sign"></i></span>
                             </div>
                             <input type="text" class="form-control" inputmode="numeric" pattern="-?[0-9]*\.?[0-9]{0,2}" name="opening_balance" placeholder="0.00" required>
+                        </div>
                     </div>
 
                     <div class="form-group">

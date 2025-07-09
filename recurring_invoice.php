@@ -78,6 +78,7 @@ if (isset($_GET['recurring_invoice_id'])) {
     $recurring_payment_id = intval($row['recurring_payment_id']);
     $recurring_payment_recurring_invoice_id = intval($row['recurring_payment_recurring_invoice_id']);
     $recurring_payment_method = nullable_htmlentities($row['recurring_payment_method']);
+    $recurring_payment_saved_payment_id = intval($row['recurring_payment_saved_payment_id']);
 
     // Override Tab Title // No Sanitizing needed as this var will only be used in the tab title
     $tab_title = $row['client_name'];
@@ -137,7 +138,7 @@ if (isset($_GET['recurring_invoice_id'])) {
 
             <div class="row">
 
-                <div class="col-8">
+                <div class="col-4">
                     <?php if ($config_recurring_invoice_auto_send_invoice) { ?>
                         <?php if ($recurring_invoice_email_notify) { ?>
                             <a href="post.php?recurring_invoice_email_notify=0&recurring_invoice_id=<?php echo $recurring_invoice_id; ?>" class="btn btn-primary"><i class="fas fa-fw fa-bell mr-2"></i>Email Notify</a>
@@ -157,6 +158,33 @@ if (isset($_GET['recurring_invoice_id'])) {
                         <?php require_once "modals/recurring_payment_add_modal.php"; ?>
 
                     <?php } ?>
+                </div>
+                <div class="col-4">
+                    <?php $sql_saved_payments = mysqli_query($mysqli, "SELECT * FROM client_saved_payment_methods WHERE saved_payment_client_id = $client_id");
+                    if (mysqli_num_rows($sql_saved_payments) > 0) { ?>
+                        <form class="form" action="post.php" method="post">
+                            <input type="hidden" name="set_recurring_payment" value="1">
+                            <input type="hidden" name="recurring_invoice_id" value="<?php echo $recurring_invoice_id; ?>">
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text"><i class="fa fa-fw fa-redo-alt"></i></span>
+                                </div>
+                                <select class="form-control select2" name="saved_payment_id" onchange="this.form.submit()">
+                                    <option value="0">Disabled</option>
+                                    <?php
+                                        while ($row = mysqli_fetch_array($sql_saved_payments)) {
+                                            $saved_payment_id = intval($row['saved_payment_id']);
+                                            $saved_payment_description = nullable_htmlentities($row['saved_payment_description']);
+
+                                        ?>
+                                        <option <?php if ($recurring_payment_saved_payment_id == $saved_payment_id) { echo "selected"; } ?> value="<?php echo $saved_payment_id; ?>"><?php echo $saved_payment_description; ?></option>
+                                    <?php } ?>
+                                </select>
+                            </div>
+                        </form>
+                    <?php } else { ?>
+                        <a href="saved_payment_method.php">Add a Payment Method</a>
+                    <?php } ?>  
                 </div>
 
                 <div class="col-4">

@@ -202,6 +202,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     }
                     $recurring_payment_id = intval($row['recurring_payment_id']);
                     $recurring_payment_recurring_invoice_id = intval($row['recurring_payment_recurring_invoice_id']);
+                    $recurring_payment_saved_payment_id = intval($row['recurring_payment_saved_payment_id']);
                     if ($recurring_payment_recurring_invoice_id) {
                         $auto_pay_display = "
                             Yes
@@ -235,7 +236,28 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         <td><?php echo ucwords($recurring_invoice_frequency); ?>ly</td>
                         <td><?php echo $recurring_invoice_last_sent; ?></td>
                         <td><?php echo $category_name; ?></td>
-                        <td><?php echo $auto_pay_display; ?></td>
+                        <td>
+                            <?php $sql_saved_payments = mysqli_query($mysqli, "SELECT * FROM client_saved_payment_methods WHERE saved_payment_client_id = $client_id");
+                            if (mysqli_num_rows($sql_saved_payments) > 0) { ?>
+                                <form class="form" action="post.php" method="post">
+                                    <input type="hidden" name="set_recurring_payment" value="1">
+                                    <input type="hidden" name="recurring_invoice_id" value="<?php echo $recurring_invoice_id; ?>">
+                                    <select class="form-control select2" name="saved_payment_id" onchange="this.form.submit()">
+                                        <option value="0">Disabled</option>
+                                        <?php
+                                            while ($row = mysqli_fetch_array($sql_saved_payments)) {
+                                                $saved_payment_id = intval($row['saved_payment_id']);
+                                                $saved_payment_description = nullable_htmlentities($row['saved_payment_description']);
+
+                                            ?>
+                                            <option <?php if ($recurring_payment_saved_payment_id == $saved_payment_id) { echo "selected"; } ?> value="<?php echo $saved_payment_id; ?>"><?php echo $saved_payment_description; ?></option>
+                                        <?php } ?>
+                                    </select>
+                                </form>
+                            <?php } else { ?>
+                                <a href="saved_payment_method.php">Add a Payment Method</a>
+                            <?php } ?>  
+                        </td>
                         <td>
                             <span class="p-2 badge badge-<?php echo $status_badge_color; ?>">
                                 <?php echo $status; ?>

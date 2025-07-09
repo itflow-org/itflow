@@ -55,23 +55,6 @@ $recurring_invoices_sql = mysqli_query($mysqli, "SELECT * FROM recurring_invoice
                 $recurring_payment_id = intval($row['recurring_payment_id']);
                 $recurring_payment_recurring_invoice_id = intval($row['recurring_payment_recurring_invoice_id']);
                 $recurring_payment_saved_payment_id = intval($row['recurring_payment_saved_payment_id']);
-                if ($config_stripe_enable) {
-                    if ($recurring_payment_recurring_invoice_id) {
-                        $auto_pay_display = "
-                            Yes
-                            <a href='post.php?delete_recurring_payment=$recurring_payment_id' title='Remove'>
-                                <i class='fas fa-fw fa-times-circle'></i>
-                            </a>
-                        ";
-                    } else {
-                        $auto_pay_display = "
-                            <a href='#' data-toggle='modal' data-target='#addRecurringPaymentModal$recurring_invoice_id'>
-                                Create
-                            </a>
-                        ";
-                        //require "recurring_payment_add_modal.php";
-                    }
-                }
                 
                 if (empty($recurring_invoice_scope)) {
                     $recurring_invoice_scope_display = "-";
