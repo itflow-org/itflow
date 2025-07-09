@@ -12,9 +12,8 @@ if (isset($_POST['add_payment_method'])) {
 
     $name = sanitizeInput($_POST['name']);
     $description = sanitizeInput($_POST['description']);
-    $provider = intval($_POST['provider']);
 
-    mysqli_query($mysqli,"INSERT INTO payment_methods SET payment_method_name = '$name', payment_method_description = '$description', payment_method_provider_id = $provider");
+    mysqli_query($mysqli,"INSERT INTO payment_methods SET payment_method_name = '$name', payment_method_description = '$description'");
 
     // Logging
     logAction("Payment Method", "Create", "$session_name created Payment Method $name");
@@ -32,9 +31,8 @@ if (isset($_POST['edit_payment_method'])) {
     $payment_method_id = intval($_POST['payment_method_id']);
     $name = sanitizeInput($_POST['name']);
     $description = sanitizeInput($_POST['description']);
-    $provider = intval($_POST['provider']);
 
-    mysqli_query($mysqli,"UPDATE payment_methods SET payment_method_name = '$name', payment_method_description = '$description', payment_method_provider_id = $provider_id WHERE payment_method_id = $payment_method_id");
+    mysqli_query($mysqli,"UPDATE payment_methods SET payment_method_name = '$name', payment_method_description = '$description' WHERE payment_method_id = $payment_method_id");
 
     // Logging
     logAction("Payment Method", "Edit", "$session_name edited Payment Method $name");

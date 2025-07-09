@@ -26,27 +26,6 @@
                         <textarea class="form-control" rows="3" name="description" placeholder="Enter a description..."></textarea>
                     </div>
 
-                    <div class="form-group">
-                        <label>Payment Provider</label>
-                        <div class="input-group">
-                            <div class="input-group-prepend">
-                                <span class="input-group-text"><i class="fa fa-fw fa-globe-americas"></i></span>
-                            </div>
-                            <select class="form-control select2" name="provider">
-                                <option value="">- Select a Payment Provider -</option>
-                                <?php
-                                    $sql_payment_providers = mysqli_query($mysqli, "SELECT * FROM payment_providers");
-                                    while ($row = mysqli_fetch_array($sql_payment_providers)) {
-                                        $payment_provider_id = intval($row['payment_provider_id']);
-                                        $payment_provider_name = nullable_htmlentities($row['payment_provider_name']);
-
-                                    ?>
-                                    <option value="<?php echo $payment_provider_id; ?>"><?php echo $payment_provider_name; ?></option>
-                                <?php } ?>
-                            </select>
-                        </div>
-                    </div>
-
                 </div>
                 <div class="modal-footer bg-white">
                     <button type="submit" name="add_payment_method" class="btn btn-primary text-bold"><i class="fa fa-check mr-2"></i>Create</button>

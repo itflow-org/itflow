@@ -14,12 +14,6 @@ if ($session_contact_primary == 0 && !$session_contact_is_billing_contact) {
     exit();
 }
 
-// Get client's StripeID from database
-$stripe_client_details = mysqli_fetch_array(mysqli_query($mysqli, "SELECT * FROM client_stripe WHERE client_id = $session_client_id LIMIT 1"));
-if ($stripe_client_details) {
-    $stripe_pm = sanitizeInput($stripe_client_details['stripe_pm']);
-}
-
 $recurring_invoices_sql = mysqli_query($mysqli, "SELECT * FROM recurring_invoices 
     LEFT JOIN recurring_payments ON recurring_payment_recurring_invoice_id = recurring_invoice_id
     WHERE recurring_invoice_client_id = $session_client_id
@@ -92,17 +86,24 @@ $recurring_invoices_sql = mysqli_query($mysqli, "SELECT * FROM recurring_invoice
                     <td><?php echo ucwords($recurring_invoice_frequency); ?>ly</td>
                     <?php if ($config_stripe_enable) { ?>
                     <td>
-                        <?php if ($stripe_pm) { ?>
+                        <?php $sql = mysqli_query($mysqli, "SELECT * FROM client_saved_payment_methods WHERE saved_payment_client_id = $session_client_id");
+                        if (mysqli_num_rows($sql) > 0) { ?>
                             <form class="form" action="post.php" method="post">
                                 <input type="hidden" name="recurring_invoice_id" value="<?php echo $recurring_invoice_id; ?>">
-                                <?php if ($recurring_payment_recurring_invoice_id) { ?>
-                                <button type="submit" name="delete_recurring_payment" class="btn btn-outline-dark"><i class="fas fa-times mr-2"></i>Disable</button>
-                                <?php } else { ?>
-                                <button type="submit" name="add_recurring_payment" class="btn btn-primary text-bold"><i class="fas fa-check mr-2"></i>Enable</button>
-                                <?php } ?>
+                                <select class="form-control select2" name="role" required>
+                                    <option value="">Disabled</option>
+                                    <?php
+                                        while ($row = mysqli_fetch_array($sql)) {
+                                            $saved_payment_id = intval($row['saved_payment_id']);
+                                            $saved_payment_description = nullable_htmlentities($row['saved_payment_description']);
+
+                                        ?>
+                                        <option value="<?php echo $saved_payment_id; ?>"><?php echo $saved_payment_description; ?></option>
+                                    <?php } ?>
+                                </select>
                             </form>
                         <?php } else { ?>
-                            <a href="autopay.php">Add Card Details First</a>
+                            <a href="saved_payment_method.php">Add a Payment Method</a>
                         <?php } ?>
                     </td>
                     <?php } ?>

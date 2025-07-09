@@ -6,10 +6,7 @@ $order = "ASC";
 
 require_once "includes/inc_all_admin.php";
 
-$sql = mysqli_query($mysqli, "SELECT * FROM payment_methods 
-    LEFT JOIN payment_providers ON payment_method_provider_id = payment_provider_id
-    ORDER BY $sort $order"
-);
+$sql = mysqli_query($mysqli, "SELECT * FROM payment_methods ORDER BY $sort $order");
 
 $num_rows = mysqli_num_rows($sql);
 
@@ -38,8 +35,8 @@ $num_rows = mysqli_num_rows($sql);
                         </a>
                     </th>
                     <th>
-                        <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=payment_provider_name&order=<?php echo $disp; ?>">
-                            Provider <?php if ($sort == 'payment_provider_name') { echo $order_icon; } ?>
+                        <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=payment_method_created_at&order=<?php echo $disp; ?>">
+                            Created at <?php if ($sort == 'payment_method_created_at') { echo $order_icon; } ?>
                         </a>
                     </th>
                     <th class="text-center">Action</th>
@@ -52,8 +49,7 @@ $num_rows = mysqli_num_rows($sql);
                     $payment_method_id = intval($row['payment_method_id']);
                     $payment_method_name = nullable_htmlentities($row['payment_method_name']);
                     $payment_method_description = nullable_htmlentities($row['payment_method_description']);
-                    $payment_provider_id = intval($row['payment_provider_id']);
-                    $payment_provider_name = nullable_htmlentities($row['payment_provider_name']);
+                    $payment_method_created_at = nullable_htmlentities($row['payment_method_created_at']);
 
                     ?>
                     <tr>
@@ -67,7 +63,7 @@ $num_rows = mysqli_num_rows($sql);
                             </a>
                         </td>
                         <td><?php echo $payment_method_description; ?></td>
-                        <td><?php echo $payment_provider_name; ?></td>
+                        <td><?php echo $payment_method_created_at; ?></td>
                         <td>
                             <div class="dropdown dropleft text-center">
                                 <button class="btn btn-secondary btn-sm" type="button" data-toggle="dropdown">

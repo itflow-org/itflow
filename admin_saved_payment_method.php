@@ -6,12 +6,28 @@ $order = "ASC";
 
 require_once "includes/inc_all_admin.php";
 
-$sql = mysqli_query($mysqli, "SELECT * FROM client_saved_payment_methods 
-    LEFT JOIN payment_providers ON saved_payment_provider_id = payment_provider_id
-    LEFT JOIN clients ON saved_payment_client_id = client_id
-    WHERE (client_name LIKE '%$q%' OR payment_provider_name LIKE '%$q%' OR saved_payment_details LIKE '%$q%' OR saved_payment_provider_client LIKE '%$q%' OR saved_payment_provider_method LIKE '%$q%')
-    ORDER BY $sort $order"
-);
+$sql = mysqli_query($mysqli, "
+    SELECT 
+        client_saved_payment_methods.*,
+        payment_providers.payment_provider_name,
+        clients.client_name,
+        client_payment_provider.payment_provider_client
+    FROM client_saved_payment_methods
+    LEFT JOIN payment_providers 
+        ON client_saved_payment_methods.saved_payment_provider_id = payment_providers.payment_provider_id
+    LEFT JOIN clients 
+        ON client_saved_payment_methods.saved_payment_client_id = clients.client_id
+    LEFT JOIN client_payment_provider
+        ON client_payment_provider.client_id = client_saved_payment_methods.saved_payment_client_id
+        AND client_payment_provider.payment_provider_id = client_saved_payment_methods.saved_payment_provider_id
+    WHERE 
+        client_name LIKE '%$q%' 
+        OR payment_provider_name LIKE '%$q%' 
+        OR saved_payment_description LIKE '%$q%' 
+        OR payment_provider_client LIKE '%$q%' 
+        OR saved_payment_provider_method LIKE '%$q%'
+    ORDER BY $sort $order
+");
 
 $num_rows = mysqli_num_rows($sql);
 
@@ -52,15 +68,16 @@ $num_rows = mysqli_num_rows($sql);
                         </a>
                     </th>
                     <th>
-                        <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=saved_payment_details&order=<?php echo $disp; ?>">
-                            Details <?php if ($sort == 'saved_payment_details') { echo $order_icon; } ?>
+                        <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=saved_payment_description&order=<?php echo $disp; ?>">
+                            Description <?php if ($sort == 'saved_payment_description') { echo $order_icon; } ?>
                         </a>
                     </th>
                     <th>
-                        <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=saved_payment_provider_client&order=<?php echo $disp; ?>">
-                            Provider Client ID <?php if ($sort == 'saved_payment_provider_client') { echo $order_icon; } ?>
+                        <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=payment_provider_client&order=<?php echo $disp; ?>">
+                            Provider Client ID <?php if ($sort == 'payment_provider_client') { echo $order_icon; } ?>
                         </a>
                     </th>
+
                     <th>
                         <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=saved_payment_provider_method&order=<?php echo $disp; ?>">
                             Provider Payment Method ID <?php if ($sort == 'saved_payment_provider_method') { echo $order_icon; } ?>
@@ -79,20 +96,20 @@ $num_rows = mysqli_num_rows($sql);
 
                 while ($row = mysqli_fetch_array($sql)) {
                     $saved_payment_id = intval($row['saved_payment_id']);
-                    $client_id = intval($row['client_id']);
+                    $client_id = intval($row['saved_payment_client_id']);
                     $client_name = nullable_htmlentities($row['client_name']);
-                    $provider_id = intval($row['payment_provider_id']);
+                    $provider_id = intval($row['saved_payment_provider_id']);
                     $provider_name = nullable_htmlentities($row['payment_provider_name']);
-                    $saved_payment_details = nullable_htmlentities($row['saved_payment_details']);
-                    $provider_client = nullable_htmlentities($row['saved_payment_provider_client']);
-                    $provider_payment_method = floatval($row['saved_payment_provider_method']);
+                    $saved_payment_description = nullable_htmlentities($row['saved_payment_description']);
+                    $provider_client = nullable_htmlentities($row['payment_provider_client']);
+                    $provider_payment_method = nullable_htmlentities($row['saved_payment_provider_method']);
                     $saved_payment_created_at = nullable_htmlentities($row['saved_payment_created_at']);
 
                     ?>
                     <tr>
                         <td><?php echo $client_name; ?> (<?php echo $client_id; ?>)</td>
                         <td><?php echo $provider_name; ?> (<?php echo $provider_id; ?>)</td>
-                        <td><?php echo $saved_payment_details; ?></td>
+                        <td><?php echo $saved_payment_description; ?></td>
                         <td><?php echo $provider_client; ?></td>
                         <td><?php echo $provider_payment_method; ?></td>
                         <td><?php echo $saved_payment_created_at; ?></td>
@@ -107,16 +124,13 @@ $num_rows = mysqli_num_rows($sql);
 
                 }
 
-                if ($num_rows == 0) {
-                    echo "<h3 class='text-secondary mt-3' style='text-align: center'>No Records Here</h3>";
-                }
-
                 ?>
 
                 </tbody>
             </table>
 
         </div>
+        <?php require_once "includes/filter_footer.php"; ?>
     </div>
 </div>
 

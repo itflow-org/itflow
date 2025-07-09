@@ -20,7 +20,6 @@ require_once "../plugins/totp/totp.php";
 
 if (isset($_GET['stripe_create_pi'])) {
 
-    // Response header
     header('Content-Type: application/json');
 
     // Params from POST (guest_pay_invoice_stripe.js)
@@ -36,16 +35,13 @@ if (isset($_GET['stripe_create_pi'])) {
         LEFT JOIN clients ON invoice_client_id = client_id
         WHERE invoice_id = $invoice_id
         AND invoice_url_key = '$url_key'
-        AND invoice_status != 'Draft'
-        AND invoice_status != 'Paid'
-        AND invoice_status != 'Cancelled'
+        AND invoice_status NOT IN ('Draft','Paid','Cancelled')
         LIMIT 1"
     );
     if (!$invoice_sql || mysqli_num_rows($invoice_sql) !== 1) {
         exit("Invalid Invoice ID/SQL query");
     }
 
-    // Invoice exists - get details for payment
     $row = mysqli_fetch_array($invoice_sql);
     $invoice_prefix = nullable_htmlentities($row['invoice_prefix']);
     $invoice_number = intval($row['invoice_number']);
@@ -54,15 +50,10 @@ if (isset($_GET['stripe_create_pi'])) {
     $client_id = intval($row['client_id']);
     $client_name = nullable_htmlentities($row['client_name']);
 
-    $config_sql = mysqli_query($mysqli, "SELECT * FROM settings WHERE company_id = 1");
-    $config_row = mysqli_fetch_array($config_sql);
-    $config_stripe_percentage_fee = floatval($config_row['config_stripe_percentage_fee']);
-    $config_stripe_flat_fee = floatval($config_row['config_stripe_flat_fee']);
-
     // Add up all the payments for the invoice and get the total amount paid to the invoice
     $sql_amount_paid = mysqli_query($mysqli, "SELECT SUM(payment_amount) AS amount_paid FROM payments WHERE payment_invoice_id = $invoice_id");
-    $row = mysqli_fetch_array($sql_amount_paid);
-    $amount_paid = floatval($row['amount_paid']);
+    $row_amt = mysqli_fetch_array($sql_amount_paid);
+    $amount_paid = floatval($row_amt['amount_paid']);
     $balance_to_pay = $invoice_amount - $amount_paid;
 
     $balance_to_pay = round($balance_to_pay, 2);
@@ -71,24 +62,22 @@ if (isset($_GET['stripe_create_pi'])) {
         exit("No balance outstanding");
     }
 
-    // Setup Stripe
-    require_once '../plugins/stripe-php/init.php';
-
-
-    $row = mysqli_fetch_array(mysqli_query($mysqli, "SELECT config_stripe_enable, config_stripe_secret, config_stripe_account FROM settings WHERE company_id = 1"));
-    if ($row['config_stripe_enable'] == 0 || $row['config_stripe_account'] == 0) {
+    // Setup Stripe from payment_providers
+    $stripe_provider = mysqli_fetch_array(mysqli_query($mysqli, "SELECT * FROM payment_providers WHERE payment_provider_name = 'Stripe' LIMIT 1"));
+    if (!$stripe_provider) {
         exit("Stripe not enabled / configured");
     }
+    $stripe_secret_key = $stripe_provider['payment_provider_private_key'];
 
-    $config_stripe_secret = $row['config_stripe_secret'];
+    require_once '../plugins/stripe-php/init.php';
+
     $pi_description = "ITFlow: $client_name payment of $invoice_currency_code $balance_to_pay for $invoice_prefix$invoice_number";
 
-    // Create a PaymentIntent with amount, currency and client details
     try {
-        \Stripe\Stripe::setApiKey($config_stripe_secret);
+        \Stripe\Stripe::setApiKey($stripe_secret_key);
 
         $paymentIntent = \Stripe\PaymentIntent::create([
-            'amount' => intval($balance_to_pay * 100), // Times by 100 as Stripe expects values in cents
+            'amount' => intval($balance_to_pay * 100), // Stripe expects cents
             'currency' => $invoice_currency_code,
             'description' => $pi_description,
             'metadata' => [
@@ -106,15 +95,10 @@ if (isset($_GET['stripe_create_pi'])) {
 
         echo json_encode($output);
 
-    } catch (Error $e) {
+    } catch (Exception $e) {
         http_response_code(500);
         echo json_encode(['error' => $e->getMessage()]);
     }
 
-}
-
-if (isset($_GET['get_totp_token'])) {
-    $otp = TokenAuth6238::getTokenCode(strtoupper($_GET['totp_secret']));
-
-    echo json_encode($otp);
+    exit;
 }

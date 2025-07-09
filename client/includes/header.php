@@ -58,7 +58,7 @@ header("X-Frame-Options: DENY"); // Legacy
                             <a class="dropdown-item" href="invoices.php">Invoices</a>
                             <a class="dropdown-item" href="recurring_invoices.php">Recurring Invoices</a>
                             <a class="dropdown-item" href="quotes.php">Quotes</a>
-                            <a class="dropdown-item" href="autopay.php">Auto Payment</a>
+                            <a class="dropdown-item" href="saved_payment_methods.php">Saved Payments</a>
                         </div>
                     </li>
                 <?php } ?>
