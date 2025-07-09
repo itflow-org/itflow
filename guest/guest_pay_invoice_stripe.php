@@ -10,9 +10,9 @@ $stripe_provider = mysqli_fetch_array(mysqli_query($mysqli, "SELECT * FROM payme
 
 $stripe_publishable      = nullable_htmlentities($stripe_provider['payment_provider_public_key']);
 $stripe_secret           = nullable_htmlentities($stripe_provider['payment_provider_private_key']);
-$stripe_account          = intval($stripe_provider['payment_provider_account_id']);
-$stripe_expense_vendor   = intval($stripe_provider['payment_provider_expense_vendor_id']);
-$stripe_expense_category = intval($stripe_provider['payment_provider_expense_category_id']);
+$stripe_account          = intval($stripe_provider['payment_provider_account']);
+$stripe_expense_vendor   = intval($stripe_provider['payment_provider_expense_vendor']);
+$stripe_expense_category = intval($stripe_provider['payment_provider_expense_category']);
 $stripe_percentage_fee   = floatval($stripe_provider['payment_provider_expense_percentage_fee']);
 $stripe_flat_fee         = floatval($stripe_provider['payment_provider_expense_flat_fee']);
 

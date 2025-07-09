@@ -4,7 +4,7 @@
  * Invoices for PTC
  */
 
-header("Content-Security-Policy: default-src 'self'");
+// header("Content-Security-Policy: default-src 'self'"); -- JQ 2025-07-09 - BREAKS onchange(submit)
 
 require_once "includes/inc_all.php";
 
@@ -54,6 +54,7 @@ $recurring_invoices_sql = mysqli_query($mysqli, "SELECT * FROM recurring_invoice
                 $recurring_invoice_amount = floatval($row['recurring_invoice_amount']);
                 $recurring_payment_id = intval($row['recurring_payment_id']);
                 $recurring_payment_recurring_invoice_id = intval($row['recurring_payment_recurring_invoice_id']);
+                $recurring_payment_saved_payment_id = intval($row['recurring_payment_saved_payment_id']);
                 if ($config_stripe_enable) {
                     if ($recurring_payment_recurring_invoice_id) {
                         $auto_pay_display = "
@@ -89,16 +90,17 @@ $recurring_invoices_sql = mysqli_query($mysqli, "SELECT * FROM recurring_invoice
                         <?php $sql = mysqli_query($mysqli, "SELECT * FROM client_saved_payment_methods WHERE saved_payment_client_id = $session_client_id");
                         if (mysqli_num_rows($sql) > 0) { ?>
                             <form class="form" action="post.php" method="post">
+                                <input type="hidden" name="set_recurring_payment" value="1">
                                 <input type="hidden" name="recurring_invoice_id" value="<?php echo $recurring_invoice_id; ?>">
-                                <select class="form-control select2" name="role" required>
-                                    <option value="">Disabled</option>
+                                <select class="form-control select2" name="saved_payment_id" onchange="this.form.submit()">
+                                    <option value="0">Disabled</option>
                                     <?php
                                         while ($row = mysqli_fetch_array($sql)) {
                                             $saved_payment_id = intval($row['saved_payment_id']);
                                             $saved_payment_description = nullable_htmlentities($row['saved_payment_description']);
 
                                         ?>
-                                        <option value="<?php echo $saved_payment_id; ?>"><?php echo $saved_payment_description; ?></option>
+                                        <option <?php if ($recurring_payment_saved_payment_id == $saved_payment_id) { echo "selected"; } ?> value="<?php echo $saved_payment_id; ?>"><?php echo $saved_payment_description; ?></option>
                                     <?php } ?>
                                 </select>
                             </form>
