@@ -233,8 +233,6 @@ $sql_categories_filter = mysqli_query(
                                 </button>
                                 <div class="dropdown-menu">
                                     <a class="dropdown-item" href="<?=htmlspecialchars('?' . http_build_query(array_merge($_GET, ['view' => 'list']))); ?>">List</a>
-                                    <div class="dropdown-divider"></div>
-                                    <a class="dropdown-item " href="<?=htmlspecialchars('?' . http_build_query(array_merge($_GET, ['view' => 'compact']))); ?>">Compact List</a>
                                     <?php if ($status !== 'Closed') {?>
                                     <div class="dropdown-divider"></div>
                                     <a class="dropdown-item " href="<?=htmlspecialchars('?' . http_build_query(array_merge($_GET, ['view' => 'kanban']))); ?>">Kanban</a>
@@ -422,8 +420,6 @@ $sql_categories_filter = mysqli_query(
 if (isset($_GET["view"])) {
     if ($_GET["view"] == "list") {
         require_once "tickets_list.php";
-    } elseif ($_GET["view"] == "compact") {
-        require_once "tickets_compact.php";
     } elseif ($_GET["view"] == "kanban") {
         require_once "tickets_kanban.php";
     }
@@ -431,8 +427,6 @@ if (isset($_GET["view"])) {
     // here we have to get default view setting
     if ($config_ticket_default_view === 0) {
         require_once "tickets_list.php";
-    } elseif ($config_ticket_default_view === 1) {
-        require_once "tickets_compact.php";
     } elseif ($config_ticket_default_view === 2) {
         require_once "tickets_kanban.php";
     } else {

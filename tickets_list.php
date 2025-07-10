@@ -4,7 +4,7 @@
                 <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token'] ?>">
 
                 <div class="table-responsive-sm">
-                    <table class="table table-striped table-borderless table-hover">
+                    <table class="table table-striped table-borderless table-hover table-sm">
                         <thead class="text-dark <?php if (!$num_rows[0]) { echo "d-none"; } ?> text-nowrap">
                         <tr>
                             
