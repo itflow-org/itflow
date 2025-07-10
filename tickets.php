@@ -55,13 +55,15 @@ if (isset($_GET['billable']) && ($_GET['billable']) == '1') {
     $ticket_billable_snippet = '';
 }
 
-if (!empty($_GET['category'])) {
-    $category = intval($_GET['category']);
-    $category_snippet = "AND ticket_category = $category";
+// Category Filter
+if (isset($_GET['category']) & !empty($_GET['category'])) {
+    $category_query = 'AND (ticket_category = ' . intval($_GET['category']) . ')';
+    $category_filter = intval($_GET['category']);
 } else {
-    $category_snippet = '';
+    // Default - any
+    $category_query = '';
+    $category_filter = '';
 }
-
 
 // Ticket assignment status filter
 // Default - any
@@ -96,7 +98,7 @@ $sql = mysqli_query(
     LEFT JOIN ticket_statuses ON ticket_status = ticket_status_id
     LEFT JOIN categories ON ticket_category = category_id
     WHERE $ticket_status_snippet " . $ticket_assigned_query . "
-    $category_snippet
+    $category_query
     AND DATE(ticket_created_at) BETWEEN '$dtf' AND '$dtt'
     AND (CONCAT(ticket_prefix,ticket_number) LIKE '%$q%' OR client_name LIKE '%$q%' OR ticket_subject LIKE '%$q%' OR ticket_status_name LIKE '%$q%' OR ticket_priority LIKE '%$q%' OR user_name LIKE '%$q%' OR contact_name LIKE '%$q%' OR asset_name LIKE '%$q%' OR vendor_name LIKE '%$q%' OR ticket_vendor_ticket_number LIKE '%q%')
     $ticket_billable_snippet
@@ -139,7 +141,7 @@ $sql_total_tickets_assigned = mysqli_query($mysqli, "SELECT COUNT(ticket_id) AS 
 $row = mysqli_fetch_array($sql_total_tickets_assigned);
 $user_active_assigned_tickets = intval($row['total_tickets_assigned']);
 
-$sql_categories = mysqli_query(
+$sql_categories_filter = mysqli_query(
     $mysqli,
     "SELECT * FROM categories
     WHERE category_type = 'Ticket'
@@ -188,7 +190,7 @@ $sql_categories = mysqli_query(
                 <?php } ?>
                 <input type="hidden" name="status" value="<?php echo $status; ?>">
                 <div class="row">
-                    <div class="col-sm-5">
+                    <div class="col-sm-4">
                         <div class="input-group mb-3 mb-sm-0">
                             <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(nullable_htmlentities($q)); } ?>" placeholder="Search Tickets">
                             <div class="input-group-append">
@@ -197,7 +199,32 @@ $sql_categories = mysqli_query(
                             </div>
                         </div>
                     </div>
-                    <div class="col-sm-7">
+                    <div class="col-sm-1"></div>
+                    <div class="col-sm-3">
+                        <div class="form-group">
+                            <div class="input-group mb-3 mb-sm-0">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text"><i class="fa fa-fw fa-layer-group"></i></span>
+                                </div>
+                                <select class="form-control select2" name="category" onchange="this.form.submit()">
+                                    <option value="">- All Categories -</option>
+
+                                    <?php
+                                    while ($row = mysqli_fetch_array($sql_categories_filter)) {
+                                        $category_id = intval($row['category_id']);
+                                        $category_name = nullable_htmlentities($row['category_name']);
+                                    ?>
+                                        <option <?php if ($category_filter == $category_id) { echo "selected"; } ?> value="<?php echo $category_id; ?>"><?php echo $category_name; ?></option>
+                                    <?php
+                                    }
+                                    ?>
+
+                                </select>
+                                
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
                         <div class="btn-group float-right">
                             <div class="btn-group">
                                 <button class="btn btn-outline-dark dropdown-toggle" id="dropdownMenuButton" data-toggle="dropdown">
@@ -212,26 +239,6 @@ $sql_categories = mysqli_query(
                                     <div class="dropdown-divider"></div>
                                     <a class="dropdown-item " href="<?=htmlspecialchars('?' . http_build_query(array_merge($_GET, ['view' => 'kanban']))); ?>">Kanban</a>
                                     <?php } ?>
-                                </div>
-                            </div>
-                            <div class="btn-group">
-                                <button class="btn btn-outline-dark dropdown-toggle" id="dropdownMenuButton" data-toggle="dropdown">
-                                    <i class="fa fa-fw fa-layer-group"></i>
-                                    <span class="d-none d-xl-inline ml-2">Categories</span>
-                                </button>
-                                <div class="dropdown-menu">
-                                    <a class="dropdown-item " href="<?=htmlspecialchars('?' . http_build_query(array_merge($_GET, ['category' => '']))); ?>">All</a>
-                                    <div class="dropdown-divider"></div>
-                                    <?php
-                                    while ($row = mysqli_fetch_array($sql_categories)) {
-                                        $category_id = intval($row['category_id']);
-                                        $category_name = nullable_htmlentities($row['category_name']);
-                                        $category_color = nullable_htmlentities($row['category_color']);
-                                    ?>
-                                    <a class="dropdown-item" href="<?=htmlspecialchars('?' . http_build_query(array_merge($_GET, ['category' => $category_id]))); ?>"><?php echo $category_name ?></a>
-                                    <div class="dropdown-divider"></div>
-                                <?php } ?>
-                                    <a class="dropdown-item " href="<?=htmlspecialchars('?' . http_build_query(array_merge($_GET, ['category' => 'none']))); ?>">No Category</a>
                                 </div>
                             </div>
                             <div class="btn-group">
