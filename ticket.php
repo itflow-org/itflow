@@ -441,9 +441,10 @@ if (isset($_GET['ticket_id'])) {
                                         <?php if (empty($ticket_closed_at)) { ?>
                                             <div class="dropdown-divider"></div>
                                             <a class="dropdown-item"
-                                               data-toggle = "ajax-modal"
-                                               data-ajax-url = "ajax/ajax_ticket_contact.php"
-                                               data-ajax-id = "<?php echo $ticket_id; ?>"
+                                                href="#"
+                                                data-toggle = "ajax-modal"
+                                                data-ajax-url = "ajax/ajax_ticket_contact.php"
+                                                data-ajax-id = "<?php echo $ticket_id; ?>"
                                             >
                                                 <i class="fa fa-fw fa-user mr-2"></i>Add Contact
                                             </a>
