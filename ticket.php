@@ -537,7 +537,7 @@ if (isset($_GET['ticket_id'])) {
 
                             <?php if ($invoice_id) { ?>
                                 <div class="mt-1">
-                                    <i class="fa fa-fw fa-dollar-sign text-secondary mr-2"></i>Invoiced: <a href="invoices.php?invoice_id=<?php echo $invoice_id ?>"><?php echo "$invoice_prefix$invoice_number"; ?></a>
+                                    <i class="fa fa-fw fa-dollar-sign text-secondary mr-2"></i>Invoiced: <a href="invoice.php?invoice_id=<?php echo $invoice_id ?>"><?php echo "$invoice_prefix$invoice_number"; ?></a>
                                 </div>
                             <?php } else { ?>
                                 <div class="mt-1">
