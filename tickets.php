@@ -199,12 +199,12 @@ $sql_categories_filter = mysqli_query(
                             </div>
                         </div>
                     </div>
-                    <div class="col-sm-1"></div>
+
                     <div class="col-sm-3">
                         <div class="form-group">
-                            <div class="input-group mb-3 mb-sm-0">
+                            <div class="input-group">
                                 <div class="input-group-prepend">
-                                    <span class="input-group-text"><i class="fa fa-fw fa-layer-group"></i></span>
+                                    <span class="input-group-text bg-light"><i class="fas fa-layer-group"></i></span>
                                 </div>
                                 <select class="form-control select2" name="category" onchange="this.form.submit()">
                                     <option value="">- All Categories -</option>
@@ -224,7 +224,7 @@ $sql_categories_filter = mysqli_query(
                             </div>
                         </div>
                     </div>
-                    <div class="col-sm-4">
+                    <div class="col-sm-5">
                         <div class="btn-group float-right">
                             <div class="btn-group">
                                 <button class="btn btn-outline-dark dropdown-toggle" id="dropdownMenuButton" data-toggle="dropdown">
@@ -372,7 +372,7 @@ $sql_categories_filter = mysqli_query(
                                 <input onchange="this.form.submit()" type="date" class="form-control" name="dtt" max="2999-12-31" value="<?php echo nullable_htmlentities($dtt); ?>">
                             </div>
                         </div>
-                        <div class="col-md-2">
+                        <div class="col-md-3">
                             <div class="form-group">
                                 <label>Ticket Status</label>
                                 <select onchange="this.form.submit()" class="form-control select2" name="status[]" data-placeholder="Select Status" multiple>
@@ -388,7 +388,7 @@ $sql_categories_filter = mysqli_query(
                                 </select>
                             </div>
                         </div>
-                        <div class="col-md-2">
+                        <div class="col-md-3">
                             <div class="form-group">
                                 <label>Assigned to</label>
                                 <select onchange="this.form.submit()" class="form-control select2" name="assigned">

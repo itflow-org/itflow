@@ -163,6 +163,15 @@ if (isset($_GET['invoice_id'])) {
         $json_products = json_encode($products);
     }
 
+    // Saved Payment Methods
+    $sql_saved_payment_methods = mysqli_query($mysqli, "
+        SELECT * FROM client_saved_payment_methods
+        LEFT JOIN payment_providers 
+            ON client_saved_payment_methods.saved_payment_provider_id = payment_providers.payment_provider_id
+        WHERE saved_payment_client_id = $client_id
+        AND payment_provider_active = 1;
+    ");
+
     // Payment with saved card (auto-pay)
     if ($config_stripe_enable) {
         $stripe_client_details = mysqli_fetch_array(mysqli_query($mysqli, "SELECT * FROM client_stripe WHERE client_id = $client_id LIMIT 1"));
@@ -225,13 +234,28 @@ if (isset($_GET['invoice_id'])) {
                             <?php } ?>
 
                             <?php if ($invoice_status !== 'Paid' && $invoice_status !== 'Cancelled' && $invoice_status !== 'Draft' && $invoice_status !== 'Non-Billable' && $invoice_amount != 0) { ?>
-                                <a class="btn btn-success" href="#"
-                                    data-toggle = "ajax-modal"
-                                    data-ajax-url = "ajax/ajax_invoice_pay.php"
-                                    data-ajax-id = "<?php echo $invoice_id; ?>"
-                                    >
-                                    <i class="fa fa-fw fa-credit-card mr-2"></i>Add Payment
-                                </a>
+                                
+                                <div class="btn-group">
+                                    <button type="button" class="btn btn-success" data-toggle="ajax-modal" data-ajax-url="ajax/ajax_invoice_pay.php" data-ajax-id="<?php echo $invoice_id; ?>"><i class="fa fa-fw fa-credit-card mr-2"></i>Add Payment</button>
+                                    <button type="button" class="btn btn-success dropdown-toggle dropdown-toggle-split" data-toggle="dropdown"></button>
+                                    <div class="dropdown-menu">
+                                        <a class="dropdown-item" href="guest/guest_pay_invoice_stripe.php?invoice_id=<?php echo "$invoice_id&url_key=$invoice_url_key"; ?>">Enter Card Manually</a>
+                                        <?php 
+                                        if (mysqli_num_rows($sql_saved_payment_methods) > 0) { ?>
+                                            <h6 class="dropdown-header text-left">Pay with a Saved Card</h6>
+                                        <?php
+                                        while ($row = mysqli_fetch_array($sql_saved_payment_methods)) {
+                                            $saved_payment_id = intval($row['saved_payment_id']);
+                                            $saved_payment_description = nullable_htmlentities($row['saved_payment_description']);
+                                            $payment_provider_name = nullable_htmlentities($row['payment_provider_name']);
+                                            ?>
+
+                                            <a class="dropdown-item confirm-link" href="post.php?add_payment_by_provider=<?php echo $saved_payment_provider_id; ?>&invoice_id=<?php echo $invoice_id; ?>&csrf_token=<?php echo $_SESSION['csrf_token']; ?>"><?php echo "$payment_provider_name | $saved_payment_description"; ?></a>
+                                        <?php }
+                                        } ?>
+                                    </div>
+                                </div>
+
                                 <?php if ($invoice_status !== 'Partial' && $config_stripe_enable && $stripe_id && $stripe_pm) { ?>
                                     <a class="btn btn-primary confirm-link" href="post.php?add_payment_stripe&invoice_id=<?php echo $invoice_id; ?>&csrf_token=<?php echo $_SESSION['csrf_token']; ?>">
                                         <i class="fa fa-fw fa-credit-card mr-2"></i>Pay via Payment Provider
