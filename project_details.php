@@ -235,6 +235,10 @@ if (isset($_GET['project_id'])) {
                                 <a class="dropdown-item" href="#" data-toggle="modal" data-target="#linkTicketModal">
                                     <i class="fas fa-fw fa-life-ring mr-2"></i>Open Ticket
                                 </a>
+                                <div class="dropdown-divider"></div>
+                                <a class="dropdown-item" href="#" data-toggle="modal" data-target="#linkClosedTicketModal">
+                                    <i class="fas fa-fw fa-life-ring mr-2"></i>Closed Ticket
+                                </a>
                             </div>
                         </div>
                     <?php } ?>
@@ -552,6 +556,7 @@ if (isset($_GET['project_id'])) {
     <?php
 
     require_once "modals/project_link_ticket_modal.php";
+    require_once "modals/project_link_closed_ticket_modal.php";
     require_once "modals/ticket_add_modal.php";
 
 }

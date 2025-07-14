@@ -234,3 +234,38 @@ if (isset($_POST['link_ticket_to_project'])) {
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 }
+
+if (isset($_POST['link_closed_ticket_to_project'])) {
+
+    enforceUserPermission('module_support', 2);
+    $project_id = intval($_POST['project_id']);
+    $ticket_number = intval($_POST['ticket_number']);
+
+    // Get Project Name and Client ID for logging
+    $sql = mysqli_query($mysqli, "SELECT project_client_id, project_name FROM projects WHERE project_id = $project_id");
+    $row = mysqli_fetch_array($sql);
+    $client_id = intval($row['project_client_id']);
+    $project_name = sanitizeInput($row['project_name']);
+
+    // Get ticket details
+    $sql = mysqli_query($mysqli, "SELECT ticket_id, ticket_prefix, ticket_number, ticket_subject, ticket_updated_at FROM tickets WHERE ticket_number = $ticket_number");
+    if (mysqli_num_rows($sql) == 0) {
+        $_SESSION['alert_message'] = "Cannot merge into that ticket.";
+        header("Location: " . $_SERVER["HTTP_REFERER"]);
+        exit();
+    }
+    $row = mysqli_fetch_array($sql);
+    $ticket_id = intval($row['ticket_id']);
+    $ticket_prefix = sanitizeInput($row['ticket_prefix']);
+    $ticket_number = intval($row['ticket_number']);
+    $ticket_subject = sanitizeInput($row['ticket_subject']);
+    $ticket_updated = sanitizeInput($row['ticket_updated_at']); // So we don't mess with the last response
+
+    mysqli_query($mysqli, "UPDATE tickets SET ticket_project_id = $project_id, ticket_updated_at = '$ticket_updated' WHERE ticket_id = $ticket_id");
+
+    // Logging
+    logAction("Project", "Edit", "$session_name added ticket $ticket_prefix$ticket_number - $ticket_subject to project $project_name", $client_id, $project_id);
+
+    $_SESSION['alert_message'] = "Ticket added to <strong>$project_name</strong>";
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+}
