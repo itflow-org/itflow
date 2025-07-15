@@ -86,7 +86,6 @@ $invoices_sql = mysqli_query($mysqli, "SELECT * FROM invoices WHERE invoice_clie
                             <?php echo $invoice_status; ?>
                         </span>
                     </td>
-
                 </tr>
             <?php } ?>
 

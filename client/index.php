@@ -180,28 +180,28 @@ if ($session_contact_primary == 1 || $session_contact_is_billing_contact) { ?>
 <div class="row">
 
     <?php if ($balance > 0) { ?>
-    <div class="col-sm-3 offset-1">
-        <div class="card">
+    <div class="col-sm-3">
+        <a href="unpaid_invoices.php" class="card">
             <div class="card-header">
-                <h3 class="card-title text-bold">Account Balance</h3>
+                <h3 class="card-title text-bold text-dark">Account Balance</h3>
             </div>
             <div class="card-body">
                 <div class="h4 text-danger"><b><?php echo numfmt_format_currency($currency_format, $balance, $session_company_currency); ?></b></div>
             </div>
-        </div>
+        </a>
     </div>
     <?php } ?>
 
     <?php if ($recurring_monthly_total > 0) { ?>
     <div class="col-sm-3">
-        <div class="card">
+        <a href="recurring_invoices.php" class="card text-dark">
             <div class="card-header">
                 <h3 class="card-title">Recurring Monthly</h3>
             </div>
             <div class="card-body">
                 <div class="h4"><b><?php echo numfmt_format_currency($currency_format, $recurring_monthly_total, $session_company_currency); ?></b></div>
             </div>
-        </div>
+        </a>
     </div>
     <?php } ?>
 
@@ -217,8 +217,8 @@ if ($session_contact_primary == 1 || $session_contact_is_technical_contact) {
 <div class="row">
 
     <?php if (mysqli_num_rows($sql_domains_expiring) > 0) { ?>
-    <div class="col-sm-3 offset-1">
-        <div class="card">
+    <div class="col-sm-3">
+        <a href="domains.php" class="card text-dark">
             <div class="card-header">
                 <h3 class="card-title text-bold">Domains Expiring</h3>
             </div>
@@ -240,7 +240,7 @@ if ($session_contact_primary == 1 || $session_contact_is_technical_contact) {
                     <?php
                 }
                 ?>
-            </div>
+            </a>
         </div>
     </div>
     <?php } ?>
@@ -255,7 +255,7 @@ if ($session_contact_primary == 1 || $session_contact_is_technical_contact) {
 <div class="row">
     <?php if (mysqli_num_rows($sql_assigned_assets) > 0) { ?>
     <div class="col-sm-3">
-        <div class="card">
+        <a href="assets.php" class="card text-dark">
             <div class="card-header">
                 <h3 class="card-title">Your Assigned Assets</h3>
             </div>
@@ -277,7 +277,7 @@ if ($session_contact_primary == 1 || $session_contact_is_technical_contact) {
                 ?>
                 </table>
             </div>
-        </div>
+        </a>
     </div>
     <?php } ?>
 </div>
