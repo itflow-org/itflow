@@ -3,16 +3,36 @@
     <div class="modal-dialog">
         <div class="modal-content bg-dark">
             <div class="modal-header">
-                <h5 class="modal-title"><i class="fa fa-fw fa-robot mr-2"></i>New AI Provider</h5>
+                <h5 class="modal-title"><i class="fa fa-fw fa-robot mr-2"></i>Add AI Model</h5>
                 <button type="button" class="close text-white" data-dismiss="modal">
                     <span>&times;</span>
                 </button>
             </div>
             <form action="post.php" method="post" autocomplete="off">
                 <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token'] ?>">
-                <input type="hidden" name="provider" value="<?php echo $provider_id; ?>">
 
                 <div class="modal-body bg-white">
+
+                    <div class="form-group">
+                        <label>Provider <strong class="text-danger">*</strong></label>
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text"><i class="fa fa-fw fa-robot"></i></span>
+                            </div>
+                            <select class="form-control select2" name="provider" required>
+                                <option value="">- Select an AI Provider -</option>
+                                <?php
+                                    $sql_ai_providers = mysqli_query($mysqli, "SELECT * FROM ai_providers");
+                                    while ($row = mysqli_fetch_array($sql_ai_providers)) {
+                                        $ai_provider_id = intval($row['ai_provider_id']);
+                                        $ai_provider_name = nullable_htmlentities($row['ai_provider_name']);
+
+                                    ?>
+                                    <option value="<?php echo $ai_provider_id; ?>"><?php echo $ai_provider_name; ?></option>
+                                <?php } ?>
+                            </select>
+                        </div>
+                    </div>
 
                     <div class="form-group">
                         <label>Model Name <strong class="text-danger">*</strong></label>
@@ -31,6 +51,7 @@
                                 <span class="input-group-text"><i class="fa fa-fw fa-th-list"></i></span>
                             </div>
                             <select class="form-control select2" name="use_case">
+                                <option>General</option>
                                 <option>Tickets</option>
                                 <option>Documentation</option>
                             </select>
@@ -38,13 +59,7 @@
                     </div>
 
                     <div class="form-group">
-                        <label>Prompt</label>
-                        <div class="input-group">
-                            <div class="input-group-prepend">
-                                <span class="input-group-text"><i class="fa fa-fw fa-robot"></i></span>
-                            </div>
-                            <textarea class="form-control" name="prompt" placeholder="Enter a model prompt:"></textarea>
-                        </div>
+                        <textarea class="form-control" rows="8" name="prompt" placeholder="Enter a model prompt:"></textarea>
                     </div>
 
                 </div>

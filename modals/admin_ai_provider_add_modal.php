@@ -43,21 +43,6 @@
                         </div>
                     </div>
 
-                    <hr>
-
-                    <div class="form-group">
-                        <label>AI Model</label>
-                        <div class="input-group">
-                            <div class="input-group-prepend">
-                                <span class="input-group-text"><i class="fa fa-fw fa-robot"></i></span>
-                            </div>
-                            <input type="text" class="form-control" name="model" placeholder="ex gpt-4">
-                        </div>
-                        <small class="text-muted">
-                            More AI models can be added after adding the provider.
-                        </small>
-                    </div>
-
                 </div>
                 <div class="modal-footer bg-white">
                     <button type="submit" name="add_ai_provider" class="btn btn-primary text-bold"><i class="fa fa-check mr-2"></i>Create</button>

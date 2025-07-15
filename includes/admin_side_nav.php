@@ -72,6 +72,18 @@
                             <p>Saved Payments</p>
                         </a>
                     </li>
+                    <li class="nav-item">
+                        <a href="admin_ai_provider.php" class="nav-link <?php echo (basename($_SERVER['PHP_SELF']) == 'admin_ai_provider.php' ? 'active' : ''); ?>">
+                            <i class="nav-icon fas fa-robot"></i>
+                            <p>AI Providers</p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="admin_ai_model.php" class="nav-link <?php echo (basename($_SERVER['PHP_SELF']) == 'admin_ai_model.php' ? 'active' : ''); ?>">
+                            <i class="nav-icon fas fa-robot"></i>
+                            <p>AI Models</p>
+                        </a>
+                    </li>
                 <?php } ?>
                 <?php if ($config_module_enable_ticketing) { ?>
                     <li class="nav-item">

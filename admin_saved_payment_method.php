@@ -7,7 +7,7 @@ $order = "ASC";
 require_once "includes/inc_all_admin.php";
 
 $sql = mysqli_query($mysqli, "
-    SELECT 
+    SELECT SQL_CALC_FOUND_ROWS
         client_saved_payment_methods.*,
         payment_providers.payment_provider_name,
         clients.client_name,
@@ -29,7 +29,7 @@ $sql = mysqli_query($mysqli, "
     ORDER BY $sort $order
 ");
 
-$num_rows = mysqli_num_rows($sql);
+$num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
 ?>
 

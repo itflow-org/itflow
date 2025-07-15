@@ -10,17 +10,23 @@ if (isset($_GET['ai_reword'])) {
 
     header('Content-Type: application/json');
 
+    $sql = mysqli_query($mysqli, "SELECT * FROM ai_models LEFT JOIN ai_providers ON ai_model_ai_provider_id = ai_provider_id WHERE ai_model_use_case = 'General' LIMIT 1");
+
+    $row = mysqli_fetch_array($sql);
+    $model_name = $row['ai_model_name'];
+    $promptText = $row['ai_model_prompt'];
+    $url = $row['ai_provider_api_url'];
+    $key = $row['ai_provider_api_key'];
+
     // Collecting the input data from the AJAX request.
     $inputJSON = file_get_contents('php://input');
     $input = json_decode($inputJSON, TRUE); // Convert JSON into array.
-
-    $promptText = "Rephrase this ticket response to be clear, professional, and polite. Maintain the original meaning without adding or omitting information. Do not invent details. Keep the tone neutral and professional. Avoid technical jargon unless necessary. Please return only the reworded text as clean, properly formatted HTML, without any code block markers, backticks, or the word 'html'. Do not include any other commentary or explanations.";
 
     $userText = $input['text'];
 
     // Preparing the data for the OpenAI Chat API request.
     $data = [
-        "model" => "$config_ai_model", // Specify the model
+        "model" => "$model_name", // Specify the model
         "messages" => [
             ["role" => "system", "content" => $promptText],
             ["role" => "user", "content" => $userText],
@@ -29,7 +35,7 @@ if (isset($_GET['ai_reword'])) {
     ];
 
     // Initialize cURL session to the OpenAI Chat API.
-    $ch = curl_init("$config_ai_url");
+    $ch = curl_init("$url");
 
     // Set cURL options for the request.
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -37,7 +43,7 @@ if (isset($_GET['ai_reword'])) {
     curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
     curl_setopt($ch, CURLOPT_HTTPHEADER, [
         'Content-Type: application/json',
-        'Authorization: Bearer ' . $config_ai_api_key,
+        'Authorization: Bearer ' . $key,
     ]);
 
     // Execute the cURL session and capture the response.
@@ -71,6 +77,13 @@ if (isset($_GET['ai_reword'])) {
 }
 
 if (isset($_GET['ai_ticket_summary'])) {
+
+    $sql = mysqli_query($mysqli, "SELECT * FROM ai_models LEFT JOIN ai_providers ON ai_model_ai_provider_id = ai_provider_id WHERE ai_model_use_case = 'General' LIMIT 1");
+
+    $row = mysqli_fetch_array($sql);
+    $model_name = $row['ai_model_name'];
+    $url = $row['ai_provider_api_url'];
+    $key = $row['ai_provider_api_key'];
 
     // Retrieve the ticket_id from POST
     $ticket_id = intval($_POST['ticket_id']);
@@ -108,7 +121,7 @@ if (isset($_GET['ai_ticket_summary'])) {
 
     // Prepare the POST data
     $post_data = [
-        "model" => "$config_ai_model",
+        "model" => "$model_name",
         "messages" => [
             ["role" => "system", "content" => "You are a helpful assistant."],
             ["role" => "user", "content" => $prompt]
@@ -117,12 +130,12 @@ if (isset($_GET['ai_ticket_summary'])) {
     ];
 
     $ch = curl_init();
-    curl_setopt($ch, CURLOPT_URL, $config_ai_url);
+    curl_setopt($ch, CURLOPT_URL, $url);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLOPT_POST, true);
     curl_setopt($ch, CURLOPT_HTTPHEADER, [
         'Content-Type: application/json',
-        'Authorization: Bearer ' . $config_ai_api_key
+        'Authorization: Bearer ' . $key
     ]);
     curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($post_data));
 
@@ -145,6 +158,13 @@ if (isset($_GET['ai_create_document_template'])) {
 
     header('Content-Type: text/html; charset=UTF-8');
 
+    $sql = mysqli_query($mysqli, "SELECT * FROM ai_models LEFT JOIN ai_providers ON ai_model_ai_provider_id = ai_provider_id WHERE ai_model_use_case = 'General' LIMIT 1");
+
+    $row = mysqli_fetch_array($sql);
+    $model_name = $row['ai_model_name'];
+    $url = $row['ai_provider_api_url'];
+    $key = $row['ai_provider_api_key'];
+
     $prompt = $_POST['prompt'] ?? '';
 
     // Basic validation
@@ -158,7 +178,7 @@ if (isset($_GET['ai_create_document_template'])) {
     $user_message = "Create an HTML formatted IT documentation template based on the following request:\n\n\"$prompt\"\n\nThe template should be structured, professional, and useful for IT staff. Include relevant sections, instructions, prerequisites, and best practices.";
 
     $post_data = [
-        "model" => "$config_ai_model",
+        "model" => "$model_name",
         "messages" => [
             ["role" => "system", "content" => $system_message],
             ["role" => "user", "content" => $user_message]
@@ -167,12 +187,12 @@ if (isset($_GET['ai_create_document_template'])) {
     ];
 
     $ch = curl_init();
-    curl_setopt($ch, CURLOPT_URL, $config_ai_url);
+    curl_setopt($ch, CURLOPT_URL, $url);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLOPT_POST, true);
     curl_setopt($ch, CURLOPT_HTTPHEADER, [
         'Content-Type: application/json',
-        'Authorization: Bearer ' . $config_ai_api_key
+        'Authorization: Bearer ' . $key
     ]);
     curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($post_data));
 
