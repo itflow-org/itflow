@@ -82,8 +82,15 @@ if (isset($_GET['status']) && ($_GET['status']) == 'Draft') {
     $status_query = "invoice_status LIKE '%'";
 }
 
-//Rebuild URL
-$url_query_strings_sort = http_build_query($get_copy);
+// Category Filter
+if (isset($_GET['category']) & !empty($_GET['category'])) {
+    $category_query = 'AND (category_id = ' . intval($_GET['category']) . ')';
+    $category_filter = intval($_GET['category']);
+} else {
+    // Default - any
+    $category_query = '';
+    $category_filter = '';
+}
 
 $sql = mysqli_query(
     $mysqli,
@@ -92,6 +99,7 @@ $sql = mysqli_query(
     LEFT JOIN categories ON invoice_category_id = category_id
     WHERE ($status_query)
     $overdue_query
+    $category_query
     AND DATE(invoice_date) BETWEEN '$dtf' AND '$dtt'
     AND (CONCAT(invoice_prefix,invoice_number) LIKE '%$q%' OR invoice_scope LIKE '%$q%' OR client_name LIKE '%$q%' OR invoice_status LIKE '%$q%' OR invoice_amount LIKE '%$q%' OR category_name LIKE '%$q%')
     $access_permission_query
@@ -172,15 +180,36 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
             <?php } ?>
             <div class="row">
                 <div class="col-sm-4">
-                    <div class="input-group mb-3 mb-md-0">
-                        <input type="search" class="form-control" name="q" value="<?php if (isset($q)) {echo stripslashes(nullable_htmlentities($q));} ?>" placeholder="Search Invoices">
-                        <div class="input-group-append">
-                            <button class="btn btn-secondary" type="button" data-toggle="collapse" data-target="#advancedFilter"><i class="fas fa-filter"></i></button>
-                            <button class="btn btn-primary"><i class="fa fa-search"></i></button>
+                    <div class="form-group mb-md-0">
+                        <div class="input-group">
+                            <input type="search" class="form-control" name="q" value="<?php if (isset($q)) {echo stripslashes(nullable_htmlentities($q));} ?>" placeholder="Search Invoices">
+                            <div class="input-group-append">
+                                <button class="btn btn-secondary" type="button" data-toggle="collapse" data-target="#advancedFilter"><i class="fas fa-filter"></i></button>
+                                <button class="btn btn-primary"><i class="fa fa-search"></i></button>
+                            </div>
                         </div>
                     </div>
                 </div>
-                <div class="col-md-8">
+                <div class="col-sm-3">
+                    <div class="form-group mb-md-0">
+                        <select class="form-control select2" name="category" onchange="this.form.submit()">
+                            <option value="">- All Categories -</option>
+
+                            <?php
+                            $sql_categories_filter = mysqli_query($mysqli, "SELECT * FROM categories WHERE category_type = 'Income' ORDER BY category_name ASC");
+                            while ($row = mysqli_fetch_array($sql_categories_filter)) {
+                                $category_id = intval($row['category_id']);
+                                $category_name = nullable_htmlentities($row['category_name']);
+                            ?>
+                                <option <?php if ($category_filter == $category_id) { echo "selected"; } ?> value="<?php echo $category_id; ?>"><?php echo $category_name; ?></option>
+                            <?php
+                            }
+                            ?>
+
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-5">
                     <div class="btn-group float-right">
                         <div class="dropdown ml-2" id="bulkActionButton" hidden>
                             <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">
