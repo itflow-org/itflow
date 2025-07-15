@@ -237,6 +237,7 @@ if (isset($_GET['invoice_id'])) {
                                 
                                 <div class="btn-group">
                                     <button type="button" class="btn btn-success" data-toggle="ajax-modal" data-ajax-url="ajax/ajax_invoice_pay.php" data-ajax-id="<?php echo $invoice_id; ?>"><i class="fa fa-fw fa-credit-card mr-2"></i>Add Payment</button>
+                                    <?php if ($config_stripe_enable) { ?>
                                     <button type="button" class="btn btn-success dropdown-toggle dropdown-toggle-split" data-toggle="dropdown"></button>
                                     <div class="dropdown-menu">
                                         <a class="dropdown-item" href="guest/guest_pay_invoice_stripe.php?invoice_id=<?php echo "$invoice_id&url_key=$invoice_url_key"; ?>">Enter Card Manually</a>
@@ -254,6 +255,7 @@ if (isset($_GET['invoice_id'])) {
                                         <?php }
                                         } ?>
                                     </div>
+                                    <?php } // End Payment Provider Enable Check ?>
                                 </div>
 
                                 <?php if ($invoice_status !== 'Partial' && $config_stripe_enable && $stripe_id && $stripe_pm) { ?>

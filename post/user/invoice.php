@@ -2083,3 +2083,45 @@ if (isset($_GET['export_invoice_pdf'])) {
     exit;
 
 }
+
+if (isset($_POST['bulk_edit_invoice_category'])) {
+
+    $category_id = intval($_POST['bulk_category_id']);
+
+    // Get Category name for logging and Notification
+    $sql = mysqli_query($mysqli,"SELECT category_name FROM categories WHERE category_id = $category_id");
+    $row = mysqli_fetch_array($sql);
+    $category_name = sanitizeInput($row['category_name']);
+
+    // Assign Income category to Selected Invoices
+    if (isset($_POST['invoice_ids'])) {
+
+        // Get Selected Count
+        $count = count($_POST['invoice_ids']);
+
+        foreach($_POST['invoice_ids'] as $invoice_id) {
+            $invoice_id = intval($invoice_id);
+
+            // Get Invoice Details for Logging
+            $sql = mysqli_query($mysqli,"SELECT * FROM invoices WHERE invoice_id = $invoice_id");
+            $row = mysqli_fetch_array($sql);
+            $invoice_prefix = sanitizeInput($row['invoice_prefix']);
+            $invoice_number = intval($row['invoice_number']);
+            $invoice_scope = sanitizeInput($row['invoice_scope']);
+            $client_id = intval($row['invoice_client_id']);
+
+            mysqli_query($mysqli,"UPDATE invoices SET invoice_category_id = $category_id WHERE invoice_id = $invoice_id");
+
+            // Logging
+            logAction("Invoice", "Edit", "$session_name assigned Invoice $invoice_prefix$invoice_number to category $category_name", $client_id, $invoice_id);
+
+        } // End Assign Loop
+
+        // Logging
+        logAction("Invoice", "Bulk Edit", "$session_name assigned $count invoices to category $category_name");
+
+        $_SESSION['alert_message'] = "Assigned income category <strong>$category_name</strong> to <strong>$count</strong> invoice(s)";
+    }
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+}
