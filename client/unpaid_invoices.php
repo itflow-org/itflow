@@ -49,7 +49,7 @@ $balance = $invoice_amounts - $amount_paid;
     </div>
     <div class="col-5">
         <?php if ($config_stripe_enable) { ?>
-        <button type="button" class="btn btn-success dropdown-toggle float-right" data-toggle="dropdown"><i class="fa fa-fw fa-credit-card mr-2"></i>Pay Balance <strong>(<?php echo numfmt_format_currency($currency_format, $balance, $session_company_currency); ?>)</strong></button>
+        <button type="button" class="btn btn-outline-success dropdown-toggle float-right" data-toggle="dropdown"><i class="fa fa-fw fa-credit-card mr-2"></i>Pay Balance <strong>(<?php echo numfmt_format_currency($currency_format, $balance, $session_company_currency); ?>)</strong></button>
         <div class="dropdown-menu">
             <a class="dropdown-item" href="//<?php echo $config_base_url ?>/guest/guest_pay_invoice_stripe.php?invoice_id=<?php echo "$invoice_id&url_key=$invoice_url_key"; ?>">Enter Card Manually</a>
             <?php 
@@ -134,7 +134,7 @@ $balance = $invoice_amounts - $amount_paid;
                     <td class="<?php echo $overdue_color; ?>"><?php echo $invoice_due; ?></td>
                     <td>
                         <?php if ($config_stripe_enable) { ?>
-                        <button type="button" class="btn btn-sm btn-success dropdown-toggle" data-toggle="dropdown">Pay</button>
+                        <button type="button" class="btn btn-sm btn-outline-success dropdown-toggle" data-toggle="dropdown"><i class="fa fa-fw fa-credit-card mr-2"></i>Pay</button>
                         <div class="dropdown-menu">
                             <a class="dropdown-item" href="//<?php echo $config_base_url ?>/guest/guest_pay_invoice_stripe.php?invoice_id=<?php echo "$invoice_id&url_key=$invoice_url_key"; ?>">Enter Card Manually</a>
                             <?php 
