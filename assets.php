@@ -122,7 +122,7 @@ $sql = mysqli_query(
     LEFT JOIN locations ON asset_location_id = location_id 
     LEFT JOIN asset_interfaces ON interface_asset_id = asset_id AND interface_primary = 1
     WHERE $archive_query
-    AND (asset_name LIKE '%$q%' OR asset_description LIKE '%$q%' OR asset_type LIKE '%$q%' OR interface_ip LIKE '%$q%' OR interface_ipv6 LIKE '%$q%' OR asset_make LIKE '%$q%' OR asset_model LIKE '%$q%' OR asset_serial LIKE '%$q%' OR asset_os LIKE '%$q%' OR contact_name LIKE '%$q%' OR location_name LIKE '%$q%' OR client_name LIKE '%$q%')
+    AND (asset_name LIKE '%$q%' OR asset_description LIKE '%$q%' OR asset_type LIKE '%$q%' OR interface_ip LIKE '%$q%' OR interface_ipv6 LIKE '%$q%' OR interface_mac LIKE '%$q%' OR asset_make LIKE '%$q%' OR asset_model LIKE '%$q%' OR asset_serial LIKE '%$q%' OR asset_os LIKE '%$q%' OR contact_name LIKE '%$q%' OR location_name LIKE '%$q%' OR client_name LIKE '%$q%')
     AND ($type_query)
     $access_permission_query
     $location_query
@@ -280,6 +280,9 @@ if (mysqli_num_rows($os_sql) > 0) {
                     <div class="form-group">
                         <select onchange="this.form.submit()" class="form-control select2" name="show_column[]" data-placeholder="- Show Additional Columns -" multiple>
                             <option
+                                <?php if (isset($_GET['show_column']) && is_array($_GET['show_column']) && in_array('Mac_Address', $_GET['show_column'])) { echo 'selected'; } ?>>Mac_Address
+                            </option>
+                            <option
                                 <?php if (isset($_GET['show_column']) && is_array($_GET['show_column']) && in_array('OS', $_GET['show_column'])) { echo 'selected'; } ?>>OS
                             </option>
                             <option
@@ -405,6 +408,13 @@ if (mysqli_num_rows($os_sql) > 0) {
                                     IP <?php if ($sort == 'interface_ip') { echo $order_icon; } ?>
                                 </a>
                             </th>
+                        <?php if (isset($_GET['show_column']) && is_array($_GET['show_column']) && in_array('Mac_Address', $_GET['show_column'])) { ?> 
+                            <th>
+                                <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=interface_mac&order=<?php echo $disp; ?>">
+                                    MAC Address <?php if ($sort == 'interface_mac') { echo $order_icon; } ?>
+                                </a>
+                            </th>
+                        <?php } ?>
                         <?php if (isset($_GET['show_column']) && is_array($_GET['show_column']) && in_array('Purchase_Date', $_GET['show_column'])) { ?>
                             <th>
                                 <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=asset_purchase_date&order=<?php echo $disp; ?>">
@@ -603,6 +613,9 @@ if (mysqli_num_rows($os_sql) > 0) {
                             <?php } ?>
                             <?php } ?>
                                 <td><?php echo $asset_ip_display; ?></td>
+                            <?php if (isset($_GET['show_column']) && is_array($_GET['show_column']) && in_array('Mac_Address', $_GET['show_column'])) { ?>
+                                <td><?php echo $asset_mac; ?></td>
+                            <?php } ?>
                             <?php if (isset($_GET['show_column']) && is_array($_GET['show_column']) && in_array('Purchase_Date', $_GET['show_column'])) { ?>
                                 <td><?php echo $asset_purchase_date_display; ?></td>
                             <?php } ?>
