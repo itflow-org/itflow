@@ -3768,6 +3768,7 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
         mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '2.2.3'");
     }
 
+    /* 2025-07-21 - JQ For next release Pauyment Provider Switch Over
     if (CURRENT_DATABASE_VERSION == '2.2.3') {
 
         // Delete all Recurring Payments that are Stripe
@@ -3795,7 +3796,8 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
 
         mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '2.2.4'");
     }
-
+    /*
+    
     // if (CURRENT_DATABASE_VERSION == '2.2.4') {
     //     // Insert queries here required to update to DB version 2.2.5
     //     // Then, update the database to the next sequential version
