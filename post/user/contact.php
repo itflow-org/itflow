@@ -661,14 +661,14 @@ if (isset($_POST['bulk_unarchive_contacts'])) {
             mysqli_query($mysqli,"UPDATE contacts SET contact_archived_at = NULL WHERE contact_id = $contact_id");
 
             // Individual Contact logging
-            logAction("Contact", "Unarchive", "$session_name unarchived $contact_name", $client_id, $contact_id);
+            logAction("Contact", "Restore", "$session_name restored $contact_name", $client_id, $contact_id);
 
         }
 
         // Bulk Logging
-        logAction("Contact", "Bulk Unarchive", "$session_name Unarchived $count contacts", $client_id);
+        logAction("Contact", "Bulk Restore", "$session_name restored $count contacts", $client_id);
 
-        $_SESSION['alert_message'] = "You unarchived <strong>$count</strong> contact(s)";
+        $_SESSION['alert_message'] = "Restored <strong>$count</strong> contact(s)";
 
     }
 

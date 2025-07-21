@@ -184,11 +184,12 @@ if (isset($_GET['archive_client'])) {
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 }
 
-if (isset($_GET['undo_archive_client'])) {
+if (isset($_GET['restore_client'])) {
 
+    validateCSRFToken($_GET['csrf_token']);
     enforceUserPermission('module_client', 2);
 
-    $client_id = intval($_GET['undo_archive_client']);
+    $client_id = intval($_GET['restore_client']);
 
     // Get Client Name
     $sql = mysqli_query($mysqli, "SELECT * FROM clients WHERE client_id = $client_id");
@@ -198,9 +199,9 @@ if (isset($_GET['undo_archive_client'])) {
     mysqli_query($mysqli, "UPDATE clients SET client_archived_at = NULL WHERE client_id = $client_id");
 
     // Logging
-    logAction("Client", "Unarchive", "$session_name unarchived client $client_name", $client_id, $client_id);
+    logAction("Client", "Restored", "$session_name restored client $client_name", $client_id);
 
-    $_SESSION['alert_message'] = "Client <strong>$client_name</strong> unarchived";
+    $_SESSION['alert_message'] = "Client <strong>$client_name</strong> restored";
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 }
@@ -587,6 +588,317 @@ if (isset($_GET['download_clients_csv_template'])) {
     fpassthru($f);
     exit;
 
+}
+
+if (isset($_POST['bulk_edit_client_industry'])) {
+
+    enforceUserPermission('module_client', 2);
+
+    validateCSRFToken($_POST['csrf_token']);
+
+    $industry = sanitizeInput($_POST['bulk_industry']);
+
+    if (isset($_POST['client_ids'])) {
+
+        $count = count($_POST['client_ids']);
+
+        foreach($_POST['client_ids'] as $client_id) {
+            $client_id = intval($client_id);
+
+            $sql = mysqli_query($mysqli,"SELECT client_name FROM clients WHERE client_id = $client_id");
+            $row = mysqli_fetch_array($sql);
+            $client_name = sanitizeInput($row['client_name']);
+
+            mysqli_query($mysqli,"UPDATE clients SET client_type = '$industry' WHERE client_id = $client_id");
+
+            //Logging
+            logAction("Client", "Edit", "$session_name set Industry to $industry for $client_name", $client_id);
+
+        }
+
+        // Bulk Log
+        logAction("Client", "Bulk Edit", "$session_name set the department $industry for $count client(s)", $client_id);
+
+        $_SESSION['alert_message'] = "Set the Industry to <strong>$industry</strong> for <strong>$count</strong> clients";
+    }
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
+if (isset($_POST['bulk_edit_client_referral'])) {
+
+    enforceUserPermission('module_client', 2);
+
+    validateCSRFToken($_POST['csrf_token']);
+
+    $referral = sanitizeInput($_POST['bulk_referral']);
+
+    if (isset($_POST['client_ids'])) {
+
+        $count = count($_POST['client_ids']);
+
+        foreach($_POST['client_ids'] as $client_id) {
+            $client_id = intval($client_id);
+
+            $sql = mysqli_query($mysqli,"SELECT client_name FROM clients WHERE client_id = $client_id");
+            $row = mysqli_fetch_array($sql);
+            $client_name = sanitizeInput($row['client_name']);
+
+            mysqli_query($mysqli,"UPDATE clients SET client_referral = '$referral' WHERE client_id = $client_id");
+
+            //Logging
+            logAction("Client", "Edit", "$session_name set Referral to $referral for $client_name", $client_id);
+
+        }
+
+        // Bulk Log
+        logAction("Client", "Bulk Edit", "$session_name set the referral $referral for $count client(s)", $client_id);
+
+        $_SESSION['alert_message'] = "Set the Referral to <strong>$referral</strong> for <strong>$count</strong> clients";
+    }
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
+if (isset($_POST['bulk_edit_client_hourly_rate'])) {
+
+    enforceUserPermission('module_client', 2);
+
+    validateCSRFToken($_POST['csrf_token']);
+
+    $rate = floatval($_POST['bulk_rate']);
+
+    if (isset($_POST['client_ids'])) {
+
+        $count = count($_POST['client_ids']);
+
+        foreach($_POST['client_ids'] as $client_id) {
+            $client_id = intval($client_id);
+
+            $sql = mysqli_query($mysqli,"SELECT client_name FROM clients WHERE client_id = $client_id");
+            $row = mysqli_fetch_array($sql);
+            $client_name = sanitizeInput($row['client_name']);
+
+            mysqli_query($mysqli,"UPDATE clients SET client_rate = '$rate' WHERE client_id = $client_id");
+
+            //Logging
+            logAction("Client", "Edit", "$session_name set Hourly Rate to" . numfmt_format_currency($currency_format, $rate, $session_company_currency) . "for $client_name", $client_id);
+
+        }
+
+        // Bulk Log
+        logAction("Client", "Bulk Edit", "$session_name set the hourly rate" . numfmt_format_currency($currency_format, $rate, $session_company_currency) . "for $count client(s)", $client_id);
+
+        $_SESSION['alert_message'] = "Set the Hourly Rate to <strong>" . numfmt_format_currency($currency_format, $rate, $session_company_currency) . "</strong> for <strong>$count</strong> client(s)";
+    }
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
+if (isset($_POST['bulk_assign_client_tags'])) {
+
+    enforceUserPermission('module_client', 2);
+
+    validateCSRFToken($_POST['csrf_token']);
+
+    if (isset($_POST['client_ids'])) {
+        
+        $count = count($_POST['client_ids']);
+
+        foreach($_POST['client_ids'] as $client_id) {
+            $client_id = intval($client_id);
+
+            $sql = mysqli_query($mysqli,"SELECT client_name FROM clients WHERE client_id = $client_id");
+            $row = mysqli_fetch_array($sql);
+            $client_name = sanitizeInput($row['client_name']);
+
+            if ($_POST['bulk_remove_tags']) {
+                mysqli_query($mysqli, "DELETE FROM client_tags WHERE client_id = $client_id");
+            }
+
+            if (isset($_POST['bulk_tags'])) {
+                foreach($_POST['bulk_tags'] as $tag) {
+                    $tag = intval($tag);
+
+                    $sql = mysqli_query($mysqli,"SELECT * FROM client_tags WHERE client_id = $client_id AND tag_id = $tag");
+                    if (mysqli_num_rows($sql) == 0) {
+                        mysqli_query($mysqli, "INSERT INTO client_tags SET client_id = $client_id, tag_id = $tag");
+                    }
+                }
+            }
+
+            logAction("Client", "Edit", "$session_name added tags to $client_name", $client_id, $client_id);
+
+        }
+
+        logAction("Client", "Bulk Edit", "$session_name added tags for $count clients", $client_id);
+
+        $_SESSION['alert_message'] = "Assigned tags for <strong>$count</strong> clients";
+    }
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+
+}
+
+if (isset($_POST['bulk_send_client_email']) && isset($_POST['client_ids'])) {
+
+    $client_ids = array_map('intval', $_POST['client_ids']);
+    $count = count($client_ids);
+
+    // Email metadata
+    $mail_from = sanitizeInput($_POST['mail_from']);
+    $mail_from_name = sanitizeInput($_POST['mail_from_name']);
+    $subject = sanitizeInput($_POST['subject']);
+    $body = mysqli_real_escape_string($mysqli, $_POST['body']);
+    $queued_at = sanitizeInput($_POST['queued_at']);
+
+    // Build contact type filters
+    $filters = [];
+
+    if (!empty($_POST['primary_contacts'])) {
+        $filters[] = "contact_primary = 1";
+    }
+    if (!empty($_POST['important_contacts'])) {
+        $filters[] = "contact_important = 1";
+    }
+    if (!empty($_POST['billing_contacts'])) {
+        $filters[] = "contact_billing = 1";
+    }
+    if (!empty($_POST['technical_contacts'])) {
+        $filters[] = "contact_technical = 1";
+    }
+
+    $contact_filter_query = '';
+    if (!empty($filters)) {
+        $contact_filter_query = ' AND (' . implode(' OR ', $filters) . ')';
+    }
+
+    // Prepare client ID list for SQL
+    $client_ids_str = implode(',', $client_ids);
+
+    // SQL to fetch matching contacts
+    $sql = "SELECT * FROM contacts 
+            WHERE contact_client_id IN ($client_ids_str) 
+            $contact_filter_query";
+
+    $result = mysqli_query($mysqli, $sql);
+
+    $data = [];
+    $unique_contacts = [];
+
+    while ($row = mysqli_fetch_array($result)) {
+        $contact_email = sanitizeInput($row['contact_email']);
+
+        // Skip if email is missing or invalid
+        if (empty($contact_email) || !filter_var($contact_email, FILTER_VALIDATE_EMAIL)) {
+            continue;
+        }
+
+        // Skip duplicates (same email)
+        if (isset($unique_contacts[$contact_email])) {
+            continue;
+        }
+        $unique_contacts[$contact_email] = true;
+
+        $contact_name = sanitizeInput($row['contact_name']);
+
+        $data[] = [
+            'from' => $mail_from,
+            'from_name' => $mail_from_name,
+            'recipient' => $contact_email,
+            'recipient_name' => $contact_name,
+            'subject' => $subject,
+            'body' => $body,
+            'queued_at' => $queued_at
+        ];
+    }
+
+    if (!empty($data)) {
+        addToMailQueue($data);
+        logAction("Bulk Mail", "Send", "$session_name sent " . count($data) . " messages via bulk mail");
+        $_SESSION['alert_message'] = "<strong>" . count($data) . "</strong> messages queued";
+    } else {
+        $_SESSION['alert_message'] = "No valid contacts found to queue emails.";
+    }
+
+    // Redirect back
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    exit;
+}
+
+if (isset($_POST['bulk_archive_clients'])) {
+
+    enforceUserPermission('module_client', 2);
+
+    validateCSRFToken($_POST['csrf_token']);
+
+    if (isset($_POST['client_ids'])) {
+
+        $count = 0;
+
+        foreach ($_POST['client_ids'] as $client_id) {
+
+            $client_id = intval($client_id);
+
+            $sql = mysqli_query($mysqli,"SELECT client_name FROM clients WHERE client_id = $client_id");
+            $row = mysqli_fetch_array($sql);
+            $client_name = sanitizeInput($row['client_name']);
+
+            mysqli_query($mysqli,"UPDATE clients SET client_archived_at = NOW() WHERE client_id = $client_id");
+
+            logAction("Client", "Archive", "$session_name archived $client_name", $client_id);
+            
+            $count++;
+
+        }
+
+        // Bulk Logging
+        logAction("Client", "Bulk Archive", "$session_name archived $count clients", $client_id);
+
+        $_SESSION['alert_type'] = "error";
+        $_SESSION['alert_message'] = "Archived $count client(s)";
+
+    }
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
+}
+
+if (isset($_POST['bulk_unarchive_clients'])) {
+
+    enforceUserPermission('module_client', 2);
+    
+    validateCSRFToken($_POST['csrf_token']);
+
+    if (isset($_POST['client_ids'])) {
+
+        $count = count($_POST['client_ids']);
+
+        foreach ($_POST['client_ids'] as $client_id) {
+
+            $client_id = intval($client_id);
+
+            $sql = mysqli_query($mysqli,"SELECT client_name FROM clients WHERE client_id = $client_id");
+            $row = mysqli_fetch_array($sql);
+            $client_name = sanitizeInput($row['client_name']);
+
+            mysqli_query($mysqli,"UPDATE clients SET client_archived_at = NULL WHERE client_id = $client_id");
+
+            // Individual Contact logging
+            logAction("client", "Restore", "$session_name restored $client_name", $client_id);
+
+        }
+
+        // Bulk Logging
+        logAction("Client", "Bulk Restore", "$session_name restored $count client(s)", $client_id);
+
+        $_SESSION['alert_message'] = "You restored <strong>$count</strong> client(s)";
+
+    }
+
+    header("Location: " . $_SERVER["HTTP_REFERER"]);
 }
 
 if (isset($_POST["export_client_pdf"])) {
