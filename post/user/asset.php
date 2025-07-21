@@ -1514,6 +1514,7 @@ if (isset($_POST["import_client_asset_interfaces_csv"])) {
 
             // Default variables (if undefined)
             $description = $type = $mac = $ip = $nat_ip = $ipv6 = $network = '';
+            $network_id = 0;
 
             $duplicate_detect = 0;
             if (isset($column[0])) {
