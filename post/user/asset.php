@@ -860,6 +860,7 @@ if (isset($_POST["import_assets_csv"])) {
             // Default variables (if undefined)
             $description = $type = $make = $model = $serial = $os = '';
             $contact_id = $location_id = 0;
+            $purchase_date = '0000-00-00';
 
             $duplicate_detect = 0;
 
