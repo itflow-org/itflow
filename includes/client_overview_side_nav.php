@@ -1,31 +1,31 @@
 <?php 
 // Badge Counts
 
-$row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('contact_id') AS num FROM contacts WHERE contact_archived_at IS NULL"));
+$row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('contact_id') AS num FROM contacts LEFT JOIN clients ON contact_client_id = client_id WHERE contact_archived_at IS NULL AND client_archived_at IS NULL"));
 $num_contacts = $row['num'];
 
-$row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('location_id') AS num FROM locations WHERE location_archived_at IS NULL"));
+$row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('location_id') AS num FROM locations LEFT JOIN clients ON location_client_id = client_id WHERE location_archived_at IS NULL AND client_archived_at IS NULL"));
 $num_locations = $row['num'];
 
-$row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('asset_id') AS num FROM assets WHERE asset_archived_at IS NULL"));
+$row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('asset_id') AS num FROM assets LEFT JOIN clients ON asset_client_id = client_id WHERE asset_archived_at IS NULL AND client_archived_at IS NULL"));
 $num_assets = $row['num'];
 
-$row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('service_id') AS num FROM services"));
+$row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('service_id') AS num FROM services LEFT JOIN clients ON service_client_id = client_id WHERE client_archived_at IS NULL"));
 $num_services = $row['num'];
 
-$row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('credential_id') AS num FROM credentials WHERE credential_archived_at IS NULL"));
+$row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('credential_id') AS num FROM credentials LEFT JOIN clients ON credential_client_id = client_id WHERE credential_archived_at IS NULL AND client_archived_at IS NULL"));
 $num_credentials = $row['num'];
 
-$row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('network_id') AS num FROM networks WHERE network_archived_at IS NULL"));
+$row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('network_id') AS num FROM networks LEFT JOIN clients ON network_client_id = client_id WHERE network_archived_at IS NULL AND client_archived_at IS NULL"));
 $num_networks = $row['num'];
 
-$row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('domain_id') AS num FROM domains WHERE domain_archived_at IS NULL"));
+$row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('domain_id') AS num FROM domains LEFT JOIN clients ON domain_client_id = client_id WHERE domain_archived_at IS NULL AND client_archived_at IS NULL"));
 $num_domains = $row['num'];
 
-$row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('certificate_id') AS num FROM certificates WHERE certificate_archived_at IS NULL"));
+$row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('certificate_id') AS num FROM certificates LEFT JOIN clients ON certificate_client_id = client_id WHERE certificate_archived_at IS NULL AND client_archived_at IS NULL"));
 $num_certificates = $row['num'];
 
-$row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('software_id') AS num FROM software WHERE software_archived_at IS NULL"));
+$row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('software_id') AS num FROM software LEFT JOIN clients ON software_client_id = client_id WHERE software_archived_at IS NULL AND client_archived_at IS NULL"));
 $num_software = $row['num'];
 
 ?>
