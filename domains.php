@@ -9,10 +9,26 @@ if (isset($_GET['client_id'])) {
     require_once "includes/inc_all_client.php";
     $client_query = "AND domain_client_id = $client_id";
     $client_url = "client_id=$client_id&";
+    // Overide Filter Header Archived
+    if (isset($_GET['archived']) && $_GET['archived'] == 1) {
+        $archived = 1;
+        $archive_query = "domain_archived_at IS NOT NULL";
+    } else {
+        $archived = 0;
+        $archive_query = "domain_archived_at IS NULL";
+    }
 } else {
     require_once "includes/inc_client_overview_all.php";
     $client_query = '';
     $client_url = '';
+    // Overide Filter Header Archived
+    if (isset($_GET['archived']) && $_GET['archived'] == 1) {
+        $archived = 1;
+        $archive_query = "(client_archived_at IS NOT NULL OR domain_archived_at IS NOT NULL)";
+    } else {
+        $archived = 0;
+        $archive_query = "(client_archived_at IS NULL AND domain_archived_at IS NULL)";
+    }
 }
 
 // Perms
@@ -46,7 +62,7 @@ $sql = mysqli_query($mysqli, "SELECT SQL_CALC_FOUND_ROWS domains.*, clients.*,
     LEFT JOIN vendors AS mailhost ON domains.domain_mailhost = mailhost.vendor_id
     LEFT JOIN vendors AS webhost ON domains.domain_webhost = webhost.vendor_id
     WHERE (domains.domain_name LIKE '%$q%' OR domains.domain_description LIKE '%$q%' OR registrar.vendor_name LIKE '%$q%' OR dnshost.vendor_name LIKE '%$q%' OR mailhost.vendor_name LIKE '%$q%' OR webhost.vendor_name LIKE '%$q%' OR client_name LIKE '%$q%')
-    AND domain_$archive_query
+    AND $archive_query
     $access_permission_query
     $client_query
     ORDER BY $sort $order LIMIT $record_from, $record_to");
