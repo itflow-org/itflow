@@ -192,7 +192,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 SELECT DISTINCT client_id, client_name 
                                 FROM clients
                                 JOIN contacts ON contact_client_id = client_id
-                                WHERE client_archived_at IS NULL 
+                                WHERE $archive_query
                                 $access_permission_query
                                 ORDER BY client_name ASC
                             ");

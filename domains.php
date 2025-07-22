@@ -94,6 +94,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                 <?php if ($client_url) { ?>
                 <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
                 <?php } ?>
+                <input type="hidden" name="archived" value="<?php echo $archived; ?>">
                 <div class="row">
                     <div class="col-md-4">
                         <div class="input-group mb-3 mb-md-0">
@@ -117,7 +118,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                     SELECT DISTINCT client_id, client_name 
                                     FROM clients
                                     JOIN domains ON domain_client_id = client_id
-                                    WHERE client_archived_at IS NULL 
+                                    WHERE $archive_query
                                     $access_permission_query
                                     ORDER BY client_name ASC
                                 ");

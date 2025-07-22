@@ -12,10 +12,10 @@ if (isset($_GET['client_id'])) {
     // Overide Filter Header Archived
     if (isset($_GET['archived']) && $_GET['archived'] == 1) {
         $archived = 1;
-        $archive_query = "c.credential_archived_at IS NOT NULL";
+        $archive_query = "credential_archived_at IS NOT NULL";
     } else {
         $archived = 0;
-        $archive_query = "c.credential_archived_at IS NULL";
+        $archive_query = "credential_archived_at IS NULL";
     }
 
     // Log when users load the Credentials page
@@ -28,10 +28,10 @@ if (isset($_GET['client_id'])) {
     // Overide Filter Header Archived
     if (isset($_GET['archived']) && $_GET['archived'] == 1) {
         $archived = 1;
-        $archive_query = "(client_archived_at IS NOT NULL OR c.credential_archived_at IS NOT NULL)";
+        $archive_query = "(client_archived_at IS NOT NULL OR credential_archived_at IS NOT NULL)";
     } else {
         $archived = 0;
-        $archive_query = "(client_archived_at IS NULL AND c.credential_archived_at IS NULL)";
+        $archive_query = "(client_archived_at IS NULL AND credential_archived_at IS NULL)";
     }
     // Log when users load the Credentials page
     logAction("Credential", "View", "$session_name viewed the All Credentials page");
@@ -132,6 +132,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
             <?php if ($client_url) { ?>
             <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
             <?php } ?>
+            <input type="hidden" name="archived" value="<?php echo $archived; ?>">
             <div class="row">
 
                 <div class="col-md-4">
@@ -200,7 +201,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 SELECT DISTINCT client_id, client_name 
                                 FROM clients
                                 JOIN credentials ON credential_client_id = client_id
-                                WHERE client_archived_at IS NULL 
+                                WHERE $archive_query
                                 $access_permission_query
                                 ORDER BY client_name ASC
                             ");

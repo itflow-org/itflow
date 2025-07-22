@@ -259,7 +259,7 @@ if (mysqli_num_rows($os_sql) > 0) {
                                 SELECT DISTINCT client_id, client_name 
                                 FROM clients
                                 JOIN assets ON asset_client_id = client_id
-                                WHERE client_archived_at IS NULL 
+                                WHERE $archive_query
                                 $access_permission_query
                                 ORDER BY client_name ASC
                             ");
