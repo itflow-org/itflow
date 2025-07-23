@@ -29,9 +29,6 @@ header("X-Frame-Options: DENY");
     <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="plugins/fontawesome-free/css/all.min.css">
 
-    <!-- Theme style -->
-    <link rel="stylesheet" href="plugins/adminlte/css/adminlte.min.css">
-
     <!-- Custom Style Sheet -->
     <link href="plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css" rel="stylesheet" type="text/css">
     <link href="plugins/select2/css/select2.min.css" rel="stylesheet" type="text/css">
@@ -42,11 +39,12 @@ header("X-Frame-Options: DENY");
     <link href="plugins/intl-tel-input/css/intlTelInput.min.css" rel="stylesheet">
     <!-- CSS to allow regular button to show as block button in mobile response view using the class btn-responsive -->
     <link href="css/itflow_custom.css" rel="stylesheet">
-
+    <!-- Theme style -->
+    <link rel="stylesheet" href="plugins/adminlte/css/adminlte.min.css">
     <!-- jQuery -->
     <script src="plugins/jquery/jquery.min.js"></script>
     <script src="plugins/toastr/toastr.min.js"></script>
 
 </head>
-<body class="hold-transition sidebar-mini layout-fixed layout-navbar-fixed accent-<?php if (isset($_GET['client_id'])) { echo "blue"; } else { echo nullable_htmlentities($config_theme); } ?>">
+<body class="hold-transition sidebar-mini layout-fixed layout-navbar-fixed dark-mode accent-<?php if (isset($_GET['client_id'])) { echo "blue"; } else { echo nullable_htmlentities($config_theme); } ?>">
     <div class="wrapper text-sm">
