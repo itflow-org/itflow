@@ -2,10 +2,8 @@
 <aside class="main-sidebar sidebar-dark-<?php echo nullable_htmlentities($config_theme); ?> d-print-none">
 
     <a class="brand-link" href="dashboard.php">
-        <div class="brand-image">
-            <i class="fas fa-building fa-2x"></i>
-        </div>
-        <span class="brand-text h5 ml-2"><?php echo nullable_htmlentities($session_company_name); ?></span>
+        <div class="brand-image"></div>
+        <span class="brand-text h4"><?php echo nullable_htmlentities($session_company_name); ?></span>
     </a>
 
     <!-- Sidebar -->
