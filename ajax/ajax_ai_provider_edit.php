@@ -15,9 +15,9 @@ $key = nullable_htmlentities($row['ai_provider_api_key']);
 ob_start();
 ?>
 
-<div class="modal-header">
+<div class="modal-header bg-dark">
     <h5 class="modal-title"><i class="fa fa-fw fa-robot mr-2"></i>Editing: <strong><?php echo $provider_name; ?></strong></h5>
-    <button type="button" class="close text-white" data-dismiss="modal">
+    <button type="button" class="close text-light" data-dismiss="modal">
         <span>&times;</span>
     </button>
 </div>
@@ -25,7 +25,7 @@ ob_start();
     <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token'] ?>">
     <input type="hidden" name="provider_id" value="<?php echo $provider_id; ?>">
 
-    <div class="modal-body bg-white">
+    <div class="modal-body">
 
         <div class="form-group">
             <label>Provider Name <strong class="text-danger">*</strong></label>
@@ -58,7 +58,7 @@ ob_start();
         </div>
 
     </div>
-    <div class="modal-footer bg-white">
+    <div class="modal-footer">
         <button type="submit" name="edit_ai_provider" class="btn btn-primary text-bold"><i class="fa fa-check mr-2"></i>Save</button>
         <button type="button" class="btn btn-light" data-dismiss="modal"><i class="fa fa-times mr-2"></i>Cancel</button>
     </div>

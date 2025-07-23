@@ -44,9 +44,9 @@ $device_icon = getAssetIcon($asset_type);
 ob_start();
 ?>
 
-<div class="modal-header">
+<div class="modal-header bg-dark">
     <h5 class="modal-title"><i class='fa fa-fw fa-<?php echo $device_icon; ?> mr-2'></i>Copying asset: <strong><?php echo $asset_name; ?></strong></h5>
-    <button type="button" class="close text-white" data-dismiss="modal">
+    <button type="button" class="close text-light" data-dismiss="modal">
         <span>&times;</span>
     </button>
 </div>

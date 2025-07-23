@@ -43,7 +43,7 @@ $(document).on('click', '[data-toggle="ajax-modal"]', function (e) {
             var modalHtml = 
                 '<div class="modal fade" id="' + modalId + '" tabindex="-1">' +
                 '    <div class="modal-dialog modal-'+ modalSize +'">' +
-                '       <div class="modal-content bg-dark">'
+                '       <div class="modal-content border-dark">'
                             + response.content +
                 '        </div>' +
                 '    </div>' +
