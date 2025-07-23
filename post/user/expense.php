@@ -395,7 +395,11 @@ if (isset($_POST['edit_recurring_expense'])) {
     $description = sanitizeInput($_POST['description']);
     $reference = sanitizeInput($_POST['reference']);
 
-    $start_date = date('Y') . "-$month-$day";
+    $year = date('Y');
+    if (strtotime("$year-$month-$day") < time()) {
+        $year++;
+    }
+    $start_date = "$year-$month-$day";
 
     mysqli_query($mysqli,"UPDATE recurring_expenses SET recurring_expense_frequency = $frequency, recurring_expense_day = $day, recurring_expense_month = $month, recurring_expense_next_date = '$start_date', recurring_expense_description = '$description', recurring_expense_reference = '$reference', recurring_expense_amount = $amount, recurring_expense_currency_code = '$session_company_currency', recurring_expense_vendor_id = $vendor, recurring_expense_client_id = $client_id, recurring_expense_category_id = $category, recurring_expense_account_id = $account WHERE recurring_expense_id = $recurring_expense_id");
 
