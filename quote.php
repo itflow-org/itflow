@@ -305,7 +305,7 @@ if (isset($_GET['quote_id'])) {
                 <div class="col-md-12">
                     <div class="card">
                         <div class="table-responsive">
-                            <table class="table table-borderless" id="items">
+                            <table class="table table-hover mb-0" id="items">
                                 <thead class="bg-light">
                                     <tr>
                                         <th class="d-print-none"></th>
@@ -457,7 +457,8 @@ if (isset($_GET['quote_id'])) {
                 </div>
 
                 <div class="col-sm-3 offset-sm-2">
-                    <table class="table table-borderless">
+                    
+                    <table class="table table-hover mb-0">
                         <tbody>
                             <tr>
                                 <td>Subtotal:</td>
@@ -475,12 +476,13 @@ if (isset($_GET['quote_id'])) {
                                     <td class="text-right"><?php echo numfmt_format_currency($currency_format, $total_tax, $quote_currency_code); ?></td>
                                 </tr>
                             <?php } ?>
-                            <tr class="h5 text-bold border-top">
+                            <tr class="h5 text-bold">
                                 <td>Total:</td>
                                 <td class="text-right"><?php echo numfmt_format_currency($currency_format, $quote_amount, $quote_currency_code); ?></td>
                             </tr>
                         </tbody>
                     </table>
+                    
                 </div>
             </div>
 

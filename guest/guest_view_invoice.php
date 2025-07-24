@@ -238,7 +238,7 @@ if ($balance > 0) {
             <div class="col-md-12">
                 <div class="card">
                     <div class="table-responsive">
-                        <table class="table table-borderless">
+                        <table class="table table-hover mb-0">
                             <thead class="bg-light">
                             <tr>
                                 <th>Item</th>
@@ -297,7 +297,7 @@ if ($balance > 0) {
                 <?php } ?>
             </div>
             <div class="col-sm-3 offset-sm-2">
-                <table class="table table-borderless">
+                <table class="table table-hover mb-0">
                     <tbody>
                     <tr>
                         <td>Subtotal:</td>
@@ -331,7 +331,7 @@ if ($balance > 0) {
                     <?php
                     } 
                     ?>
-                    <tr class="border-top h5 text-bold">
+                    <tr class="h5 text-bold">
                         <td>Balance:</td>
                         <td class="text-right"><?php echo numfmt_format_currency($currency_format, $balance, $invoice_currency_code); ?></td>
                     </tr>

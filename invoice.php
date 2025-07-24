@@ -403,7 +403,7 @@ if (isset($_GET['invoice_id'])) {
                 <div class="col-md-12">
                     <div class="card">
                         <div class="table-responsive">
-                            <table class="table table-borderless" id="items">
+                            <table class="table table-hover mb-0" id="items">
                                 <thead class="bg-light">
                                 <tr>
                                     <th class="d-print-none"></th>
@@ -536,7 +536,7 @@ if (isset($_GET['invoice_id'])) {
                     </div>
                 </div>
                 <div class="col-sm-3 offset-sm-2">
-                    <table class="table table-borderless">
+                    <table class="table table-hover mb-0">
                         <tbody>
 
                         <tr>
@@ -581,7 +581,7 @@ if (isset($_GET['invoice_id'])) {
                             </tr>
                         <?php } ?>
 
-                        <tr class="h5 text-bold border-top">
+                        <tr class="h5 text-bold">
                             <td>Balance:</td>
                             <td class="text-right"><?php echo numfmt_format_currency($currency_format, $balance, $invoice_currency_code); ?></td>
                         </tr>
