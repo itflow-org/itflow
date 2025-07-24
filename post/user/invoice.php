@@ -908,13 +908,17 @@ if (isset($_POST['apply_credit'])) {
     $invoice_prefix = getFieldByID('invoices',$invoice_id,'invoice_prefix');
     $invoice_number = getFieldByID('invoices',$invoice_id,'invoice_number');
     $invoice_status = getFieldByID('invoices',$invoice_id,'invoice_status');
+    $invoice_credit_amount = floatval(getFieldByID('invoices',$invoice_id,'invoice_credit_amount'));
+    $total_credit_amount = $invoice_credit_amount + $amount;
 
     //Check to see if amount entered is greater than the balance of the invoice
     if ($amount > $invoice_balance) {
         $_SESSION['alert_message'] = "Credit is more than the balance";
         header("Location: " . $_SERVER["HTTP_REFERER"]);
     } else {
-        mysqli_query($mysqli,"UPDATE invoices SET invoice_credit_amount = $amount WHERE invoice_id = $invoice_id");
+        mysqli_query($mysqli,"UPDATE invoices SET invoice_credit_amount = $total_credit_amount WHERE invoice_id = $invoice_id");
+        // Remove Amounted Credit
+        mysqli_query($mysqli,"INSERT INTO credits SET credit_amount = -$amount, credit_created_by = $session_user_id, credit_client_id = $client_id");
 
         /*
         //Add up all the payments for the invoice and get the total amount paid to the invoice
