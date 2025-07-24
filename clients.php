@@ -289,10 +289,10 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
         <form id="bulkActions" action="post.php" method="post" enctype="multipart/form-data">
             <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token'] ?>">
             <div class="table-responsive-sm">
-                <table class="table table-hover table-borderless mb-0">
+                <table class="table table-hover mb-0">
                     <thead class="<?php if ($num_rows[0] == 0) { echo "d-none"; } ?> text-nowrap bg-light">
                     <tr>
-                        <td class="bg-light pr-0">
+                        <td class="pr-0">
                             <div class="form-check">
                                 <input class="form-check-input" id="selectAllCheckbox" type="checkbox" onclick="checkAll(this)">
                             </div>
@@ -313,6 +313,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 <?php if ($sort == 'contact_name') { echo $order_icon; } ?>
                             </a>
                         </th>
+                        <th></th>
                         <?php if ((lookupUserPermission("module_financial") >= 1) && $config_module_enable_accounting == 1) { ?> <th class="text-right">Billing</th> <?php } ?>
                         <?php if (lookupUserPermission("module_client") >= 2) { ?> <th class="text-center">Action</th> <?php } ?>
                     </tr>
@@ -360,6 +361,62 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         // Abbreviation
                         if (empty($client_abbreviation)) {
                             $client_abbreviation = shortenClient($client_name);
+                        }
+
+                        // Counts
+                        
+                        // Contact Count
+                        $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('contact_id') AS num FROM contacts WHERE contact_client_id = $client_id AND contact_archived_at IS NULL"));
+                        $contact_count = $row['num'];
+                        if ($contact_count) { 
+                            $contact_count_display = "<a href='contacts.php?client_id=$client_id' class='mr-2 mb-1 badge badge-pill badge-dark p-2' title='Contacts ($contact_count)'><i class='fas fa-fw fa-users mr-2'></i>$contact_count</a>";
+                        } else {
+                            $contact_count_display = '';
+                        }
+
+                        // Vendors Count
+                        $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('vendor_id') AS num FROM vendors WHERE vendor_client_id = $client_id AND vendor_archived_at IS NULL"));
+                        $vendor_count = $row['num'];
+                        if ($vendor_count) { 
+                            $vendor_count_display = "<a href='vendors.php?client_id=$client_id' class='mr-2 mb-1 badge badge-pill badge-dark p-2' title='Vendors ($vendor_count)'><i class='fas fa-fw fa-building mr-2'></i>$vendor_count</a>";
+                        } else {
+                            $vendor_count_display = '';
+                        }
+                        
+                        // Asset Count
+                        $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('asset_id') AS num FROM assets WHERE asset_client_id = $client_id AND asset_archived_at IS NULL"));
+                        $asset_count = $row['num'];
+                        if ($asset_count) { 
+                            $asset_count_display = "<a href='assets.php?client_id=$client_id' class='mr-2 mb-1 badge badge-pill badge-secondary p-2' title='Assets ($asset_count)'><i class='fas fa-fw fa-desktop mr-2'></i>$asset_count</a>";
+                        } else {
+                            $asset_count_display = '';
+                        }
+                        
+                        // Credential Count
+                        $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('credential_id') AS num FROM credentials WHERE credential_client_id = $client_id AND credential_archived_at IS NULL"));
+                        $credential_count = $row['num'];
+                        if ($credential_count) { 
+                            $credential_count_display = "<a href='credentials.php?client_id=$client_id' class='mr-2 mb-1 badge badge-pill badge-secondary p-2' title='Credentials ($credential_count)'><i class='fas fa-fw fa-key mr-2'></i>$credential_count</a>";
+                        } else {
+                            $credential_count_display = '';
+                        }
+                        
+                        // Software Count
+                        $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('software_id') AS num FROM software WHERE software_client_id = $client_id AND software_archived_at IS NULL"));
+                        $software_count = $row['num'];
+                        if ($software_count) { 
+                            $software_count_display = "<a href='software.php?client_id=$client_id' class='mr-2 mb-1 badge badge-pill badge-secondary p-2' title='Licenses ($software_count)'><i class='fas fa-fw fa-cube mr-2'></i>$software_count</a>";
+                        } else {
+                            $software_count_display = '';
+                        }
+
+                        // Ticket Count
+                        $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('ticket_id') AS num FROM tickets WHERE ticket_client_id = $client_id AND ticket_archived_at IS NULL"));
+                        $ticket_count = $row['num'];
+                        if ($ticket_count) { 
+                            $ticket_count_display = "<a href='tickets.php?client_id=$client_id' class='mr-2 mb-1 badge badge-pill badge-secondary p-2' title='Tickets ($ticket_count)'><i class='fas fa-fw fa-life-ring mr-2'></i>$ticket_count</a>";
+                        } else {
+                            $ticket_count_display = '';
                         }
 
                         // Client Tags
@@ -432,7 +489,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 </div>
                             </td>
                             <td>
-                                <a data-toggle="tooltip" data-placement="right" title="Client ID: <?php echo $client_id; ?>" class="font-weight-bold" href="client_overview.php?client_id=<?php echo $client_id; ?>"><?php echo $client_name; ?></a>
+                                <a data-toggle="tooltip" data-placement="right" title="Client ID: <?php echo $client_id; ?>" class="font-weight-bold h6" href="client_overview.php?client_id=<?php echo $client_id; ?>"><?php echo $client_name; ?></a>
 
                                 <?php
                                 if (!empty($client_type)) {
@@ -492,6 +549,10 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 <?php } ?>
                             </td>
 
+                            <td>
+                                <?php echo "$contact_count_display$vendor_count_display$asset_count_display$credential_count_display$software_count_display$ticket_count_display"; ?>
+                            </td>
+
                             <!-- Show Billing if perms & if accounting module is enabled -->
                             <?php if ((lookupUserPermission("module_financial") >= 1) && $config_module_enable_accounting == 1) { ?>
                                 <td class="text-right">
@@ -518,7 +579,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 <td>
                                     <div class="dropdown dropleft text-center">
                                         <button class="btn btn-secondary btn-sm" type="button" data-toggle="dropdown">
-                                            <i class="fas fa-ellipsis-v"></i>
+                                            <i class="fas fa-ellipsis-h"></i>
                                         </button>
                                         <div class="dropdown-menu">
                                             <a class="dropdown-item" href="#"

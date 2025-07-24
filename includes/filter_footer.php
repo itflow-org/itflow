@@ -15,7 +15,7 @@ if ($total_found_rows > 5) {
 
     ?>
 
-<div class="card-footer pb-0 pt-3 border-top">
+<div class="card-footer pb-0 pt-3">
 
     <div class="row">
         <div class="col-sm">
