@@ -2051,6 +2051,7 @@ CREATE TABLE `settings` (
   `config_log_retention` int(11) NOT NULL DEFAULT 90,
   `config_module_enable_ticketing` tinyint(1) NOT NULL DEFAULT 1,
   `config_theme` varchar(200) DEFAULT 'blue',
+  `config_theme_dark` tinyint(1) NOT NULL DEFAULT 0,
   `config_telemetry` tinyint(1) DEFAULT 0,
   `config_timezone` varchar(200) NOT NULL DEFAULT 'America/New_York',
   `config_destructive_deletes_enable` tinyint(1) NOT NULL DEFAULT 0,
@@ -2759,4 +2760,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-07-24 11:29:27
+-- Dump completed on 2025-07-24 14:57:42

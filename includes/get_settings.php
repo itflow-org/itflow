@@ -128,7 +128,7 @@ $config_time_format = "H:i";
 
 // Theme
 $config_theme = $row['config_theme'];
-$config_theme_mode = "dark_mode";
+$config_theme_dark = intval($row['config_theme_dark']);
 
 // Telemetry
 $config_telemetry = intval($row['config_telemetry']);

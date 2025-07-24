@@ -6,12 +6,14 @@ if (isset($_POST['edit_theme_settings'])) {
 
     validateCSRFToken($_POST['csrf_token']);
 
+    $dark_mode = intval($_POST['dark_mode'] ?? 0);
+
     $theme = preg_replace("/[^0-9a-zA-Z-]/", "", sanitizeInput($_POST['edit_theme_settings']));
 
-    mysqli_query($mysqli,"UPDATE settings SET config_theme = '$theme' WHERE company_id = 1");
+    mysqli_query($mysqli,"UPDATE settings SET config_theme = '$theme', config_theme_dark = $dark_mode WHERE company_id = 1");
 
     // Logging
-    logAction("Settings", "Edit", "$session_name edited theme settings");
+    logAction("Settings", "Edit", "$session_name edited theme settings $dark_mode");
 
     $_SESSION['alert_message'] = "Changed theme to <strong>$theme</strong>";
 

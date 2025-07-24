@@ -10,6 +10,15 @@ require_once "includes/inc_all_admin.php";
             <form action="post.php" method="post" autocomplete="off">
                 <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token'] ?>">
 
+                <h5>Dark Mode</h5>
+
+                <div class="form-group">
+                    <div class="custom-control custom-switch">
+                        <input type="checkbox" class="custom-control-input" name="dark_mode" <?php if ($config_theme_dark == 1) { echo "checked"; } ?> value="1" onchange="this.form.submit()" id="darkModeSwitch">
+                        <label class="custom-control-label" for="darkModeSwitch">Enable Dark Mode</label>
+                    </div>
+                </div>
+
                 <label>Select a Theme</label>
                 <div class="form-row">
 
