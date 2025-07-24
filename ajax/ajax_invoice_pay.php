@@ -36,7 +36,7 @@ $balance = $invoice_amount - $amount_paid;
 ob_start();
 ?>
 
-<div class="modal-header">
+<div class="modal-header bg-dark">
     <h5 class="modal-title"><i class="fa fa-fw fa-credit-card mr-2"></i><?php echo "$invoice_prefix$invoice_number"; ?>: Make Payment</h5>
     <button type="button" class="close text-white" data-dismiss="modal">
         <span>&times;</span>
@@ -46,7 +46,7 @@ ob_start();
     <input type="hidden" name="invoice_id" value="<?php echo $invoice_id; ?>">
     <input type="hidden" name="balance" value="<?php echo $balance; ?>">
     <input type="hidden" name="currency_code" value="<?php echo $client_currency_code; ?>">
-    <div class="modal-body bg-white">
+    <div class="modal-body">
 
         <div class="form-row">
             <div class="col-md">
@@ -169,7 +169,7 @@ ob_start();
 
     </div>
 
-    <div class="modal-footer bg-white">
+    <div class="modal-footer">
         <button type="submit" name="add_payment" class="btn btn-primary text-bold"><i class="fas fa-check mr-2"></i>Pay</button>
         <button type="button" class="btn btn-light" data-dismiss="modal"><i class="fas fa-times mr-2"></i>Cancel</button>
     </div>

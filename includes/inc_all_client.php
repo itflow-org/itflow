@@ -131,6 +131,12 @@ if (isset($_GET['client_id'])) {
 
         $recurring_monthly = $recurring_monthly_total + $recurring_yearly_total;
 
+        // Get Credit Balance
+        $sql_credit_balance = mysqli_query($mysqli, "SELECT SUM(credit_amount) AS credit_balance FROM credits WHERE credit_client_id = $client_id");
+        $row = mysqli_fetch_array($sql_credit_balance);
+
+        $credit_balance = floatval($row['credit_balance']);
+
         // Badge Counts
 
         $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('contact_id') AS num FROM contacts WHERE contact_archived_at IS NULL AND contact_client_id = $client_id"));

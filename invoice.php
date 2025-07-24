@@ -47,6 +47,7 @@ if (isset($_GET['invoice_id'])) {
     $invoice_due = nullable_htmlentities($row['invoice_due']);
     $invoice_amount = floatval($row['invoice_amount']);
     $invoice_discount = floatval($row['invoice_discount_amount']);
+    $invoice_credit = floatval($row['invoice_credit_amount']);
     $invoice_currency_code = nullable_htmlentities($row['invoice_currency_code']);
     $invoice_note = nullable_htmlentities($row['invoice_note']);
     $invoice_url_key = nullable_htmlentities($row['invoice_url_key']);
@@ -141,6 +142,12 @@ if (isset($_GET['invoice_id'])) {
     $amount_paid = floatval($row['amount_paid']);
 
     $balance = $invoice_amount - $amount_paid;
+
+    // Get Credit Balance
+    $sql_credit_balance = mysqli_query($mysqli, "SELECT SUM(credit_amount) AS credit_balance FROM credits WHERE credit_client_id = $client_id");
+    $row = mysqli_fetch_array($sql_credit_balance);
+
+    $credit_balance = floatval($row['credit_balance']);
 
     //check to see if overdue
     if ($invoice_status !== "Paid" && $invoice_status !== "Draft" && $invoice_status !== "Cancelled" && $invoice_status !== "Non-Billable") {
@@ -240,6 +247,9 @@ if (isset($_GET['invoice_id'])) {
                                     <?php if ($config_stripe_enable) { ?>
                                     <button type="button" class="btn btn-success dropdown-toggle dropdown-toggle-split" data-toggle="dropdown"></button>
                                     <div class="dropdown-menu">
+                                        <?php if ($credit_balance) { ?>
+                                        <a class="dropdown-item" href="#" data-toggle="ajax-modal" data-ajax-url="ajax/ajax_invoice_apply_credit.php" data-ajax-id="<?php echo $invoice_id; ?>"><i class="fas fa-fw fa-wallet mr-2"></i>Apply Credit (Balance: <?php echo numfmt_format_currency($currency_format, $credit_balance, $client_currency_code); ?>)</a>
+                                        <?php } ?>
                                         <a class="dropdown-item" href="guest/guest_pay_invoice_stripe.php?invoice_id=<?php echo "$invoice_id&url_key=$invoice_url_key"; ?>">Enter Card Manually</a>
                                         <?php 
                                         if (mysqli_num_rows($sql_saved_payment_methods) > 0) { ?>
@@ -539,6 +549,16 @@ if (isset($_GET['invoice_id'])) {
                             <tr>
                                 <td>Discount:</td>
                                 <td class="text-right">-<?php echo numfmt_format_currency($currency_format, $invoice_discount, $invoice_currency_code); ?></td>
+                            </tr>
+                        <?php
+                        }
+                        ?>
+                        <?php
+                        if ($invoice_credit > 0) {
+                            ?>
+                            <tr>
+                                <td>Credit:</td>
+                                <td class="text-right">-<?php echo numfmt_format_currency($currency_format, $invoice_credit, $invoice_currency_code); ?></td>
                             </tr>
                         <?php
                         }

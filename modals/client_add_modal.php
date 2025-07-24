@@ -7,31 +7,30 @@
                     <span>&times;</span>
                 </button>
             </div>
+            
+            <ul class="modal-header nav nav-pills nav-justified">
+                <li class="nav-item">
+                    <a class="nav-link active" data-toggle="pill" href="#pills-details">Details</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-toggle="pill" href="#pills-location">Location</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-toggle="pill" href="#pills-contact" id="contactNavPill">Contact</a>
+                </li>
+                <?php if ($config_module_enable_accounting) { ?>
+                    <li class="nav-item">
+                        <a class="nav-link" data-toggle="pill" href="#pills-billing">Billing</a>
+                    </li>
+                <?php } ?>
+                <li class="nav-item">
+                    <a class="nav-link" data-toggle="pill" href="#pills-notes">Notes</a>
+                </li>
+            </ul>
+           
             <form action="post.php" method="post" autocomplete="off">
                 <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token'] ?>">
                 <div class="modal-body">
-
-                    <ul class="nav nav-pills nav-justified mb-3">
-                        <li class="nav-item">
-                            <a class="nav-link active" data-toggle="pill" href="#pills-details">Details</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" data-toggle="pill" href="#pills-location">Location</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" data-toggle="pill" href="#pills-contact" id="contactNavPill">Contact</a>
-                        </li>
-                        <?php if ($config_module_enable_accounting) { ?>
-                            <li class="nav-item">
-                                <a class="nav-link" data-toggle="pill" href="#pills-billing">Billing</a>
-                            </li>
-                        <?php } ?>
-                        <li class="nav-item">
-                            <a class="nav-link" data-toggle="pill" href="#pills-notes">Notes</a>
-                        </li>
-                    </ul>
-
-                    <hr>
 
                     <div class="tab-content">
 
@@ -373,7 +372,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="submit" name="add_client" class="btn btn-primary text-bold" onclick="promptPrimaryContact()"><i class="fa fa-check mr-2"></i>Create</button>
-                    <button type="button" class="btn btn-light" data-dismiss="modal"><i class="fa fa-times mr-2"></i>Close</button>
+                    <button type="button" class="btn btn-outline-secondary" data-dismiss="modal"><i class="fa fa-times mr-2"></i>Close</button>
                 </div>
             </form>
         </div>

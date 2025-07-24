@@ -15,19 +15,21 @@ if ($total_found_rows > 5) {
 
     ?>
 
-    <hr>
+<div class="card-footer pb-0 pt-3 border-top">
 
     <div class="row">
-        <div class="col-sm mb-2">
+        <div class="col-sm">
             <form action="post.php" method="post">
-                <select onchange="this.form.submit()" class="form-control select2 col-12 col-sm-3" name="change_records_per_page">
-                    <option <?php if ($user_config_records_per_page == 5) { echo "selected"; } ?> >5</option>
-                    <option <?php if ($user_config_records_per_page == 10) { echo "selected"; } ?> >10</option>
-                    <option <?php if ($user_config_records_per_page == 20) { echo "selected"; } ?> >20</option>
-                    <option <?php if ($user_config_records_per_page == 50) { echo "selected"; } ?> >50</option>
-                    <option <?php if ($user_config_records_per_page == 100) { echo "selected"; } ?> >100</option>
-                    <option <?php if ($user_config_records_per_page == 500) { echo "selected"; } ?> >500</option>
-                </select>
+                <div class="form-group">
+                    <select onchange="this.form.submit()" class="form-control select2 col-12 col-sm-3" name="change_records_per_page">
+                        <option <?php if ($user_config_records_per_page == 5) { echo "selected"; } ?> >5</option>
+                        <option <?php if ($user_config_records_per_page == 10) { echo "selected"; } ?> >10</option>
+                        <option <?php if ($user_config_records_per_page == 20) { echo "selected"; } ?> >20</option>
+                        <option <?php if ($user_config_records_per_page == 50) { echo "selected"; } ?> >50</option>
+                        <option <?php if ($user_config_records_per_page == 100) { echo "selected"; } ?> >100</option>
+                        <option <?php if ($user_config_records_per_page == 500) { echo "selected"; } ?> >500</option>
+                    </select>
+                </div>
             </form>
         </div>
 
@@ -50,16 +52,13 @@ if ($total_found_rows > 5) {
         // Now output something like "Showing X to Y of Z records"
         ?>
 
-        <div class="col-sm mb-2">
+        <div class="col-sm">
             <p class="text-center">
               Showing <strong><?php echo $start; ?></strong> to <strong><?php echo $end; ?></strong> of <strong><?php echo $total_found_rows; ?></strong> records
             </p>
-
-
             <!--<p class="text-center mt-2"><?php echo $total_found_rows; ?></p> -->
         </div>
-        <div class="col-sm mb-2">
-
+        <div class="col-sm">
             <ul class="pagination justify-content-sm-end">
 
                 <?php
@@ -115,6 +114,7 @@ if ($total_found_rows > 5) {
             </ul>
         </div>
     </div>
+</div>
 
     <?php
 

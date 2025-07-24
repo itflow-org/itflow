@@ -46,5 +46,5 @@ header("X-Frame-Options: DENY");
     <script src="plugins/toastr/toastr.min.js"></script>
 
 </head>
-<body class="hold-transition sidebar-mini layout-fixed layout-navbar-fixed dark-mode accent-<?php if (isset($_GET['client_id'])) { echo "blue"; } else { echo nullable_htmlentities($config_theme); } ?>">
+<body class="hold-transition sidebar-mini layout-fixed layout-navbar-fixed dark-moe accent-<?php if (isset($_GET['client_id'])) { echo "blue"; } else { echo nullable_htmlentities($config_theme); } ?>">
     <div class="wrapper text-sm">

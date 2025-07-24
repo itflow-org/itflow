@@ -839,6 +839,25 @@ CREATE TABLE `credentials` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `credits`
+--
+
+DROP TABLE IF EXISTS `credits`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `credits` (
+  `credit_id` int(11) NOT NULL AUTO_INCREMENT,
+  `credit_amount` decimal(15,2) NOT NULL,
+  `credit_reference` varchar(250) DEFAULT NULL,
+  `credit_created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `credit_created_by` int(11) NOT NULL,
+  `credit_expire_at` date DEFAULT NULL,
+  `credit_client_id` int(11) NOT NULL,
+  PRIMARY KEY (`credit_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `custom_fields`
 --
 
@@ -891,6 +910,27 @@ CREATE TABLE `custom_values` (
   `custom_value_value` mediumtext NOT NULL,
   `custom_value_field` int(11) NOT NULL,
   PRIMARY KEY (`custom_value_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `discount_codes`
+--
+
+DROP TABLE IF EXISTS `discount_codes`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `discount_codes` (
+  `discount_code_id` int(11) NOT NULL AUTO_INCREMENT,
+  `discount_code_description` varchar(250) DEFAULT NULL,
+  `discount_code_amount` decimal(15,2) NOT NULL,
+  `discount_code` varchar(200) NOT NULL,
+  `discount_code_created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `discount_code_created_by` int(11) NOT NULL,
+  `discount_code_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
+  `discount_code_archived_at` datetime DEFAULT NULL,
+  `discount_code_expire_at` date DEFAULT NULL,
+  PRIMARY KEY (`discount_code_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -1190,6 +1230,7 @@ CREATE TABLE `invoices` (
   `invoice_date` date NOT NULL,
   `invoice_due` date NOT NULL,
   `invoice_discount_amount` decimal(15,2) NOT NULL DEFAULT 0.00,
+  `invoice_credit_amount` decimal(15,2) NOT NULL DEFAULT 0.00,
   `invoice_amount` decimal(15,2) NOT NULL DEFAULT 0.00,
   `invoice_currency_code` varchar(200) NOT NULL,
   `invoice_note` text DEFAULT NULL,
@@ -2718,4 +2759,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-07-08 14:06:43
+-- Dump completed on 2025-07-24 11:29:27

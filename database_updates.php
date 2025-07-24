@@ -3768,8 +3768,39 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
         mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '2.2.3'");
     }
 
-    /* 2025-07-21 - JQ For next release Pauyment Provider Switch Over
     if (CURRENT_DATABASE_VERSION == '2.2.3') {
+        
+        mysqli_query($mysqli, "CREATE TABLE `credits` (
+            `credit_id` INT(11) NOT NULL AUTO_INCREMENT,
+            `credit_amount` DECIMAL(15,2) NOT NULL,
+            `credit_reference` VARCHAR(250) DEFAULT NULL,
+            `credit_created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP(),
+            `credit_created_by` INT(11) NOT NULL,
+            `credit_expire_at` DATE DEFAULT NULL,
+            `credit_client_id` INT(11) NOT NULL,
+            PRIMARY KEY (`credit_id`)
+        )");
+
+        mysqli_query($mysqli, "ALTER TABLE `invoices` ADD `invoice_credit_amount` DECIMAL(15,2) NOT NULL DEFAULT 0.00 AFTER `invoice_discount_amount`");
+
+        mysqli_query($mysqli, "CREATE TABLE `discount_codes` (
+            `discount_code_id` INT(11) NOT NULL AUTO_INCREMENT,
+            `discount_code_description` VARCHAR(250) DEFAULT NULL,
+            `discount_code_amount` DECIMAL(15,2) NOT NULL,
+            `discount_code` VARCHAR(200) NOT NULL,
+            `discount_code_created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP(),
+            `discount_code_created_by` INT(11) NOT NULL,
+            `discount_code_updated_at` DATETIME NULL ON UPDATE CURRENT_TIMESTAMP,
+            `discount_code_archived_at` DATETIME NULL DEFAULT NULL,
+            `discount_code_expire_at` DATE DEFAULT NULL,
+            PRIMARY KEY (`discount_code_id`)
+        )");
+
+        mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '2.2.4'");
+    }
+
+    /* 2025-07-21 - JQ For next release Pauyment Provider Switch Over
+    if (CURRENT_DATABASE_VERSION == '2.2.4') {
 
         // Delete all Recurring Payments that are Stripe
         mysqli_query($mysqli, "DELETE FROM recurring_payments WHERE recurring_payment_method = 'Stripe'");
@@ -3794,14 +3825,14 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
             DROP `config_ai_api_key`
         ");
 
-        mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '2.2.4'");
+        mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '2.2.5'");
     }
-    /*
+    */
     
-    // if (CURRENT_DATABASE_VERSION == '2.2.4') {
-    //     // Insert queries here required to update to DB version 2.2.5
+    // if (CURRENT_DATABASE_VERSION == '2.2.5') {
+    //     // Insert queries here required to update to DB version 2.2.6
     //     // Then, update the database to the next sequential version
-    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '2.2.5'");
+    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '2.2.6'");
     // }
 
 } else {
