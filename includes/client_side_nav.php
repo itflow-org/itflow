@@ -61,7 +61,7 @@
                                 Tickets
                                 <?php
                                 if ($num_active_tickets > 0) { ?>
-                                    <span class="right badge <?php if ($num_active_tickets > 0) { ?> badge-danger <?php } ?> text-light"><?php echo $num_active_tickets; ?></span>
+                                    <span class="right badge <?php if ($num_active_tickets > 0) { ?> badge-danger badge-pill <?php } ?> text-light"><?php echo $num_active_tickets; ?></span>
                                 <?php } ?>
 
                             </p>
@@ -202,7 +202,7 @@
 
                                     <?php
                                     if ($num_certificates > 0) { ?>
-                                        <span class="right badge <?php if ($num_certificates_expiring > 0) { ?> badge-warning text-dark <?php } ?> <?php if ($num_certificates_expired > 0) { ?> badge-danger <?php } ?> text-white"><?php echo $num_certificates; ?></span>
+                                        <span class="right badge <?php if ($num_certificates_expiring > 0) { ?> badge-warning text-dark <?php } ?> <?php if ($num_certificates_expired > 0) { ?> badge-danger badge-pill <?php } ?> text-white"><?php echo $num_certificates; ?></span>
                                     <?php } ?>
                                 </p>
                             </a>
@@ -216,7 +216,7 @@
 
                                     <?php
                                     if ($num_domains > 0) { ?>
-                                        <span class="right badge <?php if (isset($num_domains_expiring)) { ?> badge-warning text-dark<?php } ?> <?php if (isset($num_domains_expired)) { ?> badge-danger <?php } ?> text-white"><?php echo $num_domains; ?></span>
+                                        <span class="right badge <?php if (isset($num_domains_expiring)) { ?> badge-warning text-dark<?php } ?> <?php if (isset($num_domains_expired)) { ?> badge-danger badge-pill <?php } ?> text-white"><?php echo $num_domains; ?></span>
                                     <?php } ?>
                                 </p>
                             </a>
@@ -279,7 +279,7 @@
                                     Invoices
                                     <?php
                                     if ($num_invoices > 0) { ?>
-                                        <span class="right badge <?php if ($num_invoices_open > 0) { ?> badge-danger <?php } ?> text-light"><?php echo $num_invoices; ?></span>
+                                        <span class="right badge <?php if ($num_invoices_open > 0) { ?> badge-danger badge-pill <?php } ?> text-light"><?php echo $num_invoices; ?></span>
                                     <?php } ?>
                                 </p>
                             </a>
