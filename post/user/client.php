@@ -330,7 +330,7 @@ if (isset($_POST['export_clients_csv'])) {
         $f = fopen('php://memory', 'w');
 
         //set column headers
-        $fields = array('Client Name', 'Industry', 'Referral', 'Website', 'Location Name', 'Location Phone', 'Location Address', 'City', 'State', 'Postal Code', 'Country', 'Contact Name', 'Title', 'Contact Phone', 'Extension', 'Contact Mobile', 'Contact Email', 'Hourly Rate', 'Currency', 'Payment Terms', 'Tax ID', 'Abbreviation');
+        $fields = array('Client Name', 'Industry', 'Referral', 'Website', 'Primary Location Name', 'Location Phone', 'Location Address', 'City', 'State', 'Postal Code', 'Country', 'Primary Contact Name', 'Title', 'Contact Phone', 'Extension', 'Contact Mobile', 'Contact Email', 'Hourly Rate', 'Currency', 'Payment Terms', 'Tax ID', 'Abbreviation');
         fputcsv($f, $fields, $delimiter);
 
         //output each row of the data, format line as csv and write to file pointer
@@ -574,7 +574,7 @@ if (isset($_GET['download_clients_csv_template'])) {
     $f = fopen('php://memory', 'w');
 
     //set column headers
-    $fields = array('Client Name', 'Industry', 'Referral', 'Website', 'Location Name', 'Location Phone', 'Location Address', 'City', 'State', 'Postal Code', 'Country', 'Contact Name', 'Title', 'Contact Phone', 'Extension', 'Contact Mobile', 'Contact Email', 'Hourly Rate', 'Currency', 'Payment Terms', 'Tax ID', 'Abbreviation');
+    $fields = array('Client Name', 'Industry', 'Referral', 'Website', 'Primary Location Name', 'Location Phone', 'Location Address', 'City', 'State', 'Postal Code', 'Country', 'Primary Contact Name', 'Title', 'Contact Phone', 'Extension', 'Contact Mobile', 'Contact Email', 'Hourly Rate', 'Currency', 'Payment Terms', 'Tax ID', 'Abbreviation');
     fputcsv($f, $fields, $delimiter);
 
     //move back to beginning of file

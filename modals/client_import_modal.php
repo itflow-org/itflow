@@ -10,7 +10,7 @@
             <form action="post.php" method="post" enctype="multipart/form-data" autocomplete="off">
                 <div class="modal-body bg-white">
                     <p><strong>Importing Multiple Contacts:</strong><br>When importing a client, only one contact (which will become the primary contact) and one location (which will become the primary location) can be added initially. To add additional contacts, you will need to click into each client, navigate to the Contacts section, and import multiple contacts individually for each client.</p>
-                    <p><strong>Format csv file with headings & data:</strong><br>Client Name, Industry, Referral, Website, Location Name, Location Phone, Location Address, City, State, Postal Code, Country, Contact Name, Title, Contact Phone, Extension, Contact Mobile, Contact Email, Hourly Rate, Currency, Payment Terms, Tax ID, Abbreviation</p>
+                    <p><strong>Format csv file with headings & data:</strong><br>Client Name, Industry, Referral, Website, Primary Location Name, Location Phone, Location Address, City, State, Postal Code, Country, Primary Contact Name, Title, Contact Phone, Extension, Contact Mobile, Contact Email, Hourly Rate, Currency, Payment Terms, Tax ID, Abbreviation</p>
                     <hr>
                     <div class="form-group my-4">
                         <input type="file" class="form-control-file" name="file" accept=".csv" required>
