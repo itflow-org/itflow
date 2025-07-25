@@ -898,30 +898,26 @@ function checkFileUpload($file, $allowed_extensions)
     return $secureFilename;
 }
 
-function sanitizeInput($input)
-{
+function sanitizeInput($input) {
     global $mysqli;
 
     if (!empty($input)) {
-        // Detect encoding
-        $encoding = mb_detect_encoding($input, ['UTF-8', 'ISO-8859-1', 'Windows-1252', 'ISO-8859-15'], true);
-
-        // If not UTF-8, convert to UTF8 (primarily Windows-1252 is problematic)
-        if ($encoding !== 'UTF-8') {
-            $input = mb_convert_encoding($input, 'UTF-8', $encoding);
+        // Only convert encoding if it's NOT valid UTF-8
+        if (!mb_check_encoding($input, 'UTF-8')) {
+            // Try converting from Windows-1252 as a safe default fallback
+            $input = mb_convert_encoding($input, 'UTF-8', 'Windows-1252');
         }
     }
 
     // Remove HTML and PHP tags
     $input = strip_tags((string) $input);
 
-    // Remove white space from beginning and end of input
+    // Trim white space
     $input = trim($input);
 
-    // Escape special characters
+    // Escape for SQL
     $input = mysqli_real_escape_string($mysqli, $input);
 
-    // Return sanitized input
     return $input;
 }
 
