@@ -1272,7 +1272,7 @@ if (isset($_POST['add_telemetry'])) {
                                         <div class="input-group-prepend">
                                             <span class="input-group-text"><i class="fa fa-fw fa-envelope"></i></span>
                                         </div>
-                                        <input type="email" class="form-control" name="email" placeholder="Company Email address">
+                                        <input type="email" class="form-control" name="email" placeholder="Company Email address eg: info@company.com">
                                     </div>
                                 </div>
 
