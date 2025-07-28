@@ -1,6 +1,6 @@
 <!-- Main Sidebar Container -->
 <aside class="main-sidebar sidebar-dark-<?php echo nullable_htmlentities($config_theme); ?> d-print-none">
-    <a class="brand-link pb-1 mt-1" href="../">
+    <a class="brand-link pb-1 mt-1" href="../user">
         <p class="h6">
             <i class="nav-icon fas fa-arrow-left ml-3 mr-2"></i>
             <span class="brand-text">

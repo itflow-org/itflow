@@ -78,4 +78,4 @@ require_once "includes/inc_all_user.php";
 </div>
 
 <?php
-require_once "includes/footer.php";
+require_once "../includes/footer.php";

@@ -4,7 +4,7 @@
 header("Content-Security-Policy: default-src 'self'");
 
 if (!file_exists('config.php')) {
-    header("Location: setup.php");
+    header("Location: setup");
     exit;
 }
 

@@ -97,4 +97,4 @@ if (!empty($_SESSION['show_mfa_modal'])) {
     unset($_SESSION['show_mfa_modal']);
 }
 
-require_once "includes/footer.php";
+require_once "../includes/footer.php";

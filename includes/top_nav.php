@@ -66,7 +66,7 @@
         <li class="nav-item">
             <a class="nav-link" href="#"
                 data-toggle="ajax-modal"
-                data-ajax-url="ajax/ajax_notifications.php"
+                data-ajax-url="../ajax/ajax_notifications.php"
                 >
                 <i class="fas fa-bell"></i>
                 <?php if ($num_notifications) { ?>
@@ -82,7 +82,7 @@
                 <?php if (empty($session_avatar)) { ?>
                 <i class="fas fa-user-circle mr-1"></i>
                 <?php }else{ ?>
-                <img src="<?php echo "uploads/users/$session_user_id/$session_avatar"; ?>"
+                <img src="<?php echo "../uploads/users/$session_user_id/$session_avatar"; ?>"
                     class="user-image img-circle">
                 <?php } ?>
                 <span
@@ -95,7 +95,7 @@
                     <i class="fas fa-user-circle fa-6x"></i>
                     <?php }else{ ?>
 
-                    <img src="<?php echo "uploads/users/$session_user_id/$session_avatar"; ?>" class="img-circle">
+                    <img src="<?php echo "../uploads/users/$session_user_id/$session_avatar"; ?>" class="img-circle">
                     <?php } ?>
                     <p>
                         <?php echo stripslashes(nullable_htmlentities($session_name)); ?>
@@ -105,7 +105,7 @@
                 <!-- Menu Footer-->
                 <li class="user-footer">
                     <?php if ($session_is_admin) { ?>
-                        <a href="admin" class="btn btn-default btn-block btn-flat mb-2"><i class="fas fa-user-shield mr-2"></i>Administration</a>
+                        <a href="../admin" class="btn btn-default btn-block btn-flat mb-2"><i class="fas fa-user-shield mr-2"></i>Administration</a>
                     <?php } ?>
                     <a href="user_details.php" class="btn btn-default btn-flat"><i class="fas fa-user-cog mr-2"></i>Account</a>
                     <a href="post.php?logout" class="btn btn-default btn-flat float-right"><i class="fas fa-sign-out-alt mr-2"></i>Logout</a>
