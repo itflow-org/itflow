@@ -1,6 +1,6 @@
 <?php
 
-require_once '../includes/ajax_header.php';
+require_once '../../includes/modal_header.php';
 
 $client_id = intval($_GET['id']);
 
@@ -42,23 +42,21 @@ ob_start();
 <form action="post.php" method="post" autocomplete="off">
     <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
 
+    <ul class="modal-header nav nav-pills nav-justified mb-3">
+        <li class="nav-item">
+            <a class="nav-link active" data-toggle="pill" href="#pills-client-details<?php echo $client_id; ?>">Details</a>
+        </li>
+        <?php if ($config_module_enable_accounting) { ?>
+            <li class="nav-item">
+                <a class="nav-link" data-toggle="pill" href="#pills-client-billing<?php echo $client_id; ?>">Billing</a>
+            </li>
+        <?php } ?>
+        <li class="nav-item">
+            <a class="nav-link" data-toggle="pill" href="#pills-client-notes<?php echo $client_id; ?>">Notes</a>
+        </li>
+    </ul>
+
     <div class="modal-body">
-
-        <ul class="nav nav-pills nav-justified mb-3">
-            <li class="nav-item">
-                <a class="nav-link active" data-toggle="pill" href="#pills-client-details<?php echo $client_id; ?>">Details</a>
-            </li>
-            <?php if ($config_module_enable_accounting) { ?>
-                <li class="nav-item">
-                    <a class="nav-link" data-toggle="pill" href="#pills-client-billing<?php echo $client_id; ?>">Billing</a>
-                </li>
-            <?php } ?>
-            <li class="nav-item">
-                <a class="nav-link" data-toggle="pill" href="#pills-client-notes<?php echo $client_id; ?>">Notes</a>
-            </li>
-        </ul>
-
-        <hr>
 
         <div class="tab-content">
 
@@ -129,7 +127,7 @@ ob_start();
                             <button class="btn btn-secondary" type="button"
                                 data-toggle="ajax-modal"
                                 data-modal-size="sm"
-                                data-ajax-url="ajax/ajax_category_add.php?category=Referral">
+                                data-ajax-url="../../ajax/ajax_category_add.php?category=Referral">
                                 <i class="fas fa-fw fa-plus"></i>
                             </button>
                         </div>
@@ -169,7 +167,7 @@ ob_start();
                             <button class="btn btn-secondary" type="button"
                                 data-toggle="ajax-modal"
                                 data-modal-size="sm"
-                                data-ajax-url="ajax/ajax_tag_add.php"
+                                data-ajax-url="../../ajax/ajax_tag_add.php"
                                 data-ajax-id="1">
                                 <i class="fas fa-fw fa-plus"></i>
                             </button>
@@ -265,4 +263,4 @@ ob_start();
 </form>
 
 <?php
-require_once "../includes/ajax_footer.php";
+require_once '../../includes/modal_footer.php';

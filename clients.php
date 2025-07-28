@@ -563,7 +563,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                         <span class="text-secondary">Paid</span> <?php echo numfmt_format_currency($currency_format, $amount_paid, $session_company_currency); ?>
                                     </div>
                                     <div>
-                                        <span class="text-secondary mr-2">Credit</span><span class="text-success"><?php echo numfmt_format_currency($currency_format, $credit_total, $session_company_currency); ?></span>
+                                        <span class="text-secondary mr-2">Credit</span><span class="text-success"><?php echo numfmt_format_currency($currency_format, $credit_balance, $session_company_currency); ?></span>
                                     </div>
                                     <div>
                                         <span class="text-secondary">Monthly</span> <?php echo numfmt_format_currency($currency_format, $recurring_monthly, $session_company_currency); ?>
@@ -584,7 +584,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                         <div class="dropdown-menu">
                                             <a class="dropdown-item" href="#"
                                                 data-toggle="ajax-modal"
-                                                data-ajax-url="ajax/ajax_client_edit.php"
+                                                data-ajax-url="modals/clients/client_edit.php"
                                                 data-ajax-id="<?php echo $client_id; ?>">
                                                 <i class="fas fa-fw fa-edit mr-2"></i>Edit
                                             </a>
@@ -613,11 +613,11 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                 </table>
             </div>
             <?php 
-                require_once "modals/client_bulk_edit_industry_modal.php";
-                require_once "modals/client_bulk_edit_referral_modal.php";
-                require_once "modals/client_bulk_edit_hourly_rate_modal.php";
-                require_once "modals/client_bulk_assign_tags_modal.php"; 
-                require_once "modals/client_bulk_email_modal.php";
+                require_once "modals/clients/client_bulk_edit_industry.php";
+                require_once "modals/clients/client_bulk_edit_referral.php";
+                require_once "modals/clients/client_bulk_edit_hourly_rate.php";
+                require_once "modals/clients/client_bulk_assign_tags.php"; 
+                require_once "modals/clients/client_bulk_email.php";
             ?>
         </form>
      <!-- Ends Card Body -->
@@ -628,7 +628,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 <script src="js/bulk_actions.js"></script>
 
 <?php
-require_once "modals/client_add_modal.php";
-require_once "modals/client_import_modal.php";
-require_once "modals/client_export_modal.php";
+require_once "modals/clients/client_add.php";
+require_once "modals/clients/client_import.php";
+require_once "modals/clients/client_export.php";
 require_once "includes/footer.php";

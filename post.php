@@ -5,9 +5,7 @@
  */
 
 require_once "config.php";
-
 require_once "functions.php";
-
 require_once "includes/check_login.php";
 
 // Define a variable that we can use to only allow running post files via inclusion (prevents people/bots poking them)
