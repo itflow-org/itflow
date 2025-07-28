@@ -4,9 +4,7 @@
  * ITFlow - GET/POST request handler for user (agent) management
  */
 
-require_once "../../config.php";
-require_once "../../functions.php";
-require_once "../../includes/check_login.php";
+defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
 
 if (isset($_POST['add_user'])) {
 
