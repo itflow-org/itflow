@@ -584,7 +584,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                         <div class="dropdown-menu">
                                             <a class="dropdown-item" href="#"
                                                 data-toggle="ajax-modal"
-                                                data-ajax-url="modals/clients/client_edit.php"
+                                                data-ajax-url="modals/client/client_edit.php"
                                                 data-ajax-id="<?php echo $client_id; ?>">
                                                 <i class="fas fa-fw fa-edit mr-2"></i>Edit
                                             </a>
@@ -613,11 +613,11 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                 </table>
             </div>
             <?php 
-                require_once "modals/clients/client_bulk_edit_industry.php";
-                require_once "modals/clients/client_bulk_edit_referral.php";
-                require_once "modals/clients/client_bulk_edit_hourly_rate.php";
-                require_once "modals/clients/client_bulk_assign_tags.php"; 
-                require_once "modals/clients/client_bulk_email.php";
+                require_once "modals/client/client_bulk_edit_industry.php";
+                require_once "modals/client/client_bulk_edit_referral.php";
+                require_once "modals/client/client_bulk_edit_hourly_rate.php";
+                require_once "modals/client/client_bulk_assign_tags.php"; 
+                require_once "modals/client/client_bulk_email.php";
             ?>
         </form>
      <!-- Ends Card Body -->
@@ -625,10 +625,10 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
     
 </div> <!-- End Card -->
 
-<script src="js/bulk_actions.js"></script>
+<script src="../js/bulk_actions.js"></script>
 
 <?php
-require_once "modals/clients/client_add.php";
-require_once "modals/clients/client_import.php";
-require_once "modals/clients/client_export.php";
+require_once "modals/client/client_add.php";
+require_once "modals/client/client_import.php";
+require_once "modals/client/client_export.php";
 require_once "../includes/footer.php";

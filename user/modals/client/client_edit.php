@@ -1,6 +1,6 @@
 <?php
 
-require_once '../../includes/modal_header.php';
+require_once '../../../includes/modal_header.php';
 
 $client_id = intval($_GET['id']);
 
@@ -34,7 +34,7 @@ ob_start();
 ?>
 <div class="modal-header bg-dark">
     <h5 class="modal-title"><i class='fa fa-fw fa-user-edit mr-2'></i>Editing Client: <strong><?php echo $client_name; ?></strong></h5>
-    <button type="button" class="close" data-dismiss="modal">
+    <button type="button" class="close text-white" data-dismiss="modal">
         <span>&times;</span>
     </button>
 </div>
@@ -263,4 +263,4 @@ ob_start();
 </form>
 
 <?php
-require_once '../../includes/modal_footer.php';
+require_once '../../../includes/modal_footer.php';

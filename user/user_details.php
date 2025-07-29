@@ -15,7 +15,7 @@ require_once "includes/inc_all_user.php";
             <div class="row">
                 <div class="col-md-3 text-center">
                     <?php if($session_avatar) { ?>
-                    <img class="img-thumbnail" src="<?php echo "uploads/users/$session_user_id/" . nullable_htmlentities($session_avatar); ?>">
+                    <img class="img-thumbnail" src="<?php echo "../uploads/users/$session_user_id/" . nullable_htmlentities($session_avatar); ?>">
                     <a href="post.php?clear_your_user_avatar&csrf_token=<?= $_SESSION['csrf_token'] ?>" class="btn btn-outline-danger btn-block">Remove Avatar</a>
                     <hr>
                     <?php } ?>

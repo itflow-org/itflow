@@ -11,7 +11,7 @@ if (isset($_POST['add_client'])) {
     validateCSRFToken($_POST['csrf_token']);
     enforceUserPermission('module_client', 2);
 
-    require_once 'post/user/client_model.php';
+    require_once 'client_model.php';
 
     $location_phone_country_code = preg_replace("/[^0-9]/", '', $_POST['location_phone_country_code']);
     $location_phone = preg_replace("/[^0-9]/", '', $_POST['location_phone']);
@@ -126,7 +126,7 @@ if (isset($_POST['edit_client'])) {
 
     enforceUserPermission('module_client', 2);
 
-    require_once 'post/user/client_model.php';
+    require_once 'client_model.php';
 
     $client_id = intval($_POST['client_id']);
 
