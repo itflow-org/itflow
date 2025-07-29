@@ -632,7 +632,7 @@ function prevFile() {
 }
 </script>
 
-<script src="js/bulk_actions.js"></script>
+<script src="../js/bulk_actions.js"></script>
 
 <?php
 require_once "modals/client_file_upload_modal.php";

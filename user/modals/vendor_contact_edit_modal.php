@@ -1,7 +1,7 @@
 <div class="modal" id="editVendorContactModal<?php echo $vendor_contact_id; ?>" tabindex="-1">
     <div class="modal-dialog">
-        <div class="modal-content bg-dark">
-            <div class="modal-header">
+        <div class="modal-content">
+            <div class="modal-header bg-dark">
                 <h5 class="modal-title"><i class="fa fa-fw fa-user-edit mr-2"></i>Editing vendor contact: <strong><?php echo $contact_name; ?></strong></h5>
                 <button type="button" class="close text-white" data-dismiss="modal">
                     <span>&times;</span>
@@ -10,7 +10,7 @@
             <form action="post.php" method="post" enctype="multipart/form-data" autocomplete="off">
                 <input type="hidden" name="vendor_contact_id" value="<?php echo $vendor_contact_id; ?>">
 
-                <div class="modal-body bg-white">
+                <div class="modal-body">
 
                     <div class="form-group">
                         <label>Name <strong class="text-danger">*</strong></label>
@@ -84,7 +84,7 @@
                     </div>
 
                 </div>
-                <div class="modal-footer bg-white">
+                <div class="modal-footer">
                     <button type="submit" name="edit_vendor_contact" class="btn btn-primary text-bold"><i class="fas fa-check mr-2"></i>Save</button>
                     <button type="button" class="btn btn-light" data-dismiss="modal"><i class="fa fa-times mr-2"></i>Cancel</button>
                 </div>

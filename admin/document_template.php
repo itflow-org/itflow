@@ -79,7 +79,7 @@
 
                     <tr>
                         <td>
-                            <a class="text-bold" href="admin_document_template_details.php?document_template_id=<?php echo $document_template_id; ?>"><i class="fas fa-fw fa-file-alt text-dark"></i> <?php echo $document_template_name; ?></a>
+                            <a class="text-bold" href="document_template_details.php?document_template_id=<?php echo $document_template_id; ?>"><i class="fas fa-fw fa-file-alt text-dark"></i> <?php echo $document_template_name; ?></a>
                             <div class="mt-1 text-secondary"><?php echo $document_template_description; ?></div>
                         </td>
                         <td>
@@ -120,12 +120,12 @@
             </table>
             <br>
         </div>
-        <?php require_once "includes/filter_footer.php"; ?>
+        <?php require_once "../includes/filter_footer.php"; ?>
     </div>
 </div>
 
 <?php require_once "modals/admin_document_template_add_modal.php"; ?>
-<?php require_once "includes/footer.php"; ?>
+<?php require_once "../includes/footer.php"; ?>
 
 <script>
 $(document).ready(function(){

@@ -1,6 +1,6 @@
 <?php
 
-require_once '../includes/ajax_header.php';
+require_once '../../includes/modal_header.php';
 
 $asset_id = intval($_GET['id']);
 
@@ -195,14 +195,14 @@ if (isset($_GET['client_id'])) {
 // Generate the HTML form content using output buffering.
 ob_start();
 ?>
-<div class="modal-header">
+<div class="modal-header bg-dark">
     <h5 class="modal-title"><i class="fa fa-fw fa-<?php echo $device_icon; ?> mr-2"></i><strong><?php echo $asset_name; ?></strong></h5>
     <button type="button" class="close text-white" data-dismiss="modal">
         <span>&times;</span>
     </button>
 </div>
 
-<div class="modal-body bg-white">
+<div class="modal-body">
 
     <ul class="nav nav-pills nav-justified mb-3">
         <li class="nav-item">
@@ -852,7 +852,7 @@ ob_start();
 
 </div>
 
-<div class="modal-footer bg-white">
+<div class="modal-footer">
     <a href="asset_details.php?client_id=<?php echo $client_id; ?>&asset_id=<?php echo $asset_id; ?>" class="btn btn-primary text-bold"><span class="text-white"><i class="fas fa-info-circle mr-2"></i>More Details</span></a>
     <a href="#" class="btn btn-secondary" 
         data-toggle="ajax-modal" data-ajax-url="ajax/ajax_asset_edit.php" data-ajax-id="<?php echo $asset_id; ?>">
@@ -862,4 +862,4 @@ ob_start();
 </div>
 
 <?php
-require_once "../includes/ajax_footer.php";
+require_once '../../includes/modal_footer.php';

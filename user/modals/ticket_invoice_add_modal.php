@@ -5,8 +5,8 @@ $sql_invoices = mysqli_query($mysqli, "SELECT * FROM invoices WHERE invoice_stat
 
 <div class="modal" id="addInvoiceFromTicketModal" tabindex="-1">
     <div class="modal-dialog modal-lg">
-        <div class="modal-content bg-dark">
-            <div class="modal-header">
+        <div class="modal-content">
+            <div class="modal-header bg-dark">
                 <h5 class="modal-title"><i class="fa fa-fw fa-file-invoice-dollar mr-2"></i>Invoice ticket</h5>
                 <button type="button" class="close text-white" data-dismiss="modal">
                     <span>&times;</span>
@@ -14,7 +14,7 @@ $sql_invoices = mysqli_query($mysqli, "SELECT * FROM invoices WHERE invoice_stat
             </div>
             <form action="post.php" method="post" autocomplete="off">
                 <input type="hidden" name="ticket_id" value="<?php echo $ticket_id; ?>">
-                <div class="modal-body bg-white">
+                <div class="modal-body">
                     <?php if (mysqli_num_rows($sql_invoices) > 0) { ?>
 
                     <ul class="nav nav-pills nav-justified mb-3">
@@ -200,7 +200,7 @@ $sql_invoices = mysqli_query($mysqli, "SELECT * FROM invoices WHERE invoice_stat
                     </div>
 
                 </div>
-                <div class="modal-footer bg-white">
+                <div class="modal-footer">
                     <button type="submit" name="add_invoice_from_ticket" class="btn btn-primary text-bold"><i class="fa fa-check mr-2"></i>Invoice</button>
                     <button type="button" class="btn btn-light" data-dismiss="modal"><i class="fa fa-times mr-2"></i>Cancel</button>
                 </div>

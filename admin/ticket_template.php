@@ -75,7 +75,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                     <i class="fa fa-fw fa-2x fa-life-ring mr-3"></i>
                                     <div class="media-body">
                                         <div>
-                                            <a href="admin_ticket_template_details.php?ticket_template_id=<?php echo $ticket_template_id; ?>">
+                                            <a href="ticket_template_details.php?ticket_template_id=<?php echo $ticket_template_id; ?>">
                                                 <?php echo $ticket_template_name; ?>
                                             </a>
                                         </div>
@@ -104,12 +104,12 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                 </tbody>
             </table>
         </div>
-        <?php require_once "includes/filter_footer.php";
+        <?php require_once "../includes/filter_footer.php";
  ?>
     </div>
 </div>
 
 <?php
 require_once "modals/admin_ticket_template_add_modal.php";
-require_once "includes/footer.php";
+require_once "../includes/footer.php";
 

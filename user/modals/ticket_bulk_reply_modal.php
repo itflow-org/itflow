@@ -1,13 +1,13 @@
 <div class="modal" id="bulkReplyTicketModal" tabindex="-1">
     <div class="modal-dialog modal-lg">
-        <div class="modal-content bg-dark">
-            <div class="modal-header">
+        <div class="modal-content">
+            <div class="modal-header bg-dark">
                 <h5 class="modal-title"><i class="fas fa-fw fa-paper-plane mr-2"></i>Bulk Update/Reply</h5>
                 <button type="button" class="close text-white" data-dismiss="modal">
                     <span>&times;</span>
                 </button>
             </div>
-            <div class="modal-body bg-white">
+            <div class="modal-body">
 
                 <input type="hidden" name="bulk_private_reply" value="0">
 
@@ -51,7 +51,7 @@
                 </div>
 
             </div>
-            <div class="modal-footer bg-white">
+            <div class="modal-footer">
                 <button type="submit" name="bulk_ticket_reply" class="btn btn-primary text-bold"><i class="fas fa-paper-plane mr-2"></i>Reply</button>
                 <button type="button" class="btn btn-light" data-dismiss="modal"><i class="fas fa-times mr-2"></i>Cancel</button>
             </div>

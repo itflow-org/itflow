@@ -13,7 +13,7 @@
                 <div class="dropdown-menu">
                     <a class="dropdown-item" href="#" 
                         data-toggle="ajax-modal"
-                        data-ajax-url="ajax/ajax_client_edit.php"
+                        data-ajax-url="modals/client_edit.php"
                         data-ajax-id="<?php echo $client_id; ?>">
                         <i class="fas fa-fw fa-edit mr-2"></i>Edit Client
                     </a>
@@ -174,6 +174,6 @@
 </div>
 
 <?php
-require_once "modals/client/client_credit_add.php";
-require_once "modals/client/client_delete.php";
-require_once "modals/client/client_download_pdf.php";
+require_once "modals/client_credit_add.php";
+require_once "modals/client_delete.php";
+require_once "modals/client_download_pdf.php";

@@ -1,5 +1,5 @@
-<script src="../../../js/app.js"></script>
-<script src="../../../plugins/Show-Hide-Passwords-Bootstrap-4/bootstrap-show-password.min.js"></script>
+<script src="../../js/app.js"></script>
+<script src="../../plugins/Show-Hide-Passwords-Bootstrap-4/bootstrap-show-password.min.js"></script>
 
 <?php
     $content = ob_get_clean();

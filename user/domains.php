@@ -375,7 +375,7 @@ require_once "modals/domain_add_modal.php";
 require_once "modals/domain_export_modal.php";
 ?>
 
-<script src="js/bulk_actions.js"></script>
+<script src="../js/bulk_actions.js"></script>
 
 <?php require_once "../includes/footer.php";
 

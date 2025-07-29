@@ -1,6 +1,6 @@
 <?php
 
-require_once '../includes/ajax_header.php';
+require_once '../../includes/modal_header.php';
 
 $ticket_id = intval($_GET['id']);
 
@@ -23,7 +23,7 @@ ob_start();
 
 ?>
 
-<div class="modal-header">
+<div class="modal-header bg-dark">
     <h5 class="modal-title"><i class='fa fa-fw fa-user-check mr-2'></i>Assigning Ticket: <strong><?php echo "$ticket_prefix$ticket_number"; ?></strong> - <?php echo $client_name; ?></h5>
     <button type="button" class="close text-white" data-dismiss="modal">
         <span>&times;</span>
@@ -33,7 +33,7 @@ ob_start();
 <form action="post.php" method="post" autocomplete="off">
     <input type="hidden" name="ticket_id" value="<?php echo $ticket_id; ?>">
     <input type="hidden" name="ticket_status" value="<?php echo $ticket_status; ?>">
-    <div class="modal-body bg-white">
+    <div class="modal-body">
 
         <div class="form-group">
             <label>Assign to</label>
@@ -63,7 +63,7 @@ ob_start();
 
     </div>
 
-    <div class="modal-footer bg-white">
+    <div class="modal-footer">
         <button type="submit" name="assign_ticket" class="btn btn-primary text-bold">
             <i class="fa fa-check mr-2"></i>Assign
         </button>
@@ -76,4 +76,4 @@ ob_start();
 
 <?php
 
-require_once "../includes/ajax_footer.php";
+require_once '../../includes/modal_footer.php';

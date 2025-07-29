@@ -1,6 +1,6 @@
 <?php
 
-require_once '../includes/ajax_header.php';
+require_once '../../includes/modal_header.php';
 
 $service_id = intval($_GET['id']);
 
@@ -84,7 +84,7 @@ $sql_docs = mysqli_query(
 // Generate the HTML form content using output buffering.
 ob_start();
 ?>
-<div class="modal-header">
+<div class="modal-header bg-dark">
     <h5 class="modal-title text-white"><i class="fa fa-fw fa-stream mr-2"></i>Editing service: <strong><?php echo $service_name; ?></strong></h5>
     <button type="button" class="close text-white" data-dismiss="modal">
         <span aria-hidden="true">&times;</span>
@@ -95,7 +95,7 @@ ob_start();
     <input type="hidden" name="client_id" value="<?php echo $client_id ?>">
     <input type="hidden" name="service_id" value="<?php echo $service_id ?>">
 
-    <div class="modal-body bg-white">
+    <div class="modal-body">
 
         <ul class="nav nav-pills nav-justified mb-3">
             <li class="nav-item">
@@ -348,11 +348,11 @@ ob_start();
 
         </div>
     </div>
-    <div class="modal-footer bg-white">
+    <div class="modal-footer">
         <button type="submit" name="edit_service" class="btn btn-primary text-bold"><i class="fa fa-check mr-2"></i>Save</button>
         <button type="button" class="btn btn-light" data-dismiss="modal"><i class="fa fa-times mr-2"></i>Cancel</button>
     </div>
 </form>
 
 <?php
-require_once "../includes/ajax_footer.php";
+require_once '../../includes/modal_footer.php';

@@ -1,7 +1,7 @@
 <div class="modal" id="bulkMergeTicketModal" tabindex="-1">
     <div class="modal-dialog modal-md">
-        <div class="modal-content bg-dark">
-            <div class="modal-header">
+        <div class="modal-content">
+            <div class="modal-header bg-dark">
                 <h5 class="modal-title"><i class="fa fa-fw fa-clone mr-2"></i>Bulk merge & close tickets</h5>
                 <button type="button" class="close text-white" data-dismiss="modal">
                     <span>&times;</span>
@@ -10,7 +10,7 @@
 
             <input type="hidden" id="current_ticket_id" value="0"> <!-- Can't currently bulk check this -->
             <input type="hidden" name="merge_move_replies" value="0"> <!-- Default 0 -->
-            <div class="modal-body bg-white">
+            <div class="modal-body">
 
                 <div class="form-group">
                     <label>Ticket number to merge tickets into <strong class="text-danger">*</strong></label>
@@ -55,7 +55,7 @@
                 </div>
 
             </div>
-            <div class="modal-footer bg-white">
+            <div class="modal-footer">
                 <button type="submit" id="merge_ticket_btn" name="bulk_merge_tickets" class="btn btn-primary text-bold" disabled><i class="fa fa-check mr-2"></i>Merge</button>
                 <button type="button" class="btn btn-light" data-dismiss="modal"><i class="fa fa-times mr-2"></i>Cancel</button>
                 <!-- Merge button starts disabled. Is enabled by the merge_into_number_get_details Javascript function-->

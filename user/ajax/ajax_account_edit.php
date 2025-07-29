@@ -1,6 +1,6 @@
 <?php
 
-require_once '../includes/ajax_header.php';
+require_once '../../includes/modal_header.php';
 
 $account_id = intval($_GET['id']);
 
@@ -48,4 +48,4 @@ ob_start();
 
 <?php
 
-require_once "../includes/ajax_footer.php";
+require_once '../../includes/modal_footer.php';

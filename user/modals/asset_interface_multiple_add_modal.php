@@ -1,7 +1,7 @@
 <div class="modal" id="addMultipleAssetInterfacesModal" tabindex="-1">
     <div class="modal-dialog">
-        <div class="modal-content bg-dark">
-            <div class="modal-header">
+        <div class="modal-content">
+            <div class="modal-header bg-dark">
                 <h5 class="modal-title"><i class="fa fa-fw fa-ethernet mr-2"></i>Creating Multiple Interfaces: <strong><?php echo $asset_name; ?></strong></h5>
                 <button type="button" class="close text-white" data-dismiss="modal">
                     <span>&times;</span>
@@ -12,7 +12,7 @@
                 <input type="hidden" name="asset_id" value="<?php echo $asset_id; ?>">
                 <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token'] ?>">
 
-                <div class="modal-body bg-white">
+                <div class="modal-body">
 
                     <!-- Starting Interface Number -->
                     <div class="form-group">
@@ -95,7 +95,7 @@
                     </div>
 
                 </div>
-                <div class="modal-footer bg-white">
+                <div class="modal-footer">
                     <button type="submit" name="add_asset_multiple_interfaces" class="btn btn-primary text-bold">
                         <i class="fas fa-check mr-2"></i>Create Interfaces
                     </button>

@@ -1,7 +1,7 @@
 <div class="modal" id="addBulkPaymentModal" tabindex="-1">
     <div class="modal-dialog">
-        <div class="modal-content bg-dark">
-            <div class="modal-header">
+        <div class="modal-content">
+            <div class="modal-header bg-dark">
                 <h5 class="modal-title"><i class="fa fa-fw fa-credit-card mr-2"></i>Make Batch Payment</h5>
                 <button type="button" class="close text-white" data-dismiss="modal">
                     <span>&times;</span>
@@ -11,7 +11,7 @@
                 <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
                 <input type="hidden" name="balance" value="<?php echo $balance; ?>">
                 <input type="hidden" name="currency_code" value="<?php echo $client_currency_code; ?>">
-                <div class="modal-body bg-white">
+                <div class="modal-body">
 
                     <div class="alert alert-info">
                         <h5>Batch Payment Notice</h5>
@@ -139,7 +139,7 @@
 
                 </div>
 
-                <div class="modal-footer bg-white">
+                <div class="modal-footer">
                     <button type="submit" name="add_bulk_payment" class="btn btn-primary text-bold"><i class="fas fa-check mr-2"></i>Pay</button>
                     <button type="button" class="btn btn-light" data-dismiss="modal"><i class="fas fa-times mr-2"></i>Cancel</button>
                 </div>

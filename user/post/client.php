@@ -39,9 +39,9 @@ if (isset($_POST['add_client'])) {
 
     $client_id = mysqli_insert_id($mysqli);
 
-    if (!file_exists("uploads/clients/$client_id")) {
-        mkdir("uploads/clients/$client_id");
-        file_put_contents("uploads/clients/$client_id/index.php", "");
+    if (!file_exists("../uploads/clients/$client_id")) {
+        mkdir("../uploads/clients/$client_id");
+        file_put_contents("../uploads/clients/$client_id/index.php", "");
     }
 
     // Create Referral if it doesn't exist
@@ -295,7 +295,7 @@ if (isset($_GET['delete_client'])) {
     mysqli_query($mysqli, "DELETE FROM vendors WHERE vendor_client_id = $client_id");
 
     //Delete Client Files
-    removeDirectory('uploads/clients/$client_id');
+    removeDirectory("../uploads/clients/$client_id");
 
     //Finally Remove the Client
     mysqli_query($mysqli, "DELETE FROM clients WHERE client_id = $client_id");
@@ -1061,7 +1061,7 @@ if (isset($_POST["export_client_pdf"])) {
             asset_name, software_name;"
     );
 
-    require_once("plugins/TCPDF/tcpdf.php");
+    require_once("../plugins/TCPDF/tcpdf.php");
 
     $pdf = new TCPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, "UTF-8", false);
     $pdf->SetCreator(PDF_CREATOR);
@@ -1106,7 +1106,7 @@ if (isset($_POST["export_client_pdf"])) {
     // Cover page section (for main content, not the TOC)
     $html .= '<div class="cover">';
     if (!empty($company_logo)) {
-        $pdf->Image('uploads/settings/' . $company_logo, '', '', 35, 35, '', '', 'L', false, 300, '', false, false, 1, false, false, false);
+        $pdf->Image('../uploads/settings/' . $company_logo, '', '', 35, 35, '', '', 'L', false, 300, '', false, false, 1, false, false, false);
     }
     $html .= "
      <h1>IT Documentation</h1>

@@ -1,7 +1,7 @@
 <div class="modal" id="addTicketModalv2" tabindex="-1">
     <div class="modal-dialog modal-lg">
-        <div class="modal-content bg-dark">
-            <div class="modal-header">
+        <div class="modal-content">
+            <div class="modal-header bg-dark">
                 <h5 class="modal-title"><i class="fas fa-fw fa-life-ring mr-2"></i>New Ticket (v2)</h5>
                 <button type="button" class="close text-white" data-dismiss="modal">
                     <span>&times;</span>
@@ -20,7 +20,7 @@
                 <?php } ?>
                 <input type="hidden" name="billable" value="0">
 
-                <div class="modal-body bg-white">
+                <div class="modal-body">
 
                     <!-- Nav -->
                     <ul class="nav nav-pills nav-justified mb-3">
@@ -286,7 +286,7 @@
 
         </div>
 
-        <div class="modal-footer bg-white">
+        <div class="modal-footer">
             <button type="submit" name="add_ticket" class="btn btn-primary text-bold"><i class="fas fa-check mr-2"></i>Create</button>
             <button type="button" class="btn btn-light" data-dismiss="modal"><i class="fas fa-times mr-2"></i>Cancel</button>
         </div>

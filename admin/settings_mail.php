@@ -327,5 +327,5 @@ require_once "includes/inc_all_admin.php";
 
     <?php } ?>
 
-<?php require_once "includes/footer.php";
+<?php require_once "../includes/footer.php";
 

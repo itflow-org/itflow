@@ -537,7 +537,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 <script src="js/credential_show_otp_via_id.js"></script>
 <!-- Include script to generate readable passwords for login entries -->
 <script src="js/generate_password.js"></script>
-<script src="js/bulk_actions.js"></script>
+<script src="../js/bulk_actions.js"></script>
 
 <?php
 

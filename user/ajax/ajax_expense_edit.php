@@ -1,6 +1,6 @@
 <?php
 
-require_once '../includes/ajax_header.php';
+require_once '../../includes/modal_header.php';
 
 $expense_id = intval($_GET['id']);
 
@@ -29,7 +29,7 @@ $category_name = nullable_htmlentities($row['category_name']);
 ob_start();
 ?>
 
-<div class="modal-header">
+<div class="modal-header bg-dark">
     <h5 class="modal-title"><i class='fas fa-fw fa-shopping-cart mr-2'></i>Editing expense</h5>
     <button type="button" class="close text-white" data-dismiss="modal">
         <span>&times;</span>
@@ -37,7 +37,7 @@ ob_start();
 </div>
 
 <form action="post.php" method="post" enctype="multipart/form-data" autocomplete="off">
-    <div class="modal-body bg-white">
+    <div class="modal-body">
         <input type="hidden" name="expense_id" value="<?php echo $expense_id; ?>">
 
         <div class="form-row">
@@ -237,7 +237,7 @@ ob_start();
         <?php } ?>
 
     </div>
-    <div class="modal-footer bg-white">
+    <div class="modal-footer">
         <button type="submit" name="edit_expense" class="btn btn-primary text-bold"><i class="fas fa-check mr-2"></i>Save</button>
         <button type="button" class="btn btn-light" data-dismiss="modal"><i class="fas fa-times mr-2"></i>Cancel</button>
     </div>
@@ -245,7 +245,7 @@ ob_start();
 
 <?php
 
-require_once "../includes/ajax_footer.php";
+require_once '../../includes/modal_footer.php';
 
 ?>
 

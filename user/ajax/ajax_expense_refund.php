@@ -1,6 +1,6 @@
 <?php
 
-require_once '../includes/ajax_header.php';
+require_once '../../includes/modal_header.php';
 
 $expense_id = intval($_GET['id']);
 
@@ -23,7 +23,7 @@ $expense_client_id = intval($row['expense_client_id']);
 ob_start();
 ?>
 
-<div class="modal-header">
+<div class="modal-header bg-dark">
     <h5 class="modal-title"><i class='fas fa-fw fa-undo mr-2'></i>Refunding expense</h5>
     <button type="button" class="close text-white" data-dismiss="modal">
         <span>&times;</span>
@@ -31,7 +31,7 @@ ob_start();
 </div>
 
 <form action="post.php" method="post" autocomplete="off">
-    <div class="modal-body bg-white">
+    <div class="modal-body">
         <input type="hidden" name="account" value="<?php echo $expense_account_id; ?>">
         <input type="hidden" name="vendor" value="<?php echo $expense_vendor_id; ?>">
         <input type="hidden" name="category" value="<?php echo $expense_category_id; ?>">
@@ -80,7 +80,7 @@ ob_start();
         </div>
 
     </div>
-    <div class="modal-footer bg-white">
+    <div class="modal-footer">
         <button type="submit" name="add_expense" class="btn btn-primary text-bold"><i class="fas fa-check mr-2"></i>Refund</button>
         <button type="button" class="btn btn-light" data-dismiss="modal"><i class="fas fa-times mr-2"></i>Cancel</button>
     </div>
@@ -88,7 +88,7 @@ ob_start();
 
 <?php
 
-require_once "../includes/ajax_footer.php";
+require_once '../../includes/modal_footer.php';
 
 ?>
 

@@ -1,6 +1,6 @@
 <?php
 
-require_once '../includes/ajax_header.php';
+require_once '../../includes/modal_header.php';
 
 $revenue_id = intval($_GET['id']);
 
@@ -21,7 +21,7 @@ $category_id = intval($row['revenue_category_id']);
 ob_start();
 ?>
 
-<div class="modal-header">
+<div class="modal-header bg-dark">
     <h5 class="modal-title"><i class="fas fa-fw fa-hand-holding-usd mr-2"></i>Edit Revenue</h5>
     <button type="button" class="close text-white" data-dismiss="modal">
         <span>&times;</span>
@@ -29,7 +29,7 @@ ob_start();
 </div>
 <form action="post.php" method="post" autocomplete="off">
     <input type="hidden" name="revenue_id" value="<?php echo $revenue_id; ?>">
-    <div class="modal-body bg-white">
+    <div class="modal-body">
 
         <div class="form-row">
 
@@ -180,7 +180,7 @@ ob_start();
         </div>
 
     </div>
-    <div class="modal-footer bg-white">
+    <div class="modal-footer">
         <button type="submit" name="edit_revenue" class="btn btn-primary text-bold"><i class="fas fa-check mr-2"></i>Save</button>
         <button type="button" class="btn btn-light" data-dismiss="modal"><i class="fas fa-times mr-2"></i>Cancel</button>
     </div>
@@ -188,4 +188,4 @@ ob_start();
 
 <?php
 
-require_once "../includes/ajax_footer.php";
+require_once '../../includes/modal_footer.php';

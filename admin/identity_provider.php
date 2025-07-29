@@ -55,4 +55,4 @@ require_once "includes/inc_all_admin.php";
     </div>
 </div>
 
-<?php require_once "includes/footer.php";
+<?php require_once "../includes/footer.php";

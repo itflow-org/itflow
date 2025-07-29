@@ -57,7 +57,7 @@ require_once "includes/inc_all_admin.php";
             <form action="post.php" method="post" enctype="multipart/form-data" autocomplete="off">
                 <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token'] ?>">
 
-                <img class="mb-3" src="<?php if(file_exists("uploads/favicon.ico")) { echo "uploads/favicon.ico"; } else { echo "favicon.ico"; } ?>">
+                <img class="mb-3" src="<?php if(file_exists("../uploads/favicon.ico")) { echo "../uploads/favicon.ico"; } else { echo "../favicon.ico"; } ?>">
 
                 <div class="form-group">
                     <input type="file" class="form-control-file" name="file" accept=".ico">
@@ -72,5 +72,5 @@ require_once "includes/inc_all_admin.php";
     </div>
 
 <?php
-require_once "includes/footer.php";
+require_once "../includes/footer.php";
 

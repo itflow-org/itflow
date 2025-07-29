@@ -1,7 +1,7 @@
 <div class="modal" id="mergeTicketModal<?php echo $ticket_id; ?>" tabindex="-1">
     <div class="modal-dialog modal-md">
-        <div class="modal-content bg-dark">
-            <div class="modal-header">
+        <div class="modal-content">
+            <div class="modal-header bg-dark">
                 <h5 class="modal-title"><i class="fa fa-fw fa-clone mr-2"></i>Merge & Close <?php echo "$ticket_prefix$ticket_number"; ?> into another ticket</h5>
                 <button type="button" class="close text-white" data-dismiss="modal">
                     <span>&times;</span>
@@ -9,7 +9,7 @@
             </div>
             <form action="post.php" method="post" autocomplete="off">
                 <input type="hidden" id="current_ticket_id" name="ticket_id" value="<?php echo $ticket_id; ?>">
-                <div class="modal-body bg-white">
+                <div class="modal-body">
 
                     <div class="form-group">
                         <label>Ticket number to merge this ticket into <strong class="text-danger">*</strong></label>
@@ -63,7 +63,7 @@
                     </div>
 
                 </div>
-                <div class="modal-footer bg-white">
+                <div class="modal-footer">
                     <button type="submit" id="merge_ticket_btn" name="merge_ticket" class="btn btn-primary text-bold" disabled><i class="fa fa-check mr-2"></i>Merge</button>
                     <button type="button" class="btn btn-light" data-dismiss="modal"><i class="fa fa-times mr-2"></i>Cancel</button>
                     <!-- Merge button starts disabled. Is enabled by the merge_into_number_get_details Javascript function-->

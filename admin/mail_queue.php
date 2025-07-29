@@ -177,7 +177,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                     <a class="btn btn-sm btn-secondary" href="#"
                                         data-toggle = "ajax-modal"
                                         data-modal-size = "lg"
-                                        data-ajax-url = "ajax/ajax_admin_mail_queue_message_view.php"
+                                        data-ajax-url = "ajax/ajax_mail_queue_message_view.php"
                                         data-ajax-id = "<?php echo $email_id; ?>"
                                         >
                                         <i class="fas fa-fw fa-eye"></i>
@@ -205,11 +205,11 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                 </div>
             </form>
 
-            <?php require_once "includes/filter_footer.php"; ?>
+            <?php require_once "../includes/filter_footer.php"; ?>
         </div>
     </div>
 
-<script src="js/bulk_actions.js"></script>
+<script src="../js/bulk_actions.js"></script>
 
 <?php
-require_once "includes/footer.php";
+require_once "../includes/footer.php";

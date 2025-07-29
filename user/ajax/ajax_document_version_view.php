@@ -1,6 +1,6 @@
 <?php
 
-require_once '../includes/ajax_header.php';
+require_once '../../includes/modal_header.php';
 
 // Initialize the HTML Purifier to prevent XSS
 require_once "../plugins/htmlpurifier/HTMLPurifier.standalone.php";
@@ -23,17 +23,17 @@ $document_version_content = $purifier->purify($row['document_version_content']);
 ob_start();
 ?>
 
-<div class="modal-header">
+<div class="modal-header bg-dark">
     <h5 class="modal-title text-white"><i class="fa fa-fw fa-file-alt mr-2"></i><?php echo $document_version_name; ?></h5>
     <button type="button" class="close text-white" data-dismiss="modal">
         <span>&times;</span>
     </button>
 </div>
-<div class="modal-body bg-white prettyContent">
+<div class="modal-body prettyContent">
     <?php echo $document_version_content; ?>
 </div>
 
 <script src="../js/pretty_content.js"></script>
 
 <?php
-require_once "../includes/ajax_footer.php";
+require_once '../../includes/modal_footer.php';

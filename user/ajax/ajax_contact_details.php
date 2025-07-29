@@ -1,6 +1,6 @@
 <?php
 
-require_once '../includes/ajax_header.php';
+require_once '../../includes/modal_header.php';
 
 $contact_id = intval($_GET['id']);
 
@@ -152,14 +152,14 @@ if (isset($_GET['client_id'])) {
 // Generate the HTML form content using output buffering.
 ob_start();
 ?>
-<div class="modal-header">
+<div class="modal-header bg-dark">
     <h5 class="modal-title"><i class="fa fa-fw fa-user mr-2"></i><strong><?php echo $contact_name; ?></strong></h5>
     <button type="button" class="close text-white" data-dismiss="modal">
         <span>&times;</span>
     </button>
 </div>
 
-<div class="modal-body bg-white">
+<div class="modal-body">
 
     <ul class="nav nav-pills nav-justified mb-3">
         <li class="nav-item">
@@ -843,7 +843,7 @@ ob_start();
 
 </div>
 
-<div class="modal-footer bg-white">
+<div class="modal-footer">
     <a href="contact_details.php?client_id=<?php echo $client_id; ?>&contact_id=<?php echo $contact_id; ?>" class="btn btn-primary text-bold">
         <span class="text-white"><i class="fas fa-info-circle mr-2"></i>More Details</span>
     </a>
@@ -855,4 +855,4 @@ ob_start();
 </div>
 
 <?php
-require_once "../includes/ajax_footer.php";
+require_once '../../includes/modal_footer.php';

@@ -4,7 +4,7 @@ require_once "includes/inc_all_admin.php";
 
 
 //Initialize the HTML Purifier to prevent XSS
-require "plugins/htmlpurifier/HTMLPurifier.standalone.php";
+require "../plugins/htmlpurifier/HTMLPurifier.standalone.php";
 
 $purifier_config = HTMLPurifier_Config::createDefault();
 $purifier_config->set('Cache.DefinitionImpl', null); // Disable cache by setting a non-existent directory or an invalid one
@@ -33,13 +33,13 @@ $sql_task_templates = mysqli_query($mysqli, "SELECT * FROM task_templates WHERE 
 
 <ol class="breadcrumb d-print-none">
     <li class="breadcrumb-item">
-        <a href="clients.php">Home</a>
+        <a href="../index.php">Home</a>
     </li>
     <li class="breadcrumb-item">
-        <a href="admin_user.php">Admin</a>
+        <a href="users.php">Admin</a>
     </li>
     <li class="breadcrumb-item">
-        <a href="admin_ticket_template.php">Ticket Templates</a>
+        <a href="ticket_template.php">Ticket Templates</a>
     </li>
     <li class="breadcrumb-item active"><i class="fas fa-life-ring mr-2"></i><?php echo $ticket_template_name; ?></li>
 </ol>
@@ -163,4 +163,4 @@ new Sortable(document.querySelector('table#tasks tbody'), {
 <?php
 
 require_once "modals/admin_ticket_template_edit_modal.php";
-require_once "includes/footer.php";
+require_once "../includes/footer.php";

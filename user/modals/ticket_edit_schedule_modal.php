@@ -1,7 +1,7 @@
 <div class="modal" id="editTicketScheduleModal" tabindex="-1">
     <div class="modal-dialog">
-        <div class="modal-content bg-dark">
-            <div class="modal-header">
+        <div class="modal-content">
+            <div class="modal-header bg-dark">
                 <h5 class="modal-title">
                     <i class="fa fa-fw fa-user mr-2"></i>
                     Edit Scheduled Time for <strong><?php echo "$ticket_prefix$ticket_number"; ?></strong>
@@ -11,7 +11,7 @@
                 </button>
             </div>
             <form action="post.php" method="post" autocomplete="off">
-                <div class="modal-body bg-white">
+                <div class="modal-body">
                     <input type="hidden" name="ticket_id" value="<?php echo $ticket_id; ?>">
 
                     <div class="form-group">
@@ -33,7 +33,7 @@
                     </div>
                 </div>
 
-                <div class="modal-footer bg-white">
+                <div class="modal-footer">
                 <?php if (!empty($ticket_scheduled_for)) { ?>
                     <a href="post.php?cancel_ticket_schedule=<?php echo htmlspecialchars($ticket_id); ?>" class="btn btn-danger text-bold">
                         <i class="fa fa-trash mr-2"></i>Cancel Scheduled Time

@@ -1,14 +1,14 @@
 <div class="modal" id="bulkAssignNetworkModal" tabindex="-1">
     <div class="modal-dialog">
-        <div class="modal-content bg-dark">
-            <div class="modal-header">
+        <div class="modal-content">
+            <div class="modal-header bg-dark">
                 <h5 class="modal-title"><i class="fa fa-fw fa-network-wired mr-2"></i>Bulk Assign Network</h5>
                 <button type="button" class="close text-white" data-dismiss="modal">
                     <span>&times;</span>
                 </button>
             </div>
 
-            <div class="modal-body bg-white">
+            <div class="modal-body">
 
                 <!-- Network -->
                 <div class="form-group">
@@ -42,7 +42,7 @@
 
             </div>
 
-            <div class="modal-footer bg-white">
+            <div class="modal-footer">
                 <button type="submit" name="bulk_edit_asset_interface_network" class="btn btn-primary text-bold"><i class="fas fa-check mr-2"></i>Assign</button>
                 <button type="button" class="btn btn-light" data-dismiss="modal"><i class="fa fa-times mr-2"></i>Cancel</button>
             </div>

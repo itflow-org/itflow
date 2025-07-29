@@ -1,7 +1,7 @@
 <div class="modal" id="addRecurringTicketModal" tabindex="-1">
     <div class="modal-dialog modal-lg">
-        <div class="modal-content bg-dark">
-            <div class="modal-header">
+        <div class="modal-content">
+            <div class="modal-header bg-dark">
                 <h5 class="modal-title"><i class="fa fa-fw fa-calendar-check mr-2"></i>New Recurring Ticket</h5>
                 <button type="button" class="close text-white" data-dismiss="modal">
                     <span>&times;</span>
@@ -13,7 +13,7 @@
                 <?php } ?>
                 <input type="hidden" name="billable" value="0">
 
-                <div class="modal-body bg-white">
+                <div class="modal-body">
 
                     <ul class="nav nav-pills nav-justified mb-3">
                         <li class="nav-item">
@@ -276,7 +276,7 @@
                     </div>
 
                 </div>
-                <div class="modal-footer bg-white">
+                <div class="modal-footer">
                     <button type="submit" name="add_recurring_ticket" class="btn btn-primary text-bold"><i class="fas fa-check mr-2"></i>Create</button>
                     <button type="button" class="btn btn-light" data-dismiss="modal"><i class="fas fa-times mr-2"></i>Cancel</button>
                 </div>

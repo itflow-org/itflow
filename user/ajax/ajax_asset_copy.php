@@ -1,6 +1,6 @@
 <?php
 
-require_once '../includes/ajax_header.php';
+require_once '../../includes/modal_header.php';
 
 $asset_id = intval($_GET['id']);
 
@@ -54,7 +54,7 @@ ob_start();
     <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token'] ?>">
     <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
 
-    <div class="modal-body bg-white">
+    <div class="modal-body">
 
         <ul class="nav nav-pills nav-justified mb-3">
             <li class="nav-item">
@@ -436,11 +436,11 @@ ob_start();
 
         </div>
     </div>
-    <div class="modal-footer bg-white">
+    <div class="modal-footer">
         <button type="submit" name="add_asset" class="btn btn-primary text-bold"><i class="fa fa-check mr-2"></i>Copy</button>
         <button type="button" class="btn btn-light" data-dismiss="modal"><i class="fa fa-times mr-2"></i>Cancel</button>
     </div>
 </form>
 
 <?php
-require_once "../includes/ajax_footer.php";
+require_once '../../includes/modal_footer.php';

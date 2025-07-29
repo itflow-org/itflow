@@ -4,7 +4,7 @@ require_once "includes/inc_all_admin.php";
 
 
 //Initialize the HTML Purifier to prevent XSS
-require "plugins/htmlpurifier/HTMLPurifier.standalone.php";
+require "../plugins/htmlpurifier/HTMLPurifier.standalone.php";
 
 $purifier_config = HTMLPurifier_Config::createDefault();
 $purifier_config->set('Cache.DefinitionImpl', null); // Disable cache by setting a non-existent directory or an invalid one
@@ -29,13 +29,13 @@ $document_template_updated_at = nullable_htmlentities($row['document_template_up
 
 <ol class="breadcrumb d-print-none">
     <li class="breadcrumb-item">
-        <a href="clients.php">Home</a>
+        <a href="../">Home</a>
     </li>
     <li class="breadcrumb-item">
-        <a href="admin_user.php">Admin</a>
+        <a href="users.php">Admin</a>
     </li>
     <li class="breadcrumb-item">
-        <a href="admin_document_template.php">Document Templates</a>
+        <a href="document_template.php">Document Templates</a>
     </li>
     <li class="breadcrumb-item active"><i class="fas fa-file mr-2"></i><?php echo $document_template_name; ?></li>
 </ol>
@@ -61,7 +61,7 @@ $document_template_updated_at = nullable_htmlentities($row['document_template_up
     </div>
 </div>
 
-<script src="js/pretty_content.js"></script>
+<script src="../js/pretty_content.js"></script>
 
 <?php
-require_once "includes/footer.php";
+require_once "../includes/footer.php";

@@ -1,6 +1,6 @@
 <?php
 
-require_once '../includes/ajax_header.php';
+require_once '../../includes/modal_header.php';
 
 $project_id = intval($_GET['id']);
 
@@ -25,7 +25,7 @@ $project_manager = intval($row['project_manager']);
 ob_start();
 ?>
 
-<div class="modal-header">
+<div class="modal-header bg-dark">
     <h5 class="modal-title">
         <i class="fas fa-fw fa-project-diagram mr-2"></i>Editing Project: <strong><?php echo $project_name; ?></strong>
     </h5>
@@ -35,7 +35,7 @@ ob_start();
 </div>
 <form action="post.php" method="post" autocomplete="off">
     <input type="hidden" name="project_id" value="<?php echo $project_id; ?>">
-    <div class="modal-body bg-white">
+    <div class="modal-body">
         <div class="form-group">
             <label>Project Name <strong class="text-danger">*</strong></label>
             <div class="input-group">
@@ -105,7 +105,7 @@ ob_start();
             </div>
         </div>
     </div>
-    <div class="modal-footer bg-white">
+    <div class="modal-footer">
         <button type="submit" name="edit_project" class="btn btn-primary text-bold">
             <i class="fas fa-check mr-2"></i>Save
         </button>
@@ -117,4 +117,4 @@ ob_start();
 
 <?php
 
-require_once "../includes/ajax_footer.php";
+require_once '../../includes/modal_footer.php';

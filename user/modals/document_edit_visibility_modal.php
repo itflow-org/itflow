@@ -1,7 +1,7 @@
 <div class="modal" id="editDocumentClientVisibileModal" tabindex="-1">
     <div class="modal-dialog">
-        <div class="modal-content bg-dark">
-            <div class="modal-header">
+        <div class="modal-content">
+            <div class="modal-header bg-dark">
                 <h5 class="modal-title">
                     <i class="fa fa-fw fa-handshake mr-2"></i>
                     Edit Visibility Status for <strong><?php echo "$document_name"; ?></strong>
@@ -11,7 +11,7 @@
                 </button>
             </div>
             <form action="post.php" method="post" autocomplete="off">
-                <div class="modal-body bg-white">
+                <div class="modal-body">
                     <input type="hidden" name="document_id" value="<?php echo $document_id; ?>">
                     <div class="form-group">
                         <label>Visibility</label>
@@ -30,7 +30,7 @@
 
                 </div>
 
-                <div class="modal-footer bg-white">
+                <div class="modal-footer">
                     <button type="submit" name="toggle_document_visibility" class="btn btn-primary text-bold"><i class="fa fa-check mr-2"></i>Save</button>
                     <button type="button" class="btn btn-light" data-dismiss="modal"><i class="fa fa-times mr-2"></i>Cancel</button>
                 </div>

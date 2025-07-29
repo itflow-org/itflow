@@ -1,6 +1,6 @@
 <?php
 
-require_once '../includes/ajax_header.php';
+require_once '../../includes/modal_header.php';
 
 $ticket_id = intval($_GET['id']);
 
@@ -37,7 +37,7 @@ while ($row = mysqli_fetch_array($sql_additional_assets)) {
 // Generate the HTML form content using output buffering.
 ob_start();
 ?>
-<div class="modal-header">
+<div class="modal-header bg-dark">
     <h5 class="modal-title"><i class="fa fa-fw fa-life-ring mr-2"></i>Editing ticket: <strong><?php echo "$ticket_prefix$ticket_number"; ?></strong> - <?php echo $client_name; ?></h5>
     <button type="button" class="close text-white" data-dismiss="modal">
         <span>&times;</span>
@@ -46,7 +46,7 @@ ob_start();
 <form action="post.php" method="post" autocomplete="off">
     <input type="hidden" name="ticket_id" value="<?php echo $ticket_id; ?>">
 
-    <div class="modal-body bg-white">
+    <div class="modal-body">
 
         <ul class="nav nav-pills nav-justified mb-3">
             <li class="nav-item">
@@ -387,7 +387,7 @@ ob_start();
 
     </div>
 
-    <div class="modal-footer bg-white">
+    <div class="modal-footer">
         <button type="submit" name="edit_ticket" class="btn btn-primary text-bold"><i class="fa fa-check mr-2"></i>Save</button>
         <button type="button" class="btn btn-light" data-dismiss="modal"><i class="fa fa-times mr-2"></i>Cancel</button>
     </div>
@@ -395,4 +395,4 @@ ob_start();
 </form>
 
 <?php
-require_once "../includes/ajax_footer.php";
+require_once '../../includes/modal_footer.php';

@@ -1,6 +1,6 @@
 <?php
 
-require_once '../includes/ajax_header.php';
+require_once '../../includes/modal_header.php';
 
 $contact_id = intval($_GET['id']);
 
@@ -18,7 +18,7 @@ ob_start();
 
 ?>
 
-<div class="modal-header">
+<div class="modal-header bg-dark">
     <h5 class="modal-title"><i class="fa fa-fw fa-desktop mr-2"></i>Link Asset to <strong><?php echo $contact_name; ?></strong></h5>
     <button type="button" class="close text-white" data-dismiss="modal">
         <span>&times;</span>
@@ -26,7 +26,7 @@ ob_start();
 </div>
 <form action="post.php" method="post" autocomplete="off">
     <input type="hidden" name="contact_id" value="<?php echo $contact_id; ?>">
-    <div class="modal-body bg-white">
+    <div class="modal-body">
 
         <div class="form-group">
             <div class="input-group">
@@ -56,12 +56,12 @@ ob_start();
             </div>
         </div>
     </div>
-    <div class="modal-footer bg-white">
+    <div class="modal-footer">
         <button type="submit" name="link_contact_to_asset" class="btn btn-primary text-bold"><i class="fa fa-check mr-2"></i>Link</button>
         <button type="button" class="btn btn-light" data-dismiss="modal"><i class="fa fa-times mr-2"></i>Cancel</button>
     </div>
 </form>
 
 <?php
-require_once "../includes/ajax_footer.php";
+require_once '../../includes/modal_footer.php';
 ?>

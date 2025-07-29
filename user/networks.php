@@ -373,7 +373,7 @@ require_once "modals/network_export_modal.php";
 
 ?>
 
-<script src="js/bulk_actions.js"></script>
+<script src="../js/bulk_actions.js"></script>
 
 <?php
 require_once "../includes/footer.php";

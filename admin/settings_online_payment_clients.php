@@ -74,4 +74,4 @@ $stripe_clients_sql = mysqli_query($mysqli, "SELECT * FROM client_stripe LEFT JO
     </div>
 
 <?php
-require_once "includes/footer.php";
+require_once "../includes/footer.php";

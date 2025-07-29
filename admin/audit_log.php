@@ -266,7 +266,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         if (empty($client_name)) {
                             $client_name_display = "-";
                         } else {
-                            $client_name_display = "<a href='client_overview.php?client_id=$client_id'>$client_name</a>";
+                            $client_name_display = "<a href='../user/client_overview.php?client_id=$client_id'>$client_name</a>";
                         }
                         $log_entity_id = intval($row['log_entity_id']);
 
@@ -292,11 +292,11 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     </tbody>
                 </table>
             </div>
-            <?php require_once "includes/filter_footer.php";
+            <?php require_once "../includes/filter_footer.php";
  ?>
         </div>
     </div>
 
 <?php
-require_once "includes/footer.php";
+require_once "../includes/footer.php";
 

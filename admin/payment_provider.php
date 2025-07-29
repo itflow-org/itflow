@@ -138,4 +138,4 @@ $num_rows = mysqli_num_rows($sql);
 
 <?php
 require_once "modals/admin_payment_provider_add_modal.php";
-require_once "includes/footer.php";
+require_once "../includes/footer.php";

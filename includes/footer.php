@@ -1,9 +1,9 @@
 <?php
-require_once "../includes/inc_confirm_modal.php";
+require_once "$prepend_uri../includes/inc_confirm_modal.php";
 ?>
 
 <?php
-if ($_SERVER['REQUEST_URI'] === '/admin') { ?>
+if (basename(dirname($_SERVER['REQUEST_URI'])) === 'admin') { ?>
     <p class="text-right font-weight-light">ITFlow <?php echo APP_VERSION ?> &nbsp; · &nbsp; <a target="_blank" href="https://docs.itflow.org">Docs</a> &nbsp; · &nbsp; <a target="_blank" href="https://forum.itflow.org">Forum</a> &nbsp; · &nbsp; <a target="_blank" href="https://services.itflow.org">Services</a></p>
     <br>
 <?php } ?>
@@ -19,7 +19,7 @@ if ($_SERVER['REQUEST_URI'] === '/admin') { ?>
 <!-- REQUIRED SCRIPTS -->
 
 <!-- Bootstrap 4 -->
-<script src="../plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+<script src="<?= $prepend_uri ?>../plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
 
 <!-- Custom js-->
 <script src="<?= $prepend_uri ?>../plugins/moment/moment.min.js"></script>

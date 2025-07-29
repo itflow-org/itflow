@@ -1,6 +1,6 @@
 <?php
 
-require_once '../includes/ajax_header.php';
+require_once '../../includes/modal_header.php';
 
 $calendar_id = intval($_GET['id']);
 
@@ -14,7 +14,7 @@ $calendar_color = nullable_htmlentities($row['calendar_color']);
 ob_start();
 ?>
 
-<div class="modal-header">
+<div class="modal-header bg-dark">
     <h5 class="modal-title"><i class="fas fa-fw fa-circle mr-2" style="color:<?php echo $calendar_color; ?>"></i><?php echo $calendar_name; ?></strong></h5>
     <button type="button" class="close text-white" data-dismiss="modal">
         <span>&times;</span>
@@ -22,7 +22,7 @@ ob_start();
 </div>
 <form action="post.php" method="post" autocomplete="off">
     <input type="hidden" name="calendar_id" value="<?php echo $calendar_id; ?>">
-    <div class="modal-body bg-white">
+    <div class="modal-body">
 
         <div class="form-group">
             <label>Name</label>
@@ -45,11 +45,11 @@ ob_start();
         </div>
 
     </div>
-    <div class="modal-footer bg-white">
+    <div class="modal-footer">
         <button type="submit" name="edit_calendar" class="btn btn-primary"><i class="fa fa-check mr-2"></i>Save</button>
         <button type="button" class="btn btn-light" data-dismiss="modal"><i class="fa fa-times mr-2"></i>Cancel</button>
     </div>
 </form>
 
 <?php
-require_once "../includes/ajax_footer.php";
+require_once '../../includes/modal_footer.php';

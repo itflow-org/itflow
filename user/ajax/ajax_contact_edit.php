@@ -1,6 +1,6 @@
 <?php
 
-require_once '../includes/ajax_header.php';
+require_once '../../includes/modal_header.php';
 
 $contact_id = intval($_GET['id']);
 
@@ -46,7 +46,7 @@ while ($row = mysqli_fetch_array($sql_contact_tags)) {
 // Generate the HTML form content using output buffering.
 ob_start();
 ?>
-<div class="modal-header">
+<div class="modal-header bg-dark">
     <h5 class="modal-title"><i class='fas fa-user-edit mr-2'></i>Editing Contact: <strong><?php echo $contact_name; ?></strong></h5>
     <button type="button" class="close text-white" data-dismiss="modal">
         <span>&times;</span>
@@ -55,7 +55,7 @@ ob_start();
 <form action="post.php" method="post" enctype="multipart/form-data" autocomplete="off">
     <input type="hidden" name="contact_id" value="<?php echo $contact_id; ?>">
     <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
-    <div class="modal-body bg-white">
+    <div class="modal-body">
 
         <ul class="nav nav-pills nav-justified mb-3">
             <li class="nav-item">
@@ -340,7 +340,7 @@ ob_start();
         </div>
 
     </div>
-    <div class="modal-footer bg-white">
+    <div class="modal-footer">
         <button type="submit" name="edit_contact" class="btn btn-primary text-bold"><i class="fas fa-check mr-2"></i>Save</button>
         <button type="button" class="btn btn-light" data-dismiss="modal"><i class="fa fa-times mr-2"></i>Cancel</button>
     </div>
@@ -385,7 +385,7 @@ $(document).ready(function() {
 
 <?php
 
-require_once "../includes/ajax_footer.php";
+require_once '../../includes/modal_footer.php';
 
 ?>
 

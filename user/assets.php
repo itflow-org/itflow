@@ -718,7 +718,7 @@ if (mysqli_num_rows($os_sql) > 0) {
     </div>
 </div>
 
-<script src="js/bulk_actions.js"></script>
+<script src="../js/bulk_actions.js"></script>
 
 <!-- JSON Autocomplete / type ahead -->
 <link rel="stylesheet" href="plugins/jquery-ui/jquery-ui.min.css">

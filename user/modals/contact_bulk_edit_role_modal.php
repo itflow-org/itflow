@@ -1,14 +1,14 @@
 <div class="modal" id="bulkEditRoleModal" tabindex="-1">
     <div class="modal-dialog">
-        <div class="modal-content bg-dark">
-            <div class="modal-header">
+        <div class="modal-content">
+            <div class="modal-header bg-dark">
                 <h5 class="modal-title"><i class="fa fa-fw fa-user-shield mr-2"></i>Bulk Set Roles</h5>
                 <button type="button" class="close text-white" data-dismiss="modal">
                     <span>&times;</span>
                 </button>
             </div>
 
-            <div class="modal-body bg-white">
+            <div class="modal-body">
 
                 <input type="hidden" name="bulk_contact_important" value="0">
                 <input type="hidden" name="bulk_contact_billing" value="0">
@@ -40,7 +40,7 @@
 
             </div>
 
-            <div class="modal-footer bg-white">
+            <div class="modal-footer">
                 <button type="submit" name="bulk_edit_contact_role" class="btn btn-primary text-bold"><i class="fas fa-check mr-2"></i>Set</button>
                 <button type="button" class="btn btn-light" data-dismiss="modal"><i class="fa fa-times mr-2"></i>Cancel</button>
             </div>

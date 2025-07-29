@@ -2,8 +2,8 @@
 
 <div class="modal" id="shareModal" tabindex="-1">
     <div class="modal-dialog modal-md">
-        <div class="modal-content bg-dark">
-            <div class="modal-header">
+        <div class="modal-content">
+            <div class="modal-header bg-dark">
                 <h5 class="modal-title"><i class="fas fa-fw fa-share mr-2"></i>Share Link</h5>
                 <button type="button" class="close text-white" data-dismiss="modal">
                     <span>&times;</span>
@@ -13,7 +13,7 @@
                 <input type="hidden" name="client_id" id="share_client_id" value="">
                 <input type="hidden" name="item_type" id="share_item_type" value="">
                 <input type="hidden" name="item_ref_id" id="share_item_ref_id" value="">
-                <div class="modal-body bg-white">
+                <div class="modal-body">
 
                     <div id="div_share_link_form">
 
@@ -82,7 +82,7 @@
 
                 </div>
 
-                <div class="modal-footer bg-white">
+                <div class="modal-footer">
                     <button type="button" id="div_share_link_generate" class="btn btn-primary text-bold" onclick="event.preventDefault(); generateShareLink()"><i class="fas fa-paper-plane mr-2"></i>Send and Show Link</button>
                     <button type="button" class="btn btn-light" data-dismiss="modal"><i class="fa fa-times mr-2"></i>Cancel</button>
                 </div>

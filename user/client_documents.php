@@ -488,7 +488,7 @@ while ($folder_id > 0) {
     </div>
 </div>
 
-<script src="js/bulk_actions.js"></script>
+<script src="../js/bulk_actions.js"></script>
 
 <?php
 require_once "modals/share_modal.php";

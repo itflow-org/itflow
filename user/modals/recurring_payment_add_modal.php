@@ -1,7 +1,7 @@
 <div class="modal" id="addRecurringPaymentModal<?php echo $recurring_invoice_id; ?>" tabindex="-1">
     <div class="modal-dialog">
-        <div class="modal-content bg-dark">
-            <div class="modal-header">
+        <div class="modal-content">
+            <div class="modal-header bg-dark">
                 <h5 class="modal-title"><i class="fa fa-fw fa-redo-alt mr-2"></i>Creating Recurring Payment: <strong><?php echo "$recurring_invoice_prefix$recurring_invoice_number"; ?></strong></h5>
                 <button type="button" class="close text-white" data-dismiss="modal">
                     <span>&times;</span>
@@ -10,7 +10,7 @@
             <form action="post.php" method="post" autocomplete="off">
                 <input type="hidden" name="recurring_invoice_id" value="<?php echo $recurring_invoice_id; ?>">
                 <input type="hidden" name="currency_code" value="<?php echo $recurring_invoice_currency_code; ?>">
-                <div class="modal-body bg-white">
+                <div class="modal-body">
 
                     <div class="form-group">
                         <label>Account <strong class="text-danger">*</strong></label>
@@ -70,7 +70,7 @@
 
                 </div>
 
-                <div class="modal-footer bg-white">
+                <div class="modal-footer">
                     <button type="submit" name="add_recurring_payment" class="btn btn-primary text-bold"><i class="fas fa-check mr-2"></i>Create</button>
                     <button type="button" class="btn btn-light" data-dismiss="modal"><i class="fas fa-times mr-2"></i>Cancel</button>
                 </div>

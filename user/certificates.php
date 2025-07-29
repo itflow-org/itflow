@@ -313,7 +313,7 @@ require_once "modals/certificate_add_modal.php";
 require_once "modals/certificate_export_modal.php";
 ?>
 
-<script src="js/bulk_actions.js"></script>
+<script src="../js/bulk_actions.js"></script>
 <script src="js/certificate_fetch_ssl.js"></script>
 
 <?php require_once "../includes/footer.php";

@@ -1,7 +1,7 @@
 <div class="modal" id="addVendorFromTemplateModal" tabindex="-1">
     <div class="modal-dialog">
-        <div class="modal-content bg-dark">
-            <div class="modal-header">
+        <div class="modal-content">
+            <div class="modal-header bg-dark">
                 <h5 class="modal-title"><i class="fas fa-fw fa-building mr-2"></i>New Vendor from Template</h5>
                 <button type="button" class="close text-white" data-dismiss="modal">
                     <span>&times;</span>
@@ -11,7 +11,7 @@
 
                 <input type="hidden" name="client_id" value="<?php if (isset($_GET['client_id'])) { echo $client_id; } else { echo 0; } ?>">
 
-                <div class="modal-body bg-white">
+                <div class="modal-body">
 
                     <label>Template</label>
                     <div class="form-group">
@@ -37,7 +37,7 @@
 
                 </div>
 
-                <div class="modal-footer bg-white">
+                <div class="modal-footer">
                     <button type="submit" name="add_vendor_from_template" class="btn btn-primary text-bold"><i class="fas fa-check mr-2"></i>Create Vendor</button>
                     <button type="button" class="btn btn-light" data-dismiss="modal"><i class="fa fa-times mr-2"></i>Cancel</button>
                 </div>

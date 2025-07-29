@@ -1,6 +1,6 @@
 <?php
 
-require_once '../includes/ajax_header.php';
+require_once '../../includes/modal_header.php';
 
 $file_id = intval($_GET['id']);
 
@@ -14,7 +14,7 @@ $file_description = nullable_htmlentities($row['file_description']);
 // Generate the HTML form content using output buffering.
 ob_start();
 ?>
-<div class="modal-header">
+<div class="modal-header bg-dark">
     <h5 class="modal-title"><i class="fa fa-fw fa-<?php echo $file_icon; ?> mr-2"></i>Renaming file: <strong><?php echo $file_name; ?></strong></h5>
     <button type="button" class="close text-white" data-dismiss="modal">
         <span>&times;</span>
@@ -22,7 +22,7 @@ ob_start();
 </div>
 <form action="post.php" method="post" autocomplete="off">
     <input type="hidden" name="file_id" value="<?php echo $file_id; ?>">
-    <div class="modal-body bg-white">
+    <div class="modal-body">
 
         <div class="form-group">
             <label>File Name <strong class="text-danger">*</strong></label>
@@ -45,11 +45,11 @@ ob_start();
         </div>
 
     </div>
-    <div class="modal-footer bg-white">
+    <div class="modal-footer">
         <button type="submit" name="rename_file" class="btn btn-primary text-bold"><i class="fa fa-check mr-2"></i>Rename</button>
         <button type="button" class="btn btn-light" data-dismiss="modal"><i class="fa fa-times mr-2"></i>Cancel</button>
     </div>
 </form>
 
 <?php
-require_once "../includes/ajax_footer.php";
+require_once '../../includes/modal_footer.php';

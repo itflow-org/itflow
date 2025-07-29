@@ -51,7 +51,7 @@ if (isset($_GET['project_template_id'])) {
         <a href="admin_user.php">Admin</a>
     </li>
     <li class="breadcrumb-item">
-        <a href="admin_project_template.php">Project Templates</a>
+        <a href="project_template.php">Project Templates</a>
     </li>
     <li class="breadcrumb-item active">Project Template Details</li>
 </ol>
@@ -227,7 +227,7 @@ require_once "modals/admin_project_template_ticket_template_add_modal.php";
 
 }
 
-require_once "includes/footer.php";
+require_once "../includes/footer.php";
 
 ?>
 

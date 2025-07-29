@@ -436,7 +436,7 @@ if (isset($_GET["view"])) {
 
 ?>
 
-<script src="js/bulk_actions.js"></script>
+<script src="../js/bulk_actions.js"></script>
 
 <?php
 require_once "modals/ticket_add_modal_v2.php";

@@ -1242,7 +1242,7 @@ if (isset($_GET['asset_id'])) {
 <!-- Include script to get TOTP code via the credential ID -->
 <script src="js/credential_show_otp_via_id.js"></script>
 
-<script src="js/bulk_actions.js"></script>
+<script src="../js/bulk_actions.js"></script>
 
 <?php
 

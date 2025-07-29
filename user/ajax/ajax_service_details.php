@@ -1,6 +1,6 @@
 <?php
 
-require_once '../includes/ajax_header.php';
+require_once '../../includes/modal_header.php';
 
 $service_id = intval($_GET['id']);
 
@@ -91,13 +91,13 @@ $sql_docs = mysqli_query(
 // Generate the HTML form content using output buffering.
 ob_start();
 ?>
-<div class="modal-header">
+<div class="modal-header bg-dark">
     <h5 class="modal-title text-white"><i class="fa fa-fw fa-stream mr-2"></i><?php echo $service_name; ?></h5>
     <button type="button" class="close text-white" data-dismiss="modal">
         <span>&times;</span>
     </button>
 </div>
-<div class="modal-body bg-white">
+<div class="modal-body">
     <div class="row">
 
         <!-- Main/Left side -->
@@ -310,5 +310,5 @@ ob_start();
 </div>
 
 <?php
-require_once "../includes/ajax_footer.php";
+require_once '../../includes/modal_footer.php';
 ?>

@@ -1,7 +1,7 @@
 <div class="modal" id="viewFileModal" tabindex="-1">
     <div class="modal-dialog modal-lg">
         <div class="modal-content bg-dark text-white">
-            <div class="modal-header">
+            <div class="modal-header bg-dark">
                 <h6 class="modal-title" id="modalTitle"></h6>
                 <button type="button" class="close text-white" data-dismiss="modal">
                     <span>&times;</span>

@@ -1,6 +1,6 @@
 <?php
 
-require_once '../includes/ajax_header.php';
+require_once '../../includes/modal_header.php';
 
 $ticket_id = intval($_GET['id']);
 
@@ -16,7 +16,7 @@ ob_start();
 
 ?>
 
-<div class="modal-header">
+<div class="modal-header bg-dark">
     <h5 class="modal-title">
         <i class="fa fa-fw fa-user mr-2"></i>
         Edit Billable Status for <strong><?php echo "$ticket_prefix$ticket_number"; ?></strong>
@@ -26,7 +26,7 @@ ob_start();
     </button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
-    <div class="modal-body bg-white">
+    <div class="modal-body">
         <input type="hidden" name="ticket_id" value="<?php echo $ticket_id; ?>">
         <div class="form-group">
             <label>Billable</label>
@@ -43,7 +43,7 @@ ob_start();
 
     </div>
 
-    <div class="modal-footer bg-white">
+    <div class="modal-footer">
         <button type="submit" name="edit_ticket_billable_status" class="btn btn-primary text-bold">
             <i class="fa fa-check mr-2"></i>Save
         </button>
@@ -56,4 +56,4 @@ ob_start();
 
 <?php
 
-require_once "../includes/ajax_footer.php";
+require_once '../../includes/modal_footer.php';

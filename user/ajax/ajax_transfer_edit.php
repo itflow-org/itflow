@@ -1,6 +1,6 @@
 <?php
 
-require_once '../includes/ajax_header.php';
+require_once '../../includes/modal_header.php';
 
 $transfer_id = intval($_GET['id']);
 
@@ -26,7 +26,7 @@ $revenue_id = intval($row['transfer_revenue_id']);
 ob_start();
 ?>
 
-<div class="modal-header">
+<div class="modal-header bg-dark">
     <h5 class="modal-title"><i class="fas fa-fw fa-exchange-alt mr-2"></i>Editing Transfer</h5>
     <button type="button" class="close text-white" data-dismiss="modal">
         <span>&times;</span>
@@ -37,7 +37,7 @@ ob_start();
     <input type="hidden" name="expense_id" value="<?php echo $expense_id; ?>">
     <input type="hidden" name="revenue_id" value="<?php echo $revenue_id; ?>">
 
-    <div class="modal-body bg-white">
+    <div class="modal-body">
 
         <div class="form-row">
 
@@ -181,7 +181,7 @@ ob_start();
 
     </div>
 
-    <div class="modal-footer bg-white">
+    <div class="modal-footer">
         <button type="submit" name="edit_transfer" class="btn btn-primary text-bold"><i class="fas fa-check mr-2"></i>Save</button>
         <button type="button" class="btn btn-light" data-dismiss="modal"><i class="fa fa-times mr-2"></i>Cancel</button>
     </div>
@@ -189,4 +189,4 @@ ob_start();
 
 <?php
 
-require_once "../includes/ajax_footer.php";
+require_once '../../includes/modal_footer.php';

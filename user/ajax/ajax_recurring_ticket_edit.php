@@ -1,6 +1,6 @@
 <?php
 
-require_once '../includes/ajax_header.php';
+require_once '../../includes/modal_header.php';
 
 $recurring_ticket_id = intval($_GET['id']);
 
@@ -31,7 +31,7 @@ while ($row = mysqli_fetch_array($sql_additional_assets)) {
 ob_start();
 ?>
 
-<div class="modal-header">
+<div class="modal-header bg-dark">
     <h5 class="modal-title"><i class="fas fa-fw fa-calendar-check mr-2"></i>Editing Recurring Ticket: <strong><?php echo $recurring_ticket_subject; ?></strong></h5>
     <button type="button" class="close text-white" data-dismiss="modal">
         <span>&times;</span>
@@ -41,7 +41,7 @@ ob_start();
     <input type="hidden" name="recurring_ticket_id" value="<?php echo $recurring_ticket_id; ?>">
     <input type="hidden" name="client" value="<?php echo $client_id; ?>">
 
-    <div class="modal-body bg-white">
+    <div class="modal-body">
 
         <ul class="nav nav-pills nav-justified mb-3">
             <li class="nav-item">
@@ -292,7 +292,7 @@ ob_start();
         </div>
 
     </div>
-    <div class="modal-footer bg-white">
+    <div class="modal-footer">
         <button type="submit" name="edit_recurring_ticket" class="btn btn-primary text-bold"><i class="fas fa-check mr-2"></i>Save</button>
         <button type="button" class="btn btn-light" data-dismiss="modal"><i class="fas fa-times mr-2"></i>Cancel</button>
     </div>
@@ -300,4 +300,4 @@ ob_start();
 
 <?php
 
-require_once "../includes/ajax_footer.php";
+require_once '../../includes/modal_footer.php';

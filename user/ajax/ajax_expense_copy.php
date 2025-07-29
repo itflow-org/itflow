@@ -1,6 +1,6 @@
 <?php
 
-require_once '../includes/ajax_header.php';
+require_once '../../includes/modal_header.php';
 
 $expense_id = intval($_GET['id']);
 
@@ -23,7 +23,7 @@ $expense_client_id = intval($row['expense_client_id']);
 ob_start();
 ?>
 
-<div class="modal-header">
+<div class="modal-header bg-dark">
     <h5 class="modal-title"><i class='fas fa-fw fa-copy mr-2'></i>Copying expense</h5>
     <button type="button" class="close text-white" data-dismiss="modal">
         <span>&times;</span>
@@ -31,7 +31,7 @@ ob_start();
 </div>
 
 <form action="post.php" method="post" enctype="multipart/form-data" autocomplete="off">
-    <div class="modal-body bg-white">
+    <div class="modal-body">
         <div class="form-row">
 
             <div class="form-group col-md">
@@ -200,7 +200,7 @@ ob_start();
 
     </div>
 
-    <div class="modal-footer bg-white">
+    <div class="modal-footer">
         <button type="submit" name="add_expense" class="btn btn-primary text-bold"><i class="fa fa-check mr-2"></i>Copy</button>
         <button type="button" class="btn btn-light" data-dismiss="modal"><i class="fa fa-times mr-2"></i>Cancel</button>
     </div>
@@ -208,7 +208,7 @@ ob_start();
 
 <?php
 
-require_once "../includes/ajax_footer.php";
+require_once '../../includes/modal_footer.php';
 
 ?>
 

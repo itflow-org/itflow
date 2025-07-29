@@ -1,6 +1,6 @@
 <?php
 
-require_once '../includes/ajax_header.php';
+require_once '../../includes/modal_header.php';
 
 $recurring_expense_id = intval($_GET['id']);
 
@@ -29,14 +29,14 @@ $recurring_expense_client_id = intval($row['recurring_expense_client_id']);
 ob_start();
 ?>
 
-<div class="modal-header">
+<div class="modal-header bg-dark">
     <h5 class="modal-title text-white"><i class="fa fa-fw fa-clock mr-2"></i>Editing recurring expense</h5>
     <button type="button" class="close text-white" data-dismiss="modal">
         <span>&times;</span>
     </button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
-    <div class="modal-body bg-white">
+    <div class="modal-body">
         <input type="hidden" name="recurring_expense_id" value="<?php echo $recurring_expense_id; ?>">
 
         <div class="form-row">
@@ -257,7 +257,7 @@ ob_start();
         </div>
 
     </div>
-    <div class="modal-footer bg-white">
+    <div class="modal-footer">
         <button type="submit" name="edit_recurring_expense" class="btn btn-primary text-bold"><i class="fas fa-check mr-2"></i>Save</button>
         <button type="button" class="btn btn-light" data-dismiss="modal"><i class="fas fa-times mr-2"></i>Cancel</button>
     </div>
@@ -265,4 +265,4 @@ ob_start();
 
 <?php
 
-require_once "../includes/ajax_footer.php";
+require_once '../../includes/modal_footer.php';

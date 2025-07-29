@@ -3,7 +3,7 @@
 require_once "includes/inc_all.php";
 
 // Initialize the HTML Purifier to prevent XSS
-require "plugins/htmlpurifier/HTMLPurifier.standalone.php";
+require "../plugins/htmlpurifier/HTMLPurifier.standalone.php";
 
 $purifier_config = HTMLPurifier_Config::createDefault();
 $purifier_config->set('URI.AllowedSchemes', ['data' => true, 'src' => true, 'http' => true, 'https' => true]);
@@ -857,4 +857,4 @@ require_once "../includes/footer.php";
 
 ?>
 
-<script src="js/pretty_content.js"></script>
+<script src="../js/pretty_content.js"></script>
