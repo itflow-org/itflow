@@ -1,19 +1,19 @@
 <?php
 
-if (file_exists("config.php")) {
-    include "config.php";
+if (file_exists("../config.php")) {
+    include "../config.php";
 
 }
 
-include "functions.php";
-include "includes/database_version.php";
+include "../functions.php";
+include "../includes/database_version.php";
 
 if (!isset($config_enable_setup)) {
     $config_enable_setup = 1;
 }
 
 if ($config_enable_setup == 0) {
-    header("Location: login.php");
+    header("Location: ../login.php");
     exit;
 }
 
@@ -21,7 +21,7 @@ $mysqli_available = isset($mysqli) && $mysqli instanceof mysqli;
 $can_show_restore = false;
 $should_skip_to_user = false;
 
-if (file_exists("config.php") && $mysqli_available) {
+if (file_exists("../config.php") && $mysqli_available) {
     $table_result = mysqli_query($mysqli, "SHOW TABLES LIKE 'users'");
     if ($table_result && mysqli_num_rows($table_result) > 0) {
         $can_show_restore = true;
@@ -35,7 +35,7 @@ if (file_exists("config.php") && $mysqli_available) {
     }
 }
 
-include_once "includes/settings_localization_array.php";
+include_once "../includes/settings_localization_array.php";
 $errorLog = ini_get('error_log') ?: "Debian/Ubuntu default is usually /var/log/apache2/error.log";
 
 // Get a list of all available timezones
@@ -44,9 +44,9 @@ $timezones = DateTimeZone::listIdentifiers();
 if (isset($_POST['add_database'])) {
 
     // Check if database has been set up already. If it has, direct user to edit directly instead.
-    if (file_exists('config.php')) {
+    if (file_exists('../config.php')) {
         $_SESSION['alert_message'] = "Database already configured. Any further changes should be made by editing the config.php file.";
-        header("Location: setup.php?user");
+        header("Location: ?user");
         exit;
     }
 
@@ -83,13 +83,13 @@ if (isset($_POST['add_database'])) {
     $new_config .= "\$repo_branch = 'master';\n";
     $new_config .= "\$installation_id = '$installation_id';\n";
 
-    if (file_put_contents("config.php", $new_config) !== false && file_exists('config.php')) {
+    if (file_put_contents("../config.php", $new_config) !== false && file_exists('../config.php')) {
 
-        include "config.php";
+        include "../config.php";
 
 
         // Name of the file
-        $filename = 'db.sql';
+        $filename = 'install.sql';
         // Temporary variable, used to store current query
         $templine = '';
         // Read in entire file
@@ -112,14 +112,14 @@ if (isset($_POST['add_database'])) {
         }
 
         $_SESSION['alert_message'] = "Database successfully added, now lets add a user.";
-        header("Location: setup.php?user");
+        header("Location: ?user");
         exit;
 
     } else {
         // There was an error writing the file
         // Display an error message and redirect to the setup page
         $_SESSION['alert_message'] = "Did not successfully write the config.php file to the filesystem, Please Input the database information again.";
-        header("Location: setup.php?database");
+        header("Location: ?database");
         exit;
     }
 
@@ -203,7 +203,7 @@ if (isset($_POST['restore'])) {
     }
 
     // === 5. Restore uploads directory ===
-    $uploadDir = __DIR__ . "/uploads/";
+    $uploadDir = __DIR__ . "../uploads/";
     $uploadsZip = "$tempDir/uploads.zip";
 
     if (file_exists($uploadsZip)) {
@@ -250,13 +250,13 @@ if (isset($_POST['restore'])) {
     deleteDir($tempDir);
 
     // === 8. Optional: finalize setup flag ===
-    $myfile = fopen("config.php", "a");
+    $myfile = fopen("../config.php", "a");
     fwrite($myfile, "\$config_enable_setup = 0;\n\n");
     fclose($myfile);
 
     // === 9. Done ===
     $_SESSION['alert_message'] = "Full backup restored successfully.";
-    header("Location: login.php");
+    header("Location: ../login.php");
     exit;
 }
 
@@ -264,7 +264,7 @@ if (isset($_POST['add_user'])) {
     $user_count = mysqli_num_rows(mysqli_query($mysqli,"SELECT COUNT(*) FROM users"));
     if ($user_count < 0) {
         $_SESSION['alert_message'] = "Users already exist in the database. Clear them to reconfigure here.";
-        header("Location: setup.php?company");
+        header("Location: ?company");
         exit;
     }
 
@@ -280,7 +280,7 @@ if (isset($_POST['add_user'])) {
 
     mysqli_query($mysqli,"INSERT INTO users SET user_name = '$name', user_email = '$email', user_password = '$password', user_specific_encryption_ciphertext = '$user_specific_encryption_ciphertext', user_role_id = 3");
 
-    mkdirMissing("uploads/users/1");
+    mkdirMissing("../uploads/users/1");
 
     //Check to see if a file is attached
     if ($_FILES['file']['tmp_name'] != '') {
@@ -310,7 +310,7 @@ if (isset($_POST['add_user'])) {
 
         if ($file_error == 0) {
             // directory in which the uploaded file will be moved
-            $upload_file_dir = "uploads/users/1/";
+            $upload_file_dir = "../uploads/users/1/";
             $dest_path = $upload_file_dir . $new_file_name;
 
             move_uploaded_file($file_tmp_path, $dest_path);
@@ -330,7 +330,7 @@ if (isset($_POST['add_user'])) {
 
     $_SESSION['alert_message'] = "User <strong>$name</strong> created";
 
-    header("Location: setup.php?company");
+    header("Location: ?company");
     exit;
 
 }
@@ -378,7 +378,7 @@ if (isset($_POST['add_company_settings'])) {
 
         if ($file_error == 0) {
             // directory in which the uploaded file will be moved
-            $upload_file_dir = "uploads/settings/";
+            $upload_file_dir = "../uploads/settings/";
             $dest_path = $upload_file_dir . $new_file_name;
 
             move_uploaded_file($file_tmp_path, $dest_path);
@@ -483,7 +483,7 @@ if (isset($_POST['add_company_settings'])) {
 
     $_SESSION['alert_message'] = "Company <strong>$name</strong> created";
 
-    header("Location: setup.php?localization");
+    header("Location: ?localization");
 
 }
 
@@ -503,7 +503,7 @@ if (isset($_POST['add_localization_settings'])) {
 
     $_SESSION['alert_message'] = "Localization Info saved";
 
-    header("Location: setup.php?telemetry");
+    header("Location: ?telemetry");
 
 }
 
@@ -556,7 +556,7 @@ if (isset($_POST['add_telemetry'])) {
     }
 
     //final setup stages
-    $myfile = fopen("config.php", "a");
+    $myfile = fopen("../config.php", "a");
 
     $txt = "\$config_enable_setup = 0;\n\n";
 
@@ -564,7 +564,7 @@ if (isset($_POST['add_telemetry'])) {
 
     fclose($myfile);
 
-    header("Location: login.php");
+    header("Location: ../login.php");
     exit;
 
 }
@@ -582,12 +582,12 @@ if (isset($_POST['add_telemetry'])) {
     <title>ITFlow Setup</title>
 
     <!-- Font Awesome Icons -->
-    <link rel="stylesheet" href="plugins/fontawesome-free/css/all.min.css">
+    <link rel="stylesheet" href="../plugins/fontawesome-free/css/all.min.css">
     <!-- Theme style -->
-    <link rel="stylesheet" href="plugins/adminlte/css/adminlte.min.css">
+    <link rel="stylesheet" href="../plugins/adminlte/css/adminlte.min.css">
     <!-- Custom Style Sheet -->
-    <link href="plugins/select2/css/select2.min.css" rel="stylesheet" type="text/css">
-    <link href="plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css" rel="stylesheet" type="text/css">
+    <link href="../plugins/select2/css/select2.min.css" rel="stylesheet" type="text/css">
+    <link href="../plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css" rel="stylesheet" type="text/css">
 
 </head>
 
@@ -1476,17 +1476,17 @@ if (isset($_POST['add_telemetry'])) {
 <!-- REQUIRED SCRIPTS -->
 
 <!-- jQuery -->
-<script src="plugins/jquery/jquery.min.js"></script>
+<script src="../plugins/jquery/jquery.min.js"></script>
 <!-- Bootstrap 4 -->
-<script src="plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+<script src="../plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
 <!-- Custom js-->
-<script src='plugins/select2/js/select2.min.js'></script>
-<script src="plugins/Show-Hide-Passwords-Bootstrap-4/bootstrap-show-password.min.js"></script>
+<script src='../plugins/select2/js/select2.min.js'></script>
+<script src="../plugins/Show-Hide-Passwords-Bootstrap-4/bootstrap-show-password.min.js"></script>
 <!-- AdminLTE App -->
-<script src="plugins/adminlte/js/adminlte.min.js"></script>
+<script src="../plugins/adminlte/js/adminlte.min.js"></script>
 
 <!-- Custom js-->
-<script src="js/app.js"></script>
+<script src="../js/app.js"></script>
 
 </body>
 
