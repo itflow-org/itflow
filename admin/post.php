@@ -26,7 +26,7 @@ $module = str_ireplace('_details', '', $module);
 if (isset($session_is_admin) && $session_is_admin) {
     // As (almost) every admin setting is only changed from 1 page, we can dynamically load the relevant logic inside this single admin check IF statement
     //  To add a new admin POST request handler, add a file named after the admin page
-    //    e.g. changes made on the page http://itflow/admin_ticket_statues.php will load the page post/admin/admin_ticket_statues.php to handle the changes
+    //    e.g. changes made on the page http://itflow/admin_ticket_statues.php will load the page admin/post/admin_ticket_statues.php to handle the changes
 
     include_once "post/$module.php";
     

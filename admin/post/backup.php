@@ -6,7 +6,7 @@
 
 defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
 
-require_once "includes/app_version.php";
+require_once "../includes/app_version.php";
 
 if (isset($_GET['download_backup'])) {
     validateCSRFToken($_GET['csrf_token']);
@@ -122,7 +122,7 @@ if (isset($_GET['download_backup'])) {
     file_put_contents($sqlFile, $sqlContent);
 
     // === 4. Zip the uploads folder
-    $zipFolder("uploads", $uploadsZip);
+    $zipFolder("../uploads", $uploadsZip);
 
     // === 5. Create version.txt
     $commitHash = trim(shell_exec('git log -1 --format=%H')) ?: 'N/A';
