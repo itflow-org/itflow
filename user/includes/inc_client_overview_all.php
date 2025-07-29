@@ -6,8 +6,8 @@ require_once "../includes/check_login.php";
 require_once "../includes/page_title.php";
 require_once "../includes/header.php";
 require_once "../includes/top_nav.php";
-require_once "includes/get_side_nav_counts.php";
-require_once "includes/side_nav.php";
+require_once "includes/client_overview_side_nav.php";
 require_once "../includes/inc_wrapper.php";
 require_once "../includes/inc_alert_feedback.php";
 require_once "../includes/filter_header.php";
+

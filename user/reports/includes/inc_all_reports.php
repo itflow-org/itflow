@@ -6,7 +6,7 @@ require_once "../../includes/check_login.php";
 require_once "../../includes/page_title.php";
 // Reporting Perms
 enforceUserPermission('module_reporting');
-require_once "includes/header.php";
+require_once "../../includes/header.php";
 require_once "../../includes/top_nav.php";
 require_once "includes/side_nav.php";
 require_once "../../includes/inc_wrapper.php";

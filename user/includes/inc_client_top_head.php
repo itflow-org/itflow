@@ -174,6 +174,6 @@
 </div>
 
 <?php
-require_once "modals/client_credit_add_modal.php";
-require_once "modals/client_delete_modal.php";
-require_once "modals/client_download_pdf_modal.php";
+require_once "modals/client/client_credit_add.php";
+require_once "modals/client/client_delete.php";
+require_once "modals/client/client_download_pdf.php";

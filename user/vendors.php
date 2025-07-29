@@ -283,12 +283,12 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                 </table>
             </div>
         </form>
-        <?php require_once "../../includes/filter_footer.php";
+        <?php require_once "../includes/filter_footer.php";
 ?>
     </div>
 </div>
 
-<script src="js/bulk_actions.js"></script>
+<script src="../js/bulk_actions.js"></script>
 
 <?php
 require_once "modals/vendor_add_modal.php";

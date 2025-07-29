@@ -17,4 +17,4 @@
         </div>
     </div>
 </div>
-<script src="js/client_delete_confirm.js"></script>
+<script src="../js/client_delete_confirm.js"></script>

@@ -7,7 +7,7 @@ require_once "../includes/page_title.php";
 if (!isset($session_is_admin) || !$session_is_admin) {
     exit(WORDING_ROLECHECK_FAILED . "<br>Tell your admin: Your role does not have admin access.");
 }
-require_once "includes/header.php";
+require_once "../includes/header.php";
 require_once "../includes/top_nav.php";
 require_once "includes/side_nav.php";
 require_once "../includes/inc_wrapper.php";

@@ -6,6 +6,13 @@
 
 header("X-Frame-Options: DENY");
 
+// Determine URI prepending logic (URI Routing maybe move to /includes/router.php)
+if ($_SERVER['REQUEST_URI'] === '/user/reports') {
+    $prepend_uri = "../";
+} else {
+    $prepend_uri = '';
+}
+
 ?>
 
 <!DOCTYPE html>
@@ -18,37 +25,33 @@ header("X-Frame-Options: DENY");
 
     <title><?php echo $session_company_name; ?></title>
 
-    <!-- 
-    Favicon
-    If Fav Icon exists else use the default one 
-    -->
-    <?php if(file_exists('../uploads/favicon.ico')) { ?>
-        <link rel="icon" type="image/x-icon" href="..//uploads/favicon.ico">
-    <?php } ?>
-    
-    <!-- Font Awesome Icons -->
-    <link rel="stylesheet" href="../plugins/fontawesome-free/css/all.min.css">
+    <!-- Favicon -->
+    <?php if(file_exists($prepend_uri . '../uploads/favicon.ico')): ?>
+        <link rel="icon" type="image/x-icon" href="<?= $prepend_uri ?>../uploads/favicon.ico">
+    <?php endif; ?>
 
-    <!-- Custom Style Sheet -->
-    <link href="../plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css" rel="stylesheet" type="text/css">
-    <link href="../plugins/select2/css/select2.min.css" rel="stylesheet" type="text/css">
-    <link href="../plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css" rel="stylesheet" type="text/css">
-    <link href='../plugins/daterangepicker/daterangepicker.css' rel='stylesheet' />
-    <link href="../plugins/toastr/toastr.min.css" rel="stylesheet">
-    <link href="../plugins/DataTables/datatables.min.css" rel="stylesheet">
-    <link href="../plugins/intl-tel-input/css/intlTelInput.min.css" rel="stylesheet">
-    <!-- CSS to allow regular button to show as block button in mobile response view using the class btn-responsive -->
-    <link href="../css/itflow_custom.css" rel="stylesheet">
-    <!-- Theme style -->
-    <link rel="stylesheet" href="../plugins/adminlte/css/adminlte.min.css">
-    <!-- jQuery -->
-    <script src="../plugins/jquery/jquery.min.js"></script>
-    <script src="../plugins/toastr/toastr.min.js"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="<?= $prepend_uri ?>../plugins/fontawesome-free/css/all.min.css">
 
+    <!-- Custom Styles -->
+    <link href="<?= $prepend_uri ?>../plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css" rel="stylesheet" type="text/css">
+    <link href="<?= $prepend_uri ?>../plugins/select2/css/select2.min.css" rel="stylesheet" type="text/css">
+    <link href="<?= $prepend_uri ?>../plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css" rel="stylesheet" type="text/css">
+    <link href="<?= $prepend_uri ?>../plugins/daterangepicker/daterangepicker.css" rel="stylesheet">
+    <link href="<?= $prepend_uri ?>../plugins/toastr/toastr.min.css" rel="stylesheet">
+    <link href="<?= $prepend_uri ?>../plugins/DataTables/datatables.min.css" rel="stylesheet">
+    <link href="<?= $prepend_uri ?>../plugins/intl-tel-input/css/intlTelInput.min.css" rel="stylesheet">
+    <link href="<?= $prepend_uri ?>../css/itflow_custom.css" rel="stylesheet">
+    <link rel="stylesheet" href="<?= $prepend_uri ?>../plugins/adminlte/css/adminlte.min.css">
+
+    <!-- Scripts -->
+    <script src="<?= $prepend_uri ?>../plugins/jquery/jquery.min.js"></script>
+    <script src="<?= $prepend_uri ?>../plugins/toastr/toastr.min.js"></script>
 </head>
 <body class="
     hold-transition sidebar-mini layout-fixed layout-navbar-fixed 
-    accent-<?php if (isset($_GET['client_id'])) { echo "blue"; } else { echo nullable_htmlentities($config_theme); } ?>
-    <?php if ($config_theme_dark) { echo "dark-mode"; } ?>
+    accent-<?php echo isset($_GET['client_id']) ? 'blue' : nullable_htmlentities($config_theme); ?>
+    <?php if ($config_theme_dark) echo 'dark-mode'; ?>
 ">
     <div class="wrapper text-sm">
+
