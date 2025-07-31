@@ -639,7 +639,7 @@ if (mysqli_num_rows($os_sql) > 0) {
                             <?php } ?>
                             <td class="text-center">
                                 <div class="btn-group">
-                                    <?php if ( !empty($asset_uri) || !empty($asset_uri_2) ) { ?>
+                                    <?php if ( !empty($asset_uri) || !empty($asset_uri_2) || !empty($asset_uri_client)) { ?>
                                     <div class="dropdown dropleft text-center">
                                         <button class="btn btn-default btn-sm" type="button" data-toggle="dropdown">
                                             <i class="fa fa-fw fa-external-link-alt"></i>

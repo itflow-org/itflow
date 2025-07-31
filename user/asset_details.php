@@ -241,38 +241,38 @@ if (isset($_GET['asset_id'])) {
                     <button type="button" class="btn btn-light float-right"
                         data-toggle="ajax-modal"
                         data-ajax-url="ajax/ajax_asset_edit.php"
-                        data-ajax-id="<?php echo $asset_id; ?>">
+                        data-ajax-id="<?= $asset_id; ?>">
                         <i class="fas fa-fw fa-edit"></i>
                     </button>
-                    <h4 class="text-bold"><i class="fa fa-fw text-secondary fa-<?php echo $device_icon; ?> mr-3"></i><?php echo $asset_name; ?></h4>
+                    <h4 class="text-bold"><i class="fa fa-fw text-secondary fa-<?= $device_icon; ?> mr-3"></i><?= $asset_name; ?></h4>
                     <?php if ($asset_photo) { ?>
-                        <img class="img-fluid img-circle p-3" alt="asset_photo" src="<?php echo "../uploads/clients/$client_id/$asset_photo"; ?>">
+                        <img class="img-fluid img-circle p-3" alt="asset_photo" src="<?= "../uploads/clients/$client_id/$asset_photo"; ?>">
                     <?php } ?>
                     <?php if ($asset_description) { ?>
-                        <div class="text-secondary"><?php echo $asset_description; ?></div>
+                        <div class="text-secondary"><?= $asset_description; ?></div>
                     <?php } ?>
                 </div>
                 <div class="card-body">
                     <?php if ($asset_type) { ?>
-                        <div><i class="fa fa-fw fa-tag text-secondary mr-3"></i><?php echo $asset_type; ?></div>
+                        <div><i class="fa fa-fw fa-tag text-secondary mr-3"></i><?= $asset_type; ?></div>
                     <?php }
                     if ($asset_make) { ?>
-                        <div class="mt-2"><i class="fa fa-fw fa-circle text-secondary mr-3"></i><?php echo "$asset_make $asset_model"; ?></div>
+                        <div class="mt-2"><i class="fa fa-fw fa-circle text-secondary mr-3"></i><?= "$asset_make $asset_model"; ?></div>
                     <?php }
                     if ($asset_os) { ?>
-                        <div class="mt-2"><i class="fab fa-fw fa-windows text-secondary mr-3"></i><?php echo "$asset_os"; ?></div>
+                        <div class="mt-2"><i class="fab fa-fw fa-windows text-secondary mr-3"></i><?= "$asset_os"; ?></div>
                     <?php }
                     if ($asset_serial) { ?>
-                        <div class="mt-2"><i class="fa fa-fw fa-barcode text-secondary mr-3"></i><?php echo $asset_serial; ?></div>
+                        <div class="mt-2"><i class="fa fa-fw fa-barcode text-secondary mr-3"></i><?= $asset_serial; ?></div>
                     <?php }
                     if ($asset_purchase_date) { ?>
-                        <div class="mt-2"><i class="fa fa-fw fa-shopping-cart text-secondary mr-3"></i><?php echo date('Y-m-d', strtotime($asset_purchase_date)); ?></div>
+                        <div class="mt-2"><i class="fa fa-fw fa-shopping-cart text-secondary mr-3"></i><?= date('Y-m-d', strtotime($asset_purchase_date)); ?></div>
                     <?php }
                     if ($asset_install_date) { ?>
-                        <div class="mt-2"><i class="fa fa-fw fa-calendar-check text-secondary mr-3"></i><?php echo date('Y-m-d', strtotime($asset_install_date)); ?></div>
+                        <div class="mt-2"><i class="fa fa-fw fa-calendar-check text-secondary mr-3"></i><?= date('Y-m-d', strtotime($asset_install_date)); ?></div>
                     <?php }
                     if ($asset_warranty_expire) { ?>
-                        <div class="mt-2"><i class="fa fa-fw fa-exclamation-triangle text-secondary mr-3"></i><?php echo date('Y-m-d', strtotime($asset_warranty_expire)); ?></div>
+                        <div class="mt-2"><i class="fa fa-fw fa-exclamation-triangle text-secondary mr-3"></i><?= date('Y-m-d', strtotime($asset_warranty_expire)); ?></div>
                     <?php } ?>
                 </div>
             </div>
@@ -283,23 +283,23 @@ if (isset($_GET['asset_id'])) {
                 </div>
                 <div class="card-body">
                     <?php if ($asset_ip) { ?>
-                        <div><i class="fa fa-fw fa-globe text-secondary mr-2"></i><?php echo $asset_ip; ?></div>
+                        <div><i class="fa fa-fw fa-globe text-secondary mr-2"></i><?= $asset_ip; ?></div>
                     <?php } ?>
                     <?php if ($asset_nat_ip) { ?>
-                        <div class="mt-2"><i class="fa fa-fw fa-random text-secondary mr-2"></i><?php echo $asset_nat_ip; ?></div>
+                        <div class="mt-2"><i class="fa fa-fw fa-random text-secondary mr-2"></i><?= $asset_nat_ip; ?></div>
                     <?php }
                     if ($asset_mac) { ?>
-                        <div class="mt-2"><i class="fa fa-fw fa-ethernet text-secondary mr-2"></i><?php echo $asset_mac; ?></div>
+                        <div class="mt-2"><i class="fa fa-fw fa-ethernet text-secondary mr-2"></i><?= $asset_mac; ?></div>
                     <?php }
                     if ($asset_uri) { ?>
-                        <div class="mt-2"><i class="fa fa-fw fa-link text-secondary mr-2"></i><a href="<?php echo $asset_uri; ?>" target="_blank" title="<?php echo $asset_uri; ?>"><?php echo truncate($asset_uri, 40); ?></a></div>
+                        <div class="mt-2"><i class="fa fa-fw fa-link text-secondary mr-2"></i><a href="<?= $asset_uri; ?>" target="_blank" title="<?= $asset_uri; ?>"><?= truncate($asset_uri, 40); ?></a></div>
                     <?php }
                     if ($asset_uri_2) { ?>
-                        <div class="mt-2"><i class="fa fa-fw fa-link text-secondary mr-2"></i><a href="<?php echo $asset_uri_2; ?>" target="_blank" title="<?php echo $asset_uri_2; ?>"><?php echo truncate($asset_uri_2, 40); ?></a></div>
+                        <div class="mt-2"><i class="fa fa-fw fa-link text-secondary mr-2"></i><a href="<?= $asset_uri_2; ?>" target="_blank" title="<?= $asset_uri_2; ?>"><?= truncate($asset_uri_2, 40); ?></a></div>
                     <?php } ?>
-                    <?php }
+                    <?php
                     if ($asset_uri_client) { ?>
-                        <div class="mt-2"><i class="fa fa-fw fa-link text-secondary mr-2"></i>Client URI: <a href="<?php echo $asset_uri_client; ?>" target="_blank" title="<?php echo $asset_uri_client; ?>"><?php echo truncate($asset_uri_client, 40); ?></a></div>
+                        <div class="mt-2"><i class="fa fa-fw fa-link text-secondary mr-2"></i>Client URI: <a href="<?= $asset_uri_client; ?>" target="_blank" title="<?= $asset_uri_client ?>"><?= truncate($asset_uri_client, 40); ?></a></div>
                     <?php } ?>
                 </div>
             </div>
@@ -311,19 +311,19 @@ if (isset($_GET['asset_id'])) {
                 </div>
                 <div class="card-body">
                     <?php if ($location_name) { ?>
-                        <div><i class="fa fa-fw fa-map-marker-alt text-secondary mr-2"></i><?php echo $location_name_display; ?></div>
+                        <div><i class="fa fa-fw fa-map-marker-alt text-secondary mr-2"></i><?= $location_name_display; ?></div>
                     <?php }
                     if ($contact_name) { ?>
-                        <div class="mt-2"><i class="fa fa-fw fa-user text-secondary mr-2"></i><?php echo $contact_name_display; ?></div>
+                        <div class="mt-2"><i class="fa fa-fw fa-user text-secondary mr-2"></i><?= $contact_name_display; ?></div>
                     <?php }
                     if ($contact_email) { ?>
-                        <div class="mt-2"><i class="fa fa-fw fa-envelope text-secondary mr-2"></i><a href='mailto:<?php echo $contact_email; ?>'><?php echo $contact_email; ?></a><button class='btn btn-sm clipboardjs' data-clipboard-text='<?php echo $contact_email; ?>'><i class='far fa-copy text-secondary'></i></button></div>
+                        <div class="mt-2"><i class="fa fa-fw fa-envelope text-secondary mr-2"></i><a href='mailto:<?= $contact_email; ?>'><?= $contact_email; ?></a><button class='btn btn-sm clipboardjs' data-clipboard-text='<?= $contact_email; ?>'><i class='far fa-copy text-secondary'></i></button></div>
                     <?php }
                     if ($contact_phone) { ?>
-                        <div class="mt-2"><i class="fa fa-fw fa-phone text-secondary mr-2"></i><?php echo formatPhoneNumber($contact_phone); echo " $contact_extension"; ?></div>
+                        <div class="mt-2"><i class="fa fa-fw fa-phone text-secondary mr-2"></i><?= formatPhoneNumber($contact_phone); echo " $contact_extension"; ?></div>
                     <?php }
                     if ($contact_mobile) { ?>
-                        <div class="mt-2"><i class="fa fa-fw fa-mobile-alt text-secondary mr-2"></i><?php echo formatPhoneNumber($contact_mobile); ?></div>
+                        <div class="mt-2"><i class="fa fa-fw fa-mobile-alt text-secondary mr-2"></i><?= formatPhoneNumber($contact_mobile); ?></div>
                     <?php } ?>
                 
                 </div>
@@ -333,7 +333,7 @@ if (isset($_GET['asset_id'])) {
                 <div class="card-header">
                     <h5 class="card-title">Additional Notes</h5>
                 </div>
-                <textarea class="form-control" rows=6 id="assetNotes" placeholder="Enter quick notes here" onblur="updateAssetNotes(<?php echo $asset_id ?>)"><?php echo $asset_notes ?></textarea>    
+                <textarea class="form-control" rows=6 id="assetNotes" placeholder="Enter quick notes here" onblur="updateAssetNotes(<?= $asset_id ?>)"><?= $asset_notes ?></textarea>    
             </div>
 
         </div>
@@ -345,12 +345,12 @@ if (isset($_GET['asset_id'])) {
                     <a href="clients.php">Clients</a>
                 </li>
                 <li class="breadcrumb-item">
-                    <a href="client_overview.php?client_id=<?php echo $client_id; ?>"><?php echo $client_name; ?></a>
+                    <a href="client_overview.php?client_id=<?= $client_id; ?>"><?= $client_name; ?></a>
                 </li>
                 <li class="breadcrumb-item">
-                    <a href="assets.php?client_id=<?php echo $client_id; ?>">Assets</a>
+                    <a href="assets.php?client_id=<?= $client_id; ?>">Assets</a>
                 </li>
-                <li class="breadcrumb-item active"><?php echo $asset_name; ?></li>
+                <li class="breadcrumb-item active"><?= $asset_name; ?></li>
             </ol>
 
             <div class="btn-group mb-3">
@@ -385,35 +385,35 @@ if (isset($_GET['asset_id'])) {
                         <a class="dropdown-item text-dark" href="#"
                             data-toggle="ajax-modal"
                             data-ajax-url="ajax/ajax_asset_link_software.php"
-                            data-ajax-id="<?php echo $asset_id; ?>">
+                            data-ajax-id="<?= $asset_id; ?>">
                             <i class="fa fa-fw fa-cube mr-2"></i>License
                         </a>
                         <div class="dropdown-divider"></div>
                         <a class="dropdown-item text-dark" href="#"
                             data-toggle="ajax-modal"
                             data-ajax-url="ajax/ajax_asset_link_credential.php"
-                            data-ajax-id="<?php echo $asset_id; ?>">
+                            data-ajax-id="<?= $asset_id; ?>">
                             <i class="fa fa-fw fa-key mr-2"></i>Credential
                         </a>
                         <div class="dropdown-divider"></div>
                         <a class="dropdown-item text-dark" href="#"
                             data-toggle="ajax-modal"
                             data-ajax-url="ajax/ajax_asset_link_service.php"
-                            data-ajax-id="<?php echo $asset_id; ?>">
+                            data-ajax-id="<?= $asset_id; ?>">
                             <i class="fa fa-fw fa-stream mr-2"></i>Service
                         </a>
                         <div class="dropdown-divider"></div>
                         <a class="dropdown-item text-dark" href="#"
                             data-toggle="ajax-modal"
                             data-ajax-url="ajax/ajax_asset_link_document.php"
-                            data-ajax-id="<?php echo $asset_id; ?>">
+                            data-ajax-id="<?= $asset_id; ?>">
                             <i class="fa fa-fw fa-folder mr-2"></i>Document
                         </a>
                         <div class="dropdown-divider"></div>
                         <a class="dropdown-item text-dark" href="#"
                             data-toggle="ajax-modal"
                             data-ajax-url="ajax/ajax_asset_link_file.php"
-                            data-ajax-id="<?php echo $asset_id; ?>">
+                            data-ajax-id="<?= $asset_id; ?>">
                             <i class="fa fa-fw fa-paperclip mr-2"></i>File
                         </a>     
                     </div>
@@ -472,7 +472,7 @@ if (isset($_GET['asset_id'])) {
                 </div>
                 <div class="card-body">
                     <form id="bulkActions" action="post.php" method="post">
-                        <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token'] ?>">
+                        <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
                         <div class="table-responsive-sm">
                             <table class="table table-striped table-borderless table-hover table-sm">
                                 <thead class="<?php if ($interface_count == 0) { echo "d-none"; } ?>">
@@ -539,7 +539,7 @@ if (isset($_GET['asset_id'])) {
                                     <tr>
                                         <td class="pr-0 bg-light">
                                             <div class="form-check">
-                                                <input class="form-check-input bulk-select" type="checkbox" name="interface_ids[]" value="<?php echo $interface_id ?>">
+                                                <input class="form-check-input bulk-select" type="checkbox" name="interface_ids[]" value="<?= $interface_id ?>">
                                             </div>
                                         </td>
                                         <td>
@@ -547,15 +547,15 @@ if (isset($_GET['asset_id'])) {
                                             <a class="text-dark" href="#" 
                                                 data-toggle="ajax-modal"
                                                 data-ajax-url="ajax/ajax_asset_interface_edit.php"
-                                                data-ajax-id="<?php echo $interface_id; ?>">
-                                                <?php echo $interface_name; ?> <?php if($interface_primary) { echo "<small class='text-primary'>(Primary)</small>"; } ?>
+                                                data-ajax-id="<?= $interface_id; ?>">
+                                                <?= $interface_name; ?> <?php if($interface_primary) { echo "<small class='text-primary'>(Primary)</small>"; } ?>
                                             </a>
                                         </td>
-                                        <td><?php echo $interface_type_display; ?></td>
-                                        <td><?php echo $interface_mac_display; ?></td>
-                                        <td><?php echo $interface_ip_display; ?></td>
-                                        <td><?php echo $network_name_display; ?></td>
-                                        <td><?php echo $connected_to_display; ?></td>
+                                        <td><?= $interface_type_display; ?></td>
+                                        <td><?= $interface_mac_display; ?></td>
+                                        <td><?= $interface_ip_display; ?></td>
+                                        <td><?= $network_name_display; ?></td>
+                                        <td><?= $connected_to_display; ?></td>
                                         <td>
                                             <div class="dropdown dropleft text-center">
                                                 <button class="btn btn-secondary btn-sm" type="button" data-toggle="dropdown">
@@ -565,12 +565,12 @@ if (isset($_GET['asset_id'])) {
                                                     <a class="dropdown-item" href="#"
                                                         data-toggle="ajax-modal"
                                                         data-ajax-url="ajax/ajax_asset_interface_edit.php"
-                                                        data-ajax-id="<?php echo $interface_id; ?>">
+                                                        data-ajax-id="<?= $interface_id; ?>">
                                                         <i class="fas fa-fw fa-edit mr-2"></i>Edit
                                                     </a>
                                                     <?php if ($session_user_role == 3 && $interface_primary == 0): ?>
                                                         <div class="dropdown-divider"></div>
-                                                        <a class="dropdown-item text-danger text-bold" href="post.php?delete_asset_interface=<?php echo $interface_id; ?>&csrf_token=<?php echo $_SESSION['csrf_token']; ?>">
+                                                        <a class="dropdown-item text-danger text-bold" href="post.php?delete_asset_interface=<?= $interface_id; ?>&csrf_token=<?= $_SESSION['csrf_token']; ?>">
                                                             <i class="fas fa-fw fa-trash mr-2"></i>Delete
                                                         </a>
                                                     <?php endif; ?>
@@ -667,18 +667,18 @@ if (isset($_GET['asset_id'])) {
                                         <a class="text-dark" href="#"
                                             data-toggle="ajax-modal"
                                             data-ajax-url="ajax/ajax_credential_edit.php"
-                                            data-ajax-id="<?php echo $credential_id; ?>"
+                                            data-ajax-id="<?= $credential_id; ?>"
                                             >
-                                            <?php echo $credential_name; ?>
+                                            <?= $credential_name; ?>
                                         </a>
                                     </td>
-                                    <td><?php echo $credential_description; ?></td>
-                                    <td><?php echo $credential_username_display; ?></td>
+                                    <td><?= $credential_description; ?></td>
+                                    <td><?= $credential_username_display; ?></td>
                                     <td>
-                                        <button class="btn p-0" type="button" data-toggle="popover" data-trigger="focus" data-placement="top" data-content="<?php echo $credential_password; ?>"><i class="fas fa-2x fa-ellipsis-h text-secondary"></i><i class="fas fa-2x fa-ellipsis-h text-secondary"></i></button><button class="btn btn-sm clipboardjs" data-clipboard-text="<?php echo $credential_password; ?>"><i class="far fa-copy text-secondary"></i></button>
+                                        <button class="btn p-0" type="button" data-toggle="popover" data-trigger="focus" data-placement="top" data-content="<?= $credential_password; ?>"><i class="fas fa-2x fa-ellipsis-h text-secondary"></i><i class="fas fa-2x fa-ellipsis-h text-secondary"></i></button><button class="btn btn-sm clipboardjs" data-clipboard-text="<?= $credential_password; ?>"><i class="far fa-copy text-secondary"></i></button>
                                     </td>
-                                    <td><?php echo $otp_display; ?></td>
-                                    <td><?php echo $credential_uri_display; ?></td>
+                                    <td><?= $otp_display; ?></td>
+                                    <td><?= $credential_uri_display; ?></td>
                                     <td>
                                         <div class="dropdown dropleft text-center">
                                             <button class="btn btn-secondary btn-sm" type="button" data-toggle="dropdown">
@@ -688,20 +688,20 @@ if (isset($_GET['asset_id'])) {
                                                 <a class="dropdown-item" href="#"
                                                     data-toggle="ajax-modal"
                                                     data-ajax-url="ajax/ajax_credential_edit.php"
-                                                    data-ajax-id="<?php echo $credential_id; ?>"
+                                                    data-ajax-id="<?= $credential_id; ?>"
                                                     >
                                                     <i class="fas fa-fw fa-edit mr-2"></i>Edit
                                                 </a>
-                                                <a class="dropdown-item" href="#" data-toggle="modal" data-target="#shareModal" onclick="populateShareModal(<?php echo "$client_id, 'Credential', $credential_id"; ?>)">
+                                                <a class="dropdown-item" href="#" data-toggle="modal" data-target="#shareModal" onclick="populateShareModal(<?= "$client_id, 'Credential', $credential_id"; ?>)">
                                                     <i class="fas fa-fw fa-share-alt mr-2"></i>Share
                                                 </a>
                                                 <div class="dropdown-divider"></div>
-                                                <a class="dropdown-item" href="post.php?unlink_credential_from_asset&asset_id=<?php echo $asset_id; ?>&credential_id=<?php echo $credential_id; ?>">
+                                                <a class="dropdown-item" href="post.php?unlink_credential_from_asset&asset_id=<?= $asset_id; ?>&credential_id=<?= $credential_id; ?>">
                                                     <i class="fas fa-fw fa-unlink mr-2"></i>Unlink
                                                 </a>
                                                 <?php if ($session_user_role == 3) { ?>
                                                     <div class="dropdown-divider"></div>
-                                                    <a class="dropdown-item text-danger text-bold" href="post.php?delete_credential=<?php echo $credential_id; ?>">
+                                                    <a class="dropdown-item text-danger text-bold" href="post.php?delete_credential=<?= $credential_id; ?>">
                                                         <i class="fas fa-fw fa-trash mr-2"></i>Delete
                                                     </a>
                                                 <?php } ?>
@@ -727,7 +727,7 @@ if (isset($_GET['asset_id'])) {
                 <div class="card-header py-2">
                     <h3 class="card-title mt-2"><i class="fa fa-fw fa-cube mr-2"></i>Licenses</h3>
                     <div class="card-tools">
-                        <button type="button" class="btn btn-primary" data-toggle="ajax-modal" data-ajax-url="ajax/ajax_asset_link_software.php" data-ajax-id="<?php echo $asset_id; ?>">
+                        <button type="button" class="btn btn-primary" data-toggle="ajax-modal" data-ajax-url="ajax/ajax_asset_link_software.php" data-ajax-id="<?= $asset_id; ?>">
                             <i class="fas fa-link mr-2"></i>Link Software
                         </button>
                     </div>
@@ -787,16 +787,16 @@ if (isset($_GET['asset_id'])) {
                                         <a class="text-dark" href="#"
                                             data-toggle="ajax-modal"
                                             data-ajax-url="ajax/ajax_software_edit.php"
-                                            data-ajax-id="<?php echo $software_id; ?>"
+                                            data-ajax-id="<?= $software_id; ?>"
                                             >
-                                            <?php echo "$software_name<br><span class='text-secondary'>$software_version</span>"; ?>
+                                            <?= "$software_name<br><span class='text-secondary'>$software_version</span>"; ?>
                                         </a>
                                     </td>
-                                    <td><?php echo $software_type; ?></td>
-                                    <td><?php echo $software_license_type; ?></td>
-                                    <td><?php echo "$seat_count / $software_seats"; ?></td>
+                                    <td><?= $software_type; ?></td>
+                                    <td><?= $software_license_type; ?></td>
+                                    <td><?= "$seat_count / $software_seats"; ?></td>
                                     <td class="text-center">
-                                        <a href="post.php?unlink_software_from_asset&asset_id=<?php echo $asset_id; ?>&software_id=<?php echo $software_id; ?>" class="btn btn-secondary btn-sm" title="Unlink"><i class="fas fa-fw fa-unlink"></i></a>
+                                        <a href="post.php?unlink_software_from_asset&asset_id=<?= $asset_id; ?>&software_id=<?= $software_id; ?>" class="btn btn-secondary btn-sm" title="Unlink"><i class="fas fa-fw fa-unlink"></i></a>
                                     </td>
                                 </tr>
 
@@ -816,7 +816,7 @@ if (isset($_GET['asset_id'])) {
                 <div class="card-header py-2">
                     <h3 class="card-title mt-2"><i class="fa fa-fw fa-folder mr-2"></i>Documents</h3>
                     <div class="card-tools">
-                        <button type="button" class="btn btn-primary" data-toggle="ajax-modal" data-ajax-url="ajax/ajax_asset_link_document.php" data-ajax-id="<?php echo $asset_id; ?>">
+                        <button type="button" class="btn btn-primary" data-toggle="ajax-modal" data-ajax-url="ajax/ajax_asset_link_document.php" data-ajax-id="<?= $asset_id; ?>">
                             <i class="fas fa-link mr-2"></i>Link Document
                         </button>
                     </div>
@@ -850,22 +850,22 @@ if (isset($_GET['asset_id'])) {
 
                                 <tr>
                                     <td>
-                                        <div><a href="client_document_details.php?client_id=<?php echo $client_id; ?>&document_id=<?php echo $document_id; ?>"><?php echo $document_name; ?></a></div>
-                                        <div class="text-secondary"><?php echo $document_description; ?></div>
+                                        <div><a href="client_document_details.php?client_id=<?= $client_id; ?>&document_id=<?= $document_id; ?>"><?= $document_name; ?></a></div>
+                                        <div class="text-secondary"><?= $document_description; ?></div>
                                     </td>
-                                    <td><?php echo $document_created_by; ?></td>
-                                    <td><?php echo $document_created_at; ?></td>
-                                    <td><?php echo $document_updated_at; ?></td>
+                                    <td><?= $document_created_by; ?></td>
+                                    <td><?= $document_created_at; ?></td>
+                                    <td><?= $document_updated_at; ?></td>
                                     <td class="text-center">
                                         <a href="#" class="btn btn-dark btn-sm"
                                             data-toggle="ajax-modal"
                                             data-modal-size="lg"
                                             data-ajax-url="ajax/ajax_document_view.php"
-                                            data-ajax-id="<?php echo $document_id; ?>"
+                                            data-ajax-id="<?= $document_id; ?>"
                                             >
                                             <i class="fas fa-fw fa-eye"></i>
                                         </a>
-                                        <a href="post.php?unlink_asset_from_document&asset_id=<?php echo $asset_id; ?>&document_id=<?php echo $document_id; ?>" class="btn btn-secondary btn-sm" title="Unlink"><i class="fas fa-fw fa-unlink"></i></a>
+                                        <a href="post.php?unlink_asset_from_document&asset_id=<?= $asset_id; ?>&document_id=<?= $document_id; ?>" class="btn btn-secondary btn-sm" title="Unlink"><i class="fas fa-fw fa-unlink"></i></a>
                                     </td>
                                 </tr>
 
@@ -900,7 +900,7 @@ if (isset($_GET['asset_id'])) {
                                 }
                             ?>
                         </div>
-                        <button type="button" class="btn btn-primary" data-toggle="ajax-modal" data-ajax-url="ajax/ajax_asset_link_file.php" data-ajax-id="<?php echo $asset_id; ?>">
+                        <button type="button" class="btn btn-primary" data-toggle="ajax-modal" data-ajax-url="ajax/ajax_asset_link_file.php" data-ajax-id="<?= $asset_id; ?>">
                             <i class="fas fa-link mr-2"></i>Link File
                         </button>
                     </div>
@@ -953,10 +953,10 @@ if (isset($_GET['asset_id'])) {
 
                                 ?>
                                 <tr>
-                                    <td><a class="text-dark" href="<?php echo "../uploads/clients/$client_id/$file_reference_name"; ?>" target="_blank" ><?php echo "$file_name<br><span class='text-secondary'>$file_description</span>"; ?></a></td>
-                                    <td><?php echo $file_created_at; ?></td>
+                                    <td><a class="text-dark" href="<?= "../uploads/clients/$client_id/$file_reference_name"; ?>" target="_blank" ><?= "$file_name<br><span class='text-secondary'>$file_description</span>"; ?></a></td>
+                                    <td><?= $file_created_at; ?></td>
                                     <td class="text-center">
-                                        <a href="post.php?unlink_asset_from_file&asset_id=<?php echo $asset_id; ?>&file_id=<?php echo $file_id; ?>" class="btn btn-secondary btn-sm" title="Unlink"><i class="fas fa-fw fa-unlink"></i></a>
+                                        <a href="post.php?unlink_asset_from_file&asset_id=<?= $asset_id; ?>&file_id=<?= $file_id; ?>" class="btn btn-secondary btn-sm" title="Unlink"><i class="fas fa-fw fa-unlink"></i></a>
                                     </td>
                                 </tr>
 
@@ -1004,17 +1004,17 @@ if (isset($_GET['asset_id'])) {
                                             data-toggle="ajax-modal"
                                             data-modal-size="lg"
                                             data-ajax-url="ajax/ajax_recurring_ticket_edit.php"
-                                            data-ajax-id="<?php echo $recurring_ticket_id; ?>"
+                                            data-ajax-id="<?= $recurring_ticket_id; ?>"
                                             >
-                                            <?php echo $recurring_ticket_subject ?>
+                                            <?= $recurring_ticket_subject ?>
                                         </a>
                                     </td>
 
-                                    <td><?php echo $recurring_ticket_priority ?></td>
+                                    <td><?= $recurring_ticket_priority ?></td>
 
-                                    <td><?php echo $recurring_ticket_frequency ?></td>
+                                    <td><?= $recurring_ticket_frequency ?></td>
 
-                                    <td><?php echo $recurring_ticket_next_run ?></td>
+                                    <td><?= $recurring_ticket_next_run ?></td>
 
                                     <td>
                                         <div class="dropdown dropleft text-center">
@@ -1026,18 +1026,18 @@ if (isset($_GET['asset_id'])) {
                                                     data-toggle="ajax-modal"
                                                     data-modal-size="lg"
                                                     data-ajax-url="ajax/ajax_recurring_ticket_edit.php"
-                                                    data-ajax-id="<?php echo $recurring_ticket_id; ?>"
+                                                    data-ajax-id="<?= $recurring_ticket_id; ?>"
                                                     >
                                                     <i class="fas fa-fw fa-edit mr-2"></i>Edit
                                                 </a>
                                                 <div class="dropdown-divider"></div>
-                                                <a class="dropdown-item" href="post.php?force_recurring_ticket=<?php echo $recurring_ticket_id; ?>&csrf_token=<?php echo $_SESSION['csrf_token'] ?>">
+                                                <a class="dropdown-item" href="post.php?force_recurring_ticket=<?= $recurring_ticket_id; ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                                                     <i class="fa fa-fw fa-paper-plane text-secondary mr-2"></i>Force Reoccur
                                                 </a>
                                                 <?php
                                                 if ($session_user_role == 3) { ?>
                                                 <div class="dropdown-divider"></div>
-                                                <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_recurring_ticket=<?php echo $recurring_ticket_id; ?>">
+                                                <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_recurring_ticket=<?= $recurring_ticket_id; ?>">
                                                     <i class="fas fa-fw fa-trash mr-2"></i>Delete
                                                 </a>
                                             </div>
@@ -1120,15 +1120,15 @@ if (isset($_GET['asset_id'])) {
                                 ?>
 
                                 <tr>
-                                    <td><a href="ticket.php?client_id=<?php echo $client_id; ?>&ticket_id=<?php echo $ticket_id; ?>"><span class="badge badge-pill badge-secondary p-3"><?php echo "$ticket_prefix$ticket_number"; ?></span></a></td>
-                                    <td><a href="ticket.php?client_id=<?php echo $client_id; ?>&ticket_id=<?php echo $ticket_id; ?>"><?php echo $ticket_subject; ?></a></td>
-                                    <td><?php echo $ticket_priority_display; ?></td>
+                                    <td><a href="ticket.php?client_id=<?= $client_id; ?>&ticket_id=<?= $ticket_id; ?>"><span class="badge badge-pill badge-secondary p-3"><?= "$ticket_prefix$ticket_number"; ?></span></a></td>
+                                    <td><a href="ticket.php?client_id=<?= $client_id; ?>&ticket_id=<?= $ticket_id; ?>"><?= $ticket_subject; ?></a></td>
+                                    <td><?= $ticket_priority_display; ?></td>
                                     <td>
-                                        <span class='badge badge-pill text-light p-2' style="background-color: <?php echo $ticket_status_color; ?>"><?php echo $ticket_status_name; ?></span>
+                                        <span class='badge badge-pill text-light p-2' style="background-color: <?= $ticket_status_color; ?>"><?= $ticket_status_name; ?></span>
                                     </td>
-                                    <td><?php echo $ticket_assigned_to_display; ?></td>
-                                    <td><?php echo $ticket_updated_at_display; ?></td>
-                                    <td><?php echo $ticket_created_at; ?></td>
+                                    <td><?= $ticket_assigned_to_display; ?></td>
+                                    <td><?= $ticket_updated_at_display; ?></td>
+                                    <td><?= $ticket_created_at; ?></td>
                                 </tr>
 
                                 <?php
@@ -1147,7 +1147,7 @@ if (isset($_GET['asset_id'])) {
                 <div class="card-header py-2">
                     <h3 class="card-title mt-2"><i class="fa fa-fw fa-stream mr-2"></i>Linked Services</h3>
                     <div class="card-tools">
-                        <button type="button" class="btn btn-primary" data-toggle="ajax-modal" data-ajax-url="ajax/ajax_asset_link_service.php" data-ajax-id="<?php echo $asset_id; ?>">
+                        <button type="button" class="btn btn-primary" data-toggle="ajax-modal" data-ajax-url="ajax/ajax_asset_link_service.php" data-ajax-id="<?= $asset_id; ?>">
                             <i class="fas fa-link mr-2"></i>Link Service
                         </button>
                     </div>
@@ -1179,13 +1179,13 @@ if (isset($_GET['asset_id'])) {
 
                                 <tr>
                                     <td>
-                                        <div><?php echo $service_name; ?></div>
-                                        <div class="text-secondary"><?php echo $service_description; ?></div>
+                                        <div><?= $service_name; ?></div>
+                                        <div class="text-secondary"><?= $service_description; ?></div>
                                     </td>
-                                    <td><?php echo $service_category; ?></td>
-                                    <td><?php echo $service_importance; ?></td>
+                                    <td><?= $service_category; ?></td>
+                                    <td><?= $service_importance; ?></td>
                                     <td class="text-center">
-                                        <a href="post.php?unlink_service_from_asset&asset_id=<?php echo $asset_id; ?>&service_id=<?php echo $service_id; ?>" class="btn btn-secondary btn-sm" title="Unlink"><i class="fas fa-fw fa-unlink"></i></a>
+                                        <a href="post.php?unlink_service_from_asset&asset_id=<?= $asset_id; ?>&service_id=<?= $service_id; ?>" class="btn btn-secondary btn-sm" title="Unlink"><i class="fas fa-fw fa-unlink"></i></a>
                                     </td>
                                 </tr>
 
