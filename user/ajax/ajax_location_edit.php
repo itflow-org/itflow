@@ -1,6 +1,6 @@
 <?php
 
-require_once '../../../includes/modal_header.php';
+require_once '../../includes/modal_header.php';
 
 $location_id = intval($_GET['id']);
 
@@ -100,7 +100,7 @@ ob_start();
 
                 <div class="mb-3" style="text-align: center;">
                     <?php if (!empty($location_photo)) { ?>
-                        <img class="img-fluid" src="<?php echo "uploads/clients/$client_id/$location_photo"; ?>">
+                        <img class="img-fluid" src="<?php echo "../uploads/clients/$client_id/$location_photo"; ?>">
                     <?php } ?>
                 </div>
 
@@ -299,4 +299,4 @@ ob_start();
 
 <?php
 
-require_once '../../../includes/modal_footer.php';
+require_once '../../includes/modal_footer.php';

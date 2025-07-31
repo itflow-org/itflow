@@ -291,7 +291,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             } else {
                                 $path_info = pathinfo($expense_receipt);
                                 $ext = $path_info['extension'];
-                                $receipt_attached = "<a class='text-secondary mr-2' target='_blank' href='uploads/expenses/$expense_receipt' download='$expense_date-$vendor_name-$category_name-$expense_id.$ext'><i class='fa fa-file'></i></a>";
+                                $receipt_attached = "<a class='text-secondary mr-2' target='_blank' href='../uploads/expenses/$expense_receipt' download='$expense_date-$vendor_name-$category_name-$expense_id.$ext'><i class='fa fa-file'></i></a>";
                             }
 
                             ?>
@@ -328,7 +328,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                         <div class="dropdown-menu">
                                             <?php
                                             if (!empty($expense_receipt)) { ?>
-                                                <a class="dropdown-item" href="<?php echo "uploads/expenses/$expense_receipt"; ?>" download="<?php echo "$expense_date-$vendor_name-$category_name-$expense_id.pdf"; ?>">
+                                                <a class="dropdown-item" href="<?php echo "../uploads/expenses/$expense_receipt"; ?>" download="<?php echo "$expense_date-$vendor_name-$category_name-$expense_id.pdf"; ?>">
                                                     <i class="fas fa-fw fa-download mr-2"></i>Download
                                                 </a>
                                                 <div class="dropdown-divider"></div>

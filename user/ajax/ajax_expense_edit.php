@@ -230,7 +230,7 @@ ob_start();
 
         <?php if (!empty($expense_receipt)) { ?>
             <hr>
-            <a class="text-secondary" href="<?php echo "uploads/expenses/$expense_receipt"; ?>"
+            <a class="text-secondary" href="<?php echo "../uploads/expenses/$expense_receipt"; ?>"
                 download="<?php echo "$expense_date-$vendor_name-$category_name-$expense_id.pdf" ?>">
                 <i class="fa fa-fw fa-2x fa-file-pdf text-secondary"></i> <?php echo "$expense_date-$vendor_name-$category_name-$expense_id.pdf" ?>
             </a>

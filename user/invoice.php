@@ -250,7 +250,7 @@ if (isset($_GET['invoice_id'])) {
                                         <?php if ($credit_balance) { ?>
                                         <a class="dropdown-item" href="#" data-toggle="ajax-modal" data-ajax-url="ajax/ajax_invoice_apply_credit.php" data-ajax-id="<?php echo $invoice_id; ?>"><i class="fas fa-fw fa-wallet mr-2"></i>Apply Credit (Balance: <?php echo numfmt_format_currency($currency_format, $credit_balance, $client_currency_code); ?>)</a>
                                         <?php } ?>
-                                        <a class="dropdown-item" href="guest/guest_pay_invoice_stripe.php?invoice_id=<?php echo "$invoice_id&url_key=$invoice_url_key"; ?>">Enter Card Manually</a>
+                                        <a class="dropdown-item" href="../guest/guest_pay_invoice_stripe.php?invoice_id=<?php echo "$invoice_id&url_key=$invoice_url_key"; ?>">Enter Card Manually</a>
                                         <?php 
                                         if (mysqli_num_rows($sql_saved_payment_methods) > 0) { ?>
                                             <h6 class="dropdown-header text-left">Pay with a Saved Card</h6>
@@ -320,7 +320,7 @@ if (isset($_GET['invoice_id'])) {
                                         <i class="fa fa-fw fa-paper-plane text-secondary mr-2"></i>Send Email
                                     </a>
                                 <?php } ?>
-                                <a class="dropdown-item" target="_blank" href="guest/guest_view_invoice.php?invoice_id=<?php echo "$invoice_id&url_key=$invoice_url_key"; ?>">
+                                <a class="dropdown-item" target="_blank" href="../guest/guest_view_invoice.php?invoice_id=<?php echo "$invoice_id&url_key=$invoice_url_key"; ?>">
                                     <i class="fa fa-fw fa-link text-secondary mr-2"></i>Guest URL
                                 </a>
                                 <?php if ($invoice_status !== 'Cancelled' && $invoice_status !== 'Paid' && $invoice_status !== 'Non-Billable') { ?>
@@ -345,12 +345,12 @@ if (isset($_GET['invoice_id'])) {
         <div class="card-body">
 
             <div class="row mb-3">
-                <?php if (file_exists("uploads/settings/$company_logo")) { ?>
+                <?php if (file_exists("../uploads/settings/$company_logo")) { ?>
                 <div class="col-sm-2">
-                    <img class="img-fluid" src="<?php echo "uploads/settings/$company_logo"; ?>" alt="Company logo">
+                    <img class="img-fluid" src="<?php echo "../uploads/settings/$company_logo"; ?>" alt="Company logo">
                 </div>
                 <?php } ?>
-                <div class="col-sm-6 <?php if (!file_exists("uploads/settings/$company_logo")) { echo "col-sm-8"; } ?>">
+                <div class="col-sm-6 <?php if (!file_exists("../uploads/settings/$company_logo")) { echo "col-sm-8"; } ?>">
                     <ul class="list-unstyled">
                         <li><h4><strong><?php echo $company_name; ?></strong></h4></li>
                         <li><?php echo $company_address; ?></li>
@@ -764,8 +764,8 @@ require_once "../includes/footer.php";
 ?>
 
 <!-- JSON Autocomplete / type ahead -->
-<link rel="stylesheet" href="plugins/jquery-ui/jquery-ui.min.css">
-<script src="plugins/jquery-ui/jquery-ui.min.js"></script>
+<link rel="stylesheet" href="../plugins/jquery-ui/jquery-ui.min.css">
+<script src="../plugins/jquery-ui/jquery-ui.min.js"></script>
 <script>
     $(function() {
         var availableProducts = <?php echo $json_products ?? '""'?>;
@@ -784,7 +784,7 @@ require_once "../includes/footer.php";
     });
 </script>
 
-<script src="plugins/SortableJS/Sortable.min.js"></script>
+<script src="../plugins/SortableJS/Sortable.min.js"></script>
 <script>
 new Sortable(document.querySelector('table#items tbody'), {
     handle: '.drag-handle',

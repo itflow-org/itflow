@@ -4,7 +4,7 @@ require_once "includes/inc_all_client.php";
 
 
 //Initialize the HTML Purifier to prevent XSS
-require "plugins/htmlpurifier/HTMLPurifier.standalone.php";
+require "../plugins/htmlpurifier/HTMLPurifier.standalone.php";
 
 $purifier_config = HTMLPurifier_Config::createDefault();
 $purifier_config->set('Cache.DefinitionImpl', null); // Disable cache by setting a non-existent directory or an invalid one
@@ -410,7 +410,7 @@ $page_title = $row['document_name'];
 
 </div>
 
-<script src="js/pretty_content.js"></script>
+<script src="../js/pretty_content.js"></script>
 
 <?php
 

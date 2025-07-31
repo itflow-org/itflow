@@ -137,9 +137,9 @@ $sql_task_templates = mysqli_query($mysqli, "SELECT * FROM task_templates WHERE 
 
 </div>
 
-<script src="js/pretty_content.js"></script>
+<script src="../js/pretty_content.js"></script>
 
-<script src="plugins/SortableJS/Sortable.min.js"></script>
+<script src="../plugins/SortableJS/Sortable.min.js"></script>
 <script>
 new Sortable(document.querySelector('table#tasks tbody'), {
     handle: '.drag-handle',

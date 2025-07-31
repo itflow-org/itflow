@@ -131,7 +131,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             <div class="row">
                                 <div class="col-md-6">
                                     <?php if ($rack_photo) { ?>
-                                        <img class="img-thumbnail mb-3" alt="rack_photo" src="<?php echo "uploads/clients/$client_id/$rack_photo"; ?>">
+                                        <img class="img-thumbnail mb-3" alt="rack_photo" src="<?php echo "../uploads/clients/$client_id/$rack_photo"; ?>">
                                     <?php } ?>
                                     <table class="table table-sm table-borderless border">
                                         <tbody>

@@ -216,7 +216,7 @@ if (isset($_GET['recurring_invoice_id'])) {
 
             <div class="row mb-3">
                 <div class="col-sm-2">
-                    <img class="img-fluid" src="<?php echo "uploads/settings/$company_logo"; ?>" alt="Company logo">
+                    <img class="img-fluid" src="<?php echo "../uploads/settings/$company_logo"; ?>" alt="Company logo">
                 </div>
                 <div class="col-sm-6">
                     <ul class="list-unstyled">
@@ -500,8 +500,8 @@ require_once "../includes/footer.php";
 ?>
 
 <!-- JSON Autocomplete / type ahead -->
-<link rel="stylesheet" href="plugins/jquery-ui/jquery-ui.min.css">
-<script src="plugins/jquery-ui/jquery-ui.min.js"></script>
+<link rel="stylesheet" href="../plugins/jquery-ui/jquery-ui.min.css">
+<script src="../plugins/jquery-ui/jquery-ui.min.js"></script>
 <script>
     $(function() {
         var availableProducts = <?php echo $json_products?>;
@@ -520,7 +520,7 @@ require_once "../includes/footer.php";
     });
 </script>
 
-<script src="plugins/SortableJS/Sortable.min.js"></script>
+<script src="../plugins/SortableJS/Sortable.min.js"></script>
 <script>
 new Sortable(document.querySelector('table#items tbody'), {
     handle: '.drag-handle',

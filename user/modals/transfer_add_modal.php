@@ -153,7 +153,7 @@
                                 <option value="">- Method of Transfer -</option>
                                 <?php
 
-                                $sql = mysqli_query($mysqli, "SELECT * FROM payment_methods WHERE payment_method_provider_id = 0 ORDER BY payment_method_name ASC");
+                                $sql = mysqli_query($mysqli, "SELECT * FROM payment_methods ORDER BY payment_method_name ASC");
                                 while ($row = mysqli_fetch_array($sql)) {
                                     $payment_method_name = nullable_htmlentities($row['payment_method_name']);
                                 ?>

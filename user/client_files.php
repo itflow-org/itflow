@@ -327,7 +327,7 @@ while ($folder_id > 0) {
                         $files[] = [
                             'id' => $file_id,
                             'name' => $file_name,
-                            'preview' => "uploads/clients/$client_id/$file_reference_name"
+                            'preview' => "../uploads/clients/$client_id/$file_reference_name"
                         ];
 
                         ?>
@@ -335,7 +335,7 @@ while ($folder_id > 0) {
                         <div class="col-xl-2 col-lg-2 col-md-6 col-sm-6 mb-3 text-center">
                         
                             <a href="#" onclick="openModal(<?php echo count($files)-1; ?>)"><!-- passing the index -->
-                                <img class="img-thumbnail" src="<?php echo "uploads/clients/$client_id/$file_reference_name"; ?>" alt="<?php echo $file_reference_name ?>">
+                                <img class="img-thumbnail" src="<?php echo "../uploads/clients/$client_id/$file_reference_name"; ?>" alt="<?php echo $file_reference_name ?>">
                             </a>
                             
                             <div>
@@ -345,7 +345,7 @@ while ($folder_id > 0) {
                                         <i class="fas fa-ellipsis-v"></i>
                                     </button>
                                     <div class="dropdown-menu">
-                                        <a class="dropdown-item" href="<?php echo "uploads/clients/$client_id/$file_reference_name"; ?>" download="<?php echo $file_name; ?>">
+                                        <a class="dropdown-item" href="<?php echo "../uploads/clients/$client_id/$file_reference_name"; ?>" download="<?php echo $file_name; ?>">
                                             <i class="fas fa-fw fa-cloud-download-alt mr-2"></i>Download
                                         </a>
                                         <a class="dropdown-item" href="#" data-toggle="modal" data-target="#shareModal" onclick="populateShareModal(<?php echo "$client_id, 'File', $file_id"; ?>)">
@@ -514,7 +514,7 @@ while ($folder_id > 0) {
                                         </div>
                                     </td>
                                     <td>
-                                        <a href="<?php echo "uploads/clients/$client_id/$file_reference_name"; ?>" target="_blank">
+                                        <a href="<?php echo "../uploads/clients/$client_id/$file_reference_name"; ?>" target="_blank">
                                             <div class="media">
                                                 <i class="fa fa-fw fa-2x fa-<?php echo $file_icon; ?> text-dark mr-3"></i>
                                                 <div class="media-body">
@@ -550,7 +550,7 @@ while ($folder_id > 0) {
                                                 <i class="fas fa-ellipsis-h"></i>
                                             </button>
                                             <div class="dropdown-menu">
-                                                <a class="dropdown-item" href="<?php echo "uploads/clients/$client_id/$file_reference_name"; ?>" download="<?php echo $file_name; ?>">
+                                                <a class="dropdown-item" href="<?php echo "../uploads/clients/$client_id/$file_reference_name"; ?>" download="<?php echo $file_name; ?>">
                                                     <i class="fas fa-fw fa-cloud-download-alt mr-2"></i>Download
                                                 </a>
                                                 <a class="dropdown-item" href="#" data-toggle="modal" data-target="#shareModal" onclick="populateShareModal(<?php echo "$client_id, 'File', $file_id"; ?>)">

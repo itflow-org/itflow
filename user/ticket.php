@@ -13,7 +13,7 @@ if (isset($_GET['client_id'])) {
 enforceUserPermission('module_support');
 
 // Initialize the HTML Purifier to prevent XSS
-require_once "plugins/htmlpurifier/HTMLPurifier.standalone.php";
+require_once "../plugins/htmlpurifier/HTMLPurifier.standalone.php";
 
 $purifier_config = HTMLPurifier_Config::createDefault();
 $purifier_config->set('Cache.DefinitionImpl', null); // Disable cache by setting a non-existent directory or an invalid one
@@ -608,7 +608,7 @@ if (isset($_GET['ticket_id'])) {
                         while ($ticket_attachment = mysqli_fetch_array($sql_ticket_attachments)) {
                             $name = nullable_htmlentities($ticket_attachment['ticket_attachment_name']);
                             $ref_name = nullable_htmlentities($ticket_attachment['ticket_attachment_reference_name']);
-                            echo "<hr class=''><i class='fas fa-fw fa-paperclip text-secondary mr-1'></i>$name | <a href='uploads/tickets/$ticket_id/$ref_name' download='$name'><i class='fas fa-fw fa-download mr-1'></i>Download</a> | <a target='_blank' href='uploads/tickets/$ticket_id/$ref_name'><i class='fas fa-fw fa-external-link-alt mr-1'></i>View</a>";
+                            echo "<hr class=''><i class='fas fa-fw fa-paperclip text-secondary mr-1'></i>$name | <a href='../uploads/tickets/$ticket_id/$ref_name' download='$name'><i class='fas fa-fw fa-download mr-1'></i>Download</a> | <a target='_blank' href='../uploads/tickets/$ticket_id/$ref_name'><i class='fas fa-fw fa-external-link-alt mr-1'></i>View</a>";
                         }
                         ?>
                     </div>
@@ -724,13 +724,13 @@ if (isset($_GET['ticket_id'])) {
                         $ticket_reply_by_display = nullable_htmlentities($row['contact_name']);
                         $user_initials = initials($row['contact_name']);
                         $user_avatar = nullable_htmlentities($row['contact_photo']);
-                        $avatar_link = "uploads/clients/$client_id/$user_avatar";
+                        $avatar_link = "../uploads/clients/$client_id/$user_avatar";
                     } else {
                         $ticket_reply_by_display = nullable_htmlentities($row['user_name']);
                         $user_id = intval($row['user_id']);
                         $user_avatar = nullable_htmlentities($row['user_avatar']);
                         $user_initials = initials($row['user_name']);
-                        $avatar_link = "uploads/users/$user_id/$user_avatar";
+                        $avatar_link = "../uploads/users/$user_id/$user_avatar";
                         $ticket_reply_time_worked = date_create($row['ticket_reply_time_worked']);
                     }
 
@@ -824,7 +824,7 @@ if (isset($_GET['ticket_id'])) {
                             while ($ticket_attachment = mysqli_fetch_array($sql_ticket_reply_attachments)) {
                                 $name = nullable_htmlentities($ticket_attachment['ticket_attachment_name']);
                                 $ref_name = nullable_htmlentities($ticket_attachment['ticket_attachment_reference_name']);
-                                echo "<hr><i class='fas fa-fw fa-paperclip text-secondary mr-1'></i>$name | <a href='uploads/tickets/$ticket_id/$ref_name' download='$name'><i class='fas fa-fw fa-download mr-1'></i>Download</a> | <a target='_blank' href='uploads/tickets/$ticket_id/$ref_name'><i class='fas fa-fw fa-external-link-alt mr-1'></i>View</a>";
+                                echo "<hr><i class='fas fa-fw fa-paperclip text-secondary mr-1'></i>$name | <a href='../uploads/tickets/$ticket_id/$ref_name' download='$name'><i class='fas fa-fw fa-download mr-1'></i>Download</a> | <a target='_blank' href='../uploads/tickets/$ticket_id/$ref_name'><i class='fas fa-fw fa-external-link-alt mr-1'></i>View</a>";
                             }
                             ?>
                         </div>
@@ -1322,7 +1322,7 @@ require_once "../includes/footer.php";
     </div>
 </div>
 
-<script src="js/show_modals.js"></script>
+<script src="../js/show_modals.js"></script>
 
 <?php if (empty($ticket_closed_at)) { ?>
     <!-- create js variable related to ticket timer setting -->
@@ -1337,7 +1337,7 @@ require_once "../includes/footer.php";
     <script src="js/ticket_collision_detection.js"></script>
 <?php } ?>
 
-<script src="js/pretty_content.js"></script>
+<script src="../js/pretty_content.js"></script>
 
 <script>
     $('#summaryModal').on('shown.bs.modal', function (e) {
@@ -1356,7 +1356,7 @@ require_once "../includes/footer.php";
     });
 </script>
 
-<script src="plugins/SortableJS/Sortable.min.js"></script>
+<script src="../plugins/SortableJS/Sortable.min.js"></script>
 <script>
 new Sortable(document.querySelector('table#tasks tbody'), {
     handle: '.drag-handle',

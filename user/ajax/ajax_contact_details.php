@@ -221,7 +221,7 @@ ob_start();
 
                     <div class="text-center">
                         <?php if ($contact_photo) { ?>
-                            <img class="img-thumbnail img-circle col-3" alt="contact_photo" src="<?php echo "uploads/clients/$client_id/$contact_photo"; ?>">
+                            <img class="img-thumbnail img-circle col-3" alt="contact_photo" src="<?php echo "../uploads/clients/$client_id/$contact_photo"; ?>">
                         <?php } else { ?>
                             <span class="fa-stack fa-4x">
                                 <i class="fa fa-circle fa-stack-2x text-secondary"></i>
@@ -773,7 +773,7 @@ ob_start();
 
                         <tr>
                             <td>
-                                <div><a href="uploads/clients/<?php echo $client_id; ?>/<?php echo $file_reference_name; ?>"><?php echo $file_name; ?></a></div>
+                                <div><a href="../uploads/clients/<?php echo $client_id; ?>/<?php echo $file_reference_name; ?>"><?php echo $file_name; ?></a></div>
                                 <div class="text-secondary"><?php echo $file_description; ?></div>
                             </td>
                             <td><?php echo $file_mime_type; ?></td>

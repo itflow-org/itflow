@@ -282,7 +282,7 @@ ob_start();
 
                 <div class="mb-3 text-center">
                     <?php if ($contact_photo) { ?>
-                        <img class="img-fluid" alt="contact_photo" src="<?php echo "uploads/clients/$client_id/$contact_photo"; ?>">
+                        <img class="img-fluid" alt="contact_photo" src="<?php echo "../uploads/clients/$client_id/$contact_photo"; ?>">
                     <?php } else { ?>
                         <span class="fa-stack fa-4x">
                             <i class="fa fa-circle fa-stack-2x text-secondary"></i>
@@ -352,7 +352,7 @@ ob_start();
 function generatePassword(type, id) {
     // Send a GET request to ajax.php as ajax.php?get_readable_pass=true
     jQuery.get(
-        "../ajax.php", {
+        "ajax.php", {
             get_readable_pass: 'true'
         },
         function(data) {

@@ -286,6 +286,6 @@
 </div>
 
 <!-- Recurring Ticket Client/Contact JS -->
-<link rel="stylesheet" href="plugins/jquery-ui/jquery-ui.min.css">
-<script src="plugins/jquery-ui/jquery-ui.min.js"></script>
+<link rel="stylesheet" href="../plugins/jquery-ui/jquery-ui.min.css">
+<script src="../plugins/jquery-ui/jquery-ui.min.js"></script>
 <script src="js/tickets_add_modal.js"></script>

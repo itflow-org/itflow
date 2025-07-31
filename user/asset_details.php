@@ -245,7 +245,7 @@ if (isset($_GET['asset_id'])) {
                     </button>
                     <h4 class="text-bold"><i class="fa fa-fw text-secondary fa-<?php echo $device_icon; ?> mr-3"></i><?php echo $asset_name; ?></h4>
                     <?php if ($asset_photo) { ?>
-                        <img class="img-fluid img-circle p-3" alt="asset_photo" src="<?php echo "uploads/clients/$client_id/$asset_photo"; ?>">
+                        <img class="img-fluid img-circle p-3" alt="asset_photo" src="<?php echo "../uploads/clients/$client_id/$asset_photo"; ?>">
                     <?php } ?>
                     <?php if ($asset_description) { ?>
                         <div class="text-secondary"><?php echo $asset_description; ?></div>
@@ -948,7 +948,7 @@ if (isset($_GET['asset_id'])) {
 
                                 ?>
                                 <tr>
-                                    <td><a class="text-dark" href="<?php echo "uploads/clients/$client_id/$file_reference_name"; ?>" target="_blank" ><?php echo "$file_name<br><span class='text-secondary'>$file_description</span>"; ?></a></td>
+                                    <td><a class="text-dark" href="<?php echo "../uploads/clients/$client_id/$file_reference_name"; ?>" target="_blank" ><?php echo "$file_name<br><span class='text-secondary'>$file_description</span>"; ?></a></td>
                                     <td><?php echo $file_created_at; ?></td>
                                     <td class="text-center">
                                         <a href="post.php?unlink_asset_from_file&asset_id=<?php echo $asset_id; ?>&file_id=<?php echo $file_id; ?>" class="btn btn-secondary btn-sm" title="Unlink"><i class="fas fa-fw fa-unlink"></i></a>

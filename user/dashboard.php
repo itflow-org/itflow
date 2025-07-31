@@ -734,7 +734,7 @@ if ($user_config_dashboard_technical_enable == 1) {
 
 <?php } ?>
 
-<?php require_once "../../includes/footer.php"; ?>
+<?php require_once "../includes/footer.php"; ?>
 
 <?php if ($user_config_dashboard_financial_enable == 1) { ?>
 

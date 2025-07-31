@@ -1,5 +1,5 @@
 <?php
-require_once 'plugins/totp/totp.php';
+require_once '../plugins/totp/totp.php';
 
 // Only generate the token once and store it in session:
 if (empty($_SESSION['mfa_token'])) {
@@ -27,7 +27,7 @@ $data = "otpauth://totp/ITFlow:$session_email?secret=$token";
                 <div class="modal-body">
                         
                     <div class="text-center">
-                        <img src='plugins/barcode/barcode.php?f=png&s=qr&d=<?php echo $data; ?>'>
+                        <img src='../plugins/barcode/barcode.php?f=png&s=qr&d=<?php echo $data; ?>'>
                         <p><span class='text-secondary'>Secret:</span> <?php echo $token; ?>
                             <button type="button" class='btn btn-sm clipboardjs' data-clipboard-text='<?php echo $token; ?>'><i class='far fa-copy text-secondary'></i></button>
                         </p>

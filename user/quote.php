@@ -231,7 +231,7 @@ if (isset($_GET['quote_id'])) {
                                     <i class="fa fa-fw fa-paper-plane text-secondary mr-2"></i>Send Email
                                 </a>
                             <?php } ?>
-                            <a class="dropdown-item" target="_blank" href="guest/guest_view_quote.php?quote_id=<?php echo "$quote_id&url_key=$quote_url_key"; ?>">
+                            <a class="dropdown-item" target="_blank" href="../guest/guest_view_quote.php?quote_id=<?php echo "$quote_id&url_key=$quote_url_key"; ?>">
                                 <i class="fa fa-fw fa-link text-secondary mr-2"></i>Guest URL
                             </a>
                             <?php if (lookupUserPermission("module_sales") >= 3) { ?>
@@ -250,12 +250,12 @@ if (isset($_GET['quote_id'])) {
         <div class="card-body">
 
             <div class="row mb-3">
-                <?php if (file_exists("uploads/settings/$company_logo")) { ?>
+                <?php if (file_exists("../uploads/settings/$company_logo")) { ?>
                 <div class="col-sm-2">
-                    <img class="img-fluid" src="<?php echo "uploads/settings/$company_logo"; ?>" alt="Company logo">
+                    <img class="img-fluid" src="<?php echo "../uploads/settings/$company_logo"; ?>" alt="Company logo">
                 </div>
                 <?php } ?>
-                <div class="col-sm-6 <?php if (!file_exists("uploads/settings/$company_logo")) { echo "col-sm-8"; } ?>">
+                <div class="col-sm-6 <?php if (!file_exists("../uploads/settings/$company_logo")) { echo "col-sm-8"; } ?>">
                     <ul class="list-unstyled">
                         <li><h4><strong><?php echo $company_name; ?></strong></h4></li>
                         <li><?php echo $company_address; ?></li>
@@ -525,7 +525,7 @@ if (isset($_GET['quote_id'])) {
 
                             ?>
                             <tr>
-                                <td><a target="_blank" href="/uploads/clients/<?php echo $client_id ?>/<?php echo $ref_name ?>"><?php echo $name; ?></a></td>
+                                <td><a target="_blank" href="../uploads/clients/<?php echo $client_id ?>/<?php echo $ref_name ?>"><?php echo $name; ?></a></td>
                                 <td><?php echo $created; ?></td>
                             </tr>
                             <?php
@@ -599,8 +599,8 @@ require_once "../includes/footer.php";
 
 <!-- JSON Autocomplete / type ahead -->
 <!-- //TODO: Move to js/ -->
-<link rel="stylesheet" href="plugins/jquery-ui/jquery-ui.min.css">
-<script src="plugins/jquery-ui/jquery-ui.min.js"></script>
+<link rel="stylesheet" href="../plugins/jquery-ui/jquery-ui.min.css">
+<script src="../plugins/jquery-ui/jquery-ui.min.js"></script>
 <script>
     $(function() {
         var availableProducts = <?php echo $json_products ?? '""' ?>;
@@ -619,7 +619,7 @@ require_once "../includes/footer.php";
     });
 </script>
 
-<script src="plugins/SortableJS/Sortable.min.js"></script>
+<script src="../plugins/SortableJS/Sortable.min.js"></script>
 <script>
 new Sortable(document.querySelector('table#items tbody'), {
     handle: '.drag-handle',

@@ -166,7 +166,7 @@ ob_start();
                     <option value="">- Method of Transfer -</option>
                     <?php
 
-                    $sql_transfer_method_select = mysqli_query($mysqli, "SELECT * FROM payment_methods WHERE payment_method_provider_id = 0 ORDER BY payment_method_name ASC");
+                    $sql_transfer_method_select = mysqli_query($mysqli, "SELECT * FROM payment_methods ORDER BY payment_method_name ASC");
                     while ($row = mysqli_fetch_array($sql_transfer_method_select)) {
                         $payment_method_name_select = nullable_htmlentities($row['payment_method_name']);
                     ?>

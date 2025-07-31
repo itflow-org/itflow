@@ -254,7 +254,7 @@ ob_start();
                 <div class="card-header">
                     <h3 class="text-bold"><i class="fa fa-fw text-secondary fa-<?php echo $device_icon; ?> mr-3"></i><?php echo $asset_name; ?></h3>
                     <?php if ($asset_photo) { ?>
-                        <img class="img-fluid img-circle p-3" alt="asset_photo" src="<?php echo "uploads/clients/$client_id/$asset_photo"; ?>">
+                        <img class="img-fluid img-circle p-3" alt="asset_photo" src="<?php echo "../uploads/clients/$client_id/$asset_photo"; ?>">
                     <?php } ?>
                     <?php if ($asset_description) { ?>
                         <div class="text-secondary"><?php echo $asset_description; ?></div>
@@ -348,7 +348,7 @@ ob_start();
 
                 // Send a POST request to ajax.php as ajax.php with data contact_set_notes=true, contact_id=NUM, notes=NOTES
                 jQuery.post(
-                    "ajax.php",
+                    "../ajax.php",
                     {
                         asset_set_notes: 'TRUE',
                         asset_id: asset_id,
@@ -530,7 +530,7 @@ ob_start();
             </div>
         </div>
         <!-- Include script to get TOTP code via the credentials ID -->
-        <script src="js/credential_show_otp_via_id.js"></script>
+        <script src="../js/credential_show_otp_via_id.js"></script>
         <?php } ?>
 
         <?php if ($ticket_count) { ?>
@@ -831,7 +831,7 @@ ob_start();
                         $file_created_at = nullable_htmlentities($row['file_created_at']);
                         ?>
                         <tr>
-                            <td><a class="text-dark" href="<?php echo "uploads/clients/$client_id/$file_reference_name"; ?>" target="_blank" ><?php echo "$file_name<br><span class='text-secondary'>$file_description</span>"; ?></a></td>
+                            <td><a class="text-dark" href="<?php echo "../uploads/clients/$client_id/$file_reference_name"; ?>" target="_blank" ><?php echo "$file_name<br><span class='text-secondary'>$file_description</span>"; ?></a></td>
                             <td><?php echo $file_mime_type; ?></td>
                             <td><?php echo $file_created_at; ?></td>
                         </tr>

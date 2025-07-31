@@ -438,7 +438,7 @@ ob_start();
 
                 <div class="mb-3 text-center">
                     <?php if ($asset_photo) { ?>
-                        <img class="img-fluid" alt="asset_photo" src="<?php echo "uploads/clients/$client_id/$asset_photo"; ?>">
+                        <img class="img-fluid" alt="asset_photo" src="<?php echo "../uploads/clients/$client_id/$asset_photo"; ?>">
                     <?php } ?>
                 </div>
 
