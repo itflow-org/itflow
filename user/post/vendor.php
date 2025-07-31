@@ -49,7 +49,7 @@ if (isset($_POST['add_vendor_from_template'])) {
 
 if (isset($_POST['add_vendor'])) {
 
-    require_once 'post/user/vendor_model.php';
+    require_once 'vendor_model.php';
 
     $client_id = intval($_POST['client_id']); // Used if this vendor is under a contact otherwise its 0 for under company
 
@@ -67,7 +67,7 @@ if (isset($_POST['add_vendor'])) {
 
 if (isset($_POST['edit_vendor'])) {
 
-    require_once 'post/user/vendor_model.php';
+    require_once 'vendor_model.php';
 
     $vendor_id = intval($_POST['vendor_id']);
     $vendor_template_id = intval($_POST['vendor_template_id']);

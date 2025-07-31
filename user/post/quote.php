@@ -10,7 +10,7 @@ if (isset($_POST['add_quote'])) {
 
     enforceUserPermission('module_sales', 2);
 
-    require_once 'post/user/quote_model.php';
+    require_once 'quote_model.php';
 
     $client_id = intval($_POST['client']);
 
@@ -252,7 +252,7 @@ if (isset($_POST['edit_quote'])) {
 
     enforceUserPermission('module_sales', 2);
 
-    require_once 'post/user/quote_model.php';
+    require_once 'quote_model.php';
 
     $quote_id = intval($_POST['quote_id']);
 
@@ -683,7 +683,7 @@ if (isset($_GET['export_quote_pdf'])) {
         $quote_badge_color = "secondary";
     }
 
-    require_once("plugins/TCPDF/tcpdf.php");
+    require_once("../plugins/TCPDF/tcpdf.php");
 
     // Start TCPDF
     $pdf = new TCPDF('P', 'mm', 'A4', true, 'UTF-8', false);
@@ -697,8 +697,8 @@ if (isset($_GET['export_quote_pdf'])) {
     $html = '<table width="100%" cellspacing="0" cellpadding="3">
     <tr>
         <td width="40%">';
-    if (!empty($company_logo) && file_exists("uploads/settings/$company_logo")) {
-        $html .= '<img src="uploads/settings/' . $company_logo . '" width="120">';
+    if (!empty($company_logo) && file_exists("../uploads/settings/$company_logo")) {
+        $html .= '<img src="../uploads/settings/' . $company_logo . '" width="120">';
     }
     $html .= '</td>
         <td width="60%" align="right">

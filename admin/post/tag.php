@@ -8,7 +8,7 @@ defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
 
 if (isset($_POST['add_tag'])) {
 
-    require_once 'post/admin/admin_tag_model.php';
+    require_once 'tag_model.php';
 
     mysqli_query($mysqli,"INSERT INTO tags SET tag_name = '$name', tag_type = $type, tag_color = '$color', tag_icon = '$icon'");
 
@@ -25,7 +25,7 @@ if (isset($_POST['add_tag'])) {
 
 if (isset($_POST['edit_tag'])) {
 
-    require_once 'post/admin/admin_tag_model.php';
+    require_once 'post/tag_model.php';
 
     $tag_id = intval($_POST['tag_id']);
 

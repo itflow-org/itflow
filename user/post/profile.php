@@ -197,7 +197,7 @@ if (isset($_POST['enable_mfa'])) {
 
     validateCSRFToken($_POST['csrf_token']);
 
-    require_once "plugins/totp/totp.php";
+    require_once "../plugins/totp/totp.php";
 
     // Grab the code from the user
     $verify_code = trim($_POST['verify_code']); 

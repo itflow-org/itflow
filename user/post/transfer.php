@@ -10,7 +10,7 @@ if (isset($_POST['add_transfer'])) {
 
     enforceUserPermission('module_financial', 2);
 
-    require_once 'post/user/transfer_model.php';
+    require_once 'transfer_model.php';
 
     // Get Source Account Name for logging
     $sql = mysqli_query($mysqli,"SELECT account_name, account_currency_code FROM accounts WHERE account_id = $account_from");
@@ -46,7 +46,7 @@ if (isset($_POST['edit_transfer'])) {
 
     enforceUserPermission('module_financial', 2);
 
-    require_once 'post/user/transfer_model.php';
+    require_once 'transfer_model.php';
 
 
     $transfer_id = intval($_POST['transfer_id']);

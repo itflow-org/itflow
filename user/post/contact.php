@@ -10,7 +10,7 @@ if (isset($_POST['add_contact'])) {
 
     enforceUserPermission('module_client', 2);
 
-    require_once 'post/user/contact_model.php';
+    require_once 'contact_model.php';
 
     // Create User Account
     $user_id = 0;
@@ -54,10 +54,10 @@ if (isset($_POST['add_contact'])) {
             $file_tmp_path = $_FILES['file']['tmp_name'];
 
             // directory in which the uploaded file will be moved
-            if (!file_exists("uploads/clients/$client_id")) {
-                mkdir("uploads/clients/$client_id");
+            if (!file_exists("../uploads/clients/$client_id")) {
+                mkdir("../uploads/clients/$client_id");
             }
-            $upload_file_dir = "uploads/clients/$client_id/";
+            $upload_file_dir = "../uploads/clients/$client_id/";
             $dest_path = $upload_file_dir . $new_file_name;
             move_uploaded_file($file_tmp_path, $dest_path);
 
@@ -81,7 +81,7 @@ if (isset($_POST['edit_contact'])) {
 
     enforceUserPermission('module_client', 2);
 
-    require_once 'post/user/contact_model.php';
+    require_once 'contact_model.php';
 
     $contact_id = intval($_POST['contact_id']);
     $send_email = intval($_POST['send_email'] ?? 0);
@@ -92,8 +92,8 @@ if (isset($_POST['edit_contact'])) {
     $existing_file_name = sanitizeInput($row['contact_photo']);
     $contact_user_id = intval($row['contact_user_id']);
 
-    if (!file_exists("uploads/clients/$client_id")) {
-        mkdir("uploads/clients/$client_id");
+    if (!file_exists("../uploads/clients/$client_id")) {
+        mkdir("../uploads/clients/$client_id");
     }
 
     // Update Existing User
@@ -130,13 +130,13 @@ if (isset($_POST['edit_contact'])) {
 
             // Set directory in which the uploaded file will be moved
             $file_tmp_path = $_FILES['file']['tmp_name'];
-            $upload_file_dir = "uploads/clients/$client_id/";
+            $upload_file_dir = "../uploads/clients/$client_id/";
             $dest_path = $upload_file_dir . $new_file_name;
 
             move_uploaded_file($file_tmp_path, $dest_path);
 
             //Delete old file
-            unlink("uploads/clients/$client_id/$existing_file_name");
+            unlink("../uploads/clients/$client_id/$existing_file_name");
 
             mysqli_query($mysqli,"UPDATE contacts SET contact_photo = '$new_file_name' WHERE contact_id = $contact_id");
                 

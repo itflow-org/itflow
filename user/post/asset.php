@@ -27,10 +27,10 @@ if (isset($_POST['add_asset'])) {
             $file_tmp_path = $_FILES['file']['tmp_name'];
 
             // directory in which the uploaded file will be moved
-            if (!file_exists("uploads/clients/$client_id")) {
-                mkdir("uploads/clients/$client_id");
+            if (!file_exists("../uploads/clients/$client_id")) {
+                mkdir("../uploads/clients/$client_id");
             }
-            $upload_file_dir = "uploads/clients/$client_id/";
+            $upload_file_dir = "../uploads/clients/$client_id/";
             $dest_path = $upload_file_dir . $new_file_name;
             move_uploaded_file($file_tmp_path, $dest_path);
 
@@ -100,13 +100,13 @@ if (isset($_POST['edit_asset'])) {
 
         // Set directory in which the uploaded file will be moved
         $file_tmp_path = $_FILES['file']['tmp_name'];
-        $upload_file_dir = "uploads/clients/$client_id/";
+        $upload_file_dir = "../uploads/clients/$client_id/";
         $dest_path = $upload_file_dir . $new_file_name;
 
         move_uploaded_file($file_tmp_path, $dest_path);
 
         //Delete old file
-        unlink("uploads/clients/$client_id/$existing_file_name");
+        unlink("../uploads/clients/$client_id/$existing_file_name");
 
         mysqli_query($mysqli,"UPDATE assets SET asset_photo = '$new_file_name' WHERE asset_id = $asset_id");
     }

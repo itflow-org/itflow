@@ -5,7 +5,7 @@
 defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
 
 // Import shared code from user-side vendor management  as we reuse functions
-require_once 'post/user/vendor.php';
+require_once '../user/post/vendor.php';
 
 if (isset($_POST['add_vendor_template'])) {
 

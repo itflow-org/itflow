@@ -760,7 +760,7 @@ if (isset($_GET['delete_ticket'])) {
 
         // Delete Ticket Attachements
         mysqli_query($mysqli, "DELETE FROM ticket_attachments WHERE ticket_attachment_ticket_id = $ticket_id");
-        removeDirectory("uploads/tickets/$ticket_id");
+        removeDirectory("../uploads/tickets/$ticket_id");
 
         // No Need to delete ticket assets as this is cascadely deleted via the database.
 
@@ -802,7 +802,7 @@ if (isset($_POST['bulk_delete_tickets'])) {
 
             // Delete Ticket Attachements
             mysqli_query($mysqli, "DELETE FROM ticket_attachments WHERE ticket_attachment_ticket_id = $ticket_id");
-            removeDirectory("uploads/tickets/$ticket_id");
+            removeDirectory("../uploads/tickets/$ticket_id");
 
             // No Need to delete ticket assets as this is cascadely deleted via the database.
 

@@ -27,8 +27,8 @@ if (isset($_POST['add_user'])) {
         }
     }
 
-    if (!file_exists("uploads/users/$user_id/")) {
-        mkdir("uploads/users/$user_id");
+    if (!file_exists("../uploads/users/$user_id/")) {
+        mkdir("../uploads/users/$user_id");
     }
 
     // Check for and process image/photo
@@ -103,7 +103,7 @@ if (isset($_POST['edit_user'])) {
 
     validateCSRFToken($_POST['csrf_token']);
 
-    require_once 'post/admin/admin_user_model.php';
+    require_once 'user_model.php';
 
     $user_id = intval($_POST['user_id']);
     $new_password = trim($_POST['new_password']);
@@ -127,8 +127,8 @@ if (isset($_POST['edit_user'])) {
         $two_fa = $_POST['2fa'];
     }
 
-    if (!file_exists("uploads/users/$user_id/")) {
-        mkdir("uploads/users/$user_id");
+    if (!file_exists("../uploads/users/$user_id/")) {
+        mkdir("../uploads/users/$user_id");
     }
 
     // Check for and process image/photo
@@ -139,7 +139,7 @@ if (isset($_POST['edit_user'])) {
             $file_tmp_path = $_FILES['file']['tmp_name'];
 
             // directory in which the uploaded file will be moved
-            $upload_file_dir = "uploads/users/$user_id/";
+            $upload_file_dir = "../uploads/users/$user_id/";
             $dest_path = $upload_file_dir . $new_file_name;
             move_uploaded_file($file_tmp_path, $dest_path);
 

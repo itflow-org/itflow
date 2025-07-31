@@ -8,7 +8,7 @@ defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
 
 if (isset($_POST['add_invoice'])) {
 
-    require_once 'post/user/invoice_model.php';
+    require_once 'invoice_model.php';
 
     $client_id = intval($_POST['client']);
 
@@ -43,7 +43,7 @@ if (isset($_POST['add_invoice'])) {
 
 if (isset($_POST['edit_invoice'])) {
 
-    require_once 'post/user/invoice_model.php';
+    require_once 'invoice_model.php';
 
     $invoice_id = intval($_POST['invoice_id']);
     $due = sanitizeInput($_POST['due']);
@@ -1133,7 +1133,7 @@ if (isset($_GET['add_payment_stripe'])) {
     }
 
     // Initialize Stripe
-    require_once __DIR__ . '/../../plugins/stripe-php/init.php';
+    require_once __DIR__ . '/../plugins/stripe-php/init.php';
     $stripe = new \Stripe\StripeClient($config_stripe_secret);
 
     $balance_to_pay = round($invoice_amount, 2);
@@ -2124,7 +2124,7 @@ if (isset($_GET['export_invoice_pdf'])) {
     //Set Badge color based off of invoice status
     $invoice_badge_color = getInvoiceBadgeColor($invoice_status);
 
-    require_once("plugins/TCPDF/tcpdf.php");
+    require_once("../plugins/TCPDF/tcpdf.php");
 
     // Start TCPDF
     $pdf = new TCPDF('P', 'mm', 'A4', true, 'UTF-8', false);
@@ -2138,8 +2138,8 @@ if (isset($_GET['export_invoice_pdf'])) {
     $html = '<table width="100%" cellspacing="0" cellpadding="3">
     <tr>
         <td width="40%">';
-    if (!empty($company_logo) && file_exists("uploads/settings/$company_logo")) {
-        $html .= '<img src="uploads/settings/' . $company_logo . '" width="120">';
+    if (!empty($company_logo) && file_exists("../uploads/settings/$company_logo")) {
+        $html .= '<img src="../uploads/settings/' . $company_logo . '" width="120">';
     }
     $html .= '</td>
         <td width="60%" align="right">

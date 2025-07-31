@@ -11,7 +11,7 @@ if (isset($_POST['add_product'])) {
 
     enforceUserPermission('module_sales', 2);
 
-    require_once 'post/user/product_model.php';
+    require_once 'product_model.php';
 
     mysqli_query($mysqli,"INSERT INTO products SET product_name = '$name', product_description = '$description', product_price = '$price', product_currency_code = '$session_company_currency', product_tax_id = $tax, product_category_id = $category");
 
@@ -30,7 +30,7 @@ if (isset($_POST['edit_product'])) {
 
     enforceUserPermission('module_sales', 2);
 
-    require_once 'post/user/product_model.php';
+    require_once 'product_model.php';
 
     $product_id = intval($_POST['product_id']);
 

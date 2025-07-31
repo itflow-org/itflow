@@ -31,10 +31,10 @@ if (isset($_POST['add_rack'])) {
         $file_tmp_path = $_FILES['file']['tmp_name'];
 
         // directory in which the uploaded file will be moved
-        if (!file_exists("uploads/clients/$client_id")) {
-            mkdir("uploads/clients/$client_id");
+        if (!file_exists("../uploads/clients/$client_id")) {
+            mkdir("../uploads/clients/$client_id");
         }
-        $upload_file_dir = "uploads/clients/$client_id/";
+        $upload_file_dir = "../uploads/clients/$client_id/";
         $dest_path = $upload_file_dir . $new_file_name;
         move_uploaded_file($file_tmp_path, $dest_path);
 
@@ -74,10 +74,10 @@ if (isset($_POST['edit_rack'])) {
         $file_tmp_path = $_FILES['file']['tmp_name'];
 
         // directory in which the uploaded file will be moved
-        if (!file_exists("uploads/clients/$client_id")) {
-            mkdir("uploads/clients/$client_id");
+        if (!file_exists("../uploads/clients/$client_id")) {
+            mkdir("../uploads/clients/$client_id");
         }
-        $upload_file_dir = "uploads/clients/$client_id/";
+        $upload_file_dir = "../uploads/clients/$client_id/";
         $dest_path = $upload_file_dir . $new_file_name;
         move_uploaded_file($file_tmp_path, $dest_path);
 
@@ -157,7 +157,7 @@ if (isset($_GET['delete_rack'])) {
 
     // Delete Photo if exists
     if ($rack_photo) {
-        unlink("uploads/clients/$client_id/$rack_photo");
+        unlink("../uploads/clients/$client_id/$rack_photo");
     }
 
     // Logging

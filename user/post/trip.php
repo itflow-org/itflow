@@ -8,7 +8,7 @@ defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
 
 if (isset($_POST['add_trip'])) {
 
-    require_once 'post/user/trip_model.php';
+    require_once 'trip_model.php';
 
 
     mysqli_query($mysqli,"INSERT INTO trips SET trip_date = '$date', trip_source = '$source', trip_destination = '$destination', trip_miles = $miles, round_trip = $roundtrip, trip_purpose = '$purpose', trip_user_id = $user_id, trip_client_id = $client_id");
@@ -26,7 +26,7 @@ if (isset($_POST['add_trip'])) {
 
 if (isset($_POST['edit_trip'])) {
 
-    require_once 'post/user/trip_model.php';
+    require_once 'trip_model.php';
 
     $trip_id = intval($_POST['trip_id']);
 

@@ -17,7 +17,7 @@ if (isset($_POST['upload_files'])) {
     $description = sanitizeInput($_POST['description']);
     $contact_id = intval($_POST['contact'] ?? 0);
     $asset_id = intval($_POST['asset'] ?? 0);
-    $client_dir  = "uploads/clients/$client_id";
+    $client_dir  = "../uploads/clients/$client_id";
 
     // Create client directory if it doesn't exist
     if (!is_dir($client_dir)) {
@@ -295,13 +295,13 @@ if (isset($_POST['delete_file'])) {
     $file_has_thumbnail = intval($row['file_has_thumbnail']);
     $file_has_preview = intval($row['file_has_preview']);
 
-    unlink("uploads/clients/$client_id/$file_reference_name");
+    unlink("../uploads/clients/$client_id/$file_reference_name");
 
     if ($file_has_thumbnail == 1) {
-        unlink("uploads/clients/$client_id/thumbnail_$file_reference_name");
+        unlink("../uploads/clients/$client_id/thumbnail_$file_reference_name");
     }
     if ($file_has_preview == 1) {
-        unlink("uploads/clients/$client_id/preview_$file_reference_name");
+        unlink("../uploads/clients/$client_id/preview_$file_reference_name");
     }
 
     mysqli_query($mysqli,"DELETE FROM files WHERE file_id = $file_id");
@@ -339,13 +339,13 @@ if (isset($_POST['bulk_delete_files'])) {
             $file_has_thumbnail = intval($row['file_has_thumbnail']);
             $file_has_preview = intval($row['file_has_preview']);
 
-            unlink("uploads/clients/$client_id/$file_reference_name");
+            unlink("../uploads/clients/$client_id/$file_reference_name");
 
             if ($file_has_thumbnail == 1) {
-                unlink("uploads/clients/$client_id/thumbnail_$file_reference_name");
+                unlink("../uploads/clients/$client_id/thumbnail_$file_reference_name");
             }
             if ($file_has_preview == 1) {
-                unlink("uploads/clients/$client_id/preview_$file_reference_name");
+                unlink("../uploads/clients/$client_id/preview_$file_reference_name");
             }
 
             mysqli_query($mysqli,"DELETE FROM files WHERE file_id = $file_id");

@@ -10,7 +10,7 @@ if (isset($_POST['add_certificate'])) {
 
     enforceUserPermission('module_support', 2);
 
-    require_once 'post/user/certificate_model.php';
+    require_once 'certificate_model.php';
 
     // Parse public key data for a manually provided public key
     if (!empty($public_key) && (empty($expire) && empty($issued_by))) {
@@ -45,7 +45,7 @@ if (isset($_POST['edit_certificate'])) {
 
     enforceUserPermission('module_support', 2);
 
-    require_once 'post/user/certificate_model.php';
+    require_once 'certificate_model.php';
     $certificate_id = intval($_POST['certificate_id']);
 
     // Parse public key data for a manually provided public key

@@ -564,7 +564,7 @@ if (isset($_GET['export_document'])) {
     $client_id = intval($row['document_client_id']);
 
     // Include the TCPDF class
-    require_once('plugins/TCPDF/tcpdf.php');
+    require_once('../plugins/TCPDF/tcpdf.php');
 
     $pdf = new TCPDF();
 

@@ -10,7 +10,7 @@ if (isset($_POST['add_credential'])) {
 
     enforceUserPermission('module_credential', 2);
 
-    require_once 'post/user/credential_model.php';
+    require_once 'credential_model.php';
 
     mysqli_query($mysqli,"INSERT INTO credentials SET credential_name = '$name', credential_description = '$description', credential_uri = '$uri', credential_uri_2 = '$uri_2', credential_username = '$username', credential_password = '$password', credential_otp_secret = '$otp_secret', credential_note = '$note', credential_important = $important, credential_contact_id = $contact_id, credential_asset_id = $asset_id, credential_client_id = $client_id");
 
@@ -37,7 +37,7 @@ if (isset($_POST['edit_credential'])) {
 
     enforceUserPermission('module_credential', 2);
 
-    require_once 'post/user/credential_model.php';
+    require_once 'credential_model.php';
 
     $credential_id = intval($_POST['credential_id']);
 

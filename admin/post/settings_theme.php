@@ -30,12 +30,12 @@ if (isset($_POST['edit_favicon_settings'])) {
             $file_tmp_path = $_FILES['file']['tmp_name'];
 
             // Delete old file
-            if(file_exists("uploads/favicon.ico")) {
-                unlink("uploads/favicon.ico");
+            if(file_exists("../uploads/favicon.ico")) {
+                unlink("../uploads/favicon.ico");
             }
 
             // directory in which the uploaded file will be moved
-            $upload_file_dir = "uploads/";
+            $upload_file_dir = "../uploads/";
             //Force File Name
             $new_file_name = "favicon.ico";
             $dest_path = $upload_file_dir . $new_file_name;

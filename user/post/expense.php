@@ -8,7 +8,7 @@ defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
 
 if (isset($_POST['add_expense'])) {
 
-    require_once 'post/user/expense_model.php';
+    require_once 'expense_model.php';
 
     mysqli_query($mysqli,"INSERT INTO expenses SET expense_date = '$date', expense_amount = $amount, expense_currency_code = '$session_company_currency', expense_account_id = $account, expense_vendor_id = $vendor, expense_client_id = $client, expense_category_id = $category, expense_description = '$description', expense_reference = '$reference'");
 
@@ -24,7 +24,7 @@ if (isset($_POST['add_expense'])) {
             $file_tmp_path = $_FILES['file']['tmp_name'];
 
             // directory in which the uploaded file will be moved
-            $upload_file_dir = "uploads/expenses/";
+            $upload_file_dir = "../uploads/expenses/";
             $dest_path = $upload_file_dir . $new_file_name;
             move_uploaded_file($file_tmp_path, $dest_path);
 
@@ -44,7 +44,7 @@ if (isset($_POST['add_expense'])) {
 
 if (isset($_POST['edit_expense'])) {
 
-    require_once 'post/user/expense_model.php';
+    require_once 'expense_model.php';
 
 
     $expense_id = intval($_POST['expense_id']);
@@ -62,12 +62,12 @@ if (isset($_POST['edit_expense'])) {
             $file_tmp_path = $_FILES['file']['tmp_name'];
 
             // directory in which the uploaded file will be moved
-            $upload_file_dir = "uploads/expenses/";
+            $upload_file_dir = "../uploads/expenses/";
             $dest_path = $upload_file_dir . $new_file_name;
             move_uploaded_file($file_tmp_path, $dest_path);
 
             //Delete old file
-            unlink("uploads/expenses/$existing_file_name");
+            unlink("../uploads/expenses/$existing_file_name");
 
             mysqli_query($mysqli,"UPDATE expenses SET expense_receipt = '$new_file_name' WHERE expense_id = $expense_id");
             $extended_alert_description = '. File successfully uploaded.';
@@ -94,7 +94,7 @@ if (isset($_GET['delete_expense'])) {
     $expense_description = sanitizeInput($row['expense_description']);
     $client_id = intval($row['expense_client_id']);
 
-    unlink("uploads/expenses/$expense_receipt");
+    unlink("../uploads/expenses/$expense_receipt");
 
     mysqli_query($mysqli,"DELETE FROM expenses WHERE expense_id = $expense_id");
 
@@ -243,7 +243,7 @@ if (isset($_POST['bulk_delete_expenses'])) {
             $expense_receipt = sanitizeInput($row['expense_receipt']);
             $client_id = intval($row['expense_client_id']);
 
-            unlink("uploads/expenses/$expense_receipt");
+            unlink("../uploads/expenses/$expense_receipt");
 
             mysqli_query($mysqli, "DELETE FROM expenses WHERE expense_id = $expense_id");
             

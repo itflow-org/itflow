@@ -520,9 +520,9 @@ if (isset($_POST["import_clients_csv"])) {
 
                 $client_id = mysqli_insert_id($mysqli);
 
-                if (!file_exists("uploads/clients/$client_id")) {
-                    mkdir("uploads/clients/$client_id");
-                    file_put_contents("uploads/clients/$client_id/index.php", "");
+                if (!file_exists("../uploads/clients/$client_id")) {
+                    mkdir("../uploads/clients/$client_id");
+                    file_put_contents("../uploads/clients/$client_id/index.php", "");
                 }
 
                 // Create Referral if it doesn't exist
