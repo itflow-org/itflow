@@ -26,6 +26,7 @@ $asset_serial = nullable_htmlentities($row['asset_serial']);
 $asset_os = nullable_htmlentities($row['asset_os']);
 $asset_uri = sanitize_url($row['asset_uri']);
 $asset_uri_2 = sanitize_url($row['asset_uri_2']);
+$asset_uri_client = sanitize_url($row['asset_uri_client']);
 $asset_status = nullable_htmlentities($row['asset_status']);
 $asset_purchase_reference = nullable_htmlentities($row['asset_purchase_reference']);
 $asset_purchase_date = nullable_htmlentities($row['asset_purchase_date']);
@@ -304,6 +305,10 @@ ob_start();
                     <?php }
                     if ($asset_uri_2) { ?>
                         <div class="mt-2"><i class="fa fa-fw fa-link text-secondary mr-2"></i><a href="<?php echo $asset_uri_2; ?>" target="_blank" title="<?php echo $asset_uri_2; ?>"><?php echo truncate($asset_uri_2, 20); ?></a></div>
+                    <?php } ?>
+                    <?php
+                    if ($asset_uri_client) { ?>
+                        <div class="mt-2"><i class="fa fa-fw fa-link text-secondary mr-2"></i>Client URI: <a href="<?= $asset_uri_client ?>" target="_blank" title="<?= $asset_uri_client ?>"><?= truncate($asset_uri_client, 20); ?></a></div>
                     <?php } ?>
                 </div>
             </div>

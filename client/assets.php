@@ -37,6 +37,7 @@ $assets_sql = mysqli_query($mysqli, "SELECT * FROM assets LEFT JOIN contacts ON 
                     <th>Purchase</th>
                     <th>Warranty</th>
                     <th>Status</th>
+                    <th>URI</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -54,6 +55,7 @@ $assets_sql = mysqli_query($mysqli, "SELECT * FROM assets LEFT JOIN contacts ON 
                     $asset_warranty_expire = nullable_htmlentities($row['asset_warranty_expire'] ?? "-");
                     $assigned_to = nullable_htmlentities($row['contact_name'] ?? "-");
                     $asset_status = nullable_htmlentities($row['asset_status']);
+                    $asset_uri_client = sanitize_url($row['asset_uri_client']);
 
                     ?>
 
@@ -70,6 +72,13 @@ $assets_sql = mysqli_query($mysqli, "SELECT * FROM assets LEFT JOIN contacts ON 
                         <td><?php echo $asset_purchase_date; ?></td>
                         <td><?php echo $asset_warranty_expire; ?></td>
                         <td><?php echo $asset_status; ?></td>
+                        <td>
+                            <?php if ($asset_uri_client) { ?>
+                            <i class="fa fa-fw fa-link text-secondary mr-1"></i><a href="<?php echo $asset_uri_client; ?>" target="_blank" title="<?php echo $asset_uri_client; ?>"><?php echo truncate($asset_uri_client, 40); ?></a>
+                            <?php } else { ?>
+                            -
+                        <?php } ?>
+                        </td>
                     </tr>
 
                 <?php } ?>

@@ -3804,6 +3804,11 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
         mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '2.2.5'");
     }
 
+    if (CURRENT_DATABASE_VERSION == '2.2.5') {
+        mysqli_query($mysqli, "ALTER TABLE `assets` ADD `asset_uri_client` VARCHAR(500) NULL DEFAULT NULL AFTER `asset_uri_2`");
+        mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '2.2.6'");
+    }
+
     /* 2025-07-21 - JQ For next release Pauyment Provider Switch Over
     if (CURRENT_DATABASE_VERSION == '2.2.4') {
 

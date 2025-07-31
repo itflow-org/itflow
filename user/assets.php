@@ -504,6 +504,7 @@ if (mysqli_num_rows($os_sql) > 0) {
                         $asset_mac = nullable_htmlentities(getFallBack($row['interface_mac']));
                         $asset_uri = sanitize_url($row['asset_uri']);
                         $asset_uri_2 = sanitize_url($row['asset_uri_2']);
+                        $asset_uri_client = sanitize_url($row['asset_uri_client']);
                         $asset_status = nullable_htmlentities($row['asset_status']);
                         $asset_purchase_reference = nullable_htmlentities($row['asset_purchase_reference']);
                         $asset_purchase_date = nullable_htmlentities($row['asset_purchase_date']);
@@ -646,13 +647,19 @@ if (mysqli_num_rows($os_sql) > 0) {
                                         <div class="dropdown-menu">
                                             <?php if ($asset_uri) { ?>
                                             <a href="<?php echo $asset_uri; ?>" alt="<?php echo $asset_uri; ?>" target="_blank" class="dropdown-item" >
-                                                <i class="fa fa-fw fa-external-link-alt"></i> <?php echo truncate($asset_uri,40); ?>
+                                                <i class="fa fa-fw fa-external-link-alt mr-2"></i><?php echo truncate($asset_uri,40); ?>
                                             </a>
                                             <?php } ?>
                                             <?php if ($asset_uri_2) { ?>
                                             <div class="dropdown-divider"></div>
                                             <a href="<?php echo $asset_uri_2; ?>" target="_blank" class="dropdown-item" >
-                                                <i class="fa fa-fw fa-external-link-alt"></i> <?php echo truncate($asset_uri_2,40); ?>
+                                                <i class="fa fa-fw fa-external-link-alt mr-2"></i><?php echo truncate($asset_uri_2,40); ?>
+                                            </a>
+                                            <?php } ?>
+                                            <?php if ($asset_uri_client) { ?>
+                                            <div class="dropdown-divider"></div>
+                                            <a href="<?php echo $asset_uri_2; ?>" target="_blank" class="dropdown-item" >
+                                                <i class="fa fa-fw fa-external-link-alt mr-2"></i>Client URI: <?php echo truncate($asset_uri_client,40); ?>
                                             </a>
                                             <?php } ?>
                                         </div>

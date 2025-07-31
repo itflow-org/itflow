@@ -241,6 +241,16 @@
                                 </div>
                             </div>
 
+                            <div class="form-group">
+                                <label>Client URI</label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text"><i class="fa fa-fw fa-globe"></i></span>
+                                    </div>
+                                    <input type="text" class="form-control" name="uri_client" placeholder="URI http:// ftp:// ssh: etc -- viewable in Client Portal" maxlength="500">
+                                </div>
+                            </div>
+
                         </div>
 
                         <div class="tab-pane fade" id="pills-asset-assignment">

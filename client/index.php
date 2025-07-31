@@ -266,10 +266,12 @@ if ($session_contact_primary == 1 || $session_contact_is_technical_contact) {
                 while ($row = mysqli_fetch_array($sql_assigned_assets)) {
                     $asset_name = nullable_htmlentities($row['asset_name']);
                     $asset_type = nullable_htmlentities($row['asset_type']);
+                    $asset_uri_client = sanitize_url($row['asset_uri_client']);
+
 
                     ?>
                     <tr>
-                        <td><i class="fa fa-fw fa-desktop text-secondary mr-2"></i><?php echo $asset_name; ?></td>
+                        <td><i class="fa fa-fw fa-desktop text-secondary mr-2"></i><?php if ($asset_uri_client) { ?><a href="<?= $asset_uri_client ?>" target="_blank"><i class='fas fa-external-link-alt mr-2'></i></a><?php } ?><?php echo $asset_name; ?></td>
                         <td class="text-secondary">(<?php echo $asset_type; ?>)</td>
                     </tr>
                     <?php

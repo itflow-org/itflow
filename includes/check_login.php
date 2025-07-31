@@ -13,7 +13,7 @@ if (!isset($_SESSION)) {
 
 // Check to see if setup is enabled
 if (!isset($config_enable_setup) || $config_enable_setup == 1) {
-    header("Location: ../setup.php");
+    header("Location: setup");
     exit;
 }
 

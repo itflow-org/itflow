@@ -18,6 +18,7 @@ $nat_ip = sanitizeInput($_POST['nat_ip']);
 $mac = sanitizeInput($_POST['mac']);
 $uri = sanitizeInput($_POST['uri']);
 $uri_2 = sanitizeInput($_POST['uri_2']);
+$uri_client = sanitizeInput($_POST['uri_client']);
 $status = sanitizeInput($_POST['status']);
 $location = intval($_POST['location'] ?? 0);
 $physical_location = sanitizeInput($_POST['physical_location']);

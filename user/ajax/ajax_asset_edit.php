@@ -25,6 +25,7 @@ $asset_nat_ip = nullable_htmlentities($row['interface_nat_ip']);
 $asset_mac = nullable_htmlentities($row['interface_mac']);
 $asset_uri = nullable_htmlentities($row['asset_uri']);
 $asset_uri_2 = nullable_htmlentities($row['asset_uri_2']);
+$asset_uri_client = nullable_htmlentities($row['asset_uri_client']);
 $asset_status = nullable_htmlentities($row['asset_status']);
 $asset_purchase_reference = nullable_htmlentities($row['asset_purchase_reference']);
 $asset_purchase_date = nullable_htmlentities($row['asset_purchase_date']);
@@ -266,7 +267,16 @@ ob_start();
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-globe"></i></span>
                         </div>
-                        <input type="text" class="form-control" name="uri_2" placeholder="URI http:// ftp:// ssh: etc" maxlength="500" value="<?php echo $asset_uri_2; ?>">
+                        <input type="text" class="form-control" name="uri_2" placeholder="URI http:// ftp:// ssh: etc" maxlength="500" value="<?= $asset_uri_2 ?>">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Client URI</label>
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text"><i class="fa fa-fw fa-globe"></i></span>
+                        </div>
+                        <input type="text" class="form-control" name="uri_client" placeholder="URI http:// ftp:// ssh: etc -- viewable in Client Portal" maxlength="500" value="<?= $asset_uri_client ?>">
                     </div>
                 </div>
 
