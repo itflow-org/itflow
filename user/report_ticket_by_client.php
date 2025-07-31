@@ -296,5 +296,5 @@ $sql_clients = mysqli_query($mysqli, "SELECT client_id, client_name FROM clients
     </div>
 
 <?php
-require_once "includes/footer.php";
+require_once "../includes/footer.php";
 

@@ -117,5 +117,5 @@ $sql_tax = mysqli_query($mysqli, "SELECT `tax_name` FROM `taxes`");
         </div>
     </div>
 
-<?php require_once "includes/footer.php";
+<?php require_once "../includes/footer.php";
 

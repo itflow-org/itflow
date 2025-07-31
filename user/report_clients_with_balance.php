@@ -81,5 +81,5 @@ enforceUserPermission('module_financial');
 </div>
 
 <?php
-require_once "includes/footer.php";
+require_once "../includes/footer.php";
 

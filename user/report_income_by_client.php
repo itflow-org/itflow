@@ -91,5 +91,5 @@ $sql_payment_years = mysqli_query($mysqli, "SELECT DISTINCT YEAR(payment_date) A
 </div>
 
 <?php
-require_once "includes/footer.php";
+require_once "../includes/footer.php";
 

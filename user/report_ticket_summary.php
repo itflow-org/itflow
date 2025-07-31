@@ -83,7 +83,7 @@ $sql_tickets = mysqli_query($mysqli, "SELECT ticket_id FROM tickets");
     </div>
 </div>
 
-<?php require_once "includes/footer.php";
+<?php require_once "../includes/footer.php";
  ?>
 
 <script>
