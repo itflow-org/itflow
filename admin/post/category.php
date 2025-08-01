@@ -17,7 +17,7 @@ if (isset($_POST['add_category'])) {
     // Logging
     logAction("Category", "Create", "$session_name created category $type $name", 0, $category_id);
 
-    $_SESSION['alert_message'] = "Category $type <strong>$name</strong> created";
+    flash_alert("Category $type <strong>$name</strong> created");
 
     redirect();
 
@@ -34,7 +34,7 @@ if (isset($_POST['edit_category'])) {
     // Logging
     logAction("Category", "Edit", "$session_name edited category $type $name", 0, $category_id);
 
-    $_SESSION['alert_message'] = "Category $type <strong>$name</strong> edited";
+    flash_alert("Category $type <strong>$name</strong> edited");
 
     redirect();
 
@@ -55,8 +55,7 @@ if (isset($_GET['archive_category'])) {
     // Logging
     logAction("Category", "Archive", "$session_name archived category $category_type $category_name", 0, $category_id);
 
-    $_SESSION['alert_type'] = "error";
-    $_SESSION['alert_message'] = "Category $category_type <strong>$category_name</strong> archived";
+    flash_alert("Category $category_type <strong>$category_name</strong> archived", 'error');
 
     redirect();
 
@@ -77,7 +76,7 @@ if (isset($_GET['unarchive_category'])) {
     // Logging
     logAction("Category", "Unarchive", "$session_name unarchived category $category_type $category_name", 0, $category_id);
 
-    $_SESSION['alert_message'] = "Category $category_type <strong>$category_name</strong> unarchived";
+    flash_alert("Category $category_type <strong>$category_name</strong> unarchived");
 
     redirect();
 
@@ -98,8 +97,7 @@ if (isset($_GET['delete_category'])) {
     // Logging
     logAction("Category", "Delete", "$session_name deleted category $category_type $category_name");
 
-    $_SESSION['alert_type'] = "error";
-    $_SESSION['alert_message'] = "Category $category_type <strong>$category_name</strong> deleted";
+    flash_alert("Category $category_type <strong>$category_name</strong> deleted", 'error');
 
     redirect();
 

@@ -19,7 +19,7 @@ if(isset($_POST['create_custom_field'])){
     // Logging
     logAction("Custom Field", "Create", "$session_name created custom field $label", 0, $custom_field_id);
 
-    $_SESSION['alert_message'] = "Custom field <strong>$label</strong> created";
+    flash_alert("Custom field <strong>$label</strong> created");
 
     redirect();
 
@@ -36,7 +36,7 @@ if(isset($_POST['edit_custom_field'])){
     // Logging
     logAction("Custom Field", "Edit", "$session_name edited custom field $label", 0, $custom_field_id);
 
-    $_SESSION['alert_message'] = "Custom field <strong>$label</strong> edited";
+    flash_alert("Custom field <strong>$label</strong> edited");
 
     redirect();
 
@@ -56,7 +56,7 @@ if(isset($_GET['delete_custom_field'])){
     logAction("Custom Field", "Delete", "$session_name deleted custom field $label");
 
     $_SESSION['alert_type'] = "error";
-    $_SESSION['alert_message'] = "Custom field <strong>$label</strong> deleted";
+    flash_alert("Custom field <strong>$label</strong> deleted", 'error');
 
     redirect();
 

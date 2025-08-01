@@ -17,10 +17,9 @@ if (isset($_POST['add_software_template'])) {
 
     $software_template_id = mysqli_insert_id($mysqli);
 
-    // Logging
     logAction("Software Template", "Create", "$session_name created software template $name", 0, $software_template_id);
 
-    $_SESSION['alert_message'] = "Software template <strong>$name</strong> created";
+    flash_alert("Software template <strong>$name</strong> created");
 
     redirect();
 
@@ -38,10 +37,9 @@ if (isset($_POST['edit_software_template'])) {
 
     mysqli_query($mysqli,"UPDATE software_templates SET software_template_name = '$name', software_template_version = '$version', software_template_description = '$description', software_template_type = '$type', software_template_license_type = '$license_type', software_template_notes = '$notes' WHERE software_template_id = $software_template_id");
 
-    // Logging
     logAction("Software Template", "Edit", "$session_name edited software template $name", 0, $software_template_id);
 
-    $_SESSION['alert_message'] = "Software template <strong>$name</strong> edited";
+    flash_alert("Software template <strong>$name</strong> edited");
 
     redirect();
 
@@ -58,11 +56,9 @@ if (isset($_GET['delete_software_template'])) {
 
     mysqli_query($mysqli,"DELETE FROM software_templates WHERE software_template_id = $software_template_id");
 
-    //Logging
     logAction("Software Template", "Delete", "$session_name deleted software template $software_template_name");
 
-    $_SESSION['alert_type'] = "error";
-    $_SESSION['alert_message'] = "Software Template <strong>$software_template_name</strong> deleted";
+    flash_alert("Software Template <strong>$software_template_name</strong> deleted", 'error');
 
     redirect();
 

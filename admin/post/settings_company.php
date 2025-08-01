@@ -44,10 +44,9 @@ if (isset($_POST['edit_company'])) {
 
     mysqli_query($mysqli,"UPDATE companies SET company_name = '$name', company_address = '$address', company_city = '$city', company_state = '$state', company_zip = '$zip', company_country = '$country', company_phone_country_code = '$phone_country_code', company_phone = '$phone', company_email = '$email', company_website = '$website', company_tax_id = '$tax_id' WHERE company_id = 1");
 
-    // Logging
     logAction("Settings", "Edit", "$session_name edited company details");
 
-    $_SESSION['alert_message'] = "Company <strong>$name</strong> edited";
+    flash_alert("Company <strong>$name</strong> edited");
 
     redirect();
 
@@ -63,11 +62,9 @@ if (isset($_GET['remove_company_logo'])) {
 
     mysqli_query($mysqli,"UPDATE companies SET company_logo = NULL WHERE company_id = 1");
 
-    // Logging
     logAction("Settings", "Edit", "$session_name deleted company logo");
 
-    $_SESSION['alert_type'] = "error";
-    $_SESSION['alert_message'] = "Removed company logo";
+    flash_alert("Removed company logo", 'error');
 
     redirect();
 

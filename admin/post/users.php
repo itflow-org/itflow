@@ -90,10 +90,9 @@ if (isset($_POST['add_user'])) {
 
     }
 
-    // Logging
     logAction("User", "Create", "$session_name created user $name", 0, $user_id);
 
-    $_SESSION['alert_message'] = "User <strong>$name</strong> created" . $extended_alert_description;
+    flash_alert("User <strong>$name</strong> created" . $extended_alert_description);
 
     redirect();
 
@@ -171,10 +170,9 @@ if (isset($_POST['edit_user'])) {
     //Update User Settings
     mysqli_query($mysqli, "UPDATE user_settings SET user_config_force_mfa = $force_mfa WHERE user_id = $user_id");
 
-    // Logging
     logAction("User", "Edit", "$session_name edited user $name", 0, $user_id);
 
-    $_SESSION['alert_message'] = "User <strong>$name</strong> updated" . $extended_alert_description;
+    flash_alert("User <strong>$name</strong> updated" . $extended_alert_description);
 
     redirect();
 
@@ -186,17 +184,13 @@ if (isset($_GET['activate_user'])) {
 
     $user_id = intval($_GET['activate_user']);
 
-    // Get User Name
-    $sql = mysqli_query($mysqli, "SELECT * FROM users WHERE user_id = $user_id");
-    $row = mysqli_fetch_array($sql);
-    $user_name = sanitizeInput($row['user_name']);
+    $user_name = sanitizeInput(getFieldById('users', $user_id, 'user_name'));
 
     mysqli_query($mysqli, "UPDATE users SET user_status = 1 WHERE user_id = $user_id");
 
-    // Logging
     logAction("User", "Activate", "$session_name activated user $user_name", 0, $user_id);
 
-    $_SESSION['alert_message'] = "User <strong>$user_name</strong> activated";
+    flash_alert("User <strong>$user_name</strong> activated");
 
     redirect();
 
@@ -208,10 +202,7 @@ if (isset($_GET['disable_user'])) {
 
     $user_id = intval($_GET['disable_user']);
 
-    // Get User Name
-    $sql = mysqli_query($mysqli, "SELECT * FROM users WHERE user_id = $user_id");
-    $row = mysqli_fetch_array($sql);
-    $user_name = sanitizeInput($row['user_name']);
+    $user_name = sanitizeInput(getFieldById('users', $user_id, 'user_name'));
 
     mysqli_query($mysqli, "UPDATE users SET user_status = 0 WHERE user_id = $user_id");
 
@@ -219,11 +210,9 @@ if (isset($_GET['disable_user'])) {
     mysqli_query($mysqli, "UPDATE tickets SET ticket_assigned_to = 0 WHERE ticket_assigned_to = $user_id AND ticket_closed_at IS NULL");
     mysqli_query($mysqli, "UPDATE recurring_tickets SET recurring_ticket_assigned_to = 0 WHERE recurring_ticket_assigned_to = $user_id");
 
-    // Logging
     logAction("User", "Disable", "$session_name disabled user $name", 0, $user_id);
 
-    $_SESSION['alert_type'] = "error";
-    $_SESSION['alert_message'] = "User <strong>$user_name</strong> disabled";
+    flash_alert("User <strong>$user_name</strong> disabled", 'error');
 
     redirect();
 
@@ -235,17 +224,13 @@ if (isset($_GET['revoke_remember_me'])) {
 
     $user_id = intval($_GET['revoke_remember_me']);
 
-    // Get User Name
-    $row = mysqli_fetch_array(mysqli_query($mysqli, "SELECT * FROM users WHERE user_id = $user_id"));
-    $user_name = sanitizeInput($row['user_name']);
+    $user_name = sanitizeInput(getFieldById('users', $user_id, 'user_name'));
 
     mysqli_query($mysqli, "DELETE FROM remember_tokens WHERE remember_token_user_id = $user_id");
 
-    // Logging
     logAction("User", "Edit", "$session_name revoked all remember me tokens for user $user_name", 0, $user_id);
 
-    $_SESSION['alert_type'] = "error";
-    $_SESSION['alert_message'] = "User <strong>$user_name</strong> remember me tokens revoked";
+    flash_alert("User <strong>$user_name</strong> remember me tokens revoked", 'error');
 
     redirect();
 
@@ -259,19 +244,14 @@ if (isset($_GET['archive_user'])) {
     $user_id = intval($_GET['archive_user']);
     $password = password_hash(randomString(), PASSWORD_DEFAULT);
 
-    // Get user details
-    $sql = mysqli_query($mysqli, "SELECT * FROM users WHERE user_id = $user_id");
-    $row = mysqli_fetch_array($sql);
-    $name = sanitizeInput($row['user_name']);
+    $user_name = sanitizeInput(getFieldById('users', $user_id, 'user_name'));
 
     // Archive user query
-    mysqli_query($mysqli, "UPDATE users SET user_name = '$name (archived)', user_password = '$password', user_status = 0, user_specific_encryption_ciphertext = '', user_archived_at = NOW() WHERE user_id = $user_id");
+    mysqli_query($mysqli, "UPDATE users SET user_name = '$user_name (archived)', user_password = '$password', user_status = 0, user_specific_encryption_ciphertext = '', user_archived_at = NOW() WHERE user_id = $user_id");
 
-    // Logging
-    logAction("User", "Archive", "$session_name archived user $name", 0, $user_id);
+    logAction("User", "Archive", "$session_name archived user $user_name", 0, $user_id);
 
-    $_SESSION['alert_type'] = "error";
-    $_SESSION['alert_message'] = "User <strong>$name</strong> archived";
+    flash_alert("User <strong>$user_name</strong> archived", 'error');
 
     redirect();
 
@@ -338,11 +318,10 @@ if (isset($_POST['ir_reset_user_password'])) {
     $admin_password = $_POST['admin_password'];
     $sql = mysqli_query($mysqli, "SELECT * FROM users WHERE user_id = $session_user_id");
     $userRow = mysqli_fetch_array($sql);
+    
     if (!password_verify($admin_password, $userRow['user_password'])) {
-        $_SESSION['alert_type'] = "error";
-        $_SESSION['alert_message'] = "Incorrect password.";
+        flash_alert("Incorrect password.", 'error');
         redirect();
-        exit;
     }
 
     // Get agents/users, other than the current user
@@ -363,7 +342,6 @@ if (isset($_POST['ir_reset_user_password'])) {
         echo "<br><br>";
     }
 
-    // Logging
     logAction("User", "Edit", "$session_name reset ALL user passwords");
 
     exit; // Stay on the plain text password page

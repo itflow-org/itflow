@@ -19,10 +19,9 @@ if (isset($_POST['edit_module_settings'])) {
         mysqli_query($mysqli, "UPDATE settings SET config_whitelabel_enabled = 0, config_whitelabel_key = '' WHERE company_id = 1");
     }
 
-    // Logging
     logAction("Settings", "Edit", "$session_name edited module settings");
 
-    $_SESSION['alert_message'] = "Module Settings updated";
+    flash_alert("Module Settings updated");
 
     redirect();
 

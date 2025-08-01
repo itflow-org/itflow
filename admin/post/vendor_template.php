@@ -27,12 +27,12 @@ if (isset($_POST['add_vendor_template'])) {
 
     $vendor_template_id = mysqli_insert_id($mysqli);
 
-    // Logging
     logAction("Vendor Template", "Create", "$session_name created vendor template $name", 0, $vendor_template_id);
 
-    $_SESSION['alert_message'] = "Vendor template <strong>$name</strong> created";
+    flash_alert("Vendor template <strong>$name</strong> created");
 
     redirect();
+
 }
 
 if (isset($_POST['edit_vendor_template'])) {
@@ -131,32 +131,29 @@ if (isset($_POST['edit_vendor_template'])) {
         mysqli_query($mysqli,"UPDATE vendors SET $sql WHERE vendor_template_id = $vendor_template_id");
     }
 
-    // Logging
     logAction("Vendor Template", "Edit", "$session_name edited vendor template $name", 0, $vendor_template_id);
 
-    $_SESSION['alert_message'] = "Vendor template <strong>$name</strong> edited";
+    flash_alert("Vendor template <strong>$name</strong> edited");
 
     redirect();
+
 }
 
 if (isset($_GET['delete_vendor_template'])) {
+    
     $vendor_template_id = intval($_GET['delete_vendor_template']);
 
-    //Get Vendor Template Name
-    $sql = mysqli_query($mysqli,"SELECT vendor_template_name FROM vendor_templates WHERE vendor_template_id = $vendor_template_id");
-    $row = mysqli_fetch_array($sql);
-    $vendor_template_name = sanitizeInput($row['vendor_template_name']);
+    $vendor_template_name = sanitizeInput(getFieldById('vendor_templates', $vendor_template_id, 'vendor_template_name'));
 
     // If its a template reset all vendors based off this template to no template base
     mysqli_query($mysqli,"UPDATE vendors SET vendor_template_id = 0 WHERE vendor_template_id = $vendor_template_id");
 
     mysqli_query($mysqli,"DELETE FROM vendor_templates WHERE vendor_template_id = $vendor_template_id");
 
-    // Logging
     logAction("Vendor Template", "Delete", "$session_name deleted vendor template $vendor_template_name");
 
-    $_SESSION['alert_type'] = "error";
-    $_SESSION['alert_message'] = "Vendor Template <strong>$vendor_template_name</strong> deleted";
+    flash_alert("Vendor Template <strong>$vendor_template_name</strong> deleted", 'error');
 
     redirect();
+
 }

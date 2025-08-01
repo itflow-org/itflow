@@ -21,10 +21,9 @@ if (isset($_POST['edit_ticket_settings'])) {
     
     mysqli_query($mysqli,"UPDATE settings SET config_ticket_prefix = '$config_ticket_prefix', config_ticket_next_number = $config_ticket_next_number, config_ticket_email_parse = $config_ticket_email_parse, config_ticket_email_parse_unknown_senders = $config_ticket_email_parse_unknown_senders, config_ticket_autoclose_hours = $config_ticket_autoclose_hours, config_ticket_new_ticket_notification_email = '$config_ticket_new_ticket_notification_email', config_ticket_default_billable = $config_ticket_default_billable, config_ticket_default_view = $config_ticket_default_view, config_ticket_moving_columns = $config_ticket_moving_columns, config_ticket_ordering = $config_ticket_ordering, config_ticket_timer_autostart = $config_ticket_timer_autostart WHERE company_id = 1");
 
-    // Logging
     logAction("Settings", "Edit", "$session_name edited ticket settings");
 
-    $_SESSION['alert_message'] = "Ticket Settings updated";
+    flash_alert("Ticket Settings updated");
 
     redirect();
 

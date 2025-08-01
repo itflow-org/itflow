@@ -55,7 +55,7 @@ if (isset($_POST['add_payment_provider'])) {
     // Logging
     logAction("Payment Provider", "Create", "$session_name created AI Provider $provider");
 
-    $_SESSION['alert_message'] = "AI Model <strong>$provider</strong> created";
+    flash_alert("Payment provider <strong>$provider</strong> created");
 
     redirect();
 
@@ -79,7 +79,7 @@ if (isset($_POST['edit_payment_provider'])) {
     // Logging
     logAction("Payment Provider", "Edit", "$session_name edited Payment Provider $provider");
 
-    $_SESSION['alert_message'] = "Payment Provider <strong>$provider</strong> edited";
+    flash_alert("Payment Provider <strong>$provider</strong> edited");
 
     redirect();
 
@@ -98,8 +98,7 @@ if (isset($_GET['delete_payment_provider'])) {
     // Logging
     logAction("Payment Provider", "Delete", "$session_name deleted Payment Provider $provider_name");
 
-    $_SESSION['alert_type'] = "error";
-    $_SESSION['alert_message'] = "Payment Provider <strong>$provider_name</strong> deleted";
+    flash_alert("Payment Provider <strong>$provider_name</strong> deleted", 'error');
 
     redirect();
 

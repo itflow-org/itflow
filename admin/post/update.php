@@ -272,10 +272,9 @@ if (isset($_GET['update'])) {
 
     }
 
-    // Logging
     logAction("App", "Update", "$session_name ran updates");
 
-    $_SESSION['alert_message'] = "Update successful";
+    flash_alert("Update successful");
 
     sleep(1);
 
@@ -293,12 +292,12 @@ if (isset($_GET['update_db'])) {
     // Perform upgrades, if required
     require_once ('database_updates.php');
 
-    // Logging
     logAction("Database", "Update", "$session_name updated the database structure");
 
-    $_SESSION['alert_message'] = "Database structure update successful";
+    flash_alert("Database structure update successful");
 
     sleep(1);
 
     redirect();
+
 }

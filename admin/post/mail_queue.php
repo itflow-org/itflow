@@ -11,7 +11,7 @@ if (isset($_GET['send_failed_mail'])) {
     // Logging
     logAction("Email", "Send", "$session_name attempted to force send email id: $email_id in the mail queue", 0, $email_id);
 
-    $_SESSION['alert_message'] = "Email Force Sent, give it a minute to resend";
+    flash_alert("Email Force Sent, give it a minute to resend");
 
     redirect();
 
@@ -26,8 +26,7 @@ if (isset($_GET['cancel_mail'])) {
     // Logging
     logAction("Email", "Send", "$session_name canceled send email id: $email_id in the mail queue", 0, $email_id);
 
-    $_SESSION['alert_type'] = "error";
-    $_SESSION['alert_message'] = "Email cancelled and marked as failed.";
+    flash_alert("Email cancelled and marked as failed.", 'error');
 
     redirect();
 
@@ -55,7 +54,7 @@ if (isset($_POST['bulk_cancel_emails'])) {
         // Logging
         logAction("Email", "Bulk Cancel", "$session_name cancelled $count email(s) in the mail queue");
 
-        $_SESSION['alert_message'] = "Cancelled <strong>$count</strong> email(s)";
+        flash_alert("Cancelled <strong>$count</strong> email(s)", 'error');
 
     }
 
@@ -84,8 +83,7 @@ if (isset($_POST['bulk_delete_emails'])) {
         // Logging
         logAction("Email", "Bulk Delete", "$session_name deleted $count email(s) from the mail queue");
 
-        $_SESSION['alert_type'] = "error";
-        $_SESSION['alert_message'] = "Deleted <strong>$count</strong> email(s)";
+        flash_alert("Deleted <strong>$count</strong> email(s)", 'error');
 
     }
 

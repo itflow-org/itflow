@@ -6,9 +6,8 @@ if (isset($_GET['stripe_remove_pm'])) {
     validateCSRFToken($_GET['csrf_token']);
 
     if (!$config_stripe_enable) {
-        $_SESSION['alert_message'] = "Stripe not enabled";
+        flash_alert("Stripe not enabled", 'error');
         redirect();
-        exit();
     }
 
     $client_id = intval($_GET['client_id']);
@@ -39,9 +38,10 @@ if (isset($_GET['stripe_remove_pm'])) {
         mysqli_query($mysqli, "DELETE FROM recurring_payments WHERE recurring_payment_method = 'Stripe' AND recurring_payment_recurring_invoice_id = $recurring_invoice_id");
     }
 
-    // Logging & Redirect
     logAction("Stripe", "Update", "$session_name deleted saved Stripe payment method (PM: $payment_method)", $client_id);
-    $_SESSION['alert_message'] = "Payment method removed";
+    
+    flash_alert("Payment method removed", 'error');
+    
     redirect();
 
 }
@@ -62,9 +62,10 @@ if (isset($_GET['stripe_reset_customer'])) {
         mysqli_query($mysqli, "DELETE FROM recurring_payments WHERE recurring_payment_method = 'Stripe' AND recurring_payment_recurring_invoice_id = $recurring_invoice_id");
     }
 
-    // Logging
     logAction("Stripe", "Delete", "$session_name reset Stripe settings for client", $client_id);
 
-    $_SESSION['alert_message'] = "Reset client Stripe settings";
+    flash_alert("Reset client Stripe settings", 'error');
+    
     redirect();
+
 }

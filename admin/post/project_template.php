@@ -14,7 +14,7 @@ if (isset($_POST['add_project_template'])) {
     // Logging
     logAction("Project Template", "Create", "$session_name created project template $name", 0, $project_template_id);
 
-    $_SESSION['alert_message'] = "Project Template <strong>$name</strong> created";
+    flash_alert("Project Template <strong>$name</strong> created");
 
     redirect();
 
@@ -31,7 +31,7 @@ if (isset($_POST['edit_project_template'])) {
     // Logging
     logAction("Project Template", "Edit", "$session_name edited project template $name", 0, $project_template_id);
 
-    $_SESSION['alert_message'] = "Project Template <strong>$name</strong> edited";
+    flash_alert("Project Template <strong>$name</strong> edited");
 
     redirect();
 }
@@ -58,7 +58,7 @@ if (isset($_POST['add_ticket_template_to_project_template'])) {
     // Logging
     logAction("Project Template", "Edit", "$session_name added ticket template to project_template", 0, $project_template_id);
 
-    $_SESSION['alert_message'] = "Ticket template added";
+    flash_alert("Ticket template added");
 
     redirect();
 }
@@ -74,8 +74,7 @@ if (isset($_POST['remove_ticket_template_from_project_template'])) {
     // Logging
     logAction("Project Template", "Edit", "$session_name removed ticket template from project template", 0, $project_template_id);
 
-    $_SESSION['alert_type'] = "error";
-    $_SESSION['alert_message'] = "Ticket template removed";
+    flash_alert("Ticket template removed", 'error');
 
     redirect();
 }
@@ -97,8 +96,7 @@ if (isset($_GET['delete_project_template'])) {
     // Logging
     logAction("Project Template", "Delete", "$session_name deleted project template $project_template_name and its associated ticket templates and tasks");
 
-    $_SESSION['alert_type'] = "error";
-    $_SESSION['alert_message'] = "Project Template <strong>$project_template_name</strong> and its associated ticket templates and tasks deleted";
+    flash_alert("Project Template <strong>$project_template_name</strong> and its associated ticket templates and tasks deleted", 'error');
 
     redirect();
 }

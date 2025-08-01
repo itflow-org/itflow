@@ -26,7 +26,7 @@ if (isset($_POST['add_api_key'])) {
     // Logging
     logAction("API Key", "Create", "$session_name created API key $name set to expire on $expire", $client_id, $api_key_id);
 
-    $_SESSION['alert_message'] = "API Key <strong>$name</strong> created";
+    flash_alert("API Key <strong>$name</strong> created");
 
     redirect();
 
@@ -48,8 +48,7 @@ if (isset($_GET['delete_api_key'])) {
     // Logging
     logAction("API Key", "Delete", "$session_name deleted API key $name", $client_id);
 
-    $_SESSION['alert_type'] = "error";
-    $_SESSION['alert_message'] = "API Key <strong>$name</strong> deleted";
+    flash_alert("API Key <strong>$name</strong> deleted", 'error');
 
     redirect();
 
@@ -83,8 +82,7 @@ if (isset($_POST['bulk_delete_api_keys'])) {
         // Logging
         logAction("API Key", "Bulk Delete", "$session_name deleted $count API key(s)");
 
-        $_SESSION['alert_type'] = "error";
-        $_SESSION['alert_message'] = "Deleted <strong>$count</strong> API keys(s)";
+        flash_alert("Deleted <strong>$count</strong> API keys(s)", 'error');
 
     }
 

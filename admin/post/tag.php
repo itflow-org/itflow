@@ -14,10 +14,9 @@ if (isset($_POST['add_tag'])) {
 
     $tag_id = mysqli_insert_id($mysqli);
 
-    // Logging
     logAction("Tag", "Create", "$session_name created tag $name", 0, $tag_id);
 
-    $_SESSION['alert_message'] = "Tag <strong>$name</strong> created";
+    flash_alert("Tag <strong>$name</strong> created");
 
     redirect();
 
@@ -31,30 +30,25 @@ if (isset($_POST['edit_tag'])) {
 
     mysqli_query($mysqli,"UPDATE tags SET tag_name = '$name', tag_type = $type, tag_color = '$color', tag_icon = '$icon' WHERE tag_id = $tag_id");
 
-    // Logging
     logAction("Tag", "Edit", "$session_name edited tag $name", 0, $tag_id);
 
-    $_SESSION['alert_message'] = "Tag <strong>$name</strong> edited";
+    flash_alert("Tag <strong>$name</strong> edited");
 
     redirect();
 
 }
 
 if (isset($_GET['delete_tag'])) {
+    
     $tag_id = intval($_GET['delete_tag']);
-
-    // Get Tag Name for logging
-    $sql = mysqli_query($mysqli,"SELECT tag_name FROM tags WHERE tag_id = $tag_id");
-    $row = mysqli_fetch_array($sql);
-    $tag_name = sanitizeInput($row['tag_name']);
+    
+    $tag_name = sanitizeInput(getFieldById('tags', $tag_id, 'tag_name'));
 
     mysqli_query($mysqli,"DELETE FROM tags WHERE tag_id = $tag_id");
 
-    // Logging
     logAction("Tag", "Delete", "$session_name deleted tag $tag_name");
 
-    $_SESSION['alert_type'] = "error";
-    $_SESSION['alert_message'] = "Tag <strong>$tag_name</strong> deleted";
+    flash_alert("Tag <strong>$tag_name</strong> deleted", 'error');
 
     redirect();
 

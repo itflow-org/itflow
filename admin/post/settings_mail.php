@@ -14,10 +14,9 @@ if (isset($_POST['edit_mail_smtp_settings'])) {
 
     mysqli_query($mysqli,"UPDATE settings SET config_smtp_host = '$config_smtp_host', config_smtp_port = $config_smtp_port, config_smtp_encryption = '$config_smtp_encryption', config_smtp_username = '$config_smtp_username', config_smtp_password = '$config_smtp_password' WHERE company_id = 1");
 
-    // Logging
     logAction("Settings", "Edit", "$session_name edited SMTP mail settings");
 
-    $_SESSION['alert_message'] = "SMTP Mail Settings updated";
+    flash_alert("SMTP Mail Settings updated");
 
     redirect();
 
@@ -35,11 +34,9 @@ if (isset($_POST['edit_mail_imap_settings'])) {
 
     mysqli_query($mysqli,"UPDATE settings SET config_imap_host = '$config_imap_host', config_imap_port = $config_imap_port, config_imap_encryption = '$config_imap_encryption', config_imap_username = '$config_imap_username', config_imap_password = '$config_imap_password' WHERE company_id = 1");
 
-
-    // Logging
     logAction("Settings", "Edit", "$session_name edited IMAP mail settings");
 
-    $_SESSION['alert_message'] = "IMAP Mail Settings updated";
+    flash_alert("IMAP Mail Settings updated");
 
     redirect();
 
@@ -63,10 +60,9 @@ if (isset($_POST['edit_mail_from_settings'])) {
 
     mysqli_query($mysqli,"UPDATE settings SET config_mail_from_email = '$config_mail_from_email', config_mail_from_name = '$config_mail_from_name', config_invoice_from_email = '$config_invoice_from_email', config_invoice_from_name = '$config_invoice_from_name', config_quote_from_email = '$config_quote_from_email', config_quote_from_name = '$config_quote_from_name', config_ticket_from_email = '$config_ticket_from_email', config_ticket_from_name = '$config_ticket_from_name' WHERE company_id = 1");
 
-    // Logging
     logAction("Settings", "Edit", "$session_name edited mail from settings");
 
-    $_SESSION['alert_message'] = "Mail From Settings updated";
+    flash_alert("Mail From Settings updated");
 
     redirect();
 
@@ -77,6 +73,7 @@ if (isset($_POST['test_email_smtp'])) {
     validateCSRFToken($_POST['csrf_token']);
 
     $test_email = intval($_POST['test_email']);
+    
     if($test_email == 1) {
         $email_from = sanitizeInput($config_mail_from_email);
         $email_from_name = sanitizeInput($config_mail_from_name);
@@ -105,13 +102,13 @@ if (isset($_POST['test_email_smtp'])) {
             'body' => $body
         ]
     ];
+    
     $mail = addToMailQueue($data);
 
     if ($mail === true) {
-        $_SESSION['alert_message'] = "Test email queued! <a class='text-bold text-light' href='admin_mail_queue.php'>Check Admin > Mail queue</a>";
+        flash_alert("Test email queued! <a class='text-bold text-light' href='admin_mail_queue.php'>Check Admin > Mail queue</a>");
     } else {
-        $_SESSION['alert_type'] = "error";
-        $_SESSION['alert_message'] = "Failed to add test mail to queue";
+        flash_alert("Failed to add test mail to queue", 'error');
     }
 
     redirect();
@@ -130,13 +127,12 @@ if (isset($_POST['test_email_imap'])) {
 
         if ($inbox) {
             imap_close($inbox);
-            $_SESSION['alert_message'] = "Connected successfully";
+            flash_alert("Connected successfully");
         } else {
             throw new Exception(imap_last_error());
         }
     } catch (Exception $e) {
-        $_SESSION['alert_type'] = "error";
-        $_SESSION['alert_message'] = "Test IMAP connection failed: " . $e->getMessage();
+        flash_alert("<strong>IMAP connection failed:</strong> " . $e->getMessage(), 'error');
     }
 
     redirect();

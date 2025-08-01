@@ -10,10 +10,9 @@ if (isset($_POST['edit_telemetry_settings'])) {
 
     mysqli_query($mysqli,"UPDATE settings SET config_telemetry = $config_telemetry WHERE company_id = 1");
 
-   // Logging
     logAction("Settings", "Edit", "$session_name edited telemetry settings");
 
-    $_SESSION['alert_message'] = "Telemetry Settings updated";
+    flash_alert("Telemetry Settings updated");
 
     redirect();
 

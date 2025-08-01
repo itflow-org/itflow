@@ -18,7 +18,7 @@ if (isset($_POST['add_payment_method'])) {
     // Logging
     logAction("Payment Method", "Create", "$session_name created Payment Method $name");
 
-    $_SESSION['alert_message'] = "Payment Method <strong>$name</strong> created";
+    flash_alert("Payment Method <strong>$name</strong> created");
 
     redirect();
 
@@ -37,7 +37,7 @@ if (isset($_POST['edit_payment_method'])) {
     // Logging
     logAction("Payment Method", "Edit", "$session_name edited Payment Method $name");
 
-    $_SESSION['alert_message'] = "Payment Method <strong>$name</strong> edited";
+    flash_alert("Payment Method <strong>$name</strong> edited");
 
     redirect();
 
@@ -56,8 +56,7 @@ if (isset($_GET['delete_payment_method'])) {
     // Logging
     logAction("Payment Method", "Delete", "$session_name deleted Payment Method $payment_method_name");
 
-    $_SESSION['alert_type'] = "error";
-    $_SESSION['alert_message'] = "Payment Method <strong>$payment_method_name</strong> deleted";
+    flash_alert("Payment Method <strong>$payment_method_name</strong> deleted", 'error');
 
     redirect();
 

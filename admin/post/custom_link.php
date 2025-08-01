@@ -22,7 +22,7 @@ if (isset($_POST['add_custom_link'])) {
     // Logging
     logAction("Custom Link", "Create", "$session_name created custom link $name -> $uri", 0, $custom_link_id);
 
-    $_SESSION['alert_message'] = "Custom link <strong>$name</strong> created";
+    flash_alert("Custom link <strong>$name</strong> created");
 
     redirect();
 
@@ -43,7 +43,7 @@ if (isset($_POST['edit_custom_link'])) {
     // Logging
     logAction("Custom Link", "Edit", "$session_name edited custom link $name -> $uri", 0, $custom_link_id);
 
-    $_SESSION['alert_message'] = "Custom Link <strong>$name</strong> edited";
+    flash_alert("Custom Link <strong>$name</strong> edited");
 
     redirect();
 
@@ -63,8 +63,7 @@ if (isset($_GET['delete_custom_link'])) {
     // Logging
     logAction("Custom Link", "Delete", "$session_name deleted custom link $custom_link_name -> $custom_link_uri");
 
-    $_SESSION['alert_type'] = "error";
-    $_SESSION['alert_message'] = "Custom Link <strong>$name</strong> deleted";
+    flash_alert("Custom Link <strong>$name</strong> deleted", 'error');
 
     redirect();
 

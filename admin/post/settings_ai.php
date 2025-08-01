@@ -18,10 +18,9 @@ if (isset($_POST['edit_ai_settings'])) {
 
     mysqli_query($mysqli,"UPDATE settings SET config_ai_enable = $ai_enable, config_ai_provider = '$provider', config_ai_model = '$model', config_ai_url = '$url', config_ai_api_key = '$api_key' WHERE company_id = 1");
 
-    // Logging
     logAction("Settings", "Edit", "$session_name edited AI settings");
 
-    $_SESSION['alert_message'] = "AI Settings updated";
+    flash_alert("AI Settings updated");
 
     redirect();
 

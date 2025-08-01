@@ -22,7 +22,7 @@ if (isset($_POST['add_ai_model'])) {
     // Logging
     logAction("AI Model", "Create", "$session_name created AI Model $model");
 
-    $_SESSION['alert_message'] = "AI Model <strong>$model</strong> created";
+    flash_alert("AI Model <strong>$model</strong> created");
 
     redirect();
 
@@ -42,7 +42,7 @@ if (isset($_POST['edit_ai_model'])) {
     // Logging
     logAction("AI Model", "Edit", "$session_name edited AI Model $model");
 
-    $_SESSION['alert_message'] = "AI Model <strong>$model</strong> edited";
+    flash_alert("AI Model <strong>$model</strong> edited");
 
     redirect();
 
@@ -63,8 +63,7 @@ if (isset($_GET['delete_ai_model'])) {
     // Logging
     logAction("AI Model", "Delete", "$session_name deleted AI Model $model_name");
 
-    $_SESSION['alert_type'] = "error";
-    $_SESSION['alert_message'] = "AI Model <strong>$model_name</strong> deleted";
+    flash_alert("AI Model <strong>$model_name</strong> deleted", 'error');
 
     redirect();
 

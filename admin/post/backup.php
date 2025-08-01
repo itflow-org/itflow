@@ -175,7 +175,7 @@ if (isset($_GET['download_backup'])) {
     fclose($fp);
 
     logAction("System", "Backup Download", "$session_name downloaded full backup.");
-    $_SESSION['alert_message'] = "Full backup downloaded.";
+    flash_alert("Full backup downloaded.");
     exit;
 }
 
@@ -207,8 +207,7 @@ if (isset($_POST['backup_master_key'])) {
         // Log the failure
         logAction("Master Key", "Download", "$session_name attempted to retrieve the master encryption key but failed");
 
-        $_SESSION['alert_type'] = "error";
-        $_SESSION['alert_message'] = "Incorrect password.";
+        flash_alert("Incorrect password.", 'error');
         
         redirect();
     }
