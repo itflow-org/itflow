@@ -24,4 +24,5 @@ if (isset($_POST['edit_default_settings'])) {
     flash_alert("Default settings edited");
 
     redirect();
+
 }

@@ -192,10 +192,8 @@ if (isset($_POST['backup_master_key'])) {
     if (password_verify($password, $row['user_password'])) {
         $site_encryption_master_key = decryptUserSpecificKey($row['user_specific_encryption_ciphertext'], $password);
         
-        // Logging
         logAction("Master Key", "Download", "$session_name retrieved the master encryption key");
 
-        // App Notify
         appNotify("Master Key", "$session_name retrieved the master encryption key");
 
         echo "==============================";
@@ -204,7 +202,6 @@ if (isset($_POST['backup_master_key'])) {
         echo "<br>==============================";
     
     } else {
-        // Log the failure
         logAction("Master Key", "Download", "$session_name attempted to retrieve the master encryption key but failed");
 
         flash_alert("Incorrect password.", 'error');

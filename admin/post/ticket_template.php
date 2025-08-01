@@ -47,6 +47,7 @@ if (isset($_POST['edit_ticket_template'])) {
     flash_alert("Ticket Template <strong>$name</strong> edited");
 
     redirect();
+
 }
 
 if (isset($_GET['delete_ticket_template'])) {

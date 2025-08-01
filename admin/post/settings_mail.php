@@ -112,9 +112,11 @@ if (isset($_POST['test_email_smtp'])) {
     }
 
     redirect();
+
 }
 
 if (isset($_POST['test_email_imap'])) {
+    
     validateCSRFToken($_POST['csrf_token']);
 
     // Setup your IMAP connection parameters
@@ -136,4 +138,5 @@ if (isset($_POST['test_email_imap'])) {
     }
 
     redirect();
+
 }

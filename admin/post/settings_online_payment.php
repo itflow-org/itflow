@@ -26,4 +26,5 @@ if (isset($_POST['edit_online_payment_settings'])) {
     }
 
     redirect();
+
 }

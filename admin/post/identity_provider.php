@@ -11,7 +11,6 @@ if (isset($_POST['edit_identity_provider'])) {
 
     mysqli_query($mysqli,"UPDATE settings SET config_azure_client_id = '$azure_client_id', config_azure_client_secret = '$azure_client_secret' WHERE company_id = 1");
 
-    // Logging
     logAction("Settings", "Edit", "$session_name edited identity provider settings");
 
     flash_alert("Identity Provider Settings updated");

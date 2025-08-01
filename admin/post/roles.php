@@ -18,7 +18,6 @@ if (isset($_POST['add_role'])) {
 
     $role_id = mysqli_insert_id($mysqli);
 
-    // Logging
     logAction("User Role", "Create", "$session_name created user role $name", 0, $role_id);
 
     flash_alert("User Role <strong$name</strong> created");
@@ -31,7 +30,6 @@ if (isset($_POST['edit_role'])) {
 
     validateCSRFToken($_POST['csrf_token']);
 
-    // Update role metadata
     $role_id = sanitizeInput($_POST['role_id']);
     $name = sanitizeInput($_POST['role_name']);
     $description = sanitizeInput($_POST['role_description']);
@@ -53,12 +51,12 @@ if (isset($_POST['edit_role'])) {
 
     }
 
-    // Logging
     logAction("User Role", "Edit", "$session_name edited user role $name", 0, $role_id);
 
     flash_alert("User Role <strong>$name</strong> edited");
 
     redirect();
+
 }
 
 if (isset($_GET['archive_role'])) {
@@ -78,12 +76,12 @@ if (isset($_GET['archive_role'])) {
 
     mysqli_query($mysqli, "UPDATE user_roles SET role_archived_at = NOW() WHERE role_id = $role_id");
 
-    // Logging
-    $role_details = mysqli_fetch_array(mysqli_query($mysqli, "SELECT role_name FROM user_roles WHERE role_id = $role_id LIMIT 1"));
-    $role_name = sanitizeInput($role_details['role_name']);
+    $role_name = sanitizeInput(getFieldById('roles', $role_id, 'role_name'));
+
     logAction("User Role", "Archive", "$session_name archived user role $role_name", 0, $role_id);
 
-    flash_alert("User Role archived", 'error');
+    flash_alert("User Role <strong>$role_name</strong> archived", 'error');
     
     redirect();
+
 }

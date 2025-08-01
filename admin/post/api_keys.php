@@ -23,7 +23,6 @@ if (isset($_POST['add_api_key'])) {
 
     $api_key_id = mysqli_insert_id($mysqli);
 
-    // Logging
     logAction("API Key", "Create", "$session_name created API key $name set to expire on $expire", $client_id, $api_key_id);
 
     flash_alert("API Key <strong>$name</strong> created");
@@ -45,7 +44,6 @@ if (isset($_GET['delete_api_key'])) {
 
     mysqli_query($mysqli,"DELETE FROM api_keys WHERE api_key_id = $api_key_id");
 
-    // Logging
     logAction("API Key", "Delete", "$session_name deleted API key $name", $client_id);
 
     flash_alert("API Key <strong>$name</strong> deleted", 'error');
@@ -74,12 +72,10 @@ if (isset($_POST['bulk_delete_api_keys'])) {
 
             mysqli_query($mysqli, "DELETE FROM api_keys WHERE api_key_id = $api_key_id");
 
-            // Logging
             logAction("API Key", "Delete", "$session_name deleted API key $name", $client_id);
 
         }
 
-        // Logging
         logAction("API Key", "Bulk Delete", "$session_name deleted $count API key(s)");
 
         flash_alert("Deleted <strong>$count</strong> API keys(s)", 'error');
@@ -87,4 +83,5 @@ if (isset($_POST['bulk_delete_api_keys'])) {
     }
 
     redirect();
+
 }
