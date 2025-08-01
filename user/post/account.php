@@ -20,7 +20,7 @@ if (isset($_POST['add_account'])) {
     // Logging
     logAction("Account", "Create", "$session_name created account $name");
 
-    $_SESSION['alert_message'] = "Account <strong>$name</strong> created ";
+    flash_alert("Account <strong>$name</strong> created");
 
     redirect();
 
@@ -39,7 +39,7 @@ if (isset($_POST['edit_account'])) {
     // Logging
     logAction("Account", "Edit", "$session_name edited account $name");
 
-    $_SESSION['alert_message'] = "Account <strong>$name</strong> edited";
+    flash_alert("Account <strong>$name</strong> edited");
 
     redirect();
 
@@ -61,7 +61,7 @@ if (isset($_GET['archive_account'])) {
     // Logging
     logAction("Account", "Archive", "$session_name archived account $account_name");
 
-    $_SESSION['alert_message'] = "Account <strong>$account_name</strong> archived";
+    flash_alert("Account <strong>$account_name</strong> archived");
 
     redirect();
 
@@ -83,7 +83,7 @@ if (isset($_GET['delete_account'])) {
     //Logging
     logAction("Account", "Delete", "$session_name deleted account $account_name");
 
-    $_SESSION['alert_message'] = "Account <strong>$account_name</strong> deleted";
+    flash_alert("Account <strong>$account_name</strong> deleted", 'error');
 
     redirect();
 

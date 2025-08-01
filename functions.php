@@ -1672,6 +1672,7 @@ function sanitize_url($url) {
     return htmlspecialchars($url ?? '', ENT_QUOTES, 'UTF-8');
 }
 
+// Redirect Function
 function redirect($url = null, $permanent = false) {
     // Use referer if no URL is provided
     if (!$url) {
@@ -1687,4 +1688,10 @@ function redirect($url = null, $permanent = false) {
         echo '<noscript><meta http-equiv="refresh" content="0;url=' . htmlspecialchars($url) . '"></noscript>';
         exit;
     }
+}
+
+//Flash Alert Function
+function flash_alert(string $message, string $type = 'success'): void {
+    $_SESSION['alert_type'] = $type;
+    $_SESSION['alert_message'] = $message;
 }
