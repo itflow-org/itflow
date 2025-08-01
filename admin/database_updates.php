@@ -3809,6 +3809,18 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
         mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '2.2.6'");
     }
 
+    if (CURRENT_DATABASE_VERSION == '2.2.6') {
+        mysqli_query($mysqli, "ALTER TABLE `credits` DROP `credit_reference`");
+        mysqli_query($mysqli, "ALTER TABLE `credits` ADD `credit_type` ENUM('prepaid', 'manual', 'refund', 'promotion', 'usage') NOT NULL DEFAULT 'manual' AFTER `credit_amount`");
+        mysqli_query($mysqli, "ALTER TABLE `credits` ADD `credit_note` TEXT NULL DEFAULT NULL AFTER `credit_type`");
+        mysqli_query($mysqli, "ALTER TABLE `credits` ADD `credit_invoice_id` INT(11) NULL DEFAULT NULL AFTER `credit_expire_at`");
+        mysqli_query($mysqli, "ALTER TABLE `credits` ADD INDEX (`credit_client_id`)");
+        mysqli_query($mysqli, "ALTER TABLE `credits` ADD INDEX (`credit_invoice_id`)");
+        mysqli_query($mysqli, "ALTER TABLE `credits` ADD INDEX (`credit_created_at`)");
+        
+        mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '2.2.7'");
+    }
+
     /* 2025-07-21 - JQ For next release Pauyment Provider Switch Over
     if (CURRENT_DATABASE_VERSION == '2.2.4') {
 

@@ -849,12 +849,17 @@ DROP TABLE IF EXISTS `credits`;
 CREATE TABLE `credits` (
   `credit_id` int(11) NOT NULL AUTO_INCREMENT,
   `credit_amount` decimal(15,2) NOT NULL,
-  `credit_reference` varchar(250) DEFAULT NULL,
+  `credit_type` enum('prepaid','manual','refund','promotion','usage') NOT NULL DEFAULT 'manual',
+  `credit_note` text DEFAULT NULL,
   `credit_created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `credit_created_by` int(11) NOT NULL,
   `credit_expire_at` date DEFAULT NULL,
+  `credit_invoice_id` int(11) DEFAULT NULL,
   `credit_client_id` int(11) NOT NULL,
-  PRIMARY KEY (`credit_id`)
+  PRIMARY KEY (`credit_id`),
+  KEY `credit_client_id` (`credit_client_id`),
+  KEY `credit_invoice_id` (`credit_invoice_id`),
+  KEY `credit_created_at` (`credit_created_at`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -2761,4 +2766,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-07-31 15:53:18
+-- Dump completed on 2025-08-01 13:36:16

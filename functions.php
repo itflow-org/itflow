@@ -1671,3 +1671,20 @@ function sanitize_url($url) {
     // Safe schemes: return escaped original URL
     return htmlspecialchars($url ?? '', ENT_QUOTES, 'UTF-8');
 }
+
+function redirect($url = null, $permanent = false) {
+    // Use referer if no URL is provided
+    if (!$url) {
+        $url = $_SERVER['HTTP_REFERER'] ?? 'index.php';
+    }
+
+    if (!headers_sent()) {
+        header('Location: ' . $url, true, $permanent ? 301 : 302);
+        exit;
+    } else {
+        // Fallback for headers already sent
+        echo "<script>window.location.href = '" . addslashes($url) . "';</script>";
+        echo '<noscript><meta http-equiv="refresh" content="0;url=' . htmlspecialchars($url) . '"></noscript>';
+        exit;
+    }
+}

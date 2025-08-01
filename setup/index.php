@@ -626,7 +626,7 @@ if (isset($_POST['add_telemetry'])) {
             <nav class="mt-2">
                 <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
                     <li class="nav-item">
-                        <a href="setup.php" class="nav-link <?php if (!isset($_GET) || empty($_GET)) { echo 'active'; } ?>">
+                        <a href="index.php" class="nav-link <?php if (!isset($_GET) || empty($_GET)) { echo 'active'; } ?>">
                             <i class="nav-icon fas fa-home text-info"></i>
                             <p>1 - Welcome</p>
                         </a>
