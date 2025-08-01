@@ -914,152 +914,52 @@ if (isset($_POST['apply_credit'])) {
     //Check to see if amount entered is greater than the balance of the invoice
     if ($amount > $invoice_balance) {
         $_SESSION['alert_message'] = "Credit is more than the balance";
-        header("Location: " . $_SERVER["HTTP_REFERER"]);
-    } else {
-        mysqli_query($mysqli,"UPDATE invoices SET invoice_credit_amount = $total_credit_amount WHERE invoice_id = $invoice_id");
-        // Remove Amounted Credit
-        mysqli_query($mysqli,"INSERT INTO credits SET credit_amount = -$amount, credit_created_by = $session_user_id, credit_client_id = $client_id");
-
-        /*
-        //Add up all the payments for the invoice and get the total amount paid to the invoice
-        $sql_total_payments_amount = mysqli_query($mysqli,"SELECT SUM(payment_amount) AS payments_amount FROM payments WHERE payment_invoice_id = $invoice_id");
-        $row = mysqli_fetch_array($sql_total_payments_amount);
-        $total_payments_amount = floatval($row['payments_amount']);
-
-        //Get the invoice total
-        $sql = mysqli_query($mysqli,"SELECT * FROM invoices
-            LEFT JOIN clients ON invoice_client_id = client_id
-            LEFT JOIN contacts ON clients.client_id = contacts.contact_client_id AND contact_primary = 1
-            WHERE invoice_id = $invoice_id"
-        );
-
-        $row = mysqli_fetch_array($sql);
-        $invoice_amount = floatval($row['invoice_amount']);
-        $invoice_prefix = sanitizeInput($row['invoice_prefix']);
-        $invoice_number = intval($row['invoice_number']);
-        $invoice_url_key = sanitizeInput($row['invoice_url_key']);
-        $invoice_currency_code = sanitizeInput($row['invoice_currency_code']);
-        $client_id = intval($row['client_id']);
-        $client_name = sanitizeInput($row['client_name']);
-        $contact_name = sanitizeInput($row['contact_name']);
-        $contact_email = sanitizeInput($row['contact_email']);
-        $contact_phone = sanitizeInput(formatPhoneNumber($row['contact_phone'], $row['contact_phone_country_code']));
-        $contact_extension = preg_replace("/[^0-9]/", '',$row['contact_extension']);
-        $contact_mobile = sanitizeInput(formatPhoneNumber($row['contact_mobile'], $row['contact_mobile_country_code']));
-
-        $sql = mysqli_query($mysqli,"SELECT * FROM companies WHERE company_id = 1");
-        $row = mysqli_fetch_array($sql);
-
-        $company_name = sanitizeInput($row['company_name']);
-        $company_country = sanitizeInput($row['company_country']);
-        $company_address = sanitizeInput($row['company_address']);
-        $company_city = sanitizeInput($row['company_city']);
-        $company_state = sanitizeInput($row['company_state']);
-        $company_zip = sanitizeInput($row['company_zip']);
-        $company_phone = sanitizeInput(formatPhoneNumber($row['company_phone'], $row['company_phone_country_code']));
-        $company_email = sanitizeInput($row['company_email']);
-        $company_website = sanitizeInput($row['company_website']);
-        $company_logo = sanitizeInput($row['company_logo']);
-
-        // Sanitize Config vars from get_settings.php
-        $config_invoice_from_name = sanitizeInput($config_invoice_from_name);
-        $config_invoice_from_email = sanitizeInput($config_invoice_from_email);
-
-        //Calculate the Invoice balance
-        $invoice_balance = $invoice_amount - $total_payments_amount;
-
-        $email_data = [];
-
-        //Determine if invoice has been paid then set the status accordingly
-        if ($invoice_balance == 0) {
-
-            $invoice_status = "Paid";
-
-            if ($email_receipt == 1) {
-
-                $subject = "Payment Received - Invoice $invoice_prefix$invoice_number";
-                $body = "Hello $contact_name,<br><br>We have received your payment in full for the amount of " . numfmt_format_currency($currency_format, $amount, $invoice_currency_code) . " for invoice <a href=\'https://$config_base_url/guest/guest_view_invoice.php?invoice_id=$invoice_id&url_key=$invoice_url_key\'>$invoice_prefix$invoice_number</a>. Please keep this email as a receipt for your records.<br><br>Amount Paid: " . numfmt_format_currency($currency_format, $amount, $invoice_currency_code) . "<br>Payment Method: $payment_method<br>Payment Reference: $reference<br><br>Thank you for your business!<br><br><br>--<br>$company_name - Billing Department<br>$config_invoice_from_email<br>$company_phone";
-
-                // Queue Mail
-                $email = [
-                    'from' => $config_invoice_from_email,
-                    'from_name' => $config_invoice_from_name,
-                    'recipient' => $contact_email,
-                    'recipient_name' => $contact_name,
-                    'subject' => $subject,
-                    'body' => $body
-                ];
-
-                $email_data[] = $email;
-
-                // Add email to queue
-                if (!empty($email)) {
-                    addToMailQueue($email_data);
-                }
-
-                // Get Email ID for reference
-                $email_id = mysqli_insert_id($mysqli);
-
-                // Email Logging
-                mysqli_query($mysqli,"INSERT INTO history SET history_status = 'Sent', history_description = 'Payment Receipt sent to mail queue ID: $email_id!', history_invoice_id = $invoice_id");
-                logAction("Invoice", "Payment", "Payment receipt for invoice $invoice_prefix$invoice_number queued to $contact_email Email ID: $email_id", $client_id, $invoice_id);
-
-            }
-
-        } else {
-
-            $invoice_status = "Partial";
-
-            if ($email_receipt == 1) {
-
-                $subject = "Partial Payment Received - Invoice $invoice_prefix$invoice_number";
-                $body = "Hello $contact_name,<br><br>We have received partial payment in the amount of " . numfmt_format_currency($currency_format, $amount, $invoice_currency_code) . " and it has been applied to invoice <a href=\'https://$config_base_url/guest/guest_view_invoice.php?invoice_id=$invoice_id&url_key=$invoice_url_key\'>$invoice_prefix$invoice_number</a>. Please keep this email as a receipt for your records.<br><br>Amount Paid: " . numfmt_format_currency($currency_format, $amount, $invoice_currency_code) . "<br>Payment Method: $payment_method<br>Payment Reference: $reference<br>Invoice Balance: " . numfmt_format_currency($currency_format, $invoice_balance, $invoice_currency_code) . "<br><br>Thank you for your business!<br><br><br>~<br>$company_name - Billing<br>$config_invoice_from_email<br>$company_phone";
-
-                // Queue Mail
-                $email = [
-                    'from' => $config_invoice_from_email,
-                    'from_name' => $config_invoice_from_name,
-                    'recipient' => $contact_email,
-                    'recipient_name' => $contact_name,
-                    'subject' => $subject,
-                    'body' => $body
-                ];
-
-                $email_data[] = $email;
-
-                // Add email to queue
-                if (!empty($email)) {
-                    addToMailQueue($email_data);
-                }
-
-                // Get Email ID for reference
-                $email_id = mysqli_insert_id($mysqli);
-
-                // Email Logging
-                mysqli_query($mysqli,"INSERT INTO history SET history_status = 'Sent', history_description = 'Payment Receipt sent to mail queue ID: $email_id!', history_invoice_id = $invoice_id");
-                logAction("Invoice", "Payment", "Payment receipt for invoice $invoice_prefix$invoice_number queued to $contact_email Email ID: $email_id", $client_id, $invoice_id);
-
-            }
-
-        }
-
-        //Update Invoice Status
-        mysqli_query($mysqli,"UPDATE invoices SET invoice_status = '$invoice_status' WHERE invoice_id = $invoice_id");
-
-        */
-
-        //Add Payment to History
-        mysqli_query($mysqli,"INSERT INTO history SET history_status = '$invoice_status', history_description = 'Credit applied', history_invoice_id = $invoice_id");
-
-        // Logging
-        logAction("Invoice", "Payment", "Credit" . numfmt_format_currency($currency_format, $amount, $session_company_currency) . " added to invoice $invoice_prefix$invoice_number", $client_id, $invoice_id);
-
-        customAction('invoice_pay', $invoice_id);
-
-        $_SESSION['alert_message'] .= "Credit amount <strong>" . numfmt_format_currency($currency_format, $amount, $session_company_currency) . "</strong> applied";
-
-        header("Location: " . $_SERVER["HTTP_REFERER"]);
+        redirect();
     }
+
+    // Insert a new credit usage record linked to the invoice
+    mysqli_query($mysqli, "
+        INSERT INTO credits SET
+            credit_amount = -$amount,
+            credit_type = 'usage',
+            credit_created_by = $session_user_id,
+            credit_client_id = $client_id,
+            credit_invoice_id = $invoice_id
+    ");
+
+    // Calculate updated invoice credit sum
+    $result = mysqli_query($mysqli, "
+        SELECT SUM(credit_amount) AS credit_total
+        FROM credits
+        WHERE credit_invoice_id = $invoice_id
+    ");
+    $total_credit_applied = floatval(mysqli_fetch_assoc($result)['credit_total']);
+
+    // Get invoice amount
+    $invoice_amount = floatval(getFieldByID('invoices', $invoice_id, 'invoice_amount'));
+
+    // Determine new status
+    $invoice_due = $invoice_amount + $total_credit_applied;
+    $invoice_status = ($invoice_due <= 0) ? 'Paid' : 'Partial';
+
+    // Update invoice status only (not invoice_credit_amount)
+    mysqli_query($mysqli, "UPDATE invoices SET invoice_status = '$invoice_status' WHERE invoice_id = $invoice_id");
+
+    // Log credit application in history
+    mysqli_query($mysqli, "
+        INSERT INTO history SET
+            history_status = '$invoice_status',
+            history_description = 'Credit applied',
+            history_invoice_id = $invoice_id
+    ");
+
+    logAction("Invoice", "Payment", "Credit " . numfmt_format_currency($currency_format, $amount, $session_company_currency) . " applied to invoice $invoice_prefix$invoice_number", $client_id, $invoice_id);
+
+    customAction('invoice_pay', $invoice_id);
+
+    $_SESSION['alert_message'] .= "Credit amount <strong>" . numfmt_format_currency($currency_format, $amount, $session_company_currency) . "</strong> applied";
+
+    redirect();
 }
 
 if (isset($_GET['add_payment_stripe'])) {
