@@ -16,7 +16,7 @@ if (isset($_POST['add_ticket_status'])) {
 
     $_SESSION['alert_message'] = "Custom Ticket Status <strong>$name</strong> created";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -35,7 +35,7 @@ if (isset($_POST['edit_ticket_status'])) {
 
     $_SESSION['alert_message'] = "Custom Ticket Status <strong>$name</strong> edited";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -62,5 +62,5 @@ if (isset($_GET['delete_ticket_status'])) {
     $_SESSION['alert_type'] = "error";
     $_SESSION['alert_message'] = "Custom Ticket Status <strong>$ticket_status_name</strong> Deleted";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 }

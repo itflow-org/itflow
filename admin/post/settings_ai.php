@@ -23,6 +23,6 @@ if (isset($_POST['edit_ai_settings'])) {
 
     $_SESSION['alert_message'] = "AI Settings updated";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }

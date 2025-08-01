@@ -17,7 +17,7 @@ if (isset($_POST['edit_theme_settings'])) {
 
     $_SESSION['alert_message'] = "Changed theme to <strong>$theme</strong>";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 }
 
 if (isset($_POST['edit_favicon_settings'])) {
@@ -49,6 +49,6 @@ if (isset($_POST['edit_favicon_settings'])) {
 
     $_SESSION['alert_message'] = "Favicon Updated";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }

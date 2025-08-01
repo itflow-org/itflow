@@ -57,7 +57,7 @@ if (isset($_POST['add_payment_provider'])) {
 
     $_SESSION['alert_message'] = "AI Model <strong>$provider</strong> created";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -81,7 +81,7 @@ if (isset($_POST['edit_payment_provider'])) {
 
     $_SESSION['alert_message'] = "Payment Provider <strong>$provider</strong> edited";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -101,6 +101,6 @@ if (isset($_GET['delete_payment_provider'])) {
     $_SESSION['alert_type'] = "error";
     $_SESSION['alert_message'] = "Payment Provider <strong>$provider_name</strong> deleted";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }

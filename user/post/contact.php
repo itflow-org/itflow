@@ -73,7 +73,7 @@ if (isset($_POST['add_contact'])) {
 
     $_SESSION['alert_message'] = "Contact <strong>$name</strong> created";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -214,7 +214,7 @@ if (isset($_POST['edit_contact'])) {
 
     $_SESSION['alert_message'] = "Contact <strong>$name</strong> updated";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -241,7 +241,7 @@ if (isset($_POST['add_contact_note'])) {
 
     $_SESSION['alert_message'] = "Note <strong>$type</strong> created for <strong>$contact_name</strong>";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -268,7 +268,7 @@ if (isset($_GET['archive_contact_note'])) {
     $_SESSION['alert_type'] = "error";
     $_SESSION['alert_message'] = "Note <strong>$contact_note_type</strong> archived";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -293,7 +293,7 @@ if (isset($_GET['unarchive_contact_note'])) {
 
     $_SESSION['alert_message'] = "Note <strong>$contact_note_type</strong> restored";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -319,7 +319,7 @@ if (isset($_GET['delete_contact_note'])) {
     $_SESSION['alert_type'] = "error";
     $_SESSION['alert_message'] = "Note <strong>$contact_note_type</strong> deleted.";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -362,7 +362,7 @@ if (isset($_POST['bulk_assign_contact_location'])) {
         $_SESSION['alert_message'] = "You assigned <b>$contact_count</b> contacts to location <b>$location_name</b>";
     }
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -399,7 +399,7 @@ if (isset($_POST['bulk_edit_contact_phone'])) {
         $_SESSION['alert_message'] = "You set Phone Number <b>" . formatPhoneNumber($phone) . "</b> on $contact_count</b> contacts";
     }
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -437,7 +437,7 @@ if (isset($_POST['bulk_edit_contact_department'])) {
         $_SESSION['alert_message'] = "You set the Department to <strong>$department</strong> for <strong>$contact_count</strong> contacts";
     }
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -479,7 +479,7 @@ if (isset($_POST['bulk_edit_contact_role'])) {
         $_SESSION['alert_message'] = "You updated contact roles for <b>$contact_count</b> contacts";
     }
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -530,7 +530,7 @@ if (isset($_POST['bulk_assign_contact_tags'])) {
         $_SESSION['alert_message'] = "You assigned tags for <strong>$count</strong> contacts";
     }
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -576,7 +576,7 @@ if (isset($_POST['send_bulk_mail_now'])) {
     
     }
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -628,7 +628,7 @@ if (isset($_POST['bulk_archive_contacts'])) {
 
     }
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 }
 
 if (isset($_POST['bulk_unarchive_contacts'])) {
@@ -672,7 +672,7 @@ if (isset($_POST['bulk_unarchive_contacts'])) {
 
     }
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 }
 
 if (isset($_POST['bulk_delete_contacts'])) {
@@ -716,7 +716,7 @@ if (isset($_POST['bulk_delete_contacts'])) {
 
     }
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 }
 
 if (isset($_GET['anonymize_contact'])) {
@@ -818,7 +818,7 @@ if (isset($_GET['anonymize_contact'])) {
     $_SESSION['alert_type'] = "error";
     $_SESSION['alert_message'] = "Contact $contact_name anonymized & archived";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 }
 
 if (isset($_GET['archive_contact'])) {
@@ -848,7 +848,7 @@ if (isset($_GET['archive_contact'])) {
     $_SESSION['alert_type'] = "error";
     $_SESSION['alert_message'] = "Contact <strong>$contact_name</strong> has been archived";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -877,7 +877,7 @@ if (isset($_GET['unarchive_contact'])) {
 
     $_SESSION['alert_message'] = "Contact <strong>$contact_name</strong> has been Unarchived";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -907,7 +907,7 @@ if (isset($_GET['delete_contact'])) {
     $_SESSION['alert_type'] = "error";
     $_SESSION['alert_message'] = "Contact <strong>$contact_name</strong> has been deleted.";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -936,7 +936,7 @@ if (isset($_POST['link_contact_to_asset'])) {
 
     $_SESSION['alert_message'] = "Contact <strong>$contact_name</strong> linked with asset <strong>$asset_name</strong>";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -966,7 +966,7 @@ if (isset($_GET['unlink_asset_from_contact'])) {
     $_SESSION['alert_type'] = "error";
     $_SESSION['alert_message'] = "Asset <strong>$asset_name</strong> unlinked from Contact <strong>$contact_name</strong>";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -995,7 +995,7 @@ if (isset($_POST['link_software_to_contact'])) {
 
     $_SESSION['alert_message'] = "Software <strong>$software_name</strong> licensed for contact <strong>$contact_name</strong>";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -1025,7 +1025,7 @@ if (isset($_GET['unlink_software_from_contact'])) {
     $_SESSION['alert_type'] = "error";
     $_SESSION['alert_message'] = "Removed Software License <strong>$software_name</strong> for Contact <strong>$contact_name</strong>";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -1054,7 +1054,7 @@ if (isset($_POST['link_contact_to_credential'])) {
 
     $_SESSION['alert_message'] = "Contact <strong>$contact_name</strong> linked with credential <strong>$credential_name</strong>";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -1084,7 +1084,7 @@ if (isset($_GET['unlink_credential_from_contact'])) {
     $_SESSION['alert_type'] = "error";
     $_SESSION['alert_message'] = "Credential <strong>$credential_name</strong> unlinked from Contact <strong>$contact_name</strong>";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -1113,7 +1113,7 @@ if (isset($_POST['link_service_to_contact'])) {
 
     $_SESSION['alert_message'] = "service <strong>$service_name</strong> linked with contact <strong>$contact_name</strong>";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -1143,7 +1143,7 @@ if (isset($_GET['unlink_service_from_contact'])) {
     $_SESSION['alert_type'] = "error";
     $_SESSION['alert_message'] = "Contact <strong>$contact_name</strong> unlinked from service <strong>$service_name</strong>";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -1173,7 +1173,7 @@ if (isset($_POST['link_contact_to_file'])) {
 
     $_SESSION['alert_message'] = "Contact <strong>$contact_name</strong> linked with File <strong>$file_name</strong>";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -1203,7 +1203,7 @@ if (isset($_GET['unlink_contact_from_file'])) {
     $_SESSION['alert_type'] = "error";
     $_SESSION['alert_message'] = "Contact <strong>$contact_name</strong> unlinked from file <strong>$file_name</strong>";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -1271,7 +1271,7 @@ if (isset($_POST["import_contacts_csv"])) {
     } else {
         $_SESSION['alert_message'] = "Please select a file to upload.";
         $_SESSION['alert_type'] = "error";
-        header("Location: " . $_SERVER["HTTP_REFERER"]);
+        redirect();
         exit();
     }
 
@@ -1353,12 +1353,12 @@ if (isset($_POST["import_contacts_csv"])) {
         logAction("Contact", "Import", "$session_name imported $row_count contact(s) via CSV file", $client_id);
 
         $_SESSION['alert_message'] = "$row_count Contact(s) added, $duplicate_count duplicate(s) detected";
-        header("Location: " . $_SERVER["HTTP_REFERER"]);
+        redirect();
     }
     //Check for any errors, if there are notify user and redirect
     if ($error) {
         $_SESSION['alert_type'] = "warning";
-        header("Location: " . $_SERVER["HTTP_REFERER"]);
+        redirect();
     }
 }
 

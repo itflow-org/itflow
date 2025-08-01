@@ -63,7 +63,7 @@ if (isset($_GET['accept_quote'], $_GET['url_key'])) {
         }
 
         $_SESSION['alert_message'] = "Quote Accepted";
-        header("Location: " . $_SERVER["HTTP_REFERER"]);
+        redirect();
     } else {
         echo "Invalid!!";
     }
@@ -125,7 +125,7 @@ if (isset($_GET['decline_quote'], $_GET['url_key'])) {
 
         $_SESSION['alert_type'] = "danger";
         $_SESSION['alert_message'] = "Quote Declined";
-        header("Location: " . $_SERVER["HTTP_REFERER"]);
+        redirect();
     } else {
         echo "Invalid!!";
     }
@@ -146,7 +146,7 @@ if (isset($_GET['reopen_ticket'], $_GET['url_key'])) {
         // Logging
         customAction('ticket_update', $ticket_id);
         $_SESSION['alert_message'] = "Ticket reopened";
-        header("Location: " . $_SERVER["HTTP_REFERER"]);
+        redirect();
     } else {
         echo "Invalid!!";
     }
@@ -167,7 +167,7 @@ if (isset($_GET['close_ticket'], $_GET['url_key'])) {
         // Logging
         customAction('ticket_close', $ticket_id);
         $_SESSION['alert_message'] = "Ticket closed";
-        header("Location: " . $_SERVER["HTTP_REFERER"]);
+        redirect();
     } else {
         echo "Invalid!!";
     }
@@ -195,7 +195,7 @@ if (isset($_GET['add_ticket_feedback'], $_GET['url_key'])) {
         }
 
         $_SESSION['alert_message'] = "Feedback recorded - thank you";
-        header("Location: " . $_SERVER["HTTP_REFERER"]);
+        redirect();
         customAction('ticket_feedback', $ticket_id);
     } else {
         echo "Invalid!!";
@@ -708,7 +708,7 @@ if (isset($_POST['guest_quote_upload_file'])) {
             }
         }
 
-        header("Location: " . $_SERVER["HTTP_REFERER"]);
+        redirect();
 
     } else {
         echo "Invalid!!";

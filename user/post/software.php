@@ -35,7 +35,7 @@ if (isset($_POST['add_software_from_template'])) {
 
     $_SESSION['alert_message'] = "Software <strong>$name</strong> created from template";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -95,7 +95,7 @@ if (isset($_POST['add_software'])) {
 
     $_SESSION['alert_message'] = "Software <strong>$name</strong> created $alert_extended";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -155,7 +155,7 @@ if (isset($_POST['edit_software'])) {
 
     $_SESSION['alert_message'] = "Software <strong>$name</strong> updated";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -183,7 +183,7 @@ if (isset($_GET['archive_software'])) {
     $_SESSION['alert_type'] = "error";
     $_SESSION['alert_message'] = "Software <strong>$software_name</strong> archived and removed all device/user license associations";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -207,7 +207,7 @@ if (isset($_GET['delete_software'])) {
     $_SESSION['alert_type'] = "error";
     $_SESSION['alert_message'] = "Software <strong>$software_name</strong> deleted and removed all device/user license associations";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 

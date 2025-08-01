@@ -20,7 +20,7 @@ if (isset($_POST['add_calendar'])) {
 
     $_SESSION['alert_message'] = "Calendar <strong>$name</strong> created";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -37,7 +37,7 @@ if (isset($_POST['edit_calendar'])) {
 
     $_SESSION['alert_message'] = "Calendar <strong>$name</strong> edited";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -111,7 +111,7 @@ if (isset($_POST['add_event'])) {
 
     $_SESSION['alert_message'] = "Event <strong>$title</strong> created in calendar <strong>$calendar_name</strong>";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -179,7 +179,7 @@ if (isset($_POST['edit_event'])) {
 
     $_SESSION['alert_message'] = "Calendar event titled <strong>$title</strong> edited";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -200,6 +200,6 @@ if (isset($_GET['delete_event'])) {
     $_SESSION['alert_type'] = "error";
     $_SESSION['alert_message'] = "Calendar event titled <strong>$event_title</strong> deleted";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }

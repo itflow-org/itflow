@@ -29,7 +29,7 @@ if (isset($_POST['add_credential'])) {
 
     $_SESSION['alert_message'] = "Credential <strong>$name</strong> created";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -69,7 +69,7 @@ if (isset($_POST['edit_credential'])) {
 
     $_SESSION['alert_message'] = "Credential <strong>$name</strong> edited";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -94,7 +94,7 @@ if(isset($_GET['archive_credential'])){
     $_SESSION['alert_type'] = "error";
     $_SESSION['alert_message'] = "Credential <strong>$credential_name</strong> archived";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -117,7 +117,7 @@ if(isset($_GET['unarchive_credential'])){
 
     $_SESSION['alert_message'] = "Credential <strong>$credential_name</strong> restored";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 }
 
 if (isset($_GET['delete_credential'])) {
@@ -140,7 +140,7 @@ if (isset($_GET['delete_credential'])) {
     $_SESSION['alert_type'] = "error";
     $_SESSION['alert_message'] = "Credential <strong>$credential_name</strong> deleted";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -191,7 +191,7 @@ if (isset($_POST['bulk_assign_credential_tags'])) {
         logAction("Credential", "Bulk Edit", "$session_name added tags to $count credentials", $client_id);
     }
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -230,7 +230,7 @@ if (isset($_POST['bulk_archive_credentials'])) {
 
     }
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 }
 
 if (isset($_POST['bulk_unarchive_credentials'])) {
@@ -269,7 +269,7 @@ if (isset($_POST['bulk_unarchive_credentials'])) {
 
     }
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 }
 
 if (isset($_POST['bulk_delete_credentials'])) {
@@ -309,7 +309,7 @@ if (isset($_POST['bulk_delete_credentials'])) {
 
     }
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 }
 
 if (isset($_POST['export_credentials_csv'])) {
@@ -379,7 +379,7 @@ if (isset($_POST["import_credentials_csv"])) {
     } else {
         $_SESSION['alert_message'] = "Please select a file to upload.";
         $_SESSION['alert_type'] = "error";
-        header("Location: " . $_SERVER["HTTP_REFERER"]);
+        redirect();
         exit();
     }
 
@@ -447,12 +447,12 @@ if (isset($_POST["import_credentials_csv"])) {
         logAction("Credential", "Import", "$session_name imported $row_count credential(s) via CSV file. $duplicate_count duplicate(s) found and not imported", $client_id);
 
         $_SESSION['alert_message'] = "$row_count credential(s) imported, $duplicate_count duplicate(s) detected and not imported";
-        header("Location: " . $_SERVER["HTTP_REFERER"]);
+        redirect();
     }
     //Check for any errors, if there are notify user and redirect
     if ($error) {
         $_SESSION['alert_type'] = "warning";
-        header("Location: " . $_SERVER["HTTP_REFERER"]);
+        redirect();
     }
 }
 

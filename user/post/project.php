@@ -75,7 +75,7 @@ if (isset($_POST['add_project'])) {
 
     $_SESSION['alert_message'] = "You created Project <strong>$project_name</strong>";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 }
 
 if (isset($_POST['edit_project'])) {
@@ -96,7 +96,7 @@ if (isset($_POST['edit_project'])) {
 
     $_SESSION['alert_message'] = "Project <strong>$project_name</strong> edited";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 }
 
 if (isset($_GET['close_project'])) {
@@ -118,7 +118,7 @@ if (isset($_GET['close_project'])) {
 
     $_SESSION['alert_message'] = "Project <strong>$project_name</strong> closed";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 }
 
 if (isset($_GET['archive_project'])) {
@@ -141,7 +141,7 @@ if (isset($_GET['archive_project'])) {
     $_SESSION['alert_type'] = "error";
     $_SESSION['alert_message'] = "Project <strong>$project_name</strong> archived";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 }
 
 if (isset($_GET['unarchive_project'])) {
@@ -163,7 +163,7 @@ if (isset($_GET['unarchive_project'])) {
 
     $_SESSION['alert_message'] = "Project <strong>$project_name</strong> unarchived";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 }
 
 if (isset($_GET['delete_project'])) {
@@ -189,7 +189,7 @@ if (isset($_GET['delete_project'])) {
     $_SESSION['alert_type'] = "error";
     $_SESSION['alert_message'] = "Project <strong>$project_name</strong> Deleted";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 }
 
 if (isset($_POST['link_ticket_to_project'])) {
@@ -232,7 +232,7 @@ if (isset($_POST['link_ticket_to_project'])) {
         $_SESSION['alert_message'] = "<strong>$count</strong> Ticket(s) added to <strong>$project_name</strong>";
     }
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 }
 
 if (isset($_POST['link_closed_ticket_to_project'])) {
@@ -251,7 +251,7 @@ if (isset($_POST['link_closed_ticket_to_project'])) {
     $sql = mysqli_query($mysqli, "SELECT ticket_id, ticket_prefix, ticket_number, ticket_subject, ticket_updated_at FROM tickets WHERE ticket_number = $ticket_number");
     if (mysqli_num_rows($sql) == 0) {
         $_SESSION['alert_message'] = "Cannot merge into that ticket.";
-        header("Location: " . $_SERVER["HTTP_REFERER"]);
+        redirect();
         exit();
     }
     $row = mysqli_fetch_array($sql);
@@ -267,5 +267,5 @@ if (isset($_POST['link_closed_ticket_to_project'])) {
     logAction("Project", "Edit", "$session_name added ticket $ticket_prefix$ticket_number - $ticket_subject to project $project_name", $client_id, $project_id);
 
     $_SESSION['alert_message'] = "Ticket added to <strong>$project_name</strong>";
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 }

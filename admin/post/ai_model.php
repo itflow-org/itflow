@@ -24,7 +24,7 @@ if (isset($_POST['add_ai_model'])) {
 
     $_SESSION['alert_message'] = "AI Model <strong>$model</strong> created";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -44,7 +44,7 @@ if (isset($_POST['edit_ai_model'])) {
 
     $_SESSION['alert_message'] = "AI Model <strong>$model</strong> edited";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -66,6 +66,6 @@ if (isset($_GET['delete_ai_model'])) {
     $_SESSION['alert_type'] = "error";
     $_SESSION['alert_message'] = "AI Model <strong>$model_name</strong> deleted";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }

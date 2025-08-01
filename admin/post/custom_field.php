@@ -21,7 +21,7 @@ if(isset($_POST['create_custom_field'])){
 
     $_SESSION['alert_message'] = "Custom field <strong>$label</strong> created";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -38,7 +38,7 @@ if(isset($_POST['edit_custom_field'])){
 
     $_SESSION['alert_message'] = "Custom field <strong>$label</strong> edited";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -58,6 +58,6 @@ if(isset($_GET['delete_custom_field'])){
     $_SESSION['alert_type'] = "error";
     $_SESSION['alert_message'] = "Custom field <strong>$label</strong> deleted";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }

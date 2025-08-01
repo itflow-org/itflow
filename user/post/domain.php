@@ -57,7 +57,7 @@ if (isset($_POST['add_domain'])) {
 
     $_SESSION['alert_message'] = "Domain <strong>$name</strong> created";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -143,7 +143,7 @@ if (isset($_POST['edit_domain'])) {
 
     $_SESSION['alert_message'] = "Domain <strong>$name</strong> edited";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -167,7 +167,7 @@ if (isset($_GET['archive_domain'])) {
     $_SESSION['alert_type'] = "error";
     $_SESSION['alert_message'] = "Domain <strong>$domain_name archived";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 }
 
 if(isset($_GET['unarchive_domain'])){
@@ -189,7 +189,7 @@ if(isset($_GET['unarchive_domain'])){
 
     $_SESSION['alert_message'] = "Domain <strong>$domain_name</strong> restored";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 }
 
 if (isset($_GET['delete_domain'])) {
@@ -212,7 +212,7 @@ if (isset($_GET['delete_domain'])) {
     $_SESSION['alert_type'] = "error";
     $_SESSION['alert_message'] = "Domain <strong>$domain_name</strong> deleted";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -250,7 +250,7 @@ if (isset($_POST['bulk_archive_domains'])) {
 
     }
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 }
 
 if (isset($_POST['bulk_unarchive_domains'])) {
@@ -287,7 +287,7 @@ if (isset($_POST['bulk_unarchive_domains'])) {
 
     }
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 }
 
 if (isset($_POST['bulk_delete_domains'])) {
@@ -324,7 +324,7 @@ if (isset($_POST['bulk_delete_domains'])) {
 
     }
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 }
 
 if (isset($_POST['export_domains_csv'])) {

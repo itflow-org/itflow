@@ -41,7 +41,7 @@ if (isset($_POST['add_vendor_from_template'])) {
 
     $_SESSION['alert_message'] = "Vendor <strong>$name</strong> created from template";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -62,7 +62,7 @@ if (isset($_POST['add_vendor'])) {
 
     $_SESSION['alert_message'] = "Vendor <strong>$name</strong> created";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 }
 
 if (isset($_POST['edit_vendor'])) {
@@ -84,7 +84,7 @@ if (isset($_POST['edit_vendor'])) {
 
     $_SESSION['alert_message'] = "Vendor <strong>$name</strong> edited";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 }
 
 if (isset($_GET['archive_vendor'])) {
@@ -104,7 +104,7 @@ if (isset($_GET['archive_vendor'])) {
     $_SESSION['alert_type'] = "error";
     $_SESSION['alert_message'] = "Vendor <strong>$vendor_name</strong> archived";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 }
 
 if(isset($_GET['unarchive_vendor'])){
@@ -124,7 +124,7 @@ if(isset($_GET['unarchive_vendor'])){
 
     $_SESSION['alert_message'] = "Vendor <strong>$vendor_name</strong> restored";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 }
 
 if (isset($_GET['delete_vendor'])) {
@@ -150,7 +150,7 @@ if (isset($_GET['delete_vendor'])) {
     $_SESSION['alert_type'] = "error";
     $_SESSION['alert_message'] = "Vendor <strong>$vendor_name</strong> deleted";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 }
 
 if (isset($_POST['bulk_archive_vendors'])) {
@@ -187,7 +187,7 @@ if (isset($_POST['bulk_archive_vendors'])) {
 
     }
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 }
 
 if (isset($_POST['bulk_unarchive_vendors'])) {
@@ -224,7 +224,7 @@ if (isset($_POST['bulk_unarchive_vendors'])) {
 
     }
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 }
 
 if (isset($_POST['bulk_delete_vendors'])) {
@@ -268,7 +268,7 @@ if (isset($_POST['bulk_delete_vendors'])) {
 
     }
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 }
 
 if (isset($_POST['export_vendors_csv'])) {

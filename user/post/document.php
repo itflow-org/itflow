@@ -33,7 +33,7 @@ if (isset($_POST['add_document'])) {
 
     $_SESSION['alert_message'] = "Document <strong>$name</strong> created";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -148,7 +148,7 @@ if (isset($_POST['move_document'])) {
 
     $_SESSION['alert_message'] = "Document <strong>$document_name</strong> moved to folder <strong>$folder_name</strong>";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -174,7 +174,7 @@ if (isset($_POST['rename_document'])) {
 
     $_SESSION['alert_message'] = "You renamed Document from <strong>$old_document_name</strong> to <strong>$name</strong>";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -215,7 +215,7 @@ if (isset($_POST['bulk_move_document'])) {
 
     $_SESSION['alert_message'] = "You moved <strong>$count</strong> document(s) to the folder <strong>$folder_name</strong>";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -245,7 +245,7 @@ if (isset($_POST['link_file_to_document'])) {
 
     $_SESSION['alert_message'] = "File <strong>$file_name</strong> linked with Document <strong>$document_name</strong>";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -275,7 +275,7 @@ if (isset($_GET['unlink_file_from_document'])) {
     $_SESSION['alert_type'] = "error";
     $_SESSION['alert_message'] = "File <strong>$file_name</strong> unlinked from Document <strong>$document_name</strong>";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -305,7 +305,7 @@ if (isset($_POST['link_vendor_to_document'])) {
 
     $_SESSION['alert_message'] = "Vendor <strong>$vendor_name</strong> linked with Document <strong>$document_name</strong>";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -335,7 +335,7 @@ if (isset($_GET['unlink_vendor_from_document'])) {
     $_SESSION['alert_type'] = "error";
     $_SESSION['alert_message'] = "Vendor <strong>$vendor_name</strong> unlinked from Document <strong>$document_name</strong>";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -366,7 +366,7 @@ if (isset($_POST['link_contact_to_document'])) {
 
     $_SESSION['alert_message'] = "Contact <strong>$contact_name</strong> linked with Document <strong>$document_name</strong>";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -396,7 +396,7 @@ if (isset($_GET['unlink_contact_from_document'])) {
     $_SESSION['alert_type'] = "error";
     $_SESSION['alert_message'] = "Contact <strong>$contact_name</strong> unlinked from Document <strong>$document_name</strong>";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -426,7 +426,7 @@ if (isset($_POST['link_asset_to_document'])) {
 
     $_SESSION['alert_message'] = "Asset <strong>$asset_name</strong> linked with Document <strong>$document_name</strong>";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -456,7 +456,7 @@ if (isset($_GET['unlink_asset_from_document'])) {
     $_SESSION['alert_type'] = "error";
     $_SESSION['alert_message'] = "Asset <strong>$asset_name</strong> unlinked from Document <strong>$document_name</strong>";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -486,7 +486,7 @@ if (isset($_POST['link_software_to_document'])) {
 
     $_SESSION['alert_message'] = "Software <strong>$software_name</strong> linked with Document <strong>$document_name</strong>";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -516,7 +516,7 @@ if (isset($_GET['unlink_software_from_document'])) {
     $_SESSION['alert_type'] = "error";
     $_SESSION['alert_message'] = "Software <strong>$software_name</strong> unlinked from Document <strong>$document_name</strong>";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -546,7 +546,7 @@ if (isset($_POST['toggle_document_visibility'])) {
 
     $_SESSION['alert_message'] = "Document <strong>$document_name</strong> changed to <strong>$visable_wording</strong> in the client portal";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -590,7 +590,7 @@ if (isset($_GET['export_document'])) {
 
     $_SESSION['alert_message'] = "Document <strong>$document_name</strong> exported";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -633,7 +633,7 @@ if (isset($_GET['archive_document'])) {
     $_SESSION['alert_type'] = "error";
     $_SESSION['alert_message'] = "Document <strong>$document_name</strong> archived";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -657,7 +657,7 @@ if (isset($_GET['delete_document_version'])) {
     $_SESSION['alert_type'] = "error";
     $_SESSION['alert_message'] = "Document $document_version_name version deleted";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -684,7 +684,7 @@ if (isset($_GET['delete_document'])) {
     $_SESSION['alert_type'] = "error";
     $_SESSION['alert_message'] = "Document <strong>$document_name</strong> deleted and all versions";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -725,6 +725,6 @@ if (isset($_POST['bulk_delete_documents'])) {
         $_SESSION['alert_message'] = "Deleted <strong>$count</strong> Documents and associated document versions";
     }
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }

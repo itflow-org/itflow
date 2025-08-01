@@ -19,6 +19,6 @@ if (isset($_POST['edit_localization'])) {
 
     $_SESSION['alert_message'] = "Company localization updated";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }

@@ -26,6 +26,6 @@ if (isset($_POST['edit_invoice_settings'])) {
 
     $_SESSION['alert_message'] = "Invoice Settings edited";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }

@@ -22,7 +22,7 @@ if (isset($_POST['add_account'])) {
 
     $_SESSION['alert_message'] = "Account <strong>$name</strong> created ";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -41,7 +41,7 @@ if (isset($_POST['edit_account'])) {
 
     $_SESSION['alert_message'] = "Account <strong>$name</strong> edited";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -63,7 +63,7 @@ if (isset($_GET['archive_account'])) {
 
     $_SESSION['alert_message'] = "Account <strong>$account_name</strong> archived";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -85,6 +85,6 @@ if (isset($_GET['delete_account'])) {
 
     $_SESSION['alert_message'] = "Account <strong>$account_name</strong> deleted";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }

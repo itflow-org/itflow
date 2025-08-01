@@ -46,7 +46,7 @@ if (isset($_POST['add_rack'])) {
 
     $_SESSION['alert_message'] = "Rack <strong>$name</strong> created";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -89,7 +89,7 @@ if (isset($_POST['edit_rack'])) {
 
     $_SESSION['alert_message'] = "Rack <strong>$name</strong> edited";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -113,7 +113,7 @@ if (isset($_GET['archive_rack'])) {
     $_SESSION['alert_type'] = "error";
     $_SESSION['alert_message'] = "Rack <strong>$rack_name</strong> archived";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -136,7 +136,7 @@ if (isset($_GET['unarchive_rack'])) {
 
     $_SESSION['alert_message'] = "Rack <strong>$rack_name</strong> Unarchived";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -166,7 +166,7 @@ if (isset($_GET['delete_rack'])) {
     $_SESSION['alert_type'] = "error";
     $_SESSION['alert_message'] = "Rack <strong>$rack_name</strong> deleted";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -191,7 +191,7 @@ if (isset($_POST['add_rack_unit'])) {
     if ($unit_start > $unit_end) {
         $_SESSION['alert_type'] = "error";
         $_SESSION['alert_message'] = "Unit Start number cannot be higher than Unit End number.";
-        header("Location: " . $_SERVER["HTTP_REFERER"]);
+        redirect();
         exit();
     }
 
@@ -202,7 +202,7 @@ if (isset($_POST['add_rack_unit'])) {
         // If there is an overlap, return an error message
         $_SESSION['alert_type'] = "error";
         $_SESSION['alert_message'] = "Units $unit_start to $unit_end are already in use by another device.";
-        header("Location: " . $_SERVER["HTTP_REFERER"]);
+        redirect();
         exit();
     }
 
@@ -216,7 +216,7 @@ if (isset($_POST['add_rack_unit'])) {
 
     $_SESSION['alert_message'] = "Device <strong>$name</strong> added to units $unit_start - $unit_end in rack.";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 }
 
 if (isset($_POST['edit_rack_unit'])) {
@@ -244,7 +244,7 @@ if (isset($_POST['edit_rack_unit'])) {
 
     $_SESSION['alert_message'] = "Device $name edited on the rack";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -270,6 +270,6 @@ if (isset($_GET['remove_rack_unit'])) {
     $_SESSION['alert_type'] = "error";
     $_SESSION['alert_message'] = "Device <strong>$device_name</strong> removed from rack";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }

@@ -24,7 +24,7 @@ if (isset($_POST['create_folder'])) {
 
     $_SESSION['alert_message'] = "Folder <strong>$folder_name</strong> created";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -49,7 +49,7 @@ if (isset($_POST['rename_folder'])) {
 
     $_SESSION['alert_message'] = "Folder <strong>$old_folder_name</strong> renamed to <strong>$folder_name</strong>";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -81,6 +81,6 @@ if (isset($_GET['delete_folder'])) {
     $_SESSION['alert_type'] = "error";
     $_SESSION['alert_message'] = "Folder <strong>$folder_name</strong> deleted";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }

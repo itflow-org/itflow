@@ -24,5 +24,5 @@ if (isset($_POST['edit_security_settings'])) {
 
     $_SESSION['alert_message'] = "Security settings updated";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 }

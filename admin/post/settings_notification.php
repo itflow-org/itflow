@@ -19,6 +19,6 @@ if (isset($_POST['edit_notification_settings'])) {
 
     $_SESSION['alert_message'] = "Notification Settings updated";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }

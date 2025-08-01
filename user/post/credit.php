@@ -25,5 +25,5 @@ if (isset($_POST['add_credit'])) {
 
     $_SESSION['alert_message'] = "" . numfmt_format_currency($currency_format, $amount, $session_company_currency) . " Credit Added ";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 }

@@ -39,7 +39,7 @@ if (isset($_POST['save_budget'])) {
 
     $_SESSION['alert_message'] = "Budget Updated for $year";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
     
     exit;
 }
@@ -60,6 +60,6 @@ if (isset($_POST['delete_budget'])) {
     $_SESSION['alert_type'] = "error";
     $_SESSION['alert_message'] = "Budget deleted for $year";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }

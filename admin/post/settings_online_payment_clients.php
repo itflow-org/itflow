@@ -7,7 +7,7 @@ if (isset($_GET['stripe_remove_pm'])) {
 
     if (!$config_stripe_enable) {
         $_SESSION['alert_message'] = "Stripe not enabled";
-        header("Location: " . $_SERVER["HTTP_REFERER"]);
+        redirect();
         exit();
     }
 
@@ -42,7 +42,7 @@ if (isset($_GET['stripe_remove_pm'])) {
     // Logging & Redirect
     logAction("Stripe", "Update", "$session_name deleted saved Stripe payment method (PM: $payment_method)", $client_id);
     $_SESSION['alert_message'] = "Payment method removed";
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -66,5 +66,5 @@ if (isset($_GET['stripe_reset_customer'])) {
     logAction("Stripe", "Delete", "$session_name reset Stripe settings for client", $client_id);
 
     $_SESSION['alert_message'] = "Reset client Stripe settings";
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 }

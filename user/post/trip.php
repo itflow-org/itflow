@@ -20,7 +20,7 @@ if (isset($_POST['add_trip'])) {
 
     $_SESSION['alert_message'] = "Trip from <strong>$source</strong> to <strong>$destination</strong> logged";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -37,7 +37,7 @@ if (isset($_POST['edit_trip'])) {
 
     $_SESSION['alert_message'] = "Trip edited";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -59,7 +59,7 @@ if (isset($_GET['delete_trip'])) {
     $_SESSION['alert_type'] = "error";
     $_SESSION['alert_message'] = "Trip ($trip_source - $trip_destination) deleted";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 

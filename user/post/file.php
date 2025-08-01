@@ -196,7 +196,7 @@ if (isset($_POST['upload_files'])) {
     }
 
     // Redirect after processing
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
     exit;
 }
 
@@ -223,7 +223,7 @@ if (isset($_POST['rename_file'])) {
 
     $_SESSION['alert_message'] = "Renamed file <strong>$old_file_name</strong> to <strong>$file_name</strong>";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -252,7 +252,7 @@ if (isset($_POST['move_file'])) {
 
     $_SESSION['alert_message'] = "File <strong>$file_name</strong> moved to <strong>$folder_name</strong>";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -276,7 +276,7 @@ if (isset($_GET['archive_file'])) {
     $_SESSION['alert_type'] = "error";
     $_SESSION['alert_message'] = "File <strong>$file_name</strong> archived";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -312,7 +312,7 @@ if (isset($_POST['delete_file'])) {
     $_SESSION['alert_type'] = "error";
     $_SESSION['alert_message'] = "File <strong>$file_name</strong> deleted";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -361,7 +361,7 @@ if (isset($_POST['bulk_delete_files'])) {
         $_SESSION['alert_message'] = "You deleted <strong>$file_count</strong> files";
     }
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -404,7 +404,7 @@ if (isset($_POST['bulk_move_files'])) {
         $_SESSION['alert_message'] = "Moved <strong>$file_count</strong> files to the folder <strong>$folder_name</strong>";
     }
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -434,7 +434,7 @@ if (isset($_POST['link_asset_to_file'])) {
 
     $_SESSION['alert_message'] = "Asset <strong>$asset_name</strong> linked to File <strong>$file_name</strong>";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -463,6 +463,6 @@ if (isset($_GET['unlink_asset_from_file'])) {
 
     $_SESSION['alert_message'] = "Asset <strong>$asset_name</strong> unlinked from File <strong>$file_name</strong>";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }

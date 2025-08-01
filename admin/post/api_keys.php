@@ -28,7 +28,7 @@ if (isset($_POST['add_api_key'])) {
 
     $_SESSION['alert_message'] = "API Key <strong>$name</strong> created";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -51,7 +51,7 @@ if (isset($_GET['delete_api_key'])) {
     $_SESSION['alert_type'] = "error";
     $_SESSION['alert_message'] = "API Key <strong>$name</strong> deleted";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -88,5 +88,5 @@ if (isset($_POST['bulk_delete_api_keys'])) {
 
     }
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 }

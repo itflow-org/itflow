@@ -22,7 +22,7 @@ if (isset($_POST['add_software_template'])) {
 
     $_SESSION['alert_message'] = "Software template <strong>$name</strong> created";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -43,7 +43,7 @@ if (isset($_POST['edit_software_template'])) {
 
     $_SESSION['alert_message'] = "Software template <strong>$name</strong> edited";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -64,6 +64,6 @@ if (isset($_GET['delete_software_template'])) {
     $_SESSION['alert_type'] = "error";
     $_SESSION['alert_message'] = "Software Template <strong>$software_template_name</strong> deleted";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }

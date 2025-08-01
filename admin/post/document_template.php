@@ -20,7 +20,7 @@ if (isset($_POST['add_document_template'])) {
 
     $_SESSION['alert_message'] = "Document template <strong>$name</strong> created";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -39,7 +39,7 @@ if (isset($_POST['edit_document_template'])) {
 
     $_SESSION['alert_message'] = "Document Template <strong>$name</strong> edited";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -60,6 +60,6 @@ if (isset($_GET['delete_document_template'])) {
     $_SESSION['alert_type'] = "error";
     $_SESSION['alert_message'] = "Document Template <strong>$document_template_name</strong> deleted";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }

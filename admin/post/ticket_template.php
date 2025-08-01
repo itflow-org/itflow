@@ -29,7 +29,7 @@ if (isset($_POST['add_ticket_template'])) {
 
     $_SESSION['alert_message'] = "Ticket Template <strong>$name</strong> created";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -48,7 +48,7 @@ if (isset($_POST['edit_ticket_template'])) {
 
     $_SESSION['alert_message'] = "Ticket Template <strong>$name</strong> edited";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 }
 
 if (isset($_GET['delete_ticket_template'])) {
@@ -74,7 +74,7 @@ if (isset($_GET['delete_ticket_template'])) {
     $_SESSION['alert_type'] = "error";
     $_SESSION['alert_message'] = "Ticket Template <strong>$ticket_template_name</strong> and its associated tasks deleted";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 }
 
 if (isset($_POST['add_ticket_template_task'])) {
@@ -94,7 +94,7 @@ if (isset($_POST['add_ticket_template_task'])) {
 
     $_SESSION['alert_message'] = "Added Task <strong>$task_name</strong>";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -115,5 +115,5 @@ if (isset($_GET['delete_task_template'])) {
     $_SESSION['alert_type'] = "error";
     $_SESSION['alert_message'] = "Task <strong>$task_template_name</strong> deleted";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 }

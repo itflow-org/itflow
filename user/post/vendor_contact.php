@@ -23,7 +23,7 @@ if (isset($_POST['add_vendor_contact'])) {
 
     $_SESSION['alert_message'] = "Vendor Contact <strong>$name</strong> created";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -44,7 +44,7 @@ if (isset($_POST['edit_vendor_contact'])) {
 
     $_SESSION['alert_message'] = "Vendor Contact <strong>$name</strong> updated";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -79,7 +79,7 @@ if (isset($_POST['bulk_archive_vendor_contacts'])) {
 
     }
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 }
 
 if (isset($_POST['bulk_unarchive_vendor_contacts'])) {
@@ -123,7 +123,7 @@ if (isset($_POST['bulk_unarchive_vendor_contacts'])) {
 
     }
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 }
 
 if (isset($_POST['bulk_delete_vendor_contacts'])) {
@@ -175,7 +175,7 @@ if (isset($_POST['bulk_delete_vendor_contacts'])) {
 
     }
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 }
 
 
@@ -206,7 +206,7 @@ if (isset($_GET['archive_vendor_contact'])) {
     $_SESSION['alert_type'] = "error";
     $_SESSION['alert_message'] = "Contact <strong>$contact_name</strong> has been archived";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -235,7 +235,7 @@ if (isset($_GET['unarchive_vendor_contact'])) {
 
     $_SESSION['alert_message'] = "Contact <strong>$contact_name</strong> has been Unarchived";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -273,7 +273,7 @@ if (isset($_GET['delete_vendor_contact'])) {
     $_SESSION['alert_type'] = "error";
     $_SESSION['alert_message'] = "Contact <strong>$contact_name</strong> has been deleted.";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -342,7 +342,7 @@ if (isset($_POST["import_vendor_contacts_csv"])) {
     } else {
         $_SESSION['alert_message'] = "Please select a file to upload.";
         $_SESSION['alert_type'] = "error";
-        header("Location: " . $_SERVER["HTTP_REFERER"]);
+        redirect();
         exit();
     }
 
@@ -424,12 +424,12 @@ if (isset($_POST["import_vendor_contacts_csv"])) {
         logAction("Contact", "Import", "$session_name imported $row_count contact(s) via CSV file", $client_id);
 
         $_SESSION['alert_message'] = "$row_count Contact(s) added, $duplicate_count duplicate(s) detected";
-        header("Location: " . $_SERVER["HTTP_REFERER"]);
+        redirect();
     }
     //Check for any errors, if there are notify user and redirect
     if ($error) {
         $_SESSION['alert_type'] = "warning";
-        header("Location: " . $_SERVER["HTTP_REFERER"]);
+        redirect();
     }
 }
 

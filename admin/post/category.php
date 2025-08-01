@@ -19,7 +19,7 @@ if (isset($_POST['add_category'])) {
 
     $_SESSION['alert_message'] = "Category $type <strong>$name</strong> created";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -36,7 +36,7 @@ if (isset($_POST['edit_category'])) {
 
     $_SESSION['alert_message'] = "Category $type <strong>$name</strong> edited";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -58,7 +58,7 @@ if (isset($_GET['archive_category'])) {
     $_SESSION['alert_type'] = "error";
     $_SESSION['alert_message'] = "Category $category_type <strong>$category_name</strong> archived";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -79,7 +79,7 @@ if (isset($_GET['unarchive_category'])) {
 
     $_SESSION['alert_message'] = "Category $category_type <strong>$category_name</strong> unarchived";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -101,6 +101,6 @@ if (isset($_GET['delete_category'])) {
     $_SESSION['alert_type'] = "error";
     $_SESSION['alert_message'] = "Category $category_type <strong>$category_name</strong> deleted";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }

@@ -19,6 +19,6 @@ if (isset($_POST['add_category'])) {
 
     $_SESSION['alert_message'] = "Category $type <strong>$name</strong> created";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }

@@ -19,7 +19,7 @@ if (isset($_POST['add_tag'])) {
 
     $_SESSION['alert_message'] = "Tag <strong>$name</strong> created";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -36,7 +36,7 @@ if (isset($_POST['edit_tag'])) {
 
     $_SESSION['alert_message'] = "Tag <strong>$name</strong> edited";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -56,6 +56,6 @@ if (isset($_GET['delete_tag'])) {
     $_SESSION['alert_type'] = "error";
     $_SESSION['alert_message'] = "Tag <strong>$tag_name</strong> deleted";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }

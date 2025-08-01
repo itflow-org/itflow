@@ -21,7 +21,7 @@ if (isset($_POST['add_network'])) {
 
     $_SESSION['alert_message'] = "Network <strong>$name</strong> created";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -39,7 +39,7 @@ if (isset($_POST['edit_network'])) {
 
     $_SESSION['alert_message'] = "Network <strong>$name</strong> updated";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -63,7 +63,7 @@ if (isset($_GET['archive_network'])) {
     $_SESSION['alert_type'] = "error";
     $_SESSION['alert_message'] = "Network <strong>$network_name</strong> archived";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -86,7 +86,7 @@ if (isset($_GET['unarchive_network'])) {
 
     $_SESSION['alert_message'] = "Network <strong>$network_name</strong> restored";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -109,7 +109,7 @@ if (isset($_GET['delete_network'])) {
     $_SESSION['alert_type'] = "error";
     $_SESSION['alert_message'] = "Network <strong>$network_name</strong> deleted";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -148,7 +148,7 @@ if (isset($_POST['bulk_delete_networks'])) {
 
     }
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 }
 
 if (isset($_POST['export_networks_csv'])) {

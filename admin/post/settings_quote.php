@@ -21,6 +21,6 @@ if (isset($_POST['edit_quote_settings'])) {
 
     $_SESSION['alert_message'] = "Quote Settings updated";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }

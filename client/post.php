@@ -82,7 +82,7 @@ if (isset($_POST['add_ticket_comment'])) {
 
     // After stripping bad HTML, check the comment isn't just empty
     if (empty($comment)) {
-        header("Location: " . $_SERVER["HTTP_REFERER"]);
+        redirect();
         exit;
     }
 
@@ -172,7 +172,7 @@ if (isset($_POST['add_ticket_comment'])) {
         customAction('ticket_reply_client', $ticket_id);
 
         // Redirect back to original page
-        header("Location: " . $_SERVER["HTTP_REFERER"]);
+        redirect();
 
     } else {
         // The client does not have access to this ticket
@@ -202,7 +202,7 @@ if (isset($_POST['add_ticket_feedback'])) {
         customAction('ticket_feedback', $ticket_id);
 
         // Redirect
-        header("Location: " . $_SERVER["HTTP_REFERER"]);
+        redirect();
     } else {
         // The client does not have access to this ticket
         header("Location: post.php?logout");
@@ -891,7 +891,7 @@ if (isset($_POST['set_recurring_payment'])) {
         $_SESSION['alert_message'] = "Automatic Payment Disabled for Recurring Invoice $recurring_invoice_prefix$recurring_invoice_number";
     }
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 }
 
 if (isset($_POST['client_add_document'])) {

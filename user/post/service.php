@@ -79,7 +79,7 @@ if (isset($_POST['add_service'])) {
 
     $_SESSION['alert_message'] = "Service <strong>$service_name</strong> created";
     
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -163,7 +163,7 @@ if (isset($_POST['edit_service'])) {
 
     $_SESSION['alert_message'] = "Service <strong>$service_name</strong> edited";
     
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -189,6 +189,6 @@ if (isset($_GET['delete_service'])) {
     $_SESSION['alert_type'] = "error";
     $_SESSION['alert_message'] = "Service <strong>$service_name</strong> deleted";
     
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }

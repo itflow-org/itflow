@@ -24,5 +24,5 @@ if (isset($_POST['edit_default_settings'])) {
 
     $_SESSION['alert_message'] = "Default settings edited";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 }

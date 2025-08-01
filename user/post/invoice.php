@@ -72,7 +72,7 @@ if (isset($_POST['edit_invoice'])) {
 
     $_SESSION['alert_message'] = "Invoice <strong>$invoice_prefix$invoice_number</strong> edited";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -254,7 +254,7 @@ if (isset($_POST['edit_recurring_invoice'])) {
 
     $_SESSION['alert_message'] = "Recurring Invoice <strong>$recurring_invoice_prefix$recurring_invoice_number</strong> edited";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -291,7 +291,7 @@ if (isset($_GET['delete_recurring_invoice'])) {
     $_SESSION['alert_type'] = "error";
     $_SESSION['alert_message'] = "Recurring Invoice <strong>$recurring_invoice_prefix$recurring_invoice_number</strong> deleted";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -344,7 +344,7 @@ if (isset($_POST['add_recurring_invoice_item'])) {
 
     $_SESSION['alert_message'] = "Item <srrong>$name</strong> added to Recurring Invoice";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -367,7 +367,7 @@ if (isset($_POST['recurring_invoice_note'])) {
 
     $_SESSION['alert_message'] = "Notes added";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -400,7 +400,7 @@ if (isset($_GET['delete_recurring_invoice_item'])) {
     $_SESSION['alert_type'] = "error";
     $_SESSION['alert_message'] = "Item <strong>$item_name</strong> removed";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -424,7 +424,7 @@ if (isset($_GET['mark_invoice_sent'])) {
 
     $_SESSION['alert_message'] = "Invoice marked sent";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 if (isset($_GET['mark_invoice_non-billable'])) {
@@ -447,7 +447,7 @@ if (isset($_GET['mark_invoice_non-billable'])) {
 
     $_SESSION['alert_message'] = "Invoice marked Non-Billable";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -472,7 +472,7 @@ if (isset($_GET['cancel_invoice'])) {
     $_SESSION['alert_type'] = "error";
     $_SESSION['alert_message'] = "Invoice <strong>$invoice_prefix$invoice_number</strong> cancelled";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -518,7 +518,7 @@ if (isset($_GET['delete_invoice'])) {
     $_SESSION['alert_type'] = "error";
     $_SESSION['alert_message'] = "Invoice <strong>$invoice_prefix$invoice_number</strong> deleted";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -572,7 +572,7 @@ if (isset($_POST['add_invoice_item'])) {
 
     $_SESSION['alert_message'] = "Item <strong>$name</strong> added to invoice";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -595,7 +595,7 @@ if (isset($_POST['invoice_note'])) {
 
     $_SESSION['alert_message'] = "Notes added";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -692,7 +692,7 @@ if (isset($_POST['edit_item'])) {
 
     $_SESSION['alert_message'] = "Item <strong>$name</strong> updated";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -727,7 +727,7 @@ if (isset($_GET['delete_invoice_item'])) {
     $_SESSION['alert_type'] = "error";
     $_SESSION['alert_message'] = "Item <strong>$item_name</strong> removed from invoice";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -748,7 +748,7 @@ if (isset($_POST['add_payment'])) {
     //Check to see if amount entered is greater than the balance of the invoice
     if ($amount > $balance) {
         $_SESSION['alert_message'] = "Payment is more than the balance";
-        header("Location: " . $_SERVER["HTTP_REFERER"]);
+        redirect();
     } else {
         mysqli_query($mysqli,"INSERT INTO payments SET payment_date = '$date', payment_amount = $amount, payment_currency_code = '$currency_code', payment_account_id = $account, payment_method = '$payment_method', payment_reference = '$reference', payment_invoice_id = $invoice_id");
 
@@ -890,7 +890,7 @@ if (isset($_POST['add_payment'])) {
 
         $_SESSION['alert_message'] .= "Payment amount <strong>" . numfmt_format_currency($currency_format, $amount, $invoice_currency_code) . "</strong> added";
 
-        header("Location: " . $_SERVER["HTTP_REFERER"]);
+        redirect();
     }
 }
 
@@ -1018,17 +1018,17 @@ if (isset($_GET['add_payment_stripe'])) {
     if (!$config_stripe_enable || !$stripe_id || !$stripe_pm) {
         $_SESSION['alert_type'] = "error";
         $_SESSION['alert_message'] = "Stripe not enabled or no client card saved";
-        header("Location: " . $_SERVER["HTTP_REFERER"]);
+        redirect();
         exit();
     } elseif ($invoice_status !== 'Sent' && $invoice_status !== 'Viewed') {
         $_SESSION['alert_type'] = "error";
         $_SESSION['alert_message'] = "Invalid invoice state (draft/partial/paid/not billable)";
-        header("Location: " . $_SERVER["HTTP_REFERER"]);
+        redirect();
         exit();
     } elseif ($invoice_amount == 0) {
         $_SESSION['alert_type'] = "error";
         $_SESSION['alert_message'] = "Invalid invoice amount";
-        header("Location: " . $_SERVER["HTTP_REFERER"]);
+        redirect();
         exit();
     }
 
@@ -1137,14 +1137,14 @@ if (isset($_GET['add_payment_stripe'])) {
         customAction('invoice_pay', $invoice_id);
 
         $_SESSION['alert_message'] .= "Payment amount <strong>" . numfmt_format_currency($currency_format, $invoice_amount, $invoice_currency_code) . "</strong> added";
-        header("Location: " . $_SERVER["HTTP_REFERER"]);
+        redirect();
 
     } else {
         mysqli_query($mysqli, "INSERT INTO history SET history_status = 'Payment failed', history_description = 'Stripe pay failed due to payment error', history_invoice_id = $invoice_id");
         logAction("Invoice", "Payment", "Failed online payment amount of invoice $invoice_prefix$invoice_number due to Stripe payment error", $client_id, $invoice_id);
         $_SESSION['alert_type'] = "error";
         $_SESSION['alert_message'] = "Payment failed";
-        header("Location: " . $_SERVER["HTTP_REFERER"]);
+        redirect();
         exit();
     }
 
@@ -1169,7 +1169,7 @@ if (isset($_POST['add_bulk_payment'])) {
     if ($bulk_payment_amount > $total_account_balance) {
         $_SESSION['alert_type'] = "error";
         $_SESSION['alert_message'] = "Payment exceeds Client Balance.";
-        header("Location: " . $_SERVER["HTTP_REFERER"]);
+        redirect();
         exit;
     }
 
@@ -1281,7 +1281,7 @@ if (isset($_POST['add_bulk_payment'])) {
     $_SESSION['alert_message'] .= "Bulk Payment added";
 
     // Redirect Back
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 }
 
 if (isset($_GET['delete_payment'])) {
@@ -1335,7 +1335,7 @@ if (isset($_GET['delete_payment'])) {
         $_SESSION['alert_message'] = "Payment deleted - Stripe payments must be manually refunded in Stripe";
     }
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -1461,7 +1461,7 @@ if (isset($_GET['email_invoice'])) {
 
     addToMailQueue($data);
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -1491,7 +1491,7 @@ if (isset($_POST['add_recurring_payment'])) {
 
     $_SESSION['alert_message'] = "Automatic Payment created for <strong>$recurring_invoice_prefix$recurring_invoice_number</strong>";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 }
 
 if (isset($_GET['delete_recurring_payment'])) {
@@ -1516,7 +1516,7 @@ if (isset($_GET['delete_recurring_payment'])) {
     $_SESSION['alert_type'] = "error";
     $_SESSION['alert_message'] = "Auto Payment Removed for Recurring Invoice <strong>$recurring_invoice_prefix$recurring_invoice_number</strong>";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -1671,7 +1671,7 @@ if (isset($_GET['force_recurring'])) {
 
     $_SESSION['alert_message'] = "Recurring Invoice Forced";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -1725,7 +1725,7 @@ if (isset($_POST['set_recurring_payment'])) {
         $_SESSION['alert_message'] = "Automatic Payment <strong>Disabled</strong> for Recurring Invoice $recurring_invoice_prefix$recurring_invoice_number";
     }
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 }
 
 if (isset($_POST['export_invoices_csv'])) {
@@ -1908,7 +1908,7 @@ if (isset($_GET['recurring_invoice_email_notify'])) {
     $_SESSION['alert_type'] = "error";
     $_SESSION['alert_message'] = "Email Notifications <strong>$notify_wording</strong>";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 }
 
 if (isset($_POST['link_invoice_to_ticket'])) {
@@ -1919,7 +1919,7 @@ if (isset($_POST['link_invoice_to_ticket'])) {
 
     $_SESSION['alert_message'] = "Invoice linked to ticket";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 }
 
 if (isset($_POST['add_ticket_to_invoice'])) {
@@ -2191,5 +2191,5 @@ if (isset($_POST['bulk_edit_invoice_category'])) {
         $_SESSION['alert_message'] = "Assigned income category <strong>$category_name</strong> to <strong>$count</strong> invoice(s)";
     }
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 }

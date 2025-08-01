@@ -158,7 +158,7 @@ if (isset($_POST['edit_client'])) {
 
     $_SESSION['alert_message'] = "Client <strong>$name</strong> updated";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 }
 
 if (isset($_GET['archive_client'])) {
@@ -181,7 +181,7 @@ if (isset($_GET['archive_client'])) {
     $_SESSION['alert_type'] = "error";
     $_SESSION['alert_message'] = "Client <strong>$client_name</strong> archived";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 }
 
 if (isset($_GET['restore_client'])) {
@@ -203,7 +203,7 @@ if (isset($_GET['restore_client'])) {
 
     $_SESSION['alert_message'] = "Client <strong>$client_name</strong> restored";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 }
 
 if (isset($_GET['delete_client'])) {
@@ -366,7 +366,7 @@ if (isset($_POST["import_clients_csv"])) {
     } else {
         $_SESSION['alert_message'] = "Please select a file to upload.";
         $_SESSION['alert_type'] = "error";
-        header("Location: " . $_SERVER["HTTP_REFERER"]);
+        redirect();
         exit();
     }
 
@@ -554,14 +554,14 @@ if (isset($_POST["import_clients_csv"])) {
         logAction("Client", "Import", "$session_name imported $row_count client(s) via CSV file, $duplicate_count duplicate(s) found");
 
         $_SESSION['alert_message'] = "<strong>$row_count</strong> Client(s) added, <strong>$duplicate_count</strong> duplicate(s) found";
-        header("Location: " . $_SERVER["HTTP_REFERER"]);
+        redirect();
 
     }
 
     //Check for any errors, if there are notify user and redirect
     if ($error) {
         $_SESSION['alert_type'] = "warning";
-        header("Location: " . $_SERVER["HTTP_REFERER"]);
+        redirect();
     }
 }
 
@@ -622,7 +622,7 @@ if (isset($_POST['bulk_edit_client_industry'])) {
         $_SESSION['alert_message'] = "Set the Industry to <strong>$industry</strong> for <strong>$count</strong> clients";
     }
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -658,7 +658,7 @@ if (isset($_POST['bulk_edit_client_referral'])) {
         $_SESSION['alert_message'] = "Set the Referral to <strong>$referral</strong> for <strong>$count</strong> clients";
     }
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -694,7 +694,7 @@ if (isset($_POST['bulk_edit_client_hourly_rate'])) {
         $_SESSION['alert_message'] = "Set the Hourly Rate to <strong>" . numfmt_format_currency($currency_format, $rate, $session_company_currency) . "</strong> for <strong>$count</strong> client(s)";
     }
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -739,7 +739,7 @@ if (isset($_POST['bulk_assign_client_tags'])) {
         $_SESSION['alert_message'] = "Assigned tags for <strong>$count</strong> clients";
     }
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -825,7 +825,7 @@ if (isset($_POST['bulk_send_client_email']) && isset($_POST['client_ids'])) {
     }
 
     // Redirect back
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
     exit;
 }
 
@@ -863,7 +863,7 @@ if (isset($_POST['bulk_archive_clients'])) {
 
     }
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 }
 
 if (isset($_POST['bulk_unarchive_clients'])) {
@@ -898,7 +898,7 @@ if (isset($_POST['bulk_unarchive_clients'])) {
 
     }
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 }
 
 if (isset($_POST["export_client_pdf"])) {

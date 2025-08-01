@@ -19,7 +19,7 @@ if (isset($_POST['edit_mail_smtp_settings'])) {
 
     $_SESSION['alert_message'] = "SMTP Mail Settings updated";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -41,7 +41,7 @@ if (isset($_POST['edit_mail_imap_settings'])) {
 
     $_SESSION['alert_message'] = "IMAP Mail Settings updated";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -68,7 +68,7 @@ if (isset($_POST['edit_mail_from_settings'])) {
 
     $_SESSION['alert_message'] = "Mail From Settings updated";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -114,7 +114,7 @@ if (isset($_POST['test_email_smtp'])) {
         $_SESSION['alert_message'] = "Failed to add test mail to queue";
     }
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 }
 
 if (isset($_POST['test_email_imap'])) {
@@ -139,5 +139,5 @@ if (isset($_POST['test_email_imap'])) {
         $_SESSION['alert_message'] = "Test IMAP connection failed: " . $e->getMessage();
     }
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 }

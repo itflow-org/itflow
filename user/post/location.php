@@ -56,7 +56,7 @@ if(isset($_POST['add_location'])){
 
     $_SESSION['alert_message'] = "Location <strong>$name</strong> created.";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -121,7 +121,7 @@ if(isset($_POST['edit_location'])){
 
     $_SESSION['alert_message'] = "Location <strong>$name</strong> updated";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -145,7 +145,7 @@ if(isset($_GET['archive_location'])){
     $_SESSION['alert_type'] = "error";
     $_SESSION['alert_message'] = "Location <strong>$location_name</strong> archived";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -168,7 +168,7 @@ if(isset($_GET['unarchive_location'])){
 
     $_SESSION['alert_message'] = "Location <strong>$location_name</strong> restored";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 }
 
 if(isset($_GET['delete_location'])){
@@ -192,7 +192,7 @@ if(isset($_GET['delete_location'])){
     $_SESSION['alert_type'] = "error";
     $_SESSION['alert_message'] = "Location <strong>$location_name</strong> deleted";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -243,7 +243,7 @@ if (isset($_POST['bulk_assign_location_tags'])) {
         $_SESSION['alert_message'] = "Assigned tags for <strong>$count</strong> locations";
     }
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -286,7 +286,7 @@ if (isset($_POST['bulk_archive_locations'])) {
 
     }
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 }
 
 if (isset($_POST['bulk_unarchive_locations'])) {
@@ -323,7 +323,7 @@ if (isset($_POST['bulk_unarchive_locations'])) {
 
     }
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 }
 
 if (isset($_POST['bulk_delete_locations'])) {
@@ -361,7 +361,7 @@ if (isset($_POST['bulk_delete_locations'])) {
 
     }
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 }
 
 if(isset($_POST['export_locations_csv'])){
@@ -425,7 +425,7 @@ if (isset($_POST["import_locations_csv"])) {
     } else {
         $_SESSION['alert_message'] = "Please select a file to upload.";
         $_SESSION['alert_type'] = "error";
-        header("Location: " . $_SERVER["HTTP_REFERER"]);
+        redirect();
         exit();
     }
 
@@ -502,12 +502,12 @@ if (isset($_POST["import_locations_csv"])) {
         logAction("Location", "Import", "$session_name imported $row_count location(s). $duplicate_count duplicate(s) found and not imported", $client_id);
 
         $_SESSION['alert_message'] = "$row_count Location(s) imported, $duplicate_count duplicate(s) detected and not imported";
-        header("Location: " . $_SERVER["HTTP_REFERER"]);
+        redirect();
     }
     //Check for any errors, if there are notify user and redirect
     if($error) {
         $_SESSION['alert_type'] = "warning";
-        header("Location: " . $_SERVER["HTTP_REFERER"]);
+        redirect();
     }
 }
 

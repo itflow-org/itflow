@@ -32,7 +32,7 @@ if (isset($_POST['add_vendor_template'])) {
 
     $_SESSION['alert_message'] = "Vendor template <strong>$name</strong> created";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 }
 
 if (isset($_POST['edit_vendor_template'])) {
@@ -136,7 +136,7 @@ if (isset($_POST['edit_vendor_template'])) {
 
     $_SESSION['alert_message'] = "Vendor template <strong>$name</strong> edited";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 }
 
 if (isset($_GET['delete_vendor_template'])) {
@@ -158,5 +158,5 @@ if (isset($_GET['delete_vendor_template'])) {
     $_SESSION['alert_type'] = "error";
     $_SESSION['alert_message'] = "Vendor Template <strong>$vendor_template_name</strong> deleted";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 }

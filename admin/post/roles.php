@@ -23,7 +23,7 @@ if (isset($_POST['add_role'])) {
 
     $_SESSION['alert_message'] = "User Role <strong$name</strong> created";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -58,7 +58,7 @@ if (isset($_POST['edit_role'])) {
 
     $_SESSION['alert_message'] = "User Role <strong>$name</strong> edited";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 }
 
 if (isset($_GET['archive_role'])) {
@@ -73,7 +73,7 @@ if (isset($_GET['archive_role'])) {
     if ($role_user_count != 0) {
         $_SESSION['alert_type'] = "error";
         $_SESSION['alert_message'] = "Role must not in use to archive it";
-        header("Location: " . $_SERVER["HTTP_REFERER"]);
+        redirect();
         exit();
     }
 
@@ -85,5 +85,5 @@ if (isset($_GET['archive_role'])) {
     logAction("User Role", "Archive", "$session_name archived user role $role_name", 0, $role_id);
 
     $_SESSION['alert_message'] = "User Role archived";
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 }

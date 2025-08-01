@@ -27,7 +27,7 @@ if (isset($_POST['add_task'])) {
 
     $_SESSION['alert_message'] = "You created Task <strong>$task_name</strong>";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 }
 
 if (isset($_POST['edit_ticket_task'])) {
@@ -50,7 +50,7 @@ if (isset($_POST['edit_ticket_task'])) {
 
     $_SESSION['alert_message'] = "Task <strong>$task_name</strong> edited";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 }
 
 if (isset($_POST['edit_ticket_template_task'])) {
@@ -69,7 +69,7 @@ if (isset($_POST['edit_ticket_template_task'])) {
 
     $_SESSION['alert_message'] = "Task <strong>$task_name</strong> edited";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 }
 
 
@@ -96,7 +96,7 @@ if (isset($_GET['delete_task'])) {
     $_SESSION['alert_type'] = "error";
     $_SESSION['alert_message'] = "Task <strong>$task_name</strong> deleted";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 }
 
 if (isset($_GET['complete_task'])) {
@@ -128,7 +128,7 @@ if (isset($_GET['complete_task'])) {
 
     $_SESSION['alert_message'] = "Task <strong>$task_name</strong> Completed";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 }
 
 if (isset($_GET['undo_complete_task'])) {
@@ -157,7 +157,7 @@ if (isset($_GET['undo_complete_task'])) {
     $_SESSION['alert_type'] = "error";
     $_SESSION['alert_message'] = "Task <strong>$task_name</strong> marked as incomplete";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -184,7 +184,7 @@ if (isset($_GET['complete_all_tasks'])) {
 
     $_SESSION['alert_message'] = "Marked all tasks Complete";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 }
 
 if (isset($_GET['undo_complete_all_tasks'])) {
@@ -210,5 +210,5 @@ if (isset($_GET['undo_complete_all_tasks'])) {
 
     $_SESSION['alert_message'] = "Marked all tasks Incomplete";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 }

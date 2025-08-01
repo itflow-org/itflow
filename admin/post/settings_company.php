@@ -49,7 +49,7 @@ if (isset($_POST['edit_company'])) {
 
     $_SESSION['alert_message'] = "Company <strong>$name</strong> edited";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -69,6 +69,6 @@ if (isset($_GET['remove_company_logo'])) {
     $_SESSION['alert_type'] = "error";
     $_SESSION['alert_message'] = "Removed company logo";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }

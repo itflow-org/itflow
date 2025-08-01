@@ -27,5 +27,5 @@ if (isset($_POST['edit_online_payment_settings'])) {
         $_SESSION['alert_message'] = "Online Payment Settings updated";
     }
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 }

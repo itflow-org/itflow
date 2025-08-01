@@ -210,7 +210,7 @@ if (isset($_POST['backup_master_key'])) {
         $_SESSION['alert_type'] = "error";
         $_SESSION['alert_message'] = "Incorrect password.";
         
-        header("Location: " . $_SERVER["HTTP_REFERER"]);
+        redirect();
     }
 }
 

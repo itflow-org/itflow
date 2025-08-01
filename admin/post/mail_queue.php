@@ -13,7 +13,7 @@ if (isset($_GET['send_failed_mail'])) {
 
     $_SESSION['alert_message'] = "Email Force Sent, give it a minute to resend";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -29,7 +29,7 @@ if (isset($_GET['cancel_mail'])) {
     $_SESSION['alert_type'] = "error";
     $_SESSION['alert_message'] = "Email cancelled and marked as failed.";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -59,7 +59,7 @@ if (isset($_POST['bulk_cancel_emails'])) {
 
     }
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 }
 
 if (isset($_POST['bulk_delete_emails'])) {
@@ -89,5 +89,5 @@ if (isset($_POST['bulk_delete_emails'])) {
 
     }
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 }

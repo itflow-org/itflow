@@ -20,7 +20,7 @@ if (isset($_POST['add_payment_method'])) {
 
     $_SESSION['alert_message'] = "Payment Method <strong>$name</strong> created";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -39,7 +39,7 @@ if (isset($_POST['edit_payment_method'])) {
 
     $_SESSION['alert_message'] = "Payment Method <strong>$name</strong> edited";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -59,6 +59,6 @@ if (isset($_GET['delete_payment_method'])) {
     $_SESSION['alert_type'] = "error";
     $_SESSION['alert_message'] = "Payment Method <strong>$payment_method_name</strong> deleted";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }

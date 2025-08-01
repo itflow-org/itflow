@@ -12,7 +12,7 @@ if(isset($_POST['change_records_per_page'])){
 
     mysqli_query($mysqli,"UPDATE user_settings SET user_config_records_per_page = $records_per_page WHERE user_id = $session_user_id");
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -29,7 +29,7 @@ if (isset($_GET['dismiss_notification'])) {
 
     $_SESSION['alert_message'] = "Notification Dismissed";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -54,7 +54,7 @@ if (isset($_GET['dismiss_all_notifications'])) {
 
     $_SESSION['alert_message'] = "<strong>$num_notifications</strong> Notifications Dismissed";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -78,5 +78,5 @@ if (isset($_GET['deactivate_shared_item'])) {
 
     $_SESSION['alert_message'] = "Share Link deactivated";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 }

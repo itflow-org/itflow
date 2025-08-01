@@ -21,7 +21,7 @@ if (isset($_POST['add_tax'])) {
 
     $_SESSION['alert_message'] = "Tax <strong>$name</strong> ($percent%) created";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -39,7 +39,7 @@ if (isset($_POST['edit_tax'])) {
 
     $_SESSION['alert_message'] = "Tax <strong>$name</strong> ($percent%) edited";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -60,7 +60,7 @@ if (isset($_GET['archive_tax'])) {
     $_SESSION['alert_type'] = "error";
     $_SESSION['alert_message'] = "Tax <strong>$tax_name</strong> Archived";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -80,6 +80,6 @@ if (isset($_GET['delete_tax'])) {
     $_SESSION['alert_type'] = "error";
     $_SESSION['alert_message'] = "Tax <strong>$tax_name</strong> deleted";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }

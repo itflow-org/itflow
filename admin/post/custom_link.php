@@ -24,7 +24,7 @@ if (isset($_POST['add_custom_link'])) {
 
     $_SESSION['alert_message'] = "Custom link <strong>$name</strong> created";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -45,7 +45,7 @@ if (isset($_POST['edit_custom_link'])) {
 
     $_SESSION['alert_message'] = "Custom Link <strong>$name</strong> edited";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -66,6 +66,6 @@ if (isset($_GET['delete_custom_link'])) {
     $_SESSION['alert_type'] = "error";
     $_SESSION['alert_message'] = "Custom Link <strong>$name</strong> deleted";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }

@@ -292,7 +292,7 @@ if (isset($_POST['edit_ticket'])) {
 
     $_SESSION['alert_message'] = "Ticket <strong>$ticket_prefix$ticket_number</strong> updated";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 }
 
 if (isset($_POST['edit_ticket_priority'])) {
@@ -329,7 +329,7 @@ if (isset($_POST['edit_ticket_priority'])) {
 
     $_SESSION['alert_message'] = "Priority updated from <strong>$original_priority</strong> to <strong>$priority</strong>";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 }
 
 if (isset($_POST['edit_ticket_contact'])) {
@@ -413,7 +413,7 @@ if (isset($_POST['edit_ticket_contact'])) {
 
     $_SESSION['alert_message'] = "Contact changed from <strong>$original_contact_name</strong> to <strong>$contact_name</strong>";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 }
 
 if (isset($_POST['add_ticket_watcher'])) {
@@ -491,7 +491,7 @@ if (isset($_POST['add_ticket_watcher'])) {
 
     $_SESSION['alert_message'] = "Added watcher(s)";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 }
 
 if (isset($_GET['delete_ticket_watcher'])) {
@@ -526,7 +526,7 @@ if (isset($_GET['delete_ticket_watcher'])) {
     $_SESSION['alert_type'] = "error";
     $_SESSION['alert_message'] = "Removed ticket watcher <strong>$watcher_email</strong>";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 }
 
 if (isset($_GET['delete_ticket_additional_asset'])) {
@@ -561,7 +561,7 @@ if (isset($_GET['delete_ticket_additional_asset'])) {
     $_SESSION['alert_type'] = "error";
     $_SESSION['alert_message'] = "Removed asset <strong>$asset_name</strong> from ticket.";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 }
 
 if (isset($_POST['edit_ticket_asset'])) {
@@ -592,7 +592,7 @@ if (isset($_POST['edit_ticket_asset'])) {
 
     $_SESSION['alert_message'] = "Ticket <strong>$ticket_prefix$ticket_number</strong> asset updated to <strong>$asset_name</strong>";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 }
 
 if (isset($_POST['edit_ticket_vendor'])) {
@@ -623,7 +623,7 @@ if (isset($_POST['edit_ticket_vendor'])) {
 
     $_SESSION['alert_message'] = "Set vendor to <strong>$vendor_name</strong> for ticket <strong>$ticket_prefix$ticket_number</strong>";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 }
 
 if (isset($_POST['assign_ticket'])) {
@@ -656,7 +656,7 @@ if (isset($_POST['assign_ticket'])) {
         if (!$agent_name) {
             $_SESSION['alert_type'] = "error";
             $_SESSION['alert_message'] = "Invalid agent!";
-            header("Location: " . $_SERVER["HTTP_REFERER"]);
+            redirect();
             exit();
         }
     }
@@ -674,7 +674,7 @@ if (isset($_POST['assign_ticket'])) {
     if (!$ticket_subject) {
         $_SESSION['alert_type'] = "error";
         $_SESSION['alert_message'] = "Invalid ticket!";
-        header("Location: " . $_SERVER["HTTP_REFERER"]);
+        redirect();
         exit();
     }
 
@@ -724,7 +724,7 @@ if (isset($_POST['assign_ticket'])) {
 
     $_SESSION['alert_message'] = "Ticket <strong>$ticket_prefix$ticket_number</strong> assigned to <strong>$agent_name</strong>";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 }
 
 if (isset($_GET['delete_ticket'])) {
@@ -817,7 +817,7 @@ if (isset($_POST['bulk_delete_tickets'])) {
         $_SESSION['alert_message'] = "Deleted <strong>$count</strong> ticket(s)";
     }
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 }
 
 if (isset($_POST['bulk_assign_ticket'])) {
@@ -865,7 +865,7 @@ if (isset($_POST['bulk_assign_ticket'])) {
                 if (!$agent_name) {
                     $_SESSION['alert_type'] = "error";
                     $_SESSION['alert_message'] = "Invalid agent!";
-                    header("Location: " . $_SERVER["HTTP_REFERER"]);
+                    redirect();
                     exit();
                 }
             }
@@ -919,7 +919,7 @@ if (isset($_POST['bulk_assign_ticket'])) {
 
     $_SESSION['alert_message'] = "You assigned <b>$ticket_count</b> Tickets to <b>$agent_name</b>";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 }
 
 if (isset($_POST['bulk_edit_ticket_priority'])) {
@@ -964,7 +964,7 @@ if (isset($_POST['bulk_edit_ticket_priority'])) {
         $_SESSION['alert_message'] = "You updated the priority for <strong>$ticket_count</strong> Tickets to <strong>$priority</strong>";
     }
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 }
 
 if (isset($_POST['bulk_edit_ticket_category'])) {
@@ -1012,7 +1012,7 @@ if (isset($_POST['bulk_edit_ticket_category'])) {
         $_SESSION['alert_message'] = "Category set to $category_name for <strong>$ticket_count</strong> Tickets";
     }
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 }
 
 if (isset($_POST['bulk_merge_tickets'])) {
@@ -1028,7 +1028,7 @@ if (isset($_POST['bulk_merge_tickets'])) {
     $sql = mysqli_query($mysqli, "SELECT ticket_id FROM tickets WHERE ticket_number = $merge_into_ticket_number");
     if (mysqli_num_rows($sql) == 0) {
         $_SESSION['alert_message'] = "Cannot merge into that ticket.";
-        header("Location: " . $_SERVER["HTTP_REFERER"]);
+        redirect();
         exit();
     }
     $merge_row = mysqli_fetch_array($sql);
@@ -1076,7 +1076,7 @@ if (isset($_POST['bulk_merge_tickets'])) {
 
     }
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -1212,7 +1212,7 @@ if (isset($_POST['bulk_resolve_tickets'])) {
         $_SESSION['alert_message'] .= " <strong>$skipped_count</strong> ticket(s) could not be resolved because they have open tasks.";
     }
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 }
 
 if (isset($_POST['bulk_ticket_reply'])) {
@@ -1362,7 +1362,7 @@ if (isset($_POST['bulk_ticket_reply'])) {
 
     $_SESSION['alert_message'] = "Updated <strong>$ticket_count</strong> tickets";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 }
 
 
@@ -1410,7 +1410,7 @@ if (isset($_POST['bulk_add_ticket_project'])) {
 
     }
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 }
 
 if (isset($_POST['bulk_add_asset_ticket'])) {
@@ -1528,7 +1528,7 @@ if (isset($_POST['bulk_add_asset_ticket'])) {
 
     }
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 }
 
 
@@ -1689,7 +1689,7 @@ if (isset($_POST['add_ticket_reply'])) {
     // Logging
     logAction("Ticket", "Reply", "$session_name replied to ticket $ticket_prefix$ticket_number - $ticket_subject and was a $ticket_reply_type reply", $client_id, $ticket_id);
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 }
 
 if (isset($_POST['edit_ticket_reply'])) {
@@ -1710,7 +1710,7 @@ if (isset($_POST['edit_ticket_reply'])) {
 
     $_SESSION['alert_message'] = "Ticket reply updated";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 }
 
 if (isset($_POST['redact_ticket_reply'])) {
@@ -1729,7 +1729,7 @@ if (isset($_POST['redact_ticket_reply'])) {
 
     $_SESSION['alert_message'] = "Ticket reply redacted";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 }
 
 if (isset($_GET['archive_ticket_reply'])) {
@@ -1746,7 +1746,7 @@ if (isset($_GET['archive_ticket_reply'])) {
     $_SESSION['alert_type'] = "error";
     $_SESSION['alert_message'] = "Ticket reply archived";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 }
 
 if (isset($_POST['merge_ticket'])) {
@@ -1763,7 +1763,7 @@ if (isset($_POST['merge_ticket'])) {
     $sql = mysqli_query($mysqli, "SELECT ticket_prefix, ticket_number, ticket_subject, ticket_details FROM tickets WHERE ticket_id = $ticket_id");
     if (mysqli_num_rows($sql) == 0) {
         $_SESSION['alert_message'] = "No ticket with that ID found.";
-        header("Location: " . $_SERVER["HTTP_REFERER"]);
+        redirect();
         exit();
     }
     // CURRENT ticket details
@@ -1778,7 +1778,7 @@ if (isset($_POST['merge_ticket'])) {
     $sql = mysqli_query($mysqli, "SELECT ticket_id FROM tickets WHERE ticket_number = $merge_into_ticket_number");
     if (mysqli_num_rows($sql) == 0) {
         $_SESSION['alert_message'] = "Cannot merge into that ticket.";
-        header("Location: " . $_SERVER["HTTP_REFERER"]);
+        redirect();
         exit();
     }
     $merge_row = mysqli_fetch_array($sql);
@@ -1787,7 +1787,7 @@ if (isset($_POST['merge_ticket'])) {
     // Sanity check
     if ($ticket_number == $merge_into_ticket_number) {
         $_SESSION['alert_message'] = "Cannot merge into the same ticket.";
-        header("Location: " . $_SERVER["HTTP_REFERER"]);
+        redirect();
         exit();
     }
 
@@ -1811,7 +1811,7 @@ if (isset($_POST['merge_ticket'])) {
 
     $_SESSION['alert_message'] = "Ticket merged into $ticket_prefix$merge_into_ticket_number";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 }
 
 if (isset($_POST['change_client_ticket'])) {
@@ -1835,7 +1835,7 @@ if (isset($_POST['change_client_ticket'])) {
 
     $_SESSION['alert_message'] = "Ticket client updated";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 }
 
 if (isset($_GET['resolve_ticket'])) {
@@ -1930,7 +1930,7 @@ if (isset($_GET['resolve_ticket'])) {
     //End Mail IF
 
     $_SESSION['alert_message'] = "Ticket resolved";
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 }
 
 if (isset($_GET['close_ticket'])) {
@@ -2023,7 +2023,7 @@ if (isset($_GET['close_ticket'])) {
     //End Mail IF
 
     $_SESSION['alert_message'] = "Ticket Closed, this cannot not be reopened but you may start another one";
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 }
 
 if (isset($_GET['reopen_ticket'])) {
@@ -2040,7 +2040,7 @@ if (isset($_GET['reopen_ticket'])) {
     customAction('ticket_update', $ticket_id);
 
     $_SESSION['alert_message'] = "Ticket re-opened";
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 }
 
 if (isset($_POST['add_invoice_from_ticket'])) {
@@ -2220,7 +2220,7 @@ if (isset($_POST['add_recurring_ticket'])) {
 
     $_SESSION['alert_message'] = "Recurring ticket <strong>$subject - $frequency</strong> created";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 }
 
 if (isset($_POST['edit_recurring_ticket'])) {
@@ -2248,7 +2248,7 @@ if (isset($_POST['edit_recurring_ticket'])) {
 
     $_SESSION['alert_message'] = "Recurring ticket <strong>$subject - $frequency</strong> updated";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 }
 
 if (isset($_GET['force_recurring_ticket'])) {
@@ -2374,12 +2374,12 @@ if (isset($_GET['force_recurring_ticket'])) {
 
         $_SESSION['alert_message'] = "Recurring Ticket Forced";
 
-        header("Location: " . $_SERVER["HTTP_REFERER"]);
+        redirect();
 
     } else {
         $_SESSION['alert_type'] = "error";
         $_SESSION['alert_message'] = "Recurring Ticket Force failed";
-        header("Location: " . $_SERVER["HTTP_REFERER"]);
+        redirect();
     }
 
 }
@@ -2408,7 +2408,7 @@ if (isset($_GET['delete_recurring_ticket'])) {
     $_SESSION['alert_type'] = "error";
     $_SESSION['alert_message'] = "Recurring ticket <strong>$subject - $frequency</strong> deleted";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 }
 
 if (isset($_POST['bulk_delete_recurring_tickets'])) {
@@ -2437,7 +2437,7 @@ if (isset($_POST['bulk_delete_recurring_tickets'])) {
         $_SESSION['alert_message'] = "Deleted <strong>$count</strong> recurring ticket(s)";
     }
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 }
 
 if (isset($_POST['edit_ticket_billable_status'])) {
@@ -2465,7 +2465,7 @@ if (isset($_POST['edit_ticket_billable_status'])) {
 
     $_SESSION['alert_message'] = "Ticket marked <strong>$billable_wording Billable</strong>";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 }
 
 if (isset($_POST['edit_ticket_schedule'])) {
@@ -2626,7 +2626,7 @@ if (isset($_POST['edit_ticket_schedule'])) {
 
     if (empty($conflicting_tickets)) {
         $_SESSION['alert_message'] = "Ticket scheduled for $email_datetime";
-        header("Location: " . $_SERVER["HTTP_REFERER"]);
+        redirect();
     } else {
         $_SESSION['alert_type'] = "error";
         $_SESSION['alert_message'] = "Ticket scheduled for $email_datetime. Yet there are conflicting tickets scheduled for the same time: <br>" . implode(", <br>", $conflicting_tickets);
@@ -2778,5 +2778,5 @@ if (isset($_GET['cancel_ticket_schedule'])) {
 
     $_SESSION['alert_message'] = "Ticket schedule cancelled";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 }

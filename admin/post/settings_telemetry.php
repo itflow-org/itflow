@@ -15,6 +15,6 @@ if (isset($_POST['edit_telemetry_settings'])) {
 
     $_SESSION['alert_message'] = "Telemetry Settings updated";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }

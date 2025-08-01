@@ -24,6 +24,6 @@ if (isset($_POST['edit_module_settings'])) {
 
     $_SESSION['alert_message'] = "Module Settings updated";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }

@@ -279,7 +279,7 @@ if (isset($_GET['update'])) {
 
     sleep(1);
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -300,5 +300,5 @@ if (isset($_GET['update_db'])) {
 
     sleep(1);
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 }

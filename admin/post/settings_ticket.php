@@ -26,6 +26,6 @@ if (isset($_POST['edit_ticket_settings'])) {
 
     $_SESSION['alert_message'] = "Ticket Settings updated";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }

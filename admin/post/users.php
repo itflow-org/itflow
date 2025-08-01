@@ -95,7 +95,7 @@ if (isset($_POST['add_user'])) {
 
     $_SESSION['alert_message'] = "User <strong>$name</strong> created" . $extended_alert_description;
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -176,7 +176,7 @@ if (isset($_POST['edit_user'])) {
 
     $_SESSION['alert_message'] = "User <strong>$name</strong> updated" . $extended_alert_description;
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -198,7 +198,7 @@ if (isset($_GET['activate_user'])) {
 
     $_SESSION['alert_message'] = "User <strong>$user_name</strong> activated";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -225,7 +225,7 @@ if (isset($_GET['disable_user'])) {
     $_SESSION['alert_type'] = "error";
     $_SESSION['alert_message'] = "User <strong>$user_name</strong> disabled";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -247,7 +247,7 @@ if (isset($_GET['revoke_remember_me'])) {
     $_SESSION['alert_type'] = "error";
     $_SESSION['alert_message'] = "User <strong>$user_name</strong> remember me tokens revoked";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -273,7 +273,7 @@ if (isset($_GET['archive_user'])) {
     $_SESSION['alert_type'] = "error";
     $_SESSION['alert_message'] = "User <strong>$name</strong> archived";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -341,7 +341,7 @@ if (isset($_POST['ir_reset_user_password'])) {
     if (!password_verify($admin_password, $userRow['user_password'])) {
         $_SESSION['alert_type'] = "error";
         $_SESSION['alert_message'] = "Incorrect password.";
-        header("Location: " . $_SERVER["HTTP_REFERER"]);
+        redirect();
         exit;
     }
 

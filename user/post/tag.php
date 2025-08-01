@@ -19,6 +19,6 @@ if (isset($_POST['add_tag'])) {
 
     $_SESSION['alert_message'] = "Tag <strong>$name</strong> created";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }

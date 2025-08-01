@@ -27,7 +27,7 @@ if (isset($_POST['add_revenue'])) {
 
     $_SESSION['alert_message'] = "Revenue added";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -51,7 +51,7 @@ if (isset($_POST['edit_revenue'])) {
 
     $_SESSION['alert_message'] = "Revenue edited";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -74,6 +74,6 @@ if (isset($_GET['delete_revenue'])) {
     $_SESSION['alert_type'] = "error";
     $_SESSION['alert_message'] = "Revenue removed";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }

@@ -22,7 +22,7 @@ if (isset($_POST['add_product'])) {
 
     $_SESSION['alert_message'] = "Product <strong>$name</strong> created";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -41,7 +41,7 @@ if (isset($_POST['edit_product'])) {
 
     $_SESSION['alert_message'] = "Product <strong>$name</strong> edited";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -64,7 +64,7 @@ if (isset($_GET['archive_product'])) {
     $_SESSION['alert_type'] = "error";
     $_SESSION['alert_message'] = "Product <strong>$product_name</strong> archived";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -86,7 +86,7 @@ if (isset($_GET['unarchive_product'])) {
 
     $_SESSION['alert_message'] = "Product <strong>$product_name</strong> restored";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -109,7 +109,7 @@ if (isset($_GET['delete_product'])) {
     $_SESSION['alert_type'] = "error";
     $_SESSION['alert_message'] = "Product <strong>$product_name</strong> deleted";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -151,7 +151,7 @@ if (isset($_POST['bulk_edit_product_category'])) {
         $_SESSION['alert_message'] = "Assigned category <strong>$category_name</strong> to <strong>$count</strong> product(s)";
     }
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 }
 
 if (isset($_POST['bulk_archive_products'])) {
@@ -188,7 +188,7 @@ if (isset($_POST['bulk_archive_products'])) {
 
     }
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 }
 
 if (isset($_POST['bulk_unarchive_products'])) {
@@ -223,7 +223,7 @@ if (isset($_POST['bulk_unarchive_products'])) {
 
     }
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 }
 
 if (isset($_POST['bulk_delete_products'])) {
@@ -258,7 +258,7 @@ if (isset($_POST['bulk_delete_products'])) {
 
     }
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
     exit();
 }
 

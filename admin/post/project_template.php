@@ -16,7 +16,7 @@ if (isset($_POST['add_project_template'])) {
 
     $_SESSION['alert_message'] = "Project Template <strong>$name</strong> created";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -33,7 +33,7 @@ if (isset($_POST['edit_project_template'])) {
 
     $_SESSION['alert_message'] = "Project Template <strong>$name</strong> edited";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 }
 
 if (isset($_POST['edit_ticket_template_order'])) {
@@ -44,7 +44,7 @@ if (isset($_POST['edit_ticket_template_order'])) {
 
     mysqli_query($mysqli, "UPDATE project_template_ticket_templates SET ticket_template_order = $order WHERE ticket_template_id = $ticket_template_id AND project_template_id = $project_template_id");
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 }
 
 if (isset($_POST['add_ticket_template_to_project_template'])) {
@@ -60,7 +60,7 @@ if (isset($_POST['add_ticket_template_to_project_template'])) {
 
     $_SESSION['alert_message'] = "Ticket template added";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 }
 
 if (isset($_POST['remove_ticket_template_from_project_template'])) {
@@ -77,7 +77,7 @@ if (isset($_POST['remove_ticket_template_from_project_template'])) {
     $_SESSION['alert_type'] = "error";
     $_SESSION['alert_message'] = "Ticket template removed";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 }
 
 if (isset($_GET['delete_project_template'])) {
@@ -100,5 +100,5 @@ if (isset($_GET['delete_project_template'])) {
     $_SESSION['alert_type'] = "error";
     $_SESSION['alert_message'] = "Project Template <strong>$project_template_name</strong> and its associated ticket templates and tasks deleted";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 }

@@ -38,7 +38,7 @@ if (isset($_POST['add_expense'])) {
 
     $_SESSION['alert_message'] = "Expense added" . $extended_alert_description;
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -81,7 +81,7 @@ if (isset($_POST['edit_expense'])) {
 
     $_SESSION['alert_message'] = "Expense modified" . $extended_alert_description;
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -103,7 +103,7 @@ if (isset($_GET['delete_expense'])) {
 
     $_SESSION['alert_message'] = "Expense deleted";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -144,7 +144,7 @@ if (isset($_POST['bulk_edit_expense_category'])) {
         $_SESSION['alert_message'] = "You assigned expense category <strong>$category_name</strong> to <strong>$count</strong> expense(s)";
     }
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 }
 
 if (isset($_POST['bulk_edit_expense_account'])) {
@@ -184,7 +184,7 @@ if (isset($_POST['bulk_edit_expense_account'])) {
         $_SESSION['alert_message'] = "You assigned account <strong>$account_name</strong> to <strong>$count</strong> expense(s)";
     }
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 }
 
 if (isset($_POST['bulk_edit_expense_client'])) {
@@ -220,7 +220,7 @@ if (isset($_POST['bulk_edit_expense_client'])) {
         $_SESSION['alert_message'] = "You assigned Client <b>$client_name</b> to <b>$expense_count</b> expenses";
     }
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 }
 
 if (isset($_POST['bulk_delete_expenses'])) {
@@ -260,7 +260,7 @@ if (isset($_POST['bulk_delete_expenses'])) {
 
     }
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 }
 
 if (isset($_POST['export_expenses_csv'])) {
@@ -377,7 +377,7 @@ if (isset($_POST['create_recurring_expense'])) {
 
     $_SESSION['alert_message'] = "Recurring Expense created";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -408,7 +408,7 @@ if (isset($_POST['edit_recurring_expense'])) {
 
     $_SESSION['alert_message'] = "Recurring Expense edited";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -429,6 +429,6 @@ if (isset($_GET['delete_recurring_expense'])) {
     $_SESSION['alert_type'] = "error";
     $_SESSION['alert_message'] = "Recurring Expense deleted";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }

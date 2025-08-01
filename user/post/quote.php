@@ -219,7 +219,7 @@ if (isset($_POST['add_quote_item'])) {
 
     $_SESSION['alert_message'] = "Item <strong>$name</strong> added";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -244,7 +244,7 @@ if (isset($_POST['quote_note'])) {
 
     $_SESSION['alert_message'] = "Notes added";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -279,7 +279,7 @@ if (isset($_POST['edit_quote'])) {
 
     $_SESSION['alert_message'] = "Quote edited";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -359,7 +359,7 @@ if (isset($_GET['delete_quote_item'])) {
     $_SESSION['alert_type'] = "error"; 
     $_SESSION['alert_message'] = "Item <strong>$item_name</strong> removed";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -384,7 +384,7 @@ if (isset($_GET['mark_quote_sent'])) {
 
     $_SESSION['alert_message'] = "Quote marked sent";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -411,7 +411,7 @@ if (isset($_GET['accept_quote'])) {
 
     $_SESSION['alert_message'] = "Quote accepted";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -439,7 +439,7 @@ if (isset($_GET['decline_quote'])) {
     $_SESSION['alert_type'] = "error";
     $_SESSION['alert_message'] = "Quote declined";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -518,7 +518,7 @@ if (isset($_GET['email_quote'])) {
         mysqli_query($mysqli,"UPDATE quotes SET quote_status = 'Sent' WHERE quote_id = $quote_id");
     }
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -543,7 +543,7 @@ if (isset($_GET['mark_quote_invoiced'])) {
 
     $_SESSION['alert_message'] = "Quote marked invoiced";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -596,7 +596,7 @@ if(isset($_POST['export_quotes_csv'])){
 
     $_SESSION['alert_message'] = "Exported <strong>$num_rows</strong> quote(s)";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
     exit;
 

@@ -65,7 +65,7 @@ if (isset($_POST['add_asset'])) {
 
     $_SESSION['alert_message'] = "Asset <strong>$name</strong> created $alert_extended";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -116,7 +116,7 @@ if (isset($_POST['edit_asset'])) {
 
     $_SESSION['alert_message'] = "Asset <strong>$name</strong> edited";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -142,7 +142,7 @@ if (isset($_GET['archive_asset'])) {
     $_SESSION['alert_type'] = "error";
     $_SESSION['alert_message'] = "Asset <strong>$asset_name</strong> archived";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -167,7 +167,7 @@ if (isset($_GET['unarchive_asset'])) {
 
     $_SESSION['alert_message'] = "Asset <strong>$asset_name</strong> Unarchived";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -193,7 +193,7 @@ if (isset($_GET['delete_asset'])) {
     $_SESSION['alert_type'] = "error";
     $_SESSION['alert_message'] = "Asset <strong>$asset_name</strong> deleted";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -238,7 +238,7 @@ if (isset($_POST['bulk_assign_asset_location'])) {
         $_SESSION['alert_message'] = "You assigned <strong>$asset_count</strong> assets to location <strong>$location_name</strong>";
     }
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -278,7 +278,7 @@ if (isset($_POST['bulk_assign_asset_physical_location'])) {
         $_SESSION['alert_message'] = "You moved <strong>$asset_count</strong> assets to location <strong>$physical_location</strong>";
     }
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 }
 
 if (isset($_POST['bulk_transfer_client_asset'])) {
@@ -363,7 +363,7 @@ if (isset($_POST['bulk_transfer_client_asset'])) {
         $_SESSION['alert_message'] = "Transferred <strong>$asset_count</strong> assets to <strong>$new_client_name</strong>.";
     }
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 }
 
 if (isset($_POST['bulk_assign_asset_contact'])) {
@@ -407,7 +407,7 @@ if (isset($_POST['bulk_assign_asset_contact'])) {
         $_SESSION['alert_message'] = "You assigned <strong>$asset_count</strong> assets to contact <strong>$contact_name</strong>";
     }
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -447,7 +447,7 @@ if (isset($_POST['bulk_edit_asset_status'])) {
         $_SESSION['alert_message'] = "You set the status <strong>$status</strong> on <strong>$asset_count</strong> assets.";
     }
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -487,7 +487,7 @@ if (isset($_POST['bulk_archive_assets'])) {
 
     }
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 }
 
 if (isset($_POST['bulk_unarchive_assets'])) {
@@ -525,7 +525,7 @@ if (isset($_POST['bulk_unarchive_assets'])) {
 
     }
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 }
 
 if (isset($_POST['bulk_delete_assets'])) {
@@ -562,7 +562,7 @@ if (isset($_POST['bulk_delete_assets'])) {
         $_SESSION['alert_message'] = "Deleted <strong>$count</strong> asset(s)";
     }
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -593,7 +593,7 @@ if (isset($_POST['link_software_to_asset'])) {
 
     $_SESSION['alert_message'] = "Software <strong>$software_name</strong> licensed for asset <strong>$asset_name</strong>";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -623,7 +623,7 @@ if (isset($_GET['unlink_software_from_asset'])) {
     $_SESSION['alert_type'] = "error";
     $_SESSION['alert_message'] = "Removed Software License <strong>$software_name</strong> for Asset <strong>$asset_name</strong>";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 // Right now 1 login and have many assets but not many to many
@@ -652,7 +652,7 @@ if (isset($_POST['link_asset_to_credential'])) {
 
     $_SESSION['alert_message'] = "Asset <strong>$asset_name</strong> linked with credential <strong>$crdential_name</strong>";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -682,7 +682,7 @@ if (isset($_GET['unlink_credential_from_asset'])) {
     $_SESSION['alert_type'] = "error";
     $_SESSION['alert_message'] = "Credential <strong>$credential_name</strong> unlinked from Asset <strong>$asset_name</strong>";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -711,7 +711,7 @@ if (isset($_POST['link_service_to_asset'])) {
 
     $_SESSION['alert_message'] = "Service <strong>$service_name</strong> linked with asset <strong>$asset_name</strong>";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -741,7 +741,7 @@ if (isset($_GET['unlink_service_from_asset'])) {
     $_SESSION['alert_type'] = "error";
     $_SESSION['alert_message'] = "Asset <strong>$asset_name</strong> unlinked from service <strong>$service_name</strong>";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -771,7 +771,7 @@ if (isset($_POST['link_asset_to_file'])) {
 
     $_SESSION['alert_message'] = "Asset <strong>$asset_name</strong> linked with File <strong>$file_name</strong>";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -801,7 +801,7 @@ if (isset($_GET['unlink_asset_from_file'])) {
     $_SESSION['alert_type'] = "error";
     $_SESSION['alert_message'] = "Asset <strong>$asset_name</strong> unlinked from file <strong>$file_name</strong>";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -823,7 +823,7 @@ if (isset($_POST["import_assets_csv"])) {
     } else {
         $_SESSION['alert_message'] = "Please select a file to upload.";
         $_SESSION['alert_type'] = "error";
-        header("Location: " . $_SERVER["HTTP_REFERER"]);
+        redirect();
         exit();
     }
 
@@ -959,12 +959,12 @@ if (isset($_POST["import_assets_csv"])) {
         logAction("Asset", "Import", "$session_name imported $row_count asset(s) via CSV file", $client_id);
 
         $_SESSION['alert_message'] = "$row_count Asset(s) added, $duplicate_count duplicate(s) detected";
-        header("Location: " . $_SERVER["HTTP_REFERER"]);
+        redirect();
     }
     //Check for any errors, if there are notify user and redirect
     if ($error) {
         $_SESSION['alert_type'] = "warning";
-        header("Location: " . $_SERVER["HTTP_REFERER"]);
+        redirect();
     }
 }
 
@@ -1125,7 +1125,7 @@ if (isset($_POST['add_asset_interface'])) {
 
     // 7) Alert message + redirect
     $_SESSION['alert_message'] = "Interface <strong>$name</strong> created";
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
     exit;
 }
 
@@ -1167,7 +1167,7 @@ if (isset($_POST['add_asset_multiple_interfaces'])) {
 
     logAction("Asset Interface", "Bulk Create", "$session_name created $interfaces for asset $asset_name", $client_id, $asset_id);
     $_SESSION['alert_message'] = "Created <strong>$interfaces</strong> Interface(s) for asset <strong>$asset_name</strong>";
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
     exit;
 }
 
@@ -1244,7 +1244,7 @@ if (isset($_POST['edit_asset_interface'])) {
 
     // 6) Alert and redirect
     $_SESSION['alert_message'] = "Interface <strong>$name</strong> edited";
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
     exit;
 }
 
@@ -1328,7 +1328,7 @@ if (isset($_POST['bulk_edit_asset_interface_type'])) {
         logAction("Asset Interface", "Bulk Edit", "$session_name set interface type to $type on $interface_count interfaces for asset $asset_name", $client_id);
         $_SESSION['alert_message'] = "Type set to <strong>$type</strong> on <strong>$interface_count</strong> interfaces.";
     }
-        header("Location: " . $_SERVER["HTTP_REFERER"]);
+        redirect();
         exit;
 }
 
@@ -1374,7 +1374,7 @@ if (isset($_POST['bulk_edit_asset_interface_network'])) {
         logAction("Asset Interface", "Bulk Edit", "$session_name set network to $network_name on $interface_count interfaces for asset $asset_name", $client_id);
         $_SESSION['alert_message'] = "Network set to <strong>$network_name</strong> on <strong>$interface_count</strong> interfaces.";
     }
-        header("Location: " . $_SERVER["HTTP_REFERER"]);
+        redirect();
         exit;
 }
 
@@ -1413,7 +1413,7 @@ if (isset($_POST['bulk_edit_asset_interface_ip_dhcp'])) {
         logAction("Asset Interface", "Bulk Edit", "$session_name set interface IP to DHCP on $interface_count interfaces for asset $asset_name", $client_id);
         $_SESSION['alert_message'] = "Interface IP set to <strong>DHCP</strong> on <strong>$interface_count</strong> interfaces.";
     }
-        header("Location: " . $_SERVER["HTTP_REFERER"]);
+        redirect();
         exit;
 }
 
@@ -1453,7 +1453,7 @@ if (isset($_POST['bulk_delete_asset_interfaces'])) {
         $_SESSION['alert_type'] = "error";
         $_SESSION['alert_message'] = "<strong>$interface_count</strong> interfaces deleted.";
     }
-        header("Location: " . $_SERVER["HTTP_REFERER"]);
+        redirect();
         exit;
 }
 
@@ -1478,7 +1478,7 @@ if (isset($_POST["import_client_asset_interfaces_csv"])) {
     } else {
         $_SESSION['alert_message'] = "Please select a file to upload.";
         $_SESSION['alert_type'] = "error";
-        header("Location: " . $_SERVER["HTTP_REFERER"]);
+        redirect();
         exit();
     }
 
@@ -1566,12 +1566,12 @@ if (isset($_POST["import_client_asset_interfaces_csv"])) {
         logAction("Asset", "Import", "$session_name imported $row_count interfaces(s) to asset $asset_name via CSV file", $client_id);
 
         $_SESSION['alert_message'] = "<strong>$row_count</strong> Interfaces(s) added to asset <strong>$asset_name</stong>, <strong>$duplicate_count</strong> duplicate(s) detected";
-        header("Location: " . $_SERVER["HTTP_REFERER"]);
+        redirect();
     }
     //Check for any errors, if there are notify user and redirect
     if ($error) {
         $_SESSION['alert_type'] = "warning";
-        header("Location: " . $_SERVER["HTTP_REFERER"]);
+        redirect();
     }
 }
 

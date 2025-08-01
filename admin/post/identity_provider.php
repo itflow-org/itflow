@@ -16,6 +16,6 @@ if (isset($_POST['edit_identity_provider'])) {
 
     $_SESSION['alert_message'] = "Identity Provider Settings updated";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }

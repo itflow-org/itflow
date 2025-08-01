@@ -87,7 +87,7 @@ if (isset($_POST['edit_your_user_details'])) {
         header('Location: post.php?logout');
     }
     else{
-        header("Location: " . $_SERVER["HTTP_REFERER"]);
+        redirect();
     }
 }
 
@@ -99,7 +99,7 @@ if (isset($_GET['clear_your_user_avatar'])) {
     logAction("User Account", "Edit", "$session_name cleared their avatar");
 
     $_SESSION['alert_message'] = "Avatar cleared";
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 }
 
 if (isset($_POST['edit_your_user_password'])) {
@@ -190,7 +190,7 @@ if (isset($_POST['edit_your_user_preferences'])) {
 
     $_SESSION['alert_message'] = "User preferences updated";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 }
 
 if (isset($_POST['enable_mfa'])) {
@@ -267,7 +267,7 @@ if (isset($_GET['disable_mfa'])){
     if ($session_user_config_force_mfa) {
         $_SESSION['alert_type'] = "error";
         $_SESSION['alert_message'] = "Multi-Factor authentication cannot be disabled for your account";
-        header("Location: " . $_SERVER["HTTP_REFERER"]);
+        redirect();
         exit();
     }
 
@@ -308,7 +308,7 @@ if (isset($_GET['disable_mfa'])){
     $_SESSION['alert_type'] = "error";
     $_SESSION['alert_message'] = "Multi-Factor authentication disabled";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -326,6 +326,6 @@ if (isset($_POST['revoke_your_2fa_remember_tokens'])) {
     $_SESSION['alert_type'] = "error";
     $_SESSION['alert_message'] = "Remember me tokens revoked";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }

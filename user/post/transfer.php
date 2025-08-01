@@ -38,7 +38,7 @@ if (isset($_POST['add_transfer'])) {
 
     $_SESSION['alert_message'] = "Transferred <strong>" . numfmt_format_currency($currency_format, $amount, $account_currency_code) . "</strong> from <strong>$source_account_name</strong> to <strong>$destination_account_name</strong>";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -64,7 +64,7 @@ if (isset($_POST['edit_transfer'])) {
 
     $_SESSION['alert_message'] = "Transfer edited";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
 
@@ -91,6 +91,6 @@ if (isset($_GET['delete_transfer'])) {
     $_SESSION['alert_type'] = "error";
     $_SESSION['alert_message'] = "Transfer deleted";
 
-    header("Location: " . $_SERVER["HTTP_REFERER"]);
+    redirect();
 
 }
