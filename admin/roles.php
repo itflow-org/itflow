@@ -95,7 +95,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         ?>
                         <tr>
                             <td>
-                                <a class="text-dark text-bold" href="#" <?php if ($role_id !== 3) { ?> data-toggle="ajax-modal" data-ajax-url="modals/role_edit.php" data-ajax-id="<?php echo $role_id; ?>" <?php } ?>>
+                                <a class="text-dark text-bold" href="#" <?php if ($role_id !== 3) { ?> data-toggle="ajax-modal" data-ajax-url="ajax/ajax_role_edit.php" data-ajax-id="<?php echo $role_id; ?>" <?php } ?>>
                                     <?php echo $role_name; ?>
                                 </a>
                                 <div class="text-secondary"><?php echo $role_description; ?></div>
@@ -112,7 +112,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                                             <a class="dropdown-item" href="#"
                                                 data-toggle="ajax-modal"
-                                                data-ajax-url="modals/role_edit.php"
+                                                data-ajax-url="ajax/ajax_role_edit.php"
                                                 data-ajax-id="<?php echo $role_id; ?>"
                                                 >
                                                 <i class="fas fa-fw fa-user-edit mr-2"></i>Edit
