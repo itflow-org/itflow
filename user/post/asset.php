@@ -8,9 +8,9 @@ defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
 
 if (isset($_POST['add_asset'])) {
 
-    enforceUserPermission('module_support', 2);
-
     validateCSRFToken($_POST['csrf_token']);
+    
+    enforceUserPermission('module_support', 2);
 
     require_once 'asset_model.php';
 
@@ -41,7 +41,6 @@ if (isset($_POST['add_asset'])) {
     // Add Primary Interface
     mysqli_query($mysqli,"INSERT INTO asset_interfaces SET interface_name = '01', interface_mac = '$mac', interface_ip = '$ip', interface_nat_ip = '$nat_ip', interface_ipv6 = '$ipv6', interface_primary = 1, interface_network_id = $network, interface_asset_id = $asset_id");
 
-
     if (!empty($_POST['username'])) {
         $username = trim(mysqli_real_escape_string($mysqli, encryptCredentialEntry($_POST['username'])));
         $password = trim(mysqli_real_escape_string($mysqli, encryptCredentialEntry($_POST['password'])));
@@ -50,7 +49,6 @@ if (isset($_POST['add_asset'])) {
 
         $credential_id = mysqli_insert_id($mysqli);
 
-        //Logging
         logAction("Credential", "Create", "$session_name created login credential for asset $asset_name", $client_id, $credential_id);
 
         $alert_extended = " along with login credentials";
@@ -60,10 +58,9 @@ if (isset($_POST['add_asset'])) {
     // Add to History
     mysqli_query($mysqli,"INSERT INTO asset_history SET asset_history_status = '$status', asset_history_description = '$session_name created $name', asset_history_asset_id = $asset_id");
 
-    //Logging
     logAction("Asset", "Create", "$session_name created asset $name", $client_id, $asset_id);
 
-    $_SESSION['alert_message'] = "Asset <strong>$name</strong> created $alert_extended";
+    flash_alert("Asset <strong>$name</strong> created $alert_extended");
 
     redirect();
 
@@ -71,10 +68,10 @@ if (isset($_POST['add_asset'])) {
 
 if (isset($_POST['edit_asset'])) {
 
-    enforceUserPermission('module_support', 2);
-
     validateCSRFToken($_POST['csrf_token']);
-
+    
+    enforceUserPermission('module_support', 2);
+    
     require_once 'asset_model.php';
     $asset_id = intval($_POST['asset_id']);
 
@@ -122,9 +119,9 @@ if (isset($_POST['edit_asset'])) {
 
 if (isset($_GET['archive_asset'])) {
 
-    enforceUserPermission('module_support', 2);
-
     validateCSRFToken($_GET['csrf_token']);
+    
+    enforceUserPermission('module_support', 2);
 
     $asset_id = intval($_GET['archive_asset']);
 
@@ -136,11 +133,9 @@ if (isset($_GET['archive_asset'])) {
 
     mysqli_query($mysqli,"UPDATE assets SET asset_archived_at = NOW() WHERE asset_id = $asset_id");
 
-    //logging
     logAction("Asset", "Archive", "$session_name archived asset $asset_name", $client_id, $asset_id);
 
-    $_SESSION['alert_type'] = "error";
-    $_SESSION['alert_message'] = "Asset <strong>$asset_name</strong> archived";
+    flash_alert("Asset <strong>$asset_name</strong> archived", 'error');
 
     redirect();
 
@@ -148,9 +143,9 @@ if (isset($_GET['archive_asset'])) {
 
 if (isset($_GET['unarchive_asset'])) {
 
-    enforceUserPermission('module_support', 2);
-
     validateCSRFToken($_GET['csrf_token']);
+    
+    enforceUserPermission('module_support', 2);
 
     $asset_id = intval($_GET['unarchive_asset']);
 
@@ -162,10 +157,9 @@ if (isset($_GET['unarchive_asset'])) {
 
     mysqli_query($mysqli,"UPDATE assets SET asset_archived_at = NULL WHERE asset_id = $asset_id");
 
-    // Logging
     logAction("Asset", "Unarchive", "$session_name unarchived asset $asset_name", $client_id, $asset_id);
 
-    $_SESSION['alert_message'] = "Asset <strong>$asset_name</strong> Unarchived";
+    flash_alert("Asset <strong>$asset_name</strong> Unarchived");
 
     redirect();
 
@@ -173,9 +167,9 @@ if (isset($_GET['unarchive_asset'])) {
 
 if (isset($_GET['delete_asset'])) {
 
-    enforceUserPermission('module_support', 3);
-
     validateCSRFToken($_GET['csrf_token']);
+    
+    enforceUserPermission('module_support', 3);
 
     $asset_id = intval($_GET['delete_asset']);
 
@@ -187,11 +181,9 @@ if (isset($_GET['delete_asset'])) {
 
     mysqli_query($mysqli,"DELETE FROM assets WHERE asset_id = $asset_id");
 
-    // Logging
     logAction("Asset", "Delete", "$session_name deleted asset $asset_name", $client_id);
 
-    $_SESSION['alert_type'] = "error";
-    $_SESSION['alert_message'] = "Asset <strong>$asset_name</strong> deleted";
+    flash_alert("Asset <strong>$asset_name</strong> deleted");
 
     redirect();
 
@@ -199,10 +191,10 @@ if (isset($_GET['delete_asset'])) {
 
 if (isset($_POST['bulk_assign_asset_location'])) {
 
-    enforceUserPermission('module_support', 2);
-
     validateCSRFToken($_POST['csrf_token']);
-
+    
+    enforceUserPermission('module_support', 2);
+    
     $location_id = intval($_POST['bulk_location_id']);
 
     // Get Location name and client id for logging and alert
@@ -221,21 +213,20 @@ if (isset($_POST['bulk_assign_asset_location'])) {
             $asset_id = intval($asset_id);
 
             // Get Asset Details for Logging
-            $sql = mysqli_query($mysqli,"SELECT asset_name FROM assets WHERE asset_id = $asset_id");
+            $sql = mysqli_query($mysqli,"SELECT asset_name, asset_client_id FROM assets WHERE asset_id = $asset_id");
             $row = mysqli_fetch_array($sql);
             $asset_name = sanitizeInput($row['asset_name']);
+            $client_id = intval($row['asset_client_id']);
 
             mysqli_query($mysqli,"UPDATE assets SET asset_location_id = $location_id WHERE asset_id = $asset_id");
 
-            //Logging
             logAction("Asset", "Edit", "$session_name assigned asset $asset_name to location $location_name", $client_id, $asset_id);
 
         } // End Assign Location Loop
 
-        // Bulk Logging
         logAction("Asset", "Bulk Edit", "$session_name assigned $asset_count assets to location $location_name", $client_id);
 
-        $_SESSION['alert_message'] = "You assigned <strong>$asset_count</strong> assets to location <strong>$location_name</strong>";
+        flash_alert("You assigned <strong>$asset_count</strong> assets to location <strong>$location_name</strong>");
     }
 
     redirect();
@@ -244,9 +235,9 @@ if (isset($_POST['bulk_assign_asset_location'])) {
 
 if (isset($_POST['bulk_assign_asset_physical_location'])) {
 
-    enforceUserPermission('module_support', 2);
-
     validateCSRFToken($_POST['csrf_token']);
+
+    enforceUserPermission('module_support', 2);
 
     $physical_location = sanitizeInput($_POST['physical_location']);
 
@@ -267,25 +258,24 @@ if (isset($_POST['bulk_assign_asset_physical_location'])) {
 
             mysqli_query($mysqli,"UPDATE assets SET asset_physical_location = '$physical_location' WHERE asset_id = $asset_id");
 
-            //Logging
             logAction("Asset", "Edit", "$session_name set asset $asset_name to physical location $physical_location", $client_id, $asset_id);
 
         } // End Assign Location Loop
 
-        // Bulk Logging
         logAction("Asset", "Bulk Edit", "$session_name set $asset_count assets to physical location $physical_location", $client_id);
 
-        $_SESSION['alert_message'] = "You moved <strong>$asset_count</strong> assets to location <strong>$physical_location</strong>";
+        flash_alert("You moved <strong>$asset_count</strong> assets to location <strong>$physical_location</strong>");
     }
 
     redirect();
+
 }
 
 if (isset($_POST['bulk_transfer_client_asset'])) {
 
-    enforceUserPermission('module_support', 2);
-
     validateCSRFToken($_POST['csrf_token']);
+
+    enforceUserPermission('module_support', 2);
 
     $new_client_id = intval($_POST['bulk_client_id']);
 
@@ -310,8 +300,7 @@ if (isset($_POST['bulk_transfer_client_asset'])) {
             $current_client_name = sanitizeInput($row['client_name']);
 
             // Get new client name for logging
-            $row = mysqli_fetch_array(mysqli_query($mysqli,"SELECT client_name FROM clients WHERE client_id = $new_client_id"));
-            $new_client_name = sanitizeInput($row['client_name']);
+            $new_client_name = sanitizeInput(getFieldById('clients', $new_client_id, 'client_name'));
 
             // Create new asset
             mysqli_query($mysqli, "
@@ -357,13 +346,13 @@ if (isset($_POST['bulk_transfer_client_asset'])) {
 
         } // End Transfer to Client Loop
 
-        // Bulk Logging
         logAction("Asset", "Bulk Transfer", "$session_name transferred $asset_count assets to $new_client_name", $new_client_id);
 
-        $_SESSION['alert_message'] = "Transferred <strong>$asset_count</strong> assets to <strong>$new_client_name</strong>.";
+        flash_alert("Transferred <strong>$asset_count</strong> assets to <strong>$new_client_name</strong>.");
     }
 
     redirect();
+
 }
 
 if (isset($_POST['bulk_assign_asset_contact'])) {
