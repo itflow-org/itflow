@@ -108,10 +108,9 @@ if (isset($_POST['edit_asset'])) {
         mysqli_query($mysqli,"UPDATE assets SET asset_photo = '$new_file_name' WHERE asset_id = $asset_id");
     }
 
-    //Logging
     logAction("Asset", "Edit", "$session_name edited asset $name", $client_id, $asset_id);
 
-    $_SESSION['alert_message'] = "Asset <strong>$name</strong> edited";
+    flash_alert("Asset <strong>$name</strong> edited");
 
     redirect();
 
@@ -357,9 +356,9 @@ if (isset($_POST['bulk_transfer_client_asset'])) {
 
 if (isset($_POST['bulk_assign_asset_contact'])) {
 
-    enforceUserPermission('module_support', 2);
-
     validateCSRFToken($_POST['csrf_token']);
+
+    enforceUserPermission('module_support', 2);
 
     $contact_id = intval($_POST['bulk_contact_id']);
 
@@ -385,15 +384,13 @@ if (isset($_POST['bulk_assign_asset_contact'])) {
 
             mysqli_query($mysqli,"UPDATE assets SET asset_contact_id = $contact_id WHERE asset_id = $asset_id");
 
-            // Logging
             logAction("Asset", "Edit", "$session_name assigned asset $asset_name to contact $contact_name", $client_id, $asset_id);
 
         } // End Assign Contact Loop
 
-        // Bulk Logging
         logAction("Asset", "Bulk Edit", "$session_name assigned $asset_count assets to contact $contact_name", $client_id);
 
-        $_SESSION['alert_message'] = "You assigned <strong>$asset_count</strong> assets to contact <strong>$contact_name</strong>";
+        flash_alert("You assigned <strong>$asset_count</strong> assets to contact <strong>$contact_name</strong>");
     }
 
     redirect();
@@ -402,16 +399,14 @@ if (isset($_POST['bulk_assign_asset_contact'])) {
 
 if (isset($_POST['bulk_edit_asset_status'])) {
 
-    enforceUserPermission('module_support', 2);
-
     validateCSRFToken($_POST['csrf_token']);
+
+    enforceUserPermission('module_support', 2);
 
     $status = sanitizeInput($_POST['bulk_status']);
 
-    // Assign Status to Selected Assets
     if (isset($_POST['asset_ids'])) {
 
-        // Get Count
         $asset_count = count($_POST['asset_ids']);
 
         foreach($_POST['asset_ids'] as $asset_id) {
@@ -425,15 +420,13 @@ if (isset($_POST['bulk_edit_asset_status'])) {
 
             mysqli_query($mysqli,"UPDATE assets SET asset_status = '$status' WHERE asset_id = $asset_id");
 
-            //Logging
             logAction("Asset", "Edit", "$session_name set status to $status on $asset_name", $client_id, $asset_id);
 
-        } // End Assign Status Loop
+        }
 
-        // Bulk Logging
         logAction("Asset", "Bulk Edit", "$session_name set status to $status on $asset_count assets", $client_id);
 
-        $_SESSION['alert_message'] = "You set the status <strong>$status</strong> on <strong>$asset_count</strong> assets.";
+        flash_alert("You set the status <strong>$status</strong> on <strong>$asset_count</strong> assets.");
     }
 
     redirect();
@@ -442,13 +435,12 @@ if (isset($_POST['bulk_edit_asset_status'])) {
 
 if (isset($_POST['bulk_archive_assets'])) {
 
-    enforceUserPermission('module_support', 2);
-
     validateCSRFToken($_POST['csrf_token']);
+
+    enforceUserPermission('module_support', 2);
 
     if (isset($_POST['asset_ids'])) {
 
-        // Get Count
         $count = count($_POST['asset_ids']);
 
         foreach ($_POST['asset_ids'] as $asset_id) {
@@ -463,31 +455,28 @@ if (isset($_POST['bulk_archive_assets'])) {
 
             mysqli_query($mysqli,"UPDATE assets SET asset_archived_at = NOW() WHERE asset_id = $asset_id");
 
-            // Individual Asset logging
             logAction("Asset", "Archive", "$session_name archived asset $asset_name", $client_id, $asset_id);
 
         }
 
-        // Bulk Logging
         logAction("Asset", "Bulk Archive", "$session_name archived $count assets", $client_id);
 
-        $_SESSION['alert_type'] = "error";
-        $_SESSION['alert_message'] = "Archived $count asset(s)";
+        flash_alert("Archived <strong>$count</strong> asset(s)", 'error');
 
     }
 
     redirect();
+
 }
 
 if (isset($_POST['bulk_unarchive_assets'])) {
 
-    enforceUserPermission('module_support', 2);
-
     validateCSRFToken($_POST['csrf_token']);
 
+    enforceUserPermission('module_support', 2);
+    
     if (isset($_POST['asset_ids'])) {
 
-        // Get Count
         $count = count($_POST['asset_ids']);
 
         foreach ($_POST['asset_ids'] as $asset_id) {
@@ -507,25 +496,24 @@ if (isset($_POST['bulk_unarchive_assets'])) {
 
         }
 
-        // Bulk Logging
         logAction("Asset", "Bulk Unarchive", "$session_name unarchived $count assets");
 
-        $_SESSION['alert_message'] = "Unarchived $count asset(s)";
+        flash_alert("Unarchived $count asset(s)");
 
     }
 
     redirect();
+
 }
 
 if (isset($_POST['bulk_delete_assets'])) {
 
-    enforceUserPermission('module_support', 3);
-
     validateCSRFToken($_POST['csrf_token']);
+
+    enforceUserPermission('module_support', 3);
 
     if (isset($_POST['asset_ids'])) {
 
-        // Get Count
         $count = count($_POST['asset_ids']);
 
         foreach ($_POST['asset_ids'] as $asset_id) {
@@ -540,15 +528,12 @@ if (isset($_POST['bulk_delete_assets'])) {
 
             mysqli_query($mysqli,"DELETE FROM assets WHERE asset_id = $asset_id");
 
-            // Individual Asset logging
             logAction("Asset", "Delete", "$session_name deleted asset $asset_name", $client_id, $asset_id);
         }
 
-        // Bulk Logging
         logAction("Asset", "Bulk Delete", "$session_name deleted $count assets");
 
-        $_SESSION['alert_type'] = "error";
-        $_SESSION['alert_message'] = "Deleted <strong>$count</strong> asset(s)";
+        flash_alert("Deleted <strong>$count</strong> asset(s)", 'error');
     }
 
     redirect();
@@ -571,16 +556,13 @@ if (isset($_POST['link_software_to_asset'])) {
     $client_id = intval($row['software_client_id']);
 
     // Get Asset Name for logging
-    $sql_asset = mysqli_query($mysqli,"SELECT asset_name FROM assets WHERE asset_id = $asset_id");
-    $row = mysqli_fetch_array($sql_asset);
-    $asset_name = sanitizeInput($row['asset_name']);
+    $asset_name = sanitizeInput(getFieldById('assets', $asset_id, 'asset_name'));
 
     mysqli_query($mysqli,"INSERT INTO software_assets SET asset_id = $asset_id, software_id = $software_id");
 
-    // Logging
     logAction("Software", "Link", "$session_name added software license $software_name to asset $asset_name", $client_id, $software_id);
 
-    $_SESSION['alert_message'] = "Software <strong>$software_name</strong> licensed for asset <strong>$asset_name</strong>";
+    flash_alert("Software <strong>$software_name</strong> licensed for asset <strong>$asset_name</strong>");
 
     redirect();
 
@@ -600,21 +582,18 @@ if (isset($_GET['unlink_software_from_asset'])) {
     $client_id = intval($row['software_client_id']);
 
     // Get Asset Name for logging
-    $sql_asset = mysqli_query($mysqli,"SELECT asset_name FROM assets WHERE asset_id = $asset_id");
-    $row = mysqli_fetch_array($sql_asset);
-    $asset_name = sanitizeInput($row['asset_name']);
+    $asset_name = sanitizeInput(getFieldById('assets', $asset_id, 'asset_name'));
 
     mysqli_query($mysqli,"DELETE FROM software_assets WHERE asset_id = $asset_id AND software_id = $software_id");
 
-    //Logging
     logAction("software", "Unlink", "$session_name removed software license $software_name from asset $asset_name", $client_id, $software_id);
 
-    $_SESSION['alert_type'] = "error";
-    $_SESSION['alert_message'] = "Removed Software License <strong>$software_name</strong> for Asset <strong>$asset_name</strong>";
+    flash_alert("Removed Software License <strong>$software_name</strong> for Asset <strong>$asset_name</strong>", 'error');
 
     redirect();
 
 }
+
 // Right now 1 login and have many assets but not many to many
 if (isset($_POST['link_asset_to_credential'])) {
 
@@ -630,16 +609,13 @@ if (isset($_POST['link_asset_to_credential'])) {
     $client_id = intval($row['credential_client_id']);
 
     // Get Asset Name for logging
-    $sql_asset = mysqli_query($mysqli,"SELECT asset_name FROM assets WHERE asset_id = $asset_id");
-    $row = mysqli_fetch_array($sql_asset);
-    $asset_name = sanitizeInput($row['asset_name']);
+    $asset_name = sanitizeInput(getFieldById('assets', $asset_id, 'asset_name'));
 
     mysqli_query($mysqli,"UPDATE credentials SET credential_asset_id = $asset_id WHERE credential_id = $credential_id");
 
-    // Logging
     logAction("Credential", "Link", "$session_name linked credential $credential_name to asset $asset_name", $client_id, $credential_id);
 
-    $_SESSION['alert_message'] = "Asset <strong>$asset_name</strong> linked with credential <strong>$crdential_name</strong>";
+    flash_alert("Asset <strong>$asset_name</strong> linked with credential <strong>$crdential_name</strong>");
 
     redirect();
 
@@ -659,17 +635,13 @@ if (isset($_GET['unlink_credential_from_asset'])) {
     $client_id = intval($row['credential_client_id']);
 
     // Get Asset Name for logging
-    $sql_asset = mysqli_query($mysqli,"SELECT asset_name FROM assets WHERE asset_id = $asset_id");
-    $row = mysqli_fetch_array($sql_asset);
-    $asset_name = sanitizeInput($row['asset_name']);
+    $asset_name = sanitizeInput(getFieldById('assets', $asset_id, 'asset_name'));
 
     mysqli_query($mysqli,"UPDATE credentials SET credential_asset_id = 0 WHERE credential_id = $credential_id");
 
-    //Logging
     logAction("Credential", "Unlink", "$session_name unlinked asset $asset_name from credential $credential_name", $client_id, $credential_id);
 
-    $_SESSION['alert_type'] = "error";
-    $_SESSION['alert_message'] = "Credential <strong>$credential_name</strong> unlinked from Asset <strong>$asset_name</strong>";
+    flash_alert("Credential <strong>$credential_name</strong> unlinked from Asset <strong>$asset_name</strong>", 'errpr');
 
     redirect();
 
@@ -689,16 +661,13 @@ if (isset($_POST['link_service_to_asset'])) {
     $client_id = intval($row['service_client_id']);
 
     // Get Asset Name for logging
-    $sql_asset = mysqli_query($mysqli,"SELECT asset_name FROM assets WHERE asset_id = $asset_id");
-    $row = mysqli_fetch_array($sql_asset);
-    $asset_name = sanitizeInput($row['asset_name']);
+    $asset_name = sanitizeInput(getFieldById('assets', $asset_id, 'asset_name'));
 
     mysqli_query($mysqli,"INSERT INTO service_assets SET asset_id = $asset_id, service_id = $service_id");
 
-    // Logging
     logAction("Service", "Link", "$session_name linked asset $asset_name to service $service_name", $client_id, $service_id);
 
-    $_SESSION['alert_message'] = "Service <strong>$service_name</strong> linked with asset <strong>$asset_name</strong>";
+    flash_alert("Service <strong>$service_name</strong> linked with asset <strong>$asset_name</strong>");
 
     redirect();
 
@@ -718,17 +687,13 @@ if (isset($_GET['unlink_service_from_asset'])) {
     $client_id = intval($row['service_client_id']);
 
     // Get Asset Name for logging
-    $sql_asset = mysqli_query($mysqli,"SELECT asset_name FROM assets WHERE asset_id = $asset_id");
-    $row = mysqli_fetch_array($sql_asset);
-    $asset_name = sanitizeInput($row['asset_name']);
+    $asset_name = sanitizeInput(getFieldById('assets', $asset_id, 'asset_name'));
 
     mysqli_query($mysqli,"DELETE FROM service_assets WHERE asset_id = $asset_id AND service_id = $service_id");
 
-    //Logging
     logAction("Service", "Unlink", "$session_name unlinked asset $asset_name from service $service_name", $client_id, $service_id);
 
-    $_SESSION['alert_type'] = "error";
-    $_SESSION['alert_message'] = "Asset <strong>$asset_name</strong> unlinked from service <strong>$service_name</strong>";
+    flash_alert("Asset <strong>$asset_name</strong> unlinked from service <strong>$service_name</strong>", 'error');
 
     redirect();
 
@@ -748,17 +713,14 @@ if (isset($_POST['link_asset_to_file'])) {
     $client_id = intval($row['file_client_id']);
 
     // Get Asset Name for logging
-    $sql_asset = mysqli_query($mysqli,"SELECT asset_name FROM assets WHERE asset_id = $asset_id");
-    $row = mysqli_fetch_array($sql_asset);
-    $asset_name = sanitizeInput($row['asset_name']);
+    $asset_name = sanitizeInput(getFieldById('assets', $asset_id, 'asset_name'));
 
     // asset add query
     mysqli_query($mysqli,"INSERT INTO asset_files SET asset_id = $asset_id, file_id = $file_id");
 
-    // Logging
     logAction("File", "Link", "$session_name linked asset $asset_name to file $file_name", $client_id, $file_id);
 
-    $_SESSION['alert_message'] = "Asset <strong>$asset_name</strong> linked with File <strong>$file_name</strong>";
+    flash_alert("Asset <strong>$asset_name</strong> linked with File <strong>$file_name</strong>");
 
     redirect();
 
@@ -778,17 +740,13 @@ if (isset($_GET['unlink_asset_from_file'])) {
     $client_id = intval($row['file_client_id']);
 
     // Get Asset Name for logging
-    $sql_asset = mysqli_query($mysqli,"SELECT asset_name FROM assets WHERE asset_id = $asset_id");
-    $row = mysqli_fetch_array($sql_asset);
-    $asset_name = sanitizeInput($row['asset_name']);
+    $asset_name = sanitizeInput(getFieldById('assets', $asset_id, 'asset_name'));
 
     mysqli_query($mysqli,"DELETE FROM asset_files WHERE asset_id = $asset_id AND file_id = $file_id");
 
-    //Logging
     logAction("File", "Unlink", "$session_name unlinked asset $asset_name from file $file_name", $client_id, $file_id);
 
-    $_SESSION['alert_type'] = "error";
-    $_SESSION['alert_message'] = "Asset <strong>$asset_name</strong> unlinked from file <strong>$file_name</strong>";
+    flash_alert("Asset <strong>$asset_name</strong> unlinked from file <strong>$file_name</strong>", 'error');
 
     redirect();
 
@@ -799,9 +757,10 @@ if (isset($_GET['unlink_asset_from_file'])) {
 
 if (isset($_POST["import_assets_csv"])) {
 
-    enforceUserPermission('module_support', 2);
     validateCSRFToken($_POST['csrf_token']);
 
+    enforceUserPermission('module_support', 2);
+    
     $client_id = intval($_POST['client_id']);
     $file_name = $_FILES["file"]["tmp_name"];
 
@@ -810,10 +769,8 @@ if (isset($_POST["import_assets_csv"])) {
     if (!empty($_FILES["file"]["tmp_name"])) {
         $file_name = $_FILES["file"]["tmp_name"];
     } else {
-        $_SESSION['alert_message'] = "Please select a file to upload.";
-        $_SESSION['alert_type'] = "error";
+        flash_alert("Please select a file to upload.", 'error');
         redirect();
-        exit();
     }
 
     //Check file is CSV
@@ -821,13 +778,13 @@ if (isset($_POST["import_assets_csv"])) {
     $allowed_file_extensions = array('csv');
     if (in_array($file_extension,$allowed_file_extensions) === false) {
         $error = true;
-        $_SESSION['alert_message'] = "Bad file extension";
+        flash_alert("Bad file extension", 'error');
     }
 
     //Check file isn't empty
     elseif ($_FILES["file"]["size"] < 1) {
         $error = true;
-        $_SESSION['alert_message'] = "Bad file size (empty?)";
+        flash_alert("Bad file size (empty?)", 'error');
     }
 
     //(Else)Check column count (name, desc, type, make, model, serial, os, purchase date, assigned to, location)
@@ -835,7 +792,7 @@ if (isset($_POST["import_assets_csv"])) {
     $f_columns = fgetcsv($f, 1000, ",");
     if (!$error & count($f_columns) != 11) {
         $error = true;
-        $_SESSION['alert_message'] = "Invalid column count.";
+        flash_alert("Invalid column count.", 'error');
     }
 
     //Else, parse the file
@@ -944,20 +901,22 @@ if (isset($_POST["import_assets_csv"])) {
         }
         fclose($file);
 
-        // Logging
         logAction("Asset", "Import", "$session_name imported $row_count asset(s) via CSV file", $client_id);
 
-        $_SESSION['alert_message'] = "$row_count Asset(s) added, $duplicate_count duplicate(s) detected";
+        flash_alert("$row_count Asset(s) added, $duplicate_count duplicate(s) detected");
+        
         redirect();
+    
     }
     //Check for any errors, if there are notify user and redirect
     if ($error) {
-        $_SESSION['alert_type'] = "warning";
         redirect();
     }
+
 }
 
 if (isset($_GET['download_assets_csv_template'])) {
+    
     $client_id = intval($_GET['download_assets_csv_template']);
 
     //get records from database
@@ -991,9 +950,10 @@ if (isset($_GET['download_assets_csv_template'])) {
 
 if (isset($_POST['export_assets_csv'])) {
 
-    enforceUserPermission('module_support');
     validateCSRFToken($_POST['csrf_token']);
 
+    enforceUserPermission('module_support');
+    
     $client_name = 'All'; // default
 
     if (isset($_POST['client_id'])) {
@@ -1039,7 +999,6 @@ if (isset($_POST['export_assets_csv'])) {
         fpassthru($f);
     }
 
-    // Logging
     logAction("Asset", "Export", "$session_name exported $num_rows asset(s) to a CSV file", $client_id);
 
     exit;
@@ -1049,8 +1008,10 @@ if (isset($_POST['export_assets_csv'])) {
 if (isset($_POST['add_asset_interface'])) {
 
     // 1) Permissions & CSRF
-    enforceUserPermission('module_support', 2);
+
     validateCSRFToken($_POST['csrf_token']);
+
+    enforceUserPermission('module_support', 2);
 
     // 2) Gather posted values
     $interface_id = intval($_POST['interface_id']);
@@ -1113,16 +1074,18 @@ if (isset($_POST['add_asset_interface'])) {
     );
 
     // 7) Alert message + redirect
-    $_SESSION['alert_message'] = "Interface <strong>$name</strong> created";
+    flash_alert("Interface <strong>$name</strong> created");
+    
     redirect();
-    exit;
+
 }
 
 if (isset($_POST['add_asset_multiple_interfaces'])) {
 
-    enforceUserPermission('module_support', 2);
     validateCSRFToken($_POST['csrf_token']);
 
+    enforceUserPermission('module_support', 2);
+    
     $asset_id = intval($_POST['asset_id']);
     $interface_start = intval($_POST['interface_start']);
     $interfaces = intval($_POST['interfaces']);
@@ -1155,15 +1118,18 @@ if (isset($_POST['add_asset_multiple_interfaces'])) {
     }
 
     logAction("Asset Interface", "Bulk Create", "$session_name created $interfaces for asset $asset_name", $client_id, $asset_id);
-    $_SESSION['alert_message'] = "Created <strong>$interfaces</strong> Interface(s) for asset <strong>$asset_name</strong>";
+    
+    flash_alert("Created <strong>$interfaces</strong> Interface(s) for asset <strong>$asset_name</strong>");
+    
     redirect();
-    exit;
+
 }
 
 if (isset($_POST['edit_asset_interface'])) {
 
-    enforceUserPermission('module_support', 2);
     validateCSRFToken($_POST['csrf_token']);
+
+    enforceUserPermission('module_support', 2);
 
     // Interface info
     $interface_id = intval($_POST['interface_id']);
@@ -1232,9 +1198,10 @@ if (isset($_POST['edit_asset_interface'])) {
     );
 
     // 6) Alert and redirect
-    $_SESSION['alert_message'] = "Interface <strong>$name</strong> edited";
+    flash_alert("Interface <strong>$name</strong> edited");
+    
     redirect();
-    exit;
+
 }
 
 if (isset($_GET['delete_asset_interface'])) {
@@ -1273,17 +1240,17 @@ if (isset($_GET['delete_asset_interface'])) {
     );
 
     // 4) Alert and redirect
-    $_SESSION['alert_type'] = "error";
-    $_SESSION['alert_message'] = "Interface <strong>$interface_name</strong> deleted";
+    flash_alert("Interface <strong>$interface_name</strong> deleted", 'error');
 
-    header("Location: " . $_SERVER['HTTP_REFERER']);
-    exit;
+    redirect();
+
 }
 
 if (isset($_POST['bulk_edit_asset_interface_type'])) {
 
-    enforceUserPermission('module_support', 2);
     validateCSRFToken($_POST['csrf_token']);
+
+    enforceUserPermission('module_support', 2);
 
     $type = sanitizeInput($_POST['bulk_type']);
 
@@ -1310,28 +1277,29 @@ if (isset($_POST['bulk_edit_asset_interface_type'])) {
             // Update inteface type
             mysqli_query($mysqli,"UPDATE asset_interfaces SET interface_type = '$type' WHERE interface_id = $interface_id");
 
-            // Individual Logging
             logAction("Asset Interface", "Edit", "$session_name set interface type to $type for asset $asset_name", $client_id, $asset_id);
         }
-        // Bulk Logging
+        
         logAction("Asset Interface", "Bulk Edit", "$session_name set interface type to $type on $interface_count interfaces for asset $asset_name", $client_id);
-        $_SESSION['alert_message'] = "Type set to <strong>$type</strong> on <strong>$interface_count</strong> interfaces.";
+        
+        flash_alert("Type set to <strong>$type</strong> on <strong>$interface_count</strong> interfaces.");
+    
     }
-        redirect();
-        exit;
+    
+    redirect();
+
 }
 
 if (isset($_POST['bulk_edit_asset_interface_network'])) {
 
-    enforceUserPermission('module_support', 2);
     validateCSRFToken($_POST['csrf_token']);
+
+    enforceUserPermission('module_support', 2);
 
     $network_id = intval($_POST['bulk_network']);
 
     // Get Network Name for logging
-    $sql = mysqli_query($mysqli, "SELECT network_name FROM networks WHERE network_id = $network_id");
-    $row = mysqli_fetch_array($sql);
-    $network_name = sanitizeInput($row['network_name']);
+    $network_name = sanitizeInput(getFieldById('networks', $network_id, 'network_name'));
 
     if (isset($_POST['interface_ids'])) {
 
@@ -1356,22 +1324,24 @@ if (isset($_POST['bulk_edit_asset_interface_network'])) {
             // Update inteface type
             mysqli_query($mysqli,"UPDATE asset_interfaces SET interface_network_id = $network_id WHERE interface_id = $interface_id");
 
-            // Individual Logging
             logAction("Asset Interface", "Edit", "$session_name set network to $network_name for asset $asset_name", $client_id, $asset_id);
         }
-        // Bulk Logging
+
         logAction("Asset Interface", "Bulk Edit", "$session_name set network to $network_name on $interface_count interfaces for asset $asset_name", $client_id);
-        $_SESSION['alert_message'] = "Network set to <strong>$network_name</strong> on <strong>$interface_count</strong> interfaces.";
+        
+        flash_alert("Network set to <strong>$network_name</strong> on <strong>$interface_count</strong> interfaces.");
     }
+        
         redirect();
-        exit;
+
 }
 
 if (isset($_POST['bulk_edit_asset_interface_ip_dhcp'])) {
 
-    enforceUserPermission('module_support', 2);
     validateCSRFToken($_POST['csrf_token']);
 
+    enforceUserPermission('module_support', 2);
+    
     if (isset($_POST['interface_ids'])) {
 
         // Get Count
@@ -1395,21 +1365,24 @@ if (isset($_POST['bulk_edit_asset_interface_ip_dhcp'])) {
             // Update inteface type
             mysqli_query($mysqli,"UPDATE asset_interfaces SET interface_ip = 'DHCP' WHERE interface_id = $interface_id");
 
-            // Individual Logging
             logAction("Asset Interface", "Edit", "$session_name set interface IP to DHCP for asset $asset_name", $client_id, $asset_id);
         }
-        // Bulk Logging
+
         logAction("Asset Interface", "Bulk Edit", "$session_name set interface IP to DHCP on $interface_count interfaces for asset $asset_name", $client_id);
-        $_SESSION['alert_message'] = "Interface IP set to <strong>DHCP</strong> on <strong>$interface_count</strong> interfaces.";
+        
+        flash_alert("Interface IP set to <strong>DHCP</strong> on <strong>$interface_count</strong> interfaces.");
+    
     }
-        redirect();
-        exit;
+    
+    redirect();
+
 }
 
 if (isset($_POST['bulk_delete_asset_interfaces'])) {
 
-    enforceUserPermission('module_support', 2);
     validateCSRFToken($_POST['csrf_token']);
+
+    enforceUserPermission('module_support', 2);
 
     if (isset($_POST['interface_ids'])) {
 
@@ -1434,23 +1407,24 @@ if (isset($_POST['bulk_delete_asset_interfaces'])) {
 
             mysqli_query($mysqli, "DELETE FROM asset_interfaces WHERE interface_id = $interface_id");
 
-            // Individual Logging
             logAction("Asset Interface", "Delete", "$session_name deleted interface $interface_name from asset $asset_name", $client_id, $asset_id);
         }
-        // Bulk Logging
+
         logAction("Asset Interface", "Bulk Delete", "$session_name deleted $interface_count interfaces for asset $asset_name", $client_id);
-        $_SESSION['alert_type'] = "error";
-        $_SESSION['alert_message'] = "<strong>$interface_count</strong> interfaces deleted.";
+
+        flash_alert("<strong>$interface_count</strong> interfaces deleted.", 'error');
     }
+        
         redirect();
-        exit;
+
 }
 
 if (isset($_POST["import_client_asset_interfaces_csv"])) {
 
-    enforceUserPermission('module_support', 2);
     validateCSRFToken($_POST['csrf_token']);
 
+    enforceUserPermission('module_support', 2);
+    
     $asset_id = intval($_POST['asset_id']);
     $file_name = $_FILES["file"]["tmp_name"];
 
@@ -1465,10 +1439,8 @@ if (isset($_POST["import_client_asset_interfaces_csv"])) {
     if (!empty($_FILES["file"]["tmp_name"])) {
         $file_name = $_FILES["file"]["tmp_name"];
     } else {
-        $_SESSION['alert_message'] = "Please select a file to upload.";
-        $_SESSION['alert_type'] = "error";
+        flash_alert("Please select a file to upload.", 'error');
         redirect();
-        exit();
     }
 
     //Check file is CSV
@@ -1476,13 +1448,13 @@ if (isset($_POST["import_client_asset_interfaces_csv"])) {
     $allowed_file_extensions = array('csv');
     if (in_array($file_extension,$allowed_file_extensions) === false) {
         $error = true;
-        $_SESSION['alert_message'] = "Bad file extension";
+        flash_alert("Bad file extension", 'error');
     }
 
     //Check file isn't empty
     elseif ($_FILES["file"]["size"] < 1) {
         $error = true;
-        $_SESSION['alert_message'] = "Bad file size (empty?)";
+        flash_alert("Bad file size (empty?)", 'error');
     }
 
     //(Else)Check column count (Name, Description, Type, MAC, IP, NAT IP, IPv6, Network)
@@ -1490,7 +1462,7 @@ if (isset($_POST["import_client_asset_interfaces_csv"])) {
     $f_columns = fgetcsv($f, 1000, ",");
     if (!$error & count($f_columns) != 8) {
         $error = true;
-        $_SESSION['alert_message'] = "Bad column count.";
+        flash_alert("Bad column count.", 'error');
     }
 
     //Else, parse the file
@@ -1551,17 +1523,19 @@ if (isset($_POST["import_client_asset_interfaces_csv"])) {
         }
         fclose($file);
 
-        // Logging
         logAction("Asset", "Import", "$session_name imported $row_count interfaces(s) to asset $asset_name via CSV file", $client_id);
 
-        $_SESSION['alert_message'] = "<strong>$row_count</strong> Interfaces(s) added to asset <strong>$asset_name</stong>, <strong>$duplicate_count</strong> duplicate(s) detected";
+        flash_alert("<strong>$row_count</strong> Interfaces(s) added to asset <strong>$asset_name</stong>, <strong>$duplicate_count</strong> duplicate(s) detected");
+        
         redirect();
+    
     }
+    
     //Check for any errors, if there are notify user and redirect
     if ($error) {
-        $_SESSION['alert_type'] = "warning";
         redirect();
     }
+
 }
 
 if (isset($_GET['download_client_asset_interfaces_csv_template'])) {
@@ -1598,8 +1572,9 @@ if (isset($_GET['download_client_asset_interfaces_csv_template'])) {
 
 if (isset($_POST['export_client_asset_interfaces_csv'])) {
 
-    enforceUserPermission('module_support');
     validateCSRFToken($_POST['csrf_token']);
+
+    enforceUserPermission('module_support');
 
     $asset_id = intval($_POST['asset_id']);
 
@@ -1640,7 +1615,6 @@ if (isset($_POST['export_client_asset_interfaces_csv'])) {
         fpassthru($f);
     }
 
-    // Logging
     logAction("Asset Interface", "Export", "$session_name exported $num_rows interfaces(s) to a CSV file", $client_id);
 
     exit;
