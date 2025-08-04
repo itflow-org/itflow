@@ -4,8 +4,7 @@
 header("Content-Security-Policy: default-src 'self'");
 
 if (!file_exists('config.php')) {
-    header("Location: setup");
-    exit;
+    redirect("setup");
 }
 
 require_once "config.php";
@@ -31,11 +30,11 @@ $session_user_agent = sanitizeInput($_SERVER['HTTP_USER_AGENT']);
 // Block brute force password attacks - check recent failed login attempts for this IP
 //  Block access if more than 15 failed login attempts have happened in the last 10 minutes
 $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(log_id) AS failed_login_count FROM logs WHERE log_ip = '$session_ip' AND log_type = 'Login' AND log_action = 'Failed' AND log_created_at > (NOW() - INTERVAL 10 MINUTE)"));
+
 $failed_login_count = intval($row['failed_login_count']);
 
 if ($failed_login_count >= 15) {
 
-    // Logging
     logAction("Login", "Blocked", "$session_ip was blocked access to login due to IP lockout");
 
     // Inform user & quit processing page
@@ -75,8 +74,7 @@ $config_login_remember_me_expire = intval($row['config_login_remember_me_expire'
 //  If no/incorrect 'key' is supplied, send to client portal instead
 if ($config_login_key_required) {
     if (!isset($_GET['key']) || $_GET['key'] !== $config_login_key_secret) {
-        header("Location: client");
-        exit();
+        redirect("client");
     }
 }
 
@@ -188,7 +186,6 @@ if (isset($_POST['login'])) {
                 addToMailQueue($data);
             }
 
-            // Logging
             logAction("Login", "Success", "$user_name successfully logged in $extended_log", 0, $user_id);
 
             // Session info
@@ -219,9 +216,9 @@ if (isset($_POST['login'])) {
 
             }
             if (isset($_GET['last_visited'])) {
-                header("Location: ".$_SERVER["REQUEST_SCHEME"] . "://" . $config_base_url . base64_decode($_GET['last_visited']) );
+                redirect($_SERVER["REQUEST_SCHEME"] . "://" . $config_base_url . base64_decode($_GET['last_visited']) );
             } else {
-                header("Location: $config_start_page");
+                redirect("user/$config_start_page");
             }
         } else {
 
@@ -276,7 +273,6 @@ if (isset($_POST['login'])) {
 
         header("HTTP/1.1 401 Unauthorized");
 
-        // Logging
         logAction("Login", "Failed", "Failed login attempt using $email");
 
         $response = "
