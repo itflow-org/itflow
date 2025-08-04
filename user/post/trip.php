@@ -10,15 +10,13 @@ if (isset($_POST['add_trip'])) {
 
     require_once 'trip_model.php';
 
-
     mysqli_query($mysqli,"INSERT INTO trips SET trip_date = '$date', trip_source = '$source', trip_destination = '$destination', trip_miles = $miles, round_trip = $roundtrip, trip_purpose = '$purpose', trip_user_id = $user_id, trip_client_id = $client_id");
 
     $trip_id = mysqli_insert_id($mysqli);
 
-    // Logging
     logAction("Trip", "Create", "$session_name logged trip from $source to $destination", $client_id , $trip_id);
 
-    $_SESSION['alert_message'] = "Trip from <strong>$source</strong> to <strong>$destination</strong> logged";
+    flash_alert("Trip from <strong>$source</strong> to <strong>$destination</strong> logged");
 
     redirect();
 
@@ -32,10 +30,9 @@ if (isset($_POST['edit_trip'])) {
 
     mysqli_query($mysqli,"UPDATE trips SET trip_date = '$date', trip_source = '$source', trip_destination = '$destination', trip_miles = $miles, trip_purpose = '$purpose', round_trip = $roundtrip, trip_user_id = $user_id, trip_client_id = $client_id WHERE trip_id = $trip_id");
 
-    // Logging
     logAction("Trip", "Edit", "$session_name edited trip", $client_id , $trip_id);
 
-    $_SESSION['alert_message'] = "Trip edited";
+    flash_alert("Trip edited");
 
     redirect();
 
@@ -53,11 +50,9 @@ if (isset($_GET['delete_trip'])) {
 
     mysqli_query($mysqli,"DELETE FROM trips WHERE trip_id = $trip_id");
 
-    // Logging
     logAction("Trip", "Delete", "$session_name deleted trip ($trip_source - $trip_destination)", $client_id);
 
-    $_SESSION['alert_type'] = "error";
-    $_SESSION['alert_message'] = "Trip ($trip_source - $trip_destination) deleted";
+    flash_alert("Trip ($trip_source - $trip_destination) deleted", 'error');
 
     redirect();
 
@@ -119,7 +114,6 @@ if (isset($_POST['export_trips_csv'])) {
         //output all remaining data on a file pointer
         fpassthru($f);
     
-        // Logging
         logAction("Trip", "Export", "$session_name exported $count trip(s) to a CSV file");
     }
     exit;

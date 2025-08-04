@@ -16,12 +16,11 @@ if (isset($_POST['add_vendor_contact'])) {
 
     $vendor_contact_id = mysqli_insert_id($mysqli);
 
-    // Logging
     logAction("Vendor Contact", "Create", "$session_name created vendor contact $name", $client_id, $vendor_contact_id);
 
     customAction('vendor_contact_create', $vendor_contact_id);
 
-    $_SESSION['alert_message'] = "Vendor Contact <strong>$name</strong> created";
+    flash_alert("Vendor Contact <strong>$name</strong> created");
 
     redirect();
 
@@ -37,12 +36,11 @@ if (isset($_POST['edit_vendor_contact'])) {
 
     mysqli_query($mysqli,"UPDATE vendor_contacts SET vendor_contact_name = '$name', vendor_contact_title = '$title', vendor_contact_phone = '$phone', vendor_contact_extension = '$extension', vendor_contact_mobile = '$mobile', vendor_contact_email = '$email', contact_pin = '$pin', vendor_contact_notes = '$notes', vendor_contact_department = '$department' WHERE vendor_contact_id = $vendor_contact_id");
 
-    //Logging
     logAction("Vendor Contact", "Edit", "$session_name edited vendor contact $name", $client_id, $vendor_contact_id);
 
     customAction('vendor_contact_update', $vendor_contact_id);
 
-    $_SESSION['alert_message'] = "Vendor Contact <strong>$name</strong> updated";
+    flash_alert("Vendor Contact <strong>$name</strong> updated");
 
     redirect();
 
@@ -50,9 +48,9 @@ if (isset($_POST['edit_vendor_contact'])) {
 
 if (isset($_POST['bulk_archive_vendor_contacts'])) {
 
-    enforceUserPermission('module_client', 2);
-
     //validateCSRFToken($_POST['csrf_token']);
+
+    enforceUserPermission('module_client', 2); 
 
     if (isset($_POST['vendor_contact_ids'])) {
 
@@ -71,22 +69,22 @@ if (isset($_POST['bulk_archive_vendor_contacts'])) {
 
         }
 
-        // Bulk Logging
         logAction("Vendor Contact", "Bulk Archive", "$session_name archived $count vendor contacts", $client_id);
 
-        $_SESSION['alert_type'] = "error";
-        $_SESSION['alert_message'] = "Archived <strong>$count</strong> vendor contact(s)";
+        flash_alert("Archived <strong>$count</strong> vendor contact(s)", 'error');
 
     }
 
     redirect();
+
 }
 
 if (isset($_POST['bulk_unarchive_vendor_contacts'])) {
 
-    enforceUserPermission('module_client', 2);
     //validateCSRFToken($_POST['csrf_token']);
 
+    enforceUserPermission('module_client', 2);
+    
     if (isset($_POST['contact_ids'])) {
 
         // Get Selected Contacts Count
@@ -111,26 +109,26 @@ if (isset($_POST['bulk_unarchive_vendor_contacts'])) {
 
             mysqli_query($mysqli,"UPDATE contacts SET contact_archived_at = NULL WHERE contact_id = $contact_id");
 
-            // Individual Contact logging
             logAction("Contact", "Unarchive", "$session_name unarchived $contact_name", $client_id, $contact_id);
 
         }
 
-        // Bulk Logging
         logAction("Contact", "Bulk Unarchive", "$session_name Unarchived $count contacts", $client_id);
 
-        $_SESSION['alert_message'] = "You unarchived <strong>$count</strong> contact(s)";
+        flash_alert("You unarchived <strong>$count</strong> contact(s)");
 
     }
 
     redirect();
+
 }
 
 if (isset($_POST['bulk_delete_vendor_contacts'])) {
 
-    enforceUserPermission('module_client', 3);
     validateCSRFToken($_POST['csrf_token']);
 
+    enforceUserPermission('module_client', 3);
+    
     if (isset($_POST['contact_ids'])) {
 
         // Get Selected Contacts Count
@@ -163,19 +161,18 @@ if (isset($_POST['bulk_delete_vendor_contacts'])) {
             mysqli_query($mysqli, "DELETE FROM contact_logins WHERE contact_id = $contact_id");
             mysqli_query($mysqli, "DELETE FROM contact_notes WHERE contact_note_contact_id = $contact_id");
 
-            // Individual Logging
             logAction("Contact", "Delete", "$session_name deleted $contact_name", $client_id);
 
         }
 
-        // Bulk Logging
          logAction("Contact", "Bulk Delete", "$session_name deleted $count contacts", $client_id);
 
-        $_SESSION['alert_message'] = "You deleted <strong>$count</strong> contact(s)";
+        flash_alert("You deleted <strong>$count</strong> contact(s)", 'error');
 
     }
 
     redirect();
+
 }
 
 
@@ -199,12 +196,9 @@ if (isset($_GET['archive_vendor_contact'])) {
 
     mysqli_query($mysqli,"UPDATE contacts SET contact_important = 0, contact_billing = 0, contact_technical = 0, contact_archived_at = NOW() WHERE contact_id = $contact_id");
     
-    // Logging
     logAction("Contact", "Archive", "$session_name archived contact $contact_name", $client_id, $contact_id);
 
-
-    $_SESSION['alert_type'] = "error";
-    $_SESSION['alert_message'] = "Contact <strong>$contact_name</strong> has been archived";
+    flash_alert("Contact <strong>$contact_name</strong> has been archived", 'alert');
 
     redirect();
 
@@ -230,10 +224,9 @@ if (isset($_GET['unarchive_vendor_contact'])) {
 
     mysqli_query($mysqli,"UPDATE contacts SET contact_archived_at = NULL WHERE contact_id = $contact_id");
 
-    // logging
     logAction("Contact", "Unarchive", "$session_name unarchived contact $contact_name", $client_id, $contact_id);
 
-    $_SESSION['alert_message'] = "Contact <strong>$contact_name</strong> has been Unarchived";
+    flash_alert("Contact <strong>$contact_name</strong> has been Unarchived");
 
     redirect();
 
@@ -267,16 +260,13 @@ if (isset($_GET['delete_vendor_contact'])) {
     mysqli_query($mysqli, "DELETE FROM contact_logins WHERE contact_id = $contact_id");
     mysqli_query($mysqli, "DELETE FROM contact_notes WHERE contact_note_contact_id = $contact_id");
 
-    //Logging
     logAction("Contact", "Delete", "$session_name deleted contact $contact_name", $client_id);
 
-    $_SESSION['alert_type'] = "error";
-    $_SESSION['alert_message'] = "Contact <strong>$contact_name</strong> has been deleted.";
+    flash_alert("Contact <strong>$contact_name</strong> has been deleted.", 'error');
 
     redirect();
 
 }
-
 
 if (isset($_POST['export_vendor_contacts_csv'])) {
 
@@ -323,7 +313,6 @@ if (isset($_POST['export_vendor_contacts_csv'])) {
 
     }
 
-    //Logging
     logAction("Contact", "Export", "$session_name exported $num_rows contact(s) to a CSV file", $client_id);
 
     exit;
@@ -340,10 +329,8 @@ if (isset($_POST["import_vendor_contacts_csv"])) {
     if (!empty($_FILES["file"]["tmp_name"])) {
         $file_name = $_FILES["file"]["tmp_name"];
     } else {
-        $_SESSION['alert_message'] = "Please select a file to upload.";
-        $_SESSION['alert_type'] = "error";
+        flash_alert("Please select a file to upload.", 'error');
         redirect();
-        exit();
     }
 
     //Check file is CSV
@@ -351,13 +338,13 @@ if (isset($_POST["import_vendor_contacts_csv"])) {
     $allowed_file_extensions = array('csv');
     if (in_array($file_extension,$allowed_file_extensions) === false) {
         $error = true;
-        $_SESSION['alert_message'] = "Bad file extension";
+        flash_alert("Bad file extension", 'error');
     }
 
     //Check file isn't empty
     elseif ($_FILES["file"]["size"] < 1) {
         $error = true;
-        $_SESSION['alert_message'] = "Bad file size (empty?)";
+        flash_alert("Bad file size (empty?)", 'error');
     }
 
     //(Else)Check column count
@@ -365,7 +352,7 @@ if (isset($_POST["import_vendor_contacts_csv"])) {
     $f_columns = fgetcsv($f, 1000, ",");
     if (!$error & count($f_columns) != 8) {
         $error = true;
-        $_SESSION['alert_message'] = "Bad column count.";
+        flash_alert("Bad column count.", 'error');
     }
 
     //Else, parse the file
@@ -408,7 +395,6 @@ if (isset($_POST["import_vendor_contacts_csv"])) {
             }
             // Potentially import the rest in the future?
 
-
             // Check if duplicate was detected
             if ($duplicate_detect == 0) {
                 //Add
@@ -420,20 +406,21 @@ if (isset($_POST["import_vendor_contacts_csv"])) {
         }
         fclose($file);
 
-        //Logging
         logAction("Contact", "Import", "$session_name imported $row_count contact(s) via CSV file", $client_id);
 
-        $_SESSION['alert_message'] = "$row_count Contact(s) added, $duplicate_count duplicate(s) detected";
+        flash_alert("$row_count Contact(s) added, $duplicate_count duplicate(s) detected", 'warning');
+        
         redirect();
     }
     //Check for any errors, if there are notify user and redirect
     if ($error) {
-        $_SESSION['alert_type'] = "warning";
         redirect();
     }
+
 }
 
 if (isset($_GET['download_vendor_contacts_csv_template'])) {
+    
     $client_id = intval($_GET['download_client_contacts_csv_template']);
 
     //get records from database

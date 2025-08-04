@@ -180,12 +180,12 @@ if (isset($_POST['add_ticket'])) {
     // Custom action/notif handler
     customAction('ticket_create', $ticket_id);
 
-    // Logging
     logAction("Ticket", "Create", "$session_name created ticket $config_ticket_prefix$ticket_number - $ticket_subject", $client_id, $ticket_id);
 
-    $_SESSION['alert_message'] = "Ticket <strong>$config_ticket_prefix$ticket_number</strong> created";
+    flash_alert("Ticket <strong>$config_ticket_prefix$ticket_number</strong> created");
 
-    header("Location: ticket.php?ticket_id=$ticket_id");
+    redirect("ticket.php?ticket_id=$ticket_id");
+
 }
 
 if (isset($_POST['edit_ticket'])) {
@@ -287,12 +287,12 @@ if (isset($_POST['edit_ticket'])) {
     // Custom action/notif handler
     customAction('ticket_update', $ticket_id);
 
-    // Logging
     logAction("Ticket", "Edit", "$session_name edited ticket $ticket_prefix$ticket_number", $client_id, $ticket_id);
 
-    $_SESSION['alert_message'] = "Ticket <strong>$ticket_prefix$ticket_number</strong> updated";
+    flash_alert("Ticket <strong>$ticket_prefix$ticket_number</strong> updated");
 
     redirect();
+
 }
 
 if (isset($_POST['edit_ticket_priority'])) {
@@ -322,14 +322,14 @@ if (isset($_POST['edit_ticket_priority'])) {
     // Update Ticket History
     mysqli_query($mysqli, "INSERT INTO ticket_history SET ticket_history_status = '$ticket_status', ticket_history_description = '$session_name changed priority from $original_priority to $priority', ticket_history_ticket_id = $ticket_id");
 
-    // Logging
     logAction("Ticket", "Edit", "$session_name changed priority from $original_priority to $priority for ticket $ticket_prefix$ticket_number", $client_id, $ticket_id);
 
     customAction('ticket_update', $ticket_id);
 
-    $_SESSION['alert_message'] = "Priority updated from <strong>$original_priority</strong> to <strong>$priority</strong>";
+    flash_alert("Priority updated from <strong>$original_priority</strong> to <strong>$priority</strong>");
 
     redirect();
+
 }
 
 if (isset($_POST['edit_ticket_contact'])) {
@@ -408,12 +408,12 @@ if (isset($_POST['edit_ticket_contact'])) {
     // Update Ticket History
     mysqli_query($mysqli, "INSERT INTO ticket_history SET ticket_history_status = '$ticket_status', ticket_history_description = '$session_name changed the contact from $original_contact_name to $contact_name', ticket_history_ticket_id = $ticket_id");
 
-    // Logging
     logAction("Ticket", "Edit", "$session_name changed the contact from $original_contact_name to $contact_name for ticket $ticket_prefix$ticket_number", $client_id, $ticket_id);
 
-    $_SESSION['alert_message'] = "Contact changed from <strong>$original_contact_name</strong> to <strong>$contact_name</strong>";
+    flash_alert("Contact changed from <strong>$original_contact_name</strong> to <strong>$contact_name</strong>");
 
     redirect();
+
 }
 
 if (isset($_POST['add_ticket_watcher'])) {
@@ -483,15 +483,15 @@ if (isset($_POST['add_ticket_watcher'])) {
                 addToMailQueue($data);
             }
 
-            // Logging
             logAction("Ticket", "Edit", "$session_name added $watcher_email as a watcher for ticket $config_ticket_prefix$ticket_number", $client_id, $ticket_id);
         }
 
     }
 
-    $_SESSION['alert_message'] = "Added watcher(s)";
+    flash_alert("Added watcher(s)");
 
     redirect();
+
 }
 
 if (isset($_GET['delete_ticket_watcher'])) {
@@ -520,13 +520,12 @@ if (isset($_GET['delete_ticket_watcher'])) {
     // History
     mysqli_query($mysqli, "INSERT INTO ticket_history SET ticket_history_status = '$ticket_status_name', ticket_history_description = '$session_name removed ticket $watcher_email as a watcher', ticket_history_ticket_id = $ticket_id");
 
-    // Logging
     logAction("Ticket", "Edit", "$session_name removed $watcher_email as a watcher for ticket $ticket_prefix$ticket_number", $client_id, $ticket_id);
 
-    $_SESSION['alert_type'] = "error";
-    $_SESSION['alert_message'] = "Removed ticket watcher <strong>$watcher_email</strong>";
+    flash_alert("Removed ticket watcher <strong>$watcher_email</strong>", 'error');
 
     redirect();
+
 }
 
 if (isset($_GET['delete_ticket_additional_asset'])) {
@@ -555,13 +554,12 @@ if (isset($_GET['delete_ticket_additional_asset'])) {
     // History
     mysqli_query($mysqli, "INSERT INTO ticket_history SET ticket_history_status = '$ticket_status_name', ticket_history_description = '$session_name removed additional asset $asset_name', ticket_history_ticket_id = $ticket_id");
 
-    // Logging
     logAction("Ticket", "Edit", "$session_name removed asset $asset_name from ticket $ticket_prefix$ticket_number", $client_id, $ticket_id);
 
-    $_SESSION['alert_type'] = "error";
-    $_SESSION['alert_message'] = "Removed asset <strong>$asset_name</strong> from ticket.";
+    flash_alert("Removed asset <strong>$asset_name</strong> from ticket.", 'error');
 
     redirect();
+
 }
 
 if (isset($_POST['edit_ticket_asset'])) {
@@ -587,12 +585,12 @@ if (isset($_POST['edit_ticket_asset'])) {
     $asset_name = sanitizeInput($row['asset_name']);
     $client_id = intval($row['ticket_client_id']);
 
-    // Logging
     logAction("Ticket", "Edit", "$session_name changed asset to $asset_name for ticket $ticket_prefix$ticket_number", $client_id, $ticket_id);
 
-    $_SESSION['alert_message'] = "Ticket <strong>$ticket_prefix$ticket_number</strong> asset updated to <strong>$asset_name</strong>";
+    flash_alert("Ticket <strong>$ticket_prefix$ticket_number</strong> asset updated to <strong>$asset_name</strong>");
 
     redirect();
+
 }
 
 if (isset($_POST['edit_ticket_vendor'])) {
@@ -618,12 +616,12 @@ if (isset($_POST['edit_ticket_vendor'])) {
     $vendor_name = sanitizeInput($row['vendor_name']);
     $client_id = intval($row['ticket_client_id']);
 
-    // Logging
     logAction("Ticket", "Edit", "$session_name set vendor to $vendor_name for ticket $ticket_prefix$ticket_number", $client_id, $ticket_id);
 
-    $_SESSION['alert_message'] = "Set vendor to <strong>$vendor_name</strong> for ticket <strong>$ticket_prefix$ticket_number</strong>";
+    flash_alert("Set vendor to <strong>$vendor_name</strong> for ticket <strong>$ticket_prefix$ticket_number</strong>");
 
     redirect();
+
 }
 
 if (isset($_POST['assign_ticket'])) {
@@ -654,10 +652,8 @@ if (isset($_POST['assign_ticket'])) {
         $ticket_reply = "Ticket re-assigned to $agent_name.";
 
         if (!$agent_name) {
-            $_SESSION['alert_type'] = "error";
-            $_SESSION['alert_message'] = "Invalid agent!";
+            flash_alert("Invalid agent!", 'error');
             redirect();
-            exit();
         }
     }
 
@@ -672,10 +668,8 @@ if (isset($_POST['assign_ticket'])) {
     $client_name = sanitizeInput($ticket_details['client_name']);
 
     if (!$ticket_subject) {
-        $_SESSION['alert_type'] = "error";
-        $_SESSION['alert_message'] = "Invalid ticket!";
+        flash_alert("Invalid ticket!", 'error');
         redirect();
-        exit();
     }
 
     // Update ticket & insert reply
@@ -683,7 +677,6 @@ if (isset($_POST['assign_ticket'])) {
 
     mysqli_query($mysqli, "INSERT INTO ticket_replies SET ticket_reply = '$ticket_reply', ticket_reply_type = 'Internal', ticket_reply_time_worked = '00:01:00', ticket_reply_by = $session_user_id, ticket_reply_ticket_id = $ticket_id");
 
-    // Logging
     logAction("Ticket", "Edit", "$session_name reassigned $ticket_prefix$ticket_number to $agent_name", $client_id, $ticket_id);
 
 
@@ -722,17 +715,17 @@ if (isset($_POST['assign_ticket'])) {
 
     customAction('ticket_assign', $ticket_id);
 
-    $_SESSION['alert_message'] = "Ticket <strong>$ticket_prefix$ticket_number</strong> assigned to <strong>$agent_name</strong>";
+    flash_alert("Ticket <strong>$ticket_prefix$ticket_number</strong> assigned to <strong>$agent_name</strong>");
 
     redirect();
+
 }
 
 if (isset($_GET['delete_ticket'])) {
 
-    enforceUserPermission('module_support', 3);
-
-    // CSRF Check
     validateCSRFToken($_GET['csrf_token']);
+
+    enforceUserPermission('module_support', 3);
 
     $ticket_id = intval($_GET['delete_ticket']);
 
@@ -764,23 +757,23 @@ if (isset($_GET['delete_ticket'])) {
 
         // No Need to delete ticket assets as this is cascadely deleted via the database.
 
-        // Logging
         logAction("Ticket", "Delete", "$session_name deleted $ticket_prefix$ticket_number along with all replies", $client_id);
 
-        $_SESSION['alert_type'] = "error";
-        $_SESSION['alert_message'] = "Ticket <strong>$ticket_prefix$ticket_number</strong> along with all replies deleted";
+        flash_alert("Ticket <strong>$ticket_prefix$ticket_number</strong> along with all replies deleted", 'error');
 
         customAction('ticket_delete', $ticket_id);
 
-        header("Location: tickets.php");
+        redirect("tickets.php");
     }
+
 }
 
 if (isset($_POST['bulk_delete_tickets'])) {
 
-    enforceUserPermission('module_support', 3);
     validateCSRFToken($_POST['csrf_token']);
 
+    enforceUserPermission('module_support', 3);
+    
     if (isset($_POST['ticket_ids'])) {
 
         $count = count($_POST['ticket_ids']);
@@ -806,18 +799,17 @@ if (isset($_POST['bulk_delete_tickets'])) {
 
             // No Need to delete ticket assets as this is cascadely deleted via the database.
 
-            // Logging
             logAction("Ticket", "Delete", "$session_name deleted ticket", 0, $ticket_id);
 
         }
 
-        // Logging
         logAction("Ticket", "Bulk Delete", "$session_name deleted $count ticket(s)");
 
-        $_SESSION['alert_message'] = "Deleted <strong>$count</strong> ticket(s)";
+        flash_alert("Deleted <strong>$count</strong> ticket(s)", 'error');
     }
 
     redirect();
+
 }
 
 if (isset($_POST['bulk_assign_ticket'])) {
@@ -863,10 +855,8 @@ if (isset($_POST['bulk_assign_ticket'])) {
                 $ticket_reply = "Ticket re-assigned to $agent_name.";
 
                 if (!$agent_name) {
-                    $_SESSION['alert_type'] = "error";
-                    $_SESSION['alert_message'] = "Invalid agent!";
+                    flash_alert("Invalid agent!", 'error');
                     redirect();
-                    exit();
                 }
             }
 
@@ -875,7 +865,6 @@ if (isset($_POST['bulk_assign_ticket'])) {
 
             mysqli_query($mysqli, "INSERT INTO ticket_replies SET ticket_reply = '$ticket_reply', ticket_reply_type = 'Internal', ticket_reply_time_worked = '00:01:00', ticket_reply_by = $session_user_id, ticket_reply_ticket_id = $ticket_id");
 
-            // Logging
             logAction("Ticket", "Edit", "$session_name reassigned ticket $ticket_prefix$ticket_number to $agent_name", $client_id, $ticket_id);
 
             customAction('ticket_assign', $ticket_id);
@@ -917,9 +906,10 @@ if (isset($_POST['bulk_assign_ticket'])) {
         }
     }
 
-    $_SESSION['alert_message'] = "You assigned <b>$ticket_count</b> Tickets to <b>$agent_name</b>";
+    flash_alert("You assigned <b>$ticket_count</b> Tickets to <b>$agent_name</b>");
 
     redirect();
+
 }
 
 if (isset($_POST['bulk_edit_ticket_priority'])) {
@@ -952,19 +942,18 @@ if (isset($_POST['bulk_edit_ticket_priority'])) {
 
             mysqli_query($mysqli, "INSERT INTO ticket_replies SET ticket_reply = '$session_name updated the priority from $current_ticket_priority to $priority', ticket_reply_type = 'Internal', ticket_reply_time_worked = '00:01:00', ticket_reply_by = $session_user_id, ticket_reply_ticket_id = $ticket_id");
 
-            // Logging
             logAction("Ticket", "Edit", "$session_name updated the priority on ticket $ticket_prefix$ticket_number - $ticket_subject from $original_ticket_priority to $priority", $client_id, $ticket_id);
 
             customAction('ticket_update', $ticket_id);
         } // End For Each Ticket ID Loop
 
-        // Logging
         logAction("Ticket", " Bulk Edit", "$session_name updated the priority on $ticket_count");
 
-        $_SESSION['alert_message'] = "You updated the priority for <strong>$ticket_count</strong> Tickets to <strong>$priority</strong>";
+        flash_alert("You updated the priority for <strong>$ticket_count</strong> Tickets to <strong>$priority</strong>");
     }
 
     redirect();
+
 }
 
 if (isset($_POST['bulk_edit_ticket_category'])) {
@@ -993,26 +982,23 @@ if (isset($_POST['bulk_edit_ticket_category'])) {
             $client_id = intval($row['ticket_client_id']);
 
             // Get Category Name
-            $sql = mysqli_query($mysqli, "SELECT category_name FROM categories WHERE category_id = $category_id");
-            $row = mysqli_fetch_array($sql);
-            $category_name = sanitizeInput($row['category_name']);
+            $category_name = sanitizeInput(getFieldById('categories', $category_id, 'category_name'));
 
             // Update ticket
             mysqli_query($mysqli, "UPDATE tickets SET ticket_category = '$category_id' WHERE ticket_id = $ticket_id");
 
-            // Logging
             logAction("Ticket", "Edit", "$session_name updated the category on ticket $ticket_prefix$ticket_number - $ticket_subject from $previous_category_name to $category_name", $client_id, $ticket_id);
 
             customAction('ticket_update', $ticket_id);
         } // End For Each Ticket ID Loop
 
-        // Logging
         logAction("Ticket", " Bulk Edit", "$session_name updated the category to $category_name on $ticket_count");
 
-        $_SESSION['alert_message'] = "Category set to $category_name for <strong>$ticket_count</strong> Tickets";
+        flash_alert("Category set to $category_name for <strong>$ticket_count</strong> Tickets");
     }
 
     redirect();
+
 }
 
 if (isset($_POST['bulk_merge_tickets'])) {
@@ -1027,9 +1013,8 @@ if (isset($_POST['bulk_merge_tickets'])) {
     // Get merge into ticket id (as it may differ from the number)
     $sql = mysqli_query($mysqli, "SELECT ticket_id FROM tickets WHERE ticket_number = $merge_into_ticket_number");
     if (mysqli_num_rows($sql) == 0) {
-        $_SESSION['alert_message'] = "Cannot merge into that ticket.";
+        flash_alert("Cannot merge into that ticket.", 'error');
         redirect();
-        exit();
     }
     $merge_row = mysqli_fetch_array($sql);
     $merge_into_ticket_id = intval($merge_row['ticket_id']); // Parent ticket ID
@@ -1061,7 +1046,6 @@ if (isset($_POST['bulk_merge_tickets'])) {
                 //Update new parent ticket
                 mysqli_query($mysqli, "INSERT INTO ticket_replies SET ticket_reply = 'Ticket $ticket_prefix$ticket_number was bulk merged into this ticket with comment: $merge_comment.<br><br><b>$ticket_subject</b><br>$ticket_details', ticket_reply_time_worked = '00:01:00', ticket_reply_type = 'Internal', ticket_reply_by = $session_user_id, ticket_reply_ticket_id = $merge_into_ticket_id");
 
-                // Logging
                 logAction("Ticket", "Merged", "$session_name Merged ticket $ticket_prefix$ticket_number into $ticket_prefix$merge_into_ticket_number", $client_id, $ticket_id);
 
                 // Custom action/notif handler
@@ -1072,7 +1056,7 @@ if (isset($_POST['bulk_merge_tickets'])) {
 
         mysqli_query($mysqli, "UPDATE tickets SET ticket_updated_at = NOW() WHERE ticket_id = $merge_into_ticket_id");
 
-        $_SESSION['alert_message'] = "<strong>$ticket_count</strong> tickets merged into <strong>$ticket_prefix$merge_into_ticket_number</strong>";
+        flash_alert("<strong>$ticket_count</strong> tickets merged into <strong>$ticket_prefix$merge_into_ticket_number</strong>");
 
     }
 
@@ -1127,7 +1111,6 @@ if (isset($_POST['bulk_resolve_tickets'])) {
 
                 mysqli_query($mysqli, "INSERT INTO ticket_replies SET ticket_reply = '$details', ticket_reply_type = '$ticket_reply_type', ticket_reply_time_worked = '$ticket_reply_time_worked', ticket_reply_by = $session_user_id, ticket_reply_ticket_id = $ticket_id");
 
-                // Logging
                 logAction("Ticket", "Resolve", "$session_name resolved $ticket_prefix$ticket_number - $ticket_subject", $client_id, $ticket_id);
 
                 customAction('ticket_resolve', $ticket_id);
@@ -1156,7 +1139,6 @@ if (isset($_POST['bulk_resolve_tickets'])) {
                     $company_name = sanitizeInput($row['company_name']);
                     $company_phone = sanitizeInput(formatPhoneNumber($row['company_phone'], $row['company_phone_country_code']));
 
-
                     // EMAIL
                     $subject = "Ticket resolved - [$ticket_prefix$ticket_number] - $ticket_subject | (pending closure)";
                     $body = "<i style=\'color: #808080\'>##- Please type your reply above this line -##</i><br><br>Hello $contact_name,<br><br>Your ticket regarding \"$ticket_subject\" has been marked as solved and is pending closure.<br><br>$details<br><br> If your request/issue is resolved, you can simply ignore this email. If you need further assistance, please reply or <a href=\'https://$config_base_url/guest/guest_view_ticket.php?ticket_id=$ticket_id&url_key=$url_key\'>re-open</a> to let us know! <br><br>Ticket: $ticket_prefix$ticket_number<br>Subject: $ticket_subject<br>Portal: https://$base_url/client/ticket.php?id=$ticket_id<br><br>--<br>$company_name - Support<br>$config_ticket_from_email<br>$company_phone";
@@ -1165,8 +1147,6 @@ if (isset($_POST['bulk_resolve_tickets'])) {
                     if (filter_var($contact_email, FILTER_VALIDATE_EMAIL)) {
 
                         $data = [];
-
-
 
                         // Email Ticket Contact
                         // Queue Mail
@@ -1205,14 +1185,14 @@ if (isset($_POST['bulk_resolve_tickets'])) {
         } // End Loop
     } // End Array Empty Check
 
-    $_SESSION['alert_message'] = "Resolved <strong>$ticket_count</strong> Tickets";
+    flash_alert("Resolved <strong>$ticket_count</strong> Tickets");
 
     if ($skipped_count > 0) {
-        $_SESSION['alert_type'] = "info";
-        $_SESSION['alert_message'] .= " <strong>$skipped_count</strong> ticket(s) could not be resolved because they have open tasks.";
+        flash_alert("Resolved <strong>$ticket_count</strong> Tickets <strong>$skipped_count</strong> ticket(s) could not be resolved because they have open tasks.", 'info';
     }
 
     redirect();
+
 }
 
 if (isset($_POST['bulk_ticket_reply'])) {
@@ -1257,7 +1237,6 @@ if (isset($_POST['bulk_ticket_reply'])) {
             // Update Ticket Status
             mysqli_query($mysqli, "UPDATE tickets SET ticket_status = '$ticket_status' WHERE ticket_id = $ticket_id");
 
-            // Logging
             logAction("Ticket", "Reply", "$session_name replied to ticket $ticket_prefix$ticket_number - $ticket_subject and was a $ticket_reply_type reply", $client_id, $ticket_id);
 
             // Custom action/notif handler
@@ -1360,9 +1339,10 @@ if (isset($_POST['bulk_ticket_reply'])) {
 
     }
 
-    $_SESSION['alert_message'] = "Updated <strong>$ticket_count</strong> tickets";
+    flash_alert("Updated <strong>$ticket_count</strong> tickets");
 
     redirect();
+
 }
 
 
@@ -1400,25 +1380,24 @@ if (isset($_POST['bulk_add_ticket_project'])) {
             // Update ticket & insert reply
             mysqli_query($mysqli, "UPDATE tickets SET ticket_project_id = $project_id WHERE ticket_id = $ticket_id");
 
-            // Logging
             logAction("Ticket", "Reply", "$session_name added ticket $ticket_prefix$ticket_number - $ticket_subject to project $project_name", $client_id, $ticket_id);
 
 
         } // End For Each Ticket ID Loop
 
-        $_SESSION['alert_message'] = "<strong>$ticket_count</strong> Tickets added to Project <strong>$project_name</strong>";
+        flash_alert("<strong>$ticket_count</strong> Tickets added to Project <strong>$project_name</strong>");
 
     }
 
     redirect();
+
 }
 
 if (isset($_POST['bulk_add_asset_ticket'])) {
 
-    enforceUserPermission('module_support', 2);
-
-    // CSRF Check
     validateCSRFToken($_POST['csrf_token']);
+
+    enforceUserPermission('module_support', 2);
 
     $client_id = intval($_POST['bulk_client']);
     $assigned_to = intval($_POST['bulk_assigned_to']);
@@ -1521,14 +1500,14 @@ if (isset($_POST['bulk_add_asset_ticket'])) {
             customAction('ticket_create', $ticket_id);
         }
 
-        // Logging
         logAction("Ticket", "Bulk Create", "$session_name created $asset_count tickets for $asset_count");
 
-        $_SESSION['alert_message'] = "You created <b>$asset_count</b> tickets for the selected assets";
+        flash_alert("You created <b>$asset_count</b> tickets for the selected assets");
 
     }
 
     redirect();
+
 }
 
 
@@ -1566,7 +1545,6 @@ if (isset($_POST['add_ticket_reply'])) {
     if ($ticket_status == 4) {
         mysqli_query($mysqli, "UPDATE tickets SET ticket_resolved_at = NOW() WHERE ticket_id = $ticket_id");
 
-        // Logging
         logAction("Ticket", "Resolved", "$session_name resolved Ticket ticket ID $ticket_id", $client_id, $ticket_id);
     }
 
@@ -1680,16 +1658,16 @@ if (isset($_POST['add_ticket_reply'])) {
             customAction('reply_reply_agent_public', $ticket_id);
         }
 
-        $_SESSION['alert_message'] = "Ticket <strong>$ticket_prefix$ticket_number</strong> has been updated with your reply and was <strong>$ticket_reply_type</strong>";
+        flash_alert("Ticket <strong>$ticket_prefix$ticket_number</strong> has been updated with your reply and was <strong>$ticket_reply_type</strong>");
 
     } else {
-        $_SESSION['alert_message'] = "Ticket updated";
+        flash_alert("Ticket updated");
     }
 
-    // Logging
     logAction("Ticket", "Reply", "$session_name replied to ticket $ticket_prefix$ticket_number - $ticket_subject and was a $ticket_reply_type reply", $client_id, $ticket_id);
 
     redirect();
+
 }
 
 if (isset($_POST['edit_ticket_reply'])) {
@@ -1705,12 +1683,12 @@ if (isset($_POST['edit_ticket_reply'])) {
 
     mysqli_query($mysqli, "UPDATE ticket_replies SET ticket_reply = '$ticket_reply', ticket_reply_type = '$ticket_reply_type', ticket_reply_time_worked = '$ticket_reply_time_worked' WHERE ticket_reply_id = $ticket_reply_id AND ticket_reply_type != 'Client'") or die(mysqli_error($mysqli));
 
-    // Logging
     logAction("Ticket", "Reply", "$session_name edited ticket_reply", $client_id, $ticket_reply_id);
 
-    $_SESSION['alert_message'] = "Ticket reply updated";
+    flash_alert("Ticket reply updated");
 
     redirect();
+
 }
 
 if (isset($_POST['redact_ticket_reply'])) {
@@ -1724,12 +1702,12 @@ if (isset($_POST['redact_ticket_reply'])) {
 
     mysqli_query($mysqli, "UPDATE ticket_replies SET ticket_reply = '$ticket_reply' WHERE ticket_reply_id = $ticket_reply_id");
 
-    // Logging
     logAction("Ticket", "Reply", "$session_name redacted ticket_reply", $client_id, $ticket_reply_id);
 
-    $_SESSION['alert_message'] = "Ticket reply redacted";
+    flash_alert("Ticket reply redacted");
 
     redirect();
+
 }
 
 if (isset($_GET['archive_ticket_reply'])) {
@@ -1740,13 +1718,12 @@ if (isset($_GET['archive_ticket_reply'])) {
 
     mysqli_query($mysqli, "UPDATE ticket_replies SET ticket_reply_archived_at = NOW() WHERE ticket_reply_id = $ticket_reply_id");
 
-    // Logging
     logAction("Ticket Reply", "Archive", "$session_name archived ticket_reply", 0, $ticket_reply_id);
 
-    $_SESSION['alert_type'] = "error";
-    $_SESSION['alert_message'] = "Ticket reply archived";
+    flash_alert("Ticket reply archived", 'error');
 
     redirect();
+
 }
 
 if (isset($_POST['merge_ticket'])) {
@@ -1762,9 +1739,8 @@ if (isset($_POST['merge_ticket'])) {
     // Get current ticket details
     $sql = mysqli_query($mysqli, "SELECT ticket_prefix, ticket_number, ticket_subject, ticket_details FROM tickets WHERE ticket_id = $ticket_id");
     if (mysqli_num_rows($sql) == 0) {
-        $_SESSION['alert_message'] = "No ticket with that ID found.";
+        flash_alert("No ticket with that ID found.", 'error');
         redirect();
-        exit();
     }
     // CURRENT ticket details
     $row = mysqli_fetch_array($sql);
@@ -1777,18 +1753,16 @@ if (isset($_POST['merge_ticket'])) {
     // Get merge into ticket id (as it may differ from the number)
     $sql = mysqli_query($mysqli, "SELECT ticket_id FROM tickets WHERE ticket_number = $merge_into_ticket_number");
     if (mysqli_num_rows($sql) == 0) {
-        $_SESSION['alert_message'] = "Cannot merge into that ticket.";
+        flash_alert("Cannot merge into that ticket.", 'error');
         redirect();
-        exit();
     }
     $merge_row = mysqli_fetch_array($sql);
     $merge_into_ticket_id = intval($merge_row['ticket_id']);
 
     // Sanity check
     if ($ticket_number == $merge_into_ticket_number) {
-        $_SESSION['alert_message'] = "Cannot merge into the same ticket.";
+        flash_alert("Cannot merge into the same ticket.", 'error');
         redirect();
-        exit();
     }
 
     // Move ticket replies from child > parent
@@ -1798,20 +1772,22 @@ if (isset($_POST['merge_ticket'])) {
 
     // Update current ticket
     mysqli_query($mysqli, "INSERT INTO ticket_replies SET ticket_reply = 'Ticket $ticket_prefix$ticket_number merged into <a href=\"ticket.php?ticket_id=$merge_into_ticket_id\">$ticket_prefix$merge_into_ticket_number</a>. Comment: $merge_comment', ticket_reply_time_worked = '00:01:00', ticket_reply_type = '$ticket_reply_type', ticket_reply_by = $session_user_id, ticket_reply_ticket_id = $ticket_id");
+    
     mysqli_query($mysqli, "UPDATE tickets SET ticket_status = '5', ticket_resolved_at = NOW(), ticket_closed_at = NOW(), ticket_closed_by = $session_user_id WHERE ticket_id = $ticket_id") or die(mysqli_error($mysqli));
 
     //Update new parent ticket
     mysqli_query($mysqli, "INSERT INTO ticket_replies SET ticket_reply = 'Ticket $ticket_prefix$ticket_number was merged into this ticket with comment: $merge_comment.<br><br><b>$ticket_subject</b><br>$ticket_details', ticket_reply_time_worked = '00:01:00', ticket_reply_type = '$ticket_reply_type', ticket_reply_by = $session_user_id, ticket_reply_ticket_id = $merge_into_ticket_id");
+    
     mysqli_query($mysqli, "UPDATE tickets SET ticket_updated_at = NOW() WHERE ticket_id = $merge_into_ticket_id");
 
-    // Logging
     logAction("Ticket", "Merged", "$session_name Merged ticket $ticket_prefix$ticket_number into $ticket_prefix$merge_into_ticket_number");
 
     customAction('ticket_merge', $ticket_id);
 
-    $_SESSION['alert_message'] = "Ticket merged into $ticket_prefix$merge_into_ticket_number";
+    flash_alert("Ticket merged into $ticket_prefix$merge_into_ticket_number");
 
     redirect();
+
 }
 
 if (isset($_POST['change_client_ticket'])) {
@@ -1828,28 +1804,26 @@ if (isset($_POST['change_client_ticket'])) {
     // Update ticket client & contact
     mysqli_query($mysqli, "UPDATE tickets SET ticket_client_id = $client_id, ticket_contact_id = $contact_id WHERE ticket_id = $ticket_id LIMIT 1");
 
-    // Logging
     logAction("Ticket", "Change", "$session_name changed ticket client", $client_id, $ticket_id);
 
     customAction('ticket_update', $ticket_id);
 
-    $_SESSION['alert_message'] = "Ticket client updated";
+    flash_alert("Ticket client updated");
 
     redirect();
+
 }
 
 if (isset($_GET['resolve_ticket'])) {
 
-    enforceUserPermission('module_support', 2);
-
-    // CSRF Check
     validateCSRFToken($_GET['csrf_token']);
+
+    enforceUserPermission('module_support', 2);
 
     $ticket_id = intval($_GET['resolve_ticket']);
 
     mysqli_query($mysqli, "UPDATE tickets SET ticket_status = 4, ticket_resolved_at = NOW() WHERE ticket_id = $ticket_id");
 
-    // Logging
     logAction("Ticket", "Resolved", "$session_name resolved ticket ID $ticket_id", 0, $ticket_id);
 
     customAction('ticket_resolve', $ticket_id);
@@ -1929,16 +1903,17 @@ if (isset($_GET['resolve_ticket'])) {
     }
     //End Mail IF
 
-    $_SESSION['alert_message'] = "Ticket resolved";
+    flash_alert("Ticket resolved");
+
     redirect();
+
 }
 
 if (isset($_GET['close_ticket'])) {
 
-    enforceUserPermission('module_support', 2);
-
-    // CSRF Check
     validateCSRFToken($_GET['csrf_token']);
+
+    enforceUserPermission('module_support', 2);
 
     $ticket_id = intval($_GET['close_ticket']);
 
@@ -1946,7 +1921,6 @@ if (isset($_GET['close_ticket'])) {
 
     mysqli_query($mysqli, "INSERT INTO ticket_replies SET ticket_reply = 'Ticket closed.', ticket_reply_type = 'Internal', ticket_reply_time_worked = '00:01:00', ticket_reply_by = $session_user_id, ticket_reply_ticket_id = $ticket_id");
 
-    // Logging
     logAction("Ticket", "Closed", "$session_name closed ticket ID $ticket_id", 0, $ticket_id);
 
     customAction('ticket_close', $ticket_id);
@@ -2022,8 +1996,10 @@ if (isset($_GET['close_ticket'])) {
     }
     //End Mail IF
 
-    $_SESSION['alert_message'] = "Ticket Closed, this cannot not be reopened but you may start another one";
+    flash_alert("Ticket Closed, this cannot not be reopened but you may start another one");
+    
     redirect();
+
 }
 
 if (isset($_GET['reopen_ticket'])) {
@@ -2034,13 +2010,14 @@ if (isset($_GET['reopen_ticket'])) {
 
     mysqli_query($mysqli, "UPDATE tickets SET ticket_status = 2, ticket_resolved_at = NULL WHERE ticket_id = $ticket_id");
 
-    // Logging
     logAction("Ticket", "Reopened", "$session_name reopened ticket ID $ticket_id", 0, $ticket_id);
 
     customAction('ticket_update', $ticket_id);
 
-    $_SESSION['alert_message'] = "Ticket re-opened";
+    flash_alert("Ticket re-opened");
+    
     redirect();
+
 }
 
 if (isset($_POST['add_invoice_from_ticket'])) {
@@ -2139,12 +2116,12 @@ if (isset($_POST['add_invoice_from_ticket'])) {
 
     mysqli_query($mysqli, "UPDATE tickets SET ticket_invoice_id = $invoice_id WHERE ticket_id = $ticket_id");
 
-    // Logging
     logAction("Invoice", "Create", "$session_name created invoice $config_invoice_prefix$invoice_number from Ticket $ticket_prefix$ticket_number", $client_id, $invoice_id);
 
-    $_SESSION['alert_message'] = "Invoice $config_invoice_prefix$invoice_number created from ticket";
+    flash_alert("Invoice $config_invoice_prefix$invoice_number created from ticket");
 
-    header("Location: invoice.php?invoice_id=$invoice_id");
+    redirect("invoice.php?invoice_id=$invoice_id");
+
 }
 
 if (isset($_POST['export_tickets_csv'])) {
@@ -2193,6 +2170,7 @@ if (isset($_POST['export_tickets_csv'])) {
         fpassthru($f);
     }
     exit;
+
 }
 
 if (isset($_POST['add_recurring_ticket'])) {
@@ -2215,12 +2193,12 @@ if (isset($_POST['add_recurring_ticket'])) {
         }
     }
 
-    // Logging
     logAction("Recurring Ticket", "Create", "$session_name created recurring ticket for $subject - $frequency", $client_id, $recurring_ticket_id);
 
-    $_SESSION['alert_message'] = "Recurring ticket <strong>$subject - $frequency</strong> created";
+    flash_alert("Recurring ticket <strong>$subject - $frequency</strong> created");
 
     redirect();
+
 }
 
 if (isset($_POST['edit_recurring_ticket'])) {
@@ -2243,19 +2221,20 @@ if (isset($_POST['edit_recurring_ticket'])) {
         }
     }
 
-    // Logging
     logAction("Recurring Ticket", "Edit", "$session_name edited recurring ticket $subject", $client_id, $recurring_ticket_id);
 
-    $_SESSION['alert_message'] = "Recurring ticket <strong>$subject - $frequency</strong> updated";
+    flash_alert("Recurring ticket <strong>$subject - $frequency</strong> updated");
 
     redirect();
+
 }
 
 if (isset($_GET['force_recurring_ticket'])) {
 
-    enforceUserPermission('module_support', 2);
     validateCSRFToken($_GET['csrf_token']);
 
+    enforceUserPermission('module_support', 2);
+    
     $recurring_ticket_id = intval($_GET['force_recurring_ticket']);
 
     $sql = mysqli_query($mysqli, "SELECT * FROM recurring_tickets WHERE recurring_ticket_id = $recurring_ticket_id");
@@ -2369,16 +2348,14 @@ if (isset($_GET['force_recurring_ticket'])) {
         $next_run = $next_run->format('Y-m-d');
         mysqli_query($mysqli, "UPDATE recurring_tickets SET recurring_ticket_next_run = '$next_run' WHERE recurring_ticket_id = $recurring_ticket_id");
 
-        // Logging
         logAction("Ticket", "Create", "$session_name force created recurring scheduled $frequency ticket - $config_ticket_prefix$ticket_number - $subject", $client_id, $id);
 
-        $_SESSION['alert_message'] = "Recurring Ticket Forced";
+        flash_alert("Recurring Ticket Forced");
 
         redirect();
 
     } else {
-        $_SESSION['alert_type'] = "error";
-        $_SESSION['alert_message'] = "Recurring Ticket Force failed";
+        flash_alert("Recurring Ticket Force failed", 'error');
         redirect();
     }
 
@@ -2386,9 +2363,10 @@ if (isset($_GET['force_recurring_ticket'])) {
 
 if (isset($_GET['delete_recurring_ticket'])) {
 
-    enforceUserPermission('module_support', 3);
     validateCSRFToken($_GET['csrf_token']);
 
+    enforceUserPermission('module_support', 3);
+    
     $recurring_ticket_id = intval($_GET['delete_recurring_ticket']);
 
     // Get Scheduled Ticket Subject Ticket Prefix, Number and Client ID for logging and alert message
@@ -2402,20 +2380,20 @@ if (isset($_GET['delete_recurring_ticket'])) {
     // Delete
     mysqli_query($mysqli, "DELETE FROM recurring_tickets WHERE recurring_ticket_id = $recurring_ticket_id");
 
-    // Logging
     logAction("Recurring Ticket", "Delete", "$session_name deleted recurring ticket $subject", $client_id, $recurring_ticket_id);
 
-    $_SESSION['alert_type'] = "error";
-    $_SESSION['alert_message'] = "Recurring ticket <strong>$subject - $frequency</strong> deleted";
+    flash_alert("Recurring ticket <strong>$subject - $frequency</strong> deleted", 'error');
 
     redirect();
+
 }
 
 if (isset($_POST['bulk_delete_recurring_tickets'])) {
 
-    enforceUserPermission('module_support', 3);
     validateCSRFToken($_POST['csrf_token']);
 
+    enforceUserPermission('module_support', 3);
+    
     if (isset($_POST['recurring_ticket_ids'])) {
 
         $count = count($_POST['recurring_ticket_ids']);
@@ -2426,18 +2404,17 @@ if (isset($_POST['bulk_delete_recurring_tickets'])) {
             $recurring_ticket_id = intval($recurring_ticket_id);
             mysqli_query($mysqli, "DELETE FROM recurring_tickets WHERE recurring_ticket_id = $recurring_ticket_id");
 
-            // Logging
             logAction("Recurring Ticket", "Delete", "$session_name deleted recurring ticket", 0, $recurring_ticket_id);
 
         }
 
-        // Logging
         logAction("Recurring Ticket", "Bulk Delete", "$session_name deleted $count recurring ticket(s)");
 
-        $_SESSION['alert_message'] = "Deleted <strong>$count</strong> recurring ticket(s)";
+        flash_alert("Deleted <strong>$count</strong> recurring ticket(s)", 'error');
     }
 
     redirect();
+
 }
 
 if (isset($_POST['edit_ticket_billable_status'])) {
@@ -2460,12 +2437,12 @@ if (isset($_POST['edit_ticket_billable_status'])) {
 
     mysqli_query($mysqli,"UPDATE tickets SET ticket_billable = $billable_status WHERE ticket_id = $ticket_id");
 
-    // Logging
     logAction("Ticket", "Edit", "$session_name marked ticket $ticket_prefix$ticket_number as $billable_wording Billable", $client_id, $ticket_id);
 
-    $_SESSION['alert_message'] = "Ticket marked <strong>$billable_wording Billable</strong>";
+    flash_alert("Ticket marked <strong>$billable_wording Billable</strong>");
 
     redirect();
+
 }
 
 if (isset($_POST['edit_ticket_schedule'])) {
@@ -2619,18 +2596,17 @@ if (isset($_POST['edit_ticket_schedule'])) {
     $ticket_reply_note = "Ticket scheduled for $email_datetime " . (boolval($onsite) ? '(onsite).' : '(remote).');
     mysqli_query($mysqli, "INSERT INTO ticket_replies SET ticket_reply = '$ticket_reply_note', ticket_reply_type = 'Internal', ticket_reply_time_worked = '00:01:00', ticket_reply_by = $session_user_id, ticket_reply_ticket_id = $ticket_id");
 
-    // Logging
     logAction("Ticket", "Edit", "$session_name edited ticket schedule", $client_id, $ticket_id);
 
     customAction('ticket_schedule', $ticket_id);
 
     if (empty($conflicting_tickets)) {
-        $_SESSION['alert_message'] = "Ticket scheduled for $email_datetime";
+        flash_alert("Ticket scheduled for $email_datetime");
         redirect();
     } else {
         $_SESSION['alert_type'] = "error";
-        $_SESSION['alert_message'] = "Ticket scheduled for $email_datetime. Yet there are conflicting tickets scheduled for the same time: <br>" . implode(", <br>", $conflicting_tickets);
-        header("Location: calendar.php");
+        flash_alert("Ticket scheduled for $email_datetime. Yet there are conflicting tickets scheduled for the same time: <br>" . implode(", <br>", $conflicting_tickets), 'error');
+        redirect("calendar.php");
     }
 
 }
@@ -2771,12 +2747,12 @@ if (isset($_GET['cancel_ticket_schedule'])) {
     $ticket_reply_note = "Ticket schedule cancelled.";
     mysqli_query($mysqli, "INSERT INTO ticket_replies SET ticket_reply = '$ticket_reply_note', ticket_reply_type = 'Internal', ticket_reply_time_worked = '00:01:00', ticket_reply_by = $session_user_id, ticket_reply_ticket_id = $ticket_id");
 
-    // Logging
     logAction("Ticket", "Edit", "$session_name cancelled ticket schedule", $client_id, $ticket_id);
 
     customAction('ticket_unschedule', $ticket_id);
 
-    $_SESSION['alert_message'] = "Ticket schedule cancelled";
+    flash_alert("Ticket schedule cancelled", 'error');
 
     redirect();
+    
 }

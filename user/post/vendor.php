@@ -36,10 +36,9 @@ if (isset($_POST['add_vendor_from_template'])) {
 
     $vendor_id = mysqli_insert_id($mysqli);
 
-    // Logging
     logAction("Vendor", "Create", "$session_name created vendor $name using a template", $client_id, $vendor_id);
 
-    $_SESSION['alert_message'] = "Vendor <strong>$name</strong> created from template";
+    flash_alert("Vendor <strong>$name</strong> created from template");
 
     redirect();
 
@@ -57,12 +56,12 @@ if (isset($_POST['add_vendor'])) {
 
     $vendor_id = mysqli_insert_id($mysqli);
 
-    // Logging
     logAction("Vendor", "Create", "$session_name created vendor $name", $client_id, $vendor_id);
 
-    $_SESSION['alert_message'] = "Vendor <strong>$name</strong> created";
+    flash_alert("Vendor <strong>$name</strong> created");
 
     redirect();
+
 }
 
 if (isset($_POST['edit_vendor'])) {
@@ -73,21 +72,20 @@ if (isset($_POST['edit_vendor'])) {
     $vendor_template_id = intval($_POST['vendor_template_id']);
 
     // Get Client ID
-    $sql_vendor = mysqli_query($mysqli,"SELECT vendor_client_id FROM vendors WHERE vendor_id = $vendor_id");
-    $row = mysqli_fetch_array($sql_vendor);
-    $client_id = intval($row['vendor_client_id']);
+    $client_id = intval(getFieldById('vendors', $vendor_id, 'vendor_client_id'));
 
     mysqli_query($mysqli,"UPDATE vendors SET vendor_name = '$name', vendor_description = '$description', vendor_contact_name = '$contact_name', vendor_phone_country_code = '$phone_country_code', vendor_phone = '$phone', vendor_extension = '$extension', vendor_email = '$email', vendor_website = '$website', vendor_hours = '$hours', vendor_sla = '$sla', vendor_code = '$code',vendor_account_number = '$account_number', vendor_notes = '$notes', vendor_template_id = $vendor_template_id WHERE vendor_id = $vendor_id");
 
-    // Logging
     logAction("Vendor", "Edit", "$session_name edited vendor $name", $client_id, $vendor_id);
 
-    $_SESSION['alert_message'] = "Vendor <strong>$name</strong> edited";
+    flash_alert("Vendor <strong>$name</strong> edited");
 
     redirect();
+
 }
 
 if (isset($_GET['archive_vendor'])) {
+    
     $vendor_id = intval($_GET['archive_vendor']);
 
     //Get Vendor Name
@@ -98,13 +96,12 @@ if (isset($_GET['archive_vendor'])) {
 
     mysqli_query($mysqli,"UPDATE vendors SET vendor_archived_at = NOW() WHERE vendor_id = $vendor_id");
 
-    // Logging
     logAction("Vendor", "Archive", "$session_name archived vendor $vendor_name", $client_id, $vendor_id);
 
-    $_SESSION['alert_type'] = "error";
-    $_SESSION['alert_message'] = "Vendor <strong>$vendor_name</strong> archived";
+    flash_alert("Vendor <strong>$vendor_name</strong> archived", 'error');
 
     redirect();
+
 }
 
 if(isset($_GET['unarchive_vendor'])){
@@ -119,15 +116,16 @@ if(isset($_GET['unarchive_vendor'])){
 
     mysqli_query($mysqli,"UPDATE vendors SET vendor_archived_at = NULL WHERE vendor_id = $vendor_id");
 
-    // Logging
     logAction("Vendor", "Unarchive", "$session_name unarchived vendor $vendor_name", $client_id, $vendor_id);
 
-    $_SESSION['alert_message'] = "Vendor <strong>$vendor_name</strong> restored";
+    flash_alert("Vendor <strong>$vendor_name</strong> restored");
 
     redirect();
+
 }
 
 if (isset($_GET['delete_vendor'])) {
+    
     $vendor_id = intval($_GET['delete_vendor']);
 
     //Get Vendor Name
@@ -144,18 +142,19 @@ if (isset($_GET['delete_vendor'])) {
 
     mysqli_query($mysqli,"DELETE FROM vendors WHERE vendor_id = $vendor_id");
 
-    // Logging
     logAction("Vendor", "Delete", "$session_name deleted vendor $vendor_name", $client_id);
 
-    $_SESSION['alert_type'] = "error";
-    $_SESSION['alert_message'] = "Vendor <strong>$vendor_name</strong> deleted";
+    flash_alert("Vendor <strong>$vendor_name</strong> deleted", 'error');
 
     redirect();
+
 }
 
 if (isset($_POST['bulk_archive_vendors'])) {
-    validateAdminRole();
+
     validateCSRFToken($_POST['csrf_token']);
+    
+    validateAdminRole();
 
     if (isset($_POST['vendor_ids'])) {
 
@@ -175,24 +174,24 @@ if (isset($_POST['bulk_archive_vendors'])) {
 
             mysqli_query($mysqli,"UPDATE vendors SET vendor_archived_at = NOW() WHERE vendor_id = $vendor_id");
 
-            // Individual Contact logging
             logAction("Vendor", "Archive", "$session_name archived vendor $vendor_name", $client_id, $vendor_id);
         }
 
-        // Bulk Logging
         logAction("Vendor", "Bulk Archive", "$session_name archived $count vendor(s)");
 
-        $_SESSION['alert_type'] = "error";
-        $_SESSION['alert_message'] = "Archived <strong>$count</strong> vendor(s)";
+        flash_alert("Archived <strong>$count</strong> vendor(s)", 'error');
 
     }
 
     redirect();
+
 }
 
 if (isset($_POST['bulk_unarchive_vendors'])) {
-    validateAdminRole();
+
     validateCSRFToken($_POST['csrf_token']);
+    
+    validateAdminRole();
 
     if (isset($_POST['vendor_ids'])) {
 
@@ -212,25 +211,26 @@ if (isset($_POST['bulk_unarchive_vendors'])) {
 
             mysqli_query($mysqli,"UPDATE vendors SET vendor_archived_at = NULL WHERE vendor_id = $vendor_id");
 
-            // Individual logging
             logAction("Vendor", "Unarchive", "$session_name unarchived vendor $vendor_name", $client_id, $vendor_id);
 
         }
 
-        // Bulk Logging
         logAction("Vendor", "Bulk Unarchive", "$session_name unarchived $count vendor(s)");
 
-        $_SESSION['alert_message'] = "Unarchived <strong>$count</strong> vendor(s)";
+        flash_alert("Unarchived <strong>$count</strong> vendor(s)");
 
     }
 
     redirect();
+
 }
 
 if (isset($_POST['bulk_delete_vendors'])) {
-    validateAdminRole();
+    
     validateCSRFToken($_POST['csrf_token']);
 
+    validateAdminRole();
+    
     if (isset($_POST['vendor_ids'])) {
 
         // Get Selected Count
@@ -255,20 +255,18 @@ if (isset($_POST['bulk_delete_vendors'])) {
 
             mysqli_query($mysqli, "DELETE FROM vendors WHERE vendor_id = $vendor_id AND vendor_client_id = $client_id");
 
-            // Logging
             logAction("Vendor", "Delete", "$session_name deleted vendor $vendor_name", $client_id);
 
         }
 
-        // Bulk Logging
         logAction("Vendor", "Bulk Delete", "$session_name deleted $count vendor(s)");
         
-        $_SESSION['alert_type'] = "error";
-        $_SESSION['alert_message'] = "Deleted <strong>$count</strong> vendor(s)";
+        flash_alert("Deleted <strong>$count</strong> vendor(s)", 'error');
 
     }
 
     redirect();
+
 }
 
 if (isset($_POST['export_vendors_csv'])) {
@@ -312,8 +310,8 @@ if (isset($_POST['export_vendors_csv'])) {
         fpassthru($f);
     }
 
-    // Logging
     logAction("Vendor", "Export", "$session_name exported $count vendor(s) to a CSV file");
 
     exit;
+    
 }

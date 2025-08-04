@@ -33,10 +33,9 @@ if (isset($_POST['add_transfer'])) {
 
     $transfer_id = mysqli_insert_id($mysqli);
 
-    // Logging
     logAction("Account Transfer", "Create", "$session_name transferred " . numfmt_format_currency($currency_format, $amount, $account_currency_code) . " from account $source_account_name to $destination_account_name", 0, $transfer_id);
 
-    $_SESSION['alert_message'] = "Transferred <strong>" . numfmt_format_currency($currency_format, $amount, $account_currency_code) . "</strong> from <strong>$source_account_name</strong> to <strong>$destination_account_name</strong>";
+    flash_alert("Transferred <strong>" . numfmt_format_currency($currency_format, $amount, $account_currency_code) . "</strong> from <strong>$source_account_name</strong> to <strong>$destination_account_name</strong>");
 
     redirect();
 
@@ -48,7 +47,6 @@ if (isset($_POST['edit_transfer'])) {
 
     require_once 'transfer_model.php';
 
-
     $transfer_id = intval($_POST['transfer_id']);
     $expense_id = intval($_POST['expense_id']);
     $revenue_id = intval($_POST['revenue_id']);
@@ -59,10 +57,9 @@ if (isset($_POST['edit_transfer'])) {
 
     mysqli_query($mysqli,"UPDATE transfers SET transfer_method = '$transfer_method', transfer_notes = '$notes' WHERE transfer_id = $transfer_id");
 
-    // Logging
     logAction("Account Transfer", "Edit", "$session_name edited transfer", 0, $transfer_id);
 
-    $_SESSION['alert_message'] = "Transfer edited";
+    flash_alert("Transfer edited");
 
     redirect();
 
@@ -85,11 +82,9 @@ if (isset($_GET['delete_transfer'])) {
 
     mysqli_query($mysqli,"DELETE FROM transfers WHERE transfer_id = $transfer_id");
 
-    // Logging
     logAction("Account Transfer", "Delete", "$session_name deleted transfer");
 
-    $_SESSION['alert_type'] = "error";
-    $_SESSION['alert_message'] = "Transfer deleted";
+    flash_alert("Transfer deleted", 'error');
 
     redirect();
 
