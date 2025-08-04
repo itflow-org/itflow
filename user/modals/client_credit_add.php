@@ -22,6 +22,21 @@
                     </div>
 
                     <div class="form-group">
+                        <label>Type<strong class="text-danger ml-2">*</strong></label>
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text"><i class="fa fa-fw fa-th-list"></i></span>
+                            </div>
+                            <select class="form-control select2" name="type" required>
+                                <option value="0">- Select Credit Type -</option>
+                                <option value="manual">Manual</option>
+                                <option value="prepaid">Prepaid</option>
+                                <option value="promotion">Promotion</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
                         <label>Amount<strong class="text-danger ml-2">*</strong></label>
                         <div class="input-group">
                             <div class="input-group-prepend">
@@ -32,12 +47,12 @@
                     </div>
 
                     <div class="form-group">
-                        <label>Reference<strong class="text-danger ml-2">*</strong></label>
+                        <label>Note<strong class="text-danger ml-2">*</strong></label>
                         <div class="input-group">
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fa fa-fw fa-file-alt"></i></span>
                             </div>
-                            <input type="text" class="form-control" name="reference" placeholder="Enter a reference" maxlength="250">
+                            <input type="text" class="form-control" name="note" placeholder="Enter a note" maxlength="250">
                         </div>
                     </div>
 
@@ -45,7 +60,7 @@
                         <input type="hidden" name="client" value="<?php echo $client_id; ?>">
                     <?php } else { ?>
 
-                        <div class="form-group col-md">
+                        <div class="form-group">
                             <label>Client</label>
                             <div class="input-group">
                                 <div class="input-group-prepend">

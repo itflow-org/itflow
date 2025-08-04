@@ -14,20 +14,18 @@ if (isset($_POST['add_task'])) {
     $task_name = sanitizeInput($_POST['name']);
 
     // Get Client ID from tickets using the ticket_id
-    $sql = mysqli_query($mysqli, "SELECT * FROM tickets WHERE ticket_id = $ticket_id");
-    $row = mysqli_fetch_array($sql);
-    $client_id = intval($row['ticket_client_id']);
+    $client_id = intval(getFieldById('tickets', $ticket_id, 'ticket_client_id'));
     
     mysqli_query($mysqli, "INSERT INTO tasks SET task_name = '$task_name', task_ticket_id = $ticket_id");
 
     $task_id = mysqli_insert_id($mysqli);
 
-    // Logging
     logAction("Task", "Create", "$session_name created task $task_name", $client_id, $task_id);
 
-    $_SESSION['alert_message'] = "You created Task <strong>$task_name</strong>";
+    flash_alert("You created Task <strong>$task_name</strong>");
 
     redirect();
+
 }
 
 if (isset($_POST['edit_ticket_task'])) {
@@ -43,14 +41,15 @@ if (isset($_POST['edit_ticket_task'])) {
     $sql = mysqli_query($mysqli, "SELECT * FROM tasks LEFT JOIN tickets ON ticket_id = task_ticket_id WHERE task_id = $task_id");
     $row = mysqli_fetch_array($sql);
     $client_id = intval($row['ticket_client_id']);
+    
     mysqli_query($mysqli, "UPDATE tasks SET task_name = '$task_name', task_order = $task_order, task_completion_estimate = $task_completion_estimate WHERE task_id = $task_id");
 
-    // Logging
     logAction("Task", "Edit", "$session_name edited task $task_name", $client_id, $task_id);
 
-    $_SESSION['alert_message'] = "Task <strong>$task_name</strong> edited";
+    flash_alert("Task <strong>$task_name</strong> edited");
 
     redirect();
+
 }
 
 if (isset($_POST['edit_ticket_template_task'])) {
@@ -64,21 +63,19 @@ if (isset($_POST['edit_ticket_template_task'])) {
 
     mysqli_query($mysqli, "UPDATE task_templates SET task_template_name = '$task_name', task_template_order = $task_order, task_template_completion_estimate = $task_completion_estimate WHERE task_template_id = $task_template_id");
 
-    // Logging
     logAction("Task", "Edit", "$session_name edited task $task_name", 0, $task_template_id);
 
-    $_SESSION['alert_message'] = "Task <strong>$task_name</strong> edited";
+    flash_alert("Task <strong>$task_name</strong> edited");
 
     redirect();
-}
 
+}
 
 if (isset($_GET['delete_task'])) {
 
-    enforceUserPermission('module_support', 3);
-
-    // CSRF Check
     validateCSRFToken($_GET['csrf_token']);
+
+    enforceUserPermission('module_support', 3);
 
     $task_id = intval($_GET['delete_task']);
 
@@ -90,13 +87,12 @@ if (isset($_GET['delete_task'])) {
 
     mysqli_query($mysqli, "DELETE FROM tasks WHERE task_id = $task_id");
 
-    // Logging
     logAction("Task", "Delete", "$session_name deleted task $task_name", $client_id, $task_id);
 
-    $_SESSION['alert_type'] = "error";
-    $_SESSION['alert_message'] = "Task <strong>$task_name</strong> deleted";
+    flash_alert("Task <strong>$task_name</strong> deleted", 'error');
 
     redirect();
+
 }
 
 if (isset($_GET['complete_task'])) {
@@ -123,12 +119,12 @@ if (isset($_GET['complete_task'])) {
 
     $ticket_reply_id = mysqli_insert_id($mysqli);
 
-    // Logging
     logAction("Task", "Edit", "$session_name completed task $task_name", $client_id, $task_id);
 
-    $_SESSION['alert_message'] = "Task <strong>$task_name</strong> Completed";
+    flash_alert("Task <strong>$task_name</strong> Completed");
 
     redirect();
+
 }
 
 if (isset($_GET['undo_complete_task'])) {
@@ -151,11 +147,9 @@ if (isset($_GET['undo_complete_task'])) {
 
     $ticket_reply_id = mysqli_insert_id($mysqli);
 
-    // Logging
     logAction("Task", "Edit", "$session_name marked task $task_name as incomplete", $client_id, $task_id);
 
-    $_SESSION['alert_type'] = "error";
-    $_SESSION['alert_message'] = "Task <strong>$task_name</strong> marked as incomplete";
+    flash_alert("Task <strong>$task_name</strong> marked as incomplete", 'error');
 
     redirect();
 
@@ -168,9 +162,7 @@ if (isset($_GET['complete_all_tasks'])) {
     $ticket_id = intval($_GET['complete_all_tasks']);
 
     // Get Client ID
-    $sql = mysqli_query($mysqli, "SELECT * FROM tickets WHERE ticket_id = $ticket_id");
-    $row = mysqli_fetch_array($sql);
-    $client_id = intval($row['ticket_client_id']);
+    $client_id = intval(getFieldById('tickets', $ticket_id, 'ticket_client_id'));
 
     mysqli_query($mysqli, "UPDATE tasks SET task_completed_at = NOW(), task_completed_by = $session_user_id WHERE task_ticket_id = $ticket_id AND task_completed_at IS NULL");
 
@@ -179,12 +171,12 @@ if (isset($_GET['complete_all_tasks'])) {
 
     $ticket_reply_id = mysqli_insert_id($mysqli);
 
-    // Logging
     logAction("Ticket", "Edit", "$session_name marked all tasks complete for ticket", $client_id, $ticket_id);
 
-    $_SESSION['alert_message'] = "Marked all tasks Complete";
+    flash_alert("Marked all tasks Complete");
 
     redirect();
+
 }
 
 if (isset($_GET['undo_complete_all_tasks'])) {
@@ -194,9 +186,7 @@ if (isset($_GET['undo_complete_all_tasks'])) {
     $ticket_id = intval($_GET['undo_complete_all_tasks']);
 
     // Get Client ID
-    $sql = mysqli_query($mysqli, "SELECT * FROM tickets WHERE ticket_id = $ticket_id");
-    $row = mysqli_fetch_array($sql);
-    $client_id = intval($row['ticket_client_id']);
+    $client_id = intval(getFieldById('tickets', $ticket_id, 'ticket_client_id'));
 
     mysqli_query($mysqli, "UPDATE tasks SET task_completed_at = NULL, task_completed_by = NULL WHERE task_ticket_id = $ticket_id AND task_completed_at IS NOT NULL");
 
@@ -205,10 +195,10 @@ if (isset($_GET['undo_complete_all_tasks'])) {
 
     $ticket_reply_id = mysqli_insert_id($mysqli);
 
-    // Logging
     logAction("Ticket", "Edit", "$session_name marked all tasks as incomplete for ticket", $client_id, $ticket_id);
 
-    $_SESSION['alert_message'] = "Marked all tasks Incomplete";
+    flash_alert("Marked all tasks Incomplete", 'error');
 
     redirect();
+
 }

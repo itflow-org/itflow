@@ -12,10 +12,8 @@ if (isset($_POST['add_invoice'])) {
 
     $client_id = intval($_POST['client']);
 
-    //Get Net Terms
-    $sql = mysqli_query($mysqli,"SELECT client_net_terms FROM clients WHERE client_id = $client_id");
-    $row = mysqli_fetch_array($sql);
-    $client_net_terms = intval($row['client_net_terms']);
+    // Get Net Terms
+    $client_net_terms = intval(getFieldById('clients', $client_id, 'client_net_terms'));
 
     //Get the last Invoice Number and add 1 for the new invoice number
     $invoice_number = $config_invoice_next_number;
@@ -31,14 +29,14 @@ if (isset($_POST['add_invoice'])) {
 
     mysqli_query($mysqli,"INSERT INTO history SET history_status = 'Draft', history_description = 'Invoice created', history_invoice_id = $invoice_id");
 
-    // Logging
     logAction("Invoice", "Create", "$session_name created Invoice $config_invoice_prefix$invoice_number - $scope", $client_id, $invoice_id);
 
     customAction('invoice_create', $invoice_id);
 
-    $_SESSION['alert_message'] = "Invoice <strong>$config_invoice_prefix$invoice_number</strong> created";
+    flash_alert("Invoice <strong>$config_invoice_prefix$invoice_number</strong> created");
 
-    header("Location: invoice.php?invoice_id=$invoice_id");
+    redirect("invoice.php?invoice_id=$invoice_id");
+
 }
 
 if (isset($_POST['edit_invoice'])) {
@@ -67,10 +65,9 @@ if (isset($_POST['edit_invoice'])) {
 
     mysqli_query($mysqli,"UPDATE invoices SET invoice_scope = '$scope', invoice_date = '$date', invoice_due = '$due', invoice_category_id = $category, invoice_discount_amount = '$invoice_discount', invoice_amount = '$invoice_amount' WHERE invoice_id = $invoice_id");
 
-    // Logging
     logAction("Invoice", "Edit", "$session_name edited Invoice $invoice_prefix$invoice_number - $scope", $client_id, $invoice_id);
 
-    $_SESSION['alert_message'] = "Invoice <strong>$invoice_prefix$invoice_number</strong> edited";
+    flash_alert("Invoice <strong>$invoice_prefix$invoice_number</strong> edited");
 
     redirect();
 
@@ -127,14 +124,13 @@ if (isset($_POST['add_invoice_copy'])) {
         mysqli_query($mysqli,"INSERT INTO invoice_items SET item_name = '$item_name', item_description = '$item_description', item_quantity = $item_quantity, item_price = $item_price, item_subtotal = $item_subtotal, item_tax = $item_tax, item_total = $item_total, item_order = $item_order, item_tax_id = $tax_id, item_invoice_id = $new_invoice_id");
     }
 
-    //Logging
     logAction("Invoice", "Create", "$session_name created new Invoice $config_invoice_prefix$new_invoice_number from $old_invoice_prefix$old_invoice_prefix", $client_id, $new_invoice_id);
 
     customAction('invoice_create', $new_invoice_id);
 
-    $_SESSION['alert_message'] = "Created new Invoice <strong>$config_invoice_prefix$new_invoice_number</strong> from <strong>$old_invoice_prefix$old_invoice_prefix</strong>";
+    flash_alert("Created new Invoice <strong>$config_invoice_prefix$new_invoice_number</strong> from <strong>$old_invoice_prefix$old_invoice_prefix</strong>");
 
-    header("Location: invoice.php?invoice_id=$new_invoice_id");
+    redirect("invoice.php?invoice_id=$new_invoice_id");
 
 }
 
@@ -182,12 +178,11 @@ if (isset($_POST['add_invoice_recurring'])) {
         mysqli_query($mysqli,"INSERT INTO invoice_items SET item_name = '$item_name', item_description = '$item_description', item_quantity = $item_quantity, item_price = $item_price, item_subtotal = $item_subtotal, item_tax = $item_tax, item_total = $item_total, item_order = $item_order, item_tax_id = $tax_id, item_recurring_invoice_id = $recurring_invoice_id");
     }
 
-    // Logging
     logAction("Recurring Invoice", "Create", "$session_name created recurring Invoice from Invoice $invoice_prefix$invoice_number", $client_id, $recurring_invoice_id);
 
-    $_SESSION['alert_message'] = "Created recurring Invoice from Invoice <strong>$invoice_prefix$invoice_number</strong>";
+    flash_alert("Created recurring Invoice from Invoice <strong>$invoice_prefix$invoice_number</strong>");
 
-    header("Location: recurring_invoice.php?recurring_invoice_id=$recurring_invoice_id");
+    redirect("recurring_invoice.php?recurring_invoice_id=$recurring_invoice_id");
 
 }
 
@@ -210,12 +205,11 @@ if (isset($_POST['add_recurring_invoice'])) {
 
     mysqli_query($mysqli,"INSERT INTO history SET history_status = 'Active', history_description = 'Recurring Invoice created', history_recurring_invoice_id = $recurring_invoice_id");
 
-    //Logging
     logAction("Recurring Invoice", "Create", "$session_name created recurring invoice $config_recurring_invoice_prefix$recurring_invoice_number - $scope", $client_id, $recurring_invoice_id);
 
-    $_SESSION['alert_message'] = "Recurring Invoice <strong>$config_recurring_invoice_prefix$recurring_invoice_number</strong> created";
+    flash_alert("Recurring Invoice <strong>$config_recurring_invoice_prefix$recurring_invoice_number</strong> created");
 
-    header("Location: recurring_invoice.php?recurring_invoice_id=$recurring_invoice_id");
+    redirect("recurring_invoice.php?recurring_invoice_id=$recurring_invoice_id");
 
 }
 
@@ -249,16 +243,16 @@ if (isset($_POST['edit_recurring_invoice'])) {
 
     mysqli_query($mysqli,"INSERT INTO history SET history_status = '$status', history_description = 'Recurring Invoice edited', history_recurring_invoice_id = $recurring_invoice_id");
 
-    // Logging
     logAction("Recurring Invoice", "Edit", "$session_name edited recurring invoice $recurring_invoice_prefix$recurring_invoice_number - $scope", $client_id, $recurring_invoice_id);
 
-    $_SESSION['alert_message'] = "Recurring Invoice <strong>$recurring_invoice_prefix$recurring_invoice_number</strong> edited";
+    flash_alert("Recurring Invoice <strong>$recurring_invoice_prefix$recurring_invoice_number</strong> edited");
 
     redirect();
 
 }
 
 if (isset($_GET['delete_recurring_invoice'])) {
+    
     $recurring_invoice_id = intval($_GET['delete_recurring_invoice']);
 
     // Get Recurring Invoice Details and Client ID for Logging
@@ -285,11 +279,9 @@ if (isset($_GET['delete_recurring_invoice'])) {
         mysqli_query($mysqli,"DELETE FROM history WHERE history_id = $history_id");
     }
 
-    // Logging
     logAction("Recurring Invoice", "Delete", "$session_name deleted recurring invoice $recurring_invoice_prefix$recurring_invoice_number - $recurring_invoice_scope", $client_id);
 
-    $_SESSION['alert_type'] = "error";
-    $_SESSION['alert_message'] = "Recurring Invoice <strong>$recurring_invoice_prefix$recurring_invoice_number</strong> deleted";
+    flash_alert("Recurring Invoice <strong>$recurring_invoice_prefix$recurring_invoice_number</strong> deleted", 'error');
 
     redirect();
 
@@ -339,10 +331,9 @@ if (isset($_POST['add_recurring_invoice_item'])) {
 
     mysqli_query($mysqli,"UPDATE recurring_invoices SET recurring_invoice_amount = $recurring_invoice_amount WHERE recurring_invoice_id = $recurring_invoice_id");
 
-    // Logging
     logAction("Recurring Invoice", "Edit", "$session_name added item $name to recurring invoice $recurring_invoice_prefix$recurring_invoice_number", $client_id, $recurring_invoice_id);
 
-    $_SESSION['alert_message'] = "Item <srrong>$name</strong> added to Recurring Invoice";
+    flash_alert("Item <srrong>$name</strong> added to Recurring Invoice");
 
     redirect();
 
@@ -362,16 +353,16 @@ if (isset($_POST['recurring_invoice_note'])) {
 
     mysqli_query($mysqli,"UPDATE recurring_invoices SET recurring_invoice_note = '$note' WHERE recurring_invoice_id = $recurring_invoice_id");
 
-    // Logging
     logAction("Recurring Invoice", "Edit", "$session_name added note to recurring invoice $recurring_invoice_prefix$recurring_invoice_number", $client_id, $recurring_invoice_id);
 
-    $_SESSION['alert_message'] = "Notes added";
+    flash_alert("Notes added");
 
     redirect();
 
 }
 
 if (isset($_GET['delete_recurring_invoice_item'])) {
+    
     $item_id = intval($_GET['delete_recurring_invoice_item']);
 
     $sql = mysqli_query($mysqli,"SELECT * FROM invoice_items WHERE item_id = $item_id");
@@ -394,11 +385,9 @@ if (isset($_GET['delete_recurring_invoice_item'])) {
 
     mysqli_query($mysqli,"DELETE FROM invoice_items WHERE item_id = $item_id");
 
-    // Logging
     logAction("Recurring Invoice", "Edit", "$session_name removed item $item_name from recurring invoice $recurring_invoice_prefix$recurring_invoice_number", $client_id);
 
-    $_SESSION['alert_type'] = "error";
-    $_SESSION['alert_message'] = "Item <strong>$item_name</strong> removed";
+    flash_alert("Item <strong>$item_name</strong> removed", 'error');
 
     redirect();
 
@@ -419,14 +408,14 @@ if (isset($_GET['mark_invoice_sent'])) {
 
     mysqli_query($mysqli,"INSERT INTO history SET history_status = 'Sent', history_description = 'Invoice marked sent', history_invoice_id = $invoice_id");
 
-    // Logging
     logAction("Invoice", "Edit", "$session_name marked invoice $invoice_prefix$invoice_number sent", $client_id, $invoice_id);
 
-    $_SESSION['alert_message'] = "Invoice marked sent";
+    flash_alert("Invoice marked sent");
 
     redirect();
 
 }
+
 if (isset($_GET['mark_invoice_non-billable'])) {
 
     $invoice_id = intval($_GET['mark_invoice_non-billable']);
@@ -442,10 +431,9 @@ if (isset($_GET['mark_invoice_non-billable'])) {
 
     mysqli_query($mysqli,"INSERT INTO history SET history_status = 'Non-Billable', history_description = 'INVOICE marked Non-Billable', history_invoice_id = $invoice_id");
 
-    //Logging
     logAction("Invoice", "Edit", "$session_name marked invoice $invoice_prefix$invoice_number Non-Billable", $client_id, $invoice_id);
 
-    $_SESSION['alert_message'] = "Invoice marked Non-Billable";
+    flash_alert("Invoice marked Non-Billable");
 
     redirect();
 
@@ -466,17 +454,16 @@ if (isset($_GET['cancel_invoice'])) {
 
     mysqli_query($mysqli,"INSERT INTO history SET history_status = 'Cancelled', history_description = 'Invoice cancelled', history_invoice_id = $invoice_id");
 
-    // Logging
     logAction("Invoice", "Edit", "$session_name cancelled invoice $invoice_prefix$invoice_number", $client_id, $invoice_id);
 
-    $_SESSION['alert_type'] = "error";
-    $_SESSION['alert_message'] = "Invoice <strong>$invoice_prefix$invoice_number</strong> cancelled";
+    flash_alert("Invoice <strong>$invoice_prefix$invoice_number</strong> cancelled", 'error');
 
     redirect();
 
 }
 
 if (isset($_GET['delete_invoice'])) {
+    
     $invoice_id = intval($_GET['delete_invoice']);
 
     // Get Invoice Number and Prefix and Client ID for Logging
@@ -512,17 +499,16 @@ if (isset($_GET['delete_invoice'])) {
     //unlink tickets from invoice
     mysqli_query($mysqli,"UPDATE tickets SET ticket_invoice_id = 0 WHERE ticket_invoice_id = $invoice_id");
 
-    // Logging
     logAction("Invoice", "Delete", "$session_name deleted invoice $invoice_prefix$invoice_number", $client_id);
 
-    $_SESSION['alert_type'] = "error";
-    $_SESSION['alert_message'] = "Invoice <strong>$invoice_prefix$invoice_number</strong> deleted";
+    flash_alert("Invoice <strong>$invoice_prefix$invoice_number</strong> deleted", 'error');
 
     redirect();
 
 }
 
 if (isset($_POST['add_invoice_item'])) {
+    
     enforceUserPermission('module_sales', 2);
 
     $invoice_id = intval($_POST['invoice_id']);
@@ -567,16 +553,16 @@ if (isset($_POST['add_invoice_item'])) {
 
     mysqli_query($mysqli,"UPDATE invoices SET invoice_amount = $new_invoice_amount WHERE invoice_id = $invoice_id");
 
-    // Logging
     logAction("Invoice", "Edit", "$session_name added item $name to invoice $invoice_prefix$invoice_number", $client_id, $invoice_id);
 
-    $_SESSION['alert_message'] = "Item <strong>$name</strong> added to invoice";
+    flash_alert("Item <strong>$name</strong> added to invoice");
 
     redirect();
 
 }
 
 if (isset($_POST['invoice_note'])) {
+    
     enforceUserPermission('module_sales', 2);
 
     $invoice_id = intval($_POST['invoice_id']);
@@ -593,13 +579,14 @@ if (isset($_POST['invoice_note'])) {
 
     logAction("Invoice", "Edit", "$session_name added note to invoice $invoice_prefix$invoice_number", $client_id, $invoice_id);
 
-    $_SESSION['alert_message'] = "Notes added";
+    flash_alert("Notes added");
 
     redirect();
 
 }
 
 if (isset($_POST['edit_item'])) {
+    
     enforceUserPermission('module_sales', 2);
 
     $item_id = intval($_POST['item_id']);
@@ -647,7 +634,6 @@ if (isset($_POST['edit_item'])) {
 
         mysqli_query($mysqli,"UPDATE invoices SET invoice_amount = $new_invoice_amount WHERE invoice_id = $invoice_id");
 
-        // Logging
         logAction("Invoice", "Edit", "$session_name edited item $name on invoice $invoice_prefix$invoice_number", $client_id, $invoice_id);
 
     } elseif ($quote_id > 0) {
@@ -666,7 +652,6 @@ if (isset($_POST['edit_item'])) {
 
         mysqli_query($mysqli,"UPDATE quotes SET quote_amount = $new_quote_amount WHERE quote_id = $quote_id");
 
-        // Logging
         logAction("Quote", "Edit", "$session_name edited item $name on quote $quote_prefix$quote_number", $client_id, $quote_id);
 
     } else {
@@ -690,13 +675,14 @@ if (isset($_POST['edit_item'])) {
 
     }
 
-    $_SESSION['alert_message'] = "Item <strong>$name</strong> updated";
+    flash_alert("Item <strong>$name</strong> updated");
 
     redirect();
 
 }
 
 if (isset($_GET['delete_invoice_item'])) {
+    
     enforceUserPermission('module_sales', 2);
 
     $item_id = intval($_GET['delete_invoice_item']);
@@ -721,17 +707,16 @@ if (isset($_GET['delete_invoice_item'])) {
 
     mysqli_query($mysqli,"DELETE FROM invoice_items WHERE item_id = $item_id");
 
-    // Logging
     logAction("Invoice", "Delete", "$session_name removed item $item_name from invoice $invoice_prefix$invoice_number", $client_id, $invoice_id);
 
-    $_SESSION['alert_type'] = "error";
-    $_SESSION['alert_message'] = "Item <strong>$item_name</strong> removed from invoice";
+    flash_alert("Item <strong>$item_name</strong> removed from invoice", 'error');
 
     redirect();
 
 }
 
 if (isset($_POST['add_payment'])) {
+    
     enforceUserPermission('module_sales', 2);
     enforceUserPermission('module_financial', 2);
 
@@ -747,7 +732,7 @@ if (isset($_POST['add_payment'])) {
 
     //Check to see if amount entered is greater than the balance of the invoice
     if ($amount > $balance) {
-        $_SESSION['alert_message'] = "Payment is more than the balance";
+        flash_alert("Payment can not be more than the balance", 'error');
         redirect();
     } else {
         mysqli_query($mysqli,"INSERT INTO payments SET payment_date = '$date', payment_amount = $amount, payment_currency_code = '$currency_code', payment_account_id = $account, payment_method = '$payment_method', payment_reference = '$reference', payment_invoice_id = $invoice_id");
@@ -883,15 +868,16 @@ if (isset($_POST['add_payment'])) {
         //Add Payment to History
         mysqli_query($mysqli,"INSERT INTO history SET history_status = '$invoice_status', history_description = 'Payment added', history_invoice_id = $invoice_id");
 
-        // Logging
         logAction("Invoice", "Payment", "Payment amount of " . numfmt_format_currency($currency_format, $amount, $invoice_currency_code) . " added to invoice $invoice_prefix$invoice_number", $client_id, $invoice_id);
 
         customAction('invoice_pay', $invoice_id);
 
-        $_SESSION['alert_message'] .= "Payment amount <strong>" . numfmt_format_currency($currency_format, $amount, $invoice_currency_code) . "</strong> added";
+        flash_alert("Payment amount <strong>" . numfmt_format_currency($currency_format, $amount, $invoice_currency_code) . "</strong> added");
 
         redirect();
+
     }
+
 }
 
 if (isset($_POST['apply_credit'])) {
@@ -913,7 +899,7 @@ if (isset($_POST['apply_credit'])) {
 
     //Check to see if amount entered is greater than the balance of the invoice
     if ($amount > $invoice_balance) {
-        $_SESSION['alert_message'] = "Credit is more than the balance";
+        flash_alert("Credit can not be more than the balance", 'alert');
         redirect();
     }
 
@@ -957,16 +943,18 @@ if (isset($_POST['apply_credit'])) {
 
     customAction('invoice_pay', $invoice_id);
 
-    $_SESSION['alert_message'] .= "Credit amount <strong>" . numfmt_format_currency($currency_format, $amount, $session_company_currency) . "</strong> applied";
+    flash_alert("Credit amount <strong>" . numfmt_format_currency($currency_format, $amount, $session_company_currency) . "</strong> applied");
 
     redirect();
+
 }
 
 if (isset($_GET['add_payment_stripe'])) {
 
+    validateCSRFToken($_GET['csrf_token']);
+
     enforceUserPermission('module_sales', 2);
     enforceUserPermission('module_financial', 2);
-    validateCSRFToken($_GET['csrf_token']);
 
     $invoice_id = intval($_GET['invoice_id']);
 
@@ -1016,20 +1004,14 @@ if (isset($_GET['add_payment_stripe'])) {
 
     // Sanity checks
     if (!$config_stripe_enable || !$stripe_id || !$stripe_pm) {
-        $_SESSION['alert_type'] = "error";
-        $_SESSION['alert_message'] = "Stripe not enabled or no client card saved";
+        flash_alert("Stripe not enabled or no client card saved", 'error');
         redirect();
-        exit();
     } elseif ($invoice_status !== 'Sent' && $invoice_status !== 'Viewed') {
-        $_SESSION['alert_type'] = "error";
-        $_SESSION['alert_message'] = "Invalid invoice state (draft/partial/paid/not billable)";
+        flash_alert("Invalid invoice state (draft/partial/paid/not billable)", 'error');
         redirect();
-        exit();
     } elseif ($invoice_amount == 0) {
-        $_SESSION['alert_type'] = "error";
-        $_SESSION['alert_message'] = "Invalid invoice amount";
+        flash_alert("Invalid invoice amount", 'error');
         redirect();
-        exit();
     }
 
     // Initialize Stripe
@@ -1136,21 +1118,23 @@ if (isset($_GET['add_payment_stripe'])) {
         logAction("Invoice", "Payment", "$session_name initiated Stripe payment amount of " . numfmt_format_currency($currency_format, $invoice_amount, $invoice_currency_code) . " added to invoice $invoice_prefix$invoice_number - $pi_id $extended_log_desc", $client_id, $invoice_id);
         customAction('invoice_pay', $invoice_id);
 
-        $_SESSION['alert_message'] .= "Payment amount <strong>" . numfmt_format_currency($currency_format, $invoice_amount, $invoice_currency_code) . "</strong> added";
+        flash_alert("Payment amount <strong>" . numfmt_format_currency($currency_format, $invoice_amount, $invoice_currency_code) . "</strong> added");
+        
         redirect();
 
     } else {
         mysqli_query($mysqli, "INSERT INTO history SET history_status = 'Payment failed', history_description = 'Stripe pay failed due to payment error', history_invoice_id = $invoice_id");
+        
         logAction("Invoice", "Payment", "Failed online payment amount of invoice $invoice_prefix$invoice_number due to Stripe payment error", $client_id, $invoice_id);
-        $_SESSION['alert_type'] = "error";
-        $_SESSION['alert_message'] = "Payment failed";
+        flash_alert("Payment failed", 'error');
+        
         redirect();
-        exit();
     }
 
 }
 
 if (isset($_POST['add_bulk_payment'])) {
+    
     enforceUserPermission('module_sales', 2);
     enforceUserPermission('module_financial', 2);
 
@@ -1167,10 +1151,8 @@ if (isset($_POST['add_bulk_payment'])) {
 
     // Check if bulk_payment_amount exceeds total_account_balance
     if ($bulk_payment_amount > $total_account_balance) {
-        $_SESSION['alert_type'] = "error";
-        $_SESSION['alert_message'] = "Payment exceeds Client Balance.";
+        flash_alert("Payment exceeds Client Balance.", 'error');
         redirect();
-        exit;
     }
 
     // Get Invoices
@@ -1271,20 +1253,20 @@ if (isset($_POST['add_bulk_payment'])) {
         // Email Logging
         logAction("Payment", "Email", "Bulk Payment receipt for multiple Invoices queued to $contact_email Email ID: $email_id", $client_id);
 
-        $_SESSION['alert_message'] .= "Email receipt queued and ";
+        $alert_message .= "Email receipt queued and ";
 
     } // End Email
 
-    // Logging
     logAction("Invoice", "Payment", "Bulk Payment amount of " . numfmt_format_currency($currency_format, $bulk_payment_amount_static, $currency_code) . " applied to multiple invoices", $client_id);
 
-    $_SESSION['alert_message'] .= "Bulk Payment added";
+    flash_alert("$alert_message Bulk Payment added");
 
-    // Redirect Back
     redirect();
+
 }
 
 if (isset($_GET['delete_payment'])) {
+    
     enforceUserPermission('module_sales', 2);
     enforceUserPermission('module_financial', 2);
 
@@ -1326,13 +1308,11 @@ if (isset($_GET['delete_payment'])) {
 
     mysqli_query($mysqli,"DELETE FROM payments WHERE payment_id = $payment_id");
 
-    // Logging
     logAction("Invoice", "Edit", "$session_name deleted Payment on Invoice $invoice_prefix$invoice_number", $client_id, $invoice_id);
 
-    $_SESSION['alert_type'] = "error";
-    $_SESSION['alert_message'] = "Payment deleted";
+    flash_alert("Payment deleted", 'error');
     if ($config_stripe_enable) {
-        $_SESSION['alert_message'] = "Payment deleted - Stripe payments must be manually refunded in Stripe";
+       flash_alert("Payment deleted - Stripe payments must be manually refunded in Stripe", 'error');
     }
 
     redirect();
@@ -1340,6 +1320,7 @@ if (isset($_GET['delete_payment'])) {
 }
 
 if (isset($_GET['email_invoice'])) {
+    
     $invoice_id = intval($_GET['email_invoice']);
 
     $sql = mysqli_query($mysqli,"SELECT * FROM invoices
@@ -1416,7 +1397,8 @@ if (isset($_GET['email_invoice'])) {
     // Get Email ID for reference
     $email_id = mysqli_insert_id($mysqli);
 
-    $_SESSION['alert_message'] = "Invoice sent to mail queue! <a class='text-bold text-light' href='admin_mail_queue.php'>Check Admin > Mail queue</a>";
+    flash_alert("Invoice sent to mail queue! <a class='text-bold text-light' href='admin_mail_queue.php'>Check Admin > Mail queue</a>");
+    
     mysqli_query($mysqli,"INSERT INTO history SET history_status = 'Sent', history_description = 'Invoice sent to the mail queue ID: $email_id', history_invoice_id = $invoice_id");
 
     // Don't change the status to sent if the status is anything but draft
@@ -1424,7 +1406,6 @@ if (isset($_GET['email_invoice'])) {
         mysqli_query($mysqli,"UPDATE invoices SET invoice_status = 'Sent' WHERE invoice_id = $invoice_id");
     }
 
-    // Logging
     logAction("Invoice", "Email", "$session_name Emailed $contact_email Invoice $invoice_prefix$invoice_number Email queued to Email ID: $email_id", $client_id, $invoice_id);
 
     // Send copies of the invoice to any additional billing contacts
@@ -1454,7 +1435,6 @@ if (isset($_GET['email_invoice'])) {
             ]
         ];
 
-        // Logging
         logAction("Invoice", "Email", "$session_name Emailed $billing_contact_email Invoice $invoice_prefix$invoice_number Email queued Email ID: $email_id", $client_id, $invoice_id);
 
     }
@@ -1485,21 +1465,21 @@ if (isset($_POST['add_recurring_payment'])) {
     // Get Payment ID for reference
     $recurring_payment_id = mysqli_insert_id($mysqli);
 
-    // Logging
     logAction("Recurring Invoice", "Auto Payment", "$session_name created Auto Pay for Recurring Invoice $recurring_invoice_prefix$recurring_invoice_number in the amount of " . numfmt_format_currency($currency_format, $recurring_invoice_amount, $currency_code), $client_id, $recurring_invoice_id);
 
 
-    $_SESSION['alert_message'] = "Automatic Payment created for <strong>$recurring_invoice_prefix$recurring_invoice_number</strong>";
+    flash_alert("Automatic Payment created for <strong>$recurring_invoice_prefix$recurring_invoice_number</strong>");
 
     redirect();
+
 }
 
 if (isset($_GET['delete_recurring_payment'])) {
+    
     $recurring_payment_id = intval($_GET['delete_recurring_payment']);
 
-    $sql = mysqli_query($mysqli,"SELECT * FROM recurring_payments WHERE recurring_payment_id = $recurring_payment_id");
-    $row = mysqli_fetch_array($sql);
-    $recurring_invoice_id = intval($row['recurring_payment_recurring_invoice_id']);
+    // Get recurring Invoice ID
+    $recurring_invoice_id = intval(getFieldById('recurring_payments', $recurring_payment_id, 'recurring_payment_recurring_invoice_id'));
 
     // Get the invoice total and details
     $sql = mysqli_query($mysqli,"SELECT * FROM recurring_invoices WHERE recurring_invoice_id = $recurring_invoice_id");
@@ -1510,17 +1490,16 @@ if (isset($_GET['delete_recurring_payment'])) {
 
     mysqli_query($mysqli,"DELETE FROM recurring_payments WHERE recurring_payment_id = $recurring_payment_id");
 
-    // Logging
     logAction("Recurring Invoice", "Auto Payment", "$session_name removed auto Pay from Recurring Invoice $recurring_invoice_prefix$recurring_invoice_number", $client_id, $recurring_invoice_id);
 
-    $_SESSION['alert_type'] = "error";
-    $_SESSION['alert_message'] = "Auto Payment Removed for Recurring Invoice <strong>$recurring_invoice_prefix$recurring_invoice_number</strong>";
+    flash_alert("Auto Payment Removed for Recurring Invoice <strong>$recurring_invoice_prefix$recurring_invoice_number</strong>", 'error');
 
     redirect();
 
 }
 
 if (isset($_GET['force_recurring'])) {
+    
     $recurring_invoice_id = intval($_GET['force_recurring']);
 
     $sql_recurring_invoices = mysqli_query($mysqli,"SELECT * FROM recurring_invoices, clients WHERE client_id = recurring_invoice_client_id AND recurring_invoice_id = $recurring_invoice_id");
@@ -1664,12 +1643,11 @@ if (isset($_GET['force_recurring'])) {
 
     } //End Recurring Invoices Loop
 
-    // Logging
     logAction("Invoice", "Create", "$session_name forced recurring invoice into an invoice", $client_id, $new_invoice_id);
 
     customAction('invoice_create', $new_invoice_id);
 
-    $_SESSION['alert_message'] = "Recurring Invoice Forced";
+    flash_alert("Recurring Invoice Forced");
 
     redirect();
 
@@ -1710,25 +1688,24 @@ if (isset($_POST['set_recurring_payment'])) {
         // Get Payment ID for reference
         $recurring_payment_id = mysqli_insert_id($mysqli);
 
-        // Logging
         logAction("Recurring Invoice", "Auto Payment", "$session_name created Auto Pay for Recurring Invoice $recurring_invoice_prefix$recurring_invoice_number in the amount of " . numfmt_format_currency($currency_format, $recurring_invoice_amount, $recurring_invoice_currency_code), $client_id, $recurring_invoice_id);
 
-        $_SESSION['alert_message'] = "Automatic Payment <strong>$saved_payment_description</strong> enabled for Recurring Invoice $recurring_invoice_prefix$recurring_invoice_number";
+        flash_alert("Automatic Payment <strong>$saved_payment_description</strong> enabled for Recurring Invoice $recurring_invoice_prefix$recurring_invoice_number");
     } else {
         // Delete
         mysqli_query($mysqli, "DELETE FROM recurring_payments WHERE recurring_payment_recurring_invoice_id = $recurring_invoice_id");
 
-        // Logging
         logAction("Recurring Invoice", "Auto Payment", "$session_name removed Auto Pay for Recurring Invoice $recurring_invoice_prefix$recurring_invoice_number in the amount of " . numfmt_format_currency($currency_format, $recurring_invoice_amount, $recurring_invoice_currency_code), $client_id, $recurring_invoice_id);
 
-        $_SESSION['alert_type'] = "error";
-        $_SESSION['alert_message'] = "Automatic Payment <strong>Disabled</strong> for Recurring Invoice $recurring_invoice_prefix$recurring_invoice_number";
+        flash_alert("Automatic Payment <strong>Disabled</strong> for Recurring Invoice $recurring_invoice_prefix$recurring_invoice_number", 'error');
     }
 
     redirect();
+
 }
 
 if (isset($_POST['export_invoices_csv'])) {
+    
     if (isset($_POST['client_id'])) {
         $client_id = intval($_POST['client_id']);
         $client_query = "AND invoice_client_id = $client_id";
@@ -1781,7 +1758,6 @@ if (isset($_POST['export_invoices_csv'])) {
         fpassthru($f);
     }
 
-    // Logging
     logAction("Invoice", "Export", "$session_name exported $num_rows invoices to CSV file");
 
     exit;
@@ -1789,6 +1765,7 @@ if (isset($_POST['export_invoices_csv'])) {
 }
 
 if (isset($_POST['export_client_recurring_invoice_csv'])) {
+    
     $client_id = intval($_POST['client_id']);
 
     //get records from database
@@ -1829,7 +1806,6 @@ if (isset($_POST['export_client_recurring_invoice_csv'])) {
         fpassthru($f);
     }
 
-    // Logging
     logAction("Recurring Invoice", "Export", "$session_name exported $num_rows recurring invoices to CSV file");
 
     exit;
@@ -1837,6 +1813,7 @@ if (isset($_POST['export_client_recurring_invoice_csv'])) {
 }
 
 if (isset($_POST['export_payments_csv'])) {
+    
     if (isset($_POST['client_id'])) {
         $client_id = intval($_POST['client_id']);
         $client_query = "AND invoice_client_id = $client_id";
@@ -1876,7 +1853,6 @@ if (isset($_POST['export_payments_csv'])) {
         fpassthru($f);
     }
 
-    // Logging
     logAction("Payments", "Export", "$session_name exported $num_rows payments to CSV file");
 
     exit;
@@ -1884,6 +1860,7 @@ if (isset($_POST['export_payments_csv'])) {
 }
 
 if (isset($_GET['recurring_invoice_email_notify'])) {
+    
     $recurring_invoice_email_notify = intval($_GET['recurring_invoice_email_notify']);
     $recurring_invoice_id = intval($_GET['recurring_invoice_id']);
 
@@ -1902,35 +1879,38 @@ if (isset($_GET['recurring_invoice_email_notify'])) {
         $notify_wording = "Off";
     }
 
-    // Logging
     logAction("Recurring Invoice", "Edit", "$session_name turned $notify_wording Email Notifications for Recurring Invoice $recurring_invoice_prefix$recurring_invoice_number", $client_id, $recurring_invoice_id);
 
-    $_SESSION['alert_type'] = "error";
-    $_SESSION['alert_message'] = "Email Notifications <strong>$notify_wording</strong>";
+    flash_alert("Email Notifications <strong>$notify_wording</strong>", 'error');
 
     redirect();
+
 }
 
 if (isset($_POST['link_invoice_to_ticket'])) {
+    
     $invoice_id = intval($_POST['invoice_id']);
     $ticket_id = intval($_POST['ticket_id']);
 
     mysqli_query($mysqli,"UPDATE invoices SET invoice_ticket_id = $ticket_id WHERE invoice_id = $invoice_id");
 
-    $_SESSION['alert_message'] = "Invoice linked to ticket";
+    flash_alert("Invoice linked to ticket");
 
     redirect();
+
 }
 
 if (isset($_POST['add_ticket_to_invoice'])) {
+    
     $invoice_id = intval($_POST['invoice_id']);
     $ticket_id = intval($_POST['ticket_id']);
 
     mysqli_query($mysqli,"UPDATE tickets SET ticket_invoice_id = $invoice_id WHERE ticket_id = $ticket_id");
 
-    $_SESSION['alert_message'] = "Ticket linked to invoice";
+    flash_alert("Ticket linked to invoice");
 
-    header("Location: post.php?add_ticket_to_invoice=$invoice_id");
+    redirect("post.php?add_ticket_to_invoice=$invoice_id");
+
 }
 
 if (isset($_GET['export_invoice_pdf'])) {
@@ -2148,6 +2128,7 @@ if (isset($_GET['export_invoice_pdf'])) {
 
     $filename = preg_replace('/[^A-Za-z0-9_\-]/', '_', "{$invoice_date}_{$company_name}_{$client_name}_Invoice_{$invoice_prefix}{$invoice_number}");
     $pdf->Output("$filename.pdf", 'I');
+    
     exit;
 
 }
@@ -2157,9 +2138,7 @@ if (isset($_POST['bulk_edit_invoice_category'])) {
     $category_id = intval($_POST['bulk_category_id']);
 
     // Get Category name for logging and Notification
-    $sql = mysqli_query($mysqli,"SELECT category_name FROM categories WHERE category_id = $category_id");
-    $row = mysqli_fetch_array($sql);
-    $category_name = sanitizeInput($row['category_name']);
+    $category_name = sanitizeInput(getFieldById('categories', $category_id, 'category_name'));
 
     // Assign Income category to Selected Invoices
     if (isset($_POST['invoice_ids'])) {
@@ -2180,16 +2159,15 @@ if (isset($_POST['bulk_edit_invoice_category'])) {
 
             mysqli_query($mysqli,"UPDATE invoices SET invoice_category_id = $category_id WHERE invoice_id = $invoice_id");
 
-            // Logging
             logAction("Invoice", "Edit", "$session_name assigned Invoice $invoice_prefix$invoice_number to category $category_name", $client_id, $invoice_id);
 
         } // End Assign Loop
 
-        // Logging
         logAction("Invoice", "Bulk Edit", "$session_name assigned $count invoices to category $category_name");
 
-        $_SESSION['alert_message'] = "Assigned income category <strong>$category_name</strong> to <strong>$count</strong> invoice(s)";
+        flash_alert("Assigned income category <strong>$category_name</strong> to <strong>$count</strong> invoice(s)");
     }
 
     redirect();
+
 }

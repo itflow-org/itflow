@@ -15,10 +15,9 @@ if (isset($_POST['add_calendar'])) {
 
     $calendar_id = mysqli_insert_id($mysqli);
 
-    // Logging
     logAction("Calendar", "Create", "$session_name created calendar $name", 0, $calendar_id);
 
-    $_SESSION['alert_message'] = "Calendar <strong>$name</strong> created";
+    flash_alert("Calendar <strong>$name</strong> created");
 
     redirect();
 
@@ -32,10 +31,9 @@ if (isset($_POST['edit_calendar'])) {
 
     mysqli_query($mysqli,"UPDATE calendars SET calendar_name = '$name', calendar_color = '$color' WHERE calendar_id = $calendar_id");
 
-    // Logging
     logAction("Calendar", "Edit", "$session_name edited calendar $name", 0, $calendar_id);
 
-    $_SESSION['alert_message'] = "Calendar <strong>$name</strong> edited";
+    flash_alert("Calendar <strong>$name</strong> edited");
 
     redirect();
 
@@ -45,15 +43,12 @@ if (isset($_POST['add_event'])) {
 
     require_once 'event_model.php';
 
-
     mysqli_query($mysqli,"INSERT INTO calendar_events SET event_title = '$title', event_location = '$location', event_description = '$description', event_start = '$start', event_end = '$end', event_repeat = '$repeat', event_calendar_id = $calendar_id, event_client_id = $client");
 
     $event_id = mysqli_insert_id($mysqli);
 
-    //Get Calendar Name
-    $sql = mysqli_query($mysqli,"SELECT * FROM calendars WHERE calendar_id = $calendar_id");
-    $row = mysqli_fetch_array($sql);
-    $calendar_name = sanitizeInput($row['calendar_name']);
+    // Get Calendar Name
+    $calendar_name = sanitizeInput(getFieldById('calendars', $calendar_id, 'calendar_name'));
 
     //If email is checked
     if ($email_event == 1) {
@@ -106,10 +101,9 @@ if (isset($_POST['add_event'])) {
 
     } // End mail IF
 
-    // Logging
     logAction("Calendar Event", "Create", "$session_name created a calendar event titled $title in calendar $calendar_name", $client, $event_id);
 
-    $_SESSION['alert_message'] = "Event <strong>$title</strong> created in calendar <strong>$calendar_name</strong>";
+    flash_alert("Event <strong>$title</strong> created in calendar <strong>$calendar_name</strong>");
 
     redirect();
 
@@ -174,16 +168,16 @@ if (isset($_POST['edit_event'])) {
 
     } // End mail IF
 
-    //Logging
     logAction("Calendar Event", "Edit", "$session_name edited calendar event $title", $client, $event_id);
 
-    $_SESSION['alert_message'] = "Calendar event titled <strong>$title</strong> edited";
+    flash_alert("Calendar event titled <strong>$title</strong> edited");
 
     redirect();
 
 }
 
 if (isset($_GET['delete_event'])) {
+    
     $event_id = intval($_GET['delete_event']);
 
     // Get Event Title
@@ -194,11 +188,9 @@ if (isset($_GET['delete_event'])) {
 
     mysqli_query($mysqli,"DELETE FROM calendar_events WHERE event_id = $event_id");
 
-    // Logging
     logAction("Calendar Event", "Delete", "$session_name deleted calendar event $event_title", $client_id);
 
-    $_SESSION['alert_type'] = "error";
-    $_SESSION['alert_message'] = "Calendar event titled <strong>$event_title</strong> deleted";
+    flash_alert("Calendar event titled <strong>$event_title</strong> deleted", 'error');
 
     redirect();
 

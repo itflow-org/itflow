@@ -60,8 +60,7 @@ if (isset($_POST['upload_files'])) {
             $dest_path       = $upload_file_dir . $file_reference_name;
 
             if (!move_uploaded_file($file_tmp_path, $dest_path)) {
-                $_SESSION['alert_type'] = 'error';
-                $_SESSION['alert_message'] = 'Error moving file to upload directory. Please ensure the directory is writable.';
+                flash_alert('Error moving file to upload directory. Please ensure the directory is writable.', 'error');
                 continue; // Skip processing this file
             }
 
@@ -189,15 +188,14 @@ if (isset($_POST['upload_files'])) {
                 mysqli_query($mysqli,"INSERT INTO asset_files SET asset_id = $asset_id, file_id = $file_id");
             }
 
-            // Log upload action
             logAction("File", "Upload", "$session_name uploaded file $file_name", $client_id, $file_id);
-            $_SESSION['alert_message'] = "Uploaded file <strong>$file_name</strong>";
+            
+            flash_alert("Uploaded file <strong>$file_name</strong>");
         }
     }
 
-    // Redirect after processing
     redirect();
-    exit;
+
 }
 
 
@@ -218,10 +216,9 @@ if (isset($_POST['rename_file'])) {
     // file edit query
     mysqli_query($mysqli,"UPDATE files SET file_name = '$file_name' ,file_description = '$file_description' WHERE file_id = $file_id");
 
-    // Logging
     logAction("File", "Rename", "$session_name renamed file $old_file_name to $file_name", $client_id, $file_id);
 
-    $_SESSION['alert_message'] = "Renamed file <strong>$old_file_name</strong> to <strong>$file_name</strong>";
+    flash_alert("Renamed file <strong>$old_file_name</strong> to <strong>$file_name</strong>");
 
     redirect();
 
@@ -241,16 +238,13 @@ if (isset($_POST['move_file'])) {
     $client_id = intval($row['file_client_id']);
 
     // Get Folder Name for Logging
-    $sql = mysqli_query($mysqli,"SELECT folder_name FROM folders WHERE folder_id = $folder_id");
-    $row = mysqli_fetch_array($sql);
-    $folder_name = sanitizeInput($row['folder_name']);
+    $folder_name = sanitizeInput(getFieldById('folders', $folder_id, 'folder_name'));
 
     mysqli_query($mysqli,"UPDATE files SET file_folder_id = $folder_id WHERE file_id = $file_id");
 
-    // Logging
     logAction("File", "Move", "$session_name moved file $file_name to $folder_name", $client_id, $file_id);
 
-    $_SESSION['alert_message'] = "File <strong>$file_name</strong> moved to <strong>$folder_name</strong>";
+    flash_alert("File <strong>$file_name</strong> moved to <strong>$folder_name</strong>");
 
     redirect();
 
@@ -270,11 +264,9 @@ if (isset($_GET['archive_file'])) {
 
     mysqli_query($mysqli,"UPDATE files SET file_archived_at = NOW() WHERE file_id = $file_id");
 
-    //logging
     logAction("File", "Archive", "$session_name archived file $file_name", $client_id, $file_id);
 
-    $_SESSION['alert_type'] = "error";
-    $_SESSION['alert_message'] = "File <strong>$file_name</strong> archived";
+    flash_alert("File <strong>$file_name</strong> archived", 'error');
 
     redirect();
 
@@ -282,8 +274,9 @@ if (isset($_GET['archive_file'])) {
 
 if (isset($_POST['delete_file'])) {
 
-    enforceUserPermission('module_support', 3);
     validateCSRFToken($_POST['csrf_token']);
+
+    enforceUserPermission('module_support', 3);
 
     $file_id = intval($_POST['file_id']);
 
@@ -306,11 +299,9 @@ if (isset($_POST['delete_file'])) {
 
     mysqli_query($mysqli,"DELETE FROM files WHERE file_id = $file_id");
 
-    //Logging
     logAction("File", "Delete", "$session_name deleted file $file_name", $client_id);
 
-    $_SESSION['alert_type'] = "error";
-    $_SESSION['alert_message'] = "File <strong>$file_name</strong> deleted";
+    flash_alert("File <strong>$file_name</strong> deleted", 'alert');
 
     redirect();
 
@@ -318,8 +309,9 @@ if (isset($_POST['delete_file'])) {
 
 if (isset($_POST['bulk_delete_files'])) {
 
-    enforceUserPermission('module_support', 3);
     validateCSRFToken($_POST['csrf_token']);
+
+    enforceUserPermission('module_support', 3);
 
     // Delete file loop
     if (isset($_POST['file_ids'])) {
@@ -350,15 +342,12 @@ if (isset($_POST['bulk_delete_files'])) {
 
             mysqli_query($mysqli,"DELETE FROM files WHERE file_id = $file_id");
 
-            // Log each invidual file deletion
             logAction("File", "Delete", "$session_name deleted file $file_name", $client_id);
         }
 
-        // Log the bulk delete action
         logAction("File", "Bulk Delete", "$session_name deleted $file_count file(s)", $client_id);
 
-        $_SESSION['alert_type'] = "error";
-        $_SESSION['alert_message'] = "You deleted <strong>$file_count</strong> files";
+        flash_alert("You deleted <strong>$file_count</strong> files", 'error');
     }
 
     redirect();
@@ -367,9 +356,10 @@ if (isset($_POST['bulk_delete_files'])) {
 
 if (isset($_POST['bulk_move_files'])) {
 
-    enforceUserPermission('module_support', 2);
     validateCSRFToken($_POST['csrf_token']);
 
+    enforceUserPermission('module_support', 2);
+    
     $folder_id = intval($_POST['bulk_folder_id']);
 
     // Get folder name for logging and Notification
@@ -386,22 +376,19 @@ if (isset($_POST['bulk_move_files'])) {
         // Move Documents to Folder Loop
         foreach($_POST['file_ids'] as $file_id) {
             $file_id = intval($file_id);
+            
             // Get file name for logging
-            $sql = mysqli_query($mysqli,"SELECT file_name FROM files WHERE file_id = $file_id");
-            $row = mysqli_fetch_array($sql);
-            $file_name = sanitizeInput($row['file_name']);
+            $file_name = sanitizeInput(getFieldById('files', $file_id, 'file_name'));
 
             // file move query
             mysqli_query($mysqli,"UPDATE files SET file_folder_id = $folder_id WHERE file_id = $file_id");
 
-            // Logging
             logAction("File", "Move", "$session_name moved file $file_name to folder $folder_name", $client_id, $file_id);
         }
 
-        //Logging
         logAction("File", "Bulk Move", "$session_name moved $file_count file(s) to folder $folder_name", $client_id);
 
-        $_SESSION['alert_message'] = "Moved <strong>$file_count</strong> files to the folder <strong>$folder_name</strong>";
+        flash_alert("Moved <strong>$file_count</strong> files to the folder <strong>$folder_name</strong>");
     }
 
     redirect();
@@ -422,17 +409,14 @@ if (isset($_POST['link_asset_to_file'])) {
     $client_id = intval($row['file_client_id']);
 
     // Get Asset Name for Logging
-    $sql = mysqli_query($mysqli,"SELECT asset_name FROM assets WHERE asset_id = $asset_id");
-    $row = mysqli_fetch_array($sql);
-    $asset_name = sanitizeInput($row['asset_name']);
+    $asset_name = sanitizeInput(getFieldById('assets', $asset_id, 'asset_name'));
 
     // Contact add query
     mysqli_query($mysqli,"INSERT INTO asset_files SET asset_id = $asset_id, file_id = $file_id");
 
-    // Logging
     logAction("File", "Link", "$session_name linked asset $asset_name to file $file_name", $client_id, $file_id);
 
-    $_SESSION['alert_message'] = "Asset <strong>$asset_name</strong> linked to File <strong>$file_name</strong>";
+    flash_alert("Asset <strong>$asset_name</strong> linked to File <strong>$file_name</strong>");
 
     redirect();
 
@@ -452,16 +436,13 @@ if (isset($_GET['unlink_asset_from_file'])) {
     $client_id = intval($row['file_client_id']);
 
     // Get Asset Name for Logging
-    $sql = mysqli_query($mysqli,"SELECT asset_name FROM assets WHERE asset_id = $asset_id");
-    $row = mysqli_fetch_array($sql);
-    $asset_name = sanitizeInput($row['asset_name']);
+    $asset_name = sanitizeInput(getFieldById('assets', $asset_id, 'asset_name'));
 
     mysqli_query($mysqli,"DELETE FROM asset_files WHERE asset_id = $asset_id AND file_id = $file_id");
 
-    //Logging
     logAction("File", "Link", "$session_name unlinked asset $asset_name from file $file_name", $client_id, $file_id);
 
-    $_SESSION['alert_message'] = "Asset <strong>$asset_name</strong> unlinked from File <strong>$file_name</strong>";
+    flash_alert("Asset <strong>$asset_name</strong> unlinked from File <strong>$file_name</strong>");
 
     redirect();
 

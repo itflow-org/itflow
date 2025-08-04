@@ -33,10 +33,9 @@ if (isset($_POST['add_expense'])) {
         }
     }
 
-    //Logging
     logAction("Expense", "Create", "$session_name created expense $description", $client, $expense_id);
 
-    $_SESSION['alert_message'] = "Expense added" . $extended_alert_description;
+    flash_alert("Expense added" . $extended_alert_description);
 
     redirect();
 
@@ -46,13 +45,10 @@ if (isset($_POST['edit_expense'])) {
 
     require_once 'expense_model.php';
 
-
     $expense_id = intval($_POST['expense_id']);
 
     // Get old receipt
-    $sql = mysqli_query($mysqli,"SELECT expense_receipt FROM expenses WHERE expense_id = $expense_id");
-    $row = mysqli_fetch_array($sql);
-    $existing_file_name = sanitizeInput($row['expense_receipt']);
+    $existing_file_name = sanitizeInput(getFieldById('expenses', $expense_id, 'expense_receipt'));
 
     // Check for and process attachment
     $extended_alert_description = '';
@@ -76,16 +72,16 @@ if (isset($_POST['edit_expense'])) {
 
     mysqli_query($mysqli,"UPDATE expenses SET expense_date = '$date', expense_amount = $amount, expense_account_id = $account, expense_vendor_id = $vendor, expense_client_id = $client, expense_category_id = $category, expense_description = '$description', expense_reference = '$reference' WHERE expense_id = $expense_id");
 
-    // Logging
     logAction("Expense", "Edit", "$session_name edited expense $description", $client, $expense_id);
 
-    $_SESSION['alert_message'] = "Expense modified" . $extended_alert_description;
+    flash_alert("Expense modified" . $extended_alert_description);
 
     redirect();
 
 }
 
 if (isset($_GET['delete_expense'])) {
+    
     $expense_id = intval($_GET['delete_expense']);
 
     $sql = mysqli_query($mysqli,"SELECT * FROM expenses WHERE expense_id = $expense_id");
@@ -98,10 +94,9 @@ if (isset($_GET['delete_expense'])) {
 
     mysqli_query($mysqli,"DELETE FROM expenses WHERE expense_id = $expense_id");
 
-    // Logging
     logAction("Expense", "Delete", "$session_name deleted expense $expense_description", $client_id);
 
-    $_SESSION['alert_message'] = "Expense deleted";
+    flash_alert("Expense deleted", 'error');
 
     redirect();
 
@@ -112,9 +107,7 @@ if (isset($_POST['bulk_edit_expense_category'])) {
     $category_id = intval($_POST['bulk_category_id']);
 
     // Get Category name for logging and Notification
-    $sql = mysqli_query($mysqli,"SELECT category_name FROM categories WHERE category_id = $category_id");
-    $row = mysqli_fetch_array($sql);
-    $category_name = sanitizeInput($row['category_name']);
+    $category_name = sanitizeInput(getFieldById('categories', $category_id, 'category_name'));
 
     // Assign category to Selected Expenses
     if (isset($_POST['expense_ids'])) {
@@ -133,18 +126,17 @@ if (isset($_POST['bulk_edit_expense_category'])) {
 
             mysqli_query($mysqli,"UPDATE expenses SET expense_category_id = $category_id WHERE expense_id = $expense_id");
 
-            // Logging
             logAction("Expense", "Edit", "$session_name assigned expense $expense_descrition to category $category_name", $client_id, $expense_id);
 
         } // End Assign Loop
 
-        // Logging
         logAction("Expense", "Bulk Edit", "$session_name assigned $count expenses to category $category_name");
 
-        $_SESSION['alert_message'] = "You assigned expense category <strong>$category_name</strong> to <strong>$count</strong> expense(s)";
+        flash_alert("You assigned expense category <strong>$category_name</strong> to <strong>$count</strong> expense(s)");
     }
 
     redirect();
+
 }
 
 if (isset($_POST['bulk_edit_expense_account'])) {
@@ -152,9 +144,7 @@ if (isset($_POST['bulk_edit_expense_account'])) {
     $account_id = intval($_POST['bulk_account_id']);
 
     // Get Account name for logging and Notification
-    $sql = mysqli_query($mysqli,"SELECT account_name FROM accounts WHERE account_id = $account_id");
-    $row = mysqli_fetch_array($sql);
-    $account_name = sanitizeInput($row['account_name']);
+    $account_name = sanitizeInput(getFieldById('accounts', $account_id, 'account_name'));
 
     // Assign account to Selected Expenses
     if (isset($_POST['expense_ids'])) {
@@ -173,18 +163,17 @@ if (isset($_POST['bulk_edit_expense_account'])) {
 
             mysqli_query($mysqli,"UPDATE expenses SET expense_account_id = $account_id WHERE expense_id = $expense_id");
 
-            // Logging
             logAction("Expense", "Edit", "$session_name assigned expense $expense_descrition to account $account_name", $client_id, $expense_id);
 
         } // End Assign Loop
 
-        // Logging
         logAction("Expense", "Bulk Edit", "$session_name assigned $count expense(s) to account $account_name");
 
-        $_SESSION['alert_message'] = "You assigned account <strong>$account_name</strong> to <strong>$count</strong> expense(s)";
+        flash_alert("You assigned account <strong>$account_name</strong> to <strong>$count</strong> expense(s)");
     }
 
     redirect();
+
 }
 
 if (isset($_POST['bulk_edit_expense_client'])) {
@@ -192,9 +181,7 @@ if (isset($_POST['bulk_edit_expense_client'])) {
     $client_id = intval($_POST['bulk_client_id']);
 
     // Get Client name for logging and Notification
-    $sql = mysqli_query($mysqli,"SELECT client_name FROM clients WHERE client_id = $client_id");
-    $row = mysqli_fetch_array($sql);
-    $client_name = sanitizeInput($row['client_name']);
+    $client_name = sanitizeInput(getFieldById('clients', $client_id, 'client_name'));
 
     // Assign Client to Selected Expenses
     if (isset($_POST['expense_ids'])) {
@@ -206,26 +193,26 @@ if (isset($_POST['bulk_edit_expense_client'])) {
             $expense_id = intval($expense_id);
 
             // Get Expense Details for Logging
-            $sql = mysqli_query($mysqli,"SELECT expense_description FROM expenses WHERE expense_id = $expense_id");
-            $row = mysqli_fetch_array($sql);
-            $expense_description = sanitizeInput($row['expense_description']);
+            $expense_description = sanitizeInput(getFieldById('expenses', $expense_id, 'expense_description'));
 
             mysqli_query($mysqli,"UPDATE expenses SET expense_client_id = $client_id WHERE expense_id = $expense_id");
 
-            // Logging
             logAction("Expense", "Edit", "$session_name assigned expense $expense_descrition to client $client_name", $client_id, $expense_id);
 
         } // End Assign Loop
 
-        $_SESSION['alert_message'] = "You assigned Client <b>$client_name</b> to <b>$expense_count</b> expenses";
+       flash_alert("You assigned Client <b>$client_name</b> to <b>$expense_count</b> expenses");
     }
 
     redirect();
+
 }
 
 if (isset($_POST['bulk_delete_expenses'])) {
-    validateAdminRole();
+    
     validateCSRFToken($_POST['csrf_token']);
+
+    validateAdminRole();
 
     if (isset($_POST['expense_ids'])) {
 
@@ -246,24 +233,23 @@ if (isset($_POST['bulk_delete_expenses'])) {
             unlink("../uploads/expenses/$expense_receipt");
 
             mysqli_query($mysqli, "DELETE FROM expenses WHERE expense_id = $expense_id");
-            
-            // Logging
+
             logAction("Expense", "Delete", "$session_name deleted expense $expense_descrition", $client_id);
 
         }
 
-        // Logging
         logAction("Expense", "Bulk Delete", "$session_name deleted $count expense(s)");
 
-        $_SESSION['alert_type'] = "error";
-        $_SESSION['alert_message'] = "Deleted <strong>$count</strong> expense(s)";
+        flash_alert("Deleted <strong>$count</strong> expense(s)", 'error');
 
     }
 
     redirect();
+
 }
 
 if (isset($_POST['export_expenses_csv'])) {
+    
     $date_from = sanitizeInput($_POST['date_from']);
     $date_to = sanitizeInput($_POST['date_to']);
     $account = intval($_POST['account']);
@@ -343,10 +329,10 @@ if (isset($_POST['export_expenses_csv'])) {
         fpassthru($f);
     }
 
-    // Logging
     logAction("Expense", "Export", "$session_name exported $num_rows expense(s) to CSV file");
 
     exit;
+
 }
 
 if (isset($_POST['create_recurring_expense'])) {
@@ -372,10 +358,9 @@ if (isset($_POST['create_recurring_expense'])) {
 
     $recurring_expense_id = mysqli_insert_id($mysqli);
 
-    // Logging
     logAction("Recurring Expense", "Create", "$session_name created recurring expense $description", $client_id, $recurring_expense_id);
 
-    $_SESSION['alert_message'] = "Recurring Expense created";
+    flash_alert("Recurring Expense created");
 
     redirect();
 
@@ -403,10 +388,9 @@ if (isset($_POST['edit_recurring_expense'])) {
 
     mysqli_query($mysqli,"UPDATE recurring_expenses SET recurring_expense_frequency = $frequency, recurring_expense_day = $day, recurring_expense_month = $month, recurring_expense_next_date = '$start_date', recurring_expense_description = '$description', recurring_expense_reference = '$reference', recurring_expense_amount = $amount, recurring_expense_currency_code = '$session_company_currency', recurring_expense_vendor_id = $vendor, recurring_expense_client_id = $client_id, recurring_expense_category_id = $category, recurring_expense_account_id = $account WHERE recurring_expense_id = $recurring_expense_id");
 
-    //Logging
     logAction("Recurring Expense", "Edit", "$session_name edited recurring expense $description", $client_id, $recurring_expense_id);
 
-    $_SESSION['alert_message'] = "Recurring Expense edited";
+    flash_alert("Recurring Expense edited");
 
     redirect();
 
@@ -423,11 +407,9 @@ if (isset($_GET['delete_recurring_expense'])) {
 
     mysqli_query($mysqli,"DELETE FROM recurring_expenses WHERE recurring_expense_id = $recurring_expense_id");
 
-    // Logging
     logAction("Recurring Expense", "Delete", "$session_name deleted recurring expense $recurring_expense_description", $client_id);
 
-    $_SESSION['alert_type'] = "error";
-    $_SESSION['alert_message'] = "Recurring Expense deleted";
+    flash_alert("Recurring Expense deleted", 'error');
 
     redirect();
 

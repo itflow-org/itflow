@@ -30,10 +30,9 @@ if (isset($_POST['add_software_from_template'])) {
 
     $software_id = mysqli_insert_id($mysqli);
 
-    // Logging
     logAction("Software", "Create", "$session_name created software $name using template", $client_id, $software_id);
 
-    $_SESSION['alert_message'] = "Software <strong>$name</strong> created from template";
+    flash_alert("Software <strong>$name</strong> created from template");
 
     redirect();
 
@@ -90,10 +89,9 @@ if (isset($_POST['add_software'])) {
         }
     }
 
-    // Logging
     logAction("Software", "Create", "$session_name created software $name", $client_id, $software_id);
 
-    $_SESSION['alert_message'] = "Software <strong>$name</strong> created $alert_extended";
+    flash_alert("Software <strong>$name</strong> created $alert_extended");
 
     redirect();
 
@@ -150,10 +148,9 @@ if (isset($_POST['edit_software'])) {
         }
     }
 
-    // Logging
     logAction("Software", "Edit", "$session_name edited software $name", $client_id, $software_id);
 
-    $_SESSION['alert_message'] = "Software <strong>$name</strong> updated";
+    flash_alert("Software <strong>$name</strong> updated");
 
     redirect();
 
@@ -177,11 +174,9 @@ if (isset($_GET['archive_software'])) {
     mysqli_query($mysqli,"DELETE FROM software_contacts WHERE software_id = $software_id");
     mysqli_query($mysqli,"DELETE FROM software_assets WHERE software_id = $software_id");
 
-    // Logging
     logAction("Software", "Archive", "$session_name archived software $software_name and removed all device/user license associations", $client_id, $software_id);
 
-    $_SESSION['alert_type'] = "error";
-    $_SESSION['alert_message'] = "Software <strong>$software_name</strong> archived and removed all device/user license associations";
+    flash_alert("Software <strong>$software_name</strong> archived and removed all device/user license associations", 'error');
 
     redirect();
 
@@ -201,11 +196,9 @@ if (isset($_GET['delete_software'])) {
 
     mysqli_query($mysqli,"DELETE FROM software WHERE software_id = $software_id");
 
-    //Logging
     logAction("Software", "Delete", "$session_name deleted software $software_name and removed all device/user license associations", $client_id);
 
-    $_SESSION['alert_type'] = "error";
-    $_SESSION['alert_message'] = "Software <strong>$software_name</strong> deleted and removed all device/user license associations";
+    flash_alert("Software <strong>$software_name</strong> deleted and removed all device/user license associations", 'error');
 
     redirect();
 
@@ -246,10 +239,11 @@ if (isset($_POST['export_client_software_csv'])) {
             // Asset licenses
             $assigned_to_assets = '';
             $asset_licenses_sql = mysqli_query($mysqli,"SELECT software_assets.asset_id, assets.asset_name 
-                                                    FROM software_assets
-                                                    LEFT JOIN assets
-                                                        ON software_assets.asset_id = assets.asset_id
-                                                    WHERE software_id = $row[software_id]");
+                FROM software_assets
+                LEFT JOIN assets
+                    ON software_assets.asset_id = assets.asset_id
+                WHERE software_id = $row[software_id]"
+            );
             while($asset_row = mysqli_fetch_array($asset_licenses_sql)) {
                 $assigned_to_assets .= $asset_row['asset_name'] . ", ";
             }
@@ -257,10 +251,12 @@ if (isset($_POST['export_client_software_csv'])) {
             // Contact Licenses
             $assigned_to_contacts = '';
             $contact_licenses_sql = mysqli_query($mysqli,"SELECT software_contacts.contact_id, contacts.contact_name
-                                                      FROM software_contacts
-                                                      LEFT JOIN contacts
-                                                          ON software_contacts.contact_id = contacts.contact_id
-                                                      WHERE software_id = $row[software_id]");
+                FROM software_contacts
+                LEFT JOIN contacts
+                  ON software_contacts.contact_id = contacts.contact_id
+                WHERE software_id = $row[software_id]"
+            );
+            
             while($contact_row = mysqli_fetch_array($contact_licenses_sql)) {
                 $assigned_to_contacts .= $contact_row['contact_name'] . ", ";
             }
@@ -279,8 +275,7 @@ if (isset($_POST['export_client_software_csv'])) {
         //output all remaining data on a file pointer
         fpassthru($f);
     }
-
-    //Logging
+    
     logAction("Software", "Export", "$session_name exported $num_rows software(s) $software_name to a CSV file", $client_id);
 
     exit;

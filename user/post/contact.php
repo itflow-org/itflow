@@ -421,7 +421,7 @@ if (isset($_POST['bulk_edit_contact_department'])) {
 
         logAction("Contact", "Bulk Edit", "$session_name set the department $department for $contact_count contacts", $client_id);
 
-        flash_alert("You set the Department to <strong>$department</strong> for <strong>$contact_count</strong> contacts";
+        flash_alert("You set the Department to <strong>$department</strong> for <strong>$contact_count</strong> contacts");
     }
 
     redirect();

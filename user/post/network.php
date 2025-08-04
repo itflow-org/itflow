@@ -16,10 +16,9 @@ if (isset($_POST['add_network'])) {
 
     $network_id = mysqli_insert_id($mysqli);
 
-    // Logging
     logAction("Network", "Create", "$session_name created network $name", $client_id, $network_id);
 
-    $_SESSION['alert_message'] = "Network <strong>$name</strong> created";
+    flash_alert("Network <strong>$name</strong> created");
 
     redirect();
 
@@ -34,10 +33,9 @@ if (isset($_POST['edit_network'])) {
 
     mysqli_query($mysqli,"UPDATE networks SET network_name = '$name', network_description = '$description', network_vlan = $vlan, network = '$network', network_subnet = '$subnet', network_gateway = '$gateway', network_primary_dns = '$primary_dns', network_secondary_dns = '$secondary_dns', network_dhcp_range = '$dhcp_range', network_notes = '$notes', network_location_id = $location_id WHERE network_id = $network_id");
 
-    // Logging
     logAction("Network", "Edit", "$session_name edited network $name", $client_id, $network_id);
 
-    $_SESSION['alert_message'] = "Network <strong>$name</strong> updated";
+    flash_alert("Network <strong>$name</strong> updated");
 
     redirect();
 
@@ -57,11 +55,9 @@ if (isset($_GET['archive_network'])) {
 
     mysqli_query($mysqli,"UPDATE networks SET network_archived_at = NOW() WHERE network_id = $network_id");
 
-    // Logging
     logAction("Network", "Archive", "$session_name archived network $network_name", $client_id, $network_id);
 
-    $_SESSION['alert_type'] = "error";
-    $_SESSION['alert_message'] = "Network <strong>$network_name</strong> archived";
+    flash_alert("Network <strong>$network_name</strong> archived", 'error');
 
     redirect();
 
@@ -81,16 +77,16 @@ if (isset($_GET['unarchive_network'])) {
 
     mysqli_query($mysqli,"UPDATE networks SET network_archived_at = NULL WHERE network_id = $network_id");
 
-    // logging
     logAction("Network", "Unarchive", "$session_name restored contact $contact_name", $client_id, $network_id);
 
-    $_SESSION['alert_message'] = "Network <strong>$network_name</strong> restored";
+    flash_alert("Network <strong>$network_name</strong> restored");
 
     redirect();
 
 }
 
 if (isset($_GET['delete_network'])) {
+    
     enforceUserPermission('module_support', 3);
 
     $network_id = intval($_GET['delete_network']);
@@ -103,19 +99,19 @@ if (isset($_GET['delete_network'])) {
 
     mysqli_query($mysqli,"DELETE FROM networks WHERE network_id = $network_id");
 
-    // Logging
     logAction("Network", "Delete", "$session_name deleted network $network_name", $client_id);
 
-    $_SESSION['alert_type'] = "error";
-    $_SESSION['alert_message'] = "Network <strong>$network_name</strong> deleted";
+    flash_alert("Network <strong>$network_name</strong> deleted", 'error');
 
     redirect();
 
 }
 
 if (isset($_POST['bulk_delete_networks'])) {
-    enforceUserPermission('module_support', 3);
+
     validateCSRFToken($_POST['csrf_token']);
+    
+    enforceUserPermission('module_support', 3);
 
     if (isset($_POST['network_ids'])) {
 
@@ -135,20 +131,18 @@ if (isset($_POST['bulk_delete_networks'])) {
 
             mysqli_query($mysqli, "DELETE FROM networks WHERE network_id = $network_id AND network_client_id = $client_id");
             
-            // Logging
             logAction("Network", "Delete", "$session_name deleted network $network_name", $client_id);
 
         }
 
-        // Logging
         logAction("Network", "Bulk Delete", "$session_name deleted $count network(s)", $client_id);
 
-        $_SESSION['alert_type'] = "error";
-        $_SESSION['alert_message'] = "Deleted <strong>$count</strong> network(s)";
+        flash_alert("Deleted <strong>$count</strong> network(s)", 'error');
 
     }
 
     redirect();
+
 }
 
 if (isset($_POST['export_networks_csv'])) {
@@ -179,7 +173,7 @@ if (isset($_POST['export_networks_csv'])) {
         fputcsv($f, $fields, $delimiter);
 
         //output each row of the data, format line as csv and write to file pointer
-        while($row = $sql->fetch_assoc()) {
+        while ($row = $sql->fetch_assoc()) {
             $lineData = array($row['network_name'], $row['network_description'], $row['network_vlan'], $row['network'], $row['network_subnet'], $row['network_gateway'], $row['network_primary_dns'], $row['network_secondary_dns'], $row['network_dhcp_range']);
             fputcsv($f, $lineData, $delimiter);
         }
@@ -195,7 +189,6 @@ if (isset($_POST['export_networks_csv'])) {
         fpassthru($f);
     }
 
-    // Logging
     logAction("Network", "Export", "$session_name deleted $num_rows network(s) to a CSV file", $client_id);
 
     exit;

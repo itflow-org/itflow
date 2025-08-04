@@ -22,10 +22,9 @@ if (isset($_POST['add_revenue'])) {
 
     $revenue_id = mysqli_insert_id($mysqli);
 
-    // Logging
     logAction("Revenue", "Create", "$session_name added revenue $description", 0, $revenue_id);
 
-    $_SESSION['alert_message'] = "Revenue added";
+    flash_alert("Revenue added");
 
     redirect();
 
@@ -46,10 +45,9 @@ if (isset($_POST['edit_revenue'])) {
 
     mysqli_query($mysqli,"UPDATE revenues SET revenue_date = '$date', revenue_amount = $amount, revenue_payment_method = '$payment_method', revenue_reference = '$reference', revenue_description = '$description', revenue_category_id = $category, revenue_account_id = $account WHERE revenue_id = $revenue_id");
 
-    // Logging
     logAction("Revenue", "Edit", "$session_name edited revenue $description", 0, $revenue_id);
 
-    $_SESSION['alert_message'] = "Revenue edited";
+    flash_alert("Revenue edited");
 
     redirect();
 
@@ -62,17 +60,13 @@ if (isset($_GET['delete_revenue'])) {
     $revenue_id = intval($_GET['delete_revenue']);
 
     // Get Revenue Details
-    $sql = mysqli_query($mysqli,"SELECT revenue_description FROM revenues WHERE revenue_id = $revenue_id");
-    $row = mysqli_fetch_array($sql);
-    $revenue_description = sanitizeInput($row['revenue_description']);
+    $revenue_description = sanitizeInput(getFieldById('revenues', $revenue_id, 'revenue_description'));
 
     mysqli_query($mysqli,"DELETE FROM revenues WHERE revenue_id = $revenue_id");
 
-    // Logging
     logAction("Revenue", "Delete", "$session_name deleted revenue $revenue_description");
 
-    $_SESSION['alert_type'] = "error";
-    $_SESSION['alert_message'] = "Revenue removed";
+    flash_alert("Revenue removed", 'error');
 
     redirect();
 

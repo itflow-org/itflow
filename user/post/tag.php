@@ -14,10 +14,9 @@ if (isset($_POST['add_tag'])) {
 
     $tag_id = mysqli_insert_id($mysqli);
 
-    // Logging
     logAction("Tag", "Create", "$session_name created tag $name", 0, $tag_id);
 
-    $_SESSION['alert_message'] = "Tag <strong>$name</strong> created";
+    flash_alert("Tag <strong>$name</strong> created");
 
     redirect();
 

@@ -19,10 +19,9 @@ if (isset($_POST['create_folder'])) {
     $add_folder = mysqli_query($mysqli,"INSERT INTO folders SET folder_name = '$folder_name', parent_folder = $parent_folder, folder_location = $folder_location, folder_client_id = $client_id");
     $folder_id = mysqli_insert_id($mysqli);
 
-    // Logging
     logAction("Folder", "Create", "$session_name created folder $folder_name", $client_id, $folder_id);
 
-    $_SESSION['alert_message'] = "Folder <strong>$folder_name</strong> created";
+    flash_alert("Folder <strong>$folder_name</strong> created");
 
     redirect();
 
@@ -44,10 +43,9 @@ if (isset($_POST['rename_folder'])) {
     // Folder edit query
     mysqli_query($mysqli,"UPDATE folders SET folder_name = '$folder_name' WHERE folder_id = $folder_id");
 
-    //Logging
     logAction("Folder", "Rename", "$session_name renamed folder $old_folder_name to $folder_name", $client_id, $folder_id);
 
-    $_SESSION['alert_message'] = "Folder <strong>$old_folder_name</strong> renamed to <strong>$folder_name</strong>";
+    flash_alert("Folder <strong>$old_folder_name</strong> renamed to <strong>$folder_name</strong>");
 
     redirect();
 
@@ -75,11 +73,9 @@ if (isset($_GET['delete_folder'])) {
         mysqli_query($mysqli,"UPDATE documents SET document_folder_id = 0 WHERE document_id = $document_id");
     }
 
-    //Logging
     logAction("Folder", "Delete", "$session_name deleted folder $folder_name", $client_id);
 
-    $_SESSION['alert_type'] = "error";
-    $_SESSION['alert_message'] = "Folder <strong>$folder_name</strong> deleted";
+    flash_alert("Folder <strong>$folder_name</strong> deleted", 'error');
 
     redirect();
 

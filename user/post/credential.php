@@ -24,10 +24,9 @@ if (isset($_POST['add_credential'])) {
         }
     }
 
-    // Logging
     logAction("Credential", "Create", "$session_name created credential $name", $client_id, $credential_id);
 
-    $_SESSION['alert_message'] = "Credential <strong>$name</strong> created";
+    flash_alert("Credential <strong>$name</strong> created");
 
     redirect();
 
@@ -64,10 +63,9 @@ if (isset($_POST['edit_credential'])) {
         }
     }
 
-    // Logging
     logAction("Credential", "Edit", "$session_name edited credential $name", $client_id, $credential_id);
 
-    $_SESSION['alert_message'] = "Credential <strong>$name</strong> edited";
+    flash_alert("Credential <strong>$name</strong> edited");
 
     redirect();
 
@@ -87,12 +85,9 @@ if(isset($_GET['archive_credential'])){
 
     mysqli_query($mysqli,"UPDATE credentials SET credential_archived_at = NOW() WHERE credential_id = $credential_id");
 
-    //logging
     logAction("Credential", "Archive", "$session_name archived credential $credential_name", $client_id, $credential_id);
 
-
-    $_SESSION['alert_type'] = "error";
-    $_SESSION['alert_message'] = "Credential <strong>$credential_name</strong> archived";
+    flash_alert("Credential <strong>$credential_name</strong> archived", 'error');
 
     redirect();
 
@@ -112,12 +107,12 @@ if(isset($_GET['unarchive_credential'])){
 
     mysqli_query($mysqli,"UPDATE credentials SET credential_archived_at = NULL WHERE credential_id = $credential_id");
 
-    //Logging
     logAction("Credential", "Unarchive", "$session_name unarchived credential $credential_name", $client_id, $credential_id);
 
-    $_SESSION['alert_message'] = "Credential <strong>$credential_name</strong> restored";
+    flash_alert("Credential <strong>$credential_name</strong> restored");
 
     redirect();
+
 }
 
 if (isset($_GET['delete_credential'])) {
@@ -134,11 +129,9 @@ if (isset($_GET['delete_credential'])) {
 
     mysqli_query($mysqli,"DELETE FROM credentials WHERE credential_id = $credential_id");
 
-    // Logging
     logAction("Credential", "Delete", "$session_name deleted credential $credential_name", $client_id);
 
-    $_SESSION['alert_type'] = "error";
-    $_SESSION['alert_message'] = "Credential <strong>$credential_name</strong> deleted";
+    flash_alert("Credential <strong>$credential_name</strong> deleted", 'error');
 
     redirect();
 
@@ -180,15 +173,14 @@ if (isset($_POST['bulk_assign_credential_tags'])) {
                 }
             }
 
-            // Logging
             logAction("Credential", "Edit", "$session_name added tags to $credential_name", $client_id, $credential_id);
 
-            $_SESSION['alert_message'] = "Assigned tags for <strong>$count</strong> credentials";
+            flash_alert("Assigned tags for <strong>$count</strong> credentials");
 
         } // End Assign Loop
 
-        // Logging
         logAction("Credential", "Bulk Edit", "$session_name added tags to $count credentials", $client_id);
+    
     }
 
     redirect();
@@ -197,8 +189,9 @@ if (isset($_POST['bulk_assign_credential_tags'])) {
 
 if (isset($_POST['bulk_archive_credentials'])) {
 
-    enforceUserPermission('module_credential', 2);
     validateCSRFToken($_POST['csrf_token']);
+
+    enforceUserPermission('module_credential', 2);
 
     if (isset($_POST['credential_ids'])) {
 
@@ -218,26 +211,24 @@ if (isset($_POST['bulk_archive_credentials'])) {
 
             mysqli_query($mysqli,"UPDATE credentials SET credential_archived_at = NOW() WHERE credential_id = $credential_id");
 
-            // Individual Contact logging
             logAction("Credential", "Archive", "$session_name archived credential $credential_name", $client_id, $credential_id);
         }
 
-        // Bulk Logging
         logAction("Credential", "Bulk Archive", "$session_name archived $count credentials", $client_id);
 
-        $_SESSION['alert_type'] = "error";
-        $_SESSION['alert_message'] = "Archived <strong>$count</strong> credential(s)";
+        flash_alert("Archived <strong>$count</strong> credential(s)", 'error');
 
     }
 
     redirect();
+
 }
 
 if (isset($_POST['bulk_unarchive_credentials'])) {
 
-    enforceUserPermission('module_credential', 2);
+    validateCSRFToken($_POST['csrf_token']);    
 
-    validateCSRFToken($_POST['csrf_token']);
+    enforceUserPermission('module_credential', 2);
 
     if (isset($_POST['credential_ids'])) {
 
@@ -257,26 +248,25 @@ if (isset($_POST['bulk_unarchive_credentials'])) {
 
             mysqli_query($mysqli,"UPDATE credentials SET credential_archived_at = NULL WHERE credential_id = $credential_id");
 
-            // Individual logging
             logAction("Credential", "Unarchive", "$session_name unarchived credential $credential_name", $client_id, $credential_id);
 
         }
 
-        // Bulk Logging
         logAction("Credential", "Bulk Unarchive", "$session_name unarchived $count credential(s)", $client_id);
 
-        $_SESSION['alert_message'] = "Unarchived <strong>$count</strong> credential(s)";
+        flash_alert("Unarchived <strong>$count</strong> credential(s)");
 
     }
 
     redirect();
+
 }
 
 if (isset($_POST['bulk_delete_credentials'])) {
 
-    enforceUserPermission('module_credential', 3);
-
     validateCSRFToken($_POST['csrf_token']);
+
+    enforceUserPermission('module_credential', 3);
 
     if (isset($_POST['credential_ids'])) {
 
@@ -296,20 +286,18 @@ if (isset($_POST['bulk_delete_credentials'])) {
 
             mysqli_query($mysqli, "DELETE FROM credentials WHERE credential_id = $credential_id AND credential_client_id = $client_id");
 
-            // Logging
             logAction("Credential", "Delete", "$session_name deleted credential $credential_name", $client_id);
 
         }
 
-        // Bulk Logging
         logAction("Credential", "Bulk Delete", "$session_name deleted $count credential(s)", $client_id);
 
-        $_SESSION['alert_type'] = "error"; 
-        $_SESSION['alert_message'] = "Deleted <strong>$count</strong> credential(s)";
+        flash_alert("Deleted <strong>$count</strong> credential(s)", 'error');
 
     }
 
     redirect();
+
 }
 
 if (isset($_POST['export_credentials_csv'])) {
@@ -360,7 +348,6 @@ if (isset($_POST['export_credentials_csv'])) {
         fpassthru($f);
     }
 
-    // Logging
     logAction("Credential", "Export", "$session_name exported $num_rows credential(s) to a CSV file", $client_id);
 
     exit;
@@ -377,10 +364,8 @@ if (isset($_POST["import_credentials_csv"])) {
     if (!empty($_FILES["file"]["tmp_name"])) {
         $file_name = $_FILES["file"]["tmp_name"];
     } else {
-        $_SESSION['alert_message'] = "Please select a file to upload.";
-        $_SESSION['alert_type'] = "error";
+        flash_alert("Please select a file to upload.", 'error');
         redirect();
-        exit();
     }
 
     //Check file is CSV
@@ -388,13 +373,13 @@ if (isset($_POST["import_credentials_csv"])) {
     $allowed_file_extensions = array('csv');
     if (in_array($file_extension,$allowed_file_extensions) === false){
         $error = true;
-        $_SESSION['alert_message'] = "Bad file extension";
+        flash_alert("Bad file extension", 'error');
     }
 
     //Check file isn't empty
     elseif ($_FILES["file"]["size"] < 1){
         $error = true;
-        $_SESSION['alert_message'] = "Bad file size (empty?)";
+        flash_alert("Bad file size (empty?)", 'error');
     }
 
     //(Else)Check column count
@@ -402,7 +387,7 @@ if (isset($_POST["import_credentials_csv"])) {
     $f_columns = fgetcsv($f, 1000, ",");
     if (!$error & count($f_columns) != 5) {
         $error = true;
-        $_SESSION['alert_message'] = "Bad column count.";
+        flash_alert("Bad column count.", 'error');
     }
 
     //Else, parse the file
@@ -443,17 +428,17 @@ if (isset($_POST["import_credentials_csv"])) {
         }
         fclose($file);
 
-        // Logging
         logAction("Credential", "Import", "$session_name imported $row_count credential(s) via CSV file. $duplicate_count duplicate(s) found and not imported", $client_id);
 
-        $_SESSION['alert_message'] = "$row_count credential(s) imported, $duplicate_count duplicate(s) detected and not imported";
+        flash_alert("<strong>$row_count</strong> credential(s) imported, <strong>$duplicate_count</strong> duplicate(s) detected and not imported", 'warning');
+        
         redirect();
     }
     //Check for any errors, if there are notify user and redirect
     if ($error) {
-        $_SESSION['alert_type'] = "warning";
         redirect();
     }
+    
 }
 
 if (isset($_GET['download_credentials_csv_template'])) {

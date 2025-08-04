@@ -52,10 +52,9 @@ if (isset($_POST['add_domain'])) {
         $extended_log_description = ', with associated SSL cert';
     }
 
-    // Logging
     logAction("Domain", "Create", "$session_name created domain $name$extended_log_description", $client_id, $domain_id);
 
-    $_SESSION['alert_message'] = "Domain <strong>$name</strong> created";
+    flash_alert("Domain <strong>$name</strong> created");
 
     redirect();
 
@@ -138,10 +137,9 @@ if (isset($_POST['edit_domain'])) {
         }
     }
 
-    // Logging
     logAction("Domain", "Edit", "$session_name edited domain $name", $client_id, $domain_id);
 
-    $_SESSION['alert_message'] = "Domain <strong>$name</strong> edited";
+    flash_alert("Domain <strong>$name</strong> edited");
 
     redirect();
 
@@ -161,13 +159,12 @@ if (isset($_GET['archive_domain'])) {
 
     mysqli_query($mysqli,"UPDATE domains SET domain_archived_at = NOW() WHERE domain_id = $domain_id");
 
-    // Logging
     logAction("Domain", "Archive", "$session_name archived domain $domain_name", $client_id, $domain_id);
 
-    $_SESSION['alert_type'] = "error";
-    $_SESSION['alert_message'] = "Domain <strong>$domain_name archived";
+    flash_alert("Domain <strong>$domain_name archived", 'error');
 
     redirect();
+
 }
 
 if(isset($_GET['unarchive_domain'])){
@@ -184,12 +181,12 @@ if(isset($_GET['unarchive_domain'])){
 
     mysqli_query($mysqli,"UPDATE domains SET domain_archived_at = NULL WHERE domain_id = $domain_id");
 
-    // Logging
     logAction("Domain", "Unarchive", "$session_name unarchived domain $domain_name", $client_id, $domain_id);
 
-    $_SESSION['alert_message'] = "Domain <strong>$domain_name</strong> restored";
+    flash_alert("Domain <strong>$domain_name</strong> restored");
 
     redirect();
+
 }
 
 if (isset($_GET['delete_domain'])) {
@@ -206,20 +203,20 @@ if (isset($_GET['delete_domain'])) {
 
     mysqli_query($mysqli,"DELETE FROM domains WHERE domain_id = $domain_id");
 
-    // Logging
     logAction("Domain", "Delete", "$session_name deleted domain $domain_name", $client_id);
 
-    $_SESSION['alert_type'] = "error";
-    $_SESSION['alert_message'] = "Domain <strong>$domain_name</strong> deleted";
+    flash_alert("Domain <strong>$domain_name</strong> deleted", 'error');
 
     redirect();
 
 }
 
 if (isset($_POST['bulk_archive_domains'])) {
-    enforceUserPermission('module_support', 3);
+    
     validateCSRFToken($_POST['csrf_token']);
 
+    enforceUserPermission('module_support', 3);
+    
     if (isset($_POST['domain_ids'])) {
 
         // Get Selected Count
@@ -238,24 +235,24 @@ if (isset($_POST['bulk_archive_domains'])) {
 
             mysqli_query($mysqli,"UPDATE domains SET domain_archived_at = NOW() WHERE domain_id = $domain_id");
 
-            // Individual Contact logging
             logAction("Domain", "Archive", "$session_name archived domain $domain_name", $client_id, $domain_id);
         }
 
-        // Bulk Logging
         logAction("Domain", "Bulk Archive", "$session_name archived $count domain(s)", $client_id);
 
-        $_SESSION['alert_type'] = "error";
-        $_SESSION['alert_message'] = "Archived <strong>$count</strong> domain(s)";
+        flash_alert("Archived <strong>$count</strong> domain(s)", 'error');
 
     }
 
     redirect();
+
 }
 
 if (isset($_POST['bulk_unarchive_domains'])) {
-    enforceUserPermission('module_support', 3);
+    
     validateCSRFToken($_POST['csrf_token']);
+
+    enforceUserPermission('module_support', 3);
 
     if (isset($_POST['domain_ids'])) {
 
@@ -275,25 +272,26 @@ if (isset($_POST['bulk_unarchive_domains'])) {
 
             mysqli_query($mysqli,"UPDATE domains SET domain_archived_at = NULL WHERE domain_id = $domain_id");
 
-            // Individual logging
             logAction("Domain", "Unarchive", "$session_name unarchived domain $domain_name", $client_id, $domain_id);
 
         }
 
-        // Bulk Logging
         logAction("Domain", "Bulk Unarchive", "$session_name unarchived $count domain(s)", $client_id);
 
-        $_SESSION['alert_message'] = "Unarchived <strong>$count</strong> domain(s)";
+        flash_alert("Unarchived <strong>$count</strong> domain(s)");
 
     }
 
     redirect();
+
 }
 
 if (isset($_POST['bulk_delete_domains'])) {
-    enforceUserPermission('module_support', 3);
+    
     validateCSRFToken($_POST['csrf_token']);
 
+    enforceUserPermission('module_support', 3);
+    
     if (isset($_POST['domain_ids'])) {
 
         // Get Selected Count
@@ -311,20 +309,18 @@ if (isset($_POST['bulk_delete_domains'])) {
             $client_id = intval($row['domain_client_id']);
 
             mysqli_query($mysqli, "DELETE FROM domains WHERE domain_id = $domain_id AND domain_client_id = $client_id");
-            
-            // Logging
+
             logAction("Domain", "Delete", "$session_name deleted domain $domain_name", $client_id);
         }
 
-        // Logging
         logAction("Domain", "Bulk Delete", "$session_name deleted $count domain(s)", $client_id);
 
-        $_SESSION['alert_type'] = "error";
-        $_SESSION['alert_message'] = "Deleted <strong>$count</strong> domain(s)";
+        flash_alert("Deleted <strong>$count</strong> domain(s)", 'error');
 
     }
 
     redirect();
+
 }
 
 if (isset($_POST['export_domains_csv'])) {
@@ -371,7 +367,6 @@ if (isset($_POST['export_domains_csv'])) {
         fpassthru($f);
     }
 
-    // Logging
     logAction("Domain", "Export", "$session_name exported $num_rows domain(s)", $client_id);
 
     exit;

@@ -12,7 +12,6 @@ if(isset($_POST['add_location'])){
 
     require_once 'location_model.php';
 
-
     if(!file_exists("../uploads/clients/$client_id")) {
         mkdir("../uploads/clients/$client_id");
     }
@@ -51,10 +50,9 @@ if(isset($_POST['add_location'])){
         }
     }
 
-    // Logging
     logAction("Location", "Create", "$session_name created location $name", $client_id, $location_id);
 
-    $_SESSION['alert_message'] = "Location <strong>$name</strong> created.";
+    flash_alert("Location <strong>$name</strong> created.");
 
     redirect();
 
@@ -66,14 +64,12 @@ if(isset($_POST['edit_location'])){
 
     require_once 'location_model.php';
 
-
     $location_id = intval($_POST['location_id']);
 
     // Get old location photo
     $sql = mysqli_query($mysqli,"SELECT location_photo FROM locations WHERE location_id = $location_id");
     $row = mysqli_fetch_array($sql);
     $existing_file_name = sanitizeInput($row['location_photo']);
-
 
     if(!file_exists("../uploads/clients/$client_id")) {
         mkdir("../uploads/clients/$client_id");
@@ -116,10 +112,9 @@ if(isset($_POST['edit_location'])){
 
     }
 
-    // Logging
     logAction("Location", "Edit", "$session_name edited location $name", $client_id, $location_id);
 
-    $_SESSION['alert_message'] = "Location <strong>$name</strong> updated";
+    flash_alert("Location <strong>$name</strong> updated");
 
     redirect();
 
@@ -139,11 +134,9 @@ if(isset($_GET['archive_location'])){
 
     mysqli_query($mysqli,"UPDATE locations SET location_archived_at = NOW() WHERE location_id = $location_id");
 
-    // Logging
     logAction("Location", "Archive", "$session_name archived location $location_name", $client_id, $location_id);
 
-    $_SESSION['alert_type'] = "error";
-    $_SESSION['alert_message'] = "Location <strong>$location_name</strong> archived";
+    flash_alert("Location <strong>$location_name</strong> archived", 'error');
 
     redirect();
 
@@ -163,12 +156,12 @@ if(isset($_GET['unarchive_location'])){
 
     mysqli_query($mysqli,"UPDATE locations SET location_archived_at = NULL WHERE location_id = $location_id");
 
-    // Logging
     logAction("Location", "Unarchive", "$session_name unarchived location $location_name", $client_id, $location_id);
 
-    $_SESSION['alert_message'] = "Location <strong>$location_name</strong> restored";
+    flash_alert("Location <strong>$location_name</strong> restored");
 
     redirect();
+
 }
 
 if(isset($_GET['delete_location'])){
@@ -185,12 +178,9 @@ if(isset($_GET['delete_location'])){
 
     mysqli_query($mysqli,"DELETE FROM locations WHERE location_id = $location_id");
 
-    // Logging
     logAction("Location", "Delete", "$session_name deleted location $location_name", $client_id);
 
-
-    $_SESSION['alert_type'] = "error";
-    $_SESSION['alert_message'] = "Location <strong>$location_name</strong> deleted";
+    flash_alert("Location <strong>$location_name</strong> deleted", 'error');
 
     redirect();
 
@@ -232,15 +222,14 @@ if (isset($_POST['bulk_assign_location_tags'])) {
                 }
             }
 
-            // Logging
             logAction("Location", "Edit", "$session_name assigned tags to location $location_name", $client_id, $location_id);
 
         } // End Assign Location Loop
 
-        // Logging
         logAction("Location", "Bulk Edit", "$session_name assigned tags to $count location(s)", $client_id);
 
-        $_SESSION['alert_message'] = "Assigned tags for <strong>$count</strong> locations";
+        flash_alert("Assigned tags for <strong>$count</strong> locations");
+    
     }
 
     redirect();
@@ -248,6 +237,7 @@ if (isset($_POST['bulk_assign_location_tags'])) {
 }
 
 if (isset($_POST['bulk_archive_locations'])) {
+    
     enforceUserPermission('module_client', 2);
     validateCSRFToken($_POST['csrf_token']);
 
@@ -278,20 +268,21 @@ if (isset($_POST['bulk_archive_locations'])) {
 
         }
 
-        // Bulk Logging
         logAction("Location", "Bulk Archive", "$session_name archived $count location(s)");
 
-        $_SESSION['alert_type'] = "error";
-        $_SESSION['alert_message'] = "Archived <strong>$count</strong> location(s)";
+        flash_alert("Archived <strong>$count</strong> location(s)", 'error');
 
     }
 
     redirect();
+
 }
 
 if (isset($_POST['bulk_unarchive_locations'])) {
-    enforceUserPermission('module_client', 2);
+    
     validateCSRFToken($_POST['csrf_token']);
+
+    enforceUserPermission('module_client', 2);   
 
     if (isset($_POST['location_ids'])) {
 
@@ -311,24 +302,25 @@ if (isset($_POST['bulk_unarchive_locations'])) {
 
             mysqli_query($mysqli,"UPDATE locations SET location_archived_at = NULL WHERE location_id = $location_id");
 
-            // Individual logging
             logAction("Location", "Unarchive", "$session_name unarchived location $location_name", $client_id, $location_id);
 
         }
 
-        // Bulk Logging
         logAction("Location", "Bulk Unarchive", "$session_name unarchived $count location(s)", $client_id);
 
-        $_SESSION['alert_message'] = "Unarchived <strong>$count</strong> location(s)";
+        flash_alert("Unarchived <strong>$count</strong> location(s)");
 
     }
 
     redirect();
+
 }
 
 if (isset($_POST['bulk_delete_locations'])) {
-    enforceUserPermission('module_client', 3);
+
     validateCSRFToken($_POST['csrf_token']);
+
+    enforceUserPermission('module_client', 3);
 
     if (isset($_POST['location_ids'])) {
 
@@ -348,23 +340,22 @@ if (isset($_POST['bulk_delete_locations'])) {
 
             mysqli_query($mysqli, "DELETE FROM locations WHERE location_id = $location_id AND location_client_id = $client_id");
             
-            // Logging
             logAction("Location", "Delete", "$session_name deleted location $location_name", $client_id);
 
         }
 
-        // Logging
         logAction("Location", "Bulk Delete", "$session_name deleted $count location(s)", $client_id);
 
-        $_SESSION['alert_type'] = "error";
-        $_SESSION['alert_message'] = "Deleted <strong>$count</strong> location(s)";
+        flash_alert("Deleted <strong>$count</strong> location(s)", 'error');
 
     }
 
     redirect();
+
 }
 
 if(isset($_POST['export_locations_csv'])){
+    
     if (isset($_POST['client_id'])) {
         $client_id = intval($_POST['client_id']);
         $client_query = "AND location_client_id = $client_id";
@@ -406,7 +397,6 @@ if(isset($_POST['export_locations_csv'])){
         fpassthru($f);
     }
 
-    // Logging
     logAction("Location", "Export", "$session_name exported $num_rows location(s) to a CSV file", $client_id);
 
     exit;
@@ -423,10 +413,8 @@ if (isset($_POST["import_locations_csv"])) {
     if (!empty($_FILES["file"]["tmp_name"])) {
         $file_name = $_FILES["file"]["tmp_name"];
     } else {
-        $_SESSION['alert_message'] = "Please select a file to upload.";
-        $_SESSION['alert_type'] = "error";
+        flash_alert("Please select a file to upload.", 'error');
         redirect();
-        exit();
     }
 
     //Check file is CSV
@@ -434,13 +422,13 @@ if (isset($_POST["import_locations_csv"])) {
     $allowed_file_extensions = array('csv');
     if(in_array($file_extension,$allowed_file_extensions) === false){
         $error = true;
-        $_SESSION['alert_message'] = "Bad file extension";
+        flash_alert("Bad file extension", 'error');
     }
 
     //Check file isn't empty
     elseif($_FILES["file"]["size"] < 1){
         $error = true;
-        $_SESSION['alert_message'] = "Bad file size (empty?)";
+        flash_alert("Bad file size (empty?)", 'error');
     }
 
     //(Else)Check column count
@@ -448,7 +436,7 @@ if (isset($_POST["import_locations_csv"])) {
     $f_columns = fgetcsv($f, 1000, ",");
     if(!$error & count($f_columns) != 8) {
         $error = true;
-        $_SESSION['alert_message'] = "Bad column count.";
+        flash_alert("Bad column count.", 'error');
     }
 
     //Else, parse the file
@@ -498,17 +486,17 @@ if (isset($_POST["import_locations_csv"])) {
         }
         fclose($file);
 
-        // Logging
         logAction("Location", "Import", "$session_name imported $row_count location(s). $duplicate_count duplicate(s) found and not imported", $client_id);
 
-        $_SESSION['alert_message'] = "$row_count Location(s) imported, $duplicate_count duplicate(s) detected and not imported";
+        flash_alert("$row_count Location(s) imported, $duplicate_count duplicate(s) detected and not imported");
+        
         redirect();
     }
     //Check for any errors, if there are notify user and redirect
     if($error) {
-        $_SESSION['alert_type'] = "warning";
         redirect();
     }
+    
 }
 
 if(isset($_GET['download_locations_csv_template'])){

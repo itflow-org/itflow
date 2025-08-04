@@ -41,10 +41,9 @@ if (isset($_POST['add_rack'])) {
         mysqli_query($mysqli,"UPDATE racks SET rack_photo = '$new_file_name' WHERE rack_id = $rack_id");
     }
 
-    // Logging
     logAction("Rack", "Create", "$session_name created rack $name", $client_id, $rack_id);
 
-    $_SESSION['alert_message'] = "Rack <strong>$name</strong> created";
+    flash_alert("Rack <strong>$name</strong> created");
 
     redirect();
 
@@ -84,10 +83,9 @@ if (isset($_POST['edit_rack'])) {
         mysqli_query($mysqli,"UPDATE racks SET rack_photo = '$new_file_name' WHERE rack_id = $rack_id");
     }
 
-    // Logging
     logAction("Rack", "Edit", "$session_name edited rack $name", $client_id, $rack_id);
 
-    $_SESSION['alert_message'] = "Rack <strong>$name</strong> edited";
+    flash_alert("Rack <strong>$name</strong> edited");
 
     redirect();
 
@@ -107,11 +105,9 @@ if (isset($_GET['archive_rack'])) {
 
     mysqli_query($mysqli,"UPDATE racks SET rack_archived_at = NOW() WHERE rack_id = $rack_id");
 
-    // Logging
     logAction("Rack", "Archive", "$session_name archived rack $rack_name", $client_id, $rack_id);
 
-    $_SESSION['alert_type'] = "error";
-    $_SESSION['alert_message'] = "Rack <strong>$rack_name</strong> archived";
+    flash_alert("Rack <strong>$rack_name</strong> archived", 'error');
 
     redirect();
 
@@ -131,10 +127,9 @@ if (isset($_GET['unarchive_rack'])) {
 
     mysqli_query($mysqli,"UPDATE racks SET rack_archived_at = NULL WHERE rack_id = $rack_id");
 
-    // Logging
     logAction("Rack", "Unarchive", "$session_name unarchived rack $rack_name", $client_id, $rack_id);
 
-    $_SESSION['alert_message'] = "Rack <strong>$rack_name</strong> Unarchived";
+    flash_alert("Rack <strong>$rack_name</strong> Unarchived");
 
     redirect();
 
@@ -160,11 +155,9 @@ if (isset($_GET['delete_rack'])) {
         unlink("../uploads/clients/$client_id/$rack_photo");
     }
 
-    // Logging
     logAction("Rack", "Delete", "$session_name deleted rack $rack_name", $client_id);
 
-    $_SESSION['alert_type'] = "error";
-    $_SESSION['alert_message'] = "Rack <strong>$rack_name</strong> deleted";
+    flash_alert("Rack <strong>$rack_name</strong> deleted", 'error');
 
     redirect();
 
@@ -189,21 +182,17 @@ if (isset($_POST['add_rack_unit'])) {
 
     // **New Validation Check**
     if ($unit_start > $unit_end) {
-        $_SESSION['alert_type'] = "error";
-        $_SESSION['alert_message'] = "Unit Start number cannot be higher than Unit End number.";
+        flash_alert("Unit Start number cannot be higher than Unit End number.", 'error');
         redirect();
-        exit();
     }
 
     // Check if the unit range is already occupied
     $check_sql = mysqli_query($mysqli, "SELECT * FROM rack_units WHERE unit_rack_id = $rack_id AND unit_start_number <= $unit_end AND unit_end_number >= $unit_start");
 
     if (mysqli_num_rows($check_sql) > 0) {
-        // If there is an overlap, return an error message
-        $_SESSION['alert_type'] = "error";
-        $_SESSION['alert_message'] = "Units $unit_start to $unit_end are already in use by another device.";
+        // If there is an overlap, return an error message;
+        flash_alert("Units $unit_start to $unit_end are already in use by another device.", 'error');
         redirect();
-        exit();
     }
 
     // If no overlap and validation passes, proceed with the insertion
@@ -211,12 +200,12 @@ if (isset($_POST['add_rack_unit'])) {
 
     $unit_id = mysqli_insert_id($mysqli);
 
-    // Logging
     logAction("Rack", "Edit", "$session_name added device $name to units $unit_start - $unit_end in rack $rack_name", $client_id, $rack_id);
 
-    $_SESSION['alert_message'] = "Device <strong>$name</strong> added to units $unit_start - $unit_end in rack.";
+    flash_alert("Device <strong>$name</strong> added to units $unit_start - $unit_end in rack.");
 
     redirect();
+
 }
 
 if (isset($_POST['edit_rack_unit'])) {
@@ -239,10 +228,9 @@ if (isset($_POST['edit_rack_unit'])) {
 
     mysqli_query($mysqli,"UPDATE rack_units SET unit_device = '$name', unit_asset_id = $asset, unit_start_number = $unit_start, unit_end_number = $unit_end WHERE unit_id = $unit_id");
 
-    // Logging
     logAction("Rack", "Edit", "$session_name edited device $name in rack $rack_name", $client_id, $rack_id);
 
-    $_SESSION['alert_message'] = "Device $name edited on the rack";
+    flash_alert("Device $name edited on the rack");
 
     redirect();
 
@@ -264,11 +252,9 @@ if (isset($_GET['remove_rack_unit'])) {
 
     mysqli_query($mysqli,"DELETE FROM rack_units WHERE unit_id = $unit_id");
 
-    // Logging
     logAction("Rack", "Edit", "$session_name removed device $device_name from rack $rack_name", $client_id, $rack_id);
 
-    $_SESSION['alert_type'] = "error";
-    $_SESSION['alert_message'] = "Device <strong>$device_name</strong> removed from rack";
+    flash_alert("Device <strong>$device_name</strong> removed from rack", 'error');
 
     redirect();
 

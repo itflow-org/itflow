@@ -6,7 +6,6 @@
 
 defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
 
-// Products
 if (isset($_POST['add_product'])) {
 
     enforceUserPermission('module_sales', 2);
@@ -17,10 +16,9 @@ if (isset($_POST['add_product'])) {
 
     $product_id = mysqli_insert_id($mysqli);
 
-    // Logging
     logAction("Product", "Create", "$session_name created product $name", 0, $product_id);
 
-    $_SESSION['alert_message'] = "Product <strong>$name</strong> created";
+    flash_alert("Product <strong>$name</strong> created");
 
     redirect();
 
@@ -36,10 +34,9 @@ if (isset($_POST['edit_product'])) {
 
     mysqli_query($mysqli,"UPDATE products SET product_name = '$name', product_description = '$description', product_price = '$price', product_tax_id = $tax, product_category_id = $category WHERE product_id = $product_id");
 
-    // Logging
     logAction("Product", "Edit", "$session_name edited product $name", 0, $product_id);
 
-    $_SESSION['alert_message'] = "Product <strong>$name</strong> edited";
+    flash_alert("Product <strong>$name</strong> edited");
 
     redirect();
 
@@ -51,18 +48,13 @@ if (isset($_GET['archive_product'])) {
 
     $product_id = intval($_GET['archive_product']);
 
-    // Get Contact Name and Client ID for logging and alert message
-    $sql = mysqli_query($mysqli,"SELECT product_name FROM products WHERE product_id = $product_id");
-    $row = mysqli_fetch_array($sql);
-    $product_name = sanitizeInput($row['product_name']);
+    $product_name = sanitizeInput(getFieldById('products', $product_id, 'product_name'));
 
     mysqli_query($mysqli,"UPDATE products SET product_archived_at = NOW() WHERE product_id = $product_id");
 
-    // Logging
     logAction("Product", "Archive", "$session_name archived product $product_name", 0, $product_id);
 
-    $_SESSION['alert_type'] = "error";
-    $_SESSION['alert_message'] = "Product <strong>$product_name</strong> archived";
+    flash_alert("Product <strong>$product_name</strong> archived", 'error');
 
     redirect();
 
@@ -74,17 +66,13 @@ if (isset($_GET['unarchive_product'])) {
 
     $product_id = intval($_GET['unarchive_product']);
 
-    // Get Contact Name and Client ID for logging and alert message
-    $sql = mysqli_query($mysqli,"SELECT product_name FROM products WHERE product_id = $product_id");
-    $row = mysqli_fetch_array($sql);
-    $product_name = sanitizeInput($row['product_name']);
+    $product_name = sanitizeInput(getFieldById('products', $product_id, 'product_name'));
 
     mysqli_query($mysqli,"UPDATE products SET product_archived_at = NULL WHERE product_id = $product_id");
 
-    // Logging
     logAction("Product", "Unarchive", "$session_name unarchived product $product_name", 0, $product_id);
 
-    $_SESSION['alert_message'] = "Product <strong>$product_name</strong> restored";
+    flash_alert("Product <strong>$product_name</strong> restored");
 
     redirect();
 
@@ -97,17 +85,13 @@ if (isset($_GET['delete_product'])) {
     $product_id = intval($_GET['delete_product']);
 
     //Get Product Name
-    $sql = mysqli_query($mysqli,"SELECT * FROM products WHERE product_id = $product_id");
-    $row = mysqli_fetch_array($sql);
-    $product_name = sanitizeInput($row['product_name']);
+    $product_name = sanitizeInput(getFieldById('products', $product_id, 'product_name'));
 
     mysqli_query($mysqli,"DELETE FROM products WHERE product_id = $product_id");
 
-    // Logging
     logAction("Product", "Delete", "$session_name deleted product $product_name");
 
-    $_SESSION['alert_type'] = "error";
-    $_SESSION['alert_message'] = "Product <strong>$product_name</strong> deleted";
+    flash_alert("Product <strong>$product_name</strong> deleted", 'error');
 
     redirect();
 
@@ -120,9 +104,7 @@ if (isset($_POST['bulk_edit_product_category'])) {
     $category_id = intval($_POST['bulk_category_id']);
 
     // Get Category name for logging and Notification
-    $sql = mysqli_query($mysqli,"SELECT category_name FROM categories WHERE category_id = $category_id");
-    $row = mysqli_fetch_array($sql);
-    $category_name = sanitizeInput($row['category_name']);
+    $category_name = sanitizeInput(getFieldById('categories', $category_id, 'category_name'));
 
     // Assign category to Selected Products
     if (isset($_POST['product_ids'])) {
@@ -134,31 +116,28 @@ if (isset($_POST['bulk_edit_product_category'])) {
             $product_id = intval($product_id);
 
             // Get Product Details for Logging
-            $sql = mysqli_query($mysqli,"SELECT product_name FROM products WHERE product_id = $product_id");
-            $row = mysqli_fetch_array($sql);
-            $product_name = sanitizeInput($row['product_name']);
+            $product_name = sanitizeInput(getFieldById('products', $product_id, 'product_name'));
 
             mysqli_query($mysqli,"UPDATE products SET product_category_id = $category_id WHERE product_id = $product_id");
 
-            //Logging
             logAction("Product", "Edit", "$session_name assigned product $product_name to category $category_name", 0, $product_id);
 
         } // End Assign Product Loop
 
-        //Logging
         logAction("Product", "Edit", "$session_name assigned category $category_name to $count product(s)");
 
-        $_SESSION['alert_message'] = "Assigned category <strong>$category_name</strong> to <strong>$count</strong> product(s)";
+        flash_alert("Assigned category <strong>$category_name</strong> to <strong>$count</strong> product(s)");
     }
 
     redirect();
+
 }
 
 if (isset($_POST['bulk_archive_products'])) {
     
-    enforceUserPermission('module_sales', 2);
-    
     validateCSRFToken($_POST['csrf_token']);
+
+    enforceUserPermission('module_sales', 2);
 
     if (isset($_POST['product_ids'])) {
 
@@ -169,31 +148,28 @@ if (isset($_POST['bulk_archive_products'])) {
 
             $product_id = intval($product_id);
 
-            // Get Name and Client ID for logging and alert message
-            $sql = mysqli_query($mysqli,"SELECT product_name FROM products WHERE product_id = $product_id");
-            $row = mysqli_fetch_array($sql);
-            $product_name = sanitizeInput($row['product_name']);
+            $product_name = sanitizeInput(getFieldById('products', $product_id, 'product_name'));
 
             mysqli_query($mysqli,"UPDATE products SET product_archived_at = NOW() WHERE product_id = $product_id");
 
-            // Individual Contact logging
             logAction("Product", "Archive", "$session_name archived product $product_name", 0, $product_id);
         }
 
-        // Bulk Logging
         logAction("Product", "Bulk Archive", "$session_name archived $count product(s)");
 
-        $_SESSION['alert_type'] = "error";
-        $_SESSION['alert_message'] = "Archived <strong>$count</strong> product(s)";
+        flash_alert("Archived <strong>$count</strong> product(s)", 'error');
 
     }
 
     redirect();
+
 }
 
 if (isset($_POST['bulk_unarchive_products'])) {
-    enforceUserPermission('module_sales', 2);
+
     validateCSRFToken($_POST['csrf_token']);
+    
+    enforceUserPermission('module_sales', 2);
 
     if (isset($_POST['product_ids'])) {
 
@@ -204,31 +180,30 @@ if (isset($_POST['bulk_unarchive_products'])) {
 
             $product_id = intval($product_id);
 
-            // Get Name and Client ID for logging and alert message
-            $sql = mysqli_query($mysqli,"SELECT product_name FROM products WHERE product_id = $product_id");
-            $row = mysqli_fetch_array($sql);
-            $product_name = sanitizeInput($row['product_name']);
+            $product_name = sanitizeInput(getFieldById('products', $product_id, 'product_name'));
 
             mysqli_query($mysqli,"UPDATE products SET product_archived_at = NULL WHERE product_id = $product_id");
 
-            // Individual logging
             logAction("Product", "Unarchive", "$session_name unarchived product $product_name", 0, $product_id);
 
         }
 
-        // Bulk Logging
         logAction("Product", "Bulk Unarchive", "$session_name unarchived $count product(s)");
 
-        $_SESSION['alert_message'] = "Unarchived <strong>$count</strong> product(s)";
+        flash_alert("Unarchived <strong>$count</strong> product(s)");
 
     }
 
     redirect();
+
 }
 
 if (isset($_POST['bulk_delete_products'])) {
-    enforceUserPermission('module_sales', 3);
+
     validateCSRFToken($_POST['csrf_token']);
+    
+    enforceUserPermission('module_sales', 3);
+    
 
     if (isset($_POST['product_ids'])) {
 
@@ -236,30 +211,24 @@ if (isset($_POST['bulk_delete_products'])) {
 
         // Cycle through array and delete each record
         foreach ($_POST['product_ids'] as $product_id) {
-
             $product_id = intval($product_id);
 
-            // Get Name and Client ID for logging and alert message
-            $sql = mysqli_query($mysqli,"SELECT product_name FROM products WHERE product_id = $product_id");
-            $row = mysqli_fetch_array($sql);
-            $product_name = sanitizeInput($row['product_name']);
+            $product_name = sanitizeInput(getFieldById('products', $product_id, 'product_name'));
 
             mysqli_query($mysqli, "DELETE FROM products WHERE product_id = $product_id");
 
-            // Individual logging
             logAction("Product", "Delete", "$session_name deleted product $product_name");
 
         }
 
-        // Bulk logging
         logAction("Product", "Bulk Delete", "$session_name deleted $count product(s)");
 
-        $_SESSION['alert_message'] = "Deleted <strong>$count</strong> product(s)";
+        flash_alert("Deleted <strong>$count</strong> product(s)", 'error');
 
     }
 
     redirect();
-    exit();
+
 }
 
 if (isset($_POST['export_products_csv'])) {
@@ -302,7 +271,6 @@ if (isset($_POST['export_products_csv'])) {
         fpassthru($f);
     }
 
-    //Logging
     logAction("Product", "Export", "$session_name exported $num_rows product(s) to a CSV file");
 
     exit;

@@ -70,12 +70,12 @@ if (isset($_POST['add_project'])) {
         } // End Ticket Loop
     } // End If Project Template
 
-    // Logging
     logAction("Project", "Create", "$session_name created project $project_name", $client_id, $project_id);
 
-    $_SESSION['alert_message'] = "You created Project <strong>$project_name</strong>";
+    flash_alert("You created Project <strong>$project_name</strong>");
 
     redirect();
+
 }
 
 if (isset($_POST['edit_project'])) {
@@ -91,12 +91,12 @@ if (isset($_POST['edit_project'])) {
 
     mysqli_query($mysqli, "UPDATE projects SET project_name = '$project_name', project_description = '$project_description', project_due = '$due_date', project_manager = $project_manager, project_client_id = $client_id WHERE project_id = $project_id");
 
-    // Logging
     logAction("Project", "Edit", "$session_name edited project $project_name", $client_id, $project_id);
 
-    $_SESSION['alert_message'] = "Project <strong>$project_name</strong> edited";
+    flash_alert("Project <strong>$project_name</strong> edited");
 
     redirect();
+
 }
 
 if (isset($_GET['close_project'])) {
@@ -113,12 +113,12 @@ if (isset($_GET['close_project'])) {
 
     mysqli_query($mysqli, "UPDATE projects SET project_completed_at = NOW() WHERE project_id = $project_id");
 
-    // Logging
     logAction("Project", "Close", "$session_name closed project $project_name", $client_id, $project_id);
 
-    $_SESSION['alert_message'] = "Project <strong>$project_name</strong> closed";
+    flash_alert("Project <strong>$project_name</strong> closed");
 
     redirect();
+
 }
 
 if (isset($_GET['archive_project'])) {
@@ -135,13 +135,12 @@ if (isset($_GET['archive_project'])) {
 
     mysqli_query($mysqli, "UPDATE projects SET project_archived_at = NOW() WHERE project_id = $project_id");
 
-    // Logging
     logAction("Project", "Archive", "$session_name archived project $project_name", $client_id, $project_id);
 
-    $_SESSION['alert_type'] = "error";
-    $_SESSION['alert_message'] = "Project <strong>$project_name</strong> archived";
+    flash_alert("Project <strong>$project_name</strong> archived", 'error');
 
     redirect();
+
 }
 
 if (isset($_GET['unarchive_project'])) {
@@ -158,20 +157,19 @@ if (isset($_GET['unarchive_project'])) {
 
     mysqli_query($mysqli, "UPDATE projects SET project_archived_at = NULL WHERE project_id = $project_id");
 
-    // Logging
     logAction("Project", "Unarchive", "$session_name unarchived project $project_name", $client_id, $project_id);
 
-    $_SESSION['alert_message'] = "Project <strong>$project_name</strong> unarchived";
+    flash_alert("Project <strong>$project_name</strong> unarchived");
 
     redirect();
+
 }
 
 if (isset($_GET['delete_project'])) {
 
-    enforceUserPermission('module_support', 3);
-
-    // CSRF Check
     validateCSRFToken($_GET['csrf_token']);
+
+    enforceUserPermission('module_support', 3);
 
     $project_id = intval($_GET['delete_project']);
 
@@ -183,18 +181,18 @@ if (isset($_GET['delete_project'])) {
 
     mysqli_query($mysqli, "DELETE FROM projects WHERE project_id = $project_id");
 
-    // Logging
     logAction("Project", "Delete", "$session_name deleted project $project_name", $client_id, $project_id);
 
-    $_SESSION['alert_type'] = "error";
-    $_SESSION['alert_message'] = "Project <strong>$project_name</strong> Deleted";
+    flash_alert("Project <strong>$project_name</strong> Deleted", 'error');
 
     redirect();
+
 }
 
 if (isset($_POST['link_ticket_to_project'])) {
 
     enforceUserPermission('module_support', 2);
+
     $project_id = intval($_POST['project_id']);
 
     // Get Project Name and Client ID for logging
@@ -221,23 +219,23 @@ if (isset($_POST['link_ticket_to_project'])) {
 
             mysqli_query($mysqli, "UPDATE tickets SET ticket_project_id = $project_id WHERE ticket_id = $ticket_id");
 
-            // Logging
             logAction("Project", "Edit", "$session_name added ticket $ticket_prefix$ticket_number - $ticket_subject to project $project_name", $client_id, $project_id);
 
         }
 
-        // Bulk Logging
         logAction("Project", "Bulk Edit", "$session_name added $count ticket(s) to project $project_name", $client_id, $project_id);
 
-        $_SESSION['alert_message'] = "<strong>$count</strong> Ticket(s) added to <strong>$project_name</strong>";
+        flash_alert("<strong>$count</strong> Ticket(s) added to <strong>$project_name</strong>");
     }
 
     redirect();
+
 }
 
 if (isset($_POST['link_closed_ticket_to_project'])) {
 
     enforceUserPermission('module_support', 2);
+
     $project_id = intval($_POST['project_id']);
     $ticket_number = intval($_POST['ticket_number']);
 
@@ -250,9 +248,8 @@ if (isset($_POST['link_closed_ticket_to_project'])) {
     // Get ticket details
     $sql = mysqli_query($mysqli, "SELECT ticket_id, ticket_prefix, ticket_number, ticket_subject, ticket_updated_at FROM tickets WHERE ticket_number = $ticket_number");
     if (mysqli_num_rows($sql) == 0) {
-        $_SESSION['alert_message'] = "Cannot merge into that ticket.";
+        flash_alert("Cannot merge into that ticket.", 'error');
         redirect();
-        exit();
     }
     $row = mysqli_fetch_array($sql);
     $ticket_id = intval($row['ticket_id']);
@@ -263,9 +260,10 @@ if (isset($_POST['link_closed_ticket_to_project'])) {
 
     mysqli_query($mysqli, "UPDATE tickets SET ticket_project_id = $project_id, ticket_updated_at = '$ticket_updated' WHERE ticket_id = $ticket_id");
 
-    // Logging
     logAction("Project", "Edit", "$session_name added ticket $ticket_prefix$ticket_number - $ticket_subject to project $project_name", $client_id, $project_id);
 
-    $_SESSION['alert_message'] = "Ticket added to <strong>$project_name</strong>";
+    flash_alert("Ticket added to <strong>$project_name</strong>");
+    
     redirect();
+
 }

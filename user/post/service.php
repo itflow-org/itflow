@@ -74,10 +74,9 @@ if (isset($_POST['add_service'])) {
         }
     }
 
-    // Logging
     logAction("Service", "Create", "$session_name created service $service_name", $client_id, $service_id);
 
-    $_SESSION['alert_message'] = "Service <strong>$service_name</strong> created";
+    flash_alert("Service <strong>$service_name</strong> created");
     
     redirect();
 
@@ -158,10 +157,9 @@ if (isset($_POST['edit_service'])) {
         }
     }
 
-    // Logging
     logAction("Service", "Edit", "$session_name edited service $service_name", $client_id, $service_id);
 
-    $_SESSION['alert_message'] = "Service <strong>$service_name</strong> edited";
+    flash_alert("Service <strong>$service_name</strong> edited");
     
     redirect();
 
@@ -169,9 +167,10 @@ if (isset($_POST['edit_service'])) {
 
 if (isset($_GET['delete_service'])) {
 
-    enforceUserPermission('module_support', 3);
     validateCSRFToken($_GET['csrf_token']);
 
+    enforceUserPermission('module_support', 3);
+    
     $service_id = intval($_GET['delete_service']);
 
     // Get Service Details
@@ -183,11 +182,9 @@ if (isset($_GET['delete_service'])) {
     // Delete service
     mysqli_query($mysqli, "DELETE FROM services WHERE service_id = $service_id");
 
-    // Logging
     logAction("Service", "Delete", "$session_name deleted service $service_name", $client_id);
-
-    $_SESSION['alert_type'] = "error";
-    $_SESSION['alert_message'] = "Service <strong>$service_name</strong> deleted";
+    
+    flash_alert("Service <strong>$service_name</strong> deleted", 'error');
     
     redirect();
 

@@ -8,16 +8,13 @@ defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
 
 if (isset($_POST['edit_your_user_details'])) {
 
-    // CSRF Check
     validateCSRFToken($_POST['csrf_token']);
 
     $name = sanitizeInput($_POST['name']);
     $email = sanitizeInput($_POST['email']);
     $signature = sanitizeInput($_POST['signature']);
 
-    $sql = mysqli_query($mysqli,"SELECT user_avatar FROM users WHERE user_id = $session_user_id");
-    $row = mysqli_fetch_array($sql);
-    $existing_file_name = sanitizeInput($row['user_avatar']);
+    $existing_file_name = sanitizeInput(getFieldById('users', $session_user_id, 'user_avatar'));
 
     $logout = false;
     $extended_log_description = '';
@@ -78,40 +75,40 @@ if (isset($_POST['edit_your_user_details'])) {
 
     mysqli_query($mysqli,"UPDATE user_settings SET user_config_signature = '$signature' WHERE user_id = $session_user_id");
 
-    //Logging
     logAction("User Account", "Edit", "$session_name edited their account $extended_log_description");
 
-    $_SESSION['alert_message'] = "User details updated";
+    flash_alert("User details updated");
 
     if ($logout) {
-        header('Location: post.php?logout');
-    }
-    else{
+        redirect('post.php?logout');
+    } else {
         redirect();
     }
+
 }
 
 if (isset($_GET['clear_your_user_avatar'])) {
+    
     validateCSRFToken($_GET['csrf_token']);
 
     mysqli_query($mysqli,"UPDATE users SET user_avatar = NULL WHERE user_id = $session_user_id");
 
     logAction("User Account", "Edit", "$session_name cleared their avatar");
 
-    $_SESSION['alert_message'] = "Avatar cleared";
+    flash_alert("Avatar cleared", 'error');
+    
     redirect();
+
 }
 
 if (isset($_POST['edit_your_user_password'])) {
 
-    // CSRF Check
     validateCSRFToken($_POST['csrf_token']);
 
     $new_password = trim($_POST['new_password']);
 
     if (empty($new_password)) {
-        header('Location: user_security.php');
-        exit;
+        redirect('user_security.php');
     }
 
     // Email notification when password or email is changed
@@ -148,17 +145,15 @@ if (isset($_POST['edit_your_user_password'])) {
     $user_specific_encryption_ciphertext = encryptUserSpecificKey($_POST['new_password']);
     mysqli_query($mysqli,"UPDATE users SET user_password = '$new_password', user_specific_encryption_ciphertext = '$user_specific_encryption_ciphertext' WHERE user_id = $session_user_id");
 
-    // Logging
     logAction("User Account", "Edit", "$session_name changed their password");
 
-    $_SESSION['alert_message'] = "Your password was updated";
+    flash_alert("Your password was updated");
 
-    header('Location: post.php?logout');
+    redirect('post.php?logout');
 }
 
 if (isset($_POST['edit_your_user_preferences'])) {
 
-    // CSRF Check
     validateCSRFToken($_POST['csrf_token']);
 
     $calendar_first_day = intval($_POST['calendar_first_day']);
@@ -185,12 +180,12 @@ if (isset($_POST['edit_your_user_preferences'])) {
         $extended_log_description .= "disabled browser extension access";
     }
 
-    // Logging
     logAction("User Account", "Edit", "$session_name $extended_log_description");
 
-    $_SESSION['alert_message'] = "User preferences updated";
+    flash_alert("User preferences updated");
 
     redirect();
+
 }
 
 if (isset($_POST['enable_mfa'])) {
@@ -218,10 +213,9 @@ if (isset($_POST['enable_mfa'])) {
         // Delete any existing MFA tokens - these browsers should be re-validated
         mysqli_query($mysqli, "DELETE FROM remember_tokens WHERE remember_token_user_id = $session_user_id");
 
-        // Logging
         logAction("User Account", "Edit", "$session_name enabled MFA on their account");
 
-        $_SESSION['alert_message'] = "Multi-Factor authentication enabled";
+        flash_alert("Multi-Factor authentication enabled");
 
         // Clear the mfa_token from the session to avoid re-use.
         unset($_SESSION['mfa_token']);
@@ -231,15 +225,14 @@ if (isset($_POST['enable_mfa'])) {
             $previousPage = basename(parse_url($_SERVER['HTTP_REFERER'], PHP_URL_PATH));
             if ($previousPage === 'mfa_enforcement.php') {
                 // Redirect back to mfa_enforcement.php
-                header("Location: $config_start_page");
-                exit;
+                redirect("$config_start_page");
+                
             }
         }    
 
     } else {
         // FAILURE
-        $_SESSION['alert_type'] = "error";
-        $_SESSION['alert_message'] = "Verification code invalid, please try again.";
+        flash_alert("Verification code invalid, please try again.", 'error');
 
         // Set a flag to automatically open the MFA modal again
         $_SESSION['show_mfa_modal'] = true;
@@ -249,29 +242,22 @@ if (isset($_POST['enable_mfa'])) {
             $previousPage = basename(parse_url($_SERVER['HTTP_REFERER'], PHP_URL_PATH));
             if ($previousPage === 'mfa_enforcement.php') {
                 // Redirect back to mfa_enforcement.php
-                header("Location: " . $_SERVER['HTTP_REFERER']);
-                exit;
+                redirect();
             }
         }    
     }
 
-
-
-    header("Location: user_security.php");
-    exit;
+    redirect("user_security.php");
 
 }
 
 if (isset($_GET['disable_mfa'])){
 
     if ($session_user_config_force_mfa) {
-        $_SESSION['alert_type'] = "error";
-        $_SESSION['alert_message'] = "Multi-Factor authentication cannot be disabled for your account";
+        flash_alert("Multi-Factor authentication cannot be disabled for your account", 'error');
         redirect();
-        exit();
     }
 
-    // CSRF Check
     validateCSRFToken($_GET['csrf_token']);
 
     mysqli_query($mysqli,"UPDATE users SET user_token = '' WHERE user_id = $session_user_id");
@@ -302,11 +288,9 @@ if (isset($_GET['disable_mfa'])){
         $mail = addToMailQueue($data);
     }
 
-    // Logging
     logAction("User Account", "Edit", "$session_name disabled MFA on their account");
 
-    $_SESSION['alert_type'] = "error";
-    $_SESSION['alert_message'] = "Multi-Factor authentication disabled";
+    flash_alert("Multi-Factor authentication disabled", 'error');
 
     redirect();
 
@@ -314,17 +298,14 @@ if (isset($_GET['disable_mfa'])){
 
 if (isset($_POST['revoke_your_2fa_remember_tokens'])) {
 
-    // CSRF
     validateCSRFToken($_POST['csrf_token']);
 
     // Delete tokens
     mysqli_query($mysqli, "DELETE FROM remember_tokens WHERE remember_token_user_id = $session_user_id");
 
-    //Logging
     logAction("User Account", "Edit", "$session_name revoked all their remember-me tokens");
 
-    $_SESSION['alert_type'] = "error";
-    $_SESSION['alert_message'] = "Remember me tokens revoked";
+    flash_alert("Remember me tokens revoked", 'error');
 
     redirect();
 
