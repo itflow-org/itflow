@@ -30,7 +30,7 @@ if (isset($_POST['edit_role'])) {
 
     validateCSRFToken($_POST['csrf_token']);
 
-    $role_id = sanitizeInput($_POST['role_id']);
+    $role_id = intval($_POST['role_id']);
     $name = sanitizeInput($_POST['role_name']);
     $description = sanitizeInput($_POST['role_description']);
     $admin = intval($_POST['role_is_admin']);
