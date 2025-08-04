@@ -556,20 +556,25 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             <!-- Show Billing if perms & if accounting module is enabled -->
                             <?php if ((lookupUserPermission("module_financial") >= 1) && $config_module_enable_accounting == 1) { ?>
                                 <td class="text-right">
-                                    <div>
-                                        <span class="text-secondary">Balance</span> <span class="<?php echo $balance_text_color; ?>"><?php echo numfmt_format_currency($currency_format, $balance, $session_company_currency); ?></span>
+                                    <div class="d-flex justify-content-between">
+                                        <span class="text-secondary">Balance</span>
+                                        <span class="<?php echo $balance_text_color; ?>"><?php echo numfmt_format_currency($currency_format, $balance, $session_company_currency); ?></span>
                                     </div>
-                                    <div>
-                                        <span class="text-secondary">Paid</span> <?php echo numfmt_format_currency($currency_format, $amount_paid, $session_company_currency); ?>
+                                    <div class="d-flex justify-content-between">
+                                        <span class="text-secondary">Paid</span>
+                                        <span><?php echo numfmt_format_currency($currency_format, $amount_paid, $session_company_currency); ?></span>
                                     </div>
-                                    <div>
-                                        <span class="text-secondary mr-2">Credit</span><span class="text-success"><?php echo numfmt_format_currency($currency_format, $credit_balance, $session_company_currency); ?></span>
+                                    <div class="d-flex justify-content-between">
+                                        <span class="text-secondary">Credit</span>
+                                        <span class="text-success"><?php echo numfmt_format_currency($currency_format, $credit_balance, $session_company_currency); ?></span>
                                     </div>
-                                    <div>
-                                        <span class="text-secondary">Monthly</span> <?php echo numfmt_format_currency($currency_format, $recurring_monthly, $session_company_currency); ?>
+                                    <div class="d-flex justify-content-between">
+                                        <span class="text-secondary">Monthly</span>
+                                        <span><?php echo numfmt_format_currency($currency_format, $recurring_monthly, $session_company_currency); ?></span>
                                     </div>
-                                    <div>
-                                        <span class="text-secondary">Hourly Rate</span> <?php echo numfmt_format_currency($currency_format, $client_rate, $session_company_currency); ?>
+                                    <div class="d-flex justify-content-between">
+                                        <span class="text-secondary">Hourly Rate</span>
+                                        <span><?php echo numfmt_format_currency($currency_format, $client_rate, $session_company_currency); ?></span>
                                     </div>
                                 </td>
                             <?php } ?>
