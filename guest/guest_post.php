@@ -9,6 +9,7 @@ session_start();
 require_once "../includes/inc_set_timezone.php"; // Must be included after session_start to work
 
 if (isset($_GET['accept_quote'], $_GET['url_key'])) {
+
     $quote_id = intval($_GET['accept_quote']);
     $url_key = sanitizeInput($_GET['url_key']);
 
@@ -62,14 +63,18 @@ if (isset($_GET['accept_quote'], $_GET['url_key'])) {
             $mail = addToMailQueue($data);
         }
 
-        $_SESSION['alert_message'] = "Quote Accepted";
+        flash_alert("Quote Accepted");
+        
         redirect();
+    
     } else {
         echo "Invalid!!";
     }
+
 }
 
 if (isset($_GET['decline_quote'], $_GET['url_key'])) {
+
     $quote_id = intval($_GET['decline_quote']);
     $url_key = sanitizeInput($_GET['url_key']);
 
@@ -122,16 +127,18 @@ if (isset($_GET['decline_quote'], $_GET['url_key'])) {
 
             $mail = addToMailQueue($data);
         }
+        flash_alert("Quote Declined", 'danger');
 
-        $_SESSION['alert_type'] = "danger";
-        $_SESSION['alert_message'] = "Quote Declined";
         redirect();
+    
     } else {
         echo "Invalid!!";
     }
+
 }
 
 if (isset($_GET['reopen_ticket'], $_GET['url_key'])) {
+    
     $ticket_id = intval($_GET['ticket_id']);
     $url_key = sanitizeInput($_GET['url_key']);
 
@@ -141,18 +148,24 @@ if (isset($_GET['reopen_ticket'], $_GET['url_key'])) {
     if (mysqli_num_rows($sql) == 1) {
         // Update the ticket
         mysqli_query($mysqli, "UPDATE tickets SET ticket_status = 2, ticket_resolved_at = NULL WHERE ticket_id = $ticket_id AND ticket_url_key = '$url_key'");
+        
         // Add reply
         mysqli_query($mysqli, "INSERT INTO ticket_replies SET ticket_reply = 'Ticket reopened by client (guest URL).', ticket_reply_type = 'Internal', ticket_reply_by = 0, ticket_reply_ticket_id = $ticket_id");
-        // Logging
+        
         customAction('ticket_update', $ticket_id);
-        $_SESSION['alert_message'] = "Ticket reopened";
+        
+        flash_alert("Ticket reopened");
+        
         redirect();
+    
     } else {
         echo "Invalid!!";
     }
+
 }
 
 if (isset($_GET['close_ticket'], $_GET['url_key'])) {
+    
     $ticket_id = intval($_GET['ticket_id']);
     $url_key = sanitizeInput($_GET['url_key']);
 
@@ -160,20 +173,26 @@ if (isset($_GET['close_ticket'], $_GET['url_key'])) {
     $sql = mysqli_query($mysqli, "SELECT ticket_id FROM tickets WHERE ticket_id = $ticket_id AND ticket_url_key = '$url_key' AND ticket_resolved_at IS NOT NULL AND ticket_closed_at IS NULL");
 
     if (mysqli_num_rows($sql) == 1) {
+        
         // Update the ticket
         mysqli_query($mysqli, "UPDATE tickets SET ticket_status = 5, ticket_closed_at = NOW() WHERE ticket_id = $ticket_id AND ticket_url_key = '$url_key'");
+        
         // Add reply
         mysqli_query($mysqli, "INSERT INTO ticket_replies SET ticket_reply = 'Ticket closed by client (guest URL).', ticket_reply_type = 'Internal', ticket_reply_by = 0, ticket_reply_ticket_id = $ticket_id");
-        // Logging
+
         customAction('ticket_close', $ticket_id);
-        $_SESSION['alert_message'] = "Ticket closed";
+        
+        flash_alert("Ticket closed");
+        
         redirect();
+    
     } else {
         echo "Invalid!!";
     }
 }
 
 if (isset($_GET['add_ticket_feedback'], $_GET['url_key'])) {
+    
     $ticket_id = intval($_GET['ticket_id']);
     $url_key = sanitizeInput($_GET['url_key']);
     $feedback = sanitizeInput($_GET['feedback']);
@@ -194,12 +213,16 @@ if (isset($_GET['add_ticket_feedback'], $_GET['url_key'])) {
             appNotify("Feedback", "Guest rated ticket number $ticket_prefix$ticket_number (ID: $ticket_id) as bad", "ticket.php?ticket_id=$ticket_id");
         }
 
-        $_SESSION['alert_message'] = "Feedback recorded - thank you";
+        flash_alert("Feedback recorded - thank you");
+        
         redirect();
+        
         customAction('ticket_feedback', $ticket_id);
+    
     } else {
         echo "Invalid!!";
     }
+
 }
 
 if (isset($_GET['export_quote_pdf'])) {
@@ -397,6 +420,7 @@ if (isset($_GET['export_quote_pdf'])) {
         $pdf->Output("$filename.pdf", 'I');
     }
     exit;
+
 }
 
 if (isset($_GET['export_invoice_pdf'])) {
@@ -626,6 +650,7 @@ if (isset($_GET['export_invoice_pdf'])) {
 }
 
 if (isset($_POST['guest_quote_upload_file'])) {
+    
     $quote_id = intval($_POST['quote_id']);
     $url_key = sanitizeInput($_POST['url_key']);
 
@@ -694,14 +719,17 @@ if (isset($_POST['guest_quote_upload_file'])) {
                     mysqli_query($mysqli, "INSERT INTO quote_files SET quote_id = $quote_id, file_id = $file_id");
 
                     // Logging & feedback
-                    $_SESSION['alert_message'] = 'File uploaded!';
+                    flash_alert('File uploaded!');
+                    
                     appNotify("Quote File", "$file_name was uploaded to quote $quote_prefix$quote_number", "quote.php?quote_id=$quote_id", $client_id);
+                    
                     mysqli_query($mysqli, "INSERT INTO history SET history_status = 'Upload', history_description = 'Client uploaded file $file_name', history_quote_id = $quote_id");
+                    
                     logAction("File", "Upload", "Guest uploaded file $file_name to quote $quote_prefix$quote_number", $client_id);
 
                 } else {
-                    $_SESSION['alert_type'] = 'error';
-                    $_SESSION['alert_message'] = 'Something went wrong uploading the file - please let the support team know.';
+                    flash_alert('Something went wrong uploading the file - please let the support team know.', 'error');
+                    
                     logApp("Guest", "error", "Error uploading file to invoice");
                 }
 
@@ -713,6 +741,5 @@ if (isset($_POST['guest_quote_upload_file'])) {
     } else {
         echo "Invalid!!";
     }
-}
 
-?>
+}

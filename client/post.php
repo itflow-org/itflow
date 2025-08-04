@@ -68,10 +68,9 @@ if (isset($_POST['add_ticket'])) {
     // Custom action/notif handler
     customAction('ticket_create', $ticket_id);
 
-    // Logging
     logAction("Ticket", "Create", "$session_contact_name created ticket $config_ticket_prefix$ticket_number - $subject from the client portal", $session_client_id, $ticket_id);
 
-    header("Location: ticket.php?id=" . $ticket_id);
+    redirect("ticket.php?id=" . $ticket_id);
 
 }
 
@@ -83,7 +82,6 @@ if (isset($_POST['add_ticket_comment'])) {
     // After stripping bad HTML, check the comment isn't just empty
     if (empty($comment)) {
         redirect();
-        exit;
     }
 
     // Verify the contact has access to the provided ticket ID
@@ -176,12 +174,12 @@ if (isset($_POST['add_ticket_comment'])) {
 
     } else {
         // The client does not have access to this ticket
-        header("Location: post.php?logout");
-        exit();
+        redirect("post.php?logout");
     }
 }
 
 if (isset($_POST['add_ticket_feedback'])) {
+    
     $ticket_id = intval($_POST['ticket_id']);
     $feedback = sanitizeInput($_POST['add_ticket_feedback']);
 
@@ -205,13 +203,13 @@ if (isset($_POST['add_ticket_feedback'])) {
         redirect();
     } else {
         // The client does not have access to this ticket
-        header("Location: post.php?logout");
-        exit();
+        redirect("post.php?logout");
     }
 
 }
 
 if (isset($_GET['resolve_ticket'])) {
+    
     $ticket_id = intval($_GET['resolve_ticket']);
 
     // Get ticket details for logging
@@ -229,19 +227,18 @@ if (isset($_GET['resolve_ticket'])) {
         // Add reply
         mysqli_query($mysqli, "INSERT INTO ticket_replies SET ticket_reply = 'Ticket resolved by $session_contact_name.', ticket_reply_type = 'Client', ticket_reply_by = $session_contact_id, ticket_reply_ticket_id = $ticket_id");
 
-        // Logging
         logAction("Ticket", "Edit", "$session_contact_name marked ticket $ticket_prefix$ticket_number as resolved in the client portal", $session_client_id, $ticket_id);
 
         // Custom action/notif handler
         customAction('ticket_resolve', $ticket_id);
 
-        header("Location: ticket.php?id=" . $ticket_id);
+        redirect("ticket.php?id=" . $ticket_id);
 
     } else {
         // The client does not have access to this ticket - send them home
-        header("Location: index.php");
-        exit();
+        redirect("index.php");
     }
+
 }
 
 if (isset($_GET['reopen_ticket'])) {
@@ -262,22 +259,22 @@ if (isset($_GET['reopen_ticket'])) {
         // Add reply
         mysqli_query($mysqli, "INSERT INTO ticket_replies SET ticket_reply = 'Ticket reopened by $session_contact_name.', ticket_reply_type = 'Client', ticket_reply_by = $session_contact_id, ticket_reply_ticket_id = $ticket_id");
 
-        // Logging
         logAction("Ticket", "Edit", "$session_contact_name reopend ticket $ticket_prefix$ticket_number in the client portal", $session_client_id, $ticket_id);
 
         // Custom action/notif handler
         customAction('ticket_update', $ticket_id);
 
-        header("Location: ticket.php?id=" . $ticket_id);
+        redirect("ticket.php?id=" . $ticket_id);
 
     } else {
         // The client does not have access to this ticket - send them home
-        header("Location: index.php");
-        exit();
+        redirect("index.php");
     }
+
 }
 
 if (isset($_GET['close_ticket'])) {
+    
     $ticket_id = intval($_GET['close_ticket']);
 
     // Get ticket details for logging
@@ -295,32 +292,35 @@ if (isset($_GET['close_ticket'])) {
         // Add reply
         mysqli_query($mysqli, "INSERT INTO ticket_replies SET ticket_reply = 'Ticket closed by $session_contact_name.', ticket_reply_type = 'Client', ticket_reply_by = $session_contact_id, ticket_reply_ticket_id = $ticket_id");
 
-        // Logging
         logAction("Ticket", "Edit", "$session_contact_name closed ticket $ticket_prefix$ticket_number in the client portal", $session_client_id, $ticket_id);
 
         // Custom action/notif handler
         customAction('ticket_close', $ticket_id);
 
-        header("Location: ticket.php?id=" . $ticket_id);
+        redirect("ticket.php?id=" . $ticket_id);
+    
     } else {
         // The client does not have access to this ticket - send them home
-        header("Location: index.php");
-        exit();
+        redirect("index.php");
     }
 }
 
 if (isset($_GET['logout'])) {
+    
     setcookie("PHPSESSID", '', time() - 3600, "/");
     unset($_COOKIE['PHPSESSID']);
 
     session_unset();
     session_destroy();
 
-    header('Location: login.php');
+    redirect('login.php');
+
 }
 
 if (isset($_POST['edit_profile'])) {
+    
     $new_password = $_POST['new_password'];
+    
     if (!empty($new_password)) {
         $password_hash = password_hash($new_password, PASSWORD_DEFAULT);
         mysqli_query($mysqli, "UPDATE users SET user_password = '$password_hash' WHERE user_id = $session_user_id");
@@ -328,14 +328,15 @@ if (isset($_POST['edit_profile'])) {
         // Logging
         logAction("Contact", "Edit", "Client contact $session_contact_name edited their profile/password in the client portal", $session_client_id, $session_contact_id);
     }
-    header('Location: index.php');
+    
+    redirect('index.php');
+
 }
 
 if (isset($_POST['add_contact'])) {
 
     if ($session_contact_primary == 0 && !$session_contact_is_technical_contact) {
-        header("Location: post.php?logout");
-        exit();
+        redirect("post.php?logout");
     }
 
     $contact_name = sanitizeInput($_POST['contact_name']);
@@ -347,10 +348,8 @@ if (isset($_POST['add_contact'])) {
     // Check the email isn't already in use
     $sql = mysqli_query($mysqli, "SELECT user_id FROM users WHERE user_email = '$contact_email'");
     if ($sql && mysqli_num_rows($sql) > 0) {
-        $_SESSION['alert_type'] = "danger";
-        $_SESSION['alert_message'] = "Cannot add contact as that email address is already in use";
-        header('Location: contact_add.php');
-        exit();
+        flash_alert("Cannot add contact as that email address is already in use", 'danger');
+        redirect('contact_add.php');
     }
 
     // Create user account with rand password for the contact
@@ -362,10 +361,12 @@ if (isset($_POST['add_contact'])) {
         mysqli_query($mysqli, "INSERT INTO users SET user_name = '$contact_name', user_email = '$contact_email', user_password = '$password_hash', user_auth_method = '$contact_auth_method', user_type = 2");
 
         $contact_user_id = mysqli_insert_id($mysqli);
+    
     }
 
     // Create contact record
     mysqli_query($mysqli, "INSERT INTO contacts SET contact_name = '$contact_name', contact_email = '$contact_email', contact_billing = $contact_billing, contact_technical = $contact_technical, contact_client_id = $session_client_id, contact_user_id = $contact_user_id");
+    
     $contact_id = mysqli_insert_id($mysqli);
 
     // Logging
@@ -373,16 +374,16 @@ if (isset($_POST['add_contact'])) {
 
     customAction('contact_create', $contact_id);
 
-    $_SESSION['alert_message'] = "Contact $contact_name created";
+    flash_alert("Contact $contact_name created");
 
-    header('Location: contacts.php');
+    redirect('contacts.php');
+
 }
 
 if (isset($_POST['edit_contact'])) {
 
     if ($session_contact_primary == 0 && !$session_contact_is_technical_contact) {
-        header("Location: post.php?logout");
-        exit();
+        redirect("post.php?logout");
     }
 
     $contact_id = intval($_POST['contact_id']);
@@ -400,10 +401,8 @@ if (isset($_POST['edit_contact'])) {
     // Check the email isn't already in use
     $sql = mysqli_query($mysqli, "SELECT user_id FROM users WHERE user_email = '$contact_email' AND user_id != $contact_user_id");
     if ($sql && mysqli_num_rows($sql) > 0) {
-        $_SESSION['alert_type'] = "danger";
-        $_SESSION['alert_message'] = "Cannot update contact as that email address is already in use";
-        header('Location: contact_edit.php?id=' . $contact_id);
-        exit();
+        flash_alert("Cannot update contact as that email address is already in use", 'danger');
+        redirect('contact_edit.php?id=' . $contact_id);
     }
 
     // Update Existing User
@@ -421,21 +420,20 @@ if (isset($_POST['edit_contact'])) {
     // Update contact
     mysqli_query($mysqli, "UPDATE contacts SET contact_name = '$contact_name', contact_email = '$contact_email', contact_billing = $contact_billing, contact_technical = $contact_technical, contact_user_id = $contact_user_id WHERE contact_id = $contact_id AND contact_client_id = $session_client_id AND contact_archived_at IS NULL AND contact_primary = 0");
 
-    // Logging
     logAction("Contact", "Edit", "Client contact $session_contact_name edited contact $contact_name in the client portal", $session_client_id, $contact_id);
 
-    $_SESSION['alert_message'] = "Contact $contact_name updated";
+    flash_alert("Contact $contact_name updated");
 
-    header('Location: contacts.php');
+    redirect('contacts.php');
 
     customAction('contact_update', $contact_id);
+
 }
 
 if (isset($_POST['create_stripe_customer'])) {
 
     if ($session_contact_primary == 0 && !$session_contact_is_billing_contact) {
-        header("Location: post.php?logout");
-        exit();
+        redirect("post.php?logout");
     }
 
     // Get Stripe provider
@@ -448,20 +446,16 @@ if (isset($_POST['create_stripe_customer'])) {
 
     $stripe_provider = mysqli_fetch_array($stripe_provider_result);
     if (!$stripe_provider) {
-        $_SESSION['alert_type'] = "danger";
-        $_SESSION['alert_message'] = "Stripe provider is not configured in the system.";
-        header("Location: saved_payment_methods.php");
-        exit();
+        flash_alert("Stripe provider is not configured in the system.", 'danger');
+        redirect("saved_payment_methods.php");
     }
 
     $stripe_provider_id = intval($stripe_provider['payment_provider_id']);
     $stripe_secret_key = nullable_htmlentities($stripe_provider['payment_provider_private_key']);
 
     if (empty($stripe_secret_key)) {
-        $_SESSION['alert_type'] = "danger";
-        $_SESSION['alert_message'] = "Stripe credentials missing. Please contact support.";
-        header("Location: saved_payment_methods.php");
-        exit();
+        flash_alert("Stripe credentials missing. Please contact support.", 'danger');
+        redirect("saved_payment_methods.php");
     }
 
     // Check if client already has a Stripe customer
@@ -500,26 +494,26 @@ if (isset($_POST['create_stripe_customer'])) {
                     client_payment_provider_created_at = NOW()
             ");
 
-            // Logging
             logAction("Stripe", "Create", "$session_contact_name created Stripe customer for $session_client_name as $stripe_customer_id and authorized future automatic payments", $session_client_id, $session_client_id);
 
-            $_SESSION['alert_message'] = "Stripe customer created. Thank you for your consent.";
+            flash_alert("Stripe customer created. Thank you for your consent.");
 
         } catch (Exception $e) {
             $error = $e->getMessage();
+            
             error_log("Stripe error while creating customer for $session_client_name: $error");
+            
             logApp("Stripe", "error", "Failed to create Stripe customer for $session_client_name: $error");
 
-            $_SESSION['alert_type'] = "danger";
-            $_SESSION['alert_message'] = "An error occurred while creating your Stripe customer. Please try again.";
+            flash_alert("An error occurred while creating your Stripe customer. Please try again.", 'danger');
+
         }
 
     } else {
-        $_SESSION['alert_type'] = "danger";
-        $_SESSION['alert_message'] = "Stripe customer already exists for your account.";
+        flash_alert("Stripe customer already exists for your account.", 'danger');
     }
 
-    header('Location: saved_payment_methods.php');
+    redirect('saved_payment_methods.php');
 }
 
 if (isset($_GET['create_stripe_checkout'])) {
@@ -527,8 +521,7 @@ if (isset($_GET['create_stripe_checkout'])) {
     // This page is called by autopay_setup_stripe.js, returns a Checkout Session client_secret
 
     if ($session_contact_primary == 0 && !$session_contact_is_billing_contact) {
-        header("Location: post.php?logout");
-        exit();
+        redirect("post.php?logout");
     }
 
     // Fetch Stripe provider info
@@ -596,8 +589,7 @@ if (isset($_GET['create_stripe_checkout'])) {
 if (isset($_GET['stripe_save_card'])) {
 
     if ($session_contact_primary == 0 && !$session_contact_is_billing_contact) {
-        header("Location: post.php?logout");
-        exit();
+        redirect("post.php?logout");
     }
 
     // Get Stripe provider
@@ -610,20 +602,16 @@ if (isset($_GET['stripe_save_card'])) {
 
     $stripe_provider = mysqli_fetch_array($stripe_provider_result);
     if (!$stripe_provider) {
-        $_SESSION['alert_type'] = "danger";
-        $_SESSION['alert_message'] = "Stripe provider not configured.";
-        header("Location: saved_payment_methods.php");
-        exit();
+        flash_alert("Stripe provider not configured.", 'danger');
+        redirect("saved_payment_methods.php");
     }
 
     $stripe_provider_id = intval($stripe_provider['payment_provider_id']);
     $stripe_secret_key = nullable_htmlentities($stripe_provider['payment_provider_private_key']);
 
     if (empty($stripe_secret_key)) {
-        $_SESSION['alert_type'] = "danger";
-        $_SESSION['alert_message'] = "Stripe credentials missing.";
-        header("Location: saved_payment_methods.php");
-        exit();
+        flash_alert("Stripe credentials missing.", 'danger');
+        redirect("saved_payment_methods.php");
     }
 
     // Get client's Stripe customer ID
@@ -638,10 +626,8 @@ if (isset($_GET['stripe_save_card'])) {
     $stripe_customer_id = sanitizeInput($client_provider['payment_provider_client'] ?? '');
 
     if (empty($stripe_customer_id)) {
-        $_SESSION['alert_type'] = "danger";
-        $_SESSION['alert_message'] = "Stripe customer ID not found for client.";
-        header("Location: saved_payment_methods.php");
-        exit();
+        flash_alert("Stripe customer ID not found for client.", 'danger');
+        redirect("saved_payment_methods.php");
     }
 
     // Get session ID from URL
@@ -685,10 +671,8 @@ if (isset($_GET['stripe_save_card'])) {
         error_log("Stripe error while saving payment method: $error");
         logApp("Stripe", "error", "Exception saving payment method: $error");
 
-        $_SESSION['alert_type'] = "danger";
-        $_SESSION['alert_message'] = "An error occurred while saving your payment method.";
-        header("Location: saved_payment_methods.php");
-        exit();
+        flash_alert("An error occurred while saving your payment method.", 'danger');
+        redirect("saved_payment_methods.php");
     }
 
     // Email Confirmation
@@ -725,19 +709,16 @@ if (isset($_GET['stripe_save_card'])) {
         $mail = addToMailQueue($data);
     }
 
-    // Log the action
     logAction("Stripe", "Update", "$session_contact_name saved payment method ($saved_payment_description) (PM: $payment_method_id)", $session_client_id);
 
-    // Redirect
-    $_SESSION['alert_message'] = "Payment method saved – thank you.";
-    header("Location: saved_payment_methods.php");
+    flash_alert("Payment method saved – thank you.");
+    redirect("saved_payment_methods.php");
 }
 
 if (isset($_GET['delete_saved_payment'])) {
 
     if ($session_contact_primary == 0 && !$session_contact_is_billing_contact) {
-        header("Location: post.php?logout");
-        exit();
+        redirect("post.php?logout");
     }
 
     $saved_payment_id = intval($_GET['delete_saved_payment']);
@@ -752,20 +733,16 @@ if (isset($_GET['delete_saved_payment'])) {
     $stripe_provider = mysqli_fetch_array($stripe_provider_result);
 
     if (!$stripe_provider) {
-        $_SESSION['alert_type'] = "danger";
-        $_SESSION['alert_message'] = "Stripe provider is not configured.";
-        header("Location: saved_payment_methods.php");
-        exit();
+        flash_alert("Stripe provider is not configured.", 'danger');
+        redirect("saved_payment_methods.php");
     }
 
     $stripe_provider_id = intval($stripe_provider['payment_provider_id']);
     $stripe_secret_key = nullable_htmlentities($stripe_provider['payment_provider_private_key']);
 
     if (empty($stripe_secret_key)) {
-        $_SESSION['alert_type'] = "danger";
-        $_SESSION['alert_message'] = "Stripe credentials are missing.";
-        header("Location: saved_payment_methods.php");
-        exit();
+        flash_alert("Stripe credentials are missing.", 'danger');
+        redirect("saved_payment_methods.php");
     }
 
     $saved_payment_result = mysqli_query($mysqli, "
@@ -780,10 +757,8 @@ if (isset($_GET['delete_saved_payment'])) {
     $saved_payment = mysqli_fetch_array($saved_payment_result);
 
     if (!$saved_payment) {
-        $_SESSION['alert_type'] = "danger";
-        $_SESSION['alert_message'] = "Payment method not found or does not belong to you.";
-        header("Location: saved_payment_methods.php");
-        exit();
+        flash_alert("Payment method not found or does not belong to you.", 'danger');
+        redirect("saved_payment_methods.php");
     }
 
     $payment_method_id = sanitizeInput($saved_payment['saved_payment_provider_method']);
@@ -801,13 +776,15 @@ if (isset($_GET['delete_saved_payment'])) {
 
     } catch (Exception $e) {
         $error = $e->getMessage();
+        
         error_log("Stripe error while removing payment method $payment_method_id: $error");
+        
         logApp("Stripe", "error", "Exception removing payment method $payment_method_id: $error");
 
-        $_SESSION['alert_type'] = "danger";
-        $_SESSION['alert_message'] = "An error occurred while removing your payment method.";
-        header("Location: saved_payment_methods.php");
-        exit();
+        flash_alert("An error occurred while removing your payment method.", 'danger');
+        
+        redirect("saved_payment_methods.php");
+        
     }
 
     // Remove saved payment method from local DB
@@ -833,12 +810,11 @@ if (isset($_GET['delete_saved_payment'])) {
         ");
     }
 
-    // Log and redirect
     logAction("Stripe", "Update", "$session_contact_name deleted Stripe payment method $saved_payment_description (PM: $payment_method_id)", $session_client_id);
 
-    $_SESSION['alert_message'] = "Payment method $saved_payment_description removed.";
+    flash_alert("Payment method $saved_payment_description removed.");
     
-    header("Location: saved_payment_methods.php");
+    redirect("saved_payment_methods.php");
 }
 
 if (isset($_POST['set_recurring_payment'])) {
@@ -877,29 +853,27 @@ if (isset($_POST['set_recurring_payment'])) {
         // Get Payment ID for reference
         $recurring_payment_id = mysqli_insert_id($mysqli);
 
-        // Logging
         logAction("Recurring Invoice", "Auto Payment", "$session_name created Auto Pay for Recurring Invoice $recurring_invoice_prefix$recurring_invoice_number in the amount of " . numfmt_format_currency($currency_format, $recurring_invoice_amount, $recurring_invoice_currency_code), $session_client_id, $recurring_invoice_id);
 
-        $_SESSION['alert_message'] = "Automatic Payment $saved_payment_description enabled for Recurring Invoice $recurring_invoice_prefix$recurring_invoice_number";
+        flash_alert("Automatic Payment $saved_payment_description enabled for Recurring Invoice $recurring_invoice_prefix$recurring_invoice_number");
     } else {
         // Delete
         mysqli_query($mysqli, "DELETE FROM recurring_payments WHERE recurring_payment_recurring_invoice_id = $recurring_invoice_id");
 
-        // Logging
         logAction("Recurring Invoice", "Auto Payment", "$session_name removed Auto Pay for Recurring Invoice $recurring_invoice_prefix$recurring_invoice_number in the amount of " . numfmt_format_currency($currency_format, $recurring_invoice_amount, $recurring_invoice_currency_code), $session_client_id, $recurring_invoice_id);
 
-        $_SESSION['alert_message'] = "Automatic Payment Disabled for Recurring Invoice $recurring_invoice_prefix$recurring_invoice_number";
+        flash_alert("Automatic Payment Disabled for Recurring Invoice $recurring_invoice_prefix$recurring_invoice_number");
     }
 
     redirect();
+
 }
 
 if (isset($_POST['client_add_document'])) {
 
     // Permission check - only primary or technical contacts can create documents
     if ($session_contact_primary == 0 && !$session_contact_is_technical_contact) {
-        header("Location: post.php?logout");
-        exit();
+        redirect("post.php?logout");
     }
 
     $document_name = sanitizeInput($_POST['document_name']);
@@ -919,20 +893,19 @@ if (isset($_POST['client_add_document'])) {
 
     $document_id = mysqli_insert_id($mysqli);
 
-    // Logging
     logAction("Document", "Create", "Client contact $session_contact_name created document $document_name", $session_client_id, $document_id);
 
-    $_SESSION['alert_message'] = "Document <strong>$document_name</strong> created successfully";
+    flash_alert("Document <strong>$document_name</strong> created successfully");
 
-    header('Location: documents.php');
+    redirect('documents.php');
+
 }
 
 if (isset($_POST['client_upload_document'])) {
 
     // Permission check - only primary or technical contacts can upload documents
     if ($session_contact_primary == 0 && !$session_contact_is_technical_contact) {
-        header("Location: post.php?logout");
-        exit();
+        redirect("post.php?logout");
     }
 
     $document_name = sanitizeInput($_POST['document_name']);
@@ -996,27 +969,21 @@ if (isset($_POST['client_upload_document'])) {
                 // Link file to document
                 mysqli_query($mysqli, "INSERT INTO document_files SET document_id = $document_id, file_id = $file_id");
 
-                // Logging
                 logAction("Document", "Upload", "Client contact $session_contact_name uploaded document $document_name with file $file_name", $session_client_id, $document_id);
 
-                $_SESSION['alert_message'] = "Document <strong>$document_name</strong> uploaded successfully";
+                flash_alert("Document <strong>$document_name</strong> uploaded successfully");
 
             } else {
-                $_SESSION['alert_type'] = 'error';
-                $_SESSION['alert_message'] = 'Error uploading file. Please try again.';
+                flash_alert('Error uploading file. Please try again.', 'error');
             }
 
         } else {
-            $_SESSION['alert_type'] = 'error';
-            $_SESSION['alert_message'] = 'Invalid file type. Please upload PDF, Word documents, or text files only.';
+            flash_alert('Invalid file type. Please upload PDF, Word documents, or text files only.', 'error');
         }
 
     } else {
-        $_SESSION['alert_type'] = 'error';
-        $_SESSION['alert_message'] = 'Please select a file to upload.';
+        flash_alert('Please select a file to upload.', 'error');
     }
 
-    header('Location: documents.php');
+    redirect('documents.php');
 }
-
-?>
