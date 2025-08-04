@@ -9,9 +9,9 @@ defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
 
 if (isset($_POST['save_budget'])) {
 
-    enforceUserPermission('module_financial', 2);
-
     validateCSRFToken($_POST['csrf_token']);
+
+    enforceUserPermission('module_financial', 2);
 
     $budgets = $_POST['budget'];
     $year = intval($_POST['year']);
@@ -34,31 +34,27 @@ if (isset($_POST['save_budget'])) {
         }
     }
 
-    // Logging
     logAction("Budget", "Edit", "$session_name edited the budget for $year");
 
-    $_SESSION['alert_message'] = "Budget Updated for $year";
+    flash_alert("Budget Updated for $year");
 
     redirect();
     
-    exit;
 }
 
 if (isset($_POST['delete_budget'])) {
 
-    enforceUserPermission('module_financial', 3);
-
     validateCSRFToken($_POST['csrf_token']);
+
+    enforceUserPermission('module_financial', 3);
 
     $year = intval($_POST['year']);
 
     mysqli_query($mysqli,"DELETE FROM budget WHERE budget_year = $year");
 
-    // Logging
     logAction("Budget", "Delete", "$session_name deleted the budget for $year");
 
-    $_SESSION['alert_type'] = "error";
-    $_SESSION['alert_message'] = "Budget deleted for $year";
+    flash_alert("Budget deleted for $year", 'error');
 
     redirect();
 

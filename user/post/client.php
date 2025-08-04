@@ -9,6 +9,7 @@ defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
 if (isset($_POST['add_client'])) {
 
     validateCSRFToken($_POST['csrf_token']);
+    
     enforceUserPermission('module_client', 2);
 
     require_once 'client_model.php';
@@ -48,7 +49,7 @@ if (isset($_POST['add_client'])) {
     $sql = mysqli_query($mysqli, "SELECT category_name FROM categories WHERE category_type = 'Referral' AND category_archived_at IS NULL AND category_name = '$referral'");
     if(mysqli_num_rows($sql) == 0) {
         mysqli_query($mysqli, "INSERT INTO categories SET category_name = '$referral', category_type = 'Referral'");
-        // Logging
+
         logAction("Category", "Create", "$session_name created referral category $referral");
     }
 
@@ -113,12 +114,11 @@ if (isset($_POST['add_client'])) {
 
     }
 
-    // Logging
     logAction("Client", "Create", "$session_name created client $name$extended_log_description", $client_id, $client_id);
 
-    $_SESSION['alert_message'] = "Client <strong>$name</strong> created";
+    flash_alert("Client <strong>$name</strong> created");
 
-    header("Location: clients.php");
+    redirect();
 
 }
 
@@ -137,7 +137,6 @@ if (isset($_POST['edit_client'])) {
     if(mysqli_num_rows($sql) == 0) {
         mysqli_query($mysqli, "INSERT INTO categories SET category_name = '$referral', category_type = 'Referral'");
 
-        // Logging
         logAction("Category", "Create", "$session_name created referral category $referral");
     }
 
@@ -153,71 +152,68 @@ if (isset($_POST['edit_client'])) {
         }
     }
 
-    // Logging
     logAction("Client", "Edit", "$session_name edited client $name", $client_id, $client_id);
 
-    $_SESSION['alert_message'] = "Client <strong>$name</strong> updated";
+    flash_alert("Client <strong>$name</strong> updated");
 
     redirect();
+
 }
 
 if (isset($_GET['archive_client'])) {
 
     validateCSRFToken($_GET['csrf_token']);
+    
     enforceUserPermission('module_client', 2);
 
     $client_id = intval($_GET['archive_client']);
 
     // Get Client Name
-    $sql = mysqli_query($mysqli, "SELECT client_name FROM clients WHERE client_id = $client_id");
-    $row = mysqli_fetch_array($sql);
-    $client_name = sanitizeInput($row['client_name']);
+    $client_name = sanitizeInput(getFieldById('clients', $client_id, 'client_name'));
 
     mysqli_query($mysqli, "UPDATE clients SET client_archived_at = NOW() WHERE client_id = $client_id");
 
-    // Logging
     logAction("Client", "Archive", "$session_name archived client $client_name", $client_id, $client_id);
 
-    $_SESSION['alert_type'] = "error";
-    $_SESSION['alert_message'] = "Client <strong>$client_name</strong> archived";
+    flash_alert("Client <strong>$client_name</strong> archived", 'error');
 
     redirect();
+
 }
 
 if (isset($_GET['restore_client'])) {
 
     validateCSRFToken($_GET['csrf_token']);
+    
     enforceUserPermission('module_client', 2);
 
     $client_id = intval($_GET['restore_client']);
 
     // Get Client Name
-    $sql = mysqli_query($mysqli, "SELECT * FROM clients WHERE client_id = $client_id");
-    $row = mysqli_fetch_array($sql);
-    $client_name = sanitizeInput($row['client_name']);
+    $client_name = sanitizeInput(getFieldById('clients', $client_id, 'client_name'));
 
     mysqli_query($mysqli, "UPDATE clients SET client_archived_at = NULL WHERE client_id = $client_id");
 
-    // Logging
     logAction("Client", "Restored", "$session_name restored client $client_name", $client_id);
 
-    $_SESSION['alert_message'] = "Client <strong>$client_name</strong> restored";
+    flash_alert("Client <strong>$client_name</strong> restored");
 
     redirect();
+
 }
 
 if (isset($_GET['delete_client'])) {
 
     validateCSRFToken($_GET['csrf_token']);
+    
     enforceUserPermission('module_client', 3);
 
     $client_id = intval($_GET['delete_client']);
 
-    //Get Client Name
-    $sql = mysqli_query($mysqli, "SELECT * FROM clients WHERE client_id = $client_id");
-    $row = mysqli_fetch_array($sql);
-    $client_name = sanitizeInput($row['client_name']);
+    // Get Client Name
+    $client_name = sanitizeInput(getFieldById('clients', $client_id, 'client_name'));
 
+    // Delete Associations
     // Delete Client Data
     mysqli_query($mysqli, "DELETE FROM api_keys WHERE api_key_client_id = $client_id");
     mysqli_query($mysqli, "DELETE FROM certificates WHERE certificate_client_id = $client_id");
@@ -300,13 +296,12 @@ if (isset($_GET['delete_client'])) {
     //Finally Remove the Client
     mysqli_query($mysqli, "DELETE FROM clients WHERE client_id = $client_id");
 
-    //Logging
     logAction("Client", "Deleted", "$session_name deleted Client $client_name and all associated data");
 
-    $_SESSION['alert_type'] = "error";
-    $_SESSION['alert_message'] = "Client <strong>$client_name</strong> deleted along with all associated data";
+    flash_alert("Client <strong>$client_name</strong> deleted along with all associated data", 'error');
 
-    header("Location: clients.php");
+    redirect();
+
 }
 
 if (isset($_POST['export_clients_csv'])) {
@@ -352,6 +347,7 @@ if (isset($_POST['export_clients_csv'])) {
         logAction("Client", "Export", "$session_name exported $num_rows client(s) to a CSV file");
 
     }
+    
     exit;
 
 }
@@ -364,10 +360,8 @@ if (isset($_POST["import_clients_csv"])) {
     if (!empty($_FILES["file"]["tmp_name"])) {
         $file_name = $_FILES["file"]["tmp_name"];
     } else {
-        $_SESSION['alert_message'] = "Please select a file to upload.";
-        $_SESSION['alert_type'] = "error";
+        flash_alert("Please select a file to upload.", 'error');
         redirect();
-        exit();
     }
 
     //Check file is CSV
@@ -375,13 +369,13 @@ if (isset($_POST["import_clients_csv"])) {
     $allowed_file_extensions = array('csv');
     if (in_array($file_extension,$allowed_file_extensions) === false) {
         $error = true;
-        $_SESSION['alert_message'] = "Bad file extension";
+        flash_alert("Bad file extension", 'error');
     }
 
     //Check file isn't empty
     elseif ($_FILES["file"]["size"] < 1) {
         $error = true;
-        $_SESSION['alert_message'] = "Bad file size (empty?)";
+        flash_alert("Bad file size (empty?)", 'error');
     }
 
     //(Else)Check column count
@@ -389,7 +383,7 @@ if (isset($_POST["import_clients_csv"])) {
     $f_columns = fgetcsv($f, 1000, ",");
     if (!$error & count($f_columns) != 22) {
         $error = true;
-        $_SESSION['alert_message'] = "Bad column count.";
+        flash_alert("Bad column count.", 'error');
     }
 
     //Else, parse the file
@@ -550,17 +544,16 @@ if (isset($_POST["import_clients_csv"])) {
         }
         fclose($file);
 
-        //Logging
         logAction("Client", "Import", "$session_name imported $row_count client(s) via CSV file, $duplicate_count duplicate(s) found");
 
-        $_SESSION['alert_message'] = "<strong>$row_count</strong> Client(s) added, <strong>$duplicate_count</strong> duplicate(s) found";
+        flash_alert("<strong>$row_count</strong> Client(s) added, <strong>$duplicate_count</strong> duplicate(s) found");
+        
         redirect();
 
     }
 
     //Check for any errors, if there are notify user and redirect
     if ($error) {
-        $_SESSION['alert_type'] = "warning";
         redirect();
     }
 }
@@ -586,15 +579,16 @@ if (isset($_GET['download_clients_csv_template'])) {
 
     //output all remaining data on a file pointer
     fpassthru($f);
+    
     exit;
 
 }
 
 if (isset($_POST['bulk_edit_client_industry'])) {
 
-    enforceUserPermission('module_client', 2);
-
     validateCSRFToken($_POST['csrf_token']);
+
+    enforceUserPermission('module_client', 2);
 
     $industry = sanitizeInput($_POST['bulk_industry']);
 
@@ -611,15 +605,13 @@ if (isset($_POST['bulk_edit_client_industry'])) {
 
             mysqli_query($mysqli,"UPDATE clients SET client_type = '$industry' WHERE client_id = $client_id");
 
-            //Logging
             logAction("Client", "Edit", "$session_name set Industry to $industry for $client_name", $client_id);
 
         }
 
-        // Bulk Log
         logAction("Client", "Bulk Edit", "$session_name set the department $industry for $count client(s)", $client_id);
 
-        $_SESSION['alert_message'] = "Set the Industry to <strong>$industry</strong> for <strong>$count</strong> clients";
+        flash_alert("Set the Industry to <strong>$industry</strong> for <strong>$count</strong> clients");
     }
 
     redirect();
@@ -628,9 +620,9 @@ if (isset($_POST['bulk_edit_client_industry'])) {
 
 if (isset($_POST['bulk_edit_client_referral'])) {
 
-    enforceUserPermission('module_client', 2);
-
     validateCSRFToken($_POST['csrf_token']);
+
+    enforceUserPermission('module_client', 2);
 
     $referral = sanitizeInput($_POST['bulk_referral']);
 
@@ -647,15 +639,13 @@ if (isset($_POST['bulk_edit_client_referral'])) {
 
             mysqli_query($mysqli,"UPDATE clients SET client_referral = '$referral' WHERE client_id = $client_id");
 
-            //Logging
             logAction("Client", "Edit", "$session_name set Referral to $referral for $client_name", $client_id);
 
         }
 
-        // Bulk Log
         logAction("Client", "Bulk Edit", "$session_name set the referral $referral for $count client(s)", $client_id);
 
-        $_SESSION['alert_message'] = "Set the Referral to <strong>$referral</strong> for <strong>$count</strong> clients";
+        flash_alert("Set the Referral to <strong>$referral</strong> for <strong>$count</strong> clients");
     }
 
     redirect();
@@ -664,9 +654,9 @@ if (isset($_POST['bulk_edit_client_referral'])) {
 
 if (isset($_POST['bulk_edit_client_hourly_rate'])) {
 
-    enforceUserPermission('module_client', 2);
-
     validateCSRFToken($_POST['csrf_token']);
+
+    enforceUserPermission('module_client', 2);
 
     $rate = floatval($_POST['bulk_rate']);
 
@@ -683,15 +673,13 @@ if (isset($_POST['bulk_edit_client_hourly_rate'])) {
 
             mysqli_query($mysqli,"UPDATE clients SET client_rate = '$rate' WHERE client_id = $client_id");
 
-            //Logging
             logAction("Client", "Edit", "$session_name set Hourly Rate to" . numfmt_format_currency($currency_format, $rate, $session_company_currency) . "for $client_name", $client_id);
 
         }
 
-        // Bulk Log
         logAction("Client", "Bulk Edit", "$session_name set the hourly rate" . numfmt_format_currency($currency_format, $rate, $session_company_currency) . "for $count client(s)", $client_id);
 
-        $_SESSION['alert_message'] = "Set the Hourly Rate to <strong>" . numfmt_format_currency($currency_format, $rate, $session_company_currency) . "</strong> for <strong>$count</strong> client(s)";
+        flash_alert("Set the Hourly Rate to <strong>" . numfmt_format_currency($currency_format, $rate, $session_company_currency) . "</strong> for <strong>$count</strong> client(s)");
     }
 
     redirect();
@@ -700,9 +688,9 @@ if (isset($_POST['bulk_edit_client_hourly_rate'])) {
 
 if (isset($_POST['bulk_assign_client_tags'])) {
 
-    enforceUserPermission('module_client', 2);
-
     validateCSRFToken($_POST['csrf_token']);
+
+    enforceUserPermission('module_client', 2);
 
     if (isset($_POST['client_ids'])) {
         
@@ -736,7 +724,7 @@ if (isset($_POST['bulk_assign_client_tags'])) {
 
         logAction("Client", "Bulk Edit", "$session_name added tags for $count clients", $client_id);
 
-        $_SESSION['alert_message'] = "Assigned tags for <strong>$count</strong> clients";
+        flash_alert("Assigned tags for <strong>$count</strong> clients");
     }
 
     redirect();
@@ -819,21 +807,20 @@ if (isset($_POST['bulk_send_client_email']) && isset($_POST['client_ids'])) {
     if (!empty($data)) {
         addToMailQueue($data);
         logAction("Bulk Mail", "Send", "$session_name sent " . count($data) . " messages via bulk mail");
-        $_SESSION['alert_message'] = "<strong>" . count($data) . "</strong> messages queued";
+        flash_alert("<strong>" . count($data) . "</strong> messages queued");
     } else {
-        $_SESSION['alert_message'] = "No valid contacts found to queue emails.";
+        flash_alert("No valid contacts found to queue emails.", 'error');
     }
 
-    // Redirect back
     redirect();
-    exit;
+
 }
 
 if (isset($_POST['bulk_archive_clients'])) {
 
-    enforceUserPermission('module_client', 2);
-
     validateCSRFToken($_POST['csrf_token']);
+
+    enforceUserPermission('module_client', 2);
 
     if (isset($_POST['client_ids'])) {
 
@@ -855,23 +842,22 @@ if (isset($_POST['bulk_archive_clients'])) {
 
         }
 
-        // Bulk Logging
         logAction("Client", "Bulk Archive", "$session_name archived $count clients", $client_id);
 
-        $_SESSION['alert_type'] = "error";
-        $_SESSION['alert_message'] = "Archived $count client(s)";
+        flash_alert("Archived $count client(s)", 'error');
 
     }
 
     redirect();
+
 }
 
 if (isset($_POST['bulk_unarchive_clients'])) {
 
-    enforceUserPermission('module_client', 2);
-    
     validateCSRFToken($_POST['csrf_token']);
 
+    enforceUserPermission('module_client', 2);
+    
     if (isset($_POST['client_ids'])) {
 
         $count = count($_POST['client_ids']);
@@ -886,19 +872,18 @@ if (isset($_POST['bulk_unarchive_clients'])) {
 
             mysqli_query($mysqli,"UPDATE clients SET client_archived_at = NULL WHERE client_id = $client_id");
 
-            // Individual Contact logging
             logAction("client", "Restore", "$session_name restored $client_name", $client_id);
 
         }
 
-        // Bulk Logging
         logAction("Client", "Bulk Restore", "$session_name restored $count client(s)", $client_id);
 
-        $_SESSION['alert_message'] = "You restored <strong>$count</strong> client(s)";
+        flash_alert("You restored <strong>$count</strong> client(s)");
 
     }
 
     redirect();
+    
 }
 
 if (isset($_POST["export_client_pdf"])) {
@@ -940,7 +925,6 @@ if (isset($_POST["export_client_pdf"])) {
     $export_trips = intval($_POST["export_trips"]);
     $export_logs = intval($_POST["export_logs"]);
 
-    // Logging
     logAction("Client", "Export", "$session_name exported client data to a PDF file", $client_id, $client_id);
 
     // Get client record (joining primary contact and primary location)
@@ -1724,4 +1708,5 @@ if (isset($_POST["export_client_pdf"])) {
     // Output the PDF document for download
     $pdf->Output(strtoAZaz09($client_name) . "-IT_Documentation-" . date("Y-m-d") . ".pdf", "D");
     exit;
+
 }

@@ -3,6 +3,7 @@
 defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
 
 if (isset($_GET['delete_saved_payment'])) {
+    
     validateCSRFToken($_GET['csrf_token']);
 
     $saved_payment_id = intval($_GET['delete_saved_payment']);

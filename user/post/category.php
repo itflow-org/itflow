@@ -14,10 +14,9 @@ if (isset($_POST['add_category'])) {
 
     $category_id = mysqli_insert_id($mysqli);
 
-    // Logging
     logAction("Category", "Create", "$session_name created category $type $name", 0, $category_id);
 
-    $_SESSION['alert_message'] = "Category $type <strong>$name</strong> created";
+    flash_alert("Category $type <strong>$name</strong> created");
 
     redirect();
 

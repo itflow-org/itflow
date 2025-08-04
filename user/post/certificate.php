@@ -32,10 +32,9 @@ if (isset($_POST['add_certificate'])) {
 
     $certificate_id = mysqli_insert_id($mysqli);
 
-    // Logging
     logAction("Certificate", "Create", "$session_name created certificate $name", $client_id, $certificate_id);
 
-    $_SESSION['alert_message'] = "Certificate <strong>$name</strong> created";
+    flash_aletr("Certificate <strong>$name</strong> created");
 
     redirect();
 
@@ -99,10 +98,9 @@ if (isset($_POST['edit_certificate'])) {
         }
     }
 
-    // Logging
     logAction("Certificate", "Edit", "$session_name edited certificate $name", $client_id, $certificate_id);
 
-    $_SESSION['alert_message'] = "Certificate <strong>$name</strong> updated";
+    flash_alert("Certificate <strong>$name</strong> updated");
 
     redirect();
 
@@ -122,11 +120,9 @@ if (isset($_GET['archive_certificate'])) {
 
     mysqli_query($mysqli,"UPDATE certificates SET certificate_archived_at = NOW() WHERE certificate_id = $certificate_id");
 
-    // logging
     logAction("Certificate", "Archive", "$session_name arhvived certificate $certificate_name", $client_id, $certificate_id);
 
-    $_SESSION['alert_type'] = "error";
-    $_SESSION['alert_message'] = "Certificate <strong>$certificate_name</strong> archived";
+    flash_alert("Certificate <strong>$certificate_name</strong> archived", 'alert');
 
     redirect();
 
@@ -146,10 +142,9 @@ if (isset($_GET['unarchive_certificate'])) {
 
     mysqli_query($mysqli,"UPDATE certificates SET certificate_archived_at = NULL WHERE certificate_id = $certificate_id");
 
-    // logging
     logAction("Certificate", "Unarchive", "$session_name restored certificate $certificate_name", $client_id, $certificate_id);
 
-    $_SESSION['alert_message'] = "Certificate <strong>$certificate_name</strong> restored";
+    flash_alert("Certificate <strong>$certificate_name</strong> restored");
 
     redirect();
 
@@ -169,19 +164,19 @@ if (isset($_GET['delete_certificate'])) {
 
     mysqli_query($mysqli,"DELETE FROM certificates WHERE certificate_id = $certificate_id");
 
-    // Logging
     logAction("Certificate", "Delete", "$session_name deleted certificate $name", $client_id);
 
-    $_SESSION['alert_type'] = "error";
-    $_SESSION['alert_message'] = "Certificate <strong>$certificate_name</strong> deleted";
+    flash_alert("Certificate <strong>$certificate_name</strong> deleted");
 
     redirect();
 
 }
 
 if (isset($_POST['bulk_delete_certificates'])) {
-    enforceUserPermission('module_support', 3);
+
     validateCSRFToken($_POST['csrf_token']);
+    
+    enforceUserPermission('module_support', 3);
 
     if (isset($_POST['certificate_ids'])) {
 
@@ -201,19 +196,18 @@ if (isset($_POST['bulk_delete_certificates'])) {
 
             mysqli_query($mysqli, "DELETE FROM certificates WHERE certificate_id = $certificate_id AND certificate_client_id = $client_id");
 
-            // Logging
             logAction("Certificate", "Delete", "$session_name deleted certificate $certificate_name", $client_id);
 
         }
 
-        // Logging
         logAction("Certificate", "Bulk Delete", "$session_name deleted $count certificates", $client_id);
 
-        $_SESSION['alert_message'] = "Deleted <strong>$count</strong> certificate(s)";
+        flash_alert("Deleted <strong>$count</strong> certificate(s)", 'error');
 
     }
 
     redirect();
+
 }
 
 if (isset($_POST['export_certificates_csv'])) {
@@ -260,7 +254,6 @@ if (isset($_POST['export_certificates_csv'])) {
         fpassthru($f);
     }
 
-    // Logging
     logAction("Certificate", "Export", "$session_name exported $num_rows certificate(s) to a CSV file", $client_id);
 
     exit;
