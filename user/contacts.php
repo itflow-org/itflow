@@ -96,8 +96,8 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                 <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown"></button>
                 <div class="dropdown-menu">
                     <?php if ($client_url) { ?>
-                    <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#contactInviteModal"><i class="fas fa-fw fa-paper-plane mr-2"></i>Invite</a>
-                    <div class="dropdown-divider"></div>
+<!--                    <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#contactInviteModal"><i class="fas fa-fw fa-paper-plane mr-2"></i>Invite</a>-->
+<!--                    <div class="dropdown-divider"></div>-->
                     <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#importContactModal">
                         <i class="fa fa-fw fa-upload mr-2"></i>Import
                     </a>
