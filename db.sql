@@ -2057,7 +2057,6 @@ CREATE TABLE `settings` (
   `config_log_retention` int(11) NOT NULL DEFAULT 90,
   `config_module_enable_ticketing` tinyint(1) NOT NULL DEFAULT 1,
   `config_theme` varchar(200) DEFAULT 'blue',
-  `config_theme_dark` tinyint(1) NOT NULL DEFAULT 0,
   `config_telemetry` tinyint(1) DEFAULT 0,
   `config_timezone` varchar(200) NOT NULL DEFAULT 'America/New_York',
   `config_destructive_deletes_enable` tinyint(1) NOT NULL DEFAULT 0,
@@ -2611,6 +2610,7 @@ CREATE TABLE `user_settings` (
   `user_config_dashboard_technical_enable` tinyint(1) NOT NULL DEFAULT 0,
   `user_config_calendar_first_day` tinyint(1) NOT NULL DEFAULT 0,
   `user_config_signature` text DEFAULT NULL,
+  `user_config_theme_dark` tinyint(1) NOT NULL DEFAULT 0,
   PRIMARY KEY (`user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -2766,4 +2766,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-08-01 13:36:16
+-- Dump completed on 2025-08-05 13:30:24

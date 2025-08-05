@@ -157,10 +157,11 @@ if (isset($_POST['edit_your_user_preferences'])) {
     validateCSRFToken($_POST['csrf_token']);
 
     $calendar_first_day = intval($_POST['calendar_first_day']);
+    $dark_mode = intval($_POST['dark_mode'] ?? 0);
 
     // Calendar
     if (isset($calendar_first_day)) {
-        mysqli_query($mysqli, "UPDATE user_settings SET user_config_calendar_first_day = $calendar_first_day WHERE user_id = $session_user_id");
+        mysqli_query($mysqli, "UPDATE user_settings SET user_config_calendar_first_day = $calendar_first_day, user_config_theme_dark = $dark_mode WHERE user_id = $session_user_id");
     }
 
     // Enable extension access, only if it isn't already setup (user doesn't have cookie)

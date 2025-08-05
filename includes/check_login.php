@@ -59,6 +59,7 @@ if (isset($row['role_is_admin']) && $row['role_is_admin'] == 1) {
 }
 $session_user_config_force_mfa = intval($row['user_config_force_mfa']);
 $user_config_records_per_page = intval($row['user_config_records_per_page']);
+$user_config_theme_dark = intval($row['user_config_theme_dark']);
 
 // Check user type
 if ($session_user_type !== 1) {

@@ -19,6 +19,7 @@ $config_smtp_username = $row['config_smtp_username'];
 $config_smtp_password = $row['config_smtp_password'];
 $config_mail_from_email = $row['config_mail_from_email'];
 $config_mail_from_name = $row['config_mail_from_name'];
+
 // Mail - IMAP
 $config_imap_host = $row['config_imap_host'];
 $config_imap_port = intval($row['config_imap_port']);
@@ -128,7 +129,6 @@ $config_time_format = "H:i";
 
 // Theme
 $config_theme = $row['config_theme'];
-$config_theme_dark = intval($row['config_theme_dark']);
 
 // Telemetry
 $config_telemetry = intval($row['config_telemetry']);

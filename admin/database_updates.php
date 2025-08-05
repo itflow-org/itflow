@@ -3821,6 +3821,13 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
         mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '2.2.7'");
     }
 
+    if (CURRENT_DATABASE_VERSION == '2.2.7') {
+        mysqli_query($mysqli, "ALTER TABLE `user_settings` ADD `user_config_theme_dark` TINYINT(1) NOT NULL DEFAULT 0 AFTER `user_config_signature`");
+        mysqli_query($mysqli, "ALTER TABLE `settings` DROP `config_theme_dark`");
+        
+        mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '2.2.8'");
+    }
+
     /* 2025-07-21 - JQ For next release Pauyment Provider Switch Over
     if (CURRENT_DATABASE_VERSION == '2.2.4') {
 

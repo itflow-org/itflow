@@ -6,13 +6,6 @@
 
 header("X-Frame-Options: DENY");
 
-// Determine URI prepending logic (URI Routing maybe move to /includes/router.php)
-if ($_SERVER['REQUEST_URI'] === '/user/reports') {
-    $prepend_uri = "../";
-} else {
-    $prepend_uri = '';
-}
-
 ?>
 
 <!DOCTYPE html>
@@ -23,7 +16,7 @@ if ($_SERVER['REQUEST_URI'] === '/user/reports') {
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="robots" content="noindex">
 
-    <title><?php echo $session_company_name; ?></title>
+    <title><?= $session_company_name; ?></title>
 
     <!-- Favicon -->
     <?php if(file_exists($prepend_uri . '../uploads/favicon.ico')): ?>
@@ -51,7 +44,7 @@ if ($_SERVER['REQUEST_URI'] === '/user/reports') {
 <body class="
     hold-transition sidebar-mini layout-fixed layout-navbar-fixed 
     accent-<?php echo isset($_GET['client_id']) ? 'blue' : nullable_htmlentities($config_theme); ?>
-    <?php if ($config_theme_dark) echo 'dark-mode'; ?>
+    <?php if ($user_config_theme_dark) echo 'dark-mode'; ?>
 ">
     <div class="wrapper text-sm">
 
