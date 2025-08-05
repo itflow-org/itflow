@@ -4,12 +4,12 @@
 if (isset($_GET['client_id'])) {
     require_once "includes/inc_all_client.php";
     $client_event_query = "WHERE event_client_id = $client_id";
-    $client_query = "WHERE client_id = $client_id";
+    $client_query = "WHERE 1 = 1 AND client_id = $client_id";
     $client_url = "&client_id=$client_id";
 } else {
     require_once "includes/inc_all.php";
     $client_event_query = '';
-    $client_query = '';
+    $client_query = 'WHERE 1 = 1';
     $client_url = '';
 }
 
