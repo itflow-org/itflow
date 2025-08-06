@@ -1037,13 +1037,17 @@ if (isset($_POST['bulk_merge_tickets'])) {
                 $ticket_subject = sanitizeInput($row['ticket_subject']);
                 $ticket_details = mysqli_escape_string($mysqli, $row['ticket_details']);
                 $current_ticket_priority = sanitizeInput($row['ticket_priority']);
+                $ticket_first_response_at = sanitizeInput($row['ticket_first_response_at']);
                 $client_id = intval($row['ticket_client_id']);
 
                 // Update current ticket
+                if (empty($ticket_first_response_at)) {
+                    mysqli_query($mysqli, "UPDATE tickets SET ticket_first_response_at = NOW() WHERE ticket_id = $ticket_id");
+                }
                 mysqli_query($mysqli, "INSERT INTO ticket_replies SET ticket_reply = 'Ticket $ticket_prefix$ticket_number bulk merged into <a href=\"ticket.php?ticket_id=$merge_into_ticket_id\">$ticket_prefix$merge_into_ticket_number</a>. Comment: $merge_comment', ticket_reply_time_worked = '00:01:00', ticket_reply_type = '$ticket_reply_type', ticket_reply_by = $session_user_id, ticket_reply_ticket_id = $ticket_id");
                 mysqli_query($mysqli, "UPDATE tickets SET ticket_status = '5', ticket_resolved_at = NOW(), ticket_closed_at = NOW(), ticket_closed_by = $session_user_id WHERE ticket_id = $ticket_id") or die(mysqli_error($mysqli));
 
-                //Update new parent ticket
+                // Update new parent ticket
                 mysqli_query($mysqli, "INSERT INTO ticket_replies SET ticket_reply = 'Ticket $ticket_prefix$ticket_number was bulk merged into this ticket with comment: $merge_comment.<br><br><b>$ticket_subject</b><br>$ticket_details', ticket_reply_time_worked = '00:01:00', ticket_reply_type = 'Internal', ticket_reply_by = $session_user_id, ticket_reply_ticket_id = $merge_into_ticket_id");
 
                 logAction("Ticket", "Merged", "$session_name Merged ticket $ticket_prefix$ticket_number into $ticket_prefix$merge_into_ticket_number", $client_id, $ticket_id);
@@ -1104,7 +1108,13 @@ if (isset($_POST['bulk_resolve_tickets'])) {
                 $ticket_subject = sanitizeInput($row['ticket_subject']);
                 $current_ticket_priority = sanitizeInput($row['ticket_priority']);
                 $url_key = sanitizeInput($row['ticket_url_key']);
+                $ticket_first_response_at = sanitizeInput($row['ticket_first_response_at']);
                 $client_id = intval($row['ticket_client_id']);
+
+                // Mark FR time if required
+                if (empty($ticket_first_response_at)) {
+                    mysqli_query($mysqli, "UPDATE tickets SET ticket_first_response_at = NOW() WHERE ticket_id = $ticket_id");
+                }
 
                 // Update ticket & insert reply
                 mysqli_query($mysqli, "UPDATE tickets SET ticket_status = 4, ticket_resolved_at = NOW() WHERE ticket_id = $ticket_id");
@@ -1227,7 +1237,13 @@ if (isset($_POST['bulk_ticket_reply'])) {
             $ticket_subject = sanitizeInput($row['ticket_subject']);
             $current_ticket_priority = sanitizeInput($row['ticket_priority']);
             $url_key = sanitizeInput($row['ticket_url_key']);
+            $ticket_first_response_at = sanitizeInput($row['ticket_first_response_at']);
             $client_id = intval($row['ticket_client_id']);
+
+            // Mark FR time if required
+            if (empty($ticket_first_response_at)) {
+                mysqli_query($mysqli, "UPDATE tickets SET ticket_first_response_at = NOW() WHERE ticket_id = $ticket_id");
+            }
 
             // Add reply
             mysqli_query($mysqli, "INSERT INTO ticket_replies SET ticket_reply = '$ticket_reply', ticket_reply_time_worked = '$ticket_reply_time_worked', ticket_reply_type = '$ticket_reply_type', ticket_reply_by = $session_user_id, ticket_reply_ticket_id = $ticket_id");
@@ -1557,7 +1573,7 @@ if (isset($_POST['add_ticket_reply'])) {
         $ticket_reply_id = mysqli_insert_id($mysqli);
 
         // Get Ticket Details
-        $ticket_sql = mysqli_query($mysqli, "SELECT contact_name, contact_email, ticket_prefix, ticket_number, ticket_subject, ticket_status, ticket_status_name, ticket_url_key, ticket_client_id, ticket_created_by, ticket_assigned_to 
+        $ticket_sql = mysqli_query($mysqli, "SELECT contact_name, contact_email, ticket_prefix, ticket_number, ticket_subject, ticket_status, ticket_status_name, ticket_url_key, ticket_first_response_at, ticket_created_by, ticket_assigned_to, ticket_client_id
         FROM tickets 
         LEFT JOIN clients ON ticket_client_id = client_id 
         LEFT JOIN contacts ON ticket_contact_id = contact_id
@@ -1575,9 +1591,10 @@ if (isset($_POST['add_ticket_reply'])) {
         $ticket_status = intval($row['ticket_status']);
         $ticket_status_name = sanitizeInput($row['ticket_status_name']);
         $url_key = sanitizeInput($row['ticket_url_key']);
-        $client_id = intval($row['ticket_client_id']);
+        $ticket_first_response_at = sanitizeInput($row['ticket_first_response_at']);
         $ticket_created_by = intval($row['ticket_created_by']);
         $ticket_assigned_to = intval($row['ticket_assigned_to']);
+        $client_id = intval($row['ticket_client_id']);
 
         // Sanitize Config vars from get_settings.php
         $config_ticket_from_name = sanitizeInput($config_ticket_from_name);
@@ -1649,6 +1666,11 @@ if (isset($_POST['add_ticket_reply'])) {
         // Notification for user that opened the ticket
         if ($session_user_id != $ticket_created_by && $ticket_created_by != 0) {
             mysqli_query($mysqli, "INSERT INTO notifications SET notification_type = 'Ticket', notification = '$session_name updated Ticket $ticket_prefix$ticket_number - Subject: $ticket_subject that you opened', notification_action = 'ticket.php?ticket_id=$ticket_id', notification_client_id = $client_id, notification_user_id = $ticket_created_by");
+        }
+
+        // Handle first response
+        if (empty($ticket_first_response_at) && $ticket_reply_type == 'Public') {
+            mysqli_query($mysqli, "UPDATE tickets SET ticket_first_response_at = NOW() WHERE ticket_id = $ticket_id");
         }
 
         // Custom action/notif handler
@@ -1748,6 +1770,7 @@ if (isset($_POST['merge_ticket'])) {
     $ticket_number = intval($row['ticket_number']);
     $ticket_subject = sanitizeInput($row['ticket_subject']);
     $ticket_details = mysqli_escape_string($mysqli, $row['ticket_details']);
+    $ticket_first_response_at = sanitizeInput($row['ticket_first_response_at']);
 
     // NEW PARENT ticket details
     // Get merge into ticket id (as it may differ from the number)
@@ -1771,6 +1794,10 @@ if (isset($_POST['merge_ticket'])) {
     }
 
     // Update current ticket
+    if (empty($ticket_first_response_at)) {
+        mysqli_query($mysqli, "UPDATE tickets SET ticket_first_response_at = NOW() WHERE ticket_id = $ticket_id");
+    }
+
     mysqli_query($mysqli, "INSERT INTO ticket_replies SET ticket_reply = 'Ticket $ticket_prefix$ticket_number merged into <a href=\"ticket.php?ticket_id=$merge_into_ticket_id\">$ticket_prefix$merge_into_ticket_number</a>. Comment: $merge_comment', ticket_reply_time_worked = '00:01:00', ticket_reply_type = '$ticket_reply_type', ticket_reply_by = $session_user_id, ticket_reply_ticket_id = $ticket_id");
     
     mysqli_query($mysqli, "UPDATE tickets SET ticket_status = '5', ticket_resolved_at = NOW(), ticket_closed_at = NOW(), ticket_closed_by = $session_user_id WHERE ticket_id = $ticket_id") or die(mysqli_error($mysqli));
@@ -1822,9 +1849,21 @@ if (isset($_GET['resolve_ticket'])) {
 
     $ticket_id = intval($_GET['resolve_ticket']);
 
+    $sql = mysqli_query($mysqli, "SELECT * FROM tickets WHERE ticket_id = $ticket_id");
+    $row = mysqli_fetch_array($sql);
+    $ticket_prefix = sanitizeInput($row['ticket_prefix']);
+    $ticket_number = intval($row['ticket_number']);
+    $ticket_first_response_at = sanitizeInput($row['ticket_first_response_at']);
+
+    // Mark FR
+    if (empty($ticket_first_response_at)) {
+        mysqli_query($mysqli, "UPDATE tickets SET ticket_first_response_at = NOW() WHERE ticket_id = $ticket_id");
+    }
+
+    // Resolve
     mysqli_query($mysqli, "UPDATE tickets SET ticket_status = 4, ticket_resolved_at = NOW() WHERE ticket_id = $ticket_id");
 
-    logAction("Ticket", "Resolved", "$session_name resolved ticket ID $ticket_id", 0, $ticket_id);
+    logAction("Ticket", "Resolved", "$session_name resolved ticket $ticket_prefix$ticket_number (ID: $ticket_id)", 0, $ticket_id);
 
     customAction('ticket_resolve', $ticket_id);
 
