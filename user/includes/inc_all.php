@@ -1,14 +1,20 @@
 <?php
-
+// Configuration & core
 require_once "../config.php";
 require_once "../functions.php";
 require_once "../includes/router.php";
 require_once "../includes/check_login.php";
+
+// Page setup
 require_once "../includes/page_title.php";
+
+// Layout UI
 require_once "../includes/header.php";
 require_once "../includes/top_nav.php";
 require_once "includes/get_side_nav_counts.php";
 require_once "includes/side_nav.php";
+
+// Wrapper & alerts
 require_once "../includes/inc_wrapper.php";
 require_once "../includes/inc_alert_feedback.php";
 require_once "../includes/filter_header.php";
