@@ -103,6 +103,7 @@ if (isset($_GET['ticket_id'])) {
         $ticket_date = date('Y-m-d', strtotime($ticket_created_at));
         $ticket_updated_at = nullable_htmlentities($row['ticket_updated_at']);
         $ticket_updated_at_ago = timeAgo($row['ticket_updated_at']);
+        $ticket_first_response_at = nullable_htmlentities($row['ticket_first_response_at']);
         $ticket_resolved_at = nullable_htmlentities($row['ticket_resolved_at']);
         $ticket_resolved_at_ago = timeAgo($row['ticket_resolved_at']);
         $ticket_resolved_date = date('Y-m-d', strtotime($ticket_resolved_at));
@@ -878,6 +879,13 @@ if (isset($_GET['ticket_id'])) {
                         <?php if ($ticket_category > 0) { ?>
                             <div class="mt-1">
                                 <i class="fas fa-fw fa-layer-group mr-2 text-secondary"></i><strong>Category: </strong><?php echo $ticket_category_display; ?>
+                            </div>
+                        <?php } ?>
+
+                        <!-- First response (for SLA) -->
+                        <?php if ($ticket_first_response_at) { ?>
+                            <div title="First Response: <?php echo $ticket_created_at; ?>">
+                                <i class="fa fa-fw fa-user-clock text-secondary mr-2"></i><strong>FR: </strong><?php echo "$ticket_first_response_at"; ?>
                             </div>
                         <?php } ?>
 
