@@ -244,7 +244,7 @@ if (isset($_GET['share_generate_link'])) {
     $company_name = sanitizeInput($row['company_name']);
     $company_phone = sanitizeInput(formatPhoneNumber($row['company_phone'], $row['company_phone_country_code']));
 
-    // Sanitize Config vars from get_settings.php
+    // Sanitize Config vars from load_global_settings.php
     $config_ticket_from_name = sanitizeInput($config_ticket_from_name);
     $config_ticket_from_email = sanitizeInput($config_ticket_from_email);
     $config_mail_from_name = sanitizeInput($config_mail_from_name);
@@ -514,7 +514,7 @@ if (isset($_POST['update_kanban_ticket'])) {
                     $ticket_status = sanitizeInput($row['ticket_status_name']);
                     $url_key = sanitizeInput($row['ticket_url_key']);
 
-                    // Sanitize Config vars from get_settings.php
+                    // Sanitize Config vars from load_global_settings.php
                     $config_ticket_from_name = sanitizeInput($config_ticket_from_name);
                     $config_ticket_from_email = sanitizeInput($config_ticket_from_email);
                     $config_base_url = sanitizeInput($config_base_url);

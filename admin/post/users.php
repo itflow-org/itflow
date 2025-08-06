@@ -56,7 +56,7 @@ if (isset($_POST['add_user'])) {
     $row = mysqli_fetch_array($sql);
     $company_name = sanitizeInput($row['company_name']);
 
-    // Sanitize Config vars from get_settings.php
+    // Sanitize Config vars from load_global_settings.php
     $config_mail_from_name = sanitizeInput($config_mail_from_name);
     $config_mail_from_email = sanitizeInput($config_mail_from_email);
     $config_ticket_from_email = sanitizeInput($config_ticket_from_email);

@@ -5,7 +5,7 @@ require_once '../validate_api_key.php';
 require_once '../require_post_method.php';
 
 // Ticket-related settings
-require_once "../../../includes/get_settings.php";
+require_once "../../../includes/load_global_settings.php";
 
 $sql = mysqli_query($mysqli, "SELECT company_name, company_phone FROM companies WHERE company_id = 1");
 $row = mysqli_fetch_array($sql);

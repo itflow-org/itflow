@@ -5,7 +5,7 @@
  */
 
 require_once '../config.php';
-require_once '../includes/get_settings.php';
+require_once '../includes/load_global_settings.php';
 require_once '../functions.php';
 require_once 'includes/check_login.php';
 require_once 'functions.php';
@@ -17,7 +17,7 @@ if (isset($_POST['add_ticket'])) {
     $category = intval($_POST['category']);
     $asset = intval($_POST['asset']);
 
-    // Get settings from get_settings.php
+    // Get settings from load_global_settings.php
     $config_ticket_prefix = sanitizeInput($config_ticket_prefix);
     $config_ticket_from_name = sanitizeInput($config_ticket_from_name);
     $config_ticket_from_email = sanitizeInput($config_ticket_from_email);
