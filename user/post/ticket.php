@@ -1111,7 +1111,7 @@ if (isset($_POST['bulk_resolve_tickets'])) {
                 $ticket_first_response_at = sanitizeInput($row['ticket_first_response_at']);
                 $client_id = intval($row['ticket_client_id']);
 
-
+                // Mark FR time if required
                 if (empty($ticket_first_response_at)) {
                     mysqli_query($mysqli, "UPDATE tickets SET ticket_first_response_at = NOW() WHERE ticket_id = $ticket_id");
                 }
@@ -1849,9 +1849,21 @@ if (isset($_GET['resolve_ticket'])) {
 
     $ticket_id = intval($_GET['resolve_ticket']);
 
+    $sql = mysqli_query($mysqli, "SELECT * FROM tickets WHERE ticket_id = $ticket_id");
+    $row = mysqli_fetch_array($sql);
+    $ticket_prefix = sanitizeInput($row['ticket_prefix']);
+    $ticket_number = intval($row['ticket_number']);
+    $ticket_first_response_at = sanitizeInput($row['ticket_first_response_at']);
+
+    // Mark FR
+    if (empty($ticket_first_response_at)) {
+        mysqli_query($mysqli, "UPDATE tickets SET ticket_first_response_at = NOW() WHERE ticket_id = $ticket_id");
+    }
+
+    // Resolve
     mysqli_query($mysqli, "UPDATE tickets SET ticket_status = 4, ticket_resolved_at = NOW() WHERE ticket_id = $ticket_id");
 
-    logAction("Ticket", "Resolved", "$session_name resolved ticket ID $ticket_id", 0, $ticket_id);
+    logAction("Ticket", "Resolved", "$session_name resolved ticket $ticket_prefix$ticket_number (ID: $ticket_id)", 0, $ticket_id);
 
     customAction('ticket_resolve', $ticket_id);
 
