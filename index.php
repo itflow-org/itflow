@@ -9,7 +9,6 @@ if (file_exists("config.php")) {
         header("Location: /user");
     }
 } else {
-	header("Location: setup");
+	header("Location: /setup");
     exit();
 }
-

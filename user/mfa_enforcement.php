@@ -53,7 +53,7 @@ $data = "otpauth://totp/ITFlow:$session_email?secret=$token";
 
 </head>
 <body class="hold-transition login-page">
-    <?php require_once "includes/inc_alert_feedback.php"; ?>
+    <?php require_once "../includes/inc_alert_feedback.php"; ?>
     <div class="login-box">
         <div class="login-logo">
             <?php if (!empty($company_logo)) { ?>
