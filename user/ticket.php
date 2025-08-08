@@ -374,10 +374,10 @@ if (isset($_GET['ticket_id'])) {
         </ol>
 
         <div class="card">
-            <div class="card-header">
+            <div class="card-header p-2 px-2">
                 <div class="card-title">
-                    <i class="fa fa-2x fa-fw fa fa-life-ring text-secondary mr-2"></i>
-                    <span class="h3">
+                    <i class="fa fa-2x fa-fw fa fa-life-ring text-secondary mr-1"></i>
+                    <span class="h4">
                         <?php echo "$ticket_prefix$ticket_number"; ?>
                         <span class='badge badge-pill text-light ml-1' style="background-color: <?php echo $ticket_status_color; ?>">
                             <?php echo $ticket_status_name; ?>
@@ -415,7 +415,7 @@ if (isset($_GET['ticket_id'])) {
                                     </a>
                                 <?php } ?>
 
-                                <div class="dropdown dropleft text-center ml-3">
+                                <div class="dropdown dropleft text-center ml-3 mr-2">
                                     <button class="btn btn-secondary btn-sm" type="button" id="dropdownMenuButton" data-toggle="dropdown">
                                         <i class="fas fa-fw fa-ellipsis-v"></i>
                                     </button>
