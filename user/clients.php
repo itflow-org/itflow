@@ -109,7 +109,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
             <input type="hidden" name="leads" value="<?php echo $leads_filter; ?>">
             <input type="hidden" name="archived" value="<?php echo $archived; ?>">
             <div class="row">
-                <div class="col-md-4">
+                <div class="col-md-5">
                     <div class="form-group">
                         <div class="input-group">
                             <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(nullable_htmlentities($q)); } ?>" placeholder="Search <?php if($leads_filter == 0){ echo "clients"; } else { echo "leads"; } ?>" autofocus>
@@ -120,21 +120,21 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         </div>
                     </div>
                 </div>
-                <div class="col-md-8">
+                <div class="col-md-7">
                     <div class="btn-toolbar form-group float-right">
                         <div class="btn-group mr-2">
-                            <a href="?leads=0" class="btn btn-<?php if ($leads_filter == 0){ echo "primary"; } else { echo "default"; } ?>"><i class="fa fa-fw fa-user-friends mr-2"></i>Clients</a>
-                            <a href="?leads=1" class="btn btn-<?php if ($leads_filter == 1){ echo "primary"; } else { echo "default"; } ?>"><i class="fa fa-fw fa-bullhorn mr-2"></i>Leads</a>
+                            <a href="?leads=0" class="btn btn-<?php if ($leads_filter == 0){ echo "primary"; } else { echo "default"; } ?>" title="Clients"><i class="fa fa-fw fa-user-friends"></i><span class="d-none d-sm-inline ml-2">Clients</span></a>
+                            <a href="?leads=1" class="btn btn-<?php if ($leads_filter == 1){ echo "primary"; } else { echo "default"; } ?>"><i class="fa fa-fw fa-bullhorn"></i><span class="d-none d-sm-inline ml-2">Leads</span></a>
                         </div>
 
                         <div class="btn-group">
                             <a href="?<?php echo $url_query_strings_sort ?>&archived=<?php if($archived == 1){ echo 0; } else { echo 1; } ?>" 
                                 class="btn btn-<?php if ($archived == 1) { echo "primary"; } else { echo "default"; } ?>">
-                                <i class="fa fa-fw fa-archive mr-2"></i>Archived
+                                <i class="fa fa-fw fa-archive"></i><span class="d-none d-sm-inline ml-2">Archived</span>
                             </a>
                             <div class="dropdown ml-2" id="bulkActionButton" hidden>
                                 <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">
-                                    <i class="fas fa-fw fa-layer-group mr-2"></i>Bulk Action (<span id="selectedCount">0</span>)
+                                    <i class="fas fa-fw fa-layer-group"></i><span class="d-none d-sm-inline ml-2">Action</span> (<span id="selectedCount">0</span>)
                                 </button>
                                 <div class="dropdown-menu">
                                     <a class="dropdown-item" href="#" data-toggle="modal" data-target="#bulkEditHourlyRateModal">
@@ -286,345 +286,345 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
         </form>
     </div>
     
-        <form id="bulkActions" action="post.php" method="post" enctype="multipart/form-data">
-            <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token'] ?>">
-            <div class="table-responsive-sm">
-                <table class="table table-hover mb-0">
-                    <thead class="<?php if ($num_rows[0] == 0) { echo "d-none"; } ?> text-nowrap bg-light">
+    <form id="bulkActions" action="post.php" method="post" enctype="multipart/form-data">
+        <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token'] ?>">
+        <div class="table-responsive-sm">
+            <table class="table table-hover mb-0">
+                <thead class="<?php if ($num_rows[0] == 0) { echo "d-none"; } ?> text-nowrap bg-light">
+                <tr>
+                    <td class="pr-0">
+                        <div class="form-check">
+                            <input class="form-check-input" id="selectAllCheckbox" type="checkbox" onclick="checkAll(this)">
+                        </div>
+                    </td>
+                    <th>
+                        <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=client_name&order=<?php echo $disp; ?>">
+                            Client Name <?php if ($sort == 'client_name') { echo $order_icon; } ?>
+                        </a>
+                    </th>
+                    <th>
+                        <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=location_city&order=<?php echo $disp; ?>">
+                            Primary Location <?php if ($sort == 'location_city') { echo $order_icon; } ?>
+                        </a>
+                    </th>
+                    <th>
+                        <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=contact_name&order=<?php echo $disp; ?>">
+                            Primary Contact
+                            <?php if ($sort == 'contact_name') { echo $order_icon; } ?>
+                        </a>
+                    </th>
+                    <th></th>
+                    <?php if ((lookupUserPermission("module_financial") >= 1) && $config_module_enable_accounting == 1) { ?> <th class="text-right">Billing</th> <?php } ?>
+                    <?php if (lookupUserPermission("module_client") >= 2) { ?> <th class="text-center">Action</th> <?php } ?>
+                </tr>
+                </thead>
+                <tbody>
+                <?php
+
+                while ($row = mysqli_fetch_array($sql)) {
+                    $client_id = intval($row['client_id']);
+                    $client_name = nullable_htmlentities($row['client_name']);
+                    $client_type = nullable_htmlentities($row['client_type']);
+                    $location_id = intval($row['location_id']);
+                    $location_country = nullable_htmlentities($row['location_country']);
+                    $location_address = nullable_htmlentities($row['location_address']);
+                    $location_city = nullable_htmlentities($row['location_city']);
+                    $location_state = nullable_htmlentities($row['location_state']);
+                    $location_zip = nullable_htmlentities($row['location_zip']);
+                    if (empty($location_address) && empty($location_city) && empty($location_state) && empty($location_zip)) {
+                        $location_address_display = "-";
+                    } else {
+                        $location_address_display = "<div class='media'><i class='fa fa-fw fa-map-marker-alt text-secondary mt-1 mr-2'></i><div class='media-body'>$location_address<div>$location_city $location_state $location_zip</div><div><small>$location_country</small></div></div></div>";
+                    }
+                    $contact_id = intval($row['contact_id']);
+                    $contact_name = nullable_htmlentities($row['contact_name']);
+                    $contact_title = nullable_htmlentities($row['contact_title']);
+                    $contact_phone_country_code = nullable_htmlentities($row['contact_phone_country_code']);
+                    $contact_phone = nullable_htmlentities(formatPhoneNumber($row['contact_phone'], $contact_phone_country_code));
+                    $contact_extension = nullable_htmlentities($row['contact_extension']);
+                    $contact_mobile_country_code = nullable_htmlentities($row['contact_mobile_country_code']);
+                    $contact_mobile = nullable_htmlentities(formatPhoneNumber($row['contact_mobile'], $contact_mobile_country_code));
+                    $contact_email = nullable_htmlentities($row['contact_email']);
+                    $client_website = nullable_htmlentities($row['client_website']);
+                    $client_rate = floatval($row['client_rate']);
+                    $client_currency_code = nullable_htmlentities($row['client_currency_code']);
+                    $client_net_terms = intval($row['client_net_terms']);
+                    $client_tax_id_number = nullable_htmlentities($row['client_tax_id_number']);
+                    $client_referral = nullable_htmlentities($row['client_referral']);
+                    $client_abbreviation = nullable_htmlentities($row['client_abbreviation']);
+                    $client_notes = nullable_htmlentities($row['client_notes']);
+                    $client_created_at = date('Y-m-d', strtotime($row['client_created_at']));
+                    $client_updated_at = nullable_htmlentities($row['client_updated_at']);
+                    $client_archived_at = nullable_htmlentities($row['client_archived_at']);
+                    $client_is_lead = intval($row['client_lead']);
+
+                    // Abbreviation
+                    if (empty($client_abbreviation)) {
+                        $client_abbreviation = shortenClient($client_name);
+                    }
+
+                    // Counts
+                    
+                    // Contact Count
+                    $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('contact_id') AS num FROM contacts WHERE contact_client_id = $client_id AND contact_archived_at IS NULL"));
+                    $contact_count = $row['num'];
+                    if ($contact_count) { 
+                        $contact_count_display = "<a href='contacts.php?client_id=$client_id' class='mr-2 mb-1 badge badge-pill badge-dark p-2' title='Contacts ($contact_count)'><i class='fas fa-fw fa-users mr-2'></i>$contact_count</a>";
+                    } else {
+                        $contact_count_display = '';
+                    }
+
+                    // Vendors Count
+                    $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('vendor_id') AS num FROM vendors WHERE vendor_client_id = $client_id AND vendor_archived_at IS NULL"));
+                    $vendor_count = $row['num'];
+                    if ($vendor_count) { 
+                        $vendor_count_display = "<a href='vendors.php?client_id=$client_id' class='mr-2 mb-1 badge badge-pill badge-dark p-2' title='Vendors ($vendor_count)'><i class='fas fa-fw fa-building mr-2'></i>$vendor_count</a>";
+                    } else {
+                        $vendor_count_display = '';
+                    }
+                    
+                    // Asset Count
+                    $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('asset_id') AS num FROM assets WHERE asset_client_id = $client_id AND asset_archived_at IS NULL"));
+                    $asset_count = $row['num'];
+                    if ($asset_count) { 
+                        $asset_count_display = "<a href='assets.php?client_id=$client_id' class='mr-2 mb-1 badge badge-pill badge-secondary p-2' title='Assets ($asset_count)'><i class='fas fa-fw fa-desktop mr-2'></i>$asset_count</a>";
+                    } else {
+                        $asset_count_display = '';
+                    }
+                    
+                    // Credential Count
+                    $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('credential_id') AS num FROM credentials WHERE credential_client_id = $client_id AND credential_archived_at IS NULL"));
+                    $credential_count = $row['num'];
+                    if ($credential_count) { 
+                        $credential_count_display = "<a href='credentials.php?client_id=$client_id' class='mr-2 mb-1 badge badge-pill badge-secondary p-2' title='Credentials ($credential_count)'><i class='fas fa-fw fa-key mr-2'></i>$credential_count</a>";
+                    } else {
+                        $credential_count_display = '';
+                    }
+                    
+                    // Software Count
+                    $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('software_id') AS num FROM software WHERE software_client_id = $client_id AND software_archived_at IS NULL"));
+                    $software_count = $row['num'];
+                    if ($software_count) { 
+                        $software_count_display = "<a href='software.php?client_id=$client_id' class='mr-2 mb-1 badge badge-pill badge-secondary p-2' title='Licenses ($software_count)'><i class='fas fa-fw fa-cube mr-2'></i>$software_count</a>";
+                    } else {
+                        $software_count_display = '';
+                    }
+
+                    // Ticket Count
+                    $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('ticket_id') AS num FROM tickets WHERE ticket_client_id = $client_id AND ticket_archived_at IS NULL"));
+                    $ticket_count = $row['num'];
+                    if ($ticket_count) { 
+                        $ticket_count_display = "<a href='tickets.php?client_id=$client_id' class='mr-2 mb-1 badge badge-pill badge-secondary p-2' title='Tickets ($ticket_count)'><i class='fas fa-fw fa-life-ring mr-2'></i>$ticket_count</a>";
+                    } else {
+                        $ticket_count_display = '';
+                    }
+
+                    // Client Tags
+
+                    $client_tag_name_display_array = array();
+                    $client_tag_id_array = array();
+                    $sql_client_tags = mysqli_query($mysqli, "SELECT * FROM client_tags LEFT JOIN tags ON client_tags.tag_id = tags.tag_id WHERE client_id = $client_id ORDER BY tag_name ASC");
+                    while ($row = mysqli_fetch_array($sql_client_tags)) {
+
+                        $client_tag_id = intval($row['tag_id']);
+                        $client_tag_name = nullable_htmlentities($row['tag_name']);
+                        $client_tag_color = nullable_htmlentities($row['tag_color']);
+                        if (empty($client_tag_color)) {
+                            $client_tag_color = "dark";
+                        }
+                        $client_tag_icon = nullable_htmlentities($row['tag_icon']);
+                        if (empty($client_tag_icon)) {
+                            $client_tag_icon = "tag";
+                        }
+
+                        $client_tag_id_array[] = $client_tag_id;
+                        $client_tag_name_display_array[] = "<a href='clients.php?tags[]=$client_tag_id'><span class='badge text-light p-1 mr-1' style='background-color: $client_tag_color;'><i class='fa fa-fw fa-$client_tag_icon mr-2'></i>$client_tag_name</span></a>";
+                    }
+                    $client_tags_display = implode('', $client_tag_name_display_array);
+
+                    //Add up all the payments for the invoice and get the total amount paid to the invoice
+                    $sql_invoice_amounts = mysqli_query($mysqli, "SELECT SUM(invoice_amount) AS invoice_amounts FROM invoices WHERE invoice_client_id = $client_id AND invoice_status != 'Draft' AND invoice_status != 'Cancelled' AND invoice_status != 'Non-Billable' ");
+                    $row = mysqli_fetch_array($sql_invoice_amounts);
+
+                    $invoice_amounts = floatval($row['invoice_amounts']);
+
+                    $sql_amount_paid = mysqli_query($mysqli, "SELECT SUM(payment_amount) AS amount_paid FROM payments, invoices WHERE payment_invoice_id = invoice_id AND invoice_client_id = $client_id");
+                    $row = mysqli_fetch_array($sql_amount_paid);
+
+                    $amount_paid = floatval($row['amount_paid']);
+
+                    $balance = $invoice_amounts - $amount_paid;
+                    //set Text color on balance
+                    if ($balance > 0) {
+                        $balance_text_color = "text-danger font-weight-bold";
+                    } else {
+                        $balance_text_color = "";
+                    }
+
+                    // Get Credit Balance
+                    $sql_credit_balance = mysqli_query($mysqli, "SELECT SUM(credit_amount) AS credit_balance FROM credits WHERE credit_client_id = $client_id");
+                    $row = mysqli_fetch_array($sql_credit_balance);
+
+                    $credit_balance = floatval($row['credit_balance']);
+
+                    //Get Monthly Recurring Total
+                    $sql_recurring_monthly_total = mysqli_query($mysqli, "SELECT SUM(recurring_invoice_amount) AS recurring_monthly_total FROM recurring_invoices WHERE recurring_invoice_status = 1 AND recurring_invoice_frequency = 'month' AND recurring_invoice_client_id = $client_id");
+                    $row = mysqli_fetch_array($sql_recurring_monthly_total);
+
+                    $recurring_monthly_total = floatval($row['recurring_monthly_total']);
+
+                    //Get Yearly Recurring Total
+                    $sql_recurring_yearly_total = mysqli_query($mysqli, "SELECT SUM(recurring_invoice_amount) AS recurring_yearly_total FROM recurring_invoices WHERE recurring_invoice_status = 1 AND recurring_invoice_frequency = 'year' AND recurring_invoice_client_id = $client_id");
+                    $row = mysqli_fetch_array($sql_recurring_yearly_total);
+
+                    $recurring_yearly_total = floatval($row['recurring_yearly_total']) / 12;
+
+                    $recurring_monthly = $recurring_monthly_total + $recurring_yearly_total;
+
+                    ?>
                     <tr>
-                        <td class="pr-0">
+                        <td class="pr-0 bg-light">
                             <div class="form-check">
-                                <input class="form-check-input" id="selectAllCheckbox" type="checkbox" onclick="checkAll(this)">
+                                <input class="form-check-input bulk-select" type="checkbox" name="client_ids[]" value="<?php echo $client_id ?>">
                             </div>
                         </td>
-                        <th>
-                            <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=client_name&order=<?php echo $disp; ?>">
-                                Client Name <?php if ($sort == 'client_name') { echo $order_icon; } ?>
-                            </a>
-                        </th>
-                        <th>
-                            <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=location_city&order=<?php echo $disp; ?>">
-                                Primary Location <?php if ($sort == 'location_city') { echo $order_icon; } ?>
-                            </a>
-                        </th>
-                        <th>
-                            <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=contact_name&order=<?php echo $disp; ?>">
-                                Primary Contact
-                                <?php if ($sort == 'contact_name') { echo $order_icon; } ?>
-                            </a>
-                        </th>
-                        <th></th>
-                        <?php if ((lookupUserPermission("module_financial") >= 1) && $config_module_enable_accounting == 1) { ?> <th class="text-right">Billing</th> <?php } ?>
-                        <?php if (lookupUserPermission("module_client") >= 2) { ?> <th class="text-center">Action</th> <?php } ?>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <?php
+                        <td>
+                            <a data-toggle="tooltip" data-placement="right" title="Client ID: <?php echo $client_id; ?>" class="font-weight-bold h6" href="client_overview.php?client_id=<?php echo $client_id; ?>"><?php echo $client_name; ?></a>
 
-                    while ($row = mysqli_fetch_array($sql)) {
-                        $client_id = intval($row['client_id']);
-                        $client_name = nullable_htmlentities($row['client_name']);
-                        $client_type = nullable_htmlentities($row['client_type']);
-                        $location_id = intval($row['location_id']);
-                        $location_country = nullable_htmlentities($row['location_country']);
-                        $location_address = nullable_htmlentities($row['location_address']);
-                        $location_city = nullable_htmlentities($row['location_city']);
-                        $location_state = nullable_htmlentities($row['location_state']);
-                        $location_zip = nullable_htmlentities($row['location_zip']);
-                        if (empty($location_address) && empty($location_city) && empty($location_state) && empty($location_zip)) {
-                            $location_address_display = "-";
-                        } else {
-                            $location_address_display = "<i class='fa fa-fw fa-map-marker-alt text-secondary mr-2'></i>$location_address<br><i class='fa fa-fw mr-2'></i>$location_city $location_state $location_zip<br><i class='fa fa-fw mr-2'></i><small>$location_country</small>";
-                        }
-                        $contact_id = intval($row['contact_id']);
-                        $contact_name = nullable_htmlentities($row['contact_name']);
-                        $contact_title = nullable_htmlentities($row['contact_title']);
-                        $contact_phone_country_code = nullable_htmlentities($row['contact_phone_country_code']);
-                        $contact_phone = nullable_htmlentities(formatPhoneNumber($row['contact_phone'], $contact_phone_country_code));
-                        $contact_extension = nullable_htmlentities($row['contact_extension']);
-                        $contact_mobile_country_code = nullable_htmlentities($row['contact_mobile_country_code']);
-                        $contact_mobile = nullable_htmlentities(formatPhoneNumber($row['contact_mobile'], $contact_mobile_country_code));
-                        $contact_email = nullable_htmlentities($row['contact_email']);
-                        $client_website = nullable_htmlentities($row['client_website']);
-                        $client_rate = floatval($row['client_rate']);
-                        $client_currency_code = nullable_htmlentities($row['client_currency_code']);
-                        $client_net_terms = intval($row['client_net_terms']);
-                        $client_tax_id_number = nullable_htmlentities($row['client_tax_id_number']);
-                        $client_referral = nullable_htmlentities($row['client_referral']);
-                        $client_abbreviation = nullable_htmlentities($row['client_abbreviation']);
-                        $client_notes = nullable_htmlentities($row['client_notes']);
-                        $client_created_at = date('Y-m-d', strtotime($row['client_created_at']));
-                        $client_updated_at = nullable_htmlentities($row['client_updated_at']);
-                        $client_archived_at = nullable_htmlentities($row['client_archived_at']);
-                        $client_is_lead = intval($row['client_lead']);
+                            <?php
+                            if (!empty($client_type)) {
+                            ?>
+                                <div class="text-secondary mt-1">
+                                    <?php echo $client_type; ?>
+                                </div>
+                            <?php } ?>
+                            <?php
+                            if (!empty($client_tags_display)) { ?>
+                                <div class="mt-1">
+                                    <?php echo $client_tags_display; ?>
+                                </div>
+                            <?php } ?>
+                            <div class="mt-1 text-secondary">
+                                <small><strong>Abbreviation: </strong> <?php echo $client_abbreviation; ?></small><br>
+                                <small><strong>Created: </strong> <?php echo $client_created_at; ?></small><br>
+                            </div>
 
-                        // Abbreviation
-                        if (empty($client_abbreviation)) {
-                            $client_abbreviation = shortenClient($client_name);
-                        }
-
-                        // Counts
-                        
-                        // Contact Count
-                        $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('contact_id') AS num FROM contacts WHERE contact_client_id = $client_id AND contact_archived_at IS NULL"));
-                        $contact_count = $row['num'];
-                        if ($contact_count) { 
-                            $contact_count_display = "<a href='contacts.php?client_id=$client_id' class='mr-2 mb-1 badge badge-pill badge-dark p-2' title='Contacts ($contact_count)'><i class='fas fa-fw fa-users mr-2'></i>$contact_count</a>";
-                        } else {
-                            $contact_count_display = '';
-                        }
-
-                        // Vendors Count
-                        $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('vendor_id') AS num FROM vendors WHERE vendor_client_id = $client_id AND vendor_archived_at IS NULL"));
-                        $vendor_count = $row['num'];
-                        if ($vendor_count) { 
-                            $vendor_count_display = "<a href='vendors.php?client_id=$client_id' class='mr-2 mb-1 badge badge-pill badge-dark p-2' title='Vendors ($vendor_count)'><i class='fas fa-fw fa-building mr-2'></i>$vendor_count</a>";
-                        } else {
-                            $vendor_count_display = '';
-                        }
-                        
-                        // Asset Count
-                        $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('asset_id') AS num FROM assets WHERE asset_client_id = $client_id AND asset_archived_at IS NULL"));
-                        $asset_count = $row['num'];
-                        if ($asset_count) { 
-                            $asset_count_display = "<a href='assets.php?client_id=$client_id' class='mr-2 mb-1 badge badge-pill badge-secondary p-2' title='Assets ($asset_count)'><i class='fas fa-fw fa-desktop mr-2'></i>$asset_count</a>";
-                        } else {
-                            $asset_count_display = '';
-                        }
-                        
-                        // Credential Count
-                        $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('credential_id') AS num FROM credentials WHERE credential_client_id = $client_id AND credential_archived_at IS NULL"));
-                        $credential_count = $row['num'];
-                        if ($credential_count) { 
-                            $credential_count_display = "<a href='credentials.php?client_id=$client_id' class='mr-2 mb-1 badge badge-pill badge-secondary p-2' title='Credentials ($credential_count)'><i class='fas fa-fw fa-key mr-2'></i>$credential_count</a>";
-                        } else {
-                            $credential_count_display = '';
-                        }
-                        
-                        // Software Count
-                        $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('software_id') AS num FROM software WHERE software_client_id = $client_id AND software_archived_at IS NULL"));
-                        $software_count = $row['num'];
-                        if ($software_count) { 
-                            $software_count_display = "<a href='software.php?client_id=$client_id' class='mr-2 mb-1 badge badge-pill badge-secondary p-2' title='Licenses ($software_count)'><i class='fas fa-fw fa-cube mr-2'></i>$software_count</a>";
-                        } else {
-                            $software_count_display = '';
-                        }
-
-                        // Ticket Count
-                        $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('ticket_id') AS num FROM tickets WHERE ticket_client_id = $client_id AND ticket_archived_at IS NULL"));
-                        $ticket_count = $row['num'];
-                        if ($ticket_count) { 
-                            $ticket_count_display = "<a href='tickets.php?client_id=$client_id' class='mr-2 mb-1 badge badge-pill badge-secondary p-2' title='Tickets ($ticket_count)'><i class='fas fa-fw fa-life-ring mr-2'></i>$ticket_count</a>";
-                        } else {
-                            $ticket_count_display = '';
-                        }
-
-                        // Client Tags
-
-                        $client_tag_name_display_array = array();
-                        $client_tag_id_array = array();
-                        $sql_client_tags = mysqli_query($mysqli, "SELECT * FROM client_tags LEFT JOIN tags ON client_tags.tag_id = tags.tag_id WHERE client_id = $client_id ORDER BY tag_name ASC");
-                        while ($row = mysqli_fetch_array($sql_client_tags)) {
-
-                            $client_tag_id = intval($row['tag_id']);
-                            $client_tag_name = nullable_htmlentities($row['tag_name']);
-                            $client_tag_color = nullable_htmlentities($row['tag_color']);
-                            if (empty($client_tag_color)) {
-                                $client_tag_color = "dark";
-                            }
-                            $client_tag_icon = nullable_htmlentities($row['tag_icon']);
-                            if (empty($client_tag_icon)) {
-                                $client_tag_icon = "tag";
+                        </td>
+                        <td class="text-nowrap"><?php echo $location_address_display; ?></td>
+                        <td class="text-nowrap">
+                            <?php
+                            if (empty($contact_name) && empty($contact_phone) && empty($contact_mobile) && empty($client_email)) {
+                                echo "-";
                             }
 
-                            $client_tag_id_array[] = $client_tag_id;
-                            $client_tag_name_display_array[] = "<a href='clients.php?tags[]=$client_tag_id'><span class='badge text-light p-1 mr-1' style='background-color: $client_tag_color;'><i class='fa fa-fw fa-$client_tag_icon mr-2'></i>$client_tag_name</span></a>";
-                        }
-                        $client_tags_display = implode('', $client_tag_name_display_array);
+                            if (!empty($contact_name)) { ?>
+                                <div class="text-bold">   
+                                    <i class="fa fa-fw fa-user text-secondary mr-2 mb-2"></i><a href="#"
+                                        data-toggle="ajax-modal"
+                                        data-modal-size="lg"
+                                        data-ajax-url="ajax/ajax_contact_details.php?client_id=<?php echo $client_id; ?>"
+                                        data-ajax-id="<?php echo $contact_id; ?>"><?php echo $contact_name; ?>
+                                     </a>
+                                </div>
+                            <?php } else {
+                                echo "-";
+                            }
 
-                        //Add up all the payments for the invoice and get the total amount paid to the invoice
-                        $sql_invoice_amounts = mysqli_query($mysqli, "SELECT SUM(invoice_amount) AS invoice_amounts FROM invoices WHERE invoice_client_id = $client_id AND invoice_status != 'Draft' AND invoice_status != 'Cancelled' AND invoice_status != 'Non-Billable' ");
-                        $row = mysqli_fetch_array($sql_invoice_amounts);
+                            if (!empty($contact_phone)) { ?>
+                                <div class="mt-1">
+                                    <i class="fa fa-fw fa-phone text-secondary mr-2 mb-2"></i><?php echo $contact_phone; ?> <?php if (!empty($contact_extension)) { echo "x$contact_extension"; } ?>
+                                </div>
+                            <?php }
 
-                        $invoice_amounts = floatval($row['invoice_amounts']);
+                            if (!empty($contact_mobile)) { ?>
+                                <div class="mt-1">
+                                    <i class="fa fa-fw fa-mobile-alt text-secondary mr-2"></i><?php echo $contact_mobile; ?>
+                                </div>
+                            <?php }
 
-                        $sql_amount_paid = mysqli_query($mysqli, "SELECT SUM(payment_amount) AS amount_paid FROM payments, invoices WHERE payment_invoice_id = invoice_id AND invoice_client_id = $client_id");
-                        $row = mysqli_fetch_array($sql_amount_paid);
+                            if (!empty($contact_email)) { ?>
+                                <div class="mt-1">
+                                    <i class="fa fa-fw fa-envelope text-secondary mr-2"></i><a href="mailto:<?php echo $contact_email; ?>"><?php echo $contact_email; ?></a><button class='btn btn-sm clipboardjs' type="button" data-clipboard-text='<?php echo $contact_email; ?>'><i class='far fa-copy text-secondary'></i></button>
+                                </div>
+                            <?php } ?>
+                        </td>
 
-                        $amount_paid = floatval($row['amount_paid']);
+                        <td>
+                            <?php echo "$contact_count_display$vendor_count_display$asset_count_display$credential_count_display$software_count_display$ticket_count_display"; ?>
+                        </td>
 
-                        $balance = $invoice_amounts - $amount_paid;
-                        //set Text color on balance
-                        if ($balance > 0) {
-                            $balance_text_color = "text-danger font-weight-bold";
-                        } else {
-                            $balance_text_color = "";
-                        }
-
-                        // Get Credit Balance
-                        $sql_credit_balance = mysqli_query($mysqli, "SELECT SUM(credit_amount) AS credit_balance FROM credits WHERE credit_client_id = $client_id");
-                        $row = mysqli_fetch_array($sql_credit_balance);
-
-                        $credit_balance = floatval($row['credit_balance']);
-
-                        //Get Monthly Recurring Total
-                        $sql_recurring_monthly_total = mysqli_query($mysqli, "SELECT SUM(recurring_invoice_amount) AS recurring_monthly_total FROM recurring_invoices WHERE recurring_invoice_status = 1 AND recurring_invoice_frequency = 'month' AND recurring_invoice_client_id = $client_id");
-                        $row = mysqli_fetch_array($sql_recurring_monthly_total);
-
-                        $recurring_monthly_total = floatval($row['recurring_monthly_total']);
-
-                        //Get Yearly Recurring Total
-                        $sql_recurring_yearly_total = mysqli_query($mysqli, "SELECT SUM(recurring_invoice_amount) AS recurring_yearly_total FROM recurring_invoices WHERE recurring_invoice_status = 1 AND recurring_invoice_frequency = 'year' AND recurring_invoice_client_id = $client_id");
-                        $row = mysqli_fetch_array($sql_recurring_yearly_total);
-
-                        $recurring_yearly_total = floatval($row['recurring_yearly_total']) / 12;
-
-                        $recurring_monthly = $recurring_monthly_total + $recurring_yearly_total;
-
-                        ?>
-                        <tr>
-                            <td class="pr-0 bg-light">
-                                <div class="form-check">
-                                    <input class="form-check-input bulk-select" type="checkbox" name="client_ids[]" value="<?php echo $client_id ?>">
+                        <!-- Show Billing if perms & if accounting module is enabled -->
+                        <?php if ((lookupUserPermission("module_financial") >= 1) && $config_module_enable_accounting == 1) { ?>
+                            <td class="text-right">
+                                <div class="d-flex justify-content-between">
+                                    <span class="text-secondary">Balance</span>
+                                    <span class="<?php echo $balance_text_color; ?>"><?php echo numfmt_format_currency($currency_format, $balance, $session_company_currency); ?></span>
+                                </div>
+                                <div class="d-flex justify-content-between">
+                                    <span class="text-secondary">Paid</span>
+                                    <span><?php echo numfmt_format_currency($currency_format, $amount_paid, $session_company_currency); ?></span>
+                                </div>
+                                <div class="d-flex justify-content-between">
+                                    <span class="text-secondary">Credit</span>
+                                    <span class="text-success"><?php echo numfmt_format_currency($currency_format, $credit_balance, $session_company_currency); ?></span>
+                                </div>
+                                <div class="d-flex justify-content-between">
+                                    <span class="text-secondary">Monthly</span>
+                                    <span><?php echo numfmt_format_currency($currency_format, $recurring_monthly, $session_company_currency); ?></span>
+                                </div>
+                                <div class="d-flex justify-content-between">
+                                    <span class="text-secondary">Hourly Rate</span>
+                                    <span><?php echo numfmt_format_currency($currency_format, $client_rate, $session_company_currency); ?></span>
                                 </div>
                             </td>
+                        <?php } ?>
+
+                        <!-- Actions -->
+                        <?php if (lookupUserPermission("module_client") >= 2) { ?>
                             <td>
-                                <a data-toggle="tooltip" data-placement="right" title="Client ID: <?php echo $client_id; ?>" class="font-weight-bold h6" href="client_overview.php?client_id=<?php echo $client_id; ?>"><?php echo $client_name; ?></a>
-
-                                <?php
-                                if (!empty($client_type)) {
-                                ?>
-                                    <div class="text-secondary mt-1">
-                                        <?php echo $client_type; ?>
-                                    </div>
-                                <?php } ?>
-                                <?php
-                                if (!empty($client_tags_display)) { ?>
-                                    <div class="mt-1">
-                                        <?php echo $client_tags_display; ?>
-                                    </div>
-                                <?php } ?>
-                                <div class="mt-1 text-secondary">
-                                    <small><strong>Abbreviation: </strong> <?php echo $client_abbreviation; ?></small><br>
-                                    <small><strong>Created: </strong> <?php echo $client_created_at; ?></small><br>
-                                </div>
-
-                            </td>
-                            <td><?php echo $location_address_display; ?></td>
-                            <td>
-                                <?php
-                                if (empty($contact_name) && empty($contact_phone) && empty($contact_mobile) && empty($client_email)) {
-                                    echo "-";
-                                }
-
-                                if (!empty($contact_name)) { ?>
-                                    <div class="text-bold">   
-                                        <i class="fa fa-fw fa-user text-secondary mr-2 mb-2"></i><a href="#"
+                                <div class="dropdown dropleft text-center">
+                                    <button class="btn btn-secondary btn-sm" type="button" data-toggle="dropdown">
+                                        <i class="fas fa-ellipsis-h"></i>
+                                    </button>
+                                    <div class="dropdown-menu">
+                                        <a class="dropdown-item" href="#"
                                             data-toggle="ajax-modal"
-                                            data-modal-size="lg"
-                                            data-ajax-url="ajax/ajax_contact_details.php?client_id=<?php echo $client_id; ?>"
-                                            data-ajax-id="<?php echo $contact_id; ?>"><?php echo $contact_name; ?>
-                                         </a>
-                                    </div>
-                                <?php } else {
-                                    echo "-";
-                                }
+                                            data-ajax-url="modals/client_edit.php"
+                                            data-ajax-id="<?php echo $client_id; ?>">
+                                            <i class="fas fa-fw fa-edit mr-2"></i>Edit
+                                        </a>
 
-                                if (!empty($contact_phone)) { ?>
-                                    <div class="mt-1">
-                                        <i class="fa fa-fw fa-phone text-secondary mr-2 mb-2"></i><?php echo $contact_phone; ?> <?php if (!empty($contact_extension)) { echo "x$contact_extension"; } ?>
+                                        <?php if ($client_archived_at) { ?>
+                                        <div class="dropdown-divider"></div>
+                                        <a class="dropdown-item text-info confirm-link" href="post.php?restore_client=<?php echo $client_id; ?>&csrf_token=<?php echo $_SESSION['csrf_token'] ?>">
+                                            <i class="fas fa-fw fa-redo mr-2"></i>Restore
+                                        </a>
+                                        <?php } else { ?>
+                                        <div class="dropdown-divider"></div>
+                                        <a class="dropdown-item text-danger confirm-link" href="post.php?archive_client=<?php echo $client_id; ?>&csrf_token=<?php echo $_SESSION['csrf_token'] ?>">
+                                            <i class="fas fa-fw fa-archive mr-2"></i>Archive
+                                        </a>
+                                        <?php } ?>
                                     </div>
-                                <?php }
-
-                                if (!empty($contact_mobile)) { ?>
-                                    <div class="mt-1">
-                                        <i class="fa fa-fw fa-mobile-alt text-secondary mr-2"></i><?php echo $contact_mobile; ?>
-                                    </div>
-                                <?php }
-
-                                if (!empty($contact_email)) { ?>
-                                    <div class="mt-1">
-                                        <i class="fa fa-fw fa-envelope text-secondary mr-2"></i><a href="mailto:<?php echo $contact_email; ?>"><?php echo $contact_email; ?></a><button class='btn btn-sm clipboardjs' type="button" data-clipboard-text='<?php echo $contact_email; ?>'><i class='far fa-copy text-secondary'></i></button>
-                                    </div>
-                                <?php } ?>
+                                </div>
                             </td>
+                        <?php } ?>
+                    </tr>
 
-                            <td>
-                                <?php echo "$contact_count_display$vendor_count_display$asset_count_display$credential_count_display$software_count_display$ticket_count_display"; ?>
-                            </td>
+                    <?php
+                } ?>
 
-                            <!-- Show Billing if perms & if accounting module is enabled -->
-                            <?php if ((lookupUserPermission("module_financial") >= 1) && $config_module_enable_accounting == 1) { ?>
-                                <td class="text-right">
-                                    <div class="d-flex justify-content-between">
-                                        <span class="text-secondary">Balance</span>
-                                        <span class="<?php echo $balance_text_color; ?>"><?php echo numfmt_format_currency($currency_format, $balance, $session_company_currency); ?></span>
-                                    </div>
-                                    <div class="d-flex justify-content-between">
-                                        <span class="text-secondary">Paid</span>
-                                        <span><?php echo numfmt_format_currency($currency_format, $amount_paid, $session_company_currency); ?></span>
-                                    </div>
-                                    <div class="d-flex justify-content-between">
-                                        <span class="text-secondary">Credit</span>
-                                        <span class="text-success"><?php echo numfmt_format_currency($currency_format, $credit_balance, $session_company_currency); ?></span>
-                                    </div>
-                                    <div class="d-flex justify-content-between">
-                                        <span class="text-secondary">Monthly</span>
-                                        <span><?php echo numfmt_format_currency($currency_format, $recurring_monthly, $session_company_currency); ?></span>
-                                    </div>
-                                    <div class="d-flex justify-content-between">
-                                        <span class="text-secondary">Hourly Rate</span>
-                                        <span><?php echo numfmt_format_currency($currency_format, $client_rate, $session_company_currency); ?></span>
-                                    </div>
-                                </td>
-                            <?php } ?>
-
-                            <!-- Actions -->
-                            <?php if (lookupUserPermission("module_client") >= 2) { ?>
-                                <td>
-                                    <div class="dropdown dropleft text-center">
-                                        <button class="btn btn-secondary btn-sm" type="button" data-toggle="dropdown">
-                                            <i class="fas fa-ellipsis-h"></i>
-                                        </button>
-                                        <div class="dropdown-menu">
-                                            <a class="dropdown-item" href="#"
-                                                data-toggle="ajax-modal"
-                                                data-ajax-url="modals/client_edit.php"
-                                                data-ajax-id="<?php echo $client_id; ?>">
-                                                <i class="fas fa-fw fa-edit mr-2"></i>Edit
-                                            </a>
-
-                                            <?php if ($client_archived_at) { ?>
-                                            <div class="dropdown-divider"></div>
-                                            <a class="dropdown-item text-info confirm-link" href="post.php?restore_client=<?php echo $client_id; ?>&csrf_token=<?php echo $_SESSION['csrf_token'] ?>">
-                                                <i class="fas fa-fw fa-redo mr-2"></i>Restore
-                                            </a>
-                                            <?php } else { ?>
-                                            <div class="dropdown-divider"></div>
-                                            <a class="dropdown-item text-danger confirm-link" href="post.php?archive_client=<?php echo $client_id; ?>&csrf_token=<?php echo $_SESSION['csrf_token'] ?>">
-                                                <i class="fas fa-fw fa-archive mr-2"></i>Archive
-                                            </a>
-                                            <?php } ?>
-                                        </div>
-                                    </div>
-                                </td>
-                            <?php } ?>
-                        </tr>
-
-                        <?php
-                    } ?>
-
-                    </tbody>
-                </table>
-            </div>
-            <?php 
-                require_once "modals/client_bulk_edit_industry.php";
-                require_once "modals/client_bulk_edit_referral.php";
-                require_once "modals/client_bulk_edit_hourly_rate.php";
-                require_once "modals/client_bulk_assign_tags.php"; 
-                require_once "modals/client_bulk_email.php";
-            ?>
-        </form>
+                </tbody>
+            </table>
+        </div>
+        <?php 
+            require_once "modals/client_bulk_edit_industry.php";
+            require_once "modals/client_bulk_edit_referral.php";
+            require_once "modals/client_bulk_edit_hourly_rate.php";
+            require_once "modals/client_bulk_assign_tags.php"; 
+            require_once "modals/client_bulk_email.php";
+        ?>
+    </form>
      <!-- Ends Card Body -->
     <?php require_once "../includes/filter_footer.php"; ?>
     
