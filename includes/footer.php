@@ -1,5 +1,5 @@
 <?php
-require_once "../includes/inc_confirm_modal.php";
+require_once "inc_confirm_modal.php";
 ?>
 
 <?php
