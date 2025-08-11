@@ -3828,6 +3828,26 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
         mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '2.2.8'");
     }
 
+    if (CURRENT_DATABASE_VERSION == '2.2.8') {
+        
+        mysqli_query($mysqli, "ALTER TABLE `products` ADD `product_type` ENUM('service', 'product') NOT NULL DEFAULT 'service' AFTER `product_name`");
+        mysqli_query($mysqli, "ALTER TABLE `products` ADD `product_code` VARCHAR(200) DEFAULT NULL AFTER `product_description`");
+        mysqli_query($mysqli, "ALTER TABLE `products` ADD `product_location` VARCHAR(250) DEFAULT NULL AFTER `product_code`");
+
+        mysqli_query($mysqli, "CREATE TABLE `product_stock` (
+            `stock_id` INT(11) NOT NULL AUTO_INCREMENT,
+            `stock_qty` INT(11) NOT NULL,
+            `stock_note` TEXT DEFAULT NULL,
+            `stock_created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP(),
+            `stock_expense_id` INT(11) DEFAULT NULL,
+            `stock_item_id` INT(11) DEFAULT NULL,
+            `stock_product_id` INT(11) NOT NULL,
+            PRIMARY KEY (`stock_id`)
+        )");
+        
+        mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '2.2.9'");
+    }
+
     /* 2025-07-21 - JQ For next release Pauyment Provider Switch Over
     if (CURRENT_DATABASE_VERSION == '2.2.4') {
 

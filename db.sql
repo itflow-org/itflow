@@ -1458,6 +1458,25 @@ CREATE TABLE `payments` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `product_stock`
+--
+
+DROP TABLE IF EXISTS `product_stock`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `product_stock` (
+  `stock_id` int(11) NOT NULL AUTO_INCREMENT,
+  `stock_qty` int(11) NOT NULL,
+  `stock_note` text DEFAULT NULL,
+  `stock_created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `stock_expense_id` int(11) DEFAULT NULL,
+  `stock_item_id` int(11) DEFAULT NULL,
+  `stock_product_id` int(11) NOT NULL,
+  PRIMARY KEY (`stock_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `products`
 --
 
@@ -1467,7 +1486,10 @@ DROP TABLE IF EXISTS `products`;
 CREATE TABLE `products` (
   `product_id` int(11) NOT NULL AUTO_INCREMENT,
   `product_name` varchar(200) NOT NULL,
+  `product_type` enum('service','product') NOT NULL DEFAULT 'service',
   `product_description` text DEFAULT NULL,
+  `product_code` varchar(200) DEFAULT NULL,
+  `product_location` varchar(250) DEFAULT NULL,
   `product_price` decimal(15,2) NOT NULL,
   `product_currency_code` varchar(200) NOT NULL,
   `product_created_at` datetime NOT NULL DEFAULT current_timestamp(),
@@ -2766,4 +2788,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-08-05 13:30:24
+-- Dump completed on 2025-08-11 18:18:59
