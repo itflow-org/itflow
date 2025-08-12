@@ -9,6 +9,19 @@ require_once "includes/inc_all.php";
 // Perms
 enforceUserPermission('module_sales');
 
+// Type Filter
+if (isset($_GET['type']) && $_GET['type'] == 'product') {
+    $type_filter = 'product';
+    $type_query = "AND product_type = 'product'";
+    $type_display = 'Products';
+    $type_icon = "fa-box-open";
+} else {
+    $type_filter = 'service';
+    $type_query = "AND product_type = 'service'";
+    $type_display = "Services";
+    $type_icon = "fa-wrench";
+}
+
 // Category Filter
 if (isset($_GET['category']) & !empty($_GET['category'])) {
     $category_query = 'AND (category_id = ' . intval($_GET['category']) . ')';
@@ -21,14 +34,19 @@ if (isset($_GET['category']) & !empty($_GET['category'])) {
 
 $sql = mysqli_query(
     $mysqli,
-    "SELECT SQL_CALC_FOUND_ROWS * FROM products
+    "SELECT SQL_CALC_FOUND_ROWS
+        products.*,
+        categories.*,
+        taxes.*,
+        COALESCE(SUM(product_stock.stock_qty), 0) AS product_qty
+    FROM products
     LEFT JOIN categories ON product_category_id = category_id
     LEFT JOIN taxes ON product_tax_id = tax_id
-    WHERE (product_name LIKE '%$q%' OR product_description LIKE '%$q%' OR category_name LIKE '%$q%' OR product_price LIKE '%$q%' OR tax_name LIKE '%$q%' OR tax_percent LIKE '%$q%')
+    LEFT JOIN product_stock ON product_id = stock_product_id
+    WHERE (product_name LIKE '%$q%' OR product_description LIKE '%$q%' OR product_code LIKE '%$q%' OR product_location LIKE '%$q%' OR category_name LIKE '%$q%' OR product_price LIKE '%$q%' OR tax_name LIKE '%$q%' OR tax_percent LIKE '%$q%')
+    $type_query
     AND product_$archive_query
     $category_query
-    
-    
     ORDER BY $sort $order LIMIT $record_from, $record_to"
 );
 
@@ -38,10 +56,10 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
     <div class="card card-dark">
         <div class="card-header py-2">
-            <h3 class="card-title mt-2"><i class="fas fa-fw fa-box-open mr-2"></i>Products</h3>
+            <h3 class="card-title mt-2"><i class="fas fa-fw <?= $type_icon ?> mr-2"></i><?= $type_display ?></h3>
             <div class="card-tools">
                 <div class="btn-group">
-                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addProductModal"><i class="fas fa-plus mr-2"></i>New Product</button>
+                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addProductModal"><i class="fas fa-plus mr-2"></i>New <strong><?= ucwords($type_filter); ?></strong></button>
                     <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown"></button>
                     <div class="dropdown-menu">
                         <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#exportProductsModal">
@@ -55,10 +73,12 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
         <div class="card-body">
             <form class="mb-4" autocomplete="off">
                 <input type="hidden" name="archived" value="<?php echo $archived; ?>">
+                <input type="hidden" name="type" value="<?php echo $type_filter; ?>">
+
                 <div class="row">
                     <div class="col-sm-4">
                         <div class="input-group mb-3 mb-sm-0">
-                            <input type="search" class="form-control" name="q" value="<?php if (isset($q)) {echo stripslashes(nullable_htmlentities($q));} ?>" placeholder="Search Products">
+                            <input type="search" class="form-control" name="q" value="<?php if (isset($q)) {echo stripslashes(nullable_htmlentities($q));} ?>" placeholder="Search <?= $type_display ?>">
                             <div class="input-group-append">
                                 <button class="btn btn-primary"><i class="fa fa-search"></i></button>
                             </div>
@@ -92,37 +112,43 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         </div>
                     </div>
                     <div class="col-md-5">
-                        <div class="btn-group float-right">
-                            <a href="?<?php echo $url_query_strings_sort ?>&archived=<?php if($archived == 1){ echo 0; } else { echo 1; } ?>" 
-                                class="btn btn-<?php if($archived == 1){ echo "primary"; } else { echo "default"; } ?>">
-                                <i class="fa fa-fw fa-archive mr-2"></i>Archived
-                            </a>
-                            <div class="dropdown ml-2" id="bulkActionButton" hidden>
-                                <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">
-                                    <i class="fas fa-fw fa-layer-group mr-2"></i>Bulk Action (<span id="selectedCount">0</span>)
-                                </button>
-                                <div class="dropdown-menu">
-                                    <a class="dropdown-item" href="#" data-toggle="modal" data-target="#bulkEditCategoryModal">
-                                        <i class="fas fa-fw fa-list mr-2"></i>Set Category
-                                    </a>
-                                    <?php if ($archived) { ?>
-                                    <div class="dropdown-divider"></div>
-                                    <button class="dropdown-item text-info"
-                                        type="submit" form="bulkActions" name="bulk_unarchive_products">
-                                        <i class="fas fa-fw fa-redo mr-2"></i>Unarchive
+                        <div class="btn-toolbar form-group float-right">
+                            <div class="btn-group">
+                                <div class="btn-group mr-2">
+                                    <a href="?type=service" class="btn btn-<?php if ($type_filter == 'service'){ echo "primary"; } else { echo "default"; } ?>"><i class="fa fa-fw fa-wrench"></i><span class="d-none d-sm-inline ml-2">Service</span></a>
+                                    <a href="?type=product" class="btn btn-<?php if ($type_filter == 'product'){ echo "primary"; } else { echo "default"; } ?>"><i class="fa fa-fw fa-cube"></i><span class="d-none d-sm-inline ml-2">Product</span></a>
+                                </div>
+                                <a href="?<?php echo $url_query_strings_sort ?>&archived=<?php if($archived == 1){ echo 0; } else { echo 1; } ?>" 
+                                    class="btn btn-<?php if($archived == 1){ echo "primary"; } else { echo "default"; } ?>">
+                                    <i class="fa fa-fw fa-archive mr-2"></i>Archived
+                                </a>
+                                <div class="dropdown ml-2" id="bulkActionButton" hidden>
+                                    <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">
+                                        <i class="fas fa-fw fa-layer-group mr-2"></i>Bulk Action (<span id="selectedCount">0</span>)
                                     </button>
-                                    <div class="dropdown-divider"></div>
-                                    <button class="dropdown-item text-danger text-bold"
-                                        type="submit" form="bulkActions" name="bulk_delete_products">
-                                        <i class="fas fa-fw fa-trash mr-2"></i>Delete
-                                    </button>
-                                    <?php } else { ?>
-                                    <div class="dropdown-divider"></div>
-                                    <button class="dropdown-item text-danger confirm-link"
-                                        type="submit" form="bulkActions" name="bulk_archive_products">
-                                        <i class="fas fa-fw fa-archive mr-2"></i>Archive
-                                    </button>
-                                    <?php } ?>
+                                    <div class="dropdown-menu">
+                                        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#bulkEditCategoryModal">
+                                            <i class="fas fa-fw fa-list mr-2"></i>Set Category
+                                        </a>
+                                        <?php if ($archived) { ?>
+                                        <div class="dropdown-divider"></div>
+                                        <button class="dropdown-item text-info"
+                                            type="submit" form="bulkActions" name="bulk_unarchive_products">
+                                            <i class="fas fa-fw fa-redo mr-2"></i>Unarchive
+                                        </button>
+                                        <div class="dropdown-divider"></div>
+                                        <button class="dropdown-item text-danger text-bold"
+                                            type="submit" form="bulkActions" name="bulk_delete_products">
+                                            <i class="fas fa-fw fa-trash mr-2"></i>Delete
+                                        </button>
+                                        <?php } else { ?>
+                                        <div class="dropdown-divider"></div>
+                                        <button class="dropdown-item text-danger confirm-link"
+                                            type="submit" form="bulkActions" name="bulk_archive_products">
+                                            <i class="fas fa-fw fa-archive mr-2"></i>Archive
+                                        </button>
+                                        <?php } ?>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -157,6 +183,18 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                     Description <?php if ($sort == 'product_description') { echo $order_icon; } ?>
                                 </a>
                             </th>
+                            <?php if ($type_filter == 'product') { ?>
+                            <th>
+                                <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=product_qty&order=<?php echo $disp; ?>">
+                                    QTY <?php if ($sort == 'product_qty') { echo $order_icon; } ?>
+                                </a>
+                            </th>
+                            <th>
+                                <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=product_location&order=<?php echo $disp; ?>">
+                                    Location <?php if ($sort == 'product_location') { echo $order_icon; } ?>
+                                </a>
+                            </th>
+                            <?php } ?>
                             <th>
                                 <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=tax_name&order=<?php echo $disp; ?>">
                                     Tax Name <?php if ($sort == 'tax_name') { echo $order_icon; } ?>
@@ -187,6 +225,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             } else {
                                 $product_description_display = "<div style='white-space:pre-line'>$product_description</div>";
                             }
+                            $product_qty = intval($row['product_qty']);
+                            $product_code = nullable_htmlentities($row['product_code']);
+                            $product_location = nullable_htmlentities(getFallBack($row['product_location']));
                             $product_price = floatval($row['product_price']);
                             $product_currency_code = nullable_htmlentities($row['product_currency_code']);
                             $product_created_at = nullable_htmlentities($row['product_created_at']);
@@ -194,12 +235,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             $category_id = intval($row['category_id']);
                             $category_name = nullable_htmlentities($row['category_name']);
                             $product_tax_id = intval($row['product_tax_id']);
-                            $tax_name = nullable_htmlentities($row['tax_name']);
-                            if (empty($tax_name)) {
-                                $tax_name_display = "-";
-                            } else {
-                                $tax_name_display = $tax_name;
-                            }
+                            $tax_name = nullable_htmlentities(getFallBack($row['tax_name']));
                             $tax_percent = floatval($row['tax_percent']);
 
 
@@ -207,22 +243,27 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             <tr>
                                 <td class="pr-0 bg-light">
                                     <div class="form-check">
-                                        <input class="form-check-input bulk-select" type="checkbox" name="product_ids[]" value="<?php echo $product_id ?>">
+                                        <input class="form-check-input bulk-select" type="checkbox" name="product_ids[]" value="<?= $product_id ?>">
                                     </div>
                                 </td>
                                 <td>
                                     <a class="text-dark text-bold" href="#"
                                         data-toggle="ajax-modal"
                                         data-ajax-url="ajax/ajax_product_edit.php"
-                                        data-ajax-id="<?php echo $product_id; ?>"
+                                        data-ajax-id="<?= $product_id ?>"
                                         >
-                                        <?php echo $product_name; ?>   
+                                        <?= $product_name; ?>
+                                        <?php if ($product_code) { echo "<div class='text-secondary'>$product_code</div>"; } ?>
                                     </a>
                                 </td>
                                 <td><?php echo $category_name; ?></td>
                                 <td><?php echo $product_description_display; ?></td>
-                                <td><?php echo $tax_name_display; ?></td>
-                                <td><?php echo $tax_percent; ?>%</td>
+                                <?php if ($type_filter == 'product') { ?>
+                                <td><?= $product_qty ?></td>
+                                <td><?= $product_location ?></td>
+                                <?php } ?>
+                                <td><?= $tax_name ?></td>
+                                <td><?= $tax_percent ?>%</td>
                                 <td class="text-right"><?php echo numfmt_format_currency($currency_format, $product_price, $product_currency_code); ?></td>
                                 
                                 <td>
@@ -231,6 +272,16 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                             <i class="fas fa-ellipsis-h"></i>
                                         </button>
                                         <div class="dropdown-menu">
+                                            <?php if ($type_filter == 'product') { ?>
+                                            <a class="dropdown-item" href="#"
+                                                data-toggle="ajax-modal"
+                                                data-ajax-url="ajax/ajax_product_stock_add.php"
+                                                data-ajax-id="<?php echo $product_id; ?>"
+                                                >
+                                                <i class="fas fa-fw fa-box-open mr-2"></i>Add Stock
+                                            </a>
+                                            <div class="dropdown-divider"></div>
+                                            <?php } ?>
                                             <a class="dropdown-item" href="#"
                                                 data-toggle="ajax-modal"
                                                 data-ajax-url="ajax/ajax_product_edit.php"

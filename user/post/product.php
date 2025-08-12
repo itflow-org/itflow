@@ -11,8 +11,9 @@ if (isset($_POST['add_product'])) {
     enforceUserPermission('module_sales', 2);
 
     require_once 'product_model.php';
+    $type = sanitizeInput($_POST['type']);
 
-    mysqli_query($mysqli,"INSERT INTO products SET product_name = '$name', product_description = '$description', product_price = '$price', product_currency_code = '$session_company_currency', product_tax_id = $tax, product_category_id = $category");
+    mysqli_query($mysqli,"INSERT INTO products SET product_name = '$name', product_type = '$type', product_description = '$description', product_code = '$code', product_location = '$location', product_price = '$price', product_currency_code = '$session_company_currency', product_tax_id = $tax, product_category_id = $category");
 
     $product_id = mysqli_insert_id($mysqli);
 
@@ -32,7 +33,7 @@ if (isset($_POST['edit_product'])) {
 
     $product_id = intval($_POST['product_id']);
 
-    mysqli_query($mysqli,"UPDATE products SET product_name = '$name', product_description = '$description', product_price = '$price', product_tax_id = $tax, product_category_id = $category WHERE product_id = $product_id");
+    mysqli_query($mysqli,"UPDATE products SET product_name = '$name', product_description = '$description', product_code = '$code', product_location = '$location', product_price = '$price', product_tax_id = $tax, product_category_id = $category WHERE product_id = $product_id");
 
     logAction("Product", "Edit", "$session_name edited product $name", 0, $product_id);
 
@@ -274,4 +275,26 @@ if (isset($_POST['export_products_csv'])) {
     logAction("Product", "Export", "$session_name exported $num_rows product(s) to a CSV file");
 
     exit;
+}
+
+if (isset($_POST['add_product_stock'])) {
+
+    enforceUserPermission('module_sales', 2);
+
+    $product_id = intval($_POST['product_id']);
+    $qty = intval($_POST['qty']);
+    $expense = intval($_POST['expense']);
+    $note = sanitizeInput($_POST['note']);
+
+    // Get product name
+    $product_name = sanitizeInput(getFieldById('products', $product_id, 'product_name'));
+
+    mysqli_query($mysqli,"INSERT INTO product_stock SET stock_qty = $qty, stock_expense_id = $expense, stock_note = '$note', stock_product_id = $product_id");
+
+    logAction("Product", "Stock", "$session_name added $qty units to stock for product $product_name", 0, $product_id);
+
+    flash_alert("Added $qty units to <strong>$product_name</strong> stock");
+
+    redirect();
+
 }

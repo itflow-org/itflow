@@ -8,7 +8,10 @@ $sql = mysqli_query($mysqli, "SELECT * FROM products WHERE product_id = $product
 
 $row = mysqli_fetch_array($sql);
 $product_name = nullable_htmlentities($row['product_name']);
+$product_type = nullable_htmlentities($row['product_type']);
 $product_description = nullable_htmlentities($row['product_description']);
+$product_code = nullable_htmlentities($row['product_code']);
+$product_location = nullable_htmlentities($row['product_location']);
 $product_price = floatval($row['product_price']);
 $product_created_at = nullable_htmlentities($row['product_created_at']);
 $category_id = intval($row['product_category_id']);
@@ -19,7 +22,7 @@ ob_start();
 ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fas fa-fw fa-box-open mr-2"></i>Editing product: <strong><?php echo $product_name; ?></strong></h5>
+    <h5 class="modal-title"><i class="fas fa-fw fa-box-open mr-2"></i>Editing <?= ucwords($product_type) ?>: <strong><?php echo $product_name; ?></strong></h5>
     <button type="button" class="close text-white" data-dismiss="modal">
         <span>&times;</span>
     </button>
@@ -109,9 +112,31 @@ ob_start();
             </div>
         </div>
 
+        <?php if ($product_type == 'product') { ?>
+        <div class="form-group">
+            <label>Location</label>
+            <div class="input-group">
+                <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fa fa-fw fa-map-marker-alt"></i></span>
+                </div>
+                <input type="text" class="form-control" name="location" placeholder="Enter a location" value="<?= $product_location ?>">
+            </div>
+        </div>
+        <?php } ?>
+
         <div class="form-group">
             <label>Description</label>
-            <textarea class="form-control" rows="5" name="description"><?php echo $product_description; ?></textarea>
+            <textarea class="form-control" rows="4" name="description"><?php echo $product_description; ?></textarea>
+        </div>
+
+        <div class="form-group">
+            <label>Code</label>
+            <div class="input-group">
+                <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fa fa-fw fa-barcode"></i></span>
+                </div>
+                <input type="text" class="form-control" name="code" placeholder="Enter product code eg. SKU #" value="<?= $product_code ?>">
+            </div>
         </div>
 
     </div>
