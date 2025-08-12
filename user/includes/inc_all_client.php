@@ -49,9 +49,6 @@ if (isset($_GET['client_id'])) {
         $client_referral = nullable_htmlentities($row['client_referral']);
         $client_currency_code = nullable_htmlentities($row['client_currency_code']);
         $client_net_terms = intval($row['client_net_terms']);
-        if ($client_net_terms == 0) {
-            $client_net_terms = $config_default_net_terms;
-        }
         $client_tax_id_number = nullable_htmlentities($row['client_tax_id_number']);
         $client_abbreviation = nullable_htmlentities($row['client_abbreviation']);
         $client_rate = floatval($row['client_rate']);

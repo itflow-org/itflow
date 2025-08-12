@@ -148,7 +148,13 @@
                 <span class="text-dark float-right"> <?php echo numfmt_format_currency($currency_format, $recurring_monthly, $client_currency_code); ?></span>
             </div>
             <div class="ml-1 mt-1 text-secondary">Net Terms
-                <span class="text-dark float-right"><?php echo $client_net_terms; ?><small class="text-secondary ml-1">Days</small></span>
+                <span class="text-dark float-right">
+                    <?php if ($client_net_terms) { ?>
+                    <?= $client_net_terms; ?><small class="text-secondary ml-1">Days</small>
+                    <?php } else { ?>
+                        On Receipt
+                    <?php } ?>
+                </span>
             </div>
             <?php if(!empty($client_tax_id_number)) { ?>
             <div class="ml-1 mt-1 text-secondary">Tax ID
