@@ -47,6 +47,7 @@ $sql = mysqli_query(
     $type_query
     AND product_$archive_query
     $category_query
+    GROUP BY product_id
     ORDER BY $sort $order LIMIT $record_from, $record_to"
 );
 

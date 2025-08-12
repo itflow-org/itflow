@@ -4,18 +4,8 @@ require_once '../../includes/modal_header.php';
 
 $product_id = intval($_GET['id']);
 
-$sql = mysqli_query($mysqli, "SELECT * FROM products WHERE product_id = $product_id LIMIT 1");
-
-$row = mysqli_fetch_array($sql);
-$product_name = nullable_htmlentities($row['product_name']);
-$product_type = nullable_htmlentities($row['product_type']);
-$product_description = nullable_htmlentities($row['product_description']);
-$product_code = nullable_htmlentities($row['product_code']);
-$product_location = nullable_htmlentities($row['product_location']);
-$product_price = floatval($row['product_price']);
-$product_created_at = nullable_htmlentities($row['product_created_at']);
-$category_id = intval($row['product_category_id']);
-$product_tax_id = intval($row['product_tax_id']);
+// Get product name
+$product_name = sanitizeInput(getFieldById('products', $product_id, 'product_name'));
 
 // Generate the HTML form content using output buffering.
 ob_start();
@@ -37,7 +27,7 @@ ob_start();
                 <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-balance-scale"></i></span>
                 </div>
-                <input type="text" inputmode="numeric" pattern="[0-9]" class="form-control" name="qty" placeholder="Units to add" required>
+                <input type="text" inputmode="numeric" pattern="[0-9]*" class="form-control" name="qty" placeholder="Units to add" required>
             </div>
         </div>
         
@@ -51,7 +41,7 @@ ob_start();
                     <option value="0">- Link an Expense -</option>
                     <?php
 
-                    $expenses_sql = mysqli_query($mysqli, "SELECT expense_id, expense_description, expense_date 
+                    $expenses_sql = mysqli_query($mysqli, "SELECT expense_id, expense_description, expense_date
                         FROM expenses 
                         WHERE expense_archived_at IS NULL ORDER BY expense_date DESC"
                     );
