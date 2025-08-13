@@ -737,7 +737,7 @@ if (isset($_GET['ticket_id'])) {
                     ?>
 
                     <!-- Begin ticket reply card -->
-                    <div class="card border-left border-<?php if ($ticket_reply_type == 'Internal') { echo "dark"; } elseif ($ticket_reply_type == 'Client') { echo "warning"; } else { echo "info"; } ?> mb-3">
+                    <div class="card border-left border-<?php if ($ticket_reply_type == 'Internal') { echo "dark"; } elseif ($ticket_reply_type == 'Client') { echo "warning"; } else { echo "info"; } ?> mb-3" style="border-left-width: 8px !important;">
                         <div class="card-header">
                             <div class="d-flex justify-content-between align-items-center w-100">
                                 <!-- Left side content -->
