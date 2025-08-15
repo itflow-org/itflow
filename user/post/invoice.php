@@ -518,9 +518,16 @@ if (isset($_POST['add_invoice_item'])) {
     $price = floatval($_POST['price']);
     $tax_id = intval($_POST['tax_id']);
     $item_order = intval($_POST['item_order']);
+    $product_id = intval($_POST['product_id']);
 
     $subtotal = $price * $qty;
+    
+    // Update Product Inventory
+    if ($product_id) {
+        mysqli_query($mysqli,"INSERT INTO product_stock SET stock_qty = -$qty, stock_note = 'QTY $qty - Invoice $invoice_id', stock_product_id = $product_id");
+    }
 
+    // Tax
     if ($tax_id > 0) {
         $sql = mysqli_query($mysqli,"SELECT * FROM taxes WHERE tax_id = $tax_id");
         $row = mysqli_fetch_array($sql);
@@ -532,7 +539,7 @@ if (isset($_POST['add_invoice_item'])) {
 
     $total = $subtotal + $tax_amount;
 
-    mysqli_query($mysqli,"INSERT INTO invoice_items SET item_name = '$name', item_description = '$description', item_quantity = $qty, item_price = $price, item_subtotal = $subtotal, item_tax = $tax_amount, item_total = $total, item_order = $item_order, item_tax_id = $tax_id, item_invoice_id = $invoice_id");
+    mysqli_query($mysqli,"INSERT INTO invoice_items SET item_name = '$name', item_description = '$description', item_quantity = $qty, item_price = $price, item_subtotal = $subtotal, item_tax = $tax_amount, item_total = $total, item_order = $item_order, item_tax_id = $tax_id, item_product_id = $product_id, item_invoice_id = $invoice_id");
 
     // Get Discount and Invoice Details
     $sql = mysqli_query($mysqli,"SELECT * FROM invoices WHERE invoice_id = $invoice_id");
@@ -691,6 +698,8 @@ if (isset($_GET['delete_invoice_item'])) {
     $row = mysqli_fetch_array($sql);
     $invoice_id = intval($row['item_invoice_id']);
     $item_name = sanitizeInput($row['item_name']);
+    $item_quantity = floatval($row['item_quantity']);
+    $item_product_id = intval($row['item_product_id']);
     $item_subtotal = floatval($row['item_subtotal']);
     $item_tax = floatval($row['item_tax']);
     $item_total = floatval($row['item_total']);
@@ -706,6 +715,11 @@ if (isset($_GET['delete_invoice_item'])) {
     mysqli_query($mysqli,"UPDATE invoices SET invoice_amount = $new_invoice_amount WHERE invoice_id = $invoice_id");
 
     mysqli_query($mysqli,"DELETE FROM invoice_items WHERE item_id = $item_id");
+
+    // Return Product Inventory
+    if ($item_product_id) {
+        mysqli_query($mysqli,"INSERT INTO product_stock SET stock_qty = $item_quantity, stock_note = 'Returned QTY $item_quantity back to stock from Invoice $invoice_id', stock_product_id = $item_product_id");
+    }
 
     logAction("Invoice", "Delete", "$session_name removed item $item_name from invoice $invoice_prefix$invoice_number", $client_id, $invoice_id);
 

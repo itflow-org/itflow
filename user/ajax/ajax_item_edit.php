@@ -12,6 +12,7 @@ $item_quantity = floatval($row['item_quantity']);
 $item_price = floatval($row['item_price']);
 $item_created_at = nullable_htmlentities($row['item_created_at']);
 $tax_id = intval($row['item_tax_id']);
+$product_id = intval($row['item_product_id']);
 
 // Generate the HTML form content using output buffering.
 ob_start();
@@ -25,6 +26,7 @@ ob_start();
 </div>
 <form action="post.php" method="post" autocomplete="off">
     <input type="hidden" name="item_id" value="<?php echo $item_id; ?>">
+    <input type="hidden" name="product_id" value="<?php echo $product_id; ?>">
     
     <div class="modal-body">
         <div class="form-group">

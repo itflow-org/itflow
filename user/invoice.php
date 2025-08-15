@@ -161,7 +161,7 @@ if (isset($_GET['invoice_id'])) {
     $invoice_badge_color = getInvoiceBadgeColor($invoice_status);
 
     //Product autocomplete
-    $products_sql = mysqli_query($mysqli, "SELECT product_name AS label, product_description AS description, product_price AS price, product_tax_id AS tax FROM products WHERE product_archived_at IS NULL");
+    $products_sql = mysqli_query($mysqli, "SELECT product_name AS label, product_description AS description, product_price AS price, product_tax_id AS tax, product_id AS prod_id FROM products WHERE product_archived_at IS NULL");
 
     if (mysqli_num_rows($products_sql) > 0) {
         while ($row = mysqli_fetch_array($products_sql)) {
@@ -431,6 +431,7 @@ if (isset($_GET['invoice_id'])) {
                                     $item_total = floatval($row['item_total']);
                                     $item_created_at = nullable_htmlentities($row['item_created_at']);
                                     $tax_id = intval($row['item_tax_id']);
+                                    $item_product_id = intval($row['item_product_id']);
                                     $total_tax = $item_tax + $total_tax;
                                     $sub_total = $item_price * $item_quantity + $sub_total;
                                     ?>
@@ -475,7 +476,8 @@ if (isset($_GET['invoice_id'])) {
                                 ?>
                                 <tr class="d-print-none" <?php if ($invoice_status == "Paid" || $invoice_status == "Cancelled" || lookupUserPermission("module_sales") <= 1) { echo "hidden"; } ?>>
                                     <form action="post.php" method="post" autocomplete="off">
-                                        <input type="hidden" name="invoice_id" value="<?php echo $invoice_id; ?>">
+                                        <input type="hidden" name="invoice_id" value="<?= $invoice_id ?>">
+                                        <input type="hidden" id="product_id" name="product_id" value="<?= $item_product_id ?>">
                                         <input type="hidden" name="item_order" value="<?php echo mysqli_num_rows($sql_invoice_items) + 1; ?>">
                                         <td></td>
                                         <td>
@@ -778,6 +780,7 @@ require_once "../includes/footer.php";
                 $("#qty").val(1); // Product quantity field automatically make it a 1
                 $("#price").val(ui.item.price); // Product price field
                 $("#tax").val(ui.item.tax); // Product tax field
+                $("#product_id").val(ui.item.prod_id); // Product ID field
                 return false;
             }
         });
