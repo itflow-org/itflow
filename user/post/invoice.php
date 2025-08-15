@@ -524,7 +524,29 @@ if (isset($_POST['add_invoice_item'])) {
     
     // Update Product Inventory
     if ($product_id) {
-        mysqli_query($mysqli,"INSERT INTO product_stock SET stock_qty = -$qty, stock_note = 'QTY $qty - Invoice $invoice_id', stock_product_id = $product_id");
+         // Only enforce stock for tangible products
+        $product_type = sanitizeInput(getFieldById('products', $product_id, 'product_type'));
+        if ($product_type === 'product') {
+
+            // Current available stock
+            $sql = mysqli_query(
+                $mysqli,
+                "SELECT COALESCE(SUM(stock_qty), 0) AS available_stock
+                 FROM product_stock
+                 WHERE stock_product_id = $product_id"
+            );
+            $row = mysqli_fetch_array($sql);
+            $available_stock = floatval($row['available_stock']);
+
+            // Enough in stock?
+            if ($available_stock >= $qty) {
+                mysqli_query($mysqli,"INSERT INTO product_stock SET stock_qty = -$qty, stock_note = 'QTY $qty - Invoice $invoice_id', stock_product_id = $product_id");
+            } else {
+                // Not enough in stock: stop and notify
+                flash_alert("Not Enough <strong>$name</strong> in stock", 'error');
+                redirect();
+            }
+        }
     }
 
     // Tax
@@ -602,6 +624,7 @@ if (isset($_POST['edit_item'])) {
     $qty = floatval($_POST['qty']);
     $price = floatval($_POST['price']);
     $tax_id = intval($_POST['tax_id']);
+    $product_id = intval($_POST['product_id']);
 
     $subtotal = $price * $qty;
 
@@ -638,6 +661,9 @@ if (isset($_POST['edit_item'])) {
         $sql_invoice_total = mysqli_query($mysqli,"SELECT SUM(item_total) AS invoice_total FROM invoice_items WHERE item_invoice_id = $invoice_id");
         $row = mysqli_fetch_array($sql_invoice_total);
         $new_invoice_amount = floatval($row['invoice_total']) - $invoice_discount;
+
+        
+
 
         mysqli_query($mysqli,"UPDATE invoices SET invoice_amount = $new_invoice_amount WHERE invoice_id = $invoice_id");
 

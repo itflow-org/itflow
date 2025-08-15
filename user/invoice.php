@@ -784,6 +784,7 @@ require_once "../includes/footer.php";
 <link rel="stylesheet" href="../plugins/jquery-ui/jquery-ui.min.css">
 <script src="../plugins/jquery-ui/jquery-ui.min.js"></script>
 <script>
+
 $(function() {
     var availableProducts = <?php echo $json_products ?? '[]'?>;
 
