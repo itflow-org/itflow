@@ -161,7 +161,22 @@ if (isset($_GET['invoice_id'])) {
     $invoice_badge_color = getInvoiceBadgeColor($invoice_status);
 
     //Product autocomplete
-    $products_sql = mysqli_query($mysqli, "SELECT product_name AS label, product_description AS description, product_price AS price, product_tax_id AS tax, product_id AS prod_id FROM products WHERE product_archived_at IS NULL");
+    $products_sql = mysqli_query($mysqli, "
+        SELECT 
+            product_name AS label,
+            product_type AS type,
+            product_description AS description,
+            product_price AS price,
+            product_tax_id AS tax,
+            tax_percent,
+            product_id AS prod_id,
+            COALESCE(SUM(product_stock.stock_qty), 0) AS available_stock
+        FROM products
+        LEFT JOIN product_stock ON product_id = stock_product_id
+        LEFT JOIN taxes ON product_tax_id = tax_id
+        WHERE product_archived_at IS NULL
+        GROUP BY product_id
+    ");
 
     if (mysqli_num_rows($products_sql) > 0) {
         while ($row = mysqli_fetch_array($products_sql)) {
@@ -769,22 +784,56 @@ require_once "../includes/footer.php";
 <link rel="stylesheet" href="../plugins/jquery-ui/jquery-ui.min.css">
 <script src="../plugins/jquery-ui/jquery-ui.min.js"></script>
 <script>
-    $(function() {
-        var availableProducts = <?php echo $json_products ?? '""'?>;
+$(function() {
+    var availableProducts = <?php echo $json_products ?? '[]'?>;
 
-        $("#name").autocomplete({
-            source: availableProducts,
-            select: function (event, ui) {
-                $("#name").val(ui.item.label); // Product name field - this seemingly has to referenced as label
-                $("#desc").val(ui.item.description); // Product description field
-                $("#qty").val(1); // Product quantity field automatically make it a 1
-                $("#price").val(ui.item.price); // Product price field
-                $("#tax").val(ui.item.tax); // Product tax field
-                $("#product_id").val(ui.item.prod_id); // Product ID field
-                return false;
-            }
-        });
+    $("#name").autocomplete({
+        source: availableProducts,
+        minLength: 1,
+        delay: 0,
+        select: function (event, ui) {
+            $("#name").val(ui.item.label);
+            $("#desc").val(ui.item.description);
+            $("#qty").val(1);
+            $("#price").val(ui.item.price);
+            $("#tax").val(ui.item.tax);
+            $("#product_id").val(ui.item.prod_id);
+            return false;
+        }
     });
+
+    // Keep it simple: default jQuery UI look, just richer content
+    $("#name").autocomplete("instance")._renderItem = function(ul, item) {
+        var typeText = item.type ? item.type.charAt(0).toUpperCase() + item.type.slice(1).toLowerCase() : "";
+        var showStock = (typeText.toLowerCase() !== "service");
+
+        var taxText = (item.tax_percent != null) ? (parseFloat(item.tax_percent) + "%") : "No tax";
+        var priceText = (item.price != null && item.price !== "") ? String(item.price) : "";
+
+        var infoLeft =
+            "<div class='d-flex justify-content-between align-items-start'>" +
+                "<div class='flex-fill pr-2'>" +
+                    "<div class='font-weight-bold'>" + (item.label || "") +
+                        (typeText ? " <small class='text-muted'>(" + typeText + ")</small>" : "") +
+                    "</div>" +
+                    "<div class='small text-muted'>" + (item.description || "") + "</div>" +
+                    "<div class='mt-1'>" +
+                        "<span class='badge badge-secondary mr-1'>Tax: " + taxText + "</span>" +
+                        (showStock ? "<span class='badge " + ((item.available_stock ?? 0) > 0 ? "badge-success" : "badge-danger") + "'>Stock: " + (item.available_stock ?? 0) + "</span>" : "") +
+                    "</div>" +
+                "</div>" +
+                "<div class='text-right'>" +
+                    "<div class='font-weight-bold'>" + priceText + "</div>" +
+                "</div>" +
+            "</div>";
+
+        // Use the jQuery UI wrapper so default hover/focus styles apply
+        return $("<li>")
+            .append($("<div class='ui-menu-item-wrapper'>").append(infoLeft))
+            .appendTo(ul);
+    };
+});
+
 </script>
 
 <script src="../plugins/SortableJS/Sortable.min.js"></script>
