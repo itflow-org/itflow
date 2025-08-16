@@ -773,7 +773,7 @@ if (isset($_POST['bulk_delete_tickets'])) {
     validateCSRFToken($_POST['csrf_token']);
 
     enforceUserPermission('module_support', 3);
-    
+
     if (isset($_POST['ticket_ids'])) {
 
         $count = count($_POST['ticket_ids']);
@@ -1799,12 +1799,12 @@ if (isset($_POST['merge_ticket'])) {
     }
 
     mysqli_query($mysqli, "INSERT INTO ticket_replies SET ticket_reply = 'Ticket $ticket_prefix$ticket_number merged into <a href=\"ticket.php?ticket_id=$merge_into_ticket_id\">$ticket_prefix$merge_into_ticket_number</a>. Comment: $merge_comment', ticket_reply_time_worked = '00:01:00', ticket_reply_type = '$ticket_reply_type', ticket_reply_by = $session_user_id, ticket_reply_ticket_id = $ticket_id");
-    
+
     mysqli_query($mysqli, "UPDATE tickets SET ticket_status = '5', ticket_resolved_at = NOW(), ticket_closed_at = NOW(), ticket_closed_by = $session_user_id WHERE ticket_id = $ticket_id") or die(mysqli_error($mysqli));
 
     //Update new parent ticket
     mysqli_query($mysqli, "INSERT INTO ticket_replies SET ticket_reply = 'Ticket $ticket_prefix$ticket_number was merged into this ticket with comment: $merge_comment.<br><br><b>$ticket_subject</b><br>$ticket_details', ticket_reply_time_worked = '00:01:00', ticket_reply_type = '$ticket_reply_type', ticket_reply_by = $session_user_id, ticket_reply_ticket_id = $merge_into_ticket_id");
-    
+
     mysqli_query($mysqli, "UPDATE tickets SET ticket_updated_at = NOW() WHERE ticket_id = $merge_into_ticket_id");
 
     logAction("Ticket", "Merged", "$session_name Merged ticket $ticket_prefix$ticket_number into $ticket_prefix$merge_into_ticket_number");
@@ -2036,7 +2036,7 @@ if (isset($_GET['close_ticket'])) {
     //End Mail IF
 
     flash_alert("Ticket Closed, this cannot not be reopened but you may start another one");
-    
+
     redirect();
 
 }
@@ -2054,7 +2054,7 @@ if (isset($_GET['reopen_ticket'])) {
     customAction('ticket_update', $ticket_id);
 
     flash_alert("Ticket re-opened");
-    
+
     redirect();
 
 }
@@ -2216,7 +2216,7 @@ if (isset($_POST['add_recurring_ticket'])) {
 
     enforceUserPermission('module_support', 2);
 
-    require_once 'post/user/ticket_recurring_model.php';
+    require_once 'ticket_recurring_model.php';
 
     $start_date = sanitizeInput($_POST['start_date']);
 
@@ -2244,7 +2244,7 @@ if (isset($_POST['edit_recurring_ticket'])) {
 
     enforceUserPermission('module_support', 2);
 
-    require_once 'post/user/ticket_recurring_model.php';
+    require_once 'ticket_recurring_model.php';
 
     $recurring_ticket_id = intval($_POST['recurring_ticket_id']);
     $next_run_date = sanitizeInput($_POST['next_date']);
@@ -2268,12 +2268,148 @@ if (isset($_POST['edit_recurring_ticket'])) {
 
 }
 
+if (isset($_POST['bulk_force_recurring_tickets'])) {
+
+    validateCSRFToken($_POST['csrf_token']);
+
+    enforceUserPermission('module_support', 2);
+
+    if (isset($_POST['recurring_ticket_ids'])) {
+
+        // Cycle through array and pop each recurring scheduled ticket
+        foreach ($_POST['recurring_ticket_ids'] as $recurring_ticket_id) {
+
+            $recurring_ticket_id = intval($recurring_ticket_id);
+            $sql = mysqli_query($mysqli, "SELECT * FROM recurring_tickets WHERE recurring_ticket_id = $recurring_ticket_id");
+
+            if (mysqli_num_rows($sql) > 0) {
+                $row = mysqli_fetch_array($sql);
+                $subject = sanitizeInput($row['recurring_ticket_subject']);
+                $details = mysqli_real_escape_string($mysqli, $row['recurring_ticket_details']);
+                $priority = sanitizeInput($row['recurring_ticket_priority']);
+                $frequency = sanitizeInput(strtolower($row['recurring_ticket_frequency']));
+                $billable = intval($row['recurring_ticket_billable']);
+                $old_next_recurring_date = sanitizeInput($row['recurring_ticket_next_run']);
+                $created_id = intval($row['recurring_ticket_created_by']);
+                $assigned_id = intval($row['recurring_ticket_assigned_to']);
+                $contact_id = intval($row['recurring_ticket_contact_id']);
+                $client_id = intval($row['recurring_ticket_client_id']);
+                $asset_id = intval($row['recurring_ticket_asset_id']);
+                $category = intval($row['recurring_ticket_category']);
+                $url_key = randomString(156);
+
+                $ticket_status = 1; // Default
+                if ($assigned_id > 0) {
+                    $ticket_status = 2; // Set to open if we've auto-assigned an agent
+                }
+
+                // Sanitize Config Vars from get_settings.php and Session Vars from check_login.php
+                $config_ticket_prefix = sanitizeInput($config_ticket_prefix);
+                $config_ticket_from_name = sanitizeInput($config_ticket_from_name);
+                $config_ticket_from_email = sanitizeInput($config_ticket_from_email);
+                $config_base_url = sanitizeInput($config_base_url);
+
+                // Assign this new ticket the next ticket number & increment config_ticket_next_number by 1 (for the next ticket)
+                $ticket_number = $config_ticket_next_number;
+                $new_config_ticket_next_number = $config_ticket_next_number + 1;
+                mysqli_query($mysqli, "UPDATE settings SET config_ticket_next_number = $new_config_ticket_next_number WHERE company_id = 1");
+
+                // Raise the ticket
+                mysqli_query($mysqli, "INSERT INTO tickets SET ticket_prefix = '$config_ticket_prefix', ticket_number = $ticket_number, ticket_source = 'Recurring', ticket_subject = '$subject', ticket_details = '$details', ticket_priority = '$priority', ticket_status = '$ticket_status', ticket_billable = $billable, ticket_url_key = '$url_key', ticket_created_by = $created_id, ticket_assigned_to = $assigned_id, ticket_contact_id = $contact_id, ticket_client_id = $client_id, ticket_asset_id = $asset_id, ticket_category = $category, ticket_recurring_ticket_id = $recurring_ticket_id");
+                $id = mysqli_insert_id($mysqli);
+
+                // Copy Additional Assets from Recurring ticket to new ticket
+                mysqli_query($mysqli, "INSERT INTO ticket_assets (ticket_id, asset_id)
+                SELECT $id, asset_id
+                FROM recurring_ticket_assets
+                WHERE recurring_ticket_id = $recurring_ticket_id");
+
+                // Notifications
+
+                customAction('ticket_create', $id);
+
+                // Get client/contact/ticket details
+                $sql = mysqli_query(
+                    $mysqli,
+                    "SELECT client_name, contact_name, contact_email, ticket_prefix, ticket_number, ticket_priority, ticket_subject, ticket_details FROM tickets
+                LEFT JOIN clients ON ticket_client_id = client_id
+                LEFT JOIN contacts ON ticket_contact_id = contact_id
+                WHERE ticket_id = $id"
+                );
+                $row = mysqli_fetch_array($sql);
+
+                $contact_name = sanitizeInput($row['contact_name']);
+                $contact_email = sanitizeInput($row['contact_email']);
+                $client_name = sanitizeInput($row['client_name']);
+                $contact_name = sanitizeInput($row['contact_name']);
+                $contact_email = sanitizeInput($row['contact_email']);
+                $ticket_prefix = sanitizeInput($row['ticket_prefix']);
+                $ticket_number = intval($row['ticket_number']);
+                $ticket_priority = sanitizeInput($row['ticket_priority']);
+                $ticket_subject = sanitizeInput($row['ticket_subject']);
+                $ticket_details = mysqli_real_escape_string($mysqli, $row['ticket_details']);
+
+                $data = [];
+
+                // Notify client by email their ticket has been raised, if general notifications are turned on & there is a valid contact email
+                if (!empty($config_smtp_host) && $config_ticket_client_general_notifications == 1 && filter_var($contact_email, FILTER_VALIDATE_EMAIL)) {
+
+                    $email_subject = "Ticket created - [$ticket_prefix$ticket_number] - $ticket_subject (scheduled)";
+                    $email_body = "<i style=\'color: #808080\'>##- Please type your reply above this line -##</i><br><br>Hello $contact_name,<br><br>A ticket regarding \"$ticket_subject\" has been automatically created for you.<br><br>--------------------------------<br>$ticket_details--------------------------------<br><br>Ticket: $ticket_prefix$ticket_number<br>Subject: $ticket_subject<br>Status: Open<br>Portal: https://$config_base_url/client/ticket.php?id=$id<br><br>--<br>$company_name - Support<br>$config_ticket_from_email<br>$company_phone";
+
+                    $email = [
+                        'from' => $config_ticket_from_email,
+                        'from_name' => $config_ticket_from_name,
+                        'recipient' => $contact_email,
+                        'recipient_name' => $contact_name,
+                        'subject' => $email_subject,
+                        'body' => $email_body
+                    ];
+
+                    $data[] = $email;
+
+                }
+
+                // Add to the mail queue
+                addToMailQueue($data);
+
+                // Set the next run date (based on the scheduled date, rather than now, so things keep their schedule)
+                $dt_old_next_recurring_date = new DateTime($old_next_recurring_date);
+                if ($frequency == "weekly") {
+                    $next_run = date_add($dt_old_next_recurring_date, date_interval_create_from_date_string('1 week'));
+                } elseif ($frequency == "monthly") {
+                    $next_run = date_add($dt_old_next_recurring_date, date_interval_create_from_date_string('1 month'));
+                } elseif ($frequency == "quarterly") {
+                    $next_run = date_add($dt_old_next_recurring_date, date_interval_create_from_date_string('3 months'));
+                } elseif ($frequency == "biannually") {
+                    $next_run = date_add($dt_old_next_recurring_date, date_interval_create_from_date_string('6 months'));
+                } elseif ($frequency == "annually") {
+                    $next_run = date_add($dt_old_next_recurring_date, date_interval_create_from_date_string('12 months'));
+                }
+
+                // Update the run date
+                $next_run = $next_run->format('Y-m-d');
+                mysqli_query($mysqli, "UPDATE recurring_tickets SET recurring_ticket_next_run = '$next_run' WHERE recurring_ticket_id = $recurring_ticket_id");
+
+                logAction("Ticket", "Create", "$session_name force created recurring scheduled $frequency ticket - $config_ticket_prefix$ticket_number - $subject", $client_id, $id);
+
+            }
+
+        }
+
+        flash_alert("$count Recurring Tickets Forced");
+    }
+
+    redirect();
+
+}
+
 if (isset($_GET['force_recurring_ticket'])) {
 
     validateCSRFToken($_GET['csrf_token']);
 
     enforceUserPermission('module_support', 2);
-    
+
     $recurring_ticket_id = intval($_GET['force_recurring_ticket']);
 
     $sql = mysqli_query($mysqli, "SELECT * FROM recurring_tickets WHERE recurring_ticket_id = $recurring_ticket_id");
@@ -2311,7 +2447,7 @@ if (isset($_GET['force_recurring_ticket'])) {
         mysqli_query($mysqli, "UPDATE settings SET config_ticket_next_number = $new_config_ticket_next_number WHERE company_id = 1");
 
         // Raise the ticket
-        mysqli_query($mysqli, "INSERT INTO tickets SET ticket_prefix = '$config_ticket_prefix', ticket_number = $ticket_number, ticket_subject = '$subject', ticket_details = '$details', ticket_priority = '$priority', ticket_status = '$ticket_status', ticket_billable = $billable, ticket_url_key = '$url_key', ticket_created_by = $created_id, ticket_assigned_to = $assigned_id, ticket_contact_id = $contact_id, ticket_client_id = $client_id, ticket_asset_id = $asset_id, ticket_category = $category, ticket_recurring_ticket_id = $recurring_ticket_id");
+        mysqli_query($mysqli, "INSERT INTO tickets SET ticket_prefix = '$config_ticket_prefix', ticket_number = $ticket_number, ticket_source = 'Recurring', ticket_subject = '$subject', ticket_details = '$details', ticket_priority = '$priority', ticket_status = '$ticket_status', ticket_billable = $billable, ticket_url_key = '$url_key', ticket_created_by = $created_id, ticket_assigned_to = $assigned_id, ticket_contact_id = $contact_id, ticket_client_id = $client_id, ticket_asset_id = $asset_id, ticket_category = $category, ticket_recurring_ticket_id = $recurring_ticket_id");
         $id = mysqli_insert_id($mysqli);
 
         // Copy Additional Assets from Recurring ticket to new ticket
@@ -2405,7 +2541,7 @@ if (isset($_GET['delete_recurring_ticket'])) {
     validateCSRFToken($_GET['csrf_token']);
 
     enforceUserPermission('module_support', 3);
-    
+
     $recurring_ticket_id = intval($_GET['delete_recurring_ticket']);
 
     // Get Scheduled Ticket Subject Ticket Prefix, Number and Client ID for logging and alert message
@@ -2432,7 +2568,7 @@ if (isset($_POST['bulk_delete_recurring_tickets'])) {
     validateCSRFToken($_POST['csrf_token']);
 
     enforceUserPermission('module_support', 3);
-    
+
     if (isset($_POST['recurring_ticket_ids'])) {
 
         $count = count($_POST['recurring_ticket_ids']);
@@ -2793,5 +2929,5 @@ if (isset($_GET['cancel_ticket_schedule'])) {
     flash_alert("Ticket schedule cancelled", 'error');
 
     redirect();
-    
+
 }
