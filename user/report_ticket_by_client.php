@@ -36,7 +36,7 @@ function secondsToTime($inputSeconds) {
     ];
 
     foreach ($sections as $name => $value){
-        if ($value > 0){
+        if ($value > 0) {
             $timeParts[] = $value. ' '.$name.($value == 1 ? '' : 's');
         }
     }
@@ -104,12 +104,13 @@ $sql_clients = mysqli_query($mysqli, "SELECT client_id, client_name FROM clients
                             <thead>
                             <tr>
                                 <th>Client</th>
-                                <th class="text-right">Tickets raised</th>
-                                <th class="text-right">By priority: Low</th>
-                                <th class="text-right">By priority: Med</th>
-                                <th class="text-right">By priority: High</th>
-                                <th class="text-right">Tickets resolved</th>
+                                <th class="text-right">Raised</th>
+                                <th class="text-right">Priority: Low</th>
+                                <th class="text-right">Priority: Med</th>
+                                <th class="text-right">Priority: High</th>
+                                <th class="text-right">Resolved</th>
                                 <th class="text-right">Total Time worked <i>(H:M:S)</i></th>
+                                <th class="text-right">Avg time to respond</th>
                                 <th class="text-right">Avg time to resolve</th>
                             </tr>
                             </thead>
@@ -144,8 +145,11 @@ $sql_clients = mysqli_query($mysqli, "SELECT client_id, client_name FROM clients
                                 $row = mysqli_fetch_array($sql_high_ticket_count);
                                 $high_ticket_count = intval($row['high_ticket_count']);
 
+                                // Used to calculate average time to respond to tickets that were raised in period specified
+                                $sql_tickets_respond = mysqli_query($mysqli, "SELECT ticket_created_at, ticket_first_response_at FROM tickets WHERE YEAR(ticket_created_at) = $year AND ticket_client_id = $client_id");
+
                                 // Used to calculate average time to resolve tickets that were raised in period specified
-                                $sql_tickets = mysqli_query($mysqli, "SELECT ticket_created_at, ticket_resolved_at FROM tickets WHERE YEAR(ticket_created_at) = $year AND ticket_client_id = $client_id AND ticket_resolved_at IS NOT NULL");
+                                $sql_tickets_resolved = mysqli_query($mysqli, "SELECT ticket_created_at, ticket_resolved_at FROM tickets WHERE YEAR(ticket_created_at) = $year AND ticket_client_id = $client_id AND ticket_resolved_at IS NOT NULL");
 
                                 // Calculate total time tracked towards tickets in the period
                                 $sql_time = mysqli_query($mysqli, "SELECT SEC_TO_TIME(SUM(TIME_TO_SEC(ticket_reply_time_worked))) as total_time FROM ticket_replies LEFT JOIN tickets ON tickets.ticket_id = ticket_replies.ticket_reply_ticket_id WHERE YEAR(ticket_created_at) = $year AND ticket_client_id = $client_id AND ticket_reply_time_worked IS NOT NULL");
@@ -154,12 +158,28 @@ $sql_clients = mysqli_query($mysqli, "SELECT client_id, client_name FROM clients
 
                                 if ($ticket_raised_count > 0 || $ticket_resolved_count > 0) {
 
+                                    // Calculate average time to respond
+                                    $avg_time_to_respond = '-';
+                                    $count = 0;
+                                    $total = 0;
+                                    while ($row = mysqli_fetch_array($sql_tickets_respond)) {
+                                        if (!empty($row['ticket_first_response_at'])) {
+                                            $openedTime = new DateTime($row['ticket_created_at']);
+                                            $respondTime = new DateTime($row['ticket_first_response_at']);
+                                            $total += ($respondTime->getTimestamp() - $openedTime->getTimestamp());
+                                            $count++;
+                                        }
+                                    }
+                                    if ($count > 0) {
+                                        $avg_time_to_respond = secondsToTime($total / $count); // Avoids DivisionByZeroError
+                                    }
+
+                                    // Calculate average time to solve
                                     $avg_time_to_resolve = '-';
                                     if ($ticket_resolved_count > 0) {
-                                        // Calculate average time to solve
                                         $count = 0;
                                         $total = 0;
-                                        while ($row = mysqli_fetch_array($sql_tickets)) {
+                                        while ($row = mysqli_fetch_array($sql_tickets_resolved)) {
                                             $openedTime = new DateTime($row['ticket_created_at']);
                                             $resolvedTime = new DateTime($row['ticket_resolved_at']);
 
@@ -167,6 +187,7 @@ $sql_clients = mysqli_query($mysqli, "SELECT client_id, client_name FROM clients
                                             $count++;
                                         }
                                         $avg_time_to_resolve = secondsToTime($total / $count);
+
                                     }
 
                                     ?>
@@ -179,6 +200,7 @@ $sql_clients = mysqli_query($mysqli, "SELECT client_id, client_name FROM clients
                                         <td class="text-right"><?php echo $high_ticket_count; ?></td>
                                         <td class="text-right"><?php echo $ticket_resolved_count; ?></td>
                                         <td class="text-right"><?php echo $ticket_total_time_worked; ?></td>
+                                        <td class="text-right"><?php echo $avg_time_to_respond; ?></td>
                                         <td class="text-right"><?php echo $avg_time_to_resolve; ?></td>
                                     </tr>
                                     <?php
@@ -203,12 +225,13 @@ $sql_clients = mysqli_query($mysqli, "SELECT client_id, client_name FROM clients
                             <thead>
                             <tr>
                                 <th>Client</th>
-                                <th class="text-right">Tickets raised</th>
-                                <th class="text-right">By priority: Low</th>
-                                <th class="text-right">By priority: Med</th>
-                                <th class="text-right">By priority: High</th>
-                                <th class="text-right">Tickets resolved</th>
+                                <th class="text-right">Raised</th>
+                                <th class="text-right">Priority: Low</th>
+                                <th class="text-right">Priority: Med</th>
+                                <th class="text-right">Priority: High</th>
+                                <th class="text-right">Resolved</th>
                                 <th class="text-right">Total Time worked <i>(H:M:S)</i></th>
+                                <th class="text-right">Avg time to respond</th>
                                 <th class="text-right">Avg time to resolve</th>
                             </tr>
                             </thead>
@@ -244,8 +267,11 @@ $sql_clients = mysqli_query($mysqli, "SELECT client_id, client_name FROM clients
                                 $row = mysqli_fetch_array($sql_high_ticket_count);
                                 $high_ticket_count = intval($row['high_ticket_count']);
 
+                                // Used to calculate average time to respond to tickets that were raised in period specified
+                                $sql_tickets_respond = mysqli_query($mysqli, "SELECT ticket_created_at, ticket_first_response_at FROM tickets WHERE YEAR(ticket_created_at) = $year AND MONTH(ticket_created_at) = $month AND ticket_client_id = $client_id");
+
                                 // Used to calculate average time to resolve tickets that were raised in period specified
-                                $sql_tickets = mysqli_query($mysqli, "SELECT ticket_created_at, ticket_resolved_at FROM tickets WHERE YEAR(ticket_created_at) = $year AND MONTH(ticket_created_at) = $month AND ticket_client_id = $client_id AND ticket_resolved_at IS NOT NULL");
+                                $sql_tickets_resolved = mysqli_query($mysqli, "SELECT ticket_created_at, ticket_resolved_at FROM tickets WHERE YEAR(ticket_created_at) = $year AND MONTH(ticket_created_at) = $month AND ticket_client_id = $client_id AND ticket_resolved_at IS NOT NULL");
 
                                 // Calculate total time tracked towards tickets in the period
                                 $sql_time = mysqli_query($mysqli, "SELECT SEC_TO_TIME(SUM(TIME_TO_SEC(ticket_reply_time_worked))) as total_time FROM ticket_replies LEFT JOIN tickets ON tickets.ticket_id = ticket_replies.ticket_reply_ticket_id WHERE YEAR(ticket_created_at) = $year AND MONTH(ticket_created_at) = $month AND ticket_client_id = $client_id AND ticket_reply_time_worked IS NOT NULL");
@@ -254,12 +280,28 @@ $sql_clients = mysqli_query($mysqli, "SELECT client_id, client_name FROM clients
 
                                 if ($ticket_raised_count > 0 || $ticket_resolved_count > 0) {
 
+                                    // Calculate average time to respond
+                                    $avg_time_to_respond = '-';
+                                    $count = 0;
+                                    $total = 0;
+                                    while ($row = mysqli_fetch_array($sql_tickets_respond)) {
+                                        if (!empty($row['ticket_first_response_at'])) {
+                                            $openedTime = new DateTime($row['ticket_created_at']);
+                                            $respondTime = new DateTime($row['ticket_first_response_at']);
+                                            $total += ($respondTime->getTimestamp() - $openedTime->getTimestamp());
+                                            $count++;
+                                        }
+                                    }
+                                    if ($count > 0) {
+                                        $avg_time_to_respond = secondsToTime($total / $count); // Avoids DivisionByZeroError
+                                    }
+
+                                    // Calculate average time to solve
                                     $avg_time_to_resolve = '-';
                                     if ($ticket_resolved_count > 0) {
-                                        // Calculate average time to solve
                                         $count = 0;
                                         $total = 0;
-                                        while ($row = mysqli_fetch_array($sql_tickets)) {
+                                        while ($row = mysqli_fetch_array($sql_tickets_resolved)) {
                                             $openedTime = new DateTime($row['ticket_created_at']);
                                             $resolvedTime = new DateTime($row['ticket_resolved_at']);
 
@@ -279,6 +321,7 @@ $sql_clients = mysqli_query($mysqli, "SELECT client_id, client_name FROM clients
                                         <td class="text-right"><?php echo $high_ticket_count; ?></td>
                                         <td class="text-right"><?php echo $ticket_resolved_count; ?></td>
                                         <td class="text-right"><?php echo $ticket_total_time_worked; ?></td>
+                                        <td class="text-right"><?php echo $avg_time_to_respond; ?></td>
                                         <td class="text-right"><?php echo $avg_time_to_resolve; ?></td>
                                     </tr>
                                     <?php
