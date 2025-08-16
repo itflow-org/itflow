@@ -1099,15 +1099,26 @@ if (isset($_POST["export_client_pdf"])) {
     $html .= "
      <h1>IT Documentation</h1>
      <h2>$client_name</h2>
-     <h4>Prepared by $session_name on " . date("F j, Y") . "</h4>
+    ";
+
+    $html .= "
+    <h4>Prepared by $session_name on " . date("F j, Y") . "</h4>
     </div>
     ";
+
     $html .= "
       <br>
       <h4>$session_company_name</h4>
       $company_phone<br>$company_email<br>
-      <hr>
     ";
+
+    if (!$config_whitelabel_enabled) {
+        $html .= '<div style="text-align:right;">
+        <small class="text-muted">Powered by ITFlow</small>
+        </div>';
+    }
+
+    $html .= '<hr>';
 
     // Client header information (non-table)
     $html .= "
