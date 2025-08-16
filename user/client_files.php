@@ -304,7 +304,7 @@ while ($folder_id > 0) {
                 <hr>
 
                 <?php
-                
+
                 if($view == 1){
 
                 ?>
@@ -333,11 +333,11 @@ while ($folder_id > 0) {
                         ?>
 
                         <div class="col-xl-2 col-lg-2 col-md-6 col-sm-6 mb-3 text-center">
-                        
+
                             <a href="#" onclick="openModal(<?php echo count($files)-1; ?>)"><!-- passing the index -->
                                 <img class="img-thumbnail" src="<?php echo "../uploads/clients/$client_id/$file_reference_name"; ?>" alt="<?php echo $file_reference_name ?>">
                             </a>
-                            
+
                             <div>
 
                                 <div class="dropdown float-right">
@@ -475,7 +475,7 @@ while ($folder_id > 0) {
                                 $file_uploaded_by = nullable_htmlentities($row['user_name']);
                                 $file_created_at = nullable_htmlentities($row['file_created_at']);
                                 $file_folder_id = intval($row['file_folder_id']);
-                                
+
                                 // Check if shared
                                 $sql_shared = mysqli_query(
                                     $mysqli,
@@ -531,7 +531,7 @@ while ($folder_id > 0) {
                                     <td><?php echo $file_size_KB; ?> KB</td>
                                     <td>
                                         <?php echo $file_created_at; ?>
-                                        <div class="text-secondary mt-1"><?php echo $file_uploaded_by; ?></div>        
+                                        <div class="text-secondary mt-1"><?php echo $file_uploaded_by; ?></div>
                                     </td>
                                     <td>
                                         <?php if ($file_shared) { ?>
