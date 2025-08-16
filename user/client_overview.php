@@ -226,7 +226,13 @@ $sql_asset_retired = mysqli_query(
                         $contact_mobile_country_code = nullable_htmlentities($row['contact_mobile_country_code']);
                         $contact_mobile = nullable_htmlentities(formatPhoneNumber($row['contact_mobile'], $contact_mobile_country_code));
                         $contact_photo = nullable_htmlentities($row['contact_photo']);
+                        $contact_primary = intval($row['contact_primary']);
                         $contact_initials = initials($contact_name);
+                        if ($contact_primary == 1) {
+                            $contact_primary_display = "<small class='text-success'>Primary Contact</small>";
+                        } else {
+                            $contact_primary_display = false;
+                        }
 
                         ?>
                         <tr>
@@ -256,11 +262,11 @@ $sql_asset_retired = mysqli_query(
                                                 <div class="mt-1">
                                                     <?php echo $contact_tags_display; ?>
                                                 </div>
-                                            <?php } ?>   
+                                            <?php } ?>
                                         </div>
                                     </div>
                                 </a>
-                                
+
                             </td>
                             <td>
                                 <?php if (!empty($contact_phone)) { ?>
@@ -303,7 +309,7 @@ $sql_asset_retired = mysqli_query(
                             $item_type = nullable_htmlentities($row['item_type']);
                             $item_related_id = intval($row['item_related_id']);
                             $item_note = nullable_htmlentities($row['item_note']);
-                            $item_recipient = nullable_htmlentities($row['item_recipient']); 
+                            $item_recipient = nullable_htmlentities($row['item_recipient']);
                             $item_views = nullable_htmlentities($row['item_views']);
                             $item_view_limit = nullable_htmlentities($row['item_view_limit']);
                             $item_created_at = nullable_htmlentities($row['item_created_at']);
