@@ -292,11 +292,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 </div>
                             </td>
                             <td>
-                                <a class="text-dark" href="#"
-                                    data-toggle="ajax-modal"
-                                    data-ajax-url="ajax/ajax_network_edit.php"
-                                    data-ajax-id="<?php echo $network_id; ?>"
-                                    >
+                                <a class="text-dark ajax-modal" href="#" data-modal-url="ajax/ajax_network_edit.php?id=<?= $network_id ?>">
                                     <div class="media">
                                         <i class="fa fa-fw fa-2x fa-network-wired mr-3"></i>
                                         <div class="media-body">
@@ -324,11 +320,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                         <i class="fas fa-ellipsis-h"></i>
                                     </button>
                                     <div class="dropdown-menu">
-                                        <a class="dropdown-item" href="#"
-                                            data-toggle="ajax-modal"
-                                            data-ajax-url="ajax/ajax_network_edit.php"
-                                            data-ajax-id="<?php echo $network_id; ?>"
-                                            >
+                                        <a class="dropdown-item ajax-modal" href="#" data-modal-url="ajax/ajax_network_edit.php?id=<?=$network_id ?>">
                                             <i class="fas fa-fw fa-edit mr-2"></i>Edit
                                         </a>
                                         <?php if ($session_user_role == 3) { ?>

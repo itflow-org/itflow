@@ -263,11 +263,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         ?>
                         <tr class="<?php echo $tr_class; ?>">
                             <td>
-                                <a class="text-dark" href="#"
-                                    data-toggle="ajax-modal"
-                                    data-ajax-url="ajax/ajax_software_edit.php"
-                                    data-ajax-id="<?php echo $software_id; ?>"
-                                    >
+                                <a class="text-dark ajax-modal" href="#" data-modal-url="ajax/ajax_software_edit.php?id=<?= $software_id ?>">
                                     <div class="media">
                                         <i class="fa fa-fw fa-2x fa-cube mr-3"></i>
                                         <div class="media-body">
@@ -291,10 +287,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                         <i class="fas fa-ellipsis-h"></i>
                                     </button>
                                     <div class="dropdown-menu">
-                                        <a class="dropdown-item" href="#"
-                                            data-toggle="ajax-modal"
-                                            data-ajax-url="ajax/ajax_software_edit.php"
-                                            data-ajax-id="<?php echo $software_id; ?>"
+                                        <a class="dropdown-item ajax-modal" href="#" data-modal-url="ajax/ajax_software_edit.php?id=<?= $software_id ?>"
                                             >
                                             <i class="fas fa-fw fa-edit mr-2"></i>Edit
                                         </a>
