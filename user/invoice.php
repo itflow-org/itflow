@@ -256,7 +256,7 @@ if (isset($_GET['invoice_id'])) {
                             <?php } ?>
 
                             <?php if ($invoice_status !== 'Paid' && $invoice_status !== 'Cancelled' && $invoice_status !== 'Draft' && $invoice_status !== 'Non-Billable' && $invoice_amount != 0) { ?>
-                                
+
                                 <div class="btn-group">
                                     <button type="button" class="btn btn-success" data-toggle="ajax-modal" data-ajax-url="ajax/ajax_invoice_pay.php" data-ajax-id="<?php echo $invoice_id; ?>"><i class="fa fa-fw fa-credit-card mr-2"></i>Add Payment</button>
                                     <?php if ($config_stripe_enable) { ?>
@@ -265,8 +265,8 @@ if (isset($_GET['invoice_id'])) {
                                         <?php if ($credit_balance) { ?>
                                         <a class="dropdown-item" href="#" data-toggle="ajax-modal" data-ajax-url="ajax/ajax_invoice_apply_credit.php" data-ajax-id="<?php echo $invoice_id; ?>"><i class="fas fa-fw fa-wallet mr-2"></i>Apply Credit (Balance: <?php echo numfmt_format_currency($currency_format, $credit_balance, $client_currency_code); ?>)</a>
                                         <?php } ?>
-                                        <a class="dropdown-item" href="../guest/guest_pay_invoice_stripe.php?invoice_id=<?php echo "$invoice_id&url_key=$invoice_url_key"; ?>">Enter Card Manually</a>
-                                        <?php 
+<!--                                        <a class="dropdown-item" href="../guest/guest_pay_invoice_stripe.php?invoice_id=--><?php //echo "$invoice_id&url_key=$invoice_url_key"; ?><!--">Enter Card Manually</a>-->
+                                        <?php
                                         if (mysqli_num_rows($sql_saved_payment_methods) > 0) { ?>
                                             <h6 class="dropdown-header text-left">Pay with a Saved Card</h6>
                                         <?php
@@ -453,12 +453,12 @@ if (isset($_GET['invoice_id'])) {
                                     <tr data-item-id="<?php echo $item_id; ?>">
                                         <td class="d-print-none">
                                             <?php if ($invoice_status !== "Paid" && $invoice_status !== "Cancelled") { ?>
-                                                
+
                                                 <div class="btn-group">
                                                     <button type="button" class="btn btn-sm btn-link drag-handle">
                                                         <i class="fas fa-bars text-muted"></i>
                                                     </button>
-                                            
+
                                                     <div class="dropdown">
                                                         <button class="btn btn-sm btn-light" type="button" data-toggle="dropdown">
                                                             <i class="fas fa-ellipsis-v"></i>
@@ -476,7 +476,7 @@ if (isset($_GET['invoice_id'])) {
                                                         </div>
                                                     </div>
                                                 </div>
-                                            
+
                                             <?php } ?>
                                         </td>
                                         <td><?php echo $item_name; ?></td>
