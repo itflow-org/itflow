@@ -6,4 +6,5 @@
 
     // Return the title and content as a JSON response
     echo json_encode(['content' => $content]);
+    exit();
 ?>

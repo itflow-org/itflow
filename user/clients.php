@@ -104,7 +104,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
             <?php } ?>
         </div>
     </div>
-    <div class="card-header pb-1 pt-3">
+    <div class="card-header pb-2 pt-3">
         <form autocomplete="off">
             <input type="hidden" name="leads" value="<?php echo $leads_filter; ?>">
             <input type="hidden" name="archived" value="<?php echo $archived; ?>">
@@ -289,8 +289,8 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
     <form id="bulkActions" action="post.php" method="post" enctype="multipart/form-data">
         <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token'] ?>">
         <div class="table-responsive-sm">
-            <table class="table table-hover mb-0">
-                <thead class="<?php if ($num_rows[0] == 0) { echo "d-none"; } ?> text-nowrap bg-light">
+            <table class="table table-hover mb-0 text-nowrap">
+                <thead class="<?php if ($num_rows[0] == 0) { echo "d-none"; } ?> bg-light">
                 <tr>
                     <td class="pr-0">
                         <div class="form-check">
@@ -514,8 +514,8 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             </div>
 
                         </td>
-                        <td class="text-nowrap"><?php echo $location_address_display; ?></td>
-                        <td class="text-nowrap">
+                        <td><?php echo $location_address_display; ?></td>
+                        <td>
                             <?php
                             if (empty($contact_name) && empty($contact_phone) && empty($contact_mobile) && empty($client_email)) {
                                 echo "-";
@@ -523,11 +523,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                             if (!empty($contact_name)) { ?>
                                 <div class="text-bold">   
-                                    <i class="fa fa-fw fa-user text-secondary mr-2 mb-2"></i><a href="#"
-                                        data-toggle="ajax-modal"
-                                        data-modal-size="lg"
-                                        data-ajax-url="ajax/ajax_contact_details.php?client_id=<?php echo $client_id; ?>"
-                                        data-ajax-id="<?php echo $contact_id; ?>"><?php echo $contact_name; ?>
+                                    <i class="fa fa-fw fa-user text-secondary mr-2 mb-2"></i><a class="ajax-modal" href="#"
+                                        data-modal-url="ajax/ajax_contact_details.php?client_id=<?= $client_id ?>&id=<?= $contact_id ?>" data-modal-size="lg"><?= $contact_name; ?>
+                                        
                                      </a>
                                 </div>
                             <?php } else {
@@ -553,7 +551,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             <?php } ?>
                         </td>
 
-                        <td>
+                        <td class="text-wrap">
                             <?php echo "$contact_count_display$vendor_count_display$asset_count_display$credential_count_display$software_count_display$ticket_count_display"; ?>
                         </td>
 
@@ -591,10 +589,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                         <i class="fas fa-ellipsis-h"></i>
                                     </button>
                                     <div class="dropdown-menu">
-                                        <a class="dropdown-item" href="#"
-                                            data-toggle="ajax-modal"
-                                            data-ajax-url="modals/client_edit.php"
-                                            data-ajax-id="<?php echo $client_id; ?>">
+                                        <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/client_edit.php?id=<?= $client_id ?>">
                                             <i class="fas fa-fw fa-edit mr-2"></i>Edit
                                         </a>
 
