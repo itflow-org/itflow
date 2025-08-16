@@ -314,8 +314,12 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         </a>
                     </th>
                     <th></th>
-                    <?php if ((lookupUserPermission("module_financial") >= 1) && $config_module_enable_accounting == 1) { ?> <th class="text-right">Billing</th> <?php } ?>
-                    <?php if (lookupUserPermission("module_client") >= 2) { ?> <th class="text-center">Action</th> <?php } ?>
+                    <?php if ((lookupUserPermission("module_financial") >= 1) && $config_module_enable_accounting == 1) { ?>
+                    <th>Billing</th>
+                    <?php } ?>
+                    <?php if (lookupUserPermission("module_client") >= 2) { ?>
+                    <th class="text-center">Action</th>
+                    <?php } ?>
                 </tr>
                 </thead>
                 <tbody>
