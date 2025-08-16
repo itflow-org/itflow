@@ -1090,8 +1090,12 @@ if (isset($_POST["export_client_pdf"])) {
     // Cover page section (for main content, not the TOC)
     $html .= '<div class="cover">';
     if (!empty($company_logo)) {
-        $pdf->Image('../uploads/settings/' . $company_logo, '', '', 35, 35, '', '', 'L', false, 300, '', false, false, 1, false, false, false);
+        //$pdf->Image('../uploads/settings/' . $company_logo, '', '', 35, 35, '', '', 'L', false, 300, '', false, false, 1, false, false, false);
+        $html .= '<div style="text-align:right;">
+        <img src="' . realpath('../uploads/settings/' . $company_logo) . '" width="120">
+        </div>';
     }
+
     $html .= "
      <h1>IT Documentation</h1>
      <h2>$client_name</h2>
