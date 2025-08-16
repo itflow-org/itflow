@@ -163,10 +163,8 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             $sql_locations_filter = mysqli_query($mysqli, "
                                 SELECT DISTINCT location_id, location_name
                                 FROM locations
-                                LEFT JOIN contacts ON contact_location_id = location_id
                                 WHERE location_client_id = $client_id 
-                                AND location_archived_at IS NULL 
-                                AND (contact_location_id != 0 OR location_id = $location_filter)
+                                AND ( EXISTS (SELECT 1 FROM contacts WHERE contact_location_id = location_id  AND $archive_query) OR location_id = $location_filter)
                                 ORDER BY location_name ASC
                             ");
                             while ($row = mysqli_fetch_array($sql_locations_filter)) {

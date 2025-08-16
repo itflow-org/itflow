@@ -250,7 +250,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 <option value="">- All Industries -</option>
 
                                 <?php
-                                $sql_industries_filter = mysqli_query($mysqli, "SELECT DISTINCT client_type FROM clients WHERE 1 = 1 AND client_$archive_query AND client_type != '' ORDER BY client_type ASC");
+                                $sql_industries_filter = mysqli_query($mysqli, "SELECT DISTINCT client_type FROM clients WHERE 1 = 1 AND client_$archive_query AND client_type != '' $leads_query ORDER BY client_type ASC");
                                 while ($row = mysqli_fetch_array($sql_industries_filter)) {
                                     $industry_name = nullable_htmlentities($row['client_type']);
                                 ?>
@@ -269,7 +269,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 <option value="">- All Referrals -</option>
 
                                 <?php
-                                $sql_referrals_filter = mysqli_query($mysqli, "SELECT DISTINCT client_referral FROM clients WHERE 1 = 1 AND client_$archive_query AND client_referral != '' ORDER BY client_referral ASC");
+                                $sql_referrals_filter = mysqli_query($mysqli, "SELECT DISTINCT client_referral FROM clients WHERE 1 = 1 AND client_$archive_query AND client_referral != '' $leads_query ORDER BY client_referral ASC");
                                 while ($row = mysqli_fetch_array($sql_referrals_filter)) {
                                     $referral_name = nullable_htmlentities($row['client_referral']);
                                 ?>

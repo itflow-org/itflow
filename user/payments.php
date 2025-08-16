@@ -90,7 +90,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 <option value="">- All Accounts -</option>
 
                                 <?php
-                                $sql_accounts_filter = mysqli_query($mysqli, "SELECT * FROM accounts WHERE account_archived_at IS NULL ORDER BY account_name ASC");
+                                $sql_accounts_filter = mysqli_query($mysqli, "SELECT account_id, account_name FROM accounts WHERE EXISTS (SELECT 1 FROM payments WHERE payment_account_id = account_id) ORDER BY account_name ASC");
                                 while ($row = mysqli_fetch_array($sql_accounts_filter)) {
                                     $account_id = intval($row['account_id']);
                                     $account_name = nullable_htmlentities($row['account_name']);
@@ -110,7 +110,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 <option value="">- All Payment Methods -</option>
 
                                 <?php
-                                $sql_payment_methods_filter = mysqli_query($mysqli, "SELECT DISTINCT payment_method FROM payments ORDER BY payment_method ASC");
+                                $sql_payment_methods_filter = mysqli_query($mysqli, "SELECT DISTINCT payment_method FROM payments WHERE payment_method != '' ORDER BY payment_method ASC");
                                 while ($row = mysqli_fetch_array($sql_payment_methods_filter)) {
                                     $payment_method = nullable_htmlentities($row['payment_method']);
                                 ?>

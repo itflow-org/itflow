@@ -106,7 +106,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                     <option value="">- All Accounts -</option>
 
                                     <?php
-                                    $sql_accounts_from_filter = mysqli_query($mysqli, "SELECT * FROM accounts WHERE account_archived_at IS NULL ORDER BY account_name ASC");
+                                    $sql_accounts_from_filter = mysqli_query($mysqli, "SELECT account_id, account_name FROM accounts WHERE EXISTS (SELECT 1 FROM expenses WHERE expense_account_id = account_id) ORDER BY account_name ASC");
                                     while ($row = mysqli_fetch_array($sql_accounts_from_filter)) {
                                         $account_id = intval($row['account_id']);
                                         $account_name = nullable_htmlentities($row['account_name']);
@@ -126,7 +126,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                     <option value="">- All Accounts -</option>
 
                                     <?php
-                                    $sql_accounts_to_filter = mysqli_query($mysqli, "SELECT * FROM accounts WHERE account_archived_at IS NULL ORDER BY account_name ASC");
+                                    $sql_accounts_to_filter = mysqli_query($mysqli, "SELECT account_id, account_name FROM accounts WHERE EXISTS (SELECT 1 FROM revenues WHERE revenue_account_id = account_id) ORDER BY account_name ASC");
                                     while ($row = mysqli_fetch_array($sql_accounts_to_filter)) {
                                         $account_id = intval($row['account_id']);
                                         $account_name = nullable_htmlentities($row['account_name']);

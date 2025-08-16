@@ -91,7 +91,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 <option value="">- All Categories -</option>
 
                                 <?php
-                                $sql_categories_filter = mysqli_query($mysqli, "SELECT DISTINCT category_id, category_name FROM categories INNER JOIN products ON product_category_id = category_id WHERE 1 = 1 AND product_$archive_query $type_query ORDER BY category_name ASC");
+                                $sql_categories_filter = mysqli_query($mysqli, "SELECT category_id, category_name FROM categories WHERE category_type = 'Income' AND EXISTS (SELECT 1 FROM products WHERE product_category_id = category_id AND product_$archive_query $type_query) ORDER BY category_name ASC");
                                 while ($row = mysqli_fetch_array($sql_categories_filter)) {
                                     $category_id = intval($row['category_id']);
                                     $category_name = nullable_htmlentities($row['category_name']);
