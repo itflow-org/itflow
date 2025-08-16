@@ -64,10 +64,7 @@
         ?>
 
         <li class="nav-item">
-            <a class="nav-link" href="#"
-                data-toggle="ajax-modal"
-                data-ajax-url="../modals/notifications.php"
-                >
+            <a class="nav-link ajax-modal" href="#" data-modal-url="../modals/notifications.php">
                 <i class="fas fa-bell"></i>
                 <?php if ($num_notifications) { ?>
                 <span class="badge badge-light badge-pill navbar-badge position-absolute" style="top: 1px; right: 3px;">

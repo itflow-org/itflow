@@ -548,13 +548,7 @@ if (mysqli_num_rows($os_sql) > 0) {
                         }
                         $contact_name = nullable_htmlentities($row['contact_name']);
                         if ($contact_name) {
-                            $contact_name_display = "<a href='#' 
-                                data-toggle='ajax-modal'
-                                data-modal-size='lg'
-                                data-ajax-url='ajax/ajax_contact_details.php'
-                                data-ajax-id='$asset_contact_id'>
-                                $contact_name $contact_archive_display
-                            ";
+                            $contact_name_display = "<a class='ajax-modal' href='#' data-modal-url='ajax/ajax_contact_details.php?id=" . $asset_contact_id . "' data-modal-size='lg'>$contact_name $contact_archive_display</a>";    
                         } else {
                             $contact_name_display = "-";
                         }
@@ -666,16 +660,10 @@ if (mysqli_num_rows($os_sql) > 0) {
                                     <div class="dropdown dropleft text-center">
                                         <button class="btn btn-secondary btn-sm" type="button" data-toggle="dropdown"><i class="fas fa-ellipsis-h"></i></button>
                                         <div class="dropdown-menu">
-                                            <a class="dropdown-item" href="#"
-                                                data-toggle="ajax-modal"
-                                                data-ajax-url="ajax/ajax_asset_edit.php"
-                                                data-ajax-id="<?php echo $asset_id; ?>">
+                                            <a class="dropdown-item ajax-modal" href="#" data-modal-url="ajax/ajax_asset_edit.php?id=<?= $asset_id ?>">
                                                 <i class="fas fa-fw fa-edit mr-2"></i>Edit
                                             </a>
-                                            <a class="dropdown-item" href="#"
-                                                data-toggle="ajax-modal"
-                                                data-ajax-url="ajax/ajax_asset_copy.php"
-                                                data-ajax-id="<?php echo $asset_id; ?>">
+                                            <a class="dropdown-item ajax-modal" href="#" data-modal-url="ajax/ajax_asset_copy.php?id=<?= $asset_id ?>">
                                                 <i class="fas fa-fw fa-copy mr-2"></i>Copy
                                             </a>
                                             <?php if ($session_user_role > 2) { ?>

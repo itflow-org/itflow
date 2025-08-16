@@ -499,19 +499,13 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                         <i class="fas fa-ellipsis-h"></i>
                                     </button>
                                     <div class="dropdown-menu">
-                                        <a class="dropdown-item" href="contact_details.php?<?php echo $client_url; ?>contact_id=<?php echo $contact_id; ?>">
+                                        <a class="dropdown-item" href="contact_details.php?<?= $client_url ?>contact_id=<?= $contact_id ?>">
                                             <i class="fas fa-fw fa-eye mr-2"></i>Details
                                         </a>
-                                        <a class="dropdown-item" href="#"
-                                            data-toggle="ajax-modal"
-                                            data-ajax-url="ajax/ajax_contact_note_create.php"
-                                            data-ajax-id="<?php echo $contact_id; ?>">
+                                        <a class="dropdown-item ajax-modal" href="#" data-modal-url="ajax/ajax_contact_note_create.php?id=<?= $contact_id ?>">
                                             <i class="fas fa-fw fa-sticky-note mr-2"></i>Make Note
                                         </a>
-                                        <a class="dropdown-item" href="#"
-                                            data-toggle="ajax-modal"
-                                            data-ajax-url="ajax/ajax_contact_edit.php"
-                                            data-ajax-id="<?php echo $contact_id; ?>">
+                                        <a class="dropdown-item ajax-modal" href="#" data-modal-url="ajax/ajax_contact_edit.php?id=<?= $contact_id ?>">
                                             <i class="fas fa-fw fa-edit mr-2"></i>Edit
                                         </a>
                                         <?php if ($session_user_role == 3 && $contact_primary == 0) { ?>
