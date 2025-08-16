@@ -9,7 +9,7 @@ defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
 if (isset($_POST['add_client'])) {
 
     validateCSRFToken($_POST['csrf_token']);
-    
+
     enforceUserPermission('module_client', 2);
 
     require_once 'client_model.php';
@@ -163,7 +163,7 @@ if (isset($_POST['edit_client'])) {
 if (isset($_GET['archive_client'])) {
 
     validateCSRFToken($_GET['csrf_token']);
-    
+
     enforceUserPermission('module_client', 2);
 
     $client_id = intval($_GET['archive_client']);
@@ -184,7 +184,7 @@ if (isset($_GET['archive_client'])) {
 if (isset($_GET['restore_client'])) {
 
     validateCSRFToken($_GET['csrf_token']);
-    
+
     enforceUserPermission('module_client', 2);
 
     $client_id = intval($_GET['restore_client']);
@@ -205,7 +205,7 @@ if (isset($_GET['restore_client'])) {
 if (isset($_GET['delete_client'])) {
 
     validateCSRFToken($_GET['csrf_token']);
-    
+
     enforceUserPermission('module_client', 3);
 
     $client_id = intval($_GET['delete_client']);
@@ -347,7 +347,7 @@ if (isset($_POST['export_clients_csv'])) {
         logAction("Client", "Export", "$session_name exported $num_rows client(s) to a CSV file");
 
     }
-    
+
     exit;
 
 }
@@ -547,7 +547,7 @@ if (isset($_POST["import_clients_csv"])) {
         logAction("Client", "Import", "$session_name imported $row_count client(s) via CSV file, $duplicate_count duplicate(s) found");
 
         flash_alert("<strong>$row_count</strong> Client(s) added, <strong>$duplicate_count</strong> duplicate(s) found");
-        
+
         redirect();
 
     }
@@ -579,7 +579,7 @@ if (isset($_GET['download_clients_csv_template'])) {
 
     //output all remaining data on a file pointer
     fpassthru($f);
-    
+
     exit;
 
 }
@@ -693,7 +693,7 @@ if (isset($_POST['bulk_assign_client_tags'])) {
     enforceUserPermission('module_client', 2);
 
     if (isset($_POST['client_ids'])) {
-        
+
         $count = count($_POST['client_ids']);
 
         foreach($_POST['client_ids'] as $client_id) {
@@ -837,7 +837,7 @@ if (isset($_POST['bulk_archive_clients'])) {
             mysqli_query($mysqli,"UPDATE clients SET client_archived_at = NOW() WHERE client_id = $client_id");
 
             logAction("Client", "Archive", "$session_name archived $client_name", $client_id);
-            
+
             $count++;
 
         }
@@ -857,7 +857,7 @@ if (isset($_POST['bulk_unarchive_clients'])) {
     validateCSRFToken($_POST['csrf_token']);
 
     enforceUserPermission('module_client', 2);
-    
+
     if (isset($_POST['client_ids'])) {
 
         $count = count($_POST['client_ids']);
@@ -883,7 +883,7 @@ if (isset($_POST['bulk_unarchive_clients'])) {
     }
 
     redirect();
-    
+
 }
 
 if (isset($_POST["export_client_pdf"])) {
@@ -1061,7 +1061,7 @@ if (isset($_POST["export_client_pdf"])) {
 
     // ----- Start Main Content -----
     $pdf->AddPage();
-    $pdf->SetFont("helvetica", "", 10);
+    $pdf->SetFont("freeserif", "", 10);
 
     // Build the HTML content with enhanced styling and semantic markup
     $html = "
