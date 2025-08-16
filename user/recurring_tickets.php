@@ -91,6 +91,10 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 <i class="fas fa-fw fa-layer-group mr-2"></i>Bulk Action (<span id="selectedCount">0</span>)
                             </button>
                             <div class="dropdown-menu">
+                                <button class="dropdown-item" type="submit" form="bulkActions" name="bulk_force_recurring_tickets">
+                                    <i class="fa fa-fw fa-paper-plane text-secondary mr-2"></i>Force Reoccur
+                                </button>
+                                <div class="dropdown-divider"></div>
                                 <button class="dropdown-item text-danger text-bold" type="submit" form="bulkActions" name="bulk_delete_recurring_tickets">
                                     <i class="fas fa-fw fa-trash mr-2"></i>Delete
                                 </button>
@@ -182,7 +186,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 <?php } ?>
 
                                 <td>
-                                    <a href="#" 
+                                    <a href="#"
                                         data-toggle="ajax-modal"
                                         data-modal-size="lg"
                                         data-ajax-url="ajax/ajax_recurring_ticket_edit.php"
