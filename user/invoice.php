@@ -283,7 +283,7 @@ if (isset($_GET['invoice_id'])) {
                                     <?php } // End Payment Provider Enable Check ?>
                                 </div>
 
-                                <?php if ($invoice_status !== 'Partial' && $config_stripe_enable && $stripe_id && $stripe_pm) { ?>
+                                <?php if ($invoice_status !== 'Partial' && $config_stripe_enable && !empty($stripe_id) &&  !empty($stripe_pm)) { ?>
                                     <a class="btn btn-primary confirm-link" href="post.php?add_payment_stripe&invoice_id=<?php echo $invoice_id; ?>&csrf_token=<?php echo $_SESSION['csrf_token']; ?>">
                                         <i class="fa fa-fw fa-credit-card mr-2"></i>Pay via Payment Provider
                                     </a>
