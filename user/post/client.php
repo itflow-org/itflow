@@ -1066,7 +1066,7 @@ if (isset($_POST["export_client_pdf"])) {
     // Build the HTML content with enhanced styling and semantic markup
     $html = "
     <style>
-      body { font-family: Helvetica, Arial, sans-serif; margin: 0; padding: 0; }
+      body { font-family: sans-serif; margin: 0; padding: 0; }
       .cover { text-align: center; margin-top: 50px; margin-bottom: 30px; }
       .cover h1 { font-size: 28px; color: #000; margin-bottom: 10px; }
       .cover h2 { font-size: 20px; color: #000; margin-bottom: 10px; }
