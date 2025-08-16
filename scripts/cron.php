@@ -540,7 +540,7 @@ if ($config_send_invoice_reminders == 1) {
 
             $subject = "Overdue Invoice $invoice_prefix$invoice_number";
             $body = "Hello $contact_name,<br><br>Our records indicate that we have not yet received payment for the invoice $invoice_prefix$invoice_number. We kindly request that you submit your payment as soon as possible. If you have any questions or concerns, please do not hesitate to contact us at $company_email or $company_phone.
-                <br><br>
+                <br>
                 Kindly review the invoice details mentioned below.<br><br>Invoice: $invoice_prefix$invoice_number<br>Issue Date: $invoice_date<br>Total: " . numfmt_format_currency($currency_format, $invoice_amount, $invoice_currency_code) . "<br>Due Date: $invoice_due<br>Over Due By: $day Days<br><br><br>To view your invoice, please click <a href=\'https://$config_base_url/guest/guest_view_invoice.php?invoice_id=$invoice_id&url_key=$invoice_url_key\'>here</a>.<br><br><br>--<br>$company_name - Billing<br>$config_invoice_from_email<br>$company_phone";
 
             $mail = addToMailQueue([
@@ -560,7 +560,7 @@ if ($config_send_invoice_reminders == 1) {
                 mysqli_query($mysqli, "INSERT INTO history SET history_status = 'Sent', history_description = 'Cron Failed to send Overdue Invoice', history_invoice_id = $invoice_id");
 
                 appNotify("Mail", "Failed to send email to $contact_email");
-                
+
                 // Logging
                 logApp("Mail", "error", "Failed to send email to $contact_email regarding $subject. $mail");
             }
@@ -598,7 +598,7 @@ while ($row = mysqli_fetch_array($sql_recurring_invoices)) {
     $client_id = intval($row['recurring_invoice_client_id']);
     $client_name = sanitizeInput($row['client_name']);
     $client_net_terms = intval($row['client_net_terms']);
-    
+
     $recurring_payment_recurring_invoice_id = intval($row['recurring_payment_recurring_invoice_id']);
     $recurring_payment_currency_code = sanitizeInput($row['recurring_payment_currency_code']);
     $recurring_payment_method = sanitizeInput($row['recurring_payment_method']);
