@@ -2310,8 +2310,9 @@ if (isset($_POST['bulk_force_recurring_tickets'])) {
                 $config_base_url = sanitizeInput($config_base_url);
 
                 // Assign this new ticket the next ticket number & increment config_ticket_next_number by 1 (for the next ticket)
-                $ticket_number = $config_ticket_next_number;
-                $new_config_ticket_next_number = $config_ticket_next_number + 1;
+                $ticket_number_sql = mysqli_fetch_array(mysqli_query($mysqli, "SELECT config_ticket_next_number FROM settings WHERE company_id = 1"));
+                $ticket_number = intval($ticket_number_sql['config_ticket_next_number']);
+                $new_config_ticket_next_number = $ticket_number + 1;
                 mysqli_query($mysqli, "UPDATE settings SET config_ticket_next_number = $new_config_ticket_next_number WHERE company_id = 1");
 
                 // Raise the ticket
