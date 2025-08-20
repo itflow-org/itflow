@@ -3904,6 +3904,19 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
         mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '2.3.0'");
     }
 
+    if (CURRENT_DATABASE_VERSION == '2.3.0') {
+        // Payment Methods from Categories Table to new payment_methods table
+        $sql_categories = mysqli_query($mysqli, "SELECT * FROM categories WHERE category_type = 'Payment Method' AND category_name != 'Stripe' AND category_archived_at IS NULL");
+        
+        while ($row = mysqli_fetch_array($sql_categories)) {
+            $category_name = sanitizeInput($row['category_name']);
+
+            mysqli_query($mysqli,"INSERT INTO payment_methods SET payment_method_name = '$category_name'");
+        }
+      
+        mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '2.3.1'");
+    }
+
     /* 2025-07-21 - JQ For next release Pauyment Provider Switch Over
     if (CURRENT_DATABASE_VERSION == '2.2.4') {
 
