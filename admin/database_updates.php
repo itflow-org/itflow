@@ -3848,6 +3848,62 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
         mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '2.2.9'");
     }
 
+    if (CURRENT_DATABASE_VERSION == '2.2.9') {
+        // Migrate Stripe Settings over to new Tables
+
+        // Get Current Stripe Settings
+        $sql_stripe_settings = mysqli_query($mysqli, "SELECT * FROM settings WHERE company_id = 1");
+        $row = mysqli_fetch_array($sql_stripe_settings);
+        $config_stripe_enable = intval($row['config_stripe_enable']);
+        if ($config_stripe_enable === 1) {
+            $config_stripe_publishable = sanitizeInput($row['config_stripe_publishable']);
+            $config_stripe_secret = sanitizeInput($row['config_stripe_secret']);
+            $config_stripe_account = intval($row['config_stripe_account']);
+            $config_stripe_expense_vendor = intval($row['config_stripe_expense_vendor']);
+            $config_stripe_expense_category = intval($row['config_stripe_expense_category']);
+            $config_stripe_percentage_fee = floatval($row['config_stripe_percentage_fee']);
+            $config_stripe_flat_fee = floatval($row['config_stripe_flat_fee']);
+
+            mysqli_query($mysqli,"INSERT INTO payment_providers SET payment_provider_name = 'Stripe', payment_provider_public_key = '$config_stripe_publishable', payment_provider_private_key = '$config_stripe_secret', payment_provider_account = $config_stripe_account, payment_provider_expense_vendor = $config_stripe_expense_vendor, payment_provider_expense_category = $config_stripe_expense_category, payment_provider_expense_percentage_fee = $config_stripe_percentage_fee, payment_provider_expense_flat_fee = $config_stripe_flat_fee"
+            );
+
+            $provider_id = mysqli_insert_id($mysqli);
+
+            // Migrate Clients and Payment Method over
+            $sql_stripe_clients = mysqli_query($mysqli, "SELECT * FROM client_stripe");
+            while ($row = mysqli_fetch_array($sql_stripe_clients)) {
+                $client_id = intval($row['client_id']);
+                $stripe_id = sanitizeInput($row['stripe_id']);
+                $stripe_pm = sanitizeInput($row['stripe_pm']);
+                $stripe_pm_details = sanitizeInput($row['stripe_pm_details'] ?? 'Saved Card');
+
+                mysqli_query($mysqli,"INSERT INTO client_payment_provider SET client_id = $client_id, payment_provider_id = $provider_id, payment_provider_client = '$stripe_id'"
+                );
+
+                mysqli_query($mysqli,"INSERT INTO client_saved_payment_methods SET saved_payment_provider_method = '$stripe_pm', payment_provider_description = '$stripe_pm_details', saved_payment_client = $client_id, saved_payment_provider_id = $provider_id"
+                );
+            }
+
+        }
+        // Set Reccuring payment method with Stripe to the new saved _payment_id and update the method to Credit Card
+        $sql_recurring_payments = mysqli_query($mysqli, "SELECT * FROM recurring_payments 
+            LEFT JOIN invoices ON recurring_payment_invoice_id = invoice_id
+            LEFT JOIN client_saved_payment_methods ON saved_payment_client_id = invoice_client_id
+            WHERE recurring_payment_method = 'Stripe'"
+        );
+
+        while ($row = mysqli_fetch_array($sql_recurring_payments)) {
+            $recurring_payment_id = intval($row['recurring_payment_id']);
+            $client_id = intval($row['invoice_client_id']);
+            $saved_payment_id = intval($row['saved_payment_id']);
+
+            mysqli_query($mysqli,"UPDATE recurring_payments SET recurring_payment_method = 'Credit Card', recurring_payment_saved_payment_id = $saved_payment_id WHERE recurring_payment_id = $recurring_payment_id"
+            );
+        }
+      
+        mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '2.3.0'");
+    }
+
     /* 2025-07-21 - JQ For next release Pauyment Provider Switch Over
     if (CURRENT_DATABASE_VERSION == '2.2.4') {
 
