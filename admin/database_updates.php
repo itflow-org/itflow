@@ -3870,7 +3870,7 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
             $provider_id = mysqli_insert_id($mysqli);
 
             // Migrate Clients and Payment Method over
-            $sql_stripe_clients = mysqli_query($mysqli, "SELECT * FROM client_stripe");
+            $sql_stripe_clients = mysqli_query($mysqli, "SELECT * FROM client_stripe WHERE stripe_pm IS NOT NULL AND stripe_pm != ''");
             while ($row = mysqli_fetch_array($sql_stripe_clients)) {
                 $client_id = intval($row['client_id']);
                 $stripe_id = sanitizeInput($row['stripe_id']);
