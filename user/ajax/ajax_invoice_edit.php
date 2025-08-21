@@ -80,7 +80,7 @@ ob_start();
                     <button class="btn btn-secondary" type="button"
                         data-toggle="ajax-modal"
                         data-modal-size="sm"
-                        data-ajax-url="ajax/ajax_category_add.php?category=Income">
+                        data-ajax-url="../admin/ajax/ajax_category_add.php?category=Income">
                         <i class="fas fa-fw fa-plus"></i>
                     </button>
                 </div>

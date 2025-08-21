@@ -127,7 +127,7 @@ ob_start();
                             <button class="btn btn-secondary" type="button"
                                 data-toggle="ajax-modal"
                                 data-modal-size="sm"
-                                data-ajax-url="../../ajax/ajax_category_add.php?category=Referral">
+                                data-ajax-url="../admin/ajax/ajax_category_add.php?category=Referral">
                                 <i class="fas fa-fw fa-plus"></i>
                             </button>
                         </div>
@@ -167,7 +167,7 @@ ob_start();
                             <button class="btn btn-secondary" type="button"
                                 data-toggle="ajax-modal"
                                 data-modal-size="sm"
-                                data-ajax-url="../../ajax/ajax_tag_add.php"
+                                data-ajax-url="../admin/ajax/ajax_tag_add.php"
                                 data-ajax-id="1">
                                 <i class="fas fa-fw fa-plus"></i>
                             </button>

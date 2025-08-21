@@ -117,7 +117,7 @@ ob_start();
                                     <button class="btn btn-secondary" type="button"
                                         data-toggle="ajax-modal"
                                         data-modal-size="sm"
-                                        data-ajax-url="ajax/ajax_category_add.php?category=Ticket">
+                                        data-ajax-url="../admin/ajax/ajax_category_add.php?category=Ticket">
                                         <i class="fas fa-fw fa-plus"></i>
                                     </button>
                                 </div>
