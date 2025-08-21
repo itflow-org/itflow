@@ -281,7 +281,7 @@ if (isset($_GET['invoice_id'])) {
                                         <?php }
                                         } ?>
                                     </div>
-                                    <?php } ?>
+                                    <?php } // End Credit or Credit Card Check ?>
                                     
                                 </div>
 
