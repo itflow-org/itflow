@@ -81,6 +81,7 @@ if (isset($_POST['add_ticket_comment'])) {
 
     // After stripping bad HTML, check the comment isn't just empty
     if (empty($comment)) {
+        flash_alert("You must enter a comment", 'danger');
         redirect();
     }
 
