@@ -259,7 +259,8 @@ if (isset($_GET['invoice_id'])) {
 
                                 <div class="btn-group">
                                     <button type="button" class="btn btn-success" data-toggle="ajax-modal" data-ajax-url="ajax/ajax_invoice_pay.php" data-ajax-id="<?php echo $invoice_id; ?>"><i class="fa fa-fw fa-credit-card mr-2"></i>Add Payment</button>
-                                    <?php if ($config_stripe_enable) { ?>
+                                    
+                                    <?php if (mysqli_num_rows($sql_saved_payment_methods) > 0 || $credit_balance > 0) { ?>
                                     <button type="button" class="btn btn-success dropdown-toggle dropdown-toggle-split" data-toggle="dropdown"></button>
                                     <div class="dropdown-menu">
                                         <?php if ($credit_balance) { ?>
@@ -280,7 +281,8 @@ if (isset($_GET['invoice_id'])) {
                                         <?php }
                                         } ?>
                                     </div>
-                                    <?php } // End Payment Provider Enable Check ?>
+                                    <?php } ?>
+                                    
                                 </div>
 
                                 <?php if ($invoice_status !== 'Partial' && $config_stripe_enable && !empty($stripe_id) &&  !empty($stripe_pm)) { ?>
