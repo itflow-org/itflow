@@ -248,11 +248,8 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                     </div>
                                 </td>
                                 <td>
-                                    <a class="text-dark text-bold" href="#"
-                                        data-toggle="ajax-modal"
-                                        data-ajax-url="ajax/ajax_product_edit.php"
-                                        data-ajax-id="<?= $product_id ?>"
-                                        >
+                                    <a class="text-dark text-bold ajax-modal" href="#"
+                                        data-modal-url="modals/product/product_edit.php?id=<?= $product_id ?>">
                                         <?= $product_name; ?>
                                         <?php if ($product_code) { echo "<div class='text-secondary'>$product_code</div>"; } ?>
                                     </a>
@@ -274,20 +271,14 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                         </button>
                                         <div class="dropdown-menu">
                                             <?php if ($type_filter == 'product') { ?>
-                                            <a class="dropdown-item" href="#"
-                                                data-toggle="ajax-modal"
-                                                data-ajax-url="ajax/ajax_product_stock_add.php"
-                                                data-ajax-id="<?php echo $product_id; ?>"
-                                                >
+                                            <a class="dropdown-item ajax-modal" href="#"
+                                                data-modal-url="modals/product/product_stock_add.php?id=<?= $product_id ?>">
                                                 <i class="fas fa-fw fa-box-open mr-2"></i>Add Stock
                                             </a>
                                             <div class="dropdown-divider"></div>
                                             <?php } ?>
-                                            <a class="dropdown-item" href="#"
-                                                data-toggle="ajax-modal"
-                                                data-ajax-url="ajax/ajax_product_edit.php"
-                                                data-ajax-id="<?php echo $product_id; ?>"
-                                                >
+                                            <a class="dropdown-item ajax-modal" href="#"
+                                                data-modal-url="modals/product/product_edit.php?id=<?= $product_id ?>">
                                                 <i class="fas fa-fw fa-edit mr-2"></i>Edit
                                             </a>
                                             <?php if ($session_user_role == 3) { ?>
@@ -323,7 +314,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         </tbody>
                     </table>
                 </div>
-                <?php require_once "modals/product_bulk_edit_category_modal.php"; ?>
+                <?php require_once "modals/product/product_bulk_edit_category.php"; ?>
             </form>
             <?php require_once "../includes/filter_footer.php";
  ?>
@@ -334,7 +325,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
 <?php
 
-require_once "modals/product_add_modal.php";
-require_once "modals/product_export_modal.php";
+require_once "modals/product/product_add.php";
+require_once "modals/product/product_export.php";
 
 require_once "../includes/footer.php";
