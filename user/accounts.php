@@ -83,11 +83,8 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                         <tr>
                             <td>
-                                <a class="text-dark" href="#"
-                                    data-toggle="ajax-modal"
-                                    data-ajax-url="ajax/ajax_account_edit.php"
-                                    data-ajax-id="<?php echo $account_id; ?>"
-                                    >
+                                <a class="text-dark ajax-modal" href="#"
+                                    data-modal-url="modals/account/account_edit.php?id=<?= $account_id ?>">
                                     <?php echo $account_name; ?>
                                 </a>
                             </td>
@@ -99,11 +96,8 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                         <i class="fas fa-ellipsis-h"></i>
                                     </button>
                                     <div class="dropdown-menu">
-                                        <a class="dropdown-item" href="#"
-                                            data-toggle="ajax-modal"
-                                            data-ajax-url="ajax/ajax_account_edit.php"
-                                            data-ajax-id="<?php echo $account_id; ?>"
-                                            >
+                                        <a class="dropdown-item ajax-modal" href="#"
+                                            data-modal-url="modals/account/account_edit.php?id=<?= $account_id ?>">
                                             <i class="fas fa-fw fa-edit mr-2"></i>Edit
                                         </a>
                                         <?php if ($balance == 0 && $account_id != $config_stripe_account) { //Cannot Archive an Account until it reaches 0 Balance and cant be selected as an online account ?>
@@ -130,5 +124,5 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
 <?php
 
-require_once "modals/account_add_modal.php";
+require_once "modals/account/account_add.php";
 require_once "../includes/footer.php";
