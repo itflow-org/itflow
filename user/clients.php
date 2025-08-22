@@ -589,7 +589,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                         <i class="fas fa-ellipsis-h"></i>
                                     </button>
                                     <div class="dropdown-menu">
-                                        <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/client_edit.php?id=<?= $client_id ?>">
+                                        <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/client/client_edit.php?id=<?= $client_id ?>">
                                             <i class="fas fa-fw fa-edit mr-2"></i>Edit
                                         </a>
 
@@ -617,11 +617,11 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
             </table>
         </div>
         <?php 
-            require_once "modals/client_bulk_edit_industry.php";
-            require_once "modals/client_bulk_edit_referral.php";
-            require_once "modals/client_bulk_edit_hourly_rate.php";
-            require_once "modals/client_bulk_assign_tags.php"; 
-            require_once "modals/client_bulk_email.php";
+            require_once "modals/client/client_bulk_edit_industry.php";
+            require_once "modals/client/client_bulk_edit_referral.php";
+            require_once "modals/client/client_bulk_edit_hourly_rate.php";
+            require_once "modals/client/client_bulk_assign_tags.php"; 
+            require_once "modals/client/client_bulk_email.php";
         ?>
     </form>
      <!-- Ends Card Body -->
@@ -632,7 +632,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 <script src="../js/bulk_actions.js"></script>
 
 <?php
-require_once "modals/client_add.php";
-require_once "modals/client_import.php";
-require_once "modals/client_export.php";
+require_once "modals/client/client_add.php";
+require_once "modals/client/client_import.php";
+require_once "modals/client/client_export.php";
 require_once "../includes/footer.php";

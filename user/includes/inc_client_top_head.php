@@ -11,10 +11,8 @@
                     <i class="fas fa-fw fa-ellipsis-v"></i>
                 </button>
                 <div class="dropdown-menu">
-                    <a class="dropdown-item" href="#" 
-                        data-toggle="ajax-modal"
-                        data-ajax-url="modals/client_edit.php"
-                        data-ajax-id="<?php echo $client_id; ?>">
+                    <a class="dropdown-item ajax-modal" href="#"
+                        data-modal-url="modals/client/client_edit.php?id=<?= $client_id ?>">
                         <i class="fas fa-fw fa-edit mr-2"></i>Edit Client
                     </a>
                     <?php if (lookupUserPermission("module_billing") >= 2) { ?>
@@ -180,6 +178,6 @@
 </div>
 
 <?php
-require_once "modals/client_credit_add.php";
-require_once "modals/client_delete.php";
-require_once "modals/client_download_pdf.php";
+require_once "modals/client/client_credit_add.php";
+require_once "modals/client/client_delete.php";
+require_once "modals/client/client_download_pdf.php";
