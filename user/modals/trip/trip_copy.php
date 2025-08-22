@@ -1,6 +1,6 @@
 <?php
 
-require_once '../../includes/modal_header.php';
+require_once '../../../includes/modal_header_new.php';
 
 $trip_id = intval($_GET['id']);
 
@@ -23,14 +23,13 @@ ob_start();
 ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fa fa-route mr-2"></i>Editing Trip</h5>
+    <h5 class="modal-title"><i class="fas fa-fw fa-copy mr-2"></i>Copying Trip</h5>
     <button type="button" class="close text-white" data-dismiss="modal">
         <span>&times;</span>
     </button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
     <div class="modal-body">
-        <input type="hidden" name="trip_id" value="<?php echo $trip_id; ?>">
 
         <div class="form-row">
 
@@ -40,7 +39,7 @@ ob_start();
                     <div class="input-group-prepend">
                         <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
                     </div>
-                    <input type="date" class="form-control" name="date" max="2999-12-31" value="<?php echo $trip_date; ?>" required>
+                    <input type="date" class="form-control" name="date" max="2999-12-31" value="<?php echo date("Y-m-d"); ?>" required>
                 </div>
             </div>
 
@@ -101,7 +100,7 @@ ob_start();
 
         <div class="form-group">
             <label>Purpose <strong class="text-danger">*</strong></label>
-            <textarea rows="4" class="form-control" name="purpose" placeholder="Enter a purpose" maxlength="200" required><?php echo $trip_purpose; ?></textarea>
+            <textarea rows="4" class="form-control" placeholder="Enter a purpose" name="purpose" maxlength="200" required><?php echo $trip_purpose; ?></textarea>
         </div>
 
         <div class="form-group">
@@ -114,9 +113,9 @@ ob_start();
                     <option value="">- Driver -</option>
                     <?php
 
-                    $sql_users = mysqli_query($mysqli, "SELECT * FROM users
+                    $sql_users = mysqli_query($mysqli, "SELECT users.user_id, user_name FROM users
                         LEFT JOIN user_settings on users.user_id = user_settings.user_id
-                        WHERE (users.user_id = $trip_user_id) OR (user_archived_at IS NULL AND user_status = 1) ORDER BY user_name ASC"
+                        WHERE user_role_id > 1 AND user_archived_at IS NULL ORDER BY user_name ASC"
                     );
                     while ($row = mysqli_fetch_array($sql_users)) {
                         $user_id_select = intval($row['user_id']);
@@ -125,7 +124,6 @@ ob_start();
                         <option <?php if ($trip_user_id == $user_id_select) { echo "selected"; } ?> value="<?php echo $user_id_select; ?>"><?php echo $user_name_select; ?></option>
 
                     <?php } ?>
-
                 </select>
             </div>
         </div>
@@ -144,22 +142,14 @@ ob_start();
                         <option value="">- Client (Optional) -</option>
                         <?php
 
-                        $sql_clients = mysqli_query($mysqli, "SELECT * FROM clients WHERE client_archived_at > '$trip_created_at' OR client_archived_at IS NULL ORDER BY client_archived_at ASC, client_name ASC");
+                        $sql_clients = mysqli_query($mysqli, "SELECT * FROM clients WHERE client_archived_at IS NULL ORDER BY client_name ASC");
                         while ($row = mysqli_fetch_array($sql_clients)) {
                             $client_id_select = intval($row['client_id']);
                             $client_name_select = nullable_htmlentities($row['client_name']);
-                            $client_archived_at = nullable_htmlentities($row['client_archived_at']);
-                            if (empty($client_archived_at)) {
-                                $client_archived_display = "";
-                            } else {
-                                $client_archived_display = "Archived - ";
-                            }
                             ?>
-                            <option <?php if ($client_id == $client_id_select) { echo "selected"; } ?> value="<?php echo $client_id_select; ?>"><?php echo "$client_archived_display$client_name_select"; ?></option>
+                            <option <?php if ($client_id == $client_id_select) { echo "selected"; } ?> value="<?php echo $client_id_select; ?>"><?php echo $client_name_select; ?></option>
 
-                            <?php
-                        }
-                        ?>
+                        <?php } ?>
                     </select>
                 </div>
             </div>
@@ -167,13 +157,12 @@ ob_start();
         <?php } ?>
 
     </div>
-
     <div class="modal-footer">
-        <button type="submit" name="edit_trip" class="btn btn-primary text-bold"><i class="fa fa-check mr-2"></i>Save</button>
+        <button type="submit" name="add_trip" class="btn btn-primary text-bold"><i class="fa fa-check mr-2"></i>Copy</button>
         <button type="button" class="btn btn-light" data-dismiss="modal"><i class="fa fa-times mr-2"></i>Cancel</button>
     </div>
 </form>
 
 <?php
 
-require_once '../../includes/modal_footer.php';
+require_once '../../../includes/modal_footer_new.php';
