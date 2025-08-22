@@ -1,14 +1,10 @@
 <?php
 
-require_once '../../includes/modal_header.php';
+require_once '../../../includes/modal_header_new.php';
 
 $expense_id = intval($_GET['id']);
 
-$sql = mysqli_query($mysqli, "SELECT * FROM expenses
-    LEFT JOIN vendors ON expense_vendor_id = vendor_id
-    LEFT JOIN categories ON expense_category_id = category_id
-    WHERE expense_id = $expense_id LIMIT 1"
-);
+$sql = mysqli_query($mysqli, "SELECT * FROM expenses WHERE expense_id = $expense_id LIMIT 1");
 
 $row = mysqli_fetch_array($sql);
 $expense_date = nullable_htmlentities($row['expense_date']);
@@ -22,15 +18,13 @@ $expense_vendor_id = intval($row['expense_vendor_id']);
 $expense_category_id = intval($row['expense_category_id']);
 $expense_account_id = intval($row['expense_account_id']);
 $expense_client_id = intval($row['expense_client_id']);
-$vendor_name = nullable_htmlentities($row['vendor_name']);
-$category_name = nullable_htmlentities($row['category_name']);
 
 // Generate the HTML form content using output buffering.
 ob_start();
 ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class='fas fa-fw fa-shopping-cart mr-2'></i>Editing expense</h5>
+    <h5 class="modal-title"><i class='fas fa-fw fa-copy mr-2'></i>Copying expense</h5>
     <button type="button" class="close text-white" data-dismiss="modal">
         <span>&times;</span>
     </button>
@@ -38,8 +32,6 @@ ob_start();
 
 <form action="post.php" method="post" enctype="multipart/form-data" autocomplete="off">
     <div class="modal-body">
-        <input type="hidden" name="expense_id" value="<?php echo $expense_id; ?>">
-
         <div class="form-row">
 
             <div class="form-group col-md">
@@ -48,7 +40,7 @@ ob_start();
                     <div class="input-group-prepend">
                         <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
                     </div>
-                    <input type="date" class="form-control" name="date" max="2999-12-31" value="<?php echo $expense_date; ?>" required>
+                    <input type="date" class="form-control" name="date" max="2999-12-31" required>
                 </div>
             </div>
 
@@ -58,13 +50,14 @@ ob_start();
                     <div class="input-group-prepend">
                         <span class="input-group-text"><i class="fa fa-fw fa-dollar-sign"></i></span>
                     </div>
-                    <input type="text" class="form-control" inputmode="numeric" pattern="-?[0-9]*\.?[0-9]{0,2}" name="amount" value="<?php echo number_format($expense_amount, 2, '.', ''); ?>" placeholder="0.00" required>
+                    <input type="text" class="form-control" inputmode="numeric" pattern="[0-9]*\.?[0-9]{0,2}" name="amount" value="<?php echo number_format($expense_amount, 2, '.', ''); ?>" placeholder="0.00" required>
                 </div>
             </div>
 
         </div>
 
         <div class="form-row">
+
             <div class="form-group col-md">
                 <label>Account <strong class="text-danger">*</strong></label>
                 <div class="input-group">
@@ -74,17 +67,11 @@ ob_start();
                     <select class="form-control select2" name="account" required>
                         <?php
 
-                        $sql_accounts = mysqli_query($mysqli, "SELECT account_id, account_name, opening_balance, account_archived_at FROM accounts WHERE (account_archived_at > '$expense_created_at' OR account_archived_at IS NULL) ORDER BY account_archived_at ASC, account_name ASC");
+                        $sql_accounts = mysqli_query($mysqli, "SELECT account_id, account_name, opening_balance FROM accounts WHERE account_archived_at IS NULL ORDER BY account_name ASC");
                         while ($row = mysqli_fetch_array($sql_accounts)) {
                             $account_id_select = intval($row['account_id']);
                             $account_name_select = nullable_htmlentities($row['account_name']);
                             $opening_balance = floatval($row['opening_balance']);
-                            $account_archived_at = nullable_htmlentities($row['account_archived_at']);
-                            if (empty($account_archived_at)) {
-                                $account_archived_display = "";
-                            } else {
-                                $account_archived_display = "Archived - ";
-                            }
 
                             $sql_payments = mysqli_query($mysqli, "SELECT SUM(payment_amount) AS total_payments FROM payments WHERE payment_account_id = $account_id_select");
                             $row = mysqli_fetch_array($sql_payments);
@@ -99,9 +86,8 @@ ob_start();
                             $total_expenses = floatval($row['total_expenses']);
 
                             $balance = $opening_balance + $total_payments + $total_revenues - $total_expenses;
-
                             ?>
-                            <option <?php if ($expense_account_id == $account_id_select) { ?> selected <?php } ?> value="<?php echo $account_id_select; ?>"><?php echo "$account_archived_display$account_name_select"; ?> [$<?php echo number_format($balance, 2); ?>]</option>
+                            <option <?php if ($expense_account_id == $account_id_select) { echo "selected"; } ?> value="<?php echo $account_id_select; ?>"><?php echo $account_name_select; ?> [$<?php echo number_format($balance, 2); ?>]</option>
                             <?php
                         }
 
@@ -119,8 +105,8 @@ ob_start();
                     <select class="form-control select2" name="vendor" required>
                         <?php
 
-                        $sql_select = mysqli_query($mysqli, "SELECT vendor_id, vendor_name FROM vendors WHERE vendor_client_id = 0 AND (vendor_archived_at > '$expense_created_at' OR vendor_archived_at IS NULL) ORDER BY vendor_name ASC");
-                        while ($row = mysqli_fetch_array($sql_select)) {
+                        $sql_vendors = mysqli_query($mysqli, "SELECT vendor_id, vendor_name FROM vendors WHERE vendor_client_id = 0 ORDER BY vendor_name ASC");
+                        while ($row = mysqli_fetch_array($sql_vendors)) {
                             $vendor_id_select = intval($row['vendor_id']);
                             $vendor_name_select = nullable_htmlentities($row['vendor_name']);
                             ?>
@@ -130,14 +116,6 @@ ob_start();
 
                         ?>
                     </select>
-                    <div class="input-group-append">
-                        <button class="btn btn-secondary" type="button"
-                            data-toggle="ajax-modal"
-                            data-modal-size="sm"
-                            data-ajax-url="ajax/ajax_category_add.php?category=Expense">
-                            <i class="fas fa-plus"></i>
-                        </button>
-                    </div>
                 </div>
             </div>
 
@@ -169,8 +147,8 @@ ob_start();
                     <select class="form-control select2" name="category" required>
                         <?php
 
-                        $sql_select = mysqli_query($mysqli, "SELECT category_id, category_name FROM categories WHERE category_type = 'Expense' AND (category_archived_at > '$expense_created_at' OR category_archived_at IS NULL) ORDER BY category_name ASC");
-                        while ($row = mysqli_fetch_array($sql_select)) {
+                        $sql_categories = mysqli_query($mysqli, "SELECT category_id, category_name FROM categories WHERE category_type = 'Expense' ORDER BY category_name ASC");
+                        while ($row = mysqli_fetch_array($sql_categories)) {
                             $category_id_select = intval($row['category_id']);
                             $category_name_select = nullable_htmlentities($row['category_name']);
                             ?>
@@ -180,14 +158,6 @@ ob_start();
 
                         ?>
                     </select>
-                    <div class="input-group-append">
-                        <button class="btn btn-secondary" type="button"
-                            data-toggle="ajax-modal"
-                            data-modal-size="sm"
-                            data-ajax-url="../admin/ajax/ajax_category_add.php?category=Expense">
-                            <i class="fas fa-plus"></i>
-                        </button>
-                    </div>
                 </div>
             </div>
 
@@ -225,27 +195,20 @@ ob_start();
 
         <div class="form-group">
             <label>Receipt</label>
-            <input type="file" class="form-control-file" name="file" accept="image/*, application/pdf">
+            <input type="file" class="form-control-file" name="file">
         </div>
 
-        <?php if (!empty($expense_receipt)) { ?>
-            <hr>
-            <a class="text-secondary" href="<?php echo "../uploads/expenses/$expense_receipt"; ?>"
-                download="<?php echo "$expense_date-$vendor_name-$category_name-$expense_id.pdf" ?>">
-                <i class="fa fa-fw fa-2x fa-file-pdf text-secondary"></i> <?php echo "$expense_date-$vendor_name-$category_name-$expense_id.pdf" ?>
-            </a>
-        <?php } ?>
-
     </div>
+
     <div class="modal-footer">
-        <button type="submit" name="edit_expense" class="btn btn-primary text-bold"><i class="fas fa-check mr-2"></i>Save</button>
-        <button type="button" class="btn btn-light" data-dismiss="modal"><i class="fas fa-times mr-2"></i>Cancel</button>
+        <button type="submit" name="add_expense" class="btn btn-primary text-bold"><i class="fa fa-check mr-2"></i>Copy</button>
+        <button type="button" class="btn btn-light" data-dismiss="modal"><i class="fa fa-times mr-2"></i>Cancel</button>
     </div>
 </form>
 
 <?php
 
-require_once '../../includes/modal_footer.php';
+require_once '../../../includes/modal_footer_new.php';
 
 ?>
 

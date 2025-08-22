@@ -968,6 +968,13 @@ if (isset($_POST['apply_credit'])) {
     $invoice_due = $invoice_amount + $total_credit_applied;
     $invoice_status = ($invoice_due <= 0) ? 'Paid' : 'Partial';
 
+    // Update the invoice credit amount
+    mysqli_query($mysqli, "
+        UPDATE invoices 
+        SET invoice_credit_amount = $total_credit_applied 
+        WHERE invoice_id = $invoice_id
+    ");
+
     // Update invoice status only (not invoice_credit_amount)
     mysqli_query($mysqli, "UPDATE invoices SET invoice_status = '$invoice_status' WHERE invoice_id = $invoice_id");
 

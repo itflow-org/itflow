@@ -305,11 +305,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 </td>
                                 <td>
                                     <?php echo $receipt_attached; ?>
-                                    <a class="text-dark" href="#" title="Created: <?php echo $expense_created_at; ?>"
-                                        data-toggle="ajax-modal"
+                                    <a class="text-dark ajax-modal" href="#" title="Created: <?php echo $expense_created_at; ?>"
                                         data-modal-size="lg"
-                                        data-ajax-url="ajax/ajax_expense_edit.php"
-                                        data-ajax-id="<?php echo $expense_id; ?>">
+                                        data-modal-url="modals/expense/expense_edit.php?id=<?= $expense_id ?>">
                                         <?php echo $expense_date; ?>
                                     </a>
                                 </td>
@@ -334,26 +332,20 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                                 </a>
                                                 <div class="dropdown-divider"></div>
                                             <?php } ?>
-                                            <a class="dropdown-item" href="#"
-                                                data-toggle="ajax-modal"
+                                            <a class="dropdown-item ajax-modal" href="#"
                                                 data-modal-size="lg"
-                                                data-ajax-url="ajax/ajax_expense_edit.php"
-                                                data-ajax-id="<?php echo $expense_id; ?>">
+                                                data-modal-url="modals/expense/expense_edit.php?id=<?= $expense_id ?>">
                                                 <i class="fas fa-fw fa-edit mr-2"></i>Edit
                                             </a>
-                                            <a class="dropdown-item" href="#"
-                                                data-toggle="ajax-modal"
+                                            <a class="dropdown-item ajax-modal" href="#"
                                                 data-modal-size="lg"
-                                                data-ajax-url="ajax/ajax_expense_copy.php"
-                                                data-ajax-id="<?php echo $expense_id; ?>">
+                                                data-modal-url="modals/expense/expense_copy.php?id=<?= $expense_id ?>">
                                                 <i class="fas fa-fw fa-copy mr-2"></i>Copy
                                             </a>
                                             <div class="dropdown-divider"></div>
-                                            <a class="dropdown-item" href="#"
-                                                data-toggle="ajax-modal"
+                                            <a class="dropdown-item ajax-modal" href="#"
                                                 data-modal-size="lg"
-                                                data-ajax-url="ajax/ajax_expense_refund.php"
-                                                data-ajax-id="<?php echo $expense_id; ?>">
+                                                data-modal-url="modals/expense/expense_refund.php?id=<?= $expense_id ?>">
                                                 <i class="fas fa-fw fa-undo-alt mr-2"></i>Refund
                                             </a>
                                             <div class="dropdown-divider"></div>
@@ -372,9 +364,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         </tbody>
                     </table>
                 </div>
-                <?php require_once "modals/expense_bulk_edit_category_modal.php"; ?>
-                <?php require_once "modals/expense_bulk_edit_account_modal.php"; ?>
-                <?php require_once "modals/expense_bulk_edit_client_modal.php"; ?>
+                <?php require_once "modals/expense/expense_bulk_edit_category.php"; ?>
+                <?php require_once "modals/expense/expense_bulk_edit_account.php"; ?>
+                <?php require_once "modals/expense/expense_bulk_edit_client.php"; ?>
             </form>
             <?php require_once "../includes/filter_footer.php";
  ?>
@@ -384,7 +376,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 <script src="../js/bulk_actions.js"></script>
 
 <?php
-require_once "modals/expense_add_modal.php";
-require_once "modals/expense_export_modal.php";
+require_once "modals/expense/expense_add.php";
+require_once "modals/expense/expense_export.php";
 
 require_once "../includes/footer.php";
