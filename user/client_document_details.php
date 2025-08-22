@@ -339,10 +339,7 @@ $page_title = $row['document_name'];
 
                 ?>
                 <div class="ml-2">
-                    <a href="#"
-                        data-toggle="ajax-modal"
-                        data-ajax-url="ajax/ajax_vendor_details.php"
-                        data-ajax-id="<?php echo $vendor_id; ?>">
+                    <a class="ajax-modal" href="#" data-modal-url="modals/vendor/vendor_details.php?id=<?= $vendor_id ?>">
                         <?php echo $vendor_name; ?>        
                     </a>
                     <a class="confirm-link float-right" href="post.php?unlink_vendor_from_document&vendor_id=<?php echo $vendor_id; ?>&document_id=<?php echo $document_id; ?>">

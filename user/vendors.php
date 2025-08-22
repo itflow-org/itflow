@@ -200,11 +200,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 </div>
                             </td>
                             <td>
-                                <a class="text-dark" href="#"
-                                    data-toggle="ajax-modal"
-                                    data-ajax-url="ajax/ajax_vendor_edit.php"
-                                    data-ajax-id="<?php echo $vendor_id; ?>"
-                                    >
+                                <a class="text-dark ajax-modal" href="#" data-modal-url="modals/vendor/vendor_edit.php?id=<?= $vendor_id ?>">
                                     <div class="media">
                                         <i class="fa fa-fw fa-2x fa-building mr-3"></i>
                                         <div class="media-body">
@@ -243,11 +239,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                         <i class="fas fa-ellipsis-h"></i>
                                     </button>
                                     <div class="dropdown-menu">
-                                        <a class="dropdown-item" href="#"
-                                            data-toggle="ajax-modal"
-                                            data-ajax-url="ajax/ajax_vendor_edit.php"
-                                            data-ajax-id="<?php echo $vendor_id; ?>"
-                                            >
+                                        <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/vendor/vendor_edit.php?id=<?= $vendor_id ?>">
                                             <i class="fas fa-fw fa-edit mr-2"></i>Edit
                                         </a>
                                         <?php if ($session_user_role == 3) { ?>
@@ -291,7 +283,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 <script src="../js/bulk_actions.js"></script>
 
 <?php
-require_once "modals/vendor_add_modal.php";
-require_once "modals/vendor_add_from_template_modal.php";
-require_once "modals/vendor_export_modal.php";
+require_once "modals/vendor/vendor_add.php";
+require_once "modals/vendor/vendor_add_from_template.php";
+require_once "modals/vendor/vendor_export.php";
 require_once "../includes/footer.php";

@@ -220,7 +220,7 @@ ob_start();
                     while ($row = mysqli_fetch_array($sql_vendors)) {
                         $vendor_id = intval($row['vendor_id']);
                         $vendor_name = nullable_htmlentities($row['vendor_name']);
-                        echo "<li><a href='#' data-toggle='ajax-modal' data-modal-size='lg' data-ajax-url='ajax/ajax_vendor_details.php' data-ajax-id='$vendor_id'>$vendor_name</a></li>";
+                        echo "<li><a class='ajax-modal' href='#' data-modal-size='lg' data-modal-url='modals/vendor/vendor_details.php?id=$vendor_id'>$vendor_name</a></li>";
                     }
                     echo "</ul>";
                 }

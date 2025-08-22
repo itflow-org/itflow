@@ -266,23 +266,19 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             $client_name = nullable_htmlentities($row['client_name']);
                             // Add - if empty on the table
                             $domain_registrar_name_display = $domain_registrar_name ? "
-                                <a href='#' data-toggle='ajax-modal'
-                                    data-ajax-url='ajax/ajax_vendor_details.php' data-ajax-id='$domain_registrar_id'>
+                                <a class='ajax-modal' href='#' data-modal-url='modals/vendor/vendor_details.php?id=$domain_registrar_id'>
                                     $domain_registrar_name
                                 </a>" : "-";
                             $domain_webhost_name_display = $domain_webhost_name ? "
-                                <a href='#' data-toggle='ajax-modal'
-                                    data-ajax-url='ajax/ajax_vendor_details.php' data-ajax-id='$domain_webhost_id'>
+                                <a class='ajax-modal' href='#' data-modal-url='modals/vendor/vendor_details.php?id=$domain_webhost_id'>
                                     $domain_webhost_name
                                 </a>" : "-";
                             $domain_dnshost_name_display = $domain_dnshost_name ? "
-                                <a href='#' data-toggle='ajax-modal'
-                                    data-ajax-url='ajax/ajax_vendor_details.php' data-ajax-id='$domain_dnshost_id'>
+                                <a class='ajax-modal' href='#' data-modal-url='modals/vendor/vendor_details.php?id=$domain_dnshost_id'>
                                     $domain_dnshost_name
                                 </a>" : "-";
                             $domain_mailhost_name_display = $domain_mailhost_name ? "
-                                <a href='#' data-toggle='ajax-modal'
-                                    data-ajax-url='ajax/ajax_vendor_details.php' data-ajax-id='$domain_mailhost_id'>
+                                <a class='ajax-modal' href='#' data-modal-url='modals/vendor/vendor_details.php?id=$domain_mailhost_id'>
                                     $domain_mailhost_name
                                 </a>" : "-";
 
