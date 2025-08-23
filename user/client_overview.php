@@ -237,10 +237,9 @@ $sql_asset_retired = mysqli_query(
                         ?>
                         <tr>
                             <td>
-                                <a href="#" data-toggle="ajax-modal"
+                                <a href="#" class="ajax-modal"
                                     data-modal-size="lg"
-                                    data-ajax-url="ajax/ajax_contact_details.php"
-                                    data-ajax-id="<?php echo $contact_id; ?>">
+                                    data-modal-url="modals/contact/contact_details.php?id=<?= $contact_id ?>">
                                     <div class="media">
                                         <?php if ($contact_photo) { ?>
                                             <span class="fa-stack fa-2x mr-2 text-center">

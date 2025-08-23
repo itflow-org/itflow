@@ -966,19 +966,16 @@ if (isset($_GET['contact_id'])) {
 
                                 <tr>
                                     <td>
-                                        <div><a href="client_document_details.php?client_id=<?php echo $client_id; ?>&document_id=<?php echo $document_id; ?>"><?php echo $document_name; ?></a></div>
+                                        <div><a href="document_details.php?client_id=<?php echo $client_id; ?>&document_id=<?php echo $document_id; ?>"><?php echo $document_name; ?></a></div>
                                         <div class="text-secondary"><?php echo $document_description; ?></div>
                                     </td>
                                     <td><?php echo $document_created_by; ?></td>
                                     <td><?php echo $document_created_at; ?></td>
                                     <td><?php echo $document_updated_at; ?></td>
                                     <td class="text-center">
-                                        <a href="#" class="btn btn-dark btn-sm"
-                                            data-toggle="ajax-modal"
+                                        <a href="#" class="btn btn-dark btn-sm ajax-modal"
                                             data-modal-size="lg"
-                                            data-ajax-url="ajax/ajax_document_view.php"
-                                            data-ajax-id="<?php echo $document_id; ?>"
-                                            >
+                                            data-modal-url="modals/document/document_view.php?id=<?= $document_id ?>">
                                             <i class="fas fa-fw fa-eye"></i>
                                         </a>
                                         <a href="post.php?unlink_contact_from_document&contact_id=<?php echo $contact_id; ?>&document_id=<?php echo $document_id; ?>" class="btn btn-secondary btn-sm" title="Unlink"><i class="fas fa-fw fa-unlink"></i></a>
@@ -1205,11 +1202,11 @@ if (isset($_GET['contact_id'])) {
 
 <?php
 
-require_once "modals/ticket_add_modal.php";
+require_once "modals/ticket/ticket_add.php";
 require_once "modals/recurring_ticket_add_modal.php";
 require_once "modals/asset/asset_add.php";
 require_once "modals/credential_add_modal.php";
-require_once "modals/client_document_add_modal.php";
-require_once "modals/client_file_upload_modal.php";
+require_once "modals/document/document_add.php";
+require_once "modals/file/file_upload.php";
 
 require_once "../includes/footer.php";

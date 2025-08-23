@@ -759,12 +759,9 @@ ob_start();
 
                         <tr>
                             <td>
-                                <a href="#"
-                                    data-toggle="ajax-modal"
+                                <a class="ajax-modal" href="#"
                                     data-modal-size="lg"
-                                    data-ajax-url="ajax/ajax_document_view.php"
-                                    data-ajax-id="<?php echo $document_id; ?>"
-                                    >
+                                    data-modal-url="modals/document/document_view.php?id=<?= $document_id ?>">
                                     <?php echo $document_name; ?>
                                 </a>
                                 <div class="text-secondary"><?php echo $document_description; ?></div>

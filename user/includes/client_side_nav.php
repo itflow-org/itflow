@@ -182,7 +182,7 @@
                         </li>
 
                         <li class="nav-item">
-                            <a href="client_racks.php?client_id=<?php echo $client_id; ?>" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "client_racks.php") { echo "active"; } ?>">
+                            <a href="racks.php?client_id=<?php echo $client_id; ?>" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "racks.php") { echo "active"; } ?>">
                                 <i class="nav-icon fas fa-server"></i>
                                 <p>
                                     Racks
@@ -236,7 +236,7 @@
                         </li>
 
                         <li class="nav-item">
-                            <a href="client_documents.php?client_id=<?php echo $client_id; ?>" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "client_documents.php" || basename($_SERVER["PHP_SELF"]) == "client_document_details.php") { echo "active"; } ?>">
+                            <a href="documents.php?client_id=<?php echo $client_id; ?>" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "documents.php" || basename($_SERVER["PHP_SELF"]) == "document_details.php") { echo "active"; } ?>">
                                 <i class="nav-icon fas fa-folder"></i>
                                 <p>
                                     Documents
@@ -252,7 +252,7 @@
 
                     <!-- Allow files even without module_support for things like contracts, etc. ) -->
                     <li class="nav-item">
-                        <a href="client_files.php?client_id=<?php echo $client_id; ?>" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "client_files.php") { echo "active"; } ?>">
+                        <a href="files.php?client_id=<?php echo $client_id; ?>" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "files.php") { echo "active"; } ?>">
                             <i class="nav-icon fas fa-paperclip"></i>
                             <p>
                                 Files

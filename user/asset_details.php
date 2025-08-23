@@ -798,7 +798,7 @@ if (isset($_GET['asset_id'])) {
                 <div class="card-header py-2">
                     <h3 class="card-title mt-2"><i class="fa fa-fw fa-folder mr-2"></i>Documents</h3>
                     <div class="card-tools">
-                        <button type="button" class="btn btn-primary" data-toggle="ajax-modal" data-ajax-url="ajax/ajax_asset_link_document.php" data-ajax-id="<?= $asset_id; ?>">
+                        <button type="button" class="btn btn-primary ajax-modal" data-modal-url="modals/asset/asset_link_document.php?id=<?= $asset_id ?>">
                             <i class="fas fa-link mr-2"></i>Link Document
                         </button>
                     </div>
@@ -832,19 +832,16 @@ if (isset($_GET['asset_id'])) {
 
                                 <tr>
                                     <td>
-                                        <div><a href="client_document_details.php?client_id=<?= $client_id; ?>&document_id=<?= $document_id; ?>"><?= $document_name; ?></a></div>
+                                        <div><a href="document_details.php?client_id=<?= $client_id; ?>&document_id=<?= $document_id; ?>"><?= $document_name; ?></a></div>
                                         <div class="text-secondary"><?= $document_description; ?></div>
                                     </td>
                                     <td><?= $document_created_by; ?></td>
                                     <td><?= $document_created_at; ?></td>
                                     <td><?= $document_updated_at; ?></td>
                                     <td class="text-center">
-                                        <a href="#" class="btn btn-dark btn-sm"
-                                            data-toggle="ajax-modal"
+                                        <a href="#" class="btn btn-dark btn-sm ajax-modal"
                                             data-modal-size="lg"
-                                            data-ajax-url="ajax/ajax_document_view.php"
-                                            data-ajax-id="<?= $document_id; ?>"
-                                            >
+                                            data-modal-url="modals/document/document_view.php?id=<?= $document_id ?>">
                                             <i class="fas fa-fw fa-eye"></i>
                                         </a>
                                         <a href="post.php?unlink_asset_from_document&asset_id=<?= $asset_id; ?>&document_id=<?= $document_id; ?>" class="btn btn-secondary btn-sm" title="Unlink"><i class="fas fa-fw fa-unlink"></i></a>
@@ -882,7 +879,7 @@ if (isset($_GET['asset_id'])) {
                                 }
                             ?>
                         </div>
-                        <button type="button" class="btn btn-primary" data-toggle="ajax-modal" data-ajax-url="ajax/ajax_asset_link_file.php" data-ajax-id="<?= $asset_id; ?>">
+                        <button type="button" class="btn btn-primary ajax-modal" data-modal-url="modals/asset/asset_link_file.php?id=<?= $asset_id ?>">
                             <i class="fas fa-link mr-2"></i>Link File
                         </button>
                     </div>
@@ -1237,10 +1234,10 @@ require_once "modals/asset/asset_interface_add.php";
 require_once "modals/asset/asset_interface_multiple_add.php";
 require_once "modals/asset/asset_interface_import.php";
 require_once "modals/asset/asset_interface_export.php";
-require_once "modals/ticket_add_modal.php";
+require_once "modals/ticket/ticket_add.php";
 require_once "modals/recurring_ticket_add_modal.php";
 require_once "modals/credential_add_modal.php";
-require_once "modals/client_document_add_modal.php";
-require_once "modals/client_file_upload_modal.php";
+require_once "modals/document/document_add.php";
+require_once "modals/file/file_upload.php";
 
 require_once "../includes/footer.php";

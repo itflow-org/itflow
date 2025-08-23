@@ -502,10 +502,10 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                         <a class="dropdown-item" href="contact_details.php?<?= $client_url ?>contact_id=<?= $contact_id ?>">
                                             <i class="fas fa-fw fa-eye mr-2"></i>Details
                                         </a>
-                                        <a class="dropdown-item ajax-modal" href="#" data-modal-url="ajax/ajax_contact_note_create.php?id=<?= $contact_id ?>">
+                                        <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/contact/contact_note_create.php?id=<?= $contact_id ?>">
                                             <i class="fas fa-fw fa-sticky-note mr-2"></i>Make Note
                                         </a>
-                                        <a class="dropdown-item ajax-modal" href="#" data-modal-url="ajax/ajax_contact_edit.php?id=<?= $contact_id ?>">
+                                        <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/contact/contact_edit.php?id=<?= $contact_id ?>">
                                             <i class="fas fa-fw fa-edit mr-2"></i>Edit
                                         </a>
                                         <?php if ($session_user_role == 3 && $contact_primary == 0) { ?>
@@ -545,12 +545,12 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     </tbody>
                 </table>
             </div>
-            <?php if ($client_url) { require_once "modals/contact_bulk_assign_location_modal.php"; } ?>
-            <?php require_once "modals/contact_bulk_edit_phone_modal.php"; ?>
-            <?php require_once "modals/contact_bulk_edit_department_modal.php"; ?>
-            <?php require_once "modals/contact_bulk_edit_role_modal.php"; ?>
-            <?php require_once "modals/contact_bulk_assign_tags_modal.php"; ?>
-            <?php require_once "modals/contact_bulk_email_modal.php"; ?>
+            <?php if ($client_url) { require_once "modals/contact/contact_bulk_assign_location.php"; } ?>
+            <?php require_once "modals/contact/contact_bulk_edit_phone.php"; ?>
+            <?php require_once "modals/contact/contact_bulk_edit_department.php"; ?>
+            <?php require_once "modals/contact/contact_bulk_edit_role.php"; ?>
+            <?php require_once "modals/contact/contact_bulk_assign_tags.php"; ?>
+            <?php require_once "modals/contact/contact_bulk_email.php"; ?>
         </form>
         <?php require_once "../includes/filter_footer.php";
 ?>
@@ -598,10 +598,10 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
 <?php
 
-require_once "modals/contact_add_modal.php";
-require_once "modals/contact_export_modal.php";
+require_once "modals/contact/contact_add.php";
+require_once "modals/contact/contact_export.php";
 if ($client_url) {
-    require_once "modals/contact_invite_modal.php";
-    require_once "modals/contact_import_modal.php";
+    require_once "modals/contact/contact_invite.php";
+    require_once "modals/contact/contact_import.php";
 }
 require_once "../includes/footer.php";

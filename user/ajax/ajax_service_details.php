@@ -234,7 +234,7 @@ ob_start();
                     while ($row = mysqli_fetch_array($sql_contacts)) {
                         $contact_id = intval($row['contact_id']);
                         $contact_name = nullable_htmlentities($row['contact_name']);
-                        echo "<li><a href='#' data-toggle='ajax-modal' data-modal-size='lg' data-ajax-url='ajax/ajax_contact_details.php' data-ajax-id='$contact_id'>$contact_name</a></li>";
+                        echo "<li><a href='#' class='ajax-modal' data-modal-size='lg' data-modal-url='modals/contact/contact_details.php?id=$contact_id'>$contact_name</a></li>";
                     }
                     echo "</ul>";
                 }
@@ -298,7 +298,7 @@ ob_start();
                     while ($row = mysqli_fetch_array($sql_docs)) {
                         $document_id = intval($row['document_id']);
                         $document_name = nullable_htmlentities($row['document_name']);
-                        echo "<li><a href='#' data-toggle='ajax-modal' data-modal-size='lg' data-ajax-url='ajax/ajax_document_view.php' data-ajax-id='$document_id'>$document_name</a></li>";
+                        echo "<li><a class='ajax-modal' href='#' data-modal-size='lg' data-modal-url='modals/document/document_view.php?id=$document_id'>$document_name</a></li>";
                     }
                     echo "</ul>";
                 }

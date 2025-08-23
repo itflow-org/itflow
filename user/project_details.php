@@ -215,11 +215,8 @@ if (isset($_GET['project_id'])) {
                     </button>
                     <div class="dropdown-menu">
                         <?php if (empty($project_completed_at)) { ?>
-                            <a class="dropdown-item" href="#"
-                                data-toggle = "ajax-modal"
-                                data-ajax-url = "ajax/ajax_project_edit.php"
-                                data-ajax-id = "<?php echo $project_id; ?>"
-                                >
+                            <a class="dropdown-item ajax-modal" href="#"
+                                data-modal-url = "ajax/ajax_project_edit.php?id=<?= $project_id ?>">
                                 <i class="fas fa-fw fa-edit mr-2"></i>Edit
                             </a>
                         <?php } ?>
@@ -489,12 +486,12 @@ if (isset($_GET['project_id'])) {
                                 </tbody>
                             </table>
                         </div>
-                        <?php require_once "modals/ticket_bulk_assign_modal.php"; ?>
-                        <?php require_once "modals/ticket_bulk_edit_category_modal.php"; ?>
-                        <?php require_once "modals/ticket_bulk_edit_priority_modal.php"; ?>
-                        <?php require_once "modals/ticket_bulk_reply_modal.php"; ?>
-                        <?php require_once "modals/ticket_bulk_merge_modal.php"; ?>
-                        <?php require_once "modals/ticket_bulk_resolve_modal.php"; ?>
+                        <?php require_once "modals/ticket/ticket_bulk_assign.php"; ?>
+                        <?php require_once "modals/ticket/ticket_bulk_edit_category.php"; ?>
+                        <?php require_once "modals/ticket/ticket_bulk_edit_priority.php"; ?>
+                        <?php require_once "modals/ticket/ticket_bulk_reply.php"; ?>
+                        <?php require_once "modals/ticket/ticket_bulk_merge.php"; ?>
+                        <?php require_once "modals/ticket/ticket_bulk_resolve.php"; ?>
                     </form>
                 </div>
             </div>
@@ -544,7 +541,7 @@ if (isset($_GET['project_id'])) {
 
 require_once "modals/project_link_ticket_modal.php";
 require_once "modals/project_link_closed_ticket_modal.php";
-require_once "modals/ticket_add_modal.php";
+require_once "modals/ticket/ticket_add.php";
 
 }
 

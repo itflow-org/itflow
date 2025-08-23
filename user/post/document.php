@@ -66,7 +66,7 @@ if (isset($_POST['add_document_from_template'])) {
 
     flash_alert("Document <strong>$document_name</strong> created from template");
 
-    redirect("client_document_details.php?client_id=$client_id&document_id=$document_id");
+    redirect("document_details.php?client_id=$client_id&document_id=$document_id");
 
 }
 
@@ -116,7 +116,7 @@ if (isset($_POST['edit_document'])) {
 
     flash_alert("Document <strong>$name</strong> edited, previous version kept");
 
-    redirect("client_document_details.php?client_id=$client_id&document_id=$document_id");
+    redirect("document_details.php?client_id=$client_id&document_id=$document_id");
 }
 
 if (isset($_POST['move_document'])) {

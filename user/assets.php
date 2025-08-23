@@ -548,7 +548,7 @@ if (mysqli_num_rows($os_sql) > 0) {
                         }
                         $contact_name = nullable_htmlentities($row['contact_name']);
                         if ($contact_name) {
-                            $contact_name_display = "<a class='ajax-modal' href='#' data-modal-url='ajax/ajax_contact_details.php?id=" . $asset_contact_id . "' data-modal-size='lg'>$contact_name $contact_archive_display</a>";    
+                            $contact_name_display = "<a class='ajax-modal' href='#' data-modal-url='modals/contact/contact_details.php?id=$asset_contact_id' data-modal-size='lg'>$contact_name $contact_archive_display</a>";    
                         } else {
                             $contact_name_display = "-";
                         }

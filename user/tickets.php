@@ -419,18 +419,18 @@ $sql_categories_filter = mysqli_query(
 
 if (isset($_GET["view"])) {
     if ($_GET["view"] == "list") {
-        require_once "tickets_list.php";
+        require_once "ticket_list.php";
     } elseif ($_GET["view"] == "kanban") {
-        require_once "tickets_kanban.php";
+        require_once "ticket_kanban.php";
     }
 } else {
     // here we have to get default view setting
     if ($config_ticket_default_view === 0) {
-        require_once "tickets_list.php";
+        require_once "ticket_list.php";
     } elseif ($config_ticket_default_view === 2) {
-        require_once "tickets_kanban.php";
+        require_once "ticket_kanban.php";
     } else {
-        require_once "tickets_list.php";
+        require_once "ticket_list.php";
     }
 }
 
@@ -439,6 +439,6 @@ if (isset($_GET["view"])) {
 <script src="../js/bulk_actions.js"></script>
 
 <?php
-require_once "modals/ticket_add_modal_v2.php";
-require_once "modals/ticket_export_modal.php";
+require_once "modals/ticket/ticket_add_v2.php";
+require_once "modals/ticket/ticket_export.php";
 require_once "../includes/footer.php";

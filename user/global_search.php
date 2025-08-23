@@ -408,9 +408,9 @@ if (isset($_GET['query'])) {
 
                                 ?>
                                 <tr>
-                                    <td><a href="client_document_details.php?client_id=<?php echo $client_id ?>&document_id=<?php echo $document_id; ?>"><?php echo $document_name; ?></a></td>
+                                    <td><a href="document_details.php?client_id=<?php echo $client_id ?>&document_id=<?php echo $document_id; ?>"><?php echo $document_name; ?></a></td>
                                     <td>
-                                        <a href="client_documents.php?client_id=<?php echo $client_id; ?>"><?php echo $client_name; ?></a>
+                                        <a href="documents.php?client_id=<?php echo $client_id; ?>"><?php echo $client_name; ?></a>
                                     </td>
                                 </tr>
 
@@ -460,7 +460,7 @@ if (isset($_GET['query'])) {
                                     <td><a href="uploads/clients/<?php echo $client_id; ?>/<?php echo $file_reference_name; ?>" download="<?php echo $file_name; ?>"><?php echo "$folder_name/$file_name"; ?></a></td>
                                     <td><?php echo $file_description; ?></td>
                                     <td>
-                                        <a href="client_files.php?client_id=<?php echo $client_id; ?>&folder_id=<?php echo $folder_id; ?>"><?php echo $client_name; ?></a>
+                                        <a href="files.php?client_id=<?php echo $client_id; ?>&folder_id=<?php echo $folder_id; ?>"><?php echo $client_name; ?></a>
                                     </td>
                                 </tr>
 

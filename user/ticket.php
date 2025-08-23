@@ -420,12 +420,9 @@ if (isset($_GET['ticket_id'])) {
                                         <i class="fas fa-fw fa-ellipsis-v"></i>
                                     </button>
                                     <div class="dropdown-menu">
-                                        <a class="dropdown-item" href="#"
-                                           data-toggle = "ajax-modal"
-                                           data-modal-size = "lg"
-                                           data-ajax-url = "ajax/ajax_ticket_edit.php"
-                                           data-ajax-id = "<?php echo $ticket_id; ?>"
-                                        >
+                                        <a class="dropdown-item ajax-modal" href="#"
+                                            data-modal-size = "lg"
+                                            data-modal-url="modals/ticket/ticket_edit.php?id=<?= $ticket_id ?>">
                                             <i class="fas fa-fw fa-edit mr-2"></i>Edit
                                         </a>
                                         <?php if ($config_ai_enable == 1) { ?>
@@ -438,12 +435,8 @@ if (isset($_GET['ticket_id'])) {
                                         </a>
                                         <?php if (empty($ticket_closed_at)) { ?>
                                             <div class="dropdown-divider"></div>
-                                            <a class="dropdown-item"
-                                                href="#"
-                                                data-toggle = "ajax-modal"
-                                                data-ajax-url = "ajax/ajax_ticket_contact.php"
-                                                data-ajax-id = "<?php echo $ticket_id; ?>"
-                                            >
+                                            <a class="dropdown-item ajax-modal" href="#"
+                                                data-modal-url="modals/ticket/ticket_contact.php?id=<?= $ticket_id ?>">
                                                 <i class="fa fa-fw fa-user mr-2"></i>Add Contact
                                             </a>
                                             <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editTicketAssetModal<?php echo $ticket_id; ?>">
@@ -488,10 +481,8 @@ if (isset($_GET['ticket_id'])) {
                 <!-- Ticket assign (disable if closed -->
                 <?php if (empty($ticket_closed_at)) { ?>
                     <div class="mt-1">
-                        <a href="#"
-                           data-toggle = "ajax-modal"
-                           data-ajax-url = "ajax/ajax_ticket_assign.php"
-                           data-ajax-id = "<?php echo $ticket_id; ?>">
+                        <a class="ajax-modal" href="#"
+                           data-modal-url="modals/ticket/ticket_assign.php?id=<?= $ticket_id ?>">
                             <i class="fas fa-fw fa-user mr-2 text-secondary"></i><?php echo $ticket_assigned_to_display; ?>
                         </a>
                     </div>
@@ -508,9 +499,8 @@ if (isset($_GET['ticket_id'])) {
                     <i class="fa fa-fw fa-thermometer-half text-secondary mr-1"></i>
                     <a href="#"
                         <?php if (lookupUserPermission("module_support") >= 2 && empty($ticket_closed_at)) { ?>
-                            data-toggle = "ajax-modal"
-                            data-ajax-url = "ajax/ajax_ticket_priority.php"
-                            data-ajax-id = "<?php echo $ticket_id; ?>"
+                            class="ajax-modal"
+                            data-modal-url="modals/ticket/ticket_priority.php?id=<?= $ticket_id ?>"
                         <?php } ?>
                     >
                         <?php echo $ticket_priority_display; ?>
@@ -541,11 +531,8 @@ if (isset($_GET['ticket_id'])) {
                     <?php } else { ?>
                         <div class="mt-1">
                             <i class="fa fa-fw fa-dollar-sign text-secondary mr-2"></i>Ticket is
-                            <a href="#"
-                               data-toggle = "ajax-modal"
-                               data-ajax-url = "ajax/ajax_ticket_billable.php"
-                               data-ajax-id = "<?php echo $ticket_id; ?>"
-                            >
+                            <a class="ajax-modal" href="#"
+                               data-modal-url="modals/ticket/ticket_billable.php?id=<?= $ticket_id ?>">
                                 <?php
                                 if ($ticket_billable == 1) {
                                     echo "<span class='text-bold text-dark'>Billable</span>";
@@ -772,22 +759,16 @@ if (isset($_GET['ticket_id'])) {
                                                     <i class="fas fa-fw fa-ellipsis-v"></i>
                                                 </button>
                                                 <div class="dropdown-menu">
-                                                    <a href="#" class="dropdown-item"
-                                                       data-toggle = "ajax-modal"
+                                                    <a href="#" class="dropdown-item ajax-modal"
                                                        data-modal-size = "lg"
-                                                       data-ajax-url = "ajax/ajax_ticket_reply_redact.php"
-                                                       data-ajax-id = "<?php echo $ticket_reply_id; ?>"
-                                                    >
+                                                       data-modal-url="modals/ticket/ticket_reply_redact.php?id=<?= $ticket_reply_id ?>">
                                                         <i class="fas fa-fw fa-pen text-danger mr-2"></i>Redact
                                                     </a>
                                                     <?php if ($ticket_reply_type !== "Client" && empty($ticket_closed_at)) { ?>
                                                     <div class="dropdown-divider"></div>
-                                                    <a href="#" class="dropdown-item"
-                                                       data-toggle = "ajax-modal"
+                                                    <a href="#" class="dropdown-item ajax-modal"
                                                        data-modal-size = "lg"
-                                                       data-ajax-url = "ajax/ajax_ticket_reply_edit.php"
-                                                       data-ajax-id = "<?php echo $ticket_reply_id; ?>"
-                                                    >
+                                                       data-modal-url="modals/ticket/ticket_reply_edit.php?id=<?=$ticket_reply_id ?>">
                                                         <i class="fas fa-fw fa-edit text-secondary mr-2"></i>Edit
                                                     </a>
                                                     <div class="dropdown-divider"></div>
@@ -942,7 +923,8 @@ if (isset($_GET['ticket_id'])) {
                             <h5 class="card-title"><i class="fas fa-fw fa-user-check mr-2 mt-2"></i>Primary Contact</h5>
                             <div class="card-tools">
                                 <?php if (empty($ticket_resolved_at) && lookupUserPermission("module_support") >= 2) { ?>
-                                    <a class="btn btn-light text-secondary btn-sm" href="#" data-toggle="ajax-modal" data-ajax-url="ajax/ajax_ticket_contact.php" data-ajax-id="<?php echo $ticket_id; ?>">
+                                    <a class="btn btn-light text-secondary btn-sm ajax-modal" href="#"
+                                        data-modal-url="modals/ticket/ticket_contact.php?id=<?= $ticket_id ?>">
                                         <i class="fas fa-edit"></i>
                                     </a>
                                 <?php } ?>
@@ -951,10 +933,10 @@ if (isset($_GET['ticket_id'])) {
                         <div class="card-body">
 
                             <div>
-                                <i class="fa fa-fw fa-user text-secondary mr-2"></i><a href="#" data-toggle="ajax-modal"
+                                <i class="fa fa-fw fa-user text-secondary mr-2"></i><a href="#" class="ajax-modal"
                                    data-modal-size="lg"
-                                   data-ajax-url="ajax/ajax_contact_details.php"
-                                   data-ajax-id="<?php echo $contact_id; ?>"><strong><?php echo $contact_name; ?></strong>
+                                   data-modal-url="modals/contact/contact_details.php?id=<?= $contact_id ?>">
+                                   <strong><?php echo $contact_name; ?></strong>
                                 </a>
                             </div>
 
@@ -1279,16 +1261,16 @@ if (isset($_GET['ticket_id'])) {
 
         <?php
         if (lookupUserPermission("module_support") >= 2 && empty($ticket_closed_at)) {
-            require_once "modals/ticket_edit_asset_modal.php";
-            require_once "modals/ticket_edit_vendor_modal.php";
-            require_once "modals/ticket_add_watcher_modal.php";
-            require_once "modals/ticket_change_client_modal.php";
-            require_once "modals/ticket_edit_schedule_modal.php";
-            require_once "modals/ticket_merge_modal.php";
+            require_once "modals/ticket/ticket_edit_asset.php";
+            require_once "modals/ticket/ticket_edit_vendor.php";
+            require_once "modals/ticket/ticket_add_watcher.php";
+            require_once "modals/ticket/ticket_change_client.php";
+            require_once "modals/ticket/ticket_edit_schedule.php";
+            require_once "modals/ticket/ticket_merge.php";
         }
 
         if (lookupUserPermission("module_support") >= 2 && lookupUserPermission("module_sales") >= 2 && $config_module_enable_accounting) {
-            require_once "modals/ticket_invoice_add_modal.php";
+            require_once "modals/ticket/ticket_invoice_add.php";
         }
     }
 }
