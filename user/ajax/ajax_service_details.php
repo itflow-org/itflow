@@ -120,7 +120,7 @@ ob_start();
                         $asset_id = intval($row['asset_id']);
                         $asset_name = nullable_htmlentities($row['asset_name']);
                         $ip = !empty($row['interface_ip']) ? '(' . nullable_htmlentities($row['interface_ip']) . ')' : '';
-                        echo "<li><a href='#' data-toggle='ajax-modal' data-modal-size='lg' data-ajax-url='ajax/ajax_asset_details.php' data-ajax-id='$asset_id'>$asset_name</a>$ip</li>";
+                        echo "<li><a class='ajax-modal' href='#' data-modal-size='lg' data-modal-url='modals/asset/asset_details.php?id=$asset_id'>$asset_name</a>$ip</li>";
                     }
                     echo "</ul>";
                 }

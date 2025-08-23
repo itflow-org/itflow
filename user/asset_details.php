@@ -238,10 +238,8 @@ if (isset($_GET['asset_id'])) {
 
             <div class="card">
                 <div class="card-header">
-                    <button type="button" class="btn btn-light float-right"
-                        data-toggle="ajax-modal"
-                        data-ajax-url="ajax/ajax_asset_edit.php"
-                        data-ajax-id="<?= $asset_id; ?>">
+                    <button type="button" class="btn btn-light float-right ajax-modal"
+                        data-modal-url="modals/asset/asset_edit.php?id=<?= $asset_id ?>">
                         <i class="fas fa-fw fa-edit"></i>
                     </button>
                     <h4 class="text-bold"><i class="fa fa-fw text-secondary fa-<?= $device_icon; ?> mr-3"></i><?= $asset_name; ?></h4>
@@ -382,38 +380,28 @@ if (isset($_GET['asset_id'])) {
                 <div class="dropdown dropleft">
                     <button type="button" class="btn btn-outline-primary" data-toggle="dropdown"><i class="fas fa-link mr-2"></i>Link</button>
                     <div class="dropdown-menu">
-                        <a class="dropdown-item text-dark" href="#"
-                            data-toggle="ajax-modal"
-                            data-ajax-url="ajax/ajax_asset_link_software.php"
-                            data-ajax-id="<?= $asset_id; ?>">
+                        <a class="dropdown-item text-dark ajax-modal" href="#"
+                            data-modal-url="modals/asset/asset_link_software.php?id=<?= $asset_id ?>">
                             <i class="fa fa-fw fa-cube mr-2"></i>License
                         </a>
                         <div class="dropdown-divider"></div>
-                        <a class="dropdown-item text-dark" href="#"
-                            data-toggle="ajax-modal"
-                            data-ajax-url="ajax/ajax_asset_link_credential.php"
-                            data-ajax-id="<?= $asset_id; ?>">
+                        <a class="dropdown-item text-dark ajax-modal" href="#"
+                            data-modal-url="modals/asset/asset_link_credential.php?id=<?= $asset_id ?>">
                             <i class="fa fa-fw fa-key mr-2"></i>Credential
                         </a>
                         <div class="dropdown-divider"></div>
-                        <a class="dropdown-item text-dark" href="#"
-                            data-toggle="ajax-modal"
-                            data-ajax-url="ajax/ajax_asset_link_service.php"
-                            data-ajax-id="<?= $asset_id; ?>">
+                        <a class="dropdown-item text-dark ajax-modal" href="#"
+                            data-modal-url="modals/asset/asset_link_service.php?id=<?= $asset_id ?>">
                             <i class="fa fa-fw fa-stream mr-2"></i>Service
                         </a>
                         <div class="dropdown-divider"></div>
-                        <a class="dropdown-item text-dark" href="#"
-                            data-toggle="ajax-modal"
-                            data-ajax-url="ajax/ajax_asset_link_document.php"
-                            data-ajax-id="<?= $asset_id; ?>">
+                        <a class="dropdown-item text-dark ajax-modal" href="#"
+                            data-modal-url="modals/asset/asset_link_document.php?id=<?= $asset_id ?>">
                             <i class="fa fa-fw fa-folder mr-2"></i>Document
                         </a>
                         <div class="dropdown-divider"></div>
-                        <a class="dropdown-item text-dark" href="#"
-                            data-toggle="ajax-modal"
-                            data-ajax-url="ajax/ajax_asset_link_file.php"
-                            data-ajax-id="<?= $asset_id; ?>">
+                        <a class="dropdown-item text-dark ajax-modal" href="#"
+                            data-modal-url="modals/asset/asset_link_file.php?id=<?= $asset_id ?>">
                             <i class="fa fa-fw fa-paperclip mr-2"></i>File
                         </a>     
                     </div>
@@ -525,11 +513,9 @@ if (isset($_GET['asset_id'])) {
 
                                         // Show either "-" or "AssetName - Port"
                                         if ($connected_asset_name) {
-                                            $connected_to_display = "<a href='#'
-                                                data-toggle='ajax-modal'
+                                            $connected_to_display = "<a class='ajax-modal' href='#'
                                                 data-modal-size='lg'
-                                                data-ajax-url='ajax/ajax_asset_details.php'
-                                                data-ajax-id='$connected_asset_id'>
+                                                data-modal-url='modals/asset/asset_details.php?id=$connected_asset_id'>
                                                 <strong><i class='fa fa-fw fa-$connected_asset_icon mr-1'></i>$connected_asset_name</strong> - $connected_interface_name
                                             </a>";
                                         } else {
@@ -544,11 +530,9 @@ if (isset($_GET['asset_id'])) {
                                         </td>
                                         <td>
                                             <i class="fa fa-fw fa-ethernet text-secondary mr-1"></i>
-                                            <a class="text-dark" href="#" 
-                                                data-toggle="ajax-modal"
-                                                data-ajax-url="ajax/ajax_asset_interface_edit.php"
-                                                data-ajax-id="<?= $interface_id; ?>">
-                                                <?= $interface_name; ?> <?php if($interface_primary) { echo "<small class='text-primary'>(Primary)</small>"; } ?>
+                                            <a class="text-dark ajax-modal" href="#" 
+                                                data-modal-url="modals/asset/asset_interface_edit.php?id=<?= $interface_id ?>">
+                                                <?= $interface_name ?> <?php if($interface_primary) { echo "<small class='text-primary'>(Primary)</small>"; } ?>
                                             </a>
                                         </td>
                                         <td><?= $interface_type_display; ?></td>
@@ -562,10 +546,8 @@ if (isset($_GET['asset_id'])) {
                                                     <i class="fas fa-ellipsis-h"></i>
                                                 </button>
                                                 <div class="dropdown-menu">
-                                                    <a class="dropdown-item" href="#"
-                                                        data-toggle="ajax-modal"
-                                                        data-ajax-url="ajax/ajax_asset_interface_edit.php"
-                                                        data-ajax-id="<?= $interface_id; ?>">
+                                                    <a class="dropdown-item ajax-modal" href="#"
+                                                        data-modal-url="modals/asset/asset_interface_edit.php?id=<?= $interface_id ?>">
                                                         <i class="fas fa-fw fa-edit mr-2"></i>Edit
                                                     </a>
                                                     <?php if ($session_user_role == 3 && $interface_primary == 0): ?>
@@ -582,8 +564,8 @@ if (isset($_GET['asset_id'])) {
                                 </tbody>
                             </table>
                         </div>
-                        <?php require_once "modals/asset_interface_bulk_edit_type_modal.php"; ?>
-                        <?php require_once "modals/asset_interface_bulk_edit_network_modal.php"; ?>
+                        <?php require_once "modals/asset/asset_interface_bulk_edit_type.php"; ?>
+                        <?php require_once "modals/asset/asset_interface_bulk_edit_network.php"; ?>
                     </form>
                 </div>
             </div>
@@ -1251,10 +1233,10 @@ if (isset($_GET['asset_id'])) {
 
 <?php
 
-require_once "modals/asset_interface_add_modal.php";
-require_once "modals/asset_interface_multiple_add_modal.php";
-require_once "modals/asset_interface_import_modal.php";
-require_once "modals/asset_interface_export_modal.php";
+require_once "modals/asset/asset_interface_add.php";
+require_once "modals/asset/asset_interface_multiple_add.php";
+require_once "modals/asset/asset_interface_import.php";
+require_once "modals/asset/asset_interface_export.php";
 require_once "modals/ticket_add_modal.php";
 require_once "modals/recurring_ticket_add_modal.php";
 require_once "modals/credential_add_modal.php";

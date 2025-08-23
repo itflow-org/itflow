@@ -55,7 +55,7 @@
 
                         ?>
                                 <div class="ml-2">
-                                    <a href="client_asset_details.php?client_id=<?php echo $client_id; ?>&asset_id=<?php echo $asset_id; ?>" target="_blank"><?php echo $asset_name; ?></a>
+                                    <a href="asset_details.php?client_id=<?php echo $client_id; ?>&asset_id=<?php echo $asset_id; ?>" target="_blank"><?php echo $asset_name; ?></a>
                                     <a class="confirm-link float-right" href="post.php?unlink_asset_from_file&asset_id=<?php echo $asset_id; ?>&file_id=<?php echo $file_id; ?>">
                                         <i class="fas fa-fw fa-trash-alt text-secondary"></i>
                                     </a>

@@ -1,6 +1,6 @@
 <?php
 
-require_once '../../includes/modal_header.php';
+require_once '../../../includes/modal_header_new.php';
 
 $asset_id = intval($_GET['id']);
 
@@ -412,12 +412,9 @@ ob_start();
 
                             // Show either "-" or "AssetName - Port"
                             if ($connected_asset_name) {
-                                $connected_to_display = 
-                                    "<a href='#' data-toggle='ajax-modal'
-                                        data-modal-size='lg'
-                                        data-ajax-url='ajax/ajax_asset_details.php'
-                                        data-ajax-id='$connected_asset_id'>
-                                        <strong><i class='fa fa-fw fa-$connected_asset_icon mr-1'></i>$connected_asset_name</strong> - $connected_interface_name
+                                $connected_to_display = "<a class='ajax-modal' href='#' data-modal-size='lg'
+                                    data-modal-url='modals/asset/asset_details.php?id=$connected_asset_id'>
+                                    <strong><i class='fa fa-fw fa-$connected_asset_icon mr-1'></i>$connected_asset_name</strong> - $connected_interface_name
                                     </a>
                                 ";
                             } else {
@@ -858,13 +855,14 @@ ob_start();
 </div>
 
 <div class="modal-footer">
-    <a href="asset_details.php?client_id=<?php echo $client_id; ?>&asset_id=<?php echo $asset_id; ?>" class="btn btn-primary text-bold"><span class="text-white"><i class="fas fa-info-circle mr-2"></i>More Details</span></a>
-    <a href="#" class="btn btn-secondary" 
-        data-toggle="ajax-modal" data-ajax-url="ajax/ajax_asset_edit.php" data-ajax-id="<?php echo $asset_id; ?>">
+    <a href="asset_details.php?client_id=<?php echo $client_id; ?>&asset_id=<?php echo $asset_id; ?>"
+        class="btn btn-primary text-bold"><span class="text-white"><i class="fas fa-info-circle mr-2"></i>More Details</span>
+    </a>
+    <a href="#" class="btn btn-secondary ajax-modal" data-modal-url="modals/asset/asset_edit.php?id=<?= $asset_id ?>">
         <span class="text-white"><i class="fas fa-edit mr-2"></i>Edit</span>
     </a>
     <button type="button" class="btn btn-light" data-dismiss="modal"><i class="fa fa-times mr-2"></i>Close</button>
 </div>
 
 <?php
-require_once '../../includes/modal_footer.php';
+require_once '../../../includes/modal_footer_new.php';

@@ -342,8 +342,9 @@ if (isset($_GET['contact_id'])) {
                 <div class="card-header py-2">
                     <h3 class="card-title mt-2"><i class="fa fa-fw fa-desktop mr-2"></i>Related Assets</h3>
                     <div class="card-tools">
-                        <button type="button" class="btn btn-primary" data-toggle="ajax-modal" data-ajax-url="ajax/ajax_contact_link_asset.php" data-ajax-id="<?php echo $contact_id; ?>">
-                            <i class="fas fa-link mr-2"></i>Link Document
+                        <button type="button" class="btn btn-primary ajax-modal"
+                            data-modal-url="ajax/ajax_contact_link_asset.php?id=<?= $contact_id ?>">
+                            <i class="fas fa-link mr-2"></i>Link Asset
                         </button>
                     </div>
                 </div>
@@ -413,11 +414,9 @@ if (isset($_GET['contact_id'])) {
                                 <tr>
                                     <th>
                                         <i class="fa fa-fw text-secondary fa-<?php echo $device_icon; ?> mr-2"></i>
-                                        <a class="text-secondary" href="#"
-                                            data-toggle="ajax-modal"
+                                        <a class="text-secondary ajax-modal" href="#"
                                             data-modal-size="lg"
-                                            data-ajax-url="ajax/ajax_asset_details.php"
-                                            data-ajax-id="<?php echo $asset_id; ?>">
+                                            data-modal-url="modals/asset/asset_details.php?id=<?= $asset_id ?>">
                                             <?php echo $asset_name; ?>
                                         </a>
                                         <div class="mt-0">
@@ -439,16 +438,12 @@ if (isset($_GET['contact_id'])) {
                                         <div class="dropdown dropleft text-center">
                                             <button class="btn btn-secondary btn-sm" type="button" data-toggle="dropdown"><i class="fas fa-ellipsis-h"></i></button>
                                             <div class="dropdown-menu">
-                                                <a class="dropdown-item" href="#"
-                                                    data-toggle="ajax-modal"
-                                                    data-ajax-url="ajax/ajax_asset_edit.php"
-                                                    data-ajax-id="<?php echo $asset_id; ?>">
+                                                <a class="dropdown-item ajax-modal" href="#"
+                                                    data-modal-url="modals/asset/asset_edit.php?id=<?= $asset_id ?>">
                                                     <i class="fas fa-fw fa-edit mr-2"></i>Edit
                                                 </a>
-                                                <a class="dropdown-item" href="#"
-                                                    data-toggle="ajax-modal"
-                                                    data-ajax-url="ajax/ajax_asset_copy.php"
-                                                    data-ajax-id="<?php echo $asset_id; ?>">
+                                                <a class="dropdown-item ajax-modal" href="#"
+                                                    data-modal-url="modals/asset/asset_copy.php?id=<?= $asset_id ?>">
                                                     <i class="fas fa-fw fa-copy mr-2"></i>Copy
                                                 </a>
                                                 <div class="dropdown-divider"></div>
@@ -1212,7 +1207,7 @@ if (isset($_GET['contact_id'])) {
 
 require_once "modals/ticket_add_modal.php";
 require_once "modals/recurring_ticket_add_modal.php";
-require_once "modals/asset_add_modal.php";
+require_once "modals/asset/asset_add.php";
 require_once "modals/credential_add_modal.php";
 require_once "modals/client_document_add_modal.php";
 require_once "modals/client_file_upload_modal.php";

@@ -1156,11 +1156,8 @@ if (isset($_GET['ticket_id'])) {
                         </div>
                         <div class="card-body">
                             <div>
-                                <a href="#"
-                                    data-toggle="ajax-modal"
-                                    data-modal-size="lg"
-                                    data-ajax-url="ajax/ajax_asset_details.php?<?php echo $client_url; ?>"
-                                    data-ajax-id="<?php echo $asset_id; ?>">
+                                <a class="ajax-modal" href="#" data-modal-size="lg"
+                                    data-modal-url="modals/asset/asset_details.php?<?= $client_url ?>&id=<?= $asset_id ?>">
                                     <i class="fa fa-fw fa-<?php echo $asset_icon; ?> text-secondary mr-2"></i><strong><?php echo $asset_name; ?></strong>
                                 </a>
                             </div>
@@ -1172,11 +1169,8 @@ if (isset($_GET['ticket_id'])) {
                                 $additional_asset_icon = getAssetIcon($additional_asset_type);
                                 ?>
                                 <div class="mt-1">
-                                    <a href="#"
-                                        data-toggle="ajax-modal"
-                                        data-modal-size="lg"
-                                        data-ajax-url="ajax/ajax_asset_details.php?<?php echo $client_url; ?>"
-                                        data-ajax-id="<?php echo $additional_asset_id; ?>">
+                                    <a class="ajax-modal" href="#" data-modal-size="lg"
+                                        data-modal-url="modals/asset/asset_details.php?<?= $client_url ?>&id=<?= $additional_asset_id ?>">
                                         <i class="fa fa-fw fa-<?php echo $additional_asset_icon; ?> text-secondary mr-2"></i><?php echo $additional_asset_name; ?>
                                     </a>
                                     <?php if (empty($ticket_closed_at)) { ?>

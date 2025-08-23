@@ -660,10 +660,10 @@ if (mysqli_num_rows($os_sql) > 0) {
                                     <div class="dropdown dropleft text-center">
                                         <button class="btn btn-secondary btn-sm" type="button" data-toggle="dropdown"><i class="fas fa-ellipsis-h"></i></button>
                                         <div class="dropdown-menu">
-                                            <a class="dropdown-item ajax-modal" href="#" data-modal-url="ajax/ajax_asset_edit.php?id=<?= $asset_id ?>">
+                                            <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/asset/asset_edit.php?id=<?= $asset_id ?>">
                                                 <i class="fas fa-fw fa-edit mr-2"></i>Edit
                                             </a>
-                                            <a class="dropdown-item ajax-modal" href="#" data-modal-url="ajax/ajax_asset_copy.php?id=<?= $asset_id ?>">
+                                            <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/asset/asset_copy.php?id=<?= $asset_id ?>">
                                                 <i class="fas fa-fw fa-copy mr-2"></i>Copy
                                             </a>
                                             <?php if ($session_user_role > 2) { ?>
@@ -698,14 +698,14 @@ if (mysqli_num_rows($os_sql) > 0) {
             </div>
             <?php
             if ($client_url) {
-                require_once "modals/asset_bulk_assign_contact_modal.php";  
-                require_once "modals/asset_bulk_assign_location_modal.php";
+                require_once "modals/asset/asset_bulk_assign_contact.php";  
+                require_once "modals/asset/asset_bulk_assign_location.php";
             }
             ?>
-            <?php require_once "modals/asset_bulk_assign_physical_location_modal.php"; ?>
-            <?php require_once "modals/asset_bulk_transfer_client_modal.php"; ?>
-            <?php require_once "modals/asset_bulk_edit_status_modal.php"; ?>
-            <?php require_once "modals/asset_bulk_add_ticket_modal.php"; ?>
+            <?php require_once "modals/asset/asset_bulk_assign_physical_location.php"; ?>
+            <?php require_once "modals/asset/asset_bulk_transfer_client.php"; ?>
+            <?php require_once "modals/asset/asset_bulk_edit_status.php"; ?>
+            <?php require_once "modals/asset/asset_bulk_add_ticket.php"; ?>
         </form>
         <?php require_once "../includes/filter_footer.php"; ?>
     </div>
@@ -730,9 +730,9 @@ if (mysqli_num_rows($os_sql) > 0) {
 </script>
 
 <?php
-require_once "modals/asset_add_modal.php";
-require_once "modals/asset_export_modal.php";
+require_once "modals/asset/asset_add.php";
+require_once "modals/asset/asset_export.php";
 if ($client_url) {
-    require_once "modals/asset_import_modal.php";
+    require_once "modals/asset/asset_import.php";
 }
 require_once "../includes/footer.php";

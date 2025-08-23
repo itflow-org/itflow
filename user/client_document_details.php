@@ -272,12 +272,11 @@ $page_title = $row['document_name'];
 
                 ?>
                 <div class="ml-2">
-                    <a href="#"
-                        data-toggle="ajax-modal"
+                    <a class="ajax-modal" href="#"
                         data-modal-size="lg"
-                        data-ajax-url="ajax/ajax_asset_details.php"
-                        data-ajax-id="<?php echo $asset_id; ?>">
-                        <?php echo $asset_name; ?></a>
+                        data-modal-url="modals/asset/asset_details.php?id=<?= $asset_id ?>">
+                        <?php echo $asset_name; ?>
+                    </a>
                     <a class="confirm-link float-right" href="post.php?unlink_asset_from_document&asset_id=<?php echo $asset_id; ?>&document_id=<?php echo $document_id; ?>">
                         <i class="fas fa-fw fa-trash-alt text-secondary"></i>
                     </a>

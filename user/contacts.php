@@ -391,7 +391,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         // Counts
 
                         // Asset Count
-                        $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('asset_id') AS num FROM assets WHERE asset_client_id = $client_id AND asset_archived_at IS NULL"));
+                        $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('asset_id') AS num FROM assets WHERE asset_contact_id = $contact_id AND asset_archived_at IS NULL"));
                         $asset_count = $row['num'];
                         if ($asset_count) { 
                             $asset_count_display = "<a href='contact_details.php?client_id=$client_id&contact_id=$contact_id#assets' class='mr-2 mb-1 badge badge-pill badge-dark p-2' title='Assets ($asset_count)'><i class='fas fa-fw fa-desktop mr-2'></i>$asset_count</a>";
@@ -400,7 +400,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         }
                         
                         // Credential Count
-                        $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('credential_id') AS num FROM credentials WHERE credential_client_id = $client_id AND credential_archived_at IS NULL"));
+                        $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('credential_id') AS num FROM credentials WHERE credential_contact_id = $contact_id AND credential_archived_at IS NULL"));
                         $credential_count = $row['num'];
                         if ($credential_count) { 
                             $credential_count_display = "<a href='contact_details.php?client_id=$client_id&contact_id=$contact_id#credentials' class='mr-2 mb-1 badge badge-pill badge-secondary p-2' title='Credentials ($credential_count)'><i class='fas fa-fw fa-key mr-2'></i>$credential_count</a>";
