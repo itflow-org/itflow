@@ -160,7 +160,7 @@ if (!empty($updates)) {
                 $ticket_id
             );
 
-            if ($status == 5) { // Assuming "5 = Closed"
+            if ($status == 5) {
                 logAction(
                     "Ticket",
                     "Close",
