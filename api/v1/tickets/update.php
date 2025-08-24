@@ -9,10 +9,10 @@ $update_id = false;
 $response = ['success' => false, 'message' => ''];
 
 // Validate CSRF token for web requests (if not API-only)
-if (isset($_SERVER['HTTP_ORIGIN']) && $_SERVER['HTTP_ORIGIN'] !== 'https://yourdomain.com') {
-    http_response_code(403);
-    die(json_encode(['error' => 'Cross-origin request denied']));
-}
+//if (isset($_SERVER['HTTP_ORIGIN']) && $_SERVER['HTTP_ORIGIN'] !== 'https://yourdomain.com') {
+//    http_response_code(403);
+//    die(json_encode(['error' => 'Cross-origin request denied']));
+//}
 
 // Validate user permissions for this API key
 if (!$api_key_permissions['ticket_write']) {
