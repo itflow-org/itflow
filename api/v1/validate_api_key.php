@@ -14,7 +14,7 @@ require_once __DIR__ . "../../../config.php";
 header('Content-Type: application/json');
 
 // POST data
-$_POST = json_decode(file_get_contents('php://input'), true);
+//$_POST = json_decode(file_get_contents('php://input'), true);
 
 // Get IP & UA
 $ip = sanitizeInput(getIP());
