@@ -263,7 +263,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         ?>
                         <tr class="<?php echo $tr_class; ?>">
                             <td>
-                                <a class="text-dark ajax-modal" href="#" data-modal-url="ajax/ajax_software_edit.php?id=<?= $software_id ?>">
+                                <a class="text-dark ajax-modal" href="#" data-modal-url="modals/software/software_edit.php?id=<?= $software_id ?>">
                                     <div class="media">
                                         <i class="fa fa-fw fa-2x fa-cube mr-3"></i>
                                         <div class="media-body">
@@ -287,7 +287,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                         <i class="fas fa-ellipsis-h"></i>
                                     </button>
                                     <div class="dropdown-menu">
-                                        <a class="dropdown-item ajax-modal" href="#" data-modal-url="ajax/ajax_software_edit.php?id=<?= $software_id ?>"
+                                        <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/software/software_edit.php?id=<?= $software_id ?>"
                                             >
                                             <i class="fas fa-fw fa-edit mr-2"></i>Edit
                                         </a>
@@ -322,7 +322,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
 <?php
 
-require_once "modals/software_add_modal.php";
-require_once "modals/software_add_from_template_modal.php";
-require_once "modals/software_export_modal.php";
+require_once "modals/software/software_add.php";
+require_once "modals/software/software_add_from_template.php";
+require_once "modals/software/software_export.php";
 require_once "../includes/footer.php";

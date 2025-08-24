@@ -289,5 +289,5 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
     </div>
 
 <?php
-require_once "modals/payment_export_modal.php";
+require_once "modals/payment/payment_export.php";
 require_once "../includes/footer.php";

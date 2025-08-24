@@ -203,19 +203,13 @@ if (isset($_GET['quote_id'])) {
                             <i class="fas fa-ellipsis-v"></i>
                         </button>
                         <div class="dropdown-menu">
-                            <a class="dropdown-item" href="#"
-                                data-toggle = "ajax-modal"
-                                data-ajax-url = "ajax/ajax_quote_edit.php"
-                                data-ajax-id = "<?php echo $quote_id; ?>"
-                                >
+                            <a class="dropdown-item ajax-modal" href="#"
+                                data-modal-url="modals/quote/quote_edit.php?id=<?= $quote_id ?>">
                                 <i class="fa fa-fw fa-edit text-secondary mr-2"></i>Edit
                             </a>
                             <?php if (lookupUserPermission("module_sales") >= 2) { ?>
-                                <a class="dropdown-item" href="#"
-                                    data-toggle = "ajax-modal"
-                                    data-ajax-url = "ajax/ajax_quote_copy.php"
-                                    data-ajax-id = "<?php echo $quote_id; ?>"
-                                    >
+                                <a class="dropdown-item ajax-modal" href="#"
+                                    data-modal-url="modals/quote/quote_copy.php?id=<?= $quote_id ?>">
                                     <i class="fa fa-fw fa-copy text-secondary mr-2"></i>Copy
                                 </a>
                             <?php } ?>
@@ -350,11 +344,8 @@ if (isset($_GET['quote_id'])) {
                                                                 <i class="fas fa-ellipsis-v"></i>
                                                             </button>
                                                             <div class="dropdown-menu">
-                                                                <a class="dropdown-item" href="#"
-                                                                    data-toggle="ajax-modal"
-                                                                    data-ajax-url="ajax/ajax_item_edit.php"
-                                                                    data-ajax-id="<?php echo $item_id; ?>"
-                                                                    >
+                                                                <a class="dropdown-item ajax-modal" href="#"
+                                                                    data-modal-url="modals/invoice/item_edit.php?id=<?= $item_id ?>">
                                                                     <i class="fa fa-fw fa-edit mr-2"></i>Edit
                                                                 </a>
                                                                 <div class="dropdown-divider"></div>
@@ -589,8 +580,8 @@ if (isset($_GET['quote_id'])) {
     </div>
 
 <?php
-    require_once "modals/quote_to_invoice_modal.php";
-    require_once "modals/quote_note_modal.php";
+    require_once "modals/quote/quote_to_invoice.php";
+    require_once "modals/quote/quote_note.php";
 }
 
 require_once "../includes/footer.php";

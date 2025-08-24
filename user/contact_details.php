@@ -169,10 +169,8 @@ if (isset($_GET['contact_id'])) {
 
             <div class="card card-dark">
                 <div class="card-body">
-                    <button type="button" class="btn btn-default float-right"
-                        data-toggle="ajax-modal"
-                        data-ajax-url="ajax/ajax_contact_edit.php"
-                        data-ajax-id="<?php echo $contact_id; ?>">
+                    <button type="button" class="btn btn-default float-right ajax-modal"
+                        data-modal-url="modals/contact/contact_edit.php?id=<?= $contact_id ?>">
                         <i class="fas fa-fw fa-user-edit"></i>
                     </button>
                     <h3 class="text-bold"><?php echo $contact_name; ?></h3>
@@ -281,10 +279,8 @@ if (isset($_GET['contact_id'])) {
                             <i class="fa fa-fw fa-upload mr-2"></i>Upload file(s)
                         </a>
                         <div class="dropdown-divider"></div>
-                        <a class="dropdown-item text-dark" href="#"
-                            data-toggle="ajax-modal"
-                            data-ajax-url="ajax/ajax_contact_note_create.php"
-                            data-ajax-id="<?php echo $contact_id; ?>">
+                        <a class="dropdown-item text-dark ajax-modal" href="#"
+                            data-modal-url="modals/contact/contact_note_add.php?id=<?= $contact_id ?>">
                             <i class="fas fa-fw fa-sticky-note mr-2"></i>New Note
                         </a>
                     </div>
@@ -293,45 +289,33 @@ if (isset($_GET['contact_id'])) {
                 <div class="dropdown dropleft">
                     <button type="button" class="btn btn-outline-primary" data-toggle="dropdown"><i class="fas fa-link mr-2"></i>Link</button>
                     <div class="dropdown-menu">
-                        <a class="dropdown-item text-dark" href="#"
-                            data-toggle="ajax-modal"
-                            data-ajax-url="ajax/ajax_contact_link_asset.php"
-                            data-ajax-id="<?php echo $contact_id; ?>">
+                        <a class="dropdown-item text-dark ajax-modal" href="#"
+                            data-modal-url="modals/contact/contact_link_asset.php?id=<?= $contact_id ?>">
                             <i class="fa fa-fw fa-desktop mr-2"></i>Asset
                         </a>
                         <div class="dropdown-divider"></div>
-                        <a class="dropdown-item text-dark" href="#"
-                            data-toggle="ajax-modal"
-                            data-ajax-url="ajax/ajax_contact_link_software.php"
-                            data-ajax-id="<?php echo $contact_id; ?>">
+                        <a class="dropdown-item text-dark ajax-modal" href="#"
+                            data-modal-url="modals/contact/contact_link_software.php?id=<?= $contact_id ?>">
                             <i class="fa fa-fw fa-cube mr-2"></i>License
                         </a>
                         <div class="dropdown-divider"></div>
-                        <a class="dropdown-item text-dark" href="#"
-                            data-toggle="ajax-modal"
-                            data-ajax-url="ajax/ajax_contact_link_credential.php"
-                            data-ajax-id="<?php echo $contact_id; ?>">
+                        <a class="dropdown-item text-dark ajax-modal" href="#"
+                            data-modal-url="modals/contact/contact_link_credential.php?id=<?= $contact_id ?>">
                             <i class="fa fa-fw fa-key mr-2"></i>Credential
                         </a>
                         <div class="dropdown-divider"></div>
-                        <a class="dropdown-item text-dark" href="#"
-                            data-toggle="ajax-modal"
-                            data-ajax-url="ajax/ajax_contact_link_service.php"
-                            data-ajax-id="<?php echo $contact_id; ?>">
+                        <a class="dropdown-item text-dark ajax-modal" href="#"
+                            data-modal-url="modals/contact/contact_link_service.php?id=<?= $contact_id ?>">
                             <i class="fa fa-fw fa-stream mr-2"></i>Service
                         </a>
                         <div class="dropdown-divider"></div>
-                        <a class="dropdown-item text-dark" href="#"
-                            data-toggle="ajax-modal"
-                            data-ajax-url="ajax/ajax_contact_link_document.php"
-                            data-ajax-id="<?php echo $contact_id; ?>">
+                        <a class="dropdown-item text-dark ajax-modal" href="#"
+                            data-modal-url="modals/contact/contact_link_document.php?id=<?= $contact_id ?>">
                             <i class="fa fa-fw fa-folder mr-2"></i>Document
                         </a>
                         <div class="dropdown-divider"></div>
-                        <a class="dropdown-item text-dark" href="#"
-                            data-toggle="ajax-modal"
-                            data-ajax-url="ajax/ajax_contact_link_file.php"
-                            data-ajax-id="<?php echo $contact_id; ?>">
+                        <a class="dropdown-item text-dark ajax-modal" href="#"
+                            data-modal-url="modals/contact/contact_link_file.php?id=<?= $contact_id ?>">
                             <i class="fa fa-fw fa-paperclip mr-2"></i>File
                         </a>
                     </div>
@@ -343,7 +327,7 @@ if (isset($_GET['contact_id'])) {
                     <h3 class="card-title mt-2"><i class="fa fa-fw fa-desktop mr-2"></i>Related Assets</h3>
                     <div class="card-tools">
                         <button type="button" class="btn btn-primary ajax-modal"
-                            data-modal-url="ajax/ajax_contact_link_asset.php?id=<?= $contact_id ?>">
+                            data-modal-url="modals/contact/contact_link_asset.php?id=<?= $contact_id ?>">
                             <i class="fas fa-link mr-2"></i>Link Asset
                         </button>
                     </div>
@@ -483,7 +467,7 @@ if (isset($_GET['contact_id'])) {
                 <div class="card-header py-2">
                     <h3 class="card-title mt-2"><i class="fa fa-fw fa-key mr-2"></i>Credentials</h3>
                     <div class="card-tools">
-                        <button type="button" class="btn btn-primary" data-toggle="ajax-modal" data-ajax-url="ajax/ajax_contact_link_credential.php" data-ajax-id="<?php echo $contact_id; ?>">
+                        <button type="button" class="btn btn-primary ajax-modal" data-modal-url="modals/contact/contact_link_credential.php?id=<?= $contact_id ?>">
                             <i class="fas fa-link mr-2"></i>Link Credential
                         </button>
                     </div>
@@ -561,11 +545,8 @@ if (isset($_GET['contact_id'])) {
                                 <tr>
                                     <td>
                                         <i class="fa fa-fw fa-key text-secondary"></i>
-                                        <a class="text-dark" href="#"
-                                            data-toggle="ajax-modal"
-                                            data-ajax-url="ajax/ajax_credential_edit.php"
-                                            data-ajax-id="<?php echo $credential_id; ?>"
-                                            >
+                                        <a class="text-dark ajax-modal" href="#"
+                                            data-modal-url="modals/credential/credential_edit.php?id=<?= $credential_id ?>">
                                             <?php echo $credential_name; ?>
                                         </a>
                                     </td>
@@ -582,10 +563,8 @@ if (isset($_GET['contact_id'])) {
                                                 <i class="fas fa-ellipsis-h"></i>
                                             </button>
                                             <div class="dropdown-menu">
-                                                <a class="dropdown-item" href="#"
-                                                    data-toggle="ajax-modal"
-                                                    data-ajax-url="ajax/ajax_credential_edit.php"
-                                                    data-ajax-id="<?php echo $credential_id; ?>">
+                                                <a class="dropdown-item ajax-modal" href="#"
+                                                    data-modal-url="modals/credential/credential_edit.php?id=<?= $credential_id ?>">
                                                     <i class="fas fa-fw fa-edit mr-2"></i>Edit
                                                 </a>
                                                 <a class="dropdown-item" href="#" data-toggle="modal" data-target="#shareModal" onclick="populateShareModal(<?php echo "$client_id, 'Credential', $credential_id"; ?>)">
@@ -625,7 +604,7 @@ if (isset($_GET['contact_id'])) {
                 <div class="card-header py-2">
                     <h3 class="card-title mt-2"><i class="fa fa-fw fa-cube mr-2"></i>Related Licenses</h3>
                     <div class="card-tools">
-                        <button type="button" class="btn btn-primary" data-toggle="ajax-modal" data-ajax-url="ajax/ajax_contact_link_software.php" data-ajax-id="<?php echo $contact_id; ?>">
+                        <button type="button" class="btn btn-primary ajax-modal" data-modal-url="modals/contact/contact_link_software.php?id=<?= $contact_id ?>">
                             <i class="fas fa-link mr-2"></i>Link License
                         </button>
                     </div>
@@ -730,11 +709,8 @@ if (isset($_GET['contact_id'])) {
 
                                 <tr>
                                     <td class="text-bold">
-                                        <a href="#"
-                                            data-toggle="ajax-modal"
-                                            data-ajax-url="ajax/ajax_recurring_ticket_edit.php"
-                                            data-ajax-id="<?php echo $recurring_ticket_id; ?>"
-                                            >
+                                        <a class="ajax-modal" href="#"
+                                            data-modal-url="modals/recurring_ticket/recurring_ticket_edit.php?id=<?= $recurring_ticket_id ?>">
                                             <?php echo $recurring_ticket_subject ?>
                                         </a>
                                     </td>
@@ -747,11 +723,8 @@ if (isset($_GET['contact_id'])) {
                                                 <i class="fas fa-ellipsis-h"></i>
                                             </button>
                                             <div class="dropdown-menu">
-                                                <a class="dropdown-item" href="#"
-                                                    data-toggle="ajax-modal"
-                                                    data-ajax-url="ajax/ajax_recurring_ticket_edit.php"
-                                                    data-ajax-id="<?php echo $recurring_ticket_id; ?>"
-                                                    >
+                                                <a class="dropdown-item ajax-modal" href="#"
+                                                    data-modal-url="modals/recurring_ticket/recurring_ticket_edit.php?id=<?= $recurring_ticket_id ?>">
                                                     <i class="fas fa-fw fa-edit mr-2"></i>Edit
                                                 </a>
                                                 <div class="dropdown-divider"></div>
@@ -874,7 +847,7 @@ if (isset($_GET['contact_id'])) {
                 <div class="card-header py-2">
                     <h3 class="card-title mt-2"><i class="fa fa-fw fa-stream mr-2"></i>Linked Services</h3>
                     <div class="card-tools">
-                        <button type="button" class="btn btn-primary" data-toggle="ajax-modal" data-ajax-url="ajax/ajax_contact_link_service.php" data-ajax-id="<?php echo $contact_id; ?>">
+                        <button type="button" class="btn btn-primary ajax-modal" data-modal-url="modals/contact/contact_link_service.php?id=<?= $contact_id ?>">
                             <i class="fas fa-link mr-2"></i>Link Service
                         </button>
                     </div>
@@ -932,7 +905,7 @@ if (isset($_GET['contact_id'])) {
                 <div class="card-header py-2">
                     <h3 class="card-title mt-2"><i class="fa fa-fw fa-folder mr-2"></i>Linked Documents</h3>
                     <div class="card-tools">
-                        <button type="button" class="btn btn-primary" data-toggle="ajax-modal" data-ajax-url="ajax/ajax_contact_link_document.php" data-ajax-id="<?php echo $contact_id; ?>">
+                        <button type="button" class="btn btn-primary ajax-modal" data-modal-url="modals/contact/contact_link_document.php?id=<?= $contact_id ?>">
                             <i class="fas fa-link mr-2"></i>Link Document
                         </button>
                     </div>
@@ -998,7 +971,7 @@ if (isset($_GET['contact_id'])) {
                 <div class="card-header py-2">
                     <h3 class="card-title mt-2"><i class="fa fa-fw fa-folder mr-2"></i>Linked Files</h3>
                     <div class="card-tools">
-                        <button type="button" class="btn btn-primary" data-toggle="ajax-modal" data-ajax-url="ajax/ajax_contact_link_file.php" data-ajax-id="<?php echo $contact_id; ?>">
+                        <button type="button" class="btn btn-primary ajax-modal" data-modal-url="modals/contact/contact_link_file.php?id=<?= $contact_id ?>">
                             <i class="fas fa-link mr-2"></i>Link File
                         </button>
                     </div>
@@ -1061,10 +1034,8 @@ if (isset($_GET['contact_id'])) {
                 <div class="card-header py-2">
                     <h3 class="card-title mt-2"><i class="fa fa-fw fa-sticky-note mr-2"></i>Notes</h3>
                     <div class="card-tools">
-                        <button type="button" class="btn btn-primary"
-                            data-toggle="ajax-modal"
-                            data-ajax-url="ajax/ajax_contact_note_create.php"
-                            data-ajax-id="<?php echo $contact_id; ?>">
+                        <button type="button" class="btn btn-primary ajax-modal"
+                            data-modal-url="modals/contact/contact_note_add.php?id=<?= $contact_id ?>">
                             <i class="fas fa-plus mr-2"></i>New Note
                         </button>
                     </div>
@@ -1203,9 +1174,9 @@ if (isset($_GET['contact_id'])) {
 <?php
 
 require_once "modals/ticket/ticket_add.php";
-require_once "modals/recurring_ticket_add_modal.php";
+require_once "modals/recurring_ticket/recurring_ticket_add.php";
 require_once "modals/asset/asset_add.php";
-require_once "modals/credential_add_modal.php";
+require_once "modals/credential/credential_add.php";
 require_once "modals/document/document_add.php";
 require_once "modals/file/file_upload.php";
 

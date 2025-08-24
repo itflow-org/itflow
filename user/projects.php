@@ -32,9 +32,6 @@ if (isset($_GET['status']) && $_GET['status'] == 1) {
     $status_query = "IS NULL";
 }
 
-//Rebuild URL
-$url_query_strings_sort = http_build_query($get_copy);
-
 $sql_projects = mysqli_query(
     $mysqli,
     "SELECT SQL_CALC_FOUND_ROWS * FROM projects
@@ -296,11 +293,8 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 </button>
                                 <div class="dropdown-menu">
                                     <?php if (empty($project_completed_at)) { ?>
-                                        <a class="dropdown-item" href="#"
-                                            data-toggle = "ajax-modal"
-                                            data-ajax-url = "ajax/ajax_project_edit.php"
-                                            data-ajax-id = "<?php echo $project_id; ?>"
-                                            >
+                                        <a class="dropdown-item ajax-modal" href="#"
+                                            data-modal-url = "modals/project/project_edit.php?id=<?= $project_id ?>">
                                             <i class="fas fa-fw fa-edit mr-2"></i>Edit
                                         </a>
                                     <?php } ?>
@@ -341,5 +335,5 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 </div>
 
 <?php
-require_once "modals/project_add_modal.php";
+require_once "modals/project/project_add.php";
 require_once "../includes/footer.php";

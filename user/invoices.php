@@ -393,11 +393,8 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                     </button>
                                     <div class="dropdown-menu">
                                         <?php if ($invoice_status !== 'Paid' && $invoice_status !== 'Cancelled' && $invoice_status !== 'Draft' && $invoice_status !== 'Non-Billable' && $invoice_amount != 0) { ?>
-                                            <a class="dropdown-item" href="#"
-                                                data-toggle = "ajax-modal"
-                                                data-ajax-url = "ajax/ajax_invoice_pay.php"
-                                                data-ajax-id = "<?php echo $invoice_id; ?>"
-                                                >
+                                            <a class="dropdown-item ajax-modal" href="#"
+                                                data-modal-url="modals/invoice/invoice_pay.php?id=<?= $invoice_id ?>">
                                                 <i class="fa fa-fw fa-credit-card mr-2"></i>Add Payment
                                             </a>
                                             <div class="dropdown-divider"></div>
@@ -408,18 +405,12 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                                 <div class="dropdown-divider"></div>
                                             <?php } ?>
                                         <?php } ?>
-                                        <a class="dropdown-item" href="#"
-                                            data-toggle = "ajax-modal"
-                                            data-ajax-url = "ajax/ajax_invoice_edit.php"
-                                            data-ajax-id = "<?php echo $invoice_id; ?>"
-                                            >
+                                        <a class="dropdown-item ajax-modal" href="#"
+                                            data-modal-url="modals/invoice/invoice_edit.php?id=<?= $invoice_id ?>">
                                             <i class="fas fa-fw fa-edit mr-2"></i>Edit
                                         </a>
-                                        <a class="dropdown-item" href="#"
-                                            data-toggle = "ajax-modal"
-                                            data-ajax-url = "ajax/ajax_invoice_copy.php"
-                                            data-ajax-id = "<?php echo $invoice_id; ?>"
-                                            >
+                                        <a class="dropdown-item ajax-modal" href="#"
+                                            data-modal-url="modals/invoice/invoice_copy.php?id=<?= $invoice_id ?>">
                                             <i class="fas fa-fw fa-copy mr-2"></i>Copy
                                         </a>
                                         <div class="dropdown-divider"></div>
@@ -452,7 +443,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     </tbody>
                 </table>
             </div>
-            <?php require_once "modals/invoice_bulk_edit_category_modal.php"; ?>
+            <?php require_once "modals/invoice/invoice_bulk_edit_category.php"; ?>
         </form>
         <?php require_once "../includes/filter_footer.php";
 ?>
@@ -462,7 +453,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 <script src="../js/bulk_actions.js"></script>
 
 <?php
-require_once "modals/invoice_add_modal.php";
-if ($client_url) { require_once "modals/invoice_payment_add_bulk_modal.php"; }
-require_once "modals/invoice_export_modal.php";
+require_once "modals/invoice/invoice_add.php";
+if ($client_url) { require_once "modals/invoice/invoice_payment_add_bulk.php"; }
+require_once "modals/invoice/invoice_export.php";
 require_once "../includes/footer.php";

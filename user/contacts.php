@@ -502,7 +502,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                         <a class="dropdown-item" href="contact_details.php?<?= $client_url ?>contact_id=<?= $contact_id ?>">
                                             <i class="fas fa-fw fa-eye mr-2"></i>Details
                                         </a>
-                                        <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/contact/contact_note_create.php?id=<?= $contact_id ?>">
+                                        <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/contact/contact_note_add.php?id=<?= $contact_id ?>">
                                             <i class="fas fa-fw fa-sticky-note mr-2"></i>Make Note
                                         </a>
                                         <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/contact/contact_edit.php?id=<?= $contact_id ?>">

@@ -258,13 +258,13 @@ if (isset($_GET['invoice_id'])) {
                             <?php if ($invoice_status !== 'Paid' && $invoice_status !== 'Cancelled' && $invoice_status !== 'Draft' && $invoice_status !== 'Non-Billable' && $invoice_amount != 0) { ?>
 
                                 <div class="btn-group">
-                                    <button type="button" class="btn btn-success" data-toggle="ajax-modal" data-ajax-url="ajax/ajax_invoice_pay.php" data-ajax-id="<?php echo $invoice_id; ?>"><i class="fa fa-fw fa-credit-card mr-2"></i>Add Payment</button>
+                                    <button type="button" class="btn btn-success ajax-modal" data-modal-url="modals/invoice/invoice_pay.php?id=<?= $invoice_id ?>"><i class="fa fa-fw fa-credit-card mr-2"></i>Add Payment</button>
                                     
                                     <?php if (mysqli_num_rows($sql_saved_payment_methods) > 0 || $credit_balance > 0) { ?>
                                     <button type="button" class="btn btn-success dropdown-toggle dropdown-toggle-split" data-toggle="dropdown"></button>
                                     <div class="dropdown-menu">
                                         <?php if ($credit_balance) { ?>
-                                        <a class="dropdown-item" href="#" data-toggle="ajax-modal" data-ajax-url="ajax/ajax_invoice_apply_credit.php" data-ajax-id="<?php echo $invoice_id; ?>"><i class="fas fa-fw fa-wallet mr-2"></i>Apply Credit (Balance: <?php echo numfmt_format_currency($currency_format, $credit_balance, $client_currency_code); ?>)</a>
+                                        <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/invoice/invoice_apply_credit.php?id=<?= $invoice_id ?>"><i class="fas fa-fw fa-wallet mr-2"></i>Apply Credit (Balance: <?php echo numfmt_format_currency($currency_format, $credit_balance, $client_currency_code); ?>)</a>
                                         <?php } ?>
 <!--                                        <a class="dropdown-item" href="../guest/guest_pay_invoice_stripe.php?invoice_id=--><?php //echo "$invoice_id&url_key=$invoice_url_key"; ?><!--">Enter Card Manually</a>-->
                                         <?php
@@ -308,18 +308,12 @@ if (isset($_GET['invoice_id'])) {
                                 <i class="fas fa-ellipsis-v"></i>
                             </button>
                             <div class="dropdown-menu">
-                                <a class="dropdown-item" href="#"
-                                    data-toggle = "ajax-modal"
-                                    data-ajax-url = "ajax/ajax_invoice_edit.php"
-                                    data-ajax-id = "<?php echo $invoice_id; ?>"
-                                    >
+                                <a class="dropdown-item ajax-modal" href="#"
+                                    data-modal-url="modals/invoice/invoice_edit.php?id=<?= $invoice_id ?>">
                                     <i class="fa fa-fw fa-edit text-secondary mr-2"></i>Edit
                                 </a>
-                                <a class="dropdown-item" href="#"
-                                    data-toggle = "ajax-modal"
-                                    data-ajax-url = "ajax/ajax_invoice_copy.php"
-                                    data-ajax-id = "<?php echo $invoice_id; ?>"
-                                    >
+                                <a class="dropdown-item ajax-modal" href="#"
+                                    data-modal-url="modals/invoice/invoice_copy.php?id=<?= $invoice_id ?>">
                                     <i class="fa fa-fw fa-copy text-secondary mr-2"></i>Copy
                                 </a>
                                 <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addInvoiceRecurringModal<?php echo $invoice_id; ?>">
@@ -466,11 +460,8 @@ if (isset($_GET['invoice_id'])) {
                                                             <i class="fas fa-ellipsis-v"></i>
                                                         </button>
                                                         <div class="dropdown-menu">
-                                                            <a class="dropdown-item" href="#"
-                                                                data-toggle="ajax-modal"
-                                                                data-ajax-url="ajax/ajax_item_edit.php"
-                                                                data-ajax-id="<?php echo $item_id; ?>"
-                                                                >
+                                                            <a class="dropdown-item ajax-modal" href="#"
+                                                                data-modal-url="modals/invoice/item_edit.php?id=<?= $item_id ?>">
                                                                 <i class="fa fa-fw fa-edit mr-2"></i>Edit
                                                             </a>
                                                             <div class="dropdown-divider"></div>
@@ -772,9 +763,9 @@ if (isset($_GET['invoice_id'])) {
             </div>
         </div>
     <?php
-    include_once "modals/invoice_add_ticket_modal.php";
-    include_once "modals/invoice_recurring_add_modal.php";
-    include_once "modals/invoice_note_modal.php";
+    include_once "modals/invoice/invoice_add_ticket.php";
+    include_once "modals/invoice/invoice_recurring_add.php";
+    include_once "modals/invoice/invoice_note.php";
 
 }
 

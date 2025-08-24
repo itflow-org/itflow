@@ -646,12 +646,9 @@ if (isset($_GET['asset_id'])) {
                                 <tr>
                                     <td>
                                         <i class="fa fa-fw fa-key text-secondary"></i>
-                                        <a class="text-dark" href="#"
-                                            data-toggle="ajax-modal"
-                                            data-ajax-url="ajax/ajax_credential_edit.php"
-                                            data-ajax-id="<?= $credential_id; ?>"
-                                            >
-                                            <?= $credential_name; ?>
+                                        <a class="text-dark ajax-modal" href="#"
+                                            data-modal-url="modals/credential/credential_edit.php?id=<?= $credential_id ?>">
+                                            <?= $credential_name ?>
                                         </a>
                                     </td>
                                     <td><?= $credential_description; ?></td>
@@ -667,11 +664,8 @@ if (isset($_GET['asset_id'])) {
                                                 <i class="fas fa-ellipsis-h"></i>
                                             </button>
                                             <div class="dropdown-menu">
-                                                <a class="dropdown-item" href="#"
-                                                    data-toggle="ajax-modal"
-                                                    data-ajax-url="ajax/ajax_credential_edit.php"
-                                                    data-ajax-id="<?= $credential_id; ?>"
-                                                    >
+                                                <a class="dropdown-item ajax-modal" href="#"
+                                                    data-modal-url="modals/credential/credential_edit.php?id=<?= $credential_id ?>">
                                                     <i class="fas fa-fw fa-edit mr-2"></i>Edit
                                                 </a>
                                                 <a class="dropdown-item" href="#" data-toggle="modal" data-target="#shareModal" onclick="populateShareModal(<?= "$client_id, 'Credential', $credential_id"; ?>)">
@@ -709,7 +703,7 @@ if (isset($_GET['asset_id'])) {
                 <div class="card-header py-2">
                     <h3 class="card-title mt-2"><i class="fa fa-fw fa-cube mr-2"></i>Licenses</h3>
                     <div class="card-tools">
-                        <button type="button" class="btn btn-primary" data-toggle="ajax-modal" data-ajax-url="ajax/ajax_asset_link_software.php" data-ajax-id="<?= $asset_id; ?>">
+                        <button type="button" class="btn btn-primary ajax-modal" data-modal-url="modals/asset/asset_link_software.php?id=<?= $asset_id ?>">
                             <i class="fas fa-link mr-2"></i>Link Software
                         </button>
                     </div>
@@ -766,11 +760,8 @@ if (isset($_GET['asset_id'])) {
                                 ?>
                                 <tr>
                                     <td>
-                                        <a class="text-dark" href="#"
-                                            data-toggle="ajax-modal"
-                                            data-ajax-url="ajax/ajax_software_edit.php"
-                                            data-ajax-id="<?= $software_id; ?>"
-                                            >
+                                        <a class="text-dark ajax-modal" href="#"
+                                            data-modal-url="modals/software/software_edit.php?id=<?= $software_id ?>">
                                             <?= "$software_name<br><span class='text-secondary'>$software_version</span>"; ?>
                                         </a>
                                     </td>
@@ -835,9 +826,9 @@ if (isset($_GET['asset_id'])) {
                                         <div><a href="document_details.php?client_id=<?= $client_id; ?>&document_id=<?= $document_id; ?>"><?= $document_name; ?></a></div>
                                         <div class="text-secondary"><?= $document_description; ?></div>
                                     </td>
-                                    <td><?= $document_created_by; ?></td>
-                                    <td><?= $document_created_at; ?></td>
-                                    <td><?= $document_updated_at; ?></td>
+                                    <td><?= $document_created_by ?></td>
+                                    <td><?= $document_created_at ?></td>
+                                    <td><?= $document_updated_at ?></td>
                                     <td class="text-center">
                                         <a href="#" class="btn btn-dark btn-sm ajax-modal"
                                             data-modal-size="lg"
@@ -979,12 +970,9 @@ if (isset($_GET['asset_id'])) {
 
                                 <tr>
                                     <td class="text-bold">
-                                        <a href="#"
-                                            data-toggle="ajax-modal"
+                                        <a class="ajax-modal" href="#"
                                             data-modal-size="lg"
-                                            data-ajax-url="ajax/ajax_recurring_ticket_edit.php"
-                                            data-ajax-id="<?= $recurring_ticket_id; ?>"
-                                            >
+                                            data-modal-url="modals/recurring_ticket/recurring_ticket_edit.php?id=<?= $recurring_ticket_id; ?>">
                                             <?= $recurring_ticket_subject ?>
                                         </a>
                                     </td>
@@ -1001,12 +989,9 @@ if (isset($_GET['asset_id'])) {
                                                 <i class="fas fa-ellipsis-h"></i>
                                             </button>
                                             <div class="dropdown-menu">
-                                                <a class="dropdown-item" href="#"
-                                                    data-toggle="ajax-modal"
+                                                <a class="dropdown-item ajax-modal" href="#"
                                                     data-modal-size="lg"
-                                                    data-ajax-url="ajax/ajax_recurring_ticket_edit.php"
-                                                    data-ajax-id="<?= $recurring_ticket_id; ?>"
-                                                    >
+                                                    data-modal-url="modals/recurring_ticket/recurring_ticket_edit.php?id=<?= $recurring_ticket_id; ?>">
                                                     <i class="fas fa-fw fa-edit mr-2"></i>Edit
                                                 </a>
                                                 <div class="dropdown-divider"></div>
@@ -1126,7 +1111,7 @@ if (isset($_GET['asset_id'])) {
                 <div class="card-header py-2">
                     <h3 class="card-title mt-2"><i class="fa fa-fw fa-stream mr-2"></i>Linked Services</h3>
                     <div class="card-tools">
-                        <button type="button" class="btn btn-primary" data-toggle="ajax-modal" data-ajax-url="ajax/ajax_asset_link_service.php" data-ajax-id="<?= $asset_id; ?>">
+                        <button type="button" class="btn btn-primary ajax-modal" data-modal-url="modals/asset/asset_link_service.php?id=<?= $asset_id ?>">
                             <i class="fas fa-link mr-2"></i>Link Service
                         </button>
                     </div>
@@ -1235,8 +1220,8 @@ require_once "modals/asset/asset_interface_multiple_add.php";
 require_once "modals/asset/asset_interface_import.php";
 require_once "modals/asset/asset_interface_export.php";
 require_once "modals/ticket/ticket_add.php";
-require_once "modals/recurring_ticket_add_modal.php";
-require_once "modals/credential_add_modal.php";
+require_once "modals/recurring_ticket/recurring_ticket_add.php";
+require_once "modals/credential/credential_add.php";
 require_once "modals/document/document_add.php";
 require_once "modals/file/file_upload.php";
 

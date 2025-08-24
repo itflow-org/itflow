@@ -166,12 +166,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         <tr>
                             <!-- Name/Category/Updated/Importance from DB -->
                             <td>
-                                <a class="text-dark" href="#"
-                                    data-toggle="ajax-modal"
+                                <a class="text-dark ajax-modal" href="#"
                                     data-modal-size="xl"
-                                    data-ajax-url="ajax/ajax_service_details.php"
-                                    data-ajax-id="<?php echo $service_id; ?>"
-                                    >
+                                    data-modal-url="modals/service/service_details.php?id=<?= $service_id ?>">
                                     <div class="media">
                                         <i class="fa fa-fw fa-2x fa-stream mr-3"></i>
                                         <div class="media-body">
@@ -196,11 +193,8 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                         <i class="fas fa-ellipsis-h"></i>
                                     </button>
                                     <div class="dropdown-menu">
-                                        <a class="dropdown-item" href="#"
-                                            data-toggle="ajax-modal"
-                                            data-ajax-url="ajax/ajax_service_edit.php"
-                                            data-ajax-id="<?php echo $service_id; ?>"
-                                            >
+                                        <a class="dropdown-item ajax-modal" href="#"
+                                            data-modal-url="modals/service/service_edit.php?id=<?= $service_id ?>">
                                             <i class="fas fa-fw fa-edit mr-2"></i>Edit
                                         </a>
                                         <?php if (lookupUserPermission("module_support") >= 3) { ?>
@@ -226,5 +220,5 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
     </div>
 
 <?php
-require_once "modals/service_add_modal.php";
+require_once "modals/service/service_add.php";
 require_once "../includes/footer.php";

@@ -292,7 +292,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 </div>
                             </td>
                             <td>
-                                <a class="text-dark ajax-modal" href="#" data-modal-url="ajax/ajax_network_edit.php?id=<?= $network_id ?>">
+                                <a class="text-dark ajax-modal" href="#" data-modal-url="modals/network/network_edit.php?id=<?= $network_id ?>">
                                     <div class="media">
                                         <i class="fa fa-fw fa-2x fa-network-wired mr-3"></i>
                                         <div class="media-body">
@@ -320,7 +320,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                         <i class="fas fa-ellipsis-h"></i>
                                     </button>
                                     <div class="dropdown-menu">
-                                        <a class="dropdown-item ajax-modal" href="#" data-modal-url="ajax/ajax_network_edit.php?id=<?=$network_id ?>">
+                                        <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/network/network_edit.php?id=<?=$network_id ?>">
                                             <i class="fas fa-fw fa-edit mr-2"></i>Edit
                                         </a>
                                         <?php if ($session_user_role == 3) { ?>
@@ -358,8 +358,8 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 </div>
 
 <?php
-require_once "modals/network_add_modal.php";
-require_once "modals/network_export_modal.php";
+require_once "modals/network/network_add.php";
+require_once "modals/network/network_export.php";
 
 ?>
 

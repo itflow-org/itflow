@@ -328,7 +328,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 </div>
                             </td>
                             <td>
-                                <a class="text-dark ajax-modal" href="#" data-modal-url="ajax/ajax_location_edit.php?id=<?= $location_id ?>">
+                                <a class="text-dark ajax-modal" href="#" data-modal-url="modals/location/location_edit.php?id=<?= $location_id ?>">
                                     <div class="media">
                                         <i class="fa fa-fw fa-2x fa-map-marker-alt mr-3"></i>
                                         <div class="media-body">
@@ -360,7 +360,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                         <i class="fas fa-ellipsis-h"></i>
                                     </button>
                                     <div class="dropdown-menu">
-                                        <a class="dropdown-item ajax-modal" href="#" data-modal-url="ajax/ajax_location_edit.php?id=<?= $location_id ?>">
+                                        <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/location/location_edit.php?id=<?= $location_id ?>">
                                             <i class="fas fa-fw fa-edit mr-2"></i>Edit
                                         </a>
                                         <?php if ($session_user_role == 3 && $location_primary == 0) { ?>
@@ -393,7 +393,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     </tbody>
                 </table>
             </div>
-            <?php require_once "modals/location_bulk_assign_tags_modal.php"; ?>
+            <?php require_once "modals/location/location_bulk_assign_tags.php"; ?>
         </form>
         <?php require_once "../includes/filter_footer.php";
  ?>
@@ -404,7 +404,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
 <?php
 
-require_once "modals/location_add_modal.php";
-require_once "modals/location_import_modal.php";
-require_once "modals/location_export_modal.php";
+require_once "modals/location/location_add.php";
+require_once "modals/location/location_import.php";
+require_once "modals/location/location_export.php";
 require_once "../includes/footer.php";

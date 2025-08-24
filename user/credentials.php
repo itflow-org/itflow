@@ -410,11 +410,8 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                     </div>
                                 </td>
                                 <td>
-                                    <a class="text-dark" href="#"
-                                        data-toggle="ajax-modal"
-                                        data-ajax-url="ajax/ajax_credential_edit.php"
-                                        data-ajax-id="<?php echo $credential_id; ?>"
-                                        >
+                                    <a class="text-dark ajax-modal" href="#"
+                                        data-modal-url="modals/credential/credential_edit.php?id=<?= $credential_id ?>">
                                         <div class="media">
                                             <i class="fa fa-fw fa-2x fa-key mr-3"></i>
                                             <div class="media-body">
@@ -478,11 +475,8 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                                 <i class="fas fa-ellipsis-h"></i>
                                             </button>
                                             <div class="dropdown-menu">
-                                                <a class="dropdown-item" href="#"
-                                                    data-toggle="ajax-modal"
-                                                    data-ajax-url="ajax/ajax_credential_edit.php"
-                                                    data-ajax-id="<?php echo $credential_id; ?>"
-                                                    >
+                                                <a class="dropdown-item ajax-modal" href="#"
+                                                    data-modal-url="modals/credential/credential_edit.php?id=<?= $credential_id ?>">
                                                     <i class="fas fa-fw fa-edit mr-2"></i>Edit
                                                 </a>
                                                 <div class="dropdown-divider"></div>
@@ -523,7 +517,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     </tbody>
                 </table>
             </div>
-            <?php require_once "modals/credential_bulk_assign_tags_modal.php"; ?>
+            <?php require_once "modals/credential/credential_bulk_assign_tags.php"; ?>
         </form>
         <?php require_once "../includes/filter_footer.php";
         ?>
@@ -538,10 +532,10 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
 <?php
 
-require_once "modals/credential_add_modal.php";
+require_once "modals/credential/credential_add.php";
 require_once "modals/share_modal.php";
-require_once "modals/credential_export_modal.php";
+require_once "modals/credential/credential_export.php";
 if ($client_url) {
-    require_once "modals/credential_import_modal.php";
+    require_once "modals/credential/credential_import.php";
 }
 require_once "../includes/footer.php";

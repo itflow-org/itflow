@@ -153,7 +153,7 @@ if (isset($_GET['recurring_invoice_id'])) {
                         <a class="btn btn-secondary" href='#' data-toggle="modal" data-target="#addRecurringPaymentModal<?php echo $recurring_invoice_id; ?>">
                             <i class="fas fa-fw fa-redo-alt mr-2"></i>Create AutoPay
                         </a>
-                        <?php require_once "modals/recurring_payment_add_modal.php"; ?>
+                        <?php require_once "modals/recurring_invoice/recurring_payment_add.php"; ?>
 
                     <?php } ?>
                 </div>
@@ -191,11 +191,8 @@ if (isset($_GET['recurring_invoice_id'])) {
                             <i class="fas fa-ellipsis-v"></i>
                         </button>
                         <div class="dropdown-menu">
-                            <a class="dropdown-item" href="#"
-                                data-toggle = "ajax-modal"
-                                data-ajax-url = "ajax/ajax_recurring_invoice_edit.php"
-                                data-ajax-id = "<?php echo $recurring_invoice_id; ?>"
-                                >
+                            <a class="dropdown-item ajax-modal" href="#"
+                                data-modal-url="modals/recurring_invoice/recurring_invoice_edit.php?id=<?= $recurring_invoice_id ?>">
                                 <i class="fa fa-fw fa-edit text-secondary mr-2"></i>Edit
                             </a>
                             <div class="dropdown-divider"></div>
@@ -315,11 +312,8 @@ if (isset($_GET['recurring_invoice_id'])) {
                                                         <i class="fas fa-ellipsis-v"></i>
                                                     </button>
                                                     <div class="dropdown-menu">
-                                                        <a class="dropdown-item" href="#"
-                                                            data-toggle="ajax-modal"
-                                                            data-ajax-url="ajax/ajax_item_edit.php"
-                                                            data-ajax-id="<?php echo $item_id; ?>"
-                                                            >
+                                                        <a class="dropdown-item ajax-modal" href="#"
+                                                            data-modal-url="modals/invoice/item_edit.php?id=<?= $item_id ?>">
                                                             <i class="fa fa-fw fa-edit mr-2"></i>Edit
                                                         </a>
                                                         <div class="dropdown-divider"></div>
@@ -491,7 +485,7 @@ if (isset($_GET['recurring_invoice_id'])) {
 
     <?php
 
-    require_once "modals/recurring_invoice_note_modal.php";
+    require_once "modals/recurring_invoice/recurring_invoice_note.php";
 
 }
 

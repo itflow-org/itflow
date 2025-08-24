@@ -48,11 +48,8 @@ if (isset($_GET['calendar_id'])) {
                     ?>
                     <div class="form-group">
                         <i class="fas fa-fw fa-circle mr-2" style="color:<?php echo $calendar_color; ?>;"></i><?php echo $calendar_name; ?>
-                        <button type="button" class="btn btn-link btn-sm float-right"
-                            data-toggle="ajax-modal"
-                            data-ajax-url="ajax/ajax_calendar_edit.php"
-                            data-ajax-id="<?php echo $calendar_id; ?>"
-                            >
+                        <button type="button" class="btn btn-link btn-sm float-right ajax-modal"
+                            data-modal-url="modals/calendar/calendar_edit.php?id=<?= $calendar_id ?>">
                             <i class="fas fa-fw fa-pencil-alt text-secondary"></i>
                         </button>
                     </div>
@@ -84,8 +81,8 @@ if (isset($_GET['calendar_id'])) {
 
 <?php
 
-require_once "modals/calendar_event_add_modal.php";
-require_once "modals/calendar_add_modal.php";
+require_once "modals/calendar/calendar_event_add.php";
+require_once "modals/calendar/calendar_add.php";
 
 
 //loop through IDs and create a modal for each
@@ -143,11 +140,11 @@ while ($row = mysqli_fetch_array($sql)) {
 
         selectMirror: true,
         eventClick: function(editEvent) {
+            var eventId = editEvent.event.id;
             var $link = $('<a>', {
                 href: '#',
-                'data-toggle': 'ajax-modal',
-                'data-ajax-url': 'ajax/ajax_calendar_event_edit.php?<?php echo $client_url; ?>',
-                'data-ajax-id': editEvent.event.id
+                'class': 'ajax-modal',
+                'data-modal-url': 'modals/calendar/calendar_event_edit.php?<?php echo $client_url; ?>&id=' + eventId
             });
 
             $('body').append($link); // Append to the body

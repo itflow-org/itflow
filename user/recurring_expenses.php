@@ -182,12 +182,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                         <tr>
                             <td>
-                                <a class="text-dark" href="#"
-                                    data-toggle = "ajax-modal"
+                                <a class="text-dark ajax-modal" href="#"
                                     data-modal-size = "lg"
-                                    data-ajax-url = "ajax/ajax_recurring_expense_edit.php"
-                                    data-ajax-id = "<?php echo $recurring_expense_id; ?>"
-                                    >
+                                    data-modal-url = "modals/recurring_expense/recurring_expense_edit.php?id=<?= $recurring_expense_id ?>">
                                     <?php echo $recurring_expense_next_date; ?>
                                 </a>
                             </td>
@@ -207,12 +204,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                         <i class="fas fa-ellipsis-h"></i>
                                     </button>
                                     <div class="dropdown-menu">
-                                        <a class="dropdown-item" href="#"
-                                            data-toggle="ajax-modal"
+                                        <a class="dropdown-item ajax-modal" href="#"
                                             data-modal-size="lg"
-                                            data-ajax-url="ajax/ajax_recurring_expense_edit.php"
-                                            data-ajax-id="<?php echo $recurring_expense_id; ?>"
-                                            >
+                                            data-modal-url="modals/recurring_expense/recurring_expense_edit.php?id=<?= $recurring_expense_id ?>">
                                             <i class="fas fa-fw fa-edit mr-2"></i>Edit
                                         </a>
                                         <div class="dropdown-divider"></div>
@@ -239,7 +233,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
     </div>
 
 <?php
-require_once "modals/recurring_expense_create_modal.php";
+require_once "modals/recurring_expense/recurring_expense_add.php";
 
 require_once "../includes/footer.php";
 

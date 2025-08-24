@@ -228,11 +228,8 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         ?>
                         <tr>
                             <td>
-                                <a class="text-dark" href="#"
-                                    data-toggle = "ajax-modal"
-                                    data-ajax-url = "ajax/ajax_transfer_edit.php"
-                                    data-ajax-id = "<?php echo $transfer_id; ?>"
-                                    >
+                                <a class="text-dark ajax-modal" href="#"
+                                    data-modal-url = "modals/transfer/transfer_edit.php?id=<?= $transfer_id ?>">
                                     <?php echo $transfer_date; ?>
                                 </a>
                             </td>
@@ -247,15 +244,12 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                         <i class="fas fa-ellipsis-h"></i>
                                     </button>
                                     <div class="dropdown-menu">
-                                        <a class="dropdown-item" href="#"
-                                            data-toggle = "ajax-modal"
-                                            data-ajax-url = "ajax/ajax_transfer_edit.php"
-                                            data-ajax-id = "<?php echo $transfer_id; ?>"
-                                            >
+                                        <a class="dropdown-item ajax-modal" href="#"
+                                            data-modal-url = "modals/transfer/transfer_edit.php?id=<?= $transfer_id ?>">
                                             <i class="fas fa-fw fa-edit mr-2"></i>Edit
                                         </a>
                                         <div class="dropdown-divider"></div>
-                                        <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_transfer=<?php echo $transfer_id; ?>">
+                                        <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_transfer=<?= $transfer_id ?>">
                                             <i class="fas fa-fw fa-trash mr-2"></i>Delete
                                         </a>
                                     </div>
@@ -278,7 +272,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
     </div>
 
 <?php
-require_once "modals/transfer_add_modal.php";
+require_once "modals/transfer/transfer_add.php";
 
 require_once "../includes/footer.php";
 
