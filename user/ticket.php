@@ -1052,11 +1052,8 @@ if (isset($_GET['ticket_id'])) {
                                                                 <i class="fas fa-ellipsis-v"></i>
                                                             </button>
                                                             <div class="dropdown-menu">
-                                                                <a class="dropdown-item" href="#"
-                                                                   data-toggle = "ajax-modal"
-                                                                   data-ajax-url = "ajax/ajax_ticket_task_edit.php"
-                                                                   data-ajax-id = "<?php echo $task_id; ?>"
-                                                                >
+                                                                <a class="dropdown-item ajax-modal" href="#"
+                                                                   data-modal-url="modals/ticket/ticket_task_edit.php?id=<?= $task_id ?>">
                                                                     <i class="fas fa-fw fa-edit mr-2"></i>Edit
                                                                 </a>
                                                                 <?php if ($task_completed_at) { ?>

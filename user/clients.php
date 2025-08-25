@@ -524,7 +524,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             if (!empty($contact_name)) { ?>
                                 <div class="text-bold">   
                                     <i class="fa fa-fw fa-user text-secondary mr-2 mb-2"></i><a class="ajax-modal" href="#"
-                                        data-modal-url="ajax/ajax_contact_details.php?client_id=<?= $client_id ?>&id=<?= $contact_id ?>" data-modal-size="lg"><?= $contact_name; ?>
+                                        data-modal-url="modals/contact/contact_details.php?client_id=<?= $client_id ?>&id=<?= $contact_id ?>" data-modal-size="lg"><?= $contact_name; ?>
                                         
                                      </a>
                                 </div>
