@@ -1482,8 +1482,8 @@ function enforceAdminPermission() {
 
 function customAction($trigger, $entity) {
     chdir(dirname(__FILE__));
-    if (file_exists(__DIR__ . "/xcustom/xcustom_action_handler.php")) {
-        include_once __DIR__ . "/xcustom/xcustom_action_handler.php";
+    if (file_exists(__DIR__ . "/custom/custom_action_handler.php")) {
+        include_once __DIR__ . "/custom/custom_action_handler.php";
     }
 }
 
