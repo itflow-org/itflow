@@ -136,10 +136,13 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
 // OS typeahead suggestions
 $os_sql = mysqli_query($mysqli, "SELECT DISTINCT asset_os AS label FROM assets WHERE asset_archived_at IS NULL");
-if (mysqli_num_rows($os_sql) > 0) {
-    while ($row = mysqli_fetch_array($os_sql)) {
-        $os_arr[] = $row;
-	 }
+if ($os_sql && mysqli_num_rows($os_sql) > 0) {
+    $os_arr = [];
+    while ($row = mysqli_fetch_assoc($os_sql)) {
+        // jQuery UI Autocomplete expects {label: "...", value: "..."}
+        $label = $row['label'];
+        $os_arr[] = ['label' => $label, 'value' => $label];
+    }
     $json_os = json_encode($os_arr);
 }
 
@@ -373,7 +376,7 @@ if (mysqli_num_rows($os_sql) > 0) {
                                 Name <?php if ($sort == 'asset_name') { echo $order_icon; } ?>
                             </a>
                         </th>
-                        <?php if ($_GET['type'] !== 'virtual' && $_GET['type'] !== 'servers') { ?>
+                        <?php if ($_GET['type'] !== 'virtual' && $_GET['type'] !== 'server') { ?>
                             <th>
                                 <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=asset_type&order=<?php echo $disp; ?>">
                                     Type <?php if ($sort == 'asset_type') { echo $order_icon; } ?>
@@ -434,7 +437,7 @@ if (mysqli_num_rows($os_sql) > 0) {
                                 </a>
                             </th>
                         <?php } ?>
-                        <?php if ($_GET['type'] !== 'network' && $_GET['type'] !== 'servers' && $_GET['type'] !== 'other') { ?>
+                        <?php if ($_GET['type'] !== 'network' && $_GET['type'] !== 'server' && $_GET['type'] !== 'other') { ?>
                             <th>
                                 <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=contact_name&order=<?php echo $disp; ?>">
                                     Assigned To <?php if ($sort == 'contact_name') { echo $order_icon; } ?>
@@ -473,9 +476,9 @@ if (mysqli_num_rows($os_sql) > 0) {
                         $asset_name = nullable_htmlentities($row['asset_name']);
                         $asset_description = nullable_htmlentities($row['asset_description']);
                         if ($asset_description) {
-                            $asset_description_display = "-";
-                        } else {
                             $asset_description_display = $asset_description;
+                        } else {
+                            $asset_description_display = "-";
                         }
                         $asset_make = nullable_htmlentities($row['asset_make']);
                         $asset_model = nullable_htmlentities($row['asset_model']);
@@ -586,7 +589,7 @@ if (mysqli_num_rows($os_sql) > 0) {
                                 </a>
                             </td>
 
-                            <?php if ($_GET['type'] !== 'virtual' && $_GET['type'] !== 'servers') { ?>
+                            <?php if ($_GET['type'] !== 'virtual' && $_GET['type'] !== 'server') { ?>
                                 <td><?php echo $asset_type; ?></td>
                             <?php } ?>
                             <?php if ($_GET['type'] !== 'virtual') { ?>
@@ -618,7 +621,7 @@ if (mysqli_num_rows($os_sql) > 0) {
                             <?php if (isset($_GET['show_column']) && is_array($_GET['show_column']) && in_array('Warranty_Expire', $_GET['show_column'])) { ?>
                                 <td><?php echo $asset_warranty_expire_display; ?></td>
                             <?php } ?>
-                            <?php if ($_GET['type'] !== 'network' && $_GET['type'] !== 'other' && $_GET['type'] !== 'servers') { ?>
+                            <?php if ($_GET['type'] !== 'network' && $_GET['type'] !== 'other' && $_GET['type'] !== 'server') { ?>
                                 <td><?php echo $contact_name_display; ?></td>
                             <?php } ?>
                             <td>
@@ -650,7 +653,7 @@ if (mysqli_num_rows($os_sql) > 0) {
                                             <?php } ?>
                                             <?php if ($asset_uri_client) { ?>
                                             <div class="dropdown-divider"></div>
-                                            <a href="<?php echo $asset_uri_2; ?>" target="_blank" class="dropdown-item" >
+                                            <a href="<?php echo $asset_uri_client; ?>" target="_blank" class="dropdown-item" >
                                                 <i class="fa fa-fw fa-external-link-alt mr-2"></i>Client URI: <?php echo truncate($asset_uri_client,40); ?>
                                             </a>
                                             <?php } ?>
