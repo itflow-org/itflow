@@ -480,9 +480,11 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                                     <i class="fas fa-fw fa-edit mr-2"></i>Edit
                                                 </a>
                                                 <div class="dropdown-divider"></div>
+                                                <?php if ($client_url) { ?>
                                                 <a class="dropdown-item" href="#" data-toggle="modal" data-target="#shareModal" onclick="populateShareModal(<?php echo "$client_id, 'Credential', $credential_id"; ?>)">
                                                     <i class="fas fa-fw fa-share mr-2"></i>Share
                                                 </a>
+                                                <? } ?>
                                                 <?php  if (lookupUserPermission("module_credential") >= 2) { ?>
                                                     <?php if ($credential_archived_at) { ?>
                                                         <div class="dropdown-divider"></div>
@@ -533,9 +535,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 <?php
 
 require_once "modals/credential/credential_add.php";
-require_once "modals/share_modal.php";
 require_once "modals/credential/credential_export.php";
 if ($client_url) {
     require_once "modals/credential/credential_import.php";
+    require_once "modals/share_modal.php";
 }
 require_once "../includes/footer.php";
