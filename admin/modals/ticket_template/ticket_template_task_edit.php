@@ -1,6 +1,6 @@
 <?php
 
-require_once '../../includes/modal_header.php';
+require_once '../../../includes/modal_header_new.php';
 
 $task_template_id = intval($_GET['id']);
 
@@ -59,4 +59,4 @@ ob_start();
 
 <?php
 
-require_once '../../includes/modal_footer.php';
+require_once '../../../includes/modal_footer_new.php';

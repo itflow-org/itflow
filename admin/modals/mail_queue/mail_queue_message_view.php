@@ -1,6 +1,6 @@
 <?php
 
-require_once '../../includes/modal_header.php';
+require_once '../../../includes/modal_header_new.php';
 
 if (!isset($session_is_admin) || !$session_is_admin) {
     exit(WORDING_ROLECHECK_FAILED . "<br>Tell your admin: Your role does not have admin access.");
@@ -9,7 +9,7 @@ if (!isset($session_is_admin) || !$session_is_admin) {
 $email_id = intval($_GET['id']);
 
 //Initialize the HTML Purifier to prevent XSS
-require "../../plugins/htmlpurifier/HTMLPurifier.standalone.php";
+require "../../../plugins/htmlpurifier/HTMLPurifier.standalone.php";
 
 $purifier_config = HTMLPurifier_Config::createDefault();
 $purifier_config->set('Cache.DefinitionImpl', null); // Disable cache by setting a non-existent directory or an invalid one
@@ -76,4 +76,4 @@ ob_start();
 <script src="../../js/pretty_content.js"></script>
 
 <?php
-require_once '../../includes/modal_footer.php';
+require_once '../../../includes/modal_footer_new.php';

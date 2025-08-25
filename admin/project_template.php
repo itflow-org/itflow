@@ -125,7 +125,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                     <?php
 
-                    require "modals/admin_project_template_edit_modal.php";
+                    require "modals/project_template/project_template_edit.php";
 
                 }
 
@@ -140,6 +140,6 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 </div>
 
 <?php
-require_once "modals/admin_project_template_add_modal.php";
+require_once "modals/project_template/project_template_add.php";
 
 require_once "../includes/footer.php";

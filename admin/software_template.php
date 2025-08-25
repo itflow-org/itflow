@@ -80,7 +80,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     ?>
                     <tr>
                         <td>
-                            <a class="text-dark" href="#" data-toggle="ajax-modal" data-ajax-url="ajax/ajax_software_template_edit.php" data-ajax-id="<?php echo $software_template_id; ?>">
+                            <a class="text-dark ajax-modal" href="#" data-modal-url="modals/software_template/software_template_edit.php?id=<?= $software_template_id ?>">
                                 <div class="media">
                                     <i class="fa fa-fw fa-2x fa-cube mr-3"></i>
                                     <div class="media-body">
@@ -98,7 +98,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                     <i class="fas fa-ellipsis-h"></i>
                                 </button>
                                 <div class="dropdown-menu">
-                                    <a class="dropdown-item" href="#" data-toggle="ajax-modal" data-ajax-url="ajax/ajax_software_template_edit.php" data-ajax-id="<?php echo $software_template_id; ?>">
+                                    <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/software_template/software_template_edit.php?id=<?= $software_template_id ?>">
                                         <i class="fas fa-fw fa-edit mr-2"></i>Edit
                                     </a>
                                     <?php if($session_user_role == 3) { ?>
@@ -127,5 +127,5 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 </div>
 
 <?php
-require_once "modals/admin_software_template_add_modal.php";
+require_once "modals/software_template/software_template_add.php";
 require_once "../includes/footer.php";

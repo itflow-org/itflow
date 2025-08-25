@@ -92,11 +92,8 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         ?>
                         <tr>
                             <th>
-                                <a class="text-dark" href="#"
-                                    data-toggle="ajax-modal"
-                                    data-ajax-url="ajax/ajax_vendor_template_edit.php"
-                                    data-ajax-id="<?php echo $vendor_template_id; ?>"
-                                    >
+                                <a class="text-dark ajax-modal" href="#"
+                                    data-modal-url="modals/vendor_template/vendor_template_edit.php?id=<?= $vendor_template_id ?>">
                                     <i class="fa fa-fw fa-building text-secondary mr-2"></i><?php echo $vendor_template_name; ?>
                                 </a>
                                 <?php
@@ -137,11 +134,8 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                         <i class="fas fa-ellipsis-h"></i>
                                     </button>
                                     <div class="dropdown-menu">
-                                        <a class="dropdown-item" href="#"
-                                            data-toggle="ajax-modal"
-                                            data-ajax-url="ajax/ajax_vendor_template_edit.php"
-                                            data-ajax-id="<?php echo $vendor_template_id; ?>"
-                                            >
+                                        <a class="dropdown-item ajax-modal" href="#"
+                                            data-modal-url="modals/vendor_template/vendor_template_edit.php?id=<?= $vendor_template_id ?>">
                                             <i class="fas fa-fw fa-edit mr-2"></i>Edit
                                         </a>
                                         <?php if ($session_user_role == 3) { ?>
@@ -170,5 +164,5 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
     </div>
 
 <?php
-require_once "modals/admin_vendor_template_add_modal.php";
+require_once "modals/vendor_template/vendor_template_add.php";
 require_once "../includes/footer.php";

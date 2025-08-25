@@ -170,7 +170,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
     <script src="../js/bulk_actions.js"></script>
 
 <?php
-require_once "modals/admin_api_key_add_modal.php";
+require_once "modals/api/api_key_add.php";
 
 require_once "../includes/footer.php";
 

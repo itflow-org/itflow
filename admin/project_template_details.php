@@ -164,7 +164,7 @@ if (isset($_GET['project_template_id'])) {
                                     </form>
                                 </td>
                                 <td>
-                                    <a href="admin_ticket_template_details.php?ticket_template_id=<?php echo $ticket_template_id; ?>">
+                                    <a href="ticket_template_details.php?ticket_template_id=<?php echo $ticket_template_id; ?>">
                                         <?php echo $ticket_template_name; ?>
                                     </a>
                                 </td>
@@ -222,8 +222,8 @@ if (isset($_GET['project_template_id'])) {
 
 <?php
 
-require_once "modals/admin_project_template_edit_modal.php";
-require_once "modals/admin_project_template_ticket_template_add_modal.php";
+require_once "modals/project_template/project_template_edit.php";
+require_once "modals/project_template/project_template_ticket_template_add.php";
 
 }
 

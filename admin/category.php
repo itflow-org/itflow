@@ -119,11 +119,8 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         ?>
                         <tr>
                             <td>
-                                <a class="text-dark" href="#" 
-                                    data-toggle="ajax-modal"
-                                    data-ajax-url="ajax/ajax_category_edit.php"
-                                    data-ajax-id="<?php echo $category_id; ?>"
-                                    >
+                                <a class="text-dark ajax-modal" href="#"
+                                    data-modal-url="modals/category/category_edit.php?id=<?= $category_id ?>">
                                     <?php echo $category_name; ?>
                                 </a>
                             </td>
@@ -148,11 +145,8 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                             <?php
                                         } else {
                                             ?>
-                                            <a class="dropdown-item" href="#"
-                                                data-toggle="ajax-modal"
-                                                data-ajax-url="ajax/ajax_category_edit.php"
-                                                data-ajax-id="<?php echo $category_id; ?>"
-                                                >
+                                            <a class="dropdown-item ajax-modal" href="#"
+                                                data-modal-url="modals/category/category_edit.php?id=<?= $category_id ?>">
                                                 <i class="fas fa-fw fa-edit mr-2"></i>Edit
                                             </a>
                                             <a class="dropdown-item text-danger confirm-link"
@@ -182,5 +176,5 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 </div>
 
 <?php
-require_once "modals/admin_category_add_modal.php";
+require_once "modals/category/category_add.php";
 require_once "../includes/footer.php";

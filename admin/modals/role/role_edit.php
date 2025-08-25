@@ -1,6 +1,6 @@
 <?php
 
-require_once '../../includes/modal_header.php';
+require_once '../../../includes/modal_header_new.php';
 
 $role_id = intval($_GET['id']);
 
@@ -150,4 +150,4 @@ ob_start();
 </form>
 
 <?php
-require_once '../../includes/modal_footer.php';
+require_once '../../../includes/modal_footer_new.php';

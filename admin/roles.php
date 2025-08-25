@@ -95,8 +95,8 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         ?>
                         <tr>
                             <td>
-                                <a class="text-dark text-bold" href="#" <?php if ($role_id !== 3) { ?> data-toggle="ajax-modal" data-ajax-url="ajax/ajax_role_edit.php" data-ajax-id="<?php echo $role_id; ?>" <?php } ?>>
-                                    <?php echo $role_name; ?>
+                                <a href="#" <?php if ($role_id !== 3) { ?> class="ajax-modal" data-modal-url="modals/role/role_edit.php?id=<?= $role_id ?>" <?php } ?>>
+                                    <strong class="text-dark"><?php echo $role_name; ?></strong>
                                 </a>
                                 <div class="text-secondary"><?php echo $role_description; ?></div>
                             </td>
@@ -110,11 +110,8 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                         </button>
                                         <div class="dropdown-menu">
 
-                                            <a class="dropdown-item" href="#"
-                                                data-toggle="ajax-modal"
-                                                data-ajax-url="ajax/ajax_role_edit.php"
-                                                data-ajax-id="<?php echo $role_id; ?>"
-                                                >
+                                            <a class="dropdown-item ajax-modal" href="#"
+                                                data-modal-url="modals/role/role_edit.php?id=<?= $role_id ?>">
                                                 <i class="fas fa-fw fa-user-edit mr-2"></i>Edit
                                             </a>
 
@@ -147,5 +144,5 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
 <?php
 
-require_once "modals/role_add.php";
+require_once "modals/role/role_add.php";
 require_once "../includes/footer.php";

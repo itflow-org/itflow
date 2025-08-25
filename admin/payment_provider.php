@@ -82,11 +82,8 @@ $num_rows = mysqli_num_rows($sql);
                     ?>
                     <tr>
                         <td>
-                            <a class="text-dark text-bold" href="#"
-                                data-toggle="ajax-modal"
-                                data-ajax-url="ajax/ajax_payment_provider_edit.php"
-                                data-ajax-id="<?php echo $provider_id; ?>"
-                                >
+                            <a class="text-dark text-bold ajax-modal" href="#"
+                                data-modal-url="modals/payment_provider/payment_provider_edit.php?id=<?= $provider_id ?>">
                                 <?php echo $provider_name; ?>
                             </a>
                             <span class="text-secondary"><?php echo $provider_description; ?></span>
@@ -103,11 +100,8 @@ $num_rows = mysqli_num_rows($sql);
                                     <i class="fas fa-ellipsis-h"></i>
                                 </button>
                                 <div class="dropdown-menu">
-                                    <a class="dropdown-item" href="#"
-                                        data-toggle="ajax-modal"
-                                        data-ajax-url="ajax/ajax_payment_provider_edit.php"
-                                        data-ajax-id="<?php echo $provider_id; ?>"
-                                        >
+                                    <a class="dropdown-item ajax-modal" href="#"
+                                        data-modal-url="modals/payment_provider/payment_provider_edit.php?id=<?= $provider_id ?>">
                                         <i class="fas fa-fw fa-edit mr-2"></i>Edit
                                     </a>
                                     <div class="dropdown-divider"></div>
@@ -137,5 +131,5 @@ $num_rows = mysqli_num_rows($sql);
 </div>
 
 <?php
-require_once "modals/admin_payment_provider_add_modal.php";
+require_once "modals/payment_provider/payment_provider_add.php";
 require_once "../includes/footer.php";

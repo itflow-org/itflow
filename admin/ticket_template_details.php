@@ -110,11 +110,8 @@ $sql_task_templates = mysqli_query($mysqli, "SELECT * FROM task_templates WHERE 
                                             <i class="fas fa-ellipsis-v"></i>
                                         </button>
                                         <div class="dropdown-menu">
-                                            <a class="dropdown-item" href="#"
-                                                data-toggle = "ajax-modal"
-                                                data-ajax-url = "ajax/ajax_ticket_template_task_edit.php"
-                                                data-ajax-id = "<?php echo $task_id; ?>"
-                                                >
+                                            <a class="dropdown-item ajax-modal" href="#"
+                                                data-modal-url="modals/ticket_template/ticket_template_task_edit.php?id=<?= $task_id ?>">
                                                 <i class="fas fa-fw fa-edit mr-2"></i>Edit
                                             </a>
                                             <div class="dropdown-divider"></div>
@@ -162,5 +159,5 @@ new Sortable(document.querySelector('table#tasks tbody'), {
 
 <?php
 
-require_once "modals/admin_ticket_template_edit_modal.php";
+require_once "modals/ticket_template/ticket_template_edit.php";
 require_once "../includes/footer.php";

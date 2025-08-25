@@ -54,11 +54,8 @@ $num_rows = mysqli_num_rows($sql);
                     ?>
                     <tr>
                         <td>
-                            <a class="text-dark text-bold" href="#"
-                                data-toggle="ajax-modal"
-                                data-ajax-url="ajax/ajax_payment_method_edit.php"
-                                data-ajax-id="<?php echo $payment_method_id; ?>"
-                                >
+                            <a class="text-dark text-bold ajax-modal" href="#"
+                                data-modal-url="modals/payment_method/payment_method_edit.php?id=<?= $payment_method_id ?>">
                                 <?php echo $payment_method_name; ?>
                             </a>
                         </td>
@@ -70,11 +67,8 @@ $num_rows = mysqli_num_rows($sql);
                                     <i class="fas fa-ellipsis-h"></i>
                                 </button>
                                 <div class="dropdown-menu">
-                                    <a class="dropdown-item" href="#"
-                                        data-toggle="ajax-modal"
-                                        data-ajax-url="ajax/ajax_payment_method_edit.php"
-                                        data-ajax-id="<?php echo $payment_method_id; ?>"
-                                        >
+                                    <a class="dropdown-item ajax-modal" href="#"
+                                        data-modal-url="modals/payment_method/payment_method_edit.php?id=<?= $payment_method_id ?>">
                                         <i class="fas fa-fw fa-edit mr-2"></i>Edit
                                     </a>
                                     <div class="dropdown-divider"></div>
@@ -104,5 +98,5 @@ $num_rows = mysqli_num_rows($sql);
 </div>
 
 <?php
-require_once "modals/admin_payment_method_add_modal.php";
+require_once "modals/payment_method/payment_method_add.php";
 require_once "../includes/footer.php";

@@ -46,12 +46,9 @@ $document_template_updated_at = nullable_htmlentities($row['document_template_up
         <h3 class="card-title mt-2"><i class="fa fa-fw fa-file mr-2"></i><?php echo $document_template_name; ?></h3>
 
         <div class="card-tools">
-            <button type="button" class="btn btn-primary"
-                data-toggle="ajax-modal"
+            <button type="button" class="btn btn-primary ajax-modal"
                 data-modal-size="xl"
-                data-ajax-url="ajax/ajax_document_template_edit.php"
-                data-ajax-id="<?php echo $document_template_id; ?>"
-                >
+                data-modal-url="modals/document_template/document_template_edit.php?id=<?= $document_template_id ?>">
                 <i class="fas fa-edit mr-2"></i>Edit
             </button>
         </div>

@@ -83,7 +83,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         <td>
                             <a href="#" 
                                 <?php if ( $ticket_status_id > 5 ) { ?>
-                                data-toggle="ajax-modal" data-ajax-url="ajax/ajax_custom_ticket_status_edit.php" data-ajax-id="<?php echo $ticket_status_id; ?>"
+                                class="ajax-modal" data-modal-url="modals/ticket_status/ticket_status_edit.php?id=<?= $ticket_status_id ?>"
                                 <?php } ?>
                                 >
                                 <?php echo $ticket_status_name; ?>
@@ -98,7 +98,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                     <i class="fas fa-ellipsis-h"></i>
                                 </button>
                                 <div class="dropdown-menu">
-                                    <a class="dropdown-item" href="#" data-toggle="ajax-modal" data-ajax-url="ajax/ajax_custom_ticket_status_edit.php" data-ajax-id="<?php echo $ticket_status_id; ?>">
+                                    <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/ticket_status/ticket_status_edit.php?id=<?= $ticket_status_id ?>">
                                         <i class="fas fa-fw fa-edit mr-2"></i>Edit
                                     </a>
                                     <?php if (!$ticket_status_active) { ?>
@@ -126,7 +126,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 </div>
 
 <?php
-require_once "modals/admin_ticket_status_add_modal.php";
+require_once "modals/ticket_status/ticket_status_add.php";
 
 require_once "../includes/footer.php";
 

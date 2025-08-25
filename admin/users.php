@@ -148,11 +148,10 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     ?>
                     <tr>
                         <td class="text-center">
-                            <a class="text-dark" href="#" 
+                            <a href="#" 
                                 <?php if ($user_id !== $session_user_id) { // Prevent modifying self ?>
-                                data-toggle="ajax-modal"
-                                data-ajax-url="modals/user_edit.php"
-                                data-ajax-id="<?php echo $user_id; ?>"
+                                class="ajax-modal"
+                                data-modal-url="modals/user/user_edit.php?id=<?= $user_id ?>"
                                 <?php } ?>
                                 >
                                 <?php if (!empty($user_avatar)) { ?>
@@ -180,11 +179,8 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                     <i class="fas fa-ellipsis-h"></i>
                                 </button>
                                 <div class="dropdown-menu">
-                                    <a class="dropdown-item" href="#"
-                                        data-toggle="ajax-modal"
-                                        data-ajax-url="modals/user_edit.php"
-                                        data-ajax-id="<?php echo $user_id; ?>"
-                                        >
+                                    <a class="dropdown-item ajax-modal" href="#"
+                                        data-modal-url="modals/user/user_edit.php?id=<?= $user_id ?>">
                                         <i class="fas fa-fw fa-user-edit mr-2"></i>Edit
                                     </a>
                                     <?php if ($remember_token_count > 0) { ?>
@@ -212,7 +208,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                     <?php
 
-                    require "modals/user_archive.php";
+                    require "modals/user/user_archive.php";
 
                 }
 
@@ -232,8 +228,8 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 </script>
 
 <?php
-require_once "modals/user_add.php";
-require_once "modals/user_invite.php";
-require_once "modals/user_export.php";
-require_once "modals/user_all_reset_password.php";
+require_once "modals/user/user_add.php";
+require_once "modals/user/user_invite.php";
+require_once "modals/user/user_export.php";
+require_once "modals/user/user_all_reset_password.php";
 require_once "../includes/footer.php";

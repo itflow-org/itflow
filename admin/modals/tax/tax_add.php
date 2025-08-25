@@ -1,7 +1,7 @@
 <div class="modal" id="addTaxModal" tabindex="-1">
   <div class="modal-dialog">
     <div class="modal-content">
-      <div class="modal-header text-white">
+      <div class="modal-header bg-dark">
         <h5 class="modal-title"><i class="fas fa-fw fa-balance-scale mr-2"></i>New Tax</h5>
         <button type="button" class="close text-white" data-dismiss="modal">
           <span aria-hidden="true">&times;</span>

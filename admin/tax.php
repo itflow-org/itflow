@@ -53,11 +53,8 @@ $num_rows = mysqli_num_rows($sql);
                         ?>
                         <tr>
                             <td>
-                                <a class="text-dark text-bold" href="#"
-                                    data-toggle="ajax-modal"
-                                    data-ajax-url="ajax/ajax_tax_edit.php"
-                                    data-ajax-id="<?php echo $tax_id; ?>"
-                                    >
+                                <a class="text-dark text-bold ajax-modal" href="#"
+                                    data-modal-url="modals/tax/tax_edit.php?id=<?= $tax_id ?>">
                                     <?php echo $tax_name; ?>
                                 </a>
                             </td>
@@ -68,11 +65,8 @@ $num_rows = mysqli_num_rows($sql);
                                         <i class="fas fa-ellipsis-h"></i>
                                     </button>
                                     <div class="dropdown-menu">
-                                        <a class="dropdown-item" href="#"
-                                            data-toggle="ajax-modal"
-                                            data-ajax-url="ajax/ajax_tax_edit.php"
-                                            data-ajax-id="<?php echo $tax_id; ?>"
-                                            >
+                                        <a class="dropdown-item ajax-modal" href="#"
+                                            data-modal-url="modals/tax/tax_edit.php?id=<?= $tax_id ?>">
                                             <i class="fas fa-fw fa-edit mr-2"></i>Edit
                                         </a>
                                         <div class="dropdown-divider"></div>
@@ -102,7 +96,5 @@ $num_rows = mysqli_num_rows($sql);
     </div>
 
 <?php
-require_once "modals/admin_tax_add_modal.php";
-
+require_once "modals/tax/tax_add.php";
 require_once "../includes/footer.php";
-
