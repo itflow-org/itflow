@@ -1415,7 +1415,6 @@ if (isset($_POST['bulk_add_asset_ticket'])) {
 
     enforceUserPermission('module_support', 2);
 
-    $client_id = intval($_POST['bulk_client']);
     $assigned_to = intval($_POST['bulk_assigned_to']);
     if ($assigned_to == 0) {
         $ticket_status = 1;
@@ -1429,7 +1428,7 @@ if (isset($_POST['bulk_add_asset_ticket'])) {
     $project_id = intval($_POST['bulk_project']);
     $use_primary_contact = intval($_POST['use_primary_contact']);
     $ticket_template_id = intval($_POST['bulk_ticket_template_id']);
-    $billable = intval($_POST['bulk_billable']);
+    $billable = intval($_POST['bulk_billable'] ?? 0);
 
     // Check to see if adding a ticket by template
     if($ticket_template_id) {
@@ -1460,6 +1459,7 @@ if (isset($_POST['bulk_add_asset_ticket'])) {
             $row = mysqli_fetch_array($sql);
 
             $asset_name = sanitizeInput($row['asset_name']);
+            $client_id = intval($row['asset_client_id']);
 
             $subject_asset_prepended = "$asset_name - $subject";
 

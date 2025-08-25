@@ -1,3 +1,11 @@
+<?php 
+if ($client_url) {
+    $client_select_query = "AND client_id != $client_id";
+} else {
+    $client_select_query = '';
+}
+?>
+
 <div class="modal" id="bulkTransferAssetClientModal" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -17,9 +25,9 @@
                             <span class="input-group-text"><i class="fa fa-fw fa-users"></i></span>
                         </div>
                         <select class="form-control select2" name="bulk_client_id">
-                            <option value="">- Client -</option>
+                            <option value="">- Select Client -</option>
                             <?php
-                                $clients_sql = mysqli_query($mysqli, "SELECT client_id, client_name FROM clients WHERE client_id != $client_id AND client_archived_at IS NULL");
+                                $clients_sql = mysqli_query($mysqli, "SELECT client_id, client_name FROM clients WHERE client_archived_at IS NULL $client_select_query");
                         
                                 while ($row = mysqli_fetch_array($clients_sql)) {
                                     $client_id_select = intval($row["client_id"]);
