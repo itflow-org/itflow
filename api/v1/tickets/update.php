@@ -14,12 +14,6 @@ $response = ['success' => false, 'message' => ''];
 //    die(json_encode(['error' => 'Cross-origin request denied']));
 //}
 
-// Validate user permissions for this API key
-if (!$api_key_permissions['ticket_write']) {
-    http_response_code(403);
-    die(json_encode(['error' => 'API key does not have ticket write permissions']));
-}
-
 // Validate and sanitize input
 $ticket_id = filter_input(INPUT_POST, 'ticket_id', FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
 if (!$ticket_id) {
