@@ -14,24 +14,24 @@ $response = ['success' => false, 'message' => ''];
 //    die(json_encode(['error' => 'Cross-origin request denied']));
 //}
 
-// Validate and sanitize input
-$ticket_id = filter_input(INPUT_POST, 'ticket_id', FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
-if (!$ticket_id) {
+// ✅ Validate and sanitize input directly from $_POST (already JSON-decoded in validate_api_key.php)
+$ticket_id = isset($_POST['ticket_id']) ? intval($_POST['ticket_id']) : null;
+if (!$ticket_id || $ticket_id < 1) {
     http_response_code(400);
     die(json_encode(['error' => 'Valid ticket ID required']));
 }
 
-// Sanitize other inputs with proper validation
-$subject = trim(filter_input(INPUT_POST, 'subject', FILTER_SANITIZE_FULL_SPECIAL_CHARS) ?? '');
-$details = trim(filter_input(INPUT_POST, 'details', FILTER_SANITIZE_FULL_SPECIAL_CHARS) ?? '');
-$priority = filter_input(INPUT_POST, 'priority', FILTER_VALIDATE_INT, ['options' => ['min_range' => 0, 'max_range' => 5]]);
-$status = filter_input(INPUT_POST, 'status', FILTER_VALIDATE_INT, ['options' => ['min_range' => 0, 'max_range' => 10]]);
-$assigned_to = filter_input(INPUT_POST, 'assigned_to', FILTER_VALIDATE_INT, ['options' => ['min_range' => 0]]);
-$billable = filter_input(INPUT_POST, 'billable', FILTER_VALIDATE_INT, ['options' => ['min_range' => 0, 'max_range' => 1]]);
-$vendor_id = filter_input(INPUT_POST, 'vendor_id', FILTER_VALIDATE_INT, ['options' => ['min_range' => 0]]);
-$vendor_ticket = trim(filter_input(INPUT_POST, 'vendor_ticket_number', FILTER_SANITIZE_FULL_SPECIAL_CHARS) ?? '');
-$client_id = filter_input(INPUT_POST, 'client_id', FILTER_VALIDATE_INT, ['options' => ['min_range' => 0]]);
-$contact_id = filter_input(INPUT_POST, 'contact', FILTER_VALIDATE_INT, ['options' => ['min_range' => 0]]);
+// Other inputs
+$subject        = isset($_POST['subject']) ? trim($_POST['subject']) : '';
+$details        = isset($_POST['details']) ? trim($_POST['details']) : '';
+$priority       = isset($_POST['priority']) ? intval($_POST['priority']) : null;
+$status         = isset($_POST['status']) ? intval($_POST['status']) : null;
+$assigned_to    = isset($_POST['assigned_to']) ? intval($_POST['assigned_to']) : null;
+$billable       = isset($_POST['billable']) ? intval($_POST['billable']) : null;
+$vendor_id      = isset($_POST['vendor_id']) ? intval($_POST['vendor_id']) : null;
+$vendor_ticket  = isset($_POST['vendor_ticket_number']) ? trim($_POST['vendor_ticket_number']) : '';
+$client_id      = isset($_POST['client_id']) ? intval($_POST['client_id']) : null;
+$contact_id     = isset($_POST['contact']) ? intval($_POST['contact']) : null;
 
 // Rate limiting check
 //require_once '../rate_limit.php';
@@ -69,7 +69,17 @@ $updates = [];
 $params = [];
 $types = '';
 
-// ... all your existing $updates logic remains unchanged ...
+// Example of how to add fields
+if ($subject !== '') { $updates[] = "ticket_subject = ?"; $params[] = $subject; $types .= 's'; }
+if ($details !== '') { $updates[] = "ticket_details = ?"; $params[] = $details; $types .= 's'; }
+if ($priority !== null) { $updates[] = "ticket_priority = ?"; $params[] = $priority; $types .= 'i'; }
+if ($status !== null) { $updates[] = "ticket_status = ?"; $params[] = $status; $types .= 'i'; }
+if ($assigned_to !== null) { $updates[] = "ticket_assigned_to = ?"; $params[] = $assigned_to; $types .= 'i'; }
+if ($billable !== null) { $updates[] = "ticket_billable = ?"; $params[] = $billable; $types .= 'i'; }
+if ($vendor_id !== null) { $updates[] = "ticket_vendor_id = ?"; $params[] = $vendor_id; $types .= 'i'; }
+if ($vendor_ticket !== '') { $updates[] = "ticket_vendor_ticket_number = ?"; $params[] = $vendor_ticket; $types .= 's'; }
+if ($client_id !== null) { $updates[] = "ticket_client_id = ?"; $params[] = $client_id; $types .= 'i'; }
+if ($contact_id !== null) { $updates[] = "ticket_contact_id = ?"; $params[] = $contact_id; $types .= 'i'; }
 
 if (!empty($updates)) {
     $params[] = $ticket_id;
