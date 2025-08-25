@@ -484,7 +484,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                                 <a class="dropdown-item" href="#" data-toggle="modal" data-target="#shareModal" onclick="populateShareModal(<?php echo "$client_id, 'Credential', $credential_id"; ?>)">
                                                     <i class="fas fa-fw fa-share mr-2"></i>Share
                                                 </a>
-                                                <? } ?>
+                                                <?php } ?>
                                                 <?php  if (lookupUserPermission("module_credential") >= 2) { ?>
                                                     <?php if ($credential_archived_at) { ?>
                                                         <div class="dropdown-divider"></div>
