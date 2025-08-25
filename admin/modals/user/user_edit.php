@@ -1,6 +1,6 @@
 <?php
 
-require_once '../../../includes/modal_header_new.php';
+require_once '../../../includes/modal_header.php';
 
 $user_id = intval($_GET['id']);
 

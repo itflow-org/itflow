@@ -1,6 +1,6 @@
 <?php
 
-require_once '../../../includes/modal_header_new.php';
+require_once '../../../includes/modal_header.php';
 
 $custom_link_id = intval($_GET['id']);
 
@@ -96,4 +96,4 @@ ob_start();
 </form>
 
 <?php
-require_once '../../../includes/modal_footer_new.php';
+require_once '../../../includes/modal_footer.php';

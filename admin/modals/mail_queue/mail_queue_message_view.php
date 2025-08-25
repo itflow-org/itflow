@@ -1,6 +1,6 @@
 <?php
 
-require_once '../../../includes/modal_header_new.php';
+require_once '../../../includes/modal_header.php';
 
 if (!isset($session_is_admin) || !$session_is_admin) {
     exit(WORDING_ROLECHECK_FAILED . "<br>Tell your admin: Your role does not have admin access.");
@@ -76,4 +76,4 @@ ob_start();
 <script src="../../js/pretty_content.js"></script>
 
 <?php
-require_once '../../../includes/modal_footer_new.php';
+require_once '../../../includes/modal_footer.php';

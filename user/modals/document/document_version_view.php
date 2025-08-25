@@ -1,6 +1,6 @@
 <?php
 
-require_once '../../../includes/modal_header_new.php';
+require_once '../../../includes/modal_header.php';
 
 // Initialize the HTML Purifier to prevent XSS
 require_once "../../../plugins/htmlpurifier/HTMLPurifier.standalone.php";
@@ -36,4 +36,4 @@ ob_start();
 <script src="../js/pretty_content.js"></script>
 
 <?php
-require_once '../../../includes/modal_footer_new.php';
+require_once '../../../includes/modal_footer.php';

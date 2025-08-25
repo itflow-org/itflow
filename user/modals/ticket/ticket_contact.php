@@ -1,6 +1,6 @@
 <?php
 
-require_once '../../../includes/modal_header_new.php';
+require_once '../../../includes/modal_header.php';
 
 $ticket_id = intval($_GET['id']);
 
@@ -98,4 +98,4 @@ ob_start();
 
 <?php
 
-require_once '../../../includes/modal_footer_new.php';
+require_once '../../../includes/modal_footer.php';

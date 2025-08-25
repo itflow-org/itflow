@@ -1,6 +1,6 @@
 <?php
 
-require_once '../../../includes/modal_header_new.php';
+require_once '../../../includes/modal_header.php';
 
 $credential_id = intval($_GET['id']);
 
@@ -91,4 +91,4 @@ ob_start();
 <script src="js/credential_show_otp_via_id.js"></script>
 
 <?php
-require_once '../../../includes/modal_footer_new.php';
+require_once '../../../includes/modal_footer.php';
