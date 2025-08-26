@@ -225,8 +225,8 @@ if (isset($_GET['quote_id'])) {
                                     <i class="fa fa-fw fa-paper-plane text-secondary mr-2"></i>Send Email
                                 </a>
                             <?php } ?>
-                            <a class="dropdown-item" target="_blank" href="../guest/guest_view_quote.php?quote_id=<?php echo "$quote_id&url_key=$quote_url_key"; ?>">
-                                <i class="fa fa-fw fa-link text-secondary mr-2"></i>Guest URL
+                            <a class="dropdown-item clipboardjs" href="#" data-clipboard-text="https://<?= $config_base_url ?>/guest/guest_view_quote.php?quote_id=<?= "$quote_id&url_key=$quote_url_key" ?>">
+                                <i class="fa fa-fw fa-copy text-secondary mr-2"></i>Copy Guest URL
                             </a>
                             <?php if (lookupUserPermission("module_sales") >= 3) { ?>
                                 <div class="dropdown-divider"></div>

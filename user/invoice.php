@@ -331,8 +331,8 @@ if (isset($_GET['invoice_id'])) {
                                         <i class="fa fa-fw fa-paper-plane text-secondary mr-2"></i>Send Email
                                     </a>
                                 <?php } ?>
-                                <a class="dropdown-item" target="_blank" href="../guest/guest_view_invoice.php?invoice_id=<?php echo "$invoice_id&url_key=$invoice_url_key"; ?>">
-                                    <i class="fa fa-fw fa-link text-secondary mr-2"></i>Guest URL
+                                <a class="dropdown-item clipboardjs" href="#" data-clipboard-text="https://<?= $config_base_url ?>/guest/guest_view_invoice.php?invoice_id=<?php echo "$invoice_id&url_key=$invoice_url_key"; ?>">
+                                    <i class="fa fa-fw fa-copy text-secondary mr-2"></i>Copy Guest URL
                                 </a>
                                 <?php if ($invoice_status !== 'Cancelled' && $invoice_status !== 'Paid' && $invoice_status !== 'Non-Billable') { ?>
                                     <div class="dropdown-divider"></div>
