@@ -169,12 +169,6 @@
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a href="budget.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "budget.php" || basename($_SERVER["PHP_SELF"]) == "budget_edit.php") { echo "active"; } ?>">
-                            <i class="nav-icon fas fa-balance-scale"></i>
-                            <p>Budget</p>
-                        </a>
-                    </li>
-                    <li class="nav-item">
                         <a href="trips.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "trips.php") { echo "active"; } ?>">
                             <i class="nav-icon fas fa-route"></i>
                             <p>Trips</p>
