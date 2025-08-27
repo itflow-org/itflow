@@ -137,11 +137,12 @@
             <div class="ml-1 mt-1 text-secondary">Balance
                 <span class="<?php if ($balance > 0) { echo "text-danger"; }else{ echo "text-dark"; } ?> float-right"> <?php echo numfmt_format_currency($currency_format, $balance, $client_currency_code); ?></span>
             </div>
-            <?php if ($credit_balance) { ?>
+            <?php /* Credit Not Ready 2025-08-27 JQ 
+            if ($credit_balance) { ?>
             <div class="ml-1 mt-1 text-secondary">Credit
                 <span class="text-success float-right"><?php echo numfmt_format_currency($currency_format, $credit_balance, $client_currency_code); ?></span>
             </div>
-            <?php } ?>
+            <?php } */?>
             <div class="ml-1 mt-1 text-secondary">Monthly Recurring
                 <span class="text-dark float-right"> <?php echo numfmt_format_currency($currency_format, $recurring_monthly, $client_currency_code); ?></span>
             </div>
@@ -178,6 +179,6 @@
 </div>
 
 <?php
-require_once "modals/client/client_credit_add.php";
+// require_once "modals/client/client_credit_add.php"; --Credit Not Ready 2025-08-27
 require_once "modals/client/client_delete.php";
 require_once "modals/client/client_download_pdf.php";
