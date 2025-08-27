@@ -36,7 +36,7 @@ $num_rows = mysqli_num_rows($sql);
                     </th>
                     <th>
                         <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=account_name&order=<?php echo $disp; ?>">
-                            Account <?php if ($sort == 'account_name') { echo $order_icon; } ?>
+                            Expense / Income Account <?php if ($sort == 'account_name') { echo $order_icon; } ?>
                         </a>
                     </th>
                     <th>
@@ -69,8 +69,9 @@ $num_rows = mysqli_num_rows($sql);
                 while ($row = mysqli_fetch_array($sql)) {
                     $provider_id = intval($row['payment_provider_id']);
                     $provider_name = nullable_htmlentities($row['payment_provider_name']);
+                    $provider_description = nullable_htmlentities($row['payment_provider_description']);
                     $account_name = nullable_htmlentities($row['account_name']);
-                    $threshold = floatval($row['payment_provider_treshold']);
+                    $threshold = floatval($row['payment_provider_threshold']);
                     $vendor_name = nullable_htmlentities($row['vendor_name']);
                     $category = nullable_htmlentities($row['category_name']);
                     $percent_fee = floatval($row['payment_provider_expense_percentage_fee']) * 100;

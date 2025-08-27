@@ -4,15 +4,14 @@ require_once '../../../includes/modal_header.php';
 
 $provider_id = intval($_GET['id']);
 
-$sql = mysqli_query($mysqli, "SELECT * FROM payment_providers WHERE payment_provider_id = $provider_id LIMIT 1"
-);
+$sql = mysqli_query($mysqli, "SELECT * FROM payment_providers WHERE payment_provider_id = $provider_id LIMIT 1");
 
 $row = mysqli_fetch_array($sql);
 $provider_name = nullable_htmlentities($row['payment_provider_name']);
 $public_key = nullable_htmlentities($row['payment_provider_public_key']);
 $private_key = nullable_htmlentities($row['payment_provider_private_key']);
-$account_id = nullable_htmlentities($row['payment_provider_account_']);
-$threshold = floatval($row['payment_provider_treshold']);
+$account_id = nullable_htmlentities($row['payment_provider_account']);
+$threshold = floatval($row['payment_provider_threshold']);
 $vendor_id = nullable_htmlentities($row['payment_provider_expense_vendor']);
 $category_id = nullable_htmlentities($row['payment_provider_expense_category']);
 $percent_fee = floatval($row['payment_provider_expense_percentage_fee']) * 100;

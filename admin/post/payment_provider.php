@@ -18,6 +18,14 @@ if (isset($_POST['add_payment_provider'])) {
     $percentage_fee = floatval($_POST['percentage_fee']) / 100;
     $flat_fee = floatval($_POST['flat_fee']);
 
+    // Check to make sure Provider isnt added Twice
+    $sql = "SELECT 1 FROM payment_providers WHERE payment_provider_name = '$provider' LIMIT 1";
+    $result = mysqli_query($mysqli, $sql);
+    if (mysqli_num_rows($result) > 0) {
+        flash_alert("Payment Provider <strong>$provider</strong> already exists", 'error');
+        redirect();
+    }
+
     // Check for Stripe Account if not create it
     $sql_account = mysqli_query($mysqli,"SELECT account_id FROM accounts WHERE account_name = '$provider' AND account_archived_at IS NULL LIMIT 1");
     if (mysqli_num_rows($sql_account) == 0) {

@@ -3923,7 +3923,7 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
 }
 
     if (CURRENT_DATABASE_VERSION == '2.3.0') {
-        // Payment Methods from Categories Table to new payment_methods table
+        // Migrate Payment Methods from Categories Table to new payment_methods table
         $sql_categories = mysqli_query($mysqli, "SELECT * FROM categories WHERE category_type = 'Payment Method' AND category_name != 'Stripe' AND category_archived_at IS NULL");
         
         while ($row = mysqli_fetch_array($sql_categories)) {
