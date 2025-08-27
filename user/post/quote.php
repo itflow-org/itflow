@@ -680,7 +680,7 @@ if (isset($_GET['export_quote_pdf'])) {
     <tr>
         <td width="40%">';
     if (!empty($company_logo) && file_exists("../uploads/settings/$company_logo")) {
-        $html .= '<img src="../uploads/settings/' . $company_logo . '" width="120">';
+        $html .= '<img src="/uploads/settings/' . $company_logo . '" width="120">';
     }
     $html .= '</td>
         <td width="60%" align="right">
@@ -734,6 +734,9 @@ if (isset($_GET['export_quote_pdf'])) {
     </tr>';
 
     // Load items
+    $sub_total = 0;
+    $total_tax = 0;
+
     $sql_items = mysqli_query($mysqli, "SELECT * FROM invoice_items WHERE item_quote_id = $quote_id ORDER BY item_order ASC");
     while ($item = mysqli_fetch_array($sql_items)) {
         $name = $item['item_name'];
