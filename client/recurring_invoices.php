@@ -21,6 +21,13 @@ $recurring_invoices_sql = mysqli_query($mysqli, "SELECT * FROM recurring_invoice
     ORDER BY recurring_invoice_next_date DESC"
 );
 
+// Get Payment Provide Details
+$payment_provider_sql = mysqli_query($mysqli, "SELECT * FROM payment_providers WHERE payment_provider_active = 1 LIMIT 1");
+$row = mysqli_fetch_array($payment_provider_sql);
+$payment_provider_id = intval($row['payment_provider_id']);
+$payment_provider_name = nullable_htmlentities($row['payment_provider_name']);
+$payment_provider_threshold = floatval($row['payment_provider_threshold']);
+
 ?>
 
 <h3>Recurring Invoices</h3>
@@ -35,7 +42,7 @@ $recurring_invoices_sql = mysqli_query($mysqli, "SELECT * FROM recurring_invoice
                 <th>Amount</th>
                 <th>Next Bill Date</th>
                 <th>Frequency</th>
-                <?php if ($config_stripe_enable) { ?>
+                <?php if ($payment_provider_id) { ?>
                 <th>Auto Pay</th>
                 <?php } ?>
             </tr>
@@ -68,7 +75,7 @@ $recurring_invoices_sql = mysqli_query($mysqli, "SELECT * FROM recurring_invoice
                     <td><?php echo numfmt_format_currency($currency_format, $recurring_invoice_amount, $session_company_currency); ?></td>
                     <td><?php echo $recurring_invoice_next_date; ?></td>
                     <td><?php echo ucwords($recurring_invoice_frequency); ?>ly</td>
-                    <?php if ($config_stripe_enable) { ?>
+                    <?php if ($payment_provider_id) { ?>
                     <td>
                         <?php $sql = mysqli_query($mysqli, "SELECT * FROM client_saved_payment_methods WHERE saved_payment_client_id = $session_client_id");
                         if (mysqli_num_rows($sql) > 0) { ?>

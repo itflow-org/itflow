@@ -92,6 +92,7 @@ $sql = mysqli_query($mysqli, "SELECT * FROM payment_providers WHERE payment_prov
 $row = mysqli_fetch_array($sql);
 $payment_provider_id = intval($row['payment_provider_id']);
 $payment_provider_name = nullable_htmlentities($row['payment_provider_name']);
+$payment_provider_threshold = floatval($row['payment_provider_threshold']);
 
 //Set Currency Format
 $currency_format = numfmt_create($company_locale, NumberFormatter::CURRENCY);
