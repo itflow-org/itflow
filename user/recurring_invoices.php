@@ -203,21 +203,6 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     $recurring_payment_id = intval($row['recurring_payment_id']);
                     $recurring_payment_recurring_invoice_id = intval($row['recurring_payment_recurring_invoice_id']);
                     $recurring_payment_saved_payment_id = intval($row['recurring_payment_saved_payment_id']);
-                    if ($recurring_payment_recurring_invoice_id) {
-                        $auto_pay_display = "
-                            Yes
-                            <a href='post.php?delete_recurring_payment=$recurring_payment_id' title='Remove'>
-                                <i class='fas fa-fw fa-times-circle'></i>
-                            </a>
-                        ";
-                    } else {
-                        $auto_pay_display = "
-                            <a href='#' data-toggle='modal' data-target='#addRecurringPaymentModal$recurring_invoice_id'>
-                                Create
-                            </a>
-                        ";
-                        require "modals/recurring_invoice/recurring_payment_add.php";
-                    }
 
                     ?>
 
