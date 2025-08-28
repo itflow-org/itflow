@@ -43,18 +43,6 @@ $user_config_calendar_first_day = intval($row['user_config_calendar_first_day'])
                 </div>
             </div>
 
-            <?php if ($session_user_role > 1) { ?>
-
-                <div class="form-group">
-                    <div class="form-check">
-                        <input disabled="disabled" type="checkbox" class="form-check-input" name="extension" id="extension" value="Yes" <?php if (isset($_COOKIE['user_extension_key'])) {echo "checked";} ?>>
-                        <label class="form-check-label" for="extension">Enable Browser Extention?</label>
-                        <p class="small">Not currently in use / Note: You must log out and back in again for these changes take effect.</p>
-                    </div>
-                </div>
-
-            <?php } ?>
-
             <button type="submit" name="edit_your_user_preferences" class="btn btn-primary"><i class="fas fa-check mr-2"></i>Save</button>
 
         </form>
