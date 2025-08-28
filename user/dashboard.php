@@ -32,8 +32,18 @@ $sql_years_select = mysqli_query($mysqli, "
     UNION DISTINCT SELECT YEAR(user_created_at) FROM users
     ORDER BY all_years DESC
 ");
-
 ?>
+
+<!-- Responsive chart helpers -->
+<style>
+  .chart-h-320 { position: relative; height: 320px; }
+  .chart-h-240 { position: relative; height: 240px; }
+  /* If you want charts to shrink on very small screens, you can tweak with media queries:
+  @media (max-width: 576px) {
+    .chart-h-320 { height: 240px; }
+    .chart-h-240 { height: 200px; }
+  } */
+</style>
 
 <div class="card card-body">
     <form class="form-inline">
@@ -337,7 +347,9 @@ if ($user_config_dashboard_financial_enable == 1) {
                     </div>
                 </div>
                 <div class="card-body">
-                    <canvas id="cashFlow" width="100%" height="20"></canvas>
+                    <div class="chart-h-320">
+                        <canvas id="cashFlow"></canvas>
+                    </div>
                 </div>
             </div>
         </div>
@@ -353,7 +365,9 @@ if ($user_config_dashboard_financial_enable == 1) {
                     </div>
                 </div>
                 <div class="card-body">
-                    <canvas id="incomeByCategoryPieChart" width="100%" height="60"></canvas>
+                    <div class="chart-h-240">
+                        <canvas id="incomeByCategoryPieChart"></canvas>
+                    </div>
                 </div>
             </div>
         </div>
@@ -369,7 +383,9 @@ if ($user_config_dashboard_financial_enable == 1) {
                     </div>
                 </div>
                 <div class="card-body">
-                    <canvas id="expenseByCategoryPieChart" width="100%" height="60"></canvas>
+                    <div class="chart-h-240">
+                        <canvas id="expenseByCategoryPieChart"></canvas>
+                    </div>
                 </div>
             </div>
         </div>
@@ -385,7 +401,9 @@ if ($user_config_dashboard_financial_enable == 1) {
                     </div>
                 </div>
                 <div class="card-body">
-                    <canvas id="expenseByVendorPieChart" width="100%" height="60"></canvas>
+                    <div class="chart-h-240">
+                        <canvas id="expenseByVendorPieChart"></canvas>
+                    </div>
                 </div>
             </div>
         </div>
@@ -533,7 +551,9 @@ if ($user_config_dashboard_financial_enable == 1) {
                     </div>
                 </div>
                 <div class="card-body">
-                    <canvas id="tripFlow" width="100%" height="20"></canvas>
+                    <div class="chart-h-320">
+                        <canvas id="tripFlow"></canvas>
+                    </div>
                 </div>
             </div>
         </div>
@@ -739,404 +759,411 @@ if ($user_config_dashboard_technical_enable == 1) {
 <?php if ($user_config_dashboard_financial_enable == 1) { ?>
 
 <script>
-    // Set new default font family and font color to mimic Bootstrap's default styling
-    Chart.defaults.global.defaultFontFamily = '-apple-system,system-ui,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif';
-    Chart.defaults.global.defaultFontColor = '#292b2c';
+    // Bootstrap-like defaults for Chart.js v4
+    Chart.defaults.font.family = '-apple-system,system-ui,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif';
+    Chart.defaults.color = '#292b2c';
 
-    // Area Chart Example
-    var ctx = document.getElementById("cashFlow");
-    var myLineChart = new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
-            datasets: [{
-                    label: "Income",
-                    fill: false,
-                    borderColor: "#007bff",
-                    pointBackgroundColor: "#007bff",
-                    pointBorderColor: "#007bff",
-                    pointHoverRadius: 5,
-                    pointHoverBackgroundColor: "#007bff",
-                    pointHitRadius: 50,
-                    pointBorderWidth: 2,
-                    data: [
-                        <?php
-                        for ($month = 1; $month <= 12; $month++) {
-                            $sql_payments = mysqli_query($mysqli, "SELECT SUM(payment_amount) AS payment_amount_for_month FROM payments, invoices WHERE payment_invoice_id = invoice_id AND YEAR(payment_date) = $year AND MONTH(payment_date) = $month");
-                            $row = mysqli_fetch_array($sql_payments);
-                            $payments_for_month = floatval($row['payment_amount_for_month']);
+    // CASH FLOW
+    (function () {
+        var ctx = document.getElementById("cashFlow");
+        if (!ctx) return;
 
-                            $sql_revenues = mysqli_query($mysqli, "SELECT SUM(revenue_amount) AS revenue_amount_for_month FROM revenues WHERE revenue_category_id > 0 AND YEAR(revenue_date) = $year AND MONTH(revenue_date) = $month");
-                            $row = mysqli_fetch_array($sql_revenues);
-                            $revenues_for_month = floatval($row['revenue_amount_for_month']);
+        var myLineChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+                datasets: [
+                    {
+                        label: "Income",
+                        fill: false,
+                        borderColor: "#007bff",
+                        pointBackgroundColor: "#007bff",
+                        pointBorderColor: "#007bff",
+                        pointHoverRadius: 5,
+                        pointHoverBackgroundColor: "#007bff",
+                        pointBorderWidth: 2,
+                        data: [
+                            <?php
+                            for ($month = 1; $month <= 12; $month++) {
+                                $sql_payments = mysqli_query($mysqli, "SELECT SUM(payment_amount) AS payment_amount_for_month FROM payments, invoices WHERE payment_invoice_id = invoice_id AND YEAR(payment_date) = $year AND MONTH(payment_date) = $month");
+                                $row = mysqli_fetch_array($sql_payments);
+                                $payments_for_month = floatval($row['payment_amount_for_month']);
 
-                            $income_for_month = $payments_for_month + $revenues_for_month;
+                                $sql_revenues = mysqli_query($mysqli, "SELECT SUM(revenue_amount) AS revenue_amount_for_month FROM revenues WHERE revenue_category_id > 0 AND YEAR(revenue_date) = $year AND MONTH(revenue_date) = $month");
+                                $row = mysqli_fetch_array($sql_revenues);
+                                $revenues_for_month = floatval($row['revenue_amount_for_month']);
 
-                            if ($income_for_month > 0 && $income_for_month > $largest_income_month) {
-                                $largest_income_month = $income_for_month;
+                                $income_for_month = $payments_for_month + $revenues_for_month;
+
+                                if ($income_for_month > 0 && $income_for_month > $largest_income_month) {
+                                    $largest_income_month = $income_for_month;
+                                }
+                                echo "$income_for_month,";
                             }
-                        ?>
-                            <?php echo "$income_for_month,"; ?>
-                        <?php } ?>
-                    ],
-                },
-                {
-                    label: "LY Income",
-                    fill: false,
-                    borderColor: "#9932CC",
-                    pointBackgroundColor: "#9932CC",
-                    pointBorderColor: "#9932CC",
-                    pointHoverRadius: 5,
-                    pointHoverBackgroundColor: "#9932CC",
-                    pointHitRadius: 50,
-                    pointBorderWidth: 2,
-                    data: [
-                        <?php
-                        for ($month = 1; $month <= 12; $month++) {
-                            $sql_payments = mysqli_query($mysqli, "SELECT SUM(payment_amount) AS payment_amount_for_month FROM payments, invoices WHERE payment_invoice_id = invoice_id AND YEAR(payment_date) = $year-1 AND MONTH(payment_date) = $month");
-                            $row = mysqli_fetch_array($sql_payments);
-                            $payments_for_month = floatval($row['payment_amount_for_month']);
-
-                            $sql_revenues = mysqli_query($mysqli, "SELECT SUM(revenue_amount) AS revenue_amount_for_month FROM revenues WHERE revenue_category_id > 0 AND YEAR(revenue_date) = $year-1 AND MONTH(revenue_date) = $month");
-                            $row = mysqli_fetch_array($sql_revenues);
-                            $revenues_for_month = floatval($row['revenue_amount_for_month']);
-
-                            $income_for_month = $payments_for_month + $revenues_for_month;
-
-                            if ($income_for_month > 0 && $income_for_month > $largest_income_month) {
-                                $largest_income_month = $income_for_month;
-                            }
-                        ?>
-                            <?php echo "$income_for_month,"; ?>
-                        <?php } ?>
-                    ],
-                },
-                {
-                    label: "Projected",
-                    fill: false,
-                    borderColor: "black",
-                    pointBackgroundColor: "black",
-                    pointBorderColor: "black",
-                    pointHoverRadius: 5,
-                    pointHoverBackgroundColor: "black",
-                    pointHitRadius: 50,
-                    pointBorderWidth: 2,
-                    data: [
-                        <?php
-                        $largest_invoice_month = 0;
-                        for ($month = 1; $month <= 12; $month++) {
-                            $sql_projected = mysqli_query($mysqli, "SELECT SUM(invoice_amount) AS invoice_amount_for_month FROM invoices WHERE YEAR(invoice_due) = $year AND MONTH(invoice_due) = $month AND invoice_status != 'Cancelled' AND invoice_status != 'Draft' AND invoice_status != 'Non-Billable'");
-                            $row = mysqli_fetch_array($sql_projected);
-                            $invoice_for_month = floatval($row['invoice_amount_for_month']);
-
-                            if ($invoice_for_month > 0 && $invoice_for_month > $largest_invoice_month) {
-                                $largest_invoice_month = $invoice_for_month;
-                            }
-                        ?>
-                            <?php echo "$invoice_for_month,"; ?>
-                        <?php } ?>
-                    ],
-                },
-                {
-                    label: "Expense",
-                    lineTension: 0.3,
-                    fill: false,
-                    borderColor: "#dc3545",
-                    pointBackgroundColor: "#dc3545",
-                    pointBorderColor: "#dc3545",
-                    pointHoverRadius: 5,
-                    pointHoverBackgroundColor: "#dc3545",
-                    pointHitRadius: 50,
-                    pointBorderWidth: 2,
-                    data: [
-                        <?php
-                        $largest_expense_month = 0;
-                        for ($month = 1; $month <= 12; $month++) {
-                            $sql_expenses = mysqli_query($mysqli, "SELECT SUM(expense_amount) AS expense_amount_for_month FROM expenses WHERE YEAR(expense_date) = $year AND MONTH(expense_date) = $month AND expense_vendor_id > 0");
-                            $row = mysqli_fetch_array($sql_expenses);
-                            $expenses_for_month = floatval($row['expense_amount_for_month']);
-
-                            if ($expenses_for_month > 0 && $expenses_for_month > $largest_expense_month) {
-                                $largest_expense_month = $expenses_for_month;
-                            }
-                        ?>
-                            <?php echo "$expenses_for_month,"; ?>
-                        <?php } ?>
-                    ],
-                }
-            ],
-        },
-        options: {
-            scales: {
-                xAxes: [{
-                    time: {
-                        unit: 'date'
+                            ?>
+                        ],
                     },
-                    gridLines: {
-                        display: false
+                    {
+                        label: "LY Income",
+                        fill: false,
+                        borderColor: "#9932CC",
+                        pointBackgroundColor: "#9932CC",
+                        pointBorderColor: "#9932CC",
+                        pointHoverRadius: 5,
+                        pointHoverBackgroundColor: "#9932CC",
+                        pointBorderWidth: 2,
+                        data: [
+                            <?php
+                            for ($month = 1; $month <= 12; $month++) {
+                                $sql_payments = mysqli_query($mysqli, "SELECT SUM(payment_amount) AS payment_amount_for_month FROM payments, invoices WHERE payment_invoice_id = invoice_id AND YEAR(payment_date) = $year-1 AND MONTH(payment_date) = $month");
+                                $row = mysqli_fetch_array($sql_payments);
+                                $payments_for_month = floatval($row['payment_amount_for_month']);
+
+                                $sql_revenues = mysqli_query($mysqli, "SELECT SUM(revenue_amount) AS revenue_amount_for_month FROM revenues WHERE revenue_category_id > 0 AND YEAR(revenue_date) = $year-1 AND MONTH(revenue_date) = $month");
+                                $row = mysqli_fetch_array($sql_revenues);
+                                $revenues_for_month = floatval($row['revenue_amount_for_month']);
+
+                                $income_for_month = $payments_for_month + $revenues_for_month;
+
+                                if ($income_for_month > 0 && $income_for_month > $largest_income_month) {
+                                    $largest_income_month = $income_for_month;
+                                }
+                                echo "$income_for_month,";
+                            }
+                            ?>
+                        ],
                     },
-                    ticks: {
-                        maxTicksLimit: 12
+                    {
+                        label: "Projected",
+                        fill: false,
+                        borderColor: "black",
+                        pointBackgroundColor: "black",
+                        pointBorderColor: "black",
+                        pointHoverRadius: 5,
+                        pointHoverBackgroundColor: "black",
+                        pointBorderWidth: 2,
+                        data: [
+                            <?php
+                            $largest_invoice_month = 0;
+                            for ($month = 1; $month <= 12; $month++) {
+                                $sql_projected = mysqli_query($mysqli, "SELECT SUM(invoice_amount) AS invoice_amount_for_month FROM invoices WHERE YEAR(invoice_due) = $year AND MONTH(invoice_due) = $month AND invoice_status != 'Cancelled' AND invoice_status != 'Draft' AND invoice_status != 'Non-Billable'");
+                                $row = mysqli_fetch_array($sql_projected);
+                                $invoice_for_month = floatval($row['invoice_amount_for_month']);
+
+                                if ($invoice_for_month > 0 && $invoice_for_month > $largest_invoice_month) {
+                                    $largest_invoice_month = $invoice_for_month;
+                                }
+                                echo "$invoice_for_month,";
+                            }
+                            ?>
+                        ],
+                    },
+                    {
+                        label: "Expense",
+                        tension: 0.3, // v4 name; v2 used lineTension
+                        fill: false,
+                        borderColor: "#dc3545",
+                        pointBackgroundColor: "#dc3545",
+                        pointBorderColor: "#dc3545",
+                        pointHoverRadius: 5,
+                        pointHoverBackgroundColor: "#dc3545",
+                        pointBorderWidth: 2,
+                        data: [
+                            <?php
+                            $largest_expense_month = 0;
+                            for ($month = 1; $month <= 12; $month++) {
+                                $sql_expenses = mysqli_query($mysqli, "SELECT SUM(expense_amount) AS expense_amount_for_month FROM expenses WHERE YEAR(expense_date) = $year AND MONTH(expense_date) = $month AND expense_vendor_id > 0");
+                                $row = mysqli_fetch_array($sql_expenses);
+                                $expenses_for_month = floatval($row['expense_amount_for_month']);
+
+                                if ($expenses_for_month > 0 && $expenses_for_month > $largest_expense_month) {
+                                    $largest_expense_month = $expenses_for_month;
+                                }
+                                echo "$expenses_for_month,";
+                            }
+                            ?>
+                        ],
                     }
-                }],
-                yAxes: [{
-                    ticks: {
-                        min: 0,
-                        max: <?php $max = max(1000, $largest_expense_month, $largest_income_month, $largest_invoice_month);
-                                echo roundUpToNearestMultiple($max); ?>,
-                        maxTicksLimit: 5
-                    },
-                    gridLines: {
-                        color: "rgba(0, 0, 0, .125)",
-                    }
-                }],
+                ],
             },
-            legend: {
-                display: true
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: {
+                        grid: { display: false },
+                        ticks: { maxTicksLimit: 12 }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        min: 0,
+                        max: <?php $max = max(1000, $largest_expense_month, $largest_income_month, $largest_invoice_month); echo roundUpToNearestMultiple($max); ?>,
+                        ticks: { maxTicksLimit: 5 },
+                        grid: { color: "rgba(0, 0, 0, .125)" }
+                    }
+                },
+                plugins: {
+                    legend: { display: true }
+                }
             }
-        }
-    });
+        });
+    })();
 
-    // Set new default font family and font color to mimic Bootstrap's default styling
-    Chart.defaults.global.defaultFontFamily = '-apple-system,system-ui,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif';
-    Chart.defaults.global.defaultFontColor = '#292b2c';
+    // TRIP FLOW
+    (function () {
+        var ctx = document.getElementById("tripFlow");
+        if (!ctx) return;
 
-    // Area Chart Example
-    var ctx = document.getElementById("tripFlow");
-    var myLineChart = new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
-            datasets: [{
-                label: "Trip",
-                lineTension: 0.3,
-                backgroundColor: "red",
-                borderColor: "darkred",
-                pointRadius: 5,
-                pointBackgroundColor: "red",
-                pointBorderColor: "red",
-                pointHoverRadius: 5,
-                pointHoverBackgroundColor: "darkred",
-                pointHitRadius: 50,
-                pointBorderWidth: 2,
-                data: [
-                    <?php
-                    $largest_trip_miles_month = 0;
-                    for ($month = 1; $month <= 12; $month++) {
-                        $sql_trips = mysqli_query($mysqli, "SELECT SUM(trip_miles) AS trip_miles_for_month FROM trips WHERE YEAR(trip_date) = $year AND MONTH(trip_date) = $month");
-                        $row = mysqli_fetch_array($sql_trips);
-                        $trip_miles_for_month = floatval($row['trip_miles_for_month']);
+        var myLineChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+                datasets: [{
+                    label: "Trip",
+                    tension: 0.3,
+                    fill: false,
+                    backgroundColor: "red",
+                    borderColor: "darkred",
+                    pointRadius: 5,
+                    pointBackgroundColor: "red",
+                    pointBorderColor: "red",
+                    pointHoverRadius: 5,
+                    pointHoverBackgroundColor: "darkred",
+                    pointBorderWidth: 2,
+                    data: [
+                        <?php
+                        $largest_trip_miles_month = 0;
+                        for ($month = 1; $month <= 12; $month++) {
+                            $sql_trips = mysqli_query($mysqli, "SELECT SUM(trip_miles) AS trip_miles_for_month FROM trips WHERE YEAR(trip_date) = $year AND MONTH(trip_date) = $month");
+                            $row = mysqli_fetch_array($sql_trips);
+                            $trip_miles_for_month = floatval($row['trip_miles_for_month']);
 
-                        if ($trip_miles_for_month > 0 && $trip_miles_for_month > $largest_trip_miles_month) {
-                            $largest_trip_miles_month = $trip_miles_for_month;
+                            if ($trip_miles_for_month > 0 && $trip_miles_for_month > $largest_trip_miles_month) {
+                                $largest_trip_miles_month = $trip_miles_for_month;
+                            }
+                            echo "$trip_miles_for_month,";
                         }
-                    ?>
-                        <?php echo "$trip_miles_for_month,"; ?>
-                    <?php } ?>
-                ],
-            }],
-        },
-        options: {
-            scales: {
-                xAxes: [{
-                    time: {
-                        unit: 'date'
-                    },
-                    gridLines: {
-                        display: false
-                    },
-                    ticks: {
-                        maxTicksLimit: 12
-                    }
-                }],
-                yAxes: [{
-                    ticks: {
-                        min: 0,
-                        max: <?php $max = max(1000, $largest_trip_miles_month);
-                                echo roundUpToNearestMultiple($max); ?>,
-                        maxTicksLimit: 5
-                    },
-                    gridLines: {
-                        color: "rgba(0, 0, 0, .125)",
-                    }
+                        ?>
+                    ],
                 }],
             },
-            legend: {
-                display: false
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: {
+                        grid: { display: false },
+                        ticks: { maxTicksLimit: 12 }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        min: 0,
+                        max: <?php $max = max(1000, $largest_trip_miles_month); echo roundUpToNearestMultiple($max); ?>,
+                        ticks: { maxTicksLimit: 5 },
+                        grid: { color: "rgba(0, 0, 0, .125)" }
+                    },
+                },
+                plugins: {
+                    legend: { display: false }
+                }
             }
-        }
-    });
+        });
+    })();
 
-    // Pie Chart Example
-    var ctx = document.getElementById("incomeByCategoryPieChart");
-    var myPieChart = new Chart(ctx, {
-        type: 'doughnut',
-        data: {
-            labels: [
-                <?php
-                mysqli_query($mysqli, "CREATE TEMPORARY TABLE TopCategories SELECT category_name, category_id, SUM(invoice_amount) AS total_income FROM categories, invoices WHERE invoice_category_id = category_id AND invoice_status = 'Paid' AND YEAR(invoice_date) = $year GROUP BY category_name, category_id ORDER BY total_income DESC LIMIT 5");
-                $sql_categories = mysqli_query($mysqli, "SELECT category_name FROM TopCategories");
-                while ($row = mysqli_fetch_array($sql_categories)) {
-                    $category_name = json_encode($row['category_name']);
-                    echo "$category_name,";
-                }
+    // INCOME BY CATEGORY (Doughnut)
+    (function () {
+        var ctx = document.getElementById("incomeByCategoryPieChart");
+        if (!ctx) return;
 
-                $sql_other_categories = mysqli_query($mysqli, "SELECT SUM(invoices.invoice_amount) AS other_income FROM categories LEFT JOIN TopCategories ON categories.category_id = TopCategories.category_id INNER JOIN invoices ON categories.category_id = invoices.invoice_category_id WHERE TopCategories.category_id IS NULL AND invoice_status = 'Paid' AND YEAR(invoice_date) = $year");
-                $row = mysqli_fetch_array($sql_other_categories);
-                $other_income = floatval($row['other_income']);
-                if ($other_income > 0) {
-                    echo "'Others',";
-                }
-                ?>
-            ],
-            datasets: [{
-                data: [
+        var myPieChart = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: [
                     <?php
-                    $sql_categories = mysqli_query($mysqli, "SELECT total_income FROM TopCategories");
+                    mysqli_query($mysqli, "CREATE TEMPORARY TABLE TopCategories SELECT category_name, category_id, SUM(invoice_amount) AS total_income FROM categories, invoices WHERE invoice_category_id = category_id AND invoice_status = 'Paid' AND YEAR(invoice_date) = $year GROUP BY category_name, category_id ORDER BY total_income DESC LIMIT 5");
+                    $sql_categories = mysqli_query($mysqli, "SELECT category_name FROM TopCategories");
                     while ($row = mysqli_fetch_array($sql_categories)) {
-                        $total_income = floatval($row['total_income']);
-                        echo "$total_income,";
+                        $category_name = json_encode($row['category_name']);
+                        echo "$category_name,";
                     }
+
+                    $sql_other_categories = mysqli_query($mysqli, "SELECT SUM(invoices.invoice_amount) AS other_income FROM categories LEFT JOIN TopCategories ON categories.category_id = TopCategories.category_id INNER JOIN invoices ON categories.category_id = invoices.invoice_category_id WHERE TopCategories.category_id IS NULL AND invoice_status = 'Paid' AND YEAR(invoice_date) = $year");
+                    $row = mysqli_fetch_array($sql_other_categories);
+                    $other_income = floatval($row['other_income']);
                     if ($other_income > 0) {
-                        echo "$other_income,";
+                        echo "'Others',";
                     }
                     ?>
                 ],
-                backgroundColor: [
-                    <?php
-                    $sql_categories = mysqli_query($mysqli, "SELECT category_color FROM TopCategories JOIN categories ON TopCategories.category_id = categories.category_id");
-                    while ($row = mysqli_fetch_array($sql_categories)) {
-                        $category_color = json_encode($row['category_color']);
-                        echo "$category_color,";
+                datasets: [{
+                    data: [
+                        <?php
+                        $sql_categories = mysqli_query($mysqli, "SELECT total_income FROM TopCategories");
+                        while ($row = mysqli_fetch_array($sql_categories)) {
+                            $total_income = floatval($row['total_income']);
+                            echo "$total_income,";
+                        }
+                        if ($other_income > 0) {
+                            echo "$other_income,";
+                        }
+                        ?>
+                    ],
+                    backgroundColor: [
+                        <?php
+                        $sql_categories = mysqli_query($mysqli, "SELECT category_color FROM TopCategories JOIN categories ON TopCategories.category_id = categories.category_id");
+                        while ($row = mysqli_fetch_array($sql_categories)) {
+                            $category_color = json_encode($row['category_color']);
+                            echo "$category_color,";
+                        }
+                        if ($other_income > 0) {
+                            echo "'#999999',"; // color for 'Others'
+                        }
+                        ?>
+                    ],
+                }],
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'right'
                     }
-                    if ($other_income > 0) {
-                        echo "'#999999',"; // color for 'Others' category
-                    }
-                    ?>
-                ],
-            }],
-        },
-        options: {
-            legend: {
-                display: true,
-                position: 'right'
+                }
             }
-        }
-    });
+        });
+    })();
 
-    // Pie Chart Example
-    var ctx = document.getElementById("expenseByCategoryPieChart");
-    var myPieChart = new Chart(ctx, {
-        type: 'doughnut',
-        data: {
-            labels: [
-                <?php
-                mysqli_query($mysqli, "CREATE TEMPORARY TABLE TopExpenseCategories SELECT category_name, category_id, SUM(expense_amount) AS total_expense FROM categories, expenses WHERE expense_category_id = category_id AND expense_vendor_id > 0 AND YEAR(expense_date) = $year GROUP BY category_name, category_id ORDER BY total_expense DESC LIMIT 5");
-                $sql_categories = mysqli_query($mysqli, "SELECT category_name FROM TopExpenseCategories");
-                while ($row = mysqli_fetch_array($sql_categories)) {
-                    $category_name = json_encode($row['category_name']);
-                    echo "$category_name,";
-                }
+    // EXPENSE BY CATEGORY (Doughnut)
+    (function () {
+        var ctx = document.getElementById("expenseByCategoryPieChart");
+        if (!ctx) return;
 
-                $sql_other_categories = mysqli_query($mysqli, "SELECT SUM(expenses.expense_amount) AS other_expense FROM categories LEFT JOIN TopExpenseCategories ON categories.category_id = TopExpenseCategories.category_id INNER JOIN expenses ON categories.category_id = expenses.expense_category_id WHERE TopExpenseCategories.category_id IS NULL AND expense_vendor_id > 0 AND YEAR(expense_date) = $year");
-                $row = mysqli_fetch_array($sql_other_categories);
-                $other_expense = floatval($row['other_expense']);
-                if ($other_expense > 0) {
-                    echo "'Others',";
-                }
-                ?>
-            ],
-            datasets: [{
-                data: [
+        var myPieChart = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: [
                     <?php
-                    $sql_categories = mysqli_query($mysqli, "SELECT total_expense FROM TopExpenseCategories");
+                    mysqli_query($mysqli, "CREATE TEMPORARY TABLE TopExpenseCategories SELECT category_name, category_id, SUM(expense_amount) AS total_expense FROM categories, expenses WHERE expense_category_id = category_id AND expense_vendor_id > 0 AND YEAR(expense_date) = $year GROUP BY category_name, category_id ORDER BY total_expense DESC LIMIT 5");
+                    $sql_categories = mysqli_query($mysqli, "SELECT category_name FROM TopExpenseCategories");
                     while ($row = mysqli_fetch_array($sql_categories)) {
-                        $total_expense = floatval($row['total_expense']);
-                        echo "$total_expense,";
+                        $category_name = json_encode($row['category_name']);
+                        echo "$category_name,";
                     }
+
+                    $sql_other_categories = mysqli_query($mysqli, "SELECT SUM(expenses.expense_amount) AS other_expense FROM categories LEFT JOIN TopExpenseCategories ON categories.category_id = TopExpenseCategories.category_id INNER JOIN expenses ON categories.category_id = expenses.expense_category_id WHERE TopExpenseCategories.category_id IS NULL AND expense_vendor_id > 0 AND YEAR(expense_date) = $year");
+                    $row = mysqli_fetch_array($sql_other_categories);
+                    $other_expense = floatval($row['other_expense']);
                     if ($other_expense > 0) {
-                        echo "$other_expense,";
+                        echo "'Others',";
                     }
                     ?>
                 ],
-                backgroundColor: [
-                    <?php
-                    $sql_categories = mysqli_query($mysqli, "SELECT category_color FROM TopExpenseCategories JOIN categories ON TopExpenseCategories.category_id = categories.category_id");
-                    while ($row = mysqli_fetch_array($sql_categories)) {
-                        $category_color = json_encode($row['category_color']);
-                        echo "$category_color,";
+                datasets: [{
+                    data: [
+                        <?php
+                        $sql_categories = mysqli_query($mysqli, "SELECT total_expense FROM TopExpenseCategories");
+                        while ($row = mysqli_fetch_array($sql_categories)) {
+                            $total_expense = floatval($row['total_expense']);
+                            echo "$total_expense,";
+                        }
+                        if ($other_expense > 0) {
+                            echo "$other_expense,";
+                        }
+                        ?>
+                    ],
+                    backgroundColor: [
+                        <?php
+                        $sql_categories = mysqli_query($mysqli, "SELECT category_color FROM TopExpenseCategories JOIN categories ON TopExpenseCategories.category_id = categories.category_id");
+                        while ($row = mysqli_fetch_array($sql_categories)) {
+                            $category_color = json_encode($row['category_color']);
+                            echo "$category_color,";
+                        }
+                        if ($other_expense > 0) {
+                            echo "'#999999',"; // color for 'Others'
+                        }
+                        ?>
+                    ],
+                }],
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'right'
                     }
-                    if ($other_expense > 0) {
-                        echo "'#999999',"; // color for 'Others' category
-                    }
-                    ?>
-                ],
-            }],
-        },
-        options: {
-            legend: {
-                display: true,
-                position: 'right'
+                }
             }
-        }
-    });
+        });
+    })();
 
-    // Pie Chart Example
-    var ctx = document.getElementById("expenseByVendorPieChart");
-    var myPieChart = new Chart(ctx, {
-        type: 'doughnut',
-        data: {
-            labels: [
-                <?php
-                mysqli_query($mysqli, "CREATE TEMPORARY TABLE TopVendors SELECT vendor_name, vendor_id, SUM(expense_amount) AS total_expense FROM vendors, expenses WHERE expense_vendor_id = vendor_id AND YEAR(expense_date) = $year GROUP BY vendor_name, vendor_id ORDER BY total_expense DESC LIMIT 5");
-                $sql_vendors = mysqli_query($mysqli, "SELECT vendor_name FROM TopVendors");
-                while ($row = mysqli_fetch_array($sql_vendors)) {
-                    $vendor_name = json_encode($row['vendor_name']);
-                    echo "$vendor_name,";
-                }
+    // EXPENSE BY VENDOR (Doughnut)
+    (function () {
+        var ctx = document.getElementById("expenseByVendorPieChart");
+        if (!ctx) return;
 
-                $sql_other_vendors = mysqli_query($mysqli, "SELECT SUM(expenses.expense_amount) AS other_expense FROM vendors LEFT JOIN TopVendors ON vendors.vendor_id = TopVendors.vendor_id INNER JOIN expenses ON vendors.vendor_id = expenses.expense_vendor_id WHERE TopVendors.vendor_id IS NULL AND YEAR(expense_date) = $year");
-                $row = mysqli_fetch_array($sql_other_vendors);
-                $other_expense = floatval($row['other_expense']);
-                if ($other_expense > 0) {
-                    echo "'Others',";
-                }
-                ?>
-            ],
-            datasets: [{
-                data: [
+        var myPieChart = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: [
                     <?php
-                    $sql_vendors = mysqli_query($mysqli, "SELECT total_expense FROM TopVendors");
+                    mysqli_query($mysqli, "CREATE TEMPORARY TABLE TopVendors SELECT vendor_name, vendor_id, SUM(expense_amount) AS total_expense FROM vendors, expenses WHERE expense_vendor_id = vendor_id AND YEAR(expense_date) = $year GROUP BY vendor_name, vendor_id ORDER BY total_expense DESC LIMIT 5");
+                    $sql_vendors = mysqli_query($mysqli, "SELECT vendor_name FROM TopVendors");
                     while ($row = mysqli_fetch_array($sql_vendors)) {
-                        $total_expense = floatval($row['total_expense']);
-                        echo "$total_expense,";
+                        $vendor_name = json_encode($row['vendor_name']);
+                        echo "$vendor_name,";
                     }
+
+                    $sql_other_vendors = mysqli_query($mysqli, "SELECT SUM(expenses.expense_amount) AS other_expense FROM vendors LEFT JOIN TopVendors ON vendors.vendor_id = TopVendors.vendor_id INNER JOIN expenses ON vendors.vendor_id = expenses.expense_vendor_id WHERE TopVendors.vendor_id IS NULL AND YEAR(expense_date) = $year");
+                    $row = mysqli_fetch_array($sql_other_vendors);
+                    $other_expense = floatval($row['other_expense']);
                     if ($other_expense > 0) {
-                        echo "$other_expense,";
+                        echo "'Others',";
                     }
                     ?>
                 ],
-                backgroundColor: [
-                    <?php
-                    $sql_vendors = mysqli_query($mysqli, "SELECT vendor_id FROM TopVendors");
-                    while ($row = mysqli_fetch_array($sql_vendors)) {
-                        // Generate random color for each vendor
-                        echo "'#" . substr(md5(rand()), 0, 6) . "',";
+                datasets: [{
+                    data: [
+                        <?php
+                        $sql_vendors = mysqli_query($mysqli, "SELECT total_expense FROM TopVendors");
+                        while ($row = mysqli_fetch_array($sql_vendors)) {
+                            $total_expense = floatval($row['total_expense']);
+                            echo "$total_expense,";
+                        }
+                        if ($other_expense > 0) {
+                            echo "$other_expense,";
+                        }
+                        ?>
+                    ],
+                    backgroundColor: [
+                        <?php
+                        $sql_vendors = mysqli_query($mysqli, "SELECT vendor_id FROM TopVendors");
+                        while ($row = mysqli_fetch_array($sql_vendors)) {
+                            // Generate random color for each vendor
+                            echo "'#" . substr(md5(rand()), 0, 6) . "',";
+                        }
+                        if ($other_expense > 0) {
+                            echo "'#999999',"; // color for 'Others'
+                        }
+                        ?>
+                    ],
+                }],
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'right'
                     }
-                    if ($other_expense > 0) {
-                        echo "'#999999',"; // color for 'Others' vendor
-                    }
-                    ?>
-                ],
-            }],
-        },
-        options: {
-            legend: {
-                display: true,
-                position: 'right'
+                }
             }
-        }
-    });
+        });
+    })();
 </script>
 
 <?php } ?>

@@ -14,7 +14,16 @@ $sql_ticket_years = mysqli_query($mysqli, "SELECT DISTINCT YEAR(ticket_created_a
 
 $sql_tickets = mysqli_query($mysqli, "SELECT ticket_id FROM tickets");
 
+// Track largest month for chart y-axis max
+$largest_ticket_month = 0;
+
 ?>
+
+<!-- Responsive chart helpers -->
+<style>
+  .chart-h-320 { position: relative; height: 320px; }
+  @media (max-width: 576px) { .chart-h-320 { height: 260px; } }
+</style>
 
 <div class="card card-dark">
     <div class="card-header py-2">
@@ -29,12 +38,16 @@ $sql_tickets = mysqli_query($mysqli, "SELECT ticket_id FROM tickets");
                 <?php
                 while ($row = mysqli_fetch_array($sql_ticket_years)) {
                     $ticket_year = intval($row['ticket_year']); ?>
-                    <option <?php if ($year == $ticket_year) { ?> selected <?php } ?> > <?php echo $ticket_year; ?></option>
+                    <option <?php if ($year == $ticket_year) { ?> selected <?php } ?>><?php echo $ticket_year; ?></option>
                 <?php } ?>
             </select>
         </form>
 
-        <canvas id="tickets" width="100%" height="20"></canvas>
+        <div class="px-3 pb-3">
+            <div class="chart-h-320">
+                <canvas id="tickets"></canvas>
+            </div>
+        </div>
 
         <div class="table-responsive-sm">
             <table class="table table-striped">
@@ -58,22 +71,21 @@ $sql_tickets = mysqli_query($mysqli, "SELECT ticket_id FROM tickets");
                 <tbody>
 
                 <?php
-
                 $total_tickets_for_all_months = 0;
 
-                for ($month = 1; $month<=12; $month++) {
+                for ($month = 1; $month <= 12; $month++) {
 
                     $sql_tickets = mysqli_query($mysqli, "SELECT COUNT(ticket_id) AS tickets_for_month FROM tickets WHERE YEAR(ticket_created_at) = $year AND MONTH(ticket_created_at) = $month");
                     $row = mysqli_fetch_array($sql_tickets);
                     $tickets_for_month = intval($row['tickets_for_month']);
 
-                    $total_tickets_for_all_months = $tickets_for_month + $total_tickets_for_all_months;
-                    ?>
+                    if ($tickets_for_month > 0 && $tickets_for_month > $largest_ticket_month) {
+                        $largest_ticket_month = $tickets_for_month;
+                    }
 
+                    $total_tickets_for_all_months += $tickets_for_month; ?>
                     <td class="text-right"><?php echo $tickets_for_month; ?></td>
-
                 <?php } ?>
-
 
                 <td class="text-right"><b><?php echo $total_tickets_for_all_months; ?></b></td>
 
@@ -83,79 +95,69 @@ $sql_tickets = mysqli_query($mysqli, "SELECT ticket_id FROM tickets");
     </div>
 </div>
 
-<?php require_once "../includes/footer.php";
- ?>
+<?php require_once "../includes/footer.php"; ?>
 
 <script>
-    // Set new default font family and font color to mimic Bootstrap's default styling
-    Chart.defaults.global.defaultFontFamily = '-apple-system,system-ui,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif';
-    Chart.defaults.global.defaultFontColor = '#292b2c';
+    // Bootstrap-like defaults for Chart.js v4
+    Chart.defaults.font.family = '-apple-system,system-ui,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif';
+    Chart.defaults.color = '#292b2c';
 
-    // Area Chart Example
-    var ctx = document.getElementById("tickets");
-    var myLineChart = new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
-            datasets: [{
-                label: "Tickets Raised",
-                fill: false,
-                borderColor: "#007bff",
-                pointBackgroundColor: "#007bff",
-                pointBorderColor: "#007bff",
-                pointHoverRadius: 5,
-                pointHoverBackgroundColor: "#007bff",
-                pointHitRadius: 50,
-                pointBorderWidth: 2,
-                data: [
-                    <?php
+    (function () {
+        var ctx = document.getElementById("tickets");
+        if (!ctx) return;
 
-                    $largest_ticket_month = 0;
-
-                    for ($month = 1; $month<=12; $month++) {
-
-                        $sql_tickets = mysqli_query($mysqli, "SELECT COUNT(ticket_id) AS tickets_for_month FROM tickets WHERE YEAR(ticket_created_at) = $year AND MONTH(ticket_created_at) = $month");
-                        $row = mysqli_fetch_array($sql_tickets);
-                        $tickets_for_month = intval($row['tickets_for_month']);
-
-                        if ($tickets_for_month > 0 && $tickets_for_month > $largest_ticket_month) {
-                            $largest_ticket_month = $tickets_for_month;
-                        }
-
-                        echo "$tickets_for_month,";
-                    }
-                    ?>
-
-                ],
-            }],
-        },
-        options: {
-            scales: {
-                xAxes: [{
-                    time: {
-                        unit: 'date'
-                    },
-                    gridLines: {
-                        display: false
-                    },
-                    ticks: {
-                        maxTicksLimit: 12
-                    }
-                }],
-                yAxes: [{
-                    ticks: {
-                        min: 0,
-                        max: <?php echo $largest_ticket_month ?>,
-                        maxTicksLimit: 5
-                    },
-                    gridLines: {
-                        color: "rgba(0, 0, 0, .125)",
-                    }
-                }],
-            },
-            legend: {
-                display: false
+        var dataPoints = [
+            <?php
+            // Recompute for the chart dataset (values already gathered above, but we echo directly again)
+            for ($month = 1; $month <= 12; $month++) {
+                $sql_tickets = mysqli_query($mysqli, "SELECT COUNT(ticket_id) AS tickets_for_month FROM tickets WHERE YEAR(ticket_created_at) = $year AND MONTH(ticket_created_at) = $month");
+                $row = mysqli_fetch_array($sql_tickets);
+                $tickets_for_month = intval($row['tickets_for_month']);
+                echo "$tickets_for_month,";
             }
-        }
-    });
+            ?>
+        ];
+
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"],
+                datasets: [{
+                    label: "Tickets Raised",
+                    fill: false,
+                    borderColor: "#007bff",
+                    pointBackgroundColor: "#007bff",
+                    pointBorderColor: "#007bff",
+                    pointHoverRadius: 5,
+                    pointHoverBackgroundColor: "#007bff",
+                    pointBorderWidth: 2,
+                    data: dataPoints
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: {
+                        grid: { display: false },
+                        ticks: { maxTicksLimit: 12 }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        min: 0,
+                        max: <?php
+                            // use your helper if available, otherwise largest_ticket_month as-is
+                            $max = max(5, $largest_ticket_month);
+                            echo function_exists('roundUpToNearestMultiple') ? roundUpToNearestMultiple($max) : $max;
+                        ?>,
+                        ticks: { maxTicksLimit: 5, precision: 0 },
+                        grid: { color: "rgba(0, 0, 0, .125)" }
+                    }
+                },
+                plugins: {
+                    legend: { display: false }
+                }
+            }
+        });
+    })();
 </script>

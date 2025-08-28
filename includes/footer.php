@@ -23,7 +23,7 @@ if (basename(dirname($_SERVER['REQUEST_URI'])) === 'admin') { ?>
 
 <!-- Custom js-->
 <script src="../plugins/moment/moment.min.js"></script>
-<script src="../plugins/chart.js/Chart.min.js"></script>
+<script src="../plugins/chart.js/chart.umd.min.js"></script>
 <script src="../plugins/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4.min.js"></script>
 <script src="../plugins/daterangepicker/daterangepicker.js"></script>
 <script src="../plugins/select2/js/select2.min.js"></script>

@@ -1,5 +1,5 @@
 /*!
-FullCalendar Standard Bundle v6.1.17
+FullCalendar Standard Bundle v6.1.19
 Docs & License: https://fullcalendar.io/docs/initialize-globals
 (c) 2024 Adam Shaw
 */
@@ -1363,6 +1363,7 @@ var FullCalendar = (function (exports) {
         viewDidMount: identity,
         viewWillUnmount: identity,
         nowIndicator: Boolean,
+        nowIndicatorSnap: identity,
         nowIndicatorClassNames: identity,
         nowIndicatorContent: identity,
         nowIndicatorDidMount: identity,
@@ -1545,6 +1546,7 @@ var FullCalendar = (function (exports) {
         eventMinWidth: 30,
         eventShortHeight: 30,
         monthStartFormat: { month: 'long', day: 'numeric' },
+        nowIndicatorSnap: 'auto',
     };
     // calendar listeners
     // ------------------
@@ -1765,6 +1767,25 @@ var FullCalendar = (function (exports) {
         if (oldProps === newProps) {
             return true;
         }
+        // if (debug) {
+        //   for (let key in newProps) {
+        //     if (key in oldProps && isObjValsEqual(oldProps[key], newProps[key], equalityFuncs[key])) {
+        //       // equal
+        //     } else {
+        //       if (debug) {
+        //         console.log('prop difference', key, oldProps[key], newProps[key])
+        //       }
+        //     }
+        //   }
+        //   // check for props that were omitted in the new
+        //   for (let key in oldProps) {
+        //     if (!(key in newProps)) {
+        //       if (debug) {
+        //         console.log('prop absent', key)
+        //       }
+        //     }
+        //   }
+        // }
         for (let key in newProps) {
             if (key in oldProps && isObjValsEqual(oldProps[key], newProps[key], equalityFuncs[key])) ;
             else {
@@ -2355,13 +2376,14 @@ var FullCalendar = (function (exports) {
 
     /* eslint max-classes-per-file: off */
     class PureComponent extends x$1 {
+        // debug: boolean
         shouldComponentUpdate(nextProps, nextState) {
-            if (this.debug) {
-                // eslint-disable-next-line no-console
-                console.log(getUnequalProps(nextProps, this.props), getUnequalProps(nextState, this.state));
-            }
-            return !compareObjs(this.props, nextProps, this.propEquality) ||
-                !compareObjs(this.state, nextState, this.stateEquality);
+            const shouldUpdate = !compareObjs(this.props, nextProps, this.propEquality /*, this.debug */) ||
+                !compareObjs(this.state, nextState, this.stateEquality /*, this.debug */);
+            // if (this.debug && shouldUpdate) {
+            //   console.log('shouldUpdate!')
+            // }
+            return shouldUpdate;
         }
         // HACK for freakin' React StrictMode
         safeSetState(newState) {
@@ -2601,10 +2623,10 @@ var FullCalendar = (function (exports) {
             let { props, context } = this;
             let { options } = context;
             let renderProps = { view: context.viewApi };
-            return (y(ContentContainer, Object.assign({}, props, { elTag: props.elTag || 'div', elClasses: [
+            return (y(ContentContainer, { elRef: props.elRef, elTag: props.elTag || 'div', elAttrs: props.elAttrs, elClasses: [
                     ...buildViewClassNames(props.viewSpec),
                     ...(props.elClasses || []),
-                ], renderProps: renderProps, classNameGenerator: options.viewClassNames, generatorName: undefined, didMount: options.viewDidMount, willUnmount: options.viewWillUnmount }), () => props.children));
+                ], elStyle: props.elStyle, renderProps: renderProps, classNameGenerator: options.viewClassNames, generatorName: undefined, didMount: options.viewDidMount, willUnmount: options.viewWillUnmount }, () => props.children));
         }
     }
     function buildViewClassNames(viewSpec) {
@@ -4781,14 +4803,30 @@ var FullCalendar = (function (exports) {
         computeTiming() {
             let { props, context } = this;
             let unroundedNow = context.nowManager.getDateMarker();
-            let currentUnitStart = context.dateEnv.startOf(unroundedNow, props.unit);
-            let nextUnitStart = context.dateEnv.add(currentUnitStart, createDuration(1, props.unit));
-            let waitMs = nextUnitStart.valueOf() - unroundedNow.valueOf();
+            let { nowIndicatorSnap } = context.options;
+            if (nowIndicatorSnap === 'auto') {
+                nowIndicatorSnap =
+                    // large unit?
+                    /year|month|week|day/.test(props.unit) ||
+                        // if slotDuration 30 mins for example, would NOT appear to snap (legacy behavior)
+                        (props.unitValue || 1) === 1;
+            }
+            let nowDate;
+            let waitMs;
+            if (nowIndicatorSnap) {
+                nowDate = context.dateEnv.startOf(unroundedNow, props.unit); // aka currentUnitStart
+                let nextUnitStart = context.dateEnv.add(nowDate, createDuration(1, props.unit));
+                waitMs = nextUnitStart.valueOf() - unroundedNow.valueOf();
+            }
+            else {
+                nowDate = unroundedNow;
+                waitMs = 1000 * 60; // 1 minute
+            }
             // there is a max setTimeout ms value (https://stackoverflow.com/a/3468650/96342)
             // ensure no longer than a day
             waitMs = Math.min(1000 * 60 * 60 * 24, waitMs);
             return {
-                state: { nowDate: currentUnitStart, todayRange: buildDayRange(currentUnitStart) },
+                state: { nowDate, todayRange: buildDayRange(nowDate) },
                 waitMs,
             };
         }
@@ -7059,8 +7097,11 @@ var FullCalendar = (function (exports) {
     class EventContainer extends BaseComponent {
         constructor() {
             super(...arguments);
+            // memo
+            this.buildPublicEvent = memoize((context, eventDef, eventInstance) => new EventImpl(context, eventDef, eventInstance));
             this.handleEl = (el) => {
                 this.el = el;
+                setRef(this.props.elRef, el);
                 if (el) {
                     setElSeg(el, this.props.seg);
                 }
@@ -7073,7 +7114,7 @@ var FullCalendar = (function (exports) {
             const { eventRange } = seg;
             const { ui } = eventRange;
             const renderProps = {
-                event: new EventImpl(context, eventRange.def, eventRange.instance),
+                event: this.buildPublicEvent(context, eventRange.def, eventRange.instance),
                 view: context.viewApi,
                 timeText: props.timeText,
                 textColor: ui.textColor,
@@ -7092,11 +7133,11 @@ var FullCalendar = (function (exports) {
                 isDragging: Boolean(props.isDragging),
                 isResizing: Boolean(props.isResizing),
             };
-            return (y(ContentContainer, Object.assign({}, props /* contains children */, { elRef: this.handleEl, elClasses: [
+            return (y(ContentContainer, { elRef: this.handleEl, elTag: props.elTag, elAttrs: props.elAttrs, elClasses: [
                     ...getEventClassNames(renderProps),
                     ...seg.eventRange.ui.classNames,
                     ...(props.elClasses || []),
-                ], renderProps: renderProps, generatorName: "eventContent", customGenerator: options.eventContent, defaultGenerator: props.defaultGenerator, classNameGenerator: options.eventClassNames, didMount: options.eventDidMount, willUnmount: options.eventWillUnmount })));
+                ], elStyle: props.elStyle, renderProps: renderProps, generatorName: "eventContent", customGenerator: options.eventContent, defaultGenerator: props.defaultGenerator, classNameGenerator: options.eventClassNames, didMount: options.eventDidMount, willUnmount: options.eventWillUnmount }, props.children));
         }
         componentDidUpdate(prevProps) {
             if (this.el && this.props.seg !== prevProps.seg) {
@@ -7123,6 +7164,9 @@ var FullCalendar = (function (exports) {
                 Boolean(eventContentArg.isEndResizable) && (y("div", { className: "fc-event-resizer fc-event-resizer-end" }))))));
         }
     }
+    StandardEvent.addPropsEquality({
+        seg: isPropsEqual,
+    });
     function renderInnerContent$1$1(innerProps) {
         return (y("div", { className: "fc-event-main-frame" },
             innerProps.timeText && (y("div", { className: "fc-event-time" }, innerProps.timeText)),
@@ -7137,7 +7181,7 @@ var FullCalendar = (function (exports) {
             date: context.dateEnv.toDate(props.date),
             view: context.viewApi,
         };
-        return (y(ContentContainer, Object.assign({}, props /* includes children */, { elTag: props.elTag || 'div', renderProps: renderProps, generatorName: "nowIndicatorContent", customGenerator: options.nowIndicatorContent, classNameGenerator: options.nowIndicatorClassNames, didMount: options.nowIndicatorDidMount, willUnmount: options.nowIndicatorWillUnmount })));
+        return (y(ContentContainer, { elRef: props.elRef, elTag: props.elTag || 'div', elAttrs: props.elAttrs, elClasses: props.elClasses, elStyle: props.elStyle, renderProps: renderProps, generatorName: "nowIndicatorContent", customGenerator: options.nowIndicatorContent, classNameGenerator: options.nowIndicatorClassNames, didMount: options.nowIndicatorDidMount, willUnmount: options.nowIndicatorWillUnmount }, props.children));
     }));
 
     const DAY_NUM_FORMAT = createFormatter({ day: 'numeric' });
@@ -7160,12 +7204,12 @@ var FullCalendar = (function (exports) {
                 dateEnv: context.dateEnv,
                 monthStartFormat: options.monthStartFormat,
             });
-            return (y(ContentContainer, Object.assign({}, props /* includes children */, { elClasses: [
+            return (y(ContentContainer, { elRef: props.elRef, elTag: props.elTag, elAttrs: Object.assign(Object.assign({}, props.elAttrs), (renderProps.isDisabled ? {} : { 'data-date': formatDayString(props.date) })), elClasses: [
                     ...getDayClassNames(renderProps, context.theme),
                     ...(props.elClasses || []),
-                ], elAttrs: Object.assign(Object.assign({}, props.elAttrs), (renderProps.isDisabled ? {} : { 'data-date': formatDayString(props.date) })), renderProps: renderProps, generatorName: "dayCellContent", customGenerator: options.dayCellContent, defaultGenerator: props.defaultGenerator, classNameGenerator: 
+                ], elStyle: props.elStyle, renderProps: renderProps, generatorName: "dayCellContent", customGenerator: options.dayCellContent, defaultGenerator: props.defaultGenerator, classNameGenerator: 
                 // don't use custom classNames if disabled
-                renderProps.isDisabled ? undefined : options.dayCellClassNames, didMount: options.dayCellDidMount, willUnmount: options.dayCellWillUnmount })));
+                renderProps.isDisabled ? undefined : options.dayCellClassNames, didMount: options.dayCellDidMount, willUnmount: options.dayCellWillUnmount }, props.children));
         }
     }
     function hasCustomDayCellContent(options) {
@@ -7202,7 +7246,7 @@ var FullCalendar = (function (exports) {
         let text = dateEnv.format(date, format);
         let renderProps = { num, text, date };
         return (y(ContentContainer // why isn't WeekNumberContentArg being auto-detected?
-        , Object.assign({}, props /* includes children */, { renderProps: renderProps, generatorName: "weekNumberContent", customGenerator: options.weekNumberContent, defaultGenerator: renderInner, classNameGenerator: options.weekNumberClassNames, didMount: options.weekNumberDidMount, willUnmount: options.weekNumberWillUnmount })));
+        , { elRef: props.elRef, elTag: props.elTag, elAttrs: props.elAttrs, elClasses: props.elClasses, elStyle: props.elStyle, renderProps: renderProps, generatorName: "weekNumberContent", customGenerator: options.weekNumberContent, defaultGenerator: renderInner, classNameGenerator: options.weekNumberClassNames, didMount: options.weekNumberDidMount, willUnmount: options.weekNumberWillUnmount }, props.children));
     }));
     function renderInner(innerProps) {
         return innerProps.text;
@@ -8724,6 +8768,17 @@ var FullCalendar = (function (exports) {
         let dayMarker = startOfDay(framingRange.start);
         let endMarker = framingRange.end;
         let instanceStarts = [];
+        // https://github.com/fullcalendar/fullcalendar/issues/7934
+        if (startTime) {
+            if (startTime.milliseconds < 0) {
+                // possible for next-day to have negative business hours that go into current day
+                endMarker = addDays(endMarker, 1);
+            }
+            else if (startTime.milliseconds >= 1000 * 60 * 60 * 24) {
+                // possible for prev-day to have >24hr business hours that go into current day
+                dayMarker = addDays(dayMarker, -1);
+            }
+        }
         while (dayMarker < endMarker) {
             let instanceStart;
             // if everyday, or this particular day-of-week
@@ -9908,7 +9963,7 @@ var FullCalendar = (function (exports) {
         return sliceEventStore(props.eventStore, props.eventUiBases, props.dateProfile.activeRange, allDay ? props.nextDayThreshold : null).fg;
     }
 
-    const version = '6.1.17';
+    const version = '6.1.19';
 
     config.touchMouseIgnoreWait = 500;
     let ignoreMouseDepth = 0;
@@ -12748,7 +12803,7 @@ var FullCalendar = (function (exports) {
         constructor() {
             super(...arguments);
             this.splitBusinessHourSegs = memoize(splitSegsByRow);
-            this.splitBgEventSegs = memoize(splitSegsByRow);
+            this.splitBgEventSegs = memoize(splitAllDaySegsByRow);
             this.splitFgEventSegs = memoize(splitSegsByRow);
             this.splitDateSelectionSegs = memoize(splitSegsByRow);
             this.splitEventDrag = memoize(splitInteractionByRow);
@@ -12772,7 +12827,7 @@ var FullCalendar = (function (exports) {
             return (y(NowTimer, { unit: "day" }, (nowDate, todayRange) => (y(_, null, props.cells.map((cells, row) => (y(TableRow, { ref: this.rowRefs.createRef(row), key: cells.length
                     ? cells[0].date.toISOString() /* best? or put key on cell? or use diff formatter? */
                     : row // in case there are no cells (like when resource view is loading)
-                , showDayNumbers: rowCnt > 1, showWeekNumbers: props.showWeekNumbers, todayRange: todayRange, dateProfile: props.dateProfile, cells: cells, renderIntro: props.renderRowIntro, businessHourSegs: businessHourSegsByRow[row], eventSelection: props.eventSelection, bgEventSegs: bgEventSegsByRow[row].filter(isSegAllDay) /* hack */, fgEventSegs: fgEventSegsByRow[row], dateSelectionSegs: dateSelectionSegsByRow[row], eventDrag: eventDragByRow[row], eventResize: eventResizeByRow[row], dayMaxEvents: props.dayMaxEvents, dayMaxEventRows: props.dayMaxEventRows, clientWidth: props.clientWidth, clientHeight: props.clientHeight, cellMinHeight: cellMinHeight, forPrint: props.forPrint })))))));
+                , showDayNumbers: rowCnt > 1, showWeekNumbers: props.showWeekNumbers, todayRange: todayRange, dateProfile: props.dateProfile, cells: cells, renderIntro: props.renderRowIntro, businessHourSegs: businessHourSegsByRow[row], eventSelection: props.eventSelection, bgEventSegs: bgEventSegsByRow[row], fgEventSegs: fgEventSegsByRow[row], dateSelectionSegs: dateSelectionSegsByRow[row], eventDrag: eventDragByRow[row], eventResize: eventResizeByRow[row], dayMaxEvents: props.dayMaxEvents, dayMaxEventRows: props.dayMaxEventRows, clientWidth: props.clientWidth, clientHeight: props.clientHeight, cellMinHeight: cellMinHeight, forPrint: props.forPrint })))))));
         }
         componentDidMount() {
             this.registerInteractiveComponent();
@@ -12840,6 +12895,9 @@ var FullCalendar = (function (exports) {
             let end = addDays(start, 1);
             return { start, end };
         }
+    }
+    function splitAllDaySegsByRow(segs, rowCnt) {
+        return splitSegsByRow(segs.filter(isSegAllDay), rowCnt);
     }
     function isSegAllDay(seg) {
         return seg.eventRange.def.allDay;
