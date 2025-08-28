@@ -215,8 +215,7 @@ ob_start();
                     </select>
                     <div class="input-group-append">
                         <button class="btn btn-secondary ajax-modal" type="button"
-                            data-modal-size="sm"
-                            data-modal-url="../admin/ajax/ajax_category_add.php?category=Expense">
+                            data-modal-url="../admin/modals/category/category_add.php?category=Expense">
                             <i class="fas fa-plus"></i>
                         </button>
                     </div>

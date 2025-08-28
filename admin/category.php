@@ -34,7 +34,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
             if (!isset($_GET['archived'])) {
         ?>
         <div class="card-tools">
-            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addCategoryModal"><i
+            <button type="button" class="btn btn-primary ajax-modal" data-modal-url="modals/category/category_add.php?category=<?= nullable_htmlentities($category) ?>"><i
                     class="fas fa-plus mr-2"></i>New <?php echo nullable_htmlentities($category); ?> Category</button>
         </div>
         <?php
@@ -176,5 +176,4 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 </div>
 
 <?php
-require_once "modals/category/category_add.php";
 require_once "../includes/footer.php";

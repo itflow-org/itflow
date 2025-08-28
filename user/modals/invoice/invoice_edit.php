@@ -77,10 +77,8 @@ ob_start();
                     ?>
                 </select>
                 <div class="input-group-append">
-                    <button class="btn btn-secondary" type="button"
-                        data-toggle="ajax-modal"
-                        data-modal-size="sm"
-                        data-ajax-url="../admin/ajax/ajax_category_add.php?category=Income">
+                    <button class="btn btn-secondary ajax-modal" type="button"
+                        data-modal-url="../admin/modals/category/category_add.php?category=Income">
                         <i class="fas fa-fw fa-plus"></i>
                     </button>
                 </div>
