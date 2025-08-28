@@ -138,26 +138,14 @@ if (isset($_GET['recurring_invoice_id'])) {
 
             <div class="row">
 
-                <div class="col-4">
+                <div class="col-2">
                     <?php if ($recurring_invoice_email_notify) { ?>
                         <a href="post.php?recurring_invoice_email_notify=0&recurring_invoice_id=<?php echo $recurring_invoice_id; ?>" class="btn btn-primary"><i class="fas fa-fw fa-bell mr-2"></i>Email Notify</a>
                     <?php } else { ?>
                         <a href="post.php?recurring_invoice_email_notify=1&recurring_invoice_id=<?php echo $recurring_invoice_id; ?>" class="btn btn-outline-danger"><i class="fas fa-fw fa-bell-slash mr-2"></i>Email Notify</a>
                     <?php } ?>
-
-                    <?php if ($recurring_payment_recurring_invoice_id) { ?>
-                        <a class="btn btn-outline-secondary" href="post.php?delete_recurring_payment=<?php echo $recurring_payment_id; ?>">
-                            <i class="fas fa-fw fa-times-circle mr-2"></i>Disable AutoPay (<?php echo $recurring_payment_method ?>)
-                        </a>
-                    <?php } else { ?>
-                        <a class="btn btn-secondary" href='#' data-toggle="modal" data-target="#addRecurringPaymentModal<?php echo $recurring_invoice_id; ?>">
-                            <i class="fas fa-fw fa-redo-alt mr-2"></i>Create AutoPay
-                        </a>
-                        <?php require_once "modals/recurring_invoice/recurring_payment_add.php"; ?>
-
-                    <?php } ?>
                 </div>
-                <div class="col-4">
+                <div class="col-3">
                     <?php $sql_saved_payments = mysqli_query($mysqli, "SELECT * FROM client_saved_payment_methods WHERE saved_payment_client_id = $client_id");
                     if (mysqli_num_rows($sql_saved_payments) > 0) { ?>
                         <form class="form" action="post.php" method="post">
@@ -180,12 +168,10 @@ if (isset($_GET['recurring_invoice_id'])) {
                                 </select>
                             </div>
                         </form>
-                    <?php } else { ?>
-                        <a href="saved_payment_method.php">Add a Payment Method</a>
-                    <?php } ?>  
+                    <?php } ?>
                 </div>
 
-                <div class="col-4">
+                <div class="col-7">
                     <div class="dropdown dropleft text-center float-right">
                         <button class="btn btn-secondary" type="button" data-toggle="dropdown">
                             <i class="fas fa-ellipsis-v"></i>

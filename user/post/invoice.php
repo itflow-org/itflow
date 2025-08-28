@@ -1525,59 +1525,6 @@ if (isset($_GET['email_invoice'])) {
 
 }
 
-if (isset($_POST['add_recurring_payment'])) {
-
-    $recurring_invoice_id = intval($_POST['recurring_invoice_id']);
-    $account = intval($_POST['account']);
-    $currency_code = sanitizeInput($_POST['currency_code']);
-    $payment_method = sanitizeInput($_POST['payment_method']);
-
-    // Get Recurring Info for logging and alerting
-    $sql = mysqli_query($mysqli, "SELECT * FROM recurring_invoices WHERE recurring_invoice_id = $recurring_invoice_id");
-    $row = mysqli_fetch_array($sql);
-    $recurring_invoice_prefix = sanitizeInput($row['recurring_invoice_prefix']);
-    $recurring_invoice_number = intval($row['recurring_invoice_number']);
-    $recurring_invoice_amount = floatval($row['recurring_invoice_amount']);
-    $client_id = intval($row['recurring_invoice_client_id']);
-
-    mysqli_query($mysqli,"INSERT INTO recurring_payments SET recurring_payment_currency_code = '$currency_code', recurring_payment_account_id = $account, recurring_payment_method = '$payment_method', recurring_payment_recurring_invoice_id = $recurring_invoice_id");
-
-    // Get Payment ID for reference
-    $recurring_payment_id = mysqli_insert_id($mysqli);
-
-    logAction("Recurring Invoice", "Auto Payment", "$session_name created Auto Pay for Recurring Invoice $recurring_invoice_prefix$recurring_invoice_number in the amount of " . numfmt_format_currency($currency_format, $recurring_invoice_amount, $currency_code), $client_id, $recurring_invoice_id);
-
-
-    flash_alert("Automatic Payment created for <strong>$recurring_invoice_prefix$recurring_invoice_number</strong>");
-
-    redirect();
-
-}
-
-if (isset($_GET['delete_recurring_payment'])) {
-    
-    $recurring_payment_id = intval($_GET['delete_recurring_payment']);
-
-    // Get recurring Invoice ID
-    $recurring_invoice_id = intval(getFieldById('recurring_payments', $recurring_payment_id, 'recurring_payment_recurring_invoice_id'));
-
-    // Get the invoice total and details
-    $sql = mysqli_query($mysqli,"SELECT * FROM recurring_invoices WHERE recurring_invoice_id = $recurring_invoice_id");
-    $row = mysqli_fetch_array($sql);
-    $recurring_invoice_prefix = sanitizeInput($row['recurring_invoice_prefix']);
-    $recurring_invoice_number = intval($row['recurring_invoice_number']);
-    $client_id = intval($row['recurring_invoice_client_id']);
-
-    mysqli_query($mysqli,"DELETE FROM recurring_payments WHERE recurring_payment_id = $recurring_payment_id");
-
-    logAction("Recurring Invoice", "Auto Payment", "$session_name removed auto Pay from Recurring Invoice $recurring_invoice_prefix$recurring_invoice_number", $client_id, $recurring_invoice_id);
-
-    flash_alert("Auto Payment Removed for Recurring Invoice <strong>$recurring_invoice_prefix$recurring_invoice_number</strong>", 'error');
-
-    redirect();
-
-}
-
 if (isset($_GET['force_recurring'])) {
     
     $recurring_invoice_id = intval($_GET['force_recurring']);

@@ -255,7 +255,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                     </select>
                                 </form>
                             <?php } else { ?>
-                                <a href="saved_payment_method.php">Add a Payment Method</a>
+                                No Cards on File
                             <?php } ?>  
                         </td>
                         <td>
