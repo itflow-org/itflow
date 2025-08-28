@@ -81,15 +81,6 @@ $currency_format = numfmt_create($company_locale, NumberFormatter::CURRENCY);
 $config_whitelabel_enabled = intval($row['config_whitelabel_enabled']);
 $config_whitelabel_key = $row['config_whitelabel_key'];
 
-// Online Stripe Payment
-$config_stripe_enable = intval($row['config_stripe_enable']);
-$config_stripe_secret = $row['config_stripe_secret'];
-$config_stripe_account = intval($row['config_stripe_account']);
-$config_stripe_expense_vendor = intval($row['config_stripe_expense_vendor']);
-$config_stripe_expense_category = intval($row['config_stripe_expense_category']);
-$config_stripe_percentage_fee = floatval($row['config_stripe_percentage_fee']);
-$config_stripe_flat_fee = floatval($row['config_stripe_flat_fee']);
-
 // Check cron is enabled
 if ($config_enable_cron == 0) {
     exit("Cron: is not enabled -- Quitting..");

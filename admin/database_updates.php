@@ -3902,8 +3902,8 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
 
     // Set Recurring payment method with Stripe to the new saved_payment_id and update the method to Credit Card
     $sql_recurring_payments = mysqli_query($mysqli, "SELECT * FROM recurring_payments 
-        LEFT JOIN invoices ON recurring_payment_invoice_id = invoice_id
-        LEFT JOIN client_saved_payment_methods ON saved_payment_client = invoice_client_id
+        LEFT JOIN invoices ON recurring_payment_recurring_invoice_id = invoice_id
+        LEFT JOIN client_saved_payment_methods ON saved_payment_client_id = invoice_client_id
         WHERE recurring_payment_method = 'Stripe'"
     );
 
@@ -3935,8 +3935,7 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
         mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '2.3.1'");
     }
 
-    /* 2025-07-21 - JQ For next release Pauyment Provider Switch Over
-    if (CURRENT_DATABASE_VERSION == '2.2.4') {
+    if (CURRENT_DATABASE_VERSION == '2.3.1') {
 
         // Delete all Recurring Payments that are Stripe
         mysqli_query($mysqli, "DELETE FROM recurring_payments WHERE recurring_payment_method = 'Stripe'");
@@ -3961,14 +3960,13 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
             DROP `config_ai_api_key`
         ");
 
-        mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '2.2.5'");
+        mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '2.3.2'");
     }
-    */
     
-    // if (CURRENT_DATABASE_VERSION == '2.2.5') {
-    //     // Insert queries here required to update to DB version 2.2.6
+    // if (CURRENT_DATABASE_VERSION == '2.3.2') {
+    //     // Insert queries here required to update to DB version 2.3.3
     //     // Then, update the database to the next sequential version
-    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '2.2.6'");
+    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '2.3.3'");
     // }
 
 } else {

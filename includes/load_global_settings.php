@@ -91,23 +91,6 @@ $config_enable_alert_domain_expire = intval($row['config_enable_alert_domain_exp
 $config_send_invoice_reminders = intval($row['config_send_invoice_reminders']);
 $config_invoice_overdue_reminders = intval($row['config_invoice_overdue_reminders']);
 
-// Online Stripe Payment
-$config_stripe_enable = intval($row['config_stripe_enable']);
-$config_stripe_publishable = $row['config_stripe_publishable'];
-$config_stripe_secret = $row['config_stripe_secret'];
-$config_stripe_account = intval($row['config_stripe_account']);
-$config_stripe_expense_vendor = intval($row['config_stripe_expense_vendor']);
-$config_stripe_expense_category = intval($row['config_stripe_expense_category']);
-$config_stripe_percentage_fee = floatval($row['config_stripe_percentage_fee']);
-$config_stripe_flat_fee = floatval($row['config_stripe_flat_fee']);
-
-// AI Provider Details
-$config_ai_enable = intval($row['config_ai_enable']);
-$config_ai_provider = $row['config_ai_provider'];
-$config_ai_model = $row['config_ai_model'];
-$config_ai_url = $row['config_ai_url'];
-$config_ai_api_key = $row['config_ai_api_key'];
-
 // Modules
 $config_module_enable_itdoc = intval($row['config_module_enable_itdoc']);
 $config_module_enable_ticketing = intval($row['config_module_enable_ticketing']);

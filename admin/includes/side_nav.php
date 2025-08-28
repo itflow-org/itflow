@@ -238,20 +238,6 @@
                                     <p>Quote</p>
                                 </a>
                             </li>
-                            <li class="nav-item">
-                                <a href="settings_online_payment.php" class="nav-link <?php echo (basename($_SERVER['PHP_SELF']) == 'settings_online_payment.php' ? 'active' : ''); ?>">
-                                    <i class="nav-icon far fa-credit-card"></i>
-                                    <p>Online Payment</p>
-                                </a>
-                            </li>
-                            <?php if ($config_stripe_enable) { ?>
-                                <li class="nav-item">
-                                    <a href="settings_online_payment_clients.php" class="nav-link <?php echo (basename($_SERVER['PHP_SELF']) == 'settings_online_payment_clients.php' ? 'active' : ''); ?>">
-                                        <i class="nav-icon far fa-credit-card"></i>
-                                        <p>Payment/Stripe Clients</p>
-                                    </a>
-                                </li>
-                            <?php } ?>
                         <?php } ?>
                         <?php if ($config_module_enable_ticketing) { ?>
                             <li class="nav-item">
@@ -267,12 +253,6 @@
                                 </a>
                             </li>
                         <?php } ?>
-                        <li class="nav-item">
-                            <a href="settings_ai.php" class="nav-link <?php echo (basename($_SERVER['PHP_SELF']) == 'settings_ai.php' ? 'active' : ''); ?>">
-                                <i class="nav-icon fas fa-robot"></i>
-                                <p>AI</p>
-                            </a>
-                        </li>
                         <!-- Currently the only integration is the client portal SSO -->
                         <?php if ($config_client_portal_enable) { ?>
                             <li class="nav-item">

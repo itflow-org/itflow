@@ -554,23 +554,6 @@ CREATE TABLE `client_saved_payment_methods` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Table structure for table `client_stripe`
---
-
-DROP TABLE IF EXISTS `client_stripe`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
-CREATE TABLE `client_stripe` (
-  `client_id` int(11) NOT NULL,
-  `stripe_id` varchar(255) NOT NULL,
-  `stripe_pm` varchar(255) DEFAULT NULL,
-  `stripe_pm_details` varchar(200) DEFAULT NULL,
-  `stripe_pm_created_at` datetime NOT NULL DEFAULT current_timestamp(),
-  PRIMARY KEY (`client_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
 -- Table structure for table `client_tags`
 --
 
@@ -2054,19 +2037,6 @@ CREATE TABLE `settings` (
   `config_enable_alert_domain_expire` tinyint(1) NOT NULL DEFAULT 1,
   `config_send_invoice_reminders` tinyint(1) NOT NULL DEFAULT 1,
   `config_invoice_overdue_reminders` varchar(200) DEFAULT NULL,
-  `config_stripe_enable` tinyint(1) NOT NULL DEFAULT 0,
-  `config_stripe_publishable` varchar(255) DEFAULT NULL,
-  `config_stripe_secret` varchar(255) DEFAULT NULL,
-  `config_stripe_account` int(11) NOT NULL DEFAULT 0,
-  `config_stripe_expense_vendor` int(11) NOT NULL DEFAULT 0,
-  `config_stripe_expense_category` int(11) NOT NULL DEFAULT 0,
-  `config_stripe_percentage_fee` decimal(4,4) NOT NULL DEFAULT 0.0290,
-  `config_ai_enable` tinyint(1) DEFAULT 0,
-  `config_ai_provider` varchar(250) DEFAULT NULL,
-  `config_ai_model` varchar(250) DEFAULT NULL,
-  `config_ai_url` varchar(250) DEFAULT NULL,
-  `config_ai_api_key` varchar(250) DEFAULT NULL,
-  `config_stripe_flat_fee` decimal(15,2) NOT NULL DEFAULT 0.30,
   `config_azure_client_id` varchar(200) DEFAULT NULL,
   `config_azure_client_secret` varchar(200) DEFAULT NULL,
   `config_module_enable_itdoc` tinyint(1) NOT NULL DEFAULT 1,
@@ -2788,4 +2758,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-08-11 18:18:59
+-- Dump completed on 2025-08-28 11:43:32
