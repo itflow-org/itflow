@@ -202,7 +202,6 @@ if (isset($_GET['project_template_id'])) {
                 while($row = mysqli_fetch_array($sql_task_templates)){
                     $task_template_id = intval($row['task_template_id']);
                     $task_template_name = nullable_htmlentities($row['task_template_name']);
-                    $task_template_description = nullable_htmlentities($row['task_template_description']);
                 ?>
                     <tr>
                         <td>

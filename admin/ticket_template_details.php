@@ -20,7 +20,7 @@ $sql_ticket_templates = mysqli_query($mysqli, "SELECT * FROM ticket_templates WH
 $row = mysqli_fetch_array($sql_ticket_templates);
 
 $ticket_template_name = nullable_htmlentities($row['ticket_template_name']);
-//$ticket_template_description = nullable_htmlentities($row['ticket_template_description']);
+$ticket_template_description = nullable_htmlentities($row['ticket_template_description']);
 $ticket_template_subject = nullable_htmlentities($row['ticket_template_subject']);
 $ticket_template_details = $purifier->purify($row['ticket_template_details']);
 $ticket_template_created_at = nullable_htmlentities($row['ticket_template_created_at']);

@@ -425,11 +425,9 @@ if (isset($_GET['ticket_id'])) {
                                             data-modal-url="modals/ticket/ticket_edit.php?id=<?= $ticket_id ?>">
                                             <i class="fas fa-fw fa-edit mr-2"></i>Edit
                                         </a>
-                                        <?php if ($config_ai_enable == 1) { ?>
-                                            <a class="dropdown-item" href="#" data-toggle="modal" data-target="#summaryModal">
-                                                <i class="fas fa-fw fa-lightbulb mr-2"></i>Summarize
-                                            </a>
-                                        <?php } ?>
+                                        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#summaryModal">
+                                            <i class="fas fa-fw fa-lightbulb mr-2"></i>Summarize
+                                        </a>
                                         <a class="dropdown-item" href="#" data-toggle="modal" data-target="#mergeTicketModal<?php echo $ticket_id; ?>">
                                             <i class="fas fa-fw fa-clone mr-2"></i>Merge
                                         </a>
@@ -510,7 +508,7 @@ if (isset($_GET['ticket_id'])) {
                 <!-- Ticket scheduling -->
                 <?php if (empty ($ticket_closed_at)) { ?>
                     <div class="mt-1">
-                        <i class="fa fa-fw fa-calendar-check text-secondary mr-2"></i>Scheduled: <a href="#" data-toggle="modal" data-target="#editTicketScheduleModal"> <?php echo $ticket_scheduled_wording ?> </a>
+                        <i class="fa fa-fw fa-calendar-check text-secondary mr-2"></i>Scheduled: <a href="#" data-toggle="modal" data-target="#editTicketScheduleModal"> <?=$ticket_scheduled_wording ?> </a>
                     </div>
                 <?php } ?>
                 <!-- End ticket scheduling -->
@@ -620,7 +618,7 @@ if (isset($_GET['ticket_id'])) {
 
                             <div class="form-group">
                                 <textarea
-                                    class="form-control tinymceTicket<?php if ($config_ai_enable) { echo "AI"; } ?>" name="ticket_reply"
+                                    class="form-control tinymceTicket" name="ticket_reply"
                                     placeholder="Type a response">
                                     <?php echo nl2br(getFieldById('user_settings',$session_user_id,'user_config_signature','html')); ?>
                                 </textarea>
