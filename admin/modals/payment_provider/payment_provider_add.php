@@ -13,8 +13,9 @@
 
                 <div class="modal-body">
 
-                    <div class="alert alert-info">An income account named after the provider will always be created and used for income of payed invoices.
-                    If "Enable Expense" option is enabled, a matching vendor will also be automatically created (if it doesn't already exist), and used for expense tracking. Additionally, an expense category named "Payment Processing" will be created if it does not already exist.
+                    <div class="alert alert-info">
+                        An income account named after the provider will always be created and used for income of paid invoices.<br>
+                        If "Enable Expense" option is enabled, a matching vendor will also be automatically created for expense tracking. Additionally, an expense category named "Payment Processing" will be created.
                     </div>
 
                     <div class="form-group">
