@@ -13,7 +13,7 @@ require_once "includes/inc_all_admin.php";
             <h4>Client Portal SSO via Microsoft Entra</h4>
 
             <div class="form-group">
-                <label>Identity Provider <small class='text-secondary'>(Currently only works with Microsft Entra)</small></label>
+                <label>Identity Provider <small class='text-secondary'>(Currently only works with Microsoft Entra ID/AAD)</small></label>
                 <div class="input-group">
                     <div class="input-group-prepend">
                         <span class="input-group-text"><i class="fa fa-fw fa-fingerprint"></i></span>
