@@ -3880,9 +3880,9 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
         // Migrate Clients and Payment Method over
         $sql_stripe_clients = mysqli_query($mysqli, "SELECT * FROM client_stripe WHERE stripe_pm IS NOT NULL AND stripe_pm != ''");
         while ($row = mysqli_fetch_array($sql_stripe_clients)) {
-            $client_id        = intval($row['client_id']);
-            $stripe_id        = mysqli_real_escape_string($mysqli, $row['stripe_id']);
-            $stripe_pm        = mysqli_real_escape_string($mysqli, $row['stripe_pm']);
+            $client_id = intval($row['client_id']);
+            $stripe_id = mysqli_real_escape_string($mysqli, $row['stripe_id']);
+            $stripe_pm = mysqli_real_escape_string($mysqli, $row['stripe_pm']);
             $stripe_pm_details = mysqli_real_escape_string($mysqli, $row['stripe_pm_details'] ?? 'Saved Card');
 
             mysqli_query($mysqli,"INSERT INTO client_payment_provider SET
@@ -3893,8 +3893,8 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
 
             mysqli_query($mysqli,"INSERT INTO client_saved_payment_methods SET
                 saved_payment_provider_method = '$stripe_pm',
-                payment_provider_description = '$stripe_pm_details',
-                saved_payment_client = $client_id,
+                saved_payment_description = '$stripe_pm_details',
+                saved_payment_client_id = $client_id,
                 saved_payment_provider_id = $provider_id"
             );
         }
