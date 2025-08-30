@@ -90,11 +90,14 @@ if (isset($_POST['add_client'])) {
         $mx = sanitizeInput($records['mx']);
         $whois = sanitizeInput($records['whois']);
 
-        // Add domain record
-        mysqli_query($mysqli, "INSERT INTO domains SET domain_name = '$website', domain_registrar = 0,  domain_webhost = 0, domain_expire = '$expire', domain_ip = '$a', domain_name_servers = '$ns', domain_mail_servers = '$mx', domain_raw_whois = '$whois', domain_client_id = $client_id");
-
-        //Extended Logging
-        $extended_log_description .= ", domain $website added";
+        // Add domain record info using whois, or not
+        try {
+            mysqli_query($mysqli, "INSERT INTO domains SET domain_name = '$website', domain_registrar = 0,  domain_webhost = 0, domain_expire = '$expire', domain_ip = '$a', domain_name_servers = '$ns', domain_mail_servers = '$mx', domain_raw_whois = '$whois', domain_client_id = $client_id");
+            $extended_log_description .= ", domain $website added"; //Extended Logging
+        } catch (Exception $e) {
+            $extended_log_description .= ", domain not added"; //Extended Logging
+            logApp("Client", "warning", "Failed to add domain $website during client creation (usually a whois result error)");
+        }
 
         // Get inserted ID (for linking certificate, if exists)
         $domain_id = mysqli_insert_id($mysqli);
