@@ -248,7 +248,7 @@ if (isset($_GET['invoice_id'])) {
 
                                 <div class="btn-group">
                                     <button type="button" class="btn btn-success ajax-modal" data-modal-url="modals/invoice/invoice_pay.php?id=<?= $invoice_id ?>"><i class="fa fa-fw fa-credit-card mr-2"></i>Add Payment</button>
-                                    
+
                                     <?php /* if (mysqli_num_rows($sql_saved_payment_methods) > 0 || $credit_balance > 0) { ?>
                                     <button type="button" class="btn btn-success dropdown-toggle dropdown-toggle-split" data-toggle="dropdown"></button>
                                     <div class="dropdown-menu">
@@ -271,7 +271,7 @@ if (isset($_GET['invoice_id'])) {
                                         } ?>
                                     </div>
                                     <?php } */ // End Credit or Credit Card Check ?>
-                                    
+
                                 </div>
 
                             <?php } ?>
@@ -469,7 +469,7 @@ if (isset($_GET['invoice_id'])) {
                                 <tr class="d-print-none" <?php if ($invoice_status == "Paid" || $invoice_status == "Cancelled" || lookupUserPermission("module_sales") <= 1) { echo "hidden"; } ?>>
                                     <form action="post.php" method="post" autocomplete="off">
                                         <input type="hidden" name="invoice_id" value="<?= $invoice_id ?>">
-                                        <input type="hidden" id="product_id" name="product_id" value="<?= $item_product_id ?>">
+                                        <input type="hidden" id="product_id" name="product_id" value="<?= $item_product_id ?? 0 ?>">
                                         <input type="hidden" name="item_order" value="<?php echo mysqli_num_rows($sql_invoice_items) + 1; ?>">
                                         <td></td>
                                         <td>
