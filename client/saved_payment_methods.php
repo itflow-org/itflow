@@ -108,7 +108,7 @@ if (!$stripe_public_key || !$stripe_secret_key) {
                             $exp_year = nullable_htmlentities($pm->card->exp_year);
 
                             echo "<li>$brand card ending in $last4, expires $exp_month/$exp_year";
-                            echo " – <a href='post.php?delete_saved_payment={$method['saved_payment_id']}&csrf_token={$_SESSION['csrf_token']}'>Remove</a></li>";
+                            echo " – <a href='post.php?delete_saved_payment={$method['saved_payment_id']}'>Remove</a></li>";
                         }
                     } catch (Exception $e) {
                         $error = $e->getMessage();
