@@ -249,28 +249,12 @@ if (isset($_GET['invoice_id'])) {
                                 <div class="btn-group">
                                     <button type="button" class="btn btn-success ajax-modal" data-modal-url="modals/invoice/invoice_pay.php?id=<?= $invoice_id ?>"><i class="fa fa-fw fa-credit-card mr-2"></i>Add Payment</button>
 
-                                    <?php /* if (mysqli_num_rows($sql_saved_payment_methods) > 0 || $credit_balance > 0) { ?>
+                                    <?php if (mysqli_num_rows($sql_saved_payment_methods) > 0 && ($invoice_status === 'Sent' || $invoice_status === 'Viewed')) { ?>
                                     <button type="button" class="btn btn-success dropdown-toggle dropdown-toggle-split" data-toggle="dropdown"></button>
                                     <div class="dropdown-menu">
-                                        <?php if ($credit_balance) { ?>
-                                        <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/invoice/invoice_apply_credit.php?id=<?= $invoice_id ?>"><i class="fas fa-fw fa-wallet mr-2"></i>Apply Credit (Balance: <?php echo numfmt_format_currency($currency_format, $credit_balance, $client_currency_code); ?>)</a>
-                                        <?php } ?>
-<!--                                        <a class="dropdown-item" href="../guest/guest_pay_invoice_stripe.php?invoice_id=--><?php //echo "$invoice_id&url_key=$invoice_url_key"; ?><!--">Enter Card Manually</a>-->
-                                        <?php
-                                        if (mysqli_num_rows($sql_saved_payment_methods) > 0) { ?>
-                                            <h6 class="dropdown-header text-left">Pay with a Saved Card</h6>
-                                        <?php
-                                        while ($row = mysqli_fetch_array($sql_saved_payment_methods)) {
-                                            $saved_payment_id = intval($row['saved_payment_id']);
-                                            $saved_payment_description = nullable_htmlentities($row['saved_payment_description']);
-                                            $payment_provider_name = nullable_htmlentities($row['payment_provider_name']);
-                                            ?>
-
-                                            <a class="dropdown-item confirm-link" href="post.php?add_payment_by_provider=<?php echo $saved_payment_provider_id; ?>&invoice_id=<?php echo $invoice_id; ?>&csrf_token=<?php echo $_SESSION['csrf_token']; ?>"><?php echo "$payment_provider_name | $saved_payment_description"; ?></a>
-                                        <?php }
-                                        } ?>
+                                        <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/invoice/invoice_saved_method_pay.php?id=<?= $invoice_id ?>"><i class="fas fa-fw fa-wallet mr-2"></i>Pay with Saved Card</a>                                    
                                     </div>
-                                    <?php } */ // End Credit or Credit Card Check ?>
+                                    <?php } ?>
 
                                 </div>
 

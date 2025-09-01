@@ -1029,6 +1029,202 @@ if (isset($_POST['apply_credit'])) {
 
 */
 
+if (isset($_POST['add_payment_stripe'])) {
+
+    validateCSRFToken($_POST['csrf_token']);
+
+    enforceUserPermission('module_sales', 2);
+    enforceUserPermission('module_financial', 2);
+
+    $invoice_id = intval($_POST['invoice_id']);
+    $saved_payment_id = intval($_POST['saved_payment_id']);
+
+    // Get invoice details
+    $sql = mysqli_query($mysqli,"SELECT * FROM invoices
+            LEFT JOIN clients ON invoice_client_id = client_id
+            LEFT JOIN contacts ON client_id = contact_client_id AND contact_primary = 1
+            WHERE invoice_id = $invoice_id"
+    );
+    $row = mysqli_fetch_array($sql);
+    $invoice_number = intval($row['invoice_number']);
+    $invoice_status = sanitizeInput($row['invoice_status']);
+    $invoice_amount = floatval($row['invoice_amount']);
+    $invoice_prefix = sanitizeInput($row['invoice_prefix']);
+    $invoice_number = intval($row['invoice_number']);
+    $invoice_url_key = sanitizeInput($row['invoice_url_key']);
+    $invoice_currency_code = sanitizeInput($row['invoice_currency_code']);
+    $client_id = intval($row['client_id']);
+    $client_name = sanitizeInput($row['client_name']);
+    $contact_name = sanitizeInput($row['contact_name']);
+    $contact_email = sanitizeInput($row['contact_email']);
+    $contact_phone = sanitizeInput(formatPhoneNumber($row['contact_phone'], $row['contact_phone_country_code']));
+    $contact_extension = preg_replace("/[^0-9]/", '',$row['contact_extension']);
+    $contact_mobile = sanitizeInput(formatPhoneNumber($row['contact_mobile'], $row['contact_mobile_country_code']));
+
+    // Get ITFlow company details
+    $sql = mysqli_query($mysqli,"SELECT * FROM companies WHERE company_id = 1");
+    $row = mysqli_fetch_array($sql);
+    $company_name = sanitizeInput($row['company_name']);
+    $company_country = sanitizeInput($row['company_country']);
+    $company_address = sanitizeInput($row['company_address']);
+    $company_city = sanitizeInput($row['company_city']);
+    $company_state = sanitizeInput($row['company_state']);
+    $company_zip = sanitizeInput($row['company_zip']);
+    $company_phone = sanitizeInput(formatPhoneNumber($row['company_phone'], $row['company_phone_country_code']));
+    $company_email = sanitizeInput($row['company_email']);
+    $company_website = sanitizeInput($row['company_website']);
+
+    // Sanitize Config vars from get_settings.php
+    $config_invoice_from_name = sanitizeInput($config_invoice_from_name);
+    $config_invoice_from_email = sanitizeInput($config_invoice_from_email);
+
+    // Get Client Payment Details
+    $sql = mysqli_query($mysqli, "SELECT * FROM client_saved_payment_methods LEFT JOIN payment_providers ON saved_payment_provider_id = payment_provider_id LEFT JOIN client_payment_provider ON saved_payment_client_id = client_id WHERE saved_payment_id = $saved_payment_id LIMIT 1");
+    $row = mysqli_fetch_array($sql);
+
+    $public_key = sanitizeInput($row['payment_provider_public_key']);
+    $private_key = sanitizeInput($row['payment_provider_private_key']);
+    $account_id = intval($row['payment_provider_account']);
+    $expense_category_id = intval($row['payment_provider_expense_category']);
+    $expense_vendor_id = intval($row['payment_provider_expense_vendor']);
+    $expense_percentage_fee = floatval($row['payment_provider_expense_percentage_fee']);
+    $expense_flat_fee = floatval($row['payment_provider_expense_flat_fee']);
+    $payment_provider_client = sanitizeInput($row['payment_provider_client']);
+    $saved_payment_method = sanitizeInput($row['saved_payment_provider_method']);
+    $saved_payment_description = sanitizeInput($row['saved_payment_description']);
+
+    // Sanity checks
+    if (!$payment_provider_client || !$saved_payment_method) {
+        flash_alert("Stripe not enabled or no client card saved", 'error');
+        redirect();
+    } elseif ($invoice_status !== 'Sent' && $invoice_status !== 'Viewed') {
+        flash_alert("Invalid invoice state (draft/partial/paid/not billable)", 'error');
+        redirect();
+    } elseif ($invoice_amount == 0) {
+        flash_alert("Invalid invoice amount", 'error');
+        redirect();
+    }
+
+    // Initialize Stripe
+    require_once __DIR__ . '/../../plugins/stripe-php/init.php';
+    $stripe = new \Stripe\StripeClient($private_key);
+
+    $balance_to_pay = round($invoice_amount, 2);
+    $pi_description = "ITFlow: $client_name payment of $invoice_currency_code $balance_to_pay for $invoice_prefix$invoice_number";
+
+    // Create a payment intent
+    try {
+        $payment_intent = $stripe->paymentIntents->create([
+            'amount' => intval($balance_to_pay * 100), // Times by 100 as Stripe expects values in cents
+            'currency' => $invoice_currency_code,
+            'customer' => $payment_provider_client,
+            'payment_method' => $saved_payment_method,
+            'off_session' => true,
+            'confirm' => true,
+            'description' => $pi_description,
+            'metadata' => [
+                'itflow_client_id' => $client_id,
+                'itflow_client_name' => $client_name,
+                'itflow_invoice_number' => $invoice_prefix . $invoice_number,
+                'itflow_invoice_id' => $invoice_id,
+            ]
+        ]);
+
+        // Get details from PI
+        $pi_id = sanitizeInput($payment_intent->id);
+        $pi_date = date('Y-m-d', $payment_intent->created);
+        $pi_amount_paid = floatval(($payment_intent->amount_received / 100));
+        $pi_currency = strtoupper(sanitizeInput($payment_intent->currency));
+        $pi_livemode = $payment_intent->livemode;
+
+    } catch (Exception $e) {
+        $error = $e->getMessage();
+        error_log("Stripe payment error - encountered exception during payment intent for invoice ID $invoice_id / $invoice_prefix$invoice_number: $error");
+        logApp("Stripe", "error", "Exception during PI for invoice ID $invoice_id: $error");
+    }
+
+    if ($payment_intent->status == "succeeded" && intval($balance_to_pay) == intval($pi_amount_paid)) {
+
+        // Update Invoice Status
+        mysqli_query($mysqli, "UPDATE invoices SET invoice_status = 'Paid' WHERE invoice_id = $invoice_id");
+
+        // Add Payment to History
+        mysqli_query($mysqli, "INSERT INTO payments SET payment_date = '$pi_date', payment_amount = $pi_amount_paid, payment_currency_code = '$pi_currency', payment_account_id = $account_id, payment_method = 'Stripe', payment_reference = 'Stripe - $pi_id', payment_invoice_id = $invoice_id");
+        mysqli_query($mysqli, "INSERT INTO history SET history_status = 'Paid', history_description = 'Online Payment added (agent)', history_invoice_id = $invoice_id");
+
+        // Email receipt
+        if (!empty($config_smtp_host)) {
+            $subject = "Payment Received - Invoice $invoice_prefix$invoice_number";
+            $body = "Hello $contact_name,<br><br>We have received online payment for the amount of " . numfmt_format_currency($currency_format, $invoice_amount, $invoice_currency_code) . " for invoice <a href=\'https://$config_base_url/guest/guest_view_invoice.php?invoice_id=$invoice_id&url_key=$invoice_url_key\'>$invoice_prefix$invoice_number</a>. Please keep this email as a receipt for your records.<br><br>Amount Paid: " . numfmt_format_currency($currency_format, $invoice_amount, $invoice_currency_code) . "<br><br>Thank you for your business!<br><br><br>--<br>$company_name - Billing Department<br>$config_invoice_from_email<br>$company_phone";
+
+            // Queue Mail
+            $data = [
+                [
+                    'from' => $config_invoice_from_email,
+                    'from_name' => $config_invoice_from_name,
+                    'recipient' => $contact_email,
+                    'recipient_name' => $contact_name,
+                    'subject' => $subject,
+                    'body' => $body,
+                ]
+            ];
+
+            // Email the internal notification address too
+            if (!empty($config_invoice_paid_notification_email)) {
+                $subject = "Payment Received - $client_name - Invoice $invoice_prefix$invoice_number";
+                $body = "Hello, <br><br>This is a notification that an invoice has been paid in ITFlow. Below is a copy of the receipt sent to the client:-<br><br>--------<br><br>Hello $contact_name,<br><br>We have received online payment for the amount of " . numfmt_format_currency($currency_format, $invoice_amount, $invoice_currency_code) . " for invoice <a href=\'https://$config_base_url/guest/guest_view_invoice.php?invoice_id=$invoice_id&url_key=$invoice_url_key\'>$invoice_prefix$invoice_number</a>. Please keep this email as a receipt for your records.<br><br>Amount Paid: " . numfmt_format_currency($currency_format, $invoice_amount, $invoice_currency_code) . "<br><br>Thank you for your business!<br><br><br>--<br>$company_name - Billing Department<br>$config_invoice_from_email<br>$company_phone";
+
+                $data[] = [
+                    'from' => $config_invoice_from_email,
+                    'from_name' => $config_invoice_from_name,
+                    'recipient' => $config_invoice_paid_notification_email,
+                    'recipient_name' => $contact_name,
+                    'subject' => $subject,
+                    'body' => $body,
+                ];
+            }
+
+            $mail = addToMailQueue($data);
+
+            // Email Logging
+            $email_id = mysqli_insert_id($mysqli);
+            mysqli_query($mysqli,"INSERT INTO history SET history_status = 'Sent', history_description = 'Payment Receipt sent to mail queue ID: $email_id!', history_invoice_id = $invoice_id");
+            logAction("Invoice", "Payment", "Payment receipt for invoice $invoice_prefix$invoice_number queued to $contact_email Email ID: $email_id", $client_id, $invoice_id);
+        }
+
+        // Log info
+        $extended_log_desc = '';
+        if (!$pi_livemode) {
+            $extended_log_desc = '(DEV MODE)';
+        }
+
+        // Create Stripe payment gateway fee as an expense (if configured)
+        if ($expense_vendor_id > 0 && $expense_category_id > 0) {
+            $gateway_fee = round($invoice_amount * $expense_percentage_fee + $expense_flat_fee, 2);
+            mysqli_query($mysqli,"INSERT INTO expenses SET expense_date = '$pi_date', expense_amount = $gateway_fee, expense_currency_code = '$invoice_currency_code', expense_account_id = $account_id, expense_vendor_id = $expense_vendor_id, expense_client_id = $client_id, expense_category_id = $expense_category_id, expense_description = 'Stripe Transaction for Invoice $invoice_prefix$invoice_number In the Amount of $balance_to_pay', expense_reference = 'Stripe - $pi_id $extended_log_desc'");
+        }
+
+        // Notify/log
+        appNotify("Invoice Paid", "Invoice $invoice_prefix$invoice_number automatically paid", "invoice.php?invoice_id=$invoice_id", $client_id);
+        logAction("Invoice", "Payment", "$session_name initiated Stripe payment amount of " . numfmt_format_currency($currency_format, $invoice_amount, $invoice_currency_code) . " added to invoice $invoice_prefix$invoice_number - $pi_id $extended_log_desc", $client_id, $invoice_id);
+        customAction('invoice_pay', $invoice_id);
+
+        flash_alert("Payment amount <strong>" . numfmt_format_currency($currency_format, $invoice_amount, $invoice_currency_code) . "</strong> added");
+        
+        redirect();
+
+    } else {
+        mysqli_query($mysqli, "INSERT INTO history SET history_status = 'Payment failed', history_description = 'Stripe pay failed due to payment error', history_invoice_id = $invoice_id");
+        
+        logAction("Invoice", "Payment", "Failed online payment amount of invoice $invoice_prefix$invoice_number due to Stripe payment error", $client_id, $invoice_id);
+        flash_alert("Payment failed", 'error');
+        
+        redirect();
+    }
+
+}
+
+/*
 if (isset($_GET['add_payment_stripe'])) {
 
     validateCSRFToken($_GET['csrf_token']);
@@ -1212,6 +1408,7 @@ if (isset($_GET['add_payment_stripe'])) {
     }
 
 }
+*/
 
 if (isset($_POST['add_bulk_payment'])) {
     
