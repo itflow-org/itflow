@@ -45,6 +45,7 @@
         branding: false,
         menubar: false,
         statusbar: false,
+        license_key: 'gpl',
         toolbar: [
             { name: 'styles', items: [ 'styles' ] },
             { name: 'formatting', items: [ 'bold', 'italic', 'forecolor' ] },
@@ -57,7 +58,7 @@
         mobile: {
         menubar: false,
         plugins: 'autosave lists autolink',
-        toolbar: 'undo bold italic styles'
+        toolbar: 'undo bold italic styles',
     },
         plugins: 'link image lists table code codesample fullscreen autoresize',
     });
