@@ -163,7 +163,10 @@ $balance = $invoice_amounts - $amount_paid;
                                 $payment_provider_name = nullable_htmlentities($row['payment_provider_name']);
                                 ?>
 
-                                <a class="dropdown-item confirm-link" href="post.php?add_payment_by_provider=<?php echo $saved_payment_id; ?>&invoice_id=<?php echo $invoice_id; ?>"><?php echo "$saved_payment_description"; ?></a>
+                                <a class="dropdown-item confirm-link"
+                                    href="post.php?add_payment_by_provider=<?= $saved_payment_id ?>&invoice_id=<?= $invoice_id ?>">
+                                    <i class="fas fa-credit-card text-secondary mr-2"></i><?= $saved_payment_description ?>
+                                </a>
                             <?php }
                             } ?>
                         </div>
