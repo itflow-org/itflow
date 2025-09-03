@@ -160,12 +160,22 @@ $balance = $invoice_amounts - $amount_paid;
                             while ($row = mysqli_fetch_array($sql_saved_payment_methods)) {
                                 $saved_payment_id = intval($row['saved_payment_id']);
                                 $saved_payment_description = nullable_htmlentities($row['saved_payment_description']);
+                                $payment_icon = "fas fa-credit-card"; // default icon
+                                if (strpos($saved_payment_description, "visa") !== false) {
+                                    $payment_icon = "fab fa-cc-visa";
+                                } elseif (strpos($saved_payment_description, "mastercard") !== false) {
+                                    $payment_icon = "fab fa-cc-mastercard";
+                                } elseif (strpos($saved_payment_description, "american express") !== false || strpos($saved_payment_description, "amex") !== false) {
+                                    $payment_icon = "fab fa-cc-amex";
+                                } elseif (strpos($saved_payment_description, "discover") !== false) {
+                                    $payment_icon = "fab fa-cc-discover";
+                                }
                                 $payment_provider_name = nullable_htmlentities($row['payment_provider_name']);
                                 ?>
 
                                 <a class="dropdown-item confirm-link"
                                     href="post.php?add_payment_by_provider=<?= $saved_payment_id ?>&invoice_id=<?= $invoice_id ?>">
-                                    <i class="fas fa-credit-card text-secondary mr-2"></i><?= $saved_payment_description ?>
+                                    <i class="<?php echo $payment_icon; ?> text-secondary mr-2"></i><?= $saved_payment_description ?>
                                 </a>
                             <?php }
                             } ?>

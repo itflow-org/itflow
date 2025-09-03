@@ -92,7 +92,7 @@ if (!$stripe_public_key || !$stripe_secret_key) {
             <?php if (empty($saved_methods)) { ?>
                 <p>You currently have no saved payment methods. Please add one below.</p>
             <?php } else { ?>
-                <ul>
+                <ul class="list-unstyled">
                     <?php
                     try {
                         $stripe = new \Stripe\StripeClient($stripe_secret_key);
@@ -100,6 +100,16 @@ if (!$stripe_public_key || !$stripe_secret_key) {
                         foreach ($saved_methods as $method) {
                             $stripe_pm_id = $method['saved_payment_provider_method'];
                             $description = nullable_htmlentities($method['saved_payment_description']);
+                            $payment_icon = "fas fa-credit-card"; // default icon
+                            if (strpos($description, "visa") !== false) {
+                                $payment_icon = "fab fa-cc-visa";
+                            } elseif (strpos($description, "mastercard") !== false) {
+                                $payment_icon = "fab fa-cc-mastercard";
+                            } elseif (strpos($description, "american express") !== false || strpos($description, "amex") !== false) {
+                                $payment_icon = "fab fa-cc-amex";
+                            } elseif (strpos($description, "discover") !== false) {
+                                $payment_icon = "fab fa-cc-discover";
+                            }
 
                             $pm = $stripe->paymentMethods->retrieve($stripe_pm_id, []);
                             $brand = nullable_htmlentities($pm->card->brand);
@@ -107,8 +117,8 @@ if (!$stripe_public_key || !$stripe_secret_key) {
                             $exp_month = nullable_htmlentities($pm->card->exp_month);
                             $exp_year = nullable_htmlentities($pm->card->exp_year);
 
-                            echo "<li>$brand card ending in $last4, expires $exp_month/$exp_year";
-                            echo " – <a href='post.php?delete_saved_payment={$method['saved_payment_id']}'>Remove</a></li>";
+                            echo "<li><i class='$payment_icon fa-2x mr-2'></i>$brand x<strong>$last4</strong> | Exp. $exp_month/$exp_year";
+                            echo " – <a class='text-danger' href='post.php?delete_saved_payment={$method['saved_payment_id']}'>Remove</a></li>";
                         }
                     } catch (Exception $e) {
                         $error = $e->getMessage();
