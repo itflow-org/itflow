@@ -59,8 +59,9 @@ if (!$stripe_public_key || !$stripe_secret_key) {
 ?>
 
 <h3>Saved Payment Methods</h3>
+<hr>
 <div class="row">
-    <div class="col-md-10">
+    <div class="col-md-6">
 
         <?php if (!$stripe_customer_id) { ?>
             <b>Save card details</b><br>
@@ -129,8 +130,8 @@ if (!$stripe_public_key || !$stripe_secret_key) {
                     ?>
                 </ul>
             <?php } ?>
-
-            <hr>
+        </div>
+        <div class="col-md-6">
             <b>Add a new payment method</b><br><br>
 
             <input type="hidden" id="stripe_publishable_key" value="<?php echo $stripe_public_key ?>">
