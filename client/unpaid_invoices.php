@@ -4,6 +4,8 @@
  * Invoices for PTC
  */
 
+$bulk_payment_enabled = 0; // Not Yet Enabled
+
 header("Content-Security-Policy: default-src 'self'");
 
 require_once "includes/inc_all.php";
@@ -53,7 +55,7 @@ $balance = $invoice_amounts - $amount_paid;
         <h3>Unpaid Invoices</h3>
     </div>
     <div class="col-5">
-        <?php if ($payment_provider_active) { ?>
+        <?php if ($payment_provider_active && $bulk_payment_enabled) { // Currently not implmented fully ?>
         <button type="button" class="btn btn-outline-success dropdown-toggle float-right" data-toggle="dropdown"><i class="fa fa-fw fa-credit-card mr-2"></i>Pay Balance <strong>(<?php echo numfmt_format_currency($currency_format, $balance, $session_company_currency); ?>)</strong></button>
         <div class="dropdown-menu">
             <a class="dropdown-item" href="//<?php echo $config_base_url ?>/guest/guest_pay_invoice_stripe.php?invoice_id=<?php echo "$invoice_id&url_key=$invoice_url_key"; ?>">Enter Card Manually</a>
@@ -138,7 +140,7 @@ $balance = $invoice_amounts - $amount_paid;
                     <td><?php echo $invoice_date; ?></td>
                     <td class="<?php echo $overdue_color; ?>"><?php echo $invoice_due; ?></td>
                     <td>
-                        <?php if ($payment_provider_active) { ?>
+                        <?php if ($payment_provider_active && ($invoice_status === 'Sent' || $invoice_status === 'Viewed')) { ?>
                         <button type="button" class="btn btn-sm btn-outline-success dropdown-toggle" data-toggle="dropdown"><i class="fa fa-fw fa-credit-card mr-2"></i>Pay</button>
                         <div class="dropdown-menu">
                             <a class="dropdown-item" href="//<?php echo $config_base_url ?>/guest/guest_pay_invoice_stripe.php?invoice_id=<?php echo "$invoice_id&url_key=$invoice_url_key"; ?>">Enter Card Manually</a>
@@ -161,7 +163,7 @@ $balance = $invoice_amounts - $amount_paid;
                                 $payment_provider_name = nullable_htmlentities($row['payment_provider_name']);
                                 ?>
 
-                                <a class="dropdown-item confirm-link" href="post.php?add_payment_by_provider=<?php echo $saved_payment_provider_id; ?>&invoice_id=<?php echo $invoice_id; ?>"><?php echo "$payment_provider_name | $saved_payment_description"; ?></a>
+                                <a class="dropdown-item confirm-link" href="post.php?add_payment_by_provider=<?php echo $saved_payment_id; ?>&invoice_id=<?php echo $invoice_id; ?>"><?php echo "$saved_payment_description"; ?></a>
                             <?php }
                             } ?>
                         </div>

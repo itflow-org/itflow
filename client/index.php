@@ -181,7 +181,7 @@ if ($session_contact_primary == 1 || $session_contact_is_billing_contact) { ?>
 
     <?php if ($balance > 0) { ?>
     <div class="col-sm-3">
-        <a href="#unpaid_invoices.php" class="card">
+        <a href="unpaid_invoices.php" class="card">
             <div class="card-header">
                 <h3 class="card-title text-bold text-dark">Account Balance</h3>
             </div>
