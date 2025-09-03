@@ -246,7 +246,7 @@ $filePermissions[] = [
 $uploadsStats = [];
 
 // Define the uploads directory path
-$uploadsDir = __DIR__ . '/uploads'; // Adjust the path if needed
+$uploadsDir = __DIR__ . '/../uploads'; // Adjust the path if needed
 
 if (is_dir($uploadsDir)) {
     // Function to recursively count files and calculate total size
@@ -349,7 +349,7 @@ if ($tablesResult) {
 $dbComparison = [];
 
 // Path to the db.sql file
-$dbSqlFile = __DIR__ . '/db.sql';
+$dbSqlFile = __DIR__ . '/../db.sql';
 
 if (file_exists($dbSqlFile)) {
     // Read the db.sql file
