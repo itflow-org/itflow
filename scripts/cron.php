@@ -781,10 +781,10 @@ while ($row = mysqli_fetch_array($sql_recurring_payments)) {
         $provider_name = sanitizeInput($saved_payment['payment_provider_name']);
         $provider_private_key = $saved_payment['payment_provider_private_key'];
         $account_id = intval($saved_payment['payment_provider_account']);
-        $expense_category_id = intval($row['payment_provider_expense_category']);
-        $expense_vendor_id = intval($row['payment_provider_expense_vendor']);
-        $expense_percentage_fee = floatval($row['payment_provider_expense_percentage_fee']);
-        $expense_flat_fee = floatval($row['payment_provider_expense_flat_fee']);
+        $expense_category_id = intval($saved_payment['payment_provider_expense_category']);
+        $expense_vendor_id = intval($saved_payment['payment_provider_expense_vendor']);
+        $expense_percentage_fee = floatval($saved_payment['payment_provider_expense_percentage_fee']);
+        $expense_flat_fee = floatval($saved_payment['payment_provider_expense_flat_fee']);
         $saved_payment_description = sanitizeInput($saved_payment['saved_payment_description']);
         $stripe_payment_method_id = $saved_payment['saved_payment_provider_method'];
 
