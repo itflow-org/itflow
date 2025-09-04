@@ -3900,26 +3900,26 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
             }
         }
 
-        // Look up the Stripe provider id we just inserted (or most recent one)
-        $result = mysqli_query($mysqli, "
-            SELECT payment_provider_id 
-            FROM payment_providers 
-            WHERE payment_provider_name = 'Stripe' 
-            ORDER BY payment_provider_id DESC 
+        // Get Stripe provider id
+        $res = mysqli_query($mysqli, "
+            SELECT payment_provider_id
+            FROM payment_providers
+            WHERE payment_provider_name = 'Stripe'
+            ORDER BY payment_provider_id DESC
             LIMIT 1
         ");
-        $stripe = mysqli_fetch_assoc($result);
+        $stripe = mysqli_fetch_assoc($res);
         $stripe_provider_id = intval($stripe['payment_provider_id']);
 
-        // Update all Stripe recurring payments to use the single saved method per client
+        // Correct mapping: RP -> Recurring Invoice -> Client -> Client's Stripe saved method
         mysqli_query($mysqli, "
             UPDATE recurring_payments rp
-            INNER JOIN invoices i 
-                ON rp.recurring_payment_recurring_invoice_id = i.invoice_id
-            INNER JOIN client_saved_payment_methods spm 
-                ON spm.saved_payment_client_id = i.invoice_client_id
+            INNER JOIN recurring_invoices ri
+                ON ri.recurring_invoice_id = rp.recurring_payment_recurring_invoice_id
+            INNER JOIN client_saved_payment_methods spm
+                ON spm.saved_payment_client_id = ri.recurring_invoice_client_id
                AND spm.saved_payment_provider_id = $stripe_provider_id
-            SET 
+            SET
                 rp.recurring_payment_method = 'Credit Card',
                 rp.recurring_payment_saved_payment_id = spm.saved_payment_id
             WHERE rp.recurring_payment_method = 'Stripe'
