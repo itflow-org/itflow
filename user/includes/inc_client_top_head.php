@@ -1,3 +1,5 @@
+<?php $show_add_credit = 0; // Remove once credits is added hides the button ?> 
+
 <div class="card d-print-none">
     <div class="card-header pb-1 pt-2 px-3">
         <div class="card-title">
@@ -16,10 +18,12 @@
                         <i class="fas fa-fw fa-edit mr-2"></i>Edit Client
                     </a>
                     <?php if (lookupUserPermission("module_billing") >= 2) { ?>
+                        <?php if ($show_add_credit) { ?>
                         <div class="dropdown-divider"></div>
                         <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addCreditModal">
                             <i class="fas fa-fw fa-wallet mr-2"></i>Add Credit
                         </a>
+                        <?php } ?>
                     <?php } ?>
                     <?php if (lookupUserPermission("module_client") >= 3) { ?>
                         <div class="dropdown-divider"></div>
