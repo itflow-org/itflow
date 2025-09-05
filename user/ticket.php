@@ -933,8 +933,7 @@ if (isset($_GET['ticket_id'])) {
                             <div>
                                 <i class="fa fa-fw fa-user text-secondary mr-2"></i><a href="#" class="ajax-modal"
                                    data-modal-size="lg"
-                                   data-modal-url="modals/contact/contact_details.php?id=<?= $contact_id ?>">
-                                   <strong><?php echo $contact_name; ?></strong>
+                                   data-modal-url="modals/contact/contact_details.php?id=<?= $contact_id ?>"><strong><?= $contact_name ?></strong>
                                 </a>
                             </div>
 
