@@ -8,7 +8,8 @@ This file documents all notable changes made to ITFlow.
 
 ---
 
-### Breaking Changes
+### Breaking Changes and Notes
+- We strongly recommend updating from the command line, however if performed via the webui and after performed it will return a 404. thats normal as the directory structure has changed, just close your browser then log back in then go back to update to perform the many database updates. 
 - This is a major release with significant changes. While the community has done a great job identifying bugs, some may still remain — continued testing is encouraged.
 - All AI settings will be **reset** and must be reconfigured using the new AI provider backend.
 - The `xcustom` directory has been renamed to `custom`. All custom libraries and post-processing scripts should now be placed here.
