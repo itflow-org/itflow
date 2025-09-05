@@ -2,7 +2,14 @@
 
 $result = mysqli_query($mysqli, "SELECT config_timezone FROM settings WHERE company_id = 1");
 $row = mysqli_fetch_array($result);
-$_SESSION['session_timezone'] = $row['config_timezone'];
+$config_timezone = trim($row['config_timezone'] ?? '');
+
+// Fallback naar geldige tijdzone als deze leeg of ongeldig is
+if (empty($config_timezone) || !in_array($config_timezone, timezone_identifiers_list())) {
+    $config_timezone = 'Europe/Brussels';
+}
+
+$_SESSION['session_timezone'] = $config_timezone;
 
 // Set PHP timezone
 date_default_timezone_set($_SESSION['session_timezone']);

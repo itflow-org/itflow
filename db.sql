@@ -619,7 +619,7 @@ CREATE TABLE `companies` (
   `company_website` varchar(200) DEFAULT NULL,
   `company_logo` varchar(250) DEFAULT NULL,
   `company_locale` varchar(200) DEFAULT NULL,
-  `company_currency` varchar(200) DEFAULT 'USD',
+  `company_currency` varchar(200) NOT NULL DEFAULT 'USD',
   `company_tax_id` varchar(200) DEFAULT NULL,
   `company_created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `company_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
