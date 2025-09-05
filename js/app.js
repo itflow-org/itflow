@@ -16,7 +16,7 @@ $(document).ready(function() {
 
   // Initialize TinyMCE
   tinymce.init({
-      selector: '.tinymce',
+      selector: '.tinymce-simple',
       browser_spellcheck: true,
       contextmenu: false,
       resize: true,
@@ -46,9 +46,9 @@ $(document).ready(function() {
       license_key: 'gpl'
   });
 
-  // Initialize TinyMCE
+  // Initialize TinyMCE with AI
   tinymce.init({
-      selector: '.tinymceAI',
+      selector: '.tinymce',
       browser_spellcheck: true,
       contextmenu: false,
       resize: true,
@@ -150,58 +150,9 @@ $(document).ready(function() {
       }
   });
 
-  tinymce.init({
-    selector: '.tinymceTicket', // Your selector
-    browser_spellcheck: true,
-    contextmenu: false,
-    resize: true,
-    min_height: 300,
-    max_height: 600,
-    promotion: false,
-    branding: false,
-    menubar: false,
-    statusbar: false,
-    toolbar: [
-      { name: 'styles', items: [ 'styles' ] },
-      { name: 'formatting', items: [ 'bold', 'italic', 'forecolor'] },
-      { name: 'link', items: [ 'link'] },
-      { name: 'lists', items: [ 'bullist', 'numlist' ] },
-      { name: 'indentation', items: [ 'outdent', 'indent' ] },
-      { name: 'custom', items: ['redactButton'] } // Add custom button to toolbar
-    ],
-    mobile: {
-      menubar: false,
-      plugins: 'autosave lists autolink',
-      toolbar: 'bold italic styles'
-    },
-    convert_urls: false,
-    plugins: 'link image lists table code fullscreen autoresize',
-    license_key: 'gpl',
-    setup: function(editor) {
-      // Add custom toolbar button with Font Awesome icon
-      editor.ui.registry.addButton('redactButton', {
-        icon: 'permanent-pen',
-        tooltip: 'Redact', // Tooltip text for the button
-        onAction: function() {
-          var selectedText = editor.selection.getContent({ format: 'text' });
-
-          if (selectedText) {
-            // Replace the selected text with [REDACTED] in bold red
-            var newContent = '<span style="font-weight: bold; color: red;">[REDACTED]</span>';
-            
-            // Replace selected content with the new content
-            editor.selection.setContent(newContent);
-          } else {
-            alert('Please select a word to redact');
-          }
-        }
-      });
-    }
-  });
-
   // Initialize TinyMCE AI
   tinymce.init({
-    selector: '.tinymceTicketAI',
+    selector: '.tinymceTicket',
     browser_spellcheck: true,
     contextmenu: false,
     resize: true,

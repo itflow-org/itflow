@@ -2,6 +2,92 @@
 
 This file documents all notable changes made to ITFlow.
 
+## [25.09]
+
+***BACK UP*** before updating.
+
+---
+
+### Breaking Changes and Notes
+- We strongly recommend updating from the command line, however if performed via the webui and after performed it will return a 404. thats normal as the directory structure has changed, just close your browser then log back in then go back to update to perform the many database updates. 
+- This is a major release with significant changes. While the community has done a great job identifying bugs, some may still remain — continued testing is encouraged.
+- All AI settings will be **reset** and must be reconfigured using the new AI provider backend.
+- The `xcustom` directory has been renamed to `custom`. All custom libraries and post-processing scripts should now be placed here.
+
+---
+
+### Added / Changed
+- Numerous UI improvements and refinements across the application.
+- Enhanced visual clarity by thickening the left border on ticket comments to help identify comment types.
+- Ticket details UI redesigned to use less space at the top of the screen.
+- Introduced tracking for the **first response date/time** on tickets.
+- New reporting feature: **Average time to first response** on tickets.
+- Stripe integration rebuilt using the new **payment provider backend**.
+- Clients can now save and manage **multiple payment methods**.
+- Support for selecting saved cards for **recurring invoices** in both the client and agent portals.
+- Initial database structure and logic added for **credit management** (feature not yet enabled).
+- Major **backend directory restructuring**.
+- Introduced **stock/inventory management**, including a stock ledger backend.
+- Stock quantities now update automatically when invoice items are added or removed.
+- Invoice autocomplete now includes: **name, description, price, tax, stock levels**, and links `product_id` to `item_id`.
+- Added a **category filter** to invoices.
+- Linked stock to related expenses.
+- New product fields: **location, code, and type**.
+- Products now separated into two types: **Service** and **Product**.
+- **Dark mode** introduced.
+- Projects: Now support linking **closed tickets**.
+- Clients: Added bulk actions for tags, referral source, industry, hourly rate, email, archive, and restore.
+- Invoices: Bulk action added to **assign categories**.
+- Assets: New `client_uri` field, visible in both the agent and client portals.
+- Client Portal: Clients can now **select an asset** during ticket creation.
+- Client Portal: Company logo now **displays in the header**.
+- Client Portal: Dashboard cards are now **clickable** for more detail.
+- Assets: Option added to include **MAC Address** in additional columns.
+- Asset Interface: Bulk actions added — set DHCP, network type, and delete.
+- API:
+  - Added `/location` endpoint.
+  - Ticket content now supports **HTML formatting**.
+- New option to filter and display **500 records per page** in the footer.
+- Payment methods are now treated as a **separate entity** instead of being grouped under categories.
+- Updated libraries:
+  - **TinyMCE**
+  - **Chart.js** (major upgrade)
+  - **DataTables**
+  - **Bootstrap**
+  - **FullCalendar**
+  - **php-stripe**
+
+---
+
+### Fixed
+- Several security vulnerabilities patched.
+- Ticket status is no longer updated when scheduling.
+- Client Portal: Tech contacts can no longer edit their own details.
+- Fixed overlapping logo issue in Invoice/Quote PDF exports.
+- Refactored `check_login.php` into multiple files for modular login functionality.
+- Removed redundant logging comments for redirects.
+- Renamed `get_settings.php` to `load_global_settings.php`.
+- Simplified syntax for `ajax-modal` and updated usage throughout the app.
+- Fixed issue where primary contact text wasn’t displaying.
+- Corrected client **Net Terms** display.
+- Fixed logic for recurring expense **next run date**.
+- Resolved broken **IMAP test button**.
+- Archived clients can no longer log into the portal.
+- Searching closed tickets no longer reverts to open tickets.
+- Fixed project search filter not showing completed projects.
+- Fixed issue where company logo was not being removed correctly.
+- Resolved API bugs:
+  - Default rate and net terms.
+  - Contact location.
+  - Document endpoint.
+
+---
+
+### Developer Updates
+- Replaced legacy code with newer functions like `redirect()`, `getFieldById()`, and `flash_alert()`.
+- Significantly improved performance of queries used for filter selection boxes.
+
+
 ## [25.06.1]
 
 ### Fixed

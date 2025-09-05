@@ -898,30 +898,26 @@ function checkFileUpload($file, $allowed_extensions)
     return $secureFilename;
 }
 
-function sanitizeInput($input)
-{
+function sanitizeInput($input) {
     global $mysqli;
 
     if (!empty($input)) {
-        // Detect encoding
-        $encoding = mb_detect_encoding($input, ['UTF-8', 'ISO-8859-1', 'Windows-1252', 'ISO-8859-15'], true);
-
-        // If not UTF-8, convert to UTF8 (primarily Windows-1252 is problematic)
-        if ($encoding !== 'UTF-8') {
-            $input = mb_convert_encoding($input, 'UTF-8', $encoding);
+        // Only convert encoding if it's NOT valid UTF-8
+        if (!mb_check_encoding($input, 'UTF-8')) {
+            // Try converting from Windows-1252 as a safe default fallback
+            $input = mb_convert_encoding($input, 'UTF-8', 'Windows-1252');
         }
     }
 
     // Remove HTML and PHP tags
     $input = strip_tags((string) $input);
 
-    // Remove white space from beginning and end of input
+    // Trim white space
     $input = trim($input);
 
-    // Escape special characters
+    // Escape for SQL
     $input = mysqli_real_escape_string($mysqli, $input);
 
-    // Return sanitized input
     return $input;
 }
 
@@ -1486,8 +1482,8 @@ function enforceAdminPermission() {
 
 function customAction($trigger, $entity) {
     chdir(dirname(__FILE__));
-    if (file_exists(__DIR__ . "/xcustom/xcustom_action_handler.php")) {
-        include_once __DIR__ . "/xcustom/xcustom_action_handler.php";
+    if (file_exists(__DIR__ . "/custom/custom_action_handler.php")) {
+        include_once __DIR__ . "/custom/custom_action_handler.php";
     }
 }
 
@@ -1674,4 +1670,28 @@ function sanitize_url($url) {
 
     // Safe schemes: return escaped original URL
     return htmlspecialchars($url ?? '', ENT_QUOTES, 'UTF-8');
+}
+
+// Redirect Function
+function redirect($url = null, $permanent = false) {
+    // Use referer if no URL is provided
+    if (!$url) {
+        $url = $_SERVER['HTTP_REFERER'] ?? 'index.php';
+    }
+
+    if (!headers_sent()) {
+        header('Location: ' . $url, true, $permanent ? 301 : 302);
+        exit;
+    } else {
+        // Fallback for headers already sent
+        echo "<script>window.location.href = '" . addslashes($url) . "';</script>";
+        echo '<noscript><meta http-equiv="refresh" content="0;url=' . htmlspecialchars($url) . '"></noscript>';
+        exit;
+    }
+}
+
+//Flash Alert Function
+function flash_alert(string $message, string $type = 'success'): void {
+    $_SESSION['alert_type'] = $type;
+    $_SESSION['alert_message'] = $message;
 }

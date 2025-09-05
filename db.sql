@@ -39,6 +39,45 @@ CREATE TABLE `accounts` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `ai_models`
+--
+
+DROP TABLE IF EXISTS `ai_models`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `ai_models` (
+  `ai_model_id` int(11) NOT NULL AUTO_INCREMENT,
+  `ai_model_name` varchar(200) NOT NULL,
+  `ai_model_prompt` text DEFAULT NULL,
+  `ai_model_use_case` varchar(200) DEFAULT NULL,
+  `ai_model_created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `ai_model_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
+  `ai_model_ai_provider_id` int(11) NOT NULL,
+  PRIMARY KEY (`ai_model_id`),
+  KEY `ai_model_ai_provider_id` (`ai_model_ai_provider_id`),
+  CONSTRAINT `ai_models_ibfk_1` FOREIGN KEY (`ai_model_ai_provider_id`) REFERENCES `ai_providers` (`ai_provider_id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `ai_providers`
+--
+
+DROP TABLE IF EXISTS `ai_providers`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `ai_providers` (
+  `ai_provider_id` int(11) NOT NULL AUTO_INCREMENT,
+  `ai_provider_name` varchar(200) NOT NULL,
+  `ai_provider_api_url` varchar(200) NOT NULL,
+  `ai_provider_api_key` varchar(200) DEFAULT NULL,
+  `ai_provider_created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `ai_provider_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
+  PRIMARY KEY (`ai_provider_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `api_keys`
 --
 
@@ -254,6 +293,7 @@ CREATE TABLE `assets` (
   `asset_os` varchar(200) DEFAULT NULL,
   `asset_uri` varchar(500) DEFAULT NULL,
   `asset_uri_2` varchar(500) DEFAULT NULL,
+  `asset_uri_client` varchar(500) DEFAULT NULL,
   `asset_status` varchar(200) DEFAULT NULL,
   `asset_purchase_reference` varchar(200) DEFAULT NULL,
   `asset_purchase_date` date DEFAULT NULL,
@@ -472,19 +512,44 @@ CREATE TABLE `client_notes` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Table structure for table `client_stripe`
+-- Table structure for table `client_payment_provider`
 --
 
-DROP TABLE IF EXISTS `client_stripe`;
+DROP TABLE IF EXISTS `client_payment_provider`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8mb4 */;
-CREATE TABLE `client_stripe` (
+CREATE TABLE `client_payment_provider` (
   `client_id` int(11) NOT NULL,
-  `stripe_id` varchar(255) NOT NULL,
-  `stripe_pm` varchar(255) DEFAULT NULL,
-  `stripe_pm_details` varchar(200) DEFAULT NULL,
-  `stripe_pm_created_at` datetime NOT NULL DEFAULT current_timestamp(),
-  PRIMARY KEY (`client_id`)
+  `payment_provider_id` int(11) NOT NULL,
+  `payment_provider_client` varchar(200) NOT NULL,
+  `client_payment_provider_created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`client_id`,`payment_provider_id`),
+  KEY `payment_provider_id` (`payment_provider_id`),
+  CONSTRAINT `client_payment_provider_ibfk_1` FOREIGN KEY (`client_id`) REFERENCES `clients` (`client_id`) ON DELETE CASCADE,
+  CONSTRAINT `client_payment_provider_ibfk_2` FOREIGN KEY (`payment_provider_id`) REFERENCES `payment_providers` (`payment_provider_id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `client_saved_payment_methods`
+--
+
+DROP TABLE IF EXISTS `client_saved_payment_methods`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `client_saved_payment_methods` (
+  `saved_payment_id` int(11) NOT NULL AUTO_INCREMENT,
+  `saved_payment_provider_method` varchar(200) NOT NULL,
+  `saved_payment_description` varchar(200) DEFAULT NULL,
+  `saved_payment_client_id` int(11) NOT NULL,
+  `saved_payment_provider_id` int(11) NOT NULL,
+  `saved_payment_created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `saved_payment_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
+  PRIMARY KEY (`saved_payment_id`),
+  KEY `saved_payment_client_id` (`saved_payment_client_id`),
+  KEY `saved_payment_provider_id` (`saved_payment_provider_id`),
+  CONSTRAINT `client_saved_payment_methods_ibfk_1` FOREIGN KEY (`saved_payment_client_id`) REFERENCES `clients` (`client_id`) ON DELETE CASCADE,
+  CONSTRAINT `client_saved_payment_methods_ibfk_2` FOREIGN KEY (`saved_payment_provider_id`) REFERENCES `payment_providers` (`payment_provider_id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -758,6 +823,30 @@ CREATE TABLE `credentials` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `credits`
+--
+
+DROP TABLE IF EXISTS `credits`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `credits` (
+  `credit_id` int(11) NOT NULL AUTO_INCREMENT,
+  `credit_amount` decimal(15,2) NOT NULL,
+  `credit_type` enum('prepaid','manual','refund','promotion','usage') NOT NULL DEFAULT 'manual',
+  `credit_note` text DEFAULT NULL,
+  `credit_created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `credit_created_by` int(11) NOT NULL,
+  `credit_expire_at` date DEFAULT NULL,
+  `credit_invoice_id` int(11) DEFAULT NULL,
+  `credit_client_id` int(11) NOT NULL,
+  PRIMARY KEY (`credit_id`),
+  KEY `credit_client_id` (`credit_client_id`),
+  KEY `credit_invoice_id` (`credit_invoice_id`),
+  KEY `credit_created_at` (`credit_created_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `custom_fields`
 --
 
@@ -810,6 +899,27 @@ CREATE TABLE `custom_values` (
   `custom_value_value` mediumtext NOT NULL,
   `custom_value_field` int(11) NOT NULL,
   PRIMARY KEY (`custom_value_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `discount_codes`
+--
+
+DROP TABLE IF EXISTS `discount_codes`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `discount_codes` (
+  `discount_code_id` int(11) NOT NULL AUTO_INCREMENT,
+  `discount_code_description` varchar(250) DEFAULT NULL,
+  `discount_code_amount` decimal(15,2) NOT NULL,
+  `discount_code` varchar(200) NOT NULL,
+  `discount_code_created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `discount_code_created_by` int(11) NOT NULL,
+  `discount_code_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
+  `discount_code_archived_at` datetime DEFAULT NULL,
+  `discount_code_expire_at` date DEFAULT NULL,
+  PRIMARY KEY (`discount_code_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -1109,6 +1219,7 @@ CREATE TABLE `invoices` (
   `invoice_date` date NOT NULL,
   `invoice_due` date NOT NULL,
   `invoice_discount_amount` decimal(15,2) NOT NULL DEFAULT 0.00,
+  `invoice_credit_amount` decimal(15,2) NOT NULL DEFAULT 0.00,
   `invoice_amount` decimal(15,2) NOT NULL DEFAULT 0.00,
   `invoice_currency_code` varchar(200) NOT NULL,
   `invoice_note` text DEFAULT NULL,
@@ -1264,6 +1375,49 @@ CREATE TABLE `notifications` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `payment_methods`
+--
+
+DROP TABLE IF EXISTS `payment_methods`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `payment_methods` (
+  `payment_method_id` int(11) NOT NULL AUTO_INCREMENT,
+  `payment_method_name` varchar(200) NOT NULL,
+  `payment_method_description` varchar(250) DEFAULT NULL,
+  `payment_method_created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `payment_method_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
+  PRIMARY KEY (`payment_method_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `payment_providers`
+--
+
+DROP TABLE IF EXISTS `payment_providers`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `payment_providers` (
+  `payment_provider_id` int(11) NOT NULL AUTO_INCREMENT,
+  `payment_provider_name` varchar(200) NOT NULL,
+  `payment_provider_description` varchar(250) DEFAULT NULL,
+  `payment_provider_public_key` varchar(250) DEFAULT NULL,
+  `payment_provider_private_key` varchar(250) DEFAULT NULL,
+  `payment_provider_threshold` decimal(15,2) DEFAULT NULL,
+  `payment_provider_active` tinyint(1) NOT NULL DEFAULT 1,
+  `payment_provider_account` int(11) NOT NULL,
+  `payment_provider_expense_vendor` int(11) NOT NULL DEFAULT 0,
+  `payment_provider_expense_category` int(11) NOT NULL DEFAULT 0,
+  `payment_provider_expense_percentage_fee` decimal(4,4) DEFAULT NULL,
+  `payment_provider_expense_flat_fee` decimal(15,2) DEFAULT NULL,
+  `payment_provider_created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `payment_provider_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
+  PRIMARY KEY (`payment_provider_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `payments`
 --
 
@@ -1287,6 +1441,25 @@ CREATE TABLE `payments` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `product_stock`
+--
+
+DROP TABLE IF EXISTS `product_stock`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `product_stock` (
+  `stock_id` int(11) NOT NULL AUTO_INCREMENT,
+  `stock_qty` int(11) NOT NULL,
+  `stock_note` text DEFAULT NULL,
+  `stock_created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `stock_expense_id` int(11) DEFAULT NULL,
+  `stock_item_id` int(11) DEFAULT NULL,
+  `stock_product_id` int(11) NOT NULL,
+  PRIMARY KEY (`stock_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `products`
 --
 
@@ -1296,7 +1469,10 @@ DROP TABLE IF EXISTS `products`;
 CREATE TABLE `products` (
   `product_id` int(11) NOT NULL AUTO_INCREMENT,
   `product_name` varchar(200) NOT NULL,
+  `product_type` enum('service','product') NOT NULL DEFAULT 'service',
   `product_description` text DEFAULT NULL,
+  `product_code` varchar(200) DEFAULT NULL,
+  `product_location` varchar(250) DEFAULT NULL,
   `product_price` decimal(15,2) NOT NULL,
   `product_currency_code` varchar(200) NOT NULL,
   `product_created_at` datetime NOT NULL DEFAULT current_timestamp(),
@@ -1560,7 +1736,10 @@ CREATE TABLE `recurring_payments` (
   `recurring_payment_account_id` int(11) NOT NULL,
   `recurring_payment_recurring_expense_id` int(11) NOT NULL DEFAULT 0,
   `recurring_payment_recurring_invoice_id` int(11) NOT NULL,
-  PRIMARY KEY (`recurring_payment_id`)
+  `recurring_payment_saved_payment_id` int(11) DEFAULT NULL,
+  PRIMARY KEY (`recurring_payment_id`),
+  KEY `fk_recurring_saved_payment` (`recurring_payment_saved_payment_id`),
+  CONSTRAINT `fk_recurring_saved_payment` FOREIGN KEY (`recurring_payment_saved_payment_id`) REFERENCES `client_saved_payment_methods` (`saved_payment_id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -1858,19 +2037,6 @@ CREATE TABLE `settings` (
   `config_enable_alert_domain_expire` tinyint(1) NOT NULL DEFAULT 1,
   `config_send_invoice_reminders` tinyint(1) NOT NULL DEFAULT 1,
   `config_invoice_overdue_reminders` varchar(200) DEFAULT NULL,
-  `config_stripe_enable` tinyint(1) NOT NULL DEFAULT 0,
-  `config_stripe_publishable` varchar(255) DEFAULT NULL,
-  `config_stripe_secret` varchar(255) DEFAULT NULL,
-  `config_stripe_account` int(11) NOT NULL DEFAULT 0,
-  `config_stripe_expense_vendor` int(11) NOT NULL DEFAULT 0,
-  `config_stripe_expense_category` int(11) NOT NULL DEFAULT 0,
-  `config_stripe_percentage_fee` decimal(4,4) NOT NULL DEFAULT 0.0290,
-  `config_ai_enable` tinyint(1) DEFAULT 0,
-  `config_ai_provider` varchar(250) DEFAULT NULL,
-  `config_ai_model` varchar(250) DEFAULT NULL,
-  `config_ai_url` varchar(250) DEFAULT NULL,
-  `config_ai_api_key` varchar(250) DEFAULT NULL,
-  `config_stripe_flat_fee` decimal(15,2) NOT NULL DEFAULT 0.30,
   `config_azure_client_id` varchar(200) DEFAULT NULL,
   `config_azure_client_secret` varchar(200) DEFAULT NULL,
   `config_module_enable_itdoc` tinyint(1) NOT NULL DEFAULT 1,
@@ -2318,6 +2484,7 @@ CREATE TABLE `tickets` (
   `ticket_contact_id` int(11) NOT NULL DEFAULT 0,
   `ticket_location_id` int(11) NOT NULL DEFAULT 0,
   `ticket_asset_id` int(11) NOT NULL DEFAULT 0,
+  `ticket_quote_id` int(11) NOT NULL DEFAULT 0,
   `ticket_invoice_id` int(11) NOT NULL DEFAULT 0,
   `ticket_project_id` int(11) NOT NULL DEFAULT 0,
   `ticket_recurring_ticket_id` int(11) DEFAULT 0,
@@ -2435,6 +2602,7 @@ CREATE TABLE `user_settings` (
   `user_config_dashboard_technical_enable` tinyint(1) NOT NULL DEFAULT 0,
   `user_config_calendar_first_day` tinyint(1) NOT NULL DEFAULT 0,
   `user_config_signature` text DEFAULT NULL,
+  `user_config_theme_dark` tinyint(1) NOT NULL DEFAULT 0,
   PRIMARY KEY (`user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -2590,4 +2758,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-06-21 18:33:02
+-- Dump completed on 2025-08-28 11:43:32

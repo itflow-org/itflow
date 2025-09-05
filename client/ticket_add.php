@@ -6,6 +6,9 @@
 
 require_once 'includes/inc_all.php';
 
+// Allow clients to select a related asset when raising a ticket
+$sql_assets = mysqli_query($mysqli, "SELECT asset_id, asset_name, asset_type FROM assets WHERE asset_contact_id = $session_contact_id AND asset_client_id = $session_client_id AND asset_archived_at IS NULL ORDER BY asset_name ASC");
+
 ?>
 
     <ol class="breadcrumb d-print-none">
@@ -75,6 +78,30 @@ require_once 'includes/inc_all.php';
                 </div>
             </div>
 
+            <?php if (mysqli_num_rows($sql_assets) > 0) { ?>
+                <div class="form-group">
+                    <label>Asset</label>
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text"><i class="fa fa-fw fa-desktop"></i></span>
+                        </div>
+                        <select class="form-control select2" name="asset">
+                            <option value="0">- None -</option>
+                            <?php
+
+                            while ($row = mysqli_fetch_array($sql_assets)) {
+                                $asset_id = intval($row['asset_id']);
+                                $asset_name = sanitizeInput($row['asset_name']);
+                                $asset_type = sanitizeInput($row['asset_type']);
+                                ?>
+                                <option value="<?php echo $asset_id ?>"><?php echo "$asset_name ($asset_type)"; ?></option>
+                                <?php
+                            }
+                            ?>
+                        </select>
+                    </div>
+                </div>
+            <?php } ?>
 
 
             <div class="form-group">

@@ -1,0 +1,1622 @@
+<?php
+
+/*
+ * ITFlow - GET/POST request handler for client assets
+ */
+
+defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
+
+if (isset($_POST['add_asset'])) {
+
+    validateCSRFToken($_POST['csrf_token']);
+    
+    enforceUserPermission('module_support', 2);
+
+    require_once 'asset_model.php';
+
+    $alert_extended = "";
+
+    mysqli_query($mysqli,"INSERT INTO assets SET asset_name = '$name', asset_description = '$description', asset_type = '$type', asset_make = '$make', asset_model = '$model', asset_serial = '$serial', asset_os = '$os', asset_uri = '$uri', asset_uri_2 = '$uri_2', asset_uri_client = '$uri_client', asset_location_id = $location, asset_vendor_id = $vendor, asset_contact_id = $contact, asset_status = '$status', asset_purchase_reference = '$purchase_reference', asset_purchase_date = $purchase_date, asset_warranty_expire = $warranty_expire, asset_install_date = $install_date, asset_physical_location = '$physical_location', asset_notes = '$notes', asset_client_id = $client_id");
+
+    $asset_id = mysqli_insert_id($mysqli);
+
+    // Add Photo
+    if (isset($_FILES['file']['tmp_name'])) {
+        if ($new_file_name = checkFileUpload($_FILES['file'], array('jpg', 'jpeg', 'gif', 'png', 'webp'))) {
+
+            $file_tmp_path = $_FILES['file']['tmp_name'];
+
+            // directory in which the uploaded file will be moved
+            if (!file_exists("../uploads/clients/$client_id")) {
+                mkdir("../uploads/clients/$client_id");
+            }
+            $upload_file_dir = "../uploads/clients/$client_id/";
+            $dest_path = $upload_file_dir . $new_file_name;
+            move_uploaded_file($file_tmp_path, $dest_path);
+
+            mysqli_query($mysqli,"UPDATE assets SET asset_photo = '$new_file_name' WHERE asset_id = $asset_id");
+        }
+    }
+
+    // Add Primary Interface
+    mysqli_query($mysqli,"INSERT INTO asset_interfaces SET interface_name = '01', interface_mac = '$mac', interface_ip = '$ip', interface_nat_ip = '$nat_ip', interface_ipv6 = '$ipv6', interface_primary = 1, interface_network_id = $network, interface_asset_id = $asset_id");
+
+    if (!empty($_POST['username'])) {
+        $username = trim(mysqli_real_escape_string($mysqli, encryptCredentialEntry($_POST['username'])));
+        $password = trim(mysqli_real_escape_string($mysqli, encryptCredentialEntry($_POST['password'])));
+
+        mysqli_query($mysqli,"INSERT INTO credentials SET credential_name = '$name', credential_username = '$username', credential_password = '$password', credential_asset_id = $asset_id, credential_client_id = $client_id");
+
+        $credential_id = mysqli_insert_id($mysqli);
+
+        logAction("Credential", "Create", "$session_name created login credential for asset $asset_name", $client_id, $credential_id);
+
+        $alert_extended = " along with login credentials";
+
+    }
+
+    // Add to History
+    mysqli_query($mysqli,"INSERT INTO asset_history SET asset_history_status = '$status', asset_history_description = '$session_name created $name', asset_history_asset_id = $asset_id");
+
+    logAction("Asset", "Create", "$session_name created asset $name", $client_id, $asset_id);
+
+    flash_alert("Asset <strong>$name</strong> created $alert_extended");
+
+    redirect();
+
+}
+
+if (isset($_POST['edit_asset'])) {
+
+    validateCSRFToken($_POST['csrf_token']);
+    
+    enforceUserPermission('module_support', 2);
+    
+    require_once 'asset_model.php';
+    $asset_id = intval($_POST['asset_id']);
+
+    // Get Existing Photo
+    $sql = mysqli_query($mysqli,"SELECT asset_photo FROM assets WHERE asset_id = $asset_id");
+    $row = mysqli_fetch_array($sql);
+    $existing_file_name = sanitizeInput($row['asset_photo']);
+
+    mysqli_query($mysqli,"UPDATE assets SET asset_name = '$name', asset_description = '$description', asset_type = '$type', asset_make = '$make', asset_model = '$model', asset_serial = '$serial', asset_os = '$os', asset_uri = '$uri', asset_uri_2 = '$uri_2', asset_uri_client = '$uri_client', asset_location_id = $location, asset_vendor_id = $vendor, asset_contact_id = $contact, asset_status = '$status', asset_purchase_reference = '$purchase_reference', asset_purchase_date = $purchase_date, asset_warranty_expire = $warranty_expire, asset_install_date = $install_date, asset_physical_location = '$physical_location', asset_notes = '$notes' WHERE asset_id = $asset_id");
+
+    $sql_interfaces = mysqli_query($mysqli, "SELECT * FROM asset_interfaces WHERE interface_asset_id = $asset_id AND interface_primary = 1");
+
+    if(mysqli_num_rows($sql_interfaces) == 0 ) {
+        // Add Primary Interface
+        mysqli_query($mysqli,"INSERT INTO asset_interfaces SET interface_name = '01', interface_mac = '$mac', interface_ip = '$ip', interface_nat_ip = '$nat_ip', interface_ipv6 = '$ipv6', interface_primary = 1, interface_network_id = $network, interface_asset_id = $asset_id");
+    } else {
+        // Update Primary Interface
+        mysqli_query($mysqli,"UPDATE asset_interfaces SET interface_mac = '$mac', interface_ip = '$ip', interface_nat_ip = '$nat_ip', interface_ipv6 = '$ipv6', interface_network_id = $network WHERE interface_asset_id = $asset_id AND interface_primary = 1");
+    }
+
+    // Update Photo
+    if ($new_file_name = checkFileUpload($_FILES['file'], array('jpg', 'jpeg', 'gif', 'png', 'webp'))) {
+
+        // Set directory in which the uploaded file will be moved
+        $file_tmp_path = $_FILES['file']['tmp_name'];
+        $upload_file_dir = "../uploads/clients/$client_id/";
+        $dest_path = $upload_file_dir . $new_file_name;
+
+        move_uploaded_file($file_tmp_path, $dest_path);
+
+        //Delete old file
+        unlink("../uploads/clients/$client_id/$existing_file_name");
+
+        mysqli_query($mysqli,"UPDATE assets SET asset_photo = '$new_file_name' WHERE asset_id = $asset_id");
+    }
+
+    logAction("Asset", "Edit", "$session_name edited asset $name", $client_id, $asset_id);
+
+    flash_alert("Asset <strong>$name</strong> edited");
+
+    redirect();
+
+}
+
+if (isset($_GET['archive_asset'])) {
+
+    validateCSRFToken($_GET['csrf_token']);
+    
+    enforceUserPermission('module_support', 2);
+
+    $asset_id = intval($_GET['archive_asset']);
+
+    // Get Asset Name and Client ID for logging and alert message
+    $sql = mysqli_query($mysqli,"SELECT asset_name, asset_client_id FROM assets WHERE asset_id = $asset_id");
+    $row = mysqli_fetch_array($sql);
+    $asset_name = sanitizeInput($row['asset_name']);
+    $client_id = intval($row['asset_client_id']);
+
+    mysqli_query($mysqli,"UPDATE assets SET asset_archived_at = NOW() WHERE asset_id = $asset_id");
+
+    logAction("Asset", "Archive", "$session_name archived asset $asset_name", $client_id, $asset_id);
+
+    flash_alert("Asset <strong>$asset_name</strong> archived", 'error');
+
+    redirect();
+
+}
+
+if (isset($_GET['unarchive_asset'])) {
+
+    validateCSRFToken($_GET['csrf_token']);
+    
+    enforceUserPermission('module_support', 2);
+
+    $asset_id = intval($_GET['unarchive_asset']);
+
+    // Get Asset Name and Client ID for logging and alert message
+    $sql = mysqli_query($mysqli,"SELECT asset_name, asset_client_id FROM assets WHERE asset_id = $asset_id");
+    $row = mysqli_fetch_array($sql);
+    $asset_name = sanitizeInput($row['asset_name']);
+    $client_id = intval($row['asset_client_id']);
+
+    mysqli_query($mysqli,"UPDATE assets SET asset_archived_at = NULL WHERE asset_id = $asset_id");
+
+    logAction("Asset", "Unarchive", "$session_name unarchived asset $asset_name", $client_id, $asset_id);
+
+    flash_alert("Asset <strong>$asset_name</strong> Unarchived");
+
+    redirect();
+
+}
+
+if (isset($_GET['delete_asset'])) {
+
+    validateCSRFToken($_GET['csrf_token']);
+    
+    enforceUserPermission('module_support', 3);
+
+    $asset_id = intval($_GET['delete_asset']);
+
+    // Get Asset Name and Client ID for logging and alert message
+    $sql = mysqli_query($mysqli,"SELECT asset_name, asset_client_id FROM assets WHERE asset_id = $asset_id");
+    $row = mysqli_fetch_array($sql);
+    $asset_name = sanitizeInput($row['asset_name']);
+    $client_id = intval($row['asset_client_id']);
+
+    mysqli_query($mysqli,"DELETE FROM assets WHERE asset_id = $asset_id");
+
+    logAction("Asset", "Delete", "$session_name deleted asset $asset_name", $client_id);
+
+    flash_alert("Asset <strong>$asset_name</strong> deleted");
+
+    redirect();
+
+}
+
+if (isset($_POST['bulk_assign_asset_location'])) {
+
+    validateCSRFToken($_POST['csrf_token']);
+    
+    enforceUserPermission('module_support', 2);
+    
+    $location_id = intval($_POST['bulk_location_id']);
+
+    // Get Location name and client id for logging and alert
+    $sql = mysqli_query($mysqli,"SELECT location_name, location_client_id FROM locations WHERE location_id = $location_id");
+    $row = mysqli_fetch_array($sql);
+    $location_name = sanitizeInput($row['location_name']);
+    $client_id = intval($row['location_client_id']);
+
+    // Assign Location to Selected Assets
+    if (isset($_POST['asset_ids'])) {
+
+        // Get Selected Asset Count
+        $asset_count = count($_POST['asset_ids']);
+
+        foreach($_POST['asset_ids'] as $asset_id) {
+            $asset_id = intval($asset_id);
+
+            // Get Asset Details for Logging
+            $sql = mysqli_query($mysqli,"SELECT asset_name, asset_client_id FROM assets WHERE asset_id = $asset_id");
+            $row = mysqli_fetch_array($sql);
+            $asset_name = sanitizeInput($row['asset_name']);
+            $client_id = intval($row['asset_client_id']);
+
+            mysqli_query($mysqli,"UPDATE assets SET asset_location_id = $location_id WHERE asset_id = $asset_id");
+
+            logAction("Asset", "Edit", "$session_name assigned asset $asset_name to location $location_name", $client_id, $asset_id);
+
+        } // End Assign Location Loop
+
+        logAction("Asset", "Bulk Edit", "$session_name assigned $asset_count assets to location $location_name", $client_id);
+
+        flash_alert("You assigned <strong>$asset_count</strong> assets to location <strong>$location_name</strong>");
+    }
+
+    redirect();
+
+}
+
+if (isset($_POST['bulk_assign_asset_physical_location'])) {
+
+    validateCSRFToken($_POST['csrf_token']);
+
+    enforceUserPermission('module_support', 2);
+
+    $physical_location = sanitizeInput($_POST['physical_location']);
+
+    // Assign Physical Location to Selected Assets
+    if (isset($_POST['asset_ids'])) {
+
+        // Get Selected Assets Count
+        $asset_count = count($_POST['asset_ids']);
+
+        foreach($_POST['asset_ids'] as $asset_id) {
+            $asset_id = intval($asset_id);
+
+            // Get Asset Details for Logging
+            $sql = mysqli_query($mysqli,"SELECT asset_name, asset_client_id FROM assets WHERE asset_id = $asset_id");
+            $row = mysqli_fetch_array($sql);
+            $asset_name = sanitizeInput($row['asset_name']);
+            $client_id = intval($row['asset_client_id']);
+
+            mysqli_query($mysqli,"UPDATE assets SET asset_physical_location = '$physical_location' WHERE asset_id = $asset_id");
+
+            logAction("Asset", "Edit", "$session_name set asset $asset_name to physical location $physical_location", $client_id, $asset_id);
+
+        } // End Assign Location Loop
+
+        logAction("Asset", "Bulk Edit", "$session_name set $asset_count assets to physical location $physical_location", $client_id);
+
+        flash_alert("You moved <strong>$asset_count</strong> assets to location <strong>$physical_location</strong>");
+    }
+
+    redirect();
+
+}
+
+if (isset($_POST['bulk_transfer_client_asset'])) {
+
+    validateCSRFToken($_POST['csrf_token']);
+
+    enforceUserPermission('module_support', 2);
+
+    $new_client_id = intval($_POST['bulk_client_id']);
+
+    // Transfer selected asset to new client
+    if (isset($_POST['asset_ids'])) {
+
+        // Get Count
+        $asset_count = count($_POST['asset_ids']);
+
+        foreach($_POST['asset_ids'] as $current_asset_id) {
+            $current_asset_id = intval($current_asset_id);
+
+            // Get Asset details and current client ID/Name for logging
+            $row = mysqli_fetch_array(mysqli_query($mysqli,"SELECT asset_name, asset_notes, asset_client_id, client_name
+                FROM assets
+                LEFT JOIN clients ON client_id = asset_client_id
+                WHERE asset_id = $current_asset_id")
+            );
+            $asset_name = sanitizeInput($row['asset_name']);
+            $asset_notes = sanitizeInput($row['asset_notes']);
+            $current_client_id = intval($row['asset_client_id']);
+            $current_client_name = sanitizeInput($row['client_name']);
+
+            // Get new client name for logging
+            $new_client_name = sanitizeInput(getFieldById('clients', $new_client_id, 'client_name'));
+
+            // Create new asset
+            mysqli_query($mysqli, "
+                INSERT INTO assets (asset_type, asset_name, asset_description, asset_make, asset_model, asset_serial, asset_os, asset_status, asset_purchase_date, asset_warranty_expire, asset_install_date, asset_notes, asset_important)
+                SELECT asset_type, asset_name, asset_description, asset_make, asset_model, asset_serial, asset_os, asset_status, asset_purchase_date, asset_warranty_expire, asset_install_date, asset_notes, asset_important
+                FROM assets
+                WHERE asset_id = $current_asset_id
+            ");
+            $new_asset_id = mysqli_insert_id($mysqli);
+
+            // Transfer all Interfaces over too
+            $sql_interfaces = mysqli_query($mysqli, "SELECT * FROM asset_interfaces WHERE interface_asset_id = $current_asset_id");
+
+            while ($row = mysqli_fetch_array($sql_interfaces)) {
+                $interface_name = sanitizeInput($row['interface_name']);
+                $interface_mac = sanitizeInput($row['interface_mac']);
+                $interface_primary = intval($row['interface_primary']);
+
+                mysqli_query($mysqli,"INSERT INTO asset_interfaces SET interface_name = '$interface_name', interface_mac = '$interface_mac',  interface_primary = $interface_primary, interface_asset_id = $new_asset_id");
+
+            }
+
+            mysqli_query($mysqli, "UPDATE assets SET asset_client_id = $new_client_id WHERE asset_id = $new_asset_id");
+
+            // Archive/log the current asset
+            $notes = $asset_notes . "\r\n\r\n---\r\n* " . date('Y-m-d H:i:s') . ": Transferred asset $asset_name (old asset ID: $current_asset_id) from $current_client_name to $new_client_name (new asset ID: $new_asset_id)";
+            mysqli_query($mysqli,"UPDATE assets SET asset_archived_at = NOW() WHERE asset_id = $current_asset_id");
+
+            // Log Archive
+            logAction("Asset", "Archive", "$session_name archived asset $asset_name (via transfer)", $current_client_id, $current_asset_id);
+
+            // Log Transfer
+            logAction("Asset", "Transfer", "$session_name Transferred asset $asset_name (old asset ID: $current_asset_id) from $current_client_name to $new_client_name (new asset ID: $new_asset_id)", $current_client_id, $current_asset_id);
+            mysqli_query($mysqli, "UPDATE assets SET asset_notes = '$notes' WHERE asset_id = $current_asset_id");
+
+            // Log the new asset
+            $notes = $asset_notes . "\r\n\r\n---\r\n* " . date('Y-m-d H:i:s') . ": Transferred asset $asset_name (old asset ID: $current_asset_id) from $current_client_name to $new_client_name (new asset ID: $new_asset_id)";
+            logAction("Asset", "Create", "$session_name created asset $name (via transfer)", $new_client_id, $new_asset_id);
+
+            logAction("Asset", "Transfer", "$session_name Transferred asset $asset_name (old asset ID: $current_asset_id) from $current_client_name to $new_client_name (new asset ID: $new_asset_id)", $new_client_id, $new_asset_id);
+
+            mysqli_query($mysqli, "UPDATE assets SET asset_notes = '$notes' WHERE asset_id = $new_asset_id");
+
+        } // End Transfer to Client Loop
+
+        logAction("Asset", "Bulk Transfer", "$session_name transferred $asset_count assets to $new_client_name", $new_client_id);
+
+        flash_alert("Transferred <strong>$asset_count</strong> assets to <strong>$new_client_name</strong>.");
+    }
+
+    redirect();
+
+}
+
+if (isset($_POST['bulk_assign_asset_contact'])) {
+
+    validateCSRFToken($_POST['csrf_token']);
+
+    enforceUserPermission('module_support', 2);
+
+    $contact_id = intval($_POST['bulk_contact_id']);
+
+    // Get Contact name and client id for logging and Notification
+    $sql = mysqli_query($mysqli,"SELECT contact_name, contact_client_id FROM contacts WHERE contact_id = $contact_id");
+    $row = mysqli_fetch_array($sql);
+    $contact_name = sanitizeInput($row['contact_name']);
+    $client_id = intval($row['contact_client_id']);
+
+    // Assign Contact to Selected Assets
+    if (isset($_POST['asset_ids'])) {
+
+        // Get Selected Contacts Count
+        $asset_count = count($_POST['asset_ids']);
+
+        foreach($_POST['asset_ids'] as $asset_id) {
+            $asset_id = intval($asset_id);
+
+            // Get Asset Details for Logging
+            $sql = mysqli_query($mysqli,"SELECT asset_name FROM assets WHERE asset_id = $asset_id");
+            $row = mysqli_fetch_array($sql);
+            $asset_name = sanitizeInput($row['asset_name']);
+
+            mysqli_query($mysqli,"UPDATE assets SET asset_contact_id = $contact_id WHERE asset_id = $asset_id");
+
+            logAction("Asset", "Edit", "$session_name assigned asset $asset_name to contact $contact_name", $client_id, $asset_id);
+
+        } // End Assign Contact Loop
+
+        logAction("Asset", "Bulk Edit", "$session_name assigned $asset_count assets to contact $contact_name", $client_id);
+
+        flash_alert("You assigned <strong>$asset_count</strong> assets to contact <strong>$contact_name</strong>");
+    }
+
+    redirect();
+
+}
+
+if (isset($_POST['bulk_edit_asset_status'])) {
+
+    validateCSRFToken($_POST['csrf_token']);
+
+    enforceUserPermission('module_support', 2);
+
+    $status = sanitizeInput($_POST['bulk_status']);
+
+    if (isset($_POST['asset_ids'])) {
+
+        $asset_count = count($_POST['asset_ids']);
+
+        foreach($_POST['asset_ids'] as $asset_id) {
+            $asset_id = intval($asset_id);
+
+            // Get Asset Details for Logging
+            $sql = mysqli_query($mysqli,"SELECT asset_name, asset_client_id FROM assets WHERE asset_id = $asset_id");
+            $row = mysqli_fetch_array($sql);
+            $asset_name = sanitizeInput($row['asset_name']);
+            $client_id = intval($row['asset_client_id']);
+
+            mysqli_query($mysqli,"UPDATE assets SET asset_status = '$status' WHERE asset_id = $asset_id");
+
+            logAction("Asset", "Edit", "$session_name set status to $status on $asset_name", $client_id, $asset_id);
+
+        }
+
+        logAction("Asset", "Bulk Edit", "$session_name set status to $status on $asset_count assets", $client_id);
+
+        flash_alert("You set the status <strong>$status</strong> on <strong>$asset_count</strong> assets.");
+    }
+
+    redirect();
+
+}
+
+if (isset($_POST['bulk_archive_assets'])) {
+
+    validateCSRFToken($_POST['csrf_token']);
+
+    enforceUserPermission('module_support', 2);
+
+    if (isset($_POST['asset_ids'])) {
+
+        $count = count($_POST['asset_ids']);
+
+        foreach ($_POST['asset_ids'] as $asset_id) {
+
+            $asset_id = intval($asset_id);
+
+            // Get Asset Name and Client ID for logging and alert message
+            $sql = mysqli_query($mysqli,"SELECT asset_name, asset_client_id FROM assets WHERE asset_id = $asset_id");
+            $row = mysqli_fetch_array($sql);
+            $asset_name = sanitizeInput($row['asset_name']);
+            $client_id = intval($row['asset_client_id']);
+
+            mysqli_query($mysqli,"UPDATE assets SET asset_archived_at = NOW() WHERE asset_id = $asset_id");
+
+            logAction("Asset", "Archive", "$session_name archived asset $asset_name", $client_id, $asset_id);
+
+        }
+
+        logAction("Asset", "Bulk Archive", "$session_name archived $count assets", $client_id);
+
+        flash_alert("Archived <strong>$count</strong> asset(s)", 'error');
+
+    }
+
+    redirect();
+
+}
+
+if (isset($_POST['bulk_unarchive_assets'])) {
+
+    validateCSRFToken($_POST['csrf_token']);
+
+    enforceUserPermission('module_support', 2);
+    
+    if (isset($_POST['asset_ids'])) {
+
+        $count = count($_POST['asset_ids']);
+
+        foreach ($_POST['asset_ids'] as $asset_id) {
+
+            $asset_id = intval($asset_id);
+
+            // Get Asset Name and Client ID for logging and alert message
+            $sql = mysqli_query($mysqli,"SELECT asset_name, asset_client_id FROM assets WHERE asset_id = $asset_id");
+            $row = mysqli_fetch_array($sql);
+            $asset_name = sanitizeInput($row['asset_name']);
+            $client_id = intval($row['asset_client_id']);
+
+            mysqli_query($mysqli,"UPDATE assets SET asset_archived_at = NULL WHERE asset_id = $asset_id");
+
+            // Individual Asset logging
+            logAction("Asset", "Unarchive", "$session_name unarchived asset $asset_name", $client_id, $asset_id);
+
+        }
+
+        logAction("Asset", "Bulk Unarchive", "$session_name unarchived $count assets");
+
+        flash_alert("Unarchived $count asset(s)");
+
+    }
+
+    redirect();
+
+}
+
+if (isset($_POST['bulk_delete_assets'])) {
+
+    validateCSRFToken($_POST['csrf_token']);
+
+    enforceUserPermission('module_support', 3);
+
+    if (isset($_POST['asset_ids'])) {
+
+        $count = count($_POST['asset_ids']);
+
+        foreach ($_POST['asset_ids'] as $asset_id) {
+
+            $asset_id = intval($asset_id);
+
+            // Get Asset Name and Client ID for logging and alert message
+            $sql = mysqli_query($mysqli,"SELECT asset_name, asset_client_id FROM assets WHERE asset_id = $asset_id");
+            $row = mysqli_fetch_array($sql);
+            $asset_name = sanitizeInput($row['asset_name']);
+            $client_id = intval($row['asset_client_id']);
+
+            mysqli_query($mysqli,"DELETE FROM assets WHERE asset_id = $asset_id");
+
+            logAction("Asset", "Delete", "$session_name deleted asset $asset_name", $client_id, $asset_id);
+        }
+
+        logAction("Asset", "Bulk Delete", "$session_name deleted $count assets");
+
+        flash_alert("Deleted <strong>$count</strong> asset(s)", 'error');
+    }
+
+    redirect();
+
+}
+
+// BEGIN LINKING
+
+if (isset($_POST['link_software_to_asset'])) {
+
+    enforceUserPermission('module_support', 2);
+
+    $software_id = intval($_POST['software_id']);
+    $asset_id = intval($_POST['asset_id']);
+
+    // Get software Name and Client ID for logging
+    $sql_software = mysqli_query($mysqli,"SELECT software_name, software_client_id FROM software WHERE software_id = $software_id");
+    $row = mysqli_fetch_array($sql_software);
+    $software_name = sanitizeInput($row['software_name']);
+    $client_id = intval($row['software_client_id']);
+
+    // Get Asset Name for logging
+    $asset_name = sanitizeInput(getFieldById('assets', $asset_id, 'asset_name'));
+
+    mysqli_query($mysqli,"INSERT INTO software_assets SET asset_id = $asset_id, software_id = $software_id");
+
+    logAction("Software", "Link", "$session_name added software license $software_name to asset $asset_name", $client_id, $software_id);
+
+    flash_alert("Software <strong>$software_name</strong> licensed for asset <strong>$asset_name</strong>");
+
+    redirect();
+
+}
+
+if (isset($_GET['unlink_software_from_asset'])) {
+
+    enforceUserPermission('module_support', 2);
+
+    $asset_id = intval($_GET['asset_id']);
+    $software_id = intval($_GET['software_id']);
+
+    // Get software Name and Client ID for logging
+    $sql_software = mysqli_query($mysqli,"SELECT software_name, software_client_id FROM software WHERE software_id = $software_id");
+    $row = mysqli_fetch_array($sql_software);
+    $software_name = sanitizeInput($row['software_name']);
+    $client_id = intval($row['software_client_id']);
+
+    // Get Asset Name for logging
+    $asset_name = sanitizeInput(getFieldById('assets', $asset_id, 'asset_name'));
+
+    mysqli_query($mysqli,"DELETE FROM software_assets WHERE asset_id = $asset_id AND software_id = $software_id");
+
+    logAction("software", "Unlink", "$session_name removed software license $software_name from asset $asset_name", $client_id, $software_id);
+
+    flash_alert("Removed Software License <strong>$software_name</strong> for Asset <strong>$asset_name</strong>", 'error');
+
+    redirect();
+
+}
+
+// Right now 1 login and have many assets but not many to many
+if (isset($_POST['link_asset_to_credential'])) {
+
+    enforceUserPermission('module_support', 2);
+
+    $credential_id = intval($_POST['credential_id']);
+    $asset_id = intval($_POST['asset_id']);
+
+    // Get credential Name and Client ID for logging
+    $sql_credential = mysqli_query($mysqli,"SELECT credential_name, credential_client_id FROM credentials WHERE credential_id = $credential_id");
+    $row = mysqli_fetch_array($sql_credential);
+    $credential_name = sanitizeInput($row['credential_name']);
+    $client_id = intval($row['credential_client_id']);
+
+    // Get Asset Name for logging
+    $asset_name = sanitizeInput(getFieldById('assets', $asset_id, 'asset_name'));
+
+    mysqli_query($mysqli,"UPDATE credentials SET credential_asset_id = $asset_id WHERE credential_id = $credential_id");
+
+    logAction("Credential", "Link", "$session_name linked credential $credential_name to asset $asset_name", $client_id, $credential_id);
+
+    flash_alert("Asset <strong>$asset_name</strong> linked with credential <strong>$crdential_name</strong>");
+
+    redirect();
+
+}
+
+if (isset($_GET['unlink_credential_from_asset'])) {
+
+    enforceUserPermission('module_support', 2);
+
+    $asset_id = intval($_GET['asset_id']);
+    $credential_id = intval($_GET['credential_id']);
+
+    // Get credential Name and Client ID for logging
+    $sql_credential = mysqli_query($mysqli,"SELECT credential_name, credential_client_id FROM credentials WHERE credential_id = $credential_id");
+    $row = mysqli_fetch_array($sql_credential);
+    $credential_name = sanitizeInput($row['credential_name']);
+    $client_id = intval($row['credential_client_id']);
+
+    // Get Asset Name for logging
+    $asset_name = sanitizeInput(getFieldById('assets', $asset_id, 'asset_name'));
+
+    mysqli_query($mysqli,"UPDATE credentials SET credential_asset_id = 0 WHERE credential_id = $credential_id");
+
+    logAction("Credential", "Unlink", "$session_name unlinked asset $asset_name from credential $credential_name", $client_id, $credential_id);
+
+    flash_alert("Credential <strong>$credential_name</strong> unlinked from Asset <strong>$asset_name</strong>", 'errpr');
+
+    redirect();
+
+}
+
+if (isset($_POST['link_service_to_asset'])) {
+
+    enforceUserPermission('module_support', 2);
+
+    $service_id = intval($_POST['service_id']);
+    $asset_id = intval($_POST['asset_id']);
+
+    // Get service Name and Client ID for logging
+    $sql_service = mysqli_query($mysqli,"SELECT service_name, service_client_id FROM services WHERE service_id = $service_id");
+    $row = mysqli_fetch_array($sql_service);
+    $service_name = sanitizeInput($row['service_name']);
+    $client_id = intval($row['service_client_id']);
+
+    // Get Asset Name for logging
+    $asset_name = sanitizeInput(getFieldById('assets', $asset_id, 'asset_name'));
+
+    mysqli_query($mysqli,"INSERT INTO service_assets SET asset_id = $asset_id, service_id = $service_id");
+
+    logAction("Service", "Link", "$session_name linked asset $asset_name to service $service_name", $client_id, $service_id);
+
+    flash_alert("Service <strong>$service_name</strong> linked with asset <strong>$asset_name</strong>");
+
+    redirect();
+
+}
+
+if (isset($_GET['unlink_service_from_asset'])) {
+
+    enforceUserPermission('module_support', 2);
+
+    $asset_id = intval($_GET['asset_id']);
+    $service_id = intval($_GET['service_id']);
+
+    // Get service Name and Client ID for logging
+    $sql_service = mysqli_query($mysqli,"SELECT service_name, service_client_id FROM services WHERE service_id = $service_id");
+    $row = mysqli_fetch_array($sql_service);
+    $service_name = sanitizeInput($row['service_name']);
+    $client_id = intval($row['service_client_id']);
+
+    // Get Asset Name for logging
+    $asset_name = sanitizeInput(getFieldById('assets', $asset_id, 'asset_name'));
+
+    mysqli_query($mysqli,"DELETE FROM service_assets WHERE asset_id = $asset_id AND service_id = $service_id");
+
+    logAction("Service", "Unlink", "$session_name unlinked asset $asset_name from service $service_name", $client_id, $service_id);
+
+    flash_alert("Asset <strong>$asset_name</strong> unlinked from service <strong>$service_name</strong>", 'error');
+
+    redirect();
+
+}
+
+if (isset($_POST['link_asset_to_file'])) {
+
+    enforceUserPermission('module_support', 2);
+
+    $file_id = intval($_POST['file_id']);
+    $asset_id = intval($_POST['asset_id']);
+
+    // Get file Name and Client ID for logging
+    $sql_file = mysqli_query($mysqli,"SELECT file_name, file_client_id FROM files WHERE file_id = $file_id");
+    $row = mysqli_fetch_array($sql_file);
+    $file_name = sanitizeInput($row['file_name']);
+    $client_id = intval($row['file_client_id']);
+
+    // Get Asset Name for logging
+    $asset_name = sanitizeInput(getFieldById('assets', $asset_id, 'asset_name'));
+
+    // asset add query
+    mysqli_query($mysqli,"INSERT INTO asset_files SET asset_id = $asset_id, file_id = $file_id");
+
+    logAction("File", "Link", "$session_name linked asset $asset_name to file $file_name", $client_id, $file_id);
+
+    flash_alert("Asset <strong>$asset_name</strong> linked with File <strong>$file_name</strong>");
+
+    redirect();
+
+}
+
+if (isset($_GET['unlink_asset_from_file'])) {
+
+    enforceUserPermission('module_support', 2);
+
+    $asset_id = intval($_GET['asset_id']);
+    $file_id = intval($_GET['file_id']);
+
+    // Get file Name and Client ID for logging
+    $sql_file = mysqli_query($mysqli,"SELECT file_name, file_client_id FROM files WHERE file_id = $file_id");
+    $row = mysqli_fetch_array($sql_file);
+    $file_name = sanitizeInput($row['file_name']);
+    $client_id = intval($row['file_client_id']);
+
+    // Get Asset Name for logging
+    $asset_name = sanitizeInput(getFieldById('assets', $asset_id, 'asset_name'));
+
+    mysqli_query($mysqli,"DELETE FROM asset_files WHERE asset_id = $asset_id AND file_id = $file_id");
+
+    logAction("File", "Unlink", "$session_name unlinked asset $asset_name from file $file_name", $client_id, $file_id);
+
+    flash_alert("Asset <strong>$asset_name</strong> unlinked from file <strong>$file_name</strong>", 'error');
+
+    redirect();
+
+}
+
+// END LINKING
+
+
+if (isset($_POST["import_assets_csv"])) {
+
+    validateCSRFToken($_POST['csrf_token']);
+
+    enforceUserPermission('module_support', 2);
+    
+    $client_id = intval($_POST['client_id']);
+    $file_name = $_FILES["file"]["tmp_name"];
+
+    $error = false;
+
+    if (!empty($_FILES["file"]["tmp_name"])) {
+        $file_name = $_FILES["file"]["tmp_name"];
+    } else {
+        flash_alert("Please select a file to upload.", 'error');
+        redirect();
+    }
+
+    //Check file is CSV
+    $file_extension = strtolower(end(explode('.',$_FILES['file']['name'])));
+    $allowed_file_extensions = array('csv');
+    if (in_array($file_extension,$allowed_file_extensions) === false) {
+        $error = true;
+        flash_alert("Bad file extension", 'error');
+    }
+
+    //Check file isn't empty
+    elseif ($_FILES["file"]["size"] < 1) {
+        $error = true;
+        flash_alert("Bad file size (empty?)", 'error');
+    }
+
+    //(Else)Check column count (name, desc, type, make, model, serial, os, purchase date, assigned to, location)
+    $f = fopen($file_name, "r");
+    $f_columns = fgetcsv($f, 1000, ",");
+    if (!$error & count($f_columns) != 11) {
+        $error = true;
+        flash_alert("Invalid column count.", 'error');
+    }
+
+    //Else, parse the file
+    if (!$error) {
+        $file = fopen($file_name, "r");
+        fgetcsv($file, 1000, ","); // Skip first line
+        $row_count = 0;
+        $duplicate_count = 0;
+        while(($column = fgetcsv($file, 1000, ",")) !== false) {
+
+            // Default variables (if undefined)
+            $description = $type = $make = $model = $serial = $os = '';
+            $contact_id = $location_id = 0;
+            $purchase_date = '0000-00-00';
+
+            $duplicate_detect = 0;
+
+            // Name
+            if (isset($column[0])) {
+                $name = sanitizeInput($column[0]);
+                if (mysqli_num_rows(mysqli_query($mysqli,"SELECT * FROM assets WHERE asset_name = '$name' AND asset_client_id = $client_id")) > 0) {
+                    $duplicate_detect = 1;
+                }
+            }
+
+            // Desc
+            if (!empty($column[1])) {
+                $description = sanitizeInput($column[1]);
+            }
+
+            // Type
+            if (!empty($column[2])) {
+                $type = sanitizeInput($column[2]);
+            }
+
+            // Make
+            if (!empty($column[3])) {
+                $make = sanitizeInput($column[3]);
+            }
+
+            // Model
+            if (!empty($column[4])) {
+                $model = sanitizeInput($column[4]);
+            }
+
+            // Serial
+            if (!empty($column[5])) {
+                $serial = sanitizeInput($column[5]);
+            }
+
+            // OS
+            if (!empty($column[6])) {
+                $os = sanitizeInput($column[6]);
+            }
+
+            // Purchase date
+            if (!empty($column[7])) {
+                $purchase_date = sanitizeInput($column[7]);
+
+                if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $purchase_date) ||  empty($purchase_date)) {
+                    $purchase_date = "NULL";
+                } else {
+                    $purchase_date = "'" . $purchase_date . "'";
+                }
+            }
+
+            // Assigned to (contact)
+            if (!empty($column[8])) {
+                $contact = sanitizeInput($column[8]);
+                if ($contact) {
+                    $sql_contact = mysqli_query($mysqli,"SELECT * FROM contacts WHERE contact_name = '$contact' AND contact_client_id = $client_id");
+                    $row = mysqli_fetch_assoc($sql_contact);
+                    $contact_id = intval($row['contact_id']);
+                }
+            }
+
+            // Location (lookup)
+            if (!empty($column[9])) {
+                $location = sanitizeInput($column[9]);
+                if ($location) {
+                    $sql_location = mysqli_query($mysqli,"SELECT * FROM locations WHERE location_name = '$location' AND location_client_id = $client_id");
+                    $row = mysqli_fetch_assoc($sql_location);
+                    $location_id = intval($row['location_id']);
+                }
+            }
+
+            // Physical location (varchar)
+            if (!empty($column[10])) {
+                $physical_location = sanitizeInput($column[10]);
+            }
+
+            // Check if duplicate was detected
+            if ($duplicate_detect == 0) {
+                //Add
+                mysqli_query($mysqli,"INSERT INTO assets SET asset_name = '$name', asset_description = '$description', asset_type = '$type', asset_make = '$make', asset_model = '$model', asset_serial = '$serial', asset_os = '$os', asset_purchase_date = $purchase_date, asset_physical_location = '$physical_location', asset_contact_id = $contact_id, asset_location_id = $location_id, asset_client_id = $client_id");
+
+                $asset_id = mysqli_insert_id($mysqli);
+
+                // Add Primary Interface
+                mysqli_query($mysqli,"INSERT INTO asset_interfaces SET interface_name = '1', interface_primary = 1, interface_asset_id = $asset_id");
+
+                $row_count = $row_count + 1;
+            } else {
+                $duplicate_count = $duplicate_count + 1;
+            }
+        }
+        fclose($file);
+
+        logAction("Asset", "Import", "$session_name imported $row_count asset(s) via CSV file", $client_id);
+
+        flash_alert("$row_count Asset(s) added, $duplicate_count duplicate(s) detected");
+        
+        redirect();
+    
+    }
+    //Check for any errors, if there are notify user and redirect
+    if ($error) {
+        redirect();
+    }
+
+}
+
+if (isset($_GET['download_assets_csv_template'])) {
+    
+    $client_id = intval($_GET['download_assets_csv_template']);
+
+    //get records from database
+    $sql = mysqli_query($mysqli,"SELECT client_name FROM clients WHERE client_id = $client_id");
+    $row = mysqli_fetch_array($sql);
+
+    $client_name = $row['client_name'];
+
+    $delimiter = ",";
+    $filename = strtoAZaz09($client_name) . "-Assets-Template.csv";
+
+    //create a file pointer
+    $f = fopen('php://memory', 'w');
+
+    //set column headers
+    $fields = array('Name', 'Description', 'Type', 'Make', 'Model', 'Serial', 'OS', 'Purchase Date', 'Assigned To', 'Location', 'Physical Location');
+    fputcsv($f, $fields, $delimiter);
+
+    //move back to beginning of file
+    fseek($f, 0);
+
+    //set headers to download file rather than displayed
+    header('Content-Type: text/csv');
+    header('Content-Disposition: attachment; filename="' . $filename . '";');
+
+    //output all remaining data on a file pointer
+    fpassthru($f);
+    exit;
+
+}
+
+if (isset($_POST['export_assets_csv'])) {
+
+    validateCSRFToken($_POST['csrf_token']);
+
+    enforceUserPermission('module_support');
+    
+    $client_name = 'All'; // default
+
+    if (isset($_POST['client_id'])) {
+        $client_id = intval($_POST['client_id']);
+        $client_query = "AND asset_client_id = $client_id";
+
+        $client_row = mysqli_fetch_array(mysqli_query($mysqli,"SELECT client_name FROM clients WHERE client_id = $client_id"));
+        $client_name = $client_row['client_name'];
+    } else {
+        $client_query = '';
+        $client_id = 0; // for Logging
+    }
+
+    // Get records from database
+    $sql = mysqli_query($mysqli,"SELECT * FROM assets LEFT JOIN contacts ON asset_contact_id = contact_id LEFT JOIN locations ON asset_location_id = location_id LEFT JOIN asset_interfaces ON interface_asset_id = asset_id AND interface_primary = 1 LEFT JOIN clients ON asset_client_id = client_id WHERE asset_archived_at IS NULL $client_query ORDER BY asset_name ASC");
+    $num_rows = mysqli_num_rows($sql);
+
+    if ($num_rows > 0) {
+        $delimiter = ",";
+        $filename = strtoAZaz09($client_name) . "-Assets-" . date('Y-m-d') . ".csv";
+
+        //create a file pointer
+        $f = fopen('php://memory', 'w');
+
+        //set column headers
+        $fields = array('Name', 'Description', 'Type', 'Make', 'Model', 'Serial Number', 'Operating System', 'Purchase Date', 'Warranty Expire', 'Install Date', 'Assigned To', 'Location', 'Physical Location', 'Notes');
+        fputcsv($f, $fields, $delimiter);
+
+        //output each row of the data, format line as csv and write to file pointer
+        while ($row = mysqli_fetch_array($sql)) {
+            $lineData = array($row['asset_name'], $row['asset_description'], $row['asset_type'], $row['asset_make'], $row['asset_model'], $row['asset_serial'], $row['asset_os'], $row['asset_purchase_date'], $row['asset_warranty_expire'], $row['asset_install_date'], $row['contact_name'], $row['location_name'], $row['asset_physical_location'], $row['asset_notes']);
+            fputcsv($f, $lineData, $delimiter);
+        }
+
+        //move back to beginning of file
+        fseek($f, 0);
+
+        //set headers to download file rather than displayed
+        header('Content-Type: text/csv');
+        header('Content-Disposition: attachment; filename="' . $filename . '";');
+
+        //output all remaining data on a file pointer
+        fpassthru($f);
+    }
+
+    logAction("Asset", "Export", "$session_name exported $num_rows asset(s) to a CSV file", $client_id);
+
+    exit;
+
+}
+
+if (isset($_POST['add_asset_interface'])) {
+
+    // 1) Permissions & CSRF
+
+    validateCSRFToken($_POST['csrf_token']);
+
+    enforceUserPermission('module_support', 2);
+
+    // 2) Gather posted values
+    $interface_id = intval($_POST['interface_id']);
+    $asset_id     = intval($_POST['asset_id']);
+
+    // Defines $name, $mac, $ip, $ipv6, $port, $notes, $network, $connected_to, etc.
+    require_once 'asset_interface_model.php';
+
+    // 3) Fetch asset info for logging and alert
+    $sql   = mysqli_query($mysqli, "
+        SELECT asset_name, asset_client_id 
+        FROM assets 
+        WHERE asset_id = $asset_id
+    ");
+    $row        = mysqli_fetch_array($sql);
+    $asset_name = sanitizeInput($row['asset_name']);
+    $client_id  = intval($row['asset_client_id']);
+
+    // 4) Insert new interface into asset_interfaces (using SET syntax)
+    $sql_insert = "
+        INSERT INTO asset_interfaces SET
+            interface_name       = '$name',
+            interface_description= '$description',
+            interface_type       = '$type',
+            interface_mac        = '$mac',
+            interface_ip         = '$ip',
+            interface_nat_ip     = '$nat_ip',
+            interface_ipv6       = '$ipv6',
+            interface_notes      = '$notes',
+            interface_network_id = $network,
+            interface_asset_id   = $asset_id
+    ";
+    mysqli_query($mysqli, $sql_insert);
+
+    $new_interface_id = mysqli_insert_id($mysqli);
+
+    // If Primary Interface Checked set all interfaces primary to 0 then set the new interface as primary with a 1
+    if ($primary_interface) {
+        mysqli_query($mysqli,"UPDATE asset_interfaces SET interface_primary = 0 WHERE interface_asset_id = $asset_id");
+        mysqli_query($mysqli,"UPDATE asset_interfaces SET interface_primary = 1 WHERE interface_id = $new_interface_id");
+    }
+
+    // 5) If user selected a connected interface, insert row in asset_interface_links
+    if (!empty($connected_to) && intval($connected_to) > 0) {
+        $sql_link = "
+            INSERT INTO asset_interface_links SET
+                interface_a_id = $new_interface_id,
+                interface_b_id = $connected_to
+        ";
+        mysqli_query($mysqli, $sql_link);
+    }
+
+    // 6) Logging
+    logAction(
+        "Asset Interface",
+        "Create",
+        "$session_name created interface $name for asset $asset_name",
+        $client_id,
+        $asset_id
+    );
+
+    // 7) Alert message + redirect
+    flash_alert("Interface <strong>$name</strong> created");
+    
+    redirect();
+
+}
+
+if (isset($_POST['add_asset_multiple_interfaces'])) {
+
+    validateCSRFToken($_POST['csrf_token']);
+
+    enforceUserPermission('module_support', 2);
+    
+    $asset_id = intval($_POST['asset_id']);
+    $interface_start = intval($_POST['interface_start']);
+    $interfaces = intval($_POST['interfaces']);
+    $type = sanitizeInput($_POST['type']);
+    $name_prefix = sanitizeInput($_POST['name_prefix']);
+    $network = intval($_POST['network']);
+    $notes = sanitizeInput($_POST['notes']);
+
+    $sql = mysqli_query($mysqli, "SELECT asset_name, asset_client_id FROM assets WHERE asset_id = $asset_id");
+    $row  = mysqli_fetch_array($sql);
+    $asset_name = sanitizeInput($row['asset_name']);
+    $client_id  = intval($row['asset_client_id']);
+
+    for ($interface_number = $interface_start; $interface_number < $interface_start + $interfaces; $interface_number++) {
+
+        // Format $interface_number as a 2-digit number
+        $formatted_interface_number = str_pad($interface_number, 2, '0', STR_PAD_LEFT);
+
+        $sql_insert = "
+            INSERT INTO asset_interfaces SET
+                interface_name       = '$name_prefix$formatted_interface_number',
+                interface_type       = '$type',
+                interface_notes      = '$notes',
+                interface_network_id = $network,
+                interface_asset_id   = $asset_id
+        ";
+        mysqli_query($mysqli, $sql_insert);
+
+        logAction("Asset Interface", "Create", "$session_name created interface $name for asset $asset_name", $client_id, $asset_id);
+    }
+
+    logAction("Asset Interface", "Bulk Create", "$session_name created $interfaces for asset $asset_name", $client_id, $asset_id);
+    
+    flash_alert("Created <strong>$interfaces</strong> Interface(s) for asset <strong>$asset_name</strong>");
+    
+    redirect();
+
+}
+
+if (isset($_POST['edit_asset_interface'])) {
+
+    validateCSRFToken($_POST['csrf_token']);
+
+    enforceUserPermission('module_support', 2);
+
+    // Interface info
+    $interface_id = intval($_POST['interface_id']);
+    require_once 'asset_interface_model.php';
+    // sets: $name, $mac, $ip, $ipv6, $port, $notes, $network, $connected_to, etc.
+
+    // 1) Get Asset Name and Client ID for logging and alert message
+    $sql = mysqli_query($mysqli, "
+        SELECT asset_name, asset_client_id, asset_id
+        FROM asset_interfaces 
+        LEFT JOIN assets ON asset_id = interface_asset_id
+        WHERE interface_id = $interface_id
+    ");
+    $row       = mysqli_fetch_array($sql);
+    $asset_id  = intval($row['asset_id']);
+    $asset_name= sanitizeInput($row['asset_name']);
+    $client_id = intval($row['asset_client_id']);
+
+    // 2) Update the interface details in asset_interfaces
+    $sql_update = "
+        UPDATE asset_interfaces SET
+            interface_name       = '$name',
+            interface_description= '$description',
+            interface_type       = '$type',
+            interface_mac        = '$mac',
+            interface_ip         = '$ip',
+            interface_nat_ip     = '$nat_ip',
+            interface_ipv6       = '$ipv6',   
+            interface_notes      = '$notes',
+            interface_network_id = $network
+        WHERE interface_id = $interface_id
+    ";
+    mysqli_query($mysqli, $sql_update);
+
+    // If Primary Interface Checked set all interfaces primary to 0 then set the new interface as primary with a 1
+    if ($primary_interface) {
+        mysqli_query($mysqli,"UPDATE asset_interfaces SET interface_primary = 0 WHERE interface_asset_id = $asset_id");
+        mysqli_query($mysqli,"UPDATE asset_interfaces SET interface_primary = 1 WHERE interface_id = $interface_id");
+    }
+
+    // 3) Remove any existing link for this interface (one-to-one)
+    $sql_delete_link = "
+        DELETE FROM asset_interface_links
+        WHERE interface_a_id = $interface_id
+           OR interface_b_id = $interface_id
+    ";
+    mysqli_query($mysqli, $sql_delete_link);
+
+    // 4) If user selected a connected interface, create a new link
+    if (!empty($connected_to) && intval($connected_to) > 0) {
+        $sql_link = "
+            INSERT INTO asset_interface_links SET
+                interface_a_id = $interface_id,
+                interface_b_id = $connected_to
+        ";
+        mysqli_query($mysqli, $sql_link);
+    }
+
+    // 5) Logging
+    logAction(
+        "Asset Interface",
+        "Edit",
+        "$session_name edited interface $name for asset $asset_name",
+        $client_id,
+        $asset_id
+    );
+
+    // 6) Alert and redirect
+    flash_alert("Interface <strong>$name</strong> edited");
+    
+    redirect();
+
+}
+
+if (isset($_GET['delete_asset_interface'])) {
+
+    enforceUserPermission('module_support', 2);
+    validateCSRFToken($_GET['csrf_token']);
+
+    $interface_id = intval($_GET['delete_asset_interface']);
+
+    // 1) Fetch details for logging / alerts
+    $sql = mysqli_query($mysqli, "
+        SELECT asset_name, interface_name, asset_client_id, asset_id
+        FROM asset_interfaces
+        LEFT JOIN assets ON asset_id = interface_asset_id
+        WHERE interface_id = $interface_id
+    ");
+    $row = mysqli_fetch_array($sql);
+    $asset_id       = intval($row['asset_id']);
+    $interface_name = sanitizeInput($row['interface_name']);
+    $asset_name     = sanitizeInput($row['asset_name']);
+    $client_id      = intval($row['asset_client_id']);
+
+    // 2) Delete the interface this cascadingly delete asset_interface_links
+    mysqli_query($mysqli, "
+        DELETE FROM asset_interfaces
+        WHERE interface_id = $interface_id
+    ");
+
+    // 3) Logging
+    logAction(
+        "Asset Interface",
+        "Delete",
+        "$session_name deleted interface $interface_name from asset $asset_name",
+        $client_id,
+        $asset_id
+    );
+
+    // 4) Alert and redirect
+    flash_alert("Interface <strong>$interface_name</strong> deleted", 'error');
+
+    redirect();
+
+}
+
+if (isset($_POST['bulk_edit_asset_interface_type'])) {
+
+    validateCSRFToken($_POST['csrf_token']);
+
+    enforceUserPermission('module_support', 2);
+
+    $type = sanitizeInput($_POST['bulk_type']);
+
+    if (isset($_POST['interface_ids'])) {
+
+        // Get Count
+        $interface_count = count($_POST['interface_ids']);
+
+        foreach($_POST['interface_ids'] as $interface_id) {
+            $interface_id = intval($interface_id);
+
+            // Get Asset Name and Client ID for logging and alert message
+            $sql = mysqli_query($mysqli, "
+                SELECT asset_name, asset_client_id, asset_id
+                FROM asset_interfaces 
+                LEFT JOIN assets ON asset_id = interface_asset_id
+                WHERE interface_id = $interface_id
+            ");
+            $row = mysqli_fetch_array($sql);
+            $asset_id  = intval($row['asset_id']);
+            $asset_name= sanitizeInput($row['asset_name']);
+            $client_id = intval($row['asset_client_id']);
+
+            // Update inteface type
+            mysqli_query($mysqli,"UPDATE asset_interfaces SET interface_type = '$type' WHERE interface_id = $interface_id");
+
+            logAction("Asset Interface", "Edit", "$session_name set interface type to $type for asset $asset_name", $client_id, $asset_id);
+        }
+        
+        logAction("Asset Interface", "Bulk Edit", "$session_name set interface type to $type on $interface_count interfaces for asset $asset_name", $client_id);
+        
+        flash_alert("Type set to <strong>$type</strong> on <strong>$interface_count</strong> interfaces.");
+    
+    }
+    
+    redirect();
+
+}
+
+if (isset($_POST['bulk_edit_asset_interface_network'])) {
+
+    validateCSRFToken($_POST['csrf_token']);
+
+    enforceUserPermission('module_support', 2);
+
+    $network_id = intval($_POST['bulk_network']);
+
+    // Get Network Name for logging
+    $network_name = sanitizeInput(getFieldById('networks', $network_id, 'network_name'));
+
+    if (isset($_POST['interface_ids'])) {
+
+        // Get Count
+        $interface_count = count($_POST['interface_ids']);
+
+        foreach($_POST['interface_ids'] as $interface_id) {
+            $interface_id = intval($interface_id);
+
+            // Get Asset Name and Client ID for logging and alert message
+            $sql = mysqli_query($mysqli, "
+                SELECT asset_name, asset_client_id, asset_id
+                FROM asset_interfaces 
+                LEFT JOIN assets ON asset_id = interface_asset_id
+                WHERE interface_id = $interface_id
+            ");
+            $row = mysqli_fetch_array($sql);
+            $asset_id  = intval($row['asset_id']);
+            $asset_name= sanitizeInput($row['asset_name']);
+            $client_id = intval($row['asset_client_id']);
+
+            // Update inteface type
+            mysqli_query($mysqli,"UPDATE asset_interfaces SET interface_network_id = $network_id WHERE interface_id = $interface_id");
+
+            logAction("Asset Interface", "Edit", "$session_name set network to $network_name for asset $asset_name", $client_id, $asset_id);
+        }
+
+        logAction("Asset Interface", "Bulk Edit", "$session_name set network to $network_name on $interface_count interfaces for asset $asset_name", $client_id);
+        
+        flash_alert("Network set to <strong>$network_name</strong> on <strong>$interface_count</strong> interfaces.");
+    }
+        
+        redirect();
+
+}
+
+if (isset($_POST['bulk_edit_asset_interface_ip_dhcp'])) {
+
+    validateCSRFToken($_POST['csrf_token']);
+
+    enforceUserPermission('module_support', 2);
+    
+    if (isset($_POST['interface_ids'])) {
+
+        // Get Count
+        $interface_count = count($_POST['interface_ids']);
+
+        foreach($_POST['interface_ids'] as $interface_id) {
+            $interface_id = intval($interface_id);
+
+            // Get Asset Name and Client ID for logging and alert message
+            $sql = mysqli_query($mysqli, "
+                SELECT asset_name, asset_client_id, asset_id
+                FROM asset_interfaces 
+                LEFT JOIN assets ON asset_id = interface_asset_id
+                WHERE interface_id = $interface_id
+            ");
+            $row = mysqli_fetch_array($sql);
+            $asset_id  = intval($row['asset_id']);
+            $asset_name= sanitizeInput($row['asset_name']);
+            $client_id = intval($row['asset_client_id']);
+
+            // Update inteface type
+            mysqli_query($mysqli,"UPDATE asset_interfaces SET interface_ip = 'DHCP' WHERE interface_id = $interface_id");
+
+            logAction("Asset Interface", "Edit", "$session_name set interface IP to DHCP for asset $asset_name", $client_id, $asset_id);
+        }
+
+        logAction("Asset Interface", "Bulk Edit", "$session_name set interface IP to DHCP on $interface_count interfaces for asset $asset_name", $client_id);
+        
+        flash_alert("Interface IP set to <strong>DHCP</strong> on <strong>$interface_count</strong> interfaces.");
+    
+    }
+    
+    redirect();
+
+}
+
+if (isset($_POST['bulk_delete_asset_interfaces'])) {
+
+    validateCSRFToken($_POST['csrf_token']);
+
+    enforceUserPermission('module_support', 2);
+
+    if (isset($_POST['interface_ids'])) {
+
+        // Get Count
+        $interface_count = count($_POST['interface_ids']);
+
+        foreach($_POST['interface_ids'] as $interface_id) {
+            $interface_id = intval($interface_id);
+
+            // Get Asset Name and Client ID for logging and alert message
+            $sql = mysqli_query($mysqli, "
+                SELECT asset_name, interface_name, asset_client_id, asset_id
+                FROM asset_interfaces
+                LEFT JOIN assets ON asset_id = interface_asset_id
+                WHERE interface_id = $interface_id
+            ");
+            $row = mysqli_fetch_array($sql);
+            $asset_id = intval($row['asset_id']);
+            $interface_name = sanitizeInput($row['interface_name']);
+            $asset_name = sanitizeInput($row['asset_name']);
+            $client_id = intval($row['asset_client_id']);
+
+            mysqli_query($mysqli, "DELETE FROM asset_interfaces WHERE interface_id = $interface_id");
+
+            logAction("Asset Interface", "Delete", "$session_name deleted interface $interface_name from asset $asset_name", $client_id, $asset_id);
+        }
+
+        logAction("Asset Interface", "Bulk Delete", "$session_name deleted $interface_count interfaces for asset $asset_name", $client_id);
+
+        flash_alert("<strong>$interface_count</strong> interfaces deleted.", 'error');
+    }
+        
+        redirect();
+
+}
+
+if (isset($_POST["import_client_asset_interfaces_csv"])) {
+
+    validateCSRFToken($_POST['csrf_token']);
+
+    enforceUserPermission('module_support', 2);
+    
+    $asset_id = intval($_POST['asset_id']);
+    $file_name = $_FILES["file"]["tmp_name"];
+
+    // Get Asset Details for logging
+    $sql_asset = mysqli_query($mysqli,"SELECT * FROM assets WHERE asset_id = $asset_id");
+    $row = mysqli_fetch_assoc($sql_asset);
+    $client_id = intval($row['asset_client_id']);
+    $asset_name = sanitizeInput($row['asset_name']);
+
+    $error = false;
+
+    if (!empty($_FILES["file"]["tmp_name"])) {
+        $file_name = $_FILES["file"]["tmp_name"];
+    } else {
+        flash_alert("Please select a file to upload.", 'error');
+        redirect();
+    }
+
+    //Check file is CSV
+    $file_extension = strtolower(end(explode('.',$_FILES['file']['name'])));
+    $allowed_file_extensions = array('csv');
+    if (in_array($file_extension,$allowed_file_extensions) === false) {
+        $error = true;
+        flash_alert("Bad file extension", 'error');
+    }
+
+    //Check file isn't empty
+    elseif ($_FILES["file"]["size"] < 1) {
+        $error = true;
+        flash_alert("Bad file size (empty?)", 'error');
+    }
+
+    //(Else)Check column count (Name, Description, Type, MAC, IP, NAT IP, IPv6, Network)
+    $f = fopen($file_name, "r");
+    $f_columns = fgetcsv($f, 1000, ",");
+    if (!$error & count($f_columns) != 8) {
+        $error = true;
+        flash_alert("Bad column count.", 'error');
+    }
+
+    //Else, parse the file
+    if (!$error) {
+        $file = fopen($file_name, "r");
+        fgetcsv($file, 1000, ","); // Skip first line
+        $row_count = 0;
+        $duplicate_count = 0;
+        while(($column = fgetcsv($file, 1000, ",")) !== false) {
+
+            // Default variables (if undefined)
+            $description = $type = $mac = $ip = $nat_ip = $ipv6 = $network = '';
+            $network_id = 0;
+
+            $duplicate_detect = 0;
+            if (isset($column[0])) {
+                $name = sanitizeInput($column[0]);
+                if (mysqli_num_rows(mysqli_query($mysqli,"SELECT interface_name FROM asset_interfaces WHERE interface_asset_id = $asset_id AND interface_name = '$name'")) > 0) {
+                    $duplicate_detect = 1;
+                }
+            }
+            if (!empty($column[1])) {
+                $description = sanitizeInput($column[1]);
+            }
+            if (!empty($column[2])) {
+                $type = sanitizeInput($column[2]);
+            }
+            if (!empty($column[3])) {
+                $mac = sanitizeInput($column[3]);
+            }
+            if (!empty($column[4])) {
+                $ip = sanitizeInput($column[4]);
+            }
+            if (!empty($column[5])) {
+                $nat_ip = sanitizeInput($column[5]);
+            }
+            if (!empty($column[6])) {
+                $ipv6 = sanitizeInput($column[6]);
+            }
+            if (!empty($column[7])) {
+                $network = sanitizeInput($column[7]);
+                if ($network) {
+                    $sql_network = mysqli_query($mysqli,"SELECT * FROM networks WHERE network_name = '$network' AND network_archived_at IS NULL AND network_client_id = $client_id");
+                    $row = mysqli_fetch_assoc($sql_network);
+                    $network_id = intval($row['network_id']);
+                }
+            }
+
+            // Check if duplicate was detected
+            if ($duplicate_detect == 0) {
+                //Add
+                mysqli_query($mysqli,"INSERT INTO asset_interfaces SET interface_name = '$name', interface_description = '$description', interface_type = '$type', interface_mac = '$mac', interface_ip = '$ip', interface_nat_ip = '$nat_ip', interface_ipv6 = '$ipv6', interface_network_id = $network_id, interface_asset_id = $asset_id");
+
+                $row_count = $row_count + 1;
+            } else {
+                $duplicate_count = $duplicate_count + 1;
+            }
+        }
+        fclose($file);
+
+        logAction("Asset", "Import", "$session_name imported $row_count interfaces(s) to asset $asset_name via CSV file", $client_id);
+
+        flash_alert("<strong>$row_count</strong> Interfaces(s) added to asset <strong>$asset_name</stong>, <strong>$duplicate_count</strong> duplicate(s) detected");
+        
+        redirect();
+    
+    }
+    
+    //Check for any errors, if there are notify user and redirect
+    if ($error) {
+        redirect();
+    }
+
+}
+
+if (isset($_GET['download_client_asset_interfaces_csv_template'])) {
+    $asset_id = intval($_GET['download_client_asset_interfaces_csv_template']);
+
+    //get records from database
+    $sql = mysqli_query($mysqli,"SELECT asset_name, asset_client_id FROM assets WHERE asset_id = $asset_id");
+    $row = mysqli_fetch_array($sql);
+
+    $asset_name = $row['asset_name'];
+
+    $delimiter = ",";
+    $filename = strtoAZaz09($asset_name) . "-Asset-Interfaces-Template.csv";
+
+    //create a file pointer
+    $f = fopen('php://memory', 'w');
+
+    //set column headers
+    $fields = array('Name', 'Description', 'Type', 'MAC', 'IP', 'NAT IP', 'IPv6', 'Network');
+    fputcsv($f, $fields, $delimiter);
+
+    //move back to beginning of file
+    fseek($f, 0);
+
+    //set headers to download file rather than displayed
+    header('Content-Type: text/csv');
+    header('Content-Disposition: attachment; filename="' . $filename . '";');
+
+    //output all remaining data on a file pointer
+    fpassthru($f);
+    exit;
+
+}
+
+if (isset($_POST['export_client_asset_interfaces_csv'])) {
+
+    validateCSRFToken($_POST['csrf_token']);
+
+    enforceUserPermission('module_support');
+
+    $asset_id = intval($_POST['asset_id']);
+
+    //get records from database
+    $sql = mysqli_query($mysqli,"SELECT * FROM asset_interfaces LEFT JOIN assets ON asset_id = interface_asset_id LEFT JOIN networks ON interface_network_id = network_id LEFT JOIN clients ON asset_client_id = client_id WHERE asset_id = $asset_id AND interface_archived_at IS NULL ORDER BY interface_name ASC");
+    $row = mysqli_fetch_array($sql);
+
+    $asset_name = $row['asset_name'];
+    $client_id = $row['asset_client_id'];
+
+    $num_rows = mysqli_num_rows($sql);
+
+    if ($num_rows > 0) {
+        $delimiter = ",";
+        $filename = strtoAZaz09($asset_name) . "-Interfaces-" . date('Y-m-d') . ".csv";
+
+        //create a file pointer
+        $f = fopen('php://memory', 'w');
+
+        //set column headers
+        $fields = array('Name', 'Description', 'Type', 'MAC', 'IP', 'NAT IP', 'IPv6', 'Network');
+        fputcsv($f, $fields, $delimiter);
+
+        //output each row of the data, format line as csv and write to file pointer
+        while($row = mysqli_fetch_array($sql)) {
+            $lineData = array($row['interface_name'], $row['interface_description'], $row['interface_type'], $row['interface_mac'], $row['interface_ip'], $row['interface_nat_ip'], $row['interface_ipv6'], $row['network_name']);
+            fputcsv($f, $lineData, $delimiter);
+        }
+
+        //move back to beginning of file
+        fseek($f, 0);
+
+        //set headers to download file rather than displayed
+        header('Content-Type: text/csv');
+        header('Content-Disposition: attachment; filename="' . $filename . '";');
+
+        //output all remaining data on a file pointer
+        fpassthru($f);
+    }
+
+    logAction("Asset Interface", "Export", "$session_name exported $num_rows interfaces(s) to a CSV file", $client_id);
+
+    exit;
+
+}

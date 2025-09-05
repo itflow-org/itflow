@@ -49,7 +49,7 @@ $session_company_country = $row['company_country'];
 $session_company_locale = $row['company_locale'];
 $session_company_currency = $row['company_currency'];
 $currency_format = numfmt_create($session_company_locale, NumberFormatter::CURRENCY);
-
+$session_company_logo = $row['company_logo'];
 
 // Get contact info
 $contact_sql = mysqli_query($mysqli, "SELECT * FROM contacts WHERE contact_id = $session_contact_id AND contact_client_id = $session_client_id");

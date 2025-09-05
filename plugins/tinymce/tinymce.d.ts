@@ -23,120 +23,6 @@ interface PathBookmark {
     forward?: boolean;
 }
 type Bookmark = StringPathBookmark | RangeBookmark | IdBookmark | IndexBookmark | PathBookmark;
-type NormalizedEvent<E, T = any> = E & {
-    readonly type: string;
-    readonly target: T;
-    readonly isDefaultPrevented: () => boolean;
-    readonly preventDefault: () => void;
-    readonly isPropagationStopped: () => boolean;
-    readonly stopPropagation: () => void;
-    readonly isImmediatePropagationStopped: () => boolean;
-    readonly stopImmediatePropagation: () => void;
-};
-type MappedEvent<T extends {}, K extends string> = K extends keyof T ? T[K] : any;
-interface NativeEventMap {
-    beforepaste: Event;
-    blur: FocusEvent;
-    beforeinput: InputEvent;
-    click: MouseEvent;
-    compositionend: Event;
-    compositionstart: Event;
-    compositionupdate: Event;
-    contextmenu: PointerEvent;
-    copy: ClipboardEvent;
-    cut: ClipboardEvent;
-    dblclick: MouseEvent;
-    drag: DragEvent;
-    dragdrop: DragEvent;
-    dragend: DragEvent;
-    draggesture: DragEvent;
-    dragover: DragEvent;
-    dragstart: DragEvent;
-    drop: DragEvent;
-    focus: FocusEvent;
-    focusin: FocusEvent;
-    focusout: FocusEvent;
-    input: InputEvent;
-    keydown: KeyboardEvent;
-    keypress: KeyboardEvent;
-    keyup: KeyboardEvent;
-    mousedown: MouseEvent;
-    mouseenter: MouseEvent;
-    mouseleave: MouseEvent;
-    mousemove: MouseEvent;
-    mouseout: MouseEvent;
-    mouseover: MouseEvent;
-    mouseup: MouseEvent;
-    paste: ClipboardEvent;
-    selectionchange: Event;
-    submit: Event;
-    touchend: TouchEvent;
-    touchmove: TouchEvent;
-    touchstart: TouchEvent;
-    touchcancel: TouchEvent;
-    wheel: WheelEvent;
-}
-type EditorEvent<T> = NormalizedEvent<T>;
-interface EventDispatcherSettings {
-    scope?: any;
-    toggleEvent?: (name: string, state: boolean) => void | boolean;
-    beforeFire?: <T>(args: EditorEvent<T>) => void;
-}
-interface EventDispatcherConstructor<T extends {}> {
-    readonly prototype: EventDispatcher<T>;
-    new (settings?: EventDispatcherSettings): EventDispatcher<T>;
-    isNative: (name: string) => boolean;
-}
-declare class EventDispatcher<T extends {}> {
-    static isNative(name: string): boolean;
-    private readonly settings;
-    private readonly scope;
-    private readonly toggleEvent;
-    private bindings;
-    constructor(settings?: EventDispatcherSettings);
-    fire<K extends string, U extends MappedEvent<T, K>>(name: K, args?: U): EditorEvent<U>;
-    dispatch<K extends string, U extends MappedEvent<T, K>>(name: K, args?: U): EditorEvent<U>;
-    on<K extends string>(name: K, callback: false | ((event: EditorEvent<MappedEvent<T, K>>) => void | boolean), prepend?: boolean, extra?: {}): this;
-    off<K extends string>(name?: K, callback?: (event: EditorEvent<MappedEvent<T, K>>) => void): this;
-    once<K extends string>(name: K, callback: (event: EditorEvent<MappedEvent<T, K>>) => void, prepend?: boolean): this;
-    has(name: string): boolean;
-}
-type UndoLevelType = 'fragmented' | 'complete';
-interface BaseUndoLevel {
-    type: UndoLevelType;
-    bookmark: Bookmark | null;
-    beforeBookmark: Bookmark | null;
-}
-interface FragmentedUndoLevel extends BaseUndoLevel {
-    type: 'fragmented';
-    fragments: string[];
-    content: '';
-}
-interface CompleteUndoLevel extends BaseUndoLevel {
-    type: 'complete';
-    fragments: null;
-    content: string;
-}
-type NewUndoLevel = CompleteUndoLevel | FragmentedUndoLevel;
-type UndoLevel = NewUndoLevel & {
-    bookmark: Bookmark;
-};
-interface UndoManager {
-    data: UndoLevel[];
-    typing: boolean;
-    add: (level?: Partial<UndoLevel>, event?: EditorEvent<any>) => UndoLevel | null;
-    dispatchChange: () => void;
-    beforeChange: () => void;
-    undo: () => UndoLevel | undefined;
-    redo: () => UndoLevel | undefined;
-    clear: () => void;
-    reset: () => void;
-    hasUndo: () => boolean;
-    hasRedo: () => boolean;
-    transact: (callback: () => void) => UndoLevel | null;
-    ignore: (callback: () => void) => void;
-    extra: (callback1: () => void, callback2: () => void) => void;
-}
 type SchemaType = 'html4' | 'html5' | 'html5-strict';
 interface ElementSettings {
     block_elements?: string;
@@ -341,6 +227,35 @@ interface BlobInfoImagePair {
     image: HTMLImageElement;
     blobInfo: BlobInfo;
 }
+interface UrlObject {
+    prefix: string;
+    resource: string;
+    suffix: string;
+}
+type WaitState = 'added' | 'loaded';
+type AddOnConstructor<T> = (editor: Editor, url: string) => T;
+interface AddOnManager<T> {
+    items: AddOnConstructor<T>[];
+    urls: Record<string, string>;
+    lookup: Record<string, {
+        instance: AddOnConstructor<T>;
+    }>;
+    get: (name: string) => AddOnConstructor<T> | undefined;
+    requireLangPack: (name: string, languages?: string) => void;
+    add: (id: string, addOn: AddOnConstructor<T>) => AddOnConstructor<T>;
+    remove: (name: string) => void;
+    createUrl: (baseUrl: UrlObject, dep: string | UrlObject) => UrlObject;
+    load: (name: string, addOnUrl: string | UrlObject) => Promise<void>;
+    waitFor: (name: string, state?: WaitState) => Promise<void>;
+}
+type LicenseKeyManagerAddon = AddOnConstructor<LicenseKeyManager>;
+interface ValidateData {
+    plugin?: string;
+    [key: string]: any;
+}
+interface LicenseKeyManager {
+    readonly validate: (data: ValidateData) => Promise<boolean>;
+}
 declare class NodeChange {
     private readonly editor;
     private lastPath;
@@ -353,6 +268,120 @@ interface SelectionOverrides {
     showBlockCaretContainer: (blockCaretContainer: HTMLElement) => void;
     hideFakeCaret: () => void;
     destroy: () => void;
+}
+type NormalizedEvent<E, T = any> = E & {
+    readonly type: string;
+    readonly target: T;
+    readonly isDefaultPrevented: () => boolean;
+    readonly preventDefault: () => void;
+    readonly isPropagationStopped: () => boolean;
+    readonly stopPropagation: () => void;
+    readonly isImmediatePropagationStopped: () => boolean;
+    readonly stopImmediatePropagation: () => void;
+};
+type MappedEvent<T extends {}, K extends string> = K extends keyof T ? T[K] : any;
+interface NativeEventMap {
+    beforepaste: Event;
+    blur: FocusEvent;
+    beforeinput: InputEvent;
+    click: MouseEvent;
+    compositionend: Event;
+    compositionstart: Event;
+    compositionupdate: Event;
+    contextmenu: PointerEvent;
+    copy: ClipboardEvent;
+    cut: ClipboardEvent;
+    dblclick: MouseEvent;
+    drag: DragEvent;
+    dragdrop: DragEvent;
+    dragend: DragEvent;
+    draggesture: DragEvent;
+    dragover: DragEvent;
+    dragstart: DragEvent;
+    drop: DragEvent;
+    focus: FocusEvent;
+    focusin: FocusEvent;
+    focusout: FocusEvent;
+    input: InputEvent;
+    keydown: KeyboardEvent;
+    keypress: KeyboardEvent;
+    keyup: KeyboardEvent;
+    mousedown: MouseEvent;
+    mouseenter: MouseEvent;
+    mouseleave: MouseEvent;
+    mousemove: MouseEvent;
+    mouseout: MouseEvent;
+    mouseover: MouseEvent;
+    mouseup: MouseEvent;
+    paste: ClipboardEvent;
+    selectionchange: Event;
+    submit: Event;
+    touchend: TouchEvent;
+    touchmove: TouchEvent;
+    touchstart: TouchEvent;
+    touchcancel: TouchEvent;
+    wheel: WheelEvent;
+}
+type EditorEvent<T> = NormalizedEvent<T>;
+interface EventDispatcherSettings {
+    scope?: any;
+    toggleEvent?: (name: string, state: boolean) => void | boolean;
+    beforeFire?: <T>(args: EditorEvent<T>) => void;
+}
+interface EventDispatcherConstructor<T extends {}> {
+    readonly prototype: EventDispatcher<T>;
+    new (settings?: EventDispatcherSettings): EventDispatcher<T>;
+    isNative: (name: string) => boolean;
+}
+declare class EventDispatcher<T extends {}> {
+    static isNative(name: string): boolean;
+    private readonly settings;
+    private readonly scope;
+    private readonly toggleEvent;
+    private bindings;
+    constructor(settings?: EventDispatcherSettings);
+    fire<K extends string, U extends MappedEvent<T, K>>(name: K, args?: U): EditorEvent<U>;
+    dispatch<K extends string, U extends MappedEvent<T, K>>(name: K, args?: U): EditorEvent<U>;
+    on<K extends string>(name: K, callback: false | ((event: EditorEvent<MappedEvent<T, K>>) => void | boolean), prepend?: boolean, extra?: {}): this;
+    off<K extends string>(name?: K, callback?: (event: EditorEvent<MappedEvent<T, K>>) => void): this;
+    once<K extends string>(name: K, callback: (event: EditorEvent<MappedEvent<T, K>>) => void, prepend?: boolean): this;
+    has(name: string): boolean;
+}
+type UndoLevelType = 'fragmented' | 'complete';
+interface BaseUndoLevel {
+    type: UndoLevelType;
+    bookmark: Bookmark | null;
+    beforeBookmark: Bookmark | null;
+}
+interface FragmentedUndoLevel extends BaseUndoLevel {
+    type: 'fragmented';
+    fragments: string[];
+    content: '';
+}
+interface CompleteUndoLevel extends BaseUndoLevel {
+    type: 'complete';
+    fragments: null;
+    content: string;
+}
+type NewUndoLevel = CompleteUndoLevel | FragmentedUndoLevel;
+type UndoLevel = NewUndoLevel & {
+    bookmark: Bookmark;
+};
+interface UndoManager {
+    data: UndoLevel[];
+    typing: boolean;
+    add: (level?: Partial<UndoLevel>, event?: EditorEvent<any>) => UndoLevel | null;
+    dispatchChange: () => void;
+    beforeChange: () => void;
+    undo: () => UndoLevel | undefined;
+    redo: () => UndoLevel | undefined;
+    clear: () => void;
+    reset: () => void;
+    hasUndo: () => boolean;
+    hasRedo: () => boolean;
+    transact: (callback: () => void) => UndoLevel | null;
+    ignore: (callback: () => void) => void;
+    extra: (callback1: () => void, callback2: () => void) => void;
 }
 interface Quirks {
     refreshContentEditable(): void;
@@ -650,6 +679,7 @@ interface TextAreaSpec extends FormComponentWithLabelSpec {
     maximized?: boolean;
     enabled?: boolean;
     context?: string;
+    spellcheck?: boolean;
 }
 interface BaseToolbarButtonSpec<I extends BaseToolbarButtonInstanceApi> {
     enabled?: boolean;
@@ -879,6 +909,7 @@ type ColumnTypes$1 = number | 'auto';
 interface ToolbarSplitButtonSpec {
     type?: 'splitbutton';
     tooltip?: string;
+    chevronTooltip?: string;
     icon?: string;
     text?: string;
     select?: SelectPredicate;
@@ -1471,6 +1502,7 @@ interface DomParserSettings {
     allow_html_data_urls?: boolean;
     allow_svg_data_urls?: boolean;
     allow_conditional_comments?: boolean;
+    allow_html_in_comments?: boolean;
     allow_html_in_named_anchor?: boolean;
     allow_script_urls?: boolean;
     allow_unsafe_link_target?: boolean;
@@ -1507,6 +1539,7 @@ interface DomParser {
 interface StyleSheetLoaderSettings {
     maxLoadTime?: number;
     contentCssCors?: boolean;
+    crossOrigin?: (url: string) => string | undefined;
     referrerPolicy?: ReferrerPolicy;
 }
 interface StyleSheetLoader {
@@ -1518,6 +1551,7 @@ interface StyleSheetLoader {
     unloadAll: (urls: string[]) => void;
     _setReferrerPolicy: (referrerPolicy: ReferrerPolicy) => void;
     _setContentCssCors: (contentCssCors: boolean) => void;
+    _setCrossOrigin: (crossOrigin: (url: string) => string | undefined) => void;
 }
 type Registry = Registry$1;
 interface EditorUiApi {
@@ -1906,6 +1940,7 @@ interface ToolbarGroup {
 }
 type ToolbarMode = 'floating' | 'sliding' | 'scrolling' | 'wrap';
 type ToolbarLocation = 'top' | 'bottom' | 'auto';
+type CrossOrigin = (url: string, resourceType: 'script' | 'stylesheet') => 'anonymous' | 'use-credentials' | undefined;
 interface BaseEditorOptions {
     a11y_advanced_options?: boolean;
     add_form_submit_trigger?: boolean;
@@ -1970,6 +2005,7 @@ interface BaseEditorOptions {
     extended_mathml_elements?: string[];
     extended_valid_elements?: string;
     event_root?: string;
+    fetch_users?: (userIds: string[]) => Promise<ExpectedUser[]>;
     file_picker_callback?: FilePickerCallback;
     file_picker_types?: string;
     file_picker_validator_handler?: FilePickerValidationCallback;
@@ -2020,6 +2056,7 @@ interface BaseEditorOptions {
     language_load?: boolean;
     language_url?: string;
     line_height_formats?: string;
+    list_max_depth?: number;
     max_height?: number;
     max_width?: number;
     menu?: Record<string, {
@@ -2056,6 +2093,7 @@ interface BaseEditorOptions {
     protect?: RegExp[];
     readonly?: boolean;
     referrer_policy?: ReferrerPolicy;
+    crossorigin?: CrossOrigin;
     relative_urls?: boolean;
     remove_script_host?: boolean;
     remove_trailing_brs?: boolean;
@@ -2078,6 +2116,7 @@ interface BaseEditorOptions {
     style_formats_merge?: boolean;
     submit_patch?: boolean;
     suffix?: string;
+    user_id?: string;
     table_tab_navigation?: boolean;
     target?: HTMLElement;
     text_patterns?: RawPattern[] | false;
@@ -2151,6 +2190,7 @@ interface EditorOptions extends NormalizedEditorOptions {
     content_css: string[];
     contextmenu: string[];
     convert_unsafe_embeds: boolean;
+    crossorigin: CrossOrigin;
     custom_colors: boolean;
     default_font_stack: string[];
     document_base_url: string;
@@ -2211,6 +2251,7 @@ interface EditorOptions extends NormalizedEditorOptions {
     toolbar_sticky_offset: number;
     text_patterns: Pattern[];
     text_patterns_lookup: DynamicPatternsLookup;
+    user_id: string;
     visual: boolean;
     visual_anchor_class: string;
     visual_table_class: string;
@@ -2284,6 +2325,7 @@ interface DOMUtilsSettings {
     onSetAttrib: (event: SetAttribEvent) => void;
     contentCssCors: boolean;
     referrerPolicy: ReferrerPolicy;
+    crossOrigin: (url: string, resourceType: 'script' | 'stylesheet') => string | undefined;
 }
 type Target = Node | Window;
 type RunArguments<T extends Node = Node> = string | T | Array<string | T> | null;
@@ -2556,8 +2598,8 @@ interface EditorSelection {
         type: 'word';
     }) => void;
 }
-type EditorCommandCallback<S> = (this: S, ui: boolean, value: any) => void;
-type EditorCommandsCallback = (command: string, ui: boolean, value?: any) => void;
+type EditorCommandCallback<S> = (this: S, ui: boolean, value: any, args?: ExecCommandArgs) => void;
+type EditorCommandsCallback = (command: string, ui: boolean, value?: any, args?: ExecCommandArgs) => void;
 interface Commands {
     state: Record<string, (command: string) => boolean>;
     exec: Record<string, EditorCommandsCallback>;
@@ -2684,6 +2726,7 @@ interface EditorManager extends Observable<EditorManagerEventMap> {
     documentBaseURL: string;
     i18n: I18n;
     suffix: string;
+    pageUid: string;
     add(this: EditorManager, editor: Editor): Editor;
     addI18n: (code: string, item: Record<string, string>) => void;
     createEditor(this: EditorManager, id: string, options: RawEditorOptions): Editor;
@@ -2700,6 +2743,7 @@ interface EditorManager extends Observable<EditorManagerEventMap> {
     translate: (text: Untranslated) => TranslatedString;
     triggerSave: () => void;
     _setBaseUrl(this: EditorManager, baseUrl: string): void;
+    _addLicenseKeyManager(this: EditorManager, addOn: LicenseKeyManagerAddon): void;
 }
 interface EditorObservable extends Observable<EditorEventMap> {
     bindPendingEventDelegates(this: Editor): void;
@@ -2877,9 +2921,9 @@ interface EditorConstructor {
     new (id: string, options: RawEditorOptions, editorManager: EditorManager): Editor;
 }
 declare class Editor implements EditorObservable {
-    documentBaseUrl: string;
     baseUri: URI;
     id: string;
+    editorUid: string;
     plugins: Record<string, Plugin>;
     documentBaseURI: URI;
     baseURI: URI;
@@ -2889,6 +2933,7 @@ declare class Editor implements EditorObservable {
     mode: EditorMode;
     options: Options;
     editorUpload: EditorUpload;
+    userLookup: UserLookup;
     shortcuts: Shortcuts;
     loadedCSS: Record<string, any>;
     editorCommands: EditorCommands;
@@ -2934,6 +2979,7 @@ declare class Editor implements EditorObservable {
     model: Model;
     undoManager: UndoManager;
     windowManager: WindowManager;
+    licenseKeyManager: LicenseKeyManager;
     _beforeUnload: (() => void) | undefined;
     _eventDispatcher: EventDispatcher<NativeEventMap> | undefined;
     _nodeChangeDispatcher: NodeChange;
@@ -2979,11 +3025,9 @@ declare class Editor implements EditorObservable {
     hide(): void;
     isHidden(): boolean;
     setProgressState(state: boolean, time?: number): void;
-    load(args?: Partial<SetContentArgs>): string;
+    load(args?: Partial<SetContentArgs>): void;
     save(args?: Partial<GetContentArgs>): string;
-    setContent(content: string, args?: Partial<SetContentArgs>): string;
-    setContent(content: AstNode, args?: Partial<SetContentArgs>): AstNode;
-    setContent(content: Content, args?: Partial<SetContentArgs>): Content;
+    setContent(content: string | AstNode, args?: Partial<SetContentArgs>): void;
     getContent(args: {
         format: 'tree';
     } & Partial<GetContentArgs>): AstNode;
@@ -3007,26 +3051,20 @@ declare class Editor implements EditorObservable {
     uploadImages(): Promise<UploadResult$1[]>;
     _scanForImages(): Promise<BlobInfoImagePair[]>;
 }
-interface UrlObject {
-    prefix: string;
-    resource: string;
-    suffix: string;
+type UserId = string;
+interface User {
+    id: UserId;
+    name: string;
+    avatar: string;
+    custom?: Record<string, any>;
 }
-type WaitState = 'added' | 'loaded';
-type AddOnConstructor<T> = (editor: Editor, url: string) => T;
-interface AddOnManager<T> {
-    items: AddOnConstructor<T>[];
-    urls: Record<string, string>;
-    lookup: Record<string, {
-        instance: AddOnConstructor<T>;
-    }>;
-    get: (name: string) => AddOnConstructor<T> | undefined;
-    requireLangPack: (name: string, languages?: string) => void;
-    add: (id: string, addOn: AddOnConstructor<T>) => AddOnConstructor<T>;
-    remove: (name: string) => void;
-    createUrl: (baseUrl: UrlObject, dep: string | UrlObject) => UrlObject;
-    load: (name: string, addOnUrl: string | UrlObject) => Promise<void>;
-    waitFor: (name: string, state?: WaitState) => Promise<void>;
+interface ExpectedUser {
+    id: UserId;
+    [key: string]: any;
+}
+interface UserLookup {
+    userId: UserId;
+    fetchUsers: (userIds: UserId[]) => Record<UserId, Promise<User>>;
 }
 interface RangeUtils {
     walk: (rng: Range, callback: (nodes: Node[]) => void) => void;
@@ -3038,6 +3076,7 @@ interface RangeUtils {
 }
 interface ScriptLoaderSettings {
     referrerPolicy?: ReferrerPolicy;
+    crossOrigin?: (url: string) => string | undefined;
 }
 interface ScriptLoaderConstructor {
     readonly prototype: ScriptLoader;
@@ -3054,6 +3093,7 @@ declare class ScriptLoader {
     private loading;
     constructor(settings?: ScriptLoaderSettings);
     _setReferrerPolicy(referrerPolicy: ReferrerPolicy): void;
+    _setCrossOrigin(crossOrigin: (url: string) => string | undefined): void;
     loadScript(url: string): Promise<void>;
     isDone(url: string): boolean;
     markDone(url: string): void;
@@ -3347,4 +3387,4 @@ interface TinyMCE extends EditorManager {
     _addCacheSuffix: Tools['_addCacheSuffix'];
 }
 declare const tinymce: TinyMCE;
-export { AddOnManager, Annotator, AstNode, Bookmark, BookmarkManager, ControlSelection, DOMUtils, Delay, DomParser, DomParserSettings, DomSerializer, DomSerializerSettings, DomTreeWalker, Editor, EditorCommands, EditorEvent, EditorManager, EditorModeApi, EditorObservable, EditorOptions, EditorSelection, Entities, Env, EventDispatcher, EventUtils, EventTypes_d as Events, FakeClipboard, FocusManager, Format_d as Formats, Formatter, GeomRect, HtmlSerializer, HtmlSerializerSettings, I18n, IconManager, Model, ModelManager, NotificationApi, NotificationManager, NotificationSpec, Observable, Plugin, PluginManager, RangeUtils, RawEditorOptions, Rect, Resource, Schema, SchemaSettings, ScriptLoader, Shortcuts, StyleSheetLoader, Styles, TextPatterns_d as TextPatterns, TextSeeker, Theme, ThemeManager, TinyMCE, Tools, URI, Ui_d as Ui, UndoManager, VK, WindowManager, Writer, WriterSettings, tinymce as default };
+export { AddOnManager, Annotator, AstNode, Bookmark, BookmarkManager, ControlSelection, DOMUtils, Delay, DomParser, DomParserSettings, DomSerializer, DomSerializerSettings, DomTreeWalker, Editor, EditorCommands, EditorEvent, EditorManager, EditorModeApi, EditorObservable, EditorOptions, EditorSelection, Entities, Env, EventDispatcher, EventUtils, EventTypes_d as Events, ExpectedUser, FakeClipboard, FocusManager, Format_d as Formats, Formatter, GeomRect, HtmlSerializer, HtmlSerializerSettings, I18n, IconManager, Model, ModelManager, NotificationApi, NotificationManager, NotificationSpec, Observable, Plugin, PluginManager, RangeUtils, RawEditorOptions, Rect, Resource, Schema, SchemaSettings, ScriptLoader, Shortcuts, StyleSheetLoader, Styles, TextPatterns_d as TextPatterns, TextSeeker, Theme, ThemeManager, TinyMCE, Tools, URI, Ui_d as Ui, UndoManager, User, VK, WindowManager, Writer, WriterSettings, tinymce as default };

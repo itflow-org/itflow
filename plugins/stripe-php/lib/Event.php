@@ -5,35 +5,23 @@
 namespace Stripe;
 
 /**
- * Events are our way of letting you know when something interesting happens in
- * your account. When an interesting event occurs, we create a new <code>Event</code>
- * object. For example, when a charge succeeds, we create a <code>charge.succeeded</code>
- * event, and when an invoice payment attempt fails, we create an
- * <code>invoice.payment_failed</code> event. Certain API requests might create multiple
- * events. For example, if you create a new subscription for a
- * customer, you receive both a <code>customer.subscription.created</code> event and a
- * <code>charge.succeeded</code> event.
+ * Snapshot events allow you to track and react to activity in your Stripe integration. When
+ * the state of another API resource changes, Stripe creates an <code>Event</code> object that contains
+ * all the relevant information associated with that action, including the affected API
+ * resource. For example, a successful payment triggers a <code>charge.succeeded</code> event, which
+ * contains the <code>Charge</code> in the event's data property. Some actions trigger multiple events.
+ * For example, if you create a new subscription for a customer, it triggers both a
+ * <code>customer.subscription.created</code> event and a <code>charge.succeeded</code> event.
  *
- * Events occur when the state of another API resource changes. The event's data
- * field embeds the resource's state at the time of the change. For
- * example, a <code>charge.succeeded</code> event contains a charge, and an
- * <code>invoice.payment_failed</code> event contains an invoice.
+ * Configure an event destination in your account to listen for events that represent actions
+ * your integration needs to respond to. Additionally, you can retrieve an individual event or
+ * a list of events from the API.
  *
- * As with other API resources, you can use endpoints to retrieve an
- * <a href="https://stripe.com/docs/api#retrieve_event">individual event</a> or a <a href="https://stripe.com/docs/api#list_events">list of events</a>
- * from the API. We also have a separate
- * <a href="http://en.wikipedia.org/wiki/Webhook">webhooks</a> system for sending the
- * <code>Event</code> objects directly to an endpoint on your server. You can manage
- * webhooks in your
- * <a href="https://dashboard.stripe.com/account/webhooks">account settings</a>. Learn how
- * to <a href="https://docs.stripe.com/webhooks">listen for events</a>
- * so that your integration can automatically trigger reactions.
+ * <a href="https://docs.stripe.com/connect">Connect</a> platforms can also receive event notifications
+ * that occur in their connected accounts. These events include an account attribute that
+ * identifies the relevant connected account.
  *
- * When using <a href="https://docs.stripe.com/connect">Connect</a>, you can also receive event notifications
- * that occur in connected accounts. For these events, there's an
- * additional <code>account</code> attribute in the received <code>Event</code> object.
- *
- * We only guarantee access to events through the <a href="https://stripe.com/docs/api#retrieve_event">Retrieve Event API</a>
+ * You can access events through the <a href="https://docs.stripe.com/api/events#retrieve_event">Retrieve Event API</a>
  * for 30 days.
  *
  * This class includes constants for the possible string representations of
@@ -42,8 +30,8 @@ namespace Stripe;
  * @property string $id Unique identifier for the object.
  * @property string $object String representing the object's type. Objects of the same type share the same value.
  * @property null|string $account The connected account that originates the event.
- * @property null|string $api_version The Stripe API version used to render <code>data</code>. This property is populated only for events on or after October 31, 2014.
- * @property null|string $context
+ * @property null|string $api_version The Stripe API version used to render <code>data</code> when the event was created. The contents of <code>data</code> never change, so this value remains static regardless of the API version currently in use. This property is populated only for events created on or after October 31, 2014.
+ * @property null|string $context Authentication context needed to fetch the event or related object.
  * @property int $created Time at which the object was created. Measured in seconds since the Unix epoch.
  * @property (object{object: StripeObject, previous_attributes?: StripeObject}&StripeObject) $data
  * @property bool $livemode Has the value <code>true</code> if the object exists in live mode or the value <code>false</code> if the object exists in test mode.
@@ -157,6 +145,7 @@ class Event extends ApiResource
     const INVOICE_PAID = 'invoice.paid';
     const INVOICE_PAYMENT_ACTION_REQUIRED = 'invoice.payment_action_required';
     const INVOICE_PAYMENT_FAILED = 'invoice.payment_failed';
+    const INVOICE_PAYMENT_PAID = 'invoice_payment.paid';
     const INVOICE_PAYMENT_SUCCEEDED = 'invoice.payment_succeeded';
     const INVOICE_SENT = 'invoice.sent';
     const INVOICE_UPCOMING = 'invoice.upcoming';
@@ -259,6 +248,7 @@ class Event extends ApiResource
     const TAX_SETTINGS_UPDATED = 'tax.settings.updated';
     const TERMINAL_READER_ACTION_FAILED = 'terminal.reader.action_failed';
     const TERMINAL_READER_ACTION_SUCCEEDED = 'terminal.reader.action_succeeded';
+    const TERMINAL_READER_ACTION_UPDATED = 'terminal.reader.action_updated';
     const TEST_HELPERS_TEST_CLOCK_ADVANCING = 'test_helpers.test_clock.advancing';
     const TEST_HELPERS_TEST_CLOCK_CREATED = 'test_helpers.test_clock.created';
     const TEST_HELPERS_TEST_CLOCK_DELETED = 'test_helpers.test_clock.deleted';
@@ -314,6 +304,9 @@ class Event extends ApiResource
     const TYPE_APPLICATION_FEE_REFUND_UPDATED = 'application_fee.refund.updated';
     const TYPE_BALANCE_AVAILABLE = 'balance.available';
     const TYPE_BILLING_ALERT_TRIGGERED = 'billing.alert.triggered';
+    const TYPE_BILLING_CREDIT_BALANCE_TRANSACTION_CREATED = 'billing.credit_balance_transaction.created';
+    const TYPE_BILLING_CREDIT_GRANT_CREATED = 'billing.credit_grant.created';
+    const TYPE_BILLING_CREDIT_GRANT_UPDATED = 'billing.credit_grant.updated';
     const TYPE_BILLING_METER_CREATED = 'billing.meter.created';
     const TYPE_BILLING_METER_DEACTIVATED = 'billing.meter.deactivated';
     const TYPE_BILLING_METER_REACTIVATED = 'billing.meter.reactivated';
@@ -402,6 +395,7 @@ class Event extends ApiResource
     const TYPE_INVOICE_PAID = 'invoice.paid';
     const TYPE_INVOICE_PAYMENT_ACTION_REQUIRED = 'invoice.payment_action_required';
     const TYPE_INVOICE_PAYMENT_FAILED = 'invoice.payment_failed';
+    const TYPE_INVOICE_PAYMENT_PAID = 'invoice_payment.paid';
     const TYPE_INVOICE_PAYMENT_SUCCEEDED = 'invoice.payment_succeeded';
     const TYPE_INVOICE_SENT = 'invoice.sent';
     const TYPE_INVOICE_UPCOMING = 'invoice.upcoming';
@@ -504,6 +498,7 @@ class Event extends ApiResource
     const TYPE_TAX_SETTINGS_UPDATED = 'tax.settings.updated';
     const TYPE_TERMINAL_READER_ACTION_FAILED = 'terminal.reader.action_failed';
     const TYPE_TERMINAL_READER_ACTION_SUCCEEDED = 'terminal.reader.action_succeeded';
+    const TYPE_TERMINAL_READER_ACTION_UPDATED = 'terminal.reader.action_updated';
     const TYPE_TEST_HELPERS_TEST_CLOCK_ADVANCING = 'test_helpers.test_clock.advancing';
     const TYPE_TEST_HELPERS_TEST_CLOCK_CREATED = 'test_helpers.test_clock.created';
     const TYPE_TEST_HELPERS_TEST_CLOCK_DELETED = 'test_helpers.test_clock.deleted';

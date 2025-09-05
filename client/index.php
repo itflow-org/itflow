@@ -8,7 +8,6 @@ header("Content-Security-Policy: default-src 'self'");
 
 require_once "includes/inc_all.php";
 
- 
 // Billing Card Queries
  //Add up all the payments for the invoice and get the total amount paid to the invoice
 $sql_invoice_amounts = mysqli_query($mysqli, "SELECT SUM(invoice_amount) AS invoice_amounts FROM invoices WHERE invoice_client_id = $session_client_id AND invoice_status != 'Draft' AND invoice_status != 'Cancelled' AND invoice_status != 'Non-Billable'");
@@ -159,37 +158,50 @@ $sql_asset_retired = mysqli_query(
     ORDER BY asset_install_date ASC"
 );
 
-?>
+// Assigned Assets
+$sql_assigned_assets = mysqli_query(
+    $mysqli,
+    "SELECT * FROM assets
+    WHERE asset_contact_id = $session_contact_id
+        AND asset_archived_at IS NULL
+    ORDER BY asset_name ASC"
+);
 
-<?php 
+?>
+<div class="row">
+    <div class="col-md-2">
+        <a href="ticket_add.php" class="btn btn-primary btn-block mb-3">New ticket</a>
+    </div>
+</div>
+<?php
 // Billing Cards
 if ($session_contact_primary == 1 || $session_contact_is_billing_contact) { ?>
 
 <div class="row">
-    
+
     <?php if ($balance > 0) { ?>
-    <div class="col-sm-3 offset-1">
-        <div class="card">
+    <div class="col-sm-3">
+        <a href="unpaid_invoices.php" class="card">
             <div class="card-header">
-                <h3 class="card-title text-bold">Account Balance</h3>
+                <h3 class="card-title text-bold text-dark">Account Balance</h3>
             </div>
             <div class="card-body">
                 <div class="h4 text-danger"><b><?php echo numfmt_format_currency($currency_format, $balance, $session_company_currency); ?></b></div>
             </div>
-        </div>
+        </a>
     </div>
     <?php } ?>
 
     <?php if ($recurring_monthly_total > 0) { ?>
     <div class="col-sm-3">
-        <div class="card">
+        <a href="recurring_invoices.php" class="card text-dark">
             <div class="card-header">
                 <h3 class="card-title">Recurring Monthly</h3>
             </div>
             <div class="card-body">
                 <div class="h4"><b><?php echo numfmt_format_currency($currency_format, $recurring_monthly_total, $session_company_currency); ?></b></div>
             </div>
-        </div>
+        </a>
     </div>
     <?php } ?>
 
@@ -197,39 +209,41 @@ if ($session_contact_primary == 1 || $session_contact_is_billing_contact) { ?>
 
 <?php } //End Billing Cards ?>
 
-<?php 
+<?php
 // Technical Cards
-if ($session_contact_primary == 1 || $session_contact_is_technical_contact) { 
+if ($session_contact_primary == 1 || $session_contact_is_technical_contact) {
 ?>
 
 <div class="row">
 
     <?php if (mysqli_num_rows($sql_domains_expiring) > 0) { ?>
-    <div class="col-sm-3 offset-1">
-        <div class="card">
-            <div class="card-header">
-                <h3 class="card-title text-bold">Domains Expiring</h3>
-            </div>
-            <div class="card-body">
-                <?php
-
-                while ($row = mysqli_fetch_array($sql_domains_expiring)) {
-                    $domain_id = intval($row['domain_id']);
-                    $domain_name = nullable_htmlentities($row['domain_name']);
-                    $domain_expire = nullable_htmlentities($row['domain_expire']);
-                    $domain_expire_human = timeAgo($row['domain_expire']);
-
-                    ?>
-                    <p class="mb-1">
-                        <i class="fa fa-fw fa-globe text-secondary mr-1"></i>
-                        Domain: <?php echo $domain_name; ?>
-                        <span>-- <?php echo $domain_expire; ?> (<?php echo $domain_expire_human; ?>)</span>
-                    </p>
+    <div class="col-sm-3">
+        <a href="domains.php">
+            <div  class="card text-dark">
+                <div class="card-header">
+                    <h3 class="card-title text-bold"><i class="fas fa-fw fa-globe mr-2"></i>Domains Expiring</h3>
+                </div>
+                <div class="card-body">
                     <?php
-                }
-                ?>
+
+                    while ($row = mysqli_fetch_array($sql_domains_expiring)) {
+                        $domain_id = intval($row['domain_id']);
+                        $domain_name = nullable_htmlentities($row['domain_name']);
+                        $domain_expire = nullable_htmlentities($row['domain_expire']);
+                        $domain_expire_human = timeAgo($row['domain_expire']);
+
+                        ?>
+                        <p>
+                            <strong><?php echo $domain_name; ?></strong>
+                            <br>
+                            <small class="text-secondary"><?php echo $domain_expire; ?> (<?php echo $domain_expire_human; ?>)</small>
+                        </p>
+                        <?php
+                    }
+                    ?>
+                </div>
             </div>
-        </div>
+        </a>
     </div>
     <?php } ?>
 
@@ -237,8 +251,39 @@ if ($session_contact_primary == 1 || $session_contact_is_technical_contact) {
 
 <?php } ?>
 
-<div class="col-md-2 offset-1">
-    <a href="ticket_add.php" class="btn btn-primary btn-block">New ticket</a>
+<?php
+// Everone Cards
+?>
+<div class="row">
+    <?php if (mysqli_num_rows($sql_assigned_assets) > 0) { ?>
+    <div class="col-sm-3">
+        <a href="assets.php" class="card text-dark">
+            <div class="card-header">
+                <h3 class="card-title"><i class="fas fa-fw fa-desktop mr-2"></i>Your Assigned Assets</h3>
+            </div>
+            <div class="card-body">
+                <table>
+                <?php
+
+                while ($row = mysqli_fetch_array($sql_assigned_assets)) {
+                    $asset_name = nullable_htmlentities($row['asset_name']);
+                    $asset_type = nullable_htmlentities($row['asset_type']);
+                    $asset_uri_client = sanitize_url($row['asset_uri_client']);
+
+
+                    ?>
+                    <tr>
+                        <td><i class=" text-secondary mr-2"></i><?php if ($asset_uri_client) { ?><a href="<?= $asset_uri_client ?>" target="_blank"><i class='fas fa-external-link-alt mr-2'></i></a><?php } ?><?php echo $asset_name; ?></td>
+                        <td class="text-secondary">(<?php echo $asset_type; ?>)</td>
+                    </tr>
+                    <?php
+                }
+                ?>
+                </table>
+            </div>
+        </a>
+    </div>
+    <?php } ?>
 </div>
 
 <?php require_once "includes/footer.php"; ?>

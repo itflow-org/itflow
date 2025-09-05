@@ -60,9 +60,6 @@ $contact_mobile = nullable_htmlentities(formatPhoneNumber($row['contact_mobile']
 $client_website = nullable_htmlentities($row['client_website']);
 $client_currency_code = nullable_htmlentities($row['client_currency_code']);
 $client_net_terms = intval($row['client_net_terms']);
-if ($client_net_terms == 0) {
-    $client_net_terms = intval($row['config_default_net_terms']);
-}
 
 $sql = mysqli_query($mysqli, "SELECT * FROM companies, settings WHERE companies.company_id = settings.company_id AND companies.company_id = 1");
 $row = mysqli_fetch_array($sql);
@@ -88,10 +85,14 @@ if (!empty($company_logo)) {
     $company_logo_base64 = base64_encode(file_get_contents("../uploads/settings/$company_logo"));
 }
 $company_locale = nullable_htmlentities($row['company_locale']);
-$config_invoice_footer = nullable_htmlentities($row['config_invoice_footer']);
-$config_stripe_enable = intval($row['config_stripe_enable']);
-$config_stripe_percentage_fee = floatval($row['config_stripe_percentage_fee']);
-$config_stripe_flat_fee = floatval($row['config_stripe_flat_fee']);
+$config_invoice_footer = nullable_htmlentities($row['config_invoice_footer']); 
+
+// Get Payment Provide Details
+$sql = mysqli_query($mysqli, "SELECT * FROM payment_providers WHERE payment_provider_active = 1 LIMIT 1");
+$row = mysqli_fetch_array($sql);
+$payment_provider_id = intval($row['payment_provider_id']);
+$payment_provider_name = nullable_htmlentities($row['payment_provider_name']);
+$payment_provider_threshold = floatval($row['payment_provider_threshold']);
 
 //Set Currency Format
 $currency_format = numfmt_create($company_locale, NumberFormatter::CURRENCY);
@@ -172,7 +173,7 @@ if ($balance > 0) {
                         <i class="fa fa-fw fa-download mr-2"></i>Download
                     </a>
                     <?php
-                    if ($invoice_status !== "Paid" && $invoice_status  !== "Cancelled" && $invoice_status !== "Draft" && $config_stripe_enable == 1) { ?>
+                    if ($invoice_status !== "Paid" && $invoice_status  !== "Cancelled" && $invoice_status !== "Draft" && $payment_provider_id) { ?>
                         <a class="btn btn-success" href="guest_pay_invoice_stripe.php?invoice_id=<?php echo $invoice_id; ?>&url_key=<?php echo $url_key; ?>"><i class="fa fa-fw fa-credit-card mr-2"></i>Pay Now </a>
                     <?php } ?>
                 </div>
@@ -238,7 +239,7 @@ if ($balance > 0) {
             <div class="col-md-12">
                 <div class="card">
                     <div class="table-responsive">
-                        <table class="table table-borderless">
+                        <table class="table table-hover mb-0">
                             <thead class="bg-light">
                             <tr>
                                 <th>Item</th>
@@ -297,7 +298,7 @@ if ($balance > 0) {
                 <?php } ?>
             </div>
             <div class="col-sm-3 offset-sm-2">
-                <table class="table table-borderless">
+                <table class="table table-hover mb-0">
                     <tbody>
                     <tr>
                         <td>Subtotal:</td>
@@ -331,7 +332,7 @@ if ($balance > 0) {
                     <?php
                     } 
                     ?>
-                    <tr class="border-top h5 text-bold">
+                    <tr class="h5 text-bold">
                         <td>Balance:</td>
                         <td class="text-right"><?php echo numfmt_format_currency($currency_format, $balance, $invoice_currency_code); ?></td>
                     </tr>

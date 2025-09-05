@@ -186,7 +186,7 @@ if ($quote_status == "Draft" || $quote_status == "Sent" || $quote_status == "Vie
             <div class="col-md-12">
                 <div class="card">
                     <div class="table-responsive">
-                        <table class="table table-borderless">
+                        <table class="table table-hover mb-0">
                             <thead class="bg-light">
                             <tr>
                                 <th>Item</th>
@@ -249,7 +249,7 @@ if ($quote_status == "Draft" || $quote_status == "Sent" || $quote_status == "Vie
             </div>
 
             <div class="col-sm-3 offset-sm-2">
-                <table class="table table-borderless">
+                <table class="table table-hover mb-0">
                     <tbody>
                     <tr>
                         <td>Subtotal:</td>

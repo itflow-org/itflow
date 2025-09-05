@@ -10,7 +10,7 @@ require_once '../config.php';
 
 require_once '../functions.php';
 
-require_once '../includes/get_settings.php';
+require_once '../includes/load_global_settings.php';
 
 if (!isset($_SESSION)) {
     // HTTP Only cookies
@@ -57,7 +57,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['login'])) {
 
     } else {
 
-        $sql = mysqli_query($mysqli, "SELECT * FROM users LEFT JOIN contacts ON user_id = contact_user_id WHERE user_email = '$email' AND user_archived_at IS NULL AND user_type = 2 AND user_status = 1 LIMIT 1");
+        $sql = mysqli_query($mysqli, "SELECT * FROM users LEFT JOIN contacts ON user_id = contact_user_id LEFT JOIN clients ON contact_client_id = client_id WHERE user_email = '$email' AND client_archived_at IS NULL AND user_archived_at IS NULL AND user_type = 2 AND user_status = 1 LIMIT 1");
         $row = mysqli_fetch_array($sql);
         $client_id = intval($row['contact_client_id']);
         $user_id = intval($row['user_id']);

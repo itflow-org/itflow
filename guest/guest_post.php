@@ -2,13 +2,14 @@
 
 require_once "../config.php";
 require_once "../functions.php";
-require_once "../includes/get_settings.php";
+require_once "../includes/load_global_settings.php";
 
 session_start();
 
 require_once "../includes/inc_set_timezone.php"; // Must be included after session_start to work
 
 if (isset($_GET['accept_quote'], $_GET['url_key'])) {
+
     $quote_id = intval($_GET['accept_quote']);
     $url_key = sanitizeInput($_GET['url_key']);
 
@@ -62,14 +63,18 @@ if (isset($_GET['accept_quote'], $_GET['url_key'])) {
             $mail = addToMailQueue($data);
         }
 
-        $_SESSION['alert_message'] = "Quote Accepted";
-        header("Location: " . $_SERVER["HTTP_REFERER"]);
+        flash_alert("Quote Accepted");
+        
+        redirect();
+    
     } else {
         echo "Invalid!!";
     }
+
 }
 
 if (isset($_GET['decline_quote'], $_GET['url_key'])) {
+
     $quote_id = intval($_GET['decline_quote']);
     $url_key = sanitizeInput($_GET['url_key']);
 
@@ -122,16 +127,18 @@ if (isset($_GET['decline_quote'], $_GET['url_key'])) {
 
             $mail = addToMailQueue($data);
         }
+        flash_alert("Quote Declined", 'danger');
 
-        $_SESSION['alert_type'] = "danger";
-        $_SESSION['alert_message'] = "Quote Declined";
-        header("Location: " . $_SERVER["HTTP_REFERER"]);
+        redirect();
+    
     } else {
         echo "Invalid!!";
     }
+
 }
 
 if (isset($_GET['reopen_ticket'], $_GET['url_key'])) {
+    
     $ticket_id = intval($_GET['ticket_id']);
     $url_key = sanitizeInput($_GET['url_key']);
 
@@ -141,18 +148,24 @@ if (isset($_GET['reopen_ticket'], $_GET['url_key'])) {
     if (mysqli_num_rows($sql) == 1) {
         // Update the ticket
         mysqli_query($mysqli, "UPDATE tickets SET ticket_status = 2, ticket_resolved_at = NULL WHERE ticket_id = $ticket_id AND ticket_url_key = '$url_key'");
+        
         // Add reply
         mysqli_query($mysqli, "INSERT INTO ticket_replies SET ticket_reply = 'Ticket reopened by client (guest URL).', ticket_reply_type = 'Internal', ticket_reply_by = 0, ticket_reply_ticket_id = $ticket_id");
-        // Logging
+        
         customAction('ticket_update', $ticket_id);
-        $_SESSION['alert_message'] = "Ticket reopened";
-        header("Location: " . $_SERVER["HTTP_REFERER"]);
+        
+        flash_alert("Ticket reopened");
+        
+        redirect();
+    
     } else {
         echo "Invalid!!";
     }
+
 }
 
 if (isset($_GET['close_ticket'], $_GET['url_key'])) {
+    
     $ticket_id = intval($_GET['ticket_id']);
     $url_key = sanitizeInput($_GET['url_key']);
 
@@ -160,20 +173,26 @@ if (isset($_GET['close_ticket'], $_GET['url_key'])) {
     $sql = mysqli_query($mysqli, "SELECT ticket_id FROM tickets WHERE ticket_id = $ticket_id AND ticket_url_key = '$url_key' AND ticket_resolved_at IS NOT NULL AND ticket_closed_at IS NULL");
 
     if (mysqli_num_rows($sql) == 1) {
+        
         // Update the ticket
         mysqli_query($mysqli, "UPDATE tickets SET ticket_status = 5, ticket_closed_at = NOW() WHERE ticket_id = $ticket_id AND ticket_url_key = '$url_key'");
+        
         // Add reply
         mysqli_query($mysqli, "INSERT INTO ticket_replies SET ticket_reply = 'Ticket closed by client (guest URL).', ticket_reply_type = 'Internal', ticket_reply_by = 0, ticket_reply_ticket_id = $ticket_id");
-        // Logging
+
         customAction('ticket_close', $ticket_id);
-        $_SESSION['alert_message'] = "Ticket closed";
-        header("Location: " . $_SERVER["HTTP_REFERER"]);
+        
+        flash_alert("Ticket closed");
+        
+        redirect();
+    
     } else {
         echo "Invalid!!";
     }
 }
 
 if (isset($_GET['add_ticket_feedback'], $_GET['url_key'])) {
+    
     $ticket_id = intval($_GET['ticket_id']);
     $url_key = sanitizeInput($_GET['url_key']);
     $feedback = sanitizeInput($_GET['feedback']);
@@ -194,12 +213,16 @@ if (isset($_GET['add_ticket_feedback'], $_GET['url_key'])) {
             appNotify("Feedback", "Guest rated ticket number $ticket_prefix$ticket_number (ID: $ticket_id) as bad", "ticket.php?ticket_id=$ticket_id");
         }
 
-        $_SESSION['alert_message'] = "Feedback recorded - thank you";
-        header("Location: " . $_SERVER["HTTP_REFERER"]);
+        flash_alert("Feedback recorded - thank you");
+        
+        redirect();
+        
         customAction('ticket_feedback', $ticket_id);
+    
     } else {
         echo "Invalid!!";
     }
+
 }
 
 if (isset($_GET['export_quote_pdf'])) {
@@ -284,14 +307,11 @@ if (isset($_GET['export_quote_pdf'])) {
         $pdf->SetFont('helvetica', '', 10);
 
         // Logo + Right Columns
-        $html = '<table width="100%" cellspacing="0" cellpadding="5">
+        $html = '<table width="100%" cellspacing="0" cellpadding="3">
         <tr>
             <td width="40%">';
-        if (!empty($company_logo)) {
-            $logo_path = "../uploads/settings/$company_logo";
-            if (file_exists($logo_path)) {
-                $pdf->Image($logo_path, $pdf->GetX(), $pdf->GetY(), 40);
-            }
+        if (!empty($company_logo) && file_exists("../uploads/settings/$company_logo")) {
+            $html .= '<img src="/uploads/settings/' . $company_logo . '" width="120">';
         }
         $html .= '</td>
             <td width="60%" align="right">
@@ -305,7 +325,7 @@ if (isset($_GET['export_quote_pdf'])) {
         }
         $html .= '</td>
         </tr>
-        </table><br><br>';
+        </table><br>';
 
         // Billing titles
         $html .= '<table width="100%" cellspacing="0" cellpadding="2">
@@ -320,7 +340,7 @@ if (isset($_GET['export_quote_pdf'])) {
         </table><br>';
 
         // Date table
-        $html .= '<table border="0" cellpadding="3" cellspacing="0" width="100%">
+        $html .= '<table border="0" cellpadding="2" cellspacing="0" width="100%">
         <tr>
             <td width="60%"></td>
             <td width="20%" style="font-size:10pt;"><strong>Date:</strong></td>
@@ -345,6 +365,9 @@ if (isset($_GET['export_quote_pdf'])) {
         </tr>';
 
         // Load items
+        $sub_total = 0;
+        $total_tax = 0;
+        
         $sql_items = mysqli_query($mysqli, "SELECT * FROM invoice_items WHERE item_quote_id = $quote_id ORDER BY item_order ASC");
         while ($item = mysqli_fetch_array($sql_items)) {
             $name = $item['item_name'];
@@ -359,9 +382,8 @@ if (isset($_GET['export_quote_pdf'])) {
 
             $html .= '
             <tr>
-                <td>
-                    <strong>' . $name . '</strong><br>
-                    <span style="font-style:italic; font-size:9pt;">' . nl2br($desc) . '</span>
+                <td><strong>' . $name . '</strong>
+                    <br><span style="font-style:italic; font-size:9pt;">' . nl2br($desc) . '</span>
                 </td>
                 <td align="center">' . number_format($qty, 2) . '</td>
                 <td align="right">' . numfmt_format_currency($currency_format, $price, $quote_currency_code) . '</td>
@@ -375,8 +397,8 @@ if (isset($_GET['export_quote_pdf'])) {
         // Totals
         $html .= '<table width="100%" cellspacing="0" cellpadding="4">
         <tr>
-            <td width="70%" rowspan="6" valign="top"><i>' . nl2br($quote_note) . '</i></td>
-            <td width="30%">
+            <td width="60%" rowspan="6" valign="top"><i>' . nl2br($quote_note) . '</i></td>
+            <td width="40%">
                 <table width="100%" cellpadding="3" cellspacing="0">
                     <tr><td>Subtotal:</td><td align="right">' . numfmt_format_currency($currency_format, $sub_total, $quote_currency_code) . '</td></tr>';
         if ($quote_discount > 0) {
@@ -401,6 +423,7 @@ if (isset($_GET['export_quote_pdf'])) {
         $pdf->Output("$filename.pdf", 'I');
     }
     exit;
+
 }
 
 if (isset($_GET['export_invoice_pdf'])) {
@@ -510,14 +533,11 @@ if (isset($_GET['export_invoice_pdf'])) {
         $pdf->SetFont('helvetica', '', 10);
 
         // Logo + Right Columns
-        $html = '<table width="100%" cellspacing="0" cellpadding="5">
+        $html = '<table width="100%" cellspacing="0" cellpadding="3">
         <tr>
             <td width="40%">';
-        if (!empty($company_logo)) {
-            $logo_path = "../uploads/settings/$company_logo";
-            if (file_exists($logo_path)) {
-                $pdf->Image($logo_path, $pdf->GetX(), $pdf->GetY(), 40);
-            }
+        if (!empty($company_logo) && file_exists("../uploads/settings/$company_logo")) {
+            $html .= '<img src="/uploads/settings/' . $company_logo . '" width="120">';
         }
         $html .= '</td>
             <td width="60%" align="right">
@@ -528,7 +548,7 @@ if (isset($_GET['export_invoice_pdf'])) {
         }
         $html .= '</td>
         </tr>
-        </table><br><br>';
+        </table><br>';
 
         // Billing titles
         $html .= '<table width="100%" cellspacing="0" cellpadding="2">
@@ -543,7 +563,7 @@ if (isset($_GET['export_invoice_pdf'])) {
         </table><br>';
 
         // Date table
-        $html .= '<table border="0" cellpadding="3" cellspacing="0" width="100%">
+        $html .= '<table border="0" cellpadding="2" cellspacing="0" width="100%">
         <tr>
             <td width="60%"></td>
             <td width="20%" style="font-size:10pt;"><strong>Date:</strong></td>
@@ -568,6 +588,9 @@ if (isset($_GET['export_invoice_pdf'])) {
         </tr>';
 
         // Load items
+        $sub_total = 0;
+        $total_tax = 0;
+        
         $sql_items = mysqli_query($mysqli, "SELECT * FROM invoice_items WHERE item_invoice_id = $invoice_id ORDER BY item_order ASC");
         while ($item = mysqli_fetch_array($sql_items)) {
             $name = $item['item_name'];
@@ -582,9 +605,8 @@ if (isset($_GET['export_invoice_pdf'])) {
 
             $html .= '
             <tr>
-                <td>
-                    <strong>' . $name . '</strong><br>
-                    <span style="font-style:italic; font-size:9pt;">' . nl2br($desc) . '</span>
+                <td><strong>' . $name . '</strong>
+                    <br><span style="font-style:italic; font-size:9pt;">' . nl2br($desc) . '</span>
                 </td>
                 <td align="center">' . number_format($qty, 2) . '</td>
                 <td align="right">' . numfmt_format_currency($currency_format, $price, $invoice_currency_code) . '</td>
@@ -598,8 +620,8 @@ if (isset($_GET['export_invoice_pdf'])) {
         // Totals
         $html .= '<table width="100%" cellspacing="0" cellpadding="4">
         <tr>
-            <td width="70%" rowspan="6" valign="top"><i>' . nl2br($invoice_note) . '</i></td>
-            <td width="30%">
+            <td width="60%" rowspan="6" valign="top"><i>' . nl2br($invoice_note) . '</i></td>
+            <td width="40%">
                 <table width="100%" cellpadding="3" cellspacing="0">
                     <tr><td>Subtotal:</td><td align="right">' . numfmt_format_currency($currency_format, $sub_total, $invoice_currency_code) . '</td></tr>';
         if ($invoice_discount > 0) {
@@ -634,6 +656,7 @@ if (isset($_GET['export_invoice_pdf'])) {
 }
 
 if (isset($_POST['guest_quote_upload_file'])) {
+    
     $quote_id = intval($_POST['quote_id']);
     $url_key = sanitizeInput($_POST['url_key']);
 
@@ -702,25 +725,27 @@ if (isset($_POST['guest_quote_upload_file'])) {
                     mysqli_query($mysqli, "INSERT INTO quote_files SET quote_id = $quote_id, file_id = $file_id");
 
                     // Logging & feedback
-                    $_SESSION['alert_message'] = 'File uploaded!';
+                    flash_alert('File uploaded!');
+                    
                     appNotify("Quote File", "$file_name was uploaded to quote $quote_prefix$quote_number", "quote.php?quote_id=$quote_id", $client_id);
+                    
                     mysqli_query($mysqli, "INSERT INTO history SET history_status = 'Upload', history_description = 'Client uploaded file $file_name', history_quote_id = $quote_id");
+                    
                     logAction("File", "Upload", "Guest uploaded file $file_name to quote $quote_prefix$quote_number", $client_id);
 
                 } else {
-                    $_SESSION['alert_type'] = 'error';
-                    $_SESSION['alert_message'] = 'Something went wrong uploading the file - please let the support team know.';
+                    flash_alert('Something went wrong uploading the file - please let the support team know.', 'error');
+                    
                     logApp("Guest", "error", "Error uploading file to invoice");
                 }
 
             }
         }
 
-        header("Location: " . $_SERVER["HTTP_REFERER"]);
+        redirect();
 
     } else {
         echo "Invalid!!";
     }
-}
 
-?>
+}

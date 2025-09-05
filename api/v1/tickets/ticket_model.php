@@ -10,6 +10,14 @@ if (isset($_POST['ticket_contact_id'])) {
     $contact = '0';
 }
 
+if (isset($_POST['ticket_asset_id'])) {
+    $asset = intval($_POST['ticket_asset_id']);
+} elseif ($ticket_row) {
+    $asset = $ticket_row['ticket_asset_id'];
+} else {
+    $asset = '0';
+}
+
 if (isset($_POST['ticket_subject'])) {
     $subject = sanitizeInput($_POST['ticket_subject']);
 } elseif ($ticket_row) {
@@ -29,7 +37,7 @@ if (isset($_POST['ticket_priority'])) {
 
 
 if (isset($_POST['ticket_details'])) {
-    $details = sanitizeInput($_POST['ticket_details']) . "<br>";
+    $details = mysqli_escape_string($mysqli, $_POST['ticket_details'] . "<br>");
 } elseif ($ticket_row) {
     $details = $ticket_row['ticket_details'];
 } else {

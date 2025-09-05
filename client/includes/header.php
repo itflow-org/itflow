@@ -58,7 +58,7 @@ header("X-Frame-Options: DENY"); // Legacy
                             <a class="dropdown-item" href="invoices.php">Invoices</a>
                             <a class="dropdown-item" href="recurring_invoices.php">Recurring Invoices</a>
                             <a class="dropdown-item" href="quotes.php">Quotes</a>
-                            <a class="dropdown-item" href="autopay.php">Auto Payment</a>
+                            <a class="dropdown-item" href="saved_payment_methods.php">Saved Payments</a>
                         </div>
                     </li>
                 <?php } ?>
@@ -70,6 +70,7 @@ header("X-Frame-Options: DENY"); // Legacy
                         </a>
                         <div class="dropdown-menu" aria-labelledby="navbarDropdown2">
                             <a class="dropdown-item" href="contacts.php">Contacts</a>
+                            <a class="dropdown-item" href="assets.php">Assets</a>
                             <a class="dropdown-item" href="documents.php">Documents</a>
                             <a class="dropdown-item" href="domains.php">Domains</a>
                             <a class="dropdown-item" href="certificates.php">Certificates</a>
@@ -138,10 +139,13 @@ header("X-Frame-Options: DENY"); // Legacy
         </div>
 
         <div class="col-md-11 p-0">
+                <?php if ($session_company_logo) { ?>
+                    <img height="48" width="142" class="img-fluid float-right" src="<?php echo "../uploads/settings/$session_company_logo"; ?>">
+                <?php } ?>
             <h4>Welcome, <strong><?php echo stripslashes(nullable_htmlentities($session_contact_name)); ?></strong>!</h4>
-            <hr>
         </div>
     </div>
+    <hr>
 
     <?php
     //Alert Feedback
