@@ -504,7 +504,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             <?php } ?>
                             <?php
                             if (!empty($client_tags_display)) { ?>
-                                <div class="mt-1">
+                                <div class="mt-1 text-wrap">
                                     <?php echo $client_tags_display; ?>
                                 </div>
                             <?php } ?>
