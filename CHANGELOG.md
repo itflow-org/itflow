@@ -4,6 +4,10 @@ This file documents all notable changes made to ITFlow.
 
 ## [25.09]
 
+***BACK UP*** before updating.
+
+---
+
 ### Breaking Changes
 - This is a major release with significant changes. While the community has done a great job identifying bugs, some may still remain — continued testing is encouraged.
 - All AI settings will be **reset** and must be reconfigured using the new AI provider backend.
