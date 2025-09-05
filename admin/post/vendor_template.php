@@ -52,7 +52,7 @@ if (isset($_POST['edit_vendor_template'])) {
     $code = sanitizeInput($_POST['code']);
     $notes = sanitizeInput($_POST['notes']);
 
-    if ($_POST['global_update_vendor_name'] == 1) {
+    if ($_POST['global_update_vendor_name'] == 1 ?? 0) {
         $sql_global_update_vendor_name = ", vendor_name = '$name'";
     } else {
         $sql_global_update_vendor_name = "";
