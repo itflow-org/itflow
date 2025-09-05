@@ -72,6 +72,7 @@
                             <p>Saved Payments</p>
                         </a>
                     </li>
+                <?php } ?>
                     <li class="nav-item">
                         <a href="ai_provider.php" class="nav-link <?php echo (basename($_SERVER['PHP_SELF']) == 'ai_provider.php' ? 'active' : ''); ?>">
                             <i class="nav-icon fas fa-robot"></i>
@@ -84,7 +85,7 @@
                             <p>AI Models</p>
                         </a>
                     </li>
-                <?php } ?>
+                
                 <?php if ($config_module_enable_ticketing) { ?>
                     <li class="nav-item">
                         <a href="ticket_status.php" class="nav-link <?php echo (basename($_SERVER['PHP_SELF']) == 'ticket_status.php' ? 'active' : ''); ?>">
