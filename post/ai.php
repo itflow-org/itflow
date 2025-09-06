@@ -78,6 +78,8 @@ if (isset($_GET['ai_reword'])) {
 
 if (isset($_GET['ai_ticket_summary'])) {
 
+    header('Content-Type: text/html; charset=UTF-8');
+
     $sql = mysqli_query($mysqli, "SELECT * FROM ai_models LEFT JOIN ai_providers ON ai_model_ai_provider_id = ai_provider_id WHERE ai_model_use_case = 'General' LIMIT 1");
 
     $row = mysqli_fetch_array($sql);
@@ -90,9 +92,10 @@ if (isset($_GET['ai_ticket_summary'])) {
 
     // Query the database for ticket details
     $sql = mysqli_query($mysqli, "
-        SELECT ticket_subject, ticket_details, ticket_status_name
+        SELECT ticket_subject, ticket_details, ticket_source, ticket_priority, ticket_status_name, category_name
         FROM tickets
         LEFT JOIN ticket_statuses ON ticket_status = ticket_status_id
+        LEFT JOIN categories ON ticket_category = category_id
         WHERE ticket_id = $ticket_id
         LIMIT 1
     ");
@@ -100,6 +103,9 @@ if (isset($_GET['ai_ticket_summary'])) {
     $ticket_subject = $row['ticket_subject'];
     $ticket_details = strip_tags($row['ticket_details']); // strip HTML for cleaner prompt
     $ticket_status = $row['ticket_status_name'];
+    $ticket_category = $row['category_name'];
+    $ticket_source = $row['ticket_source'];
+    $ticket_priority = $row['ticket_priority'];
 
     // Get ticket replies
     $sql_replies = mysqli_query($mysqli, "
@@ -120,35 +126,38 @@ if (isset($_GET['ai_ticket_summary'])) {
     }
 
     $prompt = "
-Summarize the following IT support ticket and its responses in a concise, clear, and professional manner. 
-The summary should include:
+    Summarize the following IT support ticket and its responses in a concise, clear, and professional manner. 
+    The summary should include:
 
-1. Main Issue: What was the problem reported by the user?
-2. Actions Taken: What steps were taken to address the issue?
-3. Resolution or Next Steps: Was the issue resolved or is it ongoing?
+    1. Main Issue: What was the problem reported by the user?
+    2. Actions Taken: What steps were taken to address the issue?
+    3. Resolution or Next Steps: Was the issue resolved or is it ongoing?
 
-Please ensure:
-- If there are multiple issues, summarize each separately.
-- Urgency: If the ticket or replies express urgency or escalation, highlight it.
-- Attachments: If mentioned in the ticket, note any relevant attachments or files.
-- Avoid extra explanations or unnecessary information.
+    Please ensure:
+    - If there are multiple issues, summarize each separately.
+    - Urgency: If the ticket or replies express urgency or escalation, highlight it.
+    - Attachments: If mentioned in the ticket, note any relevant attachments or files.
+    - Avoid extra explanations or unnecessary information.
 
-Ticket Data:
-- Current Ticket Status: $ticket_status
-- Ticket Subject: $ticket_subject
-- Ticket Details: $ticket_details
-- Replies:
-$all_replies_text
+    Ticket Data:
+    - Ticket Source: $ticket_source
+    - Current Ticket Status: $ticket_status
+    - Ticket Priority: $ticket_priority
+    - Ticket Category: $ticket_category
+    - Ticket Subject: $ticket_subject
+    - Ticket Details: $ticket_details
+    - Replies:
+    $all_replies_text
 
-Formatting instructions:
-- Use valid HTML tags only.
-- Use <h3> for section headers (Main Issue, Actions Taken, Resolution).
-- Use <ul><li> for bullet points under each section.
-- Do NOT wrap the output in ```html or any other code fences.
-- Do NOT include <html>, <head>, or <body>.
-- Output only the summary content in pure HTML.
-If any part of the ticket or replies is unclear or ambiguous, mention it in the summary and suggest if further clarification is needed.
-";
+    Formatting instructions:
+    - Use valid HTML tags only.
+    - Use <h3> for section headers (Main Issue, Actions Taken, Resolution).
+    - Use <ul><li> for bullet points under each section.
+    - Do NOT wrap the output in ```html or any other code fences.
+    - Do NOT include <html>, <head>, or <body>.
+    - Output only the summary content in pure HTML.
+    If any part of the ticket or replies is unclear or ambiguous, mention it in the summary and suggest if further clarification is needed.
+    ";
 
     // Prepare the POST data
     $post_data = [
