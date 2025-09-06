@@ -31,7 +31,7 @@ if (isset($_GET['ai_reword'])) {
             ["role" => "system", "content" => $promptText],
             ["role" => "user", "content" => $userText],
         ],
-        "temperature" => 0.7
+        "temperature" => 0.5
     ];
 
     // Initialize cURL session to the OpenAI Chat API.
@@ -90,19 +90,22 @@ if (isset($_GET['ai_ticket_summary'])) {
 
     // Query the database for ticket details
     $sql = mysqli_query($mysqli, "
-        SELECT ticket_subject, ticket_details
+        SELECT ticket_subject, ticket_details, ticket_status_name
         FROM tickets
+        LEFT JOIN ticket_statuses ON ticket_status = ticket_status_id
         WHERE ticket_id = $ticket_id
         LIMIT 1
     ");
     $row = mysqli_fetch_assoc($sql);
     $ticket_subject = $row['ticket_subject'];
     $ticket_details = strip_tags($row['ticket_details']); // strip HTML for cleaner prompt
+    $ticket_status = $row['ticket_status_name'];
 
     // Get ticket replies
     $sql_replies = mysqli_query($mysqli, "
-        SELECT ticket_reply, ticket_reply_type
+        SELECT ticket_reply, ticket_reply_type, user_name
         FROM ticket_replies
+        LEFT JOIN users ON ticket_reply_by = user_id
         WHERE ticket_reply_ticket_id = $ticket_id
         AND ticket_reply_archived_at IS NULL
         ORDER BY ticket_reply_id ASC
@@ -112,17 +115,40 @@ if (isset($_GET['ai_ticket_summary'])) {
     while ($reply = mysqli_fetch_assoc($sql_replies)) {
         $reply_type = $reply['ticket_reply_type'];
         $reply_text = strip_tags($reply['ticket_reply']);
-        $all_replies_text .= "\n[$reply_type]: $reply_text";
+        $reply_by = $reply['user_name'];
+        $all_replies_text .= "\nReply Type: $reply_type Reply By: $reply_by: Reply Text: $reply_text";
     }
 
     $prompt = "
-    Summarize the following IT ticket and its responses in a concise and clear manner. Your summary should highlight the main issue, actions taken, and resolution steps. Please avoid extra wording or irrelevant details.
+Summarize the following IT support ticket and its responses in a concise, clear, and professional manner. 
+The summary should include:
 
-    Ticket Subject: $ticket_subject
-    Ticket Details: $ticket_details
-    Replies: $all_replies_text
+1. Main Issue: What was the problem reported by the user?
+2. Actions Taken: What steps were taken to address the issue?
+3. Resolution or Next Steps: Was the issue resolved or is it ongoing?
 
-    Please make the summary as short as possible. Only provide the summary with no additional explanation.";
+Please ensure:
+- If there are multiple issues, summarize each separately.
+- Urgency: If the ticket or replies express urgency or escalation, highlight it.
+- Attachments: If mentioned in the ticket, note any relevant attachments or files.
+- Avoid extra explanations or unnecessary information.
+
+Ticket Data:
+- Current Ticket Status: $ticket_status
+- Ticket Subject: $ticket_subject
+- Ticket Details: $ticket_details
+- Replies:
+$all_replies_text
+
+Formatting instructions:
+- Use valid HTML tags only.
+- Use <h3> for section headers (Main Issue, Actions Taken, Resolution).
+- Use <ul><li> for bullet points under each section.
+- Do NOT wrap the output in ```html or any other code fences.
+- Do NOT include <html>, <head>, or <body>.
+- Output only the summary content in pure HTML.
+If any part of the ticket or replies is unclear or ambiguous, mention it in the summary and suggest if further clarification is needed.
+";
 
     // Prepare the POST data
     $post_data = [
@@ -131,7 +157,7 @@ if (isset($_GET['ai_ticket_summary'])) {
             ["role" => "system", "content" => "Your task is to summarize IT support tickets with clear, concise details."],
             ["role" => "user", "content" => $prompt]
         ],
-        "temperature" => 0.7
+        "temperature" => 0.3
     ];
 
     $ch = curl_init();
@@ -154,8 +180,8 @@ if (isset($_GET['ai_ticket_summary'])) {
     $response_data = json_decode($response, true);
     $summary = $response_data['choices'][0]['message']['content'] ?? "No summary available.";
 
-    // Print the summary
-    echo nl2br(htmlentities($summary));
+
+    echo $summary; // nl2br to convert newlines to <br>, htmlspecialchars to prevent XSS
 }
 
 if (isset($_GET['ai_create_document_template'])) {
@@ -188,7 +214,7 @@ if (isset($_GET['ai_create_document_template'])) {
             ["role" => "system", "content" => $system_message],
             ["role" => "user", "content" => $user_message]
         ],
-        "temperature" => 0.7
+        "temperature" => 0.5
     ];
 
     $ch = curl_init();
