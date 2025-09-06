@@ -89,7 +89,6 @@ if (isset($_GET['ai_ticket_summary'])) {
     $ticket_id = intval($_POST['ticket_id']);
 
     // Query the database for ticket details
-    // (You can reuse code from ticket.php or write a simplified query here)
     $sql = mysqli_query($mysqli, "
         SELECT ticket_subject, ticket_details
         FROM tickets
@@ -116,14 +115,20 @@ if (isset($_GET['ai_ticket_summary'])) {
         $all_replies_text .= "\n[$reply_type]: $reply_text";
     }
 
-    // Craft a prompt for ChatGPT
-    $prompt = "Based on the language detection (case not detected use default English), dont show \"Language Detected\", and Summarize using this language, the following ticket and its responses in a concise and clear way. The summary should be short, highlight the main issue, the actions taken, and any resolution steps:\n\nTicket Subject: $ticket_subject\nTicket Details: $ticket_details\nReplies:$all_replies_text\n\nShort Summary:";
+    $prompt = "
+    Summarize the following IT ticket and its responses in a concise and clear manner. Your summary should highlight the main issue, actions taken, and resolution steps. Please avoid extra wording or irrelevant details.
+
+    Ticket Subject: $ticket_subject
+    Ticket Details: $ticket_details
+    Replies: $all_replies_text
+
+    Please make the summary as short as possible. Only provide the summary with no additional explanation.";
 
     // Prepare the POST data
     $post_data = [
         "model" => "$model_name",
         "messages" => [
-            ["role" => "system", "content" => "You are a helpful assistant."],
+            ["role" => "system", "content" => "Your task is to summarize IT support tickets with clear, concise details."],
             ["role" => "user", "content" => $prompt]
         ],
         "temperature" => 0.7
