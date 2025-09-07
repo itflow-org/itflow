@@ -1285,7 +1285,7 @@ require_once "../includes/footer.php";
             </div>
             <div class="modal-body bg-white">
                 <div id="summaryContent">
-                    <span class="text-center"><i class="fas fa-spinner fa-spin"></i> Generating summary...</span>
+                    <div class="text-center"><i class="fas fa-spinner fa-spin"></i> Generating summary...</div>
                 </div>
             </div>
         </div>

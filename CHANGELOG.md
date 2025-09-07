@@ -2,6 +2,24 @@
 
 This file documents all notable changes made to ITFlow.
 
+## [25.09.1]
+
+### Fixes
+- **Web Installer**: Resolved issue with broken installer caused by incorrect database schema file name.
+- Hide the "Add Credit" button as the feature is not fully implemented yet.
+- Corrected long invoice/quote notes that were overlapping with the footer in PDF exports.
+- Fixed AI settings not appearing in the Admin Menu when the Billing module was disabled.
+- Enabled wrapping of client tags when they are too long.
+- Fixed an issue where AI was not functioning correctly.
+- Removed extra spacing between the contact name and icon in the Ticket Details contact card.
+
+### Features
+- Redesigned **AI Ticket Summary**, now divided into 3 sections: Main Issue, Actions Taken, and Resolution/Next Steps.
+- Updated the **AI Ticket Summary** prompt to include ticket status, reply author, source, category, and priority.
+
+
+---
+
 ## [25.09]
 
 ***BACK UP*** before updating.
