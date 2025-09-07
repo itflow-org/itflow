@@ -2232,7 +2232,7 @@ if (isset($_GET['export_invoice_pdf'])) {
 
     // Start TCPDF
     $pdf = new TCPDF('P', 'mm', 'A4', true, 'UTF-8', false);
-    $pdf->SetMargins(15, 15, 15);
+    $pdf->SetMargins(10, 10, 10);
     $pdf->setPrintHeader(false);
     $pdf->setPrintFooter(false);
     $pdf->AddPage();
@@ -2326,7 +2326,7 @@ if (isset($_GET['export_invoice_pdf'])) {
     // Totals
     $html .= '<table width="100%" cellspacing="0" cellpadding="4">
     <tr>
-        <td width="60%" rowspan="6" valign="top"><i>' . nl2br($invoice_note) . '</i></td>
+        <td width="60%"><i style="font-size:9pt;">' . nl2br($invoice_note) . '</i></td>
         <td width="40%">
             <table width="100%" cellpadding="3" cellspacing="0">
                 <tr><td>Subtotal:</td><td align="right">' . numfmt_format_currency($currency_format, $sub_total, $invoice_currency_code) . '</td></tr>';

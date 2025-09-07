@@ -504,7 +504,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             <?php } ?>
                             <?php
                             if (!empty($client_tags_display)) { ?>
-                                <div class="mt-1">
+                                <div class="mt-1 text-wrap">
                                     <?php echo $client_tags_display; ?>
                                 </div>
                             <?php } ?>
@@ -566,10 +566,12 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                     <span class="text-secondary">Paid</span>
                                     <span><?php echo numfmt_format_currency($currency_format, $amount_paid, $session_company_currency); ?></span>
                                 </div>
+                                <?php if ($credit_balance > 0) { ?>
                                 <div class="d-flex justify-content-between">
                                     <span class="text-secondary">Credit</span>
                                     <span class="text-success"><?php echo numfmt_format_currency($currency_format, $credit_balance, $session_company_currency); ?></span>
                                 </div>
+                                <?php } ?>
                                 <div class="d-flex justify-content-between">
                                     <span class="text-secondary">Monthly</span>
                                     <span><?php echo numfmt_format_currency($currency_format, $recurring_monthly, $session_company_currency); ?></span>

@@ -89,7 +89,7 @@ if (isset($_POST['add_database'])) {
 
 
         // Name of the file
-        $filename = 'install.sql';
+        $filename = '../db.sql';
         // Temporary variable, used to store current query
         $templine = '';
         // Read in entire file

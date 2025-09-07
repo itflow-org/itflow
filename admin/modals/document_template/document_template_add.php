@@ -14,8 +14,6 @@
                         <input type="text" class="form-control" name="name" placeholder="Template name" maxlength="200">
                     </div>
 
-                    <?php if ($config_ai_enable == 1) { ?>
-                    <!-- Prompt for AI -->
                     <div class="form-group">
                         <label>Enter a prompt for the type of IT documentation you want to generate:</label>
                         <div class="input-group mb-3">
@@ -27,7 +25,6 @@
                             </div>
                         </div>
                     </div>
-                    <?php } ?>
 
                     <!-- TinyMCE Content -->
                     <div class="form-group">
