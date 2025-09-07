@@ -17,7 +17,6 @@ This file documents all notable changes made to ITFlow.
 - Redesigned **AI Ticket Summary**, now divided into 3 sections: Main Issue, Actions Taken, and Resolution/Next Steps.
 - Updated the **AI Ticket Summary** prompt to include ticket status, reply author, source, category, and priority.
 
-
 ---
 
 ## [25.09]

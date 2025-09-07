@@ -1275,15 +1275,15 @@ require_once "../includes/footer.php";
 
 <!-- Summary Modal -->
 <div class="modal fade" id="summaryModal" tabindex="-1">
-    <div class="modal-dialog modal-lg" role="document">
-        <div class="modal-content bg-dark">
-            <div class="modal-header">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-dark">
                 <h5 class="modal-title" id="summaryModalTitle">Ticket Summary</h5>
-                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                <button type="button" class="close text-white" data-dismiss="modal">
                     <span>&times;</span>
                 </button>
             </div>
-            <div class="modal-body bg-white">
+            <div class="modal-body">
                 <div id="summaryContent">
                     <div class="text-center"><i class="fas fa-spinner fa-spin"></i> Generating summary...</div>
                 </div>
