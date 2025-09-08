@@ -28,7 +28,7 @@ $config_imap_username = $row['config_imap_username'];
 $config_imap_password = $row['config_imap_password'];
 
 // Defaults
-$config_start_page = $row['config_start_page'];
+$config_start_page = $row['config_start_page'] ?? 'clients.php';
 $config_default_transfer_from_account = intval($row['config_default_transfer_from_account']);
 $config_default_transfer_to_account = intval($row['config_default_transfer_to_account']);
 $config_default_payment_account = intval($row['config_default_payment_account']);
