@@ -48,7 +48,7 @@ if (isset($_POST['add_payment_provider'])) {
         //Vendor
         $sql_vendor = mysqli_query($mysqli,"SELECT vendor_id FROM vendors WHERE vendor_name = '$provider' AND vendor_client_id = 0 AND vendor_archived_at IS NULL LIMIT 1");
         if (mysqli_num_rows($sql_vendor) == 0) {
-            mysqli_query($mysqli,"INSERT INTO vendors SET vendor_name = '$provider', vendor_descripion = 'Payment Processor Provider', vendor_client_id = 0");
+            mysqli_query($mysqli,"INSERT INTO vendors SET vendor_name = '$provider', vendor_description = 'Payment Processor Provider', vendor_client_id = 0");
             $vendor_id = mysqli_insert_id($mysqli);
         } else {
             $row = mysqli_fetch_array($sql_vendor);
