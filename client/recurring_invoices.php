@@ -95,7 +95,7 @@ $payment_provider_threshold = floatval($row['payment_provider_threshold']);
                                 </select>
                             </form>
                         <?php } else { ?>
-                            <a href="saved_payment_method.php">Add a Payment Method</a>
+                            <a href="saved_payment_methods.php">Add a Payment Method</a>
                         <?php } ?>
                     </td>
                     <?php } ?>
