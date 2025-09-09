@@ -2183,6 +2183,8 @@ if (isset($_POST['export_tickets_csv'])) {
 
     if ($sql->num_rows > 0) {
         $delimiter = ",";
+        $enclosure = '"';
+        $escape    = '\\';   // backslash
         $filename = "Tickets-" . date('Y-m-d') . ".csv";
 
         //create a file pointer
@@ -2190,12 +2192,12 @@ if (isset($_POST['export_tickets_csv'])) {
 
         //set column headers
         $fields = array('Ticket Number', 'Priority', 'Status', 'Subject', 'Date Opened', 'Date Resolved', 'Date Closed');
-        fputcsv($f, $fields, $delimiter);
+        fputcsv($f, $fields, $delimiter, $enclosure, $escape);
 
         //output each row of the data, format line as csv and write to file pointer
         while ($row = $sql->fetch_assoc()) {
             $lineData = array($config_ticket_prefix . $row['ticket_number'], $row['ticket_priority'], $row['ticket_status_name'], $row['ticket_subject'], $row['ticket_created_at'], $row['ticket_resolved_at'], $row['ticket_closed_at']);
-            fputcsv($f, $lineData, $delimiter);
+            fputcsv($f, $lineData, $delimiter, $enclosure, $escape);
         }
 
         //move back to beginning of file

@@ -1929,6 +1929,8 @@ if (isset($_POST['set_recurring_payment'])) {
 }
 
 if (isset($_POST['export_invoices_csv'])) {
+
+    enforceUserPermission('module_sales');
     
     if (isset($_POST['client_id'])) {
         $client_id = intval($_POST['client_id']);

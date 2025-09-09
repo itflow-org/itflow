@@ -1582,13 +1582,14 @@ if (isset($_POST['export_client_asset_interfaces_csv'])) {
     $sql = mysqli_query($mysqli,"SELECT * FROM asset_interfaces LEFT JOIN assets ON asset_id = interface_asset_id LEFT JOIN networks ON interface_network_id = network_id LEFT JOIN clients ON asset_client_id = client_id WHERE asset_id = $asset_id AND interface_archived_at IS NULL ORDER BY interface_name ASC");
     $row = mysqli_fetch_array($sql);
 
-    $asset_name = $row['asset_name'];
-    $client_id = $row['asset_client_id'];
-
     $num_rows = mysqli_num_rows($sql);
 
     if ($num_rows > 0) {
+        mysqli_data_seek($sql, 0); // <— rewind to the start
+
         $delimiter = ",";
+        $enclosure = '"';
+        $escape    = '\\';   // backslash
         $filename = strtoAZaz09($asset_name) . "-Interfaces-" . date('Y-m-d') . ".csv";
 
         //create a file pointer
@@ -1596,12 +1597,12 @@ if (isset($_POST['export_client_asset_interfaces_csv'])) {
 
         //set column headers
         $fields = array('Name', 'Description', 'Type', 'MAC', 'IP', 'NAT IP', 'IPv6', 'Network');
-        fputcsv($f, $fields, $delimiter);
+        fputcsv($f, $fields, $delimiter, $enclosure, $escape);
 
         //output each row of the data, format line as csv and write to file pointer
         while($row = mysqli_fetch_array($sql)) {
             $lineData = array($row['interface_name'], $row['interface_description'], $row['interface_type'], $row['interface_mac'], $row['interface_ip'], $row['interface_nat_ip'], $row['interface_ipv6'], $row['network_name']);
-            fputcsv($f, $lineData, $delimiter);
+            fputcsv($f, $lineData, $delimiter, $enclosure, $escape);
         }
 
         //move back to beginning of file
