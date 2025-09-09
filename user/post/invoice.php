@@ -1958,6 +1958,8 @@ if (isset($_POST['export_invoices_csv'])) {
 
     if ($num_rows > 0) {
         $delimiter = ",";
+        $enclosure = '"';
+        $escape    = '\\';   // backslash
         $filename = "$session_company_name-Invoices-$file_name_date.csv";
 
         //create a file pointer
@@ -1965,12 +1967,12 @@ if (isset($_POST['export_invoices_csv'])) {
 
         //set column headers
         $fields = array('Invoice Number', 'Scope', 'Amount', 'Issued Date', 'Due Date', 'Status');
-        fputcsv($f, $fields, $delimiter);
+        fputcsv($f, $fields, $delimiter, $enclosure, $escape);
 
         //output each row of the data, format line as csv and write to file pointer
         while($row = $sql->fetch_assoc()) {
             $lineData = array($row['invoice_prefix'] . $row['invoice_number'], $row['invoice_scope'], $row['invoice_amount'], $row['invoice_date'], $row['invoice_due'], $row['invoice_status'], $row['client_name']);
-            fputcsv($f, $lineData, $delimiter);
+            fputcsv($f, $lineData, $delimiter, $enclosure, $escape);
         }
 
         //move back to beginning of file
@@ -2053,6 +2055,8 @@ if (isset($_POST['export_payments_csv'])) {
 
     if ($num_rows > 0) {
         $delimiter = ",";
+        $enclosure = '"';
+        $escape    = '\\';   // backslash
         $filename = "Payments-" . date('Y-m-d') . ".csv";
 
         //create a file pointer
@@ -2060,12 +2064,12 @@ if (isset($_POST['export_payments_csv'])) {
 
         //set column headers
         $fields = array('Payment Date', 'Invoice Date', 'Invoice Number', 'Invoice Amount', 'Payment Amount', 'Payment Method', 'Referrence');
-        fputcsv($f, $fields, $delimiter);
+        fputcsv($f, $fields, $delimiter, $enclosure, $escape);
 
         //output each row of the data, format line as csv and write to file pointer
         while($row = $sql->fetch_assoc()){
             $lineData = array($row['payment_date'], $row['invoice_date'], $row['invoice_prefix'] . $row['invoice_number'], $row['invoice_amount'], $row['payment_amount'], $row['payment_method'], $row['payment_reference']);
-            fputcsv($f, $lineData, $delimiter);
+            fputcsv($f, $lineData, $delimiter, $enclosure, $escape);
         }
 
         //move back to beginning of file

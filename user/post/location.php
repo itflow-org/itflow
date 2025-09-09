@@ -371,6 +371,8 @@ if(isset($_POST['export_locations_csv'])){
 
     if($num_rows > 0) {
         $delimiter = ",";
+        $enclosure = '"';
+        $escape    = '\\';   // backslash
         $filename = "Locations-" . date('Y-m-d') . ".csv";
 
         //create a file pointer
@@ -378,12 +380,12 @@ if(isset($_POST['export_locations_csv'])){
 
         //set column headers
         $fields = array('Name', 'Description', 'Address', 'City', 'State', 'Postal Code', 'Phone', 'Hours');
-        fputcsv($f, $fields, $delimiter);
+        fputcsv($f, $fields, $delimiter, $enclosure, $escape);
 
         //output each row of the data, format line as csv and write to file pointer
         while($row = $sql->fetch_assoc()){
             $lineData = array($row['location_name'], $row['location_description'], $row['location_address'], $row['location_city'], $row['location_state'], $row['location_zip'], $row['location_phone'], $row['location_hours']);
-            fputcsv($f, $lineData, $delimiter);
+            fputcsv($f, $lineData, $delimiter, $enclosure, $escape);
         }
 
         //move back to beginning of file

@@ -89,6 +89,8 @@ if (isset($_POST['export_trips_csv'])) {
 
     if ($count > 0) {
         $delimiter = ",";
+        $enclosure = '"';
+        $escape    = '\\';   // backslash
         $filename = "Trips-$file_name_date.csv";
 
         //create a file pointer
@@ -96,12 +98,12 @@ if (isset($_POST['export_trips_csv'])) {
 
         //set column headers
         $fields = array('Date', 'Purpose', 'Source', 'Destination', 'Miles');
-        fputcsv($f, $fields, $delimiter);
+        fputcsv($f, $fields, $delimiter, $enclosure, $escape);
 
         //output each row of the data, format line as csv and write to file pointer
         while($row = mysqli_fetch_assoc($sql)){
             $lineData = array($row['trip_date'], $row['trip_purpose'], $row['trip_source'], $row['trip_destination'], $row['trip_miles']);
-            fputcsv($f, $lineData, $delimiter);
+            fputcsv($f, $lineData, $delimiter, $enclosure, $escape);
         }
 
         //move back to beginning of file

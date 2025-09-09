@@ -228,6 +228,8 @@ if (isset($_POST['export_certificates_csv'])) {
 
     if ($num_rows > 0) {
         $delimiter = ",";
+        $enclosure = '"';
+        $escape    = '\\';   // backslash
         $filename = "Certificates-" . date('Y-m-d') . ".csv";
 
         //create a file pointer
@@ -235,12 +237,12 @@ if (isset($_POST['export_certificates_csv'])) {
 
         //set column headers
         $fields = array('Name', 'Description', 'Domain', 'Issuer', 'Expiration Date');
-        fputcsv($f, $fields, $delimiter);
+        fputcsv($f, $fields, $delimiter, $enclosure, $escape);
 
         //output each row of the data, format line as csv and write to file pointer
         while($row = $sql->fetch_assoc()) {
             $lineData = array($row['certificate_name'], $row['certificate_description'], $row['certificate_domain'], $row['certificate_issued_by'], $row['certificate_expire']);
-            fputcsv($f, $lineData, $delimiter);
+            fputcsv($f, $lineData, $delimiter, $enclosure, $escape);
         }
 
         //move back to beginning of file

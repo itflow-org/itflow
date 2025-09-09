@@ -320,6 +320,8 @@ if (isset($_POST['export_credentials_csv'])) {
 
     if ($num_rows > 0) {
         $delimiter = ",";
+        $enclosure = '"';
+        $escape    = '\\';   // backslash
         $filename = "Credentials-" . date('Y-m-d') . ".csv";
 
         //create a file pointer
@@ -327,14 +329,14 @@ if (isset($_POST['export_credentials_csv'])) {
 
         //set column headers
         $fields = array('Name', 'Description', 'Username', 'Password', 'URI');
-        fputcsv($f, $fields, $delimiter);
+        fputcsv($f, $fields, $delimiter, $enclosure, $escape);
 
         //output each row of the data, format line as csv and write to file pointer
         while($row = mysqli_fetch_assoc($sql)){
             $credential_username = decryptCredentialEntry($row['credential_username']);
             $credential_password = decryptCredentialEntry($row['credential_password']);
             $lineData = array($row['credential_name'], $row['credential_description'], $credential_username, $credential_password, $row['credential_uri']);
-            fputcsv($f, $lineData, $delimiter);
+            fputcsv($f, $lineData, $delimiter, $enclosure, $escape);
         }
 
         //move back to beginning of file

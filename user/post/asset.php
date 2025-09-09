@@ -973,6 +973,8 @@ if (isset($_POST['export_assets_csv'])) {
 
     if ($num_rows > 0) {
         $delimiter = ",";
+        $enclosure = '"';
+        $escape    = '\\';   // backslash
         $filename = strtoAZaz09($client_name) . "-Assets-" . date('Y-m-d') . ".csv";
 
         //create a file pointer
@@ -980,12 +982,12 @@ if (isset($_POST['export_assets_csv'])) {
 
         //set column headers
         $fields = array('Name', 'Description', 'Type', 'Make', 'Model', 'Serial Number', 'Operating System', 'Purchase Date', 'Warranty Expire', 'Install Date', 'Assigned To', 'Location', 'Physical Location', 'Notes');
-        fputcsv($f, $fields, $delimiter);
+        fputcsv($f, $fields, $delimiter, $enclosure, $escape);
 
         //output each row of the data, format line as csv and write to file pointer
         while ($row = mysqli_fetch_array($sql)) {
             $lineData = array($row['asset_name'], $row['asset_description'], $row['asset_type'], $row['asset_make'], $row['asset_model'], $row['asset_serial'], $row['asset_os'], $row['asset_purchase_date'], $row['asset_warranty_expire'], $row['asset_install_date'], $row['contact_name'], $row['location_name'], $row['asset_physical_location'], $row['asset_notes']);
-            fputcsv($f, $lineData, $delimiter);
+            fputcsv($f, $lineData, $delimiter, $enclosure, $escape);
         }
 
         //move back to beginning of file

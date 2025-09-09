@@ -222,6 +222,8 @@ if (isset($_POST['export_client_software_csv'])) {
 
     if ($num_rows > 0) {
         $delimiter = ",";
+        $enclosure = '"';
+        $escape    = '\\';   // backslash
         $filename = "Software-" . date('Y-m-d') . ".csv";
 
         //create a file pointer
@@ -229,7 +231,7 @@ if (isset($_POST['export_client_software_csv'])) {
 
         //set column headers
         $fields = array('Name', 'Version', 'Description', 'Type', 'License Type', 'Seats', 'Key', 'Assets', 'Contacts', 'Purchased', 'Expires', 'Notes');
-        fputcsv($f, $fields, $delimiter);
+        fputcsv($f, $fields, $delimiter, $enclosure, $escape);
 
         //output each row of the data, format line as csv and write to file pointer
         while($row = $sql->fetch_assoc()) {
@@ -262,7 +264,7 @@ if (isset($_POST['export_client_software_csv'])) {
             }
 
             $lineData = array($row['software_name'], $row['software_version'], $row['software_description'], $row['software_type'], $row['software_license_type'], $row['software_seats'], $row['software_key'], $assigned_to_assets, $assigned_to_contacts, $row['software_purchase'], $row['software_expire'], $row['software_notes']);
-            fputcsv($f, $lineData, $delimiter);
+            fputcsv($f, $lineData, $delimiter, $enclosure, $escape);
         }
 
         //move back to beginning of file

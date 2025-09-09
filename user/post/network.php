@@ -163,6 +163,8 @@ if (isset($_POST['export_networks_csv'])) {
 
     if ($num_rows > 0) {
         $delimiter = ",";
+        $enclosure = '"';
+        $escape    = '\\';   // backslash
         $filename = "Networks-" . date('Y-m-d') . ".csv";
 
         //create a file pointer
@@ -170,12 +172,12 @@ if (isset($_POST['export_networks_csv'])) {
 
         //set column headers
         $fields = array('Name', 'Description', 'vLAN', 'IP/Network', 'Subnet Mask', 'Gateway', 'Primary DNS', 'Secondary DNS', 'DHCP Range');
-        fputcsv($f, $fields, $delimiter);
+        fputcsv($f, $fields, $delimiter, $enclosure, $escape);
 
         //output each row of the data, format line as csv and write to file pointer
         while ($row = $sql->fetch_assoc()) {
             $lineData = array($row['network_name'], $row['network_description'], $row['network_vlan'], $row['network'], $row['network_subnet'], $row['network_gateway'], $row['network_primary_dns'], $row['network_secondary_dns'], $row['network_dhcp_range']);
-            fputcsv($f, $lineData, $delimiter);
+            fputcsv($f, $lineData, $delimiter, $enclosure, $escape);
         }
 
         //move back to beginning of file
