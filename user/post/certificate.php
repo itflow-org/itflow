@@ -34,7 +34,7 @@ if (isset($_POST['add_certificate'])) {
 
     logAction("Certificate", "Create", "$session_name created certificate $name", $client_id, $certificate_id);
 
-    flash_aletr("Certificate <strong>$name</strong> created");
+    flash_alert("Certificate <strong>$name</strong> created");
 
     redirect();
 
