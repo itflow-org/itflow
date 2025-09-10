@@ -1,0 +1,5 @@
+{
+    "require": {
+        "webklex/php-imap": "^6.2"
+    }
+}
