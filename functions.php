@@ -1695,3 +1695,33 @@ function flash_alert(string $message, string $type = 'success'): void {
     $_SESSION['alert_type'] = $type;
     $_SESSION['alert_message'] = $message;
 }
+
+// Sanitize File Names
+function sanitize_filename($filename, $strict = false) {
+    // Remove path information and dots around the filename
+    $filename = basename($filename);
+
+    // Replace spaces and underscores with dashes
+    $filename = str_replace([' ', '_'], '-', $filename);
+
+    // Remove anything which isn't a word, number, dot, or dash
+    $filename = preg_replace('/[^A-Za-z0-9\.\-]/', '', $filename);
+
+    // Optionally make filename strict alphanumeric (keep dot and dash)
+    if ($strict) {
+        $filename = preg_replace('/[^A-Za-z0-9\.\-]/', '', $filename);
+    }
+
+    // Avoid multiple consecutive dashes
+    $filename = preg_replace('/-+/', '-', $filename);
+
+    // Remove leading/trailing dots and dashes
+    $filename = trim($filename, '.-');
+
+    // Ensure it’s not empty
+    if (empty($filename)) {
+        $filename = 'file';
+    }
+
+    return $filename;
+}

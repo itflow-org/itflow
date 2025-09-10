@@ -204,16 +204,19 @@ if (isset($_GET['delete_software'])) {
 
 }
 
-if (isset($_POST['export_client_software_csv'])) {
+if (isset($_POST['export_software_csv'])) {
 
     enforceUserPermission('module_support');
 
     if (isset($_POST['client_id'])) {
         $client_id = intval($_POST['client_id']);
         $client_query = "WHERE software_client_id = $client_id";
+        $client_name = getFieldById('clients', $client_id, 'client_name');
+        $file_name_prepend = "$client_name-";
     } else {
         $client_query = '';
         $client_id = 0; //Logging
+        $file_name_prepend = "$session_company_name-";
     }
 
     $sql = mysqli_query($mysqli,"SELECT * FROM software $client_query ORDER BY software_name ASC");
@@ -224,7 +227,7 @@ if (isset($_POST['export_client_software_csv'])) {
         $delimiter = ",";
         $enclosure = '"';
         $escape    = '\\';   // backslash
-        $filename = "Software-" . date('Y-m-d') . ".csv";
+        $filename = sanitize_filename($file_name_prepend . "Software-" . date('Y-m-d_H-i-s') . ".csv");
 
         //create a file pointer
         $f = fopen('php://memory', 'w');

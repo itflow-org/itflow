@@ -330,9 +330,12 @@ if (isset($_POST['export_domains_csv'])) {
     if (isset($_POST['client_id'])) {
         $client_id = intval($_POST['client_id']);
         $client_query = "WHERE domain_client_id = $client_id";
+        $client_name = getFieldById('clients', $client_id, 'client_name');
+        $file_name_prepend = "$client_name-";
     } else {
         $client_query = '';
         $client_id = 0;
+        $file_name_prepend = "$session_company_name-";
     }
 
     $sql = mysqli_query($mysqli,"SELECT * FROM domains $client_query ORDER BY domain_name ASC");
@@ -343,7 +346,7 @@ if (isset($_POST['export_domains_csv'])) {
         $delimiter = ",";
         $enclosure = '"';
         $escape    = '\\';   // backslash
-        $filename = "Domains-" . date('Y-m-d') . ".csv";
+        $filename = sanitize_filename($file_name_prepend . "Domains-" . date('Y-m-d_H-i-s') . ".csv");
 
         //create a file pointer
         $f = fopen('php://memory', 'w');

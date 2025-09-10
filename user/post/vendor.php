@@ -274,8 +274,12 @@ if (isset($_POST['export_vendors_csv'])) {
     if (isset($_POST['client_id'])) {
         $client_id = intval($_POST['client_id']);
         $client_query = "AND vendor_client_id = $client_id";
+        $client_name = getFieldById('clients', $client_id, 'client_name');
+        $file_name_prepend = "$client_name-";
     } else {
         $client_query = "AND vendor_client_id = 0";
+        $client_name = '';
+        $file_name_prepend = "$session_company_name-";
     }
 
     $sql = mysqli_query($mysqli,"SELECT * FROM vendors WHERE vendor_template = 0 $client_query ORDER BY vendor_name ASC");
@@ -286,7 +290,7 @@ if (isset($_POST['export_vendors_csv'])) {
         $delimiter = ",";
         $enclosure = '"';
         $escape    = '\\';   // backslash
-        $filename = "Vendors-" . date('Y-m-d') . ".csv";
+        $filename = sanitize_filename($file_name_prepend . "Vendors-" . date('Y-m-d_H-i-s') . ".csv");
 
         //create a file pointer
         $f = fopen('php://memory', 'w');

@@ -540,12 +540,12 @@ if(isset($_POST['export_quotes_csv'])){
         $client_id = intval($_POST['client_id']);
         $client_query = "WHERE quote_client_id = $client_id";
         // Get Client Name for logging
-        $client_name = getFieldByID('clients', $client_id, 'client_name');
+        $client_name = getFieldById('clients', $client_id, 'client_name');
         $file_name_prepend = "$client_name-";
     } else {
         $client_query = '';
         $client_name = '';
-        $file_name_prepend = '';
+        $file_name_prepend = "$session_company_name";
     }
 
     $sql = mysqli_query($mysqli,"SELECT * FROM quotes $client_query ORDER BY quote_number ASC");
@@ -556,7 +556,7 @@ if(isset($_POST['export_quotes_csv'])){
         $delimiter = ",";
         $enclosure = '"';
         $escape    = '\\';   // backslash
-        $filename = $file_name_prepend . "Quotes-" . date('Y-m-d') . ".csv";
+        $filename = sanitize_filename($file_name_prepend . "Quotes-" . date('Y-m-d_H-i-s') . ".csv");
 
         //create a file pointer
         $f = fopen('php://memory', 'w');

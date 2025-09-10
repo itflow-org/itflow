@@ -2170,8 +2170,12 @@ if (isset($_POST['export_tickets_csv'])) {
     if (isset($_POST['client_id'])) {
         $client_id = intval($_POST['client_id']);
         $client_query = "WHERE ticket_client_id = $client_id";
+        $client_name = getFieldById('clients', $client_id, 'client_name');
+        $file_name_prepend = "$client_name-";
     } else {
         $client_query = '';
+        $client_name = '';
+        $file_name_prepend = "$session_company_name-";
     }
 
     $sql = mysqli_query(
@@ -2185,7 +2189,7 @@ if (isset($_POST['export_tickets_csv'])) {
         $delimiter = ",";
         $enclosure = '"';
         $escape    = '\\';   // backslash
-        $filename = "Tickets-" . date('Y-m-d') . ".csv";
+        $filename = sanitize_filename($file_name_prepend . "Tickets-" . date('Y-m-d_H-i-s') . ".csv");
 
         //create a file pointer
         $f = fopen('php://memory', 'w');

@@ -217,9 +217,12 @@ if (isset($_POST['export_certificates_csv'])) {
     if (isset($_POST['client_id'])) {
         $client_id = intval($_POST['client_id']);
         $client_query = "AND certificate_client_id = $client_id";
+        $client_name = getFieldById('clients', $client_id, 'client_name');
+        $file_name_prepend = "$client_name-";
     } else {
         $client_query = '';
         $client_id = 0;
+        $file_name_prepend = "$session_company_name-";
     }
 
     $sql = mysqli_query($mysqli,"SELECT * FROM certificates WHERE certificate_archived_at IS NULL $client_query ORDER BY certificate_name ASC");
@@ -230,7 +233,7 @@ if (isset($_POST['export_certificates_csv'])) {
         $delimiter = ",";
         $enclosure = '"';
         $escape    = '\\';   // backslash
-        $filename = "Certificates-" . date('Y-m-d') . ".csv";
+        $filename = sanitize_filename($file_name_prepend . "Certificates-" . date('Y-m-d_H-i-s') . ".csv");
 
         //create a file pointer
         $f = fopen('php://memory', 'w');

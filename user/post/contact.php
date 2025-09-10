@@ -1153,9 +1153,12 @@ if (isset($_POST['export_contacts_csv'])) {
     if (isset($_POST['client_id'])) {
         $client_id = intval($_POST['client_id']);
         $client_query = "AND contact_client_id = $client_id";
+        $client_name = getFieldById('clients', $client_id, 'client_name');
+        $file_name_prepend = "$client_name-";
     } else {
         $client_query = '';
-        $client_id = 0; //Logging
+        $client_id = 0; //Logging;
+        $file_name_prepend = "$session_company_name-";
     }
 
     //Contacts
@@ -1166,7 +1169,7 @@ if (isset($_POST['export_contacts_csv'])) {
         $delimiter = ",";
         $enclosure = '"';
         $escape    = '\\';   // backslash
-        $filename = "Contacts-" . date('Y-m-d') . ".csv";
+        $filename = sanitize_filename($file_name_prepend . "Contacts-" . date('Y-m-d_H-i-s') . ".csv");
 
         //create a file pointer
         $f = fopen('php://memory', 'w');

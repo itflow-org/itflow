@@ -953,8 +953,6 @@ if (isset($_POST['export_assets_csv'])) {
     validateCSRFToken($_POST['csrf_token']);
 
     enforceUserPermission('module_support');
-    
-    $client_name = 'All'; // default
 
     if (isset($_POST['client_id'])) {
         $client_id = intval($_POST['client_id']);
@@ -962,9 +960,11 @@ if (isset($_POST['export_assets_csv'])) {
 
         $client_row = mysqli_fetch_array(mysqli_query($mysqli,"SELECT client_name FROM clients WHERE client_id = $client_id"));
         $client_name = $client_row['client_name'];
+        $file_name_prepend = "$client_name-";
     } else {
         $client_query = '';
         $client_id = 0; // for Logging
+        $file_name_prepend = "$session_company_name-";
     }
 
     // Get records from database
@@ -975,7 +975,7 @@ if (isset($_POST['export_assets_csv'])) {
         $delimiter = ",";
         $enclosure = '"';
         $escape    = '\\';   // backslash
-        $filename = strtoAZaz09($client_name) . "-Assets-" . date('Y-m-d') . ".csv";
+        $filename = sanitize_filename($file_name_prepend . "Assets-" . date('Y-m-d_H-i-s') . ".csv");
 
         //create a file pointer
         $f = fopen('php://memory', 'w');

@@ -63,8 +63,12 @@ if (isset($_POST['export_trips_csv'])) {
     if (isset($_POST['client_id'])) {
         $client_id = intval($_POST['client_id']);
         $client_query = "AND trip_client_id = $client_id";
+        $client_name = getFieldById('clients', $client_id, 'client_name');
+        $file_name_prepend = "$client_name-";
     } else {
         $client_query = '';
+        $client_name = '';
+        $file_name_prepend = "$session_company_name-";
     }
     
     $date_from = sanitizeInput($_POST['date_from']);
@@ -91,7 +95,7 @@ if (isset($_POST['export_trips_csv'])) {
         $delimiter = ",";
         $enclosure = '"';
         $escape    = '\\';   // backslash
-        $filename = "Trips-$file_name_date.csv";
+        $filename = sanitize_filename($file_name_prepend . "Trips-" . date('Y-m-d_H-i-s') . ".csv");
 
         //create a file pointer
         $f = fopen('php://memory', 'w');

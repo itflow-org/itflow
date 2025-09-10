@@ -305,7 +305,7 @@ if (isset($_POST['export_expenses_csv'])) {
         $delimiter = ",";
         $enclosure = '"';
         $escape    = '\\';   // backslash
-        $filename = "$session_company_name-Expenses-$file_name_date.csv";
+        $filename = sanitize_filename("$session_company_name-Expenses-" . date('Y-m-d_H-i-s') . ".csv");
 
         //create a file pointer
         $f = fopen('php://memory', 'w');
