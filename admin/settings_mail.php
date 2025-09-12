@@ -84,36 +84,55 @@ require_once "includes/inc_all_admin.php";
                 <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token'] ?>">
 
                 <div class="form-group">
-                    <label>IMAP Host</label>
+                    <label>IMAP Provider</label>
                     <div class="input-group">
                         <div class="input-group-prepend">
-                            <span class="input-group-text"><i class="fa fa-fw fa-server"></i></span>
+                            <span class="input-group-text"><i class="fa fa-fw fa-cloud"></i></span>
                         </div>
-                        <input type="text" class="form-control" name="config_imap_host" placeholder="Incoming Mail Server Address (for email to ticket parsing)" value="<?php echo nullable_htmlentities($config_imap_host); ?>">
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label>IMAP Port</label>
-                    <div class="input-group">
-                        <div class="input-group-prepend">
-                            <span class="input-group-text"><i class="fa fa-fw fa-plug"></i></span>
-                        </div>
-                        <input type="number" min="0" class="form-control" name="config_imap_port" placeholder="Incoming Mail Server Port Number (993)" value="<?php echo intval($config_imap_port); ?>">
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label>IMAP Encryption</label>
-                    <div class="input-group">
-                        <div class="input-group-prepend">
-                            <span class="input-group-text"><i class="fa fa-fw fa-lock"></i></span>
-                        </div>
-                        <select class="form-control" name="config_imap_encryption">
-                            <option value=''>None</option>
-                            <option <?php if ($config_imap_encryption == 'tls') { echo "selected"; } ?> value="tls">TLS</option>
-                            <option <?php if ($config_imap_encryption == 'ssl') { echo "selected"; } ?> value="ssl">SSL</option>
+                        <select class="form-control" name="config_imap_provider" id="config_imap_provider">
+                            <option value="none" <?php if($config_imap_provider ==='') echo 'selected'; ?>>None (Disabled)</option>
+                            <option value="standard_imap" <?php if(($config_imap_provider ?? 'standard_imap')==='standard_imap') echo 'selected'; ?>>Standard IMAP (Username/Password)</option>
+                            <option value="google_oauth" <?php if(($config_imap_provider ?? '')==='google_oauth') echo 'selected'; ?>>Google Workspace (OAuth)</option>
+                            <option value="microsoft_oauth" <?php if(($config_imap_provider ?? '')==='microsoft_oauth') echo 'selected'; ?>>Microsoft 365 (OAuth)</option>
                         </select>
+                    </div>
+                    <small class="text-secondary d-block mt-1" id="imap_provider_hint">
+                    Select your mailbox provider. OAuth options ignore the IMAP password here.
+                    </small>
+                </div>
+                <div id="standard_fields" style="display:none;">
+                    <div class="form-group">
+                        <label>IMAP Host</label>
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text"><i class="fa fa-fw fa-server"></i></span>
+                            </div>
+                            <input type="text" class="form-control" name="config_imap_host" placeholder="Incoming Mail Server Address (for email to ticket parsing)" value="<?php echo nullable_htmlentities($config_imap_host); ?>">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>IMAP Port</label>
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text"><i class="fa fa-fw fa-plug"></i></span>
+                            </div>
+                            <input type="number" min="0" class="form-control" name="config_imap_port" placeholder="Incoming Mail Server Port Number (993)" value="<?php echo intval($config_imap_port); ?>">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>IMAP Encryption</label>
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text"><i class="fa fa-fw fa-lock"></i></span>
+                            </div>
+                            <select class="form-control" name="config_imap_encryption">
+                                <option value=''>None</option>
+                                <option <?php if ($config_imap_encryption == 'tls') { echo "selected"; } ?> value="tls">TLS</option>
+                                <option <?php if ($config_imap_encryption == 'ssl') { echo "selected"; } ?> value="ssl">SSL</option>
+                            </select>
+                        </div>
                     </div>
                 </div>
 
@@ -123,22 +142,77 @@ require_once "includes/inc_all_admin.php";
                         <div class='input-group-prepend'>
                             <span class='input-group-text'><i class='fa fa-fw fa-user'></i></span>
                         </div>
-                        <input type='text' class='form-control' name='config_imap_username' placeholder='Username' value="<?php
-                        echo nullable_htmlentities($config_imap_username); ?>" required>
+                        <input type='text' class='form-control' name='config_imap_username' placeholder='Username (email address)' value="<?php echo nullable_htmlentities($config_imap_username); ?>" required>
                     </div>
                 </div>
 
-                <div class='form-group'>
+                <div class='form-group' id="imap_password_group">
                     <label>IMAP Password</label>
                     <div class='input-group'>
                         <div class='input-group-prepend'>
                             <span class='input-group-text'><i class='fa fa-fw fa-key'></i></span>
                         </div>
-                        <input type='password' class='form-control' data-toggle='password' name='config_imap_password' placeholder='Password' value="<?php
-                        echo nullable_htmlentities($config_imap_password); ?>" autocomplete='new-password' required>
+                        <input type='password' class='form-control' data-toggle='password' name='config_imap_password' placeholder='Password (not used for OAuth)' value="<?php echo nullable_htmlentities($config_imap_password); ?>" autocomplete='new-password'>
                         <div class='input-group-append'>
                             <span class='input-group-text'><i class='fa fa-fw fa-eye'></i></span>
                         </div>
+                    </div>
+                </div>
+
+                <div id="oauth_fields" style="display:none;">
+                    <hr>
+                    <h5 class="mb-2">OAuth Settings</h5>
+                    <p class="text-secondary" id="oauth_hint">
+                        Configure OAuth credentials for the selected provider.
+                    </p>
+
+                    <div class="form-group">
+                        <label>OAuth Client ID</label>
+                        <div class="input-group">
+                            <div class="input-group-prepend"><span class="input-group-text"><i class="fa fa-fw fa-id-badge"></i></span></div>
+                            <input type="text" class="form-control" name="config_mail_oauth_client_id"
+                                   value="<?php echo nullable_htmlentities($config_mail_oauth_client_id ?? ''); ?>">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>OAuth Client Secret</label>
+                        <div class="input-group">
+                            <div class="input-group-prepend"><span class="input-group-text"><i class="fa fa-fw fa-key"></i></span></div>
+                            <input type="password" class="form-control" data-toggle="password" name="config_mail_oauth_client_secret"
+                                   value="<?php echo nullable_htmlentities($config_mail_oauth_client_secret ?? ''); ?>" autocomplete="new-password">
+                            <div class="input-group-append"><span class="input-group-text"><i class="fa fa-fw fa-eye"></i></span></div>
+                        </div>
+                    </div>
+
+                    <div class="form-group" id="tenant_row" style="display:none;">
+                        <label>Tenant ID (Microsoft 365 only)</label>
+                        <div class="input-group">
+                            <div class="input-group-prepend"><span class="input-group-text"><i class="fa fa-fw fa-building"></i></span></div>
+                            <input type="text" class="form-control" name="config_mail_oauth_tenant_id"
+                                   value="<?php echo nullable_htmlentities($config_mail_oauth_tenant_id ?? ''); ?>">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Refresh Token</label>
+                        <div class="input-group">
+                            <div class="input-group-prepend"><span class="input-group-text"><i class="fa fa-fw fa-sync-alt"></i></span></div>
+                            <textarea class="form-control" name="config_mail_oauth_refresh_token" rows="2"
+                                      placeholder="Paste refresh token"><?php echo nullable_htmlentities($config_mail_oauth_refresh_token ?? ''); ?></textarea>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Access Token (optional – will refresh if expired)</label>
+                        <div class="input-group">
+                            <div class="input-group-prepend"><span class="input-group-text"><i class="fa fa-fw fa-shield-alt"></i></span></div>
+                            <textarea class="form-control" name="config_mail_oauth_access_token" rows="2"
+                                      placeholder="Can be left blank; system refreshes using the refresh token"><?php echo nullable_htmlentities($config_mail_oauth_access_token ?? ''); ?></textarea>
+                        </div>
+                        <small class="text-secondary">
+                            Expires at: <?php echo !empty($config_mail_oauth_access_token_expires_at) ? htmlspecialchars($config_mail_oauth_access_token_expires_at) : 'n/a'; ?>
+                        </small>
                     </div>
                 </div>
 
@@ -327,5 +401,67 @@ require_once "includes/inc_all_admin.php";
 
     <?php } ?>
 
-<?php require_once "../includes/footer.php";
+<script>
+(function(){
+  const sel = document.getElementById('config_imap_provider');
+  const pwdGrp = document.getElementById('imap_password_group');
+  const oauthWrap = document.getElementById('oauth_fields');
+  const standardWrap = document.getElementById('standard_fields');
+  const tenantRow = document.getElementById('tenant_row');
+  const oauthHint = document.getElementById('oauth_hint');
+  const providerHint = document.getElementById('imap_provider_hint');
 
+  function setDisabled(container, disabled){
+    if(!container) return;
+    container.querySelectorAll('input, select, textarea').forEach(el => {
+      el.disabled = !!disabled;
+    });
+  }
+
+  function toggleFields(){
+    if(!sel) return;
+    const v = sel.value || '';
+    const isNone = v === '';
+    const isStd  = v === 'standard_imap';
+    const isG    = v === 'google_oauth';
+    const isM    = v === 'microsoft_oauth';
+    const isOAuth = isG || isM;
+
+    // Show/hide containers
+    if (pwdGrp)        pwdGrp.style.display       = isStd ? '' : 'none';
+    if (oauthWrap)     oauthWrap.style.display    = isOAuth ? '' : 'none';
+    if (standardWrap)  standardWrap.style.display = isStd ? '' : 'none';
+    if (tenantRow)     tenantRow.style.display    = isM ? '' : 'none';
+
+    // Disable inputs inside hidden sections to avoid accidental submission
+    setDisabled(pwdGrp,       !isStd);
+    setDisabled(standardWrap, !isStd);
+    setDisabled(oauthWrap,    !isOAuth);
+
+    // Update hints
+    if (providerHint) {
+      providerHint.textContent = isNone
+        ? 'Choose a provider to reveal the relevant settings.'
+        : isStd
+          ? 'Standard IMAP: provide host, port, encryption, username, and password.'
+          : isG
+            ? 'Google Workspace OAuth: provide Client ID & Secret; paste the refresh token; username should be the mailbox address.'
+            : 'Microsoft 365 OAuth: provide Client ID, Secret & Tenant ID; paste the refresh token; username should be the mailbox address.';
+    }
+    if (oauthHint) {
+      oauthHint.textContent = isG
+        ? 'Google Workspace OAuth: Client ID & Secret from Google Cloud; Refresh token generated via OAuth consent.'
+        : isM
+          ? 'Microsoft 365 OAuth: Client ID, Secret & Tenant ID from Entra ID; Refresh token generated via OAuth consent.'
+          : 'Configure OAuth credentials for the selected provider.';
+    }
+  }
+
+  if (sel) {
+    sel.addEventListener('change', toggleFields);
+    toggleFields();
+  }
+})();
+</script>
+
+<?php require_once "../includes/footer.php";

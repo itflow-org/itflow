@@ -311,29 +311,217 @@ function addReply($from_email, $date, $subject, $ticket_number, $message, $attac
 }
 
 /** ------------------------------------------------------------------
- * Webklex IMAP setup
+ * OAuth helpers + provider guard
+ * ------------------------------------------------------------------ */
+
+// returns true if expires_at ('Y-m-d H:i:s') is in the past (or missing)
+function tokenExpired(?string $expires_at): bool {
+    if (empty($expires_at)) return true;
+    $ts = strtotime($expires_at);
+    if ($ts === false) return true;
+    // refresh a little early (60s) to avoid race
+    return ($ts - 60) <= time();
+}
+
+// very small form-encoded POST helper using curl
+function httpFormPost(string $url, array $fields): array {
+    $ch = curl_init($url);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_POST, true);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($fields, '', '&'));
+    curl_setopt($ch, CURLOPT_TIMEOUT, 20);
+    $raw = curl_exec($ch);
+    $err = curl_error($ch);
+    $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+    return ['ok' => ($raw !== false && $code >= 200 && $code < 300), 'body' => $raw, 'code' => $code, 'err' => $err];
+}
+
+/**
+ * Get a valid access token for Google Workspace IMAP via refresh token if needed.
+ * Uses settings: config_mail_oauth_client_id / _client_secret / _refresh_token / _access_token / _access_token_expires_at
+ * Updates globals if refreshed (so later logging can reflect it if you want to persist).
+ */
+function getGoogleAccessToken(string $username): ?string {
+    // pull from global settings variables you already load
+    global $mysqli,
+           $config_mail_oauth_client_id,
+           $config_mail_oauth_client_secret,
+           $config_mail_oauth_refresh_token,
+           $config_mail_oauth_access_token,
+           $config_mail_oauth_access_token_expires_at;
+
+    // If we have a not-expired token, use it
+    if (!empty($config_mail_oauth_access_token) && !tokenExpired($config_mail_oauth_access_token_expires_at)) {
+        return $config_mail_oauth_access_token;
+    }
+
+    // Need to refresh?
+    if (empty($config_mail_oauth_client_id) || empty($config_mail_oauth_client_secret) || empty($config_mail_oauth_refresh_token)) {
+        // Nothing we can do
+        return null;
+    }
+
+    $resp = httpFormPost(
+        'https://oauth2.googleapis.com/token',
+        [
+            'client_id'     => $config_mail_oauth_client_id,
+            'client_secret' => $config_mail_oauth_client_secret,
+            'refresh_token' => $config_mail_oauth_refresh_token,
+            'grant_type'    => 'refresh_token',
+        ]
+    );
+
+    if (!$resp['ok']) return null;
+
+    $json = json_decode($resp['body'], true);
+    if (!is_array($json) || empty($json['access_token'])) return null;
+
+    // Calculate new expiry
+    $expires_at = date('Y-m-d H:i:s', time() + (int)($json['expires_in'] ?? 3600));
+
+    // Update in-memory globals (and persist to DB)
+    $config_mail_oauth_access_token = $json['access_token'];
+    $config_mail_oauth_access_token_expires_at = $expires_at;
+
+    $at_esc  = mysqli_real_escape_string($mysqli, $config_mail_oauth_access_token);
+    $exp_esc = mysqli_real_escape_string($mysqli, $config_mail_oauth_access_token_expires_at);
+    mysqli_query($mysqli, "UPDATE settings SET
+        config_mail_oauth_access_token = '{$at_esc}',
+        config_mail_oauth_access_token_expires_at = '{$exp_esc}'
+        WHERE company_id = 1
+    ");
+
+    return $config_mail_oauth_access_token;
+}
+
+/**
+ * Get a valid access token for Microsoft 365 IMAP via refresh token if needed.
+ * Uses settings: config_mail_oauth_client_id / _client_secret / _tenant_id / _refresh_token / _access_token / _access_token_expires_at
+ */
+function getMicrosoftAccessToken(string $username): ?string {
+    global $mysqli,
+           $config_mail_oauth_client_id,
+           $config_mail_oauth_client_secret,
+           $config_mail_oauth_tenant_id,
+           $config_mail_oauth_refresh_token,
+           $config_mail_oauth_access_token,
+           $config_mail_oauth_access_token_expires_at;
+
+    if (!empty($config_mail_oauth_access_token) && !tokenExpired($config_mail_oauth_access_token_expires_at)) {
+        return $config_mail_oauth_access_token;
+    }
+
+    if (empty($config_mail_oauth_client_id) || empty($config_mail_oauth_client_secret) || empty($config_mail_oauth_refresh_token) || empty($config_mail_oauth_tenant_id)) {
+        return null;
+    }
+
+    $url = "https://login.microsoftonline.com/".rawurlencode($config_mail_oauth_tenant_id)."/oauth2/v2.0/token";
+
+    $resp = httpFormPost($url, [
+        'client_id'     => $config_mail_oauth_client_id,
+        'client_secret' => $config_mail_oauth_client_secret,
+        'refresh_token' => $config_mail_oauth_refresh_token,
+        'grant_type'    => 'refresh_token',
+        // IMAP/SMTP scopes typically included at initial consent; not needed for refresh
+    ]);
+
+    if (!$resp['ok']) return null;
+
+    $json = json_decode($resp['body'], true);
+    if (!is_array($json) || empty($json['access_token'])) return null;
+
+    $expires_at = date('Y-m-d H:i:s', time() + (int)($json['expires_in'] ?? 3600));
+
+    $config_mail_oauth_access_token = $json['access_token'];
+    $config_mail_oauth_access_token_expires_at = $expires_at;
+
+    $at_esc  = mysqli_real_escape_string($mysqli, $config_mail_oauth_access_token);
+    $exp_esc = mysqli_real_escape_string($mysqli, $config_mail_oauth_access_token_expires_at);
+    mysqli_query($mysqli, "UPDATE settings SET
+        config_mail_oauth_access_token = '{$at_esc}',
+        config_mail_oauth_access_token_expires_at = '{$exp_esc}'
+        WHERE company_id = 1
+    ");
+
+    return $config_mail_oauth_access_token;
+}
+
+// Provider from settings (may be NULL/empty to disable IMAP polling)
+$imap_provider = $config_imap_provider ?? '';
+if ($imap_provider === null) $imap_provider = '';
+
+if ($imap_provider === '') {
+    // IMAP disabled by admin: exit cleanly
+    logApp("Cron-Email-Parser", "info", "IMAP polling skipped: provider not configured.");
+    @unlink($lock_file_path);
+    exit(0);
+}
+
+/** ------------------------------------------------------------------
+ * Webklex IMAP setup (supports Standard / Google OAuth / Microsoft OAuth)
  * ------------------------------------------------------------------ */
 use Webklex\PHPIMAP\ClientManager;
 
-$validate_cert = true; // or false based on your configuration
+$validate_cert = true;
+
+// Defaults from settings (standard IMAP)
+$host = $config_imap_host;
+$port = (int)$config_imap_port;
+$encr = !empty($config_imap_encryption) ? $config_imap_encryption : null; // 'ssl'|'tls'|null
+$user = $config_imap_username;
+$pass = $config_imap_password;
+$auth = null; // 'oauth' for OAuth providers
+
+if ($imap_provider === 'google_oauth') {
+    $host = 'imap.gmail.com';
+    $port = 993;
+    $encr = 'ssl';
+    $auth = 'oauth';
+    $pass = getGoogleAccessToken($user);
+    if (empty($pass)) {
+        logApp("Cron-Email-Parser", "error", "Google OAuth: no usable access token (check refresh token/client credentials).");
+        @unlink($lock_file_path);
+        exit(1);
+    }
+} elseif ($imap_provider === 'microsoft_oauth') {
+    $host = 'outlook.office365.com';
+    $port = 993;
+    $encr = 'ssl';
+    $auth = 'oauth';
+    $pass = getMicrosoftAccessToken($user);
+    if (empty($pass)) {
+        logApp("Cron-Email-Parser", "error", "Microsoft OAuth: no usable access token (check refresh token/client credentials/tenant).");
+        @unlink($lock_file_path);
+        exit(1);
+    }
+} else {
+    // standard_imap (username/password)
+    if (empty($host) || empty($port) || empty($user)) {
+        logApp("Cron-Email-Parser", "error", "Standard IMAP: missing host/port/username.");
+        @unlink($lock_file_path);
+        exit(1);
+    }
+}
 
 $cm = new ClientManager();
 
-$client = $cm->make([
-    'host'          => $config_imap_host,
-    'port'          => (int)$config_imap_port,
-    'encryption'    => !empty($config_imap_encryption) ? $config_imap_encryption : null, // 'ssl' | 'tls' | null
-    'validate_cert' => (bool)$validate_cert,
-    'username'      => $config_imap_username,
-    'password'      => $config_imap_password,
-    'protocol'      => 'imap'
-]);
+$client = $cm->make(array_filter([
+    'host'           => $host,
+    'port'           => $port,
+    'encryption'     => $encr,            // 'ssl' | 'tls' | null
+    'validate_cert'  => (bool)$validate_cert,
+    'username'       => $user,            // full mailbox address (OAuth uses user as principal)
+    'password'       => $pass,            // access token when $auth === 'oauth'
+    'authentication' => $auth,            // 'oauth' or null
+    'protocol'       => 'imap',
+]));
 
 try {
     $client->connect();
 } catch (\Throwable $e) {
     echo "Error connecting to IMAP server: " . $e->getMessage();
-    unlink($lock_file_path);
+    @unlink($lock_file_path);
     exit(1);
 }
 
