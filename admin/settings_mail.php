@@ -10,61 +10,87 @@ require_once "includes/inc_all_admin.php";
             <form action="post.php" method="post" autocomplete="off">
                 <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token'] ?>">
 
+                <!-- SMTP Provider -->
                 <div class="form-group">
-                    <label>SMTP Host</label>
+                    <label>SMTP Provider</label>
                     <div class="input-group">
                         <div class="input-group-prepend">
-                            <span class="input-group-text"><i class="fa fa-fw fa-server"></i></span>
+                            <span class="input-group-text"><i class="fa fa-fw fa-cloud"></i></span>
                         </div>
-                        <input type="text" class="form-control" name="config_smtp_host" placeholder="Mail Server Address" value="<?php echo nullable_htmlentities($config_smtp_host); ?>" required>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label>SMTP Port</label>
-                    <div class="input-group">
-                        <div class="input-group-prepend">
-                            <span class="input-group-text"><i class="fa fa-fw fa-plug"></i></span>
-                        </div>
-                        <input type="number" min="0" class="form-control" name="config_smtp_port" placeholder="Mail Server Port Number" value="<?php echo intval($config_smtp_port); ?>" required>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label>Encryption</label>
-                    <div class="input-group">
-                        <div class="input-group-prepend">
-                            <span class="input-group-text"><i class="fa fa-fw fa-lock"></i></span>
-                        </div>
-                        <select class="form-control" name="config_smtp_encryption">
-                            <option value=''>None</option>
-                            <option <?php if ($config_smtp_encryption == 'tls') { echo "selected"; } ?> value="tls">TLS</option>
-                            <option <?php if ($config_smtp_encryption == 'ssl') { echo "selected"; } ?> value="ssl">SSL</option>
+                        <select class="form-control" name="config_smtp_provider" id="config_smtp_provider">
+                            <option value="none" <?php if(($config_smtp_provider ?? '')==='none' || ($config_smtp_provider ?? '')==='') echo 'selected'; ?>>None (Disabled)</option>
+                            <option value="standard_smtp" <?php if(($config_smtp_provider ?? 'standard_smtp')==='standard_smtp') echo 'selected'; ?>>Standard SMTP (Username/Password)</option>
+                            <option value="google_oauth" <?php if(($config_smtp_provider ?? '')==='google_oauth') echo 'selected'; ?>>Google Workspace (OAuth)</option>
+                            <option value="microsoft_oauth" <?php if(($config_smtp_provider ?? '')==='microsoft_oauth') echo 'selected'; ?>>Microsoft 365 (OAuth)</option>
                         </select>
                     </div>
+                    <small class="text-secondary d-block mt-1" id="smtp_provider_hint">
+                        Choose your SMTP provider. OAuth options ignore the SMTP password here.
+                    </small>
                 </div>
 
-                <div class="form-group">
-                    <label>SMTP Username</label>
-                    <div class="input-group">
-                        <div class="input-group-prepend">
-                            <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
-                        </div>
-                        <input type="text" class="form-control" name="config_smtp_username" placeholder="Username (Leave blank if no auth is required)" value="<?php echo nullable_htmlentities($config_smtp_username); ?>">
-                    </div>
-                </div>
 
-                <div class="form-group">
-                    <label>SMTP Password</label>
-                    <div class="input-group">
-                        <div class="input-group-prepend">
-                            <span class="input-group-text"><i class="fa fa-fw fa-key"></i></span>
-                        </div>
-                        <input type="password" class="form-control" data-toggle="password" name="config_smtp_password" placeholder="Password (Leave blank if no auth is required)" value="<?php echo nullable_htmlentities($config_smtp_password); ?>" autocomplete="new-password">
-                        <div class="input-group-append">
-                            <span class="input-group-text"><i class="fa fa-fw fa-eye"></i></span>
+                <!-- Standard SMTP fields (show only for standard_smtp) -->
+                <div id="smtp_standard_fields">
+                    <div class="form-group">
+                        <label>SMTP Host</label>
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text"><i class="fa fa-fw fa-server"></i></span>
+                            </div>
+                            <input type="text" class="form-control" name="config_smtp_host" placeholder="Mail Server Address" value="<?php echo nullable_htmlentities($config_smtp_host); ?>" required>
                         </div>
                     </div>
+
+                    <div class="form-group">
+                        <label>SMTP Port</label>
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text"><i class="fa fa-fw fa-plug"></i></span>
+                            </div>
+                            <input type="number" min="0" class="form-control" name="config_smtp_port" placeholder="Mail Server Port Number" value="<?php echo intval($config_smtp_port); ?>" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Encryption</label>
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text"><i class="fa fa-fw fa-lock"></i></span>
+                            </div>
+                            <select class="form-control" name="config_smtp_encryption">
+                                <option value=''>None</option>
+                                <option <?php if ($config_smtp_encryption == 'tls') { echo "selected"; } ?> value="tls">TLS</option>
+                                <option <?php if ($config_smtp_encryption == 'ssl') { echo "selected"; } ?> value="ssl">SSL</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>SMTP Username</label>
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
+                            </div>
+                            <input type="text" class="form-control" name="config_smtp_username" placeholder="Username (Leave blank if no auth is required)" value="<?php echo nullable_htmlentities($config_smtp_username); ?>">
+                        </div>
+                    </div>
+
+                    <div class="form-group" id="smtp_password_group">
+                        <div class="form-group">
+                            <label>SMTP Password</label>
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text"><i class="fa fa-fw fa-key"></i></span>
+                                </div>
+                                <input type="password" class="form-control" data-toggle="password" name="config_smtp_password" placeholder="Password (Leave blank if no auth is required)" value="<?php echo nullable_htmlentities($config_smtp_password); ?>" autocomplete="new-password">
+                                <div class="input-group-append">
+                                    <span class="input-group-text"><i class="fa fa-fw fa-eye"></i></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
 
                 <hr>
@@ -159,9 +185,10 @@ require_once "includes/inc_all_admin.php";
                     </div>
                 </div>
 
-                <div id="oauth_fields" style="display:none;">
+                <!-- OAuth shared fields (show for google_oauth / microsoft_oauth) -->
+                <div id="smtp_oauth_fields" style="display:none;">
                     <hr>
-                    <h5 class="mb-2">OAuth Settings</h5>
+                    <h5 class="mb-2">OAuth Settings (shared for IMAP & SMTP)</h5>
                     <p class="text-secondary" id="oauth_hint">
                         Configure OAuth credentials for the selected provider.
                     </p>
@@ -403,64 +430,65 @@ require_once "includes/inc_all_admin.php";
 
 <script>
 (function(){
-  const sel = document.getElementById('config_imap_provider');
-  const pwdGrp = document.getElementById('imap_password_group');
-  const oauthWrap = document.getElementById('oauth_fields');
-  const standardWrap = document.getElementById('standard_fields');
-  const tenantRow = document.getElementById('tenant_row');
-  const oauthHint = document.getElementById('oauth_hint');
-  const providerHint = document.getElementById('imap_provider_hint');
-
   function setDisabled(container, disabled){
     if(!container) return;
-    container.querySelectorAll('input, select, textarea').forEach(el => {
-      el.disabled = !!disabled;
-    });
+    container.querySelectorAll('input, select, textarea').forEach(el => el.disabled = !!disabled);
   }
 
-  function toggleFields(){
-    if(!sel) return;
-    const v = sel.value || '';
-    const isNone = v === '';
-    const isStd  = v === 'standard_imap';
-    const isG    = v === 'google_oauth';
-    const isM    = v === 'microsoft_oauth';
-    const isOAuth = isG || isM;
+  function wireProvider(selectId, standardWrapId, passwordGroupId, oauthWrapId, tenantRowId, hintId, oauthHintId){
+    const sel   = document.getElementById(selectId);
+    const std   = document.getElementById(standardWrapId);
+    const pwd   = document.getElementById(passwordGroupId);
+    const oauth = document.getElementById(oauthWrapId);
+    const ten   = document.getElementById(tenantRowId);
+    const hint  = document.getElementById(hintId);
+    const ohint = document.getElementById(oauthHintId);
 
-    // Show/hide containers
-    if (pwdGrp)        pwdGrp.style.display       = isStd ? '' : 'none';
-    if (oauthWrap)     oauthWrap.style.display    = isOAuth ? '' : 'none';
-    if (standardWrap)  standardWrap.style.display = isStd ? '' : 'none';
-    if (tenantRow)     tenantRow.style.display    = isM ? '' : 'none';
+    function toggle(){
+      const v = (sel && sel.value) || '';
+      const isNone  = (v === 'none' || v === '');
+      const isStd   = v === 'standard_smtp' || v === 'standard_imap';
+      const isG     = v === 'google_oauth';
+      const isM     = v === 'microsoft_oauth';
+      const isOAuth = isG || isM;
 
-    // Disable inputs inside hidden sections to avoid accidental submission
-    setDisabled(pwdGrp,       !isStd);
-    setDisabled(standardWrap, !isStd);
-    setDisabled(oauthWrap,    !isOAuth);
+      if (std)   std.style.display   = isStd ? '' : 'none';
+      if (pwd)   pwd.style.display   = isStd ? '' : 'none';
+      if (oauth) oauth.style.display = isOAuth ? '' : 'none';
+      if (ten)   ten.style.display   = isM ? '' : 'none';
 
-    // Update hints
-    if (providerHint) {
-      providerHint.textContent = isNone
-        ? 'Choose a provider to reveal the relevant settings.'
-        : isStd
-          ? 'Standard IMAP: provide host, port, encryption, username, and password.'
-          : isG
-            ? 'Google Workspace OAuth: provide Client ID & Secret; paste the refresh token; username should be the mailbox address.'
-            : 'Microsoft 365 OAuth: provide Client ID, Secret & Tenant ID; paste the refresh token; username should be the mailbox address.';
+      setDisabled(std,   !isStd);
+      setDisabled(pwd,   !isStd);
+      setDisabled(oauth, !isOAuth);
+
+      if (hint) {
+        hint.textContent = isNone
+          ? 'Disabled.'
+          : isStd
+            ? 'Standard: provide host, port, encryption, username & password.'
+            : isG
+              ? 'Google OAuth: set Client ID/Secret; paste a refresh token; username should be the mailbox email.'
+              : 'Microsoft 365 OAuth: set Client ID/Secret/Tenant; paste a refresh token; username should be the mailbox email.';
+      }
+      if (ohint) {
+        ohint.textContent = isG
+          ? 'Google Workspace OAuth: Client ID/Secret from Google Cloud; Refresh token via consent.'
+          : isM
+            ? 'Microsoft 365 OAuth: Client ID/Secret/Tenant from Entra ID; Refresh token via consent.'
+            : 'Configure OAuth credentials for the selected provider.';
+      }
     }
-    if (oauthHint) {
-      oauthHint.textContent = isG
-        ? 'Google Workspace OAuth: Client ID & Secret from Google Cloud; Refresh token generated via OAuth consent.'
-        : isM
-          ? 'Microsoft 365 OAuth: Client ID, Secret & Tenant ID from Entra ID; Refresh token generated via OAuth consent.'
-          : 'Configure OAuth credentials for the selected provider.';
-    }
+
+    if (sel) { sel.addEventListener('change', toggle); toggle(); }
   }
 
-  if (sel) {
-    sel.addEventListener('change', toggleFields);
-    toggleFields();
-  }
+  // IMAP (you already have these IDs in your page)
+  wireProvider('config_imap_provider', 'standard_fields', 'imap_password_group',
+               'oauth_fields', 'tenant_row', 'imap_provider_hint', 'oauth_hint');
+
+  // SMTP (the IDs we just added)
+  wireProvider('config_smtp_provider', 'smtp_standard_fields', 'smtp_password_group',
+               'smtp_oauth_fields', 'smtp_tenant_row', 'smtp_provider_hint', 'smtp_oauth_hint');
 })();
 </script>
 
