@@ -126,11 +126,11 @@
                                     <option value="">- Method of Payment -</option>
                                     <?php
 
-                                    $sql = mysqli_query($mysqli, "SELECT * FROM categories WHERE category_type = 'Payment Method' AND category_archived_at IS NULL ORDER BY category_name ASC");
+                                    $sql = mysqli_query($mysqli, "SELECT * FROM payment_methods ORDER BY payment_method_name ASC");
                                     while ($row = mysqli_fetch_array($sql)) {
-                                        $category_name = nullable_htmlentities($row['category_name']);
+                                        $payment_method_name = nullable_htmlentities($row['payment_method_name']);
                                         ?>
-                                        <option><?php echo $category_name; ?></option>
+                                        <option><?php echo $payment_method_name; ?></option>
 
                                         <?php
                                     }
