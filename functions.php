@@ -7,13 +7,10 @@ DEFINE("WORDING_ROLECHECK_FAILED", "You are not permitted to do that!");
 require_once "plugins/PHPMailer/src/Exception.php";
 require_once "plugins/PHPMailer/src/PHPMailer.php";
 require_once "plugins/PHPMailer/src/SMTP.php";
-require_once "plugins/PHPMailer/src/OAuthTokenProvider.php";
-require_once "plugins/PHPMailer/src/OAuth.php";
 
 // Initiate PHPMailer
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
-use PHPMailer\PHPMailer\OAuthTokenProvider;
 
 // Function to generate both crypto & URL safe random strings
 function randomString($length = 16) {
@@ -688,23 +685,6 @@ function validateAccountantRole() {
         $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
         header("Location: " . $_SERVER["HTTP_REFERER"]);
         exit();
-    }
-}
-
-/**
- * Minimal token provider for PHPMailer XOAUTH2 without external deps.
- */
-class StaticTokenProvider implements OAuthTokenProvider {
-    private $email;
-    private $accessToken;
-    public function __construct(string $email, string $accessToken) {
-        $this->email = $email;
-        $this->accessToken = $accessToken;
-    }
-    public function getOauth64(): string {
-        // XOAUTH2 SASL string: "user=<email>\x01auth=Bearer <token>\x01\x01"
-        $authString = "user={$this->email}\x01auth=Bearer {$this->accessToken}\x01\x01";
-        return base64_encode($authString);
     }
 }
 
