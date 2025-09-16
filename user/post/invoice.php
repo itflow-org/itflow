@@ -1674,7 +1674,7 @@ if (isset($_GET['email_invoice'])) {
     // Get Email ID for reference
     $email_id = mysqli_insert_id($mysqli);
 
-    flash_alert("Invoice sent to mail queue! <a class='text-bold text-light' href='admin_mail_queue.php'>Check Admin > Mail queue</a>");
+    flash_alert("Invoice sent!");
     
     mysqli_query($mysqli,"INSERT INTO history SET history_status = 'Sent', history_description = 'Invoice sent to the mail queue ID: $email_id', history_invoice_id = $invoice_id");
 
