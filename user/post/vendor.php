@@ -274,8 +274,12 @@ if (isset($_POST['export_vendors_csv'])) {
     if (isset($_POST['client_id'])) {
         $client_id = intval($_POST['client_id']);
         $client_query = "AND vendor_client_id = $client_id";
+        $client_name = getFieldById('clients', $client_id, 'client_name');
+        $file_name_prepend = "$client_name-";
     } else {
         $client_query = "AND vendor_client_id = 0";
+        $client_name = '';
+        $file_name_prepend = "$session_company_name-";
     }
 
     $sql = mysqli_query($mysqli,"SELECT * FROM vendors WHERE vendor_template = 0 $client_query ORDER BY vendor_name ASC");
@@ -284,19 +288,21 @@ if (isset($_POST['export_vendors_csv'])) {
 
     if ($count > 0) {
         $delimiter = ",";
-        $filename = "Vendors-" . date('Y-m-d') . ".csv";
+        $enclosure = '"';
+        $escape    = '\\';   // backslash
+        $filename = sanitize_filename($file_name_prepend . "Vendors-" . date('Y-m-d_H-i-s') . ".csv");
 
         //create a file pointer
         $f = fopen('php://memory', 'w');
 
         //set column headers
         $fields = array('Name', 'Description', 'Contact Name', 'Phone', 'Website', 'Account Number', 'Notes');
-        fputcsv($f, $fields, $delimiter);
+        fputcsv($f, $fields, $delimiter, $enclosure, $escape);
 
         //output each row of the data, format line as csv and write to file pointer
         while($row = $sql->fetch_assoc()) {
             $lineData = array($row['vendor_name'], $row['vendor_description'], $row['vendor_contact_name'], $row['vendor_phone'], $row['vendor_website'], $row['vendor_account_number'], $row['vendor_notes']);
-            fputcsv($f, $lineData, $delimiter);
+            fputcsv($f, $lineData, $delimiter, $enclosure, $escape);
         }
 
         //move back to beginning of file

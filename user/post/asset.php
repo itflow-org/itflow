@@ -953,8 +953,6 @@ if (isset($_POST['export_assets_csv'])) {
     validateCSRFToken($_POST['csrf_token']);
 
     enforceUserPermission('module_support');
-    
-    $client_name = 'All'; // default
 
     if (isset($_POST['client_id'])) {
         $client_id = intval($_POST['client_id']);
@@ -962,9 +960,11 @@ if (isset($_POST['export_assets_csv'])) {
 
         $client_row = mysqli_fetch_array(mysqli_query($mysqli,"SELECT client_name FROM clients WHERE client_id = $client_id"));
         $client_name = $client_row['client_name'];
+        $file_name_prepend = "$client_name-";
     } else {
         $client_query = '';
         $client_id = 0; // for Logging
+        $file_name_prepend = "$session_company_name-";
     }
 
     // Get records from database
@@ -973,19 +973,21 @@ if (isset($_POST['export_assets_csv'])) {
 
     if ($num_rows > 0) {
         $delimiter = ",";
-        $filename = strtoAZaz09($client_name) . "-Assets-" . date('Y-m-d') . ".csv";
+        $enclosure = '"';
+        $escape    = '\\';   // backslash
+        $filename = sanitize_filename($file_name_prepend . "Assets-" . date('Y-m-d_H-i-s') . ".csv");
 
         //create a file pointer
         $f = fopen('php://memory', 'w');
 
         //set column headers
         $fields = array('Name', 'Description', 'Type', 'Make', 'Model', 'Serial Number', 'Operating System', 'Purchase Date', 'Warranty Expire', 'Install Date', 'Assigned To', 'Location', 'Physical Location', 'Notes');
-        fputcsv($f, $fields, $delimiter);
+        fputcsv($f, $fields, $delimiter, $enclosure, $escape);
 
         //output each row of the data, format line as csv and write to file pointer
         while ($row = mysqli_fetch_array($sql)) {
             $lineData = array($row['asset_name'], $row['asset_description'], $row['asset_type'], $row['asset_make'], $row['asset_model'], $row['asset_serial'], $row['asset_os'], $row['asset_purchase_date'], $row['asset_warranty_expire'], $row['asset_install_date'], $row['contact_name'], $row['location_name'], $row['asset_physical_location'], $row['asset_notes']);
-            fputcsv($f, $lineData, $delimiter);
+            fputcsv($f, $lineData, $delimiter, $enclosure, $escape);
         }
 
         //move back to beginning of file
@@ -1582,13 +1584,14 @@ if (isset($_POST['export_client_asset_interfaces_csv'])) {
     $sql = mysqli_query($mysqli,"SELECT * FROM asset_interfaces LEFT JOIN assets ON asset_id = interface_asset_id LEFT JOIN networks ON interface_network_id = network_id LEFT JOIN clients ON asset_client_id = client_id WHERE asset_id = $asset_id AND interface_archived_at IS NULL ORDER BY interface_name ASC");
     $row = mysqli_fetch_array($sql);
 
-    $asset_name = $row['asset_name'];
-    $client_id = $row['asset_client_id'];
-
     $num_rows = mysqli_num_rows($sql);
 
     if ($num_rows > 0) {
+        mysqli_data_seek($sql, 0); // <— rewind to the start
+
         $delimiter = ",";
+        $enclosure = '"';
+        $escape    = '\\';   // backslash
         $filename = strtoAZaz09($asset_name) . "-Interfaces-" . date('Y-m-d') . ".csv";
 
         //create a file pointer
@@ -1596,12 +1599,12 @@ if (isset($_POST['export_client_asset_interfaces_csv'])) {
 
         //set column headers
         $fields = array('Name', 'Description', 'Type', 'MAC', 'IP', 'NAT IP', 'IPv6', 'Network');
-        fputcsv($f, $fields, $delimiter);
+        fputcsv($f, $fields, $delimiter, $enclosure, $escape);
 
         //output each row of the data, format line as csv and write to file pointer
         while($row = mysqli_fetch_array($sql)) {
             $lineData = array($row['interface_name'], $row['interface_description'], $row['interface_type'], $row['interface_mac'], $row['interface_ip'], $row['interface_nat_ip'], $row['interface_ipv6'], $row['network_name']);
-            fputcsv($f, $lineData, $delimiter);
+            fputcsv($f, $lineData, $delimiter, $enclosure, $escape);
         }
 
         //move back to beginning of file

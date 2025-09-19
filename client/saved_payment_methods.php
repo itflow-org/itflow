@@ -64,28 +64,17 @@ if (!$stripe_public_key || !$stripe_secret_key) {
     <div class="col-md-6">
 
         <?php if (!$stripe_customer_id) { ?>
-            <b>Save card details</b><br>
-            In order to set up automatic payments, you must create a customer record in Stripe.<br>
+            In order to set up automatic payments, you must create a customer record in Stripe.
             First, you must authorize Stripe to store your card details for the purpose of automatic payment.
             <br><br>
 
-            <div class="col-5">
-                <form action="post.php" method="POST">
-                    <div class="form-group">
-                        <div class="custom-control custom-checkbox">
-                            <input class="custom-control-input" type="checkbox" id="consent" name="consent" value="1" required>
-                            <label for="consent" class="custom-control-label">
-                                I grant consent for automatic payments
-                            </label>
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <button type="submit" class="form-control btn-success" name="create_stripe_customer">Create Stripe Customer Record</button>
-                    </div>
-                </form>
-            </div>
-
+            <form action="post.php" method="POST">
+               
+                <div class="form-group">
+                    <button type="submit" class="btn btn-success" name="create_stripe_customer"><strong><i class="fas fa-check mr-2"></i>I grant consent for automatic payments</strong></button>
+                </div>
+            </form>
+            
         <?php } else { ?>
 
             <b>Manage saved payment methods</b><br><br>

@@ -2,6 +2,27 @@
 
 This file documents all notable changes made to ITFlow.
 
+## [25.09.2]
+
+### Fixes
+- Fix Payment Method Select box in Revenue.
+- Remove Extra Feeback Wording When Invoice Sends.
+- Updated all CSV exports to use escape parameters.
+- Fix Missing First row on Asset interface export.
+- Fix Edit User not working due to incorrect modal footer path.
+- Fix Add Certificate breaking due spelling on function.
+- Update all CSV Exports to include company name or client name depending on when its being exported from.
+- Introduced new function sanitize_filename and implmented it in all exports.
+- Spruced up UI/UX Saved Paymented section in Client Portal.
+- Fix add Payment Link in client portal recurring invoice section.
+- Better Logic handling for default page redirect.
+
+### Features
+- Introduced new Beta mail parser cron using webklex imap library instead of php-imap as this is deprecated --Not Enabled on existing installs, only new installs.
+- Introduced Beta support for OAUTH2 Authentication for Microsoft 365 and Google Workspaces for both incoming ticket parsing and outgoing email but must use new mail parser and mail queue for this to work, and requires changing the cron jobs: scripts/cron_mail_queue.php to cron/mail_queue.php and scripts/cron_ticket_email_parser.php to cron/ticket_email_parser.php.
+
+---
+
 ## [25.09.1]
 
 ### Fixes

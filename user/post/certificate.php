@@ -34,7 +34,7 @@ if (isset($_POST['add_certificate'])) {
 
     logAction("Certificate", "Create", "$session_name created certificate $name", $client_id, $certificate_id);
 
-    flash_aletr("Certificate <strong>$name</strong> created");
+    flash_alert("Certificate <strong>$name</strong> created");
 
     redirect();
 
@@ -217,9 +217,12 @@ if (isset($_POST['export_certificates_csv'])) {
     if (isset($_POST['client_id'])) {
         $client_id = intval($_POST['client_id']);
         $client_query = "AND certificate_client_id = $client_id";
+        $client_name = getFieldById('clients', $client_id, 'client_name');
+        $file_name_prepend = "$client_name-";
     } else {
         $client_query = '';
         $client_id = 0;
+        $file_name_prepend = "$session_company_name-";
     }
 
     $sql = mysqli_query($mysqli,"SELECT * FROM certificates WHERE certificate_archived_at IS NULL $client_query ORDER BY certificate_name ASC");
@@ -228,19 +231,21 @@ if (isset($_POST['export_certificates_csv'])) {
 
     if ($num_rows > 0) {
         $delimiter = ",";
-        $filename = "Certificates-" . date('Y-m-d') . ".csv";
+        $enclosure = '"';
+        $escape    = '\\';   // backslash
+        $filename = sanitize_filename($file_name_prepend . "Certificates-" . date('Y-m-d_H-i-s') . ".csv");
 
         //create a file pointer
         $f = fopen('php://memory', 'w');
 
         //set column headers
         $fields = array('Name', 'Description', 'Domain', 'Issuer', 'Expiration Date');
-        fputcsv($f, $fields, $delimiter);
+        fputcsv($f, $fields, $delimiter, $enclosure, $escape);
 
         //output each row of the data, format line as csv and write to file pointer
         while($row = $sql->fetch_assoc()) {
             $lineData = array($row['certificate_name'], $row['certificate_description'], $row['certificate_domain'], $row['certificate_issued_by'], $row['certificate_expire']);
-            fputcsv($f, $lineData, $delimiter);
+            fputcsv($f, $lineData, $delimiter, $enclosure, $escape);
         }
 
         //move back to beginning of file

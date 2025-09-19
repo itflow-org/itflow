@@ -3968,11 +3968,35 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
 
         mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '2.3.2'");
     }
+
+    if (CURRENT_DATABASE_VERSION == '2.3.2') {
+
+        mysqli_query($mysqli, "ALTER TABLE settings 
+            ADD `config_imap_provider` ENUM('standard_imap','google_oauth','microsoft_oauth') NULL DEFAULT NULL AFTER `config_mail_from_name`,
+            ADD `config_mail_oauth_client_id` VARCHAR(255) NULL AFTER `config_imap_provider`,
+            ADD `config_mail_oauth_client_secret` VARCHAR(255) NULL AFTER `config_mail_oauth_client_id`,
+            ADD `config_mail_oauth_tenant_id` VARCHAR(255) NULL AFTER `config_mail_oauth_client_secret`,
+            ADD `config_mail_oauth_refresh_token` TEXT NULL AFTER `config_mail_oauth_tenant_id`,
+            ADD `config_mail_oauth_access_token` TEXT NULL AFTER `config_mail_oauth_refresh_token`,
+            ADD `config_mail_oauth_access_token_expires_at` DATETIME NULL AFTER `config_mail_oauth_access_token`
+        ");
+
+        mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '2.3.3'");
+    }
+
+    if (CURRENT_DATABASE_VERSION == '2.3.3') {
+
+        mysqli_query($mysqli, "ALTER TABLE settings 
+            ADD `config_smtp_provider` ENUM('standard_smtp','google_oauth','microsoft_oauth') NULL DEFAULT NULL AFTER `config_start_page`
+        ");
+
+        mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '2.3.4'");
+    }
     
-    // if (CURRENT_DATABASE_VERSION == '2.3.2') {
-    //     // Insert queries here required to update to DB version 2.3.3
+    // if (CURRENT_DATABASE_VERSION == '2.3.4') {
+    //     // Insert queries here required to update to DB version 2.3.4
     //     // Then, update the database to the next sequential version
-    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '2.3.3'");
+    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '2.3.5'");
     // }
 
 } else {

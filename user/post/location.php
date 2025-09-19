@@ -359,9 +359,12 @@ if(isset($_POST['export_locations_csv'])){
     if (isset($_POST['client_id'])) {
         $client_id = intval($_POST['client_id']);
         $client_query = "AND location_client_id = $client_id";
+        $client_name = getFieldById('clients', $client_id, 'client_name');
+        $file_name_prepend = "$client_name-";
     } else {
         $client_query = '';
         $client_id = 0;
+        $file_name_prepend = "$session_company_name-";
     }
 
     //Locations
@@ -371,19 +374,21 @@ if(isset($_POST['export_locations_csv'])){
 
     if($num_rows > 0) {
         $delimiter = ",";
-        $filename = "Locations-" . date('Y-m-d') . ".csv";
+        $enclosure = '"';
+        $escape    = '\\';   // backslash
+        $filename = sanitize_filename($file_name_prepend . "Locations-" . date('Y-m-d_H-i-s') . ".csv");
 
         //create a file pointer
         $f = fopen('php://memory', 'w');
 
         //set column headers
         $fields = array('Name', 'Description', 'Address', 'City', 'State', 'Postal Code', 'Phone', 'Hours');
-        fputcsv($f, $fields, $delimiter);
+        fputcsv($f, $fields, $delimiter, $enclosure, $escape);
 
         //output each row of the data, format line as csv and write to file pointer
         while($row = $sql->fetch_assoc()){
             $lineData = array($row['location_name'], $row['location_description'], $row['location_address'], $row['location_city'], $row['location_state'], $row['location_zip'], $row['location_phone'], $row['location_hours']);
-            fputcsv($f, $lineData, $delimiter);
+            fputcsv($f, $lineData, $delimiter, $enclosure, $escape);
         }
 
         //move back to beginning of file

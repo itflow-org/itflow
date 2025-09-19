@@ -1,9 +1,9 @@
 /*M!999999\- enable the sandbox mode */ 
--- MariaDB dump 10.19  Distrib 10.11.11-MariaDB, for debian-linux-gnu (x86_64)
+-- MariaDB dump 10.19  Distrib 10.11.14-MariaDB, for debian-linux-gnu (x86_64)
 --
 -- Host: localhost    Database: itflow_dev
 -- ------------------------------------------------------
--- Server version	10.11.11-MariaDB-0+deb12u1
+-- Server version	10.11.14-MariaDB-0+deb12u2
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -1981,6 +1981,7 @@ CREATE TABLE `settings` (
   `company_id` int(11) NOT NULL,
   `config_current_database_version` varchar(10) NOT NULL,
   `config_start_page` varchar(200) DEFAULT 'clients.php',
+  `config_smtp_provider` enum('standard_smtp','google_oauth','microsoft_oauth') DEFAULT NULL,
   `config_smtp_host` varchar(200) DEFAULT NULL,
   `config_smtp_port` int(5) DEFAULT NULL,
   `config_smtp_encryption` varchar(200) DEFAULT NULL,
@@ -1988,6 +1989,13 @@ CREATE TABLE `settings` (
   `config_smtp_password` varchar(200) DEFAULT NULL,
   `config_mail_from_email` varchar(200) DEFAULT NULL,
   `config_mail_from_name` varchar(200) DEFAULT NULL,
+  `config_imap_provider` enum('standard_imap','google_oauth','microsoft_oauth') DEFAULT NULL,
+  `config_mail_oauth_client_id` varchar(255) DEFAULT NULL,
+  `config_mail_oauth_client_secret` varchar(255) DEFAULT NULL,
+  `config_mail_oauth_tenant_id` varchar(255) DEFAULT NULL,
+  `config_mail_oauth_refresh_token` text DEFAULT NULL,
+  `config_mail_oauth_access_token` text DEFAULT NULL,
+  `config_mail_oauth_access_token_expires_at` datetime DEFAULT NULL,
   `config_imap_host` varchar(200) DEFAULT NULL,
   `config_imap_port` int(5) DEFAULT NULL,
   `config_imap_encryption` varchar(200) DEFAULT NULL,
@@ -2758,4 +2766,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-08-28 11:43:32
+-- Dump completed on 2025-09-15 17:22:23

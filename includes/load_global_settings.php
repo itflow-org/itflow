@@ -12,6 +12,7 @@ $config_azure_client_id = $row['config_azure_client_id'];
 $config_azure_client_secret = $row['config_azure_client_secret'];
 
 // Mail - SMTP
+$config_smtp_provider = $row['config_smtp_provider'];
 $config_smtp_host = $row['config_smtp_host'];
 $config_smtp_port = intval($row['config_smtp_port']);
 $config_smtp_encryption = $row['config_smtp_encryption'];
@@ -21,14 +22,23 @@ $config_mail_from_email = $row['config_mail_from_email'];
 $config_mail_from_name = $row['config_mail_from_name'];
 
 // Mail - IMAP
+$config_imap_provider = $row['config_imap_provider'];
 $config_imap_host = $row['config_imap_host'];
 $config_imap_port = intval($row['config_imap_port']);
 $config_imap_encryption = $row['config_imap_encryption'];
 $config_imap_username = $row['config_imap_username'];
 $config_imap_password = $row['config_imap_password'];
 
+// Mail OAUTH2
+$config_mail_oauth_client_id = $row['config_mail_oauth_client_id'];
+$config_mail_oauth_client_secret = $row['config_mail_oauth_client_secret'];
+$config_mail_oauth_tenant_id = $row['config_mail_oauth_tenant_id'];
+$config_mail_oauth_refresh_token = $row['config_mail_oauth_refresh_token'];
+$config_mail_oauth_access_token = $row['config_mail_oauth_access_token'];
+$config_mail_oauth_access_token_expires_at = $row['config_mail_oauth_access_token_expires_at'];
+
 // Defaults
-$config_start_page = $row['config_start_page'];
+$config_start_page = $row['config_start_page'] ?? 'clients.php';
 $config_default_transfer_from_account = intval($row['config_default_transfer_from_account']);
 $config_default_transfer_to_account = intval($row['config_default_transfer_to_account']);
 $config_default_payment_account = intval($row['config_default_payment_account']);

@@ -266,6 +266,8 @@ if (isset($_POST['export_users_csv'])) {
 
     if ($count > 0) {
         $delimiter = ",";
+        $enclosure = '"';
+        $escape    = '\\';   // backslash
         $filename = "Users-" . date('Y-m-d') . ".csv";
 
         //create a file pointer
@@ -273,7 +275,7 @@ if (isset($_POST['export_users_csv'])) {
 
         //set column headers
         $fields = array('Name', 'Email', 'Role', 'Status', 'Creation Date');
-        fputcsv($f, $fields, $delimiter);
+        fputcsv($f, $fields, $delimiter, $enclosure, $escape);
 
         //output each row of the data, format line as csv and write to file pointer
         while($row = $sql->fetch_assoc()) {
@@ -288,7 +290,7 @@ if (isset($_POST['export_users_csv'])) {
             }
 
             $lineData = array($row['user_name'], $row['user_email'], $row['role_name'], $user_status_display, $row['user_created_at']);
-            fputcsv($f, $lineData, $delimiter);
+            fputcsv($f, $lineData, $delimiter, $enclosure, $escape);
         }
 
         //move back to beginning of file

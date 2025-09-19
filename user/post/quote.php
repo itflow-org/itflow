@@ -536,33 +536,39 @@ if(isset($_POST['export_quotes_csv'])){
 
     enforceUserPermission('module_sales');
 
-    $client_id = intval($_POST['client_id']);
+    if (isset($_POST['client_id'])) {
+        $client_id = intval($_POST['client_id']);
+        $client_query = "WHERE quote_client_id = $client_id";
+        // Get Client Name for logging
+        $client_name = getFieldById('clients', $client_id, 'client_name');
+        $file_name_prepend = "$client_name-";
+    } else {
+        $client_query = '';
+        $client_name = '';
+        $file_name_prepend = "$session_company_name";
+    }
 
-    //get records from database
-    $sql = mysqli_query($mysqli,"SELECT client_name FROM clients WHERE client_id = $client_id");
-    $row = mysqli_fetch_array($sql);
-
-    $client_name = $row['client_name'];
-
-    $sql = mysqli_query($mysqli,"SELECT * FROM quotes WHERE quote_client_id = $client_id ORDER BY quote_number ASC");
+    $sql = mysqli_query($mysqli,"SELECT * FROM quotes $client_query ORDER BY quote_number ASC");
     
     $num_rows = mysqli_num_rows($sql);
 
     if($num_rows > 0){
         $delimiter = ",";
-        $filename = $client_name . "-Quotes-" . date('Y-m-d') . ".csv";
+        $enclosure = '"';
+        $escape    = '\\';   // backslash
+        $filename = sanitize_filename($file_name_prepend . "Quotes-" . date('Y-m-d_H-i-s') . ".csv");
 
         //create a file pointer
         $f = fopen('php://memory', 'w');
 
         //set column headers
         $fields = array('Quote Number', 'Scope', 'Amount', 'Date', 'Status');
-        fputcsv($f, $fields, $delimiter);
+        fputcsv($f, $fields, $delimiter, $enclosure, $escape);
 
         //output each row of the data, format line as csv and write to file pointer
         while($row = $sql->fetch_assoc()){
             $lineData = array($row['quote_prefix'] . $row['quote_number'], $row['quote_scope'], $row['quote_amount'], $row['quote_date'], $row['quote_status']);
-            fputcsv($f, $lineData, $delimiter);
+            fputcsv($f, $lineData, $delimiter, $enclosure, $escape);
         }
 
         //move back to beginning of file
@@ -580,7 +586,7 @@ if(isset($_POST['export_quotes_csv'])){
 
     flash_alert("Exported <strong>$num_rows</strong> quote(s)");
 
-    redirect();
+    exit;
 
 }
 

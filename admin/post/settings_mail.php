@@ -3,41 +3,85 @@
 defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
 
 if (isset($_POST['edit_mail_smtp_settings'])) {
-
+    
     validateCSRFToken($_POST['csrf_token']);
 
-    $config_smtp_host = sanitizeInput($_POST['config_smtp_host']);
-    $config_smtp_port = intval($_POST['config_smtp_port']);
-    $config_smtp_encryption = sanitizeInput($_POST['config_smtp_encryption']);
-    $config_smtp_username = sanitizeInput($_POST['config_smtp_username']);
-    $config_smtp_password = sanitizeInput($_POST['config_smtp_password']);
+    $config_smtp_provider            = sanitizeInput($_POST['config_smtp_provider'] ?? 'standard_smtp');
+    $config_smtp_host                = sanitizeInput($_POST['config_smtp_host']);
+    $config_smtp_port                = intval($_POST['config_smtp_port'] ?? 0);
+    $config_smtp_encryption          = sanitizeInput($_POST['config_smtp_encryption']);
+    $config_smtp_username            = sanitizeInput($_POST['config_smtp_username']);
+    $config_smtp_password            = sanitizeInput($_POST['config_smtp_password']);
 
-    mysqli_query($mysqli,"UPDATE settings SET config_smtp_host = '$config_smtp_host', config_smtp_port = $config_smtp_port, config_smtp_encryption = '$config_smtp_encryption', config_smtp_username = '$config_smtp_username', config_smtp_password = '$config_smtp_password' WHERE company_id = 1");
+    // Shared OAuth fields
+    $config_mail_oauth_client_id     = sanitizeInput($_POST['config_mail_oauth_client_id']);
+    $config_mail_oauth_client_secret = sanitizeInput($_POST['config_mail_oauth_client_secret']);
+    $config_mail_oauth_tenant_id     = sanitizeInput($_POST['config_mail_oauth_tenant_id']);
+    $config_mail_oauth_refresh_token = sanitizeInput($_POST['config_mail_oauth_refresh_token']);
+    $config_mail_oauth_access_token  = sanitizeInput($_POST['config_mail_oauth_access_token']);
 
-    logAction("Settings", "Edit", "$session_name edited SMTP mail settings");
+    mysqli_query($mysqli, "
+        UPDATE settings SET
+            config_smtp_provider              = " . ($config_smtp_provider === 'none' ? "NULL" : "'$config_smtp_provider'") . ",
+            config_smtp_host                  = '$config_smtp_host',
+            config_smtp_port                  = $config_smtp_port,
+            config_smtp_encryption            = '$config_smtp_encryption',
+            config_smtp_username              = '$config_smtp_username',
+            config_smtp_password              = '$config_smtp_password',
+            config_mail_oauth_client_id       = '$config_mail_oauth_client_id',
+            config_mail_oauth_client_secret   = '$config_mail_oauth_client_secret',
+            config_mail_oauth_tenant_id       = '$config_mail_oauth_tenant_id',
+            config_mail_oauth_refresh_token   = '$config_mail_oauth_refresh_token',
+            config_mail_oauth_access_token    = '$config_mail_oauth_access_token'
+        WHERE company_id = 1
+    ");
 
+    logAction("Settings", "Edit", "$session_name edited SMTP settings");
+    
     flash_alert("SMTP Mail Settings updated");
-
+    
     redirect();
 
 }
 
 if (isset($_POST['edit_mail_imap_settings'])) {
-
+    
     validateCSRFToken($_POST['csrf_token']);
 
-    $config_imap_host = sanitizeInput($_POST['config_imap_host']);
-    $config_imap_username = sanitizeInput($_POST['config_imap_username']);
-    $config_imap_password = sanitizeInput($_POST['config_imap_password']);
-    $config_imap_port = intval($_POST['config_imap_port']);
-    $config_imap_encryption = sanitizeInput($_POST['config_imap_encryption']);
+    $config_imap_provider            = sanitizeInput($_POST['config_imap_provider'] ?? 'standard_imap');
+    $config_imap_host                = sanitizeInput($_POST['config_imap_host']);
+    $config_imap_port                = intval($_POST['config_imap_port'] ?? 0);
+    $config_imap_encryption          = sanitizeInput($_POST['config_imap_encryption']);
+    $config_imap_username            = sanitizeInput($_POST['config_imap_username']);
+    $config_imap_password            = sanitizeInput($_POST['config_imap_password']);
 
-    mysqli_query($mysqli,"UPDATE settings SET config_imap_host = '$config_imap_host', config_imap_port = $config_imap_port, config_imap_encryption = '$config_imap_encryption', config_imap_username = '$config_imap_username', config_imap_password = '$config_imap_password' WHERE company_id = 1");
+    // Shared OAuth fields
+    $config_mail_oauth_client_id     = sanitizeInput($_POST['config_mail_oauth_client_id']);
+    $config_mail_oauth_client_secret = sanitizeInput($_POST['config_mail_oauth_client_secret']);
+    $config_mail_oauth_tenant_id     = sanitizeInput($_POST['config_mail_oauth_tenant_id']);
+    $config_mail_oauth_refresh_token = sanitizeInput($_POST['config_mail_oauth_refresh_token']);
+    $config_mail_oauth_access_token  = sanitizeInput($_POST['config_mail_oauth_access_token']);
 
-    logAction("Settings", "Edit", "$session_name edited IMAP mail settings");
+    mysqli_query($mysqli, "
+        UPDATE settings SET
+            config_imap_provider              = " . ($config_imap_provider === 'none' ? "NULL" : "'$config_imap_provider'") . ",
+            config_imap_host                  = '$config_imap_host',
+            config_imap_port                  = $config_imap_port,
+            config_imap_encryption            = '$config_imap_encryption',
+            config_imap_username              = '$config_imap_username',
+            config_imap_password              = '$config_imap_password',
+            config_mail_oauth_client_id       = '$config_mail_oauth_client_id',
+            config_mail_oauth_client_secret   = '$config_mail_oauth_client_secret',
+            config_mail_oauth_tenant_id       = '$config_mail_oauth_tenant_id',
+            config_mail_oauth_refresh_token   = '$config_mail_oauth_refresh_token',
+            config_mail_oauth_access_token    = '$config_mail_oauth_access_token'
+        WHERE company_id = 1
+    ");
 
+    logAction("Settings", "Edit", "$session_name edited IMAP settings");
+    
     flash_alert("IMAP Mail Settings updated");
-
+    
     redirect();
 
 }

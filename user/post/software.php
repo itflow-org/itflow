@@ -204,16 +204,19 @@ if (isset($_GET['delete_software'])) {
 
 }
 
-if (isset($_POST['export_client_software_csv'])) {
+if (isset($_POST['export_software_csv'])) {
 
     enforceUserPermission('module_support');
 
     if (isset($_POST['client_id'])) {
         $client_id = intval($_POST['client_id']);
         $client_query = "WHERE software_client_id = $client_id";
+        $client_name = getFieldById('clients', $client_id, 'client_name');
+        $file_name_prepend = "$client_name-";
     } else {
         $client_query = '';
         $client_id = 0; //Logging
+        $file_name_prepend = "$session_company_name-";
     }
 
     $sql = mysqli_query($mysqli,"SELECT * FROM software $client_query ORDER BY software_name ASC");
@@ -222,14 +225,16 @@ if (isset($_POST['export_client_software_csv'])) {
 
     if ($num_rows > 0) {
         $delimiter = ",";
-        $filename = "Software-" . date('Y-m-d') . ".csv";
+        $enclosure = '"';
+        $escape    = '\\';   // backslash
+        $filename = sanitize_filename($file_name_prepend . "Software-" . date('Y-m-d_H-i-s') . ".csv");
 
         //create a file pointer
         $f = fopen('php://memory', 'w');
 
         //set column headers
         $fields = array('Name', 'Version', 'Description', 'Type', 'License Type', 'Seats', 'Key', 'Assets', 'Contacts', 'Purchased', 'Expires', 'Notes');
-        fputcsv($f, $fields, $delimiter);
+        fputcsv($f, $fields, $delimiter, $enclosure, $escape);
 
         //output each row of the data, format line as csv and write to file pointer
         while($row = $sql->fetch_assoc()) {
@@ -262,7 +267,7 @@ if (isset($_POST['export_client_software_csv'])) {
             }
 
             $lineData = array($row['software_name'], $row['software_version'], $row['software_description'], $row['software_type'], $row['software_license_type'], $row['software_seats'], $row['software_key'], $assigned_to_assets, $assigned_to_contacts, $row['software_purchase'], $row['software_expire'], $row['software_notes']);
-            fputcsv($f, $lineData, $delimiter);
+            fputcsv($f, $lineData, $delimiter, $enclosure, $escape);
         }
 
         //move back to beginning of file

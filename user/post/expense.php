@@ -303,19 +303,21 @@ if (isset($_POST['export_expenses_csv'])) {
     $num_rows = mysqli_num_rows($sql);
     if ($num_rows > 0) {
         $delimiter = ",";
-        $filename = "$session_company_name-Expenses-$file_name_date.csv";
+        $enclosure = '"';
+        $escape    = '\\';   // backslash
+        $filename = sanitize_filename("$session_company_name-Expenses-" . date('Y-m-d_H-i-s') . ".csv");
 
         //create a file pointer
         $f = fopen('php://memory', 'w');
 
         //set column headers
         $fields = array('Date', 'Amount', 'Vendor', 'Description', 'Category', 'Account');
-        fputcsv($f, $fields, $delimiter);
+        fputcsv($f, $fields, $delimiter, $enclosure, $escape);
 
         //output each row of the data, format line as csv and write to file pointer
         while($row = mysqli_fetch_assoc($sql)) {
             $lineData = array($row['expense_date'], $row['expense_amount'], $row['vendor_name'], $row['expense_description'], $row['category_name'], $row['account_name']);
-            fputcsv($f, $lineData, $delimiter);
+            fputcsv($f, $lineData, $delimiter, $enclosure, $escape);
         }
 
         //move back to beginning of file

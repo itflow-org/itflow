@@ -201,4 +201,4 @@ ob_start();
 </form>
 
 <?php
-require_once "../../../includes/modal_footer_new.php";
+require_once "../../../includes/modal_footer.php";

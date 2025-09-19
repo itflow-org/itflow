@@ -152,11 +152,11 @@ ob_start();
                         <option value="">- Select Method of Payment -</option>
                         <?php
 
-                        $sql_categories = mysqli_query($mysqli, "SELECT * FROM categories WHERE category_type = 'Payment Method' AND (category_archived_at > '$revenue_created_at' OR category_archived_at IS NULL) ORDER BY category_name ASC");
+                        $sql_categories = mysqli_query($mysqli, "SELECT * FROM payment_methods ORDER BY payment_method_name ASC");
                         while ($row = mysqli_fetch_array($sql_categories)) {
-                            $category_name_select = nullable_htmlentities($row['category_name']);
+                            $payment_method_name_select = nullable_htmlentities($row['payment_method_name']);
                             ?>
-                            <option <?php if ($revenue_payment_method == $category_name_select) { echo "selected"; } ?>><?php echo "$category_name_select"; ?></option>
+                            <option <?php if ($revenue_payment_method == $payment_method_name_select) { echo "selected"; } ?>><?php echo "$payment_method_name_select"; ?></option>
 
                             <?php
                         }

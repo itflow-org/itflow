@@ -1674,7 +1674,7 @@ if (isset($_GET['email_invoice'])) {
     // Get Email ID for reference
     $email_id = mysqli_insert_id($mysqli);
 
-    flash_alert("Invoice sent to mail queue! <a class='text-bold text-light' href='admin_mail_queue.php'>Check Admin > Mail queue</a>");
+    flash_alert("Invoice sent!");
     
     mysqli_query($mysqli,"INSERT INTO history SET history_status = 'Sent', history_description = 'Invoice sent to the mail queue ID: $email_id', history_invoice_id = $invoice_id");
 
@@ -1929,12 +1929,18 @@ if (isset($_POST['set_recurring_payment'])) {
 }
 
 if (isset($_POST['export_invoices_csv'])) {
+
+    enforceUserPermission('module_sales');
     
     if (isset($_POST['client_id'])) {
         $client_id = intval($_POST['client_id']);
         $client_query = "AND invoice_client_id = $client_id";
+        $client_name = getFieldById('clients', $client_id, 'client_name');
+        $file_name_prepend = "$client_name-";
     } else {
         $client_query = '';
+        $client_name = '';
+        $file_name_prepend = "$session_company_name-";
     }
 
     $date_from = sanitizeInput($_POST['date_from']);
@@ -1944,31 +1950,30 @@ if (isset($_POST['export_invoices_csv'])) {
         $file_name_date = "$date_from-to-$date_to";
     }else{
         $date_query = "";
-        $file_name_date = date('Y-m-d');
+        $file_name_date = date('Y-m-d_H-i-s');
     }
 
     $sql = mysqli_query($mysqli,"SELECT * FROM invoices LEFT JOIN clients ON invoice_client_id = client_id WHERE $date_query $client_query ORDER BY invoice_number ASC");
-
-    $row = mysqli_fetch_array($sql);
-    $client_name = $row['client_name'];
 
     $num_rows = mysqli_num_rows($sql);
 
     if ($num_rows > 0) {
         $delimiter = ",";
-        $filename = "$session_company_name-Invoices-$file_name_date.csv";
+        $enclosure = '"';
+        $escape    = '\\';   // backslash
+        $filename = sanitize_filename($file_name_prepend . "Invoices-$file_name_date.csv");
 
         //create a file pointer
         $f = fopen('php://memory', 'w');
 
         //set column headers
         $fields = array('Invoice Number', 'Scope', 'Amount', 'Issued Date', 'Due Date', 'Status');
-        fputcsv($f, $fields, $delimiter);
+        fputcsv($f, $fields, $delimiter, $enclosure, $escape);
 
         //output each row of the data, format line as csv and write to file pointer
         while($row = $sql->fetch_assoc()) {
             $lineData = array($row['invoice_prefix'] . $row['invoice_number'], $row['invoice_scope'], $row['invoice_amount'], $row['invoice_date'], $row['invoice_due'], $row['invoice_status'], $row['client_name']);
-            fputcsv($f, $lineData, $delimiter);
+            fputcsv($f, $lineData, $delimiter, $enclosure, $escape);
         }
 
         //move back to beginning of file
@@ -2041,8 +2046,12 @@ if (isset($_POST['export_payments_csv'])) {
     if (isset($_POST['client_id'])) {
         $client_id = intval($_POST['client_id']);
         $client_query = "AND invoice_client_id = $client_id";
+        $client_name = getFieldById('clients', $client_id, 'client_name');
+        $file_name_prepend = "$client_name-";
     } else {
         $client_query = '';
+        $client_name = '';
+        $file_name_prepend = "$session_company_name-";
     }
 
     $sql = mysqli_query($mysqli,"SELECT * FROM payments, invoices WHERE payment_invoice_id = invoice_id $client_query ORDER BY payment_date ASC");
@@ -2051,19 +2060,21 @@ if (isset($_POST['export_payments_csv'])) {
 
     if ($num_rows > 0) {
         $delimiter = ",";
-        $filename = "Payments-" . date('Y-m-d') . ".csv";
+        $enclosure = '"';
+        $escape    = '\\';   // backslash
+        $filename = sanitize_filename($file_name_prepend . "Payments-" . date('Y-m-d_H-i-s') . ".csv");
 
         //create a file pointer
         $f = fopen('php://memory', 'w');
 
         //set column headers
         $fields = array('Payment Date', 'Invoice Date', 'Invoice Number', 'Invoice Amount', 'Payment Amount', 'Payment Method', 'Referrence');
-        fputcsv($f, $fields, $delimiter);
+        fputcsv($f, $fields, $delimiter, $enclosure, $escape);
 
         //output each row of the data, format line as csv and write to file pointer
         while($row = $sql->fetch_assoc()){
             $lineData = array($row['payment_date'], $row['invoice_date'], $row['invoice_prefix'] . $row['invoice_number'], $row['invoice_amount'], $row['payment_amount'], $row['payment_method'], $row['payment_reference']);
-            fputcsv($f, $lineData, $delimiter);
+            fputcsv($f, $lineData, $delimiter, $enclosure, $escape);
         }
 
         //move back to beginning of file
