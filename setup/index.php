@@ -203,7 +203,7 @@ if (isset($_POST['restore'])) {
     }
 
     // === 5. Restore uploads directory ===
-    $uploadDir = __DIR__ . "../uploads/";
+    $uploadDir = __DIR__ . "/../uploads/";
     $uploadsZip = "$tempDir/uploads.zip";
 
     if (file_exists($uploadsZip)) {
