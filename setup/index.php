@@ -440,7 +440,7 @@ if (isset($_POST['add_company_settings'])) {
     // Payment Methods
     mysqli_query($mysqli,"INSERT INTO payment_methods SET payment_method_name = 'Cash'");
     mysqli_query($mysqli,"INSERT INTO payment_methods SET payment_method_name = 'Check'");
-    mysqli_query($mysqli,"INSERT INTO payment_methods SET payment_method_name = 'ACH'");
+    mysqli_query($mysqli,"INSERT INTO payment_methods SET payment_method_name = 'Bank Transfer'");
     mysqli_query($mysqli,"INSERT INTO payment_methods SET payment_method_name = 'Credit Card'");
 
     // Default Calendar

@@ -573,7 +573,7 @@ if (isset($_POST['edit_ticket_asset'])) {
 
     // Get ticket / asset details for logging
     $sql = mysqli_query($mysqli, "SELECT asset_name, ticket_prefix, ticket_number, ticket_status_name, ticket_client_id FROM assets 
-        LEFT JOIN tickets ON ticket_asset_id = $asset_id
+        LEFT JOIN tickets ON ticket_asset_id = asset_id
         LEFT JOIN ticket_statuses ON ticket_status = ticket_status_id
         WHERE ticket_id = $ticket_id"
     );
