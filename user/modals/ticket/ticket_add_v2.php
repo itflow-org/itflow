@@ -79,8 +79,6 @@
                                                     data-details="<?php echo $ticket_template_details_select; ?>">
                                                 <?php echo $ticket_template_name_select; ?> (<?php echo $task_count; ?> tasks)
                                             </option>
-                                            <?php echo "aaaaa"; ?>
-                                            <?php var_dump($row); ?>
                                         <?php } ?>
                                     </select>
                                 </div>
@@ -198,7 +196,7 @@
                                             <option value="">- Client -</option>
                                             <?php
 
-                                            $sql = mysqli_query($mysqli, "SELECT * FROM clients WHERE client_archived_at IS NULL $access_permission_query ORDER BY client_name ASC");
+                                            $sql = mysqli_query($mysqli, "SELECT * FROM clients WHERE client_lead = 0 AND client_archived_at IS NULL $access_permission_query ORDER BY client_name ASC");
                                             while ($row = mysqli_fetch_array($sql)) {
                                                 $selectable_client_id = intval($row['client_id']);
                                                 $client_name = nullable_htmlentities($row['client_name']); ?>
