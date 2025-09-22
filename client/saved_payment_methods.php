@@ -1,6 +1,6 @@
 <?php
 /*
- * Client Portal - AutoPay Configuration (multi-provider)
+ * Client Portal - AutoPay Configuration (multi-provider - assumes Stripe for now)
  */
 
 require_once "includes/inc_all.php";

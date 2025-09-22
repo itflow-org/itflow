@@ -55,7 +55,7 @@ $num_rows = mysqli_num_rows($sql);
                         </a>
                     </th>
                     <th>
-                        <a class="text-dark">Fee</a>
+                        <a class="text-dark">Expensed Fee</a>
                     </th>
                     <th>
                         <a class="text-dark">Saved Payment Methods</a>
@@ -93,7 +93,7 @@ $num_rows = mysqli_num_rows($sql);
                         <td><?php echo numfmt_format_currency($currency_format, $threshold, $session_company_currency); ?></td>
                         <td><?php echo $vendor_name; ?></td>
                         <td><?php echo $category; ?></td>
-                        <td><?php echo $percent_fee; ?> + <?php echo numfmt_format_currency($currency_format, $flat_fee, $session_company_currency); ?></td>
+                        <td><?php echo $percent_fee; ?>% + <?php echo numfmt_format_currency($currency_format, $flat_fee, $session_company_currency); ?></td>
                         <td><?php echo $saved_payment_count; ?></td>
                         <td>
                             <div class="dropdown dropleft text-center">
@@ -106,9 +106,12 @@ $num_rows = mysqli_num_rows($sql);
                                         <i class="fas fa-fw fa-edit mr-2"></i>Edit
                                     </a>
                                     <div class="dropdown-divider"></div>
-                                    <a class="dropdown-item text-danger confirm-link" href="post.php?disable_payment_provicer=<?php echo $provider_id; ?>&csrf_token=<?php echo $_SESSION['csrf_token'] ?>">
-                                        <i class="fas fa-fw fa-thumbs-down mr-2"></i>Disable
-                                    </a>
+<!--                                    <a class="dropdown-item text-danger confirm-link" href="post.php?disable_payment_provider=--><?php //echo $provider_id; ?><!--&csrf_token=--><?php //echo $_SESSION['csrf_token'] ?><!--">-->
+<!--                                        <i class="fas fa-fw fa-thumbs-down mr-2"></i>Disable-->
+<!--                                    </a>-->
+<!--                                    <a class="dropdown-item text-danger confirm-link" href="post.php?delete_payment_provider=--><?php //echo $provider_id; ?><!--&csrf_token=--><?php //echo $_SESSION['csrf_token'] ?><!--">-->
+<!--                                        <i class="fas fa-fw fa-trash mr-2"></i>Delete-->
+<!--                                    </a>-->
                                 </div>
                             </div>
                         </td>
