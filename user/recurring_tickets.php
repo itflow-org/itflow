@@ -32,7 +32,8 @@ $sql = mysqli_query(
     $mysqli,
     "SELECT SQL_CALC_FOUND_ROWS * FROM recurring_tickets
     LEFT JOIN clients ON recurring_ticket_client_id = client_id
-    LEFT JOIN categories ON category_id = recurring_ticket_category 
+    LEFT JOIN categories ON category_id = recurring_ticket_category
+    LEFT JOIN users ON user_id = recurring_ticket_assigned_to
     WHERE (recurring_tickets.recurring_ticket_subject LIKE '%$q%' OR category_name LIKE '%$q%')
     $rec_ticket_permission_snippet
     $client_query
@@ -148,6 +149,11 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 </a>
                             </th>
                             <th>
+                                <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=user_name&order=<?php echo $disp; ?>">
+                                    Assigned <?php if ($sort == 'user_name') { echo $order_icon; } ?>
+                                </a>
+                            </th>
+                            <th>
                                 <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=recurring_ticket_next_run&order=<?php echo $disp; ?>">
                                     Next Run Date <?php if ($sort == 'recurring_ticket_next_run') { echo $order_icon; } ?>
                                 </a>
@@ -171,6 +177,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             $recurring_ticket_next_run = nullable_htmlentities($row['recurring_ticket_next_run']);
                             $recurring_ticket_category = getFallBack(nullable_htmlentities($row['category_name']));
                             $recurring_ticket_client_name = nullable_htmlentities($row['client_name']);
+                            $assigned_to = getFallBack(nullable_htmlentities($row['user_name']));
                         ?>
 
                             <tr>
@@ -195,6 +202,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 <td><?php echo $recurring_ticket_category ?></td>
                                 <td><?php echo $recurring_ticket_priority ?></td>
                                 <td><?php echo $recurring_ticket_frequency ?></td>
+                                <td><?php echo $assigned_to ?></td>
                                 <td class="text-bold"><?php echo $recurring_ticket_next_run ?></td>
 
                                 <?php if (lookupUserPermission("module_support") >= 2) { ?>
