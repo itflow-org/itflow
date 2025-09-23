@@ -159,7 +159,7 @@ function addTicket($contact_id, $contact_name, $contact_email, $client_id, $date
             $client_name = sanitizeInput($client_row['client_name']);
         }
         $email_subject = "$config_app_name - New Ticket - $client_name: $subject";
-        $email_body = "Hello, <br><br>This is a notification that a new ticket has been raised in ITFlow. <br>Client: $client_name<br>Priority: Low (email parsed)<br>Link: https://$config_base_url/user/ticket.php?ticket_id=$id <br><br>--------------------------------<br><br><b>$subject</b><br>$message";
+        $email_body = "Hello, <br><br>This is a notification that a new ticket has been raised in ITFlow. <br>Client: $client_name<br>Priority: Low (email parsed)<br>Link: https://$config_base_url/agent/ticket.php?ticket_id=$id <br><br>--------------------------------<br><br><b>$subject</b><br>$message";
 
         $data[] = [
             'from' => $config_ticket_from_email,
@@ -284,7 +284,7 @@ function addReply($from_email, $date, $subject, $ticket_number, $message, $attac
                 $tech_name = sanitizeInput($tech_row['user_name']);
 
                 $email_subject = "$config_app_name - Ticket updated - [$config_ticket_prefix$ticket_number] $ticket_subject";
-                $email_body    = "Hello $tech_name,<br><br>A new reply has been added to the below ticket, check ITFlow for full details.<br><br>Client: $client_name<br>Ticket: $config_ticket_prefix$ticket_number<br>Subject: $ticket_subject<br><br>https://$config_base_url/user/ticket.php?ticket_id=$ticket_id";
+                $email_body    = "Hello $tech_name,<br><br>A new reply has been added to the below ticket, check ITFlow for full details.<br><br>Client: $client_name<br>Ticket: $config_ticket_prefix$ticket_number<br>Subject: $ticket_subject<br><br>https://$config_base_url/agent/ticket.php?ticket_id=$ticket_id";
 
                 $data = [
                     [

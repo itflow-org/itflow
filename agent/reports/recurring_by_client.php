@@ -46,7 +46,7 @@ $sql = mysqli_query($mysqli, "
 
 
                     <tr>
-                        <td><a href="../../user/client_overview.php?client_id=<?php echo $client_id; ?>"><?php echo $client_name; ?></a></td>
+                        <td><a href="../../agent/client_overview.php?client_id=<?php echo $client_id; ?>"><?php echo $client_name; ?></a></td>
                         <td class="text-right"><?php echo numfmt_format_currency($currency_format, $recurring_monthly_total, $session_company_currency); ?></td>
                     </tr>
                     <?php

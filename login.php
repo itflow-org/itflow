@@ -218,7 +218,7 @@ if (isset($_POST['login'])) {
             if (isset($_GET['last_visited'])) {
                 redirect($_SERVER["REQUEST_SCHEME"] . "://" . $config_base_url . base64_decode($_GET['last_visited']) );
             } else {
-                redirect("user/$config_start_page");
+                redirect("agent/$config_start_page");
             }
         } else {
 

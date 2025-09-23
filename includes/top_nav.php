@@ -12,7 +12,7 @@
     <ul class="navbar-nav ml-auto">
 
         <!-- SEARCH FORM -->
-        <form class="form-inline" action="../../user/global_search.php">
+        <form class="form-inline" action="../../agent/global_search.php">
             <div class="input-group input-group-sm">
                 <input class="form-control form-control-navbar" type="search" placeholder="Search everywhere" name="query"
                     value="<?php if (isset($_GET['query'])) { echo nullable_htmlentities($_GET['query']); } ?>">
@@ -104,7 +104,7 @@
                     <?php if ($session_is_admin) { ?>
                         <a href="../../admin" class="btn btn-default btn-block btn-flat mb-2"><i class="fas fa-user-shield mr-2"></i>Administration</a>
                     <?php } ?>
-                    <a href="../../user/user_details.php" class="btn btn-default btn-flat"><i class="fas fa-user-cog mr-2"></i>Account</a>
+                    <a href="../../agent/user_details.php" class="btn btn-default btn-flat"><i class="fas fa-user-cog mr-2"></i>Account</a>
                     <a href="../post.php?logout" class="btn btn-default btn-flat float-right"><i class="fas fa-sign-out-alt mr-2"></i>Logout</a>
                 </li>
             </ul>

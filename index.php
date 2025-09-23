@@ -9,7 +9,7 @@ if (file_exists("config.php")) {
     // If they are an app user, send them to their start page
     if (isset($_SESSION['logged'])) {
         require_once "includes/load_global_settings.php";
-        header("Location: /user/$config_start_page");
+        header("Location: /agent/$config_start_page");
 
     // If they're a client, send them to the client area
     } elseif (isset($_SESSION['client_logged_in'])) {
