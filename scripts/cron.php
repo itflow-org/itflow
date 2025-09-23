@@ -160,7 +160,7 @@ while ($row = mysqli_fetch_array($sql)) {
 // Whitelabel - Disable if expired/invalid
 if ($config_whitelabel_enabled && !validateWhitelabelKey($config_whitelabel_key)) {
     mysqli_query($mysqli, "UPDATE settings SET config_whitelabel_enabled = 0, config_whitelabel_key = '' WHERE company_id = 1");
-    appNotify("Settings", "White-labelling was disabled due to expired/invalid key", "settings_modules.php");
+    appNotify("Settings", "White-labelling was disabled due to expired/invalid key", "/admin/settings_modules.php");
 }
 
 
@@ -1220,7 +1220,7 @@ $update_message = $updates->update_message;
 
 if ($updates->current_version !== $updates->latest_version) {
     // Send Alert to inform Updates Available
-    appNotify("Update", "$update_message", "admin_update.php");
+    appNotify("Update", "$update_message", "/admin/update.php");
 }
 
 
@@ -1232,7 +1232,7 @@ if ($updates->current_version !== $updates->latest_version) {
  */
 
 // Send Alert to inform Cron was run
-appNotify("Cron", "Cron successfully executed", "admin_audit_log.php");
+appNotify("Cron", "Cron successfully executed", "/admin/audit_log.php");
 
 // Logging
 logApp("Cron", "info", "Cron executed successfully");
