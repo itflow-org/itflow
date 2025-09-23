@@ -43,7 +43,7 @@ $sql_recent_logs = mysqli_query($mysqli, "SELECT * FROM logs
     </table>
     <?php if (isset($session_is_admin) && $session_is_admin === true) { ?>
         <div class="card-footer">
-            <a href="../admin/audit_log.php?q=<?php echo "$session_name successfully logged in"; ?>">See More...</a>
+            <a href="../../admin/audit_log.php?q=<?php echo "$session_name successfully logged in"; ?>">See More...</a>
         </div>
     <?php } ?>
 </div>
