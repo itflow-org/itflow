@@ -188,7 +188,7 @@
 
                 <?php if (lookupUserPermission("module_reporting") >= 1) { ?>
                     <li class="nav-item mt-3">
-                        <a href="report_overview.php" class="nav-link">
+                        <a href="reports/" class="nav-link">
                             <i class="fas fa-chart-line nav-icon"></i>
                             <p>Reports</p>
                             <i class="fas fa-angle-right nav-icon float-right"></i>

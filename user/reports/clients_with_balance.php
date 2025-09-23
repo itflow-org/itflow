@@ -67,7 +67,7 @@ enforceUserPermission('module_financial');
                     ?>
 
                     <tr>
-                        <td><a href="invoices.php?client_id=<?php echo $client_id; ?>"><?php echo $client_name; ?></a></td>
+                        <td><a href="../../user/invoices.php?client_id=<?php echo $client_id; ?>"><?php echo $client_name; ?></a></td>
                         <td class="text-right"><?php echo numfmt_format_currency($currency_format, $balance, $session_company_currency); ?></td>
                     </tr>
                     <?php
@@ -81,5 +81,5 @@ enforceUserPermission('module_financial');
 </div>
 
 <?php
-require_once "../includes/footer.php";
+require_once "../../includes/footer.php";
 

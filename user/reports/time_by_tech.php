@@ -177,5 +177,5 @@ $sql_users = mysqli_query($mysqli, "
     </div>
 
 <?php
-require_once "../includes/footer.php";
+require_once "../../includes/footer.php";
 

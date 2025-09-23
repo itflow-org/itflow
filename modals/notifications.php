@@ -86,11 +86,11 @@ ob_start();
     ]; ?>" class="btn btn-primary">
         <span class="text-white text-bold"><i class="fas fa-check mr-2"></i>Dismiss all</span>
     </a>
-    <a href="notifications.php" class="btn btn-secondary">
+    <a href="../../user/notifications.php" class="btn btn-secondary">
         <span class="text-white">See all Notifications</span>
     </a>
     <?php } else { ?>
-    <a href="notifications.php?dismissed" class="btn btn-dark">
+    <a href="../../user/notifications.php?dismissed" class="btn btn-dark">
         <span class="text-white text-bold">See Dismissed Notifications</span>
     </a>
     <?php } ?>

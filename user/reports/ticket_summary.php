@@ -95,7 +95,7 @@ $largest_ticket_month = 0;
     </div>
 </div>
 
-<?php require_once "../includes/footer.php"; ?>
+<?php require_once "../../includes/footer.php"; ?>
 
 <script>
     // Bootstrap-like defaults for Chart.js v4

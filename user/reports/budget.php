@@ -103,5 +103,5 @@ $monthlyTotals = array_fill(1, 12, 0);  // Initialize monthly totals for each mo
     </div>
 </div>
 
-<?php require_once "../includes/footer.php";
+<?php require_once "../../includes/footer.php";
  ?>
