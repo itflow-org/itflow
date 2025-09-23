@@ -51,4 +51,4 @@ $user_config_calendar_first_day = intval($row['user_config_calendar_first_day'])
 </div>
 
 <?php
-require_once "../includes/footer.php";
+require_once "../../includes/footer.php";
