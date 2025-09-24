@@ -7,24 +7,11 @@ $ticket_id = intval($_GET['id']);
 $sql = mysqli_query($mysqli, "SELECT * FROM tickets LEFT JOIN clients ON client_id = ticket_client_id WHERE ticket_id = $ticket_id LIMIT 1");
 
 $row = mysqli_fetch_array($sql);
-$client_id = intval($row['client_id']);
+$client_id = intval($row['ticket_client_id']);
 $client_name = nullable_htmlentities($row['client_name']);
 $ticket_prefix = nullable_htmlentities($row['ticket_prefix']);
 $ticket_number = intval($row['ticket_number']);
-$ticket_category = intval($row['ticket_category']);
-$ticket_subject = nullable_htmlentities($row['ticket_subject']);
-$ticket_details = nullable_htmlentities($row['ticket_details']);
-$ticket_priority = nullable_htmlentities($row['ticket_priority']);
-$ticket_billable = intval($row['ticket_billable']);
-$ticket_vendor_ticket_number = nullable_htmlentities($row['ticket_vendor_ticket_number']);
-$ticket_created_at = nullable_htmlentities($row['ticket_created_at']);
-$ticket_due_at = nullable_htmlentities($row['ticket_due_at']);
-$ticket_assigned_to = intval($row['ticket_assigned_to']);
-$contact_id = intval($row['ticket_contact_id']);
 $asset_id = intval($row['ticket_asset_id']);
-$location_id = intval($row['ticket_location_id']);
-$vendor_id = intval($row['ticket_vendor_id']);
-$project_id = intval($row['ticket_project_id']);
 
 // Additional Assets Selected
 $additional_assets_array = array();
