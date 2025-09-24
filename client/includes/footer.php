@@ -24,13 +24,13 @@
 <?php require_once "../includes/inc_confirm_modal.php"; ?>
 
 <!-- jQuery -->
-<script src="../plugins/jquery/jquery.min.js"></script>
+<script src="/plugins/jquery/jquery.min.js"></script>
 
 <!-- Bootstrap 4 -->
-<script src="../plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+<script src="/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
 
 <!--- TinyMCE -->
-<script src="../plugins/tinymce/tinymce.min.js" referrerpolicy="origin"></script>
+<script src="/plugins/tinymce/tinymce.min.js" referrerpolicy="origin"></script>
 
 <script>
     
@@ -65,8 +65,8 @@
 
 </script>
 
-<script src="../js/pretty_content.js"></script>
+<script src="/js/pretty_content.js"></script>
 
-<script src="../js/confirm_modal.js"></script>
+<script src="/js/confirm_modal.js"></script>
 
-<script src="../js/keepalive.js"></script>
+<script src="/js/keepalive.js"></script>
