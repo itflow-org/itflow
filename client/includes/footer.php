@@ -68,3 +68,5 @@
 <script src="../js/pretty_content.js"></script>
 
 <script src="../js/confirm_modal.js"></script>
+
+<script src="../js/keepalive.js"></script>
