@@ -27,14 +27,14 @@ header("X-Frame-Options: DENY");
     <link rel="stylesheet" href="/plugins/fontawesome-free/css/all.min.css">
 
     <!-- Custom Styles -->
-    <link href="/plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css" rel="stylesheet" type="text/css">
-    <link href="/plugins/select2/css/select2.min.css" rel="stylesheet" type="text/css">
-    <link href="/plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css" rel="stylesheet" type="text/css">
-    <link href="/plugins/daterangepicker/daterangepicker.css" rel="stylesheet">
-    <link href="/plugins/toastr/toastr.min.css" rel="stylesheet">
-    <link href="/plugins/DataTables/datatables.min.css" rel="stylesheet">
-    <link href="/plugins/intl-tel-input/css/intlTelInput.min.css" rel="stylesheet">
-    <link href="/css/itflow_custom.css" rel="stylesheet">
+    <link rel="stylesheet" href="/plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css" >
+    <link rel="stylesheet" href="/plugins/select2/css/select2.min.css">
+    <link rel="stylesheet" href="/plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css">
+    <link rel="stylesheet" href="/plugins/daterangepicker/daterangepicker.css">
+    <link rel="stylesheet" href="/plugins/toastr/toastr.min.css">
+    <link rel="stylesheet" href="/plugins/DataTables/datatables.min.css">
+    <link rel="stylesheet" href="/plugins/intl-tel-input/css/intlTelInput.min.css">
+    <link rel="stylesheet" href="/css/itflow_custom.css">
     <link rel="stylesheet" href="/plugins/adminlte/css/adminlte.min.css">
 
     <!-- Scripts -->

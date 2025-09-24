@@ -106,7 +106,7 @@ while ($row = mysqli_fetch_array($sql)) {
 <?php require_once "../includes/footer.php";
 ?>
 
-<script src='../plugins/fullcalendar/dist/index.global.js'></script>
+<script src='/plugins/fullcalendar/dist/index.global.js'></script>
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {

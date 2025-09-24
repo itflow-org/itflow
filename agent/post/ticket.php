@@ -571,6 +571,19 @@ if (isset($_POST['edit_ticket_asset'])) {
 
     mysqli_query($mysqli, "UPDATE tickets SET ticket_asset_id = $asset_id WHERE ticket_id = $ticket_id");
 
+    // Add Additional Assets
+    if (isset($_POST['additional_assets'])) {
+        mysqli_query($mysqli, "DELETE FROM ticket_assets WHERE ticket_id = $ticket_id");
+        foreach ($_POST['additional_assets'] as $additional_asset) {
+            $additional_asset_id = intval($additional_asset);
+            mysqli_query($mysqli, "INSERT INTO ticket_assets SET ticket_id = $ticket_id, asset_id = $additional_asset_id");
+        }
+    } else {
+        // If no additional assets are provided, delete them all
+        // This handles cases where the assets input might be cleared or not set at all.
+        mysqli_query($mysqli, "DELETE FROM ticket_assets WHERE ticket_id = $ticket_id");
+    }
+
     // Get ticket / asset details for logging
     $sql = mysqli_query($mysqli, "SELECT asset_name, ticket_prefix, ticket_number, ticket_status_name, ticket_client_id FROM assets 
         LEFT JOIN tickets ON ticket_asset_id = asset_id

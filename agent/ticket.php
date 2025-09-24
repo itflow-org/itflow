@@ -437,7 +437,7 @@ if (isset($_GET['ticket_id'])) {
                                                 data-modal-url="modals/ticket/ticket_contact.php?id=<?= $ticket_id ?>">
                                                 <i class="fa fa-fw fa-user mr-2"></i>Add Contact
                                             </a>
-                                            <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editTicketAssetModal<?php echo $ticket_id; ?>">
+                                            <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/ticket/ticket_edit_asset.php?id=<?= $ticket_id ?>">
                                                 <i class="fas fa-fw fa-desktop mr-2"></i>Add Asset
                                             </a>
                                             <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editTicketVendorModal<?php echo $ticket_id; ?>">
@@ -1124,7 +1124,7 @@ if (isset($_GET['ticket_id'])) {
                             <h5 class="card-title"><i class="fas fa-fw fa-desktop mr-2 mt-2"></i>Primary Asset</h5>
                             <div class="card-tools">
                                 <?php if (empty($ticket_resolved_at) && lookupUserPermission("module_support") >= 2) { ?>
-                                    <a class="btn btn-light text-secondary btn-sm" href="#" data-toggle="modal" data-target="#editTicketAssetModal<?php echo $ticket_id; ?>">
+                                    <a class="btn btn-light text-secondary btn-sm ajax-modal" href="#" data-modal-url="modals/ticket/ticket_edit_asset.php?id=<?= $ticket_id ?>">
                                         <i class="fas fa-edit"></i>
                                     </a>
                                 <?php } ?>
@@ -1255,7 +1255,6 @@ if (isset($_GET['ticket_id'])) {
 
         <?php
         if (lookupUserPermission("module_support") >= 2 && empty($ticket_closed_at)) {
-            require_once "modals/ticket/ticket_edit_asset.php";
             require_once "modals/ticket/ticket_edit_vendor.php";
             require_once "modals/ticket/ticket_add_watcher.php";
             require_once "modals/ticket/ticket_change_client.php";
@@ -1292,7 +1291,7 @@ require_once "../includes/footer.php";
     </div>
 </div>
 
-<script src="../js/show_modals.js"></script>
+<script src="/js/show_modals.js"></script>
 
 <?php if (empty($ticket_closed_at)) { ?>
     <!-- create js variable related to ticket timer setting -->
@@ -1307,7 +1306,7 @@ require_once "../includes/footer.php";
     <script src="js/ticket_collision_detection.js"></script>
 <?php } ?>
 
-<script src="../js/pretty_content.js"></script>
+<script src="/js/pretty_content.js"></script>
 
 <script>
     $('#summaryModal').on('shown.bs.modal', function (e) {
@@ -1326,7 +1325,7 @@ require_once "../includes/footer.php";
     });
 </script>
 
-<script src="../plugins/SortableJS/Sortable.min.js"></script>
+<script src="/plugins/SortableJS/Sortable.min.js"></script>
 <script>
 new Sortable(document.querySelector('table#tasks tbody'), {
     handle: '.drag-handle',
