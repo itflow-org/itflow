@@ -60,7 +60,7 @@ if (isset($_POST['edit_your_user_details'])) {
             move_uploaded_file($file_tmp_path, $dest_path);
 
             // Delete old file
-            unlink("../uploads/users/$session_user_id/$existing_file_name");
+            unlink("../../uploads/users/$session_user_id/$existing_file_name");
 
             // Set Avatar
             mysqli_query($mysqli,"UPDATE users SET user_avatar = '$new_file_name' WHERE user_id = $session_user_id");
@@ -193,7 +193,7 @@ if (isset($_POST['enable_mfa'])) {
 
     validateCSRFToken($_POST['csrf_token']);
 
-    require_once "../plugins/totp/totp.php";
+    require_once "../../plugins/totp/totp.php";
 
     // Grab the code from the user
     $verify_code = trim($_POST['verify_code']); 
@@ -226,7 +226,7 @@ if (isset($_POST['enable_mfa'])) {
             $previousPage = basename(parse_url($_SERVER['HTTP_REFERER'], PHP_URL_PATH));
             if ($previousPage === 'mfa_enforcement.php') {
                 // Redirect back to mfa_enforcement.php
-                redirect("$config_start_page");
+                redirect("../$config_start_page");
                 
             }
         }    

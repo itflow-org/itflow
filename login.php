@@ -195,7 +195,7 @@ if (isset($_POST['login'])) {
 
             // Forcing MFA
             if ($force_mfa == 1 && $token == NULL) {
-                $config_start_page = "mfa_enforcement.php";
+                $config_start_page = "user/mfa_enforcement.php";
             }
 
             // Setup encryption session key

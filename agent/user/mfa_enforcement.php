@@ -1,8 +1,8 @@
 <?php
-require_once "../config.php";
-require_once "../functions.php";
-require_once "../includes/check_login.php";
-require_once '../plugins/totp/totp.php'; //TOTP MFA Lib
+require_once "../../config.php";
+require_once "../../functions.php";
+require_once "../../includes/check_login.php";
+require_once '../../plugins/totp/totp.php'; //TOTP MFA Lib
 
 // Get Company Logo
 $sql = mysqli_query($mysqli, "SELECT company_logo FROM companies");
@@ -36,28 +36,28 @@ $data = "otpauth://totp/ITFlow:$session_email?secret=$token";
     Favicon
     If Fav Icon exists else use the default one 
     -->
-    <?php if(file_exists('../uploads/favicon.ico')) { ?>
-        <link rel="icon" type="image/x-icon" href="/uploads/favicon.ico">
+    <?php if(file_exists('../../uploads/favicon.ico')) { ?>
+        <link rel="icon" type="image/x-icon" href="../../uploads/favicon.ico">
     <?php } ?>
     
     <!-- Font Awesome Icons -->
-    <link rel="stylesheet" href="../plugins/fontawesome-free/css/all.min.css">
+    <link rel="stylesheet" href="../../plugins/fontawesome-free/css/all.min.css">
 
     <!-- Theme style -->
-    <link rel="stylesheet" href="../plugins/adminlte/css/adminlte.min.css">
-    <link href="../plugins/toastr/toastr.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="../../plugins/adminlte/css/adminlte.min.css">
+    <link href="../../plugins/toastr/toastr.min.css" rel="stylesheet">
 
     <!-- jQuery -->
-    <script src="../plugins/jquery/jquery.min.js"></script>
-    <script src="../plugins/toastr/toastr.min.js"></script>
+    <script src="../../plugins/jquery/jquery.min.js"></script>
+    <script src="../../plugins/toastr/toastr.min.js"></script>
 
 </head>
 <body class="hold-transition login-page">
-    <?php require_once "../includes/inc_alert_feedback.php"; ?>
+    <?php require_once "../../includes/inc_alert_feedback.php"; ?>
     <div class="login-box">
         <div class="login-logo">
             <?php if (!empty($company_logo)) { ?>
-                <img alt="<?= nullable_htmlentities($company_name)?> logo" height="110" width="380" class="img-fluid" src="<?php echo "../uploads/settings/$company_logo"; ?>">
+                <img alt="<?= nullable_htmlentities($company_name)?> logo" height="110" width="380" class="img-fluid" src="<?php echo "../../uploads/settings/$company_logo"; ?>">
             <?php } else { ?>
                 <span class="text-primary text-bold"><i class="fas fa-paper-plane mr-2"></i>IT</span>Flow
             <?php } ?>
@@ -72,7 +72,7 @@ $data = "otpauth://totp/ITFlow:$session_email?secret=$token";
                 <form action="post.php" method="post" autocomplete="off">
                     <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token'] ?>">
                     
-                    <img src='../plugins/barcode/barcode.php?f=png&s=qr&d=<?php echo $data; ?>' data-toggle="tooltip" title="Scan QR code into your MFA App">
+                    <img src='../../plugins/barcode/barcode.php?f=png&s=qr&d=<?php echo $data; ?>' data-toggle="tooltip" title="Scan QR code into your MFA App">
                    
                     <p>
                         <small data-toggle="tooltip" title="Can't Scan? Copy and paste this code into your app"><?php echo $token; ?></small>
@@ -100,10 +100,10 @@ $data = "otpauth://totp/ITFlow:$session_email?secret=$token";
     <!-- REQUIRED SCRIPTS -->
 
     <!-- Bootstrap 4 -->
-    <script src="../plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="../../plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
 
     <!-- Custom js-->
-    <script src="../plugins/clipboardjs/clipboard.min.js"></script>
+    <script src="../../plugins/clipboardjs/clipboard.min.js"></script>
 
     <script>
 
