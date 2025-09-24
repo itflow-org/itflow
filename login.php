@@ -4,7 +4,7 @@
 header("Content-Security-Policy: default-src 'self'");
 
 if (!file_exists('config.php')) {
-    redirect("setup");
+    header("Location: /setup"); //must use header instead of redirect as functions isnt included yet.
 }
 
 require_once "config.php";

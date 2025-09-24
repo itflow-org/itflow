@@ -2,7 +2,6 @@
 // Configuration & core
 require_once "../config.php";
 require_once "../functions.php";
-require_once "../includes/router.php";
 require_once "../includes/check_login.php";
 
 // Page setup

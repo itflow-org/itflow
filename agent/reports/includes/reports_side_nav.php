@@ -1,7 +1,7 @@
 <!-- Main Sidebar Container -->
 <aside class="main-sidebar sidebar-dark-primary d-print-none">
 
-    <a class="pb-1 mt-1 brand-link" href="../../agent/<?php echo $config_start_page ?>">
+    <a class="pb-1 mt-1 brand-link" href="../<?php echo $config_start_page ?>">
         <p class="h5"><i class="nav-icon fas fa-arrow-left ml-3 mr-2"></i>
             <span class="brand-text ">Back | <strong>Reports</strong>
         </p>

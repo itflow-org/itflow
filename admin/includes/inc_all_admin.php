@@ -2,7 +2,6 @@
 
 require_once "../config.php";
 require_once "../functions.php";
-require_once "../includes/router.php";
 require_once "../includes/check_login.php";
 require_once "../includes/page_title.php";
 if (!isset($session_is_admin) || !$session_is_admin) {
