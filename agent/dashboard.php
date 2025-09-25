@@ -209,7 +209,7 @@ if ($user_config_dashboard_financial_enable == 1) {
 
         <div class="col-lg-4 col-md-6 col-sm-12">
             <!-- small box -->
-            <a class="small-box bg-success" href="report_profit_loss.php">
+            <a class="small-box bg-success" href="reports/profit_loss.php">
                 <div class="inner">
                     <h3><?php echo numfmt_format_currency($currency_format, $profit, "$session_company_currency"); ?></h3>
                     <p>Profit</p>
@@ -223,7 +223,7 @@ if ($user_config_dashboard_financial_enable == 1) {
 
         <div class="col-lg-6 col-md-6 col-sm-12">
             <!-- small box -->
-            <a class="small-box bg-info" href="report_recurring_by_client.php">
+            <a class="small-box bg-info" href="reports/recurring_by_client.php">
                 <div class="inner">
                     <h3><?php echo numfmt_format_currency($currency_format, $recurring_monthly_total, "$session_company_currency"); ?></h3>
                     <p>Monthly Recurring Income</p>
@@ -252,7 +252,7 @@ if ($user_config_dashboard_financial_enable == 1) {
         <?php if ($config_module_enable_ticketing && $config_module_enable_accounting) { ?>
             <div class="col-lg-2 col-md-6 col-sm-12">
                 <!-- small box -->
-                <a class="small-box bg-secondary" href="report_tickets_unbilled.php">
+                <a class="small-box bg-secondary" href="reports/tickets_unbilled.php">
                     <div class="inner">
                         <h3><?php echo $unbilled_tickets; ?></h3>
                         <p>Unbilled Ticket<?php if ($unbilled_tickets > 1 || $unbilled_tickets == 0) { echo "s"; } ?></p>
@@ -338,7 +338,7 @@ if ($user_config_dashboard_financial_enable == 1) {
                 <div class="card-header">
                     <h3 class="card-title"><i class="fas fa-fw fa-chart-area mr-2"></i>Cash Flow</h3>
                     <div class="card-tools">
-                        <a href="report_income_summary.php" class="btn btn-tool">
+                        <a href="reports/income_summary.php" class="btn btn-tool">
                             <i class="fas fa-eye"></i>
                         </a>
                         <button type="button" class="btn btn-tool" data-card-widget="remove">
