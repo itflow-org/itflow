@@ -28,11 +28,11 @@ post/xcustom
 !post/xcustom/readme.php
 admin/custom/*
 !admin/custom/readme.php
+agent/custom/*
+!agent/custom/readme.php
 client/custom/*
 !client/custom/readme.php
 guest/custom/*
 !guest/custom/readme.php
-user/custom/*
-!user/custom/readme.php
 .zed
 

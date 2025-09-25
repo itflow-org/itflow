@@ -232,7 +232,7 @@ function addReply($from_email, $date, $subject, $ticket_number, $message, $attac
             $config_ticket_prefix_esc = mysqli_real_escape_string($mysqli, $config_ticket_prefix);
             $ticket_number_esc = mysqli_real_escape_string($mysqli, $ticket_number);
 
-            appNotify("Ticket", "Email parser: $from_email attempted to re-open ticket $config_ticket_prefix_esc$ticket_number_esc (ID $ticket_id) - check inbox manually to see email", "ticket.php?ticket_id=$ticket_id", $client_id);
+            appNotify("Ticket", "Email parser: $from_email attempted to re-open ticket $config_ticket_prefix_esc$ticket_number_esc (ID $ticket_id) - check inbox manually to see email", "/agent/ticket.php?ticket_id=$ticket_id", $client_id);
 
             $email_subject = "Action required: This ticket is already closed";
             $email_body = "Hi there, <br><br>You've tried to reply to a ticket that is closed - we won't see your response. <br><br>Please raise a new ticket by sending a new e-mail to our support address below. <br><br>--<br>$company_name - Support<br>$config_ticket_from_email<br>$company_phone";

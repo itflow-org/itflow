@@ -83,7 +83,7 @@ $client_id = intval($row['item_client_id']);
 $item_type_sql_escaped = sanitizeInput($row['item_type']);
 $item_recipient_sql_escaped = sanitizeInput($row['item_recipient']);
 
-appNotify("Share Viewed", "$item_type_sql_escaped has been viewed by $item_recipient_sql_escaped", "client_overview.php?client_id=$client_id", $client_id);
+appNotify("Share Viewed", "$item_type_sql_escaped has been viewed by $item_recipient_sql_escaped", "/agent/client_overview.php?client_id=$client_id", $client_id);
 
 ?>
 

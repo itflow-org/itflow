@@ -27,7 +27,7 @@ if (isset($_GET['accept_quote'], $_GET['url_key'])) {
         mysqli_query($mysqli, "INSERT INTO history SET history_status = 'Accepted', history_description = 'Client accepted Quote!', history_quote_id = $quote_id");
 
         // Notification
-        appNotify("Quote Accepted", "Quote $quote_prefix$quote_number has been accepted by $client_name", "quote.php?quote_id=$quote_id", $client_id);
+        appNotify("Quote Accepted", "Quote $quote_prefix$quote_number has been accepted by $client_name", "/agent/quote.php?quote_id=$quote_id", $client_id);
         customAction('quote_accept', $quote_id);
 
         // Internal email notification
@@ -92,7 +92,7 @@ if (isset($_GET['decline_quote'], $_GET['url_key'])) {
         mysqli_query($mysqli, "INSERT INTO history SET history_status = 'Declined', history_description = 'Client declined Quote!', history_quote_id = $quote_id");
 
         // Notification
-        appNotify("Quote Declined", "Quote $quote_prefix$quote_number has been declined by $client_name", "quote.php?quote_id=$quote_id", $client_id);
+        appNotify("Quote Declined", "Quote $quote_prefix$quote_number has been declined by $client_name", "/agent/quote.php?quote_id=$quote_id", $client_id);
         customAction('quote_decline', $quote_id);
 
         // Internal email notification
@@ -210,7 +210,7 @@ if (isset($_GET['add_ticket_feedback'], $_GET['url_key'])) {
             $ticket_prefix = sanitizeInput($ticket_details['ticket_prefix']);
             $ticket_number = intval($ticket_details['ticket_number']);
 
-            appNotify("Feedback", "Guest rated ticket number $ticket_prefix$ticket_number (ID: $ticket_id) as bad", "ticket.php?ticket_id=$ticket_id");
+            appNotify("Feedback", "Guest rated ticket number $ticket_prefix$ticket_number (ID: $ticket_id) as bad", "/agent/ticket.php?ticket_id=$ticket_id");
         }
 
         flash_alert("Feedback recorded - thank you");
@@ -727,7 +727,7 @@ if (isset($_POST['guest_quote_upload_file'])) {
                     // Logging & feedback
                     flash_alert('File uploaded!');
                     
-                    appNotify("Quote File", "$file_name was uploaded to quote $quote_prefix$quote_number", "quote.php?quote_id=$quote_id", $client_id);
+                    appNotify("Quote File", "$file_name was uploaded to quote $quote_prefix$quote_number", "/agent/quote.php?quote_id=$quote_id", $client_id);
                     
                     mysqli_query($mysqli, "INSERT INTO history SET history_status = 'Upload', history_description = 'Client uploaded file $file_name', history_quote_id = $quote_id");
                     
