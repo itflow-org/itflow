@@ -2211,6 +2211,59 @@ CREATE TABLE `software_files` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `software_key_asset_assignments`
+--
+
+DROP TABLE IF EXISTS `software_key_asset_assignments`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `software_key_asset_assignments` (
+  `software_key_id` int(11) NOT NULL,
+  `asset_id` int(11) NOT NULL,
+  `software_key_assigned_at` datetime DEFAULT current_timestamp(),
+  PRIMARY KEY (`software_key_id`,`asset_id`),
+  KEY `asset_id` (`asset_id`),
+  CONSTRAINT `software_key_asset_assignments_ibfk_1` FOREIGN KEY (`software_key_id`) REFERENCES `software_keys` (`software_key_id`) ON DELETE CASCADE,
+  CONSTRAINT `software_key_asset_assignments_ibfk_2` FOREIGN KEY (`asset_id`) REFERENCES `assets` (`asset_id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `software_key_contact_assignments`
+--
+
+DROP TABLE IF EXISTS `software_key_contact_assignments`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `software_key_contact_assignments` (
+  `software_key_id` int(11) NOT NULL,
+  `contact_id` int(11) NOT NULL,
+  `software_key_assigned_at` datetime DEFAULT current_timestamp(),
+  PRIMARY KEY (`software_key_id`,`contact_id`),
+  KEY `contact_id` (`contact_id`),
+  CONSTRAINT `software_key_contact_assignments_ibfk_1` FOREIGN KEY (`software_key_id`) REFERENCES `software_keys` (`software_key_id`) ON DELETE CASCADE,
+  CONSTRAINT `software_key_contact_assignments_ibfk_2` FOREIGN KEY (`contact_id`) REFERENCES `contacts` (`contact_id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `software_keys`
+--
+
+DROP TABLE IF EXISTS `software_keys`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `software_keys` (
+  `software_key_id` int(11) NOT NULL AUTO_INCREMENT,
+  `software_key` varchar(400) NOT NULL,
+  `software_key_software_id` int(11) NOT NULL,
+  PRIMARY KEY (`software_key_id`),
+  KEY `software_key_software_id` (`software_key_software_id`),
+  CONSTRAINT `software_keys_ibfk_1` FOREIGN KEY (`software_key_software_id`) REFERENCES `software` (`software_id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `software_templates`
 --
 
@@ -2766,4 +2819,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-09-15 17:22:23
+-- Dump completed on 2025-09-25 17:24:06
