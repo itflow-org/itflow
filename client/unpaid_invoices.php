@@ -22,7 +22,9 @@ $invoices_sql = mysqli_query($mysqli, "SELECT * FROM invoices WHERE invoice_clie
 // Payment Provider Active Query
 $sql_payment_provider = mysqli_query($mysqli, "SELECT * FROM payment_providers WHERE payment_provider_active = 1 LIMIT 1;");
 $row = mysqli_fetch_array($sql_payment_provider);
+$payment_provider_id = intval($row['payment_provider_id']);
 $payment_provider_active = intval($row['payment_provider_active']);
+$payment_provider_threshold = floatval($row['payment_provider_threshold']);
 
 // Saved Payment Methods
 $sql_saved_payment_methods = mysqli_query($mysqli, "
@@ -140,7 +142,9 @@ $balance = $invoice_amounts - $amount_paid;
                     <td><?php echo $invoice_date; ?></td>
                     <td class="<?php echo $overdue_color; ?>"><?php echo $invoice_due; ?></td>
                     <td>
-                        <?php if ($payment_provider_active && ($invoice_status === 'Sent' || $invoice_status === 'Viewed')) { ?>
+                        <?php 
+                        if ($invoice_status !== "Paid" && $invoice_status  !== "Cancelled" && $invoice_status !== "Draft" && $payment_provider_id && $payment_provider_threshold > $invoice_amount) {
+                        ?>
                         <button type="button" class="btn btn-sm btn-outline-success dropdown-toggle" data-toggle="dropdown"><i class="fa fa-fw fa-credit-card mr-2"></i>Pay</button>
                         <div class="dropdown-menu">
                             <a class="dropdown-item" href="//<?php echo $config_base_url ?>/guest/guest_pay_invoice_stripe.php?invoice_id=<?php echo "$invoice_id&url_key=$invoice_url_key"; ?>">Enter Card Manually</a>
