@@ -242,7 +242,7 @@ if (isset($_GET['invoice_id'], $_GET['url_key']) && !isset($_GET['payment_intent
     mysqli_query($mysqli, "INSERT INTO history SET history_status = 'Paid', history_description = 'Online Payment added (client) - $ip - $os - $browser', history_invoice_id = $invoice_id");
 
     // Notify
-    appNotify("Invoice Paid", "Invoice $invoice_prefix$invoice_number has been paid by $client_name - $ip - $os - $browser", "invoice.php?invoice_id=$invoice_id", $pi_client_id);
+    appNotify("Invoice Paid", "Invoice $invoice_prefix$invoice_number has been paid by $client_name - $ip - $os - $browser", "/agent/invoice.php?invoice_id=$invoice_id", $pi_client_id);
 
     customAction('invoice_pay', $invoice_id);
 

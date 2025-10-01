@@ -66,6 +66,7 @@ $countries_array = array(
     "Georgia",
     "Germany",
     "Ghana",
+    "Gibraltar",
     "Greece",
     "Grenada",
     "Guatemala",

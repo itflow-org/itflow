@@ -37,7 +37,7 @@ if (isset($_GET['delete_saved_payment'])) {
 
     $private_key = $row['payment_provider_private_key'];
 
-    // Seperate logic for each Payment Provider
+    // Separate logic for each Payment Provider
     if ($payment_provider_name == 'Stripe') {
 
         try {

@@ -29,8 +29,7 @@ $user_config_theme_dark = intval($row['user_config_theme_dark']);
 if ($session_user_type !== 1) {
     session_unset();
     session_destroy();
-    header("Location: ../login.php");
-    exit;
+    redirect("/client/login.php");
 }
 
 // Load user client permissions

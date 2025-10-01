@@ -5,18 +5,7 @@
 // Get the current page name without the .php extension
 $page_title = basename($_SERVER['PHP_SELF'], '.php');
 
-// Remove 'client_' from the page name
-$page_title = str_replace('client_', '', $page_title);
-
-// Remove 'report_' from the page name
-$page_title = str_replace('report_', '', $page_title);
-
-// Remove 'admin_' from the page name
-$page_title = str_replace('admin_', '', $page_title);
-
-// Remove 'admin_' from the page name
-$page_title = str_replace('settings_', '', $page_title);
-
+// Lets make the Page title look pretty
 // Replace any underscores with spaces
 $page_title = str_replace('_', ' ', $page_title);
 

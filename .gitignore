@@ -25,6 +25,14 @@ plugins/htmlpurifier/standalone/HTMLPurifier/DefinitionCache/Serializer/CSS/*
 xcustom/*
 !xcustom/readme.php
 post/xcustom
-custom/*
 !post/xcustom/readme.php
+admin/custom/*
+!admin/custom/readme.php
+agent/custom/*
+!agent/custom/readme.php
+client/custom/*
+!client/custom/readme.php
+guest/custom/*
+!guest/custom/readme.php
 .zed
+

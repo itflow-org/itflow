@@ -160,7 +160,7 @@ while ($row = mysqli_fetch_array($sql)) {
 // Whitelabel - Disable if expired/invalid
 if ($config_whitelabel_enabled && !validateWhitelabelKey($config_whitelabel_key)) {
     mysqli_query($mysqli, "UPDATE settings SET config_whitelabel_enabled = 0, config_whitelabel_key = '' WHERE company_id = 1");
-    appNotify("Settings", "White-labelling was disabled due to expired/invalid key", "settings_modules.php");
+    appNotify("Settings", "White-labelling was disabled due to expired/invalid key", "/admin/settings_modules.php");
 }
 
 
@@ -189,7 +189,7 @@ if ($config_enable_alert_domain_expire == 1) {
             $client_id = intval($row['client_id']);
             $client_name = sanitizeInput($row['client_name']);
 
-            appNotify("Domain Expiring", "Domain $domain_name for $client_name will expire in $day Days on $domain_expire", "domains.php?client_id=$client_id", $client_id);
+            appNotify("Domain Expiring", "Domain $domain_name for $client_name will expire in $day Days on $domain_expire", "/agent/domains.php?client_id=$client_id", $client_id);
 
         }
 
@@ -234,12 +234,12 @@ foreach ($certificateAlertArray as $day) {
 
             } else {
                 // This certificate is either expiring in 1 or 7 days or is a non-LE certificate expiring in 45 days
-                appNotify("Certificate Expiring", "Certificate $certificate_name for $client_name will expire in $day day(s) on $certificate_expire", "certificates.php?client_id=$client_id", $client_id);
+                appNotify("Certificate Expiring", "Certificate $certificate_name for $client_name will expire in $day day(s) on $certificate_expire", "/agent/certificates.php?client_id=$client_id", $client_id);
             }
 
         } else {
             // No public key - notify anyway as we can't check the validity period
-            appNotify("Certificate Expiring", "Certificate $certificate_name for $client_name will expire in $day day(s) on $certificate_expire", "certificates.php?client_id=$client_id", $client_id);
+            appNotify("Certificate Expiring", "Certificate $certificate_name for $client_name will expire in $day day(s) on $certificate_expire", "/agent/certificates.php?client_id=$client_id", $client_id);
         }
 
     }
@@ -269,7 +269,7 @@ foreach ($warranty_alert_array as $day) {
         $client_id = intval($row['client_id']);
         $client_name = sanitizeInput($row['client_name']);
 
-        appNotify("Asset Warranty Expiring", "Asset $asset_name warranty for $client_name will expire in $day Days on $asset_warranty_expire", "assets.php?client_id=$client_id", $client_id);
+        appNotify("Asset Warranty Expiring", "Asset $asset_name warranty for $client_name will expire in $day Days on $asset_warranty_expire", "/agent/assets.php?client_id=$client_id", $client_id);
 
     }
 
@@ -285,7 +285,7 @@ $tickets_pending_assignment = mysqli_num_rows($sql_tickets_pending_assignment);
 
 if ($tickets_pending_assignment > 0) {
 
-    appNotify("Pending Tickets", "There are $tickets_pending_assignment new tickets pending assignment", "tickets.php?status=New");
+    appNotify("Pending Tickets", "There are $tickets_pending_assignment new tickets pending assignment", "/agent/tickets.php?status=New");
 
     // Logging
     logApp("Cron", "info", "Cron created notifications for new tickets that are pending assignment");
@@ -388,7 +388,7 @@ if (mysqli_num_rows($sql_recurring_tickets) > 0) {
         if (filter_var($config_ticket_new_ticket_notification_email, FILTER_VALIDATE_EMAIL)) {
 
             $email_subject = "ITFlow - New Recurring Ticket - $client_name: $ticket_subject";
-            $email_body = "Hello, <br><br>This is a notification that a recurring (scheduled) ticket has been raised in ITFlow. <br>Ticket: $ticket_prefix$ticket_number<br>Client: $client_name<br>Priority: $priority<br>Link: https://$config_base_url/user/ticket.php?ticket_id=$id <br><br>--------------------------------<br><br><b>$ticket_subject</b><br>$ticket_details";
+            $email_body = "Hello, <br><br>This is a notification that a recurring (scheduled) ticket has been raised in ITFlow. <br>Ticket: $ticket_prefix$ticket_number<br>Client: $client_name<br>Priority: $priority<br>Link: https://$config_base_url/agent/ticket.php?ticket_id=$id <br><br>--------------------------------<br><br><b>$ticket_subject</b><br>$ticket_details";
 
             $email = [
                     'from' => $config_ticket_from_email,
@@ -435,7 +435,7 @@ if (mysqli_num_rows($sql_recurring_tickets) > 0) {
 $sql_invalid_recurring_tickets = mysqli_query($mysqli, "SELECT * FROM recurring_tickets WHERE recurring_ticket_next_run < CURDATE()");
 while ($row = mysqli_fetch_array($sql_invalid_recurring_tickets)) {
     $subject = sanitizeInput($row['recurring_ticket_subject']);
-    appNotify("Ticket", "Recurring ticket $subject next run date is in the past!", "recurring_tickets.php");
+    appNotify("Ticket", "Recurring ticket $subject next run date is in the past!", "/agent/recurring_tickets.php");
 }
 
 // Logging
@@ -523,11 +523,11 @@ if ($config_send_invoice_reminders == 1) {
 
                 mysqli_query($mysqli, "INSERT INTO history SET history_status = 'Sent', history_description = 'Cron applied a late fee of $late_fee_amount', history_invoice_id = $invoice_id");
 
-                appNotify("Invoice Late Charge", "Invoice $invoice_prefix$invoice_number for $client_name in the amount of $invoice_amount was charged a late fee of $late_fee_amount", "invoice.php?invoice_id=$invoice_id", $client_id);
+                appNotify("Invoice Late Charge", "Invoice $invoice_prefix$invoice_number for $client_name in the amount of $invoice_amount was charged a late fee of $late_fee_amount", "/agent/invoice.php?invoice_id=$invoice_id", $client_id);
 
             }
 
-            appNotify("Invoice Overdue", "Invoice $invoice_prefix$invoice_number for $client_name in the amount of $invoice_amount is overdue by $day days", "invoice.php?invoice_id=$invoice_id", $client_id);
+            appNotify("Invoice Overdue", "Invoice $invoice_prefix$invoice_number for $client_name in the amount of $invoice_amount is overdue by $day days", "/agent/invoice.php?invoice_id=$invoice_id", $client_id);
 
             $subject = "Overdue Invoice $invoice_prefix$invoice_number";
             $body = "Hello $contact_name,<br><br>Our records indicate that we have not yet received payment for the invoice $invoice_prefix$invoice_number. We kindly request that you submit your payment as soon as possible. If you have any questions or concerns, please do not hesitate to contact us at $company_email or $company_phone.
@@ -633,7 +633,7 @@ while ($row = mysqli_fetch_array($sql_recurring_invoices)) {
 
     mysqli_query($mysqli, "INSERT INTO history SET history_status = 'Sent', history_description = 'Invoice Generated from Recurring!', history_invoice_id = $new_invoice_id");
 
-    appNotify("Recurring Sent", "Recurring Invoice $config_invoice_prefix$new_invoice_number for $client_name Sent", "invoice.php?invoice_id=$new_invoice_id", $client_id);
+    appNotify("Recurring Sent", "Recurring Invoice $config_invoice_prefix$new_invoice_number for $client_name Sent", "/agent/invoice.php?invoice_id=$new_invoice_id", $client_id);
 
     customAction('invoice_create', $new_invoice_id);
 
@@ -726,7 +726,7 @@ $sql_invalid_recurring_invoices = mysqli_query($mysqli, "SELECT * FROM recurring
 while ($row = mysqli_fetch_array($sql_invalid_recurring_invoices)) {
     $invoice_prefix = sanitizeInput($row['recurring_invoice_prefix']);
     $invoice_number = intval($row['recurring_invoice_number']);
-    appNotify("Invoice", "Recurring invoice $invoice_prefix$invoice_number next run date is in the past!", "recurring_invoices.php");
+    appNotify("Invoice", "Recurring invoice $invoice_prefix$invoice_number next run date is in the past!", "/agent/recurring_invoices.php");
 }
 // End Flag any active recurring "next run" dates that are in the past
 
@@ -889,7 +889,7 @@ while ($row = mysqli_fetch_array($sql_recurring_payments)) {
 
                     // LOGGING
                     $extended_log_desc = !$pi_livemode ? '(DEV MODE)' : '';
-                    appNotify("Invoice Paid", "Invoice $invoice_prefix$invoice_number automatically paid", "invoice.php?invoice_id=$invoice_id", $client_id);
+                    appNotify("Invoice Paid", "Invoice $invoice_prefix$invoice_number automatically paid", "/agent/invoice.php?invoice_id=$invoice_id", $client_id);
                     logAction("Invoice", "Payment", "Auto Stripe payment amount of " . numfmt_format_currency($currency_format, $invoice_amount, $recurring_payment_currency_code) . " added to invoice $invoice_prefix$invoice_number - $pi_id $extended_log_desc", $client_id, $invoice_id);
                     customAction('invoice_pay', $invoice_id);
 
@@ -944,7 +944,7 @@ while ($row = mysqli_fetch_array($sql_recurring_expenses)) {
 
     $expense_id = mysqli_insert_id($mysqli);
 
-    appNotify("Expense Created", "Expense $recurring_expense_description created from recurring expenses", "expenses.php", $recurring_expense_client_id);
+    appNotify("Expense Created", "Expense $recurring_expense_description created from recurring expenses", "/agent/expenses.php", $recurring_expense_client_id);
 
     // Update recurring dates using calculated next billing date
 
@@ -957,7 +957,7 @@ while ($row = mysqli_fetch_array($sql_recurring_expenses)) {
 $sql_invalid_recurring_expenses = mysqli_query($mysqli, "SELECT * FROM recurring_expenses WHERE recurring_expense_next_date < CURDATE() AND recurring_expense_status = 1");
 while ($row = mysqli_fetch_array($sql_invalid_recurring_expenses)) {
     $recurring_expense_description = sanitizeInput($row['recurring_expense_description']);
-    appNotify("Expense", "Recurring expense $recurring_expense_description next run date is in the past!", "recurring_expenses.php");
+    appNotify("Expense", "Recurring expense $recurring_expense_description next run date is in the past!", "/agent/recurring_expenses.php");
 }
 
 // Logging
@@ -1220,7 +1220,7 @@ $update_message = $updates->update_message;
 
 if ($updates->current_version !== $updates->latest_version) {
     // Send Alert to inform Updates Available
-    appNotify("Update", "$update_message", "admin_update.php");
+    appNotify("Update", "$update_message", "/admin/update.php");
 }
 
 
@@ -1232,7 +1232,7 @@ if ($updates->current_version !== $updates->latest_version) {
  */
 
 // Send Alert to inform Cron was run
-appNotify("Cron", "Cron successfully executed", "admin_audit_log.php");
+appNotify("Cron", "Cron successfully executed", "/admin/audit_log.php");
 
 // Logging
 logApp("Cron", "info", "Cron executed successfully");

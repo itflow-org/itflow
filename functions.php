@@ -1481,10 +1481,14 @@ function enforceAdminPermission() {
 }
 
 function customAction($trigger, $entity) {
+    $original_dir = getcwd(); // Save
+
     chdir(dirname(__FILE__));
     if (file_exists(__DIR__ . "/custom/custom_action_handler.php")) {
         include_once __DIR__ . "/custom/custom_action_handler.php";
     }
+
+    chdir($original_dir); // Restore original working directory
 }
 
 function appNotify($type, $details, $action = null, $client_id = 0, $entity_id = 0) {

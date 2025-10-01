@@ -194,7 +194,7 @@ if (isset($_POST['add_ticket_feedback'])) {
         if ($feedback == "Bad") {
             $ticket_details = mysqli_fetch_array(mysqli_query($mysqli, "SELECT ticket_number FROM tickets WHERE ticket_id = $ticket_id LIMIT 1"));
             $ticket_number = intval($ticket_details['ticket_number']);
-            appNotify("Feedback", "$session_contact_name rated ticket $config_ticket_prefix$ticket_number as bad (ID: $ticket_id)", "ticket.php?ticket_id=$ticket_id", $session_client_id, $ticket_id);
+            appNotify("Feedback", "$session_contact_name rated ticket $config_ticket_prefix$ticket_number as bad (ID: $ticket_id)", "/agent/ticket.php?ticket_id=$ticket_id", $session_client_id, $ticket_id);
         }
 
         // Custom action/notif handler
@@ -608,7 +608,7 @@ if (isset($_GET['add_payment_by_provider'])) {
         }
 
         // Notify/log
-        appNotify("Invoice Paid", "Invoice $invoice_prefix$invoice_number automatically paid", "invoice.php?invoice_id=$invoice_id", $client_id);
+        appNotify("Invoice Paid", "Invoice $invoice_prefix$invoice_number automatically paid", "/agent/invoice.php?invoice_id=$invoice_id", $client_id);
         logAction("Invoice", "Payment", "$session_name initiated Stripe payment amount of " . numfmt_format_currency($currency_format, $invoice_amount, $invoice_currency_code) . " added to invoice $invoice_prefix$invoice_number - $pi_id $extended_log_desc", $client_id, $invoice_id);
         customAction('invoice_pay', $invoice_id);
 

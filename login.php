@@ -4,7 +4,7 @@
 header("Content-Security-Policy: default-src 'self'");
 
 if (!file_exists('config.php')) {
-    redirect("setup");
+    header("Location: /setup"); //must use header instead of redirect as functions isnt included yet.
 }
 
 require_once "config.php";
@@ -195,7 +195,7 @@ if (isset($_POST['login'])) {
 
             // Forcing MFA
             if ($force_mfa == 1 && $token == NULL) {
-                $config_start_page = "mfa_enforcement.php";
+                $config_start_page = "user/mfa_enforcement.php";
             }
 
             // Setup encryption session key
@@ -218,7 +218,7 @@ if (isset($_POST['login'])) {
             if (isset($_GET['last_visited'])) {
                 redirect($_SERVER["REQUEST_SCHEME"] . "://" . $config_base_url . base64_decode($_GET['last_visited']) );
             } else {
-                redirect("user/$config_start_page");
+                redirect("agent/$config_start_page");
             }
         } else {
 

@@ -37,19 +37,19 @@ $session_company_name = $row['company_name'];
     If Fav Icon exists else use the default one 
     -->
     <?php if(file_exists('../uploads/favicon.ico')) { ?>
-        <link rel="icon" type="image/x-icon" href="../uploads/favicon.ico">
+        <link rel="icon" type="image/x-icon" href="/uploads/favicon.ico">
     <?php } ?>
 
     <!-- Font Awesome Icons -->
-    <link rel="stylesheet" href="../plugins/fontawesome-free/css/all.min.css">
+    <link rel="stylesheet" href="/plugins/fontawesome-free/css/all.min.css">
     <!-- Theme style -->
-    <link rel="stylesheet" href="../plugins/adminlte/css/adminlte.min.css">
+    <link rel="stylesheet" href="/plugins/adminlte/css/adminlte.min.css">
 
     <!-- Custom Style Sheet -->
-    <link href="../plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css" rel="stylesheet" type="text/css">
-    <link href="../plugins/select2/css/select2.min.css" rel="stylesheet" type="text/css">
-    <link href="../plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css" rel="stylesheet" type="text/css">
-    <link href='../plugins/daterangepicker/daterangepicker.css' rel='stylesheet' />
+    <link href="/plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css" rel="stylesheet" type="text/css">
+    <link href="/plugins/select2/css/select2.min.css" rel="stylesheet" type="text/css">
+    <link href="/plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css" rel="stylesheet" type="text/css">
+    <link href='/plugins/daterangepicker/daterangepicker.css' rel='stylesheet' />
 
 </head>
 <body class="layout-top-nav">

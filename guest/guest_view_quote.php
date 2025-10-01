@@ -112,7 +112,7 @@ mysqli_query($mysqli, "INSERT INTO history SET history_status = '$quote_status',
 
 if ($quote_status == "Draft" || $quote_status == "Sent" || $quote_status == "Viewed") {
 
-    appNotify("Quote Viewed", "Quote $quote_prefix$quote_number has been viewed by $client_name_escaped - $ip - $os - $browser", "quote.php?quote_id=$quote_id", $client_id);
+    appNotify("Quote Viewed", "Quote $quote_prefix$quote_number has been viewed by $client_name_escaped - $ip - $os - $browser", "/agent/quote.php?quote_id=$quote_id", $client_id);
 }
 
 ?>

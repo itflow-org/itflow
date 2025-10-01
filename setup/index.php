@@ -13,7 +13,7 @@ if (!isset($config_enable_setup)) {
 }
 
 if ($config_enable_setup == 0) {
-    header("Location: ../login.php");
+    header("Location: /login.php");
     exit;
 }
 
@@ -203,7 +203,7 @@ if (isset($_POST['restore'])) {
     }
 
     // === 5. Restore uploads directory ===
-    $uploadDir = __DIR__ . "../uploads/";
+    $uploadDir = __DIR__ . "/../uploads/";
     $uploadsZip = "$tempDir/uploads.zip";
 
     if (file_exists($uploadsZip)) {
@@ -440,7 +440,7 @@ if (isset($_POST['add_company_settings'])) {
     // Payment Methods
     mysqli_query($mysqli,"INSERT INTO payment_methods SET payment_method_name = 'Cash'");
     mysqli_query($mysqli,"INSERT INTO payment_methods SET payment_method_name = 'Check'");
-    mysqli_query($mysqli,"INSERT INTO payment_methods SET payment_method_name = 'ACH'");
+    mysqli_query($mysqli,"INSERT INTO payment_methods SET payment_method_name = 'Bank Transfer'");
     mysqli_query($mysqli,"INSERT INTO payment_methods SET payment_method_name = 'Credit Card'");
 
     // Default Calendar
@@ -582,12 +582,12 @@ if (isset($_POST['add_telemetry'])) {
     <title>ITFlow Setup</title>
 
     <!-- Font Awesome Icons -->
-    <link rel="stylesheet" href="../plugins/fontawesome-free/css/all.min.css">
+    <link rel="stylesheet" href="/plugins/fontawesome-free/css/all.min.css">
     <!-- Theme style -->
-    <link rel="stylesheet" href="../plugins/adminlte/css/adminlte.min.css">
+    <link rel="stylesheet" href="/plugins/adminlte/css/adminlte.min.css">
     <!-- Custom Style Sheet -->
-    <link href="../plugins/select2/css/select2.min.css" rel="stylesheet" type="text/css">
-    <link href="../plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css" rel="stylesheet" type="text/css">
+    <link href="/plugins/select2/css/select2.min.css" rel="stylesheet" type="text/css">
+    <link href="/plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css" rel="stylesheet" type="text/css">
 
 </head>
 
@@ -712,8 +712,6 @@ if (isset($_POST['add_telemetry'])) {
                     // Section: PHP Extensions
                     $phpExtensions = [];
                     $extensions = [
-                        'php-mailparse' => 'mailparse',
-                        'php-imap' => 'imap',
                         'php-mysqli' => 'mysqli',
                         'php-intl' => 'intl',
                         'php-curl' => 'curl',
@@ -1020,7 +1018,7 @@ if (isset($_POST['add_telemetry'])) {
                         </div>
                         <div class="card-body">
                             <?php
-                            if (file_exists('config.php')) {
+                            if (file_exists('../config.php')) {
 
                                 echo "<p>Database is already configured. Any further changes should be made by editing the <code>config.php</code> file.</p>";
 
@@ -1476,17 +1474,17 @@ if (isset($_POST['add_telemetry'])) {
 <!-- REQUIRED SCRIPTS -->
 
 <!-- jQuery -->
-<script src="../plugins/jquery/jquery.min.js"></script>
+<script src="/plugins/jquery/jquery.min.js"></script>
 <!-- Bootstrap 4 -->
-<script src="../plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+<script src="/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
 <!-- Custom js-->
-<script src='../plugins/select2/js/select2.min.js'></script>
-<script src="../plugins/Show-Hide-Passwords-Bootstrap-4/bootstrap-show-password.min.js"></script>
+<script src='/plugins/select2/js/select2.min.js'></script>
+<script src="/plugins/Show-Hide-Passwords-Bootstrap-4/bootstrap-show-password.min.js"></script>
 <!-- AdminLTE App -->
-<script src="../plugins/adminlte/js/adminlte.min.js"></script>
+<script src="/plugins/adminlte/js/adminlte.min.js"></script>
 
 <!-- Custom js-->
-<script src="../js/app.js"></script>
+<script src="/js/app.js"></script>
 
 </body>
 

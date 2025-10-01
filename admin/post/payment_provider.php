@@ -15,10 +15,10 @@ if (isset($_POST['add_payment_provider'])) {
     $private_key = sanitizeInput($_POST['private_key']);
     $threshold = floatval($_POST['threshold']);
     $enable_expense = intval($_POST['enable_expense'] ?? 0);
-    $percentage_fee = floatval($_POST['percentage_fee']) / 100;
-    $flat_fee = floatval($_POST['flat_fee']);
+    $percentage_fee = floatval($_POST['percentage_fee']) / 100 ?? 0;
+    $flat_fee = floatval($_POST['flat_fee']) ?? 0;
 
-    // Check to make sure Provider isnt added Twice
+    // Check to ensure provider isn't added twice
     $sql = "SELECT 1 FROM payment_providers WHERE payment_provider_name = '$provider' LIMIT 1";
     $result = mysqli_query($mysqli, $sql);
     if (mysqli_num_rows($result) > 0) {
@@ -26,7 +26,7 @@ if (isset($_POST['add_payment_provider'])) {
         redirect();
     }
 
-    // Check for Stripe Account if not create it
+    // Check for Stripe Account, if not create it
     $sql_account = mysqli_query($mysqli,"SELECT account_id FROM accounts WHERE account_name = '$provider' AND account_archived_at IS NULL LIMIT 1");
     if (mysqli_num_rows($sql_account) == 0) {
         $account_id = mysqli_insert_id($mysqli);
@@ -34,6 +34,10 @@ if (isset($_POST['add_payment_provider'])) {
         $row = mysqli_fetch_array($sql_account);
         $account_id = intval($row['account_id']);
     }
+
+    // Expense defaults
+    $category_id = 0;
+    $vendor_id = 0;
 
     if ($enable_expense) {
         // Category
@@ -45,7 +49,7 @@ if (isset($_POST['add_payment_provider'])) {
             $row = mysqli_fetch_array($sql_category);
             $category_id = intval($row['category_id']);
         }
-        //Vendor
+        // Vendor
         $sql_vendor = mysqli_query($mysqli,"SELECT vendor_id FROM vendors WHERE vendor_name = '$provider' AND vendor_client_id = 0 AND vendor_archived_at IS NULL LIMIT 1");
         if (mysqli_num_rows($sql_vendor) == 0) {
             mysqli_query($mysqli,"INSERT INTO vendors SET vendor_name = '$provider', vendor_description = 'Payment Processor Provider', vendor_client_id = 0");
@@ -56,7 +60,7 @@ if (isset($_POST['add_payment_provider'])) {
         }
     }
 
-    mysqli_query($mysqli,"INSERT INTO payment_providers SET payment_provider_name = '$provider', payment_provider_public_key = '$public_key', payment_provider_private_key = '$private_key', payment_provider_account = $account_id, payment_provider_expense_vendor = $vendor_id, payment_provider_expense_category = $category_id, payment_provider_expense_percentage_fee = $percentage_fee, payment_provider_expense_flat_fee = $flat_fee");
+    mysqli_query($mysqli,"INSERT INTO payment_providers SET payment_provider_name = '$provider', payment_provider_public_key = '$public_key', payment_provider_private_key = '$private_key', payment_provider_threshold = $threshold, payment_provider_account = $account_id, payment_provider_expense_vendor = $vendor_id, payment_provider_expense_category = $category_id, payment_provider_expense_percentage_fee = $percentage_fee, payment_provider_expense_flat_fee = $flat_fee");
 
     $provider_id = mysqli_insert_id($mysqli);
 
@@ -81,7 +85,7 @@ if (isset($_POST['edit_payment_provider'])) {
     $percentage_fee = floatval($_POST['percentage_fee']) / 100;
     $flat_fee = floatval($_POST['flat_fee']);
 
-    mysqli_query($mysqli,"UPDATE payment_providers SET payment_provider_public_key = '$public_key', payment_provider_private_key = '$private_key', payment_provider_expense_percentage_fee = $percentage_fee, payment_provider_expense_flat_fee = $flat_fee WHERE payment_provider_id = $provider_id");
+    mysqli_query($mysqli,"UPDATE payment_providers SET payment_provider_public_key = '$public_key', payment_provider_private_key = '$private_key', payment_provider_threshold = $threshold, payment_provider_expense_percentage_fee = $percentage_fee, payment_provider_expense_flat_fee = $flat_fee WHERE payment_provider_id = $provider_id");
 
     logAction("Payment Provider", "Edit", "$session_name edited Payment Provider $provider");
 
@@ -92,11 +96,14 @@ if (isset($_POST['edit_payment_provider'])) {
 }
 
 if (isset($_GET['delete_payment_provider'])) {
+
+    validateCSRFToken($_GET['csrf_token']);
     
     $provider_id = intval($_GET['delete_payment_provider']);
 
-    $provider_name = sanitizeInput(getFieldById('provider_providers', $provider_id, 'provider_name'));
+    $provider_name = sanitizeInput(getFieldById('payment_providers', $provider_id, 'provider_name'));
 
+    // Delete provider
     mysqli_query($mysqli,"DELETE FROM payment_providers WHERE payment_provider_id = $provider_id");
 
     logAction("Payment Provider", "Delete", "$session_name deleted Payment Provider $provider_name");

@@ -1,3 +1,3 @@
 <?php 
 // Redirect to the portal
-header("Location: ../client/");
+header("Location: /client");

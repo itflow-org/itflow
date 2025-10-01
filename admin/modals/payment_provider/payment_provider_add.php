@@ -58,7 +58,7 @@
                             </div>
                             <input type="text" class="form-control" inputmode="numeric" pattern="[0-9]*\.?[0-9]{0,2}" name="threshold" placeholder="1000.00">
                         </div>
-                        <small class="form-text text-muted">Will not show as an option at Checkout if above this number</small>
+                        <small class="form-text text-muted">Will not show as an option at Checkout if invoice amount is above this number, 0 disables the threshold check.</small>
                     </div>
 
                     <hr>

@@ -236,15 +236,19 @@ if (isset($_GET['revoke_remember_me'])) {
 
 }
 
-if (isset($_GET['archive_user'])) {
+if (isset($_POST['archive_user'])) {
 
-    validateCSRFToken($_GET['csrf_token']);
+    validateCSRFToken($_POST['csrf_token']);
 
-    // Variables from GET
-    $user_id = intval($_GET['archive_user']);
+    $user_id = intval($_POST['user_id']);
+    $ticket_assign = intval($_POST['ticket_assign']);
     $password = password_hash(randomString(), PASSWORD_DEFAULT);
 
     $user_name = sanitizeInput(getFieldById('users', $user_id, 'user_name'));
+
+    // Un-assign / Re-assign tickets
+    mysqli_query($mysqli, "UPDATE tickets SET ticket_assigned_to = $ticket_assign WHERE ticket_assigned_to = $user_id AND ticket_closed_at IS NULL AND ticket_resolved_at IS NULL");
+    mysqli_query($mysqli, "UPDATE recurring_tickets SET recurring_ticket_assigned_to = $ticket_assign WHERE recurring_ticket_assigned_to = $user_id");
 
     // Archive user query
     mysqli_query($mysqli, "UPDATE users SET user_name = '$user_name (archived)', user_password = '$password', user_status = 0, user_specific_encryption_ciphertext = '', user_archived_at = NOW() WHERE user_id = $user_id");
@@ -252,6 +256,36 @@ if (isset($_GET['archive_user'])) {
     logAction("User", "Archive", "$session_name archived user $user_name", 0, $user_id);
 
     flash_alert("User <strong>$user_name</strong> archived", 'error');
+
+    redirect();
+
+}
+
+if (isset($_POST['restore_user'])) {
+
+    validateCSRFToken($_POST['csrf_token']);
+
+    $user_id = intval($_POST['user_id']);
+    $new_password = trim($_POST['new_password']);
+    $role = intval($_POST['role']);
+
+    $user_name = getFieldById('users', $user_id, 'user_name');
+    $user_name = sanitizeInput(str_replace(" (archived)", "", $user_name)); //Removed (archived) from user_name
+
+    // Restore user query
+    mysqli_query($mysqli, "UPDATE users SET user_name = '$user_name', user_status = 1, user_role_id = $role, user_archived_at = NULL WHERE user_id = $user_id");
+
+    if (!empty($new_password)) {
+        $new_password = password_hash($new_password, PASSWORD_DEFAULT);
+        $user_specific_encryption_ciphertext = encryptUserSpecificKey(trim($_POST['new_password']));
+        mysqli_query($mysqli, "UPDATE users SET user_password = '$new_password', user_specific_encryption_ciphertext = '$user_specific_encryption_ciphertext' WHERE user_id = $user_id");
+        //Extended Logging
+        $extended_log_description .= ", password changed";
+    }
+
+    logAction("User", "Restored", "$session_name restored user $user_name", 0, $user_id);
+
+    flash_alert("User <strong>$user_name</strong> restored");
 
     redirect();
 

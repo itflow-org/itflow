@@ -2,6 +2,44 @@
 
 This file documents all notable changes made to ITFlow.
 
+## [25.10]
+
+### Breaking Changes
+- Renamed `/user/` directory to `/agent/`.
+- Deprecation Notice: `/scripts/cron_mail_queue.php` and `/scripts/cron_ticket_email_parser.php` are being phased out. Please transition to `/cron/mail_queue.php` and `/cron/ticket_email_parser.php`. These older scripts will be removed in the November release—update accordingly. New Installs via the script will have this already configured.
+- Custom is working now. Custom code should be placed in /admin/custom/ , /agent/custom/ , /client/custom/ /guest/custom/
+We will provide example code with directory structure for each custom directory a week after this release.
+
+### Fixes
+- Resolved issue with "Restore from Setup" not functioning correctly.
+- Corrected asset name display in logs and flash messages when editing an asset in a ticket.
+- Fixed Payment Provider Threshold not being applied.
+- Fixed issue where Threshold setting was not saving properly.
+- Various minor fixes for Payment Provider issues.
+- Removed leads from the client selection list in the "New Ticket" modal.
+- Fixed issues with the MFA modal.
+- Resolved MFA enforcement bugs.
+- Fixed KeepAlive functionality to maintain user sessions longer.
+- Fixed multiple broken links caused by the `/user/` to `/agent/` path migration.
+- Fixed Custom code directories.
+
+### Added / Changed
+- Removed "ACH" as a payment method; added "Bank Transfer" instead.
+- Replaced relative paths with absolute paths for web assets.
+- Tickets can now be resolved via the API.
+- Added a filter for Archived Users and an option to restore them.
+- Introduced a modal when archiving users, allowing reassignment of open and recurring tickets to another agent.
+- Improved logic for determining the index/root page.
+- Added "Assigned Agent" column for recurring tickets.
+- Introduced "Additional Assets" option when editing assets in tickets; modal now uses the updated AJAX method.
+- Added Gibraltar to the list of supported countries.
+- Added Custom Link Option for the Admin Nav.
+- Added Custom Link Option for the Reports Nav.
+
+### Other notes
+- Major releases will happen on the first week of every Month.
+
+
 ## [25.09.2]
 
 ### Fixes

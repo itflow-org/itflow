@@ -112,7 +112,7 @@ mysqli_query($mysqli, "INSERT INTO history SET history_status = '$invoice_status
 
 if ($invoice_status !== 'Paid') {
     
-    appNotify("Invoice Viewed", "Invoice $invoice_prefix$invoice_number has been viewed by $client_name_escaped - $ip - $os - $browser", "invoice.php?invoice_id=$invoice_id", $client_id);
+    appNotify("Invoice Viewed", "Invoice $invoice_prefix$invoice_number has been viewed by $client_name_escaped - $ip - $os - $browser", "/agent/invoice.php?invoice_id=$invoice_id", $client_id);
     
 }
 $sql_payments = mysqli_query($mysqli, "SELECT * FROM payments, accounts WHERE payment_account_id = account_id AND payment_invoice_id = $invoice_id ORDER BY payments.payment_id DESC");
@@ -173,7 +173,15 @@ if ($balance > 0) {
                         <i class="fa fa-fw fa-download mr-2"></i>Download
                     </a>
                     <?php
-                    if ($invoice_status !== "Paid" && $invoice_status  !== "Cancelled" && $invoice_status !== "Draft" && $payment_provider_id) { ?>
+                    if ($invoice_status !== "Paid" &&
+                        $invoice_status  !== "Cancelled" &&
+                        $invoice_status !== "Draft" &&
+                        $payment_provider_id &&
+                        (
+                            $payment_provider_threshold == 0 ||
+                            $payment_provider_threshold > $invoice_amount
+                        ) 
+                    ){ ?>
                         <a class="btn btn-success" href="guest_pay_invoice_stripe.php?invoice_id=<?php echo $invoice_id; ?>&url_key=<?php echo $url_key; ?>"><i class="fa fa-fw fa-credit-card mr-2"></i>Pay Now </a>
                     <?php } ?>
                 </div>
