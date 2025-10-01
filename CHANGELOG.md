@@ -2,6 +2,40 @@
 
 This file documents all notable changes made to ITFlow.
 
+## [25.10]
+
+### Breaking Changes
+- Renamed `/user/` directory to `/agent/`.
+- Stripe users: Payment Provider Threshold is now enforced. Be sure to configure your desired threshold amount. (It is set to 0 by default) meaning nonone can pay via stripe. If the invoice amount is greater than than the Threshold amount, clients will not be able to pay that invoice via Stripe Pay.
+- Deprecation Notice: `/scripts/cron_mail_queue.php` and `/scripts/cron_ticket_email_parser.php` are being phased out. Please transition to `/cron/mail_queue.php` and `/cron/ticket_email_parser.php`. These older scripts will be removed in the November release—update accordingly.
+
+### Fixes
+- Resolved issue with "Restore from Setup" not functioning correctly.
+- Corrected asset name display in logs and flash messages when editing an asset in a ticket.
+- Fixed Payment Provider Threshold not being applied.
+- Fixed issue where Threshold setting was not saving properly.
+- Various minor fixes for Payment Provider issues.
+- Removed leads from the client selection list in the "New Ticket" modal.
+- Fixed issues with the MFA modal.
+- Resolved MFA enforcement bugs.
+- Fixed KeepAlive functionality to maintain user sessions longer.
+- Fixed multiple broken links caused by the `/user/` to `/agent/` path migration.
+
+### Added / Changed
+- Removed "ACH" as a payment method; added "Bank Transfer" instead.
+- Replaced relative paths with absolute paths for web assets.
+- Tickets can now be resolved via the API.
+- Added a filter for Archived Users and an option to restore them.
+- Introduced a modal when archiving users, allowing reassignment of open and recurring tickets to another agent.
+- Improved logic for determining the index/root page.
+- Added "Assigned Agent" column for recurring tickets.
+- Introduced "Additional Assets" option when editing assets in tickets; modal now uses the updated AJAX method.
+- Added Gibraltar to the list of supported countries.
+
+### Other notes
+- Major releases will happen on the first week of every Month.
+
+
 ## [25.09.2]
 
 ### Fixes
