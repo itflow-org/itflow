@@ -7,7 +7,7 @@ This file documents all notable changes made to ITFlow.
 ### Breaking Changes
 - Renamed `/user/` directory to `/agent/`.
 - Stripe users: Payment Provider Threshold is now enforced. Be sure to configure your desired threshold amount. (It is set to 0 by default) meaning nonone can pay via stripe. If the invoice amount is greater than than the Threshold amount, clients will not be able to pay that invoice via Stripe Pay.
-- Deprecation Notice: `/scripts/cron_mail_queue.php` and `/scripts/cron_ticket_email_parser.php` are being phased out. Please transition to `/cron/mail_queue.php` and `/cron/ticket_email_parser.php`. These older scripts will be removed in the November release—update accordingly.
+- Deprecation Notice: `/scripts/cron_mail_queue.php` and `/scripts/cron_ticket_email_parser.php` are being phased out. Please transition to `/cron/mail_queue.php` and `/cron/ticket_email_parser.php`. These older scripts will be removed in the November release—update accordingly. New Installs via the script will have this already configured.
 
 ### Fixes
 - Resolved issue with "Restore from Setup" not functioning correctly.
