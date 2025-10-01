@@ -66,6 +66,7 @@
                                 <option value="1">Main Side Nav</option>
                                 <option value="2">Top Nav (Icon Required)</option>
                                 <option value="3">Client Portal Nav</option>
+                                <option value="4">Admin Nav</option>
                             </select>
                         </div>
                     </div>

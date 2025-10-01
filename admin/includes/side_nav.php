@@ -277,6 +277,36 @@
                         </li>
                     </ul>
                 </li>
+
+                <?php
+                $sql_custom_links = mysqli_query($mysqli, "SELECT * FROM custom_links 
+                    WHERE custom_link_location = 4 AND custom_link_archived_at IS NULL
+                    ORDER BY custom_link_order ASC, custom_link_name ASC"
+                );
+
+                while ($row = mysqli_fetch_array($sql_custom_links)) {
+                    $custom_link_name = nullable_htmlentities($row['custom_link_name']);
+                    $custom_link_uri = sanitize_url($row['custom_link_uri']);
+                    $custom_link_icon = nullable_htmlentities($row['custom_link_icon']);
+                    $custom_link_new_tab = intval($row['custom_link_new_tab']);
+                    if ($custom_link_new_tab == 1) {
+                        $target = "target='_blank' rel='noopener noreferrer'";
+                    } else {
+                        $target = "";
+                    }
+
+                    ?>
+
+                <li class="nav-item">
+                    <a href="<?php echo $custom_link_uri; ?>" <?php echo $target; ?> class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == basename($custom_link_uri)) { echo "active"; } ?>">
+                        <i class="fas fa-<?php echo $custom_link_icon; ?> nav-icon"></i>
+                        <p><?php echo $custom_link_name; ?></p>
+                        <i class="fas fa-angle-right nav-icon float-right"></i>
+                    </a>
+                </li>
+
+                <?php } ?>
+
             </ul>
         </nav>
         <!-- /.sidebar-menu -->

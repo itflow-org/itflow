@@ -96,6 +96,8 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             $custom_link_location_display = "Top Nav";
                         } elseif ($custom_link_location == 3) {
                             $custom_link_location_display = "Client Portal Nav";
+                        } elseif ($custom_link_location == 4) {
+                            $custom_link_location_display = "Admin Nav";
                         }
 
                         ?>
