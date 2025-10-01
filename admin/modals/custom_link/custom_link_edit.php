@@ -85,6 +85,7 @@ ob_start();
                     <option value="2" <?php if ($custom_link_location === 2) { echo "selected"; } ?> >Top Nav (Icon Required)</option>
                     <option value="3" <?php if ($custom_link_location === 3) { echo "selected"; } ?> >Client Portal Nav</option>
                     <option value="4" <?php if ($custom_link_location === 4) { echo "selected"; } ?> >Admin Nav</option>
+                    <option value="5" <?php if ($custom_link_location === 5) { echo "selected"; } ?> >Reports Nav</option>
                 </select>
             </div>
         </div>
