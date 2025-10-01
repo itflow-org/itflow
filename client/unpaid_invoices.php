@@ -142,9 +142,16 @@ $balance = $invoice_amounts - $amount_paid;
                     <td><?php echo $invoice_date; ?></td>
                     <td class="<?php echo $overdue_color; ?>"><?php echo $invoice_due; ?></td>
                     <td>
-                        <?php 
-                        if ($invoice_status !== "Paid" && $invoice_status  !== "Cancelled" && $invoice_status !== "Draft" && $payment_provider_id && $payment_provider_threshold > $invoice_amount) {
-                        ?>
+                        <?php
+                        if ($invoice_status !== "Paid" &&
+                            $invoice_status  !== "Cancelled" &&
+                            $invoice_status !== "Draft" &&
+                            $payment_provider_id &&
+                            (
+                                $payment_provider_threshold == 0 ||
+                                $payment_provider_threshold > $invoice_amount
+                            ) 
+                        ){ ?>
                         <button type="button" class="btn btn-sm btn-outline-success dropdown-toggle" data-toggle="dropdown"><i class="fa fa-fw fa-credit-card mr-2"></i>Pay</button>
                         <div class="dropdown-menu">
                             <a class="dropdown-item" href="//<?php echo $config_base_url ?>/guest/guest_pay_invoice_stripe.php?invoice_id=<?php echo "$invoice_id&url_key=$invoice_url_key"; ?>">Enter Card Manually</a>

@@ -173,7 +173,15 @@ if ($balance > 0) {
                         <i class="fa fa-fw fa-download mr-2"></i>Download
                     </a>
                     <?php
-                    if ($invoice_status !== "Paid" && $invoice_status  !== "Cancelled" && $invoice_status !== "Draft" && $payment_provider_id && $payment_provider_threshold > $invoice_amount) { ?>
+                    if ($invoice_status !== "Paid" &&
+                        $invoice_status  !== "Cancelled" &&
+                        $invoice_status !== "Draft" &&
+                        $payment_provider_id &&
+                        (
+                            $payment_provider_threshold == 0 ||
+                            $payment_provider_threshold > $invoice_amount
+                        ) 
+                    ){ ?>
                         <a class="btn btn-success" href="guest_pay_invoice_stripe.php?invoice_id=<?php echo $invoice_id; ?>&url_key=<?php echo $url_key; ?>"><i class="fa fa-fw fa-credit-card mr-2"></i>Pay Now </a>
                     <?php } ?>
                 </div>

@@ -56,9 +56,9 @@
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fa fa-fw fa-shopping-cart"></i></span>
                             </div>
-                            <input type="text" class="form-control" inputmode="numeric" pattern="[0-9]*\.?[0-9]{0,2}" name="threshold" value="5000.00" placeholder="9999.00">
+                            <input type="text" class="form-control" inputmode="numeric" pattern="[0-9]*\.?[0-9]{0,2}" name="threshold" placeholder="1000.00">
                         </div>
-                        <small class="form-text text-muted">Will not show as an option at Checkout if above this number</small>
+                        <small class="form-text text-muted">Will not show as an option at Checkout if invoice amount is above this number, 0 disables the threshold check.</small>
                     </div>
 
                     <hr>

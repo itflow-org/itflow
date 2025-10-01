@@ -6,7 +6,6 @@ This file documents all notable changes made to ITFlow.
 
 ### Breaking Changes
 - Renamed `/user/` directory to `/agent/`.
-- Stripe users: Payment Provider Threshold is now enforced. Be sure to configure your desired threshold amount. (It is set to 0 by default) meaning nonone can pay via stripe. If the invoice amount is greater than than the Threshold amount, clients will not be able to pay that invoice via Stripe Pay.
 - Deprecation Notice: `/scripts/cron_mail_queue.php` and `/scripts/cron_ticket_email_parser.php` are being phased out. Please transition to `/cron/mail_queue.php` and `/cron/ticket_email_parser.php`. These older scripts will be removed in the November release—update accordingly. New Installs via the script will have this already configured.
 - Custom is working now. Custom code should be placed in /admin/custom/ , /agent/custom/ , /client/custom/ /guest/custom/
 We will provide example code with directory structure for each custom directory a week after this release.
@@ -22,7 +21,7 @@ We will provide example code with directory structure for each custom directory 
 - Resolved MFA enforcement bugs.
 - Fixed KeepAlive functionality to maintain user sessions longer.
 - Fixed multiple broken links caused by the `/user/` to `/agent/` path migration.
-- Fixed Cusom
+- Fixed Custom code directories.
 
 ### Added / Changed
 - Removed "ACH" as a payment method; added "Bank Transfer" instead.
