@@ -19,7 +19,7 @@ header("X-Frame-Options: DENY"); // Legacy
     <meta name="robots" content="noindex">
 
     <!-- Favicon: If Fav Icon exists, else use the default one -->
-    <?php if (file_exists('../uploads/favicon.ico')) { ?>
+    <?php if(file_exists($_SERVER['DOCUMENT_ROOT'] . '/uploads/favicon.ico')) { ?>
         <link rel="icon" type="image/x-icon" href="/uploads/favicon.ico">
     <?php } ?>
 
