@@ -4027,10 +4027,16 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
         mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '2.3.5'");
     }
     
-    // if (CURRENT_DATABASE_VERSION == '2.3.4') {
-    //     // Insert queries here required to update to DB version 2.3.4
+    if (CURRENT_DATABASE_VERSION == '2.3.5') {
+        mysqli_query($mysqli, "ALTER TABLE `settings` CHANGE `config_smtp_provider` `config_smtp_provider` VARCHAR(200) DEFAULT NULL");
+        mysqli_query($mysqli, "ALTER TABLE `settings` CHANGE `config_imap_provider` `config_imap_provider` VARCHAR(200) DEFAULT NULL");
+        mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '2.3.6'");
+    }
+
+    // if (CURRENT_DATABASE_VERSION == '2.3.5') {
+    //     // Insert queries here required to update to DB version 2.3.5
     //     // Then, update the database to the next sequential version
-    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '2.3.5'");
+    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '2.3.6'");
     // }
 
 } else {

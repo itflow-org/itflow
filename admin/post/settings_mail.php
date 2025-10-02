@@ -6,7 +6,7 @@ if (isset($_POST['edit_mail_smtp_settings'])) {
     
     validateCSRFToken($_POST['csrf_token']);
 
-    $config_smtp_provider            = sanitizeInput($_POST['config_smtp_provider'] ?? 'standard_smtp');
+    $config_smtp_provider            = sanitizeInput($_POST['config_smtp_provider']);
     $config_smtp_host                = sanitizeInput($_POST['config_smtp_host']);
     $config_smtp_port                = intval($_POST['config_smtp_port'] ?? 0);
     $config_smtp_encryption          = sanitizeInput($_POST['config_smtp_encryption']);
@@ -22,7 +22,7 @@ if (isset($_POST['edit_mail_smtp_settings'])) {
 
     mysqli_query($mysqli, "
         UPDATE settings SET
-            config_smtp_provider              = " . ($config_smtp_provider === 'none' ? "NULL" : "'$config_smtp_provider'") . ",
+            config_smtp_provider              = '$config_smtp_provider',
             config_smtp_host                  = '$config_smtp_host',
             config_smtp_port                  = $config_smtp_port,
             config_smtp_encryption            = '$config_smtp_encryption',
@@ -48,7 +48,7 @@ if (isset($_POST['edit_mail_imap_settings'])) {
     
     validateCSRFToken($_POST['csrf_token']);
 
-    $config_imap_provider            = sanitizeInput($_POST['config_imap_provider'] ?? 'standard_imap');
+    $config_imap_provider            = sanitizeInput($_POST['config_imap_provider']);
     $config_imap_host                = sanitizeInput($_POST['config_imap_host']);
     $config_imap_port                = intval($_POST['config_imap_port'] ?? 0);
     $config_imap_encryption          = sanitizeInput($_POST['config_imap_encryption']);
@@ -64,7 +64,7 @@ if (isset($_POST['edit_mail_imap_settings'])) {
 
     mysqli_query($mysqli, "
         UPDATE settings SET
-            config_imap_provider              = " . ($config_imap_provider === 'none' ? "NULL" : "'$config_imap_provider'") . ",
+            config_imap_provider              = '$config_imap_provider',
             config_imap_host                  = '$config_imap_host',
             config_imap_port                  = $config_imap_port,
             config_imap_encryption            = '$config_imap_encryption',

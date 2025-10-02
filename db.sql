@@ -1981,7 +1981,7 @@ CREATE TABLE `settings` (
   `company_id` int(11) NOT NULL,
   `config_current_database_version` varchar(10) NOT NULL,
   `config_start_page` varchar(200) DEFAULT 'clients.php',
-  `config_smtp_provider` enum('standard_smtp','google_oauth','microsoft_oauth') DEFAULT NULL,
+  `config_smtp_provider` varchar(200) DEFAULT NULL,
   `config_smtp_host` varchar(200) DEFAULT NULL,
   `config_smtp_port` int(5) DEFAULT NULL,
   `config_smtp_encryption` varchar(200) DEFAULT NULL,
@@ -1989,7 +1989,7 @@ CREATE TABLE `settings` (
   `config_smtp_password` varchar(200) DEFAULT NULL,
   `config_mail_from_email` varchar(200) DEFAULT NULL,
   `config_mail_from_name` varchar(200) DEFAULT NULL,
-  `config_imap_provider` enum('standard_imap','google_oauth','microsoft_oauth') DEFAULT NULL,
+  `config_imap_provider` varchar(200) DEFAULT NULL,
   `config_mail_oauth_client_id` varchar(255) DEFAULT NULL,
   `config_mail_oauth_client_secret` varchar(255) DEFAULT NULL,
   `config_mail_oauth_tenant_id` varchar(255) DEFAULT NULL,
@@ -2819,4 +2819,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-09-25 17:24:06
+-- Dump completed on 2025-10-02 14:27:24
