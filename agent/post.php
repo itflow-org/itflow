@@ -26,7 +26,7 @@ $module = str_ireplace('_details', '', $module);
 // Dynamically load admin-related module POST logic
 
 // Load all module POST logic
-//  Loads everything in post/user/
+//  Loads everything in post
 //  Eventually, it would be nice to only specifically load what we need like we do for admins
 
 foreach (glob("post/*.php") as $user_module) {
