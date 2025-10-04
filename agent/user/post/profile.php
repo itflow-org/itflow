@@ -12,7 +12,7 @@ if (isset($_POST['edit_your_user_details'])) {
 
     $name = sanitizeInput($_POST['name']);
     $email = sanitizeInput($_POST['email']);
-    $signature = sanitizeInput($_POST['signature']);
+    $signature = mysqli_escape_string($mysqli,$_POST['signature']);
 
     $existing_file_name = sanitizeInput(getFieldById('users', $session_user_id, 'user_avatar'));
 
