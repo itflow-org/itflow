@@ -215,8 +215,13 @@ if (isset($_POST['login'])) {
                 //}
 
             }
-            if (isset($_GET['last_visited'])) {
+
+            // Redirect to last visited or config home
+
+            if (isset($_GET['last_visited']) && (str_starts_with(base64_decode($_GET['last_visited']), '/agent') || str_starts_with(base64_decode($_GET['last_visited']), '/admin'))) {
+
                 redirect($_SERVER["REQUEST_SCHEME"] . "://" . $config_base_url . base64_decode($_GET['last_visited']) );
+
             } else {
                 redirect("agent/$config_start_page");
             }
