@@ -1,13 +1,13 @@
 <?php
 
-require_once "../config.php";
-require_once "../functions.php";
-require_once "../includes/load_global_settings.php";
+require_once $_SERVER['DOCUMENT_ROOT'] . '/config.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/functions.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/load_global_settings.php';
 
 session_start();
 
 // Set Timezone
-require_once "../includes/inc_set_timezone.php";
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/inc_set_timezone.php';
 
 $ip = sanitizeInput(getIP());
 $user_agent = sanitizeInput($_SERVER['HTTP_USER_AGENT']);
