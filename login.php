@@ -3,11 +3,21 @@
 // Enforce a Content Security Policy for security against cross-site scripting
 header("Content-Security-Policy: default-src 'self'");
 
+// Check if the config.php file exists
 if (!file_exists('config.php')) {
-    header("Location: /setup"); //must use header instead of redirect as functions isnt included yet.
+    // Redirect to the setup page if config.php doesn't exist
+    header("Location: /setup"); // Must use header as functions aren't included yet
+    exit();
 }
 
 require_once "config.php";
+
+// Check if setup mode is enabled or the variable is missing
+if (!isset($config_enable_setup) || $config_enable_setup == 1) {
+    // Redirect to the setup page
+    header("Location: /setup");
+    exit();
+}
 
 // Set Timezone
 require_once "includes/inc_set_timezone.php";
