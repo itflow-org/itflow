@@ -56,8 +56,6 @@ $git_log = shell_exec("git log $repo_branch..origin/$repo_branch --pretty=format
                         <p class="text-center font-weight-bold">Ignore this warning at your own risk.</p>
                     </div>
 
-                    <a class="btn btn-primary btn-lg my-4 confirm-link" href="post.php?no"><i class="fas fa-fw fa-4x fa-download mb-1"></i><h5>TEST</h5></a>
-
                     <a class="btn btn-primary btn-lg my-4 confirm-link" href="post.php?update"><i class="fas fa-fw fa-4x fa-download mb-1"></i><h5>Update App</h5></a>
                     <a class="btn btn-danger btn-lg confirm-link" href="post.php?update&force_update=1"><i class="fas fa-fw fa-4x fa-hammer mb-1"></i><h5>FORCE Update App</h5></a>
 
