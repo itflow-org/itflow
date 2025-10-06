@@ -1,8 +1,8 @@
 <?php
 
-require_once "../../../config.php";
-require_once "../../../functions.php";
-require_once "../../../includes/check_login.php";
+require_once $_SERVER['DOCUMENT_ROOT'] . '/config.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/functions.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/check_login.php';
 
 header('Content-Type: application/json');
 

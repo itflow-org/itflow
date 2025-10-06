@@ -2,6 +2,24 @@
 
 This file documents all notable changes made to ITFlow.
 
+## [25.10.1]
+
+### Fixes
+- Fix regression missing custom Favicon.
+- Update SMTP and IMAP provider to allow for empty strings, empty means disabled.
+- Fix Client portal Microsoft SSO Logins.
+- Fix regression in Vendor Templates.
+- Fix refression in some broken links from user to agent.
+- Fix Project edit.
+- Prevent open redirects upon agent login.
+- Fix regression on switching to Webklex IMAP to allow for no SSL/TLS in IMAP.
+- Fix Setup Redirect not behaving properly when setup hasnt been performed.
+
+### Added / Changed
+- Support for HTML Signatures.
+- Add Edit Project Functionality in a ticket.
+
+
 ## [25.10]
 
 ### Breaking Changes
