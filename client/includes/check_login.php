@@ -16,18 +16,18 @@ if (!isset($_SESSION)) {
 }
 
 if (!isset($_SESSION['client_logged_in']) || !$_SESSION['client_logged_in']) {
-    header("Location: login.php");
+    header("Location: /client/login.php");
     die;
 }
 
 // Check user type
 if ($_SESSION['user_type'] !== 2) {
-    header("Location: login.php");
+    header("Location: /client/login.php");
     exit();
 }
 
 // Set Timezone
-require_once "../includes/inc_set_timezone.php";
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/inc_set_timezone.php';
 
 // User IP & UA
 $session_ip = sanitizeInput(getIP());

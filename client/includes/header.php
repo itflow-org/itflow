@@ -20,7 +20,7 @@ header("X-Frame-Options: DENY"); // Legacy
 
     <!-- Favicon: If Fav Icon exists, else use the default one -->
     <?php if(file_exists($_SERVER['DOCUMENT_ROOT'] . '/uploads/favicon.ico')) { ?>
-        <link rel="icon" type="image/x-icon" href="/uploads/favicon.ico">
+        <link rel="icon" href="/uploads/favicon.ico">
     <?php } ?>
 
     <!-- Font Awesome -->
@@ -43,10 +43,10 @@ header("X-Frame-Options: DENY"); // Legacy
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav mr-auto">
                 <li class="nav-item <?php if (basename($_SERVER['PHP_SELF']) == "index.php") {echo "active";} ?>">
-                    <a class="nav-link" href="index.php">Home</a>
+                    <a class="nav-link" href="/client/index.php">Home</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link <?php if (basename($_SERVER['PHP_SELF']) == "tickets.php" || basename($_SERVER['PHP_SELF']) == "ticket_add.php" || basename($_SERVER['PHP_SELF']) == "ticket.php") {echo "active";} ?>" href="tickets.php">Tickets</a>
+                    <a class="nav-link <?php if (basename($_SERVER['PHP_SELF']) == "tickets.php" || basename($_SERVER['PHP_SELF']) == "ticket_add.php" || basename($_SERVER['PHP_SELF']) == "ticket.php") {echo "active";} ?>" href="/client/tickets.php">Tickets</a>
                 </li>
 
                 <?php if (($session_contact_primary == 1 || $session_contact_is_billing_contact) && $config_module_enable_accounting == 1) { ?>
@@ -55,10 +55,10 @@ header("X-Frame-Options: DENY"); // Legacy
                             Finance
                         </a>
                         <div class="dropdown-menu" aria-labelledby="navbarDropdown1">
-                            <a class="dropdown-item" href="invoices.php">Invoices</a>
-                            <a class="dropdown-item" href="recurring_invoices.php">Recurring Invoices</a>
-                            <a class="dropdown-item" href="quotes.php">Quotes</a>
-                            <a class="dropdown-item" href="saved_payment_methods.php">Saved Payments</a>
+                            <a class="dropdown-item" href="/client/invoices.php">Invoices</a>
+                            <a class="dropdown-item" href="/client/recurring_invoices.php">Recurring Invoices</a>
+                            <a class="dropdown-item" href="/client/quotes.php">Quotes</a>
+                            <a class="dropdown-item" href="/client/saved_payment_methods.php">Saved Payments</a>
                         </div>
                     </li>
                 <?php } ?>
@@ -69,12 +69,12 @@ header("X-Frame-Options: DENY"); // Legacy
                             Technical
                         </a>
                         <div class="dropdown-menu" aria-labelledby="navbarDropdown2">
-                            <a class="dropdown-item" href="contacts.php">Contacts</a>
-                            <a class="dropdown-item" href="assets.php">Assets</a>
-                            <a class="dropdown-item" href="documents.php">Documents</a>
-                            <a class="dropdown-item" href="domains.php">Domains</a>
-                            <a class="dropdown-item" href="certificates.php">Certificates</a>
-                            <a class="dropdown-item" href="ticket_view_all.php">All tickets</a>
+                            <a class="dropdown-item" href="/client/contacts.php">Contacts</a>
+                            <a class="dropdown-item" href="/client/assets.php">Assets</a>
+                            <a class="dropdown-item" href="/client/documents.php">Documents</a>
+                            <a class="dropdown-item" href="/client/domains.php">Domains</a>
+                            <a class="dropdown-item" href="/client/certificates.php">Certificates</a>
+                            <a class="dropdown-item" href="/client/ticket_view_all.php">All tickets</a>
                         </div>
                     </li>
                 <?php } ?>
@@ -110,9 +110,9 @@ header("X-Frame-Options: DENY"); // Legacy
                         <?php echo stripslashes(nullable_htmlentities($session_contact_name)); ?>
                     </a>
                     <div class="dropdown-menu">
-                        <a class="dropdown-item" href="profile.php"><i class="fas fa-fw fa-user mr-2"></i>Account</a>
+                        <a class="dropdown-item" href="/client/profile.php"><i class="fas fa-fw fa-user mr-2"></i>Account</a>
                         <div class="dropdown-divider"></div>
-                        <a class="dropdown-item" href="post.php?logout"><i class="fas fa-fw fa-sign-out-alt mr-2"></i>Sign out</a>
+                        <a class="dropdown-item" href="/client/post.php?logout"><i class="fas fa-fw fa-sign-out-alt mr-2"></i>Sign out</a>
                     </div>
                 </li>
             </ul>
@@ -128,7 +128,7 @@ header("X-Frame-Options: DENY"); // Legacy
     <div class="row mb-3">
         <div class="col-md-1 text-center">
             <?php if (!empty($session_contact_photo)) { ?>
-                <img src="<?php echo "../uploads/clients/$session_client_id/$session_contact_photo"; ?>" alt="..." height="50" width="50" class="img-circle img-responsive">
+                <img src="/uploads/clients/<?= $session_client_id ?>/<?= $session_contact_photo ?>" alt="..." height="50" width="50" class="img-circle img-responsive">
 
             <?php } else { ?>
                 <span class="fa-stack fa-2x rounded-left">

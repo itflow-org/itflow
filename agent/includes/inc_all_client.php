@@ -1,9 +1,9 @@
 <?php
 
-require_once "../config.php";
-require_once "../functions.php";
-require_once "../includes/check_login.php";
-require_once "../includes/page_title.php";
+require_once $_SERVER['DOCUMENT_ROOT'] . '/config.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/functions.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/check_login.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/page_title.php';
 
 // Perms
 enforceUserPermission('module_client');
@@ -35,7 +35,7 @@ if (isset($_GET['client_id'])) {
     );
 
     if (mysqli_num_rows($sql) == 0) {
-        require_once "../includes/header.php";
+        require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/header.php';
 
         echo "<center><h1 class='text-secondary mt-5'>Nothing to see here</h1></center>";
     } else {
@@ -304,10 +304,10 @@ if (isset($_GET['client_id'])) {
     }
 }
 
-require_once "../includes/header.php";
-require_once "../includes/top_nav.php";
-require_once "includes/client_side_nav.php";
-require_once "../includes/inc_wrapper.php";
-require_once "../includes/inc_alert_feedback.php";
-require_once "includes/inc_client_top_head.php";
-require_once "../includes/filter_header.php";
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/header.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/top_nav.php';
+require_once 'includes/client_side_nav.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/inc_wrapper.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/inc_alert_feedback.php';
+require_once 'includes/inc_client_top_head.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/filter_header.php';
