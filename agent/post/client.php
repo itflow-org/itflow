@@ -40,9 +40,9 @@ if (isset($_POST['add_client'])) {
 
     $client_id = mysqli_insert_id($mysqli);
 
-    if (!file_exists("../uploads/clients/$client_id")) {
-        mkdir("../uploads/clients/$client_id");
-        file_put_contents("../uploads/clients/$client_id/index.php", "");
+    if (!file_exists($_SERVER['DOCUMENT_ROOT'] . "/uploads/clients/$client_id")) {
+        mkdir($_SERVER['DOCUMENT_ROOT'] . "/uploads/clients/$client_id");
+        file_put_contents($_SERVER['DOCUMENT_ROOT'] . "/uploads/clients/$client_id/index.php", "");
     }
 
     // Create Referral if it doesn't exist
