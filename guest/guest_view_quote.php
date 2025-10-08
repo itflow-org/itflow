@@ -60,10 +60,6 @@ $contact_mobile_country_code = nullable_htmlentities($row['contact_mobile_countr
 $contact_mobile = nullable_htmlentities(formatPhoneNumber($row['contact_mobile'], $contact_mobile_country_code));
 $client_website = nullable_htmlentities($row['client_website']);
 $client_currency_code = nullable_htmlentities($row['client_currency_code']);
-$client_net_terms = intval($row['client_net_terms']);
-if ($client_net_terms == 0) {
-    $client_net_terms = intval($row['config_default_net_terms']);
-}
 
 $sql = mysqli_query($mysqli, "SELECT * FROM companies, settings WHERE companies.company_id = settings.company_id AND companies.company_id = 1");
 $row = mysqli_fetch_array($sql);
