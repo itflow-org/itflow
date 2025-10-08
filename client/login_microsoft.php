@@ -100,7 +100,16 @@ if (isset($_POST['code']) && $_POST['state'] == session_id()) {
 
             $upn = mysqli_real_escape_string($mysqli, $msgraph_response["userPrincipalName"]);
 
-            $sql = mysqli_query($mysqli, "SELECT * FROM users LEFT JOIN contacts ON user_id = contact_user_id LEFT JOIN contact_client_id = client_id WHERE user_email = '$upn' AND user_archived_at IS NULL AND client_archived_at IS NULL AND user_type = 2 AND user_status = 1 LIMIT 1");
+            $sql = mysqli_query($mysqli, "SELECT * FROM users
+                LEFT JOIN contacts ON user_id = contact_user_id
+                LEFT JOIN clients ON contact_client_id = client_id
+                WHERE user_email = '$upn'
+                AND user_archived_at IS NULL
+                AND client_archived_at IS NULL
+                AND user_type = 2
+                AND user_status = 1
+                LIMIT 1"
+            );
             $row = mysqli_fetch_array($sql);
             $client_id = intval($row['contact_client_id']);
             $user_id = intval($row['user_id']);

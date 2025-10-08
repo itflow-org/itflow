@@ -19,9 +19,9 @@ header("X-Frame-Options: DENY");
     <title><?= $session_company_name; ?></title>
 
     <!-- Favicon -->
-    <?php if(file_exists(__DIR__ . '../uploads/favicon.ico')): ?>
+    <?php if(file_exists($_SERVER['DOCUMENT_ROOT'] . '/uploads/favicon.ico')) { ?>
         <link rel="icon" type="image/x-icon" href="/uploads/favicon.ico">
-    <?php endif; ?>
+    <?php } ?>
 
     <!-- Font Awesome -->
     <link rel="stylesheet" href="/plugins/fontawesome-free/css/all.min.css">

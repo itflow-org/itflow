@@ -1,8 +1,6 @@
 <?php
 
-require_once "../config.php";
-require_once "../functions.php";
-require_once "../includes/check_login.php";
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/modal_header.php';
 
 header('Content-Type: application/json');
 
@@ -137,7 +135,5 @@ $(document).ready(function () {
 </script>
 
 <?php
-    $content = ob_get_clean();
 
-    // Return the title and content as a JSON response
-    echo json_encode(['content' => $content]);
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/modal_footer.php';

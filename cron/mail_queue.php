@@ -55,7 +55,7 @@ $config_smtp_port        = intval($row['config_smtp_port']);
 $config_smtp_encryption  = $row['config_smtp_encryption'];
 
 // SMTP provider + shared OAuth fields
-$config_smtp_provider                      = $row['config_smtp_provider'] ?? 'standard_smtp'; // 'standard_smtp' | 'google_oauth' | 'microsoft_oauth'
+$config_smtp_provider                      = $row['config_smtp_provider']; // 'standard_smtp' | 'google_oauth' | 'microsoft_oauth'
 $config_mail_oauth_client_id               = $row['config_mail_oauth_client_id'] ?? '';
 $config_mail_oauth_client_secret           = $row['config_mail_oauth_client_secret'] ?? '';
 $config_mail_oauth_tenant_id               = $row['config_mail_oauth_tenant_id'] ?? '';
@@ -66,6 +66,11 @@ $config_mail_oauth_access_token_expires_at = $row['config_mail_oauth_access_toke
 if ($config_enable_cron == 0) {
     logApp("Cron-Mail-Queue", "error", "Cron Mail Queue unable to run - cron not enabled in admin settings.");
     exit("Cron: is not enabled -- Quitting..");
+}
+
+if (empty($config_smtp_provider)) {
+    logApp("Cron-Mail-Queue", "info", "SMTP sending skipped: provider not configured.");
+    exit(0);
 }
 
 /** =======================================================================

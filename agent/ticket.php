@@ -620,7 +620,6 @@ if (isset($_GET['ticket_id'])) {
                                 <textarea
                                     class="form-control tinymceTicket" name="ticket_reply"
                                     placeholder="Type a response">
-                                    <?php echo nl2br(getFieldById('user_settings',$session_user_id,'user_config_signature','html')); ?>
                                 </textarea>
                             </div>
 
@@ -1227,9 +1226,9 @@ if (isset($_GET['ticket_id'])) {
                             <h5 class="card-title"><i class="fas fa-fw fa-project-diagram mr-2 mt-2"></i>Project</h5>
                             <div class="card-tools">
                                 <?php if (empty($ticket_resolved_at) && lookupUserPermission("module_support") >= 2) { ?>
-                                    <a class="btn btn-light text-secondary btn-sm" href="#">
+                                    <button type="button" class="btn btn-light text-secondary btn-sm ajax-modal" data-modal-url="modals/ticket/ticket_edit_project.php?id=<?= $ticket_id ?>">
                                         <i class="fas fa-edit"></i>
-                                    </a>
+                                    </button>
                                 <?php } ?>
                             </div>
                         </div>

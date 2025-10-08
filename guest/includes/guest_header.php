@@ -1,27 +1,3 @@
-<?php
-
-require_once "../config.php";
-require_once "../functions.php";
-require_once "../includes/load_global_settings.php";
-
-session_start();
-
-// Set Timezone
-require_once "../includes/inc_set_timezone.php";
-
-$ip = sanitizeInput(getIP());
-$user_agent = sanitizeInput($_SERVER['HTTP_USER_AGENT']);
-$os = sanitizeInput(getOS($user_agent));
-$browser = sanitizeInput(getWebBrowser($user_agent));
-
-// Get Company Name
-$sql = mysqli_query($mysqli, "SELECT company_name FROM companies WHERE company_id = 1");
-$row = mysqli_fetch_array($sql);
-
-$session_company_name = $row['company_name'];
-
-?>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -36,8 +12,8 @@ $session_company_name = $row['company_name'];
     Favicon
     If Fav Icon exists else use the default one 
     -->
-    <?php if(file_exists('../uploads/favicon.ico')) { ?>
-        <link rel="icon" type="image/x-icon" href="/uploads/favicon.ico">
+    <?php if(file_exists($_SERVER['DOCUMENT_ROOT'] . '/uploads/favicon.ico')) { ?>
+        <link rel="icon" href="/uploads/favicon.ico">
     <?php } ?>
 
     <!-- Font Awesome Icons -->
@@ -46,37 +22,15 @@ $session_company_name = $row['company_name'];
     <link rel="stylesheet" href="/plugins/adminlte/css/adminlte.min.css">
 
     <!-- Custom Style Sheet -->
-    <link href="/plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css" rel="stylesheet" type="text/css">
-    <link href="/plugins/select2/css/select2.min.css" rel="stylesheet" type="text/css">
-    <link href="/plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css" rel="stylesheet" type="text/css">
-    <link href='/plugins/daterangepicker/daterangepicker.css' rel='stylesheet' />
+    <link rel="stylesheet" href="/plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css">
+    <link rel="stylesheet" href="/plugins/select2/css/select2.min.css">
+    <link rel="stylesheet" href="/plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css">
+    <link rel="stylesheet" href='/plugins/daterangepicker/daterangepicker.css'>
+
+    <!-- Scripts -->
+    <script src="/plugins/jquery/jquery.min.js"></script>
+    <script src="/plugins/toastr/toastr.min.js"></script>
 
 </head>
 <body class="layout-top-nav">
-<div class="wrapper text-sm">
-
-    <!-- Content Wrapper. Contains page content -->
-    <div class="content-wrapper">
-
-        <!-- Main content -->
-        <div class="content">
-            <div class="container">
-
-                <?php
-                //Alert Feedback
-                if (!empty($_SESSION['alert_message'])) {
-                    if (!isset($_SESSION['alert_type'])) {
-                        $_SESSION['alert_type'] = "info";
-                    }
-                    ?>
-                    <div class="alert alert-<?php echo $_SESSION['alert_type']; ?>" id="alert">
-                        <?php echo nullable_htmlentities($_SESSION['alert_message']); ?>
-                        <button class='close' data-dismiss='alert'>&times;</button>
-                    </div>
-                    <?php
-
-                    unset($_SESSION['alert_type']);
-                    unset($_SESSION['alert_message']);
-
-                }
-                ?>
+    <div class="wrapper text-sm">

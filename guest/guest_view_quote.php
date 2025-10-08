@@ -1,11 +1,11 @@
 <?php
 
-require_once "includes/guest_header.php";
+require_once $_SERVER['DOCUMENT_ROOT'] . '/guest/includes/inc_all_guest.php';
 
 
 if (!isset($_GET['quote_id'], $_GET['url_key'])) {
     echo "<br><h2>Oops, something went wrong! Please raise a ticket if you believe this is an error.</h2>";
-    require_once "includes/guest_footer.php";
+    require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/footer.php';
 
     exit();
 }
@@ -27,7 +27,7 @@ $sql = mysqli_query(
 if (mysqli_num_rows($sql) !== 1) {
     // Invalid quote/key
     echo "<br><h2>Oops, something went wrong! Please raise a ticket if you believe this is an error.</h2>";
-    require_once "includes/guest_footer.php";
+    require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/footer.php';
 
     exit();
 }
@@ -60,10 +60,6 @@ $contact_mobile_country_code = nullable_htmlentities($row['contact_mobile_countr
 $contact_mobile = nullable_htmlentities(formatPhoneNumber($row['contact_mobile'], $contact_mobile_country_code));
 $client_website = nullable_htmlentities($row['client_website']);
 $client_currency_code = nullable_htmlentities($row['client_currency_code']);
-$client_net_terms = intval($row['client_net_terms']);
-if ($client_net_terms == 0) {
-    $client_net_terms = intval($row['config_default_net_terms']);
-}
 
 $sql = mysqli_query($mysqli, "SELECT * FROM companies, settings WHERE companies.company_id = settings.company_id AND companies.company_id = 1");
 $row = mysqli_fetch_array($sql);
@@ -133,7 +129,7 @@ if ($quote_status == "Draft" || $quote_status == "Sent" || $quote_status == "Vie
         <div class="row mb-3">
             <?php if (file_exists("../uploads/settings/$company_logo")) { ?>
             <div class="col-sm-2">
-                <img class="img-fluid" src="<?php echo "../uploads/settings/$company_logo"; ?>" alt="Company logo">
+                <img class="img-fluid" src="<?php echo "/uploads/settings/$company_logo"; ?>" alt="Company logo">
             </div>
             <?php } ?>
             <div class="col-sm-6 <?php if (!file_exists("../uploads/settings/$company_logo")) { echo "col-sm-8"; } ?>">
@@ -301,4 +297,4 @@ if ($quote_status == "Draft" || $quote_status == "Sent" || $quote_status == "Vie
 
 <?php
 require_once "guest_quote_upload_file_modal.php";
-require_once "includes/guest_footer.php";
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/footer.php';

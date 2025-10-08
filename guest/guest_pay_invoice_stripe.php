@@ -1,6 +1,6 @@
 <?php
 
-require_once 'includes/guest_header.php';
+require_once 'includes/inc_all_guest.php';
 
 DEFINE("WORDING_PAYMENT_FAILED", "<br><h2>There was an error verifying your payment. Please contact us for more information before attempting payment again.</h2>");
 
@@ -300,4 +300,4 @@ if (isset($_GET['invoice_id'], $_GET['url_key']) && !isset($_GET['payment_intent
     exit(WORDING_PAYMENT_FAILED);
 }
 
-require_once 'includes/guest_footer.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/footer.php';

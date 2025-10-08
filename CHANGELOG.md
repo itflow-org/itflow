@@ -2,6 +2,30 @@
 
 This file documents all notable changes made to ITFlow.
 
+## [25.10.1]
+- Deprecation Notice: `/scripts/cron_mail_queue.php` , `/scripts/cron_ticket_email_parser.php` , `/scripts/cron.php` `/scripts/cron_domain_refresher.php`, `/scripts/cron_certificate_refresher.php` are being phased out. Please transition to `/cron/mail_queue.php` , `/cron/ticket_email_parser.php`, `/cron/cron.php`, `/cron/domain_refresher.php`, `/cron/certificate_refresher.php` These older scripts will be removed in the November 25.11 release—update accordingly. 25.10.1 installs have the script already configured.
+
+### Fixes
+- Fix regression missing custom Favicon.
+- Update SMTP and IMAP provider to allow for empty strings, empty means disabled.
+- Fix Client portal Microsoft SSO Logins.
+- Fix regression in Vendor Templates.
+- Fix refression in some broken links from user to agent.
+- Fix Project edit.
+- Prevent open redirects upon agent login.
+- Fix regression on switching to Webklex IMAP to allow for no SSL/TLS in IMAP.
+- Fix Setup Redirect not behaving properly when setup hasnt been performed.
+- Added Server Document Root Var to several includes, headers, footers files to allow includes from deeper directory strutures such as the new custom directories.
+- Fix edit contact in contact details.
+- Add .htaccess to /cron/.
+
+### Added / Changed
+- Support for HTML Signatures.
+- Add Edit Project Functionality in a ticket.
+- Added more custom locations: /cron/custom/, /scripts/custom/, /api/v1/custom/, /setup/custom/.
+- Copied `/scripts/cron.php` `/scripts/cron_domain_refresher.php`, `/scripts/cron_certificate_refresher.php` to `/cron/cron.php`, `/cron/domain_refresher.php`, `/cron/certificate_refresher.php`. See Above!
+- Signatures is now handled in post ticket reply on Public Comments only.
+
 ## [25.10]
 
 ### Breaking Changes

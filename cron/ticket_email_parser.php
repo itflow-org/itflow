@@ -468,7 +468,7 @@ $validate_cert = true;
 // Defaults from settings (standard IMAP)
 $host = $config_imap_host;
 $port = (int)$config_imap_port;
-$encr = !empty($config_imap_encryption) ? $config_imap_encryption : null; // 'ssl'|'tls'|null
+$encr = !empty($config_imap_encryption) ? $config_imap_encryption : 'notls'; // 'ssl'|'tls'|'notls'
 $user = $config_imap_username;
 $pass = $config_imap_password;
 $auth = null; // 'oauth' for OAuth providers

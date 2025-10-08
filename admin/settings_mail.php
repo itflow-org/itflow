@@ -18,10 +18,10 @@ require_once "includes/inc_all_admin.php";
                             <span class="input-group-text"><i class="fa fa-fw fa-cloud"></i></span>
                         </div>
                         <select class="form-control" name="config_smtp_provider" id="config_smtp_provider">
-                            <option value="none" <?php if(($config_smtp_provider ?? '')==='none' || ($config_smtp_provider ?? '')==='') echo 'selected'; ?>>None (Disabled)</option>
-                            <option value="standard_smtp" <?php if(($config_smtp_provider ?? 'standard_smtp')==='standard_smtp') echo 'selected'; ?>>Standard SMTP (Username/Password)</option>
-                            <option value="google_oauth" <?php if(($config_smtp_provider ?? '')==='google_oauth') echo 'selected'; ?>>Google Workspace (OAuth)</option>
-                            <option value="microsoft_oauth" <?php if(($config_smtp_provider ?? '')==='microsoft_oauth') echo 'selected'; ?>>Microsoft 365 (OAuth)</option>
+                            <option value="" <?php if(empty($config_smtp_provider)) { echo 'selected'; } ?>>None (Disabled)</option>
+                            <option value="standard_smtp" <?php if($config_smtp_provider === 'standard_smtp') { echo 'selected'; } ?>>Standard SMTP (Username/Password)</option>
+                            <option value="google_oauth" <?php if($config_smtp_provider === 'google_oauth') { echo 'selected'; } ?>>Google Workspace (OAuth)</option>
+                            <option value="microsoft_oauth" <?php if($config_smtp_provider === 'microsoft_oauth') { echo 'selected'; } ?>>Microsoft 365 (OAuth)</option>
                         </select>
                     </div>
                     <small class="text-secondary d-block mt-1" id="smtp_provider_hint">
@@ -116,10 +116,10 @@ require_once "includes/inc_all_admin.php";
                             <span class="input-group-text"><i class="fa fa-fw fa-cloud"></i></span>
                         </div>
                         <select class="form-control" name="config_imap_provider" id="config_imap_provider">
-                            <option value="none" <?php if($config_imap_provider ==='') echo 'selected'; ?>>None (Disabled)</option>
-                            <option value="standard_imap" <?php if(($config_imap_provider ?? 'standard_imap')==='standard_imap') echo 'selected'; ?>>Standard IMAP (Username/Password)</option>
-                            <option value="google_oauth" <?php if(($config_imap_provider ?? '')==='google_oauth') echo 'selected'; ?>>Google Workspace (OAuth)</option>
-                            <option value="microsoft_oauth" <?php if(($config_imap_provider ?? '')==='microsoft_oauth') echo 'selected'; ?>>Microsoft 365 (OAuth)</option>
+                            <option value="" <?php if(empty($config_imap_provider)) { echo 'selected'; } ?>>None (Disabled)</option>
+                            <option value="standard_imap" <?php if($config_imap_provider === 'standard_imap') { echo 'selected'; } ?>>Standard IMAP (Username/Password)</option>
+                            <option value="google_oauth" <?php if($config_imap_provider === 'google_oauth') { echo 'selected'; } ?>>Google Workspace (OAuth)</option>
+                            <option value="microsoft_oauth" <?php if($config_imap_provider === 'microsoft_oauth') { echo 'selected'; } ?>>Microsoft 365 (OAuth)</option>
                         </select>
                     </div>
                     <small class="text-secondary d-block mt-1" id="imap_provider_hint">

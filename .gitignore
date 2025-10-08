@@ -34,5 +34,14 @@ client/custom/*
 !client/custom/readme.php
 guest/custom/*
 !guest/custom/readme.php
+cron/custom/*
+!cron/custom/readme.php
+scripts/custom/*
+!scripts/custom/readme.php
+setup/custom/*
+!setup/custom/readme.php
+api/v1/custom/*
+!api/v1/custom/readme.php
 .zed
+
 

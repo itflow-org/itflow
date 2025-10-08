@@ -58,12 +58,8 @@ require_once "includes/inc_all_user.php";
 
                     <div class="form-group">
                         <label>Signature</label>
-                        <div class="input-group">
-                            <div class="input-group-prepend">
-                                <span class="input-group-text"><i class="fa fa-fw fa-pen"></i></span>
-                            </div>
-                            <textarea class="form-control" name="signature" rows="4" placeholder="Create a signature automatically appended to tickets, emails etc"><?php echo getFieldById('user_settings',$session_user_id,'user_config_signature','html'); ?></textarea>
-                        </div>
+                        <textarea class="form-control tinymceTicket" name="signature" rows="4" placeholder="Create a signature automatically appended to tickets, emails etc"><?php echo getFieldById('user_settings',$session_user_id,'user_config_signature','html'); ?>
+                        </textarea>
                     </div>
                     
                     <button type="submit" name="edit_your_user_details" class="btn btn-primary btn-responsive"><i class="fas fa-check mr-2"></i>Save</button>

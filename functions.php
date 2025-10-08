@@ -1607,6 +1607,8 @@ function getFieldById($table, $id, $field, $escape_method = 'sql') {
 
         // Apply the desired escaping method or auto-detect integer type if using SQL escaping
         switch ($escape_method) {
+            case 'raw':
+                return $value; // Return as-is from the database
             case 'html':
                 return htmlspecialchars($value ?? '', ENT_QUOTES, 'UTF-8'); // Escape for HTML
             case 'json':

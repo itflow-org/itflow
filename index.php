@@ -1,28 +1,37 @@
 <?php
 
-
-// App setup is complete?
+// Check if the app is set up
 if (file_exists("config.php")) {
     require_once "config.php";
+
+    // Check if setup is enabled (not completed)
+    if (!isset($config_enable_setup) || $config_enable_setup == 1) {
+        header("Location: /setup");
+        exit();
+    }
+
+    // Start the session
     require_once "includes/session_init.php";
 
-    // If they are an app user, send them to their start page
+    // If user is an agent
     if (isset($_SESSION['logged'])) {
         require_once "includes/load_global_settings.php";
         header("Location: /agent/$config_start_page");
+        exit();
 
-    // If they're a client, send them to the client area
+    // If user is a client
     } elseif (isset($_SESSION['client_logged_in'])) {
         header("Location: /client/");
+        exit();
 
-    // Else, require login
+    // Not logged in
     } else {
         header("Location: /login.php");
+        exit();
     }
 
-
-// Installation needs to be completed
 } else {
-	header("Location: /setup");
+    // If config.php doesn't exist, redirect to setup
+    header("Location: /setup");
     exit();
 }
