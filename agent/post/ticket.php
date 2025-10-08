@@ -1567,7 +1567,7 @@ if (isset($_POST['add_ticket_reply'])) {
     enforceUserPermission('module_support', 2);
 
     $ticket_id = intval($_POST['ticket_id']);
-    $ticket_reply = mysqli_real_escape_string($mysqli, $_POST['ticket_reply']);
+    $ticket_reply = $_POST['ticket_reply']; // Reply is SQL escaped below
     $ticket_status = intval($_POST['status']);
     $client_id = intval($_POST['client_id']);
 
@@ -1588,6 +1588,12 @@ if (isset($_POST['add_ticket_reply'])) {
     } else {
         $ticket_reply_type = 'Internal';
     }
+    // Add Signature to the end of the ticket reply if not Internal and if there is reply
+    if ($ticket_reply !== '' && $ticket_reply_type !== 'Internal') {
+        $ticket_reply .= getFieldById('user_settings',$session_user_id,'user_config_signature', 'raw');
+    }
+    
+    $ticket_reply = mysqli_escape_string($mysqli, $ticket_reply); // SQL Escape Ticket Reply
 
     // Update Ticket Status & updated at (in case status didn't change)
     mysqli_query($mysqli, "UPDATE tickets SET ticket_status = $ticket_status, ticket_updated_at = NOW() WHERE ticket_id = $ticket_id");

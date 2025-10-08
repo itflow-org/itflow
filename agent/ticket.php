@@ -620,7 +620,6 @@ if (isset($_GET['ticket_id'])) {
                                 <textarea
                                     class="form-control tinymceTicket" name="ticket_reply"
                                     placeholder="Type a response">
-                                    <?php echo getFieldById('user_settings',$session_user_id,'user_config_signature','html'); ?>
                                 </textarea>
                             </div>
 
