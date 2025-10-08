@@ -4,7 +4,7 @@ header('Cache-Control: no-store, no-cache, must-revalidate');
 header('Cache-Control: post-check=0, pre-check=0', false);
 header('Pragma: no-cache');
 
-require_once "includes/guest_header.php";
+require_once "includes/inc_all_guest.php";
 
 
 //Initialize the HTML Purifier to prevent XSS
@@ -39,7 +39,7 @@ $currency_format = numfmt_create($company_locale, NumberFormatter::CURRENCY);
 <?php
 if (!isset($_GET['id']) || !isset($_GET['key'])) {
     echo "<div class='alert alert-danger'>Incorrect URL.</div>";
-    include "includes/guest_footer.php";
+    require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/footer.php';
 
     exit();
 }
@@ -53,7 +53,7 @@ $row = mysqli_fetch_array($sql);
 // Check we got a result
 if (mysqli_num_rows($sql) !== 1 || !$row) {
     echo "<div class='alert alert-danger' >No item to view. Check with the person that sent you this link to ensure it is correct and has not expired.</div>";
-    include "includes/guest_footer.php";
+    require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/footer.php';
 
     exit();
 }
@@ -61,7 +61,7 @@ if (mysqli_num_rows($sql) !== 1 || !$row) {
 // Check item share is active & hasn't been viewed too many times but allow 0 views as that is consider infinite views
 if ($row['item_active'] !== "1" || ($row['item_view_limit'] > 0 && $row['item_views'] >= $row['item_view_limit'])) {
     echo "<div class='alert alert-danger'>Item cannot be viewed at this time. Check with the person that sent you this link to ensure it is correct and has not expired.</div>";
-    include "includes/guest_footer.php";
+    require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/footer.php';
 
     exit();
 }
@@ -123,7 +123,7 @@ if ($item_type == "Document") {
 
     if (mysqli_num_rows($doc_sql) !== 1 || !$doc_row) {
         echo "<div class='alert alert-danger'>Error retrieving document to view.</div>";
-        require_once "includes/guest_footer.php";
+        require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/footer.php';
 
         exit();
     }
@@ -150,7 +150,7 @@ if ($item_type == "Document") {
 
     if (mysqli_num_rows($file_sql) !== 1 || !$file_row) {
         echo "<div class='alert alert-danger'>Error retrieving file.</div>";
-        include "includes/guest_footer.php";
+        require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/footer.php';
 
         exit();
     }
@@ -171,7 +171,7 @@ if ($item_type == "Document") {
     $credential_row = mysqli_fetch_array($credential_sql);
     if (mysqli_num_rows($credential_sql) !== 1 || !$credential_row) {
         echo "<div class='alert alert-danger'>Error retrieving login.</div>";
-        include "includes/guest_footer.php";
+        require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/footer.php';
 
         exit();
     }
@@ -274,6 +274,4 @@ if ($item_type == "Document") {
 </div>
 
 <?php
-require_once "includes/guest_footer.php";
-
-?>
+require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/footer.php';

@@ -1,27 +1,3 @@
-<?php
-
-require_once $_SERVER['DOCUMENT_ROOT'] . '/config.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/functions.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/load_global_settings.php';
-
-session_start();
-
-// Set Timezone
-require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/inc_set_timezone.php';
-
-$ip = sanitizeInput(getIP());
-$user_agent = sanitizeInput($_SERVER['HTTP_USER_AGENT']);
-$os = sanitizeInput(getOS($user_agent));
-$browser = sanitizeInput(getWebBrowser($user_agent));
-
-// Get Company Name
-$sql = mysqli_query($mysqli, "SELECT company_name FROM companies WHERE company_id = 1");
-$row = mysqli_fetch_array($sql);
-
-$session_company_name = $row['company_name'];
-
-?>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -51,32 +27,10 @@ $session_company_name = $row['company_name'];
     <link rel="stylesheet" href="/plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css">
     <link rel="stylesheet" href='/plugins/daterangepicker/daterangepicker.css'>
 
+    <!-- Scripts -->
+    <script src="/plugins/jquery/jquery.min.js"></script>
+    <script src="/plugins/toastr/toastr.min.js"></script>
+
 </head>
 <body class="layout-top-nav">
-<div class="wrapper text-sm">
-
-    <!-- Content Wrapper. Contains page content -->
-    <div class="content-wrapper">
-
-        <!-- Main content -->
-        <div class="content">
-            <div class="container">
-
-                <?php
-                //Alert Feedback
-                if (!empty($_SESSION['alert_message'])) {
-                    if (!isset($_SESSION['alert_type'])) {
-                        $_SESSION['alert_type'] = "info";
-                    }
-                    ?>
-                    <div class="alert alert-<?php echo $_SESSION['alert_type']; ?>" id="alert">
-                        <?php echo nullable_htmlentities($_SESSION['alert_message']); ?>
-                        <button class='close' data-dismiss='alert'>&times;</button>
-                    </div>
-                    <?php
-
-                    unset($_SESSION['alert_type']);
-                    unset($_SESSION['alert_message']);
-
-                }
-                ?>
+    <div class="wrapper text-sm">
