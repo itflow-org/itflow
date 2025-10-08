@@ -22,7 +22,7 @@ This file documents all notable changes made to ITFlow.
 - Add Edit Project Functionality in a ticket.
 - Added more custom locations: /cron/custom/, /scripts/custom/, /api/v1/custom/, /setup/custom/.
 - Copied `/scripts/cron.php` `/scripts/cron_domain_refresher.php`, `/scripts/cron_certificate_refresher.php` to `/cron/cron.php`, `/cron/domain_refresher.php`, `/cron/certificate_refresher.php`. See Above!
--
+- Signatures is now handled in post ticket reply on Public Comments only.
 
 ## [25.10]
 
