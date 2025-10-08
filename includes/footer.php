@@ -7,6 +7,17 @@ if (basename(dirname($_SERVER['REQUEST_URI'])) === 'admin') { ?>
     <p class="text-right font-weight-light">ITFlow <?php echo APP_VERSION ?> &nbsp; · &nbsp; <a target="_blank" href="https://docs.itflow.org">Docs</a> &nbsp; · &nbsp; <a target="_blank" href="https://forum.itflow.org">Forum</a> &nbsp; · &nbsp; <a target="_blank" href="https://services.itflow.org">Services</a></p>
     <br>
 <?php } ?>
+<?php
+if (basename(dirname($_SERVER['REQUEST_URI'])) === 'guest') { ?>
+<p class="text-center">
+    <?php
+        echo nullable_htmlentities($session_company_name);
+        if (!$config_whitelabel_enabled) {
+            echo '<br><small class="text-muted">Powered by ITFlow</small>';
+        }
+    ?>
+</p>
+<?php } ?>
 
 </div><!-- /.container-fluid -->
 </div> <!-- /.content -->
