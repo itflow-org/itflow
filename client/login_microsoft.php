@@ -102,7 +102,7 @@ if (isset($_POST['code']) && $_POST['state'] == session_id()) {
 
             $sql = mysqli_query($mysqli, "SELECT * FROM users
                 LEFT JOIN contacts ON user_id = contact_user_id
-                LEFT JOIN clients contact_client_id = client_id
+                LEFT JOIN clients ON contact_client_id = client_id
                 WHERE user_email = '$upn'
                 AND user_archived_at IS NULL
                 AND client_archived_at IS NULL
