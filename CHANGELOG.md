@@ -16,6 +16,8 @@ This file documents all notable changes made to ITFlow.
 - Fix regression on switching to Webklex IMAP to allow for no SSL/TLS in IMAP.
 - Fix Setup Redirect not behaving properly when setup hasnt been performed.
 - Added Server Document Root Var to several includes, headers, footers files to allow includes from deeper directory strutures such as the new custom directories.
+- Fix edit contact in contact details.
+- Add .htaccess to /cron/.
 
 ### Added / Changed
 - Support for HTML Signatures.
