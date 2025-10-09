@@ -126,14 +126,7 @@ if (isset($_POST['add_database'])) {
 
 }
 
-<?php
 if (isset($_POST['restore'])) {
-
-    // ---------- Optional CSRF check (requires a hidden "csrf" in your restore form) ----------
-    if (!hash_equals($_SESSION['csrf'] ?? '', $_POST['csrf'] ?? '')) {
-        http_response_code(403);
-        exit("Invalid CSRF token.");
-    }
 
     // ---------- Inline helpers (guarded) ----------
     if (!function_exists('recursiveCopy')) {
