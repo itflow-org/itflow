@@ -128,12 +128,6 @@ if (isset($_POST['add_database'])) {
 
 if (isset($_POST['restore'])) {
 
-    // --- CSRF check (add a token to the form; see form snippet below) ---
-    if (!hash_equals($_SESSION['csrf'] ?? '', $_POST['csrf'] ?? '')) {
-        http_response_code(403);
-        exit("Invalid CSRF token.");
-    }
-
     // --- Basic env guards for long operations ---
     @set_time_limit(0);
     if (function_exists('ini_set')) { @ini_set('memory_limit', '1024M'); }
@@ -297,7 +291,7 @@ if (isset($_POST['restore'])) {
         // Clean staging and temp and show the report
         deleteDir($staging);
         deleteDir($tempDir);
-        
+
         $_SESSION['alert_message'] = nl2br(implode("\n", $lines));
         header("Location: ?restore");
         exit;
@@ -1196,12 +1190,7 @@ if (isset($_POST['add_telemetry'])) {
                                 <h3 class="card-title"><i class="fas fa-fw fa-database mr-2"></i>Restore from Backup</h3>
                             </div>
                             <div class="card-body">
-                                <?php
-                                // generate CSRF token for this form
-                                if (empty($_SESSION['csrf'])) { $_SESSION['csrf'] = bin2hex(random_bytes(32)); }
-                                ?>
                                 <form method="post" enctype="multipart/form-data" autocomplete="off">
-                                    <input type="hidden" name="csrf" value="<?php echo htmlspecialchars($_SESSION['csrf']); ?>">
                                     <label>Restore ITFlow Backup (.zip)</label>
                                     <input type="file" name="backup_zip" accept=".zip" required>
                                     <p class="text-muted mt-2 mb-0"><small>Large restores may take several minutes. Do not close this page.</small></p>
