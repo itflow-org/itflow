@@ -325,15 +325,12 @@ if (isset($_POST['restore'])) {
     // --- 8) Cleanup temp dir ---
     deleteDir($tempDir);
 
-    // --- 9) Finalize setup flag (idempotent) ---
-    try {
-        setConfigFlag("../config.php", "config_enable_setup", 0);
-    } catch (Throwable $e) {
-        // Non-fatal; warn but continue to login
-        $_SESSION['alert_message'] = "Backup restored, but failed to finalize setup flag in config.php: " . htmlspecialchars($e->getMessage(), ENT_QUOTES, 'UTF-8');
-        header("Location: ../login.php");
-        exit;
-    }
+    // --- 9) Finalize setup flag ---
+    $myfile = fopen("../config.php", "a");
+    $txt = "\$config_enable_setup = 0;\n\n";
+
+    fwrite($myfile, $txt);
+    fclose($myfile);
 
     // --- 10) Done ---
     $_SESSION['alert_message'] = "Full backup restored successfully.";
