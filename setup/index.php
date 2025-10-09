@@ -302,136 +302,111 @@ if (isset($_POST['restore'])) {
     }
 
     // ---------- 6) Restore UPLOADS: DELETE existing, then REPLACE ----------
-    $appRoot   = realpath(__DIR__ . "/..");
-    if ($appRoot === false) {
-        deleteDir($tempDir);
-        die("Failed to resolve app root.");
+$appRoot = realpath(__DIR__ . "/..");
+if ($appRoot === false) {
+    deleteDir($tempDir);
+    die("Failed to resolve app root.");
+}
+
+$uploadDir = $appRoot . "/uploads";
+
+// 6.a Extract inner uploads.zip to staging (with validation & scan report)
+$staging = $appRoot . "/uploads_restoring_" . bin2hex(random_bytes(4));
+if (!mkdir($staging, 0700, true)) {
+    deleteDir($tempDir);
+    die("Failed to create staging directory.");
+}
+
+$uz = new ZipArchive;
+if ($uz->open($uploadsZip) !== TRUE) {
+    deleteDir($staging);
+    deleteDir($tempDir);
+    die("Failed to open uploads.zip in backup.");
+}
+
+$scan = extractUploadsZipWithValidationReport($uz, $staging, [
+    'max_file_bytes' => 200 * 1024 * 1024,
+    'blocked_exts'   => [
+        'php','php3','php4','php5','php7','php8','phtml','phar',
+        'cgi','pl','sh','bash','zsh','exe','dll','bat','cmd','com',
+        'ps1','vbs','vb','jar','jsp','asp','aspx','so','dylib','bin'
+    ],
+]);
+$uz->close();
+
+if (!$scan['ok']) {
+    $lines = ["Unsafe file(s) detected in uploads.zip:"];
+    foreach ($scan['issues'] as $issue) {
+        $p = htmlspecialchars($issue['path'], ENT_QUOTES, 'UTF-8');
+        $r = htmlspecialchars($issue['reason'], ENT_QUOTES, 'UTF-8');
+        $lines[] = "• {$p} — {$r}";
     }
+    deleteDir($staging);
+    deleteDir($tempDir);
+    $_SESSION['alert_message'] = nl2br(implode("\n", $lines));
+    header("Location: ?restore");
+    exit;
+}
 
-    $uploadDir = $appRoot . "/uploads";
-
-    // Extract inner uploads.zip to staging (with validation & scan report)
-    $staging = $appRoot . "/uploads_restoring_" . bin2hex(random_bytes(4));
-    if (!mkdir($staging, 0700, true)) {
-        deleteDir($tempDir);
-        die("Failed to create staging directory.");
-    }
-
-    $uz = new ZipArchive;
-    if ($uz->open($uploadsZip) !== TRUE) {
-        deleteDir($staging);
-        deleteDir($tempDir);
-        die("Failed to open uploads.zip in backup.");
-    }
-
-    $scan = extractUploadsZipWithValidationReport($uz, $staging, [
-        'max_file_bytes' => 200 * 1024 * 1024,
-        'blocked_exts'   => [
-            'php','php3','php4','php5','php7','php8','phtml','phar',
-            'cgi','pl','sh','bash','zsh','exe','dll','bat','cmd','com',
-            'ps1','vbs','vb','jar','jsp','asp','aspx','so','dylib','bin'
-        ],
-    ]);
-    $uz->close();
-
-    if (!$scan['ok']) {
-        $lines = ["Unsafe file(s) detected in uploads.zip:"];
-        foreach ($scan['issues'] as $issue) {
-            $p = htmlspecialchars($issue['path'], ENT_QUOTES, 'UTF-8');
-            $r = htmlspecialchars($issue['reason'], ENT_QUOTES, 'UTF-8');
-            $lines[] = "• {$p} — {$r}";
-        }
-        deleteDir($staging);
-        deleteDir($tempDir);
-        $_SESSION['alert_message'] = nl2br(implode("\n", $lines));
-        header("Location: ?restore");
-        exit;
-    }
-
-    // If inner zip has a single "uploads/" folder, promote its contents
-    $roots = [];
+// 6.b Determine the actual content root inside staging
+    //    If the inner archive’s top-level is exactly "uploads/", use that; otherwise use staging itself.
+    $contentRoot = $staging;
+    $topEntries  = [];
     if ($dh = opendir($staging)) {
         while (($e = readdir($dh)) !== false) {
             if ($e === '.' || $e === '..') continue;
-            $roots[] = $e;
+            $topEntries[] = $e;
         }
         closedir($dh);
     }
-    sort($roots);
-    if (count($roots) === 1) {
-        $candidate = $staging . DIRECTORY_SEPARATOR . $roots[0];
-        if (is_dir($candidate)) {
-            $promoted = $staging . "_promoted";
-            if (!@rename($candidate, $promoted)) {
-                // fallback to copy
-                $rit = new RecursiveIteratorIterator(
-                    new RecursiveDirectoryIterator($candidate, FilesystemIterator::SKIP_DOTS),
-                    RecursiveIteratorIterator::SELF_FIRST
-                );
-                if (!mkdir($promoted, 0700, true)) {
-                    deleteDir($staging);
-                    deleteDir($tempDir);
-                    die("Failed to create promoted staging directory.");
-                }
-                foreach ($rit as $it) {
-                    $rel = substr($it->getPathname(), strlen($candidate) + 1);
-                    $dst = $promoted . DIRECTORY_SEPARATOR . $rel;
-                    if ($it->isDir()) {
-                        if (!is_dir($dst) && !mkdir($dst, 0700, true)) {
-                            deleteDir($staging);
-                            deleteDir($tempDir);
-                            die("Failed to create $dst");
-                        }
-                    } else {
-                        $pdir = dirname($dst);
-                        if (!is_dir($pdir) && !mkdir($pdir, 0700, true)) {
-                            deleteDir($staging);
-                            deleteDir($tempDir);
-                            die("Failed to create $pdir");
-                        }
-                        if (!copy($it->getPathname(), $dst)) {
-                            deleteDir($staging);
-                            deleteDir($tempDir);
-                            die("Failed to copy $rel into promoted staging");
-                        }
-                        @chmod($dst, 0640);
-                    }
-                }
-            }
-            deleteDir($staging);
-            $staging = isset($promoted) ? $promoted : $staging;
+    sort($topEntries);
+
+    if (count($topEntries) === 1) {
+        $candidate = $staging . DIRECTORY_SEPARATOR . $topEntries[0];
+        if (is_dir($candidate) && strtolower($topEntries[0]) === 'uploads') {
+            // Use the "uploads" directory directly without moving/deleting staging yet
+            $contentRoot = $candidate;
         }
     }
 
-    // Sanity: staging must contain files
+    // 6.c Sanity check: content root must have files
     $hasFiles = false;
-    $it = new RecursiveIteratorIterator(
-        new RecursiveDirectoryIterator($staging, FilesystemIterator::SKIP_DOTS)
+    $ritCheck = new RecursiveIteratorIterator(
+        new RecursiveDirectoryIterator($contentRoot, FilesystemIterator::SKIP_DOTS)
     );
-    foreach ($it as $f) { if ($f->isFile()) { $hasFiles = true; break; } }
+    foreach ($ritCheck as $f) {
+        if ($f->isFile()) { $hasFiles = true; break; }
+    }
     if (!$hasFiles) {
         deleteDir($staging);
         deleteDir($tempDir);
-        die("Uploads restore failed: staging is empty (inner uploads.zip may be malformed or fully blocked).");
+        die("Uploads restore failed: extracted content is empty (inner uploads.zip may be malformed or fully blocked).");
     }
 
-    // --- DELETE existing /uploads first, then REPLACE with staging ---
+    // 6.d Remove current /uploads and replace with restored content
     if (is_dir($uploadDir)) {
-        deleteDir($uploadDir, $appRoot); // guarded delete (under app root)
+        deleteDir($uploadDir, $appRoot); // guarded delete under app root
     }
-    if (!@rename($staging, $uploadDir)) {
-        // fallback: copy
+
+    // If contentRoot IS the staging root, try a simple rename
+    $renameSource = ($contentRoot === $staging) ? $staging : $contentRoot;
+    $renameOk = @rename($renameSource, $uploadDir);
+
+    // If we used the child "uploads" dir as contentRoot, staging still exists with an empty top; clean it later
+    if (!$renameOk) {
+        // Fallback: copy tree
         if (!mkdir($uploadDir, 0750, true)) {
             deleteDir($staging);
             deleteDir($tempDir);
             die("Failed to create uploads directory for placement.");
         }
+
         $rit = new RecursiveIteratorIterator(
-            new RecursiveDirectoryIterator($staging, FilesystemIterator::SKIP_DOTS),
+            new RecursiveDirectoryIterator($contentRoot, FilesystemIterator::SKIP_DOTS),
             RecursiveIteratorIterator::SELF_FIRST
         );
         foreach ($rit as $it) {
-            $rel = substr($it->getPathname(), strlen($staging) + 1);
+            $rel = substr($it->getPathname(), strlen($contentRoot) + 1);
             $dst = $uploadDir . DIRECTORY_SEPARATOR . $rel;
             if ($it->isDir()) {
                 if (!is_dir($dst) && !mkdir($dst, 0750, true)) {
@@ -457,17 +432,26 @@ if (isset($_POST['restore'])) {
                 @chmod($dst, 0640);
             }
         }
+        // If we copied only the inner "uploads" folder, we still need to clean the top-level staging
         deleteDir($staging);
+    } else {
+        // rename succeeded; if we renamed the child "uploads", the original staging still exists – clean it
+        if ($contentRoot !== $staging) {
+            deleteDir($staging);
+        }
     }
 
-    // Verify uploads has files
-    $okFiles = false;
-    $it2 = new RecursiveIteratorIterator(
-        new RecursiveDirectoryIterator($uploadDir, FilesystemIterator::SKIP_DOTS)
+    // 6.e Verify uploads now has files and report counts
+    $fileCount = 0; $dirCount = 0;
+    $ritVerify = new RecursiveIteratorIterator(
+        new RecursiveDirectoryIterator($uploadDir, FilesystemIterator::SKIP_DOTS),
+        RecursiveIteratorIterator::SELF_FIRST
     );
-    foreach ($it2 as $f) { if ($f->isFile()) { $okFiles = true; break; } }
-    if (!$okFiles) {
-        deleteDir($uploadDir);
+    foreach ($ritVerify as $it) {
+        if ($it->isDir()) $dirCount++;
+        else $fileCount++;
+    }
+    if ($fileCount === 0) {
         deleteDir($tempDir);
         die("Uploads replace failed: resulting directory is empty.");
     }
