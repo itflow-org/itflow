@@ -126,7 +126,126 @@ if (isset($_POST['add_database'])) {
 
 }
 
+<?php
 if (isset($_POST['restore'])) {
+
+    // ---------- Optional CSRF check (requires a hidden "csrf" in your restore form) ----------
+    if (!hash_equals($_SESSION['csrf'] ?? '', $_POST['csrf'] ?? '')) {
+        http_response_code(403);
+        exit("Invalid CSRF token.");
+    }
+
+    // ---------- Inline helpers (guarded) ----------
+    if (!function_exists('recursiveCopy')) {
+        function recursiveCopy(string $src, string $dst): void {
+            if (!is_dir($src)) throw new RuntimeException("Source directory missing: $src");
+            if (!is_dir($dst) && !mkdir($dst, 0750, true)) {
+                throw new RuntimeException("Failed to create destination: $dst");
+            }
+            $dir = opendir($src);
+            if (!$dir) throw new RuntimeException("Failed to open source: $src");
+            while (($file = readdir($dir)) !== false) {
+                if ($file === '.' || $file === '..') continue;
+                $from = $src . DIRECTORY_SEPARATOR . $file;
+                $to   = $dst . DIRECTORY_SEPARATOR . $file;
+                if (is_dir($from)) {
+                    recursiveCopy($from, $to);
+                } else {
+                    if (!copy($from, $to)) {
+                        closedir($dir);
+                        throw new RuntimeException("Copy failed: $from → $to");
+                    }
+                    @chmod($to, 0640);
+                }
+            }
+            closedir($dir);
+        }
+    }
+
+    if (!function_exists('robustDirMove')) {
+        function robustDirMove(string $src, string $dst): void {
+            if (@rename($src, $dst)) return;   // fast path (same filesystem)
+            recursiveCopy($src, $dst);         // cross-FS fallback
+            deleteDir($src);
+        }
+    }
+
+    if (!function_exists('listTopLevel')) {
+        function listTopLevel(string $dir): array {
+            if (!is_dir($dir)) return [];
+            $items = [];
+            $dh = opendir($dir);
+            if (!$dh) return [];
+            while (($e = readdir($dh)) !== false) {
+                if ($e === '.' || $e === '..') continue;
+                $items[] = $e;
+            }
+            closedir($dh);
+            sort($items);
+            return $items;
+        }
+    }
+
+    if (!function_exists('countFilesRecursive')) {
+        function countFilesRecursive(string $dir): int {
+            if (!is_dir($dir)) return 0;
+            $it = new RecursiveIteratorIterator(
+                new RecursiveDirectoryIterator($dir, FilesystemIterator::SKIP_DOTS)
+            );
+            $count = 0;
+            foreach ($it as $f) {
+                if ($f->isFile()) $count++;
+            }
+            return $count;
+        }
+    }
+
+    if (!function_exists('setConfigFlagAtomic')) {
+        function setConfigFlagAtomic(string $file, string $key, $value): void {
+            clearstatcache(true, $file);
+            if (!file_exists($file))  throw new RuntimeException("config.php not found: $file");
+            if (!is_readable($file))  throw new RuntimeException("config.php not readable: $file");
+            if (!is_writable($file))  throw new RuntimeException("config.php not writable: $file");
+
+            $cfg = file_get_contents($file);
+            if ($cfg === false) throw new RuntimeException("Failed to read config.php");
+            $cfg = str_replace("\r\n", "\n", $cfg);
+
+            $scalar = is_bool($value) ? ($value ? 'true' : 'false') : var_export($value, true);
+            $line   = '$' . $key . ' = ' . $scalar . ';';
+
+            $pattern = '/^\s*\$' . preg_quote($key, '/') . '\s*=\s*.*?;\s*$/m';
+            if (preg_match($pattern, $cfg)) {
+                $cfg = preg_replace($pattern, $line, $cfg, 1);
+            } else {
+                if (preg_match('/\?>\s*$/', $cfg)) {
+                    $cfg = preg_replace('/\?>\s*$/', "\n$line\n?>\n", $cfg, 1);
+                } else {
+                    if ($cfg !== '' && substr($cfg, -1) !== "\n") $cfg .= "\n";
+                    $cfg .= $line . "\n";
+                }
+            }
+
+            $dir  = dirname($file);
+            $temp = tempnam($dir, 'cfg_');
+            if ($temp === false) throw new RuntimeException("Failed to create temp file in $dir");
+            if (file_put_contents($temp, $cfg, LOCK_EX) === false) {
+                @unlink($temp);
+                throw new RuntimeException("Failed to write temp config");
+            }
+
+            $perms = @fileperms($file);
+            if ($perms !== false) { @chmod($temp, $perms & 0777); }
+            if (!@rename($temp, $file)) {
+                @unlink($temp);
+                throw new RuntimeException("Failed to atomically replace config.php");
+            }
+            if (function_exists('opcache_invalidate')) {
+                @opcache_invalidate($file, true);
+            }
+        }
+    }
+    // ---------- /inline helpers ----------
 
     // --- Basic env guards for long operations ---
     @set_time_limit(0);
@@ -138,19 +257,16 @@ if (isset($_POST['restore'])) {
     }
     $file = $_FILES['backup_zip'];
 
-    // Size limit (e.g., 4 GB)
     if ($file['size'] > 4 * 1024 * 1024 * 1024) {
         die("Backup archive is too large.");
     }
 
-    // MIME check
     $fi = new finfo(FILEINFO_MIME_TYPE);
     $mime = $fi->file($file['tmp_name']);
     if ($mime !== 'application/zip' && $mime !== 'application/x-zip-compressed') {
         die("Invalid archive type; only .zip is supported.");
     }
 
-    // Extension check (defense in depth)
     $ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
     if ($ext !== 'zip') {
         die("Only .zip files are allowed.");
@@ -164,7 +280,7 @@ if (isset($_POST['restore'])) {
     }
     @chmod($tempZip, 0600);
 
-    // --- 3) Extract safely to unique temp dir ---
+    // --- 3) Extract the OUTER backup zip to a unique temp dir ---
     $tempDir = sys_get_temp_dir() . "/restore_temp_" . bin2hex(random_bytes(6));
     if (!mkdir($tempDir, 0700, true)) {
         @unlink($tempZip);
@@ -189,9 +305,9 @@ if (isset($_POST['restore'])) {
     $zip->close();
     @unlink($tempZip);
 
-    // Paths inside extracted archive
+    // --- Expected inner files ---
     $sqlPath     = $tempDir . "/db.sql";
-    $uploadsZip  = $tempDir . "/uploads.zip";
+    $uploadsZip  = $tempDir . "/uploads.zip";   // <- inner uploads zip
     $versionTxt  = $tempDir . "/version.txt";
 
     if (!is_file($sqlPath) || !is_readable($sqlPath)) {
@@ -203,14 +319,12 @@ if (isset($_POST['restore'])) {
         die("Missing uploads.zip in the backup archive.");
     }
 
-    // --- 4) Optional: check version compatibility ---
+    // --- 4) Optional: check DB version compatibility ---
     if (defined('LATEST_DATABASE_VERSION') && is_file($versionTxt)) {
         $txt = @file_get_contents($versionTxt) ?: '';
-        // Try to find line "Database Version: X"
         if (preg_match('/^Database Version:\s*(.+)$/mi', $txt, $m)) {
             $backupVersion = trim($m[1]);
             $running = LATEST_DATABASE_VERSION;
-            // If backup schema is newer, abort with instruction
             if (version_compare($backupVersion, $running, '>')) {
                 deleteDir($tempDir);
                 die("Backup schema ($backupVersion) is newer than this app ($running). Please upgrade ITFlow first, then retry restore.");
@@ -219,7 +333,6 @@ if (isset($_POST['restore'])) {
     }
 
     // --- 5) Restore SQL (drop + import) ---
-    // Drop all tables
     mysqli_query($mysqli, "SET FOREIGN_KEY_CHECKS = 0");
     $tables = mysqli_query($mysqli, "SHOW TABLES");
     if ($tables) {
@@ -237,11 +350,10 @@ if (isset($_POST['restore'])) {
         die("SQL import failed: " . htmlspecialchars($e->getMessage(), ENT_QUOTES, 'UTF-8'));
     }
 
-    // --- 6) Restore uploads via staging + atomic swap ---
+    // --- 6) Restore UPLOADS (the inner uploads.zip) via staging + robust swap ---
     $appRoot   = realpath(__DIR__ . "/..");
     $uploadDir = realpath($appRoot . "/uploads");
     if ($uploadDir === false) {
-        // uploads might not exist yet
         $uploadDir = $appRoot . "/uploads";
         if (!mkdir($uploadDir, 0750, true)) {
             deleteDir($tempDir);
@@ -249,13 +361,16 @@ if (isset($_POST['restore'])) {
         }
         $uploadDir = realpath($uploadDir);
     }
-
-    if ($uploadDir === false || str_starts_with($uploadDir, $appRoot) === false) {
+    if ($uploadDir === false || strpos($uploadDir, $appRoot) !== 0) {
         deleteDir($tempDir);
         die("Uploads directory path invalid.");
     }
+    if (!is_writable(dirname($uploadDir))) {
+        deleteDir($tempDir);
+        die("Uploads restore failed: target parent dir is not writable by web server.");
+    }
 
-    $staging   = $appRoot . "/uploads_restoring_" . bin2hex(random_bytes(4));
+    $staging = $appRoot . "/uploads_restoring_" . bin2hex(random_bytes(4));
     if (!mkdir($staging, 0700, true)) {
         deleteDir($tempDir);
         die("Failed to create staging directory.");
@@ -268,9 +383,9 @@ if (isset($_POST['restore'])) {
         die("Failed to open uploads.zip in backup.");
     }
 
-    // IMPORTANT: staging dir should be empty here (as in your existing flow)
+    // Validate + buffer all entries; no writes if any issue (scan-report mode)
     $result = extractUploadsZipWithValidationReport($uz, $staging, [
-        'max_file_bytes' => 200 * 1024 * 1024, // adjust per-file size cap
+        'max_file_bytes' => 200 * 1024 * 1024,
         'blocked_exts'   => [
             'php','php3','php4','php5','php7','php8','phtml','phar',
             'cgi','pl','sh','bash','zsh','exe','dll','bat','cmd','com',
@@ -280,38 +395,73 @@ if (isset($_POST['restore'])) {
     $uz->close();
 
     if (!$result['ok']) {
-        // Build a user-friendly report
         $lines = ["Unsafe file(s) detected in uploads.zip:"];
         foreach ($result['issues'] as $issue) {
             $p = htmlspecialchars($issue['path'], ENT_QUOTES, 'UTF-8');
             $r = htmlspecialchars($issue['reason'], ENT_QUOTES, 'UTF-8');
             $lines[] = "• {$p} — {$r}";
         }
-
-        // Clean staging and temp and show the report
         deleteDir($staging);
         deleteDir($tempDir);
-
         $_SESSION['alert_message'] = nl2br(implode("\n", $lines));
         header("Location: ?restore");
         exit;
-
     }
 
-    // Rotate old uploads out, promote staging in
-    $backupOld = $appRoot . "/uploads_old_" . time();
-    if (!rename($uploadDir, $backupOld)) {
+    // If the inner zip has a single top-level folder (e.g., "uploads/"), promote it
+    $roots = listTopLevel($staging);
+    if (count($roots) === 1) {
+        $candidate = $staging . DIRECTORY_SEPARATOR . $roots[0];
+        if (is_dir($candidate)) {
+            $stagingPromoted = $staging . "_promoted";
+            if (!@rename($candidate, $stagingPromoted)) {
+                recursiveCopy($candidate, $stagingPromoted); // cross-FS fallback
+                deleteDir($candidate);
+            }
+            $old = $staging;
+            $staging = $stagingPromoted;
+            deleteDir($old);
+        }
+    }
+
+    // Ensure staging has content
+    if (countFilesRecursive($staging) === 0) {
         deleteDir($staging);
         deleteDir($tempDir);
-        die("Failed to rotate old uploads.");
+        die("Uploads restore failed: extracted staging is empty. The inner uploads.zip may be malformed or all files were blocked.");
     }
-    if (!rename($staging, $uploadDir)) {
-        // try to revert
-        @rename($backupOld, $uploadDir);
+
+    // Rotate current uploads out; robust moves on both steps
+    $backupOld = $appRoot . "/uploads_old_" . time();
+    try {
+        if (is_dir($uploadDir)) {
+            if (!@rename($uploadDir, $backupOld)) {
+                recursiveCopy($uploadDir, $backupOld); // cross-FS fallback
+                deleteDir($uploadDir);
+            }
+        }
+        robustDirMove($staging, $uploadDir);
+    } catch (Throwable $e) {
+        // rollback if possible
+        if (is_dir($backupOld) && !is_dir($uploadDir)) {
+            @rename($backupOld, $uploadDir);
+        }
+        deleteDir($staging);
         deleteDir($tempDir);
-        die("Failed to promote restored uploads.");
+        die("Uploads restore failed during swap: " . htmlspecialchars($e->getMessage(), ENT_QUOTES, 'UTF-8'));
     }
-    // Optional: clean old uploads now or keep briefly for rollback
+
+    // Verify restored uploads; rollback if empty
+    $restoredCount = countFilesRecursive($uploadDir);
+    if ($restoredCount === 0) {
+        if (is_dir($backupOld)) {
+            @rename($uploadDir, $uploadDir . "_bad_" . time());
+            @rename($backupOld, $uploadDir);
+        }
+        deleteDir($tempDir);
+        die("Uploads restore appears empty after swap. Rolled back to old uploads.");
+    }
+    // Optionally delete the old uploads after a grace period:
     // deleteDir($backupOld);
 
     // --- 7) Log version info (optional) ---
@@ -325,18 +475,25 @@ if (isset($_POST['restore'])) {
     // --- 8) Cleanup temp dir ---
     deleteDir($tempDir);
 
-    // --- 9) Finalize setup flag ---
-    $myfile = fopen("../config.php", "a");
-    $txt = "\$config_enable_setup = 0;\n\n";
-
-    fwrite($myfile, $txt);
-    fclose($myfile);
+    // --- 9) Finalize setup flag atomically (and clear OPcache) ---
+    try {
+        setConfigFlagAtomic(__DIR__ . "/../config.php", "config_enable_setup", 0);
+    } catch (Throwable $e) {
+        // Fallback append (best-effort) and allow login
+        @file_put_contents(__DIR__ . "/../config.php", "\n\$config_enable_setup = 0;\n", FILE_APPEND);
+        $_SESSION['alert_message'] =
+            "Backup restored, but couldn’t finalize setup flag automatically: " .
+            htmlspecialchars($e->getMessage(), ENT_QUOTES, 'UTF-8');
+        header("Location: ../login.php");
+        exit;
+    }
 
     // --- 10) Done ---
-    $_SESSION['alert_message'] = "Full backup restored successfully.";
+    $_SESSION['alert_message'] = "Full backup restored successfully. Restored {$restoredCount} upload file(s).";
     header("Location: ../login.php");
     exit;
 }
+
 
 if (isset($_POST['add_user'])) {
     $user_count = mysqli_num_rows(mysqli_query($mysqli,"SELECT COUNT(*) FROM users"));
