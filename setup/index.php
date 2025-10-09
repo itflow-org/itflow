@@ -6,7 +6,6 @@ if (file_exists("../config.php")) {
 }
 
 include "../functions.php"; // Global Functions
-include "setup_functions.php"; // Setup Only Functions
 include "../includes/database_version.php";
 
 if (!isset($config_enable_setup)) {
@@ -128,365 +127,239 @@ if (isset($_POST['add_database'])) {
 
 if (isset($_POST['restore'])) {
 
-    // ---------- Tiny atomic config helper (guarded) ----------
-    if (!function_exists('setConfigFlagAtomic')) {
-        function setConfigFlagAtomic(string $file, string $key, $value): void {
-            clearstatcache(true, $file);
-            if (!file_exists($file))  throw new RuntimeException("config.php not found: $file");
-            if (!is_readable($file))  throw new RuntimeException("config.php not readable: $file");
-            if (!is_writable($file))  throw new RuntimeException("config.php not writable: $file");
-
-            $cfg = file_get_contents($file);
-            if ($cfg === false) throw new RuntimeException("Failed to read config.php");
-            $cfg = str_replace("\r\n", "\n", $cfg);
-
-            $scalar = is_bool($value) ? ($value ? 'true' : 'false') : var_export($value, true);
-            $line   = '$' . $key . ' = ' . $scalar . ';';
-
-            $pattern = '/^\s*\$' . preg_quote($key, '/') . '\s*=\s*.*?;\s*$/m';
-            if (preg_match($pattern, $cfg)) {
-                $cfg = preg_replace($pattern, $line, $cfg, 1);
-            } else {
-                if (preg_match('/\?>\s*$/', $cfg)) {
-                    $cfg = preg_replace('/\?>\s*$/', "\n$line\n?>\n", $cfg, 1);
-                } else {
-                    if ($cfg !== '' && substr($cfg, -1) !== "\n") $cfg .= "\n";
-                    $cfg .= $line . "\n";
-                }
-            }
-
-            $dir  = dirname($file);
-            $tmp  = tempnam($dir, 'cfg_');
-            if ($tmp === false) throw new RuntimeException("Failed to create temp file in $dir");
-            if (file_put_contents($tmp, $cfg, LOCK_EX) === false) {
-                @unlink($tmp);
-                throw new RuntimeException("Failed to write temp config");
-            }
-            $perms = @fileperms($file);
-            if ($perms !== false) @chmod($tmp, $perms & 0777);
-            if (!@rename($tmp, $file)) {
-                @unlink($tmp);
-                throw new RuntimeException("Failed to atomically replace config.php");
-            }
-            if (function_exists('opcache_invalidate')) {
-                @opcache_invalidate($file, true);
-            }
-        }
-    }
-    if (!function_exists('setConfigFlag')) {
-        function setConfigFlag(string $file, string $key, $value): void {
-            $cfg = @file_get_contents($file);
-            if ($cfg === false) throw new RuntimeException("Cannot read $file");
-            $cfg = str_replace("\r\n", "\n", $cfg);
-            $pattern = '/^\s*\$' . preg_quote($key, '/') . '\s*=\s*.*?;\s*$/m';
-            $line    = '$' . $key . ' = ' . (is_bool($value) ? ($value ? 'true' : 'false') : var_export($value, true)) . ';';
-            if (preg_match($pattern, $cfg)) {
-                $cfg = preg_replace($pattern, $line, $cfg, 1);
-            } else {
-                if (preg_match('/\?>\s*$/', $cfg)) {
-                    $cfg = preg_replace('/\?>\s*$/', "\n$line\n?>\n", $cfg, 1);
-                } else {
-                    if ($cfg !== '' && substr($cfg, -1) !== "\n") $cfg .= "\n";
-                    $cfg .= $line . "\n";
-                }
-            }
-            if (file_put_contents($file, $cfg, LOCK_EX) === false) {
-                throw new RuntimeException("Failed to update $file");
-            }
-            if (function_exists('opcache_invalidate')) {
-                @opcache_invalidate($file, true);
-            }
-        }
-    }
-
-    // ---------- Environment guards ----------
+    // ---------- Long-running guards ----------
     @set_time_limit(0);
     if (function_exists('ini_set')) { @ini_set('memory_limit', '1024M'); }
 
-    // ---------- 1) Validate uploaded file ----------
+    // ---------- Minimal helpers (scoped) ----------
+    if (!function_exists('deleteDir')) {
+        function deleteDir($dir) {
+            if (!is_dir($dir)) return;
+            $it = new RecursiveIteratorIterator(
+                new RecursiveDirectoryIterator($dir, FilesystemIterator::SKIP_DOTS),
+                RecursiveIteratorIterator::CHILD_FIRST
+            );
+            foreach ($it as $item) {
+                $item->isDir() ? @rmdir($item->getPathname()) : @unlink($item->getPathname());
+            }
+            @rmdir($dir);
+        }
+    }
+
+    if (!function_exists('importSqlFile')) {
+        /**
+         * Import a SQL file via mysqli, supports DELIMITER and multi statements.
+         */
+        function importSqlFile(mysqli $mysqli, string $path): void {
+            if (!is_file($path) || !is_readable($path)) {
+                throw new RuntimeException("SQL file not found or unreadable: $path");
+            }
+            $fh = fopen($path, 'r');
+            if (!$fh) throw new RuntimeException("Failed to open SQL file");
+
+            $delimiter = ';';
+            $statement = '';
+
+            while (($line = fgets($fh)) !== false) {
+                $trim = trim($line);
+
+                // Skip comments/empty
+                if ($trim === '' || str_starts_with($trim, '--') || str_starts_with($trim, '#')) {
+                    continue;
+                }
+
+                // Handle DELIMITER changes
+                if (preg_match('/^DELIMITER\s+(.+)$/i', $trim, $m)) {
+                    $delimiter = $m[1];
+                    continue;
+                }
+
+                $statement .= $line;
+
+                // End of statement?
+                if (substr(rtrim($statement), -strlen($delimiter)) === $delimiter) {
+                    $sql = substr($statement, 0, -strlen($delimiter));
+                    if ($mysqli->multi_query($sql) === false) {
+                        fclose($fh);
+                        throw new RuntimeException("SQL error: " . $mysqli->error);
+                    }
+                    // Flush any result sets
+                    while ($mysqli->more_results() && $mysqli->next_result()) { /* discard */ }
+                    $statement = '';
+                }
+            }
+            fclose($fh);
+        }
+    }
+
+    // ---------- 1) Validate uploaded backup ----------
     if (!isset($_FILES['backup_zip']) || $_FILES['backup_zip']['error'] !== UPLOAD_ERR_OK) {
         die("No backup file uploaded or upload failed.");
     }
+
     $file = $_FILES['backup_zip'];
-
-    if ($file['size'] > 4 * 1024 * 1024 * 1024) {
-        die("Backup archive is too large.");
-    }
-
-    $fi = new finfo(FILEINFO_MIME_TYPE);
-    $mime = $fi->file($file['tmp_name']);
-    if ($mime !== 'application/zip' && $mime !== 'application/x-zip-compressed') {
-        die("Invalid archive type; only .zip is supported.");
-    }
-
-    $ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
-    if ($ext !== 'zip') {
+    $fileExt = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+    if ($fileExt !== "zip") {
         die("Only .zip files are allowed.");
     }
 
-    // ---------- 2) Save outer zip to temp ----------
-    $timestamp = date('YmdHis');
-    $tempZip = tempnam(sys_get_temp_dir(), "restore_{$timestamp}_");
+    // ---------- 2) Save to secure temp ----------
+    $tempZip = tempnam(sys_get_temp_dir(), "restore_");
     if (!move_uploaded_file($file["tmp_name"], $tempZip)) {
         die("Failed to save uploaded backup file.");
     }
     @chmod($tempZip, 0600);
 
-    // ---------- 3) Extract OUTER backup zip ----------
-    $tempDir = sys_get_temp_dir() . "/restore_temp_" . bin2hex(random_bytes(6));
+    $zip = new ZipArchive;
+    if ($zip->open($tempZip) !== TRUE) {
+        @unlink($tempZip);
+        die("Failed to open backup zip file.");
+    }
+
+    // ---------- 3) Guard & extract OUTER zip ----------
+    $tempDir = sys_get_temp_dir() . "/restore_temp_" . uniqid("", true);
     if (!mkdir($tempDir, 0700, true)) {
+        $zip->close();
         @unlink($tempZip);
         die("Failed to create temp directory.");
     }
 
-    $zip = new ZipArchive;
-    if ($zip->open($tempZip) !== TRUE) {
-        @unlink($tempZip);
-        deleteDir($tempDir);
-        die("Failed to open backup zip file.");
+    // Zip-slip guard (outer)
+    for ($i = 0; $i < $zip->numFiles; $i++) {
+        $name = $zip->getNameIndex($i);
+        if ($name === false) continue;
+        if (strpos($name, '..') !== false || preg_match('#^(?:/|\\\\|[a-zA-Z]:[\\\\/])#', $name)) {
+            $zip->close();
+            @unlink($tempZip);
+            deleteDir($tempDir);
+            die("Invalid file path in outer ZIP.");
+        }
     }
 
-    try {
-        safeExtractZip($zip, $tempDir); // helper (safe extraction)
-    } catch (Throwable $e) {
+    if (!$zip->extractTo($tempDir)) {
         $zip->close();
         @unlink($tempZip);
         deleteDir($tempDir);
-        die("Invalid backup archive: " . htmlspecialchars($e->getMessage(), ENT_QUOTES, 'UTF-8'));
+        die("Failed to extract backup contents.");
     }
+
     $zip->close();
     @unlink($tempZip);
 
-    $sqlPath     = $tempDir . "/db.sql";
-    $uploadsZip  = $tempDir . "/uploads.zip";   // inner uploads zip
-    $versionTxt  = $tempDir . "/version.txt";
+    // ---------- 4) Restore SQL (via PHP, no CLI) ----------
+    $sqlPath = "$tempDir/db.sql";
+    if (file_exists($sqlPath)) {
+        // Drop-all first (foreign key safe)
+        mysqli_query($mysqli, "SET FOREIGN_KEY_CHECKS = 0");
+        $tables = mysqli_query($mysqli, "SHOW TABLES");
+        if ($tables) {
+            while ($row = mysqli_fetch_array($tables)) {
+                mysqli_query($mysqli, "DROP TABLE IF EXISTS `" . $row[0] . "`");
+            }
+        }
+        mysqli_query($mysqli, "SET FOREIGN_KEY_CHECKS = 1");
 
-    if (!is_file($sqlPath) || !is_readable($sqlPath)) {
+        try {
+            importSqlFile($mysqli, $sqlPath);
+        } catch (Throwable $e) {
+            deleteDir($tempDir);
+            die("SQL import failed: " . htmlspecialchars($e->getMessage(), ENT_QUOTES, 'UTF-8'));
+        }
+    } else {
         deleteDir($tempDir);
         die("Missing db.sql in the backup archive.");
     }
-    if (!is_file($uploadsZip) || !is_readable($uploadsZip)) {
+
+    // ---------- 5) Restore uploads directory ----------
+    $uploadDir  = rtrim(__DIR__ . "/../uploads", '/\\') . '/';
+    $uploadsZip = "$tempDir/uploads.zip";
+
+    if (!file_exists($uploadsZip)) {
         deleteDir($tempDir);
         die("Missing uploads.zip in the backup archive.");
     }
 
-    // ---------- 4) Optional: version compatibility ----------
-    if (defined('LATEST_DATABASE_VERSION') && is_file($versionTxt)) {
-        $txt = @file_get_contents($versionTxt) ?: '';
-        if (preg_match('/^Database Version:\s*(.+)$/mi', $txt, $m)) {
-            $backupVersion = trim($m[1]);
-            $running = LATEST_DATABASE_VERSION;
-            if (version_compare($backupVersion, $running, '>')) {
-                deleteDir($tempDir);
-                die("Backup schema ($backupVersion) is newer than this app ($running). Please upgrade ITFlow first, then retry restore.");
-            }
-        }
-    }
-
-    // ---------- 5) Restore SQL ----------
-    mysqli_query($mysqli, "SET FOREIGN_KEY_CHECKS = 0");
-    $tables = mysqli_query($mysqli, "SHOW TABLES");
-    if ($tables) {
-        while ($row = mysqli_fetch_array($tables)) {
-            $tbl = $row[0];
-            mysqli_query($mysqli, "DROP TABLE IF EXISTS `".$mysqli->real_escape_string($tbl)."`");
-        }
-    }
-    mysqli_query($mysqli, "SET FOREIGN_KEY_CHECKS = 1");
-
-    try {
-        importSqlFile($mysqli, $sqlPath); // helper
-    } catch (Throwable $e) {
+    $uploads = new ZipArchive;
+    if ($uploads->open($uploadsZip) !== TRUE) {
         deleteDir($tempDir);
-        die("SQL import failed: " . htmlspecialchars($e->getMessage(), ENT_QUOTES, 'UTF-8'));
+        die("Failed to open uploads.zip in backup.");
     }
 
-    // ---------- 6) Restore UPLOADS: DELETE existing, then REPLACE ----------
-$appRoot = realpath(__DIR__ . "/..");
-if ($appRoot === false) {
-    deleteDir($tempDir);
-    die("Failed to resolve app root.");
-}
-
-$uploadDir = $appRoot . "/uploads";
-
-// 6.a Extract inner uploads.zip to staging (with validation & scan report)
-$staging = $appRoot . "/uploads_restoring_" . bin2hex(random_bytes(4));
-if (!mkdir($staging, 0700, true)) {
-    deleteDir($tempDir);
-    die("Failed to create staging directory.");
-}
-
-$uz = new ZipArchive;
-if ($uz->open($uploadsZip) !== TRUE) {
-    deleteDir($staging);
-    deleteDir($tempDir);
-    die("Failed to open uploads.zip in backup.");
-}
-
-$scan = extractUploadsZipWithValidationReport($uz, $staging, [
-    'max_file_bytes' => 200 * 1024 * 1024,
-    'blocked_exts'   => [
-        'php','php3','php4','php5','php7','php8','phtml','phar',
-        'cgi','pl','sh','bash','zsh','exe','dll','bat','cmd','com',
-        'ps1','vbs','vb','jar','jsp','asp','aspx','so','dylib','bin'
-    ],
-]);
-$uz->close();
-
-if (!$scan['ok']) {
-    $lines = ["Unsafe file(s) detected in uploads.zip:"];
-    foreach ($scan['issues'] as $issue) {
-        $p = htmlspecialchars($issue['path'], ENT_QUOTES, 'UTF-8');
-        $r = htmlspecialchars($issue['reason'], ENT_QUOTES, 'UTF-8');
-        $lines[] = "• {$p} — {$r}";
-    }
-    deleteDir($staging);
-    deleteDir($tempDir);
-    $_SESSION['alert_message'] = nl2br(implode("\n", $lines));
-    header("Location: ?restore");
-    exit;
-}
-
-// 6.b Determine the actual content root inside staging
-    //    If the inner archive’s top-level is exactly "uploads/", use that; otherwise use staging itself.
-    $contentRoot = $staging;
-    $topEntries  = [];
-    if ($dh = opendir($staging)) {
-        while (($e = readdir($dh)) !== false) {
-            if ($e === '.' || $e === '..') continue;
-            $topEntries[] = $e;
-        }
-        closedir($dh);
-    }
-    sort($topEntries);
-
-    if (count($topEntries) === 1) {
-        $candidate = $staging . DIRECTORY_SEPARATOR . $topEntries[0];
-        if (is_dir($candidate) && strtolower($topEntries[0]) === 'uploads') {
-            // Use the "uploads" directory directly without moving/deleting staging yet
-            $contentRoot = $candidate;
-        }
-    }
-
-    // 6.c Sanity check: content root must have files
-    $hasFiles = false;
-    $ritCheck = new RecursiveIteratorIterator(
-        new RecursiveDirectoryIterator($contentRoot, FilesystemIterator::SKIP_DOTS)
-    );
-    foreach ($ritCheck as $f) {
-        if ($f->isFile()) { $hasFiles = true; break; }
-    }
-    if (!$hasFiles) {
-        deleteDir($staging);
-        deleteDir($tempDir);
-        die("Uploads restore failed: extracted content is empty (inner uploads.zip may be malformed or fully blocked).");
-    }
-
-    // 6.d Remove current /uploads and replace with restored content
-    if (is_dir($uploadDir)) {
-        deleteDir($uploadDir, $appRoot); // guarded delete under app root
-    }
-
-    // If contentRoot IS the staging root, try a simple rename
-    $renameSource = ($contentRoot === $staging) ? $staging : $contentRoot;
-    $renameOk = @rename($renameSource, $uploadDir);
-
-    // If we used the child "uploads" dir as contentRoot, staging still exists with an empty top; clean it later
-    if (!$renameOk) {
-        // Fallback: copy tree
-        if (!mkdir($uploadDir, 0750, true)) {
-            deleteDir($staging);
+    // Zip-slip guard (inner)
+    for ($i = 0; $i < $uploads->numFiles; $i++) {
+        $name = $uploads->getNameIndex($i);
+        if ($name === false) continue;
+        if (strpos($name, '..') !== false || preg_match('#^(?:/|\\\\|[a-zA-Z]:[\\\\/])#', $name)) {
+            $uploads->close();
             deleteDir($tempDir);
-            die("Failed to create uploads directory for placement.");
+            die("Invalid file path in uploads.zip.");
         }
+    }
 
-        $rit = new RecursiveIteratorIterator(
-            new RecursiveDirectoryIterator($contentRoot, FilesystemIterator::SKIP_DOTS),
+    // Ensure uploads dir exists then clean it
+    if (!is_dir($uploadDir)) {
+        if (!mkdir($uploadDir, 0750, true)) {
+            $uploads->close();
+            deleteDir($tempDir);
+            die("Failed to create uploads directory.");
+        }
+    } else {
+        foreach (new RecursiveIteratorIterator(
+            new RecursiveDirectoryIterator($uploadDir, FilesystemIterator::SKIP_DOTS),
+            RecursiveIteratorIterator::CHILD_FIRST
+        ) as $item) {
+            $item->isDir() ? @rmdir($item->getPathname()) : @unlink($item->getPathname());
+        }
+    }
+
+    // Extract uploads.zip directly into /uploads (your original, working behavior)
+    if (!$uploads->extractTo($uploadDir)) {
+        $uploads->close();
+        deleteDir($tempDir);
+        die("Failed to extract uploads.zip into uploads directory.");
+    }
+    $uploads->close();
+
+    // Verify uploads isn’t empty
+    $hasFiles = false;
+    $fileCount = 0; $dirCount = 0;
+    if (is_dir($uploadDir)) {
+        $it = new RecursiveIteratorIterator(
+            new RecursiveDirectoryIterator($uploadDir, FilesystemIterator::SKIP_DOTS),
             RecursiveIteratorIterator::SELF_FIRST
         );
-        foreach ($rit as $it) {
-            $rel = substr($it->getPathname(), strlen($contentRoot) + 1);
-            $dst = $uploadDir . DIRECTORY_SEPARATOR . $rel;
-            if ($it->isDir()) {
-                if (!is_dir($dst) && !mkdir($dst, 0750, true)) {
-                    deleteDir($uploadDir);
-                    deleteDir($staging);
-                    deleteDir($tempDir);
-                    die("Failed to create uploads subdir: $dst");
-                }
-            } else {
-                $pdir = dirname($dst);
-                if (!is_dir($pdir) && !mkdir($pdir, 0750, true)) {
-                    deleteDir($uploadDir);
-                    deleteDir($staging);
-                    deleteDir($tempDir);
-                    die("Failed to create uploads parent dir: $pdir");
-                }
-                if (!copy($it->getPathname(), $dst)) {
-                    deleteDir($uploadDir);
-                    deleteDir($staging);
-                    deleteDir($tempDir);
-                    die("Failed to place file into uploads: $rel");
-                }
-                @chmod($dst, 0640);
-            }
-        }
-        // If we copied only the inner "uploads" folder, we still need to clean the top-level staging
-        deleteDir($staging);
-    } else {
-        // rename succeeded; if we renamed the child "uploads", the original staging still exists – clean it
-        if ($contentRoot !== $staging) {
-            deleteDir($staging);
+        foreach ($it as $node) {
+            if ($node->isDir()) $dirCount++;
+            else { $fileCount++; $hasFiles = true; }
         }
     }
-
-    // 6.e Verify uploads now has files and report counts
-    $fileCount = 0; $dirCount = 0;
-    $ritVerify = new RecursiveIteratorIterator(
-        new RecursiveDirectoryIterator($uploadDir, FilesystemIterator::SKIP_DOTS),
-        RecursiveIteratorIterator::SELF_FIRST
-    );
-    foreach ($ritVerify as $it) {
-        if ($it->isDir()) $dirCount++;
-        else $fileCount++;
-    }
-    if ($fileCount === 0) {
+    if (!$hasFiles) {
         deleteDir($tempDir);
-        die("Uploads replace failed: resulting directory is empty.");
+        die("Uploads restore appears empty after extraction.");
     }
 
-    // ---------- 7) Log version info (optional) ----------
-    if (is_file($versionTxt)) {
+    // ---------- 6) Optional: version info ----------
+    $versionTxt = "$tempDir/version.txt";
+    if (file_exists($versionTxt)) {
         $versionInfo = @file_get_contents($versionTxt);
         if ($versionInfo !== false) {
             logAction("Backup Restore", "Version Info", $versionInfo);
         }
     }
 
-    // ---------- 8) Cleanup temp ----------
+    // ---------- 7) Cleanup temp ----------
     deleteDir($tempDir);
 
-    // ---------- 9) Finalize setup flag ----------
-    try {
-        setConfigFlagAtomic(__DIR__ . "/../config.php", "config_enable_setup", 0);
-    } catch (Throwable $e) {
-        try {
-            setConfigFlag(__DIR__ . "/../config.php", "config_enable_setup", 0);
-            if (function_exists('opcache_invalidate')) {
-                @opcache_invalidate(__DIR__ . "/../config.php", true);
-            }
-        } catch (\Throwable $e2) {
-            $_SESSION['alert_message'] =
-                "Restore completed, but couldn’t finalize setup flag automatically: " .
-                htmlspecialchars($e2->getMessage(), ENT_QUOTES, 'UTF-8');
-            header("Location: ../login.php");
-            exit;
-        }
+    // ---------- 8) Finalize setup flag (append safely) ----------
+    $configPath = __DIR__ . "/../config.php";
+    $append = "\n\$config_enable_setup = 0;\n\n";
+    if (!@file_put_contents($configPath, $append, FILE_APPEND | LOCK_EX)) {
+        $_SESSION['alert_message'] = "Backup restored ($fileCount files, $dirCount folders), but couldn't update setup flag — please set \$config_enable_setup = 0 in config.php.";
+    } else {
+        $_SESSION['alert_message'] = "Full backup restored successfully ($fileCount files, $dirCount folders).";
     }
 
-    // ---------- 10) Done ----------
-    $_SESSION['alert_message'] = "Full backup restored successfully. Uploads directory was replaced.";
+    // ---------- 9) Done ----------
     header("Location: ../login.php");
     exit;
 }
