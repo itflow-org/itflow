@@ -155,14 +155,6 @@ if (isset($_POST['restore'])) {
         }
     }
 
-    if (!function_exists('robustDirMove')) {
-        function robustDirMove(string $src, string $dst): void {
-            if (@rename($src, $dst)) return;   // fast path (same filesystem)
-            recursiveCopy($src, $dst);         // cross-FS fallback
-            deleteDir($src);
-        }
-    }
-
     if (!function_exists('listTopLevel')) {
         function listTopLevel(string $dir): array {
             if (!is_dir($dir)) return [];
@@ -190,6 +182,46 @@ if (isset($_POST['restore'])) {
                 if ($f->isFile()) $count++;
             }
             return $count;
+        }
+    }
+
+    if (!function_exists('mergeCopyCount')) {
+        /**
+         * Merge-copy all files from $src into $dst, creating subdirs as needed.
+         * Overwrites same-named files. Returns number of files written/overwritten.
+         */
+        function mergeCopyCount(string $src, string $dst): int {
+            if (!is_dir($src)) return 0;
+            if (!is_dir($dst) && !mkdir($dst, 0750, true)) {
+                throw new RuntimeException("Failed to create destination: $dst");
+            }
+            $it = new RecursiveIteratorIterator(
+                new RecursiveDirectoryIterator($src, FilesystemIterator::SKIP_DOTS),
+                RecursiveIteratorIterator::SELF_FIRST
+            );
+
+            $written = 0;
+            foreach ($it as $item) {
+                $rel = substr($item->getPathname(), strlen($src) + 1); // relative path
+                $target = $dst . DIRECTORY_SEPARATOR . $rel;
+
+                if ($item->isDir()) {
+                    if (!is_dir($target) && !mkdir($target, 0750, true)) {
+                        throw new RuntimeException("Failed to create directory: $target");
+                    }
+                } else {
+                    $parent = dirname($target);
+                    if (!is_dir($parent) && !mkdir($parent, 0750, true)) {
+                        throw new RuntimeException("Failed to create directory: $parent");
+                    }
+                    if (!copy($item->getPathname(), $target)) {
+                        throw new RuntimeException("Failed to copy file: " . $item->getPathname());
+                    }
+                    @chmod($target, 0640);
+                    $written++;
+                }
+            }
+            return $written;
         }
     }
 
@@ -238,9 +270,9 @@ if (isset($_POST['restore'])) {
             }
         }
     }
-    // ---------- /inline helpers ----------
+    // ---------- /helpers ----------
 
-    // --- Basic env guards for long operations ---
+    // --- Long ops guard ---
     @set_time_limit(0);
     if (function_exists('ini_set')) { @ini_set('memory_limit', '1024M'); }
 
@@ -273,7 +305,7 @@ if (isset($_POST['restore'])) {
     }
     @chmod($tempZip, 0600);
 
-    // --- 3) Extract the OUTER backup zip to a unique temp dir ---
+    // --- 3) Extract OUTER backup zip ---
     $tempDir = sys_get_temp_dir() . "/restore_temp_" . bin2hex(random_bytes(6));
     if (!mkdir($tempDir, 0700, true)) {
         @unlink($tempZip);
@@ -298,9 +330,9 @@ if (isset($_POST['restore'])) {
     $zip->close();
     @unlink($tempZip);
 
-    // --- Expected inner files ---
+    // Expected paths inside extracted archive
     $sqlPath     = $tempDir . "/db.sql";
-    $uploadsZip  = $tempDir . "/uploads.zip";   // <- inner uploads zip
+    $uploadsZip  = $tempDir . "/uploads.zip";  // inner uploads zip
     $versionTxt  = $tempDir . "/version.txt";
 
     if (!is_file($sqlPath) || !is_readable($sqlPath)) {
@@ -312,7 +344,7 @@ if (isset($_POST['restore'])) {
         die("Missing uploads.zip in the backup archive.");
     }
 
-    // --- 4) Optional: check DB version compatibility ---
+    // --- 4) Optional: version compatibility check ---
     if (defined('LATEST_DATABASE_VERSION') && is_file($versionTxt)) {
         $txt = @file_get_contents($versionTxt) ?: '';
         if (preg_match('/^Database Version:\s*(.+)$/mi', $txt, $m)) {
@@ -343,7 +375,7 @@ if (isset($_POST['restore'])) {
         die("SQL import failed: " . htmlspecialchars($e->getMessage(), ENT_QUOTES, 'UTF-8'));
     }
 
-    // --- 6) Restore UPLOADS (the inner uploads.zip) via staging + robust swap ---
+    // --- 6) Restore UPLOADS (inner uploads.zip) via VALIDATED MERGE ---
     $appRoot   = realpath(__DIR__ . "/..");
     $uploadDir = realpath($appRoot . "/uploads");
     if ($uploadDir === false) {
@@ -358,17 +390,20 @@ if (isset($_POST['restore'])) {
         deleteDir($tempDir);
         die("Uploads directory path invalid.");
     }
-    if (!is_writable(dirname($uploadDir))) {
+    if (!is_writable($uploadDir)) {
+        // We need to write *inside* uploads for merge; not just the parent.
         deleteDir($tempDir);
-        die("Uploads restore failed: target parent dir is not writable by web server.");
+        die("Uploads restore failed: uploads directory is not writable by web server.");
     }
 
+    // Prepare staging area to extract inner uploads.zip
     $staging = $appRoot . "/uploads_restoring_" . bin2hex(random_bytes(4));
     if (!mkdir($staging, 0700, true)) {
         deleteDir($tempDir);
         die("Failed to create staging directory.");
     }
 
+    // Open inner uploads.zip
     $uz = new ZipArchive;
     if ($uz->open($uploadsZip) !== TRUE) {
         deleteDir($staging);
@@ -376,7 +411,7 @@ if (isset($_POST['restore'])) {
         die("Failed to open uploads.zip in backup.");
     }
 
-    // Validate + buffer all entries; no writes if any issue (scan-report mode)
+    // Validate contents (scan report mode). On any issue, nothing is written.
     $result = extractUploadsZipWithValidationReport($uz, $staging, [
         'max_file_bytes' => 200 * 1024 * 1024,
         'blocked_exts'   => [
@@ -401,14 +436,15 @@ if (isset($_POST['restore'])) {
         exit;
     }
 
-    // If the inner zip has a single top-level folder (e.g., "uploads/"), promote it
+    // If inner zip has a single top-level folder (e.g., "uploads/"), promote it
     $roots = listTopLevel($staging);
     if (count($roots) === 1) {
         $candidate = $staging . DIRECTORY_SEPARATOR . $roots[0];
         if (is_dir($candidate)) {
             $stagingPromoted = $staging . "_promoted";
             if (!@rename($candidate, $stagingPromoted)) {
-                recursiveCopy($candidate, $stagingPromoted); // cross-FS fallback
+                // cross-FS fallback
+                recursiveCopy($candidate, $stagingPromoted);
                 deleteDir($candidate);
             }
             $old = $staging;
@@ -417,44 +453,44 @@ if (isset($_POST['restore'])) {
         }
     }
 
-    // Ensure staging has content
+    // Sanity: staging must have content
     if (countFilesRecursive($staging) === 0) {
         deleteDir($staging);
         deleteDir($tempDir);
         die("Uploads restore failed: extracted staging is empty. The inner uploads.zip may be malformed or all files were blocked.");
     }
 
-    // Rotate current uploads out; robust moves on both steps
+    // Snapshot current uploads for rollback, then MERGE staging -> uploads
     $backupOld = $appRoot . "/uploads_old_" . time();
     try {
-        if (is_dir($uploadDir)) {
-            if (!@rename($uploadDir, $backupOld)) {
-                recursiveCopy($uploadDir, $backupOld); // cross-FS fallback
-                deleteDir($uploadDir);
-            }
+        // Full snapshot for safety
+        recursiveCopy($uploadDir, $backupOld);
+
+        // Merge-copy into existing uploads (create dirs, overwrite same-named files)
+        $written = mergeCopyCount($staging, $uploadDir);
+
+        if ($written <= 0) {
+            // No files written — something's off. Rollback.
+            throw new RuntimeException("No files were merged into uploads (written=$written).");
         }
-        robustDirMove($staging, $uploadDir);
+
     } catch (Throwable $e) {
-        // rollback if possible
-        if (is_dir($backupOld) && !is_dir($uploadDir)) {
-            @rename($backupOld, $uploadDir);
+        // Rollback to pre-merge state
+        try {
+            if (is_dir($backupOld)) {
+                // Restore snapshot over current uploads
+                deleteDir($uploadDir);
+                recursiveCopy($backupOld, $uploadDir);
+            }
+        } catch (\Throwable $rollbackErr) {
+            // Best effort rollback
         }
         deleteDir($staging);
         deleteDir($tempDir);
-        die("Uploads restore failed during swap: " . htmlspecialchars($e->getMessage(), ENT_QUOTES, 'UTF-8'));
+        die("Uploads restore failed during merge: " . htmlspecialchars($e->getMessage(), ENT_QUOTES, 'UTF-8'));
     }
 
-    // Verify restored uploads; rollback if empty
-    $restoredCount = countFilesRecursive($uploadDir);
-    if ($restoredCount === 0) {
-        if (is_dir($backupOld)) {
-            @rename($uploadDir, $uploadDir . "_bad_" . time());
-            @rename($backupOld, $uploadDir);
-        }
-        deleteDir($tempDir);
-        die("Uploads restore appears empty after swap. Rolled back to old uploads.");
-    }
-    // Optionally delete the old uploads after a grace period:
+    // Optional: keep $backupOld for a while; or delete it once you confirm
     // deleteDir($backupOld);
 
     // --- 7) Log version info (optional) ---
@@ -465,14 +501,14 @@ if (isset($_POST['restore'])) {
         }
     }
 
-    // --- 8) Cleanup temp dir ---
+    // --- 8) Cleanup temp dir + staging ---
+    deleteDir($staging);
     deleteDir($tempDir);
 
     // --- 9) Finalize setup flag atomically (and clear OPcache) ---
     try {
         setConfigFlagAtomic(__DIR__ . "/../config.php", "config_enable_setup", 0);
     } catch (Throwable $e) {
-        // Fallback append (best-effort) and allow login
         @file_put_contents(__DIR__ . "/../config.php", "\n\$config_enable_setup = 0;\n", FILE_APPEND);
         $_SESSION['alert_message'] =
             "Backup restored, but couldn’t finalize setup flag automatically: " .
@@ -482,11 +518,10 @@ if (isset($_POST['restore'])) {
     }
 
     // --- 10) Done ---
-    $_SESSION['alert_message'] = "Full backup restored successfully. Restored {$restoredCount} upload file(s).";
+    $_SESSION['alert_message'] = "Full backup restored successfully. Merged {$written} upload file(s).";
     header("Location: ../login.php");
     exit;
 }
-
 
 if (isset($_POST['add_user'])) {
     $user_count = mysqli_num_rows(mysqli_query($mysqli,"SELECT COUNT(*) FROM users"));
