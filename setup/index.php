@@ -5,7 +5,8 @@ if (file_exists("../config.php")) {
 
 }
 
-include "../functions.php";
+include "../functions.php"; // Global Functions
+include "setup_functions.php"; // Setup Only Functions
 include "../includes/database_version.php";
 
 if (!isset($config_enable_setup)) {
@@ -127,134 +128,220 @@ if (isset($_POST['add_database'])) {
 
 if (isset($_POST['restore'])) {
 
-    // === 1. Validate uploaded file ===
+    // --- CSRF check (add a token to the form; see form snippet below) ---
+    if (!hash_equals($_SESSION['csrf'] ?? '', $_POST['csrf'] ?? '')) {
+        http_response_code(403);
+        exit("Invalid CSRF token.");
+    }
+
+    // --- Basic env guards for long operations ---
+    @set_time_limit(0);
+    if (function_exists('ini_set')) { @ini_set('memory_limit', '1024M'); }
+
+    // --- 1) Validate uploaded file ---
     if (!isset($_FILES['backup_zip']) || $_FILES['backup_zip']['error'] !== UPLOAD_ERR_OK) {
         die("No backup file uploaded or upload failed.");
     }
-
     $file = $_FILES['backup_zip'];
-    $fileExt = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
-    if ($fileExt !== "zip") {
+
+    // Size limit (e.g., 4 GB)
+    if ($file['size'] > 4 * 1024 * 1024 * 1024) {
+        die("Backup archive is too large.");
+    }
+
+    // MIME check
+    $fi = new finfo(FILEINFO_MIME_TYPE);
+    $mime = $fi->file($file['tmp_name']);
+    if ($mime !== 'application/zip' && $mime !== 'application/x-zip-compressed') {
+        die("Invalid archive type; only .zip is supported.");
+    }
+
+    // Extension check (defense in depth)
+    $ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+    if ($ext !== 'zip') {
         die("Only .zip files are allowed.");
     }
 
-    // === 2. Move to secure temp location ===
-    $tempZip = tempnam(sys_get_temp_dir(), "restore_");
+    // --- 2) Move to secure temp location ---
+    $timestamp = date('YmdHis');
+    $tempZip = tempnam(sys_get_temp_dir(), "restore_{$timestamp}_");
     if (!move_uploaded_file($file["tmp_name"], $tempZip)) {
         die("Failed to save uploaded backup file.");
+    }
+    @chmod($tempZip, 0600);
+
+    // --- 3) Extract safely to unique temp dir ---
+    $tempDir = sys_get_temp_dir() . "/restore_temp_" . bin2hex(random_bytes(6));
+    if (!mkdir($tempDir, 0700, true)) {
+        @unlink($tempZip);
+        die("Failed to create temp directory.");
     }
 
     $zip = new ZipArchive;
     if ($zip->open($tempZip) !== TRUE) {
-        unlink($tempZip);
+        @unlink($tempZip);
+        deleteDir($tempDir);
         die("Failed to open backup zip file.");
     }
 
-    // === 3. Zip-slip protection and extract to unique dir ===
-    $tempDir = sys_get_temp_dir() . "/restore_temp_" . uniqid();
-    mkdir($tempDir, 0700, true);
-
-    for ($i = 0; $i < $zip->numFiles; $i++) {
-        $stat = $zip->statIndex($i);
-        if (strpos($stat['name'], '..') !== false) {
-            $zip->close();
-            unlink($tempZip);
-            die("Invalid file path in ZIP.");
-        }
-    }
-
-    if (!$zip->extractTo($tempDir)) {
+    try {
+        safeExtractZip($zip, $tempDir);
+    } catch (Throwable $e) {
         $zip->close();
-        unlink($tempZip);
-        die("Failed to extract backup contents.");
+        @unlink($tempZip);
+        deleteDir($tempDir);
+        die("Invalid backup archive: " . htmlspecialchars($e->getMessage(), ENT_QUOTES, 'UTF-8'));
     }
-
     $zip->close();
-    unlink($tempZip);
+    @unlink($tempZip);
 
-    // === 4. Restore SQL ===
-    $sqlPath = "$tempDir/db.sql";
-    if (file_exists($sqlPath)) {
-        mysqli_query($mysqli, "SET foreign_key_checks = 0");
-        $tables = mysqli_query($mysqli, "SHOW TABLES");
-        while ($row = mysqli_fetch_array($tables)) {
-            mysqli_query($mysqli, "DROP TABLE IF EXISTS `" . $row[0] . "`");
-        }
-        mysqli_query($mysqli, "SET foreign_key_checks = 1");
+    // Paths inside extracted archive
+    $sqlPath     = $tempDir . "/db.sql";
+    $uploadsZip  = $tempDir . "/uploads.zip";
+    $versionTxt  = $tempDir . "/version.txt";
 
-        // Use env var to avoid exposing password
-        putenv("MYSQL_PWD=$dbpassword");
-        $command = sprintf(
-            'mysql -h%s -u%s %s < %s',
-            escapeshellarg($dbhost),
-            escapeshellarg($dbusername),
-            escapeshellarg($database),
-            escapeshellarg($sqlPath)
-        );
-
-        exec($command, $output, $returnCode);
-        if ($returnCode !== 0) {
-            deleteDir($tempDir);
-            die("SQL import failed. Error code: $returnCode");
-        }
-    } else {
+    if (!is_file($sqlPath) || !is_readable($sqlPath)) {
         deleteDir($tempDir);
         die("Missing db.sql in the backup archive.");
     }
-
-    // === 5. Restore uploads directory ===
-    $uploadDir = __DIR__ . "/../uploads/";
-    $uploadsZip = "$tempDir/uploads.zip";
-
-    if (file_exists($uploadsZip)) {
-        $uploads = new ZipArchive;
-        if ($uploads->open($uploadsZip) === TRUE) {
-            // Clean existing uploads
-            foreach (new RecursiveIteratorIterator(
-                new RecursiveDirectoryIterator($uploadDir, FilesystemIterator::SKIP_DOTS),
-                RecursiveIteratorIterator::CHILD_FIRST
-            ) as $item) {
-                $item->isDir() ? rmdir($item) : unlink($item);
-            }
-
-            $uploads->extractTo($uploadDir);
-            $uploads->close();
-        } else {
-            deleteDir($tempDir);
-            die("Failed to open uploads.zip in backup.");
-        }
-    } else {
+    if (!is_file($uploadsZip) || !is_readable($uploadsZip)) {
         deleteDir($tempDir);
         die("Missing uploads.zip in the backup archive.");
     }
 
-    // === 6. Read version.txt (optional display/logging) ===
-    $versionTxt = "$tempDir/version.txt";
-    if (file_exists($versionTxt)) {
-        $versionInfo = file_get_contents($versionTxt);
-        logAction("Backup Restore", "Version Info", $versionInfo);
+    // --- 4) Optional: check version compatibility ---
+    if (defined('LATEST_DATABASE_VERSION') && is_file($versionTxt)) {
+        $txt = @file_get_contents($versionTxt) ?: '';
+        // Try to find line "Database Version: X"
+        if (preg_match('/^Database Version:\s*(.+)$/mi', $txt, $m)) {
+            $backupVersion = trim($m[1]);
+            $running = LATEST_DATABASE_VERSION;
+            // If backup schema is newer, abort with instruction
+            if (version_compare($backupVersion, $running, '>')) {
+                deleteDir($tempDir);
+                die("Backup schema ($backupVersion) is newer than this app ($running). Please upgrade ITFlow first, then retry restore.");
+            }
+        }
     }
 
-    // === 7. Clean up temp dir ===
-    function deleteDir($dir) {
-        if (!is_dir($dir)) return;
-        $items = new RecursiveIteratorIterator(
-            new RecursiveDirectoryIterator($dir, FilesystemIterator::SKIP_DOTS),
-            RecursiveIteratorIterator::CHILD_FIRST
-        );
-        foreach ($items as $item) {
-            $item->isDir() ? rmdir($item) : unlink($item);
+    // --- 5) Restore SQL (drop + import) ---
+    // Drop all tables
+    mysqli_query($mysqli, "SET FOREIGN_KEY_CHECKS = 0");
+    $tables = mysqli_query($mysqli, "SHOW TABLES");
+    if ($tables) {
+        while ($row = mysqli_fetch_array($tables)) {
+            $tbl = $row[0];
+            mysqli_query($mysqli, "DROP TABLE IF EXISTS `".$mysqli->real_escape_string($tbl)."`");
         }
-        rmdir($dir);
     }
+    mysqli_query($mysqli, "SET FOREIGN_KEY_CHECKS = 1");
+
+    try {
+        importSqlFile($mysqli, $sqlPath);
+    } catch (Throwable $e) {
+        deleteDir($tempDir);
+        die("SQL import failed: " . htmlspecialchars($e->getMessage(), ENT_QUOTES, 'UTF-8'));
+    }
+
+    // --- 6) Restore uploads via staging + atomic swap ---
+    $appRoot   = realpath(__DIR__ . "/..");
+    $uploadDir = realpath($appRoot . "/uploads");
+    if ($uploadDir === false) {
+        // uploads might not exist yet
+        $uploadDir = $appRoot . "/uploads";
+        if (!mkdir($uploadDir, 0750, true)) {
+            deleteDir($tempDir);
+            die("Failed to create uploads directory.");
+        }
+        $uploadDir = realpath($uploadDir);
+    }
+
+    if ($uploadDir === false || str_starts_with($uploadDir, $appRoot) === false) {
+        deleteDir($tempDir);
+        die("Uploads directory path invalid.");
+    }
+
+    $staging   = $appRoot . "/uploads_restoring_" . bin2hex(random_bytes(4));
+    if (!mkdir($staging, 0700, true)) {
+        deleteDir($tempDir);
+        die("Failed to create staging directory.");
+    }
+
+    $uz = new ZipArchive;
+    if ($uz->open($uploadsZip) !== TRUE) {
+        deleteDir($staging);
+        deleteDir($tempDir);
+        die("Failed to open uploads.zip in backup.");
+    }
+
+    // IMPORTANT: staging dir should be empty here (as in your existing flow)
+    $result = extractUploadsZipWithValidationReport($uz, $staging, [
+        'max_file_bytes' => 200 * 1024 * 1024, // adjust per-file size cap
+        'blocked_exts'   => [
+            'php','php3','php4','php5','php7','php8','phtml','phar',
+            'cgi','pl','sh','bash','zsh','exe','dll','bat','cmd','com',
+            'ps1','vbs','vb','jar','jsp','asp','aspx','so','dylib','bin'
+        ],
+    ]);
+    $uz->close();
+
+    if (!$result['ok']) {
+        // Build a user-friendly report
+        $lines = ["Unsafe file(s) detected in uploads.zip:"];
+        foreach ($result['issues'] as $issue) {
+            $p = htmlspecialchars($issue['path'], ENT_QUOTES, 'UTF-8');
+            $r = htmlspecialchars($issue['reason'], ENT_QUOTES, 'UTF-8');
+            $lines[] = "• {$p} — {$r}";
+        }
+
+        // Clean staging and temp and show the report
+        deleteDir($staging);
+        deleteDir($tempDir);
+        
+        $_SESSION['alert_message'] = nl2br(implode("\n", $lines));
+        header("Location: ?restore");
+        exit;
+
+    }
+
+    // Rotate old uploads out, promote staging in
+    $backupOld = $appRoot . "/uploads_old_" . time();
+    if (!rename($uploadDir, $backupOld)) {
+        deleteDir($staging);
+        deleteDir($tempDir);
+        die("Failed to rotate old uploads.");
+    }
+    if (!rename($staging, $uploadDir)) {
+        // try to revert
+        @rename($backupOld, $uploadDir);
+        deleteDir($tempDir);
+        die("Failed to promote restored uploads.");
+    }
+    // Optional: clean old uploads now or keep briefly for rollback
+    // deleteDir($backupOld);
+
+    // --- 7) Log version info (optional) ---
+    if (is_file($versionTxt)) {
+        $versionInfo = @file_get_contents($versionTxt);
+        if ($versionInfo !== false) {
+            logAction("Backup Restore", "Version Info", $versionInfo);
+        }
+    }
+
+    // --- 8) Cleanup temp dir ---
     deleteDir($tempDir);
 
-    // === 8. Optional: finalize setup flag ===
-    $myfile = fopen("../config.php", "a");
-    fwrite($myfile, "\$config_enable_setup = 0;\n\n");
-    fclose($myfile);
+    // --- 9) Finalize setup flag (idempotent) ---
+    try {
+        setConfigFlag("../config.php", "config_enable_setup", 0);
+    } catch (Throwable $e) {
+        // Non-fatal; warn but continue to login
+        $_SESSION['alert_message'] = "Backup restored, but failed to finalize setup flag in config.php: " . htmlspecialchars($e->getMessage(), ENT_QUOTES, 'UTF-8');
+        header("Location: ../login.php");
+        exit;
+    }
 
-    // === 9. Done ===
+    // --- 10) Done ---
     $_SESSION['alert_message'] = "Full backup restored successfully.";
     header("Location: ../login.php");
     exit;
@@ -1109,9 +1196,15 @@ if (isset($_POST['add_telemetry'])) {
                                 <h3 class="card-title"><i class="fas fa-fw fa-database mr-2"></i>Restore from Backup</h3>
                             </div>
                             <div class="card-body">
-                                <form method="post" enctype="multipart/form-data">
+                                <?php
+                                // generate CSRF token for this form
+                                if (empty($_SESSION['csrf'])) { $_SESSION['csrf'] = bin2hex(random_bytes(32)); }
+                                ?>
+                                <form method="post" enctype="multipart/form-data" autocomplete="off">
+                                    <input type="hidden" name="csrf" value="<?php echo htmlspecialchars($_SESSION['csrf']); ?>">
                                     <label>Restore ITFlow Backup (.zip)</label>
                                     <input type="file" name="backup_zip" accept=".zip" required>
+                                    <p class="text-muted mt-2 mb-0"><small>Large restores may take several minutes. Do not close this page.</small></p>
                                     <hr>
                                     <button type="submit" name="restore" class="btn btn-primary text-bold">
                                         Restore Backup<i class="fas fa-fw fa-upload ml-2"></i>

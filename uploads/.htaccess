@@ -1,0 +1,11 @@
+php_flag engine off
+RemoveHandler .php .phtml .php3 .php4 .php5 .php7 .php8
+RemoveType application/x-httpd-php
+<FilesMatch "\.(php|phtml|php[0-9])$">
+    Deny from all
+</FilesMatch>
+Options -ExecCGI
+AddHandler cgi-script .cgi .pl .sh .bash .zsh
+<FilesMatch "\.(cgi|pl|sh|bash|zsh)$">
+    Deny from all
+</FilesMatch>
