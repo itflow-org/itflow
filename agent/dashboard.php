@@ -660,7 +660,7 @@ if ($user_config_dashboard_technical_enable == 1) {
             <a class="small-box bg-warning" href="domains.php?sort=domain_expire&order=ASC">
                 <div class="inner">
                     <h3><?php echo $expiring_domains; ?></h3>
-                    <p>Expiring Domains</p>
+                    <p>Expiring Domains <small>30 Day</small></p>
                 </div>
                 <div class="icon">
                     <i class="fa fa-globe"></i>
@@ -673,7 +673,7 @@ if ($user_config_dashboard_technical_enable == 1) {
             <a class="small-box bg-primary" href="certificates.php?sort=certificate_expire&order=ASC">
                 <div class="inner">
                     <h3><?php echo $expiring_certificates; ?></h3>
-                    <p>Expiring Certificates</p>
+                    <p>Expiring Certificates<small>30 Day</small></p>
                 </div>
                 <div class="icon">
                     <i class="fa fa-lock"></i>
