@@ -85,6 +85,7 @@ if (isset($_GET['query'])) {
         LEFT JOIN ticket_statuses ON ticket_status = ticket_status_id
         WHERE ticket_archived_at IS NULL
             AND (ticket_subject LIKE '%$query%'
+            OR CONCAT(ticket_prefix,ticket_number) LIKE '%$q%'
             OR ticket_number = '$ticket_num_query')
             $access_permission_query
         ORDER BY ticket_id DESC LIMIT 5"
@@ -93,7 +94,8 @@ if (isset($_GET['query'])) {
     $sql_recurring_tickets = mysqli_query($mysqli, "SELECT * FROM recurring_tickets
         LEFT JOIN clients ON recurring_ticket_client_id = client_id
         WHERE (recurring_ticket_subject LIKE '%$query%'
-            OR recurring_ticket_details LIKE '%$query%')
+            OR recurring_ticket_details LIKE '%$query%'
+            CONCAT(recurring_ticket_prefix,recurring_ticket_number) LIKE '%$q%')
             $access_permission_query
         ORDER BY recurring_ticket_id DESC LIMIT 5"
     );
