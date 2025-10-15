@@ -14,7 +14,7 @@
                 <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
                 <?php } ?>
                 <div class="modal-body">
-                    <p><strong>Format csv file with headings & data:</strong><br>Name, Description, Type, Make, Model, Serial, OS, Purchase Date, Assigned To, Location, Physical Location</p>
+                    <p><strong>Format csv file with headings & data:</strong><br>Name, Description, Type, Make, Model, Serial, OS, Purchase Date, Assigned To, Location, Physical Location, Notes</p>
                     <hr>
                     <div class="form-group my-4">
                         <input type="file" class="form-control-file" name="file" accept=".csv" required>
