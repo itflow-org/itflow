@@ -169,14 +169,15 @@ $(document).ready(function() {
       { name: 'lists', items: ['bullist', 'numlist'] },
       { name: 'indentation', items: ['outdent', 'indent'] },
       { name: 'ai', items: ['reword', 'undo', 'redo'] },
-      { name: 'custom', items: ['redactButton'] } // Add custom redact button to toolbar
+      { name: 'custom', items: ['redactButton'] }, // Add custom redact button to toolbar
+      { name: 'code', items: ['code'] },
     ],
     mobile: {
       menubar: false,
       toolbar: 'bold italic styles'
     },
     convert_urls: false,
-    plugins: 'link image lists table code codesample fullscreen autoresize',
+    plugins: 'link image lists table code codesample fullscreen autoresize code',
     license_key: 'gpl',
     setup: function(editor) {
       var rewordButtonApi;
