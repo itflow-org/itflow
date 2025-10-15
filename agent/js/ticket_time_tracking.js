@@ -23,6 +23,15 @@
         }
 
         function displayTime() {
+
+            // Show hrs, mins, sec input placeholders if auto-start is off
+            if (elapsedSecs === 0) {
+                document.getElementById("hours").value = "";
+                document.getElementById("minutes").value = "";
+                document.getElementById("seconds").value = "";
+                return;
+            }
+
             let totalSeconds = elapsedSecs;
             let hours = Math.floor(totalSeconds / 3600);
             totalSeconds %= 3600;
