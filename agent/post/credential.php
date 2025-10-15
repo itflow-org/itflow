@@ -317,8 +317,6 @@ if (isset($_POST['export_credentials_csv'])) {
 
     //get records from database
     $sql = mysqli_query($mysqli,"SELECT * FROM credentials LEFT JOIN clients ON client_id = credential_client_id WHERE credential_archived_at IS NULL $client_query ORDER BY credential_name ASC");
-    $row = mysqli_fetch_array($sql);
-
     $num_rows = mysqli_num_rows($sql);
 
     if ($num_rows > 0) {
@@ -331,14 +329,14 @@ if (isset($_POST['export_credentials_csv'])) {
         $f = fopen('php://memory', 'w');
 
         //set column headers
-        $fields = array('Name', 'Description', 'Username', 'Password', 'URI');
+        $fields = array('Name', 'Description', 'Username', 'Password', 'TOTP', 'URI');
         fputcsv($f, $fields, $delimiter, $enclosure, $escape);
 
         //output each row of the data, format line as csv and write to file pointer
         while($row = mysqli_fetch_assoc($sql)){
             $credential_username = decryptCredentialEntry($row['credential_username']);
             $credential_password = decryptCredentialEntry($row['credential_password']);
-            $lineData = array($row['credential_name'], $row['credential_description'], $credential_username, $credential_password, $row['credential_uri']);
+            $lineData = array($row['credential_name'], $row['credential_description'], $credential_username, $credential_password, $row['credential_otp_secret'], $row['credential_uri']);
             fputcsv($f, $lineData, $delimiter, $enclosure, $escape);
         }
 
