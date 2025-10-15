@@ -179,7 +179,7 @@ if (isset($_GET['archive_client'])) {
     while ($row = mysqli_fetch_array($sql_recurring_invoices)) {
         $recurring_invoice_id = intval($row['recurring_invoice_id']);
         mysqli_query($mysqli,"UPDATE recurring_invoices SET recurring_invoice_status = 0 WHERE recurring_invoice_id = $recurring_invoice_id AND recurring_invoice_client_id = $client_id");
-        mysqli_query($mysqli,"INSERT INTO history SET history_status = '$status', history_description = 'Recurring Invoice inactive as client archived', history_recurring_invoice_id = $recurring_invoice_id");
+        mysqli_query($mysqli,"INSERT INTO history SET history_status = 0, history_description = 'Recurring Invoice inactive as client archived', history_recurring_invoice_id = $recurring_invoice_id");
     }
 
     // Get Client Name
