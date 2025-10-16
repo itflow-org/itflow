@@ -284,7 +284,7 @@ function addReply($from_email, $date, $subject, $ticket_number, $message, $attac
                 $tech_name = sanitizeInput($tech_row['user_name']);
 
                 $email_subject = "$config_app_name - Ticket updated - [$config_ticket_prefix$ticket_number] $ticket_subject";
-                $email_body    = "Hello $tech_name,<br><br>A new reply has been added to the below ticket, check ITFlow for full details.<br><br>Client: $client_name<br>Ticket: $config_ticket_prefix$ticket_number<br>Subject: $ticket_subject<br><br>https://$config_base_url/agent/ticket.php?ticket_id=$ticket_id";
+                $email_body    = "Hello $tech_name,<br><br>A new reply has been added to the below ticket.<br><br>Client: $client_name<br>Ticket: $config_ticket_prefix$ticket_number<br>Subject: $ticket_subject<br>Link: https://$config_base_url/agent/ticket.php?ticket_id=$ticket_id<br><br>--------------------------------<br>$message_esc";
 
                 $data = [
                     [
@@ -546,17 +546,10 @@ $unprocessed_count = 0;
 foreach ($messages as $message) {
     $email_processed = false;
 
-    // Save original RFC822 message as .eml
+    // Save original message as .eml (getRawMessage() doesn't seem to work properly)
     mkdirMissing('../uploads/tmp/');
     $original_message_file = "processed-eml-" . randomString(200) . ".eml";
-
-    try {
-        // getRawMessage() available in v3; for v2 use getHeader()->raw or getStructure()? We'll try getRawMessage()
-        $raw_message = $message->getRawMessage();
-    } catch (\Throwable $e) {
-        // Fallback to rebuilding from headers + body if raw not available
-        $raw_message = (string)$message->getHeader()->raw . "\r\n\r\n" . ($message->getRawBody() ?? $message->getHTMLBody() ?? $message->getTextBody());
-    }
+    $raw_message = (string)$message->getHeader()->raw . "\r\n\r\n" . ($message->getRawBody() ?? $message->getHTMLBody() ?? $message->getTextBody());
     file_put_contents("../uploads/tmp/{$original_message_file}", $raw_message);
 
     // From
