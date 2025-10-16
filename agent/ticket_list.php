@@ -9,7 +9,7 @@
                         <tr>
                             
                             <td>
-                                <?php if ($_GET['status'] !== 'Closed') { ?>
+                                <?php if ($status !== 'Closed') { ?>
                                 <div class="form-check">
                                     <input class="form-check-input" id="selectAllCheckbox" type="checkbox" onclick="checkAll(this)" onkeydown="checkAll(this)">
                                 </div>
