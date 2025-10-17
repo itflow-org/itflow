@@ -317,6 +317,7 @@ if (isset($_POST['export_credentials_csv'])) {
 
     //get records from database
     $sql = mysqli_query($mysqli,"SELECT * FROM credentials LEFT JOIN clients ON client_id = credential_client_id WHERE credential_archived_at IS NULL $client_query ORDER BY credential_name ASC");
+    
     $num_rows = mysqli_num_rows($sql);
 
     if ($num_rows > 0) {
@@ -329,14 +330,14 @@ if (isset($_POST['export_credentials_csv'])) {
         $f = fopen('php://memory', 'w');
 
         //set column headers
-        $fields = array('Name', 'Description', 'Username', 'Password', 'TOTP', 'URI');
+        $fields = array('Name', 'Description', 'Username', 'Password', 'TOTP', 'URI', 'URI_2', 'Note', 'Important');
         fputcsv($f, $fields, $delimiter, $enclosure, $escape);
 
         //output each row of the data, format line as csv and write to file pointer
         while($row = mysqli_fetch_assoc($sql)){
             $credential_username = decryptCredentialEntry($row['credential_username']);
             $credential_password = decryptCredentialEntry($row['credential_password']);
-            $lineData = array($row['credential_name'], $row['credential_description'], $credential_username, $credential_password, $row['credential_otp_secret'], $row['credential_uri']);
+            $lineData = array($row['credential_name'], $row['credential_description'], $credential_username, $credential_password, $row['credential_otp_secret'], $row['credential_uri'], $row['credential_uri_2'], $row['credential_note'], $row['credential_important']);
             fputcsv($f, $lineData, $delimiter, $enclosure, $escape);
         }
 
@@ -388,7 +389,7 @@ if (isset($_POST["import_credentials_csv"])) {
     //(Else)Check column count
     $f = fopen($file_name, "r");
     $f_columns = fgetcsv($f, 1000, ",");
-    if (!$error & count($f_columns) != 6) {
+    if (!$error & count($f_columns) != 9) {
         $error = true;
         flash_alert("Bad column count.", 'error');
     }
@@ -401,38 +402,41 @@ if (isset($_POST["import_credentials_csv"])) {
         $duplicate_count = 0;
         while(($column = fgetcsv($file, 1000, ",")) !== false){
             $duplicate_detect = 0;
-            // Name
             if (isset($column[0])) {
                 $name = sanitizeInput($column[0]);
                 if (mysqli_num_rows(mysqli_query($mysqli,"SELECT * FROM credentials WHERE credential_name = '$name' AND credential_client_id = $client_id")) > 0){
                     $duplicate_detect = 1;
                 }
             }
-            // Desc
             if (isset($column[1])) {
                 $description = sanitizeInput($column[1]);
             }
-            // User
             if (isset($column[2])) {
                 $username = sanitizeInput(encryptCredentialEntry($column[2]));
             }
-            // Pass
             if (isset($column[3])) {
                 $password = sanitizeInput(encryptCredentialEntry($column[3]));
             }
-            // OTP
             if (isset($column[4])) {
-                $totp = sanitizeInput($column[4]);
+                $otp_secret = sanitizeInput($column[4]);
             }
-            // URL
-            if (isset($column[4])) {
+            if (isset($column[5])) {
                 $uri = sanitizeInput($column[5]);
+            }
+            if (isset($column[6])) {
+                $uri_2 = sanitizeInput($column[6]);
+            }
+            if (isset($column[7])) {
+                $note = sanitizeInput($column[7]);
+            }
+            if (isset($column[8])) {
+                $important = sanitizeInput($column[8]);
             }
 
             // Check if duplicate was detected
             if ($duplicate_detect == 0){
                 //Add
-                mysqli_query($mysqli,"INSERT INTO credentials SET credential_name = '$name', credential_description = '$description', credential_uri = '$uri', credential_username = '$username', credential_password = '$password', credential_otp_secret = '$totp', credential_client_id = $client_id");
+                mysqli_query($mysqli,"INSERT INTO credentials SET credential_name = '$name', credential_description = '$description', credential_uri = '$uri', credential_uri_2 = '$uri_2', credential_username = '$username', credential_password = '$password', credential_otp_secret = '$otp_secret', credential_note = '$note', credential_important = $important, credential_client_id = $client_id");
                 $row_count = $row_count + 1;
             } else {
                 $duplicate_count = $duplicate_count + 1;
@@ -462,7 +466,7 @@ if (isset($_GET['download_credentials_csv_template'])) {
     $f = fopen('php://memory', 'w');
 
     //set column headers
-    $fields = array('Name', 'Description', 'Username', 'Password', 'TOTP', 'URI');
+    $fields = array('Name', 'Description', 'Username', 'Password', 'TOTP', 'URI', 'URI_2', 'Note', 'Important');
     fputcsv($f, $fields, $delimiter);
 
     //move back to beginning of file
