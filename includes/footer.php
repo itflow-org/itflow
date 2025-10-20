@@ -51,6 +51,7 @@ if (basename(dirname($_SERVER['REQUEST_URI'])) === 'guest') { ?>
 <script src="/js/app.js"></script>
 <script src="/js/ajax_modal.js"></script>
 <script src="/js/confirm_modal.js"></script>
+<script src="/js/date_filter.js"></script>
 
 </body>
 </html>

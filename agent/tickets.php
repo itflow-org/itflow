@@ -306,8 +306,7 @@ $sql_categories_filter = mysqli_query(
                 <div
                     class="collapse mt-3
                         <?php
-                        if (
-                            !empty($_GET['dtf'])
+                        if (isset($_GET['dtf'])
                             || (isset($_GET['canned_date']) && $_GET['canned_date'] !== "custom")
                             || (isset($_GET['status']) && is_array($_GET['status'])
                             || (isset($_GET['assigned']) && $_GET['assigned']
@@ -317,59 +316,13 @@ $sql_categories_filter = mysqli_query(
                     id="advancedFilter"
                 >
                     <div class="row">
-                        <div class="col-md-2">
+                        <div class="col-md-3">
                             <div class="form-group">
-                                <label>Canned Date</label>
-                                <select onchange="this.form.submit()" class="form-control select2" name="canned_date">
-                                    <option <?php if ($_GET['canned_date'] == "custom") {
-                                        echo "selected";
-                                    } ?> value="custom">Custom
-                                    </option>
-                                    <option <?php if ($_GET['canned_date'] == "today") {
-                                        echo "selected";
-                                    } ?> value="today">Today
-                                    </option>
-                                    <option <?php if ($_GET['canned_date'] == "yesterday") {
-                                        echo "selected";
-                                    } ?> value="yesterday">Yesterday
-                                    </option>
-                                    <option <?php if ($_GET['canned_date'] == "thisweek") {
-                                        echo "selected";
-                                    } ?> value="thisweek">This Week
-                                    </option>
-                                    <option <?php if ($_GET['canned_date'] == "lastweek") {
-                                        echo "selected";
-                                    } ?> value="lastweek">Last Week
-                                    </option>
-                                    <option <?php if ($_GET['canned_date'] == "thismonth") {
-                                        echo "selected";
-                                    } ?> value="thismonth">This Month
-                                    </option>
-                                    <option <?php if ($_GET['canned_date'] == "lastmonth") {
-                                        echo "selected";
-                                    } ?> value="lastmonth">Last Month
-                                    </option>
-                                    <option <?php if ($_GET['canned_date'] == "thisyear") {
-                                        echo "selected";
-                                    } ?> value="thisyear">This Year
-                                    </option>
-                                    <option <?php if ($_GET['canned_date'] == "lastyear") {
-                                        echo "selected";
-                                    } ?> value="lastyear">Last Year
-                                    </option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="col-md-2">
-                            <div class="form-group">
-                                <label>Date From</label>
-                                <input onchange="this.form.submit()" type="date" class="form-control" name="dtf" max="2999-12-31" value="<?php echo nullable_htmlentities($dtf); ?>">
-                            </div>
-                        </div>
-                        <div class="col-md-2">
-                            <div class="form-group">
-                                <label>Date To</label>
-                                <input onchange="this.form.submit()" type="date" class="form-control" name="dtt" max="2999-12-31" value="<?php echo nullable_htmlentities($dtt); ?>">
+                                <label>Date range</label>
+                                <input type="text" id="dateFilter" class="form-control" autocomplete="off">
+                                <input type="hidden" name="canned_date" id="canned_date" value="<?php echo nullable_htmlentities($_GET['canned_date']) ?? ''; ?>">
+                                <input type="hidden" name="dtf" id="dtf" value="<?php echo nullable_htmlentities($dtf ?? ''); ?>">
+                                <input type="hidden" name="dtt" id="dtt" value="<?php echo nullable_htmlentities($dtt ?? ''); ?>">
                             </div>
                         </div>
                         <div class="col-md-3">
