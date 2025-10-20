@@ -178,7 +178,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
             <div 
                 class="collapse 
                     <?php 
-                    if (isset($_GET['dtf'])
+                    if (isset($_GET['dtf']) && $_GET['dtf'] !== '1970-01-01'
                         || $industry_filter
                         || $referral_filter
                         || (isset($_GET['tags']) && is_array($_GET['tags']))
@@ -198,7 +198,6 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             <input type="hidden" name="dtt" id="dtt" value="<?php echo nullable_htmlentities($dtt ?? ''); ?>">
                         </div>
                     </div>
-
                     <div class="col-md-3">
                         <div class="form-group">
                             <label>Tag</label>

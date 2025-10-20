@@ -306,8 +306,7 @@ $sql_categories_filter = mysqli_query(
                 <div
                     class="collapse mt-3
                         <?php
-                        if (isset($_GET['dtf'])
-                            || (isset($_GET['canned_date']) && $_GET['canned_date'] !== "custom")
+                        if (isset($_GET['dtf']) && $_GET['dtf'] !== '1970-01-01'
                             || (isset($_GET['status']) && is_array($_GET['status'])
                             || (isset($_GET['assigned']) && $_GET['assigned']
                         )))
