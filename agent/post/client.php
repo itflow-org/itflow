@@ -598,6 +598,120 @@ if (isset($_GET['download_clients_csv_template'])) {
 
 }
 
+if (isset($_POST['bulk_add_client_ticket'])) {
+
+    validateCSRFToken($_POST['csrf_token']);
+
+    enforceUserPermission('module_support', 2);
+
+    $assigned_to = intval($_POST['bulk_assigned_to']);
+    if ($assigned_to == 0) {
+        $ticket_status = 1;
+    } else {
+        $ticket_status = 2;
+    }
+    $subject = sanitizeInput($_POST['bulk_subject']);
+    $priority = sanitizeInput($_POST['bulk_priority']);
+    $category_id = intval($_POST['bulk_category']);
+    $details = mysqli_real_escape_string($mysqli, $_POST['bulk_details']);
+    $project_id = intval($_POST['bulk_project']);
+    $use_primary_contact = intval($_POST['use_primary_contact']);
+    $ticket_template_id = intval($_POST['bulk_ticket_template_id']);
+    $billable = intval($_POST['bulk_billable'] ?? 0);
+
+    // Check to see if adding a ticket by template
+    if($ticket_template_id) {
+        $sql = mysqli_query($mysqli, "SELECT * FROM ticket_templates WHERE ticket_template_id = $ticket_template_id");
+        $row = mysqli_fetch_array($sql);
+
+        // Override Template Subject
+        if(empty($subject)) {
+            $subject = sanitizeInput($row['ticket_template_subject']);
+        }
+        $details = mysqli_escape_string($mysqli, $row['ticket_template_details']);
+
+        // Get Associated Tasks from the ticket template
+        $sql_task_templates = mysqli_query($mysqli, "SELECT * FROM task_templates WHERE task_template_ticket_template_id = $ticket_template_id");
+
+    }
+
+    // Create ticket for each selected asset
+    if (isset($_POST['client_ids'])) {
+
+        // Get a Asset Count
+        $client_count = count($_POST['client_ids']);
+
+        foreach ($_POST['client_ids'] as $client_id) {
+            $client_id = intval($client_id);
+
+            $sql = mysqli_query($mysqli, "SELECT * FROM clients WHERE client_id = $client_id");
+            $row = mysqli_fetch_array($sql);
+
+            $client_name = sanitizeInput($row['client_name']);
+
+             // Get the next Ticket Number and update the config
+            $sql_ticket_number = mysqli_query($mysqli, "SELECT config_ticket_next_number FROM settings WHERE company_id = 1");
+            $ticket_number_row = mysqli_fetch_array($sql_ticket_number);
+            $ticket_number = intval($ticket_number_row['config_ticket_next_number']);
+
+            // Sanitize Config Vars from get_settings.php and Session Vars from check_login.php
+            $config_ticket_prefix = sanitizeInput($config_ticket_prefix);
+            $config_ticket_from_name = sanitizeInput($config_ticket_from_name);
+            $config_ticket_from_email = sanitizeInput($config_ticket_from_email);
+            $config_base_url = sanitizeInput($config_base_url);
+
+            //Generate a unique URL key for clients to access
+            $url_key = randomString(156);
+
+            // Increment the config ticket next number
+            $new_config_ticket_next_number = $ticket_number + 1;
+
+            mysqli_query($mysqli, "UPDATE settings SET config_ticket_next_number = $new_config_ticket_next_number WHERE company_id = 1");
+
+            mysqli_query($mysqli, "INSERT INTO tickets SET ticket_prefix = '$config_ticket_prefix', ticket_number = $ticket_number, ticket_category = $category_id, ticket_subject = '$subject', ticket_details = '$details', ticket_priority = '$priority', ticket_billable = $billable, ticket_status = $ticket_status, ticket_created_by = $session_user_id, ticket_assigned_to = $assigned_to, ticket_url_key = '$url_key', ticket_client_id = $client_id, ticket_project_id = $project_id");
+
+            $ticket_id = mysqli_insert_id($mysqli);
+
+            // Update the next ticket number in the database
+            mysqli_query($mysqli, "UPDATE settings SET config_ticket_next_number = $new_config_ticket_next_number WHERE company_id = 1");
+
+            // Add Tasks
+            if (!empty($_POST['tasks'])) {
+                foreach ($_POST['tasks'] as $task) {
+                    $task_name = sanitizeInput($task);
+                    // Check that task_name is not-empty (For some reason the !empty on the array doesnt work here like in watchers)
+                    if (!empty($task_name)) {
+                        mysqli_query($mysqli,"INSERT INTO tasks SET task_name = '$task_name', task_ticket_id = $ticket_id");
+                    }
+                }
+            }
+
+            // Add Tasks from Template if Template was selected
+            if($ticket_template_id) {
+                if (mysqli_num_rows($sql_task_templates) > 0) {
+                    while ($row = mysqli_fetch_array($sql_task_templates)) {
+                        $task_order = intval($row['task_template_order']);
+                        $task_name = sanitizeInput($row['task_template_name']);
+
+                        mysqli_query($mysqli,"INSERT INTO tasks SET task_name = '$task_name', task_order = $task_order, task_ticket_id = $ticket_id");
+                    }
+                }
+            }
+
+            // Custom action/notif handler
+            customAction('ticket_create', $ticket_id);
+        }
+
+        logAction("Ticket", "Bulk Create", "$session_name created $client_count tickets for $client_name");
+
+        flash_alert("<strong>$client_count</strong> tickets created for selected clients");
+
+    }
+
+    redirect();
+
+}
+
 if (isset($_POST['bulk_edit_client_industry'])) {
 
     validateCSRFToken($_POST['csrf_token']);

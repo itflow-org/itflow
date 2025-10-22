@@ -1561,7 +1561,6 @@ if (isset($_POST['bulk_add_asset_ticket'])) {
 
 }
 
-
 if (isset($_POST['add_ticket_reply'])) {
 
     enforceUserPermission('module_support', 2);
