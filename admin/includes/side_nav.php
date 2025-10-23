@@ -14,7 +14,7 @@
         <!-- Sidebar Menu -->
         <nav>
             <ul class="nav nav-pills nav-sidebar flex-column mt-2" data-widget="treeview" data-accordion="false">
-                <!-- ACCESS Section -->
+                <li class="nav-header">ACCESS</li>
                 <li class="nav-item">
                     <a href="/admin/users.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "users.php") {echo "active";} ?>">
                         <i class="nav-icon fas fa-users"></i>
@@ -25,6 +25,12 @@
                     <a href="/admin/roles.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "roles.php") {echo "active";} ?>">
                         <i class="nav-icon fas fa-user-shield"></i>
                         <p>Roles</p>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="/admin/modules.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "modules.php") {echo "active";} ?>">
+                        <i class="nav-icon fas fa-puzzle-piece"></i>
+                        <p>Modules</p>
                     </a>
                 </li>
                 <li class="nav-item">
