@@ -153,7 +153,23 @@ if (isset($_GET['client_id'])) {
 ob_start();
 ?>
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fa fa-fw fa-user mr-2"></i><strong><?php echo $contact_name; ?></strong></h5>
+    <h5 class="modal-title">
+        <div class="media">
+            <?php if ($contact_photo) { ?>
+                <img class="img-thumbnail img-circle img-size-50 mr-1" src="<?= "../uploads/clients/$client_id/$contact_photo" ?>">
+            <?php } else { ?>
+                <span class="fa-stack">
+                    <i class="fa fa-circle fa-stack-2x text-secondary"></i>
+                    <span class="fa fa-stack-1x text-white"><?php echo $contact_initials; ?></span>
+                </span>
+            <?php } ?>
+
+            <div class="media-body ml-2">
+                <strong><?= $contact_name ?></strong>
+                <div class="text-sm"><?= $contact_title ?></div>
+            </div>
+        </div>
+    </h5>
     <button type="button" class="close text-white" data-dismiss="modal">
         <span>&times;</span>
     </button>
@@ -206,76 +222,116 @@ ob_start();
         </li>
         <?php } ?>
     </ul>
-
     <hr>
-
     <div class="tab-content">
 
         <div class="tab-pane fade show active" id="pills-contact-details<?php echo $contact_id; ?>">
-            <div class="card card-dark">
-                <div class="card-body">
-                    <h3 class="text-bold"><?php echo $contact_name; ?></h3>
-                    <?php if ($contact_title) { ?>
-                        <div class="text-secondary"><?php echo $contact_title; ?></div>
-                    <?php } ?>
-
-                    <div class="text-center">
-                        <?php if ($contact_photo) { ?>
-                            <img class="img-thumbnail img-circle col-3" alt="contact_photo" src="<?php echo "../uploads/clients/$client_id/$contact_photo"; ?>">
-                        <?php } else { ?>
-                            <span class="fa-stack fa-4x">
-                                <i class="fa fa-circle fa-stack-2x text-secondary"></i>
-                                <span class="fa fa-stack-1x text-white"><?php echo $contact_initials; ?></span>
-                            </span>
-                        <?php } ?>
+            <div class="row">
+                <?php
+                if (!empty($contact_tags_display)) { ?>
+                    <div class="col-12">
+                        <?php echo $contact_tags_display; ?>
                     </div>
-                    <?php
-                    if (!empty($contact_tags_display)) { ?>
-                        <div class="mt-1">
-                            <?php echo $contact_tags_display; ?>
+                <?php } ?>
+
+                <?php if ($location_name) { ?>
+                    <div class="col-4">
+                        <div class="media">
+                            <i class="fas fa-fw fa-map-marker-alt text-secondary fa-2x mt-1"></i>
+                            <div class="media-body ml-2">
+                                <dt>Location</dt>
+                                <dd><?= $location_name ?></dd>
+                            </div>
                         </div>
-                    <?php } ?>
-                    <hr>
-                    <?php if ($location_name) { ?>
-                        <div><i class="fa fa-fw fa-map-marker-alt text-secondary mr-2"></i><?php echo $location_name; ?></div>
-                    <?php }
-                    if ($contact_email) { ?>
-                        <div class="mt-2"><i class="fa fa-fw fa-envelope text-secondary mr-2"></i><a href='mailto:<?php echo $contact_email; ?>'><?php echo $contact_email; ?></a><button type="button" class='btn btn-sm clipboardjs' data-clipboard-text='<?php echo $contact_email; ?>'><i class='far fa-copy text-secondary'></i></button></div>
-                    <?php }
-                    if ($contact_phone) { ?>
-                        <div class="mt-2"><i class="fa fa-fw fa-phone text-secondary mr-2"></i><a href="tel:<?php echo "$contact_phone"?>"><?php echo $contact_phone; ?></a></div>
-                    <?php }
-                    if ($contact_extension) { ?>
-                        <div class="ml-4">x<?php echo $contact_extension; ?></div>
-                    <?php }
-                    if ($contact_mobile) { ?>
-                        <div class="mt-l"><i class="fa fa-fw fa-mobile-alt text-secondary mr-2"></i><a href="tel:<?php echo $contact_mobile; ?>"><?php echo $contact_mobile; ?></a></div>
-                    <?php }
-                    if ($contact_pin) { ?>
-                        <div class="mt-2"><i class="fa fa-fw fa-key text-secondary mr-2"></i><?php echo $contact_pin; ?></div>
-                    <?php }
-                    if ($contact_primary) { ?>
-                        <div class="mt-2 text-success"><i class="fa fa-fw fa-check mr-2"></i>Primary Contact</div>
-                    <?php }
-                    if ($contact_important) { ?>
-                        <div class="mt-2 text-dark text-bold"><i class="fa fa-fw fa-check mr-2"></i>Important</div>
-                    <?php }
-                    if ($contact_technical) { ?>
-                        <div class="mt-2"><i class="fa fa-fw fa-check text-secondary mr-2"></i>Technical</div>
-                    <?php }
-                    if ($contact_billing) { ?>
-                        <div class="mt-2"><i class="fa fa-fw fa-check text-secondary mr-2"></i>Billing</div>
-                    <?php } ?>
-                    <div class="mt-2"><i class="fa fa-fw fa-clock text-secondary mr-2"></i><?php echo date('Y-m-d', strtotime($contact_created_at)); ?></div>
+                    </div>
+                <?php } ?>
 
-                </div>
-            </div>
+                <?php if ($contact_email) { ?>
+                    <div class="col-4">
+                        <div class="media">
+                            <i class="fas fa-fw fa-envelope text-secondary fa-2x mt-1"></i>
+                            <div class="media-body ml-2">
+                                <dt>Email</dt>
+                                <dd>
+                                    <a href='mailto:<?= $contact_email ?>'><?= $contact_email ?></a>
+                                    <button type="button" class='btn btn-sm clipboardjs' data-clipboard-text='<?= $contact_email ?>'>
+                                        <i class='far fa-copy text-secondary'></i>
+                                    </button>
+                                </dd>
+                            </div>
+                        </div>
+                    </div>
+                <?php } ?>
 
-            <div class="card mb-3">
-                <div class="card-header">
-                    <h5 class="card-title">Notes</h5>
+                <?php if ($contact_phone || $contact_mobile || $contact_extension) { ?>
+                    <div class="col-4">
+                        <div class="media">
+                            <i class="fa fa-fw fa-phone text-secondary fa-2x mt-1"></i>
+                            <div class="media-body ml-2">
+                                <dt>Phone</dt>
+                                <dd>
+                                    <?php if ($contact_phone) { ?>
+                                        <a href="tel:<?php echo "$contact_phone"?>"><?php echo $contact_phone; ?></a>
+                                    <?php } ?>
+                                    <?php if ($contact_extension) { ?>
+                                        <br>ext: <?php echo $contact_extension; ?>
+                                    <?php } ?>
+                                    <?php if ($contact_mobile) { ?>
+                                        <br><strong>Mobile:</strong> <a href="tel:<?php echo "$contact_mobile"?>"><?php echo $contact_mobile; ?></a>
+                                    <?php } ?>
+                                </dd>
+                            </div>
+                        </div>
+                    </div>
+                <?php } ?>
+
+                <?php if ($contact_pin) { ?>
+                    <div class="col-4">
+                        <div class="media">
+                            <i class="fa fa-fw fa-key text-secondary fa-2x mt-1"></i>
+                            <div class="media-body ml-2">
+                                <dt>Security Pin</dt>
+                                <dd><?php echo $contact_pin; ?></dd>
+                            </div>
+                        </div>
+                    </div>
+                <?php } ?>
+
+                <!-- Contact Type Section (Primary, Billing, Technical, Important) -->
+                <div class="col-4">
+                    <div class="media">
+                        <i class="fa fa-fw fa-info-circle text-secondary fa-2x mt-1"></i>
+                        <div class="media-body ml-2">
+                            <dt>Contact Type</dt>
+                            <dd>
+                                <?php if ($contact_primary) { ?>
+                                    <span class="text-success">Primary Contact</span><br>
+                                <?php } ?>
+                                <?php if ($contact_billing) { ?>
+                                    <span class="text-dark font-weight-bold">Billing</span><br>
+                                <?php } ?>
+                                <?php if ($contact_technical) { ?>
+                                    <span class="text-secondary">Technical</span><br>
+                                <?php } ?>
+                                <?php if ($contact_important) { ?>
+                                    <span class="text-dark font-weight-bold">Important</span>
+                                <?php } ?>
+                            </dd>
+                        </div>
+                    </div>
                 </div>
-                <textarea class="form-control" rows=6 id="contactNotes" placeholder="Notes, eg Personal tidbits to spark convo, temperment, etc" onblur="updateContactNotes(<?php echo $contact_id ?>)"><?php echo $contact_notes ?></textarea>
+
+                <div class="mt-2 col-12">
+                    <dt>Created at</dt>
+                    <dd><?= date('Y-m-d', strtotime($contact_created_at)) ?>
+                </div>
+
+                <div class="col-12">
+                    <label>Notes</label>
+                    <textarea class="form-control" rows=6 id="contactNotes" placeholder="Notes, eg Personal tidbits to spark convo, temperament, etc" onblur="updateContactNotes(<?php echo $contact_id ?>)">
+                        <?php echo $contact_notes ?>
+                    </textarea>
+                </div>
             </div>
         </div>
 
