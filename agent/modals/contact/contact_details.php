@@ -35,6 +35,18 @@ $contact_technical = intval($row['contact_technical']);
 $contact_created_at = nullable_htmlentities($row['contact_created_at']);
 $contact_location_id = intval($row['contact_location_id']);
 $location_name = nullable_htmlentities($row['location_name']);
+$location_country = nullable_htmlentities($row['location_country']);
+$location_address = nullable_htmlentities($row['location_address']);
+$location_city = nullable_htmlentities($row['location_city']);
+$location_state = nullable_htmlentities($row['location_state']);
+$location_zip = nullable_htmlentities($row['location_zip']);
+$location_phone_country_code = nullable_htmlentities($row['location_phone_country_code']);
+$location_phone = nullable_htmlentities(formatPhoneNumber($row['location_phone'], $location_phone_country_code));
+if (empty($location_phone)) {
+    $location_phone_display = "-";
+} else {
+    $location_phone_display = $location_phone;
+}
 $auth_method = nullable_htmlentities($row['user_auth_method']);
 $contact_client_id = intval($row['contact_client_id']);
 
@@ -160,7 +172,7 @@ ob_start();
             <?php } else { ?>
                 <span class="fa-stack">
                     <i class="fa fa-circle fa-stack-2x text-secondary"></i>
-                    <span class="fa fa-stack-1x text-white"><?php echo $contact_initials; ?></span>
+                    <span class="fa fa-stack-1x text-white"><?= $contact_initials ?></span>
                 </span>
             <?php } ?>
 
@@ -177,182 +189,133 @@ ob_start();
 
 <div class="modal-body">
 
-    <ul class="nav nav-pills nav-justified mb-3">
-        <li class="nav-item">
-            <a class="nav-link active" data-toggle="pill" href="#pills-contact-details<?php echo $contact_id; ?>"><i class="fas fa-fw fa-user fa-2x"></i><br>Details</a>
-        </li>
-        <?php if ($asset_count) { ?>
-        <li class="nav-item">
-            <a class="nav-link" data-toggle="pill" href="#pills-contact-assets<?php echo $contact_id; ?>"><i class="fas fa-fw fa-desktop fa-2x"></i><br>Assets (<?php echo $asset_count; ?>)</a>
-        </li>
-        <?php } ?>
-        <?php if ($credential_count) { ?>
-        <li class="nav-item">
-            <a class="nav-link" data-toggle="pill" href="#pills-contact-credentials<?php echo $contact_id; ?>"><i class="fas fa-fw fa-key fa-2x"></i><br>Credentials (<?php echo $credential_count; ?>)</a>
-        </li>
-        <?php } ?>
-        <?php if ($software_count) { ?>
-        <li class="nav-item">
-            <a class="nav-link" data-toggle="pill" href="#pills-contact-licenses<?php echo $contact_id; ?>"><i class="fas fa-fw fa-cube fa-2x"></i><br>Licenses (<?php echo $software_count; ?>)</a>
-        </li>
-        <?php } ?>
-        <?php if ($ticket_count) { ?>
-        <li class="nav-item">
-            <a class="nav-link" data-toggle="pill" href="#pills-contact-tickets<?php echo $contact_id; ?>"><i class="fas fa-fw fa-life-ring fa-2x"></i><br>Tickets (<?php echo $ticket_count; ?>)</a>
-        </li>
-        <?php } ?>
-        <?php if ($recurring_ticket_count) { ?>
-        <li class="nav-item">
-            <a class="nav-link" data-toggle="pill" href="#pills-contact-recurring-tickets<?php echo $contact_id; ?>"><i class="fas fa-fw fa-redo-alt fa-2x"></i><br>Rcr Tickets (<?php echo $recurring_ticket_count; ?>)</a>
-        </li>
-        <?php } ?>
-        <?php if ($document_count) { ?>
-        <li class="nav-item">
-            <a class="nav-link" data-toggle="pill" href="#pills-contact-documents<?php echo $contact_id; ?>"><i class="fas fa-fw fa-file-alt fa-2x"></i><br>Documents (<?php echo $document_count; ?>)</a>
-        </li>
-        <?php } ?>
-        <?php if ($file_count) { ?>
-        <li class="nav-item">
-            <a class="nav-link" data-toggle="pill" href="#pills-contact-files<?php echo $contact_id; ?>"><i class="fas fa-fw fa-briefcase fa-2x"></i><br>Files (<?php echo $file_count; ?>)</a>
-        </li>
-        <?php } ?>
-        <?php if ($note_count) { ?>
-        <li class="nav-item">
-            <a class="nav-link" data-toggle="pill" href="#pills-contact-notes<?php echo $contact_id; ?>"><i class="fas fa-fw fa-edit fa-2x"></i><br>Notes (<?php echo $note_count; ?>)</a>
-        </li>
-        <?php } ?>
-    </ul>
-    <hr>
-    <div class="tab-content">
+    <div class="row">
 
-        <div class="tab-pane fade show active" id="pills-contact-details<?php echo $contact_id; ?>">
-            <div class="row">
-                <?php
-                if (!empty($contact_tags_display)) { ?>
-                    <div class="col-12">
-                        <?php echo $contact_tags_display; ?>
-                    </div>
-                <?php } ?>
-
-                <?php if ($location_name) { ?>
-                    <div class="col-4">
-                        <div class="media">
-                            <i class="fas fa-fw fa-map-marker-alt text-secondary fa-2x mt-1"></i>
-                            <div class="media-body ml-2">
-                                <dt>Location</dt>
-                                <dd><?= $location_name ?></dd>
-                            </div>
+        <?php if ($contact_phone || $contact_mobile || $contact_extension || $contact_email) { ?>
+            <div class="col-4">
+                <div class="media">
+                    <i class="fas fa-fw fa-user fa-2x text-secondary"></i>
+                    <div class="media-body ml-2">
+                        <dt>Contact Details</dt>
+                        <?php if ($contact_phone) { ?>
+                        <div>
+                            <i class="fas fa-fw fa-phone-alt text-secondary mt-2"></i>
+                            <a href="tel:<?= $contact_phone ?>"><?= $contact_phone ?></a>
+                            <?php if ($contact_extension) { ?>
+                            <span>ext: <?= $contact_extension ?></span>
+                            <?php } ?>
                         </div>
-                    </div>
-                <?php } ?>
-
-                <?php if ($contact_email) { ?>
-                    <div class="col-4">
-                        <div class="media">
-                            <i class="fas fa-fw fa-envelope text-secondary fa-2x mt-1"></i>
-                            <div class="media-body ml-2">
-                                <dt>Email</dt>
-                                <dd>
-                                    <a href='mailto:<?= $contact_email ?>'><?= $contact_email ?></a>
-                                    <button type="button" class='btn btn-sm clipboardjs' data-clipboard-text='<?= $contact_email ?>'>
-                                        <i class='far fa-copy text-secondary'></i>
-                                    </button>
-                                </dd>
-                            </div>
+                        <?php } ?>
+        
+                        <?php if ($contact_mobile) { ?>
+                        <div>
+                            <i class="fas fa-fw fa-mobile-alt text-secondary mt-2"></i>
+                            <a href="tel:<?= $contact_mobile ?>"><?= $contact_mobile ?></a>
                         </div>
-                    </div>
-                <?php } ?>
-
-                <?php if ($contact_phone || $contact_mobile || $contact_extension) { ?>
-                    <div class="col-4">
-                        <div class="media">
-                            <i class="fa fa-fw fa-phone text-secondary fa-2x mt-1"></i>
-                            <div class="media-body ml-2">
-                                <dt>Phone</dt>
-                                <dd>
-                                    <?php if ($contact_phone) { ?>
-                                        <a href="tel:<?php echo "$contact_phone"?>"><?php echo $contact_phone; ?></a>
-                                    <?php } ?>
-                                    <?php if ($contact_extension) { ?>
-                                        <br>ext: <?php echo $contact_extension; ?>
-                                    <?php } ?>
-                                    <?php if ($contact_mobile) { ?>
-                                        <br><strong>Mobile:</strong> <a href="tel:<?php echo "$contact_mobile"?>"><?php echo $contact_mobile; ?></a>
-                                    <?php } ?>
-                                </dd>
-                            </div>
+                        <?php } ?>
+                        <?php if ($contact_email) { ?>
+                        <div>
+                            <i class="fas fa-fw fa-envelope text-secondary mt-2"></i>
+                            <a href='mailto:<?= $contact_email ?>'><?= $contact_email ?></a>
+                            <button type="button" class='btn btn-sm clipboardjs' data-clipboard-text='<?= $contact_email ?>'>
+                            <i class='far fa-copy text-secondary'></i></button>
                         </div>
-                    </div>
-                <?php } ?>
-
-                <?php if ($contact_pin) { ?>
-                    <div class="col-4">
-                        <div class="media">
-                            <i class="fa fa-fw fa-key text-secondary fa-2x mt-1"></i>
-                            <div class="media-body ml-2">
-                                <dt>Security Pin</dt>
-                                <dd><?php echo $contact_pin; ?></dd>
-                            </div>
-                        </div>
-                    </div>
-                <?php } ?>
-
-                <!-- Contact Type Section (Primary, Billing, Technical, Important) -->
-                <div class="col-4">
-                    <div class="media">
-                        <i class="fa fa-fw fa-info-circle text-secondary fa-2x mt-1"></i>
-                        <div class="media-body ml-2">
-                            <dt>Contact Type</dt>
-                            <dd>
-                                <?php if ($contact_primary) { ?>
-                                    <span class="text-success">Primary Contact</span><br>
-                                <?php } ?>
-                                <?php if ($contact_billing) { ?>
-                                    <span class="text-dark font-weight-bold">Billing</span><br>
-                                <?php } ?>
-                                <?php if ($contact_technical) { ?>
-                                    <span class="text-secondary">Technical</span><br>
-                                <?php } ?>
-                                <?php if ($contact_important) { ?>
-                                    <span class="text-dark font-weight-bold">Important</span>
-                                <?php } ?>
-                            </dd>
-                        </div>
+                        <?php } ?>
                     </div>
                 </div>
+            </div>
+        <?php } ?>
 
-                <div class="mt-2 col-12">
-                    <dt>Created at</dt>
-                    <dd><?= date('Y-m-d', strtotime($contact_created_at)) ?>
+        <?php if ($location_name) { ?>
+            <div class="col-4">
+                <div class="media">
+                    <i class="fas fa-fw fa-map-marker-alt text-secondary fa-2x"></i>
+                    <div class="media-body ml-2">
+                        <dt><?= $location_name ?></dt>
+                        <dd>   
+                            <div><?= $location_address ?></div>
+                            <div><?= "$location_city $location_state $location_zip" ?></div>
+                            <div><?= $location_country ?></div> 
+                        </dd>
+                    </div>
                 </div>
+            </div>
+        <?php } ?>
 
-                <div class="col-12">
-                    <label>Notes</label>
-                    <textarea class="form-control" rows=6 id="contactNotes" placeholder="Notes, eg Personal tidbits to spark convo, temperament, etc" onblur="updateContactNotes(<?php echo $contact_id ?>)">
-                        <?php echo $contact_notes ?>
-                    </textarea>
+        <div class="col-4">
+            <div class="media">
+                <i class="fa fa-fw fa-info-circle text-secondary fa-2x"></i>
+                <div class="media-body ml-2">
+                    <?php if ($contact_primary) { ?>
+                        <span class="text-success text-bold">Primary Contact</span><br>
+                    <?php } ?>
+                    <?php if ($contact_billing) { ?>
+                        <span class="text-dark font-weight-bold">Billing</span><br>
+                    <?php } ?>
+                    <?php if ($contact_technical) { ?>
+                        <span class="text-secondary">Technical</span><br>
+                    <?php } ?>
+                    <?php if ($contact_important) { ?>
+                        <span class="text-dark font-weight-bold">Important</span>
+                    <?php } ?>
+                    <?php if ($contact_pin) { ?>
+                        <div>
+                            Pin: <?= $contact_pin ?>
+                        </div>
+                    <?php } ?>
                 </div>
             </div>
         </div>
 
-        <script>
-            function updateContactNotes(contact_id) {
-                var notes = document.getElementById("contactNotes").value;
+    </div>
 
-                // Send a POST request to ajax.php as ajax.php with data contact_set_notes=true, contact_id=NUM, notes=NOTES
-                jQuery.post(
-                    "ajax.php",
-                    {
-                        contact_set_notes: 'TRUE',
-                        contact_id: contact_id,
-                        notes: notes
-                    }
-                )
-            }
-        </script>
+    <ul class="nav nav-pills nav-justified mt-3">
+        <?php if ($asset_count) { ?>
+        <li class="nav-item">
+            <a class="nav-link" data-toggle="pill" href="#pills-contact-assets<?= $contact_id ?>"><i class="fas fa-fw fa-desktop fa-2x"></i><br>Assets (<?= $asset_count ?>)</a>
+        </li>
+        <?php } ?>
+        <?php if ($credential_count) { ?>
+        <li class="nav-item">
+            <a class="nav-link" data-toggle="pill" href="#pills-contact-credentials<?= $contact_id ?>"><i class="fas fa-fw fa-key fa-2x"></i><br>Credentials (<?= $credential_count ?>)</a>
+        </li>
+        <?php } ?>
+        <?php if ($software_count) { ?>
+        <li class="nav-item">
+            <a class="nav-link" data-toggle="pill" href="#pills-contact-licenses<?= $contact_id ?>"><i class="fas fa-fw fa-cube fa-2x"></i><br>Licenses (<?= $software_count ?>)</a>
+        </li>
+        <?php } ?>
+        <?php if ($ticket_count) { ?>
+        <li class="nav-item">
+            <a class="nav-link" data-toggle="pill" href="#pills-contact-tickets<?= $contact_id ?>"><i class="fas fa-fw fa-life-ring fa-2x"></i><br>Tickets (<?= $ticket_count ?>)</a>
+        </li>
+        <?php } ?>
+        <?php if ($recurring_ticket_count) { ?>
+        <li class="nav-item">
+            <a class="nav-link" data-toggle="pill" href="#pills-contact-recurring-tickets<?= $contact_id ?>"><i class="fas fa-fw fa-redo-alt fa-2x"></i><br>Rcr Tickets (<?= $recurring_ticket_count ?>)</a>
+        </li>
+        <?php } ?>
+        <?php if ($document_count) { ?>
+        <li class="nav-item">
+            <a class="nav-link" data-toggle="pill" href="#pills-contact-documents<?= $contact_id ?>"><i class="fas fa-fw fa-file-alt fa-2x"></i><br>Documents (<?= $document_count ?>)</a>
+        </li>
+        <?php } ?>
+        <?php if ($file_count) { ?>
+        <li class="nav-item">
+            <a class="nav-link" data-toggle="pill" href="#pills-contact-files<?= $contact_id ?>"><i class="fas fa-fw fa-briefcase fa-2x"></i><br>Files (<?= $file_count ?>)</a>
+        </li>
+        <?php } ?>
+        <?php if ($note_count) { ?>
+        <li class="nav-item">
+            <a class="nav-link" data-toggle="pill" href="#pills-contact-notes<?= $contact_id ?>"><i class="fas fa-fw fa-edit fa-2x"></i><br>Notes (<?= $note_count ?>)</a>
+        </li>
+        <?php } ?>
+    </ul>
+
+    <div class="tab-content">
 
         <?php if ($asset_count) { ?>
-        <div class="tab-pane fade" id="pills-contact-assets<?php echo $contact_id; ?>">
+        <div class="tab-pane fade" id="pills-contact-assets<?= $contact_id ?>">
 
             <div class="table-responsive-sm">
                 <table class="table table-striped table-borderless table-hover table-sm">
@@ -743,7 +706,7 @@ ob_start();
         <?php } ?>
 
         <?php if ($document_count) { ?>
-        <div class="tab-pane fade" id="pills-contact-documents<?php echo $contact_id; ?>">
+        <div class="tab-pane fade" id="pills-contact-documents<?= $contact_id ?>">
 
             <div class="table-responsive-sm">
                 <table class="table table-striped table-borderless table-hover table-sm">
@@ -898,14 +861,13 @@ ob_start();
 </div>
 
 <div class="modal-footer">
-    <a href="contact_details.php?client_id=<?php echo $client_id; ?>&contact_id=<?php echo $contact_id; ?>" class="btn btn-primary text-bold">
-        <span class="text-white"><i class="fas fa-info-circle mr-2"></i>More Details</span>
+    <a href="contact_details.php?client_id=<?= $client_id ?>&contact_id=<?= $contact_id ?>" class="btn btn-outline-primary">
+        <i class="fas fa-info-circle mr-2"></i>More Details
     </a>
     <a href="#" class="btn btn-secondary ajax-modal" 
         data-modal-url="modals/contact/contact_edit.php?id=<?= $contact_id ?>">
-        <span class="text-white"><i class="fas fa-edit mr-2"></i>Edit</span>
+        <i class="fas fa-edit mr-2"></i>Edit
     </a>
-    <button type="button" class="btn btn-light" data-dismiss="modal"><i class="fa fa-times mr-2"></i>Close</button>
 </div>
 
 <?php
