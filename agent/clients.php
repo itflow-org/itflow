@@ -86,7 +86,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
         <div class="card-tools">
             <?php if (lookupUserPermission("module_client") >= 2) { ?>
                 <div class="btn-group">
-                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addClientModal">
+                    <button type="button" class="btn btn-primary ajax-modal" data-modal-url="modals/client/client_add.php<?php if ($leads_filter) { echo "?lead=1"; } ?>">
                         <i class="fas fa-plus mr-2"></i>New
                         <?php if ($leads_filter == 0) { echo "Client"; } else { echo "Lead"; } ?>
                     </button>
@@ -617,7 +617,6 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 <script src="../js/bulk_actions.js"></script>
 
 <?php
-require_once "modals/client/client_add.php";
 require_once "modals/client/client_import.php";
 require_once "modals/client/client_export.php";
 require_once "../includes/footer.php";

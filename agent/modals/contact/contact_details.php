@@ -380,28 +380,26 @@ ob_start();
                         ?>
                         <tr>
                             <th>
-                                <i class="fa fa-fw text-secondary fa-<?php echo $device_icon; ?> mr-2"></i>
-                                <a class="text-secondary" href="#"
-                                    data-toggle="ajax-modal"
+                                <i class="fa fa-fw text-secondary fa-<?= $device_icon ?> mr-2"></i>
+                                <a href="#" class="ajax-modal"
                                     data-modal-size="lg"
-                                    data-ajax-url="ajax/ajax_asset_details.php"
-                                    data-ajax-id="<?php echo $asset_id; ?>">
-                                    <?php echo $asset_name; ?>
+                                    data-modal-url="modals/asset/asset_details.php?id=<?= $asset_id ?>">
+                                    <?= $asset_name ?>
                                 </a>
                                 <div class="mt-0">
-                                    <small class="text-muted"><?php echo $asset_description; ?></small>
+                                    <small class="text-muted"><?= $asset_description ?></small>
                                 </div>
                             </th>
-                            <td><?php echo $asset_type; ?></td>
+                            <td><?= $asset_type ?></td>
                             <td>
-                                <?php echo $asset_make; ?>
+                                <?= $asset_make ?>
                                 <div class="mt-0">
-                                    <small class="text-muted"><?php echo $asset_model; ?></small>
+                                    <small class="text-muted"><?= $asset_model ?></small>
                                 </div>
                             </td>
-                            <td><?php echo $asset_serial_display; ?></td>
-                            <td><?php echo $asset_install_date_display; ?></td>
-                            <td><?php echo $asset_status; ?></td>
+                            <td><?= $asset_serial_display ?></td>
+                            <td><?= $asset_install_date_display ?></td>
+                            <td><?= $asset_status ?></td>
                         </tr>
 
                         <?php
@@ -417,7 +415,7 @@ ob_start();
         <?php } ?>
 
         <?php if ($credential_count) { ?>
-        <div class="tab-pane fade" id="pills-contact-credentials<?php echo $contact_id; ?>">
+        <div class="tab-pane fade" id="pills-contact-credentials<?= $contact_id ?>">
             <div class="table-responsive-sm">
                 <table class="table table-striped table-borderless table-hover table-sm dataTables" style="width:100%">
                     <thead>
@@ -487,16 +485,16 @@ ob_start();
 
                         ?>
                         <tr>
-                            <td><i class="fa fa-fw fa-key text-secondary mr-2"></i><?php echo $credential_name; ?></td>
-                            <td><?php echo $credential_description; ?></td>
-                            <td><?php echo $credential_username_display; ?></td>
+                            <td><i class="fa fa-fw fa-key text-secondary mr-2"></i><?= $credential_name ?></td>
+                            <td><?= $credential_description ?></td>
+                            <td><?= $credential_username_display ?></td>
                             <td>
-                                <button class="btn p-0" type="button" data-toggle="popover" data-trigger="focus" data-placement="top" data-content="<?php echo $credential_password; ?>"><i class="fas fa-2x fa-ellipsis-h text-secondary"></i><i class="fas fa-2x fa-ellipsis-h text-secondary"></i></button>
+                                <button class="btn p-0" type="button" data-toggle="popover" data-trigger="focus" data-placement="top" data-content="<?= $credential_password ?>"><i class="fas fa-2x fa-ellipsis-h text-secondary"></i><i class="fas fa-2x fa-ellipsis-h text-secondary"></i></button>
 
-                                <button type="button" class='btn btn-sm clipboardjs' data-clipboard-text='<?php echo $credential_password; ?>'><i class='far fa-copy text-secondary'></i></button>
+                                <button type="button" class='btn btn-sm clipboardjs' data-clipboard-text='<?= $credential_password ?>'><i class='far fa-copy text-secondary'></i></button>
                             </td>
-                            <td><?php echo $otp_display; ?></td>
-                            <td><?php echo $credential_uri_display; ?></td>
+                            <td><?= $otp_display ?></td>
+                            <td><?= $credential_uri_display ?></td>
                         </tr>
 
                         <?php
@@ -514,7 +512,7 @@ ob_start();
         <?php } ?>
 
         <?php if ($ticket_count) { ?>
-        <div class="tab-pane fade" id="pills-contact-tickets<?php echo $contact_id; ?>">
+        <div class="tab-pane fade" id="pills-contact-tickets<?= $contact_id ?>">
             <div class="table-responsive-sm">
                 <table class="table table-striped table-borderless table-hover table-sm">
                     <thead class="text-dark">
@@ -576,13 +574,13 @@ ob_start();
                         ?>
 
                         <tr>
-                            <td><a href="ticket.php?client_id=<?php echo $client_id; ?>&ticket_id=<?php echo $ticket_id; ?>"><span class="badge badge-pill badge-secondary p-3"><?php echo "$ticket_prefix$ticket_number"; ?></span></a></td>
-                            <td><a href="ticket.php?client_id=<?php echo $client_id; ?>&ticket_id=<?php echo $ticket_id; ?>"><?php echo $ticket_subject; ?></a></td>
-                            <td><?php echo $ticket_priority_display; ?></td>
-                            <td><span class='badge badge-pill text-light p-2' style="background-color: <?php echo $ticket_status_color; ?>"><?php echo $ticket_status_name; ?></span></td>
-                            <td><?php echo $ticket_assigned_to_display; ?></td>
-                            <td><?php echo $ticket_updated_at_display; ?></td>
-                            <td><?php echo $ticket_created_at; ?></td>
+                            <td><a href="ticket.php?client_id=<?= $client_id ?>&ticket_id=<?= $ticket_id ?>"><span class="badge badge-pill badge-secondary p-3"><?= "$ticket_prefix$ticket_number" ?></span></a></td>
+                            <td><a href="ticket.php?client_id=<?= $client_id ?>&ticket_id=<?= $ticket_id ?>"><?= $ticket_subject ?></a></td>
+                            <td><?= $ticket_priority_display ?></td>
+                            <td><span class='badge badge-pill text-light p-2' style="background-color: <?= $ticket_status_color ?>"><?= $ticket_status_name ?></span></td>
+                            <td><?= $ticket_assigned_to_display ?></td>
+                            <td><?= $ticket_updated_at_display ?></td>
+                            <td><?= $ticket_created_at ?></td>
                         </tr>
 
                         <?php
@@ -598,7 +596,7 @@ ob_start();
         <?php } ?>
 
         <?php if ($recurring_ticket_count) { ?>
-        <div class="tab-pane fade" id="pills-contact-recurring-tickets<?php echo $contact_id; ?>">
+        <div class="tab-pane fade" id="pills-contact-recurring-tickets<?= $contact_id ?>">
 
             <div class="table-responsive-sm">
                 <table class="table table-striped table-borderless table-hover table-sm">
@@ -622,10 +620,10 @@ ob_start();
                     ?>
 
                         <tr>
-                            <td class="text-bold"><?php echo $recurring_ticket_subject ?></td>
-                            <td><?php echo $recurring_ticket_priority ?></td>
-                            <td><?php echo $recurring_ticket_frequency ?></td>
-                            <td><?php echo $recurring_ticket_next_run ?></td>
+                            <td class="text-bold"><?= $recurring_ticket_subject ?></td>
+                            <td><?= $recurring_ticket_priority ?></td>
+                            <td><?= $recurring_ticket_frequency ?></td>
+                            <td><?= $recurring_ticket_next_run ?></td>
                         </tr>
 
                     <?php } ?>
@@ -637,7 +635,7 @@ ob_start();
         <?php } ?>
 
         <?php if ($software_count) { ?>
-        <div class="tab-pane fade" id="pills-contact-licenses<?php echo $contact_id; ?>">
+        <div class="tab-pane fade" id="pills-contact-licenses<?= $contact_id ?>">
             <div class="table-responsive-sm">
                 <table class="table table-striped table-borderless table-hover table-sm">
                     <thead class="text-dark">
@@ -687,10 +685,10 @@ ob_start();
 
                         ?>
                         <tr>
-                            <td><?php echo "$software_name $software_version"; ?></td>
-                            <td><?php echo $software_type; ?></td>
-                            <td><?php echo $software_key; ?></td>
-                            <td><?php echo "$seat_count / $software_seats"; ?></td>
+                            <td><?= "$software_name $software_version" ?></td>
+                            <td><?= $software_type ?></td>
+                            <td><?= $software_key ?></td>
+                            <td><?= "$seat_count / $software_seats" ?></td>
                         </tr>
 
                         <?php
@@ -740,11 +738,11 @@ ob_start();
                                     data-modal-url="modals/document/document_view.php?id=<?= $document_id ?>">
                                     <?php echo $document_name; ?>
                                 </a>
-                                <div class="text-secondary"><?php echo $document_description; ?></div>
+                                <div class="text-secondary"><?= $document_description ?></div>
                             </td>
-                            <td><?php echo $document_created_by; ?></td>
-                            <td><?php echo $document_created_at; ?></td>
-                            <td><?php echo $document_updated_at; ?></td>
+                            <td><?= $document_created_by ?></td>
+                            <td><?= $document_created_at ?></td>
+                            <td><?= $document_updated_at ?></td>
                         </tr>
 
                         <?php
@@ -760,7 +758,7 @@ ob_start();
         <?php } ?>
 
         <?php if ($file_count) { ?>
-        <div class="tab-pane fade" id="pills-contact-files<?php echo $contact_id; ?>">
+        <div class="tab-pane fade" id="pills-contact-files<?= $contact_id ?>">
             <div class="table-responsive-sm">
                 <table class="table table-striped table-borderless table-hover table-sm">
                     <thead class="text-dark">
@@ -790,12 +788,12 @@ ob_start();
 
                         <tr>
                             <td>
-                                <div><a href="../uploads/clients/<?php echo $client_id; ?>/<?php echo $file_reference_name; ?>"><?php echo $file_name; ?></a></div>
-                                <div class="text-secondary"><?php echo $file_description; ?></div>
+                                <div><a href="../uploads/clients/<?= $client_id ?>/<?= $file_reference_name ?>" target="_blank"><?= $file_name ?></a></div>
+                                <div class="text-secondary"><?= $file_description ?></div>
                             </td>
-                            <td><?php echo $file_mime_type; ?></td>
-                            <td><?php echo $file_size_KB; ?> KB</td>
-                            <td><?php echo $file_created_at; ?></td>
+                            <td><?= $file_mime_type ?></td>
+                            <td><?= $file_size_KB ?> KB</td>
+                            <td><?= $file_created_at ?></td>
                         </tr>
 
                         <?php
@@ -838,10 +836,10 @@ ob_start();
                         ?>
 
                         <tr>
-                            <td><i class="fa fa-fw <?php echo $note_type_icon; ?> mr-2"></i><?php echo $contact_note_type; ?></td>
-                            <td><?php echo $contact_note; ?></td>
-                            <td><?php echo $note_by; ?></td>
-                            <td><?php echo $contact_note_created_at; ?></td>
+                            <td><i class="fa fa-fw <?= $note_type_icon ?> mr-2"></i><?= $contact_note_type ?></td>
+                            <td><?= $contact_note ?></td>
+                            <td><?= $note_by ?></td>
+                            <td><?= $contact_note_created_at ?></td>
                         </tr>
 
                         <?php
