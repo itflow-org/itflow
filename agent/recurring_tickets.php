@@ -18,14 +18,38 @@ if (isset($_GET['client_id'])) {
 // Perms
 enforceUserPermission('module_support');
 
-// Ticket client access snippet
-$rec_ticket_permission_snippet = '';
-if (!empty($client_access_string)) {
-    $rec_ticket_permission_snippet = "AND recurring_ticket_client_id IN ($client_access_string)";
+// Category Filter
+if (isset($_GET['category']) & !empty($_GET['category'])) {
+    $category_query = 'AND (category_id = ' . intval($_GET['category']) . ')';
+    $category_filter = intval($_GET['category']);
+} else {
+    // Default - any
+    $category_query = '';
+    $category_filter = '';
 }
 
-//Rebuild URL
-$url_query_strings_sort = http_build_query($get_copy);
+// Assigned Agent Filter
+if (isset($_GET['assigned_agent']) & !empty($_GET['assigned_agent'])) {
+    $assigned_agent_query = 'AND (user_id = ' . intval($_GET['assigned_agent']) . ')';
+    $assigned_agent_filter = intval($_GET['assigned_agent']);
+} else {
+    // Default - any
+    $assigned_agent_query = '';
+    $assigned_agent_filter = '';
+}
+
+// Billable Filter
+if (isset($_GET['billable']) && $_GET['billable'] == 1) {
+    $billable_query = 'AND (recurring_ticket_billable = 1)';
+    $billable_filter = 1;
+} elseif (isset($_GET['billable']) && $_GET['billable'] == 0) {
+    $billable_query = 'AND (recurring_ticket_billable = 0)';
+    $billable_filter = 0;
+} else {
+    // Default - any
+    $billable_query = '';
+    $billable_filter = '';
+}
 
 // SQL
 $sql = mysqli_query(
@@ -35,7 +59,10 @@ $sql = mysqli_query(
     LEFT JOIN categories ON category_id = recurring_ticket_category
     LEFT JOIN users ON user_id = recurring_ticket_assigned_to
     WHERE (recurring_tickets.recurring_ticket_subject LIKE '%$q%' OR category_name LIKE '%$q%')
-    $rec_ticket_permission_snippet
+    $access_permission_query
+    $category_query
+    $assigned_agent_query
+    $billable_query
     $client_query
     ORDER BY
         CASE 
@@ -72,7 +99,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
         <form autocomplete="off">
             <?php if ($client_url) { ?>
-                <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
+                <input type="hidden" name="client_id" value="<?= $client_id ?>">
             <?php } ?>
             <div class="row">
 
@@ -84,7 +111,54 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         </div>
                     </div>
                 </div>
-                <div class="col-md-8">
+                <div class="col-sm-2">
+                    <div class="form-group">
+                        <select class="form-control select2" name="category" onchange="this.form.submit()">
+                            <option value="">- All Categories -</option>
+
+                            <?php
+                            $sql_categories_filter = mysqli_query($mysqli, "SELECT category_id, category_name FROM categories WHERE category_type = 'Ticket' AND EXISTS (SELECT 1 FROM recurring_tickets WHERE recurring_ticket_category = category_id $client_query) ORDER BY category_name ASC");
+                            while ($row = mysqli_fetch_array($sql_categories_filter)) {
+                                $category_id = intval($row['category_id']);
+                                $category_name = nullable_htmlentities($row['category_name']);
+                            ?>
+                                <option <?php if ($category_filter == $category_id) { echo "selected"; } ?> value="<?= $category_id ?>"><?= $category_name ?></option>
+                            <?php
+                            }
+                            ?>
+
+                        </select>
+                    </div>
+                </div>
+                <div class="col-sm-2">
+                    <div class="form-group">
+                        <select class="form-control select2" name="assigned_agent" onchange="this.form.submit()">
+                            <option value="">- All Agents -</option>
+
+                            <?php
+                            $sql_assigned_agents_filter = mysqli_query($mysqli, "SELECT user_id, user_name FROM users WHERE user_type = 1 AND EXISTS (SELECT 1 FROM recurring_tickets WHERE recurring_ticket_assigned_to = user_id $client_query) ORDER BY user_name ASC");
+                            while ($row = mysqli_fetch_array($sql_assigned_agents_filter)) {
+                                $user_id = intval($row['user_id']);
+                                $user_name = nullable_htmlentities($row['user_name']);
+                            ?>
+                                <option <?php if ($assigned_agent_filter == $user_id) { echo "selected"; } ?> value="<?= $user_id ?>"><?= $user_name ?></option>
+                            <?php
+                            }
+                            ?>
+
+                        </select>
+                    </div>
+                </div>
+                <div class="col-sm-2">
+                    <div class="form-group">
+                        <select class="form-control select2" name="billable" onchange="this.form.submit()">
+                            <option value="">- Billable Status -</option>                    
+                            <option <?php if ($billable_filter == 1) { echo "selected"; } ?> value="1">Billable</option>
+                            <option <?php if ($billable_filter == 0) { echo "selected"; } ?> value="0">Non-Billable</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-2">
 
                     <?php if (lookupUserPermission("module_support") >= 2) { ?>
                         <div class="dropdown float-right" id="bulkActionButton" hidden>
@@ -93,7 +167,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             </button>
                             <div class="dropdown-menu">
                                 <button class="dropdown-item" type="submit" form="bulkActions" name="bulk_force_recurring_tickets">
-                                    <i class="fa fa-fw fa-paper-plane text-secondary mr-2"></i>Force Reoccur
+                                    <i class="fas fa-fw fa-paper-plane mr-2"></i>Force Reoccur
                                 </button>
                                 <div class="dropdown-divider"></div>
                                 <a class="dropdown-item" href="#" data-toggle="modal" data-target="#bulkAssignAgentRecurringTicketModal">
@@ -109,7 +183,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 </a>
                                 <div class="dropdown-divider"></div>
                                 <a class="dropdown-item" href="#" data-toggle="modal" data-target="#bulkEditBillableRecurringTicketModal">
-                                    <i class="fas fa-fw fa-thermometer-half mr-2"></i>Set Billable
+                                    <i class="fas fa-fw fa-dollar-sign mr-2"></i>Set Billable
                                 </a>
                                 <div class="dropdown-divider"></div>
                                 <a class="dropdown-item" href="#" data-toggle="modal" data-target="#bulkEditNextRunRecurringTicketModal">
@@ -173,7 +247,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             </th>
                             <th>
                                 <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=user_name&order=<?php echo $disp; ?>">
-                                    Assigned <?php if ($sort == 'user_name') { echo $order_icon; } ?>
+                                    Agent <?php if ($sort == 'user_name') { echo $order_icon; } ?>
                                 </a>
                             </th>
                             
