@@ -1,7 +1,7 @@
 <?php
 
 // Default Column Sortby Filter
-$sort = "recurring_ticket_subject";
+$sort = "recurring_ticket_next_run";
 $order = "ASC";
 
 // If client_id is in URI then show client Side Bar and client header
@@ -121,13 +121,11 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                     <input class="form-check-input" id="selectAllCheckbox" type="checkbox" onclick="checkAll(this)">
                                 </div>
                             </td>
-                            <?php if (!$client_url) { ?>
                             <th>
-                                <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=client_name&order=<?php echo $disp; ?>">
-                                    Client <?php if ($sort == 'client_name') { echo $order_icon; } ?>
+                                <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=recurring_ticket_next_run&order=<?php echo $disp; ?>">
+                                    Next Run Date <?php if ($sort == 'recurring_ticket_next_run') { echo $order_icon; } ?>
                                 </a>
                             </th>
-                            <?php } ?>
                             <th>
                                 <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=recurring_ticket_subject&order=<?php echo $disp; ?>">
                                     Subject <?php if ($sort == 'recurring_ticket_subject') { echo $order_icon; } ?>
@@ -153,11 +151,14 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                     Assigned <?php if ($sort == 'user_name') { echo $order_icon; } ?>
                                 </a>
                             </th>
+                            
+                            <?php if (!$client_url) { ?>
                             <th>
-                                <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=recurring_ticket_next_run&order=<?php echo $disp; ?>">
-                                    Next Run Date <?php if ($sort == 'recurring_ticket_next_run') { echo $order_icon; } ?>
+                                <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=client_name&order=<?php echo $disp; ?>">
+                                    Client <?php if ($sort == 'client_name') { echo $order_icon; } ?>
                                 </a>
                             </th>
+                            <?php } ?>
                             <?php if (lookupUserPermission("module_support") >= 2) { ?>
                                 <th class="text-center">Action</th>
                             <?php } ?>
@@ -186,12 +187,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                         <input class="form-check-input bulk-select" type="checkbox" name="recurring_ticket_ids[]" value="<?php echo $recurring_ticket_id ?>">
                                     </div>
                                 </td>
-
-                                <?php if (!$client_url) { ?>
-                                <th><a href="recurring_tickets.php?client_id=<?php echo $recurring_ticket_client_id; ?>"><?php echo $recurring_ticket_client_name ?></a>
-                                </th>
-                                <?php } ?>
-
+                                <td class="text-bold"><?php echo $recurring_ticket_next_run ?></td>
                                 <td>
                                     <a class="ajax-modal" href="#"
                                         data-modal-size="lg"
@@ -203,7 +199,10 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 <td><?php echo $recurring_ticket_priority ?></td>
                                 <td><?php echo $recurring_ticket_frequency ?></td>
                                 <td><?php echo $assigned_to ?></td>
-                                <td class="text-bold"><?php echo $recurring_ticket_next_run ?></td>
+                                <?php if (!$client_url) { ?>
+                                <th><a href="recurring_tickets.php?client_id=<?php echo $recurring_ticket_client_id; ?>"><?php echo $recurring_ticket_client_name ?></a>
+                                </th>
+                                <?php } ?>
 
                                 <?php if (lookupUserPermission("module_support") >= 2) { ?>
                                     <td>
