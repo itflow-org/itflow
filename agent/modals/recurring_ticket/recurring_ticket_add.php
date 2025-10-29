@@ -190,13 +190,17 @@
                                         <span class="input-group-text"><i class="fa fa-fw fa-recycle"></i></span>
                                     </div>
                                     <select class="form-control select2" name="frequency" required>
-                                        <option>Three Days</option>
-                                        <option>Weekly</option>
-                                        <option>Biweekly</option>
-                                        <option>Monthly</option>
-                                        <option>Quarterly</option>
-                                        <option>Biannually</option>
-                                        <option>Annually</option>
+                                        <optgroup label="Days">
+                                            <option>Three Days</option>
+                                            <option>Weekly</option>
+                                            <option>Biweekly</option>
+                                        </optgroup>
+                                        <optgroup label="Months">
+                                            <option>Monthly</option>
+                                            <option>Quarterly</option>
+                                            <option>Biannually</option>
+                                            <option>Annually</option>
+                                        </optgroup>
                                     </select>
                                 </div>
                             </div>
@@ -225,21 +229,46 @@
                                         </div>
                                         <select class="form-control select2" name="asset">
                                             <option value="0">- None -</option>
+
                                             <?php
-                                            $sql_assets = mysqli_query($mysqli, "SELECT * FROM assets WHERE asset_client_id = $client_id AND asset_archived_at IS NULL ORDER BY asset_name ASC");
+                                            // Query assets ordered by type, then name
+                                            $sql_assets = mysqli_query($mysqli, "
+                                                SELECT asset_id, asset_name, asset_type, asset_make, asset_model, contact_name 
+                                                FROM assets 
+                                                LEFT JOIN contacts ON contact_id = asset_contact_id 
+                                                WHERE asset_client_id = $client_id 
+                                                  AND asset_archived_at IS NULL 
+                                                ORDER BY asset_type ASC, asset_name ASC
+                                            ");
+
+                                            $current_type = null; // Track which optgroup we're in
 
                                             while ($row = mysqli_fetch_array($sql_assets)) {
                                                 $asset_id_select = intval($row['asset_id']);
                                                 $asset_name_select = nullable_htmlentities($row['asset_name']);
+                                                $asset_type_select = nullable_htmlentities($row['asset_type']);
+                                                $asset_make_select = nullable_htmlentities($row['asset_make']);
+                                                $asset_model_select = nullable_htmlentities($row['asset_model']);
+                                                $contact_name_select = nullable_htmlentities($row['contact_name']);
+                                                
+                                                // Start new optgroup if type changes
+                                                if ($asset_type_select !== $current_type) {
+                                                    if ($current_type !== null) echo "</optgroup>";
+                                                    echo "<optgroup label=\"" . ($asset_type_select ?: 'Uncategorized') . "\">";
+                                                    $current_type = $asset_type_select;
+                                                }
+
+                                                // Build full display
+                                                $full_name = $asset_name_select . ($asset_make_select ? " - $asset_make_select" . ($asset_model_select ? " $asset_model_select" : '') : '') 
+                                                             . ($contact_name_select ? " - ($contact_name_select)" : '');
                                                 ?>
-                                                <option value="<?php echo $asset_id_select; ?>"
-                                                    <?php if (isset($_GET['asset_id']) && $asset_id_select == $_GET['asset_id']) { echo "selected"; }
-                                                    ?>
 
-                                                    ><?php echo $asset_name_select; ?>
-                                                </option>
+                                                <option value="<?= $asset_id_select ?>"><?= $full_name ?></option>
 
-                                            <?php } ?>
+                                            <?php } 
+
+                                            if ($current_type_select !== null) echo "</optgroup>"; 
+                                            ?>
                                         </select>
                                     </div>
                                 </div>
@@ -252,22 +281,50 @@
                                         </div>
                                         <select class="form-control select2" name="additional_assets[]" data-tags="true" data-placeholder="- Select Additional Assets -" multiple>
                                             <option value=""></option>
-                                            <?php
 
-                                            $sql_assets = mysqli_query($mysqli, "SELECT asset_id, asset_name, contact_name FROM assets LEFT JOIN contacts ON contact_id = asset_contact_id WHERE asset_client_id = $client_id AND asset_archived_at IS NULL ORDER BY asset_name ASC");
+                                            <?php
+                                            // Query assets ordered by type then name
+                                            $sql_assets = mysqli_query($mysqli, "
+                                                SELECT asset_id, asset_name, asset_type, asset_make, asset_model, contact_name 
+                                                FROM assets 
+                                                LEFT JOIN contacts ON contact_id = asset_contact_id 
+                                                WHERE asset_client_id = $client_id 
+                                                  AND asset_archived_at IS NULL 
+                                                ORDER BY asset_type ASC, asset_name ASC
+                                            ");
+
+                                            $current_type = null;
+
                                             while ($row = mysqli_fetch_array($sql_assets)) {
                                                 $asset_id_select = intval($row['asset_id']);
                                                 $asset_name_select = nullable_htmlentities($row['asset_name']);
-                                                $asset_contact_name_select = nullable_htmlentities($row['contact_name']);
-                                            ?>
-                                                <option value="<?php echo $asset_id_select; ?>"
-                                                    ><?php echo "$asset_name_select - $asset_contact_name_select"; ?>
-                                                </option>
+                                                $asset_type_select = nullable_htmlentities($row['asset_type']);
+                                                $asset_make_select = nullable_htmlentities($row['asset_make']);
+                                                $asset_model_select = nullable_htmlentities($row['asset_model']);
+                                                $contact_name_select = nullable_htmlentities($row['contact_name']);
 
-                                            <?php } ?>
+                                                // Start new optgroup if type changes
+                                                if ($asset_type_select !== $current_type) {
+                                                    if ($current_type !== null) echo "</optgroup>";
+                                                    echo "<optgroup label=\"" . ($asset_type_select ?: 'Uncategorized') . "\">";
+                                                    $current_type = $asset_type_select;
+                                                }
+
+                                                // Build full display
+                                                $full_name = $asset_name_select . ($asset_make_select ? " - $asset_make_select" . ($asset_model_select ? " $asset_model_select" : '') : '') 
+                                                             . ($contact_name_select ? " - ($contact_name_select)" : '');
+                                                ?>
+
+                                                <option value="<?= $asset_id_select ?>"><?= $full_name ?></option>
+
+                                            <?php } 
+
+                                            if ($current_type !== null) echo "</optgroup>"; 
+                                            ?>
                                         </select>
                                     </div>
                                 </div>
+
 
                             <?php } ?>
 
