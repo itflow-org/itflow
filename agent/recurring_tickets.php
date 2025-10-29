@@ -96,6 +96,26 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                     <i class="fa fa-fw fa-paper-plane text-secondary mr-2"></i>Force Reoccur
                                 </button>
                                 <div class="dropdown-divider"></div>
+                                <a class="dropdown-item" href="#" data-toggle="modal" data-target="#bulkAssignAgentRecurringTicketModal">
+                                    <i class="fas fa-fw fa-user-check mr-2"></i>Assign Agent
+                                </a>
+                                <div class="dropdown-divider"></div>
+                                <a class="dropdown-item" href="#" data-toggle="modal" data-target="#bulkEditCategoryRecurringTicketModal">
+                                    <i class="fas fa-fw fa-layer-group mr-2"></i>Set Category
+                                </a>
+                                <div class="dropdown-divider"></div>
+                                <a class="dropdown-item" href="#" data-toggle="modal" data-target="#bulkEditPriorityRecurringTicketModal">
+                                    <i class="fas fa-fw fa-thermometer-half mr-2"></i>Set Priority
+                                </a>
+                                <div class="dropdown-divider"></div>
+                                <a class="dropdown-item" href="#" data-toggle="modal" data-target="#bulkEditBillableRecurringTicketModal">
+                                    <i class="fas fa-fw fa-thermometer-half mr-2"></i>Set Billable
+                                </a>
+                                <div class="dropdown-divider"></div>
+                                <a class="dropdown-item" href="#" data-toggle="modal" data-target="#bulkEditNextRunRecurringTicketModal">
+                                    <i class="fas fa-fw fa-calendar-day mr-2"></i>Set Next Run Date
+                                </a>
+                                <div class="dropdown-divider"></div>
                                 <button class="dropdown-item text-danger text-bold" type="submit" form="bulkActions" name="bulk_delete_recurring_tickets">
                                     <i class="fas fa-fw fa-trash mr-2"></i>Delete
                                 </button>
@@ -122,7 +142,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 </div>
                             </td>
                             <th>
-                                <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=recurring_ticket_next_run&order=<?php echo $disp; ?>">
+                                <a class="text-secondary" href="?<?= $url_query_strings_sort ?>&sort=recurring_ticket_next_run&order=<?= $disp ?>">
                                     Next Run Date <?php if ($sort == 'recurring_ticket_next_run') { echo $order_icon; } ?>
                                 </a>
                             </th>
@@ -144,6 +164,11 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             <th>
                                 <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=recurring_ticket_frequency&order=<?php echo $disp; ?>">
                                     Frequency <?php if ($sort == 'recurring_ticket_frequency') { echo $order_icon; } ?>
+                                </a>
+                            </th>
+                            <th class="text-center">
+                                <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=recurring_ticket_billable&order=<?php echo $disp; ?>">
+                                    Billable <?php if ($sort == 'recurring_ticket_billable') { echo $order_icon; } ?>
                                 </a>
                             </th>
                             <th>
@@ -176,6 +201,12 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             $recurring_ticket_priority = nullable_htmlentities($row['recurring_ticket_priority']);
                             $recurring_ticket_frequency = nullable_htmlentities($row['recurring_ticket_frequency']);
                             $recurring_ticket_next_run = nullable_htmlentities($row['recurring_ticket_next_run']);
+                            $recurring_ticket_billable = intval($row['recurring_ticket_billable']);
+                            if ($recurring_ticket_billable) {
+                                $recurring_ticket_billable_display = "<i class='fas fa-fw fa-check text-success'></i>";
+                            } else {
+                                $recurring_ticket_billable_display = "-";
+                            }
                             $recurring_ticket_category = getFallBack(nullable_htmlentities($row['category_name']));
                             $recurring_ticket_client_name = nullable_htmlentities($row['client_name']);
                             $assigned_to = getFallBack(nullable_htmlentities($row['user_name']));
@@ -184,23 +215,24 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             <tr>
                                 <td class="pr-0">
                                     <div class="form-check">
-                                        <input class="form-check-input bulk-select" type="checkbox" name="recurring_ticket_ids[]" value="<?php echo $recurring_ticket_id ?>">
+                                        <input class="form-check-input bulk-select" type="checkbox" name="recurring_ticket_ids[]" value="<?= $recurring_ticket_id ?>">
                                     </div>
                                 </td>
-                                <td class="text-bold"><?php echo $recurring_ticket_next_run ?></td>
+                                <td class="text-bold"><?= $recurring_ticket_next_run ?></td>
                                 <td>
                                     <a class="ajax-modal" href="#"
                                         data-modal-size="lg"
                                         data-modal-url="modals/recurring_ticket/recurring_ticket_edit.php?id=<?= $recurring_ticket_id ?>">
-                                        <?php echo $recurring_ticket_subject ?>
+                                        <?= $recurring_ticket_subject ?>
                                     </a>
                                 </td>
-                                <td><?php echo $recurring_ticket_category ?></td>
-                                <td><?php echo $recurring_ticket_priority ?></td>
-                                <td><?php echo $recurring_ticket_frequency ?></td>
-                                <td><?php echo $assigned_to ?></td>
+                                <td><?= $recurring_ticket_category ?></td>
+                                <td><?= $recurring_ticket_priority ?></td>
+                                <td><?= $recurring_ticket_frequency ?></td>
+                                <td class="text-center"><?= $recurring_ticket_billable_display ?></td>
+                                <td><?= $assigned_to ?></td>
                                 <?php if (!$client_url) { ?>
-                                <th><a href="recurring_tickets.php?client_id=<?php echo $recurring_ticket_client_id; ?>"><?php echo $recurring_ticket_client_name ?></a>
+                                <th><a href="recurring_tickets.php?client_id=<?= $recurring_ticket_client_id ?>"><?= $recurring_ticket_client_name ?></a>
                                 </th>
                                 <?php } ?>
 
@@ -217,12 +249,12 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                                     <i class="fas fa-fw fa-edit mr-2"></i>Edit
                                                 </a>
                                                 <div class="dropdown-divider"></div>
-                                                <a class="dropdown-item" href="post.php?force_recurring_ticket=<?php echo $recurring_ticket_id; ?>&csrf_token=<?php echo $_SESSION['csrf_token'] ?>">
+                                                <a class="dropdown-item" href="post.php?force_recurring_ticket=<?= $recurring_ticket_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                                                     <i class="fa fa-fw fa-paper-plane text-secondary mr-2"></i>Force Reoccur
                                                 </a>
                                                 <?php if (lookupUserPermission("module_support") == 3) { ?>
                                                     <div class="dropdown-divider"></div>
-                                                    <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_recurring_ticket=<?php echo $recurring_ticket_id; ?>&csrf_token=<?php echo $_SESSION['csrf_token'] ?>">
+                                                    <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_recurring_ticket=<?= $recurring_ticket_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                                                         <i class="fas fa-fw fa-trash mr-2"></i>Delete
                                                     </a>
                                                 <?php } ?>
@@ -238,6 +270,13 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     </tbody>
 
                 </table>
+                <?php
+                require_once "modals/recurring_ticket/recurring_ticket_bulk_agent_edit.php";
+                require_once "modals/recurring_ticket/recurring_ticket_bulk_billable_edit.php";
+                require_once "modals/recurring_ticket/recurring_ticket_bulk_category_edit.php";
+                require_once "modals/recurring_ticket/recurring_ticket_bulk_next_run_edit.php";
+                require_once "modals/recurring_ticket/recurring_ticket_bulk_priority_edit.php";
+                ?>
 
             </form>
 
