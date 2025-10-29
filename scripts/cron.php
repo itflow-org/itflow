@@ -406,10 +406,15 @@ if (mysqli_num_rows($sql_recurring_tickets) > 0) {
         addToMailQueue($data);
 
         // Set the next run date
-        if ($frequency == "weekly") {
-            // Note: We seemingly have to initialize a new datetime for each loop to avoid stacking the dates
+        if ($frequency == "three days") {
+            $now = new DateTime();
+            $next_run = date_add($now, date_interval_create_from_date_string('3 days'));
+        } elseif ($frequency == "weekly") {
             $now = new DateTime();
             $next_run = date_add($now, date_interval_create_from_date_string('1 week'));
+        } elseif ($frequency == "biweekly") {
+            $now = new DateTime();
+            $next_run = date_add($now, date_interval_create_from_date_string('2 weeks'));
         } elseif ($frequency == "monthly") {
             $now = new DateTime();
             $next_run = date_add($now, date_interval_create_from_date_string('1 month'));

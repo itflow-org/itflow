@@ -212,7 +212,9 @@ ob_start();
                             <span class="input-group-text"><i class="fa fa-fw fa-recycle"></i></span>
                         </div> 
                         <select class="form-control select2" name="frequency">
+                            <option <?php if ($recurring_ticket_frequency == "Three Days") { echo "selected"; } ?>>Three Days</option>
                             <option <?php if ($recurring_ticket_frequency == "Weekly") { echo "selected"; } ?>>Weekly</option>
+                            <option <?php if ($recurring_ticket_frequency == "Biweekly") { echo "selected"; } ?>>Biweekly</option>
                             <option <?php if ($recurring_ticket_frequency == "Monthly") { echo "selected"; } ?>>Monthly</option>
                             <option <?php if ($recurring_ticket_frequency == "Quarterly") { echo "selected"; } ?>>Quarterly</option>
                             <option <?php if ($recurring_ticket_frequency == "Biannually") { echo "selected"; } ?>>Biannually</option>
