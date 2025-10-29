@@ -22,7 +22,7 @@
                                 WHERE user_type = 1
                                 AND user_status = 1
                                 AND user_archived_at IS NULL 
-                                ORDER BY user_name DESC"
+                                ORDER BY user_name ASC"
                             );
                             while ($row = mysqli_fetch_array($sql_users_select)) {
                                 $user_id_select = intval($row['user_id']);
