@@ -185,8 +185,7 @@
                                                 $sql = mysqli_query(
                                                     $mysqli,
                                                     "SELECT user_id, user_name FROM users
-                                                    WHERE user_role_id > 1
-                                                    AND user_type = 1
+                                                    WHERE user_type = 1
                                                     AND user_status = 1
                                                     AND user_archived_at IS NULL
                                                     ORDER BY user_name ASC"
