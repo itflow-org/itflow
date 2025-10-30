@@ -90,7 +90,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
         <h3 class="card-title mt-2"><i class="fa fa-fw fa-address-book mr-2"></i>Contacts</h3>
         <div class="card-tools">
             <div class="btn-group">
-                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addContactModal">
+                <button type="button" class="btn btn-primary ajax-modal" data-modal-url="modals/contact/contact_add.php?client_id=<?= $client_id ?>">
                     <i class="fas fa-plus mr-2"></i>New Contact
                 </button>
                 <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown"></button>
@@ -557,48 +557,10 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
     </div>
 </div>
 
-<!-- JavaScript to Show/Hide Password Form Group -->
-<script>
-
-    function generatePassword(type, id) {
-        // Send a GET request to ajax.php as ajax.php?get_readable_pass=true
-        jQuery.get(
-            "ajax.php", {
-                get_readable_pass: 'true'
-            },
-            function(data) {
-                //If we get a response from post.php, parse it as JSON
-                const password = JSON.parse(data);
-
-                // Set the password value to the correct modal, based on the type
-                if (type == "add") {
-                    document.getElementById("password-add").value = password;
-                } else if (type == "edit") {
-                    document.getElementById("password-edit-"+id.toString()).value = password;
-                }
-            }
-        );
-    }
-
-    $(document).ready(function() {
-        $('.authMethod').on('change', function() {
-            var $form = $(this).closest('.authForm');
-            if ($(this).val() === 'local') {
-                $form.find('.passwordGroup').show();
-            } else {
-                $form.find('.passwordGroup').hide();
-            }
-        });
-        $('.authMethod').trigger('change');
-
-    });
-</script>
-
 <script src="../js/bulk_actions.js"></script>
 
 <?php
 
-require_once "modals/contact/contact_add.php";
 require_once "modals/contact/contact_export.php";
 if ($client_url) {
     require_once "modals/contact/contact_invite.php";
