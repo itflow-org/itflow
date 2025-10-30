@@ -21,7 +21,7 @@
                 </div>
 
                 <div class="form-group">
-                    <textarea class="form-control tinymceTicket<?php if($config_ai_enable) { echo "AI"; } ?>" id="textInput" name="bulk_details"></textarea>
+                    <textarea class="form-control tinymceTicket" id="textInput" name="bulk_details"></textarea>
                 </div>
 
                 <div class="row">
@@ -52,7 +52,7 @@
                                 <select class="form-control select2" name="bulk_category">
                                     <option value="0">- Not Categorized -</option>
                                     <?php
-                                    $sql_categories = mysqli_query($mysqli, "SELECT category_id, category_name FROM categories WHERE category_type = 'Ticket' AND category_archived_at IS NULL");
+                                    $sql_categories = mysqli_query($mysqli, "SELECT category_id, category_name FROM categories WHERE category_type = 'Ticket' AND category_archived_at IS NULL ORDER BY category_name ASC");
                                     while ($row = mysqli_fetch_array($sql_categories)) {
                                         $category_id = intval($row['category_id']);
                                         $category_name = nullable_htmlentities($row['category_name']);
@@ -81,7 +81,7 @@
                             $sql = mysqli_query(
                                 $mysqli,
                                 "SELECT user_id, user_name FROM users
-                                WHERE user_role_id > 1 AND user_status = 1 AND user_archived_at IS NULL ORDER BY user_name ASC"
+                                WHERE user_type = 1 AND user_status = 1 AND user_archived_at IS NULL ORDER BY user_name ASC"
                             );
                             while ($row = mysqli_fetch_array($sql)) {
                                 $user_id = intval($row['user_id']);
