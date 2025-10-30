@@ -263,7 +263,7 @@ if (isset($_GET['contact_id'])) {
                             <i class="fa fa-fw fa-recycle mr-2"></i>New Recurring Ticket
                         </a>
                         <div class="dropdown-divider"></div>
-                        <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#addAssetModal">
+                        <a class="dropdown-item text-dark ajax-modal" href="#" data-modal-url="modals/asset/asset_add.php?<?= $client_url ?>&contact_id=<?= $contact_id ?>">
                             <i class="fa fa-fw fa-desktop mr-2"></i>New Asset
                         </a>
                         <div class="dropdown-divider"></div>
@@ -1175,7 +1175,6 @@ if (isset($_GET['contact_id'])) {
 
 require_once "modals/ticket/ticket_add.php";
 require_once "modals/recurring_ticket/recurring_ticket_add.php";
-require_once "modals/asset/asset_add.php";
 require_once "modals/credential/credential_add.php";
 require_once "modals/document/document_add.php";
 require_once "modals/file/file_upload.php";

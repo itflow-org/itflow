@@ -37,17 +37,23 @@ enforceUserPermission('module_support');
 //Asset Type from GET
 if (isset($_GET['type']) && ($_GET['type']) == 'workstation') {
     $type_query = "asset_type = 'desktop' OR asset_type = 'laptop'";
+    $type_filter = "workstation";
 } elseif (isset($_GET['type']) && ($_GET['type']) == 'server') {
     $type_query = "asset_type = 'server'";
+    $type_filter = "server";
 } elseif (isset($_GET['type']) && ($_GET['type']) == 'virtual') {
     $type_query = "asset_type = 'Virtual Machine'";
+    $type_filter = "virtual";
 } elseif (isset($_GET['type']) && ($_GET['type']) == 'network') {
     $type_query = "asset_type = 'Firewall/Router' OR asset_type = 'Switch' OR asset_type = 'Access Point'";
+    $type_filter = "network";
 } elseif (isset($_GET['type']) && ($_GET['type']) == 'other') {
     $type_query = "asset_type NOT LIKE 'laptop' AND asset_type NOT LIKE 'desktop' AND asset_type NOT LIKE 'server' AND asset_type NOT LIKE 'virtual machine' AND asset_type NOT LIKE 'firewall/router' AND asset_type NOT LIKE 'switch' AND asset_type NOT LIKE 'access point'";
+    $type_filter = "other";
 } else {
     $type_query = "asset_type LIKE '%'";
     $_GET['type'] = '';
+    $type_filter = '';
 }
 
 if (!$client_url) {
@@ -133,19 +139,6 @@ $sql = mysqli_query(
 
 $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
-
-// OS typeahead suggestions
-$os_sql = mysqli_query($mysqli, "SELECT DISTINCT asset_os AS label FROM assets WHERE asset_archived_at IS NULL");
-if ($os_sql && mysqli_num_rows($os_sql) > 0) {
-    $os_arr = [];
-    while ($row = mysqli_fetch_assoc($os_sql)) {
-        // jQuery UI Autocomplete expects {label: "...", value: "..."}
-        $label = $row['label'];
-        $os_arr[] = ['label' => $label, 'value' => $label];
-    }
-    $json_os = json_encode($os_arr);
-}
-
 ?>
 
 <div class="col-sm-12 mb-3">
@@ -185,8 +178,8 @@ if ($os_sql && mysqli_num_rows($os_sql) > 0) {
         <div class="card-tools">
             <?php if (lookupUserPermission("module_support") >= 2) { ?>
             <div class="btn-group">
-                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addAssetModal">
-                    <i class="fas fa-plus mr-2"></i>New <?php if (!empty($_GET['type'])) { echo ucwords(strip_tags(nullable_htmlentities($_GET['type']))); } else { echo "Asset"; } ?>
+                <button type="button" class="btn btn-primary ajax-modal" data-modal-url="modals/asset/asset_add.php?<?= $client_url ?>&type=<?= $type_filter ?>">
+                    <i class="fas fa-plus mr-2"></i>New <?php if ($type_filter) { echo ucwords($type_filter); } else { echo "Asset"; } ?>
                 </button>
                 <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown"></button>
                 <div class="dropdown-menu">
@@ -716,24 +709,7 @@ if ($os_sql && mysqli_num_rows($os_sql) > 0) {
 
 <script src="../js/bulk_actions.js"></script>
 
-<!-- JSON Autocomplete / type ahead -->
-<link rel="stylesheet" href="../plugins/jquery-ui/jquery-ui.min.css">
-<script src="../plugins/jquery-ui/jquery-ui.min.js"></script>
-<script>
-    $(function() {
-        var operatingSystems = <?php echo $json_os; ?>;
-        $("#os").autocomplete({
-            source: operatingSystems,  // Should be an array of objects with 'label' and 'value'
-            select: function(event, ui) {
-                $("#os").val(ui.item.label); // Set the input field value to the selected label
-                return false;
-            }
-        });
-    });
-</script>
-
 <?php
-require_once "modals/asset/asset_add.php";
 require_once "modals/asset/asset_export.php";
 if ($client_url) {
     require_once "modals/asset/asset_import.php";

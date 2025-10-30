@@ -350,5 +350,3 @@ $(document).ready(function() {
 <?php
 
 require_once '../../../includes/modal_footer.php';
-
-?>
