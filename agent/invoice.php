@@ -247,12 +247,12 @@ if (isset($_GET['invoice_id'])) {
                             <?php if ($invoice_status !== 'Paid' && $invoice_status !== 'Cancelled' && $invoice_status !== 'Draft' && $invoice_status !== 'Non-Billable' && $invoice_amount != 0) { ?>
 
                                 <div class="btn-group">
-                                    <button type="button" class="btn btn-success ajax-modal" data-modal-url="modals/invoice/invoice_pay.php?id=<?= $invoice_id ?>"><i class="fa fa-fw fa-credit-card mr-2"></i>Add Payment</button>
+                                    <button type="button" class="btn btn-success ajax-modal" data-modal-url="modals/payment/payment_add.php?id=<?= $invoice_id ?>"><i class="fa fa-fw fa-credit-card mr-2"></i>Add Payment</button>
 
                                     <?php if (mysqli_num_rows($sql_saved_payment_methods) > 0 && ($invoice_status === 'Sent' || $invoice_status === 'Viewed')) { ?>
                                     <button type="button" class="btn btn-success dropdown-toggle dropdown-toggle-split" data-toggle="dropdown"></button>
                                     <div class="dropdown-menu">
-                                        <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/invoice/invoice_saved_method_pay.php?id=<?= $invoice_id ?>"><i class="fas fa-fw fa-wallet mr-2"></i>Pay with Saved Card</a>                                    
+                                        <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/payment/payment_saved_method_add.php?id=<?= $invoice_id ?>"><i class="fas fa-fw fa-wallet mr-2"></i>Pay with Saved Card</a>                                    
                                     </div>
                                     <?php } ?>
 
