@@ -55,12 +55,15 @@ ob_start();
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
                         </div>
-                        <input type="text" class="form-control" name="name" placeholder="Name or Company" maxlength="200" required autofocus>
+                        <input type="text" class="form-control" name="name" id="client_name" placeholder="Name or Company" maxlength="200" onfocusout="client_duplicate_check()" required autofocus>
                         <div class="input-group-append">
                             <div class="input-group-text">
                                 <input type="checkbox" name="lead" value="1" <?php if($leads_filter == 1){ echo "checked"; } ?>>
                             </div>
                         </div>
+                    </div>
+                    <div class="mt-2">
+                        <span class="text-info" id="client_duplicate_info"></span>
                     </div>
                 </div>
 
@@ -389,6 +392,23 @@ ob_start();
         if (primaryContactField == null || primaryContactField === "") {
             document.getElementById("contactNavPill").click();
         }
+    }
+</script>
+
+<script>
+    // Checks for duplicate clients
+    function client_duplicate_check() {
+        var name = document.getElementById("client_name").value;
+        //Send a GET request to ajax.php as ajax.php?client_duplicate_check=true&name=NAME
+        jQuery.get(
+            "ajax.php",
+            {client_duplicate_check: 'true', name: name},
+            function(data) {
+                //If we get a response from ajax.php, parse it as JSON
+                const client_duplicate_data = JSON.parse(data);
+                document.getElementById("client_duplicate_info").innerHTML = client_duplicate_data.message;
+            }
+        );
     }
 </script>
 

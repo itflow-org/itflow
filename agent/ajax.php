@@ -675,3 +675,27 @@ if (isset($_POST['update_recurring_invoice_items_order'])) {
     echo json_encode(['status' => 'success']);
     exit;
 }
+
+if (isset($_GET['client_duplicate_check'])) {
+    enforceUserPermission('module_client', 2);
+
+    $name = sanitizeInput($_GET['name']);
+
+    $response['message'] = ""; // default
+
+    if (strlen($name) >= 5) {
+        $sql_clients = mysqli_query($mysqli, "SELECT client_name FROM clients
+        WHERE client_archived_at IS NULL
+        AND client_name LIKE '%$name%'
+        ORDER BY client_id DESC LIMIT 1"
+        );
+
+        if (mysqli_num_rows($sql_clients) > 0) {
+            while ($row = mysqli_fetch_array($sql_clients)) {
+                $response['message'] = "<i class='fas fa-fw fa-copy mr-2'></i> Potential duplicate: <i>" . nullable_htmlentities($row['client_name']) . "</i> already exists.";
+            }
+        }
+    }
+
+    echo json_encode($response);
+}
