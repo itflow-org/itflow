@@ -163,7 +163,9 @@ if (isset($_GET['invoice_id'])) {
     //Product autocomplete
     $products_sql = mysqli_query($mysqli, "
         SELECT 
-            product_name AS label,
+            CONCAT(product_code, ' - ', product_name) AS label,
+            product_name,
+            product_code,
             product_type AS type,
             product_description AS description,
             product_price AS price,
@@ -747,12 +749,20 @@ require_once "../includes/footer.php";
 <script>
 
 $(function() {
+
     var availableProducts = <?php echo $json_products ?? '[]'?>;
 
     $("#name").autocomplete({
-        source: availableProducts,
         minLength: 1,
         delay: 0,
+        source: function(request, response) {
+            var term = $.ui.autocomplete.escapeRegex(request.term.toLowerCase());
+            var matcher = new RegExp(term, "i");
+            var matches = $.grep(availableProducts, function(item) {
+                return matcher.test(item.label) || matcher.test(item.product_name) || matcher.test(item.product_code);
+            });
+            response(matches);
+        },
         select: function (event, ui) {
             $("#name").val(ui.item.label);
             $("#desc").val(ui.item.description);
