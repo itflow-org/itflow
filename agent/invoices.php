@@ -97,6 +97,7 @@ $sql = mysqli_query(
     "SELECT SQL_CALC_FOUND_ROWS * FROM invoices
     LEFT JOIN clients ON invoice_client_id = client_id
     LEFT JOIN categories ON invoice_category_id = category_id
+    LEFT JOIN recurring_invoices ON invoice_recurring_invoice_id = recurring_invoice_id
     WHERE ($status_query)
     $overdue_query
     $category_query
@@ -298,6 +299,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                     Status <?php if ($sort == 'invoice_status') { echo $order_icon; } ?>
                                 </a>
                             </th>
+                            <th>Recurring</th>
                             <th class="text-center">Action</th>
                         </tr>
                     </thead>
@@ -330,6 +332,16 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         if ($client_net_terms == 0) {
                             $client_net_terms = $config_default_net_terms;
                         }
+                        $recurring_invoice_id = intval($row['recurring_invoice_id']);
+                        $recurring_invoice_prefix = nullable_htmlentities($row['recurring_invoice_prefix']);
+                        $recurring_invoice_number = nullable_htmlentities($row['recurring_invoice_number']);
+                        if($recurring_invoice_id) {
+                            $recurring_invoice_display = "<i class='fas fa-fw fa-redo-alt text-secondary mr-1'></i><a href='recurring_invoice.php?recurring_invoice_id=$recurring_invoice_id'>$recurring_invoice_prefix$recurring_invoice_number</a>";
+                        } else {
+                            $recurring_invoice_display = "-";
+                        }
+
+                        
 
                         $now = time();
 
@@ -367,6 +379,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                   <?php echo $invoice_status; ?>
                               </span>
                             </td>
+                            <td><?= $recurring_invoice_display ?></td>
                             <td>
                                 <div class="dropdown dropleft text-center">
                                     <button class="btn btn-secondary btn-sm" type="button" data-toggle="dropdown">
