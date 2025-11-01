@@ -85,6 +85,7 @@ if (isset($_GET['query'])) {
         LEFT JOIN ticket_statuses ON ticket_status = ticket_status_id
         WHERE ticket_archived_at IS NULL
             AND (ticket_subject LIKE '%$query%'
+            OR ticket_details LIKE '%$query%'
             OR CONCAT(ticket_prefix,ticket_number) LIKE '%$query%'
             OR ticket_number = '$ticket_num_query')
             $access_permission_query
