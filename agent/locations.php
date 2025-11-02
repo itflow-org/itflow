@@ -79,7 +79,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
         <h3 class="card-title mt-2"><i class="fa fa-fw fa-map-marker-alt mr-2"></i>Locations</h3>
         <div class="card-tools">
             <div class="btn-group">
-                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addLocationModal">
+                <button type="button" class="btn btn-primary ajax-modal" data-modal-url="modals/location/location_add.php?<?= $client_url ?>">
                     <i class="fas fa-plus mr-2"></i>New Location
                 </button>
                 <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown"></button>
@@ -404,7 +404,6 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
 <?php
 
-require_once "modals/location/location_add.php";
 require_once "modals/location/location_import.php";
 require_once "modals/location/location_export.php";
 require_once "../includes/footer.php";
