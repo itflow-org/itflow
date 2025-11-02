@@ -2,7 +2,7 @@
 
 // File generated from our OpenAPI spec
 
-namespace Stripe\V2;
+namespace Stripe\V2\Core;
 
 /**
  * Set up an event destination to receive events from Stripe across multiple destination types, including <a href="https://docs.stripe.com/webhooks">webhook endpoints</a> and <a href="https://docs.stripe.com/event-destinations/eventbridge">Amazon EventBridge</a>. Event destinations support receiving <a href="https://docs.stripe.com/api/v2/events">thin events</a> and <a href="https://docs.stripe.com/api/events">snapshot events</a>.
@@ -20,10 +20,10 @@ namespace Stripe\V2;
  * @property string $name Event destination name.
  * @property null|string $snapshot_api_version If using the snapshot event payload, the API version events are rendered as.
  * @property string $status Status. It can be set to either enabled or disabled.
- * @property null|(object{disabled: null|(object{reason: string}&\Stripe\StripeObject)}&\Stripe\StripeObject) $status_details Additional information about event destination status.
+ * @property null|(object{disabled?: (object{reason: string}&\Stripe\StripeObject)}&\Stripe\StripeObject) $status_details Additional information about event destination status.
  * @property string $type Event destination type.
  * @property int $updated Time at which the object was last updated.
- * @property null|(object{signing_secret: null|string, url: null|string}&\Stripe\StripeObject) $webhook_endpoint Webhook endpoint configuration.
+ * @property null|(object{signing_secret?: string, url?: string}&\Stripe\StripeObject) $webhook_endpoint Webhook endpoint configuration.
  */
 class EventDestination extends \Stripe\ApiResource
 {
