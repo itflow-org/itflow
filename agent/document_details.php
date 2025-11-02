@@ -20,8 +20,15 @@ $folder_location = 0;
 $sql_document = mysqli_query($mysqli, "SELECT * FROM documents 
     LEFT JOIN folders ON document_folder_id = folder_id
     LEFT JOIN users ON document_created_by = user_id
-    WHERE document_client_id = $client_id AND document_id = $document_id"
+    WHERE document_client_id = $client_id AND document_id = $document_id
+    LIMIT 1"
 );
+
+if (mysqli_num_rows($sql_document) == 0) {
+    echo "<center><h1 class='text-secondary mt-5'>Nothing to see here</h1><a class='btn btn-lg btn-secondary mt-3' href='javascript:history.back()'><i class='fa fa-fw fa-arrow-left'></i> Go Back</a></center>";
+    require_once "../includes/footer.php";
+    exit();
+}
 
 $row = mysqli_fetch_array($sql_document);
 

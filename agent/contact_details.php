@@ -20,7 +20,14 @@ if (isset($_GET['contact_id'])) {
         LEFT JOIN users ON user_id = contact_user_id
         WHERE contact_id = $contact_id
         $client_query
+        LIMIT 1
     ");
+
+    if (mysqli_num_rows($sql) == 0) {
+        echo "<center><h1 class='text-secondary mt-5'>Nothing to see here</h1><a class='btn btn-lg btn-secondary mt-3' href='javascript:history.back()'><i class='fa fa-fw fa-arrow-left'></i> Go Back</a></center>";
+        require_once "../includes/footer.php";
+        exit();
+    }
 
     $row = mysqli_fetch_array($sql);
     $client_id = intval($row['client_id']);
