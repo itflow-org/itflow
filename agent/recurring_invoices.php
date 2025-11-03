@@ -47,7 +47,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
     <div class="card-header py-2">
         <h3 class="card-title mt-2"><i class="fa fa-redo-alt mr-2"></i>Recurring Invoices</h3>
         <div class="card-tools">
-            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addRecurringInvoiceModal"><i class="fas fa-plus"></i><span class="d-none d-lg-inline ml-2">New Recurring Invoice</span></button>
+            <button type="button" class="btn btn-primary ajax-modal" data-modal-url="modals/recurring_invoice/recurring_invoice_add.php?<?= $client_url ?>"><i class="fas fa-plus"></i><span class="d-none d-lg-inline ml-2">New Recurring Invoice</span></button>
         </div>
     </div>
 
@@ -264,6 +264,4 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 </div>
 
 <?php
-
-require_once "modals/recurring_invoice/recurring_invoice_add.php";
 require_once "../includes/footer.php";

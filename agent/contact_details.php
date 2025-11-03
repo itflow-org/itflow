@@ -278,11 +278,11 @@ if (isset($_GET['contact_id'])) {
                             <i class="fa fa-fw fa-key mr-2"></i>New Credential
                         </a>
                         <div class="dropdown-divider"></div>
-                        <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#addDocumentModal">
+                        <a class="dropdown-item text-dark ajax-modal" href="#" data-modal-url="modals/document/document_add.php?<?= $client_url ?>&contact_id=<?= $contact_id ?>" data-modal-size="lg">
                             <i class="fa fa-fw fa-file-alt mr-2"></i>New Document
                         </a>
                         <div class="dropdown-divider"></div>
-                        <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#uploadFilesModal">
+                        <a class="dropdown-item text-dark ajax-modal" href="#" data-modal-url="modals/file/file_upload.php?<?= $client_url ?>&contact_id=<?= $contact_id ?>">
                             <i class="fa fa-fw fa-upload mr-2"></i>Upload file(s)
                         </a>
                         <div class="dropdown-divider"></div>
@@ -1179,8 +1179,4 @@ if (isset($_GET['contact_id'])) {
     <script src="js/credential_show_otp_via_id.js"></script>
 
 <?php
-
-require_once "modals/document/document_add.php";
-require_once "modals/file/file_upload.php";
-
 require_once "../includes/footer.php";

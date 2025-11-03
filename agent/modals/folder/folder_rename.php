@@ -42,4 +42,3 @@ ob_start();
 
 <?php
 require_once '../../../includes/modal_footer.php';
-

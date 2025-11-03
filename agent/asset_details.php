@@ -373,11 +373,11 @@ if (isset($_GET['asset_id'])) {
                                 <i class="fa fa-fw fa-key mr-2"></i>New Credential
                             </a>
                             <div class="dropdown-divider"></div>
-                            <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#addDocumentModal">
+                            <a class="dropdown-item text-dark ajax-modal" href="#" data-modal-url="modals/document/document_add.php?<?= $client_url ?>&asset_id=<?= $asset_id ?>" data-modal-size="lg">
                                 <i class="fa fa-fw fa-file-alt mr-2"></i>New Document
                             </a>
                             <div class="dropdown-divider"></div>
-                            <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#uploadFilesModal">
+                            <a class="dropdown-item text-dark ajax-modal" href="#" data-modal-url="modals/file/file_upload.php?<?= $client_url ?>&asset_id=<?= $asset_id ?>">
                                 <i class="fa fa-fw fa-upload mr-2"></i>Upload file(s)
                             </a>
                         </div>
@@ -419,7 +419,7 @@ if (isset($_GET['asset_id'])) {
                         <h3 class="card-title mt-2"><i class="fa fa-fw fa-ethernet mr-2"></i>Interfaces</h3>
                         <div class="card-tools">
                             <div class="btn-group">
-                                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addAssetInterfaceModal">
+                                <button type="button" class="btn btn-primary ajax-modal" data-modal-url="modals/asset/asset_interface_add.php?&asset_id=<?= $asset_id ?>">
                                     <i class="fas fa-plus mr-2"></i>New Interface
                                 </button>
                                 <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown"></button>
@@ -1220,13 +1220,9 @@ if (isset($_GET['asset_id'])) {
     <script src="../js/bulk_actions.js"></script>
 
     <?php
-
-    require_once "modals/asset/asset_interface_add.php";
     require_once "modals/asset/asset_interface_multiple_add.php";
     require_once "modals/asset/asset_interface_import.php";
     require_once "modals/asset/asset_interface_export.php";
-    require_once "modals/document/document_add.php";
-    require_once "modals/file/file_upload.php";
 
 }
 

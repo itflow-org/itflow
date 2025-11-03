@@ -162,7 +162,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
         <h3 class="card-title mt-2"><i class="fa fa-fw fa-file-invoice mr-2"></i>Invoices</h3>
         <div class="card-tools">
             <div class="btn-group">
-                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addInvoiceModal"><i class="fas fa-plus mr-2"></i>New Invoice</button>
+                <button type="button" class="btn btn-primary ajax-modal" data-modal-url="modals/invoice/invoice_add.php?<?= $client_url ?>"><i class="fas fa-plus mr-2"></i>New Invoice</button>
                 <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown"></button>
                 <div class="dropdown-menu">
                     <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#exportInvoicesModal">
@@ -447,7 +447,6 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 <script src="../js/bulk_actions.js"></script>
 
 <?php
-require_once "modals/invoice/invoice_add.php";
 if ($client_url) { require_once "modals/payment/payment_bulk_add.php"; }
 require_once "modals/invoice/invoice_export.php";
 require_once "../includes/footer.php";

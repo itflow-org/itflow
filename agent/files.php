@@ -99,12 +99,12 @@ while ($folder_id > 0) {
 
         <div class="card-tools">
             <div class="btn-group">
-                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#uploadFilesModal">
+                <button type="button" class="btn btn-primary ajax-modal" data-modal-url="modals/file/file_upload.php?client_id=<?= $client_id ?>&folder_id=<?= $get_folder_id ?>">
                     <i class="fas fa-fw fa-cloud-upload-alt mr-2"></i>Upload
                 </button>
                 <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown"></button>
                 <div class="dropdown-menu">
-                    <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#createFolderModal">
+                    <a class="dropdown-item text-dark ajax-modal" href="#" data-modal-url="modals/folder/folder_add.php?client_id=<?= $client_id ?>&folder_location=1&current_folder_id=<?= $get_folder_id ?>">
                         <i class="fa fa-fw fa-folder-plus mr-2"></i>New Folder
                     </a>
                 </div>
@@ -228,7 +228,7 @@ while ($folder_id > 0) {
                     display_folders(0, $client_id);
                     ?>
                 </ul>
-                <?php require_once "modals/folder/folder_add.php"; ?>
+                <?php //require_once "modals/folder/folder_add.php"; ?>
             </div>
 
 
@@ -620,7 +620,6 @@ function prevFile() {
 <script src="../js/bulk_actions.js"></script>
 
 <?php
-require_once "modals/file/file_upload.php";
 require_once "modals/share_modal.php";
 require_once "modals/file/file_delete.php";
 require_once "../includes/footer.php";
