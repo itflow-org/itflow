@@ -184,9 +184,9 @@ if (isset($_GET['project_id'])) {
                             <i class="fas fa-fw fa-plus mr-2"></i>New
                         </button>
                         <div class="dropdown-menu">
-                            <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addTicketModal">
-                                <i class="fas fa-fw fa-life-ring mr-2"></i>Ticket
-                            </a>
+                            <a class="dropdown-item text-dark ajax-modal" href="#" data-modal-url="modals/ticket/ticket_add.php?<?= $client_url ?>&project_id=<?= $project_id ?>" data-modal-size="lg">
+                            <i class="fa fa-fw fa-life-ring mr-2"></i>Ticket
+                        </a>
                         </div>
                     </div>
                     <div class="dropdown">
@@ -541,7 +541,6 @@ if (isset($_GET['project_id'])) {
 
 require_once "modals/project/project_link_ticket.php";
 require_once "modals/project/project_link_closed_ticket.php";
-require_once "modals/ticket/ticket_add.php";
 
 }
 

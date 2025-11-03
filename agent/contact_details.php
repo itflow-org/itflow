@@ -262,11 +262,11 @@ if (isset($_GET['contact_id'])) {
                 <div class="dropdown dropleft mr-2">
                     <button type="button" class="btn btn-primary" data-toggle="dropdown"><i class="fas fa-plus mr-2"></i>New</button>
                     <div class="dropdown-menu">
-                        <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#addTicketModal">
+                        <a class="dropdown-item text-dark ajax-modal" href="#" data-modal-url="modals/ticket/ticket_add.php?<?= $client_url ?>&contact_id=<?= $contact_id ?>" data-modal-size="lg">
                             <i class="fa fa-fw fa-life-ring mr-2"></i>New Ticket
                         </a>
                         <div class="dropdown-divider"></div>
-                        <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#addRecurringTicketModal">
+                        <a class="dropdown-item text-dark ajax-modal" href="#" data-modal-url="modals/recurring_ticket/recurring_ticket_add.php?<?= $client_url ?>&contact_id=<?= $contact_id ?>" data-modal-size="lg">
                             <i class="fa fa-fw fa-recycle mr-2"></i>New Recurring Ticket
                         </a>
                         <div class="dropdown-divider"></div>
@@ -1180,8 +1180,6 @@ if (isset($_GET['contact_id'])) {
 
 <?php
 
-require_once "modals/ticket/ticket_add.php";
-require_once "modals/recurring_ticket/recurring_ticket_add.php";
 require_once "modals/document/document_add.php";
 require_once "modals/file/file_upload.php";
 

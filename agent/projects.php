@@ -8,7 +8,6 @@ $order = "ASC";
 if (isset($_GET['client_id'])) {
     require_once "includes/inc_all_client.php";
     $client_query = "AND project_client_id = $client_id";
-
     $client_url = "client_id=$client_id&";
 } else {
     require_once "includes/inc_all.php";
@@ -55,7 +54,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
         <h3 class="card-title mt-2"><i class="fas fa-fw fa-project-diagram mr-2"></i>Projects</h3>
         <?php if (lookupUserPermission("module_support") >= 2) { ?>
             <div class="card-tools">
-                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addProjectModal"><i class="fas fa-plus"></i><span class="d-none d-lg-inline ml-2">New Project</span></button>
+                <button type="button" class="btn btn-primary ajax-modal" data-modal-url="modals/project/project_add.php?<?= $client_url ?>"><i class="fas fa-plus"></i><span class="d-none d-lg-inline ml-2">New Project</span></button>
             </div>
         <?php } ?>
     </div>
@@ -316,5 +315,4 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 </div>
 
 <?php
-require_once "modals/project/project_add.php";
 require_once "../includes/footer.php";

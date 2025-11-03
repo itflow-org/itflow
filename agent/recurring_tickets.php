@@ -88,7 +88,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
         <h3 class="card-title mt-2"><i class="fas fa-fw fa-redo-alt mr-2"></i>Recurring Tickets</h3>
         <div class='card-tools'>
             <div class="float-left">
-                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addRecurringTicketModal">
+                <button type="button" class="btn btn-primary ajax-modal" data-modal-url="modals/recurring_ticket/recurring_ticket_add.php?<?= $client_url ?>" data-modal-size="lg">
                     <i class="fas fa-plus"></i><span class="d-none d-lg-inline ml-2">New Recurring Ticket</span>
                 </button>
             </div>
@@ -365,5 +365,4 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 <script src="../js/bulk_actions.js"></script>
 
 <?php
-require_once "modals/recurring_ticket/recurring_ticket_add.php";
 require_once "../includes/footer.php";
