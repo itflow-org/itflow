@@ -189,7 +189,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                     <tr>
                         <td class="text-bold">
-                            <a href="recurring_invoice.php?<?php echo $client_url; ?>recurring_invoice_id=<?php echo $recurring_invoice_id; ?>">
+                            <a href="recurring_invoice.php?client_id=<?= $client_id ?>&recurring_invoice_id=<?= $recurring_invoice_id ?>">
                                 <?php echo "$recurring_invoice_prefix$recurring_invoice_number"; ?>
                             </a>
                         </td>

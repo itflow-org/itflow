@@ -362,7 +362,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 </div>
                             </td>
                             <td class="text-bold">
-                                <a href="invoice.php?<?php echo $client_url; ?>invoice_id=<?php echo $invoice_id; ?>">
+                                <a href="invoice.php?client_id=<?= $client_id ?>&invoice_id=<?= $invoice_id ?>">
                                 <?php echo "$invoice_prefix$invoice_number"; ?>
                                 </a>
                             </td>

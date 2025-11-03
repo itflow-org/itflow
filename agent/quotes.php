@@ -187,7 +187,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                     <tr>
                         <td class="text-bold">
-                            <a href="quote.php?<?php echo $client_url; ?>quote_id=<?php echo $quote_id; ?>">
+                            <a href="quote.php?client_id=<?= $client_id ?>&quote_id=<?= $quote_id ?>">
                                 <?php echo "$quote_prefix$quote_number"; ?>
                             </a>
                         </td>
