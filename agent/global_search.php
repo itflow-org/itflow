@@ -109,11 +109,20 @@ if (isset($_GET['query'])) {
         ORDER BY credential_id DESC LIMIT 5"
     );
 
+    $sql_quotes = mysqli_query($mysqli, "SELECT * FROM quotes
+        LEFT JOIN clients ON quote_client_id = client_id
+        LEFT JOIN categories ON quote_category_id = category_id
+        WHERE quote_archived_at IS NULL
+            AND (CONCAT(quote_prefix,quote_number) LIKE '%$query%' OR quote_number LIKE '%$query%' OR quote_scope LIKE '%$query%')
+            $access_permission_query
+        ORDER BY quote_number DESC LIMIT 5"
+    );
+
     $sql_invoices = mysqli_query($mysqli, "SELECT * FROM invoices
         LEFT JOIN clients ON invoice_client_id = client_id
         LEFT JOIN categories ON invoice_category_id = category_id
         WHERE invoice_archived_at IS NULL
-            AND (CONCAT(invoice_prefix,invoice_number) LIKE '%$query%' OR invoice_scope LIKE '%$query%')
+            AND (CONCAT(invoice_prefix,invoice_number) LIKE '%$query%' OR invoice_number LIKE '%$query%' OR invoice_scope LIKE '%$query%')
             $access_permission_query
         ORDER BY invoice_number DESC LIMIT 5"
     );
@@ -628,6 +637,57 @@ if (isset($_GET['query'])) {
 
         <?php } ?>
 
+        <?php if (mysqli_num_rows($sql_quotes) > 0) { ?>
+
+            <!-- Contacts-->
+
+            <div class="col-sm-6">
+                <div class="card card-dark mb-3">
+                    <div class="card-header">
+                        <h6 class="card-title"><i class="fas fa-fw fa-file-invoice mr-2"></i>Quotes</h6>
+                    </div>
+                    <div class="card-body">
+                        <table class="table table-striped table-borderless">
+                            <thead>
+                            <tr>
+                                <th>Number</th>
+                                <th>Status</th>
+                                <th>Amount</th>
+                                <th>Client</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <?php
+
+                            while ($row = mysqli_fetch_array($sql_quotes)) {
+                                $quote_id = intval($row['quote_id']);
+                                $quote_prefix = nullable_htmlentities($row['quote_prefix']);
+                                $quote_number = intval($row['quote_number']);
+                                $quote_amount = floatval($row['quote_amount']);
+                                $quote_currency_code = nullable_htmlentities($row['quote_currency_code']);
+                                $quote_status = nullable_htmlentities($row['quote_status']);
+                                $client_id = intval($row['client_id']);
+                                $client_name = nullable_htmlentities($row['client_name']);
+
+                                ?>
+                                <tr>
+                                    <td><a href="quote.php?client_id=<?= $client_id ?>&quote_id=<?php echo $quote_id; ?>"><?php echo "$quote_prefix$quote_number"; ?></a></td>
+                                    <td><?php echo $quote_status; ?></td>
+                                    <td><?php echo numfmt_format_currency($currency_format, $quote_amount, $quote_currency_code); ?></td>
+                                    <td><a href="client_overview.php?client_id=<?php echo $client_id; ?>"><?php echo $client_name; ?></a></td>
+                                </tr>
+
+                            <?php } ?>
+
+
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+        <?php } ?>
+
         <?php if (mysqli_num_rows($sql_invoices) > 0) { ?>
 
             <!-- Contacts-->
@@ -662,7 +722,7 @@ if (isset($_GET['query'])) {
 
                                 ?>
                                 <tr>
-                                    <td><a href="invoice.php?invoice_id=<?php echo $invoice_id; ?>"><?php echo "$invoice_prefix$invoice_number"; ?></a></td>
+                                    <td><a href="invoice.php?client_id=<?= $client_id ?>&invoice_id=<?php echo $invoice_id; ?>"><?php echo "$invoice_prefix$invoice_number"; ?></a></td>
                                     <td><?php echo $invoice_status; ?></td>
                                     <td><?php echo numfmt_format_currency($currency_format, $invoice_amount, $invoice_currency_code); ?></td>
                                     <td><a href="client_overview.php?client_id=<?php echo $client_id; ?>"><?php echo $client_name; ?></a></td>
