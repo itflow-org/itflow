@@ -106,7 +106,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
         <div class="card-tools">
             <?php if (lookupUserPermission("module_credential") >= 2) { ?>
                 <div class="btn-group">
-                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addCredentialModal" <?php if (!isset($_COOKIE['user_encryption_session_key'])) { echo "disabled"; } ?>>
+                <button type="button" class="btn btn-primary ajax-modal" data-modal-url="modals/credential/credential_add.php?<?= $client_url ?>" <?php if (!isset($_COOKIE['user_encryption_session_key'])) { echo "disabled"; } ?>>
                     <i class="fas fa-plus mr-2"></i>New Credential
                 </button>
                 <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown"></button>
@@ -534,7 +534,6 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
 <?php
 
-require_once "modals/credential/credential_add.php";
 require_once "modals/credential/credential_export.php";
 if ($client_url) {
     require_once "modals/credential/credential_import.php";

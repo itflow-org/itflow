@@ -4,7 +4,7 @@
 if (isset($_GET['client_id'])) {
     require_once "includes/inc_all_client.php";
     $client_query = "AND asset_client_id = $client_id";
-    $client_url = "AND client_id=$client_id&";
+    $client_url = "client_id=$client_id&";
 } else {
     require_once "includes/inc_client_overview_all.php";
     $client_query = '';
@@ -369,7 +369,7 @@ if (isset($_GET['asset_id'])) {
                                 <i class="fa fa-fw fa-recycle mr-2"></i>New Recurring Ticket
                             </a>
                             <div class="dropdown-divider"></div>
-                            <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#addCredentialModal">
+                            <a class="dropdown-item text-dark ajax-modal" href="#" data-modal-url="modals/credential/credential_add.php?<?= $client_url ?>asset_id=<?= $asset_id ?>">
                                 <i class="fa fa-fw fa-key mr-2"></i>New Credential
                             </a>
                             <div class="dropdown-divider"></div>
@@ -1227,7 +1227,6 @@ if (isset($_GET['asset_id'])) {
     require_once "modals/asset/asset_interface_export.php";
     require_once "modals/ticket/ticket_add.php";
     require_once "modals/recurring_ticket/recurring_ticket_add.php";
-    require_once "modals/credential/credential_add.php";
     require_once "modals/document/document_add.php";
     require_once "modals/file/file_upload.php";
 

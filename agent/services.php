@@ -50,7 +50,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
             <h3 class="card-title mt-2"><i class="fa fa-fw fa-stream mr-2"></i>Services</h3>
             <div class="card-tools">
                 <?php if (lookupUserPermission("module_support") >= 2) { ?>
-                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addServiceModal"><i class="fas fa-plus mr-2"></i>New Service</button>
+                    <button type="button" class="btn btn-primary ajax-modal" data-modal-url="modals/service/service_add.php?<?= $client_url ?>"><i class="fas fa-plus mr-2"></i>New Service</button>
                 <?php } ?>
             </div>
         </div>
@@ -220,5 +220,4 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
     </div>
 
 <?php
-require_once "modals/service/service_add.php";
 require_once "../includes/footer.php";

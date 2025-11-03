@@ -64,7 +64,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
         <h3 class="card-title mt-2"><i class="fas fa-fw fa-lock mr-2"></i>Certificates</h3>
         <div class="card-tools">
             <div class="btn-group">
-                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addCertificateModal"><i class="fas fa-plus mr-2"></i>New Certificate</button>
+                <button type="button" class="btn btn-primary ajax-modal" data-modal-url="modals/certificate/certificate_add.php?<?= $client_url ?>"><i class="fas fa-plus mr-2"></i>New Certificate</button>
                 <?php if ($num_rows[0] > 0) { ?>
                     <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown"></button>
                     <div class="dropdown-menu">
@@ -303,11 +303,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 </div>
 
 <?php
-require_once "modals/certificate/certificate_add.php";
 require_once "modals/certificate/certificate_export.php";
 ?>
 
 <script src="../js/bulk_actions.js"></script>
-<script src="js/certificate_fetch_ssl.js"></script>
 
 <?php require_once "../includes/footer.php";

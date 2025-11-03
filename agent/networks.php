@@ -78,7 +78,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
         <h3 class="card-title mt-2"><i class="fas fa-fw fa-network-wired mr-2"></i>Networks</h3>
         <div class="card-tools">
             <div class="btn-group">
-                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addNetworkModal"><i class="fas fa-plus mr-2"></i>New Network</button>
+                <button type="button" class="btn btn-primary ajax-modal" data-modal-url="modals/network/network_add.php?<?= $client_url ?>&location_id=<?= $location_filter ?>"><i class="fas fa-plus mr-2"></i>New Network</button>
                 <?php if ($num_rows[0] > 0) { ?>
                     <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown"></button>
                     <div class="dropdown-menu">
@@ -358,7 +358,6 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 </div>
 
 <?php
-require_once "modals/network/network_add.php";
 require_once "modals/network/network_export.php";
 
 ?>
