@@ -199,21 +199,12 @@ if (isset($_GET['invoice_id'])) {
     ?>
 
     <ol class="breadcrumb d-print-none">
-        <?php if (isset($_GET['client_id'])) { ?>
         <li class="breadcrumb-item">
-            <a href="client_overview.php?client_id=<?php echo $client_id; ?>"><?php echo $client_name; ?></a>
+            <a href="invoices.php">All Invoices</a>
         </li>
         <li class="breadcrumb-item">
-            <a href="invoices.php?client_id=<?php echo $client_id; ?>">Invoices</a>
+            <a href="invoices.php?client_id=<?php echo $client_id; ?>"><?php echo $client_name; ?> Invoices</a>
         </li>
-        <?php } else { ?>
-        <li class="breadcrumb-item">
-            <a href="invoices.php">Invoices</a>
-        </li>
-        <li class="breadcrumb-item">
-            <a href="invoices.php?client_id=<?php echo $client_id; ?>"><?php echo $client_name; ?></a>
-        </li>
-        <?php } ?>
         <li class="breadcrumb-item active"><?php echo "$invoice_prefix$invoice_number"; ?></li>
         <?php if (isset($invoice_overdue)) { ?>
             <span class="p-2 ml-2 badge badge-danger"><?php echo $invoice_overdue; ?></span>

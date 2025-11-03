@@ -197,14 +197,14 @@
                                 
                                 <!-- Ticket Number -->
                                 <td>
-                                    <a href="ticket.php?<?php echo $client_url; ?>ticket_id=<?php echo $ticket_id; ?>">
+                                    <a href="ticket.php?client_id=<?= $client_id ?>&ticket_id=<?= $ticket_id ?>">
                                         <span class="badge badge-pill badge-secondary p-3"><?php echo "$ticket_prefix$ticket_number"; ?></span>
                                     </a>
                                 </td>
 
                                 <!-- Ticket Subject -->
                                 <td>
-                                    <a href="ticket.php?<?php echo $client_url; ?>ticket_id=<?php echo $ticket_id; ?>"><?php echo $ticket_subject; ?></a>
+                                    <a href="ticket.php?client_id=<?= $client_id ?>&ticket_id=<?= $ticket_id ?>"><?= $ticket_subject ?></a>
 
                                     <?php if($task_count && $completed_task_count > 0) { ?>
                                     <div class="progress mt-2" style="height: 20px;">

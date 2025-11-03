@@ -355,21 +355,12 @@ if (isset($_GET['ticket_id'])) {
 
         <!-- Breadcrumbs-->
         <ol class="breadcrumb d-print-none">
-            <?php if (isset($_GET['client_id'])) { ?>
-                <li class="breadcrumb-item">
-                    <a href="client_overview.php?client_id=<?php echo $client_id; ?>"><?php echo $client_name; ?></a>
-                </li>
-                <li class="breadcrumb-item">
-                    <a href="tickets.php?client_id=<?php echo $client_id; ?>">Tickets</a>
-                </li>
-            <?php } else { ?>
-                <li class="breadcrumb-item">
-                    <a href="tickets.php">Tickets</a>
-                </li>
-                <li class="breadcrumb-item">
-                    <a href="tickets.php?client_id=<?php echo $client_id; ?>"><?php echo $client_name; ?></a>
-                </li>
-            <?php } ?>
+             <li class="breadcrumb-item">
+                <a href="tickets.php">All Tickets</a>
+            </li>
+            <li class="breadcrumb-item">
+                <a href="tickets.php?client_id=<?php echo $client_id; ?>"><?= $client_name ?> Tickets</a>
+            </li>
             <li class="breadcrumb-item active"><i class="fas fa-life-ring mr-1"></i><?php echo "$ticket_prefix$ticket_number";?></li>
         </ol>
 
@@ -470,8 +461,7 @@ if (isset($_GET['ticket_id'])) {
         <div class="card-group mb-3">
 
             <div class="card card-body px-3 py-2">
-  
-                <h5><?php echo $client_name; ?></h5>
+                
                 <div title="<?php echo $ticket_updated_at; ?>">
                     <i class="fa fa-fw fa-history text-secondary mr-2"></i>Updated: <strong><?php echo $ticket_updated_at_ago; ?></strong>
                 </div>

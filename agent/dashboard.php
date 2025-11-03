@@ -734,8 +734,8 @@ if ($user_config_dashboard_technical_enable == 1) {
                                     $contact_display = empty($contact_name) ? "-" : "<a href='contact_details.php?client_id=$client_id&contact_id=$contact_id'>$contact_name</a>";
                                 ?>
                                     <tr class="<?php echo empty($ticket_updated_at) ? 'text-bold' : ''; ?>">
-                                        <td><a class="text-dark" href="ticket.php?ticket_id=<?php echo $ticket_id; ?>"><?php echo "$ticket_prefix$ticket_number"; ?></a></td>
-                                        <td><a href="ticket.php?ticket_id=<?php echo $ticket_id; ?>"><?php echo $ticket_subject; ?></a></td>
+                                        <td><a class="text-dark" href="ticket.php?client_id=<?= $client_id ?>&ticket_id=<?php echo $ticket_id; ?>"><?php echo "$ticket_prefix$ticket_number"; ?></a></td>
+                                        <td><a href="ticket.php?client_id=<?= $client_id ?>&ticket_id=<?php echo $ticket_id; ?>"><?php echo $ticket_subject; ?></a></td>
                                         <td><a href="tickets.php?client_id=<?php echo $client_id; ?>"><strong><?php echo $client_name; ?></strong></a></td>
                                         <td><?php echo $contact_display; ?></td>
                                         <td><span class='p-2 badge badge-pill badge-<?php echo $ticket_priority_color; ?>'><?php echo $ticket_priority; ?></span></td>
