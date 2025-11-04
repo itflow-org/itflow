@@ -1,94 +1,55 @@
-/*
- *   LISTENERS
- */
+$(document).ready(function() {
 
-// Modal loaded listener - populate client select
-const changeClientModalLoad = document.getElementById('clientChangeTicketModalLoad');
-changeClientModalLoad.addEventListener('click', function() {
-    populateChangeClientModal_Clients();
-})
+    // Function to load contacts for a given client
+    function loadContacts(clientId) {
+        if (!clientId) return;
 
-// Client selected listener - populate contact select
-//  We seem to have to use jQuery to listen for events, as the client input is a select2 component?
-const clientSelectDropdown = document.getElementById("changeClientSelect");
-$(clientSelectDropdown).on('select2:select', function (e) {
-    let client_id = $(this).find(':selected').val();
-    populateChangeClientModal_Contacts(client_id);
-});
+        var $contactSelect = $('#contact_select');
+        $contactSelect.html('<option value="">Loading...</option>');
 
-
-/*
- *   FUNCTIONS
- */
-
-// Populate client list function
-function populateChangeClientModal_Clients() {
-
-    // Get current client ID
-    let current_client_id = document.getElementById("client_id").value;
-
-    // Send a GET request to ajax.php as ajax.php?get_active_clients=true
-    jQuery.get(
-        "ajax.php",
-        {get_active_clients: 'true'},
-        function(data) {
-
-            // If we get a response from ajax.php, parse it as JSON
-            const response = JSON.parse(data);
-
-            // Access the data for clients (multiple)
-            const clients = response.clients;
-
-            // Client dropdown already defined in listeners as clientSelectDropdown
-
-            // Clear dropdown
-            let i, L = clientSelectDropdown.options.length - 1;
-            for (i = L; i >= 0; i--) {
-                clientSelectDropdown.remove(i);
-            }
-            clientSelectDropdown[clientSelectDropdown.length] = new Option('- Client -', '0');
-
-            // Populate dropdown
-            clients.forEach(client => {
-                if (parseInt(current_client_id) !== parseInt(client.client_id)) {
-                    // Show clients returned (excluding the current client ID - we can't change a ticket client to itself)
-                    clientSelectDropdown[clientSelectDropdown.length] = new Option(client.client_name, client.client_id);
+        $.ajax({
+            url: 'ajax.php',
+            type: 'GET',
+            dataType: 'json',
+            data: {
+                get_client_contacts: 1,
+                client_id: clientId
+            },
+            success: function(response) {
+                $contactSelect.empty();
+                if (response.contacts && response.contacts.length > 0) {
+                    $contactSelect.append('<option value="">Select a contact</option>');
+                    $.each(response.contacts, function(i, contact) {
+                        $contactSelect.append(
+                            $('<option>', { 
+                                value: contact.contact_id,
+                                text: contact.contact_name
+                            })
+                        );
+                    });
+                } else {
+                    $contactSelect.append('<option value="">No contacts found</option>');
                 }
-            });
 
-        }
-    );
-}
-
-// Populate client contact function (after a client is selected)
-function populateChangeClientModal_Contacts(client_id) {
-    // Send a GET request to ajax.php as ajax.php?get_client_contacts=true&client_id=NUM
-    jQuery.get(
-        "ajax.php",
-        {get_client_contacts: 'true', client_id: client_id},
-        function(data) {
-
-            // If we get a response from ajax.php, parse it as JSON
-            const response = JSON.parse(data);
-
-            // Access the data for contacts (multiple)
-            const contacts = response.contacts;
-
-            // Contacts dropdown
-            const contactSelectDropdown = document.getElementById("changeContactSelect");
-
-            // Clear Category dropdown
-            let i, L = contactSelectDropdown.options.length - 1;
-            for (i = L; i >= 0; i--) {
-                contactSelectDropdown.remove(i);
+                // Refresh Select2
+                if ($.fn.select2) {
+                    $contactSelect.trigger('change.select2');
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error('AJAX Error:', error);
+                $contactSelect.html('<option value="">Failed to load contacts</option>');
             }
-            contactSelectDropdown[contactSelectDropdown.length] = new Option('- Contact -', '0');
+        });
+    }
 
-            // Populate dropdown
-            contacts.forEach(contact => {
-                contactSelectDropdown[contactSelectDropdown.length] = new Option(contact.contact_name, contact.contact_id);
-            });
+    // Load contacts for the currently selected client when modal opens
+    var initialClientId = $('#client_select').val();
+    loadContacts(initialClientId);
 
-        }
-    );
-}
+    // Load contacts when client changes
+    $('#client_select').on('change', function() {
+        var clientId = $(this).val();
+        loadContacts(clientId);
+    });
+});

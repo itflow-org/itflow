@@ -381,7 +381,7 @@ if (isset($_GET['ticket_id'])) {
                         <div class="btn-toolbar">
 
                             <?php if ($config_module_enable_accounting && $ticket_billable == 1 && empty($invoice_id) && lookupUserPermission("module_sales") >= 2) { ?>
-                                <a href="#" class="btn btn-light btn-sm ml-3" href="#" data-toggle="modal" data-target="#addInvoiceFromTicketModal">
+                                <a href="#" class="btn btn-light btn-sm ml-3 ajax-modal" href="#" data-modal-url="modals/ticket/ticket_invoice_add.php?ticket_id=<?= $ticket_id ?>" data-modal-size="lg">
                                     <i class="fas fa-fw fa-file-invoice mr-2"></i>Invoice
                                 </a>
                             <?php }
@@ -416,7 +416,7 @@ if (isset($_GET['ticket_id'])) {
                                             data-modal-url="modals/ticket/ticket_edit.php?id=<?= $ticket_id ?>">
                                             <i class="fas fa-fw fa-edit mr-2"></i>Edit
                                         </a>
-                                        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#summaryModal">
+                                        <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/ticket/ticket_summary.php?ticket_id=<?= $ticket_id ?>" data-modal-size="lg">
                                             <i class="fas fa-fw fa-lightbulb mr-2"></i>Summarize
                                         </a>
                                         <a class="dropdown-item" href="#" data-toggle="modal" data-target="#mergeTicketModal<?php echo $ticket_id; ?>">
@@ -431,15 +431,15 @@ if (isset($_GET['ticket_id'])) {
                                             <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/ticket/ticket_edit_asset.php?id=<?= $ticket_id ?>">
                                                 <i class="fas fa-fw fa-desktop mr-2"></i>Add Asset
                                             </a>
-                                            <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editTicketVendorModal<?php echo $ticket_id; ?>">
+                                            <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/ticket/ticket_edit_vendor.php?ticket_id=<?= $ticket_id ?>">
                                                 <i class="fas fa-fw fa-building mr-2"></i>Add Vendor
                                             </a>
-                                            <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addTicketWatcherModal">
+                                            <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/ticket/ticket_add_watcher.php?ticket_id=<?= $ticket_id ?>">
                                                 <i class="fas fa-fw fa-users mr-2"></i>Add Watcher
                                             </a>
                                         <?php } ?>
                                         <div class="dropdown-divider"></div>
-                                        <a class="dropdown-item" href="#" data-toggle="modal" id="clientChangeTicketModalLoad" data-target="#clientChangeTicketModal">
+                                        <a class="dropdown-item ajax-modal" href="#" id="clientChangeTicketModalLoad" data-modal-url="modals/ticket/ticket_change_client.php?ticket_id=<?= $ticket_id ?>">
                                             <i class="fas fa-fw fa-people-carry mr-2"></i>Change Client
                                         </a>
                                         <?php if (lookupUserPermission("module_support") == 3) { ?>
@@ -1077,8 +1077,8 @@ if (isset($_GET['ticket_id'])) {
                             <h5 class="card-title"><i class="fas fa-fw fa-eye mr-2 mt-2"></i>Watchers</h5>
                             <div class="card-tools">
                                 <?php if (empty($ticket_resolved_at) && lookupUserPermission("module_support") >= 2) { ?>
-                                    <a class="btn btn-light text-secondary btn-sm" href="#" data-toggle="modal" data-target="#addTicketWatcherModal">
-                                        <i class="fas fa-edit"></i>
+                                    <a class="btn btn-light text-secondary btn-sm ajax-modal" href="#" data-modal-url="modals/ticket/ticket_add_watcher.php?ticket_id=<?= $ticket_id ?>">
+                                        <i class="fas fa-fw fa-plus"></i>
                                     </a>
                                 <?php } ?>
                             </div>
@@ -1114,7 +1114,7 @@ if (isset($_GET['ticket_id'])) {
                             <div class="card-tools">
                                 <?php if (empty($ticket_resolved_at) && lookupUserPermission("module_support") >= 2) { ?>
                                     <a class="btn btn-light text-secondary btn-sm ajax-modal" href="#" data-modal-url="modals/ticket/ticket_edit_asset.php?id=<?= $ticket_id ?>">
-                                        <i class="fas fa-edit"></i>
+                                        <i class="fas fa-fw fa-edit"></i>
                                     </a>
                                 <?php } ?>
                             </div>
@@ -1161,8 +1161,8 @@ if (isset($_GET['ticket_id'])) {
                             <h5 class="card-title"><i class="fas fa-fw fa-building mr-2 mt-2"></i>Vendor</h5>
                             <div class="card-tools">
                                 <?php if (empty($ticket_resolved_at) && lookupUserPermission("module_support") >= 2) { ?>
-                                    <a class="btn btn-light text-secondary btn-sm" href="#" data-toggle="modal" data-target="#editTicketVendorModal<?php echo $ticket_id; ?>">
-                                        <i class="fas fa-edit"></i>
+                                    <a class="btn btn-light text-secondary btn-sm ajax-modal" href="#" data-modal-url="modals/ticket/ticket_edit_vendor.php?ticket_id=<?= $ticket_id ?>">
+                                        <i class="fas fa-fw fa-edit"></i>
                                     </a>
                                 <?php } ?>
                             </div>
@@ -1244,15 +1244,8 @@ if (isset($_GET['ticket_id'])) {
 
         <?php
         if (lookupUserPermission("module_support") >= 2 && empty($ticket_closed_at)) {
-            require_once "modals/ticket/ticket_edit_vendor.php";
-            require_once "modals/ticket/ticket_add_watcher.php";
-            require_once "modals/ticket/ticket_change_client.php";
             require_once "modals/ticket/ticket_edit_schedule.php";
             require_once "modals/ticket/ticket_merge.php";
-        }
-
-        if (lookupUserPermission("module_support") >= 2 && lookupUserPermission("module_sales") >= 2 && $config_module_enable_accounting) {
-            require_once "modals/ticket/ticket_invoice_add.php";
         }
     }
 }
@@ -1260,25 +1253,6 @@ if (isset($_GET['ticket_id'])) {
 require_once "../includes/footer.php";
 
 ?>
-
-<!-- Summary Modal -->
-<div class="modal fade" id="summaryModal" tabindex="-1">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header bg-dark">
-                <h5 class="modal-title" id="summaryModalTitle">Ticket Summary</h5>
-                <button type="button" class="close text-white" data-dismiss="modal">
-                    <span>&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <div id="summaryContent">
-                    <div class="text-center"><i class="fas fa-spinner fa-spin"></i> Generating summary...</div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
 
 <script src="/js/show_modals.js"></script>
 
@@ -1296,23 +1270,6 @@ require_once "../includes/footer.php";
 <?php } ?>
 
 <script src="/js/pretty_content.js"></script>
-
-<script>
-    $('#summaryModal').on('shown.bs.modal', function (e) {
-        // Perform AJAX request to get the summary
-        $.ajax({
-            url: 'post.php?ai_ticket_summary',
-            method: 'POST',
-            data: { ticket_id: <?php echo $ticket_id; ?> },
-            success: function(response) {
-                $('#summaryContent').html(response);
-            },
-            error: function() {
-                $('#summaryContent').html('Error generating summary.');
-            }
-        });
-    });
-</script>
 
 <script src="/plugins/SortableJS/Sortable.min.js"></script>
 <script>

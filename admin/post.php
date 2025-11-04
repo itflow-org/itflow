@@ -36,7 +36,4 @@ if (isset($session_is_admin) && $session_is_admin) {
 require_once "../post/logout.php";
 
 // TODO: Find a home for these
-
-require_once "../post/ai.php";
 require_once "../post/misc.php";
-

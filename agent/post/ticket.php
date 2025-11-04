@@ -444,9 +444,8 @@ if (isset($_POST['add_ticket_watcher'])) {
 
     $ticket_id = intval($_POST['ticket_id']);
     $client_id = intval($_POST['client_id']);
-    $ticket_number = sanitizeInput($_POST['ticket_number']);
     $watcher_emails = preg_split("/,| |;/", $_POST['watcher_email']); // Split on comma, semicolon or space, we sanitize later
-    $notify = intval($_POST['watcher_notify']);
+    $notify = intval($_POST['watcher_notify'] ?? 0);
 
     // Process each watcher in list
     foreach ($watcher_emails as $watcher_email) {
@@ -505,7 +504,7 @@ if (isset($_POST['add_ticket_watcher'])) {
                 addToMailQueue($data);
             }
 
-            logAction("Ticket", "Edit", "$session_name added $watcher_email as a watcher for ticket $config_ticket_prefix$ticket_number", $client_id, $ticket_id);
+            logAction("Ticket", "Edit", "$session_name added $watcher_email as a watcher for ticket $ticket_prefix$ticket_number", $client_id, $ticket_id);
         }
 
     }
@@ -2147,6 +2146,7 @@ if (isset($_POST['add_invoice_from_ticket'])) {
 
         //Get the last Invoice Number and add 1 for the new invoice number
         $invoice_number = $config_invoice_next_number;
+        $invoice_prefix = sanitizeInput($config_invoice_prefix);
         $new_config_invoice_next_number = $config_invoice_next_number + 1;
         mysqli_query($mysqli, "UPDATE settings SET config_invoice_next_number = $new_config_invoice_next_number WHERE company_id = 1");
 
@@ -2155,6 +2155,11 @@ if (isset($_POST['add_invoice_from_ticket'])) {
 
         mysqli_query($mysqli, "INSERT INTO invoices SET invoice_prefix = '$config_invoice_prefix', invoice_number = $invoice_number, invoice_scope = '$scope', invoice_date = '$date', invoice_due = DATE_ADD('$date', INTERVAL $client_net_terms day), invoice_currency_code = '$session_company_currency', invoice_category_id = $category, invoice_status = 'Draft', invoice_url_key = '$url_key', invoice_client_id = $client_id");
         $invoice_id = mysqli_insert_id($mysqli);
+    } else {
+        $sql_invoice = mysqli_query($mysqli, "SELECT invoice_prefix, invoice_number FROM invoices WHERE invoice_id = $invoice_id");
+        $row = mysqli_fetch_array($sql_invoice);
+        $invoice_prefix = sanitizeInput($row['invoice_prefix']);
+        $invoice_number = intval($row['invoice_number']);
     }
 
     //Add Item
@@ -2195,9 +2200,9 @@ if (isset($_POST['add_invoice_from_ticket'])) {
 
     mysqli_query($mysqli, "UPDATE tickets SET ticket_invoice_id = $invoice_id WHERE ticket_id = $ticket_id");
 
-    logAction("Invoice", "Create", "$session_name created invoice $config_invoice_prefix$invoice_number from Ticket $ticket_prefix$ticket_number", $client_id, $invoice_id);
+    logAction("Invoice", "Create", "$session_name created invoice $invoice_prefix$invoice_number from Ticket $ticket_prefix$ticket_number", $client_id, $invoice_id);
 
-    flash_alert("Invoice $config_invoice_prefix$invoice_number created from ticket");
+    flash_alert("Invoice $invoice_prefix$invoice_number created from ticket");
 
     redirect("invoice.php?invoice_id=$invoice_id");
 

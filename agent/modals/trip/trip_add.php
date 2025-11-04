@@ -59,7 +59,7 @@ ob_start();
                 <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-arrow-right"></i></span>
                 </div>
-                <select class="form-control select2" name="destination" data-tags="true" data-placeholder="- Select / Input Destination -" required>
+                <select class="form-control select2" name="destination" data-tags="true" data-placeholder="- Select or Enter a Destination -" required>
                     <option value=""></option>
                     <?php
                     if ($client_id) {

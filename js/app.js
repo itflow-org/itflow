@@ -131,7 +131,7 @@ $(document).ready(function() {
                     // Show the progress indicator
                     editor.setProgressState(true);
 
-                    fetch('post.php?ai_reword', {
+                    fetch('ajax.php?ai_reword', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
@@ -236,7 +236,7 @@ $(document).ready(function() {
                     rewordButtonApi.setEnabled(false);
                     editor.setProgressState(true);
 
-                    fetch('post.php?ai_reword', {
+                    fetch('ajax.php?ai_reword', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ text: content }),
