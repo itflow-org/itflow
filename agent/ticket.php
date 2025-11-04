@@ -46,7 +46,7 @@ if (isset($_GET['ticket_id'])) {
     if (mysqli_num_rows($sql) == 0) {
         echo "<center><h1 class='text-secondary mt-5'>Nothing to see here</h1><a class='btn btn-lg btn-secondary mt-3' href='tickets.php'><i class='fa fa-fw fa-arrow-left'></i> Go Back</a></center>";
 
-        include_once "../includes/footer.php";
+        require_once "../includes/footer.php";
     } else {
 
         $row = mysqli_fetch_array($sql);
@@ -419,7 +419,7 @@ if (isset($_GET['ticket_id'])) {
                                         <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/ticket/ticket_summary.php?ticket_id=<?= $ticket_id ?>" data-modal-size="lg">
                                             <i class="fas fa-fw fa-lightbulb mr-2"></i>Summarize
                                         </a>
-                                        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#mergeTicketModal<?php echo $ticket_id; ?>">
+                                        <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/ticket/ticket_merge.php?ticket_id=<?= $ticket_id ?>">
                                             <i class="fas fa-fw fa-clone mr-2"></i>Merge
                                         </a>
                                         <?php if (empty($ticket_closed_at)) { ?>
@@ -498,7 +498,7 @@ if (isset($_GET['ticket_id'])) {
                 <!-- Ticket scheduling -->
                 <?php if (empty ($ticket_closed_at)) { ?>
                     <div class="mt-1">
-                        <i class="fa fa-fw fa-calendar-check text-secondary mr-2"></i>Scheduled: <a href="#" data-toggle="modal" data-target="#editTicketScheduleModal"> <?=$ticket_scheduled_wording ?> </a>
+                        <i class="fa fa-fw fa-calendar-check text-secondary mr-2"></i>Scheduled: <a class='ajax-modal' href="#" data-modal-url="modals/ticket/ticket_edit_schedule.php?ticket_id=<?= $ticket_id ?>"> <?=$ticket_scheduled_wording ?> </a>
                     </div>
                 <?php } ?>
                 <!-- End ticket scheduling -->
@@ -1242,11 +1242,7 @@ if (isset($_GET['ticket_id'])) {
 
         </div> <!-- End row -->
 
-        <?php
-        if (lookupUserPermission("module_support") >= 2 && empty($ticket_closed_at)) {
-            require_once "modals/ticket/ticket_edit_schedule.php";
-            require_once "modals/ticket/ticket_merge.php";
-        }
+    <?php
     }
 }
 
