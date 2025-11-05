@@ -91,7 +91,7 @@ if (isset($_GET['project_template_id'])) {
 
         <div class="col-sm-2">
             <div class="btn-group float-right">
-                <button type="button" class="btn btn-primary btn-sm" href="#" data-toggle="modal" data-target="#addProjectTemplateTicketTemplateModal">
+                <button type="button" class="btn btn-primary btn-sm ajax-modal" href="#" data-modal-url="modals/project_template/project_template_ticket_template_add.php?project_template_id=<?= $project_template_id ?>">
                     <i class="fas fa-fw fa-plus mr-2"></i>Add Ticket Template
                 </button>
                 <div class="dropdown dropleft text-center ml-3">
@@ -99,7 +99,7 @@ if (isset($_GET['project_template_id'])) {
                         <i class="fas fa-fw fa-ellipsis-v"></i>
                     </button>
                     <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editProjectTemplateModal<?php echo $project_template_id; ?>">
+                        <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/project_template/project_template_edit.php?project_template_id=<?= $project_template_id ?>">
                             <i class="fas fa-fw fa-edit mr-2"></i>Edit Template
                         </a>
                         <?php if ($session_user_role == 3) { ?>
@@ -220,9 +220,6 @@ if (isset($_GET['project_template_id'])) {
 </div> <!-- End row -->
 
 <?php
-
-require_once "modals/project_template/project_template_edit.php";
-require_once "modals/project_template/project_template_ticket_template_add.php";
 
 }
 

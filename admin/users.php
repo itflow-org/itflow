@@ -26,16 +26,16 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
         <h3 class="card-title mt-2"><i class="fas fa-fw fa-users mr-2"></i>Users</h3>
         <div class="card-tools">
             <div class="btn-group">
-                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addUserModal">
+                <button type="button" class="btn btn-primary ajax-modal" data-modal-url="modals/user/user_add.php">
                     <i class="fas fa-fw fa-user-plus mr-2"></i>New User
                 </button>
                 <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown"></button>
                 <div class="dropdown-menu">
-                    <!--<a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#userInviteModal"><i class="fas fa-paper-plane mr-2"></i>Invite User</a>-->
+                    <!--<a class="dropdown-item text-dark ajax-modal" href="#" data-modal-url="modals/user/user_invite.php"><i class="fas fa-paper-plane mr-2"></i>Invite User</a>-->
                     <?php if ($num_rows[0] > 1) { ?>
                         <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#exportUserModal"><i class="fa fa-fw fa-download mr-2"></i>Export</a>
                         <div class="dropdown-divider"></div>
-                        <a class="dropdown-item text-danger" href="#" data-toggle="modal" data-target="#resetAllUserPassModal"><i class="fas fa-skull-crossbones mr-2"></i>IR</a>
+                        <a class="dropdown-item text-danger ajax-modal" href="#" data-modal-url="modals/user/user_all_reset_password.php" data-modal-size="lg"><i class="fas fa-skull-crossbones mr-2"></i>IR</a>
                     <?php } ?>
                 </div>
             </div>
@@ -233,15 +233,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
  ?>
     </div>
 </div>
-<script>
-    function generatePassword() {
-        document.getElementById("password").value = "<?php echo randomString() ?>"
-    }
-</script>
 
 <?php
-require_once "modals/user/user_add.php";
-require_once "modals/user/user_invite.php";
 require_once "modals/user/user_export.php";
-require_once "modals/user/user_all_reset_password.php";
 require_once "../includes/footer.php";

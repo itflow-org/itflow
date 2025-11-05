@@ -24,7 +24,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
             <h3 class="card-title mt-2"><i class="fas fa-fw fa-user-shield mr-2"></i>Roles</h3>
             <div class="card-tools">
                 <div class="btn-group">
-                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addRoleModal">
+                    <button type="button" class="btn btn-primary ajax-modal" data-modal-url="modals/role/role_add.php">
                         <i class="fas fa-fw fa-user-plus mr-2"></i>New Role
                     </button>
                 </div>
@@ -143,6 +143,4 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
     </div>
 
 <?php
-
-require_once "modals/role/role_add.php";
 require_once "../includes/footer.php";

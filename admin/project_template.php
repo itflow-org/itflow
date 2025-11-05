@@ -22,7 +22,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
     <div class="card-header py-2">
         <h3 class="card-title mt-2"><i class="fas fa-fw fa-project-diagram mr-2"></i>Project Templates</h3>
         <div class="card-tools">
-            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addProjectTemplateModal"><i class="fas fa-plus mr-2"></i>New Project Template</button>
+            <button type="button" class="btn btn-primary ajax-modal" data-modal-url="modals/project_template/project_template_add.php"><i class="fas fa-plus mr-2"></i>New Project Template</button>
         </div>
     </div>
     <div class="card-body">
@@ -87,7 +87,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     ?>
                     <tr>
                         <td>
-                            <a class="text-dark" href="#" data-toggle="modal" data-target="#editProjectTemplateModal<?php echo $project_template_id; ?>">
+                            <a class="text-dark ajax-modal" href="#" data-modal-url="modals/project_template/project_template_edit.php?project_template_id=<?= $project_template_id ?>">
                                 <div class="media">
                                     <i class="fa fa-fw fa-2x fa-project-diagram mr-3"></i>
                                     <div class="media-body">
@@ -109,7 +109,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                     <i class="fas fa-ellipsis-h"></i>
                                 </button>
                                 <div class="dropdown-menu">
-                                    <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editProjectTemplateModal<?php echo $project_template_id; ?>">
+                                    <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/project_template/project_template_edit.php?project_template_id=<?= $project_template_id ?>">
                                         <i class="fas fa-fw fa-edit mr-2"></i>Edit
                                     </a>
                                     <?php if($session_user_role == 3) { ?>
@@ -123,10 +123,8 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         </td>
                     </tr>
 
-                    <?php
-
-                    require "modals/project_template/project_template_edit.php";
-
+                <?php
+                
                 }
 
                 ?>
@@ -134,12 +132,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                 </tbody>
             </table>
         </div>
-        <?php require_once "../includes/filter_footer.php";
- ?>
+        <?php require_once "../includes/filter_footer.php"; ?>
     </div>
 </div>
 
 <?php
-require_once "modals/project_template/project_template_add.php";
-
 require_once "../includes/footer.php";
