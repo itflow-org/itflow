@@ -361,19 +361,23 @@ if (isset($_GET['ticket_id'])) {
             <li class="breadcrumb-item">
                 <a href="tickets.php?client_id=<?php echo $client_id; ?>"><?= $client_name ?> Tickets</a>
             </li>
-            <li class="breadcrumb-item active"><i class="fas fa-life-ring mr-1"></i><?php echo "$ticket_prefix$ticket_number";?></li>
+            <li class="breadcrumb-item active"><?php echo "$ticket_prefix$ticket_number";?></li>
         </ol>
 
         <div class="card">
-            <div class="card-header p-2 px-2">
+            <div class="card-header pb-2">
                 <div class="card-title">
-                    <i class="fa fa-2x fa-fw fa fa-life-ring text-secondary mr-1"></i>
-                    <span class="h4">
-                        <?php echo "$ticket_prefix$ticket_number"; ?>
-                        <span class='badge badge-pill text-light ml-1' style="background-color: <?php echo $ticket_status_color; ?>">
-                            <?php echo $ticket_status_name; ?>
-                        </span>
-                    </span>
+                    <div class="media">
+                        <i class="fa fa-fw fa-2x fa-life-ring mr-2"></i>
+                        <div class="media-body">
+                            <div class="text-bold">Ticket <?= "$ticket_prefix$ticket_number" ?>
+                                <span class='badge badge-pill text-light ml-1' style="background-color: <?= $ticket_status_color ?>">
+                                    <?= $ticket_status_name ?>
+                                </span>
+                            </div>
+                            <small class="text-secondary"><?= $ticket_subject ?></small>
+                        </div>
+                    </div>
                 </div>
 
                 <?php if (lookupUserPermission("module_support") >= 2) { ?>
@@ -460,7 +464,7 @@ if (isset($_GET['ticket_id'])) {
 
         <div class="card-group mb-3">
 
-            <div class="card card-body px-3 py-2">
+            <div class="card card-body">
                 
                 <div title="<?php echo $ticket_updated_at; ?>">
                     <i class="fa fa-fw fa-history text-secondary mr-2"></i>Updated: <strong><?php echo $ticket_updated_at_ago; ?></strong>
@@ -482,7 +486,7 @@ if (isset($_GET['ticket_id'])) {
                 <!-- End ticket assign -->
             </div>
 
-            <div class="card card-body px-3 py-2">
+            <div class="card card-body">
                 <div>
                     <i class="fa fa-fw fa-thermometer-half text-secondary mr-1"></i>
                     <a href="#"
@@ -537,7 +541,7 @@ if (isset($_GET['ticket_id'])) {
 
             </div>
 
-            <div class="card card-body px-3 py-2">
+            <div class="card card-body">
                 <?php if ($task_count) { ?>
                     Tasks Completed
                     <span class="float-right text-bold"><?php echo $tasks_completed_percent; ?>%</span>
@@ -561,7 +565,7 @@ if (isset($_GET['ticket_id'])) {
 
                     <div class="card-header bg-dark">
                         <h3 class="card-title">
-                            <span>Subject:</span> <span><?php echo $ticket_subject; ?></span>
+                            Ticket Details
                         </h3>
                     </div>
 
@@ -804,8 +808,10 @@ if (isset($_GET['ticket_id'])) {
 
                 <!-- Ticket details right card -->
                 <div class="card">
-                    <div class="card-header py-2">
-                        <a href="#" data-toggle="collapse" data-target="#ticketDetailsCard" style="text-decoration: none; color: inherit;"><h5 class="card-title"><i class="fas fa-fw fa-life-ring mr-2 mt-2"></i>Ticket Details</h5></a>
+                    <div class="card-header">
+                        <a class="text-reset text-decoration-none" href="#" data-toggle="collapse" data-target="#ticketDetailsCard">
+                            <h5 class="card-title mt-1"><i class="fas fa-fw fa-life-ring mr-2"></i>Ticket Details</h5>
+                        </a>
                         <div class="card-tools">
                             <a class="fa fa-chevron-down" href="#" data-toggle="collapse" data-target="#ticketDetailsCard"></a>
                         </div>
@@ -902,61 +908,6 @@ if (isset($_GET['ticket_id'])) {
                     </div>
                 </div>
                 <!-- End details card -->
-
-                <!-- Contact card -->
-                <?php if ($contact_id) { ?>
-                    <div class="card">
-                        <div class="card-header py-2">
-                            <h5 class="card-title"><i class="fas fa-fw fa-user-check mr-2 mt-2"></i>Primary Contact</h5>
-                            <div class="card-tools">
-                                <?php if (empty($ticket_resolved_at) && lookupUserPermission("module_support") >= 2) { ?>
-                                    <a class="btn btn-light text-secondary btn-sm ajax-modal" href="#"
-                                        data-modal-url="modals/ticket/ticket_contact.php?id=<?= $ticket_id ?>">
-                                        <i class="fas fa-edit"></i>
-                                    </a>
-                                <?php } ?>
-                            </div>
-                        </div>
-                        <div class="card-body">
-
-                            <div>
-                                <i class="fa fa-fw fa-user text-secondary mr-2"></i><a href="#" class="ajax-modal"
-                                   data-modal-size="lg"
-                                   data-modal-url="modals/contact/contact_details.php?id=<?= $contact_id ?>"><strong><?= $contact_name ?></strong>
-                                </a>
-                            </div>
-
-                            <?php
-
-                            if (!empty($location_name)) { ?>
-                                <div class="mt-2">
-                                    <i class="fa fa-fw fa-map-marker-alt text-secondary mr-2"></i><?php echo $location_name; ?>
-                                </div>
-                            <?php }
-
-                            if (!empty($contact_email)) { ?>
-                                <div class="mt-2">
-                                    <i class="fa fa-fw fa-envelope text-secondary mr-2"></i><a href="mailto:<?php echo $contact_email; ?>"><?php echo $contact_email; ?></a>
-                                </div>
-                            <?php }
-
-                            if (!empty($contact_phone)) { ?>
-                                <div class="mt-2">
-                                    <i class="fa fa-fw fa-phone text-secondary mr-2"></i><a href="tel:<?php echo $contact_phone; ?>"><?php echo $contact_phone; ?></a>
-                                </div>
-                            <?php }
-
-                            if (!empty($contact_mobile)) { ?>
-                                <div class="mt-2">
-                                    <i class="fa fa-fw fa-mobile-alt text-secondary mr-2"></i><a href="tel:<?php echo $contact_mobile; ?>"><?php echo $contact_mobile; ?></a>
-                                </div>
-                            <?php } ?>
-
-                        </div>
-                    </div>
-                <?php } ?>
-                <!-- End contact card -->
-
 
                 <!-- Tasks Card -->
                 <?php if (empty($ticket_resolved_at) || (!empty($ticket_resolved_at) && $task_count > 0)) { ?>
@@ -1068,6 +1019,63 @@ if (isset($_GET['ticket_id'])) {
                 <?php } ?>
                 <!-- End Tasks Card -->
 
+                <!-- Contact card -->
+                <?php if ($contact_id) { ?>
+                    <div class="card">
+                        <div class="card-header py-2">
+                            <h5 class="card-title"><i class="fas fa-fw fa-user-check mr-2 mt-2"></i>Contact</h5>
+                            <div class="card-tools">
+                                <?php if (empty($ticket_resolved_at) && lookupUserPermission("module_support") >= 2) { ?>
+                                    <a class="btn btn-light text-secondary btn-sm ajax-modal" href="#"
+                                        data-modal-url="modals/ticket/ticket_contact.php?id=<?= $ticket_id ?>">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                <?php } ?>
+                            </div>
+                        </div>
+                        <div class="card-body">
+
+                            <div>
+                                <i class="fa fa-fw fa-user text-secondary mr-2"></i><a href="#" class="ajax-modal"
+                                   data-modal-size="lg"
+                                   data-modal-url="modals/contact/contact_details.php?id=<?= $contact_id ?>"><strong><?= $contact_name ?></strong>
+                                </a>
+                            </div>
+
+                            <?php
+
+                            if (!empty($location_name)) { ?>
+                                <div class="mt-2">
+                                    <i class="fa fa-fw fa-map-marker-alt text-secondary mr-2"></i><?php echo $location_name; ?>
+                                </div>
+                            <?php }
+
+                            if (!empty($contact_email)) { ?>
+                                <div class="mt-2">
+                                    <i class="fa fa-fw fa-envelope text-secondary mr-2"></i><a href="mailto:<?php echo $contact_email; ?>"><?php echo $contact_email; ?></a>
+                                </div>
+                            <?php }
+
+                            if (!empty($contact_phone)) { ?>
+                                <div class="mt-2">
+                                    <i class="fa fa-fw fa-phone text-secondary mr-2"></i><a href="tel:<?php echo $contact_phone; ?>"><?php echo $contact_phone; ?></a>
+                                </div>
+                            <?php }
+
+                            if (!empty($contact_mobile)) { ?>
+                                <div class="mt-2">
+                                    <i class="fa fa-fw fa-mobile-alt text-secondary mr-2"></i><a href="tel:<?php echo $contact_mobile; ?>"><?php echo $contact_mobile; ?></a>
+                                </div>
+                            <?php } ?>
+
+                        </div>
+                    </div>
+                <?php } ?>
+                <!-- End contact card -->
+
+
+                
+
 
                 <!-- Ticket watchers card -->
                 <?php if (empty($ticket_closed_at) && mysqli_num_rows($sql_ticket_watchers) > 0) { ?>
@@ -1110,7 +1118,7 @@ if (isset($_GET['ticket_id'])) {
                 <?php if ($asset_id) { ?>
                     <div class="card mb-3">
                         <div class="card-header py-2">
-                            <h5 class="card-title"><i class="fas fa-fw fa-desktop mr-2 mt-2"></i>Primary Asset</h5>
+                            <h5 class="card-title"><i class="fas fa-fw fa-desktop mr-2 mt-2"></i>Assets</h5>
                             <div class="card-tools">
                                 <?php if (empty($ticket_resolved_at) && lookupUserPermission("module_support") >= 2) { ?>
                                     <a class="btn btn-light text-secondary btn-sm ajax-modal" href="#" data-modal-url="modals/ticket/ticket_edit_asset.php?id=<?= $ticket_id ?>">
@@ -1224,7 +1232,7 @@ if (isset($_GET['ticket_id'])) {
                         </div>
                         <div class="card-body">
                             <div>
-                                <i class="fa fa-fw fa-project-diagram text-secondary mr-3"></i><a href="project_details.php?project_id=<?php echo $project_id; ?>" target="_blank"><strong><?php echo $project_name; ?><i class="fa fa-fw fa-external-link-alt text-secondary ml-2"></i></strong>
+                                <i class="fa fa-fw fa-project-diagram text-secondary mr-2"></i><a href="project_details.php?project_id=<?php echo $project_id; ?>" target="_blank"><strong><?php echo $project_name; ?><i class="fa fa-fw fa-external-link-alt text-secondary ml-2"></i></strong>
                                 </a>
                             </div>
 
