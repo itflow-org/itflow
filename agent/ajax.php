@@ -700,6 +700,34 @@ if (isset($_GET['client_duplicate_check'])) {
     echo json_encode($response);
 }
 
+if (isset($_GET['contact_email_check'])) {
+    enforceUserPermission('module_client', 2);
+
+    $email = sanitizeInput($_GET['email']);
+    $domain = sanitizeInput(substr($_GET['email'], strpos($_GET['email'], '@') + 1));
+
+    $response['message'] = ""; // default
+
+    if (strlen($email) >= 3) {
+
+        // 1. Duplicate check
+        $sql_contacts = mysqli_query($mysqli, "SELECT contact_email FROM contacts WHERE contact_email = '$email' LIMIT 1");
+        if (mysqli_num_rows($sql_contacts) > 0) {
+            while ($row = mysqli_fetch_array($sql_contacts)) {
+                $response['message'] = "<i class='fas fa-fw fa-copy mr-2'></i> Potential duplicate: <i>" . nullable_htmlentities($row['contact_email']) . "</i> already exists.";
+            }
+        }
+
+        // 2. MX record check
+        if (!checkdnsrr($domain, 'MX')) {
+            $response['message'] = "<i class='fas fa-fw fa-exclamation-triangle mr-2'></i> E-mail domain invalid.";
+        }
+
+    }
+
+    echo json_encode($response);
+}
+
 if (isset($_GET['ai_reword'])) {
 
     header('Content-Type: application/json');

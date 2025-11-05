@@ -148,7 +148,10 @@ ob_start();
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-envelope"></i></span>
                         </div>
-                        <input type="email" class="form-control" name="email" placeholder="Email Address" maxlength="200">
+                        <input type="email" class="form-control" name="email" id="contact_email" placeholder="Email Address" maxlength="200" onfocusout="contact_email_check()">
+                    </div>
+                    <div class="mt-2">
+                        <span class="text-info" id="contact_check_info"></span>
                     </div>
                 </div>
 
@@ -337,6 +340,23 @@ $(document).ready(function() {
     $('.authMethod').trigger('change');
 
 });
+</script>
+
+<script>
+    // Checks contact emails
+    function contact_email_check() {
+        var email = document.getElementById("contact_email").value;
+        //Send a GET request to ajax.php as ajax.php?contact_email_check=true&email=email
+        jQuery.get(
+            "ajax.php",
+            {contact_email_check: 'email', email: email},
+            function(data) {
+                //If we get a response from ajax.php, parse it as JSON
+                const contact_check_data = JSON.parse(data);
+                document.getElementById("contact_check_info").innerHTML = contact_check_data.message;
+            }
+        );
+    }
 </script>
 
 <?php
