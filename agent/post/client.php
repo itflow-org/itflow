@@ -312,7 +312,7 @@ if (isset($_GET['delete_client'])) {
 
     flash_alert("Client <strong>$client_name</strong> deleted along with all associated data", 'error');
 
-    redirect();
+    redirect('clients.php');
 
 }
 
