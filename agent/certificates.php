@@ -249,8 +249,10 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             <td><?php echo $certificate_issued_by; ?></td>
 
                             <td>
-                                <div><?php echo $certificate_expire; ?></div>
-                                <div><small><?php echo $certificate_expire_ago; ?></small></div>
+                                <div><?php echo $certificate_expire ?: '-'; ?></div>
+                                <?php if (!empty($certificate_expire)) { ?>
+                                    <div><small><?php echo $certificate_expire_ago; ?></small></div>
+                                <?php } ?>
                             </td>
                             <?php if (!$client_url) { ?>
                             <td><a href="certificates.php?client_id=<?php echo $client_id; ?>"><?php echo $client_name; ?></a></td>
