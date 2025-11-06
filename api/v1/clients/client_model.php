@@ -66,6 +66,14 @@ if (isset($_POST['client_tax_id_number'])) {
     $tax_id_number = '';
 }
 
+if (isset($_POST['client_abbreviation'])) {
+    $abbreviation = substr(sanitizeInput($_POST['client_abbreviation']), 0, 6);
+} elseif ($client_row) {
+    $abbreviation = $client_row['client_abbreviation'];
+} else {
+    $abbreviation = '';
+}
+
 if (isset($_POST['client_is_lead'])) {
     $lead = intval($_POST['client_is_lead']);
 } elseif ($client_row) {
