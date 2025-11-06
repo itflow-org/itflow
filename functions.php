@@ -689,6 +689,7 @@ function validateAccountantRole() {
 }
 
 // Send a single email to a single recipient
+// TODO: Remove this - it's the old cron
 function sendSingleEmail($config_smtp_host, $config_smtp_username, $config_smtp_password, $config_smtp_encryption, $config_smtp_port, $from_email, $from_name, $to_email, $to_name, $subject, $body, $ics_str)
 {
 
