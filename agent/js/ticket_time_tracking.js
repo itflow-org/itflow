@@ -1,6 +1,5 @@
 (function() {
     document.addEventListener("DOMContentLoaded", function() {
-        // Initialize variables
         var timerInterval = null;
         var ticketID = getCurrentTicketID();
         var elapsedSecs = getElapsedSeconds();
@@ -22,6 +21,10 @@
             return pausedTime + timeSinceStart;
         }
 
+        function pad(val) {
+            return val < 10 ? "0" + val : val;
+        }
+
         function displayTime() {
 
             // Show hrs, mins, sec input placeholders if auto-start is off
@@ -38,17 +41,21 @@
             let minutes = Math.floor(totalSeconds / 60);
             let seconds = totalSeconds % 60;
 
-            document.getElementById("hours").value = pad(hours);
-            document.getElementById("minutes").value = pad(minutes);
-            document.getElementById("seconds").value = pad(seconds);
-        }
+            let hoursEl = document.getElementById("hours");
+            let minutesEl = document.getElementById("minutes");
+            let secondsEl = document.getElementById("seconds");
 
-        function pad(val) {
-            return val < 10 ? "0" + val : val;
+            if (hoursEl && minutesEl && secondsEl) {
+                hoursEl.value = pad(hours);
+                minutesEl.value = pad(minutes);
+                secondsEl.value = pad(seconds);
+            } else {
+                console.warn("Timer input elements not found");
+            }
         }
 
         function countTime() {
-            elapsedSecs++;
+            elapsedSecs = getElapsedSeconds();
             displayTime();
         }
 
@@ -57,7 +64,8 @@
                 localStorage.setItem(getLocalStorageKey("startTime"), Date.now().toString());
             }
             timerInterval = setInterval(countTime, 1000);
-            document.getElementById("startStopTimer").innerHTML = "<i class='fas fa-pause'></i>";
+            let btn = document.getElementById("startStopTimer");
+            if (btn) btn.innerHTML = "<i class='fas fa-pause'></i>";
             localStorage.setItem("ticket-timer-running-" + ticketID, "true");
         }
 
@@ -69,7 +77,8 @@
             let currentElapsed = getElapsedSeconds();
             localStorage.setItem(getLocalStorageKey("pausedTime"), currentElapsed.toString());
             localStorage.removeItem(getLocalStorageKey("startTime"));
-            document.getElementById("startStopTimer").innerHTML = "<i class='fas fa-play'></i>";
+            let btn = document.getElementById("startStopTimer");
+            if (btn) btn.innerHTML = "<i class='fas fa-play'></i>";
             localStorage.setItem("ticket-timer-running-" + ticketID, "false");
         }
 
@@ -86,7 +95,8 @@
                 elapsedSecs = 0;
                 clearTimeStorage();
                 displayTime();
-                document.getElementById("startStopTimer").innerHTML = "<i class='fas fa-play'></i>";
+                let btn = document.getElementById("startStopTimer");
+                if (btn) btn.innerHTML = "<i class='fas fa-play'></i>";
             }
             localStorage.setItem("ticket-timer-running-" + ticketID, "false");
         }
@@ -97,7 +107,8 @@
             elapsedSecs = 0;
             clearTimeStorage();
             displayTime();
-            document.getElementById("startStopTimer").innerHTML = "<i class='fas fa-play'></i>";
+            let btn = document.getElementById("startStopTimer");
+            if (btn) btn.innerHTML = "<i class='fas fa-play'></i>";
         }
 
         function handleInputFocus() {
@@ -105,9 +116,9 @@
         }
 
         function updateTimeFromInput() {
-            const hours = parseInt(document.getElementById("hours").value, 10) || 0;
-            const minutes = parseInt(document.getElementById("minutes").value, 10) || 0;
-            const seconds = parseInt(document.getElementById("seconds").value, 10) || 0;
+            const hours = parseInt(document.getElementById("hours")?.value, 10) || 0;
+            const minutes = parseInt(document.getElementById("minutes")?.value, 10) || 0;
+            const seconds = parseInt(document.getElementById("seconds")?.value, 10) || 0;
             elapsedSecs = (hours * 3600) + (minutes * 60) + seconds;
 
             if (!timerInterval) {
@@ -120,61 +131,93 @@
         }
 
         function checkStatusAndPauseTimer() {
-            var status = document.querySelector('select[name="status"]').value;
-            if (status.includes("Pending") || status.includes("Close")) {
-                pauseTimer();
+            var statusEl = document.querySelector('select[name="status"]');
+            if (statusEl) {
+                var status = statusEl.value;
+                if (status.includes("Pending") || status.includes("Close")) {
+                    pauseTimer();
+                }
             }
         }
 
-        // Attach input listeners
-        document.getElementById("hours").addEventListener('change', updateTimeFromInput);
-        document.getElementById("minutes").addEventListener('change', updateTimeFromInput);
-        document.getElementById("seconds").addEventListener('change', updateTimeFromInput);
-
-        document.getElementById("hours").addEventListener('focus', handleInputFocus);
-        document.getElementById("minutes").addEventListener('focus', handleInputFocus);
-        document.getElementById("seconds").addEventListener('focus', handleInputFocus);
-
-        document.querySelector('select[name="status"]').addEventListener('change', checkStatusAndPauseTimer);
-
-        document.getElementById("startStopTimer").addEventListener('click', function() {
-            if (timerInterval === null) {
-                startTimer();
-            } else {
-                pauseTimer();
+        // Update on tab visibility change to handle background sleep
+        document.addEventListener('visibilitychange', function() {
+            if (!document.hidden) {
+                elapsedSecs = getElapsedSeconds();
+                displayTime();
             }
         });
 
-        document.getElementById("resetTimer").addEventListener('click', function() {
-            resetTimer();
-        });
+        // Attach input listeners with null checks
+        const hoursEl = document.getElementById("hours");
+        if (hoursEl) {
+            hoursEl.addEventListener('change', updateTimeFromInput);
+            hoursEl.addEventListener('focus', handleInputFocus);
+        }
 
-        document.getElementById("ticket_add_reply").addEventListener('click', function() {
-            setTimeout(forceResetTimer, 100);
-        });
+        const minutesEl = document.getElementById("minutes");
+        if (minutesEl) {
+            minutesEl.addEventListener('change', updateTimeFromInput);
+            minutesEl.addEventListener('focus', handleInputFocus);
+        }
 
-        document.getElementById("ticket_close").addEventListener('click', function() {
-            setTimeout(clearTimeStorage, 100);
-        });
+        const secondsEl = document.getElementById("seconds");
+        if (secondsEl) {
+            secondsEl.addEventListener('change', updateTimeFromInput);
+            secondsEl.addEventListener('focus', handleInputFocus);
+        }
+
+        const statusEl = document.querySelector('select[name="status"]');
+        if (statusEl) {
+            statusEl.addEventListener('change', checkStatusAndPauseTimer);
+        }
+
+        const startStopBtn = document.getElementById("startStopTimer");
+        if (startStopBtn) {
+            startStopBtn.addEventListener('click', function() {
+                if (timerInterval === null) {
+                    startTimer();
+                } else {
+                    pauseTimer();
+                }
+            });
+        }
+
+        const resetBtn = document.getElementById("resetTimer");
+        if (resetBtn) {
+            resetBtn.addEventListener('click', function() {
+                resetTimer();
+            });
+        }
+
+        const addReplyBtn = document.getElementById("ticket_add_reply");
+        if (addReplyBtn) {
+            addReplyBtn.addEventListener('click', function() {
+                setTimeout(forceResetTimer, 100);
+            });
+        }
+
+        const closeBtn = document.getElementById("ticket_close");
+        if (closeBtn) {
+            closeBtn.addEventListener('click', function() {
+                setTimeout(clearTimeStorage, 100);
+            });
+        }
 
         // Final initialization logic
         try {
             displayTime();
 
-            // If no timer state, respect ticketAutoStart
             if (!localStorage.getItem(getLocalStorageKey("startTime")) && !localStorage.getItem(getLocalStorageKey("pausedTime"))) {
-                if (ticketAutoStart === 1) {
+                if (typeof ticketAutoStart !== "undefined" && ticketAutoStart === 1) {
                     startTimer();
                 } else {
                     pauseTimer();
                 }
-            }
-            // If timer already running, resume it
-            else if (localStorage.getItem(getLocalStorageKey("startTime"))) {
+            } else if (localStorage.getItem(getLocalStorageKey("startTime"))) {
                 startTimer();
             }
 
-            // Check and pause timer if status is pending
             checkStatusAndPauseTimer();
 
         } catch (error) {
