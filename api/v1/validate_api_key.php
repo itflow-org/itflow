@@ -75,8 +75,9 @@ if (isset($api_key)) {
     // Failed
     if (mysqli_num_rows($sql) !== 1) {
         // Invalid Key
-        header(WORDING_UNAUTHORIZED);
-        mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'API', log_action = 'Failed', log_description = 'Incorrect or expired key', log_ip = '$ip', log_user_agent = '$user_agent'");
+
+        $url_path = sanitizeInput(parse_url($_SERVER["REQUEST_URI"], PHP_URL_PATH));
+        mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'API', log_action = 'Failed', log_description = 'Incorrect or expired key (endpoint: $url_path)', log_ip = '$ip', log_user_agent = '$user_agent'");
 
         $return_arr['success'] = "False";
         $return_arr['message'] = "Authentication failed. API key is invalid or has expired.";
