@@ -1499,6 +1499,10 @@ function appNotify($type, $details, $action = null, $client_id = 0, $entity_id =
         $action = "NULL"; // Without quotes for SQL NULL
     }
 
+    $type = substr($type, 0, 200);
+    $details = substr($details, 0, 1000);
+    $action = substr($action, 0, 250);
+
     $sql = mysqli_query($mysqli, "SELECT user_id FROM users 
         WHERE user_type = 1 AND user_status = 1 AND user_archived_at IS NULL
     ");
@@ -1527,7 +1531,7 @@ function logAction($type, $action, $description, $client_id = 0, $entity_id = 0)
 function logApp($category, $type, $details) {
     global $mysqli;
 
-    $category = substr($details, 0, 200);
+    $category = substr($category, 0, 200);
     $details = substr($details, 0, 1000);
 
     mysqli_query($mysqli, "INSERT INTO app_logs SET app_log_category = '$category', app_log_type = '$type', app_log_details = '$details'");
