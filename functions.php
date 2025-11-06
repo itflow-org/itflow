@@ -520,7 +520,7 @@ function getDomainRecords($name)
     $records = array();
 
     // Only run if we think the domain is valid
-    if (!filter_var($name, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME)) {
+    if (!filter_var($name, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME) || !checkdnsrr($name, 'SOA')) {
         $records['a'] = '';
         $records['ns'] = '';
         $records['mx'] = '';
@@ -1292,7 +1292,7 @@ function fetchUpdates() {
 function getDomainExpirationDate($domain) {
     // Execute the whois command
     $result = shell_exec("whois " . escapeshellarg($domain));
-    if (!$result) {
+    if (!$result || !checkdnsrr($domain, 'SOA')) {
         return null; // Return null if WHOIS query fails
     }
 
