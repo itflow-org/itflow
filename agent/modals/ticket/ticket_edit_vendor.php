@@ -1,17 +1,23 @@
 <?php
-
 require_once '../../../includes/modal_header.php';
 
-$ticket_id = intval($_GET['ticket_id'] ?? 0);
+$ticket_id = intval($_GET['ticket_id']);
 
-$client_id = intval(getFieldById('tickets', $ticket_id, 'ticket_client_id') ?? 0);
-$vendor_id = intval(getFieldById('tickets', $ticket_id, 'ticket_vendor_id') ?? 0);
+$sql = mysqli_query($mysqli, "SELECT * FROM tickets WHERE ticket_id = $ticket_id LIMIT 1");
 
+$row = mysqli_fetch_array($sql);
+$ticket_prefix = nullable_htmlentities($row['ticket_prefix']);
+$ticket_number = intval($row['ticket_number']);
+$vendor_id = intval($row['ticket_vendor_id']);
+$client_id = intval($row['ticket_client_id']);
+
+// Generate the HTML form content using output buffering.
 ob_start();
 
 ?>
+
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fa fa-fw fa-building mr-2"></i>Editing ticket Vendor</h5>
+    <h5 class="modal-title"><i class="fa fa-fw fa-building mr-2"></i>Editing Vendor: <strong><?= "$ticket_prefix$ticket_number" ?></strong></h5>
     <button type="button" class="close text-white" data-dismiss="modal">
         <span>&times;</span>
     </button>

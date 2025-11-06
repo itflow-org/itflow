@@ -94,23 +94,30 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                     <i class="fas fa-fw fa-layer-group mr-2"></i>Bulk Action (<span id="selectedCount">0</span>)
                                 </button>
                                 <div class="dropdown-menu">
-                                    <a class="dropdown-item" href="#" data-toggle="modal" data-target="#bulkEditCategoryModal">
+                                    <a class="dropdown-item ajax-modal" href="#" 
+                                        data-modal-url="modals/expense/expense_bulk_edit_category.php"
+                                        data-bulk="true">
                                         <i class="fas fa-fw fa-list mr-2"></i>Set Category
                                     </a>
                                     <div class="dropdown-divider"></div>
-                                    <a class="dropdown-item" href="#" data-toggle="modal" data-target="#bulkEditAccountModal">
+                                    <a class="dropdown-item ajax-modal" href="#" 
+                                        data-modal-url="modals/expense/expense_bulk_edit_account.php"
+                                        data-bulk="true">
                                         <i class="fas fa-fw fa-piggy-bank mr-2"></i>Set Account
                                     </a>
                                     <div class="dropdown-divider"></div>
-                                    <a class="dropdown-item" href="#" data-toggle="modal" data-target="#bulkEditClientModal">
+                                    <a class="dropdown-item ajax-modal" href="#" 
+                                        data-modal-url="modals/expense/expense_bulk_edit_client.php"
+                                        data-bulk="true">
                                         <i class="fas fa-fw fa-user mr-2"></i>Set Client
                                     </a>
                                     <?php if ($session_user_role == 3) { ?>
                                     <div class="dropdown-divider"></div>
-                                    <button class="dropdown-item text-danger text-bold"
-                                            type="submit" form="bulkActions" name="bulk_delete_expenses">
+                                    <a class="dropdown-item text-danger text-bold ajax-modal" href="#" 
+                                        data-modal-url="modals/expense/expense_bulk_delete.php"
+                                        data-bulk="true">
                                         <i class="fas fa-fw fa-trash mr-2"></i>Delete
-                                    </button>
+                                    </a>
                                     <?php } ?>
                                 </div>
                             </div>
@@ -193,170 +200,162 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                 </div>
             </form>
             <hr>
-            <form id="bulkActions" action="post.php" method="post" enctype="multipart/form-data">
-                <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token'] ?>">
 
-                <div class="table-responsive-sm">
-                    <table class="table table-striped table-borderless table-hover">
-                        <thead class="text-dark <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
-                        <tr>
-                            <td class="bg-light pr-0">
-                                <div class="form-check">
-                                    <input class="form-check-input" id="selectAllCheckbox" type="checkbox" onclick="checkAll(this)">
-                                </div>
-                            </td>
-                            <th>
-                                <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=expense_date&order=<?php echo $disp; ?>">
-                                    Date <?php if ($sort == 'expense_date') { echo $order_icon; } ?>
-                                </a>
-                            </th>
-                            <th>
-                                <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=category_name&order=<?php echo $disp; ?>">
-                                    Category <?php if ($sort == 'category_name') { echo $order_icon; } ?>
-                                </a>
-                                /
-                                <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=expense_description&order=<?php echo $disp; ?>">
-                                    Description <?php if ($sort == 'expense_description') { echo $order_icon; } ?>
-                                </a>
-                            </th>
-                            <th>
-                                <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=vendor_name&order=<?php echo $disp; ?>">
-                                    Vendor <?php if ($sort == 'vendor_name') { echo $order_icon; } ?>
-                                </a>
-                            </th>
-                            <th class="text-right">
-                                <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=expense_amount&order=<?php echo $disp; ?>">
-                                    Amount <?php if ($sort == 'expense_amount') { echo $order_icon; } ?>
-                                </a>
-                            </th>
-                            <th>
-                                <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=account_name&order=<?php echo $disp; ?>">
-                                    Account <?php if ($sort == 'account_name') { echo $order_icon; } ?>
-                                </a>
-                            </th>
-                            <th>
-                                <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=client_name&order=<?php echo $disp; ?>">
-                                    Client <?php if ($sort == 'client_name') { echo $order_icon; } ?>
-                                </a>
-                            </th>
-                            <th class="text-center">Action</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        <?php
+            <div class="table-responsive-sm">
+                <table class="table table-striped table-borderless table-hover">
+                    <thead class="text-dark <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
+                    <tr>
+                        <td class="bg-light pr-0">
+                            <div class="form-check">
+                                <input class="form-check-input" id="selectAllCheckbox" type="checkbox" onclick="checkAll(this)">
+                            </div>
+                        </td>
+                        <th>
+                            <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=expense_date&order=<?php echo $disp; ?>">
+                                Date <?php if ($sort == 'expense_date') { echo $order_icon; } ?>
+                            </a>
+                        </th>
+                        <th>
+                            <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=category_name&order=<?php echo $disp; ?>">
+                                Category <?php if ($sort == 'category_name') { echo $order_icon; } ?>
+                            </a>
+                            /
+                            <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=expense_description&order=<?php echo $disp; ?>">
+                                Description <?php if ($sort == 'expense_description') { echo $order_icon; } ?>
+                            </a>
+                        </th>
+                        <th>
+                            <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=vendor_name&order=<?php echo $disp; ?>">
+                                Vendor <?php if ($sort == 'vendor_name') { echo $order_icon; } ?>
+                            </a>
+                        </th>
+                        <th class="text-right">
+                            <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=expense_amount&order=<?php echo $disp; ?>">
+                                Amount <?php if ($sort == 'expense_amount') { echo $order_icon; } ?>
+                            </a>
+                        </th>
+                        <th>
+                            <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=account_name&order=<?php echo $disp; ?>">
+                                Account <?php if ($sort == 'account_name') { echo $order_icon; } ?>
+                            </a>
+                        </th>
+                        <th>
+                            <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=client_name&order=<?php echo $disp; ?>">
+                                Client <?php if ($sort == 'client_name') { echo $order_icon; } ?>
+                            </a>
+                        </th>
+                        <th class="text-center">Action</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <?php
 
-                        while ($row = mysqli_fetch_array($sql)) {
-                            $expense_id = intval($row['expense_id']);
-                            $expense_date = nullable_htmlentities($row['expense_date']);
-                            $expense_amount = floatval($row['expense_amount']);
-                            $expense_currency_code = nullable_htmlentities($row['expense_currency_code']);
-                            $expense_description = nullable_htmlentities($row['expense_description']);
-                            $expense_receipt = nullable_htmlentities($row['expense_receipt']);
-                            $expense_reference = nullable_htmlentities($row['expense_reference']);
-                            $expense_created_at = nullable_htmlentities($row['expense_created_at']);
-                            $expense_vendor_id = intval($row['expense_vendor_id']);
-                            $vendor_name = nullable_htmlentities($row['vendor_name']);
-                            $expense_category_id = intval($row['expense_category_id']);
-                            $category_name = nullable_htmlentities($row['category_name']);
-                            $account_name = nullable_htmlentities($row['account_name']);
-                            $expense_account_id = intval($row['expense_account_id']);
-                            $client_name = nullable_htmlentities($row['client_name']);
-                            if(empty($client_name)) {
-                                $client_name_display = "-";
-                            } else {
-                                $client_name_display = $client_name;
-                            }
-                            $expense_client_id = intval($row['expense_client_id']);
-
-                            if (empty($expense_receipt)) {
-                                $receipt_attached = "";
-                            } else {
-                                $path_info = pathinfo($expense_receipt);
-                                $ext = $path_info['extension'];
-                                $receipt_attached = "<a class='text-secondary mr-2' target='_blank' href='../uploads/expenses/$expense_receipt' download='$expense_date-$vendor_name-$category_name-$expense_id.$ext'><i class='fa fa-file'></i></a>";
-                            }
-
-                            ?>
-
-                            <tr>
-                                <td class="pr-0 bg-light">
-                                    <div class="form-check">
-                                        <input class="form-check-input bulk-select" type="checkbox" name="expense_ids[]" value="<?php echo $expense_id ?>">
-                                    </div>
-                                </td>
-                                <td>
-                                    <?php echo $receipt_attached; ?>
-                                    <a class="text-dark ajax-modal" href="#" title="Created: <?php echo $expense_created_at; ?>"
-                                        data-modal-size="lg"
-                                        data-modal-url="modals/expense/expense_edit.php?id=<?= $expense_id ?>">
-                                        <?php echo $expense_date; ?>
-                                    </a>
-                                </td>
-                                <td>
-                                    <?php echo $category_name; ?>
-                                    <div class="text-secondary"><small><?php echo truncate($expense_description, 60); ?></small></div>
-                                </td>
-                                <td><?php echo $vendor_name; ?></td>
-                                <td class="text-bold text-right"><?php echo numfmt_format_currency($currency_format, $expense_amount, $expense_currency_code); ?></td>
-                                <td><?php echo $account_name; ?></td>
-                                <td><?php echo $client_name_display; ?></td>
-                                <td>
-                                    <div class="dropdown dropleft text-center">
-                                        <button class="btn btn-secondary btn-sm" type="button" data-toggle="dropdown">
-                                            <i class="fas fa-ellipsis-h"></i>
-                                        </button>
-                                        <div class="dropdown-menu">
-                                            <?php
-                                            if (!empty($expense_receipt)) { ?>
-                                                <a class="dropdown-item" href="<?php echo "../uploads/expenses/$expense_receipt"; ?>" download="<?php echo "$expense_date-$vendor_name-$category_name-$expense_id.pdf"; ?>">
-                                                    <i class="fas fa-fw fa-download mr-2"></i>Download
-                                                </a>
-                                                <div class="dropdown-divider"></div>
-                                            <?php } ?>
-                                            <a class="dropdown-item ajax-modal" href="#"
-                                                data-modal-size="lg"
-                                                data-modal-url="modals/expense/expense_edit.php?id=<?= $expense_id ?>">
-                                                <i class="fas fa-fw fa-edit mr-2"></i>Edit
-                                            </a>
-                                            <a class="dropdown-item ajax-modal" href="#"
-                                                data-modal-size="lg"
-                                                data-modal-url="modals/expense/expense_copy.php?id=<?= $expense_id ?>">
-                                                <i class="fas fa-fw fa-copy mr-2"></i>Copy
-                                            </a>
-                                            <div class="dropdown-divider"></div>
-                                            <a class="dropdown-item ajax-modal" href="#"
-                                                data-modal-size="lg"
-                                                data-modal-url="modals/expense/expense_refund.php?id=<?= $expense_id ?>">
-                                                <i class="fas fa-fw fa-undo-alt mr-2"></i>Refund
-                                            </a>
-                                            <div class="dropdown-divider"></div>
-                                            <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_expense=<?php echo $expense_id; ?>">
-                                                <i class="fas fa-fw fa-trash mr-2"></i>Delete
-                                            </a>
-                                        </div>
-                                    </div>
-                                </td>
-                            </tr>
-
-                            <?php
+                    while ($row = mysqli_fetch_array($sql)) {
+                        $expense_id = intval($row['expense_id']);
+                        $expense_date = nullable_htmlentities($row['expense_date']);
+                        $expense_amount = floatval($row['expense_amount']);
+                        $expense_currency_code = nullable_htmlentities($row['expense_currency_code']);
+                        $expense_description = nullable_htmlentities($row['expense_description']);
+                        $expense_receipt = nullable_htmlentities($row['expense_receipt']);
+                        $expense_reference = nullable_htmlentities($row['expense_reference']);
+                        $expense_created_at = nullable_htmlentities($row['expense_created_at']);
+                        $expense_vendor_id = intval($row['expense_vendor_id']);
+                        $vendor_name = nullable_htmlentities($row['vendor_name']);
+                        $expense_category_id = intval($row['expense_category_id']);
+                        $category_name = nullable_htmlentities($row['category_name']);
+                        $account_name = nullable_htmlentities($row['account_name']);
+                        $expense_account_id = intval($row['expense_account_id']);
+                        $client_name = nullable_htmlentities($row['client_name']);
+                        if(empty($client_name)) {
+                            $client_name_display = "-";
+                        } else {
+                            $client_name_display = $client_name;
                         }
+                        $expense_client_id = intval($row['expense_client_id']);
+
+                        if (empty($expense_receipt)) {
+                            $receipt_attached = "";
+                        } else {
+                            $path_info = pathinfo($expense_receipt);
+                            $ext = $path_info['extension'];
+                            $receipt_attached = "<a class='text-secondary mr-2' target='_blank' href='../uploads/expenses/$expense_receipt' download='$expense_date-$vendor_name-$category_name-$expense_id.$ext'><i class='fa fa-file'></i></a>";
+                        }
+
                         ?>
 
-                        </tbody>
-                    </table>
-                </div>
-                <?php require_once "modals/expense/expense_bulk_edit_category.php"; ?>
-                <?php require_once "modals/expense/expense_bulk_edit_account.php"; ?>
-                <?php require_once "modals/expense/expense_bulk_edit_client.php"; ?>
-            </form>
-            <?php require_once "../includes/filter_footer.php";
- ?>
+                        <tr>
+                            <td class="pr-0 bg-light">
+                                <div class="form-check">
+                                    <input class="form-check-input bulk-select" type="checkbox" name="selected_ids[]" value="<?= $expense_id ?>">
+                                </div>
+                            </td>
+                            <td>
+                                <?php echo $receipt_attached; ?>
+                                <a class="text-dark ajax-modal" href="#" title="Created: <?php echo $expense_created_at; ?>"
+                                    data-modal-size="lg"
+                                    data-modal-url="modals/expense/expense_edit.php?id=<?= $expense_id ?>">
+                                    <?php echo $expense_date; ?>
+                                </a>
+                            </td>
+                            <td>
+                                <?php echo $category_name; ?>
+                                <div class="text-secondary"><small><?php echo truncate($expense_description, 60); ?></small></div>
+                            </td>
+                            <td><?php echo $vendor_name; ?></td>
+                            <td class="text-bold text-right"><?php echo numfmt_format_currency($currency_format, $expense_amount, $expense_currency_code); ?></td>
+                            <td><?php echo $account_name; ?></td>
+                            <td><?php echo $client_name_display; ?></td>
+                            <td>
+                                <div class="dropdown dropleft text-center">
+                                    <button class="btn btn-secondary btn-sm" type="button" data-toggle="dropdown">
+                                        <i class="fas fa-ellipsis-h"></i>
+                                    </button>
+                                    <div class="dropdown-menu">
+                                        <?php
+                                        if (!empty($expense_receipt)) { ?>
+                                            <a class="dropdown-item" href="<?php echo "../uploads/expenses/$expense_receipt"; ?>" download="<?php echo "$expense_date-$vendor_name-$category_name-$expense_id.pdf"; ?>">
+                                                <i class="fas fa-fw fa-download mr-2"></i>Download
+                                            </a>
+                                            <div class="dropdown-divider"></div>
+                                        <?php } ?>
+                                        <a class="dropdown-item ajax-modal" href="#"
+                                            data-modal-size="lg"
+                                            data-modal-url="modals/expense/expense_edit.php?id=<?= $expense_id ?>">
+                                            <i class="fas fa-fw fa-edit mr-2"></i>Edit
+                                        </a>
+                                        <a class="dropdown-item ajax-modal" href="#"
+                                            data-modal-size="lg"
+                                            data-modal-url="modals/expense/expense_copy.php?id=<?= $expense_id ?>">
+                                            <i class="fas fa-fw fa-copy mr-2"></i>Copy
+                                        </a>
+                                        <div class="dropdown-divider"></div>
+                                        <a class="dropdown-item ajax-modal" href="#"
+                                            data-modal-size="lg"
+                                            data-modal-url="modals/expense/expense_refund.php?id=<?= $expense_id ?>">
+                                            <i class="fas fa-fw fa-undo-alt mr-2"></i>Refund
+                                        </a>
+                                        <div class="dropdown-divider"></div>
+                                        <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_expense=<?php echo $expense_id; ?>">
+                                            <i class="fas fa-fw fa-trash mr-2"></i>Delete
+                                        </a>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+
+                        <?php
+                    }
+                    ?>
+
+                    </tbody>
+                </table>
+            </div>
+            <?php require_once "../includes/filter_footer.php"; ?>
         </div>
     </div>
 
-<script src="../js/bulk_actions.js"></script>
+<script src="/js/bulk_actions.js"></script>
 
 <?php
 require_once "modals/expense/expense_export.php";
-
 require_once "../includes/footer.php";

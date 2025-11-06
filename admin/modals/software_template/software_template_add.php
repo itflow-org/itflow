@@ -5,6 +5,7 @@ require_once '../../../includes/modal_header.php';
 ob_start();
 
 ?>
+
 <div class="modal-header bg-dark">
     <h5 class="modal-title"><i class="fa fa-fw fa-cube mr-2"></i>New License Template</h5>
     <button type="button" class="close text-white" data-dismiss="modal">

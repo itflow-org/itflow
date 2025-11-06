@@ -2,8 +2,7 @@
 
 require_once '../../../includes/modal_header.php';
 
-$ticket_id = intval($_GET['ticket_id'] ?? 0);
-$client_id = intval(getFieldById('tickets', $ticket_id, 'ticket_client_id') ?? 0);
+$ticket_id = intval($_GET['ticket_id']);
 
 ob_start();
 
@@ -16,7 +15,6 @@ ob_start();
 </div>
 <form action="post.php" method="post" autocomplete="off">
     <input type="hidden" name="ticket_id" value="<?php echo $ticket_id; ?>">
-    <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
     <div class="modal-body">
 
         <div class="form-group">

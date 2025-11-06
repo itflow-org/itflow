@@ -2,11 +2,17 @@
 require_once '../../../includes/modal_header.php';
 
 $ticket_id = intval($_GET['ticket_id']);
-$current_client_id = intval(getFieldById('tickets', $ticket_id, 'ticket_client_id'));
-$ticket_prefix = nullable_htmlentities(getFieldById('tickets', $ticket_id, 'ticket_prefix'));
-$ticket_number = nullable_htmlentities(getFieldById('tickets', $ticket_id, 'ticket_number'));
 
+$sql = mysqli_query($mysqli, "SELECT * FROM tickets WHERE ticket_id = $ticket_id LIMIT 1");
+
+$row = mysqli_fetch_array($sql);
+$ticket_prefix = nullable_htmlentities($row['ticket_prefix']);
+$ticket_number = intval($row['ticket_number']);
+$client_id = intval($row['ticket_client_id']);
+
+// Generate the HTML form content using output buffering.
 ob_start();
+
 ?>
 
 <div class="modal-header bg-dark">
@@ -34,7 +40,7 @@ ob_start();
                         $client_id_select = intval($row['client_id']);
                         $client_name = nullable_htmlentities($row['client_name']);
                         ?>
-                        <option value="<?= $client_id_select ?>" <?php if ($current_client_id == $client_id_select) echo 'selected'; ?>>
+                        <option value="<?= $client_id_select ?>" <?php if ($client_id == $client_id_select) echo 'selected'; ?>>
                             <?= $client_name ?>
                         </option>
                     <?php } ?>

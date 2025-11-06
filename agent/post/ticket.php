@@ -443,9 +443,35 @@ if (isset($_POST['add_ticket_watcher'])) {
     enforceUserPermission('module_support', 2);
 
     $ticket_id = intval($_POST['ticket_id']);
-    $client_id = intval($_POST['client_id']);
     $watcher_emails = preg_split("/,| |;/", $_POST['watcher_email']); // Split on comma, semicolon or space, we sanitize later
     $notify = intval($_POST['watcher_notify'] ?? 0);
+
+    // Get contact/ticket details
+    $sql = mysqli_query($mysqli, "SELECT ticket_prefix, ticket_number, ticket_category, ticket_subject, ticket_details, ticket_priority, ticket_status_name, ticket_url_key, ticket_created_by, ticket_assigned_to, ticket_client_id FROM tickets 
+    LEFT JOIN clients ON ticket_client_id = client_id
+    LEFT JOIN contacts ON ticket_contact_id = contact_id
+    LEFT JOIN ticket_statuses ON ticket_status = ticket_status_id                                                                                         
+    WHERE ticket_id = $ticket_id
+    AND ticket_closed_at IS NULL");
+    $row = mysqli_fetch_array($sql);
+
+    $ticket_prefix = sanitizeInput($row['ticket_prefix']);
+    $ticket_number = intval($row['ticket_number']);
+    $ticket_category = sanitizeInput($row['ticket_category']);
+    $ticket_subject = sanitizeInput($row['ticket_subject']);
+    $ticket_details = mysqli_escape_string($mysqli, $row['ticket_details']);
+    $ticket_priority = sanitizeInput($row['ticket_priority']);
+    $ticket_status = sanitizeInput($row['ticket_status_name']);
+    $url_key = sanitizeInput($row['ticket_url_key']);
+    $client_id = intval($row['ticket_client_id']);
+    $ticket_created_by = intval($row['ticket_created_by']);
+    $ticket_assigned_to = intval($row['ticket_assigned_to']);
+
+    // Get Company Phone Number
+    $sql = mysqli_query($mysqli, "SELECT company_name, company_phone, company_phone_country_code FROM companies WHERE company_id = 1");
+    $row = mysqli_fetch_array($sql);
+    $company_name = sanitizeInput($row['company_name']);
+    $company_phone = sanitizeInput(formatPhoneNumber($row['company_phone'], $row['company_phone_country_code']));
 
     // Process each watcher in list
     foreach ($watcher_emails as $watcher_email) {
@@ -459,32 +485,7 @@ if (isset($_POST['add_ticket_watcher'])) {
             // Notify watcher
             if ($notify && !empty($config_smtp_host)) {
 
-                // Get contact/ticket details
-                $sql = mysqli_query($mysqli, "SELECT ticket_prefix, ticket_number, ticket_category, ticket_subject, ticket_details, ticket_priority, ticket_status_name, ticket_url_key, ticket_created_by, ticket_assigned_to, ticket_client_id FROM tickets 
-                LEFT JOIN clients ON ticket_client_id = client_id
-                LEFT JOIN contacts ON ticket_contact_id = contact_id
-                LEFT JOIN ticket_statuses ON ticket_status = ticket_status_id                                                                                         
-                WHERE ticket_id = $ticket_id
-                AND ticket_closed_at IS NULL");
-                $row = mysqli_fetch_array($sql);
-
-                $ticket_prefix = sanitizeInput($row['ticket_prefix']);
-                $ticket_number = intval($row['ticket_number']);
-                $ticket_category = sanitizeInput($row['ticket_category']);
-                $ticket_subject = sanitizeInput($row['ticket_subject']);
-                $ticket_details = mysqli_escape_string($mysqli, $row['ticket_details']);
-                $ticket_priority = sanitizeInput($row['ticket_priority']);
-                $ticket_status = sanitizeInput($row['ticket_status_name']);
-                $url_key = sanitizeInput($row['ticket_url_key']);
-                $client_id = intval($row['ticket_client_id']);
-                $ticket_created_by = intval($row['ticket_created_by']);
-                $ticket_assigned_to = intval($row['ticket_assigned_to']);
-
-                // Get Company Phone Number
-                $sql = mysqli_query($mysqli, "SELECT company_name, company_phone, company_phone_country_code FROM companies WHERE company_id = 1");
-                $row = mysqli_fetch_array($sql);
-                $company_name = sanitizeInput($row['company_name']);
-                $company_phone = sanitizeInput(formatPhoneNumber($row['company_phone'], $row['company_phone_country_code']));
+                
 
                 // Email content
                 $data = []; // Queue array

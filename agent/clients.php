@@ -137,27 +137,41 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                     <i class="fas fa-fw fa-layer-group"></i><span class="d-none d-sm-inline ml-2">Action</span> (<span id="selectedCount">0</span>)
                                 </button>
                                 <div class="dropdown-menu">
-                                    <a class="dropdown-item" href="#" data-toggle="modal" data-target="#bulkAddTicketModal">
+                                   <a class="dropdown-item ajax-modal" href="#" 
+                                        data-modal-url="modals/client/client_bulk_add_ticket.php"
+                                        data-modal-size="lg"
+                                        data-bulk="true">
                                         <i class="fas fa-fw fa-life-ring mr-2"></i>Open Tickets
                                     </a>
                                     <div class="dropdown-divider"></div>
-                                    <a class="dropdown-item" href="#" data-toggle="modal" data-target="#bulkEditHourlyRateModal">
+                                    <a class="dropdown-item ajax-modal" href="#" 
+                                        data-modal-url="modals/client/client_bulk_edit_hourly_rate.php"
+                                        data-bulk="true">
                                         <i class="fas fa-fw fa-clock mr-2"></i>Set Hourly Rate
                                     </a>
                                     <div class="dropdown-divider"></div>
-                                    <a class="dropdown-item" href="#" data-toggle="modal" data-target="#bulkEditIndustryModal">
+                                    <a class="dropdown-item ajax-modal" href="#" 
+                                        data-modal-url="modals/client/client_bulk_edit_industry.php"
+                                        data-bulk="true">
                                         <i class="fas fa-fw fa-briefcase mr-2"></i>Set Industry
                                     </a>
                                     <div class="dropdown-divider"></div>
-                                    <a class="dropdown-item" href="#" data-toggle="modal" data-target="#bulkEditReferralModal">
+                                    <a class="dropdown-item ajax-modal" href="#" 
+                                        data-modal-url="modals/client/client_bulk_edit_referral.php"
+                                        data-bulk="true">
                                         <i class="fas fa-fw fa-link mr-2"></i>Set Referral
                                     </a>
                                     <div class="dropdown-divider"></div>
-                                    <a class="dropdown-item" href="#" data-toggle="modal" data-target="#bulkAssignTagsModal">
+                                    <a class="dropdown-item ajax-modal" href="#" 
+                                        data-modal-url="modals/client/client_bulk_assign_tags.php"
+                                        data-bulk="true">
                                         <i class="fas fa-fw fa-tags mr-2"></i>Assign Tags
                                     </a>
                                     <div class="dropdown-divider"></div>
-                                    <a class="dropdown-item" href="#" data-toggle="modal" data-target="#bulkSendEmailModal">
+                                    <a class="dropdown-item ajax-modal" href="#" 
+                                        data-modal-url="modals/client/client_bulk_email.php"
+                                        data-modal-size="lg"
+                                        data-bulk="true">
                                         <i class="fas fa-fw fa-paper-plane mr-2"></i>Send Email
                                     </a>
                                     <?php if ($archived) { ?>
@@ -268,7 +282,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
         </form>
     </div>
     
-    <form id="bulkActions" action="post.php" method="post" enctype="multipart/form-data">
+    <form id="bulkActions" action="post.php" method="post">
         <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token'] ?>">
         <div class="table-responsive-sm">
             <table class="table table-hover mb-0 text-nowrap">
@@ -600,14 +614,6 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                 </tbody>
             </table>
         </div>
-        <?php 
-            require_once "modals/client/client_bulk_edit_industry.php";
-            require_once "modals/client/client_bulk_edit_referral.php";
-            require_once "modals/client/client_bulk_edit_hourly_rate.php";
-            require_once "modals/client/client_bulk_assign_tags.php";
-            require_once "modals/client/client_bulk_add_ticket.php"; 
-            require_once "modals/client/client_bulk_email.php";
-        ?>
     </form>
      <!-- Ends Card Body -->
     <?php require_once "../includes/filter_footer.php"; ?>
