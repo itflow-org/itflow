@@ -308,7 +308,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 <td><?php echo $domain_mailhost_name_display; ?></td>
                                 <td>
                                     <div><?php echo $domain_expire; ?></div>
-                                    <div><small><?php echo $domain_expire_ago; ?></small></div>
+                                    <?php if (!empty($domain_expire)) { ?>
+                                        <div><small><?php echo $domain_expire_ago; ?></small></div>
+                                    <?php } ?>
                                 </td>
                                 <?php if (!$client_url) { ?>
                                 <td><a href="domains.php?client_id=<?php echo $client_id; ?>"><?php echo $client_name; ?></a></td>
