@@ -971,3 +971,24 @@ if (isset($_GET['ai_ticket_summary'])) {
 
     echo $summary; // nl2br to convert newlines to <br>, htmlspecialchars to prevent XSS
 }
+
+// Stops people trying to use sub-domains in the domains tracker
+if (isset($_GET['apex_domain_check'])) {
+    enforceUserPermission('module_support', 2);
+
+    $domain = sanitizeInput($_GET['domain']);
+
+    $response['message'] = ""; // default
+
+    if (strlen($domain) >= 4) {
+
+        // SOA record check
+        //  This isn't 100%, as sub-domains can have their own SOA but will capture 99%
+        if (!checkdnsrr($domain, 'SOA')) {
+            $response['message'] = "<i class='fas fa-fw fa-exclamation-triangle mr-2'></i> Domain name is invalid.";
+        }
+
+    }
+
+    echo json_encode($response);
+}

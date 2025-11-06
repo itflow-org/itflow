@@ -65,7 +65,10 @@ ob_start();
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-globe"></i></span>
                         </div>
-                        <input type="text" class="form-control" name="name" placeholder="example.com" maxlength="200" required autofocus>
+                        <input type="text" class="form-control" name="name" id="domain_name" placeholder="example.com" maxlength="200" required autofocus onfocusout="domain_check()">
+                    </div>
+                    <div class="mt-2">
+                        <span class="text-info" id="domain_check_info"></span>
                     </div>
                 </div>
 
@@ -192,6 +195,23 @@ ob_start();
         <button type="button" class="btn btn-light" data-dismiss="modal"><i class="fa fa-times mr-2"></i>Cancel</button>
     </div>
 </form>
+
+<script>
+    // Checks domains aren't sub-domains (99%)
+    function domain_check() {
+        var domain = document.getElementById("domain_name").value;
+        //Send a GET request to ajax.php as ajax.php?apex_domain_check=true&domain=domain
+        jQuery.get(
+            "ajax.php",
+            {apex_domain_check: 'true', domain: domain},
+            function(data) {
+                //If we get a response from ajax.php, parse it as JSON
+                const domain_check_data = JSON.parse(data);
+                document.getElementById("domain_check_info").innerHTML = domain_check_data.message;
+            }
+        );
+    }
+</script>
 
 <?php
 

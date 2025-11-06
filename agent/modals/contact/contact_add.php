@@ -349,7 +349,7 @@ $(document).ready(function() {
         //Send a GET request to ajax.php as ajax.php?contact_email_check=true&email=email
         jQuery.get(
             "ajax.php",
-            {contact_email_check: 'email', email: email},
+            {contact_email_check: 'true', email: email},
             function(data) {
                 //If we get a response from ajax.php, parse it as JSON
                 const contact_check_data = JSON.parse(data);
