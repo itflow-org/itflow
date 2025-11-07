@@ -220,28 +220,41 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             </button>
                             <div class="dropdown-menu">
                                 <?php if ($client_url) { ?> 
-                                <a class="dropdown-item" href="#" data-toggle="modal" data-target="#bulkAssignLocationModal">
+                                <a class="dropdown-item ajax-modal" href="#"
+                                    data-modal-url="modals/contact/contact_bulk_assign_location.php?<?= $client_url ?>"
+                                    data-bulk="true">
                                     <i class="fas fa-fw fa-map-marker-alt mr-2"></i>Assign Location
                                 </a>
                                 <div class="dropdown-divider"></div>
                                 <?php } ?>
-                                <a class="dropdown-item" href="#" data-toggle="modal" data-target="#bulkEditPhoneModal">
+                                <a class="dropdown-item ajax-modal" href="#"
+                                    data-modal-url="modals/contact/contact_bulk_edit_phone.php"
+                                    data-bulk="true">
                                     <i class="fas fa-fw fa-phone-alt mr-2"></i>Set Phone Number
                                 </a>
                                 <div class="dropdown-divider"></div>
-                                <a class="dropdown-item" href="#" data-toggle="modal" data-target="#bulkEditDepartmentModal">
+                                <a class="dropdown-item ajax-modal" href="#"
+                                    data-modal-url="modals/contact/contact_bulk_edit_department.php"
+                                    data-bulk="true">
                                     <i class="fas fa-fw fa-users mr-2"></i>Set Department
                                 </a>
                                 <div class="dropdown-divider"></div>
-                                <a class="dropdown-item" href="#" data-toggle="modal" data-target="#bulkEditRoleModal">
+                                <a class="dropdown-item ajax-modal" href="#"
+                                    data-modal-url="modals/contact/contact_bulk_edit_role.php"
+                                    data-bulk="true">
                                     <i class="fas fa-fw fa-user-shield mr-2"></i>Set Roles
                                 </a>
                                 <div class="dropdown-divider"></div>
-                                <a class="dropdown-item" href="#" data-toggle="modal" data-target="#bulkAssignTagsModal">
+                                <a class="dropdown-item ajax-modal" href="#"
+                                    data-modal-url="modals/contact/contact_bulk_assign_tags.php"
+                                    data-bulk="true">
                                     <i class="fas fa-fw fa-tags mr-2"></i>Assign Tags
                                 </a>
                                 <div class="dropdown-divider"></div>
-                                <a class="dropdown-item" href="#" data-toggle="modal" data-target="#bulkSendEmailModal">
+                                <a class="dropdown-item ajax-modal" href="#"
+                                    data-modal-url="modals/contact/contact_bulk_email.php"
+                                    data-modal-size="lg"
+                                    data-bulk="true">
                                     <i class="fas fa-fw fa-paper-plane mr-2"></i>Send Email
                                 </a>
                                 <?php if ($archived) { ?>
@@ -545,15 +558,8 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     </tbody>
                 </table>
             </div>
-            <?php if ($client_url) { require_once "modals/contact/contact_bulk_assign_location.php"; } ?>
-            <?php require_once "modals/contact/contact_bulk_edit_phone.php"; ?>
-            <?php require_once "modals/contact/contact_bulk_edit_department.php"; ?>
-            <?php require_once "modals/contact/contact_bulk_edit_role.php"; ?>
-            <?php require_once "modals/contact/contact_bulk_assign_tags.php"; ?>
-            <?php require_once "modals/contact/contact_bulk_email.php"; ?>
         </form>
-        <?php require_once "../includes/filter_footer.php";
-?>
+        <?php require_once "../includes/filter_footer.php"; ?>
     </div>
 </div>
 
@@ -563,7 +569,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
 require_once "modals/contact/contact_export.php";
 if ($client_url) {
-    require_once "modals/contact/contact_invite.php";
+    //require_once "modals/contact/contact_invite.php";
     require_once "modals/contact/contact_import.php";
 }
 require_once "../includes/footer.php";
