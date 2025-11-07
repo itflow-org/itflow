@@ -15,7 +15,7 @@ ob_start();
 ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fa fa-fw fa-user-plus mr-2"></i>Creating New <?php if($leads_filter == 0){ echo "Client"; } else { echo "Lead"; } ?></h5>
+    <h5 class="modal-title"><i class="fa fa-fw fa-user-plus mr-2"></i>New <?php if($leads_filter == 0){ echo "Client"; } else { echo "Lead"; } ?></h5>
     <button type="button" class="close text-white" data-dismiss="modal">
         <span>&times;</span>
     </button>
@@ -329,21 +329,6 @@ ob_start();
                     </div>
 
                     <div class="form-group">
-                        <label>Currency <strong class="text-danger">*</strong></label>
-                        <div class="input-group">
-                            <div class="input-group-prepend">
-                                <span class="input-group-text"><i class="fa fa-fw fa-money-bill"></i></span>
-                            </div>
-                            <select class="form-control select2" name="currency_code" required>
-                                <option value="">- Select Currency -</option>
-                                <?php foreach($currencies_array as $currency_code => $currency_name) { ?>
-                                    <option <?php if ($session_company_currency == $currency_code) { echo "selected"; } ?> value="<?php echo $currency_code; ?>"><?php echo "$currency_code - $currency_name"; ?></option>
-                                <?php } ?>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="form-group">
                         <label>Payment Terms</label>
                         <div class="input-group">
                             <div class="input-group-prepend">
@@ -380,7 +365,7 @@ ob_start();
         </div>
     </div>
     <div class="modal-footer">
-        <button type="submit" name="add_client" class="btn btn-primary text-bold" onclick="promptPrimaryContact()"><i class="fa fa-check mr-2"></i>Create</button>
+        <button type="submit" name="add_client" class="btn btn-primary text-bold" onclick="promptPrimaryContact()"><i class="fa fa-check mr-2"></i>Create Client</button>
         <button type="button" class="btn btn-outline-secondary" data-dismiss="modal"><i class="fa fa-times mr-2"></i>Close</button>
     </div>
 </form>

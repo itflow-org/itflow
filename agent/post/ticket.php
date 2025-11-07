@@ -183,7 +183,7 @@ if (isset($_POST['add_ticket'])) {
 
     flash_alert("Ticket <strong>$config_ticket_prefix$ticket_number</strong> created");
 
-    redirect("ticket.php?ticket_id=$ticket_id");
+    redirect("ticket.php?client_id=$client_id&ticket_id=$ticket_id");
 
 }
 

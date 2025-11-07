@@ -12,7 +12,6 @@ $client_is_lead = intval($row['client_lead']);
 $client_type = nullable_htmlentities($row['client_type']);
 $client_website = nullable_htmlentities($row['client_website']);
 $client_referral = nullable_htmlentities($row['client_referral']);
-$client_currency_code = nullable_htmlentities($row['client_currency_code']);
 $client_net_terms = intval($row['client_net_terms']);
 $client_tax_id_number = nullable_htmlentities($row['client_tax_id_number']);
 $client_abbreviation = nullable_htmlentities($row['client_abbreviation']);
@@ -185,25 +184,6 @@ ob_start();
                             <input type="text" class="form-control" inputmode="numeric"
                                    pattern="[0-9]*\.?[0-9]{0,2}" name="rate" placeholder="0.00"
                                    value="<?php echo number_format($client_rate, 2, '.', ''); ?>">
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Currency <strong class="text-danger">*</strong></label>
-                        <div class="input-group">
-                            <div class="input-group-prepend">
-                                <span class="input-group-text"><i class="fa fa-fw fa-money-bill"></i></span>
-                            </div>
-                            <select class="form-control select2" name="currency_code" required>
-                                <option value="">- Currency -</option>
-                                <?php foreach ($currencies_array as $currency_code => $currency_name) { ?>
-                                    <option <?php if ($client_currency_code == $currency_code) {
-                                        echo "selected";
-                                    } ?> value="<?php echo $currency_code; ?>">
-                                        <?php echo "$currency_code - $currency_name"; ?>
-                                    </option>
-                                <?php } ?>
-                            </select>
                         </div>
                     </div>
 
