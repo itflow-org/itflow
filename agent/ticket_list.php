@@ -304,15 +304,7 @@
                         </tbody>
                     </table>
                 </div>
-                <?php require_once "modals/ticket/ticket_bulk_assign.php"; ?>
-                <?php require_once "modals/ticket/ticket_bulk_edit_category.php"; ?>
-                <?php require_once "modals/ticket/ticket_bulk_edit_priority.php"; ?>
-                <?php require_once "modals/ticket/ticket_bulk_add_project.php"; ?>
-                <?php require_once "modals/ticket/ticket_bulk_reply.php"; ?>
-                <?php require_once "modals/ticket/ticket_bulk_merge.php"; ?>
-                <?php require_once "modals/ticket/ticket_bulk_resolve.php"; ?>
             </form>
             <?php require_once "../includes/filter_footer.php"; ?>
         </div>
     </div>
-

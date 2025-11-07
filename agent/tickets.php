@@ -261,31 +261,47 @@ $sql_categories_filter = mysqli_query(
                                         <i class="fas fa-fw fa-layer-group mr-2"></i>Bulk Action (<span id="selectedCount">0</span>)
                                     </button>
                                     <div class="dropdown-menu">
-                                        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#bulkAssignTicketModal">
-                                            <i class="fas fa-fw fa-user-check mr-2"></i>Assign Tech
+                                        <a class="dropdown-item ajax-modal" href="#" 
+                                            data-modal-url="modals/ticket/ticket_bulk_assign.php"
+                                            data-bulk="true">
+                                            <i class="fas fa-fw fa-user-check mr-2"></i>Assign Agent
                                         </a>
                                         <div class="dropdown-divider"></div>
-                                        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#bulkEditCategoryTicketModal">
+                                        <a class="dropdown-item ajax-modal" href="#" 
+                                            data-modal-url="modals/ticket/ticket_bulk_edit_category.php"
+                                            data-bulk="true">
                                             <i class="fas fa-fw fa-layer-group mr-2"></i>Set Category
                                         </a>
                                         <div class="dropdown-divider"></div>
-                                        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#bulkEditPriorityTicketModal">
-                                            <i class="fas fa-fw fa-thermometer-half mr-2"></i>Update Priority
+                                        <a class="dropdown-item ajax-modal" href="#" 
+                                            data-modal-url="modals/ticket/ticket_bulk_edit_priority.php"
+                                            data-bulk="true">
+                                            <i class="fas fa-fw fa-thermometer-half mr-2"></i>Set Priority
                                         </a>
                                         <div class="dropdown-divider"></div>
-                                        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#bulkReplyTicketModal">
-                                            <i class="fas fa-fw fa-paper-plane mr-2"></i>Bulk Update/Reply
+                                        <a class="dropdown-item ajax-modal" href="#" 
+                                            data-modal-url="modals/ticket/ticket_bulk_reply.php"
+                                            data-modal-size="lg"
+                                            data-bulk="true">
+                                            <i class="fas fa-fw fa-paper-plane mr-2"></i>Update/Reply
                                         </a>
                                         <div class="dropdown-divider"></div>
-                                        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#bulkAssignTicketToProjectModal">
-                                            <i class="fas fa-fw fa-project-diagram mr-2"></i>Add to Project
+                                        <a class="dropdown-item ajax-modal" href="#" 
+                                            data-modal-url="modals/ticket/ticket_bulk_add_project.php"
+                                            data-bulk="true">
+                                            <i class="fas fa-fw fa-project-diagram mr-2"></i>Set Project
                                         </a>
                                         <div class="dropdown-divider"></div>
-                                        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#bulkMergeTicketModal">
+                                        <a class="dropdown-item ajax-modal" href="#" 
+                                            data-modal-url="modals/ticket/ticket_bulk_merge.php"
+                                            data-bulk="true">
                                             <i class="fas fa-fw fa-clone mr-2"></i>Merge
                                         </a>
                                         <div class="dropdown-divider"></div>
-                                        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#bulkCloseTicketsModal">
+                                        <a class="dropdown-item ajax-modal" href="#" 
+                                            data-modal-url="modals/ticket/ticket_bulk_resolve.php"
+                                            data-modal-size="lg"
+                                            data-bulk="true">
                                             <i class="fas fa-fw fa-check mr-2"></i>Resolve
                                         </a>
                                         <?php if (lookupUserPermission("module_support") === 3) { ?>

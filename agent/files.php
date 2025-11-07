@@ -257,7 +257,9 @@ while ($folder_id > 0) {
                                         <i class="fas fa-fw fa-layer-group mr-2"></i>Bulk Action (<span id="selectedCount">0</span>)
                                     </button>
                                     <div class="dropdown-menu">
-                                        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#bulkMoveFilesModal">
+                                        <a class="dropdown-item ajax-modal" href="#"
+                                            data-modal-url="modals/file/file_bulk_move.php?client_id=<?= $client_id ?>"
+                                            data-bulk="true">
                                             <i class="fas fa-fw fa-exchange-alt mr-2"></i>Move
                                         </a>
                                         <div class="dropdown-divider"></div>
@@ -581,13 +583,11 @@ while ($folder_id > 0) {
 
                         </table>
                     </div>
-                    <?php require_once "modals/file/file_bulk_move.php"; ?>
                 </form>
 
                 <?php } ?>
 
-                <?php require_once "../includes/filter_footer.php";
- ?>
+                <?php require_once "../includes/filter_footer.php"; ?>
 
             </div>
         </div>

@@ -166,27 +166,37 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 <i class="fas fa-fw fa-layer-group mr-2"></i>Bulk Action (<span id="selectedCount">0</span>)
                             </button>
                             <div class="dropdown-menu">
-                                <button class="dropdown-item" type="submit" form="bulkActions" name="bulk_force_recurring_tickets">
+                                <button class="dropdown-item confirm-link" type="submit" form="bulkActions" name="bulk_force_recurring_tickets">
                                     <i class="fas fa-fw fa-paper-plane mr-2"></i>Force Reoccur
                                 </button>
                                 <div class="dropdown-divider"></div>
-                                <a class="dropdown-item" href="#" data-toggle="modal" data-target="#bulkAssignAgentRecurringTicketModal">
+                                <a class="dropdown-item ajax-modal" href="#" 
+                                    data-modal-url="modals/recurring_ticket/recurring_ticket_bulk_agent_edit.php"
+                                    data-bulk="true">
                                     <i class="fas fa-fw fa-user-check mr-2"></i>Assign Agent
                                 </a>
                                 <div class="dropdown-divider"></div>
-                                <a class="dropdown-item" href="#" data-toggle="modal" data-target="#bulkEditCategoryRecurringTicketModal">
+                                <a class="dropdown-item ajax-modal" href="#" 
+                                    data-modal-url="modals/recurring_ticket/recurring_ticket_bulk_category_edit.php"
+                                    data-bulk="true">
                                     <i class="fas fa-fw fa-layer-group mr-2"></i>Set Category
                                 </a>
                                 <div class="dropdown-divider"></div>
-                                <a class="dropdown-item" href="#" data-toggle="modal" data-target="#bulkEditPriorityRecurringTicketModal">
+                                <a class="dropdown-item ajax-modal" href="#" 
+                                    data-modal-url="modals/recurring_ticket/recurring_ticket_bulk_priority_edit.php"
+                                    data-bulk="true">
                                     <i class="fas fa-fw fa-thermometer-half mr-2"></i>Set Priority
                                 </a>
                                 <div class="dropdown-divider"></div>
-                                <a class="dropdown-item" href="#" data-toggle="modal" data-target="#bulkEditBillableRecurringTicketModal">
+                                <a class="dropdown-item ajax-modal" href="#" 
+                                    data-modal-url="modals/recurring_ticket/recurring_ticket_bulk_billable_edit.php"
+                                    data-bulk="true">
                                     <i class="fas fa-fw fa-dollar-sign mr-2"></i>Set Billable
                                 </a>
                                 <div class="dropdown-divider"></div>
-                                <a class="dropdown-item" href="#" data-toggle="modal" data-target="#bulkEditNextRunRecurringTicketModal">
+                                <a class="dropdown-item ajax-modal" href="#" 
+                                    data-modal-url="modals/recurring_ticket/recurring_ticket_bulk_next_run_edit.php"
+                                    data-bulk="true">
                                     <i class="fas fa-fw fa-calendar-day mr-2"></i>Set Next Run Date
                                 </a>
                                 <div class="dropdown-divider"></div>
@@ -344,13 +354,6 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     </tbody>
 
                 </table>
-                <?php
-                require_once "modals/recurring_ticket/recurring_ticket_bulk_agent_edit.php";
-                require_once "modals/recurring_ticket/recurring_ticket_bulk_billable_edit.php";
-                require_once "modals/recurring_ticket/recurring_ticket_bulk_category_edit.php";
-                require_once "modals/recurring_ticket/recurring_ticket_bulk_next_run_edit.php";
-                require_once "modals/recurring_ticket/recurring_ticket_bulk_priority_edit.php";
-                ?>
 
             </form>
 

@@ -241,7 +241,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                     <i class="fas fa-fw fa-trash mr-2"></i>Delete
                                 </button>
                                 <?php } else { ?>
-                                <a class="dropdown-item" href="#" data-toggle="modal" data-target="#bulkAssignTagsModal">
+                                <a class="dropdown-item ajax-modal" href="#"
+                                    data-modal-url="modals/credential/credential_bulk_assign_tags.php"
+                                    data-bulk="true">
                                     <i class="fas fa-fw fa-tags mr-2"></i>Assign Tags
                                 </a>
                                     <div class="dropdown-divider"></div>
@@ -519,10 +521,8 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     </tbody>
                 </table>
             </div>
-            <?php require_once "modals/credential/credential_bulk_assign_tags.php"; ?>
         </form>
-        <?php require_once "../includes/filter_footer.php";
-        ?>
+        <?php require_once "../includes/filter_footer.php"; ?>
     </div>
 </div>
 

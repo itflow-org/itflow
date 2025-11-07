@@ -218,12 +218,15 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             </button>
                             <div class="dropdown-menu">
                                 <?php if ($client_url && $balance > 0) { ?> 
-                                    <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addBulkPaymentModal">
+                                    <a class="dropdown-item ajax-modal" href="#"
+                                        data-modal-url="modals/payment/payment_bulk_add.php?<?= $client_url ?>">
                                         <i class="fa fa-credit-card mr-2"></i>Batch Payment
                                     </a>
                                     <div class="dropdown-divider"></div>
                                 <?php } ?>
-                                <a class="dropdown-item" href="#" data-toggle="modal" data-target="#bulkEditCategoryModal">
+                                <a class="dropdown-item ajax-modal" href="#"
+                                    data-modal-url="modals/invoice/invoice_bulk_edit_category.php"
+                                    data-bulk="true">
                                     <i class="fas fa-fw fa-list-ul mr-2"></i>Set Category
                                 </a>
                             </div>
@@ -246,7 +249,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
             </div>
         </form>
         <hr>
-        <form id="bulkActions" action="post.php" method="post" enctype="multipart/form-data">
+        <form id="bulkActions" action="post.php" method="post">
             <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token'] ?>">
             <div class="table-responsive-sm">
                 <table class="table table-striped table-borderless table-hover">
@@ -437,16 +440,13 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     </tbody>
                 </table>
             </div>
-            <?php require_once "modals/invoice/invoice_bulk_edit_category.php"; ?>
         </form>
-        <?php require_once "../includes/filter_footer.php";
-?>
+        <?php require_once "../includes/filter_footer.php"; ?>
     </div>
 </div>
 
 <script src="../js/bulk_actions.js"></script>
 
 <?php
-if ($client_url) { require_once "modals/payment/payment_bulk_add.php"; }
 require_once "modals/invoice/invoice_export.php";
 require_once "../includes/footer.php";

@@ -303,27 +303,40 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             </button>
                             <div class="dropdown-menu">
                                 <?php if ($client_url) { ?>
-                                <a class="dropdown-item" href="#" data-toggle="modal" data-target="#bulkAssignContactModal">
+                                <a class="dropdown-item ajax-modal" href="#"
+                                    data-modal-url="modals/asset/asset_bulk_assign_contact.php?<?= $client_url ?>"
+                                    data-bulk="true">
                                     <i class="fas fa-fw fa-user mr-2"></i>Assign Contact
                                 </a>
                                 <div class="dropdown-divider"></div>
-                                <a class="dropdown-item" href="#" data-toggle="modal" data-target="#bulkAssignLocationModal">
+                                <a class="dropdown-item ajax-modal" href="#"
+                                    data-modal-url="modals/asset/asset_bulk_assign_location.php?<?= $client_url ?>"
+                                    data-bulk="true">
                                     <i class="fas fa-fw fa-map-marker-alt mr-2"></i>Assign Location
                                 </a>
                                 <?php } ?>
-                                <a class="dropdown-item" href="#" data-toggle="modal" data-target="#bulkAssignPhysicalLocationModal">
+                                <a class="dropdown-item ajax-modal" href="#"
+                                    data-modal-url="modals/asset/asset_bulk_assign_physical_location.php"
+                                    data-bulk="true">
                                     <i class="fas fa-fw fa-map-marker-alt mr-2"></i>Set Physical Location
                                 </a>
                                 <div class="dropdown-divider"></div>
-                                <a class="dropdown-item" href="#" data-toggle="modal" data-target="#bulkEditStatusModal">
+                                <a class="dropdown-item ajax-modal" href="#"
+                                    data-modal-url="modals/asset/asset_bulk_edit_status.php"
+                                    data-bulk="true">
                                     <i class="fas fa-fw fa-info mr-2"></i>Set Status
                                 </a>
                                 <div class="dropdown-divider"></div>
-                                <a class="dropdown-item" href="#" data-toggle="modal" data-target="#bulkAddTicketModal">
+                                <a class="dropdown-item ajax-modal" href="#"
+                                    data-modal-url="modals/asset/asset_bulk_add_ticket.php"
+                                    data-modal-size="lg"
+                                    data-bulk="true">
                                     <i class="fas fa-fw fa-life-ring mr-2"></i>Create Tickets
                                 </a>
                                 <div class="dropdown-divider"></div>
-                                <a class="dropdown-item" href="#" data-toggle="modal" data-target="#bulkTransferAssetClientModal">
+                                <a class="dropdown-item ajax-modal" href="#"
+                                    data-modal-url="modals/asset/asset_bulk_transfer_client.php?<?= $client_url ?>"
+                                    data-bulk="true">
                                     <i class="fas fa-fw fa-arrow-right mr-2"></i>Transfer to Client
                                 </a>
                                 <?php if ($archived) { ?>
@@ -692,16 +705,6 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     </tbody>
                 </table>
             </div>
-            <?php
-            if ($client_url) {
-                require_once "modals/asset/asset_bulk_assign_contact.php";  
-                require_once "modals/asset/asset_bulk_assign_location.php";
-            }
-            ?>
-            <?php require_once "modals/asset/asset_bulk_assign_physical_location.php"; ?>
-            <?php require_once "modals/asset/asset_bulk_transfer_client.php"; ?>
-            <?php require_once "modals/asset/asset_bulk_edit_status.php"; ?>
-            <?php require_once "modals/asset/asset_bulk_add_ticket.php"; ?>
         </form>
         <?php require_once "../includes/filter_footer.php"; ?>
     </div>

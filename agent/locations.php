@@ -180,7 +180,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 <i class="fas fa-fw fa-layer-group mr-2"></i>Bulk Action (<span id="selectedCount">0</span>)
                             </button>
                             <div class="dropdown-menu">
-                                <a class="dropdown-item" href="#" data-toggle="modal" data-target="#bulkAssignTagsModal">
+                                <a class="dropdown-item ajax-modal" href="#"
+                                    data-modal-url="modals/location/location_bulk_assign_tags.php"
+                                    data-bulk="true">
                                     <i class="fas fa-fw fa-tags mr-2"></i>Assign Tags
                                 </a>
                                 <?php if ($archived) { ?>
@@ -393,10 +395,8 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     </tbody>
                 </table>
             </div>
-            <?php require_once "modals/location/location_bulk_assign_tags.php"; ?>
         </form>
-        <?php require_once "../includes/filter_footer.php";
- ?>
+        <?php require_once "../includes/filter_footer.php"; ?>
     </div>
 </div>
 
