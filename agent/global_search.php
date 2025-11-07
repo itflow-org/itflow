@@ -518,10 +518,10 @@ if (isset($_GET['query'])) {
 
                                 ?>
                                 <tr>
-                                    <td><a href="ticket.php?ticket_id=<?php echo $ticket_id ?>"><?php echo $ticket_prefix . $ticket_number; ?></a></td>
-                                    <td><?php echo $ticket_subject; ?></td>
-                                    <td><?php echo $ticket_status_name; ?></td>
-                                    <td><a href="tickets.php?client_id=<?php echo $client_id ?>"><?php echo $client_name; ?></a></td>
+                                    <td><a href="ticket.php?client_id=<?= $client_id ?>&ticket_id=<?= $ticket_id ?>"><?= $ticket_prefix . $ticket_number ?></a></td>
+                                    <td><?= $ticket_subject ?></td>
+                                    <td><?= $ticket_status_name ?></td>
+                                    <td><a href="tickets.php?client_id=<?= $client_id ?>"><?= $client_name ?></a></td>
                                 </tr>
 
                             <?php } ?>
@@ -867,7 +867,7 @@ if (isset($_GET['query'])) {
                                         <?php echo "$client_name - $ticket_prefix$ticket_number - $ticket_subject"; ?>
                                     </h3>
                                     <div class="card-tools">
-                                        <a href="ticket.php?ticket_id=<?php echo $ticket_id; ?>" target="_blank">Open <i class="fa fa-fw fa-external-link-alt"></i></a>
+                                        <a href="ticket.php?client_id=<?= $client_id ?>&ticket_id=<?= $ticket_id ?>" target="_blank">Open <i class="fa fa-fw fa-external-link-alt"></i></a>
                                     </div>
                                 </div>
                                 <div class="card-body prettyContent">
