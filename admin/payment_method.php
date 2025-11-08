@@ -16,7 +16,7 @@ $num_rows = mysqli_num_rows($sql);
     <div class="card-header py-2">
         <h3 class="card-title mt-2"><i class="fas fa-fw fa-credit-card mr-2"></i>Payment Methods</h3>
         <div class="card-tools">
-            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addPaymentMethodModal"><i class="fas fa-plus mr-2"></i>Add Payment Method</button>
+            <button type="button" class="btn btn-primary ajax-modal" data-modal-url="modals/payment_method/payment_method_add.php"><i class="fas fa-plus mr-2"></i>Add Payment Method</button>
         </div>
     </div>
     <div class="card-body">
@@ -98,5 +98,4 @@ $num_rows = mysqli_num_rows($sql);
 </div>
 
 <?php
-require_once "modals/payment_method/payment_method_add.php";
 require_once "../includes/footer.php";

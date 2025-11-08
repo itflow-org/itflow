@@ -76,7 +76,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
             <h3 class="card-title mt-2"><i class="fa fa-fw fa-globe mr-2"></i>Domains</h3>
             <div class="card-tools">
                 <div class="btn-group">
-                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addDomainModal"><i class="fas fa-plus mr-2"></i>New Domain</button>
+                    <button type="button" class="btn btn-primary ajax-modal" data-modal-url="modals/domain/domain_add.php?<?= $client_url ?>"><i class="fas fa-plus mr-2"></i>New Domain</button>
                     <?php if ($num_rows[0] > 0) { ?>
                         <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown"></button>
                         <div class="dropdown-menu">
@@ -307,8 +307,10 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 <td><?php echo $domain_dnshost_name_display; ?></td>
                                 <td><?php echo $domain_mailhost_name_display; ?></td>
                                 <td>
-                                    <div><?php echo $domain_expire; ?></div>
-                                    <div><small><?php echo $domain_expire_ago; ?></small></div>
+                                    <div><?php echo $domain_expire ?: '-'; ?></div>
+                                    <?php if (!empty($domain_expire)) { ?>
+                                        <div><small><?php echo $domain_expire_ago; ?></small></div>
+                                    <?php } ?>
                                 </td>
                                 <?php if (!$client_url) { ?>
                                 <td><a href="domains.php?client_id=<?php echo $client_id; ?>"><?php echo $client_name; ?></a></td>
@@ -361,7 +363,6 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
     </div>
 
 <?php
-require_once "modals/domain/domain_add.php";
 require_once "modals/domain/domain_export.php";
 ?>
 

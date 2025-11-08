@@ -17,6 +17,7 @@ if (isset($_GET['type'])) {
         $type_display = "Credential";
     }
 }
+ob_start();
 
 ?>
 

@@ -168,7 +168,7 @@ $sql_categories_filter = mysqli_query(
             <?php if (lookupUserPermission("module_support") >= 2) { ?>
                 <div class="card-tools">
                     <div class="btn-group">
-                        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addTicketModalv2">
+                        <button type="button" class="btn btn-primary ajax-modal" data-modal-url="modals/ticket/ticket_add_v2.php?<?= $client_url ?>" data-modal-size="lg">
                             <i class="fas fa-plus"></i><span class="d-none d-lg-inline ml-2">New Ticket</span>
                         </button>
                         <?php if ($num_rows[0] > 0) { ?>
@@ -261,31 +261,47 @@ $sql_categories_filter = mysqli_query(
                                         <i class="fas fa-fw fa-layer-group mr-2"></i>Bulk Action (<span id="selectedCount">0</span>)
                                     </button>
                                     <div class="dropdown-menu">
-                                        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#bulkAssignTicketModal">
-                                            <i class="fas fa-fw fa-user-check mr-2"></i>Assign Tech
+                                        <a class="dropdown-item ajax-modal" href="#" 
+                                            data-modal-url="modals/ticket/ticket_bulk_assign.php"
+                                            data-bulk="true">
+                                            <i class="fas fa-fw fa-user-check mr-2"></i>Assign Agent
                                         </a>
                                         <div class="dropdown-divider"></div>
-                                        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#bulkEditCategoryTicketModal">
+                                        <a class="dropdown-item ajax-modal" href="#" 
+                                            data-modal-url="modals/ticket/ticket_bulk_edit_category.php"
+                                            data-bulk="true">
                                             <i class="fas fa-fw fa-layer-group mr-2"></i>Set Category
                                         </a>
                                         <div class="dropdown-divider"></div>
-                                        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#bulkEditPriorityTicketModal">
-                                            <i class="fas fa-fw fa-thermometer-half mr-2"></i>Update Priority
+                                        <a class="dropdown-item ajax-modal" href="#" 
+                                            data-modal-url="modals/ticket/ticket_bulk_edit_priority.php"
+                                            data-bulk="true">
+                                            <i class="fas fa-fw fa-thermometer-half mr-2"></i>Set Priority
                                         </a>
                                         <div class="dropdown-divider"></div>
-                                        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#bulkReplyTicketModal">
-                                            <i class="fas fa-fw fa-paper-plane mr-2"></i>Bulk Update/Reply
+                                        <a class="dropdown-item ajax-modal" href="#" 
+                                            data-modal-url="modals/ticket/ticket_bulk_reply.php"
+                                            data-modal-size="lg"
+                                            data-bulk="true">
+                                            <i class="fas fa-fw fa-paper-plane mr-2"></i>Update/Reply
                                         </a>
                                         <div class="dropdown-divider"></div>
-                                        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#bulkAssignTicketToProjectModal">
-                                            <i class="fas fa-fw fa-project-diagram mr-2"></i>Add to Project
+                                        <a class="dropdown-item ajax-modal" href="#" 
+                                            data-modal-url="modals/ticket/ticket_bulk_add_project.php"
+                                            data-bulk="true">
+                                            <i class="fas fa-fw fa-project-diagram mr-2"></i>Set Project
                                         </a>
                                         <div class="dropdown-divider"></div>
-                                        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#bulkMergeTicketModal">
+                                        <a class="dropdown-item ajax-modal" href="#" 
+                                            data-modal-url="modals/ticket/ticket_bulk_merge.php"
+                                            data-bulk="true">
                                             <i class="fas fa-fw fa-clone mr-2"></i>Merge
                                         </a>
                                         <div class="dropdown-divider"></div>
-                                        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#bulkCloseTicketsModal">
+                                        <a class="dropdown-item ajax-modal" href="#" 
+                                            data-modal-url="modals/ticket/ticket_bulk_resolve.php"
+                                            data-modal-size="lg"
+                                            data-bulk="true">
                                             <i class="fas fa-fw fa-check mr-2"></i>Resolve
                                         </a>
                                         <?php if (lookupUserPermission("module_support") === 3) { ?>
@@ -306,9 +322,7 @@ $sql_categories_filter = mysqli_query(
                 <div
                     class="collapse mt-3
                         <?php
-                        if (
-                            !empty($_GET['dtf'])
-                            || (isset($_GET['canned_date']) && $_GET['canned_date'] !== "custom")
+                        if (isset($_GET['dtf']) && $_GET['dtf'] !== '1970-01-01'
                             || (isset($_GET['status']) && is_array($_GET['status'])
                             || (isset($_GET['assigned']) && $_GET['assigned']
                         )))
@@ -317,59 +331,13 @@ $sql_categories_filter = mysqli_query(
                     id="advancedFilter"
                 >
                     <div class="row">
-                        <div class="col-md-2">
+                        <div class="col-md-3">
                             <div class="form-group">
-                                <label>Canned Date</label>
-                                <select onchange="this.form.submit()" class="form-control select2" name="canned_date">
-                                    <option <?php if ($_GET['canned_date'] == "custom") {
-                                        echo "selected";
-                                    } ?> value="custom">Custom
-                                    </option>
-                                    <option <?php if ($_GET['canned_date'] == "today") {
-                                        echo "selected";
-                                    } ?> value="today">Today
-                                    </option>
-                                    <option <?php if ($_GET['canned_date'] == "yesterday") {
-                                        echo "selected";
-                                    } ?> value="yesterday">Yesterday
-                                    </option>
-                                    <option <?php if ($_GET['canned_date'] == "thisweek") {
-                                        echo "selected";
-                                    } ?> value="thisweek">This Week
-                                    </option>
-                                    <option <?php if ($_GET['canned_date'] == "lastweek") {
-                                        echo "selected";
-                                    } ?> value="lastweek">Last Week
-                                    </option>
-                                    <option <?php if ($_GET['canned_date'] == "thismonth") {
-                                        echo "selected";
-                                    } ?> value="thismonth">This Month
-                                    </option>
-                                    <option <?php if ($_GET['canned_date'] == "lastmonth") {
-                                        echo "selected";
-                                    } ?> value="lastmonth">Last Month
-                                    </option>
-                                    <option <?php if ($_GET['canned_date'] == "thisyear") {
-                                        echo "selected";
-                                    } ?> value="thisyear">This Year
-                                    </option>
-                                    <option <?php if ($_GET['canned_date'] == "lastyear") {
-                                        echo "selected";
-                                    } ?> value="lastyear">Last Year
-                                    </option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="col-md-2">
-                            <div class="form-group">
-                                <label>Date From</label>
-                                <input onchange="this.form.submit()" type="date" class="form-control" name="dtf" max="2999-12-31" value="<?php echo nullable_htmlentities($dtf); ?>">
-                            </div>
-                        </div>
-                        <div class="col-md-2">
-                            <div class="form-group">
-                                <label>Date To</label>
-                                <input onchange="this.form.submit()" type="date" class="form-control" name="dtt" max="2999-12-31" value="<?php echo nullable_htmlentities($dtt); ?>">
+                                <label>Date range</label>
+                                <input type="text" id="dateFilter" class="form-control" autocomplete="off">
+                                <input type="hidden" name="canned_date" id="canned_date" value="<?php echo nullable_htmlentities($_GET['canned_date']) ?? ''; ?>">
+                                <input type="hidden" name="dtf" id="dtf" value="<?php echo nullable_htmlentities($dtf ?? ''); ?>">
+                                <input type="hidden" name="dtt" id="dtt" value="<?php echo nullable_htmlentities($dtt ?? ''); ?>">
                             </div>
                         </div>
                         <div class="col-md-3">
@@ -439,6 +407,5 @@ if (isset($_GET["view"])) {
 <script src="../js/bulk_actions.js"></script>
 
 <?php
-require_once "modals/ticket/ticket_add_v2.php";
 require_once "modals/ticket/ticket_export.php";
 require_once "../includes/footer.php";

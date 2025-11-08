@@ -120,7 +120,7 @@ if (isset($_GET['archive_certificate'])) {
 
     mysqli_query($mysqli,"UPDATE certificates SET certificate_archived_at = NOW() WHERE certificate_id = $certificate_id");
 
-    logAction("Certificate", "Archive", "$session_name arhvived certificate $certificate_name", $client_id, $certificate_id);
+    logAction("Certificate", "Archive", "$session_name archived certificate $certificate_name", $client_id, $certificate_id);
 
     flash_alert("Certificate <strong>$certificate_name</strong> archived", 'alert');
 

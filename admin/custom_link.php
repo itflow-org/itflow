@@ -21,7 +21,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
         <div class="card-header py-2">
             <h3 class="card-title mt-2"><i class="fas fa-fw fa-external-link-alt mr-2"></i>Custom Links</h3>
             <div class="card-tools">
-                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addLinkModal"><i class="fas fa-plus mr-2"></i>New Link</button>
+                <button type="button" class="btn btn-primary ajax-modal" data-modal-url="modals/custom_link/custom_link_add.php"><i class="fas fa-plus mr-2"></i>New Link</button>
             </div>
         </div>
 
@@ -145,5 +145,4 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
     </div>
 
 <?php
-require_once "modals/custom_link/custom_link_add.php";
 require_once "../includes/footer.php";

@@ -41,7 +41,7 @@ if (isset($_GET['project_id'])) {
     if (mysqli_num_rows($sql_project) == 0) {
         echo "<center><h1 class='text-secondary mt-5'>Nothing to see here</h1><a class='btn btn-lg btn-secondary mt-3' href='projects.php'><i class='fa fa-fw fa-arrow-left'></i> Go Back</a></center>";
 
-        include_once "footer.php";
+        include_once "../includes/footer.php";
         exit;
     }
 
@@ -184,9 +184,9 @@ if (isset($_GET['project_id'])) {
                             <i class="fas fa-fw fa-plus mr-2"></i>New
                         </button>
                         <div class="dropdown-menu">
-                            <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addTicketModal">
-                                <i class="fas fa-fw fa-life-ring mr-2"></i>Ticket
-                            </a>
+                            <a class="dropdown-item text-dark ajax-modal" href="#" data-modal-url="modals/ticket/ticket_add.php?<?= $client_url ?>&project_id=<?= $project_id ?>" data-modal-size="lg">
+                            <i class="fa fa-fw fa-life-ring mr-2"></i>Ticket
+                        </a>
                         </div>
                     </div>
                     <div class="dropdown">
@@ -194,11 +194,11 @@ if (isset($_GET['project_id'])) {
                             <i class="fas fa-fw fa-link mr-2"></i>Link
                         </button>
                         <div class="dropdown-menu">
-                            <a class="dropdown-item" href="#" data-toggle="modal" data-target="#linkTicketModal">
+                            <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/project/project_link_ticket.php?<?= $client_url ?>project_id=<?= $project_id ?>">
                                 <i class="fas fa-fw fa-life-ring mr-2"></i>Open Ticket
                             </a>
                             <div class="dropdown-divider"></div>
-                            <a class="dropdown-item" href="#" data-toggle="modal" data-target="#linkClosedTicketModal">
+                            <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/project/project_link_closed_ticket.php?<?= $client_url ?>project_id=<?= $project_id ?>.php">
                                 <i class="fas fa-fw fa-life-ring mr-2"></i>Closed Ticket
                             </a>
                         </div>
@@ -294,29 +294,43 @@ if (isset($_GET['project_id'])) {
                                     <i class="fas fa-fw fa-layer-group mr-2"></i>Bulk Action (<span id="selectedCount">0</span>)
                                 </button>
                                 <div class="dropdown-menu">
-                                    <a class="dropdown-item" href="#" data-toggle="modal" data-target="#bulkAssignTicketModal">
-                                        <i class="fas fa-fw fa-user-check mr-2"></i>Assign Tech
-                                    </a>
-                                    <div class="dropdown-divider"></div>
-                                    <a class="dropdown-item" href="#" data-toggle="modal" data-target="#bulkEditCategoryTicketModal">
-                                        <i class="fas fa-fw fa-layer-group mr-2"></i>Set Category
-                                    </a>
-                                    <div class="dropdown-divider"></div>
-                                    <a class="dropdown-item" href="#" data-toggle="modal" data-target="#bulkEditPriorityTicketModal">
-                                        <i class="fas fa-fw fa-thermometer-half mr-2"></i>Update Priority
-                                    </a>
-                                    <div class="dropdown-divider"></div>
-                                    <a class="dropdown-item" href="#" data-toggle="modal" data-target="#bulkReplyTicketModal">
-                                        <i class="fas fa-fw fa-paper-plane mr-2"></i>Bulk Update/Reply
-                                    </a>
-                                    <div class="dropdown-divider"></div>
-                                    <a class="dropdown-item" href="#" data-toggle="modal" data-target="#bulkMergeTicketModal">
-                                        <i class="fas fa-fw fa-clone mr-2"></i>Merge
-                                    </a>
-                                    <div class="dropdown-divider"></div>
-                                    <a class="dropdown-item" href="#" data-toggle="modal" data-target="#bulkCloseTicketsModal">
-                                        <i class="fas fa-fw fa-check mr-2"></i>Resolve
-                                    </a>
+                                    <a class="dropdown-item ajax-modal" href="#" 
+                                            data-modal-url="modals/ticket/ticket_bulk_assign.php"
+                                            data-bulk="true">
+                                            <i class="fas fa-fw fa-user-check mr-2"></i>Assign Agent
+                                        </a>
+                                        <div class="dropdown-divider"></div>
+                                        <a class="dropdown-item ajax-modal" href="#" 
+                                            data-modal-url="modals/ticket/ticket_bulk_edit_category.php"
+                                            data-bulk="true">
+                                            <i class="fas fa-fw fa-layer-group mr-2"></i>Set Category
+                                        </a>
+                                        <div class="dropdown-divider"></div>
+                                        <a class="dropdown-item ajax-modal" href="#" 
+                                            data-modal-url="modals/ticket/ticket_bulk_edit_priority.php"
+                                            data-bulk="true">
+                                            <i class="fas fa-fw fa-thermometer-half mr-2"></i>Set Priority
+                                        </a>
+                                        <div class="dropdown-divider"></div>
+                                        <a class="dropdown-item ajax-modal" href="#" 
+                                            data-modal-url="modals/ticket/ticket_bulk_reply.php"
+                                            data-modal-size="lg"
+                                            data-bulk="true">
+                                            <i class="fas fa-fw fa-paper-plane mr-2"></i>Update/Reply
+                                        </a>
+                                        <div class="dropdown-divider"></div>
+                                        <a class="dropdown-item ajax-modal" href="#" 
+                                            data-modal-url="modals/ticket/ticket_bulk_merge.php"
+                                            data-bulk="true">
+                                            <i class="fas fa-fw fa-clone mr-2"></i>Merge
+                                        </a>
+                                        <div class="dropdown-divider"></div>
+                                        <a class="dropdown-item ajax-modal" href="#" 
+                                            data-modal-url="modals/ticket/ticket_bulk_resolve.php"
+                                            data-modal-size="lg"
+                                            data-bulk="true">
+                                            <i class="fas fa-fw fa-check mr-2"></i>Resolve
+                                        </a>
                                 </div>
                             </div>
                         <?php } ?>
@@ -486,12 +500,6 @@ if (isset($_GET['project_id'])) {
                                 </tbody>
                             </table>
                         </div>
-                        <?php require_once "modals/ticket/ticket_bulk_assign.php"; ?>
-                        <?php require_once "modals/ticket/ticket_bulk_edit_category.php"; ?>
-                        <?php require_once "modals/ticket/ticket_bulk_edit_priority.php"; ?>
-                        <?php require_once "modals/ticket/ticket_bulk_reply.php"; ?>
-                        <?php require_once "modals/ticket/ticket_bulk_merge.php"; ?>
-                        <?php require_once "modals/ticket/ticket_bulk_resolve.php"; ?>
                     </form>
                 </div>
             </div>
@@ -538,10 +546,6 @@ if (isset($_GET['project_id'])) {
 </div> <!-- End row -->
 
 <?php
-
-require_once "modals/project/project_link_ticket.php";
-require_once "modals/project/project_link_closed_ticket.php";
-require_once "modals/ticket/ticket_add.php";
 
 }
 

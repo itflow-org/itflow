@@ -46,8 +46,6 @@ $systemInfo[] = [
 // Section: PHP Extensions
 $phpExtensions = [];
 $extensions = [
-    'php-mailparse' => 'mailparse',
-    'php-imap' => 'imap',
     'php-mysqli' => 'mysqli',
     'php-intl' => 'intl',
     'php-curl' => 'curl',

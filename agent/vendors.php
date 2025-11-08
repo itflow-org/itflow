@@ -38,7 +38,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
         </h3>
         <div class="card-tools">
             <div class="btn-group">
-                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addVendorModal">
+                <button type="button" class="btn btn-primary ajax-modal" data-modal-url="modals/vendor/vendor_add.php?<?= $client_url ?>">
                     <i class="fas fa-plus mr-2"></i>New Vendor
                 </button>
                 <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown"></button>
@@ -283,7 +283,6 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 <script src="../js/bulk_actions.js"></script>
 
 <?php
-require_once "modals/vendor/vendor_add.php";
 require_once "modals/vendor/vendor_add_from_template.php";
 require_once "modals/vendor/vendor_export.php";
 require_once "../includes/footer.php";

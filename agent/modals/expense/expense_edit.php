@@ -38,6 +38,7 @@ ob_start();
 
 <form action="post.php" method="post" enctype="multipart/form-data" autocomplete="off">
     <div class="modal-body">
+        <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token'] ?>">
         <input type="hidden" name="expense_id" value="<?php echo $expense_id; ?>">
 
         <div class="form-row">
@@ -237,8 +238,4 @@ ob_start();
 </form>
 
 <?php
-
 require_once '../../../includes/modal_footer.php';
-
-?>
-

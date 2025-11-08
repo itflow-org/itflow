@@ -33,7 +33,7 @@ if (isset($_GET['calendar_id'])) {
             <div class="card-header py-2">
                 <h3 class="card-title mt-1">Calendars</h3>
                 <div class="card-tools">
-                    <button type="button" class="btn btn-dark btn-sm" data-toggle="modal" data-target="#addCalendarModal"><i class="fas fa-plus"></i></button>
+                    <button type="button" class="btn btn-dark btn-sm ajax-modal" data-modal-url="modals/calendar/calendar_add.php"><i class="fas fa-plus"></i></button>
                 </div>
             </div>
             <div class="card-body">
@@ -82,8 +82,6 @@ if (isset($_GET['calendar_id'])) {
 <?php
 
 require_once "modals/calendar/calendar_event_add.php";
-require_once "modals/calendar/calendar_add.php";
-
 
 //loop through IDs and create a modal for each
 $sql = mysqli_query($mysqli, "SELECT * FROM calendar_events LEFT JOIN calendars ON event_calendar_id = calendar_id $client_event_query");

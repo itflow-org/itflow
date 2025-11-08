@@ -86,7 +86,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
         <div class="card-tools">
             <?php if (lookupUserPermission("module_client") >= 2) { ?>
                 <div class="btn-group">
-                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addClientModal">
+                    <button type="button" class="btn btn-primary ajax-modal" data-modal-url="modals/client/client_add.php<?php if ($leads_filter) { echo "?lead=1"; } ?>">
                         <i class="fas fa-plus mr-2"></i>New
                         <?php if ($leads_filter == 0) { echo "Client"; } else { echo "Lead"; } ?>
                     </button>
@@ -137,23 +137,41 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                     <i class="fas fa-fw fa-layer-group"></i><span class="d-none d-sm-inline ml-2">Action</span> (<span id="selectedCount">0</span>)
                                 </button>
                                 <div class="dropdown-menu">
-                                    <a class="dropdown-item" href="#" data-toggle="modal" data-target="#bulkEditHourlyRateModal">
+                                   <a class="dropdown-item ajax-modal" href="#" 
+                                        data-modal-url="modals/client/client_bulk_add_ticket.php"
+                                        data-modal-size="lg"
+                                        data-bulk="true">
+                                        <i class="fas fa-fw fa-life-ring mr-2"></i>Open Tickets
+                                    </a>
+                                    <div class="dropdown-divider"></div>
+                                    <a class="dropdown-item ajax-modal" href="#" 
+                                        data-modal-url="modals/client/client_bulk_edit_hourly_rate.php"
+                                        data-bulk="true">
                                         <i class="fas fa-fw fa-clock mr-2"></i>Set Hourly Rate
                                     </a>
                                     <div class="dropdown-divider"></div>
-                                    <a class="dropdown-item" href="#" data-toggle="modal" data-target="#bulkEditIndustryModal">
+                                    <a class="dropdown-item ajax-modal" href="#" 
+                                        data-modal-url="modals/client/client_bulk_edit_industry.php"
+                                        data-bulk="true">
                                         <i class="fas fa-fw fa-briefcase mr-2"></i>Set Industry
                                     </a>
                                     <div class="dropdown-divider"></div>
-                                    <a class="dropdown-item" href="#" data-toggle="modal" data-target="#bulkEditReferralModal">
+                                    <a class="dropdown-item ajax-modal" href="#" 
+                                        data-modal-url="modals/client/client_bulk_edit_referral.php"
+                                        data-bulk="true">
                                         <i class="fas fa-fw fa-link mr-2"></i>Set Referral
                                     </a>
                                     <div class="dropdown-divider"></div>
-                                    <a class="dropdown-item" href="#" data-toggle="modal" data-target="#bulkAssignTagsModal">
+                                    <a class="dropdown-item ajax-modal" href="#" 
+                                        data-modal-url="modals/client/client_bulk_assign_tags.php"
+                                        data-bulk="true">
                                         <i class="fas fa-fw fa-tags mr-2"></i>Assign Tags
                                     </a>
                                     <div class="dropdown-divider"></div>
-                                    <a class="dropdown-item" href="#" data-toggle="modal" data-target="#bulkSendEmailModal">
+                                    <a class="dropdown-item ajax-modal" href="#" 
+                                        data-modal-url="modals/client/client_bulk_email.php"
+                                        data-modal-size="lg"
+                                        data-bulk="true">
                                         <i class="fas fa-fw fa-paper-plane mr-2"></i>Send Email
                                     </a>
                                     <?php if ($archived) { ?>
@@ -178,49 +196,27 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
             <div 
                 class="collapse 
                     <?php 
-                    if (
-                    isset($_GET['dtf'])
-                    || $industry_filter
-                    || $referral_filter
-                    || (isset($_GET['tags']) && is_array($_GET['tags']))
-                    || $_GET['canned_date'] !== "custom" ) 
-                    { 
-                        echo "show"; 
-                    } 
+                    if (isset($_GET['dtf']) && $_GET['dtf'] !== '1970-01-01'
+                        || $industry_filter
+                        || $referral_filter
+                        || (isset($_GET['tags']) && is_array($_GET['tags']))
+                    )
+                    { echo "show"; } 
                     ?>
                 "
                 id="advancedFilter"
             >
                 <div class="row">
-                    <div class="col-md-2">
+                    <div class="col-md-3">
                         <div class="form-group">
-                            <label>Canned date</label>
-                            <select onchange="this.form.submit()" class="form-control select2" name="canned_date">
-                                <option <?php if ($_GET['canned_date'] == "custom") { echo "selected"; } ?> value="custom">Custom</option>
-                                <option <?php if ($_GET['canned_date'] == "today") { echo "selected"; } ?> value="today">Today</option>
-                                <option <?php if ($_GET['canned_date'] == "yesterday") { echo "selected"; } ?> value="yesterday">Yesterday</option>
-                                <option <?php if ($_GET['canned_date'] == "thisweek") { echo "selected"; } ?> value="thisweek">This Week</option>
-                                <option <?php if ($_GET['canned_date'] == "lastweek") { echo "selected"; } ?> value="lastweek">Last Week</option>
-                                <option <?php if ($_GET['canned_date'] == "thismonth") { echo "selected"; } ?> value="thismonth">This Month</option>
-                                <option <?php if ($_GET['canned_date'] == "lastmonth") { echo "selected"; } ?> value="lastmonth">Last Month</option>
-                                <option <?php if ($_GET['canned_date'] == "thisyear") { echo "selected"; } ?> value="thisyear">This Year</option>
-                                <option <?php if ($_GET['canned_date'] == "lastyear") { echo "selected"; } ?> value="lastyear">Last Year</option>
-                            </select>
+                            <label>Date range</label>
+                            <input type="text" id="dateFilter" class="form-control" autocomplete="off">
+                            <input type="hidden" name="canned_date" id="canned_date" value="<?php echo nullable_htmlentities($_GET['canned_date']) ?? ''; ?>">
+                            <input type="hidden" name="dtf" id="dtf" value="<?php echo nullable_htmlentities($dtf ?? ''); ?>">
+                            <input type="hidden" name="dtt" id="dtt" value="<?php echo nullable_htmlentities($dtt ?? ''); ?>">
                         </div>
                     </div>
-                    <div class="col-md-2">
-                        <div class="form-group">
-                            <label>Date from</label>
-                            <input onchange="this.form.submit()" type="date" class="form-control" name="dtf" max="2999-12-31" value="<?php echo nullable_htmlentities($dtf); ?>">
-                        </div>
-                    </div>
-                    <div class="col-md-2">
-                        <div class="form-group">
-                            <label>Date to</label>
-                            <input onchange="this.form.submit()" type="date" class="form-control" name="dtt" max="2999-12-31" value="<?php echo nullable_htmlentities($dtt); ?>">
-                        </div>
-                    </div>
-                    <div class="col-md-2">
+                    <div class="col-md-3">
                         <div class="form-group">
                             <label>Tag</label>
                             <select onchange="this.form.submit()" class="form-control select2" name="tags[]" data-placeholder="- Select Tags -" multiple>
@@ -286,7 +282,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
         </form>
     </div>
     
-    <form id="bulkActions" action="post.php" method="post" enctype="multipart/form-data">
+    <form id="bulkActions" action="post.php" method="post">
         <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token'] ?>">
         <div class="table-responsive-sm">
             <table class="table table-hover mb-0 text-nowrap">
@@ -618,13 +614,6 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                 </tbody>
             </table>
         </div>
-        <?php 
-            require_once "modals/client/client_bulk_edit_industry.php";
-            require_once "modals/client/client_bulk_edit_referral.php";
-            require_once "modals/client/client_bulk_edit_hourly_rate.php";
-            require_once "modals/client/client_bulk_assign_tags.php"; 
-            require_once "modals/client/client_bulk_email.php";
-        ?>
     </form>
      <!-- Ends Card Body -->
     <?php require_once "../includes/filter_footer.php"; ?>
@@ -634,7 +623,6 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 <script src="../js/bulk_actions.js"></script>
 
 <?php
-require_once "modals/client/client_add.php";
 require_once "modals/client/client_import.php";
 require_once "modals/client/client_export.php";
 require_once "../includes/footer.php";

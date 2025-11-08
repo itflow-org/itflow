@@ -106,7 +106,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
         <div class="card-tools">
             <?php if (lookupUserPermission("module_credential") >= 2) { ?>
                 <div class="btn-group">
-                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addCredentialModal" <?php if (!isset($_COOKIE['user_encryption_session_key'])) { echo "disabled"; } ?>>
+                <button type="button" class="btn btn-primary ajax-modal" data-modal-url="modals/credential/credential_add.php?<?= $client_url ?>" <?php if (!isset($_COOKIE['user_encryption_session_key'])) { echo "disabled"; } ?>>
                     <i class="fas fa-plus mr-2"></i>New Credential
                 </button>
                 <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown"></button>
@@ -241,7 +241,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                     <i class="fas fa-fw fa-trash mr-2"></i>Delete
                                 </button>
                                 <?php } else { ?>
-                                <a class="dropdown-item" href="#" data-toggle="modal" data-target="#bulkAssignTagsModal">
+                                <a class="dropdown-item ajax-modal" href="#"
+                                    data-modal-url="modals/credential/credential_bulk_assign_tags.php"
+                                    data-bulk="true">
                                     <i class="fas fa-fw fa-tags mr-2"></i>Assign Tags
                                 </a>
                                     <div class="dropdown-divider"></div>
@@ -519,10 +521,8 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     </tbody>
                 </table>
             </div>
-            <?php require_once "modals/credential/credential_bulk_assign_tags.php"; ?>
         </form>
-        <?php require_once "../includes/filter_footer.php";
-        ?>
+        <?php require_once "../includes/filter_footer.php"; ?>
     </div>
 </div>
 
@@ -534,7 +534,6 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
 <?php
 
-require_once "modals/credential/credential_add.php";
 require_once "modals/credential/credential_export.php";
 if ($client_url) {
     require_once "modals/credential/credential_import.php";

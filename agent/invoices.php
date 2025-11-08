@@ -97,6 +97,7 @@ $sql = mysqli_query(
     "SELECT SQL_CALC_FOUND_ROWS * FROM invoices
     LEFT JOIN clients ON invoice_client_id = client_id
     LEFT JOIN categories ON invoice_category_id = category_id
+    LEFT JOIN recurring_invoices ON invoice_recurring_invoice_id = recurring_invoice_id
     WHERE ($status_query)
     $overdue_query
     $category_query
@@ -161,7 +162,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
         <h3 class="card-title mt-2"><i class="fa fa-fw fa-file-invoice mr-2"></i>Invoices</h3>
         <div class="card-tools">
             <div class="btn-group">
-                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addInvoiceModal"><i class="fas fa-plus mr-2"></i>New Invoice</button>
+                <button type="button" class="btn btn-primary ajax-modal" data-modal-url="modals/invoice/invoice_add.php?<?= $client_url ?>"><i class="fas fa-plus mr-2"></i>New Invoice</button>
                 <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown"></button>
                 <div class="dropdown-menu">
                     <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#exportInvoicesModal">
@@ -217,12 +218,15 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             </button>
                             <div class="dropdown-menu">
                                 <?php if ($client_url && $balance > 0) { ?> 
-                                    <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addBulkPaymentModal">
+                                    <a class="dropdown-item ajax-modal" href="#"
+                                        data-modal-url="modals/payment/payment_bulk_add.php?<?= $client_url ?>">
                                         <i class="fa fa-credit-card mr-2"></i>Batch Payment
                                     </a>
                                     <div class="dropdown-divider"></div>
                                 <?php } ?>
-                                <a class="dropdown-item" href="#" data-toggle="modal" data-target="#bulkEditCategoryModal">
+                                <a class="dropdown-item ajax-modal" href="#"
+                                    data-modal-url="modals/invoice/invoice_bulk_edit_category.php"
+                                    data-bulk="true">
                                     <i class="fas fa-fw fa-list-ul mr-2"></i>Set Category
                                 </a>
                             </div>
@@ -230,41 +234,22 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     </div>
                 </div>
             </div>
-            <div class="collapse mt-3 <?php if (!empty($_GET['dtf']) || $_GET['canned_date'] !== "custom" ) { echo "show"; } ?>" id="advancedFilter">
+            <div class="collapse mt-3 <?php if (isset($_GET['dtf']) && $_GET['dtf'] !== '1970-01-01') { echo "show"; } ?>" id="advancedFilter">
                 <div class="row">
-                    <div class="col-md-2">
+                    <div class="col-md-3">
                         <div class="form-group">
-                            <label>Canned Date</label>
-                            <select onchange="this.form.submit()" class="form-control select2" name="canned_date">
-                                <option <?php if ($_GET['canned_date'] == "custom") { echo "selected"; } ?> value="custom">Custom</option>
-                                <option <?php if ($_GET['canned_date'] == "today") { echo "selected"; } ?> value="today">Today</option>
-                                <option <?php if ($_GET['canned_date'] == "yesterday") { echo "selected"; } ?> value="yesterday">Yesterday</option>
-                                <option <?php if ($_GET['canned_date'] == "thisweek") { echo "selected"; } ?> value="thisweek">This Week</option>
-                                <option <?php if ($_GET['canned_date'] == "lastweek") { echo "selected"; } ?> value="lastweek">Last Week</option>
-                                <option <?php if ($_GET['canned_date'] == "thismonth") { echo "selected"; } ?> value="thismonth">This Month</option>
-                                <option <?php if ($_GET['canned_date'] == "lastmonth") { echo "selected"; } ?> value="lastmonth">Last Month</option>
-                                <option <?php if ($_GET['canned_date'] == "thisyear") { echo "selected"; } ?> value="thisyear">This Year</option>
-                                <option <?php if ($_GET['canned_date'] == "lastyear") { echo "selected"; } ?> value="lastyear">Last Year</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="col-md-2">
-                        <div class="form-group">
-                            <label>Date From</label>
-                            <input onchange="this.form.submit()" type="date" class="form-control" name="dtf" max="2999-12-31" value="<?php echo $dtf; ?>">
-                        </div>
-                    </div>
-                    <div class="col-md-2">
-                        <div class="form-group">
-                            <label>Date To</label>
-                            <input onchange="this.form.submit()" type="date" class="form-control" name="dtt" max="2999-12-31" value="<?php echo $dtt; ?>">
+                            <label>Date range</label>
+                            <input type="text" id="dateFilter" class="form-control" autocomplete="off">
+                            <input type="hidden" name="canned_date" id="canned_date" value="<?php echo nullable_htmlentities($_GET['canned_date']) ?? ''; ?>">
+                            <input type="hidden" name="dtf" id="dtf" value="<?php echo nullable_htmlentities($dtf ?? ''); ?>">
+                            <input type="hidden" name="dtt" id="dtt" value="<?php echo nullable_htmlentities($dtt ?? ''); ?>">
                         </div>
                     </div>
                 </div>
             </div>
         </form>
         <hr>
-        <form id="bulkActions" action="post.php" method="post" enctype="multipart/form-data">
+        <form id="bulkActions" action="post.php" method="post">
             <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token'] ?>">
             <div class="table-responsive-sm">
                 <table class="table table-striped table-borderless table-hover">
@@ -317,6 +302,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                     Status <?php if ($sort == 'invoice_status') { echo $order_icon; } ?>
                                 </a>
                             </th>
+                            <th>Recurring</th>
                             <th class="text-center">Action</th>
                         </tr>
                     </thead>
@@ -349,6 +335,16 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         if ($client_net_terms == 0) {
                             $client_net_terms = $config_default_net_terms;
                         }
+                        $recurring_invoice_id = intval($row['recurring_invoice_id']);
+                        $recurring_invoice_prefix = nullable_htmlentities($row['recurring_invoice_prefix']);
+                        $recurring_invoice_number = nullable_htmlentities($row['recurring_invoice_number']);
+                        if($recurring_invoice_id) {
+                            $recurring_invoice_display = "<i class='fas fa-fw fa-redo-alt text-secondary mr-1'></i><a href='recurring_invoice.php?recurring_invoice_id=$recurring_invoice_id'>$recurring_invoice_prefix$recurring_invoice_number</a>";
+                        } else {
+                            $recurring_invoice_display = "-";
+                        }
+
+                        
 
                         $now = time();
 
@@ -369,7 +365,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 </div>
                             </td>
                             <td class="text-bold">
-                                <a href="invoice.php?<?php echo $client_url; ?>invoice_id=<?php echo $invoice_id; ?>">
+                                <a href="invoice.php?client_id=<?= $client_id ?>&invoice_id=<?= $invoice_id ?>">
                                 <?php echo "$invoice_prefix$invoice_number"; ?>
                                 </a>
                             </td>
@@ -386,6 +382,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                   <?php echo $invoice_status; ?>
                               </span>
                             </td>
+                            <td><?= $recurring_invoice_display ?></td>
                             <td>
                                 <div class="dropdown dropleft text-center">
                                     <button class="btn btn-secondary btn-sm" type="button" data-toggle="dropdown">
@@ -394,7 +391,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                     <div class="dropdown-menu">
                                         <?php if ($invoice_status !== 'Paid' && $invoice_status !== 'Cancelled' && $invoice_status !== 'Draft' && $invoice_status !== 'Non-Billable' && $invoice_amount != 0) { ?>
                                             <a class="dropdown-item ajax-modal" href="#"
-                                                data-modal-url="modals/invoice/invoice_pay.php?id=<?= $invoice_id ?>">
+                                                data-modal-url="modals/payment/payment_add.php?id=<?= $invoice_id ?>">
                                                 <i class="fa fa-fw fa-credit-card mr-2"></i>Add Payment
                                             </a>
                                             <div class="dropdown-divider"></div>
@@ -443,17 +440,13 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     </tbody>
                 </table>
             </div>
-            <?php require_once "modals/invoice/invoice_bulk_edit_category.php"; ?>
         </form>
-        <?php require_once "../includes/filter_footer.php";
-?>
+        <?php require_once "../includes/filter_footer.php"; ?>
     </div>
 </div>
 
 <script src="../js/bulk_actions.js"></script>
 
 <?php
-require_once "modals/invoice/invoice_add.php";
-if ($client_url) { require_once "modals/invoice/invoice_payment_add_bulk.php"; }
 require_once "modals/invoice/invoice_export.php";
 require_once "../includes/footer.php";

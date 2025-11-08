@@ -12,7 +12,7 @@
 				<input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
 				<?php } ?>
 				<div class="modal-body">
-					<p><strong>Format csv file with headings & data:</strong><br>Name, Description, Username, Password, URL</p>
+					<p><strong>Format csv file with headings & data:</strong><br>Name, Description, Username, Password, TOTP, URI</p>
 					<hr>
 					<div class="form-group my-4">
 						<input type="file" class="form-control-file" name="file" accept=".csv" required>

@@ -19,6 +19,11 @@ if (!empty($name) && !empty($email) && !empty($client_id)) {
 
     if (mysqli_num_rows($email_duplication_sql) == 0) {
 
+        // Remove other primary contact in clients if primary contact is selected
+        if ($primary == 1) {
+            mysqli_query($mysqli,"UPDATE contacts SET contact_primary = 0 WHERE contact_client_id = $client_id");
+        }
+
         // Insert contact
         $insert_sql = mysqli_query($mysqli, "INSERT INTO contacts SET contact_name = '$name', contact_title = '$title', contact_department = '$department', contact_email = '$email', contact_phone = '$phone', contact_extension = '$extension', contact_mobile = '$mobile', contact_notes = '$notes', contact_primary = '$primary', contact_important = '$important', contact_billing = '$billing', contact_technical = '$technical', contact_location_id = $location_id, contact_client_id = $client_id");
 

@@ -223,12 +223,12 @@ ob_start();
                                 <div class="input-group-prepend">
                                     <span class="input-group-text"><i class="fa fa-fw fa-lock"></i></span>
                                 </div>
-                                <input type="password" class="form-control" data-toggle="password" id="password-edit-<?php echo $contact_id; ?>" name="contact_password" placeholder="Password" autocomplete="new-password">
+                                <input type="password" class="form-control" data-toggle="password" id="password" name="contact_password" placeholder="Password" autocomplete="new-password">
                                 <div class="input-group-append">
                                     <span class="input-group-text"><i class="fa fa-fw fa-eye"></i></span>
                                 </div>
                                 <div class="input-group-append">
-                                    <button type="button" class="btn btn-default" onclick="generatePassword('edit', <?php echo $contact_id; ?>)">
+                                    <button type="button" class="btn btn-default" onclick="generatePassword()">
                                         <i class="fa fa-fw fa-question"></i>
                                     </button>
                                 </div>
@@ -346,22 +346,14 @@ ob_start();
 <!-- JavaScript to Show/Hide Password Form Group -->
 <script>
 
-function generatePassword(type, id) {
-    // Send a GET request to ajax.php as ajax.php?get_readable_pass=true
+function generatePassword() {
     jQuery.get(
         "ajax.php", {
             get_readable_pass: 'true'
         },
         function(data) {
-            //If we get a response from post.php, parse it as JSON
             const password = JSON.parse(data);
-
-            // Set the password value to the correct modal, based on the type
-            if (type == "add") {
-                document.getElementById("password-add").value = password;
-            } else if (type == "edit") {
-                document.getElementById("password-edit-"+id.toString()).value = password;
-            }
+            document.getElementById("password").value = password;
         }
     );
 }

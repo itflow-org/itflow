@@ -91,6 +91,7 @@ interface CustomElementSpec {
     attributes?: string[];
     children?: string[];
     padEmpty?: boolean;
+    componentUrl?: string;
 }
 interface Schema {
     type: SchemaType;
@@ -111,6 +112,7 @@ interface Schema {
     getWhitespaceElements: () => SchemaMap;
     getTransparentElements: () => SchemaMap;
     getSpecialElements: () => SchemaRegExpMap;
+    getComponentUrls: () => Record<string, string>;
     isValidChild: (name: string, child: string) => boolean;
     isValid: (name: string, attr?: string) => boolean;
     isBlock: (name: string) => boolean;
@@ -162,36 +164,6 @@ declare class AstNode {
     isEmpty(elements: SchemaMap, whitespace?: SchemaMap, predicate?: (node: AstNode) => boolean): boolean;
     walk(prev?: boolean): AstNode | null | undefined;
 }
-type Content = string | AstNode;
-type ContentFormat = 'raw' | 'text' | 'html' | 'tree';
-interface GetContentArgs {
-    format: ContentFormat;
-    get: boolean;
-    getInner: boolean;
-    no_events?: boolean;
-    save?: boolean;
-    source_view?: boolean;
-    [key: string]: any;
-}
-interface SetContentArgs {
-    format: string;
-    set: boolean;
-    content: Content;
-    no_events?: boolean;
-    no_selection?: boolean;
-    paste?: boolean;
-    load?: boolean;
-    initial?: boolean;
-    [key: string]: any;
-}
-interface GetSelectionContentArgs extends GetContentArgs {
-    selection?: boolean;
-    contextual?: boolean;
-}
-interface SetSelectionContentArgs extends SetContentArgs {
-    content: string;
-    selection?: boolean;
-}
 interface BlobInfoData {
     id?: string;
     name?: string;
@@ -223,51 +195,76 @@ interface BlobCache {
     removeByUri: (blobUri: string) => void;
     destroy: () => void;
 }
-interface BlobInfoImagePair {
-    image: HTMLImageElement;
+interface NotificationManagerImpl {
+    open: (spec: NotificationSpec, closeCallback: () => void, hasEditorFocus: () => boolean) => NotificationApi;
+    close: <T extends NotificationApi>(notification: T) => void;
+    getArgs: <T extends NotificationApi>(notification: T) => NotificationSpec;
+}
+interface NotificationSpec {
+    type?: 'info' | 'warning' | 'error' | 'success';
+    text: string;
+    icon?: string;
+    progressBar?: boolean;
+    timeout?: number;
+}
+interface NotificationApi {
+    close: () => void;
+    progressBar: {
+        value: (percent: number) => void;
+    };
+    text: (text: string) => void;
+    reposition: () => void;
+    getEl: () => HTMLElement;
+    settings: NotificationSpec;
+}
+interface NotificationManager {
+    open: (spec: NotificationSpec) => NotificationApi;
+    close: () => void;
+    getNotifications: () => NotificationApi[];
+}
+interface UploadFailure {
+    message: string;
+    remove?: boolean;
+}
+type ProgressFn = (percent: number) => void;
+type UploadHandler = (blobInfo: BlobInfo, progress: ProgressFn) => Promise<string>;
+interface UploadResult$2 {
+    url: string;
     blobInfo: BlobInfo;
+    status: boolean;
+    error?: UploadFailure;
 }
-interface UrlObject {
-    prefix: string;
-    resource: string;
-    suffix: string;
+interface IsEmptyOptions {
+    readonly skipBogus?: boolean;
+    readonly includeZwsp?: boolean;
+    readonly checkRootAsContent?: boolean;
+    readonly isContent?: (node: Node) => boolean;
 }
-type WaitState = 'added' | 'loaded';
-type AddOnConstructor<T> = (editor: Editor, url: string) => T;
-interface AddOnManager<T> {
-    items: AddOnConstructor<T>[];
-    urls: Record<string, string>;
-    lookup: Record<string, {
-        instance: AddOnConstructor<T>;
-    }>;
-    get: (name: string) => AddOnConstructor<T> | undefined;
-    requireLangPack: (name: string, languages?: string) => void;
-    add: (id: string, addOn: AddOnConstructor<T>) => AddOnConstructor<T>;
-    remove: (name: string) => void;
-    createUrl: (baseUrl: UrlObject, dep: string | UrlObject) => UrlObject;
-    load: (name: string, addOnUrl: string | UrlObject) => Promise<void>;
-    waitFor: (name: string, state?: WaitState) => Promise<void>;
+interface GeomRect {
+    readonly x: number;
+    readonly y: number;
+    readonly w: number;
+    readonly h: number;
 }
-type LicenseKeyManagerAddon = AddOnConstructor<LicenseKeyManager>;
-interface ValidateData {
-    plugin?: string;
-    [key: string]: any;
+interface Rect {
+    inflate: (rect: GeomRect, w: number, h: number) => GeomRect;
+    relativePosition: (rect: GeomRect, targetRect: GeomRect, rel: string) => GeomRect;
+    findBestRelativePosition: (rect: GeomRect, targetRect: GeomRect, constrainRect: GeomRect, rels: string[]) => string | null;
+    intersect: (rect: GeomRect, cropRect: GeomRect) => GeomRect | null;
+    clamp: (rect: GeomRect, clampRect: GeomRect, fixedSize?: boolean) => GeomRect;
+    create: (x: number, y: number, w: number, h: number) => GeomRect;
+    fromClientRect: (clientRect: DOMRect) => GeomRect;
 }
-interface LicenseKeyManager {
-    readonly validate: (data: ValidateData) => Promise<boolean>;
+type StyleMap = Record<string, string | number>;
+interface StylesSettings {
+    allow_script_urls?: boolean;
+    allow_svg_data_urls?: boolean;
+    url_converter?: URLConverter;
+    url_converter_scope?: any;
 }
-declare class NodeChange {
-    private readonly editor;
-    private lastPath;
-    constructor(editor: Editor);
-    nodeChanged(args?: Record<string, any>): void;
-    private isSameElementPath;
-}
-interface SelectionOverrides {
-    showCaret: (direction: number, node: HTMLElement, before: boolean, scrollIntoView?: boolean) => Range | null;
-    showBlockCaretContainer: (blockCaretContainer: HTMLElement) => void;
-    hideFakeCaret: () => void;
-    destroy: () => void;
+interface Styles {
+    parse: (css: string | undefined) => Record<string, string>;
+    serialize: (styles: StyleMap, elementName?: string) => string;
 }
 type NormalizedEvent<E, T = any> = E & {
     readonly type: string;
@@ -347,127 +344,220 @@ declare class EventDispatcher<T extends {}> {
     once<K extends string>(name: K, callback: (event: EditorEvent<MappedEvent<T, K>>) => void, prepend?: boolean): this;
     has(name: string): boolean;
 }
-type UndoLevelType = 'fragmented' | 'complete';
-interface BaseUndoLevel {
-    type: UndoLevelType;
-    bookmark: Bookmark | null;
-    beforeBookmark: Bookmark | null;
-}
-interface FragmentedUndoLevel extends BaseUndoLevel {
-    type: 'fragmented';
-    fragments: string[];
-    content: '';
-}
-interface CompleteUndoLevel extends BaseUndoLevel {
-    type: 'complete';
-    fragments: null;
-    content: string;
-}
-type NewUndoLevel = CompleteUndoLevel | FragmentedUndoLevel;
-type UndoLevel = NewUndoLevel & {
-    bookmark: Bookmark;
+type EventUtilsCallback<T> = (event: EventUtilsEvent<T>) => void | boolean;
+type EventUtilsEvent<T> = NormalizedEvent<T> & {
+    metaKey: boolean;
 };
-interface UndoManager {
-    data: UndoLevel[];
-    typing: boolean;
-    add: (level?: Partial<UndoLevel>, event?: EditorEvent<any>) => UndoLevel | null;
-    dispatchChange: () => void;
-    beforeChange: () => void;
-    undo: () => UndoLevel | undefined;
-    redo: () => UndoLevel | undefined;
-    clear: () => void;
-    reset: () => void;
-    hasUndo: () => boolean;
-    hasRedo: () => boolean;
-    transact: (callback: () => void) => UndoLevel | null;
-    ignore: (callback: () => void) => void;
-    extra: (callback1: () => void, callback2: () => void) => void;
+interface Callback$1<T> {
+    func: EventUtilsCallback<T>;
+    scope: any;
 }
-interface Quirks {
-    refreshContentEditable(): void;
-    isHidden(): boolean;
+interface CallbackList<T> extends Array<Callback$1<T>> {
+    fakeName: string | false;
+    capture: boolean;
+    nativeHandler: EventListener;
 }
-type DecoratorData = Record<string, any>;
-type Decorator = (uid: string, data: DecoratorData) => {
-    attributes?: {};
-    classes?: string[];
-};
-type AnnotationListener = (state: boolean, name: string, data?: {
-    uid: string;
-    nodes: any[];
-}) => void;
-type AnnotationListenerApi = AnnotationListener;
-interface AnnotatorSettings {
-    decorate: Decorator;
-    persistent?: boolean;
+interface EventUtilsConstructor {
+    readonly prototype: EventUtils;
+    new (): EventUtils;
+    Event: EventUtils;
 }
-interface Annotator {
-    register: (name: string, settings: AnnotatorSettings) => void;
-    annotate: (name: string, data: DecoratorData) => void;
-    annotationChanged: (name: string, f: AnnotationListenerApi) => void;
-    remove: (name: string) => void;
-    removeAll: (name: string) => void;
-    getAll: (name: string) => Record<string, Element[]>;
+declare class EventUtils {
+    static Event: EventUtils;
+    domLoaded: boolean;
+    events: Record<number, Record<string, CallbackList<any>>>;
+    private readonly expando;
+    private hasFocusIn;
+    private count;
+    constructor();
+    bind<K extends keyof HTMLElementEventMap>(target: any, name: K, callback: EventUtilsCallback<HTMLElementEventMap[K]>, scope?: any): EventUtilsCallback<HTMLElementEventMap[K]>;
+    bind<T = any>(target: any, names: string, callback: EventUtilsCallback<T>, scope?: any): EventUtilsCallback<T>;
+    unbind<K extends keyof HTMLElementEventMap>(target: any, name: K, callback?: EventUtilsCallback<HTMLElementEventMap[K]>): this;
+    unbind<T = any>(target: any, names: string, callback?: EventUtilsCallback<T>): this;
+    unbind(target: any): this;
+    fire(target: any, name: string, args?: {}): this;
+    dispatch(target: any, name: string, args?: {}): this;
+    clean(target: any): this;
+    destroy(): void;
+    cancel<T>(e: EventUtilsEvent<T>): boolean;
+    private executeHandlers;
 }
-interface IsEmptyOptions {
-    readonly skipBogus?: boolean;
-    readonly includeZwsp?: boolean;
-    readonly checkRootAsContent?: boolean;
-    readonly isContent?: (node: Node) => boolean;
+interface StyleSheetLoaderSettings {
+    maxLoadTime?: number;
+    contentCssCors?: boolean;
+    crossOrigin?: (url: string) => string | undefined;
+    referrerPolicy?: ReferrerPolicy;
 }
-interface GeomRect {
-    readonly x: number;
-    readonly y: number;
-    readonly w: number;
-    readonly h: number;
+interface StyleSheetLoader {
+    load: (url: string) => Promise<void>;
+    loadRawCss: (key: string, css: string) => void;
+    loadAll: (urls: string[]) => Promise<string[]>;
+    unload: (url: string) => void;
+    unloadRawCss: (key: string) => void;
+    unloadAll: (urls: string[]) => void;
+    _setReferrerPolicy: (referrerPolicy: ReferrerPolicy) => void;
+    _setContentCssCors: (contentCssCors: boolean) => void;
+    _setCrossOrigin: (crossOrigin: (url: string) => string | undefined) => void;
 }
-interface Rect {
-    inflate: (rect: GeomRect, w: number, h: number) => GeomRect;
-    relativePosition: (rect: GeomRect, targetRect: GeomRect, rel: string) => GeomRect;
-    findBestRelativePosition: (rect: GeomRect, targetRect: GeomRect, constrainRect: GeomRect, rels: string[]) => string | null;
-    intersect: (rect: GeomRect, cropRect: GeomRect) => GeomRect | null;
-    clamp: (rect: GeomRect, clampRect: GeomRect, fixedSize?: boolean) => GeomRect;
-    create: (x: number, y: number, w: number, h: number) => GeomRect;
-    fromClientRect: (clientRect: DOMRect) => GeomRect;
+interface SetAttribEvent {
+    attrElm: HTMLElement;
+    attrName: string;
+    attrValue: string | boolean | number | null;
 }
-interface NotificationManagerImpl {
-    open: (spec: NotificationSpec, closeCallback: () => void, hasEditorFocus: () => boolean) => NotificationApi;
-    close: <T extends NotificationApi>(notification: T) => void;
-    getArgs: <T extends NotificationApi>(notification: T) => NotificationSpec;
+interface DOMUtilsSettings {
+    schema: Schema;
+    url_converter: URLConverter;
+    url_converter_scope: any;
+    ownEvents: boolean;
+    keep_values: boolean;
+    update_styles: boolean;
+    root_element: HTMLElement | null;
+    collect: boolean;
+    onSetAttrib: (event: SetAttribEvent) => void;
+    contentCssCors: boolean;
+    referrerPolicy: ReferrerPolicy;
+    crossOrigin: (url: string, resourceType: 'script' | 'stylesheet') => string | undefined;
 }
-interface NotificationSpec {
-    type?: 'info' | 'warning' | 'error' | 'success';
-    text: string;
-    icon?: string;
-    progressBar?: boolean;
-    timeout?: number;
-}
-interface NotificationApi {
-    close: () => void;
-    progressBar: {
-        value: (percent: number) => void;
+type Target = Node | Window;
+type RunArguments<T extends Node = Node> = string | T | Array<string | T> | null;
+type BoundEvent = [
+    Target,
+    string,
+    EventUtilsCallback<any>,
+    any
+];
+type Callback<K extends string> = EventUtilsCallback<MappedEvent<HTMLElementEventMap, K>>;
+type RunResult<T, R> = T extends Array<any> ? R[] : false | R;
+interface DOMUtils {
+    doc: Document;
+    settings: Partial<DOMUtilsSettings>;
+    win: Window;
+    files: Record<string, boolean>;
+    stdMode: boolean;
+    boxModel: boolean;
+    styleSheetLoader: StyleSheetLoader;
+    boundEvents: BoundEvent[];
+    styles: Styles;
+    schema: Schema;
+    events: EventUtils;
+    root: Node | null;
+    isBlock: {
+        (node: Node | null): node is HTMLElement;
+        (node: string): boolean;
     };
-    text: (text: string) => void;
-    reposition: () => void;
-    getEl: () => HTMLElement;
-    settings: NotificationSpec;
-}
-interface NotificationManager {
-    open: (spec: NotificationSpec) => NotificationApi;
-    close: () => void;
-    getNotifications: () => NotificationApi[];
-}
-interface UploadFailure {
-    message: string;
-    remove?: boolean;
-}
-type ProgressFn = (percent: number) => void;
-type UploadHandler = (blobInfo: BlobInfo, progress: ProgressFn) => Promise<string>;
-interface UploadResult$2 {
-    url: string;
-    blobInfo: BlobInfo;
-    status: boolean;
-    error?: UploadFailure;
+    clone: (node: Node, deep: boolean) => Node;
+    getRoot: () => HTMLElement;
+    getViewPort: (argWin?: Window) => GeomRect;
+    getRect: (elm: string | HTMLElement) => GeomRect;
+    getSize: (elm: string | HTMLElement) => {
+        w: number;
+        h: number;
+    };
+    getParent: {
+        <K extends keyof HTMLElementTagNameMap>(node: string | Node | null, selector: K, root?: Node): HTMLElementTagNameMap[K] | null;
+        <T extends Element>(node: string | Node | null, selector: string | ((node: Node) => node is T), root?: Node): T | null;
+        (node: string | Node | null, selector?: string | ((node: Node) => boolean | void), root?: Node): Node | null;
+    };
+    getParents: {
+        <K extends keyof HTMLElementTagNameMap>(elm: string | HTMLElementTagNameMap[K] | null, selector: K, root?: Node, collect?: boolean): Array<HTMLElementTagNameMap[K]>;
+        <T extends Element>(node: string | Node | null, selector: string | ((node: Node) => node is T), root?: Node, collect?: boolean): T[];
+        (elm: string | Node | null, selector?: string | ((node: Node) => boolean | void), root?: Node, collect?: boolean): Node[];
+    };
+    get: {
+        <T extends Node>(elm: T): T;
+        (elm: string): HTMLElement | null;
+    };
+    getNext: (node: Node | null, selector: string | ((node: Node) => boolean)) => Node | null;
+    getPrev: (node: Node | null, selector: string | ((node: Node) => boolean)) => Node | null;
+    select: {
+        <K extends keyof HTMLElementTagNameMap>(selector: K, scope?: string | Node): Array<HTMLElementTagNameMap[K]>;
+        <T extends HTMLElement = HTMLElement>(selector: string, scope?: string | Node): T[];
+    };
+    is: {
+        <T extends Element>(elm: Node | Node[] | null, selector: string): elm is T;
+        (elm: Node | Node[] | null, selector: string): boolean;
+    };
+    add: (parentElm: RunArguments, name: string | Element, attrs?: Record<string, string | boolean | number | null>, html?: string | Node | null, create?: boolean) => HTMLElement;
+    create: {
+        <K extends keyof HTMLElementTagNameMap>(name: K, attrs?: Record<string, string | boolean | number | null>, html?: string | Node | null): HTMLElementTagNameMap[K];
+        (name: string, attrs?: Record<string, string | boolean | number | null>, html?: string | Node | null): HTMLElement;
+    };
+    createHTML: (name: string, attrs?: Record<string, string | null>, html?: string) => string;
+    createFragment: (html?: string) => DocumentFragment;
+    remove: {
+        <T extends Node>(node: T | T[], keepChildren?: boolean): typeof node extends Array<any> ? T[] : T;
+        <T extends Node>(node: string, keepChildren?: boolean): T | false;
+    };
+    getStyle: {
+        (elm: Element, name: string, computed: true): string;
+        (elm: string | Element | null, name: string, computed?: boolean): string | undefined;
+    };
+    setStyle: (elm: string | Element | Element[], name: string, value: string | number | null) => void;
+    setStyles: (elm: string | Element | Element[], stylesArg: StyleMap) => void;
+    removeAllAttribs: (e: RunArguments<Element>) => void;
+    setAttrib: (elm: RunArguments<Element>, name: string, value: string | boolean | number | null) => void;
+    setAttribs: (elm: RunArguments<Element>, attrs: Record<string, string | boolean | number | null>) => void;
+    getAttrib: (elm: string | Element | null, name: string, defaultVal?: string) => string;
+    getAttribs: (elm: string | Element) => NamedNodeMap | Attr[];
+    getPos: (elm: string | Element, rootElm?: Node) => {
+        x: number;
+        y: number;
+    };
+    parseStyle: (cssText: string) => Record<string, string>;
+    serializeStyle: (stylesArg: StyleMap, name?: string) => string;
+    addStyle: (cssText: string) => void;
+    loadCSS: (url: string) => void;
+    hasClass: (elm: string | Element, cls: string) => boolean;
+    addClass: (elm: RunArguments<Element>, cls: string) => void;
+    removeClass: (elm: RunArguments<Element>, cls: string) => void;
+    toggleClass: (elm: RunArguments<Element>, cls: string, state?: boolean) => void;
+    show: (elm: string | Node | Node[]) => void;
+    hide: (elm: string | Node | Node[]) => void;
+    isHidden: (elm: string | Node) => boolean;
+    uniqueId: (prefix?: string) => string;
+    setHTML: (elm: RunArguments<Element>, html: string) => void;
+    getOuterHTML: (elm: string | Node) => string;
+    setOuterHTML: (elm: string | Node | Node[], html: string) => void;
+    decode: (text: string) => string;
+    encode: (text: string) => string;
+    insertAfter: {
+        <T extends Node>(node: T | T[], reference: string | Node): T;
+        <T extends Node>(node: RunArguments<T>, reference: string | Node): RunResult<typeof node, T>;
+    };
+    replace: {
+        <T extends Node>(newElm: Node, oldElm: T | T[], keepChildren?: boolean): T;
+        <T extends Node>(newElm: Node, oldElm: RunArguments<T>, keepChildren?: boolean): false | T;
+    };
+    rename: {
+        <K extends keyof HTMLElementTagNameMap>(elm: Element, name: K): HTMLElementTagNameMap[K];
+        (elm: Element, name: string): Element;
+    };
+    findCommonAncestor: (a: Node, b: Node) => Node | null;
+    run<R, T extends Node>(this: DOMUtils, elm: T | T[], func: (node: T) => R, scope?: any): typeof elm extends Array<any> ? R[] : R;
+    run<R, T extends Node>(this: DOMUtils, elm: RunArguments<T>, func: (node: T) => R, scope?: any): RunResult<typeof elm, R>;
+    isEmpty: (node: Node, elements?: Record<string, any>, options?: IsEmptyOptions) => boolean;
+    createRng: () => Range;
+    nodeIndex: (node: Node, normalized?: boolean) => number;
+    split: {
+        <T extends Node>(parentElm: Node, splitElm: Node, replacementElm: T): T | undefined;
+        <T extends Node>(parentElm: Node, splitElm: T): T | undefined;
+    };
+    bind: {
+        <K extends string>(target: Target, name: K, func: Callback<K>, scope?: any): Callback<K>;
+        <K extends string>(target: Target[], name: K, func: Callback<K>, scope?: any): Callback<K>[];
+    };
+    unbind: {
+        <K extends string>(target: Target, name?: K, func?: EventUtilsCallback<MappedEvent<HTMLElementEventMap, K>>): EventUtils;
+        <K extends string>(target: Target[], name?: K, func?: EventUtilsCallback<MappedEvent<HTMLElementEventMap, K>>): EventUtils[];
+    };
+    fire: (target: Node | Window, name: string, evt?: {}) => EventUtils;
+    dispatch: (target: Node | Window, name: string, evt?: {}) => EventUtils;
+    getContentEditable: (node: Node) => string | null;
+    getContentEditableParent: (node: Node) => string | null;
+    isEditable: (node: Node | null | undefined) => boolean;
+    destroy: () => void;
+    isChildOf: (node: Node, parent: Node) => boolean;
+    dumpRng: (r: Range) => string;
 }
 type BlockPatternTrigger = 'enter' | 'space';
 interface RawPattern {
@@ -1481,6 +1571,42 @@ interface RemoveInlineFormat extends Inline, CommonRemoveFormat<RemoveInlineForm
 }
 interface RemoveSelectorFormat extends Selector, CommonRemoveFormat<RemoveSelectorFormat> {
 }
+type UndoLevelType = 'fragmented' | 'complete';
+interface BaseUndoLevel {
+    type: UndoLevelType;
+    bookmark: Bookmark | null;
+    beforeBookmark: Bookmark | null;
+}
+interface FragmentedUndoLevel extends BaseUndoLevel {
+    type: 'fragmented';
+    fragments: string[];
+    content: '';
+}
+interface CompleteUndoLevel extends BaseUndoLevel {
+    type: 'complete';
+    fragments: null;
+    content: string;
+}
+type NewUndoLevel = CompleteUndoLevel | FragmentedUndoLevel;
+type UndoLevel = NewUndoLevel & {
+    bookmark: Bookmark;
+};
+interface UndoManager {
+    data: UndoLevel[];
+    typing: boolean;
+    add: (level?: Partial<UndoLevel>, event?: EditorEvent<unknown>) => UndoLevel | null;
+    dispatchChange: () => void;
+    beforeChange: () => void;
+    undo: () => UndoLevel | undefined;
+    redo: () => UndoLevel | undefined;
+    clear: () => void;
+    reset: () => void;
+    hasUndo: () => boolean;
+    hasRedo: () => boolean;
+    transact: (callback: () => void) => UndoLevel | null;
+    ignore: (callback: () => void) => void;
+    extra: (callback1: () => void, callback2: () => void) => void;
+}
 interface Filter<C extends Function> {
     name: string;
     callbacks: C[];
@@ -1535,23 +1661,6 @@ interface DomParser {
     getNodeFilters: () => ParserFilter[];
     removeNodeFilter: (name: string, callback?: ParserFilterCallback) => void;
     parse: (html: string, args?: ParserArgs) => AstNode;
-}
-interface StyleSheetLoaderSettings {
-    maxLoadTime?: number;
-    contentCssCors?: boolean;
-    crossOrigin?: (url: string) => string | undefined;
-    referrerPolicy?: ReferrerPolicy;
-}
-interface StyleSheetLoader {
-    load: (url: string) => Promise<void>;
-    loadRawCss: (key: string, css: string) => void;
-    loadAll: (urls: string[]) => Promise<string[]>;
-    unload: (url: string) => void;
-    unloadRawCss: (key: string) => void;
-    unloadAll: (urls: string[]) => void;
-    _setReferrerPolicy: (referrerPolicy: ReferrerPolicy) => void;
-    _setContentCssCors: (contentCssCors: boolean) => void;
-    _setCrossOrigin: (crossOrigin: (url: string) => string | undefined) => void;
 }
 type Registry = Registry$1;
 interface EditorUiApi {
@@ -1656,7 +1765,7 @@ interface ChangeEvent {
     lastLevel: UndoLevel | undefined;
 }
 interface AddUndoEvent extends ChangeEvent {
-    originalEvent: Event | undefined;
+    originalEvent: EditorEvent<unknown> | undefined;
 }
 interface UndoRedoEvent {
     level: UndoLevel;
@@ -2259,214 +2368,109 @@ interface EditorOptions extends NormalizedEditorOptions {
     xss_sanitization: boolean;
     disabled: boolean;
 }
-type StyleMap = Record<string, string | number>;
-interface StylesSettings {
-    allow_script_urls?: boolean;
-    allow_svg_data_urls?: boolean;
-    url_converter?: URLConverter;
-    url_converter_scope?: any;
+type Content = string | AstNode;
+type ContentFormat = 'raw' | 'text' | 'html' | 'tree';
+interface GetContentArgs {
+    format: ContentFormat;
+    get: boolean;
+    getInner: boolean;
+    no_events?: boolean;
+    save?: boolean;
+    source_view?: boolean;
+    indent?: boolean;
+    entity_encoding?: EntityEncoding;
+    [key: string]: any;
 }
-interface Styles {
-    parse: (css: string | undefined) => Record<string, string>;
-    serialize: (styles: StyleMap, elementName?: string) => string;
+interface SetContentArgs {
+    format: string;
+    set: boolean;
+    content: Content;
+    no_events?: boolean;
+    no_selection?: boolean;
+    paste?: boolean;
+    load?: boolean;
+    initial?: boolean;
+    [key: string]: any;
 }
-type EventUtilsCallback<T> = (event: EventUtilsEvent<T>) => void | boolean;
-type EventUtilsEvent<T> = NormalizedEvent<T> & {
-    metaKey: boolean;
-};
-interface Callback$1<T> {
-    func: EventUtilsCallback<T>;
-    scope: any;
+interface GetSelectionContentArgs extends GetContentArgs {
+    selection?: boolean;
+    contextual?: boolean;
 }
-interface CallbackList<T> extends Array<Callback$1<T>> {
-    fakeName: string | false;
-    capture: boolean;
-    nativeHandler: EventListener;
+interface SetSelectionContentArgs extends SetContentArgs {
+    content: string;
+    selection?: boolean;
 }
-interface EventUtilsConstructor {
-    readonly prototype: EventUtils;
-    new (): EventUtils;
-    Event: EventUtils;
+interface BlobInfoImagePair {
+    image: HTMLImageElement;
+    blobInfo: BlobInfo;
 }
-declare class EventUtils {
-    static Event: EventUtils;
-    domLoaded: boolean;
-    events: Record<number, Record<string, CallbackList<any>>>;
-    private readonly expando;
-    private hasFocusIn;
-    private count;
-    constructor();
-    bind<K extends keyof HTMLElementEventMap>(target: any, name: K, callback: EventUtilsCallback<HTMLElementEventMap[K]>, scope?: any): EventUtilsCallback<HTMLElementEventMap[K]>;
-    bind<T = any>(target: any, names: string, callback: EventUtilsCallback<T>, scope?: any): EventUtilsCallback<T>;
-    unbind<K extends keyof HTMLElementEventMap>(target: any, name: K, callback?: EventUtilsCallback<HTMLElementEventMap[K]>): this;
-    unbind<T = any>(target: any, names: string, callback?: EventUtilsCallback<T>): this;
-    unbind(target: any): this;
-    fire(target: any, name: string, args?: {}): this;
-    dispatch(target: any, name: string, args?: {}): this;
-    clean(target: any): this;
-    destroy(): void;
-    cancel<T>(e: EventUtilsEvent<T>): boolean;
-    private executeHandlers;
+interface UrlObject {
+    prefix: string;
+    resource: string;
+    suffix: string;
 }
-interface SetAttribEvent {
-    attrElm: HTMLElement;
-    attrName: string;
-    attrValue: string | boolean | number | null;
+type WaitState = 'added' | 'loaded';
+type AddOnConstructor<T> = (editor: Editor, url: string) => T;
+interface AddOnManager<T> {
+    items: AddOnConstructor<T>[];
+    urls: Record<string, string>;
+    lookup: Record<string, {
+        instance: AddOnConstructor<T>;
+    }>;
+    get: (name: string) => AddOnConstructor<T> | undefined;
+    requireLangPack: (name: string, languages?: string) => void;
+    add: (id: string, addOn: AddOnConstructor<T>) => AddOnConstructor<T>;
+    remove: (name: string) => void;
+    createUrl: (baseUrl: UrlObject, dep: string | UrlObject) => UrlObject;
+    load: (name: string, addOnUrl: string | UrlObject) => Promise<void>;
+    waitFor: (name: string, state?: WaitState) => Promise<void>;
 }
-interface DOMUtilsSettings {
-    schema: Schema;
-    url_converter: URLConverter;
-    url_converter_scope: any;
-    ownEvents: boolean;
-    keep_values: boolean;
-    update_styles: boolean;
-    root_element: HTMLElement | null;
-    collect: boolean;
-    onSetAttrib: (event: SetAttribEvent) => void;
-    contentCssCors: boolean;
-    referrerPolicy: ReferrerPolicy;
-    crossOrigin: (url: string, resourceType: 'script' | 'stylesheet') => string | undefined;
+type LicenseKeyManagerAddon = AddOnConstructor<LicenseKeyManager>;
+interface ValidateData {
+    plugin?: string;
+    [key: string]: any;
 }
-type Target = Node | Window;
-type RunArguments<T extends Node = Node> = string | T | Array<string | T> | null;
-type BoundEvent = [
-    Target,
-    string,
-    EventUtilsCallback<any>,
-    any
-];
-type Callback<K extends string> = EventUtilsCallback<MappedEvent<HTMLElementEventMap, K>>;
-type RunResult<T, R> = T extends Array<any> ? R[] : false | R;
-interface DOMUtils {
-    doc: Document;
-    settings: Partial<DOMUtilsSettings>;
-    win: Window;
-    files: Record<string, boolean>;
-    stdMode: boolean;
-    boxModel: boolean;
-    styleSheetLoader: StyleSheetLoader;
-    boundEvents: BoundEvent[];
-    styles: Styles;
-    schema: Schema;
-    events: EventUtils;
-    root: Node | null;
-    isBlock: {
-        (node: Node | null): node is HTMLElement;
-        (node: string): boolean;
-    };
-    clone: (node: Node, deep: boolean) => Node;
-    getRoot: () => HTMLElement;
-    getViewPort: (argWin?: Window) => GeomRect;
-    getRect: (elm: string | HTMLElement) => GeomRect;
-    getSize: (elm: string | HTMLElement) => {
-        w: number;
-        h: number;
-    };
-    getParent: {
-        <K extends keyof HTMLElementTagNameMap>(node: string | Node | null, selector: K, root?: Node): HTMLElementTagNameMap[K] | null;
-        <T extends Element>(node: string | Node | null, selector: string | ((node: Node) => node is T), root?: Node): T | null;
-        (node: string | Node | null, selector?: string | ((node: Node) => boolean | void), root?: Node): Node | null;
-    };
-    getParents: {
-        <K extends keyof HTMLElementTagNameMap>(elm: string | HTMLElementTagNameMap[K] | null, selector: K, root?: Node, collect?: boolean): Array<HTMLElementTagNameMap[K]>;
-        <T extends Element>(node: string | Node | null, selector: string | ((node: Node) => node is T), root?: Node, collect?: boolean): T[];
-        (elm: string | Node | null, selector?: string | ((node: Node) => boolean | void), root?: Node, collect?: boolean): Node[];
-    };
-    get: {
-        <T extends Node>(elm: T): T;
-        (elm: string): HTMLElement | null;
-    };
-    getNext: (node: Node | null, selector: string | ((node: Node) => boolean)) => Node | null;
-    getPrev: (node: Node | null, selector: string | ((node: Node) => boolean)) => Node | null;
-    select: {
-        <K extends keyof HTMLElementTagNameMap>(selector: K, scope?: string | Node): Array<HTMLElementTagNameMap[K]>;
-        <T extends HTMLElement = HTMLElement>(selector: string, scope?: string | Node): T[];
-    };
-    is: {
-        <T extends Element>(elm: Node | Node[] | null, selector: string): elm is T;
-        (elm: Node | Node[] | null, selector: string): boolean;
-    };
-    add: (parentElm: RunArguments, name: string | Element, attrs?: Record<string, string | boolean | number | null>, html?: string | Node | null, create?: boolean) => HTMLElement;
-    create: {
-        <K extends keyof HTMLElementTagNameMap>(name: K, attrs?: Record<string, string | boolean | number | null>, html?: string | Node | null): HTMLElementTagNameMap[K];
-        (name: string, attrs?: Record<string, string | boolean | number | null>, html?: string | Node | null): HTMLElement;
-    };
-    createHTML: (name: string, attrs?: Record<string, string | null>, html?: string) => string;
-    createFragment: (html?: string) => DocumentFragment;
-    remove: {
-        <T extends Node>(node: T | T[], keepChildren?: boolean): typeof node extends Array<any> ? T[] : T;
-        <T extends Node>(node: string, keepChildren?: boolean): T | false;
-    };
-    getStyle: {
-        (elm: Element, name: string, computed: true): string;
-        (elm: string | Element | null, name: string, computed?: boolean): string | undefined;
-    };
-    setStyle: (elm: string | Element | Element[], name: string, value: string | number | null) => void;
-    setStyles: (elm: string | Element | Element[], stylesArg: StyleMap) => void;
-    removeAllAttribs: (e: RunArguments<Element>) => void;
-    setAttrib: (elm: RunArguments<Element>, name: string, value: string | boolean | number | null) => void;
-    setAttribs: (elm: RunArguments<Element>, attrs: Record<string, string | boolean | number | null>) => void;
-    getAttrib: (elm: string | Element | null, name: string, defaultVal?: string) => string;
-    getAttribs: (elm: string | Element) => NamedNodeMap | Attr[];
-    getPos: (elm: string | Element, rootElm?: Node) => {
-        x: number;
-        y: number;
-    };
-    parseStyle: (cssText: string) => Record<string, string>;
-    serializeStyle: (stylesArg: StyleMap, name?: string) => string;
-    addStyle: (cssText: string) => void;
-    loadCSS: (url: string) => void;
-    hasClass: (elm: string | Element, cls: string) => boolean;
-    addClass: (elm: RunArguments<Element>, cls: string) => void;
-    removeClass: (elm: RunArguments<Element>, cls: string) => void;
-    toggleClass: (elm: RunArguments<Element>, cls: string, state?: boolean) => void;
-    show: (elm: string | Node | Node[]) => void;
-    hide: (elm: string | Node | Node[]) => void;
-    isHidden: (elm: string | Node) => boolean;
-    uniqueId: (prefix?: string) => string;
-    setHTML: (elm: RunArguments<Element>, html: string) => void;
-    getOuterHTML: (elm: string | Node) => string;
-    setOuterHTML: (elm: string | Node | Node[], html: string) => void;
-    decode: (text: string) => string;
-    encode: (text: string) => string;
-    insertAfter: {
-        <T extends Node>(node: T | T[], reference: string | Node): T;
-        <T extends Node>(node: RunArguments<T>, reference: string | Node): RunResult<typeof node, T>;
-    };
-    replace: {
-        <T extends Node>(newElm: Node, oldElm: T | T[], keepChildren?: boolean): T;
-        <T extends Node>(newElm: Node, oldElm: RunArguments<T>, keepChildren?: boolean): false | T;
-    };
-    rename: {
-        <K extends keyof HTMLElementTagNameMap>(elm: Element, name: K): HTMLElementTagNameMap[K];
-        (elm: Element, name: string): Element;
-    };
-    findCommonAncestor: (a: Node, b: Node) => Node | null;
-    run<R, T extends Node>(this: DOMUtils, elm: T | T[], func: (node: T) => R, scope?: any): typeof elm extends Array<any> ? R[] : R;
-    run<R, T extends Node>(this: DOMUtils, elm: RunArguments<T>, func: (node: T) => R, scope?: any): RunResult<typeof elm, R>;
-    isEmpty: (node: Node, elements?: Record<string, any>, options?: IsEmptyOptions) => boolean;
-    createRng: () => Range;
-    nodeIndex: (node: Node, normalized?: boolean) => number;
-    split: {
-        <T extends Node>(parentElm: Node, splitElm: Node, replacementElm: T): T | undefined;
-        <T extends Node>(parentElm: Node, splitElm: T): T | undefined;
-    };
-    bind: {
-        <K extends string>(target: Target, name: K, func: Callback<K>, scope?: any): Callback<K>;
-        <K extends string>(target: Target[], name: K, func: Callback<K>, scope?: any): Callback<K>[];
-    };
-    unbind: {
-        <K extends string>(target: Target, name?: K, func?: EventUtilsCallback<MappedEvent<HTMLElementEventMap, K>>): EventUtils;
-        <K extends string>(target: Target[], name?: K, func?: EventUtilsCallback<MappedEvent<HTMLElementEventMap, K>>): EventUtils[];
-    };
-    fire: (target: Node | Window, name: string, evt?: {}) => EventUtils;
-    dispatch: (target: Node | Window, name: string, evt?: {}) => EventUtils;
-    getContentEditable: (node: Node) => string | null;
-    getContentEditableParent: (node: Node) => string | null;
-    isEditable: (node: Node | null | undefined) => boolean;
+interface LicenseKeyManager {
+    readonly validate: (data: ValidateData) => Promise<boolean>;
+}
+declare class NodeChange {
+    private readonly editor;
+    private lastPath;
+    constructor(editor: Editor);
+    nodeChanged(args?: Record<string, any>): void;
+    private isSameElementPath;
+}
+interface SelectionOverrides {
+    showCaret: (direction: number, node: HTMLElement, before: boolean, scrollIntoView?: boolean) => Range | null;
+    showBlockCaretContainer: (blockCaretContainer: HTMLElement) => void;
+    hideFakeCaret: () => void;
     destroy: () => void;
-    isChildOf: (node: Node, parent: Node) => boolean;
-    dumpRng: (r: Range) => string;
+}
+interface Quirks {
+    refreshContentEditable(): void;
+    isHidden(): boolean;
+}
+type DecoratorData = Record<string, any>;
+type Decorator = (uid: string, data: DecoratorData) => {
+    attributes?: {};
+    classes?: string[];
+};
+type AnnotationListener = (state: boolean, name: string, data?: {
+    uid: string;
+    nodes: any[];
+}) => void;
+type AnnotationListenerApi = AnnotationListener;
+interface AnnotatorSettings {
+    decorate: Decorator;
+    persistent?: boolean;
+}
+interface Annotator {
+    register: (name: string, settings: AnnotatorSettings) => void;
+    annotate: (name: string, data: DecoratorData) => void;
+    annotationChanged: (name: string, f: AnnotationListenerApi) => void;
+    remove: (name: string) => void;
+    removeAll: (name: string) => void;
+    getAll: (name: string) => Record<string, Element[]>;
 }
 interface ClientRect {
     left: number;
@@ -2522,6 +2526,10 @@ interface DomSerializerSettings extends DomParserSettings, WriterSettings, Schem
     url_converter?: URLConverter;
     url_converter_scope?: {};
 }
+interface DomSerializerArgs extends ParserArgs {
+    indent?: HtmlSerializerSettings['indent'];
+    entity_encoding?: HtmlSerializerSettings['entity_encoding'];
+}
 interface DomSerializerImpl {
     schema: Schema;
     addNodeFilter: (name: string, callback: ParserFilterCallback) => void;
@@ -2534,7 +2542,7 @@ interface DomSerializerImpl {
         (node: Element, parserArgs: {
             format: 'tree';
         } & ParserArgs): AstNode;
-        (node: Element, parserArgs?: ParserArgs): string;
+        (node: Element, domSerializerArgs?: DomSerializerArgs): string;
     };
     addRules: (rules: string) => void;
     setRules: (rules: string) => void;
@@ -3102,6 +3110,7 @@ declare class ScriptLoader {
     remove(url: string): void;
     loadQueue(): Promise<void>;
     loadScripts(scripts: string[]): Promise<void>;
+    getScriptAttributes(url: string): Record<string, string>;
 }
 type TextProcessCallback = (node: Text, offset: number, text: string) => number;
 interface Spot {

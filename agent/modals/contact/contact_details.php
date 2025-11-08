@@ -35,6 +35,18 @@ $contact_technical = intval($row['contact_technical']);
 $contact_created_at = nullable_htmlentities($row['contact_created_at']);
 $contact_location_id = intval($row['contact_location_id']);
 $location_name = nullable_htmlentities($row['location_name']);
+$location_country = nullable_htmlentities($row['location_country']);
+$location_address = nullable_htmlentities($row['location_address']);
+$location_city = nullable_htmlentities($row['location_city']);
+$location_state = nullable_htmlentities($row['location_state']);
+$location_zip = nullable_htmlentities($row['location_zip']);
+$location_phone_country_code = nullable_htmlentities($row['location_phone_country_code']);
+$location_phone = nullable_htmlentities(formatPhoneNumber($row['location_phone'], $location_phone_country_code));
+if (empty($location_phone)) {
+    $location_phone_display = "-";
+} else {
+    $location_phone_display = $location_phone;
+}
 $auth_method = nullable_htmlentities($row['user_auth_method']);
 $contact_client_id = intval($row['contact_client_id']);
 
@@ -153,7 +165,23 @@ if (isset($_GET['client_id'])) {
 ob_start();
 ?>
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fa fa-fw fa-user mr-2"></i><strong><?php echo $contact_name; ?></strong></h5>
+    <h5 class="modal-title">
+        <div class="media">
+            <?php if ($contact_photo) { ?>
+                <img class="img-thumbnail img-circle img-size-50 mr-1" src="<?= "../uploads/clients/$client_id/$contact_photo" ?>">
+            <?php } else { ?>
+                <span class="fa-stack">
+                    <i class="fa fa-circle fa-stack-2x text-secondary"></i>
+                    <span class="fa fa-stack-1x text-white"><?= $contact_initials ?></span>
+                </span>
+            <?php } ?>
+
+            <div class="media-body ml-2">
+                <strong><?= $contact_name ?></strong>
+                <div class="text-sm"><?= $contact_title ?></div>
+            </div>
+        </div>
+    </h5>
     <button type="button" class="close text-white" data-dismiss="modal">
         <span>&times;</span>
     </button>
@@ -161,142 +189,133 @@ ob_start();
 
 <div class="modal-body">
 
-    <ul class="nav nav-pills nav-justified mb-3">
-        <li class="nav-item">
-            <a class="nav-link active" data-toggle="pill" href="#pills-contact-details<?php echo $contact_id; ?>"><i class="fas fa-fw fa-user fa-2x"></i><br>Details</a>
-        </li>
+    <div class="row">
+
+        <?php if ($contact_phone || $contact_mobile || $contact_extension || $contact_email) { ?>
+            <div class="col-4">
+                <div class="media">
+                    <i class="fas fa-fw fa-user fa-2x text-secondary"></i>
+                    <div class="media-body ml-2">
+                        <dt>Contact Details</dt>
+                        <?php if ($contact_phone) { ?>
+                        <div>
+                            <i class="fas fa-fw fa-phone-alt text-secondary mt-2"></i>
+                            <a href="tel:<?= $contact_phone ?>"><?= $contact_phone ?></a>
+                            <?php if ($contact_extension) { ?>
+                            <span>ext: <?= $contact_extension ?></span>
+                            <?php } ?>
+                        </div>
+                        <?php } ?>
+        
+                        <?php if ($contact_mobile) { ?>
+                        <div>
+                            <i class="fas fa-fw fa-mobile-alt text-secondary mt-2"></i>
+                            <a href="tel:<?= $contact_mobile ?>"><?= $contact_mobile ?></a>
+                        </div>
+                        <?php } ?>
+                        <?php if ($contact_email) { ?>
+                        <div>
+                            <i class="fas fa-fw fa-envelope text-secondary mt-2"></i>
+                            <a href='mailto:<?= $contact_email ?>'><?= $contact_email ?></a>
+                            <button type="button" class='btn btn-sm clipboardjs' data-clipboard-text='<?= $contact_email ?>'>
+                            <i class='far fa-copy text-secondary'></i></button>
+                        </div>
+                        <?php } ?>
+                    </div>
+                </div>
+            </div>
+        <?php } ?>
+
+        <?php if ($location_name) { ?>
+            <div class="col-4">
+                <div class="media">
+                    <i class="fas fa-fw fa-map-marker-alt text-secondary fa-2x"></i>
+                    <div class="media-body ml-2">
+                        <dt><?= $location_name ?></dt>
+                        <dd>   
+                            <div><?= $location_address ?></div>
+                            <div><?= "$location_city $location_state $location_zip" ?></div>
+                            <div><?= $location_country ?></div> 
+                        </dd>
+                    </div>
+                </div>
+            </div>
+        <?php } ?>
+
+        <div class="col-4">
+            <div class="media">
+                <i class="fa fa-fw fa-info-circle text-secondary fa-2x"></i>
+                <div class="media-body ml-2">
+                    <?php if ($contact_primary) { ?>
+                        <span class="text-success text-bold">Primary Contact</span><br>
+                    <?php } ?>
+                    <?php if ($contact_billing) { ?>
+                        <span class="text-dark font-weight-bold">Billing</span><br>
+                    <?php } ?>
+                    <?php if ($contact_technical) { ?>
+                        <span class="text-secondary">Technical</span><br>
+                    <?php } ?>
+                    <?php if ($contact_important) { ?>
+                        <span class="text-dark font-weight-bold">Important</span>
+                    <?php } ?>
+                    <?php if ($contact_pin) { ?>
+                        <div>
+                            Pin: <?= $contact_pin ?>
+                        </div>
+                    <?php } ?>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <ul class="nav nav-pills nav-justified mt-3">
         <?php if ($asset_count) { ?>
         <li class="nav-item">
-            <a class="nav-link" data-toggle="pill" href="#pills-contact-assets<?php echo $contact_id; ?>"><i class="fas fa-fw fa-desktop fa-2x"></i><br>Assets (<?php echo $asset_count; ?>)</a>
+            <a class="nav-link" data-toggle="pill" href="#pills-contact-assets<?= $contact_id ?>"><i class="fas fa-fw fa-desktop fa-2x"></i><br>Assets (<?= $asset_count ?>)</a>
         </li>
         <?php } ?>
         <?php if ($credential_count) { ?>
         <li class="nav-item">
-            <a class="nav-link" data-toggle="pill" href="#pills-contact-credentials<?php echo $contact_id; ?>"><i class="fas fa-fw fa-key fa-2x"></i><br>Credentials (<?php echo $credential_count; ?>)</a>
+            <a class="nav-link" data-toggle="pill" href="#pills-contact-credentials<?= $contact_id ?>"><i class="fas fa-fw fa-key fa-2x"></i><br>Credentials (<?= $credential_count ?>)</a>
         </li>
         <?php } ?>
         <?php if ($software_count) { ?>
         <li class="nav-item">
-            <a class="nav-link" data-toggle="pill" href="#pills-contact-licenses<?php echo $contact_id; ?>"><i class="fas fa-fw fa-cube fa-2x"></i><br>Licenses (<?php echo $software_count; ?>)</a>
+            <a class="nav-link" data-toggle="pill" href="#pills-contact-licenses<?= $contact_id ?>"><i class="fas fa-fw fa-cube fa-2x"></i><br>Licenses (<?= $software_count ?>)</a>
         </li>
         <?php } ?>
         <?php if ($ticket_count) { ?>
         <li class="nav-item">
-            <a class="nav-link" data-toggle="pill" href="#pills-contact-tickets<?php echo $contact_id; ?>"><i class="fas fa-fw fa-life-ring fa-2x"></i><br>Tickets (<?php echo $ticket_count; ?>)</a>
+            <a class="nav-link" data-toggle="pill" href="#pills-contact-tickets<?= $contact_id ?>"><i class="fas fa-fw fa-life-ring fa-2x"></i><br>Tickets (<?= $ticket_count ?>)</a>
         </li>
         <?php } ?>
         <?php if ($recurring_ticket_count) { ?>
         <li class="nav-item">
-            <a class="nav-link" data-toggle="pill" href="#pills-contact-recurring-tickets<?php echo $contact_id; ?>"><i class="fas fa-fw fa-redo-alt fa-2x"></i><br>Rcr Tickets (<?php echo $recurring_ticket_count; ?>)</a>
+            <a class="nav-link" data-toggle="pill" href="#pills-contact-recurring-tickets<?= $contact_id ?>"><i class="fas fa-fw fa-redo-alt fa-2x"></i><br>Rcr Tickets (<?= $recurring_ticket_count ?>)</a>
         </li>
         <?php } ?>
         <?php if ($document_count) { ?>
         <li class="nav-item">
-            <a class="nav-link" data-toggle="pill" href="#pills-contact-documents<?php echo $contact_id; ?>"><i class="fas fa-fw fa-file-alt fa-2x"></i><br>Documents (<?php echo $document_count; ?>)</a>
+            <a class="nav-link" data-toggle="pill" href="#pills-contact-documents<?= $contact_id ?>"><i class="fas fa-fw fa-file-alt fa-2x"></i><br>Documents (<?= $document_count ?>)</a>
         </li>
         <?php } ?>
         <?php if ($file_count) { ?>
         <li class="nav-item">
-            <a class="nav-link" data-toggle="pill" href="#pills-contact-files<?php echo $contact_id; ?>"><i class="fas fa-fw fa-briefcase fa-2x"></i><br>Files (<?php echo $file_count; ?>)</a>
+            <a class="nav-link" data-toggle="pill" href="#pills-contact-files<?= $contact_id ?>"><i class="fas fa-fw fa-briefcase fa-2x"></i><br>Files (<?= $file_count ?>)</a>
         </li>
         <?php } ?>
         <?php if ($note_count) { ?>
         <li class="nav-item">
-            <a class="nav-link" data-toggle="pill" href="#pills-contact-notes<?php echo $contact_id; ?>"><i class="fas fa-fw fa-edit fa-2x"></i><br>Notes (<?php echo $note_count; ?>)</a>
+            <a class="nav-link" data-toggle="pill" href="#pills-contact-notes<?= $contact_id ?>"><i class="fas fa-fw fa-edit fa-2x"></i><br>Notes (<?= $note_count ?>)</a>
         </li>
         <?php } ?>
     </ul>
 
-    <hr>
-
     <div class="tab-content">
 
-        <div class="tab-pane fade show active" id="pills-contact-details<?php echo $contact_id; ?>">
-            <div class="card card-dark">
-                <div class="card-body">
-                    <h3 class="text-bold"><?php echo $contact_name; ?></h3>
-                    <?php if ($contact_title) { ?>
-                        <div class="text-secondary"><?php echo $contact_title; ?></div>
-                    <?php } ?>
-
-                    <div class="text-center">
-                        <?php if ($contact_photo) { ?>
-                            <img class="img-thumbnail img-circle col-3" alt="contact_photo" src="<?php echo "../uploads/clients/$client_id/$contact_photo"; ?>">
-                        <?php } else { ?>
-                            <span class="fa-stack fa-4x">
-                                <i class="fa fa-circle fa-stack-2x text-secondary"></i>
-                                <span class="fa fa-stack-1x text-white"><?php echo $contact_initials; ?></span>
-                            </span>
-                        <?php } ?>
-                    </div>
-                    <?php
-                    if (!empty($contact_tags_display)) { ?>
-                        <div class="mt-1">
-                            <?php echo $contact_tags_display; ?>
-                        </div>
-                    <?php } ?>
-                    <hr>
-                    <?php if ($location_name) { ?>
-                        <div><i class="fa fa-fw fa-map-marker-alt text-secondary mr-2"></i><?php echo $location_name; ?></div>
-                    <?php }
-                    if ($contact_email) { ?>
-                        <div class="mt-2"><i class="fa fa-fw fa-envelope text-secondary mr-2"></i><a href='mailto:<?php echo $contact_email; ?>'><?php echo $contact_email; ?></a><button type="button" class='btn btn-sm clipboardjs' data-clipboard-text='<?php echo $contact_email; ?>'><i class='far fa-copy text-secondary'></i></button></div>
-                    <?php }
-                    if ($contact_phone) { ?>
-                        <div class="mt-2"><i class="fa fa-fw fa-phone text-secondary mr-2"></i><a href="tel:<?php echo "$contact_phone"?>"><?php echo $contact_phone; ?></a></div>
-                    <?php }
-                    if ($contact_extension) { ?>
-                        <div class="ml-4">x<?php echo $contact_extension; ?></div>
-                    <?php }
-                    if ($contact_mobile) { ?>
-                        <div class="mt-l"><i class="fa fa-fw fa-mobile-alt text-secondary mr-2"></i><a href="tel:<?php echo $contact_mobile; ?>"><?php echo $contact_mobile; ?></a></div>
-                    <?php }
-                    if ($contact_pin) { ?>
-                        <div class="mt-2"><i class="fa fa-fw fa-key text-secondary mr-2"></i><?php echo $contact_pin; ?></div>
-                    <?php }
-                    if ($contact_primary) { ?>
-                        <div class="mt-2 text-success"><i class="fa fa-fw fa-check mr-2"></i>Primary Contact</div>
-                    <?php }
-                    if ($contact_important) { ?>
-                        <div class="mt-2 text-dark text-bold"><i class="fa fa-fw fa-check mr-2"></i>Important</div>
-                    <?php }
-                    if ($contact_technical) { ?>
-                        <div class="mt-2"><i class="fa fa-fw fa-check text-secondary mr-2"></i>Technical</div>
-                    <?php }
-                    if ($contact_billing) { ?>
-                        <div class="mt-2"><i class="fa fa-fw fa-check text-secondary mr-2"></i>Billing</div>
-                    <?php } ?>
-                    <div class="mt-2"><i class="fa fa-fw fa-clock text-secondary mr-2"></i><?php echo date('Y-m-d', strtotime($contact_created_at)); ?></div>
-
-                </div>
-            </div>
-
-            <div class="card mb-3">
-                <div class="card-header">
-                    <h5 class="card-title">Notes</h5>
-                </div>
-                <textarea class="form-control" rows=6 id="contactNotes" placeholder="Notes, eg Personal tidbits to spark convo, temperment, etc" onblur="updateContactNotes(<?php echo $contact_id ?>)"><?php echo $contact_notes ?></textarea>
-            </div>
-        </div>
-
-        <script>
-            function updateContactNotes(contact_id) {
-                var notes = document.getElementById("contactNotes").value;
-
-                // Send a POST request to ajax.php as ajax.php with data contact_set_notes=true, contact_id=NUM, notes=NOTES
-                jQuery.post(
-                    "ajax.php",
-                    {
-                        contact_set_notes: 'TRUE',
-                        contact_id: contact_id,
-                        notes: notes
-                    }
-                )
-            }
-        </script>
-
         <?php if ($asset_count) { ?>
-        <div class="tab-pane fade" id="pills-contact-assets<?php echo $contact_id; ?>">
+        <div class="tab-pane fade" id="pills-contact-assets<?= $contact_id ?>">
 
             <div class="table-responsive-sm">
                 <table class="table table-striped table-borderless table-hover table-sm">
@@ -361,28 +380,26 @@ ob_start();
                         ?>
                         <tr>
                             <th>
-                                <i class="fa fa-fw text-secondary fa-<?php echo $device_icon; ?> mr-2"></i>
-                                <a class="text-secondary" href="#"
-                                    data-toggle="ajax-modal"
+                                <i class="fa fa-fw text-secondary fa-<?= $device_icon ?> mr-2"></i>
+                                <a href="#" class="ajax-modal"
                                     data-modal-size="lg"
-                                    data-ajax-url="ajax/ajax_asset_details.php"
-                                    data-ajax-id="<?php echo $asset_id; ?>">
-                                    <?php echo $asset_name; ?>
+                                    data-modal-url="modals/asset/asset_details.php?id=<?= $asset_id ?>">
+                                    <?= $asset_name ?>
                                 </a>
                                 <div class="mt-0">
-                                    <small class="text-muted"><?php echo $asset_description; ?></small>
+                                    <small class="text-muted"><?= $asset_description ?></small>
                                 </div>
                             </th>
-                            <td><?php echo $asset_type; ?></td>
+                            <td><?= $asset_type ?></td>
                             <td>
-                                <?php echo $asset_make; ?>
+                                <?= $asset_make ?>
                                 <div class="mt-0">
-                                    <small class="text-muted"><?php echo $asset_model; ?></small>
+                                    <small class="text-muted"><?= $asset_model ?></small>
                                 </div>
                             </td>
-                            <td><?php echo $asset_serial_display; ?></td>
-                            <td><?php echo $asset_install_date_display; ?></td>
-                            <td><?php echo $asset_status; ?></td>
+                            <td><?= $asset_serial_display ?></td>
+                            <td><?= $asset_install_date_display ?></td>
+                            <td><?= $asset_status ?></td>
                         </tr>
 
                         <?php
@@ -398,7 +415,7 @@ ob_start();
         <?php } ?>
 
         <?php if ($credential_count) { ?>
-        <div class="tab-pane fade" id="pills-contact-credentials<?php echo $contact_id; ?>">
+        <div class="tab-pane fade" id="pills-contact-credentials<?= $contact_id ?>">
             <div class="table-responsive-sm">
                 <table class="table table-striped table-borderless table-hover table-sm dataTables" style="width:100%">
                     <thead>
@@ -468,16 +485,16 @@ ob_start();
 
                         ?>
                         <tr>
-                            <td><i class="fa fa-fw fa-key text-secondary mr-2"></i><?php echo $credential_name; ?></td>
-                            <td><?php echo $credential_description; ?></td>
-                            <td><?php echo $credential_username_display; ?></td>
+                            <td><i class="fa fa-fw fa-key text-secondary mr-2"></i><?= $credential_name ?></td>
+                            <td><?= $credential_description ?></td>
+                            <td><?= $credential_username_display ?></td>
                             <td>
-                                <button class="btn p-0" type="button" data-toggle="popover" data-trigger="focus" data-placement="top" data-content="<?php echo $credential_password; ?>"><i class="fas fa-2x fa-ellipsis-h text-secondary"></i><i class="fas fa-2x fa-ellipsis-h text-secondary"></i></button>
+                                <button class="btn p-0" type="button" data-toggle="popover" data-trigger="focus" data-placement="top" data-content="<?= $credential_password ?>"><i class="fas fa-2x fa-ellipsis-h text-secondary"></i><i class="fas fa-2x fa-ellipsis-h text-secondary"></i></button>
 
-                                <button type="button" class='btn btn-sm clipboardjs' data-clipboard-text='<?php echo $credential_password; ?>'><i class='far fa-copy text-secondary'></i></button>
+                                <button type="button" class='btn btn-sm clipboardjs' data-clipboard-text='<?= $credential_password ?>'><i class='far fa-copy text-secondary'></i></button>
                             </td>
-                            <td><?php echo $otp_display; ?></td>
-                            <td><?php echo $credential_uri_display; ?></td>
+                            <td><?= $otp_display ?></td>
+                            <td><?= $credential_uri_display ?></td>
                         </tr>
 
                         <?php
@@ -495,7 +512,7 @@ ob_start();
         <?php } ?>
 
         <?php if ($ticket_count) { ?>
-        <div class="tab-pane fade" id="pills-contact-tickets<?php echo $contact_id; ?>">
+        <div class="tab-pane fade" id="pills-contact-tickets<?= $contact_id ?>">
             <div class="table-responsive-sm">
                 <table class="table table-striped table-borderless table-hover table-sm">
                     <thead class="text-dark">
@@ -557,13 +574,13 @@ ob_start();
                         ?>
 
                         <tr>
-                            <td><a href="ticket.php?client_id=<?php echo $client_id; ?>&ticket_id=<?php echo $ticket_id; ?>"><span class="badge badge-pill badge-secondary p-3"><?php echo "$ticket_prefix$ticket_number"; ?></span></a></td>
-                            <td><a href="ticket.php?client_id=<?php echo $client_id; ?>&ticket_id=<?php echo $ticket_id; ?>"><?php echo $ticket_subject; ?></a></td>
-                            <td><?php echo $ticket_priority_display; ?></td>
-                            <td><span class='badge badge-pill text-light p-2' style="background-color: <?php echo $ticket_status_color; ?>"><?php echo $ticket_status_name; ?></span></td>
-                            <td><?php echo $ticket_assigned_to_display; ?></td>
-                            <td><?php echo $ticket_updated_at_display; ?></td>
-                            <td><?php echo $ticket_created_at; ?></td>
+                            <td><a href="ticket.php?client_id=<?= $client_id ?>&ticket_id=<?= $ticket_id ?>"><span class="badge badge-pill badge-secondary p-3"><?= "$ticket_prefix$ticket_number" ?></span></a></td>
+                            <td><a href="ticket.php?client_id=<?= $client_id ?>&ticket_id=<?= $ticket_id ?>"><?= $ticket_subject ?></a></td>
+                            <td><?= $ticket_priority_display ?></td>
+                            <td><span class='badge badge-pill text-light p-2' style="background-color: <?= $ticket_status_color ?>"><?= $ticket_status_name ?></span></td>
+                            <td><?= $ticket_assigned_to_display ?></td>
+                            <td><?= $ticket_updated_at_display ?></td>
+                            <td><?= $ticket_created_at ?></td>
                         </tr>
 
                         <?php
@@ -579,7 +596,7 @@ ob_start();
         <?php } ?>
 
         <?php if ($recurring_ticket_count) { ?>
-        <div class="tab-pane fade" id="pills-contact-recurring-tickets<?php echo $contact_id; ?>">
+        <div class="tab-pane fade" id="pills-contact-recurring-tickets<?= $contact_id ?>">
 
             <div class="table-responsive-sm">
                 <table class="table table-striped table-borderless table-hover table-sm">
@@ -603,10 +620,10 @@ ob_start();
                     ?>
 
                         <tr>
-                            <td class="text-bold"><?php echo $recurring_ticket_subject ?></td>
-                            <td><?php echo $recurring_ticket_priority ?></td>
-                            <td><?php echo $recurring_ticket_frequency ?></td>
-                            <td><?php echo $recurring_ticket_next_run ?></td>
+                            <td class="text-bold"><?= $recurring_ticket_subject ?></td>
+                            <td><?= $recurring_ticket_priority ?></td>
+                            <td><?= $recurring_ticket_frequency ?></td>
+                            <td><?= $recurring_ticket_next_run ?></td>
                         </tr>
 
                     <?php } ?>
@@ -618,7 +635,7 @@ ob_start();
         <?php } ?>
 
         <?php if ($software_count) { ?>
-        <div class="tab-pane fade" id="pills-contact-licenses<?php echo $contact_id; ?>">
+        <div class="tab-pane fade" id="pills-contact-licenses<?= $contact_id ?>">
             <div class="table-responsive-sm">
                 <table class="table table-striped table-borderless table-hover table-sm">
                     <thead class="text-dark">
@@ -668,10 +685,10 @@ ob_start();
 
                         ?>
                         <tr>
-                            <td><?php echo "$software_name $software_version"; ?></td>
-                            <td><?php echo $software_type; ?></td>
-                            <td><?php echo $software_key; ?></td>
-                            <td><?php echo "$seat_count / $software_seats"; ?></td>
+                            <td><?= "$software_name $software_version" ?></td>
+                            <td><?= $software_type ?></td>
+                            <td><?= $software_key ?></td>
+                            <td><?= "$seat_count / $software_seats" ?></td>
                         </tr>
 
                         <?php
@@ -687,7 +704,7 @@ ob_start();
         <?php } ?>
 
         <?php if ($document_count) { ?>
-        <div class="tab-pane fade" id="pills-contact-documents<?php echo $contact_id; ?>">
+        <div class="tab-pane fade" id="pills-contact-documents<?= $contact_id ?>">
 
             <div class="table-responsive-sm">
                 <table class="table table-striped table-borderless table-hover table-sm">
@@ -721,11 +738,11 @@ ob_start();
                                     data-modal-url="modals/document/document_view.php?id=<?= $document_id ?>">
                                     <?php echo $document_name; ?>
                                 </a>
-                                <div class="text-secondary"><?php echo $document_description; ?></div>
+                                <div class="text-secondary"><?= $document_description ?></div>
                             </td>
-                            <td><?php echo $document_created_by; ?></td>
-                            <td><?php echo $document_created_at; ?></td>
-                            <td><?php echo $document_updated_at; ?></td>
+                            <td><?= $document_created_by ?></td>
+                            <td><?= $document_created_at ?></td>
+                            <td><?= $document_updated_at ?></td>
                         </tr>
 
                         <?php
@@ -741,7 +758,7 @@ ob_start();
         <?php } ?>
 
         <?php if ($file_count) { ?>
-        <div class="tab-pane fade" id="pills-contact-files<?php echo $contact_id; ?>">
+        <div class="tab-pane fade" id="pills-contact-files<?= $contact_id ?>">
             <div class="table-responsive-sm">
                 <table class="table table-striped table-borderless table-hover table-sm">
                     <thead class="text-dark">
@@ -771,12 +788,12 @@ ob_start();
 
                         <tr>
                             <td>
-                                <div><a href="../uploads/clients/<?php echo $client_id; ?>/<?php echo $file_reference_name; ?>"><?php echo $file_name; ?></a></div>
-                                <div class="text-secondary"><?php echo $file_description; ?></div>
+                                <div><a href="../uploads/clients/<?= $client_id ?>/<?= $file_reference_name ?>" target="_blank"><?= $file_name ?></a></div>
+                                <div class="text-secondary"><?= $file_description ?></div>
                             </td>
-                            <td><?php echo $file_mime_type; ?></td>
-                            <td><?php echo $file_size_KB; ?> KB</td>
-                            <td><?php echo $file_created_at; ?></td>
+                            <td><?= $file_mime_type ?></td>
+                            <td><?= $file_size_KB ?> KB</td>
+                            <td><?= $file_created_at ?></td>
                         </tr>
 
                         <?php
@@ -819,10 +836,10 @@ ob_start();
                         ?>
 
                         <tr>
-                            <td><i class="fa fa-fw <?php echo $note_type_icon; ?> mr-2"></i><?php echo $contact_note_type; ?></td>
-                            <td><?php echo $contact_note; ?></td>
-                            <td><?php echo $note_by; ?></td>
-                            <td><?php echo $contact_note_created_at; ?></td>
+                            <td><i class="fa fa-fw <?= $note_type_icon ?> mr-2"></i><?= $contact_note_type ?></td>
+                            <td><?= $contact_note ?></td>
+                            <td><?= $note_by ?></td>
+                            <td><?= $contact_note_created_at ?></td>
                         </tr>
 
                         <?php
@@ -842,14 +859,13 @@ ob_start();
 </div>
 
 <div class="modal-footer">
-    <a href="contact_details.php?client_id=<?php echo $client_id; ?>&contact_id=<?php echo $contact_id; ?>" class="btn btn-primary text-bold">
-        <span class="text-white"><i class="fas fa-info-circle mr-2"></i>More Details</span>
+    <a href="contact_details.php?client_id=<?= $client_id ?>&contact_id=<?= $contact_id ?>" class="btn btn-outline-primary">
+        <i class="fas fa-info-circle mr-2"></i>More Details
     </a>
     <a href="#" class="btn btn-secondary ajax-modal" 
         data-modal-url="modals/contact/contact_edit.php?id=<?= $contact_id ?>">
-        <span class="text-white"><i class="fas fa-edit mr-2"></i>Edit</span>
+        <i class="fas fa-edit mr-2"></i>Edit
     </a>
-    <button type="button" class="btn btn-light" data-dismiss="modal"><i class="fa fa-times mr-2"></i>Close</button>
 </div>
 
 <?php

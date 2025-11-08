@@ -163,7 +163,9 @@ if (isset($_GET['invoice_id'])) {
     //Product autocomplete
     $products_sql = mysqli_query($mysqli, "
         SELECT 
-            product_name AS label,
+            CONCAT(product_code, ' - ', product_name) AS label,
+            product_name,
+            product_code,
             product_type AS type,
             product_description AS description,
             product_price AS price,
@@ -197,21 +199,12 @@ if (isset($_GET['invoice_id'])) {
     ?>
 
     <ol class="breadcrumb d-print-none">
-        <?php if (isset($_GET['client_id'])) { ?>
         <li class="breadcrumb-item">
-            <a href="client_overview.php?client_id=<?php echo $client_id; ?>"><?php echo $client_name; ?></a>
+            <a href="invoices.php">All Invoices</a>
         </li>
         <li class="breadcrumb-item">
-            <a href="invoices.php?client_id=<?php echo $client_id; ?>">Invoices</a>
+            <a href="invoices.php?client_id=<?php echo $client_id; ?>"><?php echo $client_name; ?> Invoices</a>
         </li>
-        <?php } else { ?>
-        <li class="breadcrumb-item">
-            <a href="invoices.php">Invoices</a>
-        </li>
-        <li class="breadcrumb-item">
-            <a href="invoices.php?client_id=<?php echo $client_id; ?>"><?php echo $client_name; ?></a>
-        </li>
-        <?php } ?>
         <li class="breadcrumb-item active"><?php echo "$invoice_prefix$invoice_number"; ?></li>
         <?php if (isset($invoice_overdue)) { ?>
             <span class="p-2 ml-2 badge badge-danger"><?php echo $invoice_overdue; ?></span>
@@ -247,12 +240,12 @@ if (isset($_GET['invoice_id'])) {
                             <?php if ($invoice_status !== 'Paid' && $invoice_status !== 'Cancelled' && $invoice_status !== 'Draft' && $invoice_status !== 'Non-Billable' && $invoice_amount != 0) { ?>
 
                                 <div class="btn-group">
-                                    <button type="button" class="btn btn-success ajax-modal" data-modal-url="modals/invoice/invoice_pay.php?id=<?= $invoice_id ?>"><i class="fa fa-fw fa-credit-card mr-2"></i>Add Payment</button>
+                                    <button type="button" class="btn btn-success ajax-modal" data-modal-url="modals/payment/payment_add.php?id=<?= $invoice_id ?>"><i class="fa fa-fw fa-credit-card mr-2"></i>Add Payment</button>
 
                                     <?php if (mysqli_num_rows($sql_saved_payment_methods) > 0 && ($invoice_status === 'Sent' || $invoice_status === 'Viewed')) { ?>
                                     <button type="button" class="btn btn-success dropdown-toggle dropdown-toggle-split" data-toggle="dropdown"></button>
                                     <div class="dropdown-menu">
-                                        <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/invoice/invoice_saved_method_pay.php?id=<?= $invoice_id ?>"><i class="fas fa-fw fa-wallet mr-2"></i>Pay with Saved Card</a>                                    
+                                        <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/payment/payment_saved_method_add.php?id=<?= $invoice_id ?>"><i class="fas fa-fw fa-wallet mr-2"></i>Pay with Saved Card</a>                                    
                                     </div>
                                     <?php } ?>
 
@@ -747,12 +740,20 @@ require_once "../includes/footer.php";
 <script>
 
 $(function() {
+
     var availableProducts = <?php echo $json_products ?? '[]'?>;
 
     $("#name").autocomplete({
-        source: availableProducts,
         minLength: 1,
         delay: 0,
+        source: function(request, response) {
+            var term = $.ui.autocomplete.escapeRegex(request.term.toLowerCase());
+            var matcher = new RegExp(term, "i");
+            var matches = $.grep(availableProducts, function(item) {
+                return matcher.test(item.label) || matcher.test(item.product_name) || matcher.test(item.product_code);
+            });
+            response(matches);
+        },
         select: function (event, ui) {
             $("#name").val(ui.item.label);
             $("#desc").val(ui.item.description);

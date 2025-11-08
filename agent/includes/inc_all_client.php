@@ -37,7 +37,8 @@ if (isset($_GET['client_id'])) {
     if (mysqli_num_rows($sql) == 0) {
         require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/header.php';
 
-        echo "<center><h1 class='text-secondary mt-5'>Nothing to see here</h1></center>";
+        echo "<center><h1 class='text-secondary mt-5'>Nothing to see here</h1><a class='btn btn-lg btn-secondary mt-3' href='javascript:history.back()'><i class='fa fa-fw fa-arrow-left'></i> Go Back</a></center>";
+        exit;
     } else {
 
         $row = mysqli_fetch_array($sql);

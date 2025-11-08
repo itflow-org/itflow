@@ -36,7 +36,7 @@ if (isset($_POST['add_client'])) {
     $extended_log_description = '';
 
     // Create client
-    mysqli_query($mysqli, "INSERT INTO clients SET client_name = '$name', client_type = '$type', client_website = '$website', client_referral = '$referral', client_rate = $rate, client_currency_code = '$currency_code', client_net_terms = $net_terms, client_tax_id_number = '$tax_id_number', client_lead = $lead, client_abbreviation = '$abbreviation', client_notes = '$notes', client_accessed_at = NOW()");
+    mysqli_query($mysqli, "INSERT INTO clients SET client_name = '$name', client_type = '$type', client_website = '$website', client_referral = '$referral', client_rate = $rate, client_currency_code = '$session_company_currency', client_net_terms = $net_terms, client_tax_id_number = '$tax_id_number', client_lead = $lead, client_abbreviation = '$abbreviation', client_notes = '$notes', client_accessed_at = NOW()");
 
     $client_id = mysqli_insert_id($mysqli);
 
@@ -133,7 +133,7 @@ if (isset($_POST['edit_client'])) {
 
     $client_id = intval($_POST['client_id']);
 
-    mysqli_query($mysqli, "UPDATE clients SET client_name = '$name', client_type = '$type', client_website = '$website', client_referral = '$referral', client_rate = $rate, client_currency_code = '$currency_code', client_net_terms = $net_terms, client_tax_id_number = '$tax_id_number', client_lead = $lead, client_abbreviation = '$abbreviation', client_notes = '$notes' WHERE client_id = $client_id");
+    mysqli_query($mysqli, "UPDATE clients SET client_name = '$name', client_type = '$type', client_website = '$website', client_referral = '$referral', client_rate = $rate, client_net_terms = $net_terms, client_tax_id_number = '$tax_id_number', client_lead = $lead, client_abbreviation = '$abbreviation', client_notes = '$notes' WHERE client_id = $client_id");
 
     // Create Referral if it doesn't exist
     $sql = mysqli_query($mysqli, "SELECT category_name FROM categories WHERE category_type = 'Referral' AND category_archived_at IS NULL AND category_name = '$referral'");
@@ -171,10 +171,19 @@ if (isset($_GET['archive_client'])) {
 
     $client_id = intval($_GET['archive_client']);
 
+    // Archive client
+    mysqli_query($mysqli, "UPDATE clients SET client_archived_at = NOW() WHERE client_id = $client_id");
+
+    // Stop recurring invoices
+    $sql_recurring_invoices = mysqli_query($mysqli, "SELECT * FROM recurring_invoices WHERE recurring_invoice_client_id = $client_id AND recurring_invoice_status = 1");
+    while ($row = mysqli_fetch_array($sql_recurring_invoices)) {
+        $recurring_invoice_id = intval($row['recurring_invoice_id']);
+        mysqli_query($mysqli,"UPDATE recurring_invoices SET recurring_invoice_status = 0 WHERE recurring_invoice_id = $recurring_invoice_id AND recurring_invoice_client_id = $client_id");
+        mysqli_query($mysqli,"INSERT INTO history SET history_status = 0, history_description = 'Recurring Invoice inactive as client archived', history_recurring_invoice_id = $recurring_invoice_id");
+    }
+
     // Get Client Name
     $client_name = sanitizeInput(getFieldById('clients', $client_id, 'client_name'));
-
-    mysqli_query($mysqli, "UPDATE clients SET client_archived_at = NOW() WHERE client_id = $client_id");
 
     logAction("Client", "Archive", "$session_name archived client $client_name", $client_id, $client_id);
 
@@ -303,7 +312,7 @@ if (isset($_GET['delete_client'])) {
 
     flash_alert("Client <strong>$client_name</strong> deleted along with all associated data", 'error');
 
-    redirect();
+    redirect('clients.php');
 
 }
 
@@ -586,6 +595,120 @@ if (isset($_GET['download_clients_csv_template'])) {
     fpassthru($f);
 
     exit;
+
+}
+
+if (isset($_POST['bulk_add_client_ticket'])) {
+
+    validateCSRFToken($_POST['csrf_token']);
+
+    enforceUserPermission('module_support', 2);
+
+    $assigned_to = intval($_POST['bulk_assigned_to']);
+    if ($assigned_to == 0) {
+        $ticket_status = 1;
+    } else {
+        $ticket_status = 2;
+    }
+    $subject = sanitizeInput($_POST['bulk_subject']);
+    $priority = sanitizeInput($_POST['bulk_priority']);
+    $category_id = intval($_POST['bulk_category']);
+    $details = mysqli_real_escape_string($mysqli, $_POST['bulk_details']);
+    $project_id = intval($_POST['bulk_project']);
+    $use_primary_contact = intval($_POST['use_primary_contact']);
+    $ticket_template_id = intval($_POST['bulk_ticket_template_id']);
+    $billable = intval($_POST['bulk_billable'] ?? 0);
+
+    // Check to see if adding a ticket by template
+    if($ticket_template_id) {
+        $sql = mysqli_query($mysqli, "SELECT * FROM ticket_templates WHERE ticket_template_id = $ticket_template_id");
+        $row = mysqli_fetch_array($sql);
+
+        // Override Template Subject
+        if(empty($subject)) {
+            $subject = sanitizeInput($row['ticket_template_subject']);
+        }
+        $details = mysqli_escape_string($mysqli, $row['ticket_template_details']);
+
+        // Get Associated Tasks from the ticket template
+        $sql_task_templates = mysqli_query($mysqli, "SELECT * FROM task_templates WHERE task_template_ticket_template_id = $ticket_template_id");
+
+    }
+
+    // Create ticket for each selected asset
+    if (isset($_POST['client_ids'])) {
+
+        // Get a Asset Count
+        $client_count = count($_POST['client_ids']);
+
+        foreach ($_POST['client_ids'] as $client_id) {
+            $client_id = intval($client_id);
+
+            $sql = mysqli_query($mysqli, "SELECT * FROM clients WHERE client_id = $client_id");
+            $row = mysqli_fetch_array($sql);
+
+            $client_name = sanitizeInput($row['client_name']);
+
+             // Get the next Ticket Number and update the config
+            $sql_ticket_number = mysqli_query($mysqli, "SELECT config_ticket_next_number FROM settings WHERE company_id = 1");
+            $ticket_number_row = mysqli_fetch_array($sql_ticket_number);
+            $ticket_number = intval($ticket_number_row['config_ticket_next_number']);
+
+            // Sanitize Config Vars from get_settings.php and Session Vars from check_login.php
+            $config_ticket_prefix = sanitizeInput($config_ticket_prefix);
+            $config_ticket_from_name = sanitizeInput($config_ticket_from_name);
+            $config_ticket_from_email = sanitizeInput($config_ticket_from_email);
+            $config_base_url = sanitizeInput($config_base_url);
+
+            //Generate a unique URL key for clients to access
+            $url_key = randomString(156);
+
+            // Increment the config ticket next number
+            $new_config_ticket_next_number = $ticket_number + 1;
+
+            mysqli_query($mysqli, "UPDATE settings SET config_ticket_next_number = $new_config_ticket_next_number WHERE company_id = 1");
+
+            mysqli_query($mysqli, "INSERT INTO tickets SET ticket_prefix = '$config_ticket_prefix', ticket_number = $ticket_number, ticket_category = $category_id, ticket_subject = '$subject', ticket_details = '$details', ticket_priority = '$priority', ticket_billable = $billable, ticket_status = $ticket_status, ticket_created_by = $session_user_id, ticket_assigned_to = $assigned_to, ticket_url_key = '$url_key', ticket_client_id = $client_id, ticket_project_id = $project_id");
+
+            $ticket_id = mysqli_insert_id($mysqli);
+
+            // Update the next ticket number in the database
+            mysqli_query($mysqli, "UPDATE settings SET config_ticket_next_number = $new_config_ticket_next_number WHERE company_id = 1");
+
+            // Add Tasks
+            if (!empty($_POST['tasks'])) {
+                foreach ($_POST['tasks'] as $task) {
+                    $task_name = sanitizeInput($task);
+                    // Check that task_name is not-empty (For some reason the !empty on the array doesnt work here like in watchers)
+                    if (!empty($task_name)) {
+                        mysqli_query($mysqli,"INSERT INTO tasks SET task_name = '$task_name', task_ticket_id = $ticket_id");
+                    }
+                }
+            }
+
+            // Add Tasks from Template if Template was selected
+            if($ticket_template_id) {
+                if (mysqli_num_rows($sql_task_templates) > 0) {
+                    while ($row = mysqli_fetch_array($sql_task_templates)) {
+                        $task_order = intval($row['task_template_order']);
+                        $task_name = sanitizeInput($row['task_template_name']);
+
+                        mysqli_query($mysqli,"INSERT INTO tasks SET task_name = '$task_name', task_order = $task_order, task_ticket_id = $ticket_id");
+                    }
+                }
+            }
+
+            // Custom action/notif handler
+            customAction('ticket_create', $ticket_id);
+        }
+
+        logAction("Ticket", "Bulk Create", "$session_name created $client_count tickets for $client_name");
+
+        flash_alert("<strong>$client_count</strong> tickets created for selected clients");
+
+    }
+
+    redirect();
 
 }
 

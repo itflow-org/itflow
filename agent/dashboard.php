@@ -660,7 +660,7 @@ if ($user_config_dashboard_technical_enable == 1) {
             <a class="small-box bg-warning" href="domains.php?sort=domain_expire&order=ASC">
                 <div class="inner">
                     <h3><?php echo $expiring_domains; ?></h3>
-                    <p>Expiring Domains</p>
+                    <p>Expiring Domains <small>30 Day</small></p>
                 </div>
                 <div class="icon">
                     <i class="fa fa-globe"></i>
@@ -673,7 +673,7 @@ if ($user_config_dashboard_technical_enable == 1) {
             <a class="small-box bg-primary" href="certificates.php?sort=certificate_expire&order=ASC">
                 <div class="inner">
                     <h3><?php echo $expiring_certificates; ?></h3>
-                    <p>Expiring Certificates</p>
+                    <p>Expiring Certificates<small>30 Day</small></p>
                 </div>
                 <div class="icon">
                     <i class="fa fa-lock"></i>
@@ -734,8 +734,8 @@ if ($user_config_dashboard_technical_enable == 1) {
                                     $contact_display = empty($contact_name) ? "-" : "<a href='contact_details.php?client_id=$client_id&contact_id=$contact_id'>$contact_name</a>";
                                 ?>
                                     <tr class="<?php echo empty($ticket_updated_at) ? 'text-bold' : ''; ?>">
-                                        <td><a class="text-dark" href="ticket.php?ticket_id=<?php echo $ticket_id; ?>"><?php echo "$ticket_prefix$ticket_number"; ?></a></td>
-                                        <td><a href="ticket.php?ticket_id=<?php echo $ticket_id; ?>"><?php echo $ticket_subject; ?></a></td>
+                                        <td><a class="text-dark" href="ticket.php?client_id=<?= $client_id ?>&ticket_id=<?php echo $ticket_id; ?>"><?php echo "$ticket_prefix$ticket_number"; ?></a></td>
+                                        <td><a href="ticket.php?client_id=<?= $client_id ?>&ticket_id=<?php echo $ticket_id; ?>"><?php echo $ticket_subject; ?></a></td>
                                         <td><a href="tickets.php?client_id=<?php echo $client_id; ?>"><strong><?php echo $client_name; ?></strong></a></td>
                                         <td><?php echo $contact_display; ?></td>
                                         <td><span class='p-2 badge badge-pill badge-<?php echo $ticket_priority_color; ?>'><?php echo $ticket_priority; ?></span></td>

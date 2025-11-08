@@ -1,40 +1,54 @@
-// Allow selecting and editing multiple records at once
+// bulk_actions.js
+// Allow selecting and editing multiple records at once (no <form> dependency)
 
-var form = document.getElementById("bulkActions"); // Get the form element by its id
-var checkboxes = form.querySelectorAll('input[type="checkbox"].bulk-select'); // Select only checkboxes with class "bulk-select"
-var selectedCount = document.getElementById("selectedCount");
-var selectAllCheckbox = document.getElementById("selectAllCheckbox"); // The "select all" checkbox
-
-// Event listener for each checkbox
-for (var i = 0; i < checkboxes.length; i++) {
-  checkboxes[i].addEventListener("click", updateSelectedCount);
+// --- Helpers ---
+function getCheckboxes() {
+    // Always query fresh in case rows are re-rendered
+    return Array.from(document.querySelectorAll('input[type="checkbox"].bulk-select'));
 }
 
-// Function to update the count of selected checkboxes
+function getSelectedIds() {
+    return getCheckboxes()
+        .filter(cb => cb.checked)
+        .map(cb => cb.value);
+}
+
 function updateSelectedCount() {
-  var count = 0;
-  for (var i = 0; i < checkboxes.length; i++) {
-    if (checkboxes[i].checked) {
-      count++;
+    const count = getSelectedIds().length;
+    const selectedCountEl = document.getElementById('selectedCount');
+    if (selectedCountEl) {
+        selectedCountEl.textContent = count;
     }
-  }
-  selectedCount.textContent = count; // Display the count
 
-  // Show or hide the multi-action button
-  document.getElementById("bulkActionButton").hidden = count === 0;
+    const bulkBtn = document.getElementById('bulkActionButton');
+    if (bulkBtn) {
+        bulkBtn.hidden = count === 0;
+    }
 }
 
-// Function to check/uncheck all checkboxes
+// --- Select All Handling ---
 function checkAll(source) {
-  for (var i = 0; i < checkboxes.length; i++) {
-    checkboxes[i].checked = source.checked;
-  }
-  updateSelectedCount(); // Update the count after changing checkbox states
+    getCheckboxes().forEach(cb => {
+        cb.checked = source.checked;
+    });
+    updateSelectedCount();
 }
 
-// Event listener for the "select all" checkbox
+// Wire select-all checkbox if present
+const selectAllCheckbox = document.getElementById('selectAllCheckbox');
 if (selectAllCheckbox) {
-  selectAllCheckbox.addEventListener("click", function() {
-    checkAll(this);
-  });
+    selectAllCheckbox.addEventListener('click', function () {
+        checkAll(this);
+    });
 }
+
+// --- Per-row Checkbox Handling ---
+// Use event delegation so it still works if table rows are re-rendered
+document.addEventListener('click', function (e) {
+    const cb = e.target.closest('input[type="checkbox"].bulk-select');
+    if (!cb) return;
+    updateSelectedCount();
+});
+
+// --- Initialize count on page load ---
+document.addEventListener('DOMContentLoaded', updateSelectedCount);

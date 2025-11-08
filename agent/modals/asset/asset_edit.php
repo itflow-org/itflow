@@ -53,37 +53,38 @@ $sql_asset_history = mysqli_query($mysqli, "SELECT * FROM asset_history
 // Generate the HTML form content using output buffering.
 ob_start();
 ?>
+
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class='fa fa-fw fa-<?php echo $device_icon; ?> mr-2'></i>Editing asset: <strong><?php echo $asset_name; ?></strong></h5>
+    <h5 class="modal-title"><i class='fa fa-fw fa-<?= $device_icon ?> mr-2'></i>Editing asset: <strong><?= $asset_name ?></strong></h5>
     <button type="button" class="close text-white" data-dismiss="modal">
         <span>&times;</span>
     </button>
 </div>
 <form action="post.php" method="post" enctype="multipart/form-data" autocomplete="off">
-    <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token'] ?>">
-    <input type="hidden" name="asset_id" value="<?php echo $asset_id; ?>">
-    <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
+    <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
+    <input type="hidden" name="asset_id" value="<?= $asset_id ?>">
+    <input type="hidden" name="client_id" value="<?= $client_id ?>">
 
     <div class="modal-body">
 
         <ul class="nav nav-pills nav-justified mb-3">
             <li class="nav-item">
-                <a class="nav-link active" data-toggle="pill" href="#pills-details<?php echo $asset_id; ?>">Details</a>
+                <a class="nav-link active" data-toggle="pill" href="#pills-details">Details</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" data-toggle="pill" href="#pills-network<?php echo $asset_id; ?>">Network</a>
+                <a class="nav-link" data-toggle="pill" href="#pills-network">Network</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" data-toggle="pill" href="#pills-assignment<?php echo $asset_id; ?>">Assignment</a>
+                <a class="nav-link" data-toggle="pill" href="#pills-assignment">Assignment</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" data-toggle="pill" href="#pills-purchase<?php echo $asset_id; ?>">Purchase</a>
+                <a class="nav-link" data-toggle="pill" href="#pills-purchase">Purchase</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" data-toggle="pill" href="#pills-notes<?php echo $asset_id; ?>">Notes</a>
+                <a class="nav-link" data-toggle="pill" href="#pills-notes">Notes</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" data-toggle="pill" href="#pills-history<?php echo $asset_id; ?>">History</a>
+                <a class="nav-link" data-toggle="pill" href="#pills-history">History</a>
             </li>
         </ul>
 
@@ -91,7 +92,7 @@ ob_start();
 
         <div class="tab-content" <?php if (lookupUserPermission('module_support') <= 1) { echo 'inert'; } ?>>
 
-            <div class="tab-pane fade show active" id="pills-details<?php echo $asset_id; ?>">
+            <div class="tab-pane fade show active" id="pills-details">
 
                 <div class="form-group">
                     <label>Name <strong class="text-danger">*</strong></label>
@@ -99,7 +100,7 @@ ob_start();
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
                         </div>
-                        <input type="text" class="form-control" name="name" placeholder="Name the asset" maxlength="200" value="<?php echo $asset_name; ?>" required>
+                        <input type="text" class="form-control" name="name" placeholder="Name the asset" maxlength="200" value="<?= $asset_name ?>" required>
                     </div>
                 </div>
 
@@ -109,7 +110,7 @@ ob_start();
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-angle-right"></i></span>
                         </div>
-                        <input type="text" class="form-control" name="description" placeholder="Description of the asset" maxlength="255" value="<?php echo $asset_description; ?>">
+                        <input type="text" class="form-control" name="description" placeholder="Description of the asset" maxlength="255" value="<?= $asset_description ?>">
                     </div>
                 </div>
 
@@ -135,7 +136,7 @@ ob_start();
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
                             </div>
-                            <input type="text" class="form-control" name="make" placeholder="Manufacturer" maxlength="200" value="<?php echo $asset_make; ?>">
+                            <input type="text" class="form-control" name="make" placeholder="Manufacturer" maxlength="200" value="<?= $asset_make ?>">
                         </div>
                     </div>
 
@@ -145,7 +146,7 @@ ob_start();
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
                             </div>
-                            <input type="text" class="form-control" name="model" placeholder="Model Number" maxlength="200" value="<?php echo $asset_model; ?>">
+                            <input type="text" class="form-control" name="model" placeholder="Model Number" maxlength="200" value="<?= $asset_model ?>">
                         </div>
                     </div>
 
@@ -155,7 +156,7 @@ ob_start();
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fa fa-fw fa-barcode"></i></span>
                             </div>
-                            <input type="text" class="form-control" name="serial" placeholder="Serial number" maxlength="200" value="<?php echo $asset_serial; ?>">
+                            <input type="text" class="form-control" name="serial" placeholder="Serial number" maxlength="200" value="<?= $asset_serial ?>">
                         </div>
                     </div>
                 <?php } ?>
@@ -167,14 +168,14 @@ ob_start();
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fab fa-fw fa-windows"></i></span>
                             </div>
-                            <input type="text" class="form-control" name="os" placeholder="ex Windows 10 Pro" maxlength="200" value="<?php echo $asset_os; ?>">
+                            <input type="text" class="form-control" name="os" id="os" placeholder="ex Windows 10 Pro" maxlength="200" value="<?= $asset_os ?>">
                         </div>
                     </div>
                 <?php } ?>
 
             </div>
 
-            <div class="tab-pane fade" id="pills-network<?php echo $asset_id; ?>">
+            <div class="tab-pane fade" id="pills-network">
 
                 <div class="form-group">
                     <label>Network</label>
@@ -227,7 +228,7 @@ ob_start();
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-random"></i></span>
                         </div>
-                        <input type="text" class="form-control" name="nat_ip" value="<?php echo $asset_nat_ip; ?>" placeholder="10.52.4.55" data-inputmask="'alias': 'ip'" maxlength="200" data-mask>
+                        <input type="text" class="form-control" name="nat_ip" value="<?= $asset_nat_ip ?>" placeholder="10.52.4.55" data-inputmask="'alias': 'ip'" maxlength="200" data-mask>
                     </div>
                 </div>
 
@@ -237,7 +238,7 @@ ob_start();
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-ethernet"></i></span>
                         </div>
-                        <input type="text" class="form-control" name="ipv6" value="<?php echo $asset_ipv6; ?>" placeholder="ex. 2001:0db8:0000:0000:0000:ff00:0042:8329" maxlength="200">
+                        <input type="text" class="form-control" name="ipv6" value="<?= $asset_ipv6 ?>" placeholder="ex. 2001:0db8:0000:0000:0000:ff00:0042:8329" maxlength="200">
                     </div>
                 </div>
 
@@ -247,7 +248,7 @@ ob_start();
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-ethernet"></i></span>
                         </div>
-                        <input type="text" class="form-control" name="mac" value="<?php echo $asset_mac; ?>" placeholder="MAC Address" data-inputmask="'alias': 'mac'" maxlength="200" data-mask>
+                        <input type="text" class="form-control" name="mac" value="<?= $asset_mac ?>" placeholder="MAC Address" data-inputmask="'alias': 'mac'" maxlength="200" data-mask>
                     </div>
                 </div>
 
@@ -257,7 +258,7 @@ ob_start();
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-globe"></i></span>
                         </div>
-                        <input type="text" class="form-control" name="uri" placeholder="URI http:// ftp:// ssh: etc" maxlength="500" value="<?php echo $asset_uri; ?>">
+                        <input type="text" class="form-control" name="uri" placeholder="URI http:// ftp:// ssh: etc" maxlength="500" value="<?= $asset_uri ?>">
                     </div>
                 </div>
 
@@ -282,7 +283,7 @@ ob_start();
 
             </div>
 
-            <div class="tab-pane fade" id="pills-assignment<?php echo $asset_id; ?>">
+            <div class="tab-pane fade" id="pills-assignment">
 
                 <div class="form-group">
                     <label>Physical Location</label>
@@ -290,7 +291,7 @@ ob_start();
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-map-marker-alt"></i></span>
                         </div>
-                        <input type="text" class="form-control" name="physical_location" placeholder="Physical location eg. Floor 2, Closet B" maxlength="200" value="<?php echo $asset_physical_location; ?>">
+                        <input type="text" class="form-control" name="physical_location" placeholder="Physical location eg. Floor 2, Closet B" maxlength="200" value="<?= $asset_physical_location ?>">
                     </div>
                 </div>
 
@@ -315,7 +316,7 @@ ob_start();
                                     $location_name_select_display = $location_name_select;
                                 }
                                 ?>
-                                <option <?php if ($asset_location_id == $location_id_select) { echo "selected"; } ?> value="<?php echo $location_id_select; ?>"><?php echo $location_name_select_display; ?></option>
+                                <option <?php if ($asset_location_id == $location_id_select) { echo "selected"; } ?> value="<?= $location_id_select ?>"><?= $location_name_select_display ?></option>
 
                             <?php } ?>
                         </select>
@@ -343,8 +344,8 @@ ob_start();
                                     $contact_name_select_display = $contact_name_select;
                                 }
                                 ?>
-                                <option <?php if ($asset_contact_id == $contact_id_select) { echo "selected"; } ?> value="<?php echo $contact_id_select; ?>">
-                                    <?php echo $contact_name_select_display; ?>
+                                <option <?php if ($asset_contact_id == $contact_id_select) { echo "selected"; } ?> value="<?= $contact_id_select ?>">
+                                    <?= $contact_name_select_display ?>
                                 </option>
 
                             <?php } ?>
@@ -360,7 +361,7 @@ ob_start();
                         </div>
                         <select class="form-control select2" name="status">
                             <?php foreach($asset_status_array as $asset_status_select) { ?>
-                                <option <?php if ($asset_status_select == $asset_status) { echo "selected"; } ?>><?php echo $asset_status_select; ?></option>
+                                <option <?php if ($asset_status_select == $asset_status) { echo "selected"; } ?>><?= $asset_status_select ?></option>
                             <?php } ?>
                         </select>
                     </div>
@@ -368,7 +369,7 @@ ob_start();
 
             </div>
 
-            <div class="tab-pane fade" id="pills-purchase<?php echo $asset_id; ?>">
+            <div class="tab-pane fade" id="pills-purchase">
 
                 <div class="form-group">
                     <label>Vendor</label>
@@ -391,7 +392,7 @@ ob_start();
                                     $vendor_name_select_display = $vendor_name_select;
                                 }
                                 ?>
-                                <option <?php if ($asset_vendor_id == $vendor_id_select) { echo "selected"; } ?> value="<?php echo $vendor_id_select; ?>"><?php echo $vendor_name_select_display; ?></option>
+                                <option <?php if ($asset_vendor_id == $vendor_id_select) { echo "selected"; } ?> value="<?= $vendor_id_select ?>"><?= $vendor_name_select_display ?></option>
 
                             <?php } ?>
                         </select>
@@ -405,7 +406,7 @@ ob_start();
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fa fa-fw fa-shopping-cart"></i></span>
                             </div>
-                            <input type="text" class="form-control" name="purchase_reference" placeholder="eg. Invoice, PO Number" value="<?php echo $asset_purchase_reference; ?>">
+                            <input type="text" class="form-control" name="purchase_reference" placeholder="eg. Invoice, PO Number" value="<?= $asset_purchase_reference ?>">
                         </div>
                     </div>
 
@@ -415,7 +416,7 @@ ob_start();
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
                             </div>
-                            <input type="date" class="form-control" name="purchase_date" max="2999-12-31" value="<?php echo $asset_purchase_date; ?>">
+                            <input type="date" class="form-control" name="purchase_date" max="2999-12-31" value="<?= $asset_purchase_date ?>">
                         </div>
                     </div>
                 <?php } ?>
@@ -426,7 +427,7 @@ ob_start();
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-calendar-check"></i></span>
                         </div>
-                        <input type="date" class="form-control" name="install_date" max="2999-12-31" value="<?php echo $asset_install_date; ?>">
+                        <input type="date" class="form-control" name="install_date" max="2999-12-31" value="<?= $asset_install_date ?>">
                     </div>
                 </div>
 
@@ -437,18 +438,18 @@ ob_start();
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fa fa-fw fa-calendar-times"></i></span>
                             </div>
-                            <input type="date" class="form-control" name="warranty_expire" max="2999-12-31" value="<?php echo $asset_warranty_expire; ?>">
+                            <input type="date" class="form-control" name="warranty_expire" max="2999-12-31" value="<?= $asset_warranty_expire ?>">
                         </div>
                     </div>
                 <?php } ?>
 
             </div>
 
-            <div class="tab-pane fade" id="pills-notes<?php echo $asset_id; ?>">
+            <div class="tab-pane fade" id="pills-notes">
 
                 <div class="mb-3 text-center">
                     <?php if ($asset_photo) { ?>
-                        <img class="img-fluid" alt="asset_photo" src="<?php echo "../uploads/clients/$client_id/$asset_photo"; ?>">
+                        <img class="img-fluid" alt="asset_photo" src="<?= "../uploads/clients/$client_id/$asset_photo" ?>">
                     <?php } ?>
                 </div>
 
@@ -458,7 +459,7 @@ ob_start();
                 </div>
 
                 <div class="form-group">
-                    <textarea class="form-control" rows="8" placeholder="Enter some notes" name="notes"><?php echo $asset_notes; ?></textarea>
+                    <textarea class="form-control" rows="8" placeholder="Enter some notes" name="notes"><?= $asset_notes ?></textarea>
                 </div>
 
                 <p class="text-muted text-right">Asset ID: <?= $asset_id ?></p>
@@ -466,7 +467,7 @@ ob_start();
             </div>
 
 
-            <div class="tab-pane fade" id="pills-history<?php echo $asset_id; ?>">
+            <div class="tab-pane fade" id="pills-history">
 
                 <div class="form-group">
                     <label>Asset History</label>

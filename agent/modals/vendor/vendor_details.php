@@ -51,7 +51,7 @@ ob_start();
                 </div>
                 <div class="col-sm-6">
                     <div><strong>Code:</strong> <?php echo getFallback($code); ?></div>
-                    <div><strong>Website:</strong> <?php echo !empty($website) ? '<a href="' . $website . '" target="_blank" class="text-primary">' . $website . '</a>' : '<span class="text-muted">Not Available</span>'; ?></div>
+                    <div><strong>Website:</strong> <?php echo !empty($website) ? '<a href="https://' . $website . '" target="_blank" class="text-primary">' . $website . '</a>' : '<span class="text-muted">Not Available</span>'; ?></div>
                 </div>
             </div>
         </div>

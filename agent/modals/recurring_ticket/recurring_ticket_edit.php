@@ -136,7 +136,7 @@ ob_start();
                             $sql_users_select = mysqli_query($mysqli, "SELECT user_id, user_name FROM users
                                 WHERE user_type = 1
                                 AND user_archived_at IS NULL
-                                ORDER BY user_name DESC"
+                                ORDER BY user_name ASC"
                             );
                             while ($row = mysqli_fetch_array($sql_users_select)) {
                                 $user_id_select = intval($row['user_id']);
@@ -212,7 +212,9 @@ ob_start();
                             <span class="input-group-text"><i class="fa fa-fw fa-recycle"></i></span>
                         </div> 
                         <select class="form-control select2" name="frequency">
+                            <option <?php if ($recurring_ticket_frequency == "Three Days") { echo "selected"; } ?>>Three Days</option>
                             <option <?php if ($recurring_ticket_frequency == "Weekly") { echo "selected"; } ?>>Weekly</option>
+                            <option <?php if ($recurring_ticket_frequency == "Biweekly") { echo "selected"; } ?>>Biweekly</option>
                             <option <?php if ($recurring_ticket_frequency == "Monthly") { echo "selected"; } ?>>Monthly</option>
                             <option <?php if ($recurring_ticket_frequency == "Quarterly") { echo "selected"; } ?>>Quarterly</option>
                             <option <?php if ($recurring_ticket_frequency == "Biannually") { echo "selected"; } ?>>Biannually</option>

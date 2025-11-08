@@ -774,6 +774,84 @@ CREATE TABLE `contacts` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `contract_templates`
+--
+
+DROP TABLE IF EXISTS `contract_templates`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `contract_templates` (
+  `contract_template_id` int(11) NOT NULL AUTO_INCREMENT,
+  `contract_template_name` varchar(255) NOT NULL,
+  `contract_template_description` text DEFAULT NULL,
+  `contract_template_type` varchar(50) DEFAULT NULL,
+  `contract_template_sla_low_response_time` int(11) DEFAULT NULL,
+  `contract_template_sla_low_resolution_time` int(11) DEFAULT NULL,
+  `contract_template_sla_medium_response_time` int(11) DEFAULT NULL,
+  `contract_template_sla_medium_resolution_time` int(11) DEFAULT NULL,
+  `contract_template_sla_high_response_time` int(11) DEFAULT NULL,
+  `contract_template_sla_high_resolution_time` int(11) DEFAULT NULL,
+  `contract_template_rate_standard` decimal(10,2) DEFAULT NULL,
+  `contract_template_rate_after_hours` decimal(10,2) DEFAULT NULL,
+  `contract_template_net_terms` varchar(50) DEFAULT NULL,
+  `contract_template_support_hours` varchar(100) DEFAULT NULL,
+  `contract_template_renewal_frequency` varchar(50) DEFAULT NULL,
+  `contract_template_details` text DEFAULT NULL,
+  `contract_template_created_at` datetime DEFAULT current_timestamp(),
+  `contract_template_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
+  `contract_template_archived_at` datetime DEFAULT NULL,
+  `company_id` int(11) NOT NULL,
+  PRIMARY KEY (`contract_template_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `contracts`
+--
+
+DROP TABLE IF EXISTS `contracts`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `contracts` (
+  `contract_id` int(11) NOT NULL AUTO_INCREMENT,
+  `contract_name` varchar(255) NOT NULL,
+  `contract_status` varchar(50) NOT NULL,
+  `contract_type` varchar(50) NOT NULL,
+  `contract_sla_low_response_time` int(11) DEFAULT NULL,
+  `contract_sla_low_resolution_time` int(11) DEFAULT NULL,
+  `contract_sla_medium_response_time` int(11) DEFAULT NULL,
+  `contract_sla_medium_resolution_time` int(11) DEFAULT NULL,
+  `contract_sla_high_response_time` int(11) DEFAULT NULL,
+  `contract_sla_high_resolution_time` int(11) DEFAULT NULL,
+  `contract_details` text DEFAULT NULL,
+  `contract_client_id` int(11) DEFAULT NULL,
+  `contract_client_name` varchar(255) DEFAULT NULL,
+  `contract_client_address` text DEFAULT NULL,
+  `contract_client_email` varchar(255) DEFAULT NULL,
+  `contract_client_phone` varchar(100) DEFAULT NULL,
+  `contract_contact_name` varchar(255) DEFAULT NULL,
+  `contract_contact_signature` text DEFAULT NULL,
+  `contract_contact_signature_date` datetime DEFAULT NULL,
+  `contract_agent_name` varchar(255) DEFAULT NULL,
+  `contract_agent_signature` text DEFAULT NULL,
+  `contract_agent_signature_date` datetime DEFAULT NULL,
+  `contract_rate_standard` decimal(10,2) DEFAULT NULL,
+  `contract_rate_after_hours` decimal(10,2) DEFAULT NULL,
+  `contract_net_terms` varchar(50) DEFAULT NULL,
+  `contract_support_hours` varchar(100) DEFAULT NULL,
+  `contract_start_date` date DEFAULT NULL,
+  `contract_end_date` date DEFAULT NULL,
+  `contract_renewal_frequency` varchar(50) DEFAULT NULL,
+  `contract_created_at` datetime DEFAULT current_timestamp(),
+  `contract_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
+  `contract_archived_at` datetime DEFAULT NULL,
+  PRIMARY KEY (`contract_id`),
+  KEY `contract_client_id` (`contract_client_id`),
+  CONSTRAINT `contracts_ibfk_1` FOREIGN KEY (`contract_client_id`) REFERENCES `clients` (`client_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `credential_tags`
 --
 
@@ -2819,4 +2897,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-10-02 14:27:24
+-- Dump completed on 2025-11-07 16:47:40

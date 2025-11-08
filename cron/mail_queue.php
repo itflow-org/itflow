@@ -215,6 +215,7 @@ if (mysqli_num_rows($sql_queue) > 0) {
         $email_content        = $rowq['email_content'];
         $email_ics_str        = $rowq['email_cal_str'];
 
+        // Check sender
         if (!filter_var($email_from, FILTER_VALIDATE_EMAIL)) {
             $email_from_logging = sanitizeInput($rowq['email_from']);
             mysqli_query($mysqli, "UPDATE email_queue SET email_status = 2, email_attempts = 99 WHERE email_id = $email_id");
@@ -225,10 +226,14 @@ if (mysqli_num_rows($sql_queue) > 0) {
 
         mysqli_query($mysqli, "UPDATE email_queue SET email_status = 1 WHERE email_id = $email_id");
 
-        if (!filter_var($email_recipient, FILTER_VALIDATE_EMAIL)) {
+        // Check recipient
+        $domain = sanitizeInput(substr($email_recipient, strpos($email_recipient, '@') + 1));
+        if (!filter_var($email_recipient, FILTER_VALIDATE_EMAIL) || !checkdnsrr($domain, 'MX')) {
             mysqli_query($mysqli, "UPDATE email_queue SET email_status = 2, email_attempts = 99 WHERE email_id = $email_id");
+            $email_to_logging = sanitizeInput($email_recipient);
             $email_subject_logging = sanitizeInput($rowq['email_subject']);
-            logApp("Cron-Mail-Queue", "Error", "Failed to send email: $email_id due to invalid recipient address. Email subject was: $email_subject_logging");
+            logApp("Cron-Mail-Queue", "Error", "Failed to send email: $email_id to $email_to_logging due to invalid recipient address. Email subject was: $email_subject_logging");
+            appNotify("Mail", "Failed to send email #$email_id to $email_to_logging due to invalid recipient address: Email subject was: $email_subject_logging");
             continue;
         }
 
@@ -273,7 +278,7 @@ if (mysqli_num_rows($sql_queue) > 0) {
 /** =======================================================================
  *  RETRIES: status = 2 (Failed), attempts < 4, wait 30 min
  *  NOTE: Backoff is `email_failed_at <= NOW() - INTERVAL 30 MINUTE`
- * ======================================================================= */
+ * =======================================================================*/
 $sql_failed_queue = mysqli_query(
     $mysqli,
     "SELECT * FROM email_queue

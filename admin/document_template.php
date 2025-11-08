@@ -22,7 +22,7 @@
     <div class="card-header py-2">
         <h3 class="card-title mt-2"><i class="fa fa-fw fa-file mr-2"></i>Document Templates</h3>
         <div class="card-tools">
-            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addDocumentTemplateModal">
+            <button type="button" class="btn btn-primary ajax-modal" data-modal-url="modals/document_template/document_template_add.php" data-modal-size="xl">
                 <i class="fas fa-plus mr-2"></i>New Template
             </button>
         </div>
@@ -121,38 +121,4 @@
     </div>
 </div>
 
-<?php require_once "modals/document_template/document_template_add.php"; ?>
-<?php require_once "../includes/footer.php"; ?>
-
-<script>
-$(document).ready(function(){
-
-    $('#generateAIContent').on('click', function(){
-        var prompt = $('#aiPrompt').val().trim();
-        if(prompt === '') {
-            alert('Please enter a prompt.');
-            return;
-        }
-
-        $('#generateAIContent').prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Generating...');
-
-        $.ajax({
-            url: 'post.php?ai_create_document_template', // The PHP script that calls the OpenAI API
-            method: 'POST',
-            data: { prompt: prompt },
-            dataType: 'html',
-            success: function(response) {
-                // Assuming you have exactly one TinyMCE instance on the page
-                // and it's targeting the .tinymce textarea:
-                tinymce.activeEditor.setContent(response);
-            },
-            error: function() {
-                alert('Error generating content. Please try again.');
-            },
-            complete: function() {
-                $('#generateAIContent').prop('disabled', false).html('<i class="fa fa-fw fa-magic mr-1"></i>Generate with AI');
-            }
-        });
-    });
-});
-</script>
+<?php require_once "../includes/footer.php";

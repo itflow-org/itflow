@@ -18,8 +18,7 @@ ob_start();
 
 <div class="modal-header bg-dark">
     <h5 class="modal-title">
-        <i class="fa fa-fw fa-user mr-2"></i>
-        Edit Billable Status for <strong><?php echo "$ticket_prefix$ticket_number"; ?></strong>
+        <i class="fa fa-fw fa-money-bill mr-2"></i>Editing Billable Status: <strong><?php echo "$ticket_prefix$ticket_number"; ?></strong>
     </h5>
     <button type="button" class="close text-white" data-dismiss="modal">
         <span>&times;</span>
@@ -29,7 +28,7 @@ ob_start();
     <div class="modal-body">
         <input type="hidden" name="ticket_id" value="<?php echo $ticket_id; ?>">
         <div class="form-group">
-            <label>Billable</label>
+            <label>Billable?</label>
             <div class="input-group">
                 <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-money-bill"></i></span>

@@ -27,7 +27,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
     <div class="card-header py-2">
         <h3 class="card-title mt-2"><i class="fas fa-fw fa-server mr-2"></i>Network Racks</h3>
         <div class="card-tools">
-            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addRackModal">
+            <button type="button" class="btn btn-primary ajax-modal" data-modal-url="modals/rack/rack_add.php?client_id=<?= $client_id ?>">
                 <i class="fas fa-plus mr-2"></i>New Rack
             </button>
         </div>
@@ -342,6 +342,4 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 </div>
 
 <?php
-
-require_once "modals/rack/rack_add.php";
 require_once "../includes/footer.php";

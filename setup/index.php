@@ -5,7 +5,7 @@ if (file_exists("../config.php")) {
 
 }
 
-include "../functions.php";
+include "../functions.php"; // Global Functions
 include "../includes/database_version.php";
 
 if (!isset($config_enable_setup)) {
@@ -127,7 +127,72 @@ if (isset($_POST['add_database'])) {
 
 if (isset($_POST['restore'])) {
 
-    // === 1. Validate uploaded file ===
+    // ---------- Long-running guards ----------
+    @set_time_limit(0);
+    if (function_exists('ini_set')) { @ini_set('memory_limit', '1024M'); }
+
+    // ---------- Minimal helpers (scoped) ----------
+    if (!function_exists('deleteDir')) {
+        function deleteDir($dir) {
+            if (!is_dir($dir)) return;
+            $it = new RecursiveIteratorIterator(
+                new RecursiveDirectoryIterator($dir, FilesystemIterator::SKIP_DOTS),
+                RecursiveIteratorIterator::CHILD_FIRST
+            );
+            foreach ($it as $item) {
+                $item->isDir() ? @rmdir($item->getPathname()) : @unlink($item->getPathname());
+            }
+            @rmdir($dir);
+        }
+    }
+
+    if (!function_exists('importSqlFile')) {
+        /**
+         * Import a SQL file via mysqli, supports DELIMITER and multi statements.
+         */
+        function importSqlFile(mysqli $mysqli, string $path): void {
+            if (!is_file($path) || !is_readable($path)) {
+                throw new RuntimeException("SQL file not found or unreadable: $path");
+            }
+            $fh = fopen($path, 'r');
+            if (!$fh) throw new RuntimeException("Failed to open SQL file");
+
+            $delimiter = ';';
+            $statement = '';
+
+            while (($line = fgets($fh)) !== false) {
+                $trim = trim($line);
+
+                // Skip comments/empty
+                if ($trim === '' || str_starts_with($trim, '--') || str_starts_with($trim, '#')) {
+                    continue;
+                }
+
+                // Handle DELIMITER changes
+                if (preg_match('/^DELIMITER\s+(.+)$/i', $trim, $m)) {
+                    $delimiter = $m[1];
+                    continue;
+                }
+
+                $statement .= $line;
+
+                // End of statement?
+                if (substr(rtrim($statement), -strlen($delimiter)) === $delimiter) {
+                    $sql = substr($statement, 0, -strlen($delimiter));
+                    if ($mysqli->multi_query($sql) === false) {
+                        fclose($fh);
+                        throw new RuntimeException("SQL error: " . $mysqli->error);
+                    }
+                    // Flush any result sets
+                    while ($mysqli->more_results() && $mysqli->next_result()) { /* discard */ }
+                    $statement = '';
+                }
+            }
+            fclose($fh);
+        }
+    }
+
+    // ---------- 1) Validate uploaded backup ----------
     if (!isset($_FILES['backup_zip']) || $_FILES['backup_zip']['error'] !== UPLOAD_ERR_OK) {
         die("No backup file uploaded or upload failed.");
     }
@@ -138,124 +203,163 @@ if (isset($_POST['restore'])) {
         die("Only .zip files are allowed.");
     }
 
-    // === 2. Move to secure temp location ===
+    // ---------- 2) Save to secure temp ----------
     $tempZip = tempnam(sys_get_temp_dir(), "restore_");
     if (!move_uploaded_file($file["tmp_name"], $tempZip)) {
         die("Failed to save uploaded backup file.");
     }
+    @chmod($tempZip, 0600);
 
     $zip = new ZipArchive;
     if ($zip->open($tempZip) !== TRUE) {
-        unlink($tempZip);
+        @unlink($tempZip);
         die("Failed to open backup zip file.");
     }
 
-    // === 3. Zip-slip protection and extract to unique dir ===
-    $tempDir = sys_get_temp_dir() . "/restore_temp_" . uniqid();
-    mkdir($tempDir, 0700, true);
+    // ---------- 3) Guard & extract OUTER zip ----------
+    $tempDir = sys_get_temp_dir() . "/restore_temp_" . uniqid("", true);
+    if (!mkdir($tempDir, 0700, true)) {
+        $zip->close();
+        @unlink($tempZip);
+        die("Failed to create temp directory.");
+    }
 
+    // Zip-slip guard (outer)
     for ($i = 0; $i < $zip->numFiles; $i++) {
-        $stat = $zip->statIndex($i);
-        if (strpos($stat['name'], '..') !== false) {
+        $name = $zip->getNameIndex($i);
+        if ($name === false) continue;
+        if (strpos($name, '..') !== false || preg_match('#^(?:/|\\\\|[a-zA-Z]:[\\\\/])#', $name)) {
             $zip->close();
-            unlink($tempZip);
-            die("Invalid file path in ZIP.");
+            @unlink($tempZip);
+            deleteDir($tempDir);
+            die("Invalid file path in outer ZIP.");
         }
     }
 
     if (!$zip->extractTo($tempDir)) {
         $zip->close();
-        unlink($tempZip);
+        @unlink($tempZip);
+        deleteDir($tempDir);
         die("Failed to extract backup contents.");
     }
 
     $zip->close();
-    unlink($tempZip);
+    @unlink($tempZip);
 
-    // === 4. Restore SQL ===
+    // ---------- 4) Restore SQL (via PHP, no CLI) ----------
     $sqlPath = "$tempDir/db.sql";
     if (file_exists($sqlPath)) {
-        mysqli_query($mysqli, "SET foreign_key_checks = 0");
+        // Drop-all first (foreign key safe)
+        mysqli_query($mysqli, "SET FOREIGN_KEY_CHECKS = 0");
         $tables = mysqli_query($mysqli, "SHOW TABLES");
-        while ($row = mysqli_fetch_array($tables)) {
-            mysqli_query($mysqli, "DROP TABLE IF EXISTS `" . $row[0] . "`");
+        if ($tables) {
+            while ($row = mysqli_fetch_array($tables)) {
+                mysqli_query($mysqli, "DROP TABLE IF EXISTS `" . $row[0] . "`");
+            }
         }
-        mysqli_query($mysqli, "SET foreign_key_checks = 1");
+        mysqli_query($mysqli, "SET FOREIGN_KEY_CHECKS = 1");
 
-        // Use env var to avoid exposing password
-        putenv("MYSQL_PWD=$dbpassword");
-        $command = sprintf(
-            'mysql -h%s -u%s %s < %s',
-            escapeshellarg($dbhost),
-            escapeshellarg($dbusername),
-            escapeshellarg($database),
-            escapeshellarg($sqlPath)
-        );
-
-        exec($command, $output, $returnCode);
-        if ($returnCode !== 0) {
+        try {
+            importSqlFile($mysqli, $sqlPath);
+        } catch (Throwable $e) {
             deleteDir($tempDir);
-            die("SQL import failed. Error code: $returnCode");
+            die("SQL import failed: " . htmlspecialchars($e->getMessage(), ENT_QUOTES, 'UTF-8'));
         }
     } else {
         deleteDir($tempDir);
         die("Missing db.sql in the backup archive.");
     }
 
-    // === 5. Restore uploads directory ===
-    $uploadDir = __DIR__ . "/../uploads/";
+    // ---------- 5) Restore uploads directory ----------
+    $uploadDir  = rtrim(__DIR__ . "/../uploads", '/\\') . '/';
     $uploadsZip = "$tempDir/uploads.zip";
 
-    if (file_exists($uploadsZip)) {
-        $uploads = new ZipArchive;
-        if ($uploads->open($uploadsZip) === TRUE) {
-            // Clean existing uploads
-            foreach (new RecursiveIteratorIterator(
-                new RecursiveDirectoryIterator($uploadDir, FilesystemIterator::SKIP_DOTS),
-                RecursiveIteratorIterator::CHILD_FIRST
-            ) as $item) {
-                $item->isDir() ? rmdir($item) : unlink($item);
-            }
-
-            $uploads->extractTo($uploadDir);
-            $uploads->close();
-        } else {
-            deleteDir($tempDir);
-            die("Failed to open uploads.zip in backup.");
-        }
-    } else {
+    if (!file_exists($uploadsZip)) {
         deleteDir($tempDir);
         die("Missing uploads.zip in the backup archive.");
     }
 
-    // === 6. Read version.txt (optional display/logging) ===
+    $uploads = new ZipArchive;
+    if ($uploads->open($uploadsZip) !== TRUE) {
+        deleteDir($tempDir);
+        die("Failed to open uploads.zip in backup.");
+    }
+
+    // Zip-slip guard (inner)
+    for ($i = 0; $i < $uploads->numFiles; $i++) {
+        $name = $uploads->getNameIndex($i);
+        if ($name === false) continue;
+        if (strpos($name, '..') !== false || preg_match('#^(?:/|\\\\|[a-zA-Z]:[\\\\/])#', $name)) {
+            $uploads->close();
+            deleteDir($tempDir);
+            die("Invalid file path in uploads.zip.");
+        }
+    }
+
+    // Ensure uploads dir exists then clean it
+    if (!is_dir($uploadDir)) {
+        if (!mkdir($uploadDir, 0750, true)) {
+            $uploads->close();
+            deleteDir($tempDir);
+            die("Failed to create uploads directory.");
+        }
+    } else {
+        foreach (new RecursiveIteratorIterator(
+            new RecursiveDirectoryIterator($uploadDir, FilesystemIterator::SKIP_DOTS),
+            RecursiveIteratorIterator::CHILD_FIRST
+        ) as $item) {
+            $item->isDir() ? @rmdir($item->getPathname()) : @unlink($item->getPathname());
+        }
+    }
+
+    // Extract uploads.zip directly into /uploads (your original, working behavior)
+    if (!$uploads->extractTo($uploadDir)) {
+        $uploads->close();
+        deleteDir($tempDir);
+        die("Failed to extract uploads.zip into uploads directory.");
+    }
+    $uploads->close();
+
+    // Verify uploads isn’t empty
+    $hasFiles = false;
+    $fileCount = 0; $dirCount = 0;
+    if (is_dir($uploadDir)) {
+        $it = new RecursiveIteratorIterator(
+            new RecursiveDirectoryIterator($uploadDir, FilesystemIterator::SKIP_DOTS),
+            RecursiveIteratorIterator::SELF_FIRST
+        );
+        foreach ($it as $node) {
+            if ($node->isDir()) $dirCount++;
+            else { $fileCount++; $hasFiles = true; }
+        }
+    }
+    if (!$hasFiles) {
+        deleteDir($tempDir);
+        die("Uploads restore appears empty after extraction.");
+    }
+
+    // ---------- 6) Optional: version info ----------
     $versionTxt = "$tempDir/version.txt";
     if (file_exists($versionTxt)) {
-        $versionInfo = file_get_contents($versionTxt);
-        logAction("Backup Restore", "Version Info", $versionInfo);
+        $versionInfo = @file_get_contents($versionTxt);
+        if ($versionInfo !== false) {
+            logAction("Backup Restore", "Version Info", $versionInfo);
+        }
     }
 
-    // === 7. Clean up temp dir ===
-    function deleteDir($dir) {
-        if (!is_dir($dir)) return;
-        $items = new RecursiveIteratorIterator(
-            new RecursiveDirectoryIterator($dir, FilesystemIterator::SKIP_DOTS),
-            RecursiveIteratorIterator::CHILD_FIRST
-        );
-        foreach ($items as $item) {
-            $item->isDir() ? rmdir($item) : unlink($item);
-        }
-        rmdir($dir);
-    }
+    // ---------- 7) Cleanup temp ----------
     deleteDir($tempDir);
 
-    // === 8. Optional: finalize setup flag ===
-    $myfile = fopen("../config.php", "a");
-    fwrite($myfile, "\$config_enable_setup = 0;\n\n");
-    fclose($myfile);
+    // ---------- 8) Finalize setup flag (append safely) ----------
+    $configPath = __DIR__ . "/../config.php";
+    $append = "\n\$config_enable_setup = 0;\n\n";
+    if (!@file_put_contents($configPath, $append, FILE_APPEND | LOCK_EX)) {
+        $_SESSION['alert_message'] = "Backup restored ($fileCount files, $dirCount folders), but couldn't update setup flag — please set \$config_enable_setup = 0 in config.php.";
+    } else {
+        $_SESSION['alert_message'] = "Full backup restored successfully ($fileCount files, $dirCount folders).";
+    }
 
-    // === 9. Done ===
-    $_SESSION['alert_message'] = "Full backup restored successfully.";
+    // ---------- 9) Done ----------
     header("Location: ../login.php");
     exit;
 }
@@ -1109,9 +1213,10 @@ if (isset($_POST['add_telemetry'])) {
                                 <h3 class="card-title"><i class="fas fa-fw fa-database mr-2"></i>Restore from Backup</h3>
                             </div>
                             <div class="card-body">
-                                <form method="post" enctype="multipart/form-data">
+                                <form method="post" enctype="multipart/form-data" autocomplete="off">
                                     <label>Restore ITFlow Backup (.zip)</label>
                                     <input type="file" name="backup_zip" accept=".zip" required>
+                                    <p class="text-muted mt-2 mb-0"><small>Large restores may take several minutes. Do not close this page.</small></p>
                                     <hr>
                                     <button type="submit" name="restore" class="btn btn-primary text-bold">
                                         Restore Backup<i class="fas fa-fw fa-upload ml-2"></i>

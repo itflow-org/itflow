@@ -9,7 +9,7 @@
                         <tr>
                             
                             <td>
-                                <?php if (isset($_GET['status']) && $_GET['status'] !== 'Closed') { ?>
+                                <?php if ($status !== 'Closed') { ?>
                                 <div class="form-check">
                                     <input class="form-check-input" id="selectAllCheckbox" type="checkbox" onclick="checkAll(this)" onkeydown="checkAll(this)">
                                 </div>
@@ -197,14 +197,14 @@
                                 
                                 <!-- Ticket Number -->
                                 <td>
-                                    <a href="ticket.php?<?php echo $client_url; ?>ticket_id=<?php echo $ticket_id; ?>">
+                                    <a href="ticket.php?client_id=<?= $client_id ?>&ticket_id=<?= $ticket_id ?>">
                                         <span class="badge badge-pill badge-secondary p-3"><?php echo "$ticket_prefix$ticket_number"; ?></span>
                                     </a>
                                 </td>
 
                                 <!-- Ticket Subject -->
                                 <td>
-                                    <a href="ticket.php?<?php echo $client_url; ?>ticket_id=<?php echo $ticket_id; ?>"><?php echo $ticket_subject; ?></a>
+                                    <a href="ticket.php?client_id=<?= $client_id ?>&ticket_id=<?= $ticket_id ?>"><?= $ticket_subject ?></a>
 
                                     <?php if($task_count && $completed_task_count > 0) { ?>
                                     <div class="progress mt-2" style="height: 20px;">
@@ -304,15 +304,7 @@
                         </tbody>
                     </table>
                 </div>
-                <?php require_once "modals/ticket/ticket_bulk_assign.php"; ?>
-                <?php require_once "modals/ticket/ticket_bulk_edit_category.php"; ?>
-                <?php require_once "modals/ticket/ticket_bulk_edit_priority.php"; ?>
-                <?php require_once "modals/ticket/ticket_bulk_add_project.php"; ?>
-                <?php require_once "modals/ticket/ticket_bulk_reply.php"; ?>
-                <?php require_once "modals/ticket/ticket_bulk_merge.php"; ?>
-                <?php require_once "modals/ticket/ticket_bulk_resolve.php"; ?>
             </form>
             <?php require_once "../includes/filter_footer.php"; ?>
         </div>
     </div>
-

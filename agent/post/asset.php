@@ -787,10 +787,10 @@ if (isset($_POST["import_assets_csv"])) {
         flash_alert("Bad file size (empty?)", 'error');
     }
 
-    //(Else)Check column count (name, desc, type, make, model, serial, os, purchase date, assigned to, location)
+    //(Else)Check column count (name, desc, type, make, model, serial, os, purchase date, assigned to, location, notes)
     $f = fopen($file_name, "r");
     $f_columns = fgetcsv($f, 1000, ",");
-    if (!$error & count($f_columns) != 11) {
+    if (!$error & count($f_columns) != 12) {
         $error = true;
         flash_alert("Invalid column count.", 'error');
     }
@@ -884,10 +884,15 @@ if (isset($_POST["import_assets_csv"])) {
                 $physical_location = sanitizeInput($column[10]);
             }
 
+            // Notes (varchar)
+            if (!empty($column[11])) {
+                $notes = sanitizeInput($column[11]);
+            }
+
             // Check if duplicate was detected
             if ($duplicate_detect == 0) {
                 //Add
-                mysqli_query($mysqli,"INSERT INTO assets SET asset_name = '$name', asset_description = '$description', asset_type = '$type', asset_make = '$make', asset_model = '$model', asset_serial = '$serial', asset_os = '$os', asset_purchase_date = $purchase_date, asset_physical_location = '$physical_location', asset_contact_id = $contact_id, asset_location_id = $location_id, asset_client_id = $client_id");
+                mysqli_query($mysqli,"INSERT INTO assets SET asset_name = '$name', asset_description = '$description', asset_type = '$type', asset_make = '$make', asset_model = '$model', asset_serial = '$serial', asset_os = '$os', asset_purchase_date = $purchase_date, asset_physical_location = '$physical_location', asset_notes = '$notes', asset_contact_id = $contact_id, asset_location_id = $location_id, asset_client_id = $client_id");
 
                 $asset_id = mysqli_insert_id($mysqli);
 
@@ -932,7 +937,7 @@ if (isset($_GET['download_assets_csv_template'])) {
     $f = fopen('php://memory', 'w');
 
     //set column headers
-    $fields = array('Name', 'Description', 'Type', 'Make', 'Model', 'Serial', 'OS', 'Purchase Date', 'Assigned To', 'Location', 'Physical Location');
+    $fields = array('Name', 'Description', 'Type', 'Make', 'Model', 'Serial', 'OS', 'Purchase Date', 'Assigned To', 'Location', 'Physical Location', 'Notes');
     fputcsv($f, $fields, $delimiter);
 
     //move back to beginning of file

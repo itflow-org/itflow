@@ -1,0 +1,7 @@
+Options -ExecCGI
+php_flag engine off
+RemoveHandler .php .phtml .phar .phps
+RemoveType .php .phtml .phar .phps
+<FilesMatch "\.(php|phtml|phar|phps|cgi|pl|sh)$">
+  Require all denied
+</FilesMatch>

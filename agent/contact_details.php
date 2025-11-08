@@ -20,7 +20,14 @@ if (isset($_GET['contact_id'])) {
         LEFT JOIN users ON user_id = contact_user_id
         WHERE contact_id = $contact_id
         $client_query
+        LIMIT 1
     ");
+
+    if (mysqli_num_rows($sql) == 0) {
+        echo "<center><h1 class='text-secondary mt-5'>Nothing to see here</h1><a class='btn btn-lg btn-secondary mt-3' href='javascript:history.back()'><i class='fa fa-fw fa-arrow-left'></i> Go Back</a></center>";
+        require_once "../includes/footer.php";
+        exit();
+    }
 
     $row = mysqli_fetch_array($sql);
     $client_id = intval($row['client_id']);
@@ -255,27 +262,27 @@ if (isset($_GET['contact_id'])) {
                 <div class="dropdown dropleft mr-2">
                     <button type="button" class="btn btn-primary" data-toggle="dropdown"><i class="fas fa-plus mr-2"></i>New</button>
                     <div class="dropdown-menu">
-                        <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#addTicketModal">
+                        <a class="dropdown-item text-dark ajax-modal" href="#" data-modal-url="modals/ticket/ticket_add.php?<?= $client_url ?>&contact_id=<?= $contact_id ?>" data-modal-size="lg">
                             <i class="fa fa-fw fa-life-ring mr-2"></i>New Ticket
                         </a>
                         <div class="dropdown-divider"></div>
-                        <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#addRecurringTicketModal">
+                        <a class="dropdown-item text-dark ajax-modal" href="#" data-modal-url="modals/recurring_ticket/recurring_ticket_add.php?<?= $client_url ?>&contact_id=<?= $contact_id ?>" data-modal-size="lg">
                             <i class="fa fa-fw fa-recycle mr-2"></i>New Recurring Ticket
                         </a>
                         <div class="dropdown-divider"></div>
-                        <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#addAssetModal">
+                        <a class="dropdown-item text-dark ajax-modal" href="#" data-modal-url="modals/asset/asset_add.php?<?= $client_url ?>&contact_id=<?= $contact_id ?>">
                             <i class="fa fa-fw fa-desktop mr-2"></i>New Asset
                         </a>
                         <div class="dropdown-divider"></div>
-                        <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#addCredentialModal">
+                        <a class="dropdown-item text-dark ajax-modal" href="#" data-modal-url="modals/credential/credential_add.php?<?= $client_url ?>&contact_id=<?= $contact_id ?>">
                             <i class="fa fa-fw fa-key mr-2"></i>New Credential
                         </a>
                         <div class="dropdown-divider"></div>
-                        <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#addDocumentModal">
+                        <a class="dropdown-item text-dark ajax-modal" href="#" data-modal-url="modals/document/document_add.php?<?= $client_url ?>&contact_id=<?= $contact_id ?>" data-modal-size="lg">
                             <i class="fa fa-fw fa-file-alt mr-2"></i>New Document
                         </a>
                         <div class="dropdown-divider"></div>
-                        <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#uploadFilesModal">
+                        <a class="dropdown-item text-dark ajax-modal" href="#" data-modal-url="modals/file/file_upload.php?<?= $client_url ?>&contact_id=<?= $contact_id ?>">
                             <i class="fa fa-fw fa-upload mr-2"></i>Upload file(s)
                         </a>
                         <div class="dropdown-divider"></div>
@@ -1172,12 +1179,4 @@ if (isset($_GET['contact_id'])) {
     <script src="js/credential_show_otp_via_id.js"></script>
 
 <?php
-
-require_once "modals/ticket/ticket_add.php";
-require_once "modals/recurring_ticket/recurring_ticket_add.php";
-require_once "modals/asset/asset_add.php";
-require_once "modals/credential/credential_add.php";
-require_once "modals/document/document_add.php";
-require_once "modals/file/file_upload.php";
-
 require_once "../includes/footer.php";

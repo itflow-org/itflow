@@ -94,10 +94,13 @@ ob_start();
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-lock"></i></span>
                         </div>
-                        <input type="password" class="form-control" data-toggle="password" name="new_password"
+                        <input type="password" class="form-control" data-toggle="password" name="new_password" id="password"
                                placeholder="Leave Blank For No Password Change" autocomplete="new-password">
                         <div class="input-group-append">
                             <span class="input-group-text"><i class="fa fa-fw fa-eye"></i></span>
+                        </div>
+                        <div class="input-group-append">
+                            <span class="btn btn-default"><i class="fa fa-fw fa-question" onclick="generatePassword()"></i></span>
                         </div>
                     </div>
                 </div>
@@ -199,6 +202,24 @@ ob_start();
         <button type="button" class="btn btn-light" data-dismiss="modal"><i class="fas fa-times mr-2"></i>Cancel</button>
     </div>
 </form>
+
+<script>
+
+function generatePassword() {
+    // Send a GET request to ajax.php as ajax.php?get_readable_pass=true
+    jQuery.get(
+        "/agent/ajax.php", {
+            get_readable_pass: 'true'
+        },
+        function(data) {
+            //If we get a response from post.php, parse it as JSON
+            const password = JSON.parse(data);
+            document.getElementById("password").value = password;
+        }
+    );
+}
+
+</script>
 
 <?php
 require_once "../../../includes/modal_footer.php";

@@ -98,9 +98,13 @@ if ($_GET['canned_date'] == "custom" && !empty($_GET['dtf'])) {
 } elseif ($_GET['canned_date'] == "lastyear") {
     $dtf = date('Y-m-d', strtotime("first day of january last year"));
     $dtt = date('Y-m-d', strtotime("last day of december last year"));
+}elseif (isset($_GET['canned_date']) && $_GET['canned_date'] === "alltime") {
+    $dtf = '1970-01-01';
+    $dtt = '2099-12-31';
 } else {
-    $dtf = "NULL";
-    $dtt = '2035-12-31';
+    // Fallback acts like all time
+    $dtf = '1970-01-01';
+    $dtt = '2099-12-31';
 }
 
 // Archived

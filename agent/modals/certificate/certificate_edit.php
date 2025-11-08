@@ -193,5 +193,7 @@ ob_start();
     </div>
 </form>
 
+<script src="/agent/js/certificate_fetch_ssl.js"></script>
+
 <?php
 require_once '../../../includes/modal_footer.php';

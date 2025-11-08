@@ -92,12 +92,12 @@ while ($folder_id > 0) {
         <div class="card-tools">
 
             <div class="btn-group">
-                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addDocumentModal">
+                <button type="button" class="btn btn-primary ajax-modal" data-modal-url="modals/document/document_add.php?client_id=<?= $client_id ?>&folder_id=<?= $get_folder_id ?>" data-modal-size="lg">
                     <i class="fas fa-plus mr-2"></i>New Document
                 </button>
                 <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown"></button>
                 <div class="dropdown-menu">
-                    <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#createFolderModal">
+                    <a class="dropdown-item text-dark ajax-modal" href="#" data-modal-url="modals/folder/folder_add.php?client_id=<?= $client_id ?>&folder_location=0&current_folder_id=<?= $get_folder_id ?>">
                         <i class="fa fa-fw fa-folder-plus mr-2"></i>New Folder
                     </a>
                     <div class="dropdown-divider"></div>
@@ -130,7 +130,9 @@ while ($folder_id > 0) {
                                 <i class="fas fa-fw fa-layer-group mr-2"></i>Bulk Action (<span id="selectedCount">0</span>)
                             </button>
                             <div class="dropdown-menu">
-                                <a class="dropdown-item" href="#" data-toggle="modal" data-target="#bulkMoveDocumentModal">
+                                <a class="dropdown-item ajax-modal" href="#"
+                                    data-modal-url="modals/document/document_bulk_move.php?client_id=<?= $client_id ?>"
+                                    data-bulk="true">
                                     <i class="fas fa-fw fa-exchange-alt mr-2"></i>Move
                                 </a>
                                 <div class="dropdown-divider"></div>
@@ -276,7 +278,6 @@ while ($folder_id > 0) {
                     display_folders(0, $client_id);
                     ?>
                 </ul>
-                <?php require_once "modals/folder/folder_add.php"; ?>
             </div>
 
             <div class="col-md-9">
@@ -466,10 +467,8 @@ while ($folder_id > 0) {
                         </table>
                         <br>
                     </div>
-                    <?php require_once "modals/document/document_bulk_move.php"; ?>
                 </form>
-                <?php require_once "../includes/filter_footer.php";
-?>
+                <?php require_once "../includes/filter_footer.php"; ?>
             </div>
         </div>
     </div>
@@ -479,6 +478,5 @@ while ($folder_id > 0) {
 
 <?php
 require_once "modals/share_modal.php";
-require_once "modals/document/document_add.php";
 require_once "modals/document/document_add_from_template.php";
 require_once "../includes/footer.php";

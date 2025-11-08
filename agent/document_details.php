@@ -20,8 +20,15 @@ $folder_location = 0;
 $sql_document = mysqli_query($mysqli, "SELECT * FROM documents 
     LEFT JOIN folders ON document_folder_id = folder_id
     LEFT JOIN users ON document_created_by = user_id
-    WHERE document_client_id = $client_id AND document_id = $document_id"
+    WHERE document_client_id = $client_id AND document_id = $document_id
+    LIMIT 1"
 );
+
+if (mysqli_num_rows($sql_document) == 0) {
+    echo "<center><h1 class='text-secondary mt-5'>Nothing to see here</h1><a class='btn btn-lg btn-secondary mt-3' href='javascript:history.back()'><i class='fa fa-fw fa-arrow-left'></i> Go Back</a></center>";
+    require_once "../includes/footer.php";
+    exit();
+}
 
 $row = mysqli_fetch_array($sql_document);
 
@@ -163,17 +170,19 @@ $page_title = $row['document_name'];
     <div class="col-md-3 d-print-none">
         <div class="row">
             <div class="col-12 mb-3">
-                <button type="button" class="btn btn-primary ajax-modal mr-2"
+                <button type="button" class="btn btn-primary ajax-modal mr-1"
                     data-modal-size="lg"
                     data-modal-url="modals/document/document_edit.php?id=<?= $document_id ?>">
-                    <i class="fas fa-fw fa-edit"></i>
+                    <i class="fas fa-fw fa-edit" title="Edit"></i>
                 </button>
-                <button type="button" class="btn btn-secondary mr-2" data-toggle="modal" data-target="#shareModal"
+                <button type="button" class="btn btn-secondary mr-1" data-toggle="modal" data-target="#shareModal"
                     onclick="populateShareModal(<?php echo "$client_id, 'Document', $document_id"; ?>)">
-                    <i class="fas fa-fw fa-share"></i>
+                    <i class="fas fa-fw fa-share" title="Share"></i>
                 </button>
-                <a class="btn btn-success mr-2" href="post.php?export_document=<?php echo $document_id; ?>"><i class='fas fa-fw fa-file-pdf'></i></a>
-                <button type="button" class="btn btn-secondary" onclick="window.print();"><i class="fas fa-fw fa-print"></i></button>
+                <a class="btn btn-success mr-1" href="post.php?export_document=<?php echo $document_id; ?>"><i class='fas fa-fw fa-file-pdf' title="PDF Export"></i></a>
+                <button type="button" class="btn btn-secondary mr-4" onclick="window.print();"><i class="fas fa-fw fa-print" title="Print"></i></button>
+                <a class="btn btn-warning mr-1 confirm-link" href="post.php?archive_document=<?= $document_id ?>" title="Archive"><i class='fas fa-fw fa-archive'></i></a>
+                <a class="btn btn-danger confirm-link" href="post.php?delete_document=<?= $document_id ?>&from=document_details" title="Delete"><i class='fas fa-fw fa-trash-alt'></i></a>
             </div>
         </div>
         <div class="card card-body bg-light">
