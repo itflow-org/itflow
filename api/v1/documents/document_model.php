@@ -35,7 +35,7 @@ if (isset($_POST['document_content'])) {
 }
 
 if (isset($_POST['document_folder_id'])) {
-    $folder = intval($_POST['document_content']);
+    $folder = intval($_POST['document_folder_id']);
 } elseif (isset($document_row) && isset($document_row['document_folder_id'])) {
     $folder = intval($document_row['document_folder_id']);
 } else {
