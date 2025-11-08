@@ -3,15 +3,6 @@
 // Role check failed wording
 DEFINE("WORDING_ROLECHECK_FAILED", "You are not permitted to do that!");
 
-// PHP Mailer Libs
-require_once "plugins/PHPMailer/src/Exception.php";
-require_once "plugins/PHPMailer/src/PHPMailer.php";
-require_once "plugins/PHPMailer/src/SMTP.php";
-
-// Initiate PHPMailer
-use PHPMailer\PHPMailer\PHPMailer;
-use PHPMailer\PHPMailer\Exception;
-
 // Function to generate both crypto & URL safe random strings
 function randomString($length = 16) {
     // Generate some cryptographically safe random bytes
@@ -685,117 +676,6 @@ function validateAccountantRole() {
         $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
         header("Location: " . $_SERVER["HTTP_REFERER"]);
         exit();
-    }
-}
-
-// Send a single email to a single recipient
-// TODO: Remove this - it's the old cron
-function sendSingleEmail($config_smtp_host, $config_smtp_username, $config_smtp_password, $config_smtp_encryption, $config_smtp_port, $from_email, $from_name, $to_email, $to_name, $subject, $body, $ics_str)
-{
-
-    $mail = new PHPMailer(true);
-
-    if (empty($config_smtp_username)) {
-        $smtp_auth = false;
-    } else {
-        $smtp_auth = true;
-    }
-
-    try {
-        // Mail Server Settings
-        $mail->CharSet = "UTF-8";                                   // Specify UTF-8 charset to ensure symbols ($/£) load correctly
-        $mail->SMTPDebug = 0;                                       // No Debugging
-        $mail->isSMTP();                                            // Set mailer to use SMTP
-        $mail->Host       = $config_smtp_host;                      // Specify SMTP server
-        $mail->SMTPAuth   = $smtp_auth;                             // Enable SMTP authentication
-        $mail->Username   = $config_smtp_username;                  // SMTP username
-        $mail->Password   = $config_smtp_password;                  // SMTP password
-        if ($config_smtp_encryption == 'None') {
-            $mail->SMTPOptions = array(
-                'ssl' => array(
-                'verify_peer' => false,
-                'verify_peer_name' => false,
-            ));
-            $mail->SMTPSecure = false;
-            $mail->SMTPAutoTLS = false;
-        } else {
-            $mail->SMTPSecure = $config_smtp_encryption;            // Enable TLS encryption, `ssl` also accepted
-        }
-        $mail->Port       = $config_smtp_port;                      // TCP port to connect to
-
-        //Recipients
-        $mail->setFrom($from_email, $from_name);
-        $mail->addAddress("$to_email", "$to_name");    // Add a recipient
-
-        // Content
-        $mail->isHTML(true); // Set email format to HTML
-        $mail->Subject = "$subject";                                // Subject
-        $mail->Body    = "<html>
-        <head>
-            <style>
-                body {
-                    font-family: Arial, sans-serif;
-                    color: #333;
-                    line-height: 1.6;
-                }
-                .email-container {
-                    max-width: 600px;
-                    margin: auto;
-                    padding: 20px;
-                    border: 1px solid #ddd;
-                    border-radius: 5px;
-                }
-                .header {
-                    font-size: 18px;
-                    margin-bottom: 20px;
-                }
-                .link-button {
-                    display: inline-block;
-                    background-color: #007bff;
-                    color: #ffffff;
-                    padding: 10px 20px;
-                    text-decoration: none;
-                    border-radius: 5px;
-                    margin: 10px 0;
-                }
-                .footer {
-                    font-size: 14px;
-                    color: #666;
-                    margin-top: 20px;
-                    border-top: 1px solid #ddd;
-                    padding-top: 10px;
-                }
-                .no-reply {
-                    color: #999;
-                    font-size: 12px;
-                }
-            </style>
-        </head>
-        <body>
-            <div class='email-container'>
-        $body
-        </div>
-        </body>
-        </html>
-        ";                                   // Content
-
-        // Attachments - todo
-        //$mail->addAttachment('/var/tmp/file.tar.gz');             // Add attachments
-        //$mail->addAttachment('/tmp/image.jpg', 'new.jpg');        // Optional name
-
-        if (!empty($ics_str)) {
-            $mail->addStringAttachment($ics_str, 'Scheduled_ticket.ics', 'base64', 'text/calendar');
-        }
-
-        // Send
-        $mail->send();
-
-        // Return true if this was successful
-        return true;
-    } catch (Exception $e) {
-        // If we couldn't send the message return the error, so we can log it in the database (truncated)
-        error_log("ITFlow - Failed to send email: " . $mail->ErrorInfo);
-        return substr("Mailer Error: $mail->ErrorInfo", 0, 100) . "...";
     }
 }
 

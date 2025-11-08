@@ -19,6 +19,7 @@ This file documents all notable changes made to ITFlow.
   - `/cron/domain_refresher.php`
   - `/cron/certificate_refresher.php`
 
+- PHP Extensions php-imap and php-mime-mail-parser are no longer required.
 ---
 
 ### Fixes
