@@ -2,6 +2,101 @@
 
 This file documents all notable changes made to ITFlow.
 
+## [25.11] Changelog
+
+### Deprecation Notice:
+- **Outdated CRON Scripts**: The following scripts are removed.
+  - `/scripts/cron_mail_queue.php`
+  - `/scripts/cron_ticket_email_parser.php`
+  - `/scripts/cron.php`
+  - `/scripts/cron_domain_refresher.php`
+  - `/scripts/cron_certificate_refresher.php`
+  
+  **Action Required**: Transition to the new versions:
+  - `/cron/mail_queue.php`
+  - `/cron/ticket_email_parser.php`
+  - `/cron/cron.php`
+  - `/cron/domain_refresher.php`
+  - `/cron/certificate_refresher.php`
+
+---
+
+### Fixes
+- **Ticket Listing**: Resolved issue where the “Check All” checkbox was visible even when ticket status wasn’t set. Now hidden for closed tickets only.
+- **Timer Auto-Start**: Show H/M/S placeholders when timer auto-start is disabled.
+- **Ticket Guest URL**: Fixed email not including the ticket guest URL key.
+- **EML Generation**: Resolved issue with EML not being generated in the new ticket parser.
+- **New Ticket Mail Notification**: Included message when notifying the tech of a reply in the new ticket mail parser.
+- **Advanced Filter Collapse**: Added clause to prevent collapse of advanced filters when the “from” date is set to the default (1970-01-01).
+- **Recurring Invoice**: Fixed issue where email was marked as sent but not actually sent when forcing a recurring invoice to an invoice.
+- **CSRF Token**: Fixed issue with deleting recurring ticket from asset details page due to missing CSRF check token.
+- **Vendor Website Link**: Fixed missing `https://` prefix in the vendor website link on the vendor details modal.
+- **Agent Select Box**: Resolved issue where agents sometimes didn’t appear in the agent select boxes.
+- **TinyMCE**: Fixed TinyMCE editor issue on Bulk Create Ticket in Assets.
+- **Ticket Timer**: Fixed ticket timer initialization after reload and when the tab is put to sleep (background tab).
+- **Client Deletion**: Fixed issue with client deletion.
+- **Domain Records**: Added flag for missing SOA record when adding a domain (prevents subdomain creation).
+- **Domain Fetching**: Quits domain record fetching if no SOA record exists (prevents subdomains).
+- **Domain Expiry**: Only show time to expiry when there’s an expiry date set; otherwise, display a dash.
+- **Certificates**: Improved handling of empty date in the agent UI.
+- **Certificates API**: Fixed bug with missing JS to fetch certificate details.
+- **API Updates**:
+  - Clients API: Added support for archiving/un-archiving clients, updating client data, and abbreviation support.
+  - Contacts API: Added archiving/un-archiving and restriction to only allow one primary contact per client.
+  - Mail Queue: Added recipient domain MX validation before sending emails.
+
+---
+
+### Added / Changed
+- **Backup / Restore**: Improved backup and restore by streaming data to disk (to prevent memory issues), setting unlimited timeouts, checking for bad backup contents, and using PHP for DB import instead of shell exec. Added `.htaccess` to prevent PHP execution in `/uploads/` directory.
+- **Ajax Modals**: Migrated all Add and Bulk modals to the new Ajax Modal for improved performance.
+- **Recurring Ticket Sorting**: Default sorting of recurring tickets by `RunDate` instead of subject.
+- **Recurring Ticket Enhancements**:
+  - Added Billable column.
+  - Added bulk actions for setting priority, agent, billable status, and next run dates.
+  - Added filters for category, assigned agent, and billable status.
+  - Added new frequency options: 3-day and biweekly.
+- **Asset Select**: Updated asset select dropdown to separate asset types using opt groups (planned for wider use).
+- **Expiring Domains & Certificates**: Added "30 Day" warning for expiring domains and certificates in the dashboard.
+- **Ticket Search**: Allowed search using both ticket prefix and number.
+- **Recurring Invoice**: Cancel recurring invoices when the associated client is archived.
+- **Credentials Import/Export**: Now includes TOTP secrets when importing/exporting credentials.
+- **Asset Notes Import**: Allowed importing of asset notes.
+- **Ticket View**: Added a "View HTML Code" button in all ticket views for TinyMCE.
+- **Date Range Picker**: Updated all date filters to use the improved DateRangePicker JS.
+- **Bulk Ticket Creation**: Added bulk ticket creation for clients.
+- **Sidebar Updates**: Updated all sidebars to use absolute paths for easier integration with custom code.
+- **Document Actions**: Added Archive and Delete buttons to the Document Details view with improved redirect behavior.
+- **Ticket Template Sorting**: Allowed sorting by task count in ticket templates.
+- **Contact Modal UI**: Updated contact details modal to display contact information at the top.
+- **API & Code Updates**: 
+  - Separated out post files for recurring tickets, invoices, expenses, and payments.
+  - Removed unused budget code.
+- **Invoice Product Autocomplete**: Now allows searching for product codes as well as names.
+- **Client Duplicate Check**: Flags duplicate clients or leads when using the client add modal.
+- **Recurring Invoice Reference**: Added a column to invoices indicating if they were created from a recurring invoice.
+- **Global Search Enhancements**: 
+  - Allowed ticket details to be searchable in global search.
+  - Allowed searching for quotes in global search.
+- **UI/UX Improvements**:
+  - Spruced up the ticket details page UI.
+  - Added contact email validation to flag duplicates or invalid addresses.
+- **API Debugging**: Log API endpoint/URL path for authentication failures to aid in debugging.
+- **Image Upload Optimization**: Removed image optimization from uploads (this will be handled by a cron job in the future).
+- **View Behavior Change**: Updated ticket/invoice/quote views to always be in the Client section, showing client-side navigation and top info bar.
+
+---
+
+### Library Updates:
+- **DataTable**: Bumped from 2.3.3 to 2.3.4.
+- **TinyMCE**: Bumped from 8.0.2 to 8.2.0.
+- **Stripe-PHP**: Bumped from 17.6.0 to 18.1.0.
+- **PHPMailer**: Bumped from 6.10.0 to 7.0.0.
+- **Chart.js**: Bumped from 4.5.0 to 4.5.1.
+
+
+
+
 ## [25.10.1]
 - Deprecation Notice: `/scripts/cron_mail_queue.php` , `/scripts/cron_ticket_email_parser.php` , `/scripts/cron.php` `/scripts/cron_domain_refresher.php`, `/scripts/cron_certificate_refresher.php` are being phased out. Please transition to `/cron/mail_queue.php` , `/cron/ticket_email_parser.php`, `/cron/cron.php`, `/cron/domain_refresher.php`, `/cron/certificate_refresher.php` These older scripts will be removed in the November 25.11 release—update accordingly. 25.10.1 installs have the script already configured.
 
