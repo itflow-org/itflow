@@ -4059,9 +4059,7 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
 
           `contract_template_created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
           `contract_template_updated_at` DATETIME NULL ON UPDATE CURRENT_TIMESTAMP,
-          `contract_template_archived_at` DATETIME NULL DEFAULT NULL,
-
-          `company_id` INT(11) NOT NULL
+          `contract_template_archived_at` DATETIME NULL DEFAULT NULL
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;");
 
 
@@ -4115,10 +4113,31 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
         mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '2.3.7'");
     }
 
-    // if (CURRENT_DATABASE_VERSION == '2.3.7') {
-    //     // Insert queries here required to update to DB version 2.3.8
+    if (CURRENT_DATABASE_VERSION == '2.3.7') {
+
+        mysqli_query($mysqli, "
+            CREATE TABLE `asset_tags` (
+                `asset_tag_asset_id` INT(11) NOT NULL,
+                `asset_tag_tag_id` INT(11) NOT NULL,
+                PRIMARY KEY (`asset_tag_asset_id`, `asset_tag_tag_id`),
+                CONSTRAINT `fk_asset`
+                    FOREIGN KEY (`asset_tag_asset_id`)
+                    REFERENCES `assets`(`asset_id`)
+                    ON DELETE CASCADE,
+                CONSTRAINT `fk_tag`
+                    FOREIGN KEY (`asset_tag_tag_id`)
+                    REFERENCES `tags`(`tag_id`)
+                    ON DELETE CASCADE
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+        ");
+   
+        mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '2.3.8'");
+    }
+
+    // if (CURRENT_DATABASE_VERSION == '2.3.8') {
+    //     // Insert queries here required to update to DB version 2.3.9
     //     // Then, update the database to the next sequential version
-    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '2.3.8'");
+    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '2.3.9'");
     // }
 
 } else {

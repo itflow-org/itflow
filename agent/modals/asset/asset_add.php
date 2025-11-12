@@ -27,6 +27,8 @@ if ($os_sql && mysqli_num_rows($os_sql) > 0) {
     $json_os = json_encode($os_arr);
 }
 
+$sql_tags_select = mysqli_query($mysqli, "SELECT tag_id, tag_name FROM tags WHERE tag_type = 5 ORDER BY tag_name ASC");
+
 ob_start();
 
 ?>
@@ -464,6 +466,33 @@ ob_start();
                 <div class="form-group">
                     <textarea class="form-control" rows="8" placeholder="Enter some notes" name="notes"></textarea>
                 </div>
+
+                <div class="form-group">
+                    <label>Tags</label>
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text"><i class="fa fa-fw fa-tags"></i></span>
+                        </div>
+                        <select class="form-control select2" name="tags[]" data-placeholder="Add some tags" multiple>
+                            <?php
+
+                            while ($row = mysqli_fetch_array($sql_tags_select)) {
+                                $tag_id = intval($row['tag_id']);
+                                $tag_name = nullable_htmlentities($row['tag_name']);
+                                ?>
+                                <option value="<?= $tag_id ?>"><?= $tag_name ?></option>
+                            <?php } ?>
+
+                        </select>
+                        <div class="input-group-append">
+                            <button class="btn btn-secondary ajax-modal" type="button"
+                                data-modal-url="../admin/modals/tag/tag_add.php?type=5">
+                                <i class="fas fa-plus"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
 
             </div>
 

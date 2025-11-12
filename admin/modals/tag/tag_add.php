@@ -15,6 +15,8 @@ if (isset($_GET['type'])) {
         $type_display = "Contact";
     } elseif ($type === 4) {
         $type_display = "Credential";
+    } elseif ($type === 5) {
+        $type_display = "Asset";
     }
 }
 ob_start();
@@ -58,6 +60,7 @@ ob_start();
                     <option value="2">Location Tag</option>
                     <option value="3">Contact Tag</option>
                     <option value="4">Credential Tag</option>
+                    <option value="5">Asset Tag</option>
                 </select>
             </div>
         </div>
@@ -86,7 +89,7 @@ ob_start();
 
     </div>
     <div class="modal-footer">
-        <button type="submit" name="add_tag" class="btn btn-primary text-bold"><i class="fas fa-check mr-2"></i>Create</button>
+        <button type="submit" name="add_tag" class="btn btn-primary text-bold"><i class="fas fa-check mr-2"></i>Create Tag</button>
         <button type="button" class="btn btn-light" data-dismiss="modal"><i class="fas fa-times mr-2"></i>Cancel</button>
     </div>
 </form>

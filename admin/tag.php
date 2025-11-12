@@ -74,6 +74,8 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             $tag_type_display = "Contact Tag";
                         } elseif ( $tag_type == 4) {
                             $tag_type_display = "Credential Tag";
+                         } elseif ( $tag_type == 5) {
+                            $tag_type_display = "Asset Tag";
                         } else {
                             $tag_type_display = "Unknown Tag";
                         }

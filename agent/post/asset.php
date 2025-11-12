@@ -20,6 +20,14 @@ if (isset($_POST['add_asset'])) {
 
     $asset_id = mysqli_insert_id($mysqli);
 
+    // Add Tags
+    if (isset($_POST['tags'])) {
+        foreach($_POST['tags'] as $tag) {
+            $tag = intval($tag);
+            mysqli_query($mysqli, "INSERT INTO asset_tags SET asset_tag_asset_id = $asset_id, asset_tag_tag_id = $tag");
+        }
+    }
+
     // Add Photo
     if (isset($_FILES['file']['tmp_name'])) {
         if ($new_file_name = checkFileUpload($_FILES['file'], array('jpg', 'jpeg', 'gif', 'png', 'webp'))) {
@@ -108,6 +116,18 @@ if (isset($_POST['edit_asset'])) {
         mysqli_query($mysqli,"UPDATE assets SET asset_photo = '$new_file_name' WHERE asset_id = $asset_id");
     }
 
+    // Tags
+    // Delete existing tags
+    mysqli_query($mysqli, "DELETE FROM asset_tags WHERE asset_tag_asset_id = $asset_id");
+
+    // Add new tags
+    if (isset($_POST['tags'])) {
+        foreach($_POST['tags'] as $tag) {
+            $tag = intval($tag);
+            mysqli_query($mysqli, "INSERT INTO asset_tags SET asset_tag_asset_id = $asset_id, asset_tag_tag_id = $tag");
+        }
+    }
+
     logAction("Asset", "Edit", "$session_name edited asset $name", $client_id, $asset_id);
 
     flash_alert("Asset <strong>$name</strong> edited");
@@ -183,6 +203,50 @@ if (isset($_GET['delete_asset'])) {
     logAction("Asset", "Delete", "$session_name deleted asset $asset_name", $client_id);
 
     flash_alert("Asset <strong>$asset_name</strong> deleted");
+
+    redirect();
+
+}
+
+if (isset($_POST['bulk_assign_asset_tags'])) {
+
+    enforceUserPermission('module_client', 2);
+
+    if (isset($_POST['asset_ids'])) {
+
+        $count = count($_POST['asset_ids']);
+
+        foreach($_POST['asset_ids'] as $asset_id) {
+            $asset_id = intval($asset_id);
+
+            $sql = mysqli_query($mysqli,"SELECT asset_name, asset_client_id FROM assets WHERE asset_id = $asset_id");
+            $row = mysqli_fetch_array($sql);
+            $asset_name = sanitizeInput($row['asset_name']);
+            $client_id = intval($row['asset_client_id']);
+
+            if($_POST['remove_tags']) {
+                mysqli_query($mysqli, "DELETE FROM asset_tags WHERE asset_tag_asset_id = $asset_id");
+            }
+
+            if (isset($_POST['tags'])) {
+                foreach($_POST['tags'] as $tag) {
+                    $tag = intval($tag);
+
+                    $sql = mysqli_query($mysqli,"SELECT * FROM asset_tags WHERE asset_tag_asset_id = $asset_id AND asset_tag_tag_id = $tag");
+                    if (mysqli_num_rows($sql) == 0) {
+                        mysqli_query($mysqli, "INSERT INTO asset_tags SET asset_tag_asset_id = $asset_id, asset_tag_tag_id = $tag");
+                    }
+                }
+            }
+
+            logAction("Asset", "Edit", "$session_name added tags to asset $asset_name", $client_id, $asset_id);
+
+        }
+
+        logAction("Asset", "Bulk Edit", "$session_name added tags for $asset_count assets", $client_id);
+
+        flash_alert("Assigned tags for <strong>$count</strong> assets");
+    }
 
     redirect();
 

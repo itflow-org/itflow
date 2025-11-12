@@ -47,6 +47,7 @@ ob_start();
                     <option value="2" <?php if ($tag_type == 2) { echo "selected"; } ?>>Location Tag</option>
                     <option value="3" <?php if ($tag_type == 3) { echo "selected"; } ?>>Contact Tag</option>
                     <option value="4" <?php if ($tag_type == 4) { echo "selected"; } ?>>Credential Tag</option>
+                    <option value="5" <?php if ($tag_type == 5) { echo "selected"; } ?>>Asset Tag</option>
                 </select>
             </div>
         </div>
@@ -73,7 +74,7 @@ ob_start();
 
     </div>
     <div class="modal-footer">
-        <button type="submit" name="edit_tag" class="btn btn-primary text-bold"><i class="fas fa-check mr-2"></i>Save</button>
+        <button type="submit" name="edit_tag" class="btn btn-primary text-bold"><i class="fas fa-check mr-2"></i>Save changes</button>
         <button type="button" class="btn btn-light" data-dismiss="modal"><i class="fas fa-times mr-2"></i>Cancel</button>
     </div>
 </form>

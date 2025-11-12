@@ -111,7 +111,7 @@
                     <li class="nav-header">TEMPLATES</li>
 
                     <li class="nav-item">
-                        <a href="/admin/contract_templates.php" class="nav-link <?php echo (basename($_SERVER['PHP_SELF']) == 'contract_templates.php' ? 'active' : ''); ?>">
+                        <a href="/admin/contract_template.php" class="nav-link <?php echo (basename($_SERVER['PHP_SELF']) == 'contract_template.php' ? 'active' : ''); ?>">
                             <i class="nav-icon fas fa-file-contract"></i>
                             <p>Contract Templates</p>
                         </a>

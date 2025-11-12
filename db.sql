@@ -276,6 +276,23 @@ CREATE TABLE `asset_notes` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `asset_tags`
+--
+
+DROP TABLE IF EXISTS `asset_tags`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `asset_tags` (
+  `asset_tag_asset_id` int(11) NOT NULL,
+  `asset_tag_tag_id` int(11) NOT NULL,
+  PRIMARY KEY (`asset_tag_asset_id`,`asset_tag_tag_id`),
+  KEY `fk_tag` (`asset_tag_tag_id`),
+  CONSTRAINT `fk_asset` FOREIGN KEY (`asset_tag_asset_id`) REFERENCES `assets` (`asset_id`) ON DELETE CASCADE,
+  CONSTRAINT `fk_tag` FOREIGN KEY (`asset_tag_tag_id`) REFERENCES `tags` (`tag_id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `assets`
 --
 
@@ -800,7 +817,6 @@ CREATE TABLE `contract_templates` (
   `contract_template_created_at` datetime DEFAULT current_timestamp(),
   `contract_template_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
   `contract_template_archived_at` datetime DEFAULT NULL,
-  `company_id` int(11) NOT NULL,
   PRIMARY KEY (`contract_template_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -2897,4 +2913,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-11-07 16:47:40
+-- Dump completed on 2025-11-11 19:57:21

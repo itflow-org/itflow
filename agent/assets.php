@@ -78,6 +78,18 @@ if ($client_url && isset($_GET['location']) && !empty($_GET['location'])) {
     $location_filter = 0;
 }
 
+// Tags Filter
+if (isset($_GET['tags']) && is_array($_GET['tags']) && !empty($_GET['tags'])) {
+    // Sanitize each element of the tags array
+    $sanitizedTags = array_map('intval', $_GET['tags']);
+    // Convert the sanitized tags into a comma-separated string
+    $tag_filter = implode(",", $sanitizedTags);
+    $tag_query = "AND tag_id IN ($tag_filter)";
+} else {
+    $tag_filter = 0;
+    $tag_query = '';
+}
+
 //Get Asset Counts
 $row = mysqli_fetch_assoc(mysqli_query($mysqli, "
     SELECT 
@@ -93,9 +105,13 @@ $row = mysqli_fetch_assoc(mysqli_query($mysqli, "
         LEFT JOIN contacts ON asset_contact_id = contact_id 
         LEFT JOIN locations ON asset_location_id = location_id 
         LEFT JOIN asset_interfaces ON interface_asset_id = asset_id AND interface_primary = 1
+        LEFT JOIN asset_tags ON asset_tag_asset_id = asset_id
+        LEFT JOIN tags ON tag_id = asset_tag_tag_id
         WHERE $archive_query
+        $tag_query
         $access_permission_query
         $client_query
+        GROUP BY asset_id
     ) AS filtered_assets;
 "));
 
@@ -127,13 +143,16 @@ $sql = mysqli_query(
     LEFT JOIN contacts ON asset_contact_id = contact_id 
     LEFT JOIN locations ON asset_location_id = location_id 
     LEFT JOIN asset_interfaces ON interface_asset_id = asset_id AND interface_primary = 1
+    LEFT JOIN asset_tags ON asset_tag_asset_id = asset_id
+    LEFT JOIN tags ON tag_id = asset_tag_tag_id
     WHERE $archive_query
-    AND (asset_name LIKE '%$q%' OR asset_description LIKE '%$q%' OR asset_type LIKE '%$q%' OR interface_ip LIKE '%$q%' OR interface_ipv6 LIKE '%$q%' OR interface_mac LIKE '%$q%' OR asset_make LIKE '%$q%' OR asset_model LIKE '%$q%' OR asset_serial LIKE '%$q%' OR asset_os LIKE '%$q%' OR contact_name LIKE '%$q%' OR location_name LIKE '%$q%' OR client_name LIKE '%$q%')
+    $tag_query
+    AND (asset_name LIKE '%$q%' OR asset_description LIKE '%$q%' OR asset_type LIKE '%$q%' OR interface_ip LIKE '%$q%' OR interface_ipv6 LIKE '%$q%' OR interface_mac LIKE '%$q%' OR asset_make LIKE '%$q%' OR asset_model LIKE '%$q%' OR asset_serial LIKE '%$q%' OR asset_os LIKE '%$q%' OR contact_name LIKE '%$q%' OR location_name LIKE '%$q%' OR client_name LIKE '%$q%' OR tag_name LIKE '%$q%')
     AND ($type_query)
     $access_permission_query
     $location_query
     $client_query
-
+    GROUP BY asset_id
     ORDER BY $sort $order LIMIT $record_from, $record_to"
 );
 
@@ -270,7 +289,32 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     </div>
                 </div>
                 <?php } ?>
-                <div class="col-md-3">
+                <div class="col-md-2">
+                    <div class="input-group mb-3 mb-md-0">
+                        <select onchange="this.form.submit()" class="form-control select2" name="tags[]" data-placeholder="- Select Tags -" multiple>
+
+                            <?php
+                            $sql_tags_filter = mysqli_query($mysqli, "
+                                SELECT tag_id, tag_name
+                                FROM tags
+                                LEFT JOIN asset_tags ON asset_tag_tag_id = tag_id
+                                LEFT JOIN assets ON asset_tag_asset_id = asset_id
+                                WHERE tag_type = 5
+                                $client_query OR tag_id IN ($tag_filter)
+                                GROUP BY tag_id
+                                HAVING COUNT(asset_tag_asset_id) > 0 OR tag_id IN ($tag_filter)
+                            ");
+                            while ($row = mysqli_fetch_array($sql_tags_filter)) {
+                                $tag_id = intval($row['tag_id']);
+                                $tag_name = nullable_htmlentities($row['tag_name']); ?>
+
+                                <option value="<?php echo $tag_id ?>" <?php if (isset($_GET['tags']) && in_array($tag_id, $_GET['tags'])) { echo 'selected'; } ?>> <?php echo $tag_name ?> </option>
+
+                            <?php } ?>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-2">
                     <div class="form-group">
                         <select onchange="this.form.submit()" class="form-control select2" name="show_column[]" data-placeholder="- Show Additional Columns -" multiple>
                             <option
@@ -291,7 +335,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         </select>
                     </div>
                 </div>
-                <div class="col-md-3">
+                <div class="col-md-2">
                     <div class="btn-group float-right">
                         <a href="?<?php echo $client_url; ?>&archived=<?php if($archived == 1){ echo 0; } else { echo 1; } ?>"
                             class="btn btn-<?php if($archived == 1){ echo "primary"; } else { echo "default"; } ?>">
@@ -315,6 +359,12 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                     <i class="fas fa-fw fa-map-marker-alt mr-2"></i>Assign Location
                                 </a>
                                 <?php } ?>
+                                <a class="dropdown-item ajax-modal" href="#"
+                                    data-modal-url="modals/asset/asset_bulk_assign_tags.php"
+                                    data-bulk="true">
+                                    <i class="fas fa-fw fa-tags mr-2"></i>Assign Tags
+                                </a>
+                                <div class="dropdown-divider"></div>
                                 <a class="dropdown-item ajax-modal" href="#"
                                     data-modal-url="modals/asset/asset_bulk_assign_physical_location.php"
                                     data-bulk="true">
@@ -576,20 +626,48 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         $sql_credentials = mysqli_query($mysqli, "SELECT * FROM credentials WHERE credential_asset_id = $asset_id");
                         $credential_count = mysqli_num_rows($sql_credentials);
 
+                        // Tags
+                        $asset_tag_name_display_array = array();
+                        $asset_tag_id_array = array();
+                        $sql_asset_tags = mysqli_query($mysqli, "SELECT * FROM asset_tags LEFT JOIN tags ON asset_tag_tag_id = tag_id WHERE asset_tag_asset_id = $asset_id ORDER BY tag_name ASC");
+                        while ($row = mysqli_fetch_array($sql_asset_tags)) {
+
+                            $asset_tag_id = intval($row['tag_id']);
+                            $asset_tag_name = nullable_htmlentities($row['tag_name']);
+                            $asset_tag_color = nullable_htmlentities($row['tag_color']);
+                            if (empty($asset_tag_color)) {
+                                $asset_tag_color = "dark";
+                            }
+                            $asset_tag_icon = nullable_htmlentities($row['tag_icon']);
+                            if (empty($asset_tag_icon)) {
+                                $asset_tag_icon = "tag";
+                            }
+
+                            $asset_tag_id_array[] = $asset_tag_id;
+                            $asset_tag_name_display_array[] = "<a href='assets.php?$client_url tags[]=$asset_tag_id'><span class='badge text-light p-1 mr-1' style='background-color: $asset_tag_color;'><i class='fa fa-fw fa-$asset_tag_icon mr-2'></i>$asset_tag_name</span></a>";
+                        }
+                        $asset_tags_display = implode('', $asset_tag_name_display_array);
+
                         ?>
                         <tr>
                             <td class="pr-0 bg-light">
                                 <div class="form-check">
-                                    <input class="form-check-input bulk-select" type="checkbox" name="asset_ids[]" value="<?php echo $asset_id ?>">
+                                    <input class="form-check-input bulk-select" type="checkbox" name="asset_ids[]" value="<?= $asset_id ?>">
                                 </div>
                             </td>
                             <td>
-                                <a class="text-dark" href="asset_details.php?client_id=<?php echo $client_id; ?>&asset_id=<?php echo $asset_id; ?>">
+                                <a class="text-dark" href="asset_details.php?client_id=<?= $client_id ?>&asset_id=<?= $asset_id ?>">
                                     <div class="media">
-                                        <i class="fa fa-fw fa-2x fa-<?php echo $device_icon; ?> mr-3 mt-1"></i>
+                                        <i class="fa fa-fw fa-2x fa-<?= $device_icon ?> mr-3 mt-1"></i>
                                         <div class="media-body">
-                                            <div><?php echo $asset_name; ?></div>
-                                            <div><small class="text-secondary"><?php echo $asset_description; ?></small></div>
+                                            <div><?= $asset_name ?></div>
+                                            <div><small class="text-secondary"><?= $asset_description ?></small></div>
+                                            <?php
+                                            if ($asset_tags_display) { ?>
+                                                <div class="mt-1">
+                                                    <?= $asset_tags_display ?>
+                                                </div>
+                                            <?php } ?>   
                                         </div>
                                     </div>
                                 </a>

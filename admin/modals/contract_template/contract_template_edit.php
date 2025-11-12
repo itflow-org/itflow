@@ -1,15 +1,37 @@
 <?php
 require_once '../../../includes/modal_header.php';
 
+$contract_template_id = intval($_GET['id']);
 
 $contract_types_array = ['Fully Managed', 'Partialy Managed', 'Break/Fix'];
-$renewal_frequency_array = ['Manual', 'Annually', '2 Year', '3 Year', '5 Year', '7 Year'];
+$update_frequency_array = ['Manual', 'Annually', '2 Year', '3 Year', '5 Year', '7 Year'];
+
+// Fetch existing template
+$sql = mysqli_query($mysqli, "SELECT * FROM contract_templates WHERE contract_template_id = $contract_template_id LIMIT 1");
+$row = mysqli_fetch_array($sql);
+
+// Assign locals
+$name          = nullable_htmlentities($row['contract_template_name']);
+$description   = nullable_htmlentities($row['contract_template_description']);
+$type          = nullable_htmlentities($row['contract_template_type']);
+$renewal_frequency = nullable_htmlentities($row['contract_template_renewal_frequency']);
+$sla_low_resp  = intval($row['contract_template_sla_low_response_time']);
+$sla_med_resp  = intval($row['contract_template_sla_medium_response_time']);
+$sla_high_resp = intval($row['contract_template_sla_high_response_time']);
+$sla_low_res   = intval($row['contract_template_sla_low_resolution_time']);
+$sla_med_res   = intval($row['contract_template_sla_medium_resolution_time']);
+$sla_high_res  = intval($row['contract_template_sla_high_resolution_time']);
+$hourly_rate   = intval($row['contract_template_rate_standard']);
+$after_hours   = intval($row['contract_template_rate_after_hours']);
+$support_hours = nullable_htmlentities($row['contract_template_support_hours']);
+$net_terms     = intval($row['contract_template_net_terms']);
+$details       = nullable_htmlentities($row['contract_template_details']);
 
 ob_start();
 ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fa fa-fw fa-file-contract mr-2"></i>New Contract Template</h5>
+    <h5 class="modal-title"><i class="fa fa-fw fa-file-contract mr-2"></i>Edit Contract Template</h5>
     <button type="button" class="close text-white" data-dismiss="modal"><span>&times;</span></button>
 </div>
 
@@ -30,6 +52,8 @@ ob_start();
 </ul>
 
 <form action="post.php" method="post" autocomplete="off">
+    <input type="hidden" name="contract_template_id" value="<?php echo $contract_template_id; ?>">
+
     <div class="modal-body">
         <div class="tab-content" id="contractTemplateTabContent">
 
@@ -41,7 +65,9 @@ ob_start();
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-file-contract"></i></span>
                         </div>
-                        <input type="text" class="form-control" name="name" placeholder="Contract Template Name" maxlength="200" required autofocus>
+                        <input type="text" class="form-control" name="name"
+                            placeholder="Contract Template Name" maxlength="200" required autofocus
+                            value="<?= $name ?>">
                     </div>
                 </div>
 
@@ -52,7 +78,8 @@ ob_start();
                             <span class="input-group-text"><i class="fa fa-fw fa-align-left"></i></span>
                         </div>
                         <input type="text" class="form-control" name="description"
-                        placeholder="Contract Template Description" maxlength="200" required>
+                            placeholder="Contract Template Description" maxlength="200" required
+                            value="<?= $description ?>">
                     </div>
                 </div>
 
@@ -64,8 +91,8 @@ ob_start();
                         </div>
                         <select class="form-control select2" name="type" required>
                             <option value="">- Select Type -</option>
-                            <?php foreach ($contract_types_array as $type) { ?>
-                                <option><?= $type ?></option>
+                            <?php foreach ($contract_types_array as $type_select) { ?>
+                                <option <?php if ($type == $type_select) { echo "selected"; } ?>><?= $type_select ?></option>
                             <?php } ?>
                         </select>
                     </div>
@@ -79,8 +106,8 @@ ob_start();
                         </div>
                         <select class="form-control select2" name="renewal_frequency">
                             <option value="">- Select Frequency -</option>
-                            <?php foreach ($renewal_frequency_array as $renewal_frequency) { ?>
-                                <option><?= $renewal_frequency ?></option>
+                            <?php foreach ($renewal_frequency_array as $renewal_frequency_select) { ?>
+                                <option <?php if ($renewal_frequency == $renewal_frequency_select) { echo "selected"; } ?>><?= $renewal_frequency_select ?></option>
                             <?php } ?>
                         </select>
                     </div>
@@ -96,7 +123,8 @@ ob_start();
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fa fa-fw fa-clock"></i></span>
                             </div>
-                            <input type="number" class="form-control" name="sla_low_response_time" placeholder="e.g., 24">
+                            <input type="number" class="form-control" name="sla_low_response_time" placeholder="e.g., 24"
+                                value="<?= $sla_low_resp ?>">
                         </div>
                     </div>
                     <div class="form-group col-md-6">
@@ -105,7 +133,8 @@ ob_start();
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fa fa-fw fa-hourglass-half"></i></span>
                             </div>
-                            <input type="number" class="form-control" name="sla_low_resolution_time" placeholder="e.g., 48">
+                            <input type="number" class="form-control" name="sla_low_resolution_time" placeholder="e.g., 48"
+                                value="<?= $sla_low_res ?>">
                         </div>
                     </div>
                 </div>
@@ -117,7 +146,8 @@ ob_start();
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fa fa-fw fa-clock"></i></span>
                             </div>
-                            <input type="number" class="form-control" name="sla_medium_response_time" placeholder="e.g., 12">
+                            <input type="number" class="form-control" name="sla_medium_response_time" placeholder="e.g., 12"
+                                value="<?= $sla_med_resp ?>">
                         </div>
                     </div>
                     <div class="form-group col-md-6">
@@ -126,7 +156,8 @@ ob_start();
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fa fa-fw fa-hourglass-half"></i></span>
                             </div>
-                            <input type="number" class="form-control" name="sla_medium_resolution_time" placeholder="e.g., 24">
+                            <input type="number" class="form-control" name="sla_medium_resolution_time" placeholder="e.g., 24"
+                                value="<?= $sla_med_res ?>">
                         </div>
                     </div>
                 </div>
@@ -138,7 +169,8 @@ ob_start();
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fa fa-fw fa-bolt"></i></span>
                             </div>
-                            <input type="number" class="form-control" name="sla_high_response_time" placeholder="e.g., 1">
+                            <input type="number" class="form-control" name="sla_high_response_time" placeholder="e.g., 1"
+                                value="<?= $sla_high_resp ?>">
                         </div>
                     </div>
                     <div class="form-group col-md-6">
@@ -147,7 +179,8 @@ ob_start();
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fa fa-fw fa-stopwatch"></i></span>
                             </div>
-                            <input type="number" class="form-control" name="sla_high_resolution_time" placeholder="e.g., 4">
+                            <input type="number" class="form-control" name="sla_high_resolution_time" placeholder="e.g., 4"
+                                value="<?= $sla_high_res ?>">
                         </div>
                     </div>
                 </div>
@@ -161,7 +194,8 @@ ob_start();
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-dollar-sign"></i></span>
                         </div>
-                        <input type="text" class="form-control" name="rate_standard" placeholder="e.g., 100">
+                        <input type="text" class="form-control" name="rate_standard" placeholder="e.g., 100"
+                            value="<?= $rate_standard ?>">
                     </div>
                 </div>
 
@@ -171,7 +205,8 @@ ob_start();
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-moon"></i></span>
                         </div>
-                        <input type="text" class="form-control" name="rate_after_hours" placeholder="e.g., 150">
+                        <input type="text" class="form-control" name="rate_after_hours" placeholder="e.g., 150"
+                            value="<?= $rate_after_hours ?>">
                     </div>
                 </div>
 
@@ -181,7 +216,8 @@ ob_start();
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
                         </div>
-                        <input type="text" class="form-control" name="support_hours" placeholder="e.g., Mon-Fri 9am-5pm">
+                        <input type="text" class="form-control" name="support_hours" placeholder="e.g., Mon-Fri 9am-5pm"
+                            value="<?= $support_hours ?>">
                     </div>
                 </div>
 
@@ -191,7 +227,8 @@ ob_start();
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-file-invoice-dollar"></i></span>
                         </div>
-                        <input type="text" class="form-control" name="net_terms" placeholder="e.g., Net 30">
+                        <input type="text" class="form-control" name="net_terms" placeholder="e.g., Net 30"
+                            value="<?= $net_terms ?>">
                     </div>
                 </div>
             </div>
@@ -199,7 +236,14 @@ ob_start();
             <!-- Details Tab -->
             <div class="tab-pane fade" id="details" role="tabpanel">
                 <div class="form-group">
-                    <textarea class="form-control tinymce" rows="6" name="details" placeholder="Enter Contract Details"></textarea>
+                    <label>Contract Details</label>
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text"><i class="fa fa-fw fa-align-left"></i></span>
+                        </div>
+                        <textarea class="form-control tinymce" rows="6" name="details"
+                            placeholder="Enter Contract Details"><?= $details ?></textarea>
+                    </div>
                 </div>
             </div>
 
@@ -207,8 +251,8 @@ ob_start();
     </div>
 
     <div class="modal-footer">
-        <button type="submit" name="add_contract_template" class="btn btn-primary text-bold">
-            <i class="fa fa-check mr-2"></i>Create Template
+        <button type="submit" name="edit_contract_template" class="btn btn-primary text-bold">
+            <i class="fa fa-check mr-2"></i>Save Changes
         </button>
         <button type="button" class="btn btn-light" data-dismiss="modal">
             <i class="fa fa-times mr-2"></i>Cancel

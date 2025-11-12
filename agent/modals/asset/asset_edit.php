@@ -50,7 +50,14 @@ $sql_asset_history = mysqli_query($mysqli, "SELECT * FROM asset_history
     DESC LIMIT 10"
 );
 
-// Generate the HTML form content using output buffering.
+// Tags
+$asset_tag_id_array = array();
+$sql_asset_tags = mysqli_query($mysqli, "SELECT asset_tag_tag_id FROM asset_tags WHERE asset_tag_asset_id = $asset_id");
+while ($row = mysqli_fetch_array($sql_asset_tags)) {
+    $asset_tag_tag_id = intval($row['asset_tag_tag_id']);
+    $asset_tag_id_array[] = $asset_tag_tag_id;
+}
+
 ob_start();
 ?>
 
@@ -460,6 +467,33 @@ ob_start();
 
                 <div class="form-group">
                     <textarea class="form-control" rows="8" placeholder="Enter some notes" name="notes"><?= $asset_notes ?></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>Tags</label>
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text"><i class="fa fa-fw fa-tags"></i></span>
+                        </div>
+                        <select class="form-control select2" name="tags[]" data-placeholder="Add some tags" multiple>
+                            <?php
+
+                            $sql_tags_select = mysqli_query($mysqli, "SELECT * FROM tags WHERE tag_type = 5 ORDER BY tag_name ASC");
+                            while ($row = mysqli_fetch_array($sql_tags_select)) {
+                                $tag_id_select = intval($row['tag_id']);
+                                $tag_name_select = nullable_htmlentities($row['tag_name']);
+                                ?>
+                                <option value="<?= $tag_id_select ?>" <?php if (in_array($tag_id_select, $asset_tag_id_array)) { echo "selected"; } ?>><?php echo $tag_name_select; ?></option>
+                            <?php } ?>
+
+                        </select>
+                        <div class="input-group-append">
+                            <button class="btn btn-secondary ajax-modal" type="button"
+                                data-modal-url="../admin/modals/tag/tag_add.php?type=5">
+                                <i class="fas fa-plus"></i>
+                            </button>
+                        </div>
+                    </div>
                 </div>
 
                 <p class="text-muted text-right">Asset ID: <?= $asset_id ?></p>
