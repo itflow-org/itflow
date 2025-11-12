@@ -18,25 +18,37 @@
                 <li class="nav-item">
                     <a href="/admin/users.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "users.php") {echo "active";} ?>">
                         <i class="nav-icon fas fa-users"></i>
-                        <p>Users</p>
+                        <p>
+                            Users
+                            <span href="#" class="fas fa-plus-circle right ajax-modal" data-modal-url="/admin/modals/user/user_add.php"></span>
+                        </p>
                     </a>
                 </li>
                 <li class="nav-item">
                     <a href="/admin/roles.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "roles.php") {echo "active";} ?>">
                         <i class="nav-icon fas fa-user-shield"></i>
-                        <p>Roles</p>
+                        <p>
+                            <span href="#" class="fas fa-plus-circle right ajax-modal" data-modal-url="/admin/modals/role/role_add.php"></span>
+                            Roles
+                        </p>
                     </a>
                 </li>
                 <li class="nav-item">
                     <a href="/admin/modules.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "modules.php") {echo "active";} ?>">
                         <i class="nav-icon fas fa-puzzle-piece"></i>
-                        <p>Modules</p>
+                        <p>
+                            Modules
+                            <span href="#" class="fas fa-plus-circle right ajax-modal" data-modal-url="/admin/modals/module/module_add.php"></span>
+                        </p>
                     </a>
                 </li>
                 <li class="nav-item">
                     <a href="/admin/api_keys.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "api_keys.php") {echo "active";} ?>">
                         <i class="nav-icon fas fa-key"></i>
-                        <p>API Keys</p>
+                        <p>
+                            <span href="#" class="fas fa-plus-circle right ajax-modal" data-modal-url="/admin/modals/api/api_key_add.php"></span>
+                            API Keys
+                        </p>
                     </a>
                 </li>
                 <li class="nav-header">TAGS & CATEGORIES</li>
@@ -44,26 +56,38 @@
                 <li class="nav-item">
                     <a href="/admin/tag.php" class="nav-link <?php echo (basename($_SERVER['PHP_SELF']) == 'tag.php' ? 'active' : ''); ?>">
                         <i class="nav-icon fas fa-tags"></i>
-                        <p>Tags</p>
+                        <p>
+                            <span href="#" class="fas fa-plus-circle right ajax-modal" data-modal-url="/admin/modals/tag/tag_add.php"></span>
+                            Tags
+                        </p>
                     </a>
                 </li>
                 <li class="nav-item">
                     <a href="/admin/category.php" class="nav-link <?php echo (basename($_SERVER['PHP_SELF']) == 'category.php' ? 'active' : ''); ?>">
                         <i class="nav-icon fas fa-list-ul"></i>
-                        <p>Categories</p>
+                        <p>
+                            <span href="#" class="fas fa-plus-circle right ajax-modal" data-modal-url="/admin/modals/category/category_add.php"></span>
+                            Categories
+                        </p>
                     </a>
                 </li>
                 <?php if ($config_module_enable_accounting) { ?>
                     <li class="nav-item">
                         <a href="/admin/tax.php" class="nav-link <?php echo (basename($_SERVER['PHP_SELF']) == 'tax.php' ? 'active' : ''); ?>">
                             <i class="nav-icon fas fa-balance-scale"></i>
-                            <p>Taxes</p>
+                            <p>
+                                <span href="#" class="fas fa-plus-circle right ajax-modal" data-modal-url="/admin/modals/tax/tax_add.php"></span>
+                                Taxes
+                            </p>
                         </a>
                     </li>
                     <li class="nav-item">
                         <a href="/admin/payment_method.php" class="nav-link <?php echo (basename($_SERVER['PHP_SELF']) == 'payment_method.php' ? 'active' : ''); ?>">
                             <i class="nav-icon fas fa-hand-holding-usd"></i>
-                            <p>Payment Methods</p>
+                            <p>
+                                <span href="#" class="fas fa-plus-circle right ajax-modal" data-modal-url="/admin/modals/payment_method/payment_method_add.php"></span>
+                                Payment Methods
+                            </p>
                         </a>
                     </li>
                     <li class="nav-item">
@@ -96,14 +120,20 @@
                     <li class="nav-item">
                         <a href="/admin/ticket_status.php" class="nav-link <?php echo (basename($_SERVER['PHP_SELF']) == 'ticket_status.php' ? 'active' : ''); ?>">
                             <i class="nav-icon fas fa-info-circle"></i>
-                            <p>Ticket Statuses</p>
+                            <p>
+                                <span href="#" class="fas fa-plus-circle right ajax-modal" data-modal-url="/admin/modals/ticket_status/ticket_status_add.php"></span>
+                                Ticket Statuses
+                            </p>
                         </a>
                     </li>
                 <?php } ?>
                 <li class="nav-item">
                     <a href="/admin/custom_link.php" class="nav-link <?php echo (basename($_SERVER['PHP_SELF']) == 'custom_link.php' ? 'active' : ''); ?>">
                         <i class="nav-icon fas fa-external-link-alt"></i>
-                        <p>Custom Links</p>
+                        <p>
+                            <span href="#" class="fas fa-plus-circle right ajax-modal" data-modal-url="/admin/modals/custom_link/custom_link_add.php"></span>
+                            Custom Links
+                        </p>
                     </a>
                 </li>
 
@@ -113,37 +143,55 @@
                     <li class="nav-item">
                         <a href="/admin/contract_template.php" class="nav-link <?php echo (basename($_SERVER['PHP_SELF']) == 'contract_template.php' ? 'active' : ''); ?>">
                             <i class="nav-icon fas fa-file-contract"></i>
-                            <p>Contract Templates</p>
+                            <p>
+                                <span href="#" class="fas fa-plus-circle right ajax-modal" data-modal-url="/admin/modals/contract_template/contract_template_add.php" data-modal-size="lg"></span>
+                                Contract Templates
+                            </p>
                         </a>
                     </li>
                     <li class="nav-item">
                         <a href="/admin/project_template.php" class="nav-link <?php echo (in_array(basename($_SERVER['PHP_SELF']), ['project_template.php', 'project_template_details.php']) ? 'active' : ''); ?>">
                             <i class="nav-icon fas fa-project-diagram"></i>
-                            <p>Project Templates</p>
+                            <p>
+                                <span href="#" class="fas fa-plus-circle right ajax-modal" data-modal-url="/admin/modals/project_template/project_template_add.php"></span>
+                                Project Templates
+                            </p>
                         </a>
                     </li>
                     <li class="nav-item">
                         <a href="/admin/ticket_template.php" class="nav-link <?php echo (in_array(basename($_SERVER['PHP_SELF']), ['ticket_template.php', 'ticket_template_details.php']) ? 'active' : ''); ?>">
                             <i class="nav-icon fas fa-life-ring"></i>
-                            <p>Ticket Templates</p>
+                            <p>
+                                <span href="#" class="fas fa-plus-circle right ajax-modal" data-modal-url="/admin/modals/ticket_template/ticket_template_add.php"></span>
+                                Ticket Templates
+                            </p>
                         </a>
                     </li>
                     <li class="nav-item">
                         <a href="/admin/vendor_template.php" class="nav-link <?php echo (basename($_SERVER['PHP_SELF']) == 'vendor_template.php' ? 'active' : ''); ?>">
                             <i class="nav-icon fas fa-building"></i>
-                            <p>Vendor Templates</p>
+                            <p>
+                                <span href="#" class="fas fa-plus-circle right ajax-modal" data-modal-url="/admin/modals/vendor_template/vendor_template_add.php"></span>
+                                Vendor Templates
+                            </p>
                         </a>
                     </li>
                     <li class="nav-item">
                         <a href="/admin/software_template.php" class="nav-link <?php echo (basename($_SERVER['PHP_SELF']) == 'software_template.php' ? 'active' : ''); ?>">
                             <i class="nav-icon fas fa-rocket"></i>
-                            <p>License Templates</p>
+                            <p>
+                                <span href="#" class="fas fa-plus-circle right ajax-modal" data-modal-url="/admin/modals/software_template/software_template_add.php"></span>
+                                License Templates
+                            </p>
                         </a>
                     </li>
                     <li class="nav-item">
                         <a href="/admin/document_template.php" class="nav-link <?php echo (in_array(basename($_SERVER['PHP_SELF']), ['document_template.php', 'document_template_details.php']) ? 'active' : ''); ?>">
                             <i class="nav-icon fas fa-file"></i>
-                            <p>Document Templates</p>
+                            <p>
+                                <span href="#" class="fas fa-plus-circle right ajax-modal" data-modal-url="/admin/modals/document_template/document_template_add.php" data-modal-size="lg"></span>
+                                Document Templates
+                            </p>
                         </a>
                     </li>
                 <?php } ?>

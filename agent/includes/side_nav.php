@@ -23,10 +23,11 @@
                         <a href="/agent/clients.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "clients.php") { echo "active"; } ?>">
                             <i class="nav-icon fas fa-users"></i>
                             <p>
-                              Clients
-                              <?php if ($num_active_clients) { ?>
-                                      <span class="right badge text-light" data-toggle="tooltip" title="Active Clients"><?php echo $num_active_clients; ?></span>
-                              <?php } ?>
+                                Clients
+                                <span href="#" class="fas fa-plus-circle right ajax-modal" data-modal-url="/agent/modals/client/client_add.php"></span>
+                                <?php if ($num_active_clients) { ?>
+                                    <span class="right badge text-light" data-toggle="tooltip" title="Active Clients"><?php echo $num_active_clients; ?></span>
+                                <?php } ?>      
                             </p>
                         </a>
                     </li>
@@ -40,6 +41,7 @@
                                 <i class="nav-icon fas fa-life-ring"></i>
                                 <p>
                                     Tickets
+                                    <span href="#" class="fas fa-plus-circle right ajax-modal" data-modal-url="/agent/modals/ticket/ticket_add_v2.php" data-modal-size="lg"></span>
                                     <?php if ($num_active_tickets) { ?>
                                         <span class="right badge text-light" data-toggle="tooltip" title="Open Tickets"><?php echo $num_active_tickets; ?></span>
                                     <?php } ?>
@@ -51,6 +53,7 @@
                                 <i class="nav-icon fas fa-redo-alt"></i>
                                 <p>
                                     Recurring Tickets
+                                    <span href="#" class="fas fa-plus-circle right ajax-modal" data-modal-url="/agent/modals/recurring_ticket/recurring_ticket_add.php" data-modal-size="lg"></span>
                                     <?php if ($num_recurring_tickets) { ?>
                                         <span class="right badge text-light" data-toggle="tooltip" title="Active Recurring Tickets"><?php echo $num_recurring_tickets; ?></span>
                                     <?php } ?>
@@ -62,6 +65,7 @@
                                 <i class="nav-icon fas fa-project-diagram"></i>
                                 <p>
                                     Projects
+                                    <span href="#" class="fas fa-plus-circle right ajax-modal" data-modal-url="/agent/modals/project/project_add.php"></span>
                                     <?php if ($num_active_projects) { ?>
                                         <span class="right badge text-light" data-toggle="tooltip" title="Open Projects"><?php echo $num_active_projects; ?></span>
                                     <?php } ?>
@@ -84,6 +88,7 @@
                             <i class="nav-icon fas fa-comment-dollar"></i>
                             <p>
                                 Quotes
+                                <span href="#" class="fas fa-plus-circle right ajax-modal" data-modal-url="/agent/modals/quote/quote_add.php"></span>
                                 <?php if ($num_open_quotes) { ?>
                                     <span class="right badge text-light" data-toggle="tooltip" title="Active Quotes"><?php echo $num_open_quotes; ?></span>
                                 <?php } ?>
@@ -95,6 +100,7 @@
                             <i class="nav-icon fas fa-file-invoice"></i>
                             <p>
                                 Invoices
+                                <span href="#" class="fas fa-plus-circle right ajax-modal" data-modal-url="/agent/modals/invoice/invoice_add.php"></span>
                                 <?php if ($num_open_invoices) { ?>
                                     <span class="right badge text-light" data-toggle="tooltip" title="Open Invoices"><?php echo $num_open_invoices; ?></span>
                                 <?php } ?>
@@ -106,6 +112,7 @@
                             <i class="nav-icon fas fa-redo-alt"></i>
                             <p>
                                 Recurring Invoices
+                                <span href="#" class="fas fa-plus-circle right ajax-modal" data-modal-url="/agent/modals/recurring_invoice/recurring_invoice_add.php"></span>
                                 <?php if ($num_recurring_invoices) { ?>
                                     <span class="right badge text-light" data-toggle="tooltip" title="Active Recurring Invoices"><?php echo $num_recurring_invoices; ?></span>
                                 <?php } ?>
@@ -116,12 +123,14 @@
                         <a href="/agent/revenues.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "revenues.php") { echo "active"; } ?>">
                             <i class="nav-icon fas fa-hand-holding-usd"></i>
                             <p>Revenues</p>
+                            <span href="#" class="fas fa-plus-circle right ajax-modal" data-modal-url="/agent/modals/revenue/revenue_add.php" data-modal-size="lg"></span>
                         </a>
                     </li>
                     <li class="nav-item">
                         <a href="/agent/products.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "products.php") { echo "active"; } ?>">
                             <i class="nav-icon fas fa-box-open"></i>
                             <p>Products</p>
+                            <span href="#" class="fas fa-plus-circle right ajax-modal" data-modal-url="/agent/modals/product/product_add.php"></span>
                         </a>
                     </li>
                 <?php } ?>
@@ -137,12 +146,14 @@
                         <a href="/agent/vendors.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "vendors.php") { echo "active"; } ?>">
                             <i class="nav-icon fas fa-building"></i>
                             <p>Vendors</p>
+                            <span href="#" class="fas fa-plus-circle right ajax-modal" data-modal-url="/agent/modals/vendor/vendor_add.php"></span>
                         </a>
                     </li>
                     <li class="nav-item">
                         <a href="/agent/expenses.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "expenses.php") { echo "active"; } ?>">
                             <i class="nav-icon fas fa-shopping-cart"></i>
                             <p>Expenses</p>
+                            <span href="#" class="fas fa-plus-circle right ajax-modal" data-modal-url="/agent/modals/expense/expense_add.php"></span>
                         </a>
                     </li>
                     <li class="nav-item">
@@ -150,6 +161,7 @@
                             <i class="nav-icon fas fa-redo-alt"></i>
                             <p>
                                 Recurring Expenses
+                                <span href="#" class="fas fa-plus-circle right ajax-modal" data-modal-url="/agent/modals/recurring_expense/recurring_expense_add.php"></span>
                                 <?php if ($num_recurring_expenses) { ?>
                                     <span class="right badge text-light" data-toggle="tooltip" title="Recurring Expenses"><?php echo $num_recurring_expenses; ?></span>
                                 <?php } ?>
@@ -160,18 +172,21 @@
                         <a href="/agent/accounts.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "accounts.php") { echo "active"; } ?>">
                             <i class="nav-icon fas fa-piggy-bank"></i>
                             <p>Accounts</p>
+                            <span href="#" class="fas fa-plus-circle right ajax-modal" data-modal-url="/agent/modals/account/account_add.php"></span>
                         </a>
                     </li>
                     <li class="nav-item">
                         <a href="/agent/transfers.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "transfers.php") { echo "active"; } ?>">
                             <i class="nav-icon fas fa-exchange-alt"></i>
                             <p>Transfers</p>
+                            <span href="#" class="fas fa-plus-circle right ajax-modal" data-modal-url="/agent/modals/transfer/transfer_add.php"></span>
                         </a>
                     </li>
                     <li class="nav-item">
                         <a href="/agent/trips.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "trips.php") { echo "active"; } ?>">
                             <i class="nav-icon fas fa-route"></i>
                             <p>Trips</p>
+                            <span href="#" class="fas fa-plus-circle right ajax-modal" data-modal-url="/agent/modals/trip/trip_add.php"></span>
                         </a>
                     </li>
                 <?php } ?>
