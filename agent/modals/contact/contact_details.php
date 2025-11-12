@@ -51,7 +51,14 @@ $auth_method = nullable_htmlentities($row['user_auth_method']);
 $contact_client_id = intval($row['contact_client_id']);
 
 // Related Assets Query - 1 to 1 relationship
-$sql_related_assets = mysqli_query($mysqli, "SELECT * FROM assets LEFT JOIN asset_interfaces ON interface_asset_id = asset_id AND interface_primary = 1 WHERE asset_contact_id = $contact_id ORDER BY asset_name DESC");
+$sql_related_assets = mysqli_query($mysqli, "SELECT * FROM assets
+    LEFT JOIN asset_interfaces ON interface_asset_id = asset_id AND interface_primary = 1
+    LEFT JOIN asset_tags ON asset_tag_asset_id = asset_id
+    LEFT JOIN tags ON tag_id = asset_tag_tag_id
+    WHERE asset_contact_id = $contact_id
+    GROUP BY asset_id
+    ORDER BY asset_name ASC"
+);
 $asset_count = mysqli_num_rows($sql_related_assets);
 
 // Linked Software Licenses
@@ -77,7 +84,7 @@ $sql_related_credentials = mysqli_query($mysqli, "
     LEFT JOIN tags ON tags.tag_id = credential_tags.tag_id
     WHERE credential_contact_id = $contact_id
     GROUP BY credentials.credential_id
-    ORDER BY credential_name DESC
+    ORDER BY credential_name ASC
 ");
 $credential_count = mysqli_num_rows($sql_related_credentials);
 
@@ -376,6 +383,27 @@ ob_start();
                         $asset_notes = nullable_htmlentities($row['asset_notes']);
                         $asset_created_at = nullable_htmlentities($row['asset_created_at']);
                         $device_icon = getAssetIcon($asset_type);
+                        // Tags
+                        $asset_tag_name_display_array = array();
+                        $asset_tag_id_array = array();
+                        $sql_asset_tags = mysqli_query($mysqli, "SELECT * FROM asset_tags LEFT JOIN tags ON asset_tag_tag_id = tag_id WHERE asset_tag_asset_id = $asset_id ORDER BY tag_name ASC");
+                        while ($row = mysqli_fetch_array($sql_asset_tags)) {
+
+                            $asset_tag_id = intval($row['tag_id']);
+                            $asset_tag_name = nullable_htmlentities($row['tag_name']);
+                            $asset_tag_color = nullable_htmlentities($row['tag_color']);
+                            if (empty($asset_tag_color)) {
+                                $asset_tag_color = "dark";
+                            }
+                            $asset_tag_icon = nullable_htmlentities($row['tag_icon']);
+                            if (empty($asset_tag_icon)) {
+                                $asset_tag_icon = "tag";
+                            }
+
+                            $asset_tag_id_array[] = $asset_tag_id;
+                            $asset_tag_name_display_array[] = "<a href='assets.php?$client_url tags[]=$asset_tag_id'><span class='badge text-light p-1 mr-1' style='background-color: $asset_tag_color;'><i class='fa fa-fw fa-$asset_tag_icon mr-2'></i>$asset_tag_name</span></a>";
+                        }
+                        $asset_tags_display = implode('', $asset_tag_name_display_array);
 
                         ?>
                         <tr>
@@ -389,6 +417,12 @@ ob_start();
                                 <div class="mt-0">
                                     <small class="text-muted"><?= $asset_description ?></small>
                                 </div>
+                                <?php
+                                if ($asset_tags_display) { ?>
+                                    <div class="mt-1">
+                                        <?= $asset_tags_display ?>
+                                    </div>
+                                <?php } ?>
                             </th>
                             <td><?= $asset_type ?></td>
                             <td>

@@ -118,6 +118,28 @@ if (isset($_GET['asset_id'])) {
         );
         $document_count = mysqli_num_rows($sql_related_documents);
 
+        // Tags - many to many relationship
+        $asset_tag_name_display_array = array();
+        $asset_tag_id_array = array();
+        $sql_asset_tags = mysqli_query($mysqli, "SELECT * FROM asset_tags LEFT JOIN tags ON asset_tag_tag_id = tag_id WHERE asset_tag_asset_id = $asset_id ORDER BY tag_name ASC");
+        while ($row = mysqli_fetch_array($sql_asset_tags)) {
+
+            $asset_tag_id = intval($row['tag_id']);
+            $asset_tag_name = nullable_htmlentities($row['tag_name']);
+            $asset_tag_color = nullable_htmlentities($row['tag_color']);
+            if (empty($asset_tag_color)) {
+                $asset_tag_color = "dark";
+            }
+            $asset_tag_icon = nullable_htmlentities($row['tag_icon']);
+            if (empty($asset_tag_icon)) {
+                $asset_tag_icon = "tag";
+            }
+
+            $asset_tag_id_array[] = $asset_tag_id;
+            $asset_tag_name_display_array[] = "<a href='client_assets.php?client_id=$client_id&q=$asset_tag_name'><span class='badge text-light p-1 mr-1' style='background-color: $asset_tag_color;'><i class='fa fa-fw fa-$asset_tag_icon mr-2'></i>$asset_tag_name</span></a>";
+        }
+        $asset_tags_display = implode('', $asset_tag_name_display_array);
+
         // Network Interfaces
         $sql_related_interfaces = mysqli_query($mysqli, "
             SELECT 
@@ -257,8 +279,13 @@ if (isset($_GET['asset_id'])) {
                         <?php } ?>
                     </div>
                     <div class="card-body">
+                        <?php if ($asset_tags_display) { ?>
+                            <div>
+                                <?= $asset_tags_display ?>
+                            </div>
+                        <?php } ?>   
                         <?php if ($asset_type) { ?>
-                            <div><i class="fa fa-fw fa-tag text-secondary mr-3"></i><?= $asset_type; ?></div>
+                            <div class="mt-1"><i class="fa fa-fw fa-tag text-secondary mr-3"></i><?= $asset_type; ?></div>
                         <?php }
                         if ($asset_make) { ?>
                             <div class="mt-2"><i class="fa fa-fw fa-circle text-secondary mr-3"></i><?= "$asset_make $asset_model"; ?></div>

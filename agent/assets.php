@@ -358,6 +358,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                     data-bulk="true">
                                     <i class="fas fa-fw fa-map-marker-alt mr-2"></i>Assign Location
                                 </a>
+                                <div class="dropdown-divider"></div>
                                 <?php } ?>
                                 <a class="dropdown-item ajax-modal" href="#"
                                     data-modal-url="modals/asset/asset_bulk_assign_tags.php"
