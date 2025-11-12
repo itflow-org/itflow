@@ -497,7 +497,7 @@ if (isset($_GET['email_quote'])) {
     
     logAction("Quote", "Email", "$session_name emailed quote $quote_prefix$quote_number to $contact_email", $client_id, $quote_id);
 
-    flash_alert("Quote has been queued successfully! <a class='text-bold text-light' href='admin_mail_queue.php'>See Mail Queue</a>");
+    flash_alert("Quote sent!");
 
     //Don't change the status to sent if the status is anything but draft
     if ($quote_status == 'Draft') {
