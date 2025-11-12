@@ -9,9 +9,12 @@ if ($type == 'product') {
     $type_icon = "fa-wrench";
 }
 
+$product_types_array = ['product', 'service'];
+
 ob_start();
 
 ?>
+
 <div class="modal-header bg-dark">
     <h5 class="modal-title"><i class="fas fa-fw <?= $type_icon ?> mr-2"></i>New <strong><?= ucwords($type); ?></strong></h5>
     <button type="button" class="close text-white" data-dismiss="modal">
@@ -19,7 +22,6 @@ ob_start();
     </button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
-    <input type="hidden" name="type" value="<?= $type ?>">
 
     <div class="modal-body">
 
@@ -32,6 +34,27 @@ ob_start();
                 <input type="text" class="form-control" name="name" placeholder="Product name" maxlength="200" required autofocus>
             </div>
         </div>
+
+        <?php if ($type) { ?>
+        <input type="hidden" name="type" value="<?= $type ?>">
+        <?php } else { ?>
+
+        <div class="form-group">
+            <label>Type <strong class="text-danger">*</strong></label>
+            <div class="input-group">
+                <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
+                </div>
+                <select class="form-control select2" name="type" required>
+                    <option value="">- Select Type -</option>
+                    <?php foreach ($product_types_array as $type_select) { ?>
+                        <option><?= $type_select ?></option>
+                    <?php } ?>
+                </select>
+            </div>
+        </div>
+
+        <?php } ?>
 
         <div class="form-group">
             <label>Category <strong class="text-danger">*</strong></label>

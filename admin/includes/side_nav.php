@@ -162,7 +162,7 @@
                         <a href="/admin/ticket_template.php" class="nav-link <?php echo (in_array(basename($_SERVER['PHP_SELF']), ['ticket_template.php', 'ticket_template_details.php']) ? 'active' : ''); ?>">
                             <i class="nav-icon fas fa-life-ring"></i>
                             <p>
-                                <span href="#" class="fas fa-plus-circle right ajax-modal" data-modal-url="/admin/modals/ticket_template/ticket_template_add.php"></span>
+                                <span href="#" class="fas fa-plus-circle right ajax-modal" data-modal-url="/admin/modals/ticket_template/ticket_template_add.php" data-modal-size="lg"></span>
                                 Ticket Templates
                             </p>
                         </a>
