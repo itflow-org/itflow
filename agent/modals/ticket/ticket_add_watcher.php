@@ -3,6 +3,7 @@
 require_once '../../../includes/modal_header.php';
 
 $ticket_id = intval($_GET['ticket_id']);
+$client_id = intval(getFieldById('tickets', $ticket_id, 'ticket_client_id'));
 
 ob_start();
 
