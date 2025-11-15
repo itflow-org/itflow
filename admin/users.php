@@ -156,7 +156,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     ?>
                     <tr>
                         <td class="text-center">
-                            <a href="#" 
+                            <a href="#" title="UserID: <?= $user_id ?>"
                                 <?php if ($user_id !== $session_user_id) { // Prevent modifying self ?>
                                 class="ajax-modal"
                                 data-modal-url="modals/user/user_edit.php?id=<?= $user_id ?>"
