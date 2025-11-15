@@ -108,6 +108,11 @@
                             $contact_id = intval($row['contact_id']);
                             $contact_name = nullable_htmlentities($row['contact_name']);
                             $contact_email = nullable_htmlentities($row['contact_email']);
+                            if ($client_id) {
+                                $has_client = "&client_id=$client_id";
+                            } else {
+                                $has_client = "";
+                            }
 
                             if ($ticket_priority == "High") {
                                 $ticket_priority_color = "danger";
@@ -197,14 +202,14 @@
                                 
                                 <!-- Ticket Number -->
                                 <td>
-                                    <a href="ticket.php?client_id=<?= $client_id ?>&ticket_id=<?= $ticket_id ?>">
+                                    <a href="ticket.php?ticket_id=<?= "$ticket_id$has_client" ?>">
                                         <span class="badge badge-pill badge-secondary p-3"><?php echo "$ticket_prefix$ticket_number"; ?></span>
                                     </a>
                                 </td>
 
                                 <!-- Ticket Subject -->
                                 <td>
-                                    <a href="ticket.php?client_id=<?= $client_id ?>&ticket_id=<?= $ticket_id ?>"><?= $ticket_subject ?></a>
+                                    <a href="ticket.php?ticket_id=<?= "$ticket_id$has_client" ?>"><?= $ticket_subject ?></a>
 
                                     <?php if($task_count && $completed_task_count > 0) { ?>
                                     <div class="progress mt-2" style="height: 20px;">
