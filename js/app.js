@@ -404,30 +404,54 @@ $(document).ready(function() {
 
 /*
  |---------------------------------------------------------------
- | Nested Modal Fix for Bootstrap/AdminLTE
- | Prevents parent modals from closing when a child modal closes
+ | Nested Modal Fix for ITFlow AJAX Modals
+ | Each modal gets a unique container, parent modals remain open
  |---------------------------------------------------------------
 */
-$(document).on('show.bs.modal', '.modal', function () {
-    // How many modals are currently visible?
-    const visibleModals = $('.modal:visible').length;
 
-    // Increase z-index for each new modal
-    const zIndex = 1040 + (10 * visibleModals);
-    $(this).css('z-index', zIndex);
+(function() {
+    if (!window.createAjaxModal) return;
 
-    // Delay required because Bootstrap inserts backdrop asynchronously
-    setTimeout(() => {
-        $('.modal-backdrop').not('.modal-stack')
-            .css('z-index', zIndex - 1)
-            .addClass('modal-stack'); // mark backdrops so they aren't reset
-    }, 0);
-});
+    // Keep original function just in case
+    const originalCreateAjaxModal = window.createAjaxModal;
 
-// Restore modal-open class when closing a child modal
-$(document).on('hidden.bs.modal', '.modal', function () {
-    if ($('.modal:visible').length > 0) {
-        // Ensure background scroll remains locked
-        $('body').addClass('modal-open');
-    }
-});
+    window.createAjaxModal = function(contentHtml) {
+        // Generate a unique ID for this modal
+        const modalId = 'ajaxModal_' + Date.now();
+
+        // Create a new modal container
+        const $modal = $('<div class="modal fade" tabindex="-1" aria-hidden="true">')
+            .attr('id', modalId)
+            .html(contentHtml)
+            .appendTo('body');
+
+        // Initialize Bootstrap modal
+        $modal.modal('show');
+
+        // Ensure only this modal is removed when hidden
+        $modal.on('hidden.bs.modal', function () {
+            $(this).remove();
+        });
+
+        return $modal;
+    };
+
+    // Optional: Keep proper z-index stacking for multiple nested modals
+    $(document).on('show.bs.modal', '.modal', function () {
+        const zIndex = 1040 + (10 * $('.modal:visible').length);
+        $(this).css('z-index', zIndex);
+        setTimeout(() => {
+            $('.modal-backdrop').not('.modal-stack')
+                .css('z-index', zIndex - 1)
+                .addClass('modal-stack');
+        }, 0);
+    });
+
+    $(document).on('hidden.bs.modal', '.modal', function () {
+        if ($('.modal:visible').length > 0) {
+            $('body').addClass('modal-open');
+        }
+    });
+
+})();
+
