@@ -31,6 +31,21 @@ function translatePriority($priority) {
     return isset($priorities[$priority]) ? $priorities[$priority] : $priority;
 }
 
+// Status translation helper
+function translateStatus($status) {
+    $statuses = [
+        'Open' => __('status_open'),
+        'Working' => __('status_working'),
+        'On Hold' => __('status_on_hold'),
+        'Waiting on Customer' => __('status_waiting_on_customer'),
+        'Resolved' => __('status_resolved'),
+        'Closed' => __('status_closed'),
+        'Cancelled' => __('status_cancelled'),
+        'Reopened' => __('status_reopened')
+    ];
+    return isset($statuses[$status]) ? $statuses[$status] : $status;
+}
+
 if (isset($_GET['ticket_id'])) {
     $ticket_id = intval($_GET['ticket_id']);
 
