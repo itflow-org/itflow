@@ -42,13 +42,16 @@ $lang['merge'] = 'Merge';
 $lang['resolve'] = 'Resolve';
 
 // Tickets Table - Columns
+$lang['ticket'] = 'Ticket';
 $lang['number'] = 'Number';
 $lang['subject'] = 'Subject';
 $lang['client'] = 'Client';
 $lang['contact'] = 'Contact';
+$lang['billable'] = 'Billable';
 $lang['priority'] = 'Priority';
 $lang['status'] = 'Status';
 $lang['assigned'] = 'Assigned';
+$lang['not_assigned'] = 'Not Assigned';
 $lang['last_response'] = 'Last Response';
 $lang['created'] = 'Created';
 $lang['updated'] = 'Updated';
