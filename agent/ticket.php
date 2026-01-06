@@ -140,7 +140,7 @@ if (isset($_GET['ticket_id'])) {
 
         $ticket_assigned_to = intval($row['ticket_assigned_to']);
         if (empty($ticket_assigned_to)) {
-            $ticket_assigned_to_display = "<span class='text-danger text-bold'>Not Assigned</span>";
+            $ticket_assigned_to_display = "<span class='text-danger text-bold'>" . __('not_assigned') . "</span>";
         } else {
             $ticket_assigned_to_display = nullable_htmlentities($row['user_name']);
         }
@@ -625,15 +625,15 @@ if (isset($_GET['ticket_id'])) {
                                 <div class="form-group">
                                     <div class="btn-group btn-block btn-group-toggle" data-toggle="buttons">
                                         <label class="btn btn-outline-dark active">
-                                            <input type="radio" name="public_reply_type" value="0" checked>Internal Note
+                                            <input type="radio" name="public_reply_type" value="0" checked><?php echo __('internal_note'); ?>
                                         </label>
                                         <?php if ($contact_email) { ?>
                                         <label class="btn btn-outline-info">
-                                            <input type="radio" name="public_reply_type" value="2">Public Comment & Email
+                                            <input type="radio" name="public_reply_type" value="2"><?php echo __('public_comment_email'); ?>
                                         </label>
                                         <?php } ?>
                                         <label class="btn btn-outline-info">
-                                            <input type="radio" name="public_reply_type" value="1">Public Comment
+                                            <input type="radio" name="public_reply_type" value="1"><?php echo __('public_comment'); ?>
                                         </label>
                                     </div>
                                 </div>
@@ -643,7 +643,7 @@ if (isset($_GET['ticket_id'])) {
                             <div class="form-group">
                                 <textarea
                                     class="form-control tinymceTicket" name="ticket_reply"
-                                    placeholder="Type a response">
+                                    placeholder="<?php echo __('type_response'); ?>">
                                 </textarea>
                             </div>
 
@@ -676,15 +676,15 @@ if (isset($_GET['ticket_id'])) {
                                     <div class="col-md-6">
                                         <div class="input-group mb-3">
                                             <div class="input-group-prepend px-0 col-2">
-                                                <input type="text" class="form-control" inputmode="numeric" id="hours" name="hours" placeholder="Hrs" min="0" max="23" pattern="0?[0-9]|1[0-9]|2[0-3]">
+                                                <input type="text" class="form-control" inputmode="numeric" id="hours" name="hours" placeholder="<?php echo __('hours_abbr'); ?>" min="0" max="23" pattern="0?[0-9]|1[0-9]|2[0-3]">
                                             </div>
 
                                             <div class="px-0 col-2">
-                                                <input type="text" class="form-control" inputmode="numeric" id="minutes" name="minutes" placeholder="Mins" min="0" max="59" pattern="[0-5]?[0-9]">
+                                                <input type="text" class="form-control" inputmode="numeric" id="minutes" name="minutes" placeholder="<?php echo __('minutes_abbr'); ?>" min="0" max="59" pattern="[0-5]?[0-9]">
                                             </div>
 
                                             <div class="input-group-append px-0 col-2">
-                                                <input type="text" class="form-control" inputmode="numeric" id="seconds" name="seconds" placeholder="Secs" min="0" max="59" pattern="[0-5]?[0-9]">
+                                                <input type="text" class="form-control" inputmode="numeric" id="seconds" name="seconds" placeholder="<?php echo __('seconds_abbr'); ?>" min="0" max="59" pattern="[0-5]?[0-9]">
                                             </div>
 
                                             <div class="btn-group">
@@ -696,7 +696,7 @@ if (isset($_GET['ticket_id'])) {
 
                                     <div class="col-md-3">
                                         <div class="btn-toolbar float-right">
-                                            <button type="submit" id="ticket_add_reply" name="add_ticket_reply" class="btn btn-success ml-3"><i class="fas fa-check mr-2"></i>Submit</button>
+                                            <button type="submit" id="ticket_add_reply" name="add_ticket_reply" class="btn btn-success ml-3"><i class="fas fa-check mr-2"></i><?php echo __('submit'); ?></button>
                                         </div>
                                     </div>
 
@@ -783,18 +783,18 @@ if (isset($_GET['ticket_id'])) {
                                                     <a href="#" class="dropdown-item ajax-modal"
                                                        data-modal-size = "lg"
                                                        data-modal-url="modals/ticket/ticket_reply_redact.php?id=<?= $ticket_reply_id ?>">
-                                                        <i class="fas fa-fw fa-pen text-danger mr-2"></i>Redact
+                                                        <i class="fas fa-fw fa-pen text-danger mr-2"></i><?php echo __('redact'); ?>
                                                     </a>
                                                     <?php if ($ticket_reply_type !== "Client" && empty($ticket_closed_at)) { ?>
                                                     <div class="dropdown-divider"></div>
                                                     <a href="#" class="dropdown-item ajax-modal"
                                                        data-modal-size = "lg"
                                                        data-modal-url="modals/ticket/ticket_reply_edit.php?id=<?=$ticket_reply_id ?>">
-                                                        <i class="fas fa-fw fa-edit text-secondary mr-2"></i>Edit
+                                                        <i class="fas fa-fw fa-edit text-secondary mr-2"></i><?php echo __('edit'); ?>
                                                     </a>
                                                     <div class="dropdown-divider"></div>
                                                     <a class="dropdown-item text-danger confirm-link" href="post.php?archive_ticket_reply=<?php echo $ticket_reply_id; ?>">
-                                                        <i class="fas fa-fw fa-archive mr-2"></i>Archive
+                                                        <i class="fas fa-fw fa-archive mr-2"></i><?php echo __('archive'); ?>
                                                     </a>
                                                     <?php } ?>
                                                 </div>
@@ -803,8 +803,8 @@ if (isset($_GET['ticket_id'])) {
                                     </div>
 
                                     <small class="text-muted">
-                                        <div title="Created: <?php echo $ticket_reply_created_at; if ($ticket_reply_updated_at) { echo '. Edited: ' . $ticket_reply_updated_at; } ?>">
-                                            <?php echo $ticket_reply_type . " - " .  $ticket_reply_created_at_ago; if ($ticket_reply_updated_at) { echo '*'; } ?>
+                                        <div title="<?php echo __('created_label'); ?>: <?php echo $ticket_reply_created_at; if ($ticket_reply_updated_at) { echo '. ' . __('edited') . ': ' . $ticket_reply_updated_at; } ?>">
+                                            <?php echo __($ticket_reply_type == 'Internal' ? 'internal' : 'client') . " - " .  $ticket_reply_created_at_ago; if ($ticket_reply_updated_at) { echo '*'; } ?>
                                         </div>
                                     </small>
 
@@ -975,7 +975,7 @@ if (isset($_GET['ticket_id'])) {
                                     <input type="hidden" name="ticket_id" value="<?php echo $ticket_id; ?>">
                                     <div class="form-group px-2 pt-3">
                                         <div class="input-group input-group-sm">
-                                            <input type="text" class="form-control" name="name" placeholder="Create Task" required maxlength="255">
+                                            <input type="text" class="form-control" name="name" placeholder="<?php echo __('create_task'); ?>" required maxlength="255">
                                             <div class="input-group-append">
                                                 <button type="submit" name="add_task" class="btn btn-outline-primary">
                                                     <i class="fas fa-check"></i>

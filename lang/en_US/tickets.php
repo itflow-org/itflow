@@ -49,7 +49,6 @@ $lang['billable'] = 'Billable';
 $lang['priority'] = 'Priority';
 $lang['status'] = 'Status';
 $lang['assigned'] = 'Assigned';
-$lang['not_assigned'] = 'Not Assigned';
 $lang['last_response'] = 'Last Response';
 
 // Ticket Details
@@ -92,6 +91,20 @@ $lang['tasks_completed'] = 'Tasks Completed';
 $lang['mark_all_complete'] = 'Mark All Complete';
 $lang['mark_all_incomplete'] = 'Mark All Incomplete';
 $lang['delete_all'] = 'Delete All';
+$lang['not_assigned'] = 'Not Assigned';
+$lang['internal_note'] = 'Internal Note';
+$lang['public_comment_email'] = 'Public Comment & Email';
+$lang['public_comment'] = 'Public Comment';
+$lang['redact'] = 'Redact';
+$lang['edit'] = 'Edit';
+$lang['archive'] = 'Archive';
+$lang['created_label'] = 'Created';
+$lang['edited'] = 'Edited';
+$lang['type_response'] = 'Type a response';
+$lang['hours_abbr'] = 'Hrs';
+$lang['minutes_abbr'] = 'Mins';
+$lang['seconds_abbr'] = 'Secs';
+$lang['create_task'] = 'Create Task';
 
 // Ticket Actions
 $lang['reply'] = 'Reply';

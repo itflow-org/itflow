@@ -49,7 +49,6 @@ $lang['billable'] = 'Abrechenbar';
 $lang['priority'] = 'Priorität';
 $lang['status'] = 'Status';
 $lang['assigned'] = 'Zugewiesen';
-$lang['not_assigned'] = 'Nicht zugewiesen';
 $lang['last_response'] = 'Letzte Antwort';
 
 // Ticket Details
@@ -72,7 +71,7 @@ $lang['all_tickets'] = 'Alle Tickets';
 $lang['updated'] = 'Aktualisiert';
 $lang['created_by'] = 'Erstellt von';
 $lang['category'] = 'Kategorie';
-$lang['time_worked'] = 'Bearbeitungszeit';
+$lang['time_worked'] = 'Arbeitszeit';
 $lang['internal'] = 'Intern';
 $lang['source'] = 'Quelle';
 $lang['first_response'] = 'EA';
@@ -92,6 +91,20 @@ $lang['tasks_completed'] = 'Aufgaben abgeschlossen';
 $lang['mark_all_complete'] = 'Alle als abgeschlossen markieren';
 $lang['mark_all_incomplete'] = 'Alle als unvollständig markieren';
 $lang['delete_all'] = 'Alle löschen';
+$lang['not_assigned'] = 'Nicht zugewiesen';
+$lang['internal_note'] = 'Interne Notiz';
+$lang['public_comment_email'] = 'Öffentlicher Kommentar & E-Mail';
+$lang['public_comment'] = 'Öffentlicher Kommentar';
+$lang['redact'] = 'Redigieren';
+$lang['edit'] = 'Bearbeiten';
+$lang['archive'] = 'Archivieren';
+$lang['created_label'] = 'Erstellt';
+$lang['edited'] = 'Bearbeitet';
+$lang['type_response'] = 'Antwort eingeben';
+$lang['hours_abbr'] = 'Std';
+$lang['minutes_abbr'] = 'Min';
+$lang['seconds_abbr'] = 'Sek';
+$lang['create_task'] = 'Aufgabe erstellen';
 
 // Ticket Actions
 $lang['reply'] = 'Antworten';
