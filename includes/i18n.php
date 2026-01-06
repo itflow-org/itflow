@@ -83,13 +83,14 @@ function i18n_init($locale = null) {
         $locale = 'en_US';
     }
     
-    // Validate locale format to prevent path traversal attacks
-    // Only allow alphanumeric characters and underscore (e.g., en_US, de_DE)
-    if (!preg_match('/^[a-zA-Z]{2}_[a-zA-Z]{2}$/', $locale)) {
+    // Whitelist of allowed locales to prevent path injection attacks
+    $allowed_locales = ['en_US', 'de_DE'];
+    if (!in_array($locale, $allowed_locales, true)) {
         $locale = 'en_US'; // Fallback to safe default
     }
     
     // Load all language module files from locale directory
+    // Using whitelisted locale, not directly from user input
     $lang_dir = __DIR__ . "/../lang/{$locale}/";
     
     if (is_dir($lang_dir)) {
@@ -154,28 +155,18 @@ function __t($key, $replacements = [], $default = '') {
 
 /**
  * Get available languages
- * Scans lang directory for locale subdirectories
+ * Returns hardcoded whitelist of supported languages
  * 
  * @return array Array of available language codes and names
  */
 function i18n_get_available_languages() {
-    $languages = [];
-    $lang_dir = __DIR__ . "/../lang/";
+    // Hardcoded whitelist of supported languages for security
+    // Add new languages here when translation files are available
+    $allowed_locales = ['en_US', 'de_DE'];
     
-    if (is_dir($lang_dir)) {
-        $items = scandir($lang_dir);
-        foreach ($items as $item) {
-            // Skip . and ..
-            if ($item === '.' || $item === '..') {
-                continue;
-            }
-            
-            $item_path = $lang_dir . $item;
-            // Check if it's a directory (locale folder)
-            if (is_dir($item_path)) {
-                $languages[$item] = i18n_get_language_name($item);
-            }
-        }
+    $languages = [];
+    foreach ($allowed_locales as $locale) {
+        $languages[$locale] = i18n_get_language_name($locale);
     }
     
     return $languages;

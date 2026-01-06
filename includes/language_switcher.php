@@ -27,8 +27,9 @@ if (isset($_GET['change_language']) && !empty($_GET['change_language'])) {
     if (array_key_exists($new_language, $available_languages)) {
         // Set cookie for 1 year
         setcookie('itflow_language', $new_language, time() + 31536000, '/', '', false, true);
-        // Remove query parameter and reload
-        $redirect_url = strtok($_SERVER['REQUEST_URI'], '?');
+        // Reload current page without query parameters
+        // Use PHP_SELF instead of REQUEST_URI to avoid XSS
+        $redirect_url = htmlspecialchars($_SERVER['PHP_SELF'], ENT_QUOTES, 'UTF-8');
         header("Location: $redirect_url");
         exit();
     }
