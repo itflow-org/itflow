@@ -159,24 +159,24 @@ $sql_categories_filter = mysqli_query(
     </style>
     <div class="card card-dark">
         <div class="card-header py-2">
-            <h3 class="card-title mt-2"><i class="fa fa-fw fa-life-ring mr-2"></i>Tickets
+            <h3 class="card-title mt-2"><i class="fa fa-fw fa-life-ring mr-2"></i><?php echo __('tickets'); ?>
                 <small class="ml-3">
-                    <a href="?<?= $client_url ?>status=Open" class="badge badge-pill text-light p-1 <?php if($status == 'Open') { echo "badge-light text-dark"; } ?>"><strong><?= $total_tickets_open ?></strong> Open</a> |
-                    <a href="?<?= $client_url ?>status=Closed" class="badge badge-pill text-light p-1 <?php if($status == 'Closed') { echo "badge-light text-dark"; } ?>"><strong><?= $total_tickets_closed ?></strong> Closed</a>
+                    <a href="?<?= $client_url ?>status=Open" class="badge badge-pill text-light p-1 <?php if($status == 'Open') { echo "badge-light text-dark"; } ?>"><strong><?= $total_tickets_open ?></strong> <?php echo __('open'); ?></a> |
+                    <a href="?<?= $client_url ?>status=Closed" class="badge badge-pill text-light p-1 <?php if($status == 'Closed') { echo "badge-light text-dark"; } ?>"><strong><?= $total_tickets_closed ?></strong> <?php echo __('closed'); ?></a>
                 </small>
             </h3>
             <?php if (lookupUserPermission("module_support") >= 2) { ?>
                 <div class="card-tools">
                     <div class="btn-group">
                         <button type="button" class="btn btn-primary ajax-modal" data-modal-url="modals/ticket/ticket_add_v2.php?<?= $client_url ?>" data-modal-size="lg">
-                            <i class="fas fa-plus"></i><span class="d-none d-lg-inline ml-2">New Ticket</span>
+                            <i class="fas fa-plus"></i><span class="d-none d-lg-inline ml-2"><?php echo __('new_ticket'); ?></span>
                         </button>
                         <?php if ($num_rows[0] > 0) { ?>
                         <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown"></button>
                         <div class="dropdown-menu">
                             <a class="dropdown-item text-dark ajax-modal" href="#"
                                 data-modal-url="modals/ticket/ticket_export.php?<?= $client_url ?>">
-                                <i class="fa fa-fw fa-download mr-2"></i>Export
+                                <i class="fa fa-fw fa-download mr-2"></i><?php echo __('export'); ?>
                             </a>
                         </div>
                         <?php } ?>
@@ -193,7 +193,7 @@ $sql_categories_filter = mysqli_query(
                 <div class="row">
                     <div class="col-sm-4">
                         <div class="input-group mb-3 mb-sm-0">
-                            <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(nullable_htmlentities($q)); } ?>" placeholder="Search Tickets">
+                            <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(nullable_htmlentities($q)); } ?>" placeholder="<?php echo __('search_tickets'); ?>">
                             <div class="input-group-append">
                                 <button class="btn btn-secondary" type="button" data-toggle="collapse" data-target="#advancedFilter"><i class="fas fa-filter"></i></button>
                                 <button class="btn btn-primary"><i class="fa fa-search"></i></button>
@@ -208,7 +208,7 @@ $sql_categories_filter = mysqli_query(
                                     <span class="input-group-text bg-light"><i class="fas fa-layer-group"></i></span>
                                 </div>
                                 <select class="form-control select2" name="category" onchange="this.form.submit()">
-                                    <option value="">- All Categories -</option>
+                                    <option value=""><?php echo __('all_categories'); ?></option>
 
                                     <?php
                                     while ($row = mysqli_fetch_array($sql_categories_filter)) {
@@ -230,85 +230,85 @@ $sql_categories_filter = mysqli_query(
                             <div class="btn-group">
                                 <button class="btn btn-outline-dark dropdown-toggle" id="dropdownMenuButton" data-toggle="dropdown">
                                     <i class="fa fa-fw fa-eye"></i>
-                                    <span class="d-none d-xl-inline ml-2">View</span>
+                                    <span class="d-none d-xl-inline ml-2"><?php echo __('view'); ?></span>
                                 </button>
                                 <div class="dropdown-menu">
-                                    <a class="dropdown-item" href="<?=htmlspecialchars('?' . http_build_query(array_merge($_GET, ['view' => 'list']))); ?>">List</a>
+                                    <a class="dropdown-item" href="<?=htmlspecialchars('?' . http_build_query(array_merge($_GET, ['view' => 'list']))); ?>"><?php echo __('list'); ?></a>
                                     <?php if ($status !== 'Closed') {?>
                                     <div class="dropdown-divider"></div>
-                                    <a class="dropdown-item " href="<?=htmlspecialchars('?' . http_build_query(array_merge($_GET, ['view' => 'kanban']))); ?>">Kanban</a>
+                                    <a class="dropdown-item " href="<?=htmlspecialchars('?' . http_build_query(array_merge($_GET, ['view' => 'kanban']))); ?>"><?php echo __('kanban'); ?></a>
                                     <?php } ?>
                                 </div>
                             </div>
                             <div class="btn-group">
                                 <button class="btn btn-outline-dark dropdown-toggle" id="categoriesDropdownMenuButton" data-toggle="dropdown">
                                     <i class="fa fa-fw fa-envelope"></i>
-                                    <span class="d-none d-xl-inline ml-2">My Tickets</span>
+                                    <span class="d-none d-xl-inline ml-2"><?php echo __('my_tickets'); ?></span>
                                 </button>
                                 <div class="dropdown-menu">
-                                    <a class="dropdown-item" href="?<?php echo $client_url; ?>status=Open&assigned=<?php echo $session_user_id ?>">Active tickets (<?php echo $user_active_assigned_tickets ?>)</a>
+                                    <a class="dropdown-item" href="?<?php echo $client_url; ?>status=Open&assigned=<?php echo $session_user_id ?>"><?php echo __('active_tickets'); ?> (<?php echo $user_active_assigned_tickets ?>)</a>
                                     <div class="dropdown-divider"></div>
-                                    <a class="dropdown-item " href="?<?php echo $client_url; ?>status=Closed&assigned=<?php echo $session_user_id ?>">Closed tickets</a>
+                                    <a class="dropdown-item " href="?<?php echo $client_url; ?>status=Closed&assigned=<?php echo $session_user_id ?>"><?php echo __('closed_tickets'); ?></a>
                                 </div>
                             </div>
                             <a href="?<?php echo $client_url; ?>assigned=unassigned" class="btn btn-outline-danger">
                                 <i class="fa fa-fw fa-exclamation-triangle"></i>
-                                <span class="d-none d-xl-inline ml-2">Unassigned</span> | <strong> <?php echo $total_tickets_unassigned; ?></strong>
+                                <span class="d-none d-xl-inline ml-2"><?php echo __('unassigned'); ?></span> | <strong> <?php echo $total_tickets_unassigned; ?></strong>
                             </a>
 
                             <?php if (lookupUserPermission("module_support") >= 2) { ?>
                                 <div class="dropdown ml-2" id="bulkActionButton" hidden>
                                     <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">
-                                        <i class="fas fa-fw fa-layer-group mr-2"></i>Bulk Action (<span id="selectedCount">0</span>)
+                                        <i class="fas fa-fw fa-layer-group mr-2"></i><?php echo __('bulk_action'); ?> (<span id="selectedCount">0</span>)
                                     </button>
                                     <div class="dropdown-menu">
                                         <a class="dropdown-item ajax-modal" href="#"
                                             data-modal-url="modals/ticket/ticket_bulk_assign.php"
                                             data-bulk="true">
-                                            <i class="fas fa-fw fa-user-check mr-2"></i>Assign Agent
+                                            <i class="fas fa-fw fa-user-check mr-2"></i><?php echo __('assign_agent'); ?>
                                         </a>
                                         <div class="dropdown-divider"></div>
                                         <a class="dropdown-item ajax-modal" href="#"
                                             data-modal-url="modals/ticket/ticket_bulk_edit_category.php"
                                             data-bulk="true">
-                                            <i class="fas fa-fw fa-layer-group mr-2"></i>Set Category
+                                            <i class="fas fa-fw fa-layer-group mr-2"></i><?php echo __('set_category'); ?>
                                         </a>
                                         <div class="dropdown-divider"></div>
                                         <a class="dropdown-item ajax-modal" href="#"
                                             data-modal-url="modals/ticket/ticket_bulk_edit_priority.php"
                                             data-bulk="true">
-                                            <i class="fas fa-fw fa-thermometer-half mr-2"></i>Set Priority
+                                            <i class="fas fa-fw fa-thermometer-half mr-2"></i><?php echo __('set_priority'); ?>
                                         </a>
                                         <div class="dropdown-divider"></div>
                                         <a class="dropdown-item ajax-modal" href="#"
                                             data-modal-url="modals/ticket/ticket_bulk_reply.php"
                                             data-modal-size="lg"
                                             data-bulk="true">
-                                            <i class="fas fa-fw fa-paper-plane mr-2"></i>Update/Reply
+                                            <i class="fas fa-fw fa-paper-plane mr-2"></i><?php echo __('update_reply'); ?>
                                         </a>
                                         <div class="dropdown-divider"></div>
                                         <a class="dropdown-item ajax-modal" href="#"
                                             data-modal-url="modals/ticket/ticket_bulk_add_project.php"
                                             data-bulk="true">
-                                            <i class="fas fa-fw fa-project-diagram mr-2"></i>Set Project
+                                            <i class="fas fa-fw fa-project-diagram mr-2"></i><?php echo __('set_project'); ?>
                                         </a>
                                         <div class="dropdown-divider"></div>
                                         <a class="dropdown-item ajax-modal" href="#"
                                             data-modal-url="modals/ticket/ticket_bulk_merge.php"
                                             data-bulk="true">
-                                            <i class="fas fa-fw fa-clone mr-2"></i>Merge
+                                            <i class="fas fa-fw fa-clone mr-2"></i><?php echo __('merge'); ?>
                                         </a>
                                         <div class="dropdown-divider"></div>
                                         <a class="dropdown-item ajax-modal" href="#"
                                             data-modal-url="modals/ticket/ticket_bulk_resolve.php"
                                             data-modal-size="lg"
                                             data-bulk="true">
-                                            <i class="fas fa-fw fa-check mr-2"></i>Resolve
+                                            <i class="fas fa-fw fa-check mr-2"></i><?php echo __('resolve'); ?>
                                         </a>
                                         <?php if (lookupUserPermission("module_support") === 3) { ?>
                                         <div class="dropdown-divider"></div>
                                         <button class="dropdown-item text-danger text-bold confirm-link" type="submit" form="bulkActions" name="bulk_delete_tickets">
-                                            <i class="fas fa-fw fa-trash mr-2"></i>Delete
+                                            <i class="fas fa-fw fa-trash mr-2"></i><?php echo __('delete'); ?>
                                         </button>
                                         <?php } ?>
                                     </div>
@@ -334,7 +334,7 @@ $sql_categories_filter = mysqli_query(
                     <div class="row">
                         <div class="col-md-3">
                             <div class="form-group">
-                                <label>Date range</label>
+                                <label><?php echo __('date_range'); ?></label>
                                 <input type="text" id="dateFilter" class="form-control" autocomplete="off">
                                 <input type="hidden" name="canned_date" id="canned_date" value="<?php echo nullable_htmlentities($_GET['canned_date']) ?? ''; ?>">
                                 <input type="hidden" name="dtf" id="dtf" value="<?php echo nullable_htmlentities($dtf ?? ''); ?>">
@@ -343,8 +343,8 @@ $sql_categories_filter = mysqli_query(
                         </div>
                         <div class="col-md-3">
                             <div class="form-group">
-                                <label>Ticket Status</label>
-                                <select onchange="this.form.submit()" class="form-control select2" name="status[]" data-placeholder="Select Status" multiple>
+                                <label><?php echo __('ticket_status'); ?></label>
+                                <select onchange="this.form.submit()" class="form-control select2" name="status[]" data-placeholder="<?php echo __('select_status'); ?>" multiple>
 
                                         <?php $sql_ticket_status = mysqli_query($mysqli, "SELECT * FROM ticket_statuses WHERE ticket_status_active = 1 ORDER BY ticket_status_order");
                                         while ($row = mysqli_fetch_array($sql_ticket_status)) {
@@ -359,10 +359,10 @@ $sql_categories_filter = mysqli_query(
                         </div>
                         <div class="col-md-3">
                             <div class="form-group">
-                                <label>Assigned to</label>
+                                <label><?php echo __('assigned_to'); ?></label>
                                 <select onchange="this.form.submit()" class="form-control select2" name="assigned">
-                                    <option value="" <?php if ($ticket_assigned_filter_id == "") { echo "selected"; } ?>>Any</option>
-                                    <option value="unassigned" <?php if ($ticket_assigned_filter_id == "0") { echo "selected"; } ?>>Unassigned</option>
+                                    <option value="" <?php if ($ticket_assigned_filter_id == "") { echo "selected"; } ?>><?php echo __('all'); ?></option>
+                                    <option value="unassigned" <?php if ($ticket_assigned_filter_id == "0") { echo "selected"; } ?>><?php echo __('unassigned'); ?></option>
 
                                     <?php
                                     $sql_assign_to = mysqli_query($mysqli, "SELECT * FROM users WHERE user_type = 1 AND user_archived_at IS NULL ORDER BY user_name ASC");
