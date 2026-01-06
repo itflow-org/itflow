@@ -77,3 +77,27 @@ $lang['client_created_success'] = 'Kunde erfolgreich erstellt';
 $lang['client_updated_success'] = 'Kunde erfolgreich aktualisiert';
 $lang['client_archived_success'] = 'Kunde erfolgreich archiviert';
 $lang['client_deleted_success'] = 'Kunde erfolgreich gelöscht';
+
+// Client Side Navigation
+$lang['back'] = 'Zurück';
+$lang['overview'] = 'Übersicht';
+$lang['support'] = 'Support';
+$lang['recurring_tickets'] = 'Wiederkehrende Tickets';
+$lang['projects'] = 'Projekte';
+$lang['vendors'] = 'Lieferanten';
+$lang['calendar'] = 'Kalender';
+$lang['documentation'] = 'Dokumentation';
+$lang['licenses'] = 'Lizenzen';
+$lang['credentials'] = 'Zugangsdaten';
+$lang['networks'] = 'Netzwerke';
+$lang['racks'] = 'Racks';
+$lang['certificates'] = 'Zertifikate';
+$lang['domains'] = 'Domains';
+$lang['services'] = 'Dienste';
+$lang['files'] = 'Dateien';
+$lang['billing'] = 'Abrechnung';
+$lang['invoices'] = 'Rechnungen';
+$lang['recurring_invoices'] = 'Wiederkehrende Rechnungen';
+$lang['quotes'] = 'Angebote';
+$lang['payments'] = 'Zahlungen';
+$lang['trips'] = 'Fahrten';
