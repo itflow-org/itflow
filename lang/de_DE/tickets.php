@@ -10,13 +10,11 @@ global $lang;
 $lang['tickets'] = 'Tickets';
 $lang['new_ticket'] = 'Neues Ticket';
 $lang['open'] = 'Offen';
-$lang['closed'] = 'Geschlossen';
 $lang['unassigned'] = 'Nicht zugewiesen';
 
 // Tickets Page - Actions
 $lang['export'] = 'Exportieren';
-$lang['search_tickets'] = 'Tickets durchsuchen';
-$lang['view'] = 'Ansicht';
+$lang['search_tickets'] = 'Tickets suchen';
 $lang['list'] = 'Liste';
 $lang['kanban'] = 'Kanban';
 $lang['my_tickets'] = 'Meine Tickets';
@@ -53,20 +51,13 @@ $lang['status'] = 'Status';
 $lang['assigned'] = 'Zugewiesen';
 $lang['not_assigned'] = 'Nicht zugewiesen';
 $lang['last_response'] = 'Letzte Antwort';
-$lang['created'] = 'Erstellt';
-$lang['updated'] = 'Aktualisiert';
-$lang['category'] = 'Kategorie';
 
 // Ticket Details
 $lang['ticket_number'] = 'Ticket #';
 $lang['ticket_subject'] = 'Betreff';
-$lang['ticket_details'] = 'Ticket-Details';
 $lang['ticket_created'] = 'Erstellt';
-$lang['ticket_updated'] = 'Aktualisiert';
-$lang['ticket_closed'] = 'Geschlossen';
 $lang['ticket_priority'] = 'Priorität';
 $lang['ticket_status_label'] = 'Status';
-$lang['ticket_category'] = 'Kategorie';
 $lang['ticket_assigned_to'] = 'Zugewiesen an';
 $lang['ticket_client'] = 'Kunde';
 $lang['ticket_contact'] = 'Kontakt';

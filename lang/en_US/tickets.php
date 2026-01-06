@@ -10,13 +10,11 @@ global $lang;
 $lang['tickets'] = 'Tickets';
 $lang['new_ticket'] = 'New Ticket';
 $lang['open'] = 'Open';
-$lang['closed'] = 'Closed';
 $lang['unassigned'] = 'Unassigned';
 
 // Tickets Page - Actions
 $lang['export'] = 'Export';
 $lang['search_tickets'] = 'Search Tickets';
-$lang['view'] = 'View';
 $lang['list'] = 'List';
 $lang['kanban'] = 'Kanban';
 $lang['my_tickets'] = 'My Tickets';
@@ -53,20 +51,13 @@ $lang['status'] = 'Status';
 $lang['assigned'] = 'Assigned';
 $lang['not_assigned'] = 'Not Assigned';
 $lang['last_response'] = 'Last Response';
-$lang['created'] = 'Created';
-$lang['updated'] = 'Updated';
-$lang['category'] = 'Category';
 
 // Ticket Details
 $lang['ticket_number'] = 'Ticket #';
 $lang['ticket_subject'] = 'Subject';
-$lang['ticket_details'] = 'Ticket Details';
 $lang['ticket_created'] = 'Created';
-$lang['ticket_updated'] = 'Updated';
-$lang['ticket_closed'] = 'Closed';
 $lang['ticket_priority'] = 'Priority';
 $lang['ticket_status_label'] = 'Status';
-$lang['ticket_category'] = 'Category';
 $lang['ticket_assigned_to'] = 'Assigned to';
 $lang['ticket_client'] = 'Client';
 $lang['ticket_contact'] = 'Contact';
