@@ -75,6 +75,33 @@ $lang['ticket_location'] = 'Location';
 $lang['ticket_vendor'] = 'Vendor';
 $lang['ticket_billable'] = 'Billable';
 
+// Ticket Detail Page
+$lang['ticket_details'] = 'Ticket Details';
+$lang['all_tickets'] = 'All Tickets';
+$lang['updated'] = 'Updated';
+$lang['created_by'] = 'Created by';
+$lang['category'] = 'Category';
+$lang['time_worked'] = 'Time worked';
+$lang['internal'] = 'Internal';
+$lang['source'] = 'Source';
+$lang['first_response'] = 'FR';
+$lang['resolved'] = 'Resolved';
+$lang['closed_by'] = 'Closed by';
+$lang['closed'] = 'Closed';
+$lang['user'] = 'User';
+$lang['feedback'] = 'Feedback';
+$lang['good'] = 'Good';
+$lang['bad'] = 'Bad';
+$lang['download'] = 'Download';
+$lang['view'] = 'View';
+$lang['original_email'] = 'Original-parsed-email.eml';
+$lang['ticket_closed_by_client'] = 'Ticket closed by client (guest URL)';
+$lang['tasks'] = 'Tasks';
+$lang['tasks_completed'] = 'Tasks Completed';
+$lang['mark_all_complete'] = 'Mark All Complete';
+$lang['mark_all_incomplete'] = 'Mark All Incomplete';
+$lang['delete_all'] = 'Delete All';
+
 // Ticket Actions
 $lang['reply'] = 'Reply';
 $lang['close_ticket'] = 'Close Ticket';
