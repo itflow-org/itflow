@@ -1,3 +1,18 @@
+<?php
+/**
+ * Translate priority/status values from database
+ * Maps English DB values to translated strings
+ */
+function translatePriority($priority) {
+    $priority_lower = strtolower($priority);
+    return __('priority_' . $priority_lower, $priority);
+}
+
+function translateStatus($status) {
+    $status_lower = strtolower(str_replace(' ', '_', $status));
+    return __('status_' . $status_lower, $status);
+}
+?>
 <div class="card card-dark">
     <div class="card-body">
         <form id="bulkActions" action="post.php" method="post">
@@ -145,7 +160,7 @@
 
                             // Defaults to prevent undefined errors
                             $ticket_reply_created_at = "";
-                            $ticket_reply_created_at_time_ago = "Never";
+                            $ticket_reply_created_at_time_ago = __('never');
                             $ticket_reply_by_display = "";
                             $ticket_reply_type = "Client"; // Default to client for un-replied tickets
 
@@ -235,16 +250,16 @@
                                 <?php if ($config_module_enable_accounting && lookupUserPermission("module_sales") >= 2) { ?>
                                     <td class="text-center">
                                         <?php if ($ticket_invoice_id) { ?>
-                                        <a href="invoice.php?client_id=<?php echo $client_id; ?>&invoice_id=<?php echo $ticket_invoice_id; ?>"><span class='badge badge-pill badge-success p-2'>Invoiced</span></a>
+                                        <a href="invoice.php?client_id=<?php echo $client_id; ?>&invoice_id=<?php echo $ticket_invoice_id; ?>"><span class='badge badge-pill badge-success p-2'><?php echo __('invoiced'); ?></span></a>
                                         <?php } else { ?>
                                         <a href="#"
                                             class="ajax-modal"
                                             data-modal-url="modals/ticket/ticket_billable.php?id=<?= $ticket_id ?>">
                                             <?php
                                             if ($ticket_billable == 1) {
-                                                echo "<span class='badge badge-pill badge-success p-2'>Yes</span>";
+                                                echo "<span class='badge badge-pill badge-success p-2'>" . __('yes') . "</span>";
                                             } else {
-                                                echo "<span class='badge badge-pill badge-secondary p-2'>No</span>";
+                                                echo "<span class='badge badge-pill badge-secondary p-2'>" . __('no') . "</span>";
                                             }
                                             ?>
                                         </a>
@@ -261,14 +276,14 @@
                                         <?php } ?>
                                         >
                                         <span class='p-2 badge badge-pill badge-<?php echo $ticket_priority_color; ?>'>
-                                            <?php echo $ticket_priority; ?>
+                                            <?php echo translatePriority($ticket_priority); ?>
                                         </span>
                                     </a>
                                 </td>
 
                                 <!-- Ticket Status -->
                                 <td>
-                                    <span class='badge badge-pill text-light p-2' style="background-color: <?php echo $ticket_status_color; ?>"><?php echo $ticket_status_name; ?></span>
+                                    <span class='badge badge-pill text-light p-2' style="background-color: <?php echo $ticket_status_color; ?>"><?php echo translateStatus($ticket_status_name); ?></span>
                                     <?php if (isset ($ticket_scheduled_for)) { echo "<div class='mt-1'> <small class='text-secondary'> $ticket_scheduled_for </small></div>"; } ?>
                                 </td>
 
