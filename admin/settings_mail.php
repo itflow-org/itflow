@@ -185,6 +185,45 @@ require_once "includes/inc_all_admin.php";
                     </div>
                 </div>
 
+                <hr>
+                <h5 class="mb-2">Processed Email Handling</h5>
+                <p class="text-secondary">
+                    Choose what happens to emails after they are successfully processed into tickets.
+                </p>
+
+                <div class="form-group">
+                    <label>When a processed email is handled</label>
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text"><i class="fa fa-fw fa-inbox"></i></span>
+                        </div>
+                        <select class="form-control" name="config_imap_processed_action" id="imap_processed_action">
+                            <option value="move" <?php if (($config_imap_processed_action ?? 'move') === 'move') { echo 'selected'; } ?>>Move to folder</option>
+                            <option value="delete" <?php if (($config_imap_processed_action ?? '') === 'delete') { echo 'selected'; } ?>>Delete from mailbox</option>
+                            <option value="none" <?php if (($config_imap_processed_action ?? '') === 'none') { echo 'selected'; } ?>>Do Nothing (Mark as Read)</option>
+                            <option value="none_unread" <?php if (($config_imap_processed_action ?? '') === 'none_unread') { echo 'selected'; } ?>>Do Nothing (Leave Unread)</option>
+                        </select>
+                    </div>
+                    <small class="text-secondary d-block mt-1">
+                        Controls what happens after an email creates or updates a ticket.
+                    </small>
+                </div>
+
+                <div class="form-group" id="imap_processed_folder_row">
+                    <label>Processed email folder</label>
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text"><i class="fa fa-fw fa-folder"></i></span>
+                        </div>
+                        <input type="text" class="form-control" name="config_imap_processed_folder"
+                               placeholder="Example: ITFlow or INBOX/ITFlow"
+                               value="<?php echo nullable_htmlentities($config_imap_processed_folder ?? 'ITFlow'); ?>">
+                    </div>
+                    <small class="text-secondary d-block mt-1">
+                        Folder will be created if it does not exist (when move is selected).
+                    </small>
+                </div>
+
                 <!-- OAuth shared fields (show for google_oauth / microsoft_oauth) -->
                 <div id="smtp_oauth_fields" style="display:none;">
                     <hr>
@@ -584,6 +623,25 @@ require_once "includes/inc_all_admin.php";
   // SMTP (the IDs we just added)
   wireProvider('config_smtp_provider', 'smtp_standard_fields', 'smtp_password_group',
                'smtp_oauth_fields', 'smtp_tenant_row', 'smtp_provider_hint', 'smtp_oauth_hint');
+
+  function wireProcessedAction(){
+    const actionSel = document.getElementById('imap_processed_action');
+    const folderRow = document.getElementById('imap_processed_folder_row');
+
+    function toggle(){
+      const v = (actionSel && actionSel.value) || 'move';
+      if (folderRow) {
+        folderRow.style.display = (v === 'move') ? '' : 'none';
+      }
+    }
+
+    if (actionSel) {
+      actionSel.addEventListener('change', toggle);
+      toggle();
+    }
+  }
+
+  wireProcessedAction();
 })();
 </script>
 
