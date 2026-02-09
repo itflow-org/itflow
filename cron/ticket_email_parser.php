@@ -574,16 +574,57 @@ try {
 
 $inbox = $client->getFolderByPath('INBOX');
 
-$targetFolderPath = 'ITFlow';
-try {
-    $targetFolder = $client->getFolderByPath($targetFolderPath);
-} catch (\Throwable $e) {
-    $client->createFolder($targetFolderPath);
-    $targetFolder = $client->getFolderByPath($targetFolderPath);
+$processed_action = $config_imap_processed_action ?? 'move';
+$processed_folder = trim((string) ($config_imap_processed_folder ?? 'ITFlow'));
+if ($processed_folder === '') {
+    $processed_folder = 'ITFlow';
 }
 
-// Fetch unseen messages
-$messages = $inbox->messages()->leaveUnread()->unseen()->get();
+$targetFolderPath = $processed_folder;
+$targetFolder = null;
+if ($processed_action === 'move') {
+    $candidate_paths = [$processed_folder];
+    $delimiter = $inbox->delimiter ?? '/';
+    $inbox_path = $inbox->path ?? 'INBOX';
+    if (stripos($processed_folder, 'inbox') !== 0 && strpos($processed_folder, $delimiter) === false) {
+        array_unshift($candidate_paths, $inbox_path . $delimiter . $processed_folder);
+        if ($delimiter !== '.') {
+            $candidate_paths[] = $inbox_path . '.' . $processed_folder;
+        }
+    }
+
+    foreach ($candidate_paths as $candidate_path) {
+        try {
+            $targetFolder = $client->getFolderByPath($candidate_path);
+            $targetFolderPath = $candidate_path;
+            break;
+        } catch (\Throwable $e) {
+            try {
+                if (stripos($candidate_path, 'inbox') === 0 && strpos($candidate_path, $inbox_path) === 0) {
+                    $inbox->getClient()->createFolder($candidate_path, false);
+                } else {
+                    $client->createFolder($candidate_path, false);
+                }
+                $targetFolder = $client->getFolderByPath($candidate_path);
+                $targetFolderPath = $candidate_path;
+                break;
+            } catch (\Throwable $inner) {
+                logApp(
+                    "Cron-Email-Parser",
+                    "warning",
+                    "Unable to create processed folder [$candidate_path]: ".$inner->getMessage()
+                );
+            }
+        }
+    }
+}
+
+// Fetch unseen messages (ensure UID sequence for MOVE/COPY)
+$messages = $inbox->messages()
+    ->leaveUnread()
+    ->unseen()
+    ->setSequence(\Webklex\PHPIMAP\IMAP::ST_UID)
+    ->get();
 
 // Counters
 $processed_count = 0;
@@ -854,19 +895,81 @@ foreach ($messages as $message) {
     if ($email_processed) {
         $processed_count++; // increment first so a move failure doesn't hide the success
         try {
-            $message->setFlag('Seen');
-            // Move using the Folder object (top-level "ITFlow")
-            $message->move($targetFolderPath);
-            // optional: logApp("Cron-Email-Parser", "info", "Moved message to ITFlow");
+            if ($processed_action !== 'none_unread') {
+                $message->setFlag('Seen');
+            }
+            if ($processed_action === 'move') {
+                $move_path = (is_object($targetFolder) && property_exists($targetFolder, 'path'))
+                    ? (string) $targetFolder->path
+                    : $targetFolderPath;
+
+                $client->openFolder($inbox_path);
+
+                try {
+                    $move_ok = $client->getConnection()
+                        ->moveMessage($move_path, $message->getSequenceId(), null, \Webklex\PHPIMAP\IMAP::ST_UID)
+                        ->validatedData();
+                } catch (\Throwable $move_error) {
+                    $move_ok = false;
+                    $move_exception = $move_error;
+                }
+
+                if (!$move_ok && isset($move_exception) && stripos($move_exception->getMessage(), 'TRYCREATE') !== false) {
+                    try {
+                        $client->createFolder($move_path, false);
+                        $move_ok = $client->getConnection()
+                            ->moveMessage($move_path, $message->getSequenceId(), null, \Webklex\PHPIMAP\IMAP::ST_UID)
+                            ->validatedData();
+                    } catch (\Throwable $retry_error) {
+                        $move_ok = false;
+                        $move_exception = $retry_error;
+                    }
+                }
+
+                if (!$move_ok) {
+                    $copy_exception = null;
+                    try {
+                        $copy_ok = $client->getConnection()
+                            ->copyMessage($move_path, $message->getSequenceId(), null, \Webklex\PHPIMAP\IMAP::ST_UID)
+                            ->validatedData();
+                        if (!$copy_ok && isset($move_exception) && stripos($move_exception->getMessage(), 'TRYCREATE') !== false) {
+                            $client->createFolder($move_path, false);
+                            $copy_ok = $client->getConnection()
+                                ->copyMessage($move_path, $message->getSequenceId(), null, \Webklex\PHPIMAP\IMAP::ST_UID)
+                                ->validatedData();
+                        }
+                        if ($copy_ok) {
+                            $client->getConnection()
+                                ->store(['\\Deleted'], $message->getSequenceId(), null, null, true, \Webklex\PHPIMAP\IMAP::ST_UID)
+                                ->validatedData();
+                            $client->expunge();
+                        }
+                    } catch (\Throwable $copy_error) {
+                        $copy_ok = false;
+                        $copy_exception = $copy_error;
+                    }
+
+                    if (!$copy_ok) {
+                        $move_msg = isset($move_exception) ? $move_exception->getMessage() : 'MOVE returned false';
+                        $copy_msg = $copy_exception ? $copy_exception->getMessage() : 'COPY returned false';
+                        throw new RuntimeException("Move failed (MOVE: $move_msg) (COPY+DELETE: $copy_msg)");
+                    }
+                }
+            } elseif ($processed_action === 'delete') {
+                $message->delete();
+            } elseif ($processed_action === 'none_unread') {
+                $message->unsetFlag('Seen');
+            }
         } catch (\Throwable $e) {
             // >>> Put the extra logging RIGHT HERE
             $subj = (string)$message->getSubject();
-            $uid  = method_exists($message, 'getUid') ? $message->getUid() : 'n/a';
+            $seq_id = method_exists($message, 'getSequenceId') ? $message->getSequenceId() : 'n/a';
+            $seq_type = method_exists($message, 'getSequence') ? $message->getSequence() : 'n/a';
             $path = (is_object($targetFolder) && property_exists($targetFolder, 'path')) ? (string)$targetFolder->path : $targetFolderPath;
             logApp(
                 "Cron-Email-Parser",
                 "warning",
-                "Move failed (subject=\"$subj\", uid=$uid) to [$path]: ".$e->getMessage()
+                "Post-process failed (subject=\"$subj\", seq_id=$seq_id, seq_type=$seq_type, action=$processed_action) to [$path]: ".$e->getMessage()
             );
         }
     } else {
