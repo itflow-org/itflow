@@ -2228,6 +2228,8 @@ CREATE TABLE `settings` (
   `config_imap_encryption` varchar(200) DEFAULT NULL,
   `config_imap_username` varchar(200) DEFAULT NULL,
   `config_imap_password` varchar(200) DEFAULT NULL,
+  `config_imap_processed_action` varchar(50) DEFAULT 'move',
+  `config_imap_processed_folder` varchar(200) DEFAULT 'ITFlow',
   `config_default_transfer_from_account` int(11) DEFAULT NULL,
   `config_default_transfer_to_account` int(11) DEFAULT NULL,
   `config_default_payment_account` int(11) DEFAULT NULL,
