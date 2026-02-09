@@ -4193,12 +4193,21 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
         mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '2.4.0'");
     }
 
-    // if (CURRENT_DATABASE_VERSION == '2.4.0') {
-    //     // Insert queries here required to update to DB version 2.4.1
-    //     // Then, update the database to the next sequential version
-    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '2.4.1'");
-    // }
+    if (CURRENT_DATABASE_VERSION == '2.4.0') {
+        mysqli_query($mysqli, "ALTER TABLE `settings`
+            ADD `config_imap_processed_action` VARCHAR(50) DEFAULT 'move',
+            ADD `config_imap_processed_folder` VARCHAR(200) DEFAULT 'ITFlow'
+        ");
 
+        mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '2.4.1'");
+    }
+
+	// if (CURRENT_DATABASE_VERSION == '2.4.1') {
+    //     // Insert queries here required to update to DB version 2.4.2
+    //     // Then, update the database to the next sequential version
+    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '2.4.2'");
+    // }
+	
 } else {
     // Up-to-date
 }
