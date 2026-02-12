@@ -4195,7 +4195,6 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
 
     if (CURRENT_DATABASE_VERSION == '2.4.0') {
         mysqli_query($mysqli, "ALTER TABLE `settings`
-            ADD `config_imap_processed_action` VARCHAR(50) DEFAULT 'move',
             ADD `config_imap_processed_folder` VARCHAR(200) DEFAULT 'ITFlow'
         ");
 
