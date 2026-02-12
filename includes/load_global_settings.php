@@ -28,7 +28,6 @@ $config_imap_port = intval($row['config_imap_port']);
 $config_imap_encryption = $row['config_imap_encryption'];
 $config_imap_username = $row['config_imap_username'];
 $config_imap_password = $row['config_imap_password'];
-$config_imap_processed_action = $row['config_imap_processed_action'] ?? 'move';
 $config_imap_processed_folder = $row['config_imap_processed_folder'] ?? 'ITFlow';
 
 // Mail OAUTH2
