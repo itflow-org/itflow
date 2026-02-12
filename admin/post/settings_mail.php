@@ -13,15 +13,21 @@ if (isset($_POST['oauth_connect_microsoft_mail'])) {
     // Save current IMAP/OAuth form values first so auth flow always uses latest inputs.
     $config_imap_provider = sanitizeInput($_POST['config_imap_provider'] ?? '');
     $config_imap_username = sanitizeInput($_POST['config_imap_username'] ?? '');
+    $config_imap_processed_folder = sanitizeInput($_POST['config_imap_processed_folder'] ?? 'ITFlow');
     $config_mail_oauth_client_id = sanitizeInput($_POST['config_mail_oauth_client_id'] ?? '');
     $config_mail_oauth_client_secret = sanitizeInput($_POST['config_mail_oauth_client_secret'] ?? '');
     $config_mail_oauth_tenant_id = sanitizeInput($_POST['config_mail_oauth_tenant_id'] ?? '');
     $config_mail_oauth_refresh_token = sanitizeInput($_POST['config_mail_oauth_refresh_token'] ?? '');
     $config_mail_oauth_access_token = sanitizeInput($_POST['config_mail_oauth_access_token'] ?? '');
 
+    if (empty($config_imap_processed_folder)) {
+        $config_imap_processed_folder = 'ITFlow';
+    }
+
     mysqli_query($mysqli, "UPDATE settings SET
         config_imap_provider = '$config_imap_provider',
         config_imap_username = '$config_imap_username',
+        config_imap_processed_folder = '$config_imap_processed_folder',
         config_mail_oauth_client_id = '$config_mail_oauth_client_id',
         config_mail_oauth_client_secret = '$config_mail_oauth_client_secret',
         config_mail_oauth_tenant_id = '$config_mail_oauth_tenant_id',
@@ -127,6 +133,7 @@ if (isset($_POST['edit_mail_imap_settings'])) {
     $config_imap_encryption          = sanitizeInput($_POST['config_imap_encryption']);
     $config_imap_username            = sanitizeInput($_POST['config_imap_username']);
     $config_imap_password            = sanitizeInput($_POST['config_imap_password']);
+    $config_imap_processed_folder    = sanitizeInput($_POST['config_imap_processed_folder'] ?? 'ITFlow');
 
     // Shared OAuth fields
     $config_mail_oauth_client_id     = sanitizeInput($_POST['config_mail_oauth_client_id']);
@@ -134,6 +141,10 @@ if (isset($_POST['edit_mail_imap_settings'])) {
     $config_mail_oauth_tenant_id     = sanitizeInput($_POST['config_mail_oauth_tenant_id']);
     $config_mail_oauth_refresh_token = sanitizeInput($_POST['config_mail_oauth_refresh_token']);
     $config_mail_oauth_access_token  = sanitizeInput($_POST['config_mail_oauth_access_token']);
+
+    if (empty($config_imap_processed_folder)) {
+        $config_imap_processed_folder = 'ITFlow';
+    }
 
     mysqli_query($mysqli, "
         UPDATE settings SET
@@ -143,6 +154,7 @@ if (isset($_POST['edit_mail_imap_settings'])) {
             config_imap_encryption            = '$config_imap_encryption',
             config_imap_username              = '$config_imap_username',
             config_imap_password              = '$config_imap_password',
+            config_imap_processed_folder      = '$config_imap_processed_folder',
             config_mail_oauth_client_id       = '$config_mail_oauth_client_id',
             config_mail_oauth_client_secret   = '$config_mail_oauth_client_secret',
             config_mail_oauth_tenant_id       = '$config_mail_oauth_tenant_id',
