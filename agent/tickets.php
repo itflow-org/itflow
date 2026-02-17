@@ -301,6 +301,8 @@ $sql_categories_filter = mysqli_query(
                                             data-bulk="true">
                                             <i class="fas fa-fw fa-clone mr-2"></i>Merge
                                         </a>
+
+                                        <?php if (!function_exists('bit_show_bulk_resolve') || bit_show_bulk_resolve()) { ?>
                                         <div class="dropdown-divider"></div>
                                         <a class="dropdown-item ajax-modal" href="#"
                                             data-modal-url="modals/ticket/ticket_bulk_resolve.php"
@@ -308,6 +310,8 @@ $sql_categories_filter = mysqli_query(
                                             data-bulk="true">
                                             <i class="fas fa-fw fa-check mr-2"></i>Resolve
                                         </a>
+                                        <?php } ?>
+
                                         <?php if (lookupUserPermission("module_support") === 3) { ?>
                                         <div class="dropdown-divider"></div>
                                         <button class="dropdown-item text-danger text-bold confirm-link" type="submit" form="bulkActions" name="bulk_delete_tickets">

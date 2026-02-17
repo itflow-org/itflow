@@ -1999,6 +1999,34 @@ function dbRollback(mysqli $mysqli): void
     $mysqli->rollback();
 }
 
+function renderEmailTemplate(string $template, array $vars = []): string {
+    $allowed = [
+        'company_name',
+        'contact_name',
+        'ticket_prefix',
+        'ticket_number',
+        'ticket_subject',
+        'ticket_details',
+        'invoice_number',
+        'invoice_amount',
+        'portal_url',
+    ];
+
+    foreach ($allowed as $key) {
+        if (isset($vars[$key])) {
+            $template = str_replace(
+                '[' . $key . ']',
+                htmlspecialchars((string)$vars[$key]),
+                $template
+            );
+        }
+    }
+
+    return $template;
+}
+
+
+
 function formatDuration($time) {
     // expects "HH:MM:SS"
     [$h, $m, $s] = array_map('intval', explode(':', $time));
@@ -2015,3 +2043,9 @@ function formatDuration($time) {
 
     return implode(' ', $parts);
 }
+
+$bit_bootstrap = __DIR__ . '/custom/beuningenit/bootstrap.php';
+if (file_exists($bit_bootstrap)) {
+    require_once $bit_bootstrap;
+}
+
