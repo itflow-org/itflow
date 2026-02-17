@@ -2498,6 +2498,13 @@ if (isset($_POST['edit_ticket_schedule'])) {
 
 }
 
+if (function_exists('bit_agent_ticket_items_dispatch')) {
+
+    bit_agent_ticket_items_dispatch($mysqli, $session_user_id, $session_name);
+
+}
+
+
 if (isset($_GET['cancel_ticket_schedule'])) {
 
     enforceUserPermission('module_support', 2);

@@ -302,7 +302,6 @@ if (isset($_GET['ticket_id'])) {
             AND ticket_attachment_ticket_id = $ticket_id"
         );
 
-
         // Get Tasks
         $sql_tasks = mysqli_query( $mysqli, "SELECT * FROM tasks WHERE task_ticket_id = $ticket_id ORDER BY task_order ASC, task_id ASC");
         $task_count = mysqli_num_rows($sql_tasks);
@@ -383,15 +382,11 @@ if (isset($_GET['ticket_id'])) {
                                 <?php } ?>
 
                                 <?php if (empty($ticket_resolved_at) && $task_count == $completed_task_count) { ?>
-                                    <a href="post.php?resolve_ticket=<?php echo $ticket_id; ?>&csrf_token=<?php echo $_SESSION['csrf_token'] ?>" class="btn btn-dark btn-sm confirm-link ml-3" id="ticket_close">
-                                        <i class="fas fa-fw fa-check mr-2"></i>Resolve
-                                    </a>
+
                                 <?php } ?>
 
                                 <?php if (!empty($ticket_resolved_at) && $task_count == $completed_task_count) { ?>
-                                    <a href="post.php?close_ticket=<?php echo $ticket_id; ?>&csrf_token=<?php echo $_SESSION['csrf_token'] ?>" class="btn btn-dark btn-sm confirm-link ml-3" id="ticket_close">
-                                        <i class="fas fa-fw fa-gavel mr-2"></i>Close
-                                    </a>
+
                                 <?php } ?>
 
                                 <div class="dropdown dropleft text-center ml-3 mr-2">
@@ -563,6 +558,15 @@ if (isset($_GET['ticket_id'])) {
                     </div>
 
                 </div>
+<?php
+$currency_symbol = isset($config_currency_symbol) ? $config_currency_symbol : '';
+if (function_exists('bit_render_ticket_products_card')) {
+    echo bit_render_ticket_products_card($mysqli, $ticket_id, $ticket_closed_at, $currency_symbol, $_SESSION['csrf_token']);
+}
+?>
+
+</div>
+
 
                 <!-- Only show ticket reply modal if status is not closed -->
                 <?php if (lookupUserPermission("module_support") >= 2 && empty($ticket_resolved_at) && empty($ticket_closed_at)) { ?>
