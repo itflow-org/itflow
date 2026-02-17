@@ -7,14 +7,23 @@
  */
 
 // Includes
-require_once __DIR__ . '../../../functions.php';
-require_once __DIR__ . "../../../config.php";
+require_once __DIR__ . '/../../functions.php';
+require_once __DIR__ . '/../../config.php';
 
 // JSON header
 header('Content-Type: application/json');
 
 // POST data
-$_POST = json_decode(file_get_contents('php://input'), true);
+$raw_input = file_get_contents('php://input');
+if (!empty($raw_input)) {
+    $decoded_input = json_decode($raw_input, true);
+    if (is_array($decoded_input)) {
+        if (!is_array($_POST)) {
+            $_POST = [];
+        }
+        $_POST = array_merge($_POST, $decoded_input);
+    }
+}
 
 // Get IP & UA
 $ip = sanitizeInput(getIP());
