@@ -9,12 +9,6 @@ if (isset($_GET['client_id'])) {
     $client_url = '';
 }
 
-// Ticket client access overide - This is the only way to show tickets without a client to agents with restricted client access
-$access_permission_query_overide = '';
-if ($client_access_string) {
-    $access_permission_query_overide = "AND ticket_client_id IN (0,$client_access_string)";
-}
-
 // Perms
 enforceUserPermission('module_support');
 
@@ -45,7 +39,6 @@ if (isset($_GET['ticket_id'])) {
         LEFT JOIN ticket_statuses ON ticket_status = ticket_status_id
         LEFT JOIN categories ON ticket_category = category_id
         WHERE ticket_id = $ticket_id
-        $access_permission_query_overide
         LIMIT 1"
     );
 
@@ -55,7 +48,7 @@ if (isset($_GET['ticket_id'])) {
         require_once "../includes/footer.php";
     } else {
 
-        $row = mysqli_fetch_assoc($sql);
+        $row = mysqli_fetch_array($sql);
         $client_id = intval($row['client_id']);
         $client_name = nullable_htmlentities($row['client_name']);
         $client_type = nullable_htmlentities($row['client_type']);
@@ -87,11 +80,11 @@ if (isset($_GET['ticket_id'])) {
 
         //Set Ticket Badge Color based of priority
         if ($ticket_priority == "High") {
-            $ticket_priority_display = "<span class='p-2 badge badge-pill badge-danger'>$ticket_priority</span>";
+            $ticket_priority_display = "<span class='p-2 badge badge-danger'>$ticket_priority</span>";
         } elseif ($ticket_priority == "Medium") {
-            $ticket_priority_display = "<span class='p-2 badge badge-pill badge-warning'>$ticket_priority</span>";
+            $ticket_priority_display = "<span class='p-2 badge badge-warning'>$ticket_priority</span>";
         } elseif ($ticket_priority == "Low") {
-            $ticket_priority_display = "<span class='p-2 badge badge-pill badge-info'>$ticket_priority</span>";
+            $ticket_priority_display = "<span class='p-2 badge badge-info'>$ticket_priority</span>";
         } else {
             $ticket_priority_display = "";
         }
@@ -120,7 +113,7 @@ if (isset($_GET['ticket_id'])) {
 
         $ticket_assigned_to = intval($row['ticket_assigned_to']);
         if (empty($ticket_assigned_to)) {
-            $ticket_assigned_to_display = "<span class='badge badge-pill badge-light'>Unassigned</span>";
+            $ticket_assigned_to_display = "<span class='text-danger text-bold'>Not Assigned</span>";
         } else {
             $ticket_assigned_to_display = nullable_htmlentities($row['user_name']);
         }
@@ -156,8 +149,7 @@ if (isset($_GET['ticket_id'])) {
         $vendor_description = nullable_htmlentities($row['vendor_description']);
         $vendor_account_number = nullable_htmlentities($row['vendor_account_number']);
         $vendor_contact_name = nullable_htmlentities($row['vendor_contact_name']);
-        $vendor_phone_country_code = nullable_htmlentities($row['vendor_phone_country_code']);
-        $vendor_phone = nullable_htmlentities(formatPhoneNumber($row['vendor_phone'], $vendor_phone_country_code));
+        $vendor_phone = formatPhoneNumber($row['vendor_phone']);
         $vendor_extension = nullable_htmlentities($row['vendor_extension']);
         $vendor_email = nullable_htmlentities($row['vendor_email']);
         $vendor_website = nullable_htmlentities($row['vendor_website']);
@@ -194,49 +186,73 @@ if (isset($_GET['ticket_id'])) {
 
         if($project_manager) {
             $sql_project_manager = mysqli_query($mysqli,"SELECT * FROM users WHERE user_id = $project_manager");
-            $row = mysqli_fetch_assoc($sql_project_manager);
+            $row = mysqli_fetch_array($sql_project_manager);
             $project_manager_name = nullable_htmlentities($row['user_name']);
         }
 
         if ($contact_id) {
             //Get Contact Ticket Stats
             $ticket_related_open = mysqli_query($mysqli, "SELECT COUNT(ticket_id) AS ticket_related_open FROM tickets WHERE ticket_status != 'Closed' AND ticket_contact_id = $contact_id ");
-            $row = mysqli_fetch_assoc($ticket_related_open);
+            $row = mysqli_fetch_array($ticket_related_open);
             $ticket_related_open = intval($row['ticket_related_open']);
 
             $ticket_related_closed = mysqli_query($mysqli, "SELECT COUNT(ticket_id) AS ticket_related_closed  FROM tickets WHERE ticket_status = 'Closed' AND ticket_contact_id = $contact_id ");
-            $row = mysqli_fetch_assoc($ticket_related_closed);
+            $row = mysqli_fetch_array($ticket_related_closed);
             $ticket_related_closed = intval($row['ticket_related_closed']);
 
             $ticket_related_total = mysqli_query($mysqli, "SELECT COUNT(ticket_id) AS ticket_related_total FROM tickets WHERE ticket_contact_id = $contact_id ");
-            $row = mysqli_fetch_assoc($ticket_related_total);
+            $row = mysqli_fetch_array($ticket_related_total);
             $ticket_related_total = intval($row['ticket_related_total']);
         }
 
         //Get Total Ticket Time
         $ticket_total_reply_time = mysqli_query($mysqli, "SELECT SEC_TO_TIME(SUM(TIME_TO_SEC(ticket_reply_time_worked))) AS ticket_total_reply_time FROM ticket_replies WHERE ticket_reply_archived_at IS NULL AND ticket_reply_ticket_id = $ticket_id");
-        $row = mysqli_fetch_assoc($ticket_total_reply_time);
+        $row = mysqli_fetch_array($ticket_total_reply_time);
         $ticket_total_reply_time = nullable_htmlentities($row['ticket_total_reply_time']);
+
+
+        // Client Tags
+        $client_tag_name_display_array = array();
+        $client_tag_id_array = array();
+        $sql_client_tags = mysqli_query($mysqli, "SELECT * FROM client_tags LEFT JOIN tags ON client_tags.tag_id = tags.tag_id WHERE client_id = $client_id ORDER BY tag_name ASC");
+        while ($row = mysqli_fetch_array($sql_client_tags)) {
+
+            $client_tag_id = intval($row['tag_id']);
+            $client_tag_name = nullable_htmlentities($row['tag_name']);
+            $client_tag_color = nullable_htmlentities($row['tag_color']);
+            if (empty($client_tag_color)) {
+                $client_tag_color = "dark";
+            }
+            $client_tag_icon = nullable_htmlentities($row['tag_icon']);
+            if (empty($client_tag_icon)) {
+                $client_tag_icon = "tag";
+            }
+
+            $client_tag_id_array[] = $client_tag_id;
+            $client_tag_name_display_array[] = "<span class='badge text-light p-1 mr-1' style='background-color: $client_tag_color;'><i class='fa fa-fw fa-$client_tag_icon mr-2'></i>$client_tag_name</span>";
+        }
+        $client_tags_display = implode(' ', $client_tag_name_display_array);
+
 
         // Get the number of ticket Responses
         $ticket_responses_sql = mysqli_query($mysqli, "SELECT COUNT(ticket_reply_id) AS ticket_responses FROM ticket_replies WHERE ticket_reply_archived_at IS NULL AND ticket_reply_ticket_id = $ticket_id");
-        $row = mysqli_fetch_assoc($ticket_responses_sql);
+        $row = mysqli_fetch_array($ticket_responses_sql);
         $ticket_responses = intval($row['ticket_responses']);
 
         $ticket_all_comments_sql = mysqli_query($mysqli, "SELECT COUNT(ticket_reply_id) AS ticket_all_comments_count FROM ticket_replies WHERE ticket_reply_archived_at IS NULL AND ticket_reply_ticket_id = $ticket_id");
-        $row = mysqli_fetch_assoc($ticket_all_comments_sql);
+        $row = mysqli_fetch_array($ticket_all_comments_sql);
         $ticket_all_comments_count = intval($row['ticket_all_comments_count']);
 
         $ticket_internal_notes_sql = mysqli_query($mysqli, "SELECT COUNT(ticket_reply_id) AS ticket_internal_notes_count FROM ticket_replies WHERE ticket_reply_archived_at IS NULL AND ticket_reply_type = 'Internal' AND ticket_reply_ticket_id = $ticket_id");
-        $row = mysqli_fetch_assoc($ticket_internal_notes_sql);
+        $row = mysqli_fetch_array($ticket_internal_notes_sql);
         $ticket_internal_notes_count = intval($row['ticket_internal_notes_count']);
 
         $ticket_public_comments_sql = mysqli_query($mysqli, "SELECT COUNT(ticket_reply_id) AS ticket_public_comments_count FROM ticket_replies WHERE ticket_reply_archived_at IS NULL AND (ticket_reply_type = 'Public' OR ticket_reply_type = 'Client') AND ticket_reply_ticket_id = $ticket_id");
-        $row = mysqli_fetch_assoc($ticket_public_comments_sql);
+        $row = mysqli_fetch_array($ticket_public_comments_sql);
         $ticket_public_comments_count = intval($row['ticket_public_comments_count']);
 
         $ticket_events_sql = mysqli_query($mysqli, "SELECT COUNT(log_id) AS ticket_events_count FROM logs WHERE log_type = 'Ticket' AND  log_entity_id = $ticket_id");
-        $row = mysqli_fetch_assoc($ticket_events_sql);
+        $row = mysqli_fetch_array($ticket_events_sql);
         $ticket_events_count = intval($row['ticket_events_count']);
 
 
@@ -301,6 +317,33 @@ if (isset($_GET['ticket_id'])) {
             WHERE ticket_attachment_reply_id IS NULL
             AND ticket_attachment_ticket_id = $ticket_id"
         );
+		
+		// Get Ticket Items
+		$sql_ticket_items = mysqli_query(
+    $mysqli,
+    "SELECT 
+        ticket_item_id,
+        ticket_item_ticket_id,
+        ticket_item_product_id,
+        ticket_item_name,
+        ticket_item_description,
+        ticket_item_quantity,
+        ticket_item_unit_price,
+        ticket_item_tax_id,
+        ticket_item_billable,
+        ticket_item_invoiced_at,
+        ticket_item_invoiced_ref,
+        ticket_item_created_at,
+        ticket_item_updated_at,
+        product_name,
+        tax_name,
+        tax_percent
+    FROM ticket_items
+    LEFT JOIN products ON ticket_item_product_id = product_id
+    LEFT JOIN taxes ON ticket_item_tax_id = tax_id
+    WHERE ticket_item_ticket_id = $ticket_id
+    ORDER BY ticket_item_id DESC"
+);
 
         // Get Tasks
         $sql_tasks = mysqli_query( $mysqli, "SELECT * FROM tasks WHERE task_ticket_id = $ticket_id ORDER BY task_order ASC, task_id ASC");
@@ -355,10 +398,11 @@ if (isset($_GET['ticket_id'])) {
                         <i class="fa fa-fw fa-2x fa-life-ring mr-2"></i>
                         <div class="media-body">
                             <div class="text-bold">Ticket <?= "$ticket_prefix$ticket_number" ?>
-                                <span class='badge badge-pill text-light ml-1 p-2' style="background-color: <?= $ticket_status_color ?>">
+                                <span class='badge badge-pill text-light ml-1' style="background-color: <?= $ticket_status_color ?>">
                                     <?= $ticket_status_name ?>
                                 </span>
                             </div>
+                            <small class="text-secondary"><?= $ticket_subject ?></small>
                         </div>
                     </div>
                 </div>
@@ -398,7 +442,7 @@ if (isset($_GET['ticket_id'])) {
                                             <i class="fas fa-fw fa-lightbulb mr-2"></i>Summarize
                                         </a>
                                         <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/ticket/ticket_merge.php?ticket_id=<?= $ticket_id ?>">
-                                            <i class="fas fa-fw fa-clone mr-2"></i>Merge Ticket
+                                            <i class="fas fa-fw fa-clone mr-2"></i>Merge
                                         </a>
                                         <?php if (empty($ticket_closed_at) && $client_id) { ?>
                                             <div class="dropdown-divider"></div>
@@ -440,40 +484,36 @@ if (isset($_GET['ticket_id'])) {
 
             <div class="card card-body">
 
-                <?php if ($ticket_updated_at) { ?>
-                <div title="<?= $ticket_updated_at ?>">
-                    <i class="fa fa-fw fa-history text-secondary mr-2"></i>Updated: <strong><?= date('M d, Y • g:i A', strtotime($ticket_updated_at)) . "</strong> <span class='text-muted small'>($ticket_updated_at_ago)</span>" ?>
+                <div title="<?php echo $ticket_updated_at; ?>">
+                    <i class="fa fa-fw fa-history text-secondary mr-2"></i>Updated: <strong><?php echo $ticket_updated_at_ago; ?></strong>
                 </div>
-                <?php } ?>
+
                 <!-- Ticket assign (disable if closed -->
                 <?php if (empty($ticket_closed_at)) { ?>
                     <div class="mt-1">
-                        <i class="fas fa-fw fa-user-tie mr-2 text-secondary"></i>Agent:
                         <a class="ajax-modal" href="#"
-                            data-modal-url="modals/ticket/ticket_assign.php?id=<?= $ticket_id ?>">
-                            <?= $ticket_assigned_to_display ?>
+                           data-modal-url="modals/ticket/ticket_assign.php?id=<?= $ticket_id ?>">
+                            <i class="fas fa-fw fa-user mr-2 text-secondary"></i><?php echo $ticket_assigned_to_display; ?>
                         </a>
                     </div>
                 <?php } else { ?>
                     <div class="mt-1">
-                        <i class="fas fa-fw fa-user-check mr-2 text-secondary"></i>Agent: <?php echo $ticket_assigned_to_display; ?>
+                        <i class="fas fa-fw fa-user mr-2 text-secondary"></i><?php echo $ticket_assigned_to_display; ?>
                     </div>
                 <?php } ?>
                 <!-- End ticket assign -->
-                <div class="mt-1">
-                    <span class="text-info" id="ticket_collision_viewing"></span>
-                </div>
             </div>
 
             <div class="card card-body">
                 <div>
-                    <a href="#" title="Priority"
+                    <i class="fa fa-fw fa-thermometer-half text-secondary mr-1"></i>
+                    <a href="#"
                         <?php if (lookupUserPermission("module_support") >= 2 && empty($ticket_closed_at)) { ?>
                             class="ajax-modal"
                             data-modal-url="modals/ticket/ticket_priority.php?id=<?= $ticket_id ?>"
                         <?php } ?>
                     >
-                        <?= $ticket_priority_display ?>
+                        <?php echo $ticket_priority_display; ?>
                     </a>
                 </div>
 
@@ -500,14 +540,14 @@ if (isset($_GET['ticket_id'])) {
                         </div>
                     <?php } else { ?>
                         <div class="mt-1">
-                            <i class="fa fa-fw fa-dollar-sign text-secondary mr-2"></i>Billable:
+                            <i class="fa fa-fw fa-dollar-sign text-secondary mr-2"></i>Ticket is
                             <a class="ajax-modal" href="#"
                                data-modal-url="modals/ticket/ticket_billable.php?id=<?= $ticket_id ?>">
                                 <?php
                                 if ($ticket_billable == 1) {
-                                    echo "<span class='text-bold text-dark'>Yes</span>";
+                                    echo "<span class='text-bold text-dark'>Billable</span>";
                                 } else {
-                                    echo "<span class='text-muted'>No</span>";
+                                    echo "<span class='text-muted'>Not Billable</span>";
                                 }
                                 ?>
                             </a>
@@ -521,11 +561,16 @@ if (isset($_GET['ticket_id'])) {
 
             <div class="card card-body">
                 <?php if ($task_count) { ?>
-                    <div><strong>Tasks</strong> <?= "$completed_task_count/$task_count ($tasks_completed_percent%)" ?></div>
-                    <div class="progress" style="height: 20px;">
-                        <div class="progress-bar" style="width: <?php echo $tasks_completed_percent; ?>%;"></div>
+                    Tasks Completed
+                    <span class="float-right text-bold"><?php echo $tasks_completed_percent; ?>%</span>
+                    <div class="progress mt-2" style="height: 20px;">
+                        <div class="progress-bar" style="width: <?php echo $tasks_completed_percent; ?>%;"><?php echo $completed_task_count; ?> / <?php echo $task_count; ?></div>
                     </div>
                 <?php } ?>
+
+                <div class="mt-2">
+                    <span class="text-info" id="ticket_collision_viewing"></span>
+                </div>
             </div>
 
         </div>
@@ -536,8 +581,10 @@ if (isset($_GET['ticket_id'])) {
 
                 <div class="card card-dark mb-3">
 
-                    <div class="card-header px-3 py-2">
-                        <h5 class="card-title mt-1"><?= $ticket_subject ?></h5>
+                    <div class="card-header bg-dark">
+                        <h5 class="card-title">
+                            Ticket Details
+                        </h5>
                         <?php if (empty($ticket_closed_at)) { ?>
                         <div class="card-tools">
                             <button type="button" class="btn btn-tool ajax-modal" data-modal-url="modals/ticket/ticket_edit.php?id=<?= $ticket_id ?>" data-modal-size="lg"><i class="fas fa-edit"></i></button>
@@ -545,25 +592,137 @@ if (isset($_GET['ticket_id'])) {
                         <?php } ?>
                     </div>
 
-                    <div class="card-body p-3 prettyContent" id="ticketDetails">
+                    <div class="card-body prettyContent" id="ticketDetails">
                         <?php echo $ticket_details; ?>
 
                         <?php
-                        while ($ticket_attachment = mysqli_fetch_assoc($sql_ticket_attachments)) {
+                        while ($ticket_attachment = mysqli_fetch_array($sql_ticket_attachments)) {
                             $name = nullable_htmlentities($ticket_attachment['ticket_attachment_name']);
                             $ref_name = nullable_htmlentities($ticket_attachment['ticket_attachment_reference_name']);
-                            echo "<hr class=''><i class='fas fa-fw fa-paperclip text-secondary mr-1'></i>$name <a target='_blank' class='mr-1 ml-1' href='../uploads/tickets/$ticket_id/$ref_name'>[View]</a><a href='../uploads/tickets/$ticket_id/$ref_name' download='$name'>[Download]</a>";
+                            echo "<hr class=''><i class='fas fa-fw fa-paperclip text-secondary mr-1'></i>$name | <a href='../uploads/tickets/$ticket_id/$ref_name' download='$name'><i class='fas fa-fw fa-download mr-1'></i>Download</a> | <a target='_blank' href='../uploads/tickets/$ticket_id/$ref_name'><i class='fas fa-fw fa-external-link-alt mr-1'></i>View</a>";
                         }
                         ?>
                     </div>
 
                 </div>
-<?php
-$currency_symbol = isset($config_currency_symbol) ? $config_currency_symbol : '';
-if (function_exists('bit_render_ticket_products_card')) {
-    echo bit_render_ticket_products_card($mysqli, $ticket_id, $ticket_closed_at, $currency_symbol, $_SESSION['csrf_token']);
-}
-?>
+				
+				<div class="card card-dark mb-3">
+
+    <div class="card-header bg-dark">
+        <h5 class="card-title">Products</h5>
+
+        <?php if (lookupUserPermission("module_support") >= 2 && empty($ticket_closed_at)) { ?>
+            <div class="card-tools">
+                <button type="button" class="btn btn-tool ajax-modal" data-modal-url="modals/ticket/ticket_item_add.php?ticket_id=<?= $ticket_id ?>" data-modal-size="lg">
+                    <i class="fas fa-plus"></i>
+                </button>
+            </div>
+        <?php } ?>
+    </div>
+
+    <div class="card-body p-0">
+        <?php
+        $currency_symbol = isset($config_currency_symbol) ? $config_currency_symbol : '';
+        $ticket_items_total = 0.00;
+        ?>
+
+        <div class="table-responsive">
+            <table class="table table-sm mb-0">
+                <thead>
+                    <tr>
+                        <th style="width: 40%">Item</th>
+                        <th class="text-right" style="width: 10%">Qty</th>
+                        <th class="text-right" style="width: 15%">Unit</th>
+                        <th style="width: 15%">Tax</th>
+                        <th class="text-right" style="width: 15%">Total</th>
+                        <th style="width: 5%"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php if (mysqli_num_rows($sql_ticket_items) == 0) { ?>
+                        <tr>
+                            <td colspan="6" class="text-center text-muted p-3">No items</td>
+                        </tr>
+                    <?php } else { ?>
+                        <?php while ($row = mysqli_fetch_array($sql_ticket_items)) { ?>
+                            <?php
+                            $ticket_item_id = intval($row['ticket_item_id']);
+                            $item_name = nullable_htmlentities($row['ticket_item_name']);
+                            $item_description = nullable_htmlentities($row['ticket_item_description']);
+                            $qty = floatval($row['ticket_item_quantity']);
+                            $unit_price = floatval($row['ticket_item_unit_price']);
+                            $tax_name = nullable_htmlentities($row['tax_name']);
+                            $tax_percent = isset($row['tax_percent']) ? floatval($row['tax_percent']) : null;
+                            $billable = intval($row['ticket_item_billable']);
+                            $invoiced_at = nullable_htmlentities($row['ticket_item_invoiced_at']);
+                            $invoiced_ref = nullable_htmlentities($row['ticket_item_invoiced_ref']);
+
+                            $line_total = $qty * $unit_price;
+                            $ticket_items_total += $line_total;
+
+                            $tax_display = '';
+                            if (!empty($tax_name) && $tax_percent !== null) {
+                                $tax_display = $tax_name . ' (' . rtrim(rtrim(number_format($tax_percent, 2), '0'), '.') . '%)';
+                            } elseif (!empty($tax_name)) {
+                                $tax_display = $tax_name;
+                            } else {
+                                $tax_display = '-';
+                            }
+
+                            $status_badge = '';
+                            if (!empty($invoiced_at)) {
+                                $status_badge = "<span class='badge badge-success'>Invoiced</span>";
+                            } elseif ($billable == 1) {
+                                $status_badge = "<span class='badge badge-dark'>Billable</span>";
+                            } else {
+                                $status_badge = "<span class='badge badge-secondary'>Not billable</span>";
+                            }
+                            ?>
+                            <tr>
+                                <td>
+                                    <div class="text-bold"><?= $item_name ?></div>
+                                    <?php if (!empty($item_description)) { ?>
+                                        <div class="text-muted small"><?= $item_description ?></div>
+                                    <?php } ?>
+                                    <div class="mt-1">
+                                        <?= $status_badge ?>
+                                        <?php if (!empty($invoiced_ref)) { ?>
+                                            <span class="text-muted small ml-2"><?= $invoiced_ref ?></span>
+                                        <?php } ?>
+                                    </div>
+                                </td>
+                                <td class="text-right"><?= rtrim(rtrim(number_format($qty, 2), '0'), '.') ?></td>
+                                <td class="text-right"><?= $currency_symbol . number_format($unit_price, 2) ?></td>
+                                <td><?= $tax_display ?></td>
+                                <td class="text-right"><?= $currency_symbol . number_format($line_total, 2) ?></td>
+                                <td class="text-right">
+                                    <?php if (lookupUserPermission("module_support") >= 2 && empty($ticket_closed_at)) { ?>
+                                        <div class="btn-group">
+                                            <button type="button" class="btn btn-sm btn-light ajax-modal" data-modal-url="modals/ticket/ticket_item_edit.php?ticket_item_id=<?= $ticket_item_id ?>" data-modal-size="lg">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <a class="btn btn-sm btn-light confirm-link" href="post.php?delete_ticket_item=<?= $ticket_item_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
+                                                <i class="fas fa-trash text-danger"></i>
+                                            </a>
+                                        </div>
+                                    <?php } ?>
+                                </td>
+                            </tr>
+                        <?php } ?>
+                    <?php } ?>
+                </tbody>
+                <?php if (mysqli_num_rows($sql_ticket_items) > 0) { ?>
+                    <tfoot>
+                        <tr>
+                            <th colspan="4" class="text-right">Total</th>
+                            <th class="text-right"><?= $currency_symbol . number_format($ticket_items_total, 2) ?></th>
+                            <th></th>
+                        </tr>
+                    </tfoot>
+                <?php } ?>
+            </table>
+        </div>
+    </div>
 
 </div>
 
@@ -571,24 +730,26 @@ if (function_exists('bit_render_ticket_products_card')) {
                 <!-- Only show ticket reply modal if status is not closed -->
                 <?php if (lookupUserPermission("module_support") >= 2 && empty($ticket_resolved_at) && empty($ticket_closed_at)) { ?>
 
+
+
                         <form action="post.php" method="post" autocomplete="off">
                             <input type="hidden" name="ticket_id" id="ticket_id" value="<?php echo $ticket_id; ?>">
                             <input type="hidden" name="client_id" id="client_id" value="<?php echo $client_id; ?>">
 
-                            <div class="card card-body d-print-none p-3">
+                            <div class="card card-body d-print-none pb-0">
 
-                                <div class="form-group mb-0">
+                                <div class="form-group">
                                     <div class="btn-group btn-block btn-group-toggle" data-toggle="buttons">
                                         <label class="btn btn-outline-dark active">
-                                            <input type="radio" name="public_reply_type" value="0" checked>Internal
+                                            <input type="radio" name="public_reply_type" value="0" checked>Internal Note
                                         </label>
                                         <?php if ($contact_email) { ?>
                                         <label class="btn btn-outline-info">
-                                            <input type="radio" name="public_reply_type" value="2">Public + Email
+                                            <input type="radio" name="public_reply_type" value="2">Public Comment & Email
                                         </label>
                                         <?php } ?>
                                         <label class="btn btn-outline-info">
-                                            <input type="radio" name="public_reply_type" value="1">Public
+                                            <input type="radio" name="public_reply_type" value="1">Public Comment
                                         </label>
                                     </div>
                                 </div>
@@ -602,20 +763,21 @@ if (function_exists('bit_render_ticket_products_card')) {
                                 </textarea>
                             </div>
 
-                            <div class="form-row">
-                                <div class="col-md-3">
-                                    <div class="form-group">
-                                        <div class="input-group">
+                            <div class="card card-body pb-0">
+
+                                <div class="form-row">
+
+                                    <div class="col-md-3">
+                                        <div class="input-group mb-3">
                                             <select class="form-control select2" name="status" required>
 
-                                                <!-- Show all active ticket statuses, apart from new or closed as these are system-managed -->
                                                 <?php
                                                 $status_snippet = '';
                                                 if ($task_count !== $completed_task_count) {
                                                     $status_snippet = "AND ticket_status_id != 4";
                                                 }
                                                 $sql_ticket_status = mysqli_query($mysqli, "SELECT * FROM ticket_statuses WHERE ticket_status_id != 1 AND ticket_status_id != 5 AND ticket_status_active = 1 $status_snippet ORDER BY ticket_status_order");
-                                                while ($row = mysqli_fetch_assoc($sql_ticket_status)) {
+                                                while ($row = mysqli_fetch_array($sql_ticket_status)) {
                                                     $ticket_status_id_select = intval($row['ticket_status_id']);
                                                     $ticket_status_name_select = nullable_htmlentities($row['ticket_status_name']); ?>
 
@@ -625,23 +787,46 @@ if (function_exists('bit_render_ticket_products_card')) {
                                             </select>
                                         </div>
                                     </div>
+
+                                    <div class="col-md-3">
+                                        <div class="input-group mb-3">
+                                            <input type="date" class="form-control" name="time_date" value="<?php echo date('Y-m-d'); ?>" required>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-3">
+                                        <div class="input-group mb-3">
+                                            <select class="form-control select2" name="time_user_id" required>
+                                                <?php
+                                                $sql_time_users = mysqli_query($mysqli, "SELECT user_id, user_name FROM users WHERE user_role_id > 1 AND user_type = 1 AND user_status = 1 AND user_archived_at IS NULL ORDER BY user_name ASC");
+                                                while ($row = mysqli_fetch_array($sql_time_users)) {
+                                                    $time_user_id = intval($row['user_id']);
+                                                    $time_user_name = nullable_htmlentities($row['user_name']);
+                                                    ?>
+                                                    <option value="<?php echo $time_user_id; ?>" <?php if ($time_user_id == $session_user_id) { echo 'selected'; } ?>><?php echo $time_user_name; ?></option>
+                                                <?php } ?>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-3">
+                                        <div class="btn-toolbar float-right">
+                                            <button type="submit" id="ticket_add_reply" name="add_ticket_reply" class="btn btn-success ml-3"><i class="fas fa-check mr-2"></i>Submit</button>
+                                        </div>
+                                    </div>
+
                                 </div>
 
-                                <!-- Time Tracking -->
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <div class="input-group">
-                                            <div class="input-group-prepend px-0 col-2">
-                                                <input type="text" class="form-control" inputmode="numeric" id="hours" name="hours" placeholder="Hrs" min="0" max="23" pattern="0?[0-9]|1[0-9]|2[0-3]">
-                                            </div>
+                                <div class="form-row">
+                                    <div class="col-md-3"></div>
 
-                                            <div class="px-0 col-2">
-                                                <input type="text" class="form-control" inputmode="numeric" id="minutes" name="minutes" placeholder="Mins" min="0" max="59" pattern="[0-5]?[0-9]">
-                                            </div>
+                                    <div class="col-md-6">
+                                        <div class="input-group mb-3">
+                                            <input type="text" class="form-control" inputmode="numeric" id="hours" name="hours" placeholder="Hrs" min="0" max="23" pattern="0?[0-9]|1[0-9]|2[0-3]">
 
-                                            <div class="input-group-append px-0 col-2">
-                                                <input type="text" class="form-control" inputmode="numeric" id="seconds" name="seconds" placeholder="Secs" min="0" max="59" pattern="[0-5]?[0-9]">
-                                            </div>
+                                            <input type="text" class="form-control" inputmode="numeric" id="minutes" name="minutes" placeholder="Mins" min="0" max="59" pattern="[0-5]?[0-9]">
+
+                                            <input type="text" class="form-control" inputmode="numeric" id="seconds" name="seconds" placeholder="Secs" min="0" max="59" pattern="[0-5]?[0-9]">
 
                                             <div class="btn-group">
                                                 <button type="button" class="btn btn-light" id="startStopTimer"><i class="fas fa-play"></i></button>
@@ -649,12 +834,8 @@ if (function_exists('bit_render_ticket_products_card')) {
                                             </div>
                                         </div>
                                     </div>
-                                </div>
 
-                                <div class="col-md-3">
-                                    <div class="btn-toolbar float-right mb-3">
-                                        <button type="submit" id="ticket_add_reply" name="add_ticket_reply" class="btn btn-success ml-3"><i class="fas fa-check mr-2"></i>Submit</button>
-                                    </div>
+                                    <div class="col-md-3"></div>
                                 </div>
 
                             </div>
@@ -667,7 +848,7 @@ if (function_exists('bit_render_ticket_products_card')) {
                 <!-- Ticket replies -->
                 <?php
 
-                while ($row = mysqli_fetch_assoc($sql_ticket_replies)) {
+                while ($row = mysqli_fetch_array($sql_ticket_replies)) {
                     $ticket_reply_id = intval($row['ticket_reply_id']);
                     $ticket_reply = $purifier->purify($row['ticket_reply']);
                     $ticket_reply_type = nullable_htmlentities($row['ticket_reply_type']);
@@ -688,7 +869,7 @@ if (function_exists('bit_render_ticket_products_card')) {
                         $user_avatar = nullable_htmlentities($row['user_avatar']);
                         $user_initials = initials($row['user_name']);
                         $avatar_link = "../uploads/users/$user_id/$user_avatar";
-                        $ticket_reply_time_worked = $row['ticket_reply_time_worked'];
+                        $ticket_reply_time_worked = date_create($row['ticket_reply_time_worked']);
                     }
 
                     $sql_ticket_reply_attachments = mysqli_query(
@@ -715,19 +896,12 @@ if (function_exists('bit_render_ticket_products_card')) {
                                         </span>
                                     <?php } ?>
 
-                                    <div class="ml-2">
+                                    <div class="ml-3">
                                         <h3 class="card-title"><?php echo $ticket_reply_by_display; ?></h3>
                                         <div>
-                                            <?php if ($ticket_reply_type !== "Client" && $ticket_reply_time_worked !== "00:00:00") { ?>
+                                            <?php if ($ticket_reply_type !== "Client") { ?>
                                                 <div>
-                                                    <br>
-                                                    <small>
-                                                        <i class="far fa-fw fa-clock text-secondary"></i>
-                                                        Time worked:
-                                                        <span class="text-muted">
-                                                            <?= formatDuration($ticket_reply_time_worked) ?>
-                                                        </span>
-                                                    </small>
+                                                    <br><small class="text-muted">Time worked: <?php echo date_format($ticket_reply_time_worked, 'H:i:s'); ?></small>
                                                 </div>
                                             <?php } ?>
                                         </div>
@@ -779,7 +953,7 @@ if (function_exists('bit_render_ticket_products_card')) {
                             <?php echo $ticket_reply; ?>
 
                             <?php
-                            while ($ticket_attachment = mysqli_fetch_assoc($sql_ticket_reply_attachments)) {
+                            while ($ticket_attachment = mysqli_fetch_array($sql_ticket_reply_attachments)) {
                                 $name = nullable_htmlentities($ticket_attachment['ticket_attachment_name']);
                                 $ref_name = nullable_htmlentities($ticket_attachment['ticket_attachment_reference_name']);
                                 echo "<hr><i class='fas fa-fw fa-paperclip text-secondary mr-1'></i>$name | <a href='../uploads/tickets/$ticket_id/$ref_name' download='$name'><i class='fas fa-fw fa-download mr-1'></i>Download</a> | <a target='_blank' href='../uploads/tickets/$ticket_id/$ref_name'><i class='fas fa-fw fa-external-link-alt mr-1'></i>View</a>";
@@ -799,10 +973,10 @@ if (function_exists('bit_render_ticket_products_card')) {
 
             <div class="col-md-3">
 
-                <!-- Ticket activity right card -->
-                <div class="card">
-                    <div class="card-header px-3 py-2">
-                        <h5 class="card-title mt-1"><i class="fas fa-fw fa-history mr-2"></i>Activity Summary</h5>
+                <!-- Ticket details right card -->
+                <div class="card <?php if(!$ticket_resolved_at) { echo "collapsed-card"; } ?>">
+                    <div class="card-header">
+                        <h5 class="card-title"><i class="fas fa-fw fa-life-ring mr-2"></i>Ticket Details</h5>
 
                         <div class="card-tools">
                             <button type="button" class="btn btn-tool" data-card-widget="collapse">
@@ -810,50 +984,49 @@ if (function_exists('bit_render_ticket_products_card')) {
                             </button>
                         </div>
                     </div>
-                    <div class="card-body p-3 ">
+                    <div class="card-body">
 
                         <!-- Created -->
-                        <div>
-                            <i class="fas fa-fw fa-calendar-alt text-secondary mr-1"></i><strong class="mr-1">Created:</strong><?= date('M d, Y', strtotime($ticket_date)) ?>
-                            <span class="text-muted small">(<?= $ticket_created_at_ago ?>)</span>
+                        <div title="<?php echo $ticket_created_at; ?>">
+                            <i class="fa fa-fw fa-calendar text-secondary mr-2"></i><strong>Created: </strong><?php echo "$ticket_date ($ticket_created_at_ago)"; ?>
                         </div>
 
                         <!-- Created by -->
-                        <?php if ($ticket_created_by) {
-                            $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT user_name FROM users WHERE user_id = $ticket_created_by"));
+                        <?php if (!empty($ticket_created_by)) {
+                            $row = mysqli_fetch_array(mysqli_query($mysqli, "SELECT user_name FROM users WHERE user_id = $ticket_created_by"));
                             $ticket_created_by_display = nullable_htmlentities($row['user_name']);
                             ?>
 
-                            <div class="mt-2">
-                                <i class="far fa-fw fa-user text-secondary mr-1"></i><strong class="mr-1">Created by:</strong><?= $ticket_created_by_display ?>
+                            <div class="mt-1">
+                                <i class="far fa-fw fa-user text-secondary mr-2"></i><strong>Created by: </strong><?php echo $ticket_created_by_display; ?>
                             </div>
                         <?php } ?>
 
                         <!-- Source -->
-                        <?php if ($ticket_source) { ?>
-                            <div class="mt-2">
-                                <i class="fas fa-fw fa-inbox text-secondary mr-1"></i><strong class="mr-1">Source:</strong><?= $ticket_source ?>
+                        <?php if (!empty($ticket_source)) { ?>
+                            <div class="mt-1">
+                                <i class="far fa-fw fa-question-circle text-secondary mr-2"></i><strong>Source: </strong><?php echo $ticket_source; ?>
                             </div>
                         <?php } ?>
 
                         <!-- Category -->
-                        <?php if ($ticket_category) { ?>
-                            <div class="mt-2">
-                                <i class="fas fa-fw fa-layer-group text-secondary mr-1"></i><strong class="mr-1">Category:</strong><?= $ticket_category_display ?>
+                        <?php if ($ticket_category > 0) { ?>
+                            <div class="mt-1">
+                                <i class="fas fa-fw fa-layer-group mr-2 text-secondary"></i><strong>Category: </strong><?php echo $ticket_category_display; ?>
                             </div>
                         <?php } ?>
 
                         <!-- First response (for SLA) -->
                         <?php if ($ticket_first_response_at) { ?>
-                            <div class="mt-2">
-                                <i class="fas fa-fw fa-reply-all text-secondary mr-1"></i><strong class="mr-1">1st  resp:</strong><?= date('M d • g:i A', strtotime($ticket_first_response_at)) ?>
+                            <div title="First Response: <?php echo $ticket_created_at; ?>">
+                                <i class="fa fa-fw fa-user-clock text-secondary mr-2"></i><strong>FR: </strong><?php echo "$ticket_first_response_at"; ?>
                             </div>
                         <?php } ?>
 
                         <!-- Time tracking -->
                         <?php if ($ticket_total_reply_time) { ?>
-                            <div class="mt-2">
-                                <i class="fas fa-fw fa-stopwatch text-secondary mr-1"></i><strong class="mr-1">Total time:</strong><?= formatDuration($ticket_total_reply_time) ?>
+                            <div class="mt-1">
+                                <i class="far fa-fw fa-clock text-secondary mr-2"></i><strong>Time worked: </strong><?php echo $ticket_total_reply_time; ?>
                             </div>
                         <?php } ?>
 
@@ -866,34 +1039,34 @@ if (function_exists('bit_render_ticket_products_card')) {
 <!--                        --><?php //} ?>
 
                         <!-- Resolved -->
-                        <?php if ($ticket_resolved_at) { ?>
+                        <?php if (!empty($ticket_resolved_at)) { ?>
                             <hr>
-                            <div class="mt-2" title="<?= $ticket_resolved_at ?>">
-                                <i class="fas fa-fw fa-check text-secondary mr-1"></i><strong class="mr-1">Resolved:</strong><?= date('M d, Y • g:i A', strtotime($ticket_resolved_at)) . " ($ticket_resolved_at_ago)" ?>
+                            <div class="mt-1" title="<?php echo $ticket_resolved_at; ?>">
+                                <i class="fa fa-fw fa-check text-secondary mr-2"></i><strong>Resolved: </strong><?php echo "$ticket_resolved_date ($ticket_resolved_at_ago)"; ?>
                             </div>
                         <?php } ?>
 
                         <!-- Ticket closure info -->
-                        <?php if ($ticket_closed_at) {
+                        <?php if (!empty($ticket_closed_at)) {
 
                             $ticket_closed_by_display = 'User';
                             if (!empty($ticket_closed_by)) {
                                 $sql_closed_by = mysqli_query($mysqli, "SELECT user_name FROM users WHERE user_id = $ticket_closed_by");
-                                $row = mysqli_fetch_assoc($sql_closed_by);
+                                $row = mysqli_fetch_array($sql_closed_by);
                                 $ticket_closed_by_display = nullable_htmlentities($row['user_name']);
                             }
                             ?>
-                            <div class="mt-2">
-                                <i class="fas fa-fw fa-user text-secondary mr-1"></i><strong class="mr-1">Closed by:</strong><?= ucwords($ticket_closed_by_display) ?>
+                            <div class="mt-1">
+                                <i class="fa fa-fw fa-user text-secondary mr-2"></i><strong>Closed by: </strong><?php echo ucwords($ticket_closed_by_display); ?>
                             </div>
 
-                            <div class="mt-2">
-                                <i class="fas fa-fw fa-clock text-secondary mr-1"></i><strong class="mr-1">Closed:</strong><?= date('M d, Y • g:i A', strtotime($ticket_closed_at)) . " ($ticket_closed_at_ago)" ?>
+                            <div class="mt-1" title="<?php echo $ticket_closed_at; ?>">
+                                <i class="fa fa-fw fa-clock text-secondary mr-2"></i><strong>Closed: </strong><?php echo "$ticket_closed_date ($ticket_closed_at_ago)"; ?>
                             </div>
 
                             <?php if ($ticket_feedback) { ?>
-                                <div class="mt-2">
-                                    <i class="fa fa-fw fa-comment-dots text-secondary mr-1"></i><strong>Feedback: </strong><?php echo $ticket_feedback; ?>
+                                <div class="mt-1">
+                                    <i class="fa fa-fw fa-comment-dots text-secondary mr-2"></i><strong>Feedback: </strong><?php echo $ticket_feedback; ?>
                                 </div>
                             <?php } ?>
 
@@ -907,8 +1080,8 @@ if (function_exists('bit_render_ticket_products_card')) {
                 <!-- Tasks Card -->
                 <?php if (empty($ticket_resolved_at) || (!empty($ticket_resolved_at) && $task_count > 0)) { ?>
                     <div class="card">
-                        <div class="card-header px-3 py-2">
-                            <h5 class="card-title mt-1"><i class="fas fa-fw fa-tasks mr-2"></i>Tasks</h5>
+                        <div class="card-header">
+                            <h5 class="card-title"><i class="fas fa-fw fa-tasks mr-2"></i>Tasks</h5>
                             <?php if (empty($ticket_resolved_at) && lookupUserPermission("module_support") >= 2) { ?>
                             <div class="card-tools">
                                 <div class="dropdown dropleft text-center">
@@ -952,82 +1125,25 @@ if (function_exists('bit_render_ticket_products_card')) {
 
                             <table class="table table-sm" id="tasks">
                                 <?php
-                                while ($row = mysqli_fetch_assoc($sql_tasks)) {
+                                while($row = mysqli_fetch_array($sql_tasks)){
                                     $task_id = intval($row['task_id']);
                                     $task_name = nullable_htmlentities($row['task_name']);
                                     //$task_description = nullable_htmlentities($row['task_description']); // not in db yet
                                     $task_completion_estimate = intval($row['task_completion_estimate']);
                                     $task_completed_at = nullable_htmlentities($row['task_completed_at']);
-
-                                    // Check for approvals
-                                    $task_needs_approval = false;
-                                    $task_needs_approval = mysqli_num_rows(mysqli_query(
-                                            $mysqli,
-                                            "SELECT 1 FROM task_approvals
-                                                 WHERE approval_task_id = $task_id
-                                                   AND approval_status IN ('pending','declined')
-                                                 LIMIT 1"
-                                        )) > 0;
-
-                                    $approval_id = 0;
-                                    $user_can_approve = false;
-                                    $approval_rows = mysqli_query($mysqli, "
-                                        SELECT approval_id, approval_scope, approval_type, approval_required_user_id, approval_created_by
-                                        FROM task_approvals WHERE approval_task_id = $task_id AND approval_status = 'pending'
-                                    ");
-
-                                    while ($approval = mysqli_fetch_assoc($approval_rows)) {
-
-                                        $scope = nullable_htmlentities($approval['approval_scope']);
-                                        $type = nullable_htmlentities($approval['approval_type']);
-                                        $required_user = intval($approval['approval_required_user_id']);
-                                        $created_by = intval($approval['approval_created_by']);
-
-                                        // Named, specific user?
-                                        if ($scope == 'internal' && $type == 'specific' && $required_user == $session_user_id) {
-                                            $user_can_approve = true;
-                                            $approval_id = intval($approval['approval_id']);
-                                            continue;
-                                        }
-
-                                        // Any internal user, but the one who created the task
-                                        if ($scope == 'internal' && $type == 'any' && $created_by !== $session_user_id) {
-                                            $user_can_approve = true;
-                                            $approval_id = intval($approval['approval_id']);
-                                            continue;
-                                        }
-
-                                    }
-
                                     ?>
                                     <tr data-task-id="<?= $task_id ?>">
-                                        <td class="px-3">
+                                        <td>
                                             <?php if ($task_completed_at) { ?>
                                                 <i class="far fa-check-square text-success"></i>
                                             <?php } elseif (lookupUserPermission("module_support") >= 2) { ?>
-
-                                                <?php if ($task_needs_approval) { ?>
-                                                    <i class="fas fa-shield-alt text-warning"
-                                                       data-toggle="tooltip"
-                                                       data-placement="top"
-                                                       title="Approval required"></i>
-
-                                                    <?php if ($user_can_approve) { ?>
-                                                        <a class="confirm-link" href="post.php?approve_ticket_task=<?= $task_id ?>&approval_id=<?= $approval_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
-                                                            <i class="fas fa-thumbs-up text-green"></i>
-                                                        </a>
-                                                    <?php } ?>
-
-                                                <?php } else { ?>
-                                                    <a href="post.php?complete_task=<?php echo $task_id; ?>">
-                                                        <i class="far fa-square text-dark"></i>
-                                                    </a>
-                                                <?php } ?>
-
+                                                <a href="post.php?complete_task=<?php echo $task_id; ?>">
+                                                    <i class="far fa-square text-dark"></i>
+                                                </a>
                                             <?php } ?>
-                                            <span class="text-dark ml-2"><?= $task_name ?></span>
+                                            <span class="text-dark ml-2"><?php echo $task_name; ?></span>
                                         </td>
-                                        <td class="px-2">
+                                        <td>
                                             <div class="float-right">
 
                                                 <div class="btn-group">
@@ -1045,12 +1161,6 @@ if (function_exists('bit_render_ticket_products_card')) {
                                                                    data-modal-url="modals/ticket/ticket_task_edit.php?id=<?= $task_id ?>">
                                                                     <i class="fas fa-fw fa-edit mr-2"></i>Edit
                                                                 </a>
-                                                                <?php if (!$task_completed_at) { ?>
-                                                                    <a class="dropdown-item ajax-modal" href="#"
-                                                                       data-modal-url="modals/ticket/ticket_task_approver_add.php?id=<?= $task_id ?>">
-                                                                        <i class="fas fa-fw fa-shield-alt mr-2"></i>Add Approvers
-                                                                    </a>
-                                                                <?php } ?>
                                                                 <?php if ($task_completed_at) { ?>
                                                                     <a class="dropdown-item" href="post.php?undo_complete_task=<?php echo $task_id; ?>">
                                                                         <i class="fas fa-fw fa-arrow-circle-left mr-2"></i>Mark incomplete
@@ -1080,8 +1190,8 @@ if (function_exists('bit_render_ticket_products_card')) {
                 <!-- Contact card -->
                 <?php if ($contact_id) { ?>
                     <div class="card">
-                        <div class="card-header px-3 py-2">
-                            <h5 class="card-title mt-1"><i class="fas fa-fw fa-user-check mr-2"></i>Contact</h5>
+                        <div class="card-header">
+                            <h5 class="card-title"><i class="fas fa-fw fa-user-check mr-2"></i>Contact</h5>
                             <?php if (empty($ticket_resolved_at) && lookupUserPermission("module_support") >= 2) { ?>
                             <div class="card-tools">
                                 <a class="btn btn-tool ajax-modal" href="#"
@@ -1091,7 +1201,7 @@ if (function_exists('bit_render_ticket_products_card')) {
                             </div>
                             <?php } ?>
                         </div>
-                        <div class="card-body p-3">
+                        <div class="card-body">
 
                             <div>
                                 <i class="fa fa-fw fa-user text-secondary mr-2"></i><a href="#" class="ajax-modal"
@@ -1135,29 +1245,29 @@ if (function_exists('bit_render_ticket_products_card')) {
                 <?php if (empty($ticket_closed_at) && mysqli_num_rows($sql_ticket_watchers) > 0) { ?>
 
                     <div class="card">
-                        <div class="card-header px-3 py-2">
-                            <h5 class="card-title mt-1"><i class="fas fa-fw fa-eye mr-2"></i>Watchers</h5>
+                        <div class="card-header">
+                            <h5 class="card-title"><i class="fas fa-fw fa-eye mr-2"></i>Watchers</h5>
                             <?php if (empty($ticket_resolved_at) && lookupUserPermission("module_support") >= 2) { ?>
                             <div class="card-tools">
                                 <a class="btn btn-tool ajax-modal" href="#" data-modal-url="modals/ticket/ticket_add_watcher.php?ticket_id=<?= $ticket_id ?>">
-                                    <i class="fas fa-fw fa-user-plus"></i>
+                                    <i class="fas fa-fw fa-plus"></i>
                                 </a>
                             </div>
                             <?php } ?>
                         </div>
-                        <div class="card-body p-3">
+                        <div class="card-body">
 
                             <?php
                             // Get Watchers
-                            while ($row = mysqli_fetch_assoc($sql_ticket_watchers)) {
+                            while ($row = mysqli_fetch_array($sql_ticket_watchers)) {
                                 $watcher_id = intval($row['watcher_id']);
                                 $ticket_watcher_email = nullable_htmlentities($row['watcher_email']);
                                 ?>
                                 <div class='mt-1'>
-                                    <i class="fa fa-fw fa-envelope text-secondary mr-2"></i><?php echo $ticket_watcher_email; ?>
+                                    <i class="fa fa-fw fa-eye text-secondary mr-2"></i><?php echo $ticket_watcher_email; ?>
                                     <?php if (empty($ticket_closed_at)) { ?>
                                         <a class="confirm-link float-right" href="post.php?delete_ticket_watcher=<?php echo $watcher_id; ?>">
-                                            <i class="fas fa-fw fa-times text-secondary"></i>
+                                            <i class="fas fa-fw fa-trash-alt text-secondary"></i>
                                         </a>
                                     <?php } ?>
                                 </div>
@@ -1171,8 +1281,8 @@ if (function_exists('bit_render_ticket_products_card')) {
                 <!-- Asset card -->
                 <?php if ($asset_id) { ?>
                     <div class="card mb-3">
-                        <div class="card-header px-3 py-2">
-                            <h5 class="card-title mt-1"><i class="fas fa-fw fa-desktop mr-2"></i>Assets</h5>
+                        <div class="card-header">
+                            <h5 class="card-title"><i class="fas fa-fw fa-desktop mr-2"></i>Assets</h5>
                             <?php if (empty($ticket_resolved_at) && lookupUserPermission("module_support") >= 2) { ?>
                             <div class="card-tools">
                                 <a class="btn btn-tool ajax-modal" href="#" data-modal-url="modals/ticket/ticket_edit_asset.php?id=<?= $ticket_id ?>">
@@ -1181,7 +1291,7 @@ if (function_exists('bit_render_ticket_products_card')) {
                             </div>
                             <?php } ?>
                         </div>
-                        <div class="card-body p-3">
+                        <div class="card-body">
                             <div>
                                 <a class="ajax-modal" href="#" data-modal-size="lg"
                                     data-modal-url="modals/asset/asset_details.php?<?= $client_url ?>&id=<?= $asset_id ?>">
@@ -1189,7 +1299,7 @@ if (function_exists('bit_render_ticket_products_card')) {
                                 </a>
                             </div>
                             <?php
-                            while ($row = mysqli_fetch_assoc($sql_additional_assets)) {
+                            while ($row = mysqli_fetch_array($sql_additional_assets)) {
                                 $additional_asset_id = intval($row['asset_id']);
                                 $additional_asset_name = nullable_htmlentities($row['asset_name']);
                                 $additional_asset_type = nullable_htmlentities($row['asset_type']);
@@ -1202,7 +1312,7 @@ if (function_exists('bit_render_ticket_products_card')) {
                                     </a>
                                     <?php if (empty($ticket_closed_at)) { ?>
                                         <a class="confirm-link float-right" href="post.php?delete_ticket_additional_asset=<?php echo $additional_asset_id; ?>&ticket_id=<?php echo $ticket_id; ?>" title="Remove asset from ticket">
-                                            <i class="fas fa-fw fa-times text-secondary"></i>
+                                            <i class="fas fa-fw fa-trash-alt text-secondary"></i>
                                         </a>
                                     <?php } ?>
                                 </div>
@@ -1215,11 +1325,12 @@ if (function_exists('bit_render_ticket_products_card')) {
                 <?php } // End if asset_id ?>
                 <!-- End Asset card -->
 
+
                 <!-- Vendor card -->
                 <?php if ($vendor_id) { ?>
                     <div class="card mb-3">
-                        <div class="card-header px-3 py-2">
-                            <h5 class="card-title mt-1"><i class="fas fa-fw fa-building mr-2"></i>Vendor</h5>
+                        <div class="card-header">
+                            <h5 class="card-title"><i class="fas fa-fw fa-building mr-2"></i>Vendor</h5>
                             <?php if (empty($ticket_resolved_at) && lookupUserPermission("module_support") >= 2) { ?>
                             <div class="card-tools">
                                 <a class="btn btn-tool ajax-modal" href="#" data-modal-url="modals/ticket/ticket_edit_vendor.php?ticket_id=<?= $ticket_id ?>">
@@ -1228,7 +1339,7 @@ if (function_exists('bit_render_ticket_products_card')) {
                             </div>
                             <?php } ?>
                         </div>
-                        <div class="card-body p-3">
+                        <div class="card-body">
 
                             <div>
                                 <i class="fa fa-fw fa-building text-secondary mr-2"></i><strong><?php echo $vendor_name; ?></strong>
@@ -1273,8 +1384,8 @@ if (function_exists('bit_render_ticket_products_card')) {
                 <!-- project card -->
                 <?php if ($project_id) { ?>
                     <div class="card">
-                        <div class="card-header px-3 py-2">
-                            <h5 class="card-title mt-1"><i class="fas fa-fw fa-project-diagram mr-2"></i>Project</h5>
+                        <div class="card-header">
+                            <h5 class="card-title"><i class="fas fa-fw fa-project-diagram mr-2"></i>Project</h5>
                             <?php if (empty($ticket_resolved_at) && lookupUserPermission("module_support") >= 2) { ?>
                             <div class="card-tools">
                                 <button type="button" class="btn btn-tool ajax-modal" data-modal-url="modals/ticket/ticket_edit_project.php?id=<?= $ticket_id ?>">
@@ -1283,15 +1394,15 @@ if (function_exists('bit_render_ticket_products_card')) {
                             </div>
                             <?php } ?>
                         </div>
-                        <div class="card-body p-3">
+                        <div class="card-body">
                             <div>
-                                <i class="fa fa-fw fa-project-diagram text-secondary mr-2"></i><a href="project_details.php?project_id=<?php echo $project_id; ?>" target="_blank"><strong><?= $project_name ?><i class="fa fa-fw fa-external-link-alt ml-1"></i></strong>
+                                <i class="fa fa-fw fa-project-diagram text-secondary mr-2"></i><a href="project_details.php?project_id=<?php echo $project_id; ?>" target="_blank"><strong><?php echo $project_name; ?><i class="fa fa-fw fa-external-link-alt text-secondary ml-2"></i></strong>
                                 </a>
                             </div>
 
                             <?php if ($project_manager) { ?>
                                 <div class="mt-2">
-                                    <i class="fa fa-fw fa-user-tie text-secondary mr-2"></i><?= $project_manager_name ?>
+                                    <i class="fa fa-fw fa-user-tie text-secondary mr-3"></i><?php echo $project_manager_name; ?>
                                 </div>
                             <?php } ?>
                         </div>
