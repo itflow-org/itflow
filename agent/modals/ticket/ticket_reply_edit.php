@@ -10,11 +10,21 @@ $sql = mysqli_query($mysqli, "SELECT * FROM ticket_replies
     LIMIT 1"
 );
 
-$row = mysqli_fetch_assoc($sql);
+$row = mysqli_fetch_array($sql);
 $ticket_reply_type = nullable_htmlentities($row['ticket_reply_type']);
 $ticket_reply_time_worked = date_create($row['ticket_reply_time_worked']);
 $ticket_reply_time_worked_formatted = date_format($ticket_reply_time_worked, 'H:i:s');
 $ticket_reply = nullable_htmlentities($row['ticket_reply']);
+$ticket_reply_created_at = nullable_htmlentities($row['ticket_reply_created_at']);
+$ticket_reply_by = intval($row['ticket_reply_by']);
+$ticket_reply_date = '';
+if (!empty($ticket_reply_created_at)) {
+    $ticket_reply_date = date('Y-m-d', strtotime($ticket_reply_created_at));
+}
+if (empty($ticket_reply_date)) {
+    $ticket_reply_date = date('Y-m-d');
+}
+
 $client_id = intval($row['ticket_client_id']);
 
 // Generate the HTML form content using output buffering.
@@ -50,11 +60,38 @@ ob_start();
         </div>
 
         <?php if (!empty($ticket_reply_time_worked)) { ?>
-            <div class="col-3">
-                <div class="form-group">
-                    <label>Time worked</label>
-                    <input class="form-control" name="time" type="text" placeholder="HH:MM:SS" pattern="([01]?[0-9]|2[0-3]):([0-5]?[0-9]):([0-5]?[0-9])" value="<?php echo $ticket_reply_time_worked_formatted; ?>" required>
+            <div class="form-row">
+
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label>Datum</label>
+                        <input type="date" class="form-control" name="time_date" value="<?php echo $ticket_reply_date; ?>" required>
+                    </div>
                 </div>
+
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label>Medewerker</label>
+                        <select class="form-control select2" name="time_user_id" required>
+                            <?php
+                            $sql_time_users = mysqli_query($mysqli, "SELECT user_id, user_name FROM users WHERE user_role_id > 1 AND user_type = 1 AND user_status = 1 AND user_archived_at IS NULL ORDER BY user_name ASC");
+                            while ($row = mysqli_fetch_array($sql_time_users)) {
+                                $time_user_id = intval($row['user_id']);
+                                $time_user_name = nullable_htmlentities($row['user_name']);
+                                ?>
+                                <option value="<?php echo $time_user_id; ?>" <?php if ($time_user_id == $ticket_reply_by) { echo 'selected'; } ?>><?php echo $time_user_name; ?></option>
+                            <?php } ?>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label>Time worked</label>
+                        <input class="form-control" name="time" type="text" placeholder="HH:MM:SS" pattern="([01]?[0-9]|2[0-3]):([0-5]?[0-9]):([0-5]?[0-9])" value="<?php echo $ticket_reply_time_worked_formatted; ?>" required>
+                    </div>
+                </div>
+
             </div>
         <?php } ?>
 
