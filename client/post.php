@@ -524,12 +524,6 @@ if (isset($_GET['add_payment_by_provider'])) {
     $contact_extension = preg_replace("/[^0-9]/", '',$row['contact_extension']);
     $contact_mobile = sanitizeInput(formatPhoneNumber($row['contact_mobile'], $row['contact_mobile_country_code']));
 
-    // Check to make sure saved payment method belongs to logged in client
-    if ($client_id !== $session_client_id) {
-        flash_alert("Saved Payment method does not belong to you!", 'danger');
-        redirect();
-    }
-
     // Get ITFlow company details
     $sql = mysqli_query($mysqli,"SELECT * FROM companies WHERE company_id = 1");
     $row = mysqli_fetch_assoc($sql);
@@ -548,7 +542,7 @@ if (isset($_GET['add_payment_by_provider'])) {
     $config_invoice_from_email = sanitizeInput($config_invoice_from_email);
 
     // Get Client Payment Details
-    $sql = mysqli_query($mysqli, "SELECT * FROM client_saved_payment_methods LEFT JOIN payment_providers ON saved_payment_provider_id = payment_provider_id LEFT JOIN client_payment_provider ON saved_payment_client_id = client_id WHERE saved_payment_id = $saved_payment_id LIMIT 1");
+    $sql = mysqli_query($mysqli, "SELECT * FROM client_saved_payment_methods LEFT JOIN payment_providers ON saved_payment_provider_id = payment_provider_id LEFT JOIN client_payment_provider ON saved_payment_client_id = client_id WHERE saved_payment_id = $saved_payment_id AND saved_payment_client_id = $session_client_id LIMIT 1");
     $row = mysqli_fetch_assoc($sql);
 
     $public_key = sanitizeInput($row['payment_provider_public_key']);
@@ -561,9 +555,17 @@ if (isset($_GET['add_payment_by_provider'])) {
     $payment_provider_client = sanitizeInput($row['payment_provider_client']);
     $saved_payment_method = sanitizeInput($row['saved_payment_provider_method']);
     $saved_payment_description = sanitizeInput($row['saved_payment_description']);
+    $payment_client_id = intval($row['saved_payment_client_id']);
 
     // Sanity checks
-    if (!$payment_provider_client || !$saved_payment_method) {
+    // Check to make invoice belongs to logged in client
+    if ($client_id !== $session_client_id) {
+        flash_alert("Invoice does not belong to you!", 'danger');
+        redirect();
+    } elseif ($payment_client_id !== $session_client_id) {
+        flash_alert("Saved Payment method does not belong to you!", 'danger');
+        redirect();
+    } elseif (!$payment_provider_client || !$saved_payment_method) {
         flash_alert("Stripe not enabled or no client card saved", 'error');
         redirect();
     } elseif ($invoice_status !== 'Sent' && $invoice_status !== 'Viewed') {

@@ -1512,8 +1512,8 @@ function logAction($type, $action, $description, $client_id = 0, $entity_id = 0)
 function logApp($category, $type, $details) {
     global $mysqli;
 
-    $category = substr($category, 0, 200);
-    $details = substr($details, 0, 1000);
+    $category = mysqli_real_escape_string($mysqli, substr($category, 0, 200));
+    $details = mysqli_real_escape_string($mysqli, substr($details, 0, 1000));
 
     mysqli_query($mysqli, "INSERT INTO app_logs SET app_log_category = '$category', app_log_type = '$type', app_log_details = '$details'");
 }
