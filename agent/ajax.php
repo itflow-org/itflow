@@ -454,6 +454,12 @@ if (isset($_POST['update_kanban_ticket'])) {
 
     foreach ($positions as $position) {
         $ticket_id = intval($position['ticket_id']);
+
+        // Client perms check
+        $client_query = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT ticket_client_id FROM tickets WHERE ticket_id = $ticket_id"));
+        $client_id = intval($client_query['ticket_client_id']);
+        enforceClientAccess();
+
         $kanban = intval($position['ticket_order']); // ticket kanban position
         $status = intval($position['ticket_status']); // ticket statuses
         $oldStatus = intval($position['ticket_oldStatus']); // ticket old status if moved
