@@ -2073,3 +2073,10 @@ function formatDuration($time) {
 
     return implode(' ', $parts);
 }
+
+function validateDate($date) {
+    if (preg_match('/^\d{4}-\d{2}-\d{2}$/', $date)) {
+        return $date;
+    }
+    return date('Y-m-d'); // Fallback
+}

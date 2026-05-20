@@ -13,13 +13,13 @@ if (isset($_POST['add_invoice_recurring'])) {
     enforceUserPermission('module_sales', 2);
 
     $invoice_id = intval($_POST['invoice_id']);
-    $recurring_invoice_frequency = sanitizeInput($_POST['frequency']);
+    $recurring_invoice_frequency = ($_POST['frequency'] === 'year') ? 'year' : 'month';
 
     $sql = mysqli_query($mysqli,"SELECT * FROM invoices WHERE invoice_id = $invoice_id");
     $row = mysqli_fetch_assoc($sql);
     $invoice_prefix = sanitizeInput($row['invoice_prefix']);
     $invoice_number = intval($row['invoice_number']);
-    $invoice_date = sanitizeInput($row['invoice_date']);
+    $invoice_date = sanitizeInput(validateDate($row['invoice_date']));
     $invoice_amount = floatval($row['invoice_amount']);
     $invoice_currency_code = sanitizeInput($row['invoice_currency_code']);
     $invoice_scope = sanitizeInput($row['invoice_scope']);
@@ -394,7 +394,7 @@ if (isset($_GET['force_recurring'])) {
     $row = mysqli_fetch_assoc($sql_recurring_invoices);
     $recurring_invoice_id = intval($row['recurring_invoice_id']);
     $recurring_invoice_scope = sanitizeInput($row['recurring_invoice_scope']);
-    $recurring_invoice_frequency = sanitizeInput($row['recurring_invoice_frequency']);
+    $recurring_invoice_frequency = ($_POST['frequency'] === 'year') ? 'year' : 'month';
     $recurring_invoice_status = sanitizeInput($row['recurring_invoice_status']);
     $recurring_invoice_last_sent = sanitizeInput($row['recurring_invoice_last_sent']);
     $recurring_invoice_next_date = sanitizeInput($row['recurring_invoice_next_date']);
@@ -480,7 +480,7 @@ if (isset($_GET['force_recurring'])) {
         $invoice_prefix = sanitizeInput($row['invoice_prefix']);
         $invoice_number = intval($row['invoice_number']);
         $invoice_scope = sanitizeInput($row['invoice_scope']);
-        $invoice_date = sanitizeInput($row['invoice_date']);
+        $invoice_date = sanitizeInput(validateDate($row['invoice_date']));
         $invoice_due = sanitizeInput($row['invoice_due']);
         $invoice_amount = floatval($row['invoice_amount']);
         $invoice_url_key = sanitizeInput($row['invoice_url_key']);

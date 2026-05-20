@@ -542,8 +542,8 @@ if (isset($_GET['email_invoice'])) {
     $invoice_number = intval($row['invoice_number']);
     $invoice_scope = sanitizeInput($row['invoice_scope']);
     $invoice_status = sanitizeInput($row['invoice_status']);
-    $invoice_date = sanitizeInput($row['invoice_date']);
-    $invoice_due = sanitizeInput($row['invoice_due']);
+    $invoice_date = sanitizeInput(validateDate($row['invoice_date']));
+    $invoice_due = sanitizeInput(validateDate($row['invoice_due']));
     $invoice_amount = floatval($row['invoice_amount']);
     $invoice_url_key = sanitizeInput($row['invoice_url_key']);
     $invoice_currency_code = sanitizeInput($row['invoice_currency_code']);
