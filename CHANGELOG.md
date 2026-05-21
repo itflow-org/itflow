@@ -2,6 +2,9 @@
 
 This file documents all notable changes made to ITFlow.
 
+## [26.05.1] Stable Release
+- Security Fixes.
+
 ## [26.05] Stable Release
 ### Bug Fixes
 - Stripe Payment: Fix adding saved cards on client portal.
