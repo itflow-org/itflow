@@ -170,15 +170,15 @@ if (isset($_GET['share_generate_link'])) {
     if ($item_view_limit == 1) {
         $item_view_limit_wording = " and may only be viewed <strong>once</strong>, before the link is destroyed.";
     }
-    $item_expires = sanitizeInput($_GET['expires']);
+    $item_expires = intval($_GET['expires']);
     $item_expires_friendly = "never"; // default never
-    if ($item_expires == "1 HOUR") {
+    if ($item_expires == 1) {
         $item_expires_friendly = "1 hour";
-    } elseif ($item_expires == "24 HOUR") {
+    } elseif ($item_expires == 24) {
         $item_expires_friendly = "1 day";
-    } elseif ($item_expires == "168 HOUR") {
+    } elseif ($item_expires == 168) {
         $item_expires_friendly = "1 week";
-    } elseif ($item_expires == "730 HOUR") {
+    } elseif ($item_expires == 730) {
         $item_expires_friendly = "1 month";
     }
 
@@ -215,7 +215,7 @@ if (isset($_GET['share_generate_link'])) {
     }
 
     // Insert entry into DB
-    $sql = mysqli_query($mysqli, "INSERT INTO shared_items SET item_active = 1, item_key = '$item_key', item_type = '$item_type', item_related_id = $item_id, item_encrypted_username = '$item_encrypted_username', item_encrypted_credential = '$item_encrypted_credential', item_note = '$item_note', item_recipient = '$item_email', item_views = 0, item_view_limit = $item_view_limit, item_expire_at = NOW() + INTERVAL + $item_expires, item_client_id = $client_id");
+    $sql = mysqli_query($mysqli, "INSERT INTO shared_items SET item_active = 1, item_key = '$item_key', item_type = '$item_type', item_related_id = $item_id, item_encrypted_username = '$item_encrypted_username', item_encrypted_credential = '$item_encrypted_credential', item_note = '$item_note', item_recipient = '$item_email', item_views = 0, item_view_limit = $item_view_limit, item_expire_at = NOW() + INTERVAL + $item_expires HOUR, item_client_id = $client_id");
     $share_id = $mysqli->insert_id;
 
     // Return URL
