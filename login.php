@@ -662,7 +662,7 @@ $show_login_form = (!$show_role_choice && !$show_mfa_form);
                 <?php if ($show_login_form): ?>
                     <!-- STEP 1: Email + Password -->
                     <div class="input-group mb-3">
-                        <input type="text" class="form-control"
+                        <input type="email" class="form-control"
                             placeholder="<?php if ($config_login_key_required) { if (!isset($_GET['key']) || $_GET['key'] !== $config_login_key_secret) { echo "Client "; } } echo "Email"; ?>"
                             name="email"
                             value="<?php echo htmlspecialchars($email ?? '', ENT_QUOTES); ?>"
