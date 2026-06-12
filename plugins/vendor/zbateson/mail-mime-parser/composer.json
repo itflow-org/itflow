@@ -1,0 +1,45 @@
+{
+    "name": "zbateson/mail-mime-parser",
+    "description": "MIME email message parser",
+    "keywords": ["mail", "mime", "parser", "email", "php-imap", "mailparse", "mimeparse", "MimeMailParser"],
+    "homepage": "https://mail-mime-parser.org",
+    "license": "BSD-2-Clause",
+    "authors": [
+        {
+            "name": "Zaahid Bateson"
+        },
+        {
+            "name": "Contributors",
+            "homepage": "https://github.com/zbateson/mail-mime-parser/graphs/contributors"
+        }
+    ],
+    "support": {
+        "issues": "https://github.com/zbateson/mail-mime-parser/issues",
+        "source": "https://github.com/zbateson/mail-mime-parser",
+        "docs": "https://mail-mime-parser.org/#usage-guide"
+    },
+    "require": {
+        "php": ">=8.0",
+        "guzzlehttp/psr7": "^2.5",
+        "zbateson/mb-wrapper": "^2.0",
+        "zbateson/stream-decorators": "^2.1",
+        "php-di/php-di": "^6.0|^7.0",
+        "psr/log": "^1|^2|^3"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^9.6",
+        "friendsofphp/php-cs-fixer": "*",
+        "phpstan/phpstan": "*",
+        "monolog/monolog": "^2|^3"
+    },
+    "suggest": {
+        "ext-mbstring": "For best support/performance",
+        "ext-iconv": "For best support/performance"
+    },
+    "autoload": {
+        "psr-4": {"ZBateson\\MailMimeParser\\": "src/"}
+    },
+    "autoload-dev": {
+        "psr-4": {"ZBateson\\MailMimeParser\\": "tests/MailMimeParser"}
+    }
+}
