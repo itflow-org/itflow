@@ -5,7 +5,6 @@ namespace Illuminate\Support;
 use Closure;
 use Dotenv\Repository\Adapter\PutenvAdapter;
 use Dotenv\Repository\RepositoryBuilder;
-use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Filesystem\Filesystem;
 use PhpOption\Option;
 use RuntimeException;
@@ -126,8 +125,8 @@ class Env
      * @param  bool  $overwrite
      * @return void
      *
-     * @throws RuntimeException
-     * @throws FileNotFoundException
+     * @throws \RuntimeException
+     * @throws \Illuminate\Contracts\Filesystem\FileNotFoundException
      */
     public static function writeVariables(array $variables, string $pathToFile, bool $overwrite = false): void
     {
@@ -155,8 +154,8 @@ class Env
      * @param  bool  $overwrite
      * @return void
      *
-     * @throws RuntimeException
-     * @throws FileNotFoundException
+     * @throws \RuntimeException
+     * @throws \Illuminate\Contracts\Filesystem\FileNotFoundException
      */
     public static function writeVariable(string $key, mixed $value, string $pathToFile, bool $overwrite = false): void
     {
@@ -188,7 +187,7 @@ class Env
         $prefix = explode('_', $key)[0].'_';
         $lastPrefixIndex = -1;
 
-        $shouldQuote = preg_match('/^[a-zA-z0-9]+$/', $value) === 0;
+        $shouldQuote = preg_match('/^[a-zA-Z0-9]+$/', $value) === 0;
 
         $lineToAddVariations = [
             $key.'='.(is_string($value) ? self::prepareQuotedValue($value) : $value),
@@ -285,7 +284,7 @@ class Env
      */
     protected static function prepareQuotedValue(string $input)
     {
-        return strpos($input, '"') !== false
+        return str_contains($input, '"')
             ? "'".self::addSlashesExceptFor($input, ['"'])."'"
             : '"'.self::addSlashesExceptFor($input, ["'"]).'"';
     }

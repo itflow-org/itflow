@@ -275,18 +275,18 @@ trait Localization
 
                     if ($list) {
                         foreach ($$variable as $index => &$name) {
-                            $name .= '|'.$messages[$variable.'_standalone'][$index];
+                            $name .= '|'.$list[$index];
                         }
                     }
                 }
             }
 
             $$translationKey = array_merge(
-                $mode & CarbonInterface::TRANSLATE_MONTHS ? static::getTranslationArray($months, static::MONTHS_PER_YEAR, $timeString) : [],
-                $mode & CarbonInterface::TRANSLATE_MONTHS ? static::getTranslationArray($messages['months_short'] ?? [], static::MONTHS_PER_YEAR, $timeString) : [],
-                $mode & CarbonInterface::TRANSLATE_DAYS ? static::getTranslationArray($weekdays, static::DAYS_PER_WEEK, $timeString) : [],
-                $mode & CarbonInterface::TRANSLATE_DAYS ? static::getTranslationArray($messages['weekdays_short'] ?? [], static::DAYS_PER_WEEK, $timeString) : [],
-                $mode & CarbonInterface::TRANSLATE_DIFF ? static::translateWordsByKeys([
+                $mode & CarbonInterface::TRANSLATE_MONTHS ? self::getTranslationArray($months, static::MONTHS_PER_YEAR, $timeString) : [],
+                $mode & CarbonInterface::TRANSLATE_MONTHS ? self::getTranslationArray($messages['months_short'] ?? [], static::MONTHS_PER_YEAR, $timeString) : [],
+                $mode & CarbonInterface::TRANSLATE_DAYS ? self::getTranslationArray($weekdays, static::DAYS_PER_WEEK, $timeString) : [],
+                $mode & CarbonInterface::TRANSLATE_DAYS ? self::getTranslationArray($messages['weekdays_short'] ?? [], static::DAYS_PER_WEEK, $timeString) : [],
+                $mode & CarbonInterface::TRANSLATE_DIFF ? self::translateWordsByKeys([
                     'diff_now',
                     'diff_today',
                     'diff_yesterday',
@@ -294,7 +294,7 @@ trait Localization
                     'diff_before_yesterday',
                     'diff_after_tomorrow',
                 ], $messages, $key) : [],
-                $mode & CarbonInterface::TRANSLATE_UNITS ? static::translateWordsByKeys([
+                $mode & CarbonInterface::TRANSLATE_UNITS ? self::translateWordsByKeys([
                     'year',
                     'month',
                     'week',
@@ -411,10 +411,24 @@ trait Localization
 
             if ($translator instanceof Translator) {
                 $preferredLocale = $translator->getLocale();
+                $fallbackMessages = [];
+                $preferredMessages = $translator->getMessages($preferredLocale);
+
+                foreach (Translator::get($locale)->getMessages()[$locale] ?? [] as $key => $value) {
+                    if (
+                        preg_match('/^(?:a_)?(.+)_(?:standalone|ago|from_now|before|after|short|min)$/', $key, $match)
+                        && isset($preferredMessages[$match[1]])
+                    ) {
+                        continue;
+                    }
+
+                    $fallbackMessages[$key] = $value;
+                }
+
                 $translator->setMessages($preferredLocale, array_replace_recursive(
                     $translator->getMessages()[$locale] ?? [],
-                    Translator::get($locale)->getMessages()[$locale] ?? [],
-                    $translator->getMessages($preferredLocale),
+                    $fallbackMessages,
+                    $preferredMessages,
                 ));
             }
         }
@@ -573,7 +587,7 @@ trait Localization
      *
      * @return array
      */
-    public static function getAvailableLocales()
+    public static function getAvailableLocales(): array
     {
         $translator = static::getLocaleAwareTranslator();
 
@@ -588,9 +602,10 @@ trait Localization
      *
      * @return Language[]
      */
-    public static function getAvailableLocalesInfo()
+    public static function getAvailableLocalesInfo(): array
     {
         $languages = [];
+
         foreach (static::getAvailableLocales() as $id) {
             $languages[$id] = new Language($id);
         }

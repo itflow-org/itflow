@@ -2,5 +2,10 @@
     "require": {
         "webklex/php-imap": "^6.2",
         "directorytree/imapengine": "^1.24"
+    },
+    "config": {
+        "platform": {
+            "php": "8.2.0"
+        }
     }
 }
