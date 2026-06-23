@@ -1248,8 +1248,5 @@ if ($updates->current_version !== $updates->latest_version) {
  * ###############################################################################################################
  */
 
-// Send Alert to inform Cron was run
-appNotify("Cron", "Cron successfully executed", "/admin/audit_log.php");
-
 // Logging
 logApp("Cron", "info", "Cron executed successfully");
