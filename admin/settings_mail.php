@@ -93,6 +93,22 @@ require_once "includes/inc_all_admin.php";
 
                 </div>
 
+                <!-- OAuth account (licensed user) - shown only for OAuth SMTP providers -->
+                <div id="smtp_oauth_account" style="display:none;">
+                    <div class="form-group">
+                        <label>OAuth Account / Licensed User Email</label>
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text"><i class="fa fa-fw fa-user-shield"></i></span>
+                            </div>
+                            <input type="text" class="form-control" name="config_smtp_username" placeholder="licensed.user@yourcompany.com" value="<?php echo nullable_htmlentities($config_smtp_username); ?>">
+                        </div>
+                        <small class="text-secondary d-block mt-1">
+                            The licensed user that completed the OAuth connect flow — <strong>not</strong> the From / shared-mailbox address. This becomes the <code>user=</code> identity in the XOAUTH2 string and must match the account the refresh token was issued for, or Microsoft/Google returns <code>535 5.7.3 Authentication unsuccessful</code>.
+                        </small>
+                    </div>
+                </div>
+
                 <hr>
 
                 <button type="submit" name="edit_mail_smtp_settings" class="btn btn-primary text-bold"><i class="fas fa-check mr-2"></i>Save</button>
@@ -525,65 +541,60 @@ require_once "includes/inc_all_admin.php";
 
 <script>
 (function(){
-  function setDisabled(container, disabled){
-    if(!container) return;
-    container.querySelectorAll('input, select, textarea').forEach(el => el.disabled = !!disabled);
+  function setDisabled(c, d){ if(c) c.querySelectorAll('input,select,textarea').forEach(el => el.disabled = !!d); }
+  function show(el, v){ if(el) el.style.display = v ? '' : 'none'; }
+  function val(s){ return (s && s.value) || ''; }
+  function isStd(v){ return v === 'standard_imap' || v === 'standard_smtp'; }
+  function isOauth(v){ return v === 'google_oauth' || v === 'microsoft_oauth'; }
+
+  const imapSel = document.getElementById('config_imap_provider');
+  const smtpSel = document.getElementById('config_smtp_provider');
+
+  const imapStd  = document.getElementById('standard_fields');
+  const imapPwd  = document.getElementById('imap_password_group');
+  const smtpStd  = document.getElementById('smtp_standard_fields');
+  const smtpPwd  = document.getElementById('smtp_password_group');
+  const smtpAcct = document.getElementById('smtp_oauth_account');
+
+  const oauthBlock = document.getElementById('smtp_oauth_fields'); // shared creds (in IMAP form)
+  const tenantRow  = document.getElementById('tenant_row');
+
+  const imapHint  = document.getElementById('imap_provider_hint');
+  const smtpHint  = document.getElementById('smtp_provider_hint');
+  const oauthHint = document.getElementById('oauth_hint');
+
+  function render(){
+    const iv = val(imapSel), sv = val(smtpSel);
+
+    show(imapStd, isStd(iv)); setDisabled(imapStd, !isStd(iv));
+    show(imapPwd, isStd(iv)); setDisabled(imapPwd, !isStd(iv));
+
+    show(smtpStd, isStd(sv)); setDisabled(smtpStd, !isStd(sv));
+    show(smtpPwd, isStd(sv)); setDisabled(smtpPwd, !isStd(sv));
+
+    show(smtpAcct, isOauth(sv)); setDisabled(smtpAcct, !isOauth(sv));
+
+    const anyOauth = isOauth(iv) || isOauth(sv);
+    show(oauthBlock, anyOauth); setDisabled(oauthBlock, !anyOauth);
+
+    const anyMs = iv === 'microsoft_oauth' || sv === 'microsoft_oauth';
+    show(tenantRow, anyMs); setDisabled(tenantRow, !anyMs);
+
+    if (imapHint) imapHint.textContent = isOauth(iv)
+      ? 'OAuth: set the shared credentials below; IMAP username is the mailbox you monitor.'
+      : isStd(iv) ? 'Standard: host, port, encryption, username & password.' : 'Disabled.';
+    if (smtpHint) smtpHint.textContent = isOauth(sv)
+      ? 'OAuth: set the shared credentials below and the OAuth account email (licensed user that authorized the connection).'
+      : isStd(sv) ? 'Standard: host, port, encryption, username & password.' : 'Disabled.';
+    if (oauthHint) oauthHint.textContent = anyMs
+      ? 'Microsoft 365: Client ID/Secret/Tenant from Entra ID; refresh token via the Connect button.'
+      : anyOauth ? 'Google Workspace: Client ID/Secret from Google Cloud; refresh token via consent.'
+      : 'Configure OAuth credentials for the selected provider.';
   }
 
-  function wireProvider(selectId, standardWrapId, passwordGroupId, oauthWrapId, tenantRowId, hintId, oauthHintId){
-    const sel   = document.getElementById(selectId);
-    const std   = document.getElementById(standardWrapId);
-    const pwd   = document.getElementById(passwordGroupId);
-    const oauth = document.getElementById(oauthWrapId);
-    const ten   = document.getElementById(tenantRowId);
-    const hint  = document.getElementById(hintId);
-    const ohint = document.getElementById(oauthHintId);
-
-    function toggle(){
-      const v = (sel && sel.value) || '';
-      const isNone  = (v === 'none' || v === '');
-      const isStd   = v === 'standard_smtp' || v === 'standard_imap';
-      const isG     = v === 'google_oauth';
-      const isM     = v === 'microsoft_oauth';
-      const isOAuth = isG || isM;
-
-      if (std)   std.style.display   = isStd ? '' : 'none';
-      if (pwd)   pwd.style.display   = isStd ? '' : 'none';
-      if (oauth) oauth.style.display = isOAuth ? '' : 'none';
-      if (ten)   ten.style.display   = isM ? '' : 'none';
-
-      setDisabled(std,   !isStd);
-      setDisabled(pwd,   !isStd);
-      setDisabled(oauth, !isOAuth);
-
-      if (hint) {
-        hint.textContent = isNone
-          ? 'Disabled.'
-          : isStd
-            ? 'Standard: provide host, port, encryption, username & password.'
-            : isG
-              ? 'Google OAuth: set Client ID/Secret; paste a refresh token; username should be the mailbox email.'
-              : 'Microsoft 365 OAuth: set Client ID/Secret/Tenant; paste a refresh token; username should be the mailbox email.';
-      }
-      if (ohint) {
-        ohint.textContent = isG
-          ? 'Google Workspace OAuth: Client ID/Secret from Google Cloud; Refresh token via consent.'
-          : isM
-            ? 'Microsoft 365 OAuth: Client ID/Secret/Tenant from Entra ID; Refresh token via consent.'
-            : 'Configure OAuth credentials for the selected provider.';
-      }
-    }
-
-    if (sel) { sel.addEventListener('change', toggle); toggle(); }
-  }
-
-  // IMAP (you already have these IDs in your page)
-  wireProvider('config_imap_provider', 'standard_fields', 'imap_password_group',
-               'oauth_fields', 'tenant_row', 'imap_provider_hint', 'oauth_hint');
-
-  // SMTP (the IDs we just added)
-  wireProvider('config_smtp_provider', 'smtp_standard_fields', 'smtp_password_group',
-               'smtp_oauth_fields', 'smtp_tenant_row', 'smtp_provider_hint', 'smtp_oauth_hint');
+  if (imapSel) imapSel.addEventListener('change', render);
+  if (smtpSel) smtpSel.addEventListener('change', render);
+  render();
 })();
 </script>
 
