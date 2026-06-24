@@ -77,6 +77,7 @@ $company_logo          = $row['company_logo'];
 $config_start_page     = nullable_htmlentities($row['config_start_page']);
 $config_login_message  = nullable_htmlentities($row['config_login_message']);
 
+$config_smtp_provider       = $row['config_smtp_provider'];
 $config_smtp_host       = $row['config_smtp_host'];
 $config_smtp_port       = intval($row['config_smtp_port']);
 $config_smtp_encryption = $row['config_smtp_encryption'];
@@ -401,7 +402,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['login']) || isset($_
                         "));
                         $ua_prev_logins = sanitizeInput($sql_ua_prev_logins['ua_previous_logins']);
 
-                        if (!empty($config_smtp_host) && $ip_previous_logins == 0 && $ua_prev_logins == 0) {
+                        if (!empty($config_smtp_provider) && $ip_previous_logins == 0 && $ua_prev_logins == 0) {
                             $subject = "$config_app_name new login for $user_name";
                             $body    = "Hi $user_name, <br><br>A recent successful login to your $config_app_name account was considered a little unusual. If this was you, you can safely ignore this email!<br><br>IP Address: $session_ip<br> User Agent: $session_user_agent <br><br>If you did not perform this login, your credentials may be compromised. <br><br>Thanks, <br>ITFlow";
 
@@ -516,7 +517,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['login']) || isset($_
                             $session_user_id = $user_id;
                             logAction("Login", "MFA Failed", "$user_email failed MFA", 0, $user_id);
 
-                            if (!empty($config_smtp_host)) {
+                            if (!empty($config_smtp_provider)) {
                                 $subject = "Important: $config_app_name failed 2FA login attempt for $user_name";
                                 $body    = "Hi $user_name, <br><br>A recent login to your $config_app_name account was unsuccessful due to an incorrect 2FA code. If you did not attempt this login, your credentials may be compromised. <br><br>Thanks, <br>ITFlow";
                                 $data    = [[
@@ -723,7 +724,7 @@ $show_login_form = (!$show_role_choice && !$show_mfa_form);
 
             <?php if($config_client_portal_enable == 1){ ?>
                 <hr>
-                <?php if (!empty($config_smtp_host)) { ?>
+                <?php if (!empty($config_smtp_provider)) { ?>
                     <a href="client/login_reset.php">Forgot password?</a>
                 <?php } ?>
                 <?php if (!empty($azure_client_id)) { ?>

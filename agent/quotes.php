@@ -222,7 +222,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                             data-modal-url="modals/quote/quote_copy.php?id=<?= $quote_id ?>">
                                             <i class="fas fa-fw fa-copy mr-2"></i>Copy
                                         </a>
-                                        <?php if (!empty($config_smtp_host)) { ?>
+                                        <?php if (!empty($config_smtp_provider)) { ?>
                                             <div class="dropdown-divider"></div>
                                             <a class="dropdown-item" href="post.php?email_quote=<?= $quote_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                                                 <i class="fas fa-fw fa-paper-plane mr-2"></i>Email

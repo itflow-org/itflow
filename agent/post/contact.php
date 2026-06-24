@@ -172,7 +172,7 @@ if (isset($_POST['edit_contact'])) {
     }
 
     // Send contact a welcome e-mail, if specified
-    if ($send_email && $auth_method && $config_smtp_host && $contact_user_id) {
+    if ($send_email && $auth_method && $config_smtp_provider && $contact_user_id) {
 
         // Sanitize Config vars from get_settings.php
         $config_ticket_from_email = sanitizeInput($config_ticket_from_email);
