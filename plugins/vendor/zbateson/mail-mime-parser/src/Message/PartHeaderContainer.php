@@ -77,6 +77,7 @@ class PartHeaderContainer extends ErrorBag implements IteratorAggregate
             $this->headerObjects = $cloneSource->headerObjects;
             $this->headerMap = $cloneSource->headerMap;
             $this->nextIndex = $cloneSource->nextIndex;
+            $this->copyErrorsFrom($cloneSource);
         }
     }
 

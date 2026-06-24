@@ -345,7 +345,7 @@ trait Localization
      * @param string|null $locale
      * @param string      ...$fallbackLocales
      *
-     * @return $this|string
+     * @return ($locale is null ? string : static)
      */
     public function locale(?string $locale = null, string ...$fallbackLocales): static|string
     {
@@ -407,7 +407,16 @@ trait Localization
         $translator = static::getTranslator();
 
         if (method_exists($translator, 'setFallbackLocales')) {
-            $translator->setFallbackLocales([$locale]);
+            $fallbackLocales = [$locale];
+
+            if (
+                method_exists($translator, 'getFallbackLocales')
+                && $fallbackLocales === $translator->getFallbackLocales()
+            ) {
+                return;
+            }
+
+            $translator->setFallbackLocales($fallbackLocales);
 
             if ($translator instanceof Translator) {
                 $preferredLocale = $translator->getLocale();

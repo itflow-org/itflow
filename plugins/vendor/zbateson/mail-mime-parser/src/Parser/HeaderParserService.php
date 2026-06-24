@@ -17,6 +17,16 @@ use ZBateson\MailMimeParser\Message\PartHeaderContainer;
  */
 class HeaderParserService
 {
+    private int $maxHeaderCount;
+
+    private int $maxHeaderSizeBytes;
+
+    public function __construct(int $maxHeaderCount = 1000, int $maxHeaderSizeBytes = 1048576)
+    {
+        $this->maxHeaderCount = $maxHeaderCount;
+        $this->maxHeaderSizeBytes = $maxHeaderSizeBytes;
+    }
+
     /**
      * Ensures the header isn't empty and contains a colon separator character,
      * then splits it and adds it to the passed PartHeaderContainer.
@@ -51,16 +61,28 @@ class HeaderParserService
     public function parse($handle, PartHeaderContainer $container) : static
     {
         $header = '';
+        $count = 0;
+        $start = \ftell($handle);
         do {
             $offset = \ftell($handle);
             $line = MessageParserService::readLine($handle);
             if ($line === false || $line === '' || $line[0] !== "\t" && $line[0] !== ' ') {
+                if ($header !== '') {
+                    ++$count;
+                }
                 $this->addRawHeaderToPart($offset, $header, $container);
                 $header = '';
             } else {
                 $line = "\r\n" . $line;
             }
             $header .= \rtrim($line, "\r\n");
+            if ($count >= $this->maxHeaderCount || \ftell($handle) - $start >= $this->maxHeaderSizeBytes) {
+                $container->addError(
+                    'Header count or total size limit reached while parsing headers',
+                    LogLevel::ERROR
+                );
+                break;
+            }
         } while ($header !== '');
         return $this;
     }

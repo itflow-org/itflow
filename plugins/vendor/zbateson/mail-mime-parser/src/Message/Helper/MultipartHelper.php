@@ -48,7 +48,7 @@ class MultipartHelper extends AbstractHelper
     public function getUniqueBoundary(string $mimeType) : string
     {
         $type = \ltrim(\strtoupper(\preg_replace('/^(multipart\/(.{3}).*|.*)$/i', '$2-', $mimeType)), '-');
-        return \uniqid('----=MMP-' . $type . '-', true);
+        return '----=MMP-' . $type . '-' . \bin2hex(\random_bytes(16));
     }
 
     /**
@@ -311,7 +311,8 @@ class MultipartHelper extends AbstractHelper
             $filename = 'file' . \uniqid();
         }
 
-        $safe = \iconv('UTF-8', 'US-ASCII//translit//ignore', $filename);
+        $converted = \iconv('UTF-8', 'US-ASCII//translit//ignore', $filename);
+        $safe = \preg_replace('/[\x00-\x1F\x7F]+/', ' ', ($converted !== false) ? $converted : '') ?? '';
         if ($message->isMime()) {
             $part = $this->mimePartFactory->newInstance();
             $part->setRawHeader(HeaderConsts::CONTENT_TRANSFER_ENCODING, $encoding);

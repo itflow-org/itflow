@@ -79,6 +79,14 @@ abstract class ErrorBag implements IErrorBag
         return $this;
     }
 
+    /**
+     * Copies the source bag's own errors into this one without re-logging them.
+     */
+    protected function copyErrorsFrom(ErrorBag $source) : void
+    {
+        $this->errors = \array_merge($this->errors, $source->getErrors(false, LogLevel::DEBUG));
+    }
+
     public function getErrors(bool $validate = false, string $minPsrLevel = LogLevel::ERROR) : array
     {
         if ($validate && !$this->validated) {

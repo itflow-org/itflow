@@ -14,6 +14,8 @@ use ZBateson\MailMimeParser\Header\Consumer\Received\GenericReceivedConsumerServ
 use ZBateson\MailMimeParser\Header\Consumer\ReceivedConsumerService;
 use ZBateson\MailMimeParser\Message\Factory\PartStreamContainerFactory;
 use ZBateson\MailMimeParser\Message\PartStreamContainer;
+use ZBateson\MailMimeParser\Parser\HeaderParserService;
+use ZBateson\MailMimeParser\Parser\MimeParserService;
 use ZBateson\MailMimeParser\Parser\Part\ParserPartStreamContainerFactory;
 use ZBateson\MailMimeParser\Stream\StreamFactory;
 
@@ -23,6 +25,13 @@ return [
     // only affects reading part content, not for instance decoding mime encoded
     // header parts
     'throwExceptionReadingPartContentFromUnsupportedCharsets' => false,
+
+    // Maximum multipart nesting depth before parsing stops with a recorded error.
+    'maxMimePartDepth' => 256,
+
+    // Maximum header count and total header bytes before parsing stops.
+    'maxHeaderCount' => 1000,
+    'maxHeaderSizeBytes' => 1048576,
 
     'fromDomainConsumerService' => (new AutowireDefinitionHelper(DomainConsumerService::class))
         ->constructorParameter('partName', 'from'),
@@ -60,5 +69,14 @@ return [
     StreamFactory::class => (new AutowireDefinitionHelper())
         ->constructor(
             throwExceptionReadingPartContentFromUnsupportedCharsets: new Reference('throwExceptionReadingPartContentFromUnsupportedCharsets')
+        ),
+    HeaderParserService::class => (new AutowireDefinitionHelper())
+        ->constructor(
+            maxHeaderCount: new Reference('maxHeaderCount'),
+            maxHeaderSizeBytes: new Reference('maxHeaderSizeBytes')
+        ),
+    MimeParserService::class => (new AutowireDefinitionHelper())
+        ->constructor(
+            maxMimePartDepth: new Reference('maxMimePartDepth')
         ),
 ];

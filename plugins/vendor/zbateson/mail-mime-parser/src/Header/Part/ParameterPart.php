@@ -64,10 +64,10 @@ class ParameterPart extends NameValuePart
 
     protected function decodePartValue(string $value, ?string $charset = null) : string
     {
-        if ($charset !== null) {
-            return $this->convertEncoding(\rawurldecode($value), $charset, true);
-        }
-        return $this->convertEncoding(\rawurldecode($value));
+        $decoded = ($charset !== null)
+            ? $this->convertEncoding(\rawurldecode($value), $charset, true)
+            : $this->convertEncoding(\rawurldecode($value));
+        return \preg_replace('/[\r\n]+/', '', $decoded) ?? $decoded;
     }
 
     protected function getValueFromParts(array $parts) : string

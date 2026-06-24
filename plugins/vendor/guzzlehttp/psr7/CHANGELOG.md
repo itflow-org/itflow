@@ -5,6 +5,41 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 2.12.3 - 2026-06-23
+
+### Security
+
+- Validate the URI host so `getHost()` matches the URI authority (GHSA-c2w2-prh8-qm98)
+
+## 2.12.2 - 2026-06-23
+
+### Fixed
+
+- Report URI parsing, filtering, and normalization PCRE failures explicitly
+- Report HTTP message parser PCRE failures explicitly
+- Fail closed when PCRE validation fails for request targets and hosts
+
+## 2.12.1 - 2026-06-18
+
+### Security
+
+- Reject CR/LF in HTTP method, protocol version, and reason phrase (GHSA-vm85-hxw5-5432)
+
+## 2.12.0 - 2026-06-16
+
+### Deprecated
+
+- Deprecated non-finite float values in `Query::build()` that guzzlehttp/psr7 3.0 rejects
+- Deprecated non-finite float multipart contents that guzzlehttp/psr7 3.0 rejects
+- Deprecated non-string scalar bodies in `Utils::streamFor()`; cast them to a string for 3.0
+- Deprecated non-string `Uri::withQueryValues()` values; cast them to a string for 3.0
+
+## 2.11.1 - 2026-06-12
+
+### Fixed
+
+- Fixed non-finite float values emitting coercion warnings on PHP 8.5
+
 ## 2.11.0 - 2026-06-02
 
 ### Changed

@@ -271,6 +271,14 @@ class ImapQueryBuilder
     }
 
     /**
+     * Add a where "HEADER Message-ID" clause to the query.
+     */
+    public function messageId(string $messageId): static
+    {
+        return $this->header('Message-ID', trim(trim($messageId), '<>'));
+    }
+
+    /**
      * Add a where "UID" clause to the query.
      */
     public function uid(int|string|array $from, int|float|null $to = null): static
