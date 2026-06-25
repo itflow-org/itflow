@@ -444,7 +444,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         }
 
                         $client_tag_id_array[] = $client_tag_id;
-                        $client_tag_name_display_array[] = "<a href='clients.php?tags[]=$client_tag_id'><span class='mt-1 badge badge-pill text-light p-2 mr-1' style='background-color: $client_tag_color;'><i class='fas fa-$client_tag_icon fa-fw mr-1'></i>$client_tag_name</span></a>";
+                        $client_tag_name_display_array[] = "<a href='clients.php?tags[]=$client_tag_id'><span class='mt-1 badge badge-pill text-light p-1 mr-1' style='background-color: $client_tag_color;'><i class='fas fa-$client_tag_icon fa-fw mr-1'></i>$client_tag_name</span></a>";
                     }
                     $client_tags_display = implode('', $client_tag_name_display_array);
 
@@ -462,7 +462,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     $balance = $invoice_amounts - $amount_paid;
                     //set Text color on balance
                     if ($balance > 0) {
-                        $balance_text_color = "text-danger font-weight-bold";
+                        $balance_text_color = "text-danger";
                     } else {
                         $balance_text_color = "";
                     }
@@ -570,7 +570,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                     <div><?= $software_count_display ?></div>
                                     <div><?= $ticket_count_display ?></div>
                                 ">
-                                <i class="fas fa-fw fa-2x fa-info-circle"></i>
+                                <span class="badge badge-pill badge-secondary p-2"><i class="fas fa-chart-area"></i><span>
                             </a>
                         </td>
                         <!-- Show Billing if perms & if accounting module is enabled -->
@@ -582,21 +582,21 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 </div>
                                 <div class="d-flex justify-content-between">
                                     <span class="text-secondary">Paid</span>
-                                    <span><?php echo numfmt_format_currency($currency_format, $amount_paid, $session_company_currency); ?></span>
+                                    <?php echo numfmt_format_currency($currency_format, $amount_paid, $session_company_currency); ?>
                                 </div>
                                 <?php if ($credit_balance > 0) { ?>
                                 <div class="d-flex justify-content-between">
                                     <span class="text-secondary">Credit</span>
-                                    <span class="text-success"><?php echo numfmt_format_currency($currency_format, $credit_balance, $session_company_currency); ?></span>
+                                    <span class="text-success"><?php echo numfmt_format_currency($currency_format, $credit_balance, $session_company_currency); ?>
                                 </div>
                                 <?php } ?>
                                 <div class="d-flex justify-content-between">
                                     <span class="text-secondary">Monthly</span>
-                                    <span><?php echo numfmt_format_currency($currency_format, $recurring_monthly, $session_company_currency); ?></span>
+                                    <?php echo numfmt_format_currency($currency_format, $recurring_monthly, $session_company_currency); ?>
                                 </div>
                                 <div class="d-flex justify-content-between">
                                     <span class="text-secondary">Hourly Rate</span>
-                                    <span><?php echo numfmt_format_currency($currency_format, $client_rate, $session_company_currency); ?></span>
+                                    <?php echo numfmt_format_currency($currency_format, $client_rate, $session_company_currency); ?>
                                 </div>
                             </td>
                         <?php } ?>

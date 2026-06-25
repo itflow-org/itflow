@@ -191,7 +191,7 @@ ob_start();
                         </div>
                         <input
                             type="text"
-                            class="form-control"
+                            class="form-control text-monospace"
                             name="ip"
                             placeholder="e.g. 192.168.1.10"
                             maxlength="200"
@@ -222,7 +222,7 @@ ob_start();
                         </div>
                         <input
                             type="text"
-                            class="form-control"
+                            class="form-control text-monospace"
                             name="mac"
                             placeholder="e.g. 00:1A:2B:3C:4D:5E"
                             maxlength="200"
@@ -242,7 +242,7 @@ ob_start();
                         </div>
                         <input
                             type="text"
-                            class="form-control"
+                            class="form-control text-monospace"
                             name="ipv6"
                             placeholder="e.g. 2001:db8::1"
                             maxlength="200"
@@ -260,7 +260,7 @@ ob_start();
                         </div>
                         <input
                             type="text"
-                            class="form-control"
+                            class="form-control text-monospace"
                             name="nat_ip"
                             placeholder="e.g. 203.0.113.10 or 10.0.0.5"
                             maxlength="200"

@@ -164,7 +164,7 @@ ob_start();
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fa fa-fw fa-barcode"></i></span>
                             </div>
-                            <input type="text" class="form-control" name="serial" placeholder="Serial number" maxlength="200" value="<?= $asset_serial ?>">
+                            <input type="text" class="form-control text-monospace" name="serial" placeholder="Serial number" maxlength="200" value="<?= $asset_serial ?>">
                         </div>
                     </div>
                 <?php } ?>
@@ -329,7 +329,7 @@ ob_start();
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-ethernet"></i></span>
                         </div>
-                        <input type="text" class="form-control" name="ip" value="<?php echo $asset_ip; ?>" placeholder="192.168.10.250" data-inputmask="'alias': 'ip'" maxlength="200" data-mask>
+                        <input type="text" class="form-control text-monospace" name="ip" value="<?php echo $asset_ip; ?>" placeholder="192.168.10.250" data-inputmask="'alias': 'ip'" maxlength="200" data-mask>
                         <div class="input-group-append">
                             <div class="input-group-text">
                                 <input type="checkbox" name="dhcp" value="1" <?php if($asset_ip == 'DHCP'){ echo "checked"; } ?>>
@@ -344,7 +344,7 @@ ob_start();
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-ethernet"></i></span>
                         </div>
-                        <input type="text" class="form-control" name="mac" value="<?= $asset_mac ?>" placeholder="00:11:22:AA:BB:CC" data-inputmask="'alias': 'mac'" maxlength="200" data-mask>
+                        <input type="text" class="form-control text-monospace" name="mac" value="<?= $asset_mac ?>" placeholder="00:11:22:AA:BB:CC" data-inputmask="'alias': 'mac'" maxlength="200" data-mask>
                     </div>
                 </div>
 
@@ -354,7 +354,7 @@ ob_start();
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-ethernet"></i></span>
                         </div>
-                        <input type="text" class="form-control" name="ipv6" value="<?= $asset_ipv6 ?>" placeholder="2001:0db8:1000::3" maxlength="200">
+                        <input type="text" class="form-control text-monospace" name="ipv6" value="<?= $asset_ipv6 ?>" placeholder="2001:0db8:1000::3" maxlength="200">
                     </div>
                 </div>
 
@@ -364,7 +364,7 @@ ob_start();
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-exchange-alt"></i></span>
                         </div>
-                        <input type="text" class="form-control" name="nat_ip" value="<?= $asset_nat_ip ?>" placeholder="10.52.4.55" data-inputmask="'alias': 'ip'" maxlength="200" data-mask>
+                        <input type="text" class="form-control text-monospace" name="nat_ip" value="<?= $asset_nat_ip ?>" placeholder="10.52.4.55" data-inputmask="'alias': 'ip'" maxlength="200" data-mask>
                     </div>
                 </div>
 
@@ -519,7 +519,7 @@ ob_start();
                     </div>
                 </div>
 
-                <p class="text-muted text-right">Asset ID: <?= $asset_id ?></p>
+                <p class="text-muted text-right">Asset ID: <span class="text-monospace"><?= $asset_id ?></span></p>
 
             </div>
 
@@ -534,7 +534,7 @@ ob_start();
                             $asset_history_status = nullable_htmlentities($row['asset_history_status']);
                             $asset_history_description = nullable_htmlentities($row['asset_history_description']);
                             $asset_history_created_at = nullable_htmlentities($row['asset_history_created_at']);
-                            echo "<li>$asset_history_created_at - $asset_history_status <br/>$asset_history_description</li><br/>";
+                            echo "<li><span class='text-monospace'>$asset_history_created_at</span> <span class='badge badge-pill badge-secondary mt-1'>$asset_history_status</span><br/>$asset_history_description</li><br/>";
                         }
                         ?>
                     </ul>

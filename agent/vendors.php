@@ -160,7 +160,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         }
                         $vendor_account_number = nullable_htmlentities($row['vendor_account_number']);
                         if ($vendor_account_number) {
-                            $vendor_account_number_display = "<div class='text-secondary'>Account #: $vendor_account_number</div>";
+                            $vendor_account_number_display = "<div class='text-secondary'>Account #: <span class='text-monospace'>$vendor_account_number</span></div>";
                         } else {
                             $vendor_account_number_display = '';
                         }
@@ -207,7 +207,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                         <i class="fas fa-fw fa-2x fa-building text-dark mr-2"></i>
                                         <div class="media-body">
                                             <div><?php echo $vendor_name; ?></div>
-                                            <div><?php echo $vendor_account_number_display; ?></div>
+                                            <div><small><?php echo $vendor_account_number_display; ?><small></div>
                                         </div>
                                     </div>
                                 </a>

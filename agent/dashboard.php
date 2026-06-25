@@ -447,7 +447,7 @@ if ($user_config_dashboard_financial_enable == 1) {
                                         $balance = '0.00';
                                     }
                                     ?>
-                                    <td class="text-right"><?php echo numfmt_format_currency($currency_format, $balance, "$session_company_currency"); ?></td>
+                                    <td class="text-right text-monospace"><?php echo numfmt_format_currency($currency_format, $balance, "$session_company_currency"); ?></td>
                                 </tr>
                             <?php } ?>
                         </tbody>
@@ -488,7 +488,7 @@ if ($user_config_dashboard_financial_enable == 1) {
                                     <td><?php echo $payment_date; ?></td>
                                     <td><?php echo $client_name; ?></td>
                                     <td><?php echo "$invoice_prefix$invoice_number"; ?></td>
-                                    <td class="text-right"><?php echo numfmt_format_currency($currency_format, $payment_amount, "$session_company_currency"); ?></td>
+                                    <td class="text-right text-monospace"><?php echo numfmt_format_currency($currency_format, $payment_amount, "$session_company_currency"); ?></td>
                                 </tr>
                             <?php } ?>
                         </tbody>
@@ -528,7 +528,7 @@ if ($user_config_dashboard_financial_enable == 1) {
                                     <td><?php echo $expense_date; ?></td>
                                     <td><?php echo $vendor_name; ?></td>
                                     <td><?php echo $category_name; ?></td>
-                                    <td class="text-right"><?php echo numfmt_format_currency($currency_format, $expense_amount, "$session_company_currency"); ?></td>
+                                    <td class="text-right text-monospace"><?php echo numfmt_format_currency($currency_format, $expense_amount, "$session_company_currency"); ?></td>
                                 </tr>
                             <?php } ?>
                         </tbody>

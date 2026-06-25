@@ -198,7 +198,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             <a href="quotes.php?client_id=<?php echo $client_id; ?>"><?php echo $client_name; ?></a>
                         </td>
                         <?php } ?>
-                        <td class="text-right text-bold"><?php echo numfmt_format_currency($currency_format, $quote_amount, $quote_currency_code); ?></td>
+                        <td class="text-right text-monospace"><?php echo numfmt_format_currency($currency_format, $quote_amount, $quote_currency_code); ?></td>
                         <td><?php echo $quote_date; ?></td>
                         <td><?php echo $quote_expire; ?></td>
                         <td><?php echo $category_name; ?></td>

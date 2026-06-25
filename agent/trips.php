@@ -174,7 +174,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             <td><?php echo $trip_purpose; ?></td>
                             <td><?php echo $trip_source; ?></td>
                             <td><?php echo $trip_destination; ?></td>
-                            <td><?php echo "$trip_miles $round_trip_display"; ?></td>
+                            <td><?php echo "<span class='text-right text-monospace'>$trip_miles</span> $round_trip_display"; ?></td>
                             <?php if (!$client_url) { ?>
                             <td><?php echo $client_name_display; ?></td>
                             <?php } ?>

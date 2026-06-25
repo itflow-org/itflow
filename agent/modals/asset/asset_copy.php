@@ -136,7 +136,7 @@ ob_start();
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fa fa-fw fa-barcode"></i></span>
                             </div>
-                            <input type="text" class="form-control" name="serial" placeholder="Serial number">
+                            <input type="text" class="form-control text-monospace" name="serial" placeholder="Serial number">
                         </div>
                     </div>
                 <?php } ?>
@@ -281,7 +281,7 @@ ob_start();
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-ethernet"></i></span>
                         </div>
-                        <input type="text" class="form-control" name="ip" placeholder="192.168.10.250" data-inputmask="'alias': 'ip'" data-mask>
+                        <input type="text" class="form-control text-monospace" name="ip" placeholder="192.168.10.250" data-inputmask="'alias': 'ip'" data-mask>
                         <div class="input-group-append">
                             <div class="input-group-text">
                                 <input type="checkbox" name="dhcp" value="1" <?php if($asset_ip == 'DHCP'){ echo "checked"; } ?>>
@@ -296,7 +296,7 @@ ob_start();
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-ethernet"></i></span>
                         </div>
-                        <input type="text" class="form-control" name="mac" placeholder="00:11:22:AA:BB:CC" data-inputmask="'alias': 'mac'" data-mask>
+                        <input type="text" class="form-control text-monospace" name="mac" placeholder="00:11:22:AA:BB:CC" data-inputmask="'alias': 'mac'" data-mask>
                     </div>
                 </div>
 
@@ -306,7 +306,7 @@ ob_start();
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-ethernet"></i></span>
                         </div>
-                        <input type="text" class="form-control" name="ipv6" value="<?php echo $asset_ipv6; ?>" placeholder="2001:0db8:1000::3">
+                        <input type="text" class="form-control text-monospace" name="ipv6" value="<?php echo $asset_ipv6; ?>" placeholder="2001:0db8:1000::3">
                     </div>
                 </div>
 
@@ -316,7 +316,7 @@ ob_start();
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-exchange-alt"></i></span>
                         </div>
-                        <input type="text" class="form-control" name="nat_ip" placeholder="10.52.4.55" data-inputmask="'alias': 'ip'" data-mask>
+                        <input type="text" class="form-control text-monospace" name="nat_ip" placeholder="10.52.4.55" data-inputmask="'alias': 'ip'" data-mask>
                     </div>
                 </div>
 
