@@ -888,6 +888,8 @@ if (isset($_GET['ai_create_document_template'])) {
 
 if (isset($_GET['ai_ticket_summary'])) {
 
+    enforceUserPermission('module_support');
+
     header('Content-Type: text/html; charset=UTF-8');
 
     $sql = mysqli_query($mysqli, "SELECT * FROM ai_models LEFT JOIN ai_providers ON ai_model_ai_provider_id = ai_provider_id WHERE ai_model_use_case = 'General' LIMIT 1");
@@ -902,7 +904,7 @@ if (isset($_GET['ai_ticket_summary'])) {
 
     // Query the database for ticket details
     $sql = mysqli_query($mysqli, "
-        SELECT ticket_subject, ticket_details, ticket_source, ticket_priority, ticket_status_name, category_name
+        SELECT ticket_subject, ticket_details, ticket_source, ticket_priority, ticket_status_name, category_name, ticket_client_id
         FROM tickets
         LEFT JOIN ticket_statuses ON ticket_status = ticket_status_id
         LEFT JOIN categories ON ticket_category = category_id
@@ -916,6 +918,9 @@ if (isset($_GET['ai_ticket_summary'])) {
     $ticket_category = $row['category_name'];
     $ticket_source = $row['ticket_source'];
     $ticket_priority = $row['ticket_priority'];
+    $client_id = intval($row['ticket_client_id'];
+
+    enforceClientAccess();
 
     // Get ticket replies
     $sql_replies = mysqli_query($mysqli, "
