@@ -2,6 +2,8 @@
 
 require_once '../../../includes/modal_header.php';
 
+enforceUserPermission('module_support', 2);
+
 $document_id = intval($_GET['id']);
 
 $sql = mysqli_query($mysqli, "SELECT * FROM documents WHERE document_id = $document_id LIMIT 1");
@@ -14,8 +16,10 @@ $document_folder_id = intval($row['document_folder_id']);
 $document_client_visible = intval($row['document_client_visible']);
 $client_id = intval($row['document_client_id']);
 
-// Generate the HTML form content using output buffering.
+enforceClientAccess();
+
 ob_start();
+
 ?>
 
 <div class="modal-header bg-dark">

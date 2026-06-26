@@ -2,6 +2,8 @@
 
 require_once '../../../includes/modal_header.php';
 
+enforceUserPermission('module_support');
+
 $asset_id = intval($_GET['id']);
 
 $sql = mysqli_query($mysqli, "SELECT * FROM assets
@@ -218,9 +220,12 @@ if (isset($_GET['client_id'])) {
     $client_url = '';
 }
 
-// Generate the HTML form content using output buffering.
+enforceClientAccess();
+
 ob_start();
+
 ?>
+
 <div class="modal-header bg-dark">
     <h5 class="modal-title"><i class="fa fa-fw fa-<?= $device_icon ?> mr-2"></i><strong><?= $asset_name ?></strong>
         <?php if ($asset_favorite) { ?><i class="fas fa-fw text-warning fa-star" title="Favorite"></i><?php } ?>

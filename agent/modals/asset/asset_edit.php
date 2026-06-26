@@ -2,6 +2,8 @@
 
 require_once '../../../includes/modal_header.php';
 
+enforceUserPermission('module_support', 2);
+
 $asset_id = intval($_GET['id']);
 
 $sql = mysqli_query($mysqli, "SELECT * FROM assets
@@ -59,7 +61,10 @@ while ($row = mysqli_fetch_assoc($sql_asset_tags)) {
     $asset_tag_id_array[] = $asset_tag_tag_id;
 }
 
+enforceClientAccess();
+
 ob_start();
+
 ?>
 
 <div class="modal-header bg-dark">

@@ -2,6 +2,8 @@
 
 require_once '../../../includes/modal_header.php';
 
+enforceUserPermission('module_client', 2);
+
 $contact_id = intval($_GET['id']);
 
 $sql = mysqli_query($mysqli, "SELECT * FROM contacts
@@ -43,9 +45,12 @@ while ($row = mysqli_fetch_assoc($sql_contact_tags)) {
     $contact_tag_id_array[] = $contact_tag_id;
 }
 
-// Generate the HTML form content using output buffering.
+enforceClientAccess();
+
 ob_start();
+
 ?>
+
 <div class="modal-header bg-dark">
     <h5 class="modal-title"><i class='fas fa-user-edit mr-2'></i>Editing Contact: <strong><?php echo $contact_name; ?></strong></h5>
     <button type="button" class="close text-white" data-dismiss="modal">

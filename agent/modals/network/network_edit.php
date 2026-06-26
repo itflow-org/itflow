@@ -2,6 +2,8 @@
 
 require_once '../../../includes/modal_header.php';
 
+enforceUserPermission('module_support', 2);
+
 $network_id = intval($_GET['id']);
 
 $sql = mysqli_query($mysqli, "SELECT * FROM networks WHERE network_id = $network_id LIMIT 1");
@@ -19,7 +21,10 @@ $network_notes = nullable_htmlentities($row['network_notes']);
 $network_location_id = intval($row['network_location_id']);
 $client_id = intval($row['network_client_id']);
 
+enforceClientAccess();
+
 ob_start();
+
 ?>
 
 <div class="modal-header bg-dark">

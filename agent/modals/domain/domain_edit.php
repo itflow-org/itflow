@@ -2,6 +2,8 @@
 
 require_once '../../../includes/modal_header.php';
 
+enforceUserPermission('module_support', 2);
+
 $domain_id = intval($_GET['id']);
 
 $sql = mysqli_query($mysqli, "SELECT * FROM domains WHERE domain_id = $domain_id LIMIT 1");
@@ -26,8 +28,10 @@ $client_id = intval($row['domain_client_id']);
 
 $history_sql = mysqli_query($mysqli, "SELECT * FROM domain_history WHERE domain_history_domain_id = $domain_id");
 
-// Generate the HTML form content using output buffering.
+enforceClientAccess();
+
 ob_start();
+
 ?>
 
 <div class="modal-header bg-dark">

@@ -2,6 +2,8 @@
 
 require_once '../../../includes/modal_header.php';
 
+enforceUserPermission('module_support', 2);
+
 $rack_id = intval($_GET['id']);
 
 $sql = mysqli_query($mysqli, "SELECT * FROM racks WHERE rack_id = $rack_id LIMIT 1");
@@ -20,9 +22,12 @@ $rack_location_id = nullable_htmlentities($row['rack_location_id']);
 $rack_created_at = nullable_htmlentities($row['rack_created_at']);
 $client_id = intval($row['rack_client_id']);
 
-// Generate the HTML form content using output buffering.
+enforceClientAccess();
+
 ob_start();
+
 ?>
+
 <div class="modal-header bg-dark">
     <h5 class="modal-title"><i class="fa fa-fw fa-server mr-2"></i>Editing rack: <strong><?php echo $rack_name; ?></strong></h5>
     <button type="button" class="close text-white" data-dismiss="modal">

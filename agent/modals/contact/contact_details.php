@@ -2,6 +2,8 @@
 
 require_once '../../../includes/modal_header.php';
 
+enforceUserPermission('module_client');
+
 $contact_id = intval($_GET['id']);
 
 $sql = mysqli_query($mysqli, "SELECT * FROM contacts
@@ -184,9 +186,12 @@ elseif ($document_count) { $first_tab = "documents"; }
 elseif ($file_count) { $first_tab = "files"; }
 elseif ($note_count) { $first_tab = "notes"; }
 
-// Generate the HTML form content using output buffering.
+enforceClientAccess();
+
 ob_start();
+
 ?>
+
 <div class="modal-header bg-dark">
     <h5 class="modal-title">
         <div class="media">

@@ -2,6 +2,8 @@
 
 require_once '../../../includes/modal_header.php';
 
+enforceUserPermission('module_support', 2);
+
 $asset_id = intval($_GET['id']);
 
 $sql = mysqli_query($mysqli, "SELECT * FROM assets
@@ -41,8 +43,10 @@ $asset_contact_id = intval($row['asset_contact_id']);
 $asset_network_id = intval($row['interface_network_id']);
 $device_icon = getAssetIcon($asset_type);
 
-// Generate the HTML form content using output buffering.
+enforceClientAccess();
+
 ob_start();
+
 ?>
 
 <div class="modal-header bg-dark">
