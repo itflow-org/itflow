@@ -317,7 +317,6 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             Primary Location <?php if ($sort == 'location_city') { echo $order_icon; } ?>
                         </a>
                     </th>
-                    <th></th>
                     <?php if ((lookupUserPermission("module_financial") >= 1) && $config_module_enable_accounting == 1) { ?>
                     <th>Billing</th>
                     <?php } ?>
@@ -369,62 +368,6 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     // Abbreviation
                     if (empty($client_abbreviation)) {
                         $client_abbreviation = shortenClient($client_name);
-                    }
-
-                    // Counts
-
-                    // Contact Count
-                    $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('contact_id') AS num FROM contacts WHERE contact_client_id = $client_id AND contact_archived_at IS NULL"));
-                    $contact_count = $row['num'];
-                    if ($contact_count) {
-                        $contact_count_display = "<a href='contacts.php?client_id=$client_id'><i class='fas fa-fw fa-users text-dark mr-2'></i><strong>$contact_count</strong> Contacts</a>";
-                    } else {
-                        $contact_count_display = '';
-                    }
-
-                    // Vendors Count
-                    $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('vendor_id') AS num FROM vendors WHERE vendor_client_id = $client_id AND vendor_archived_at IS NULL"));
-                    $vendor_count = $row['num'];
-                    if ($vendor_count) {
-                        $vendor_count_display = "<a href='vendors.php?client_id=$client_id'><i class='fas fa-fw fa-building text-dark mr-2'></i><strong>$vendor_count</strong> Vendors</a>";
-                    } else {
-                        $vendor_count_display = '';
-                    }
-
-                    // Asset Count
-                    $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('asset_id') AS num FROM assets WHERE asset_client_id = $client_id AND asset_archived_at IS NULL"));
-                    $asset_count = $row['num'];
-                    if ($asset_count) {
-                        $asset_count_display = "<a href='assets.php?client_id=$client_id'><i class='fas fa-fw fa-desktop text-dark mr-2'></i><strong>$asset_count</strong> Assets</a>";
-                    } else {
-                        $asset_count_display = '';
-                    }
-
-                    // Credential Count
-                    $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('credential_id') AS num FROM credentials WHERE credential_client_id = $client_id AND credential_archived_at IS NULL"));
-                    $credential_count = $row['num'];
-                    if ($credential_count) {
-                        $credential_count_display = "<a href='credentials.php?client_id=$client_id'><i class='fas fa-fw fa-key text-dark mr-2'></i><strong>$credential_count</strong> Credentials</a>";
-                    } else {
-                        $credential_count_display = '';
-                    }
-
-                    // Software Count
-                    $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('software_id') AS num FROM software WHERE software_client_id = $client_id AND software_archived_at IS NULL"));
-                    $software_count = $row['num'];
-                    if ($software_count) {
-                        $software_count_display = "<a href='software.php?client_id=$client_id'><i class='fas fa-fw fa-cube text-dark mr-2'></i><strong>$software_count</strong> Software</a>";
-                    } else {
-                        $software_count_display = '';
-                    }
-
-                    // Ticket Count
-                    $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('ticket_id') AS num FROM tickets WHERE ticket_client_id = $client_id AND ticket_archived_at IS NULL"));
-                    $ticket_count = $row['num'];
-                    if ($ticket_count) {
-                        $ticket_count_display = "<a href='tickets.php?client_id=$client_id'><i class='fas fa-fw fa-life-ring text-dark mr-2'></i><strong>$ticket_count</strong> Tickets</a>";
-                    } else {
-                        $ticket_count_display = '';
                     }
 
                     // Client Tags
@@ -554,25 +497,6 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             <?php } ?>
                         </td>
                         <td><?php echo $location_address_display; ?></td>
-                        <td>
-                            <a href="#"
-                                data-toggle="popover"
-                                data-trigger="hover"
-                                data-placement="right"
-                                data-html="true"
-                                data-delay='{"hide": 1800}'
-                                title="<?= $client_name ?>"
-                                data-content="
-                                    <div><?= $contact_count_display ?></div>
-                                    <div><?= $asset_count_display ?></div>
-                                    <div><?= $vendor_count_display ?></div>
-                                    <div><?= $credential_count_display ?></div>
-                                    <div><?= $software_count_display ?></div>
-                                    <div><?= $ticket_count_display ?></div>
-                                ">
-                                <span class="badge badge-pill badge-secondary p-2"><i class="fas fa-chart-area"></i><span>
-                            </a>
-                        </td>
                         <!-- Show Billing if perms & if accounting module is enabled -->
                         <?php if ((lookupUserPermission("module_financial") >= 1) && $config_module_enable_accounting == 1) { ?>
                             <td class="text-right">
