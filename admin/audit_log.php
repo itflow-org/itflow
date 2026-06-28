@@ -254,7 +254,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         ?>
 
                         <tr>
-                            <td><?php echo $log_created_at; ?></td>
+                            <td class="text-monospace"><?php echo $log_created_at; ?></td>
                             <td><?php echo $user_name_display; ?></td>
                             <?php if(empty($client)) { ?>
                             <td><?php echo $client_name_display; ?></td>
@@ -262,7 +262,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             <td><?php echo $log_type; ?></td>
                             <td><?php echo $log_action; ?></td>
                             <td><?php echo $log_description; ?></td>
-                            <td><?php echo $log_ip; ?></td>
+                            <td class="text-monospace"><?php echo $log_ip; ?></td>
                             <td><?php echo "$log_user_os<div class='text-secondary'>$log_user_browser</div>"; ?></td>
                         </tr>
 

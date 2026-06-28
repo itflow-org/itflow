@@ -133,9 +133,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             } elseif($email_status == 1) {
                                 $email_status_display = "<div class='text-warning'>Sending</div>";
                             } elseif($email_status == 2) {
-                                $email_status_display = "<div class='text-danger'>Failed</div><small class='text-secondary'>$email_failed_at</small>";
+                                $email_status_display = "<div class='text-danger'>Failed</div><small class='text-secondary text-monospace'>$email_failed_at</small>";
                             } else {
-                                $email_status_display = "<div class='text-success'>Sent</div><small class='text-secondary'>$email_sent_at</small>";
+                                $email_status_display = "<div class='text-success'>Sent</div><small class='text-secondary text-monospace'>$email_sent_at</small>";
                             }
 
                             ?>
@@ -148,7 +148,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                     </div>
                                     <?php } ?>
                                 </td>
-                                <td><?php echo $email_queued_at; ?></td>
+                                <td class="text-monospace"><?php echo $email_queued_at; ?></td>
                                 <td><?php echo "$email_from<br><small class='text-secondary'>$email_from_name</small>"?></td>
                                 <td><?php echo "$email_recipient<br><small class='text-secondary'>$email_recipient_name</small>"?></td>
                                 <td><?php echo $email_subject; ?></td>

@@ -2,6 +2,30 @@
 
 This file documents all notable changes made to ITFlow.
 
+## [26.07]
+
+### Major Changes
+- Migrated from Webklex php Library to IMAPEngine.
+- Major Rewrite of the mail settings page to better support Microsoft 365 and Google OAUTH2.
+
+### Bug fixes
+- Many Security Fixes.
+- Microsoft 365 and Google can now specify Licensed User.
+- Clients - Only show 3 Tags per line instead of streching all the way across.
+- Login: Make Email field email type instead of text.
+- Fixed Invoice Late Overdue notices now shows correct balance when late fees are attached and if partial invoice was paid.
+- User Preferences Avatar: Fix creating user upload directory if doesn't exist, and remove Avatar now properly deletes the old avatar image.
+- Do not send an in-app alert on successful cron execution, keep it in logging only.
+- Fix Issues with Clients Signing in via Entra in the client Portal, items were broken because CSRF token was not being generated.
+
+### New Features & Updates
+- Clients: Removed Entity Stat Counter was slow and unused.
+- Added Monospace text in areas where it deserves it like, IPs, Amounts Costs in Tabular data forms etc.
+- Bump Sortablejs from 1.15.6 to 1.15.7.
+- Bump TinyMCE from 8.5.0 to 8.6.0.
+- Bump Fullcalendar from 6.1.20 to 7.0.0 amd convert existing code to comply with 7.0, also make calendar more printable.
+- Bump PHPMailer from 7.0.2 to 7.1.1.
+
 ## [26.05.1] Stable Release
 - Security Fixes.
 

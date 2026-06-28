@@ -151,7 +151,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         ?>
 
                         <tr>
-                            <td><?php echo $log_created_at; ?></td>
+                            <td class="text-monospace"><?php echo $log_created_at; ?></td>
                             <td><?php echo $log_type; ?></td>
                             <td><?php echo $log_category; ?></td>
                             <td><?php echo $log_details; ?></td>
