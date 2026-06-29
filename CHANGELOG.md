@@ -21,6 +21,7 @@ This file documents all notable changes made to ITFlow.
 ### New Features & Updates
 - Clients: Removed Entity Stat Counter was slow and unused.
 - Added Monospace text in areas where it deserves it like, IPs, Amounts Costs in Tabular data forms etc.
+- Cicking into the client section no longer turns the main nav and text gray, it keeps the configured theme across the app. It was implmented long ago to differentiate between the client section and the main section of ITFLow but didn't work very well. 
 - Bump Sortablejs from 1.15.6 to 1.15.7.
 - Bump TinyMCE from 8.5.0 to 8.6.0.
 - Bump Fullcalendar from 6.1.20 to 7.0.0 amd convert existing code to comply with 7.0, also make calendar more printable.
