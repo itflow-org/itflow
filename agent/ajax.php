@@ -918,7 +918,7 @@ if (isset($_GET['ai_ticket_summary'])) {
     $ticket_category = $row['category_name'];
     $ticket_source = $row['ticket_source'];
     $ticket_priority = $row['ticket_priority'];
-    $client_id = intval($row['ticket_client_id'];
+    $client_id = intval($row['ticket_client_id']);
 
     enforceClientAccess();
 
