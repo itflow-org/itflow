@@ -467,7 +467,7 @@ $sql_asset_retired = mysqli_query(
                                 </td>
                                 <td title="Expires at <?php echo $item_expire_at; ?>">Expires <?php echo $item_expire_at_human ?></td>
                                 <td title="Deactivate Link">
-                                    <a class="text-danger confirm-link" href="post.php?deactivate_shared_item=<?php echo $item_id; ?>">
+                                    <a class="text-danger confirm-link" href="post.php?deactivate_shared_item=<?php echo $item_id; ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                                         <i class="fas fa-fw fa-calendar-times mr-2"></i>
                                     </a>
                                 </td>

@@ -200,7 +200,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         <?php if (!$client_url) { ?>
                         <td class="text-bold"><a href="recurring_invoices.php?client_id=<?php echo $client_id; ?>"><?php echo $client_name; ?></a></td>
                         <?php } ?>
-                        <td class="text-bold text-right"><?php echo numfmt_format_currency($currency_format, $recurring_invoice_amount, $recurring_invoice_currency_code); ?></td>
+                        <td class="text-right text-monospace"><?php echo numfmt_format_currency($currency_format, $recurring_invoice_amount, $recurring_invoice_currency_code); ?></td>
                         <td><?php echo ucwords($recurring_invoice_frequency); ?>ly</td>
                         <td><?php echo $recurring_invoice_last_sent; ?></td>
                         <td><?php echo $category_name; ?></td>

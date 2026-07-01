@@ -309,11 +309,11 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 </a>
                             </td>
                             <td><?= $location_name_display ?></td>
-                            <td><?= $network_vlan_display ?></td>
-                            <td><?= $network ?></td>
-                            <td><?= $network_gateway ?></td>
-                            <td><?= $network_dhcp_range_display ?></td>
-                            <td><?= $network_dns_display ?></td>
+                            <td class="text-monospace"><?= $network_vlan_display ?></td>
+                            <td class="text-monospace"><?= $network ?></td>
+                            <td class="text-monospace"><?= $network_gateway ?></td>
+                            <td class="text-monospace"><?= $network_dhcp_range_display ?></td>
+                            <td class="text-monospace"><?= $network_dns_display ?></td>
                             <?php if (!$client_url) { ?>
                             <td><a href="networks.php?client_id=<?= $client_id ?>"><?= $client_name ?></a></td>
                             <?php } ?>

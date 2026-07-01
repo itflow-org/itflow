@@ -130,7 +130,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             </a>
                         </td>
                         <td><?php echo $category_name; ?></td>
-                        <td class="text-bold text-right"><?php echo numfmt_format_currency($currency_format, $revenue_amount, $revenue_currency_code); ?></td>
+                        <td class="text-right text-monospace"><?php echo numfmt_format_currency($currency_format, $revenue_amount, $revenue_currency_code); ?></td>
                         <td><?php echo $revenue_payment_method; ?></td>
                         <td><?php echo $revenue_reference_display; ?></td>
                         <td><?php echo $account_name; ?></td>

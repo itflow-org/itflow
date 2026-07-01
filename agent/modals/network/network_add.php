@@ -121,7 +121,7 @@ ob_start();
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-layer-group"></i></span>
                         </div>
-                        <input type="text" class="form-control" inputmode="numeric" name="vlan" placeholder="e.g. 20">
+                        <input type="text" class="form-control text-monospace" inputmode="numeric" name="vlan" placeholder="e.g. 20">
                     </div>
                 </div>
 
@@ -131,7 +131,7 @@ ob_start();
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-network-wired"></i></span>
                         </div>
-                        <input type="text" class="form-control" name="network" placeholder="192.168.1.0/24 or 2001:db8::/64" maxlength="200" required>
+                        <input type="text" class="form-control text-monospace" name="network" placeholder="192.168.1.0/24 or 2001:db8::/64" maxlength="200" required>
                     </div>
                 </div>
 
@@ -141,7 +141,7 @@ ob_start();
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-arrows-alt-h"></i></span>
                         </div>
-                        <input type="text" class="form-control" name="dhcp_range" placeholder="192.168.1.100-192.168.1.200"  maxlength="200">
+                        <input type="text" class="form-control text-monospace" name="dhcp_range" placeholder="192.168.1.100-192.168.1.200"  maxlength="200">
                     </div>
                 </div>
 
@@ -151,7 +151,7 @@ ob_start();
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-route"></i></span>
                         </div>
-                        <input type="text" class="form-control" name="gateway" placeholder="192.168.1.1 or 2001:db8::1" maxlength="200">
+                        <input type="text" class="form-control text-monospace" name="gateway" placeholder="192.168.1.1 or 2001:db8::1" maxlength="200">
                     </div>
                 </div>
 
@@ -164,7 +164,7 @@ ob_start();
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-globe"></i></span>
                         </div>
-                        <input type="text" class="form-control" name="primary_dns" placeholder="9.9.9.9 or 2620:fe::fe"  maxlength="200">
+                        <input type="text" class="form-control text-monospace" name="primary_dns" placeholder="9.9.9.9 or 2620:fe::fe"  maxlength="200">
                     </div>
                 </div>
 
@@ -174,7 +174,7 @@ ob_start();
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-globe"></i></span>
                         </div>
-                        <input type="text" class="form-control" name="secondary_dns" placeholder="1.1.1.1 or 2606:4700:4700::1111"  maxlength="200">
+                        <input type="text" class="form-control text-monospace" name="secondary_dns" placeholder="1.1.1.1 or 2606:4700:4700::1111"  maxlength="200">
                     </div>
                 </div>
             </div>

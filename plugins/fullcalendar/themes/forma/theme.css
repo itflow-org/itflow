@@ -1,0 +1,980 @@
+.fc-forma-n5m {
+  font-size: 16px;
+  line-height: 1.5;
+  --fc-forma-border-style: solid;
+}
+
+.fc-forma-Z9U {
+  appearance: button;
+  font: inherit;
+  font-feature-settings: inherit;
+  font-variation-settings: inherit;
+  letter-spacing: inherit;
+  color: inherit;
+  opacity: 1;
+  background-color: #0000;
+  border-radius: 0;
+  margin: 0;
+  border: 0;
+  padding: 0
+}
+
+.fc-forma-JiE {
+  color: inherit;
+  text-decoration: inherit;
+}
+
+.fc-forma-3Lc {
+  pointer-events: none
+}
+
+.fc-forma-1EY {
+  position: absolute
+}
+
+.fc-forma-eYX {
+  position: relative
+}
+
+.fc-forma-MaV {
+  inset-inline: 0
+}
+
+.fc-forma-AWB {
+  inset-block: 0
+}
+
+.fc-forma-0fm {
+  inset-inline-start: -8px
+}
+
+.fc-forma-Tuc {
+  inset-inline-end: -4px
+}
+
+.fc-forma-iD1 {
+  inset-inline-end: 0
+}
+
+.fc-forma-SyR {
+  inset-inline-end: 4px
+}
+
+.fc-forma-dnf {
+  inset-inline-end: -3px
+}
+
+.fc-forma-YDC {
+  top: -4px
+}
+
+.fc-forma-n9G {
+  top: 0
+}
+
+.fc-forma-2ik {
+  top: 2px
+}
+
+.fc-forma-ZnE {
+  top: 4px
+}
+
+.fc-forma-ERR {
+  top: 50%
+}
+
+.fc-forma-fJL {
+  bottom: -4px
+}
+
+.fc-forma-1V6 {
+  left: 50%
+}
+
+.fc-forma-aAW {
+  margin: -6px
+}
+
+.fc-forma-CH7 {
+  margin: -1px
+}
+
+.fc-forma-gMS {
+  margin: 4px
+}
+
+.fc-forma-bvX {
+  margin: 8px
+}
+
+.fc-forma-jD5 {
+  margin: 16px
+}
+
+.fc-forma-cKZ {
+  margin-inline: 2px
+}
+
+.fc-forma-148 {
+  margin-inline: 1px
+}
+
+.fc-forma-cJ3 {
+  margin-block: 2px
+}
+
+.fc-forma-V9v {
+  margin-block: 4px
+}
+
+.fc-forma-SEP {
+  margin-block: 1px
+}
+
+.fc-forma-Jzj {
+  margin-inline-start: 2px
+}
+
+.fc-forma-Wga {
+  margin-inline-start: 4px
+}
+
+.fc-forma-qvL {
+  margin-inline-start: 1px
+}
+
+.fc-forma-p9t {
+  margin-inline-end: -6px
+}
+
+.fc-forma-3e1 {
+  margin-inline-end: 2px
+}
+
+.fc-forma-KYn {
+  margin-inline-end: 4px
+}
+
+.fc-forma-B3G {
+  margin-inline-end: 2.5%
+}
+
+.fc-forma-9hC {
+  margin-inline-end: 1px
+}
+
+.fc-forma-Dq8 {
+  margin-top: -4px
+}
+
+.fc-forma-Ika {
+  margin-bottom: 1px
+}
+
+.fc-forma-F99 {
+  margin-left: -4px
+}
+
+.fc-forma-I48 {
+  display: block
+}
+
+.fc-forma-dl1 {
+  display: flex
+}
+
+.fc-forma-i3N {
+  display: grid
+}
+
+.fc-forma-pps {
+  display: none
+}
+
+.fc-forma-63n {
+  width: 0;
+  height: 0
+}
+
+.fc-forma-3wQ {
+  width: 8px;
+  height: 8px
+}
+
+.fc-forma-vnf {
+  width: 16px;
+  height: 16px
+}
+
+.fc-forma-XUJ {
+  width: 20px;
+  height: 20px
+}
+
+.fc-forma-uuA {
+  height: 8px
+}
+
+.fc-forma-vYi {
+  height: 10px
+}
+
+.fc-forma-oM6 {
+  height: 20px
+}
+
+.fc-forma-TFV {
+  height: 24px
+}
+
+.fc-forma-84e {
+  min-height: 2px
+}
+
+.fc-forma-jgW {
+  min-height: 16px
+}
+
+.fc-forma-toR {
+  min-height: 1px
+}
+
+.fc-forma-roZ {
+  width: 50%
+}
+
+.fc-forma-vVE {
+  width: 25%
+}
+
+.fc-forma-hza {
+  width: 8px
+}
+
+.fc-forma-79F {
+  width: 20px
+}
+
+.fc-forma-ilz {
+  width: 24px
+}
+
+.fc-forma-4Tv {
+  width: 5px
+}
+
+.fc-forma-aHX {
+  max-width: 160px
+}
+
+.fc-forma-2KU {
+  min-width: 0
+}
+
+.fc-forma-aNc {
+  min-width: 220px
+}
+
+.fc-forma-yi0 {
+  flex-shrink: 0
+}
+
+.fc-forma-1Zl {
+  flex-shrink: 1
+}
+
+.fc-forma-OLq {
+  flex-shrink: 100
+}
+
+.fc-forma-1El {
+  flex-grow: 1
+}
+
+.fc-forma-QX7 {
+  rotate: -45deg
+}
+
+.fc-forma-KxI {
+  rotate: -90deg
+}
+
+.fc-forma-ABq {
+  rotate: 45deg
+}
+
+.fc-forma-z44 {
+  rotate: 90deg
+}
+
+.fc-forma-jmT {
+  rotate: 180deg
+}
+
+.fc-forma-sgX {
+  flex-direction: column
+}
+
+.fc-forma-1sP {
+  flex-direction: row
+}
+
+.fc-forma-dNl {
+  flex-wrap: wrap
+}
+
+.fc-forma-XpK {
+  align-items: center
+}
+
+.fc-forma-RNn {
+  align-items: flex-end
+}
+
+.fc-forma-EF4 {
+  align-items: flex-start
+}
+
+.fc-forma-N2M {
+  justify-content: space-between
+}
+
+.fc-forma-E9P {
+  justify-content: center
+}
+
+.fc-forma-LMv {
+  justify-content: flex-end
+}
+
+.fc-forma-NWN {
+  gap: 4px
+}
+
+.fc-forma-tgZ {
+  gap: 8px
+}
+
+.fc-forma-wwb {
+  gap: 12px
+}
+
+.fc-forma-Pms {
+  gap: 16px
+}
+
+.fc-forma-sI7 {
+  align-self: flex-start
+}
+
+.fc-forma-pKG {
+  overflow: hidden
+}
+
+.fc-forma-AAA {
+  border-radius: 3.40282e38px
+}
+
+.fc-forma-Fvv {
+  border-radius: 4px
+}
+
+.fc-forma-kmj {
+  border-start-start-radius: 4px;
+  border-end-start-radius: 4px
+}
+
+.fc-forma-Skl {
+  border-start-end-radius: 4px;
+  border-end-end-radius: 4px
+}
+
+.fc-forma-Z7Q {
+  border-top-left-radius: 4px;
+  border-top-right-radius: 4px
+}
+
+.fc-forma-2qh {
+  border-bottom-right-radius: 4px;
+  border-bottom-left-radius: 4px
+}
+
+.fc-forma-wsy,
+.fc-forma-qQW {
+  border-style: var(--fc-forma-border-style);
+  border-width: 1px
+}
+
+.fc-forma-5JF {
+  border-style: var(--fc-forma-border-style);
+  border-width: 4px
+}
+
+.fc-forma-Vpk {
+  border-style: var(--fc-forma-border-style);
+  border-width: 6px
+}
+
+.fc-forma-1Wx {
+  border-inline-style: var(--fc-forma-border-style);
+  border-inline-width: 1px
+}
+
+.fc-forma-8UH {
+  border-inline-start-style: var(--fc-forma-border-style);
+  border-inline-start-width: 1px
+}
+
+.fc-forma-iSi {
+  border-inline-start-style: var(--fc-forma-border-style);
+  border-inline-start-width: 4px
+}
+
+.fc-forma-riO {
+  border-inline-start-style: var(--fc-forma-border-style);
+  border-inline-start-width: 6px
+}
+
+.fc-forma-USt,
+.fc-forma-lzW {
+  border-inline-end-style: var(--fc-forma-border-style);
+  border-inline-end-width: 1px
+}
+
+.fc-forma-ku3,
+.fc-forma-u78 {
+  border-top-style: var(--fc-forma-border-style);
+  border-top-width: 1px
+}
+
+.fc-forma-tb8 {
+  border-top-style: var(--fc-forma-border-style);
+  border-top-width: 4px
+}
+
+.fc-forma-zi1 {
+  border-bottom-style: var(--fc-forma-border-style);
+  border-bottom-width: 1px
+}
+
+.fc-forma-TN2 {
+  --fc-forma-border-style: dotted;
+  border-style: dotted
+}
+
+.fc-forma-lNM {
+  border-color: var(--fc-event-color)
+}
+
+.fc-forma-tfB {
+  border-color: var(--fc-forma-border)
+}
+
+.fc-forma-MlZ {
+  border-color: var(--fc-forma-muted-foreground)
+}
+
+.fc-forma-Baf {
+  border-color: var(--fc-forma-primary)
+}
+
+.fc-forma-BST {
+  border-color: var(--fc-forma-strong-border)
+}
+
+.fc-forma-d0j {
+  border-color: #0000
+}
+
+.fc-forma-RJG {
+  background-color: var(--fc-forma-background)
+}
+
+.fc-forma-zNL {
+  background-color: var(--fc-forma-faint)
+}
+
+.fc-forma-rRL {
+  background-color: var(--fc-forma-highlight)
+}
+
+.fc-forma-Wv4 {
+  background-color: var(--fc-forma-muted)
+}
+
+.fc-forma-7I6 {
+  background-color: var(--fc-forma-primary)
+}
+
+@media not print {
+  @supports (color:color-mix(in lab, red, red)) {
+    .fc-forma-gTC {
+      background-color: color-mix(in oklab, var(--fc-event-color)15%, transparent)
+    }
+  }
+  @supports not (color:color-mix(in lab, red, red)) {
+    .fc-forma-gTC {
+      position: relative;
+      isolation: isolate
+    }
+    .fc-forma-gTC:before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-color: var(--fc-event-color);
+      opacity: 0.15;
+      z-index: -1
+    }
+  }
+}
+
+.fc-forma-lrD {
+  background-color: var(--fc-event-color);
+  color: var(--fc-event-contrast-color)
+}
+
+@supports (color:color-mix(in lab, red, red)) {
+  .fc-forma-lrD {
+    background-color: color-mix(in oklab, var(--fc-event-color)20%, var(--fc-forma-background));
+    color: inherit
+  }
+}
+
+.fc-forma-i6P {
+  background-color: var(--fc-event-color);
+  color: var(--fc-event-contrast-color)
+}
+
+@supports (color:color-mix(in lab, red, red)) {
+  .fc-forma-i6P {
+    background-color: color-mix(in oklab, var(--fc-event-color)30%, var(--fc-forma-background));
+    color: inherit
+  }
+}
+
+.fc-forma-KUX {
+  padding: 2px
+}
+
+.fc-forma-iS4 {
+  padding: 4px
+}
+
+.fc-forma-3N5 {
+  padding: 8px
+}
+
+.fc-forma-IJJ {
+  padding: 12px
+}
+
+.fc-forma-lqx {
+  padding: 16px
+}
+
+.fc-forma-7A6 {
+  padding: 1px
+}
+
+.fc-forma-oQ2 {
+  padding-inline: 2px
+}
+
+.fc-forma-aCI {
+  padding-inline: 4px
+}
+
+.fc-forma-Nca {
+  padding-inline: 8px
+}
+
+.fc-forma-Apf {
+  padding-inline: 12px
+}
+
+.fc-forma-2rx {
+  padding-block: 2px
+}
+
+.fc-forma-Jhn {
+  padding-block: 4px
+}
+
+.fc-forma-End {
+  padding-block: 6px
+}
+
+.fc-forma-dl6 {
+  padding-block: 8px
+}
+
+.fc-forma-P9h {
+  padding-block: 60px
+}
+
+.fc-forma-s0x {
+  padding-block: 3px
+}
+
+.fc-forma-z5u {
+  padding-block: 1px
+}
+
+.fc-forma-a7i {
+  padding-inline-start: 2px
+}
+
+.fc-forma-C2j {
+  padding-inline-start: 4px
+}
+
+.fc-forma-166 {
+  padding-top: 2px
+}
+
+.fc-forma-4dx {
+  padding-top: 4px
+}
+
+.fc-forma-cM0 {
+  padding-bottom: 16px
+}
+
+.fc-forma-2HE {
+  text-align: end
+}
+
+.fc-forma-vQz {
+  font-size: 11px;
+  line-height: 1.09091
+}
+
+.fc-forma-9ZS {
+  font-size: 18px;
+  line-height: calc(1.75/1.125)
+}
+
+.fc-forma-1Po {
+  font-size: 16px;
+  line-height: calc(1.5/1)
+}
+
+.fc-forma-9yp {
+  font-size: 14px;
+  line-height: calc(1.25/.875)
+}
+
+.fc-forma-2rA {
+  font-size: 20px;
+  line-height: calc(1.75/1.25)
+}
+
+.fc-forma-a3B {
+  font-size: 12px;
+  line-height: calc(1/.75)
+}
+
+.fc-forma-DIS {
+  font-weight: 700
+}
+
+.fc-forma-1OT {
+  font-weight: 500
+}
+
+.fc-forma-C8a {
+  font-weight: 600
+}
+
+.fc-forma-IPx {
+  text-overflow: ellipsis
+}
+
+.fc-forma-TZ4 {
+  white-space: nowrap
+}
+
+.fc-forma-jm6 {
+  white-space: pre
+}
+
+.fc-forma-b7K {
+  color: var(--fc-forma-foreground)
+}
+
+.fc-forma-cOV {
+  color: var(--fc-forma-faint-foreground)
+}
+
+.fc-forma-V1v {
+  color: var(--fc-forma-muted-foreground)
+}
+
+.fc-forma-TSf {
+  color: var(--fc-forma-primary-foreground)
+}
+
+.fc-forma-L1Y {
+  font-style: italic
+}
+
+.fc-forma-lMo {
+  opacity: .5
+}
+
+.fc-forma-iTG {
+  opacity: .75
+}
+
+.fc-forma-1kP {
+  box-shadow: 0 10px 15px -3px #0000001a, 0 4px 6px -4px #0000001a
+}
+
+.fc-forma-tkw {
+  box-shadow: 0 4px 6px -1px #0000001a, 0 2px 4px -2px #0000001a
+}
+
+.fc-forma-eSM {
+  box-shadow: 0 1px 2px 0 #0000000d
+}
+
+.fc-forma-A3h {
+  box-shadow: 0 0 0 1px var(--fc-forma-ring-color, currentcolor)
+}
+
+.fc-forma-GBJ {
+  box-shadow: 0 0 0 2px var(--fc-forma-ring-color, currentcolor)
+}
+
+.fc-forma-c3P {
+  --fc-forma-ring-color: var(--fc-forma-background)
+}
+
+.fc-forma-2R2 {
+  outline-style: solid;
+  outline-width: 1px
+}
+
+.fc-forma-0Bj {
+  outline-style: solid;
+  outline-width: 2px
+}
+
+.fc-forma-07j {
+  outline-offset: -1px
+}
+
+.fc-forma-fFh {
+  outline-offset: -2px
+}
+
+.fc-forma-3Xj {
+  outline-offset: 2px
+}
+
+.fc-forma-Fmy {
+  outline-color: var(--fc-forma-primary)
+}
+
+.fc-forma-mr2 {
+  background: linear-gradient(var(--fc-forma-strong), var(--fc-forma-strong))var(--fc-forma-background)
+}
+
+.fc-forma-iCr:not(:last-child) {
+  border-bottom-style: var(--fc-forma-border-style);
+  border-bottom-width: 1px
+}
+
+@media not print {
+  .fc-forma-530 {
+    padding-block: 1px
+  }
+
+  .fc-forma-ZNR {
+    padding-inline-end: 1px
+  }
+
+  .fc-forma-jVY {
+    padding-top: 1px
+  }
+
+  .fc-forma-K3J {
+    padding-bottom: 1px
+  }
+}
+
+@media (hover:hover) {
+  .fc-forma-vs6:is(:where(.fc-forma-bCs):hover *) {
+    display: block
+  }
+
+  .fc-forma-sS4:is(:where(.fc-forma-bCs):hover *) {
+    color: var(--fc-forma-primary)
+  }
+
+  .fc-forma-Ogp:is(:where(.fc-forma-bCs):hover *) {
+    text-decoration-line: underline
+  }
+}
+
+.fc-forma-Di9:is(:where(.fc-forma-bCs):focus-visible *) {
+  color: var(--fc-forma-primary)
+}
+
+@media (hover:hover) {
+  .fc-forma-cBw:hover {
+    border-color: var(--fc-forma-strong-border)
+  }
+
+  .fc-forma-ShG:hover {
+    background-color: var(--fc-forma-muted)
+  }
+
+  .fc-forma-2Qu:hover {
+    background-color: var(--fc-forma-primary-over)
+  }
+
+  .fc-forma-mcn:hover {
+    background-color: var(--fc-forma-strong)
+  }
+
+  .fc-forma-rom:hover {
+    background-color: var(--fc-event-color)
+  }
+
+  @supports (color:color-mix(in lab, red, red)) {
+    .fc-forma-rom:hover {
+      background-color: color-mix(in oklab, var(--fc-event-color)25%, var(--fc-forma-background))
+    }
+  }
+
+  .fc-forma-SWh:hover {
+    background-color: var(--fc-event-color)
+  }
+
+  @supports (color:color-mix(in lab, red, red)) {
+    .fc-forma-SWh:hover {
+      background-color: color-mix(in oklab, var(--fc-event-color)35%, var(--fc-forma-background))
+    }
+  }
+
+  .fc-forma-Eu0:hover {
+    text-decoration-line: underline
+  }
+
+  .fc-forma-Vyz:hover {
+    background: linear-gradient(var(--fc-forma-stronger), var(--fc-forma-stronger))var(--fc-forma-background)
+  }
+}
+
+.fc-forma-nge:focus-visible {
+  background-color: var(--fc-forma-muted)
+}
+
+.fc-forma-lgp:focus-visible {
+  background-color: var(--fc-forma-primary-over)
+}
+
+.fc-forma-uqo:focus-visible {
+  outline-style: solid;
+  outline-width: 2px
+}
+
+.fc-forma-PQx:active {
+  background-color: var(--fc-forma-primary-down)
+}
+
+.fc-forma-rKU:active {
+  background-color: var(--fc-forma-strong)
+}
+
+.fc-forma-0sn:active {
+  background-color: var(--fc-forma-stronger)
+}
+
+.fc-forma-DUE:active {
+  background-color: var(--fc-event-color)
+}
+
+@supports (color:color-mix(in lab, red, red)) {
+  .fc-forma-DUE:active {
+    background-color: color-mix(in oklab, var(--fc-event-color)30%, var(--fc-forma-background))
+  }
+}
+
+.fc-forma-RHy:active {
+  background-color: var(--fc-event-color)
+}
+
+@supports (color:color-mix(in lab, red, red)) {
+  .fc-forma-RHy:active {
+    background-color: color-mix(in oklab, var(--fc-event-color)40%, var(--fc-forma-background))
+  }
+}
+
+.fc-forma-pgt:active {
+  background: linear-gradient(var(--fc-forma-strongest), var(--fc-forma-strongest))var(--fc-forma-background)
+}
+
+@media print {
+  .fc-forma-2dx {
+    border-block-style: var(--fc-forma-border-style);
+    border-block-width: 1px
+  }
+
+  .fc-forma-9wT {
+    border-inline-end-style: var(--fc-forma-border-style);
+    border-inline-end-width: 1px
+  }
+
+  .fc-forma-Qex {
+    border-top-style: var(--fc-forma-border-style);
+    border-top-width: 1px
+  }
+
+  .fc-forma-wZV {
+    border-bottom-style: var(--fc-forma-border-style);
+    border-bottom-width: 1px
+  }
+
+  .fc-forma-jsy {
+    border-width: 1px
+  }
+
+  .fc-forma-DO7 {
+    border-color: var(--fc-event-color)
+  }
+
+  .fc-forma-4MR {
+    border-color: #000
+  }
+
+  .fc-forma-vwH {
+    background-color: #fff
+  }
+}
+
+[dir=rtl] .fc-forma-qIw {
+  rotate: -45deg
+}
+
+[dir=rtl] .fc-forma-keW {
+  rotate: -90deg
+}
+
+[dir=rtl] .fc-forma-jY6 {
+  rotate: none
+}
+
+[dir=rtl] .fc-forma-vk6 {
+  rotate: 45deg
+}
+
+[dir=rtl] .fc-forma-ZW3 {
+  rotate: 90deg
+}
+
+[dir=rtl] .fc-forma-asP {
+  rotate: 180deg
+}

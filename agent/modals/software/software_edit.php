@@ -2,6 +2,8 @@
 
 require_once '../../../includes/modal_header.php';
 
+enforceUserPermission('module_support', 2);
+
 $software_id = intval($_GET['id']);
 
 $sql = mysqli_query($mysqli, "SELECT * FROM software WHERE software_id = $software_id LIMIT 1");
@@ -50,6 +52,8 @@ $license_types_array = array (
     'Perpetual',
     'Usage-based'
 );
+
+enforceClientAccess();
 
 ob_start();
 

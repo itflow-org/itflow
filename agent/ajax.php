@@ -170,15 +170,15 @@ if (isset($_GET['share_generate_link'])) {
     if ($item_view_limit == 1) {
         $item_view_limit_wording = " and may only be viewed <strong>once</strong>, before the link is destroyed.";
     }
-    $item_expires = sanitizeInput($_GET['expires']);
+    $item_expires = intval($_GET['expires']);
     $item_expires_friendly = "never"; // default never
-    if ($item_expires == "1 HOUR") {
+    if ($item_expires == 1) {
         $item_expires_friendly = "1 hour";
-    } elseif ($item_expires == "24 HOUR") {
+    } elseif ($item_expires == 24) {
         $item_expires_friendly = "1 day";
-    } elseif ($item_expires == "168 HOUR") {
+    } elseif ($item_expires == 168) {
         $item_expires_friendly = "1 week";
-    } elseif ($item_expires == "730 HOUR") {
+    } elseif ($item_expires == 730) {
         $item_expires_friendly = "1 month";
     }
 
@@ -215,7 +215,7 @@ if (isset($_GET['share_generate_link'])) {
     }
 
     // Insert entry into DB
-    $sql = mysqli_query($mysqli, "INSERT INTO shared_items SET item_active = 1, item_key = '$item_key', item_type = '$item_type', item_related_id = $item_id, item_encrypted_username = '$item_encrypted_username', item_encrypted_credential = '$item_encrypted_credential', item_note = '$item_note', item_recipient = '$item_email', item_views = 0, item_view_limit = $item_view_limit, item_expire_at = NOW() + INTERVAL + $item_expires, item_client_id = $client_id");
+    $sql = mysqli_query($mysqli, "INSERT INTO shared_items SET item_active = 1, item_key = '$item_key', item_type = '$item_type', item_related_id = $item_id, item_encrypted_username = '$item_encrypted_username', item_encrypted_credential = '$item_encrypted_credential', item_note = '$item_note', item_recipient = '$item_email', item_views = 0, item_view_limit = $item_view_limit, item_expire_at = NOW() + INTERVAL + $item_expires HOUR, item_client_id = $client_id");
     $share_id = $mysqli->insert_id;
 
     // Return URL
@@ -888,6 +888,8 @@ if (isset($_GET['ai_create_document_template'])) {
 
 if (isset($_GET['ai_ticket_summary'])) {
 
+    enforceUserPermission('module_support');
+
     header('Content-Type: text/html; charset=UTF-8');
 
     $sql = mysqli_query($mysqli, "SELECT * FROM ai_models LEFT JOIN ai_providers ON ai_model_ai_provider_id = ai_provider_id WHERE ai_model_use_case = 'General' LIMIT 1");
@@ -902,7 +904,7 @@ if (isset($_GET['ai_ticket_summary'])) {
 
     // Query the database for ticket details
     $sql = mysqli_query($mysqli, "
-        SELECT ticket_subject, ticket_details, ticket_source, ticket_priority, ticket_status_name, category_name
+        SELECT ticket_subject, ticket_details, ticket_source, ticket_priority, ticket_status_name, category_name, ticket_client_id
         FROM tickets
         LEFT JOIN ticket_statuses ON ticket_status = ticket_status_id
         LEFT JOIN categories ON ticket_category = category_id
@@ -916,6 +918,9 @@ if (isset($_GET['ai_ticket_summary'])) {
     $ticket_category = $row['category_name'];
     $ticket_source = $row['ticket_source'];
     $ticket_priority = $row['ticket_priority'];
+    $client_id = intval($row['ticket_client_id']);
+
+    enforceClientAccess();
 
     // Get ticket replies
     $sql_replies = mysqli_query($mysqli, "

@@ -300,7 +300,7 @@ if (isset($_GET['asset_id'])) {
                             <div class="mt-2"><i class="fab fa-fw fa-windows text-secondary mr-2"></i><?= "$asset_os"; ?></div>
                         <?php }
                         if ($asset_serial) { ?>
-                            <div class="mt-2"><i class="fa fa-fw fa-barcode text-secondary mr-2"></i><?= $asset_serial; ?></div>
+                            <div class="mt-2"><i class="fa fa-fw fa-barcode text-secondary mr-1"></i><span class="badge"><?= $asset_serial; ?></span></div>
                         <?php }
                         if ($asset_purchase_date) { ?>
                             <div class="mt-2"><i class="fa fa-fw fa-shopping-cart text-secondary mr-2"></i><?= date('Y-m-d', strtotime($asset_purchase_date)); ?></div>
@@ -320,13 +320,13 @@ if (isset($_GET['asset_id'])) {
                     </div>
                     <div class="card-body">
                         <?php if ($asset_ip) { ?>
-                            <div><i class="fa fa-fw fa-globe text-secondary mr-2"></i><?= $asset_ip; ?></div>
+                            <div><i class="fa fa-fw fa-globe text-secondary mr-2"></i><span class="text-monospace"><?= $asset_ip; ?></span></div>
                         <?php } ?>
                         <?php if ($asset_nat_ip) { ?>
-                            <div class="mt-2"><i class="fa fa-fw fa-random text-secondary mr-2"></i><?= $asset_nat_ip; ?></div>
+                            <div class="mt-2"><i class="fa fa-fw fa-random text-secondary mr-2"></i><span class="text-monospace"><?= $asset_nat_ip; ?></span></div>
                         <?php }
                         if ($asset_mac) { ?>
-                            <div class="mt-2"><i class="fa fa-fw fa-ethernet text-secondary mr-2"></i><?= $asset_mac; ?></div>
+                            <div class="mt-2"><i class="fa fa-fw fa-ethernet text-secondary mr-2"></i><span class="text-monospace"><?= $asset_mac; ?></span></div>
                         <?php }
                         if ($asset_uri) { ?>
                             <div class="mt-2"><i class="fa fa-fw fa-link text-secondary mr-2"></i><a href="<?= $asset_uri; ?>" target="_blank" title="<?= $asset_uri; ?>"><?= truncate($asset_uri, 40); ?></a></div>
@@ -582,11 +582,11 @@ if (isset($_GET['asset_id'])) {
                                         </td>
                                         <td><?= $interface_type_display; ?></td>
                                         <td><?= $network_name_display; ?></td>
-                                        <td>
+                                        <td class="text-monospace">
                                             <?= $interface_ip_display; ?>
                                             <div><small class="text-secondary"><?= $interface_ipv6 ?></small></div>
                                         </td>
-                                        <td><?= $interface_mac_display; ?></td>
+                                        <td class="text-monospace"><?= $interface_mac_display; ?></td>
                                         <td><?= $connected_to_display; ?></td>
                                         <td>
                                             <div class="dropdown dropleft text-center">

@@ -1,7 +1,7 @@
 <?php
 /*
- * CRON - Email Parser (Webklex PHP-IMAP)
- * Process emails and create/update tickets using Webklex\PHPIMAP instead of native IMAP
+ * CRON - Email Parser (DirectoryTree ImapEngine)
+ * Process emails and create/update tickets using DirectoryTree\ImapEngine (no PHP IMAP extension required)
  */
 
 // Start the timer
@@ -58,7 +58,11 @@ if (file_exists($lock_file_path)) {
         exit("Script is already running. Exiting.");
     }
 }
-file_put_contents($lock_file_path, "Locked");
+// Atomically create the lock ('x' fails if another process beat us to it)
+if (@fopen($lock_file_path, 'x') === false) {
+    logApp("Cron-Email-Parser", "warning", "Lock file present (race). Cron Email Parser attempted to execute but was already executing, so instead it terminated.");
+    exit("Script is already running. Exiting.");
+}
 
 // Ensure lock gets removed even on fatal error
 register_shutdown_function(function() use ($lock_file_path) {
@@ -69,6 +73,11 @@ register_shutdown_function(function() use ($lock_file_path) {
 
 // Allowed attachment extensions
 $allowed_extensions = array('jpg', 'jpeg', 'gif', 'png', 'webp', 'svg', 'pdf', 'txt', 'md', 'doc', 'docx', 'csv', 'xls', 'xlsx', 'xlsm', 'zip', 'tar', 'gz');
+
+// Processing limits
+$max_emails_per_run = 50;          // Cap per cron run to bound memory usage (cron catches up on the next run)
+$max_attachment_bytes = 15728640;  // 15 MB - larger attachments are skipped & logged
+$max_inline_embed_bytes = 2097152; // 2 MB - larger inline images are saved as regular attachments instead of base64-embedded in the ticket body
 
 /** ------------------------------------------------------------------
  * Ticket / Reply helpers (unchanged)
@@ -514,9 +523,9 @@ if ($imap_provider === '') {
 }
 
 /** ------------------------------------------------------------------
- * Webklex IMAP setup (supports Standard / Google OAuth / Microsoft OAuth)
+ * ImapEngine setup (supports Standard / Google OAuth / Microsoft OAuth)
  * ------------------------------------------------------------------ */
-use Webklex\PHPIMAP\ClientManager;
+use DirectoryTree\ImapEngine\Mailbox;
 
 $validate_cert = true;
 
@@ -526,7 +535,7 @@ $port = (int)$config_imap_port;
 $encr = !empty($config_imap_encryption) ? $config_imap_encryption : 'notls'; // 'ssl'|'tls'|'notls'
 $user = $config_imap_username;
 $pass = $config_imap_password;
-$auth = null; // 'oauth' for OAuth providers
+$auth = 'plain'; // 'oauth' for OAuth providers
 
 if ($imap_provider === 'google_oauth') {
     $host = 'imap.gmail.com';
@@ -559,39 +568,56 @@ if ($imap_provider === 'google_oauth') {
     }
 }
 
-$cm = new ClientManager();
+// Map Webklex-style encryption values to ImapEngine transports
+// Webklex 'tls' = STARTTLS (port 143), ImapEngine 'tls' = implicit TLS, so translate
+$encryption = match (strtolower($encr)) {
+    'ssl'      => 'ssl',      // implicit TLS (993)
+    'tls'      => 'starttls', // STARTTLS upgrade (143) - Webklex semantics
+    'starttls' => 'starttls',
+    default    => '',         // 'notls' / plain tcp
+};
 
-$client = $cm->make(array_filter([
+$mailbox = new Mailbox([
     'host'           => $host,
     'port'           => $port,
-    'encryption'     => $encr,            // 'ssl' | 'tls' | null
+    'encryption'     => $encryption,
     'validate_cert'  => (bool)$validate_cert,
     'username'       => $user,            // full mailbox address (OAuth uses user as principal)
     'password'       => $pass,            // access token when $auth === 'oauth'
-    'authentication' => $auth,            // 'oauth' or null
-    'protocol'       => 'imap',
-]));
+    'authentication' => $auth,            // 'oauth' or 'plain'
+]);
 
 try {
-    $client->connect();
+    $mailbox->connect();
 } catch (\Throwable $e) {
     echo "Error connecting to IMAP server: " . $e->getMessage();
     @unlink($lock_file_path);
     exit(1);
 }
 
-$inbox = $client->getFolderByPath('INBOX');
+$inbox = $mailbox->inbox();
 
 $targetFolderPath = 'ITFlow';
 try {
-    $targetFolder = $client->getFolderByPath($targetFolderPath);
+    $targetFolder = $mailbox->folders()->firstOrCreate($targetFolderPath);
 } catch (\Throwable $e) {
-    $client->createFolder($targetFolderPath);
-    $targetFolder = $client->getFolderByPath($targetFolderPath);
+    logApp("Cron-Email-Parser", "error", "Unable to find/create target folder [$targetFolderPath]: " . $e->getMessage());
+    @unlink($lock_file_path);
+    exit(1);
 }
 
-// Fetch unseen messages
-$messages = $inbox->messages()->leaveUnread()->unseen()->get();
+// Fetch unseen messages (headers, body & flags; BODY.PEEK so they stay unread)
+// unflagged() skips messages a previous run flagged for manual attention,
+// so they aren't pointlessly re-processed every run forever
+$messages = $inbox->messages()
+    ->withHeaders()
+    ->withBody()
+    ->withFlags()
+    ->leaveUnread()
+    ->unseen()
+    ->unflagged()
+    ->limit($max_emails_per_run)
+    ->get();
 
 // Counters
 $processed_count = 0;
@@ -599,301 +625,327 @@ $unprocessed_count = 0;
 
 // Process messages
 foreach ($messages as $message) {
-    $email_processed = false;
+    try {
+        $email_processed = false;
 
-    // Save original message as .eml (getRawMessage() doesn't seem to work properly)
-    mkdirMissing('../uploads/tmp/');
-    $original_message_file = "processed-eml-" . randomString(200) . ".eml";
-    $raw_message = (string)$message->getHeader()->raw . "\r\n\r\n" . ($message->getRawBody() ?? $message->getHTMLBody() ?? $message->getTextBody());
-    file_put_contents("../uploads/tmp/{$original_message_file}", $raw_message);
+        // From
+        $from_addr  = $message->from(); // ?Address
+        $from_email = sanitizeInput($from_addr?->email() ?: 'itflow-guest@example.com');
+        $from_name  = sanitizeInput($from_addr?->name() ?: 'Unknown');
 
-    // From
-    $from_col    = $message->getFrom();
-    $from_first  = ($from_col && $from_col->count()) ? $from_col->first() : null;
-    $from_email = sanitizeInput($from_first->mail ?? 'itflow-guest@example.com');
-    $from_name  = sanitizeInput($from_first->personal ?? 'Unknown');
+        $from_domain = explode("@", $from_email);
+        $from_domain = sanitizeInput(end($from_domain));
 
-    $from_domain = explode("@", $from_email);
-    $from_domain = sanitizeInput(end($from_domain));
+        // Subject
+        $subject = sanitizeInput((string)$message->subject() ?: 'No Subject');
 
-    // Subject
-    $subject = sanitizeInput((string)$message->getSubject() ?: 'No Subject');
-
-    // CC
-    $ccs = array();
-    $cc_attr = $message->header->cc;
-    $cc_list = $cc_attr->toArray();
-    foreach ($cc_list as $cc_addr) {
-        if ($cc_addr instanceof \Webklex\PHPIMAP\Address) {
-            $ccs[] = $cc_addr->mail;
-        }
-    }
-
-    // Date (string)
-    $dateAttr = $message->getDate();                  // Attribute
-    $dateRaw  = $dateAttr ? (string)$dateAttr : '';   // e.g. "Tue, 10 Sep 2025 13:22:05 +0000"
-    $ts       = $dateRaw ? strtotime($dateRaw) : false;
-    $date     = sanitizeInput($ts !== false ? date('Y-m-d H:i:s', $ts) : date('Y-m-d H:i:s'));
-
-    // Body (prefer HTML)
-    $message_body_html = $message->getHTMLBody();
-    $message_body_text = $message->getTextBody();
-    $message_body_raw  = $message->getRawBody();
-
-    if (!empty($message_body_html)) {
-        $message_body = $message_body_html;
-    } elseif (!empty($message_body_text)) {
-        $message_body = nl2br(htmlspecialchars($message_body_text));
-    } else {
-        // Final fallback
-        $message_body = nl2br(htmlspecialchars($message_body_raw));
-    }
-
-    // Handle attachments (inline vs regular)
-    $attachments = [];
-    foreach ($message->getAttachments() as $att) {
-        $attrs   = $att->getAttributes(); // v6.2: canonical source
-        $dispo   = strtolower((string)($attrs['disposition'] ?? ''));
-        $cid     = $attrs['id'] ?? null;            // Content-ID
-        $content = $attrs['content'] ?? null;       // binary
-        $mime    = $att->getMimeType();
-        $name    = $att->getName() ?: 'attachment';
-
-        $is_inline = false;
-        if ($dispo === 'inline' && $cid && $content !== null) {
-            $cid_trim  = trim($cid, '<>');
-            $dataUri   = "data:$mime;base64,".base64_encode($content);
-            $message_body = str_replace(["cid:$cid_trim", "cid:$cid"], $dataUri, $message_body);
-            $is_inline = true;
+        // Skip vacation/out-of-office auto-responders to prevent mail loops (RFC 3834)
+        // NDRs use "auto-generated" and are still handled by the NDR logic below
+        $auto_submitted = strtolower((string)($message->header('Auto-Submitted')?->getValue() ?? ''));
+        $precedence     = strtolower((string)($message->header('Precedence')?->getValue() ?? ''));
+        if (str_starts_with($auto_submitted, 'auto-replied') || $precedence === 'auto_reply') {
+            logApp("Cron-Email-Parser", "info", "Email parser skipped auto-responder from $from_email ($subject)");
+            $processed_count++;
+            $message->markSeen();
+            $message->move($targetFolderPath);
+            continue;
         }
 
-        if (!$is_inline && $content !== null) {
-            $attachments[] = ['name' => $name, 'content' => $content];
+        // Save original message as .eml (ImapEngine: raw headers + raw body)
+        mkdirMissing('../uploads/tmp/');
+        $original_message_file = "processed-eml-" . randomString(200) . ".eml";
+        $raw_message = (string)$message; // head + body, CRLF separated
+        file_put_contents("../uploads/tmp/{$original_message_file}", $raw_message);
+
+        // CC (deduplicated, excluding the sender)
+        $ccs = array();
+        foreach ($message->cc() as $cc_addr) {
+            $cc_mail = strtolower($cc_addr->email());
+            if ($cc_mail && $cc_mail !== strtolower($from_email) && !in_array($cc_mail, $ccs)) {
+                $ccs[] = $cc_mail;
+            }
         }
-    }
 
-    // 1. Reply to existing ticket with the number in subject
-    if (preg_match("/\[$config_ticket_prefix(\d+)\]/", $subject, $ticket_number_matches)) {
-        $ticket_number = intval($ticket_number_matches[1]);
-        $email_processed = addReply($from_email, $date, $subject, $ticket_number, $message_body, $attachments);
-    }
+        // Date (string)
+        $dateObj = $message->date(); // ?CarbonInterface
+        $date    = sanitizeInput($dateObj ? $dateObj->setTimezone(date_default_timezone_get())->format('Y-m-d H:i:s') : date('Y-m-d H:i:s'));
 
-    // 2. Fuzzy duplicate check using a known contact/domain and similar_text subject
-    if (!$email_processed && strlen(trim($subject)) > 10) {
-        $contact_id = 0;
-        $client_id  = 0;
+        // Body (prefer HTML)
+        $message_body_html = $message->html();
+        $message_body_text = $message->text();
 
-        // First: check if sender is a registered contact
-        $from_email_esc = mysqli_real_escape_string($mysqli, $from_email);
-        $contact_sql = mysqli_query($mysqli, "SELECT * FROM contacts WHERE contact_email = '$from_email_esc' AND contact_archived_at IS NULL LIMIT 1");
-        $contact_row = mysqli_fetch_assoc($contact_sql);
-
-        if ($contact_row) {
-            $contact_id = intval($contact_row['contact_id']);
-            $client_id  = intval($contact_row['contact_client_id']);
+        if (!empty($message_body_html)) {
+            $message_body = $message_body_html;
+        } elseif (!empty($message_body_text)) {
+            $message_body = nl2br(htmlspecialchars($message_body_text));
         } else {
-            // Else: check if sender domain is registered
-            $from_domain_esc = mysqli_real_escape_string($mysqli, $from_domain);
-            $domain_sql = mysqli_query($mysqli, "SELECT * FROM domains WHERE domain_name = '$from_domain_esc' AND domain_archived_at IS NULL LIMIT 1");
-            $domain_row = mysqli_fetch_assoc($domain_sql);
+            // Final fallback - raw body
+            $message_body = nl2br(htmlspecialchars($message->body()));
+        }
 
-            if ($domain_row && $from_domain == $domain_row['domain_name']) {
-                $client_id = intval($domain_row['domain_client_id']);
+        // Handle attachments (inline vs regular)
+        $attachments = [];
+        foreach ($message->attachments() as $att) {
+            $dispo   = strtolower((string)$att->contentDisposition());
+            $cid     = $att->contentId();               // Content-ID (without <>)
+            $content = $att->contents();                // binary
+            $mime    = $att->contentType();
+            $name    = $att->filename() ?: 'attachment';
+            $size    = strlen($content);
+
+            // Skip oversized attachments entirely
+            if ($size > $max_attachment_bytes) {
+                logApp("Cron-Email-Parser", "warning", "Email parser skipped oversized attachment " . sanitizeInput($name) . " (" . round($size / 1048576, 1) . " MB) from $from_email ($subject)");
+                continue;
+            }
+
+            // Embed small inline images as data URIs; oversized inline images fall through and are saved as regular attachments
+            $is_inline = false;
+            if ($dispo === 'inline' && $cid && $content !== '' && $size <= $max_inline_embed_bytes) {
+                $cid_trim  = trim($cid, '<>');
+                $dataUri   = "data:$mime;base64,".base64_encode($content);
+                $message_body = str_replace(["cid:$cid_trim", "cid:<$cid_trim>"], $dataUri, $message_body);
+                $is_inline = true;
+            }
+
+            if (!$is_inline && $content !== '') {
+                $attachments[] = ['name' => $name, 'content' => $content];
             }
         }
 
-        // If we found either a contact or a domain, check recent tickets for a matching subject
-        if ($client_id) {
-            $recent_tickets_sql = mysqli_query($mysqli,
-                "SELECT ticket_id, ticket_number, ticket_subject
-                FROM tickets
-                WHERE ticket_client_id = $client_id AND ticket_resolved_at IS NULL
-                AND ticket_created_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)"
-            );
-
-            while ($rowt = mysqli_fetch_assoc($recent_tickets_sql)) {
-                $ticket_number = intval($rowt['ticket_number']);
-                $existing_subject = $rowt['ticket_subject'];
-
-                // Calculate similarity percentage
-                similar_text(strtolower($subject), strtolower($existing_subject), $percent);
-
-                if ($percent >= 95) {
-                    // Treat as a reply/duplicate
-                    $email_processed = addReply($from_email, $date, $subject, $ticket_number, $message_body, $attachments);
-                    break;
-                }
-            }
+        // 1. Reply to existing ticket with the number in subject
+        if (preg_match("/\[" . preg_quote($config_ticket_prefix, '/') . "(\d+)\]/", $subject, $ticket_number_matches)) {
+            $ticket_number = intval($ticket_number_matches[1]);
+            $email_processed = addReply($from_email, $date, $subject, $ticket_number, $message_body, $attachments);
         }
-    }
 
-    // 3. A known, registered contact?
-    if (!$email_processed) {
-        $from_email_esc = mysqli_real_escape_string($mysqli, $from_email);
-        $any_contact_sql = mysqli_query($mysqli, "SELECT * FROM contacts WHERE contact_email = '$from_email_esc' AND contact_archived_at IS NULL LIMIT 1");
-        $rowc = mysqli_fetch_assoc($any_contact_sql);
+        // 2. Fuzzy duplicate check using a known contact/domain and similar_text subject
+        if (!$email_processed && strlen(trim($subject)) > 10) {
+            $contact_id = 0;
+            $client_id  = 0;
 
-        if ($rowc) {
-            $contact_name  = sanitizeInput($rowc['contact_name']);
-            $contact_id    = intval($rowc['contact_id']);
-            $contact_email = sanitizeInput($rowc['contact_email']);
-            $client_id     = intval($rowc['contact_client_id']);
+            // First: check if sender is a registered contact
+            $from_email_esc = mysqli_real_escape_string($mysqli, $from_email);
+            $contact_sql = mysqli_query($mysqli, "SELECT * FROM contacts WHERE contact_email = '$from_email_esc' AND contact_archived_at IS NULL LIMIT 1");
+            $contact_row = mysqli_fetch_assoc($contact_sql);
 
-            $email_processed = addTicket($contact_id, $contact_name, $contact_email, $client_id, $date, $subject, $message_body, $attachments, $original_message_file, $ccs);
-        }
-    }
+            if ($contact_row) {
+                $contact_id = intval($contact_row['contact_id']);
+                $client_id  = intval($contact_row['contact_client_id']);
+            } else {
+                // Else: check if sender domain is registered
+                $from_domain_esc = mysqli_real_escape_string($mysqli, $from_domain);
+                $domain_sql = mysqli_query($mysqli, "SELECT * FROM domains WHERE domain_name = '$from_domain_esc' AND domain_archived_at IS NULL LIMIT 1");
+                $domain_row = mysqli_fetch_assoc($domain_sql);
 
-    // 4. A known domain?
-    if (!$email_processed) {
-        $from_domain_esc = mysqli_real_escape_string($mysqli, $from_domain);
-        $domain_sql = mysqli_query($mysqli, "SELECT * FROM domains WHERE domain_name = '$from_domain_esc' AND domain_archived_at IS NULL LIMIT 1");
-        $rowd = mysqli_fetch_assoc($domain_sql);
-
-        if ($rowd && $from_domain == $rowd['domain_name']) {
-            $client_id = intval($rowd['domain_client_id']);
-
-            // Create a new contact
-            $contact_name  = $from_name;
-            $contact_email = $from_email;
-            mysqli_query($mysqli, "INSERT INTO contacts SET contact_name = '".mysqli_real_escape_string($mysqli, $contact_name)."', contact_email = '".mysqli_real_escape_string($mysqli, $contact_email)."', contact_notes = 'Added automatically via email parsing.', contact_client_id = $client_id");
-            $contact_id = mysqli_insert_id($mysqli);
-
-            logAction("Contact", "Create", "Email parser: created contact " . mysqli_real_escape_string($mysqli, $contact_name), $client_id, $contact_id);
-            customAction('contact_create', $contact_id);
-
-            $email_processed = addTicket($contact_id, $contact_name, $contact_email, $client_id, $date, $subject, $message_body, $attachments, $original_message_file, $ccs);
-        }
-    }
-
-    // 5. Unknown sender allowed?
-    if (!$email_processed && $config_ticket_email_parse_unknown_senders) {
-
-        $bad_from_pattern = "/daemon|postmaster|bounce|mta/i"; //  Stop NDRs with bad subjects raising new tickets
-        if (!preg_match($bad_from_pattern, $from_email)) {
-            $email_processed = addTicket(0, $from_name, $from_email, 0, $date, $subject, $message_body, $attachments, $original_message_file, $ccs);
-
-        } else {
-
-            // Probably an NDR message without a ticket ref in the subject
-
-            $failed_recipient  = null;
-            $diagnostic_code   = null;
-            $status_code       = null;
-            $original_subject  = null;
-            $original_to       = null;
-
-            // Webklex stores DSN info in attachments, not parts
-            foreach ($message->getAttachments() as $attachment) {
-
-                $ctype = strtolower($attachment->getContentType());
-                $body  = $attachment->getContent() ?? '';
-
-                // 1. Delivery status block
-                if (strpos($ctype, 'delivery-status') !== false) {
-
-                    if (preg_match('/Final-Recipient:\s*rfc822;\s*(.+)/i', $body, $m)) {
-                        $failed_recipient = sanitizeInput(trim($m[1]));
-                    }
-
-                    if (preg_match('/Diagnostic-Code:\s*(.+)/i', $body, $m)) {
-                        $diagnostic_code = sanitizeInput(trim($m[1]));
-                    }
-
-                    if (preg_match('/Status:\s*([0-9\.]+)/i', $body, $m)) {
-                        $status_code = sanitizeInput(trim($m[1]));
-                    }
-                }
-
-                // 2. Original message headers
-                if (strpos($ctype, 'message/rfc822') !== false) {
-
-                    if (preg_match('/^To:\s*(.+)$/mi', $body, $m)) {
-                        $original_to = sanitizeInput(trim($m[1]));
-                    }
-
-                    if (preg_match('/^Subject:\s*(.+)$/mi', $body, $m)) {
-                        $original_subject = sanitizeInput(trim($m[1]));
-                    }
+                if ($domain_row && $from_domain == $domain_row['domain_name']) {
+                    $client_id = intval($domain_row['domain_client_id']);
                 }
             }
 
-            // 3. Fallback: extract diagnostic from human-readable text/plain
-            if (!$diagnostic_code) {
-                $text = $message->getTextBody() ?? '';
-
-                // Exim puts diagnostics on an indented line
-                if (preg_match('/\n\s{2,}(.+)/', $text, $m)) {
-                    $diagnostic_code = sanitizeInput(trim($m[1]));
-                }
-            }
-
-            // Fallbacks
-            $failed_recipient = $failed_recipient ?: 'unknown recipient';
-            $diagnostic_code  = $diagnostic_code ?: 'unknown diagnostic code';
-            $status_code      = $status_code ?: 'unknown status code';
-            $original_subject = $original_subject ?: $subject;
-
-            appNotify(
-                "Ticket",
-                "Email parser NDR: Message to $failed_recipient bounced. Subject: $original_subject Diagnostics: $status_code / $diagnostic_code - check ITFlow folder manually to see email",
-                "",
-                0
-            );
-
-            // If the original subject has a ticket, add the NDR there too
-            if (preg_match("/\[$config_ticket_prefix(\d+)\]/", $original_subject, $ticket_number_matches)) {
-
-                $ticket_number = intval($ticket_number_matches[1]);
-
-                // Craft a clean bounce message
-                $reply_body = "Email delivery failed.\n".
-                    "Recipient: $failed_recipient\n".
-                    "Status: $status_code\n".
-                    "Diagnostic: $diagnostic_code\n";
-
-                // No attachments
-                addReply(
-                    $from_email,
-                    $date,
-                    $original_subject,
-                    $ticket_number,
-                    $reply_body,
-                    []
+            // If we found either a contact or a domain, check recent tickets for a matching subject
+            if ($client_id) {
+                $recent_tickets_sql = mysqli_query($mysqli,
+                    "SELECT ticket_id, ticket_number, ticket_subject
+                    FROM tickets
+                    WHERE ticket_client_id = $client_id AND ticket_resolved_at IS NULL
+                    AND ticket_created_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)"
                 );
 
+                while ($rowt = mysqli_fetch_assoc($recent_tickets_sql)) {
+                    $ticket_number = intval($rowt['ticket_number']);
+                    $existing_subject = $rowt['ticket_subject'];
+
+                    // Calculate similarity percentage
+                    similar_text(strtolower($subject), strtolower($existing_subject), $percent);
+
+                    if ($percent >= 95) {
+                        // Treat as a reply/duplicate
+                        $email_processed = addReply($from_email, $date, $subject, $ticket_number, $message_body, $attachments);
+                        break;
+                    }
+                }
             }
-
-            $email_processed = true;
         }
-    }
 
+        // 3. A known, registered contact?
+        if (!$email_processed) {
+            $from_email_esc = mysqli_real_escape_string($mysqli, $from_email);
+            $any_contact_sql = mysqli_query($mysqli, "SELECT * FROM contacts WHERE contact_email = '$from_email_esc' AND contact_archived_at IS NULL LIMIT 1");
+            $rowc = mysqli_fetch_assoc($any_contact_sql);
 
-    // Flag/move based on processing result
-    if ($email_processed) {
-        $processed_count++; // increment first so a move failure doesn't hide the success
-        try {
-            $message->setFlag('Seen');
-            // Move using the Folder object (top-level "ITFlow")
-            $message->move($targetFolderPath);
-            // optional: logApp("Cron-Email-Parser", "info", "Moved message to ITFlow");
-        } catch (\Throwable $e) {
-            // >>> Put the extra logging RIGHT HERE
-            $subj = (string)$message->getSubject();
-            $uid  = method_exists($message, 'getUid') ? $message->getUid() : 'n/a';
-            $path = (is_object($targetFolder) && property_exists($targetFolder, 'path')) ? (string)$targetFolder->path : $targetFolderPath;
-            logApp(
-                "Cron-Email-Parser",
-                "warning",
-                "Move failed (subject=\"$subj\", uid=$uid) to [$path]: ".$e->getMessage()
-            );
+            if ($rowc) {
+                $contact_name  = sanitizeInput($rowc['contact_name']);
+                $contact_id    = intval($rowc['contact_id']);
+                $contact_email = sanitizeInput($rowc['contact_email']);
+                $client_id     = intval($rowc['contact_client_id']);
+
+                $email_processed = addTicket($contact_id, $contact_name, $contact_email, $client_id, $date, $subject, $message_body, $attachments, $original_message_file, $ccs);
+            }
         }
-    } else {
+
+        // 4. A known domain?
+        if (!$email_processed) {
+            $from_domain_esc = mysqli_real_escape_string($mysqli, $from_domain);
+            $domain_sql = mysqli_query($mysqli, "SELECT * FROM domains WHERE domain_name = '$from_domain_esc' AND domain_archived_at IS NULL LIMIT 1");
+            $rowd = mysqli_fetch_assoc($domain_sql);
+
+            if ($rowd && $from_domain == $rowd['domain_name']) {
+                $client_id = intval($rowd['domain_client_id']);
+
+                // Create a new contact
+                $contact_name  = $from_name;
+                $contact_email = $from_email;
+                mysqli_query($mysqli, "INSERT INTO contacts SET contact_name = '".mysqli_real_escape_string($mysqli, $contact_name)."', contact_email = '".mysqli_real_escape_string($mysqli, $contact_email)."', contact_notes = 'Added automatically via email parsing.', contact_client_id = $client_id");
+                $contact_id = mysqli_insert_id($mysqli);
+
+                logAction("Contact", "Create", "Email parser: created contact " . mysqli_real_escape_string($mysqli, $contact_name), $client_id, $contact_id);
+                customAction('contact_create', $contact_id);
+
+                $email_processed = addTicket($contact_id, $contact_name, $contact_email, $client_id, $date, $subject, $message_body, $attachments, $original_message_file, $ccs);
+            }
+        }
+
+        // 5. Unknown sender allowed?
+        if (!$email_processed && $config_ticket_email_parse_unknown_senders) {
+
+            $bad_from_pattern = "/daemon|postmaster|bounce|mta/i"; //  Stop NDRs with bad subjects raising new tickets
+            if (!preg_match($bad_from_pattern, $from_email)) {
+                $email_processed = addTicket(0, $from_name, $from_email, 0, $date, $subject, $message_body, $attachments, $original_message_file, $ccs);
+
+            } else {
+
+                // Probably an NDR message without a ticket ref in the subject
+
+                $failed_recipient  = null;
+                $diagnostic_code   = null;
+                $status_code       = null;
+                $original_subject  = null;
+                $original_to       = null;
+
+                // ImapEngine: walk the parsed MIME parts to find DSN info
+                foreach ($message->parse()->getAllParts() as $part) {
+
+                    $ctype = strtolower((string)$part->getContentType());
+                    $body  = $part->getContent() ?? '';
+
+                    // 1. Delivery status block
+                    if (strpos($ctype, 'delivery-status') !== false) {
+
+                        if (preg_match('/Final-Recipient:\s*rfc822;\s*(.+)/i', $body, $m)) {
+                            $failed_recipient = sanitizeInput(trim($m[1]));
+                        }
+
+                        if (preg_match('/Diagnostic-Code:\s*(.+)/i', $body, $m)) {
+                            $diagnostic_code = sanitizeInput(trim($m[1]));
+                        }
+
+                        if (preg_match('/Status:\s*([0-9\.]+)/i', $body, $m)) {
+                            $status_code = sanitizeInput(trim($m[1]));
+                        }
+                    }
+
+                    // 2. Original message headers
+                    if (strpos($ctype, 'message/rfc822') !== false) {
+
+                        if (preg_match('/^To:\s*(.+)$/mi', $body, $m)) {
+                            $original_to = sanitizeInput(trim($m[1]));
+                        }
+
+                        if (preg_match('/^Subject:\s*(.+)$/mi', $body, $m)) {
+                            $original_subject = sanitizeInput(trim($m[1]));
+                        }
+                    }
+                }
+
+                // 3. Fallback: extract diagnostic from human-readable text/plain
+                if (!$diagnostic_code) {
+                    $text = $message->text() ?? '';
+
+                    // Exim puts diagnostics on an indented line
+                    if (preg_match('/\n\s{2,}(.+)/', $text, $m)) {
+                        $diagnostic_code = sanitizeInput(trim($m[1]));
+                    }
+                }
+
+                // Fallbacks
+                $failed_recipient = $failed_recipient ?: 'unknown recipient';
+                $diagnostic_code  = $diagnostic_code ?: 'unknown diagnostic code';
+                $status_code      = $status_code ?: 'unknown status code';
+                $original_subject = $original_subject ?: $subject;
+
+                appNotify(
+                    "Ticket",
+                    "Email parser NDR: Message to $failed_recipient bounced. Subject: $original_subject Diagnostics: $status_code / $diagnostic_code - check ITFlow folder manually to see email",
+                    "",
+                    0
+                );
+
+                // If the original subject has a ticket, add the NDR there too
+                if (preg_match("/\[" . preg_quote($config_ticket_prefix, '/') . "(\d+)\]/", $original_subject, $ticket_number_matches)) {
+
+                    $ticket_number = intval($ticket_number_matches[1]);
+
+                    // Craft a clean bounce message
+                    $reply_body = "Email delivery failed.\n".
+                        "Recipient: $failed_recipient\n".
+                        "Status: $status_code\n".
+                        "Diagnostic: $diagnostic_code\n";
+
+                    // No attachments
+                    addReply(
+                        $from_email,
+                        $date,
+                        $original_subject,
+                        $ticket_number,
+                        $reply_body,
+                        []
+                    );
+
+                }
+
+                $email_processed = true;
+            }
+        }
+
+
+        // Flag/move based on processing result
+        if ($email_processed) {
+            $processed_count++; // increment first so a move failure doesn't hide the success
+            try {
+                $message->markSeen();
+                // Move to the top-level "ITFlow" folder
+                $message->move($targetFolderPath);
+                // optional: logApp("Cron-Email-Parser", "info", "Moved message to ITFlow");
+            } catch (\Throwable $e) {
+                $subj = (string)$message->subject();
+                $uid  = $message->uid();
+                $path = $targetFolder->path();
+                logApp(
+                    "Cron-Email-Parser",
+                    "warning",
+                    "Move failed (subject=\"$subj\", uid=$uid) to [$path]: ".$e->getMessage()
+                );
+            }
+        } else {
+            $unprocessed_count++;
+            try {
+                $message->markFlagged();
+                $message->unmarkSeen();
+            } catch (\Throwable $e) {
+                logApp("Cron-Email-Parser", "warning", "Flag update failed: ".$e->getMessage());
+            }
+        }
+
+    } catch (\Throwable $e) {
+        // One bad message must not kill the whole run - flag it for manual attention and continue
         $unprocessed_count++;
+        logApp("Cron-Email-Parser", "warning", "Email parser failed to process message UID " . $message->uid() . ": " . $e->getMessage());
         try {
-            $message->setFlag('Flagged');
-            $message->unsetFlag('Seen');
-        } catch (\Throwable $e) {
-            logApp("Cron-Email-Parser", "warning", "Flag update failed: ".$e->getMessage());
+            $message->markFlagged();
+            $message->unmarkSeen();
+        } catch (\Throwable $e2) {
+            // ignore
         }
     }
 
@@ -901,16 +953,17 @@ foreach ($messages as $message) {
     if (isset($original_message_file)) {
         $tmp_path = "../uploads/tmp/{$original_message_file}";
         if (file_exists($tmp_path)) { @unlink($tmp_path); }
+        unset($original_message_file);
     }
 }
 
 // Expunge & disconnect
 try {
-    $client->expunge();
+    $inbox->expunge();
 } catch (\Throwable $e) {
     // ignore
 }
-$client->disconnect();
+$mailbox->disconnect();
 
 // Execution timing (optional)
 $script_end_time = microtime(true);
@@ -918,7 +971,9 @@ $execution_time = $script_end_time - $script_start_time;
 $execution_time_formatted = number_format($execution_time, 2);
 
 $processed_info = "Processed: $processed_count email(s), Unprocessed: $unprocessed_count email(s)";
-// logAction("Cron-Email-Parser", "Execution", "Cron Email Parser executed in $execution_time_formatted seconds. $processed_info");
+if ($processed_count || $unprocessed_count) {
+    logApp("Cron-Email-Parser", "info", "Cron Email Parser executed in $execution_time_formatted seconds. $processed_info");
+}
 
 // Remove the lock file
 unlink($lock_file_path);

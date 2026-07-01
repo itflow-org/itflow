@@ -27,7 +27,7 @@ if (isset($_POST['add_software_from_template'])) {
     $type = sanitizeInput($row['software_template_type']);
     $license_type = sanitizeInput($row['software_template_license_type']);
     $notes = sanitizeInput($row['software_template_notes']);
-    $vendor = sanitizeInput($_POST['vendor'] ?? 0);
+    $vendor = intval($_POST['vendor'] ?? 0);
 
     // Software add query
     mysqli_query($mysqli,"INSERT INTO software SET software_name = '$name', software_version = '$version', software_description = '$description', software_type = '$type', software_license_type = '$license_type', software_notes = '$notes', software_vendor_id = $vendor, software_client_id = $client_id");

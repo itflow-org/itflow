@@ -132,7 +132,7 @@ ob_start();
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-ethernet"></i></span>
                         </div>
-                        <input type="text" class="form-control" name="ip" placeholder="e.g. 192.168.1.10" data-inputmask="'alias': 'ip'" maxlength="200" data-mask>
+                        <input type="text" class="form-control text-monospace" name="ip" placeholder="e.g. 192.168.1.10" data-inputmask="'alias': 'ip'" maxlength="200" data-mask>
                         <div class="input-group-append">
                             <div class="input-group-text">
                                 <input type="checkbox" name="dhcp" value="1" title="Check to mark address as DHCP controlled">
@@ -148,7 +148,7 @@ ob_start();
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-ethernet"></i></span>
                         </div>
-                        <input type="text" class="form-control" name="mac" placeholder="e.g. 00:1A:2B:3C:4D:5E" data-inputmask="'alias': 'mac'" maxlength="200" data-mask>
+                        <input type="text" class="form-control text-monospace" name="mac" placeholder="e.g. 00:1A:2B:3C:4D:5E" data-inputmask="'alias': 'mac'" maxlength="200" data-mask>
                     </div>
                 </div>
 
@@ -159,7 +159,7 @@ ob_start();
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-ethernet"></i></span>
                         </div>
-                        <input type="text" class="form-control" name="ipv6" placeholder="e.g. 2001:db8::1" maxlength="200">
+                        <input type="text" class="form-control text-monospace" name="ipv6" placeholder="e.g. 2001:db8::1" maxlength="200">
                     </div>
                 </div>
 
@@ -172,7 +172,7 @@ ob_start();
                         </div>
                         <input
                             type="text"
-                            class="form-control"
+                            class="form-control text-monospace"
                             name="nat_ip"
                             placeholder="e.g. 203.0.113.10 or 10.0.0.5"
                             maxlength="200"

@@ -144,7 +144,7 @@ ob_start();
                             $network_parts = explode(":", $network);
                             $network_name = $network_parts[0];
                             $network_vlan = $network_parts[1] ?? '';
-                            echo "<li><a href='networks.php?client_id=$client_id&q=$network_name'>$network_name</a> (VLAN $network_vlan)</li>";
+                            echo "<li><a href='networks.php?client_id=$client_id&q=$network_name'>$network_name</a> (VLAN <span class='text-monospace'>$network_vlan</span>)</li>";
                         }
                         echo "</ul>";
                     }

@@ -317,7 +317,6 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             Primary Location <?php if ($sort == 'location_city') { echo $order_icon; } ?>
                         </a>
                     </th>
-                    <th></th>
                     <?php if ((lookupUserPermission("module_financial") >= 1) && $config_module_enable_accounting == 1) { ?>
                     <th>Billing</th>
                     <?php } ?>
@@ -371,62 +370,6 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         $client_abbreviation = shortenClient($client_name);
                     }
 
-                    // Counts
-
-                    // Contact Count
-                    $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('contact_id') AS num FROM contacts WHERE contact_client_id = $client_id AND contact_archived_at IS NULL"));
-                    $contact_count = $row['num'];
-                    if ($contact_count) {
-                        $contact_count_display = "<a href='contacts.php?client_id=$client_id'><i class='fas fa-fw fa-users text-dark mr-2'></i><strong>$contact_count</strong> Contacts</a>";
-                    } else {
-                        $contact_count_display = '';
-                    }
-
-                    // Vendors Count
-                    $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('vendor_id') AS num FROM vendors WHERE vendor_client_id = $client_id AND vendor_archived_at IS NULL"));
-                    $vendor_count = $row['num'];
-                    if ($vendor_count) {
-                        $vendor_count_display = "<a href='vendors.php?client_id=$client_id'><i class='fas fa-fw fa-building text-dark mr-2'></i><strong>$vendor_count</strong> Vendors</a>";
-                    } else {
-                        $vendor_count_display = '';
-                    }
-
-                    // Asset Count
-                    $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('asset_id') AS num FROM assets WHERE asset_client_id = $client_id AND asset_archived_at IS NULL"));
-                    $asset_count = $row['num'];
-                    if ($asset_count) {
-                        $asset_count_display = "<a href='assets.php?client_id=$client_id'><i class='fas fa-fw fa-desktop text-dark mr-2'></i><strong>$asset_count</strong> Assets</a>";
-                    } else {
-                        $asset_count_display = '';
-                    }
-
-                    // Credential Count
-                    $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('credential_id') AS num FROM credentials WHERE credential_client_id = $client_id AND credential_archived_at IS NULL"));
-                    $credential_count = $row['num'];
-                    if ($credential_count) {
-                        $credential_count_display = "<a href='credentials.php?client_id=$client_id'><i class='fas fa-fw fa-key text-dark mr-2'></i><strong>$credential_count</strong> Credentials</a>";
-                    } else {
-                        $credential_count_display = '';
-                    }
-
-                    // Software Count
-                    $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('software_id') AS num FROM software WHERE software_client_id = $client_id AND software_archived_at IS NULL"));
-                    $software_count = $row['num'];
-                    if ($software_count) {
-                        $software_count_display = "<a href='software.php?client_id=$client_id'><i class='fas fa-fw fa-cube text-dark mr-2'></i><strong>$software_count</strong> Software</a>";
-                    } else {
-                        $software_count_display = '';
-                    }
-
-                    // Ticket Count
-                    $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('ticket_id') AS num FROM tickets WHERE ticket_client_id = $client_id AND ticket_archived_at IS NULL"));
-                    $ticket_count = $row['num'];
-                    if ($ticket_count) {
-                        $ticket_count_display = "<a href='tickets.php?client_id=$client_id'><i class='fas fa-fw fa-life-ring text-dark mr-2'></i><strong>$ticket_count</strong> Tickets</a>";
-                    } else {
-                        $ticket_count_display = '';
-                    }
-
                     // Client Tags
                     $client_tag_name_display_array = array();
                     $client_tag_id_array = array();
@@ -444,9 +387,12 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         }
 
                         $client_tag_id_array[] = $client_tag_id;
-                        $client_tag_name_display_array[] = "<a href='clients.php?tags[]=$client_tag_id'><span class='mt-1 badge badge-pill text-light p-2 mr-1' style='background-color: $client_tag_color;'><i class='fas fa-$client_tag_icon fa-fw mr-1'></i>$client_tag_name</span></a>";
+                        $client_tag_name_display_array[] = "<a href='clients.php?tags[]=$client_tag_id'><span class='mt-1 badge badge-pill text-light p-1 mr-1' style='background-color: $client_tag_color;'><i class='fas fa-$client_tag_icon fa-fw mr-1'></i>$client_tag_name</span></a>";
                     }
-                    $client_tags_display = implode('', $client_tag_name_display_array);
+                    $client_tags_display = '';
+                    foreach (array_chunk($client_tag_name_display_array, 3) as $tag_row) {
+                        $client_tags_display .= "<div class='d-flex flex-wrap'>" . implode('', $tag_row) . "</div>";
+                    }
 
                     //Add up all the payments for the invoice and get the total amount paid to the invoice
                     $sql_invoice_amounts = mysqli_query($mysqli, "SELECT SUM(invoice_amount) AS invoice_amounts FROM invoices WHERE invoice_client_id = $client_id AND invoice_status != 'Draft' AND invoice_status != 'Cancelled' AND invoice_status != 'Non-Billable' ");
@@ -462,7 +408,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     $balance = $invoice_amounts - $amount_paid;
                     //set Text color on balance
                     if ($balance > 0) {
-                        $balance_text_color = "text-danger font-weight-bold";
+                        $balance_text_color = "text-danger";
                     } else {
                         $balance_text_color = "";
                     }
@@ -554,25 +500,6 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             <?php } ?>
                         </td>
                         <td><?php echo $location_address_display; ?></td>
-                        <td>
-                            <a href="#"
-                                data-toggle="popover"
-                                data-trigger="hover"
-                                data-placement="right"
-                                data-html="true"
-                                data-delay='{"hide": 1800}'
-                                title="<?= $client_name ?>"
-                                data-content="
-                                    <div><?= $contact_count_display ?></div>
-                                    <div><?= $asset_count_display ?></div>
-                                    <div><?= $vendor_count_display ?></div>
-                                    <div><?= $credential_count_display ?></div>
-                                    <div><?= $software_count_display ?></div>
-                                    <div><?= $ticket_count_display ?></div>
-                                ">
-                                <i class="fas fa-fw fa-2x fa-info-circle"></i>
-                            </a>
-                        </td>
                         <!-- Show Billing if perms & if accounting module is enabled -->
                         <?php if ((lookupUserPermission("module_financial") >= 1) && $config_module_enable_accounting == 1) { ?>
                             <td class="text-right">
@@ -582,21 +509,21 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 </div>
                                 <div class="d-flex justify-content-between">
                                     <span class="text-secondary">Paid</span>
-                                    <span><?php echo numfmt_format_currency($currency_format, $amount_paid, $session_company_currency); ?></span>
+                                    <?php echo numfmt_format_currency($currency_format, $amount_paid, $session_company_currency); ?>
                                 </div>
                                 <?php if ($credit_balance > 0) { ?>
                                 <div class="d-flex justify-content-between">
                                     <span class="text-secondary">Credit</span>
-                                    <span class="text-success"><?php echo numfmt_format_currency($currency_format, $credit_balance, $session_company_currency); ?></span>
+                                    <span class="text-success"><?php echo numfmt_format_currency($currency_format, $credit_balance, $session_company_currency); ?>
                                 </div>
                                 <?php } ?>
                                 <div class="d-flex justify-content-between">
                                     <span class="text-secondary">Monthly</span>
-                                    <span><?php echo numfmt_format_currency($currency_format, $recurring_monthly, $session_company_currency); ?></span>
+                                    <?php echo numfmt_format_currency($currency_format, $recurring_monthly, $session_company_currency); ?>
                                 </div>
                                 <div class="d-flex justify-content-between">
                                     <span class="text-secondary">Hourly Rate</span>
-                                    <span><?php echo numfmt_format_currency($currency_format, $client_rate, $session_company_currency); ?></span>
+                                    <?php echo numfmt_format_currency($currency_format, $client_rate, $session_company_currency); ?>
                                 </div>
                             </td>
                         <?php } ?>

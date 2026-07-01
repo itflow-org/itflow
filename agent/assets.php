@@ -692,12 +692,12 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                     <div><small class="text-secondary"><?php echo $asset_serial_display; ?></small></div>
                                 </td>
                             <?php } ?>
-                                <td>
+                                <td class="text-monospace">
                                     <?php echo $asset_ip; ?>
                                     <div class="text-secondary"><small><?php echo $asset_ipv6; ?></small></div>
                                 </td>
                             <?php if (isset($_GET['show_column']) && is_array($_GET['show_column']) && in_array('Mac_Address', $_GET['show_column'])) { ?>
-                                <td><?php echo $asset_mac; ?></td>
+                                <td class="text-monospace"><?php echo $asset_mac; ?></td>
                             <?php } ?>
                             <?php if (isset($_GET['show_column']) && is_array($_GET['show_column']) && in_array('Purchase_Date', $_GET['show_column'])) { ?>
                                 <td><?php echo $asset_purchase_date_display; ?></td>

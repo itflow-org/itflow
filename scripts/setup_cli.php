@@ -40,7 +40,8 @@ $optional_args = [
     'zip'           => 'Company postal code (optional)',
     'phone'         => 'Company phone (optional)',
     'company-email' => 'Company email (optional)',
-    'website'       => 'Company website (optional)'
+    'website'       => 'Company website (optional)',
+    'repo-branch'   => 'Git repo branch to track (optional, default master)'
 ];
 
 // Parse command line options
@@ -64,6 +65,7 @@ $longopts = [
     "phone::",
     "company-email::",
     "website::",
+    "repo-branch::",
     "user-name:",
     "user-email:",
     "user-password:",
@@ -168,6 +170,10 @@ $password = getOptionOrPrompt('password', "Enter the database password", true);
 $base_url = getOptionOrPrompt('base-url', "Enter the base URL (e.g. example.com/itflow)", true);
 $base_url = rtrim($base_url, '/');
 
+// Repo Branch
+$repo_branch = getOptionOrPrompt('repo-branch', "Git repo branch to track", false, 'master');
+if (empty($repo_branch)) $repo_branch = 'master';
+
 // Locale, Timezone, Currency
 echo "\n=== Localization ===\n";
 $locale = getOptionOrPrompt('locale', "Enter the locale (e.g. en_US)", true);
@@ -230,7 +236,7 @@ $new_config .= "\$mysqli = mysqli_connect(\$dbhost, \$dbusername, \$dbpassword, 
 $new_config .= "\$config_app_name = 'ITFlow';\n";
 $new_config .= "\$config_base_url = '" . addslashes($base_url) . "';\n";
 $new_config .= "\$config_https_only = TRUE;\n";
-$new_config .= "\$repo_branch = 'master';\n";
+$new_config .= "\$repo_branch = '" . addslashes($repo_branch) . "';\n";
 $new_config .= "\$installation_id = '$installation_id';\n";
 
 if (file_put_contents("../config.php", $new_config) === false) {

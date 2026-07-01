@@ -237,8 +237,8 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             <?php if (!$client_url) { ?>
                             <td><a href="payments.php?client_id=<?php echo $client_id; ?>"><?php echo $client_name; ?></a></td>
                             <?php } ?>
-                            <td class="text-right"><?php echo numfmt_format_currency($currency_format, $invoice_amount, $invoice_currency_code); ?></td>
-                            <td class="text-right"><?php echo numfmt_format_currency($currency_format, $payment_amount, $payment_currency_code); ?></td>
+                            <td class="text-right text-monospace"><?php echo numfmt_format_currency($currency_format, $invoice_amount, $invoice_currency_code); ?></td>
+                            <td class="text-right text-monospace"><?php echo numfmt_format_currency($currency_format, $payment_amount, $payment_currency_code); ?></td>
                             <td><?php echo $payment_method; ?></td>
                             <td><?php echo $payment_reference_display; ?></td>
                             <td><?php echo "$account_archived_display$account_name"; ?></td>

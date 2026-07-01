@@ -76,7 +76,7 @@ if (isset($_POST['oauth_connect_microsoft_mail'])) {
 }
 
 if (isset($_POST['edit_mail_smtp_settings'])) {
-    
+
     validateCSRFToken($_POST['csrf_token']);
 
     $config_smtp_provider            = sanitizeInput($_POST['config_smtp_provider']);
@@ -110,15 +110,15 @@ if (isset($_POST['edit_mail_smtp_settings'])) {
     ");
 
     logAction("Settings", "Edit", "$session_name edited SMTP settings");
-    
+
     flash_alert("SMTP Mail Settings updated");
-    
+
     redirect();
 
 }
 
 if (isset($_POST['edit_mail_imap_settings'])) {
-    
+
     validateCSRFToken($_POST['csrf_token']);
 
     $config_imap_provider            = sanitizeInput($_POST['config_imap_provider']);
@@ -152,9 +152,9 @@ if (isset($_POST['edit_mail_imap_settings'])) {
     ");
 
     logAction("Settings", "Edit", "$session_name edited IMAP settings");
-    
+
     flash_alert("IMAP Mail Settings updated");
-    
+
     redirect();
 
 }
@@ -190,7 +190,7 @@ if (isset($_POST['test_email_smtp'])) {
     validateCSRFToken($_POST['csrf_token']);
 
     $test_email = intval($_POST['test_email']);
-    
+
     if($test_email == 1) {
         $email_from = sanitizeInput($config_mail_from_email);
         $email_from_name = sanitizeInput($config_mail_from_name);
@@ -219,7 +219,7 @@ if (isset($_POST['test_email_smtp'])) {
             'body' => $body
         ]
     ];
-    
+
     $mail = addToMailQueue($data);
 
     if ($mail === true) {

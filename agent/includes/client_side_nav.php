@@ -1,5 +1,5 @@
 <!-- Main Sidebar Container -->
-<aside class="main-sidebar sidebar-dark-<?php if (isset($_GET['client_id'])) { echo "gray"; } else { echo nullable_htmlentities($config_theme); } ?> d-print-none">
+<aside class="main-sidebar sidebar-dark-<?php echo nullable_htmlentities($config_theme); ?> d-print-none">
 
     <a class="brand-link pb-1 mt-1" href="/agent/clients.php">
         <p class="h5">
@@ -128,7 +128,7 @@
 
                     <?php if (lookupUserPermission("module_support") >= 1) { ?>
                         <li class="nav-item">
-                            <a href="/agent/assets.php?client_id=<?php echo $client_id; ?>" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "assets.php" || basename($_SERVER["PHP_SELF"]) == "client_asset_details.php") { echo "active"; } ?>">
+                            <a href="/agent/assets.php?client_id=<?php echo $client_id; ?>" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "assets.php" || basename($_SERVER["PHP_SELF"]) == "asset_details.php") { echo "active"; } ?>">
                                 <i class="nav-icon fas fa-desktop"></i>
                                 <p>
                                     Assets
@@ -237,7 +237,7 @@
 
                     <!-- Allow files even without module_support for things like contracts, etc. ) -->
                     <li class="nav-item">
-                        <a href="/agent/files.php?client_id=<?php echo $client_id; ?>" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "files.php") { echo "active"; } ?>">
+                        <a href="/agent/files.php?client_id=<?php echo $client_id; ?>" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "files.php" || basename($_SERVER["PHP_SELF"]) == "document_details.php") { echo "active"; } ?>">
                             <i class="nav-icon fas fa-folder"></i>
                             <p>
                                 Files

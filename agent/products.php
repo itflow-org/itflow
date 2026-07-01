@@ -271,7 +271,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 <?php } ?>
                                 <td><?= $tax_name ?></td>
                                 <td><?= $tax_percent ?>%</td>
-                                <td class="text-right"><?php echo numfmt_format_currency($currency_format, $product_price, $product_currency_code); ?></td>
+                                <td class="text-right text-monospace"><?php echo numfmt_format_currency($currency_format, $product_price, $product_currency_code); ?></td>
 
                                 <td>
                                     <div class="dropdown dropleft text-center">

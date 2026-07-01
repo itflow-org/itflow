@@ -291,7 +291,7 @@ if (isset($_GET['invoice_id'])) {
                                 <a class="dropdown-item" href="post.php?export_invoice_packing_slip=<?= $invoice_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>" target="_blank">
                                     <i class="fa fa-fw fa-box-open text-secondary mr-2"></i>Packing Slip
                                 </a>
-                                <?php if (!empty($config_smtp_host) && !empty($contact_email)) { ?>
+                                <?php if (!empty($config_smtp_provider) && !empty($contact_email)) { ?>
                                     <a class="dropdown-item" href="post.php?email_invoice=<?= $invoice_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                                         <i class="fa fa-fw fa-paper-plane text-secondary mr-2"></i>Send Email
                                     </a>

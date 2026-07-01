@@ -57,6 +57,11 @@ if (isset($_POST['edit_your_user_details'])) {
             // directory in which the uploaded file will be moved
             $upload_file_dir = "../../uploads/users/$session_user_id/";
             $dest_path = $upload_file_dir . $new_file_name;
+
+            if (!file_exists("$upload_file_dir")) {
+                mkdir("$upload_file_dir");
+            }
+
             move_uploaded_file($file_tmp_path, $dest_path);
 
             // Delete old file
@@ -90,6 +95,10 @@ if (isset($_POST['edit_your_user_details'])) {
 if (isset($_GET['clear_your_user_avatar'])) {
 
     validateCSRFToken($_GET['csrf_token']);
+
+    $user_avatar = sanitizeInput(getFieldById('users', $session_user_id, 'user_avatar'));
+
+    unlink("../../uploads/users/$session_user_id/$user_avatar");
 
     mysqli_query($mysqli,"UPDATE users SET user_avatar = NULL WHERE user_id = $session_user_id");
 

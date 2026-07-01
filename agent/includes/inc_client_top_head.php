@@ -167,7 +167,7 @@
             </div>
             <?php if(!empty($client_tax_id_number)) { ?>
             <div class="ml-1 mt-1 text-secondary">Tax ID
-                <span class="text-dark float-right"><?php echo $client_tax_id_number; ?></span>
+                <span class="text-dark float-right text-monospace"><?php echo $client_tax_id_number; ?></span>
             </div>
             <?php } ?>
         </div>

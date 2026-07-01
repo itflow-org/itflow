@@ -458,7 +458,7 @@ if (isset($_GET['contact_id'])) {
                                             <small class="text-muted"><?= $asset_model ?></small>
                                         </div>
                                     </td>
-                                    <td><?= $asset_serial_display ?></td>
+                                    <td class="text-monospace"><?= $asset_serial_display ?></td>
 
                                     <td><?= $asset_install_date_display ?></td>
                                     <td><?= $asset_status ?></td>
@@ -1061,7 +1061,7 @@ if (isset($_GET['contact_id'])) {
                                         <div class="text-secondary"><?php echo $file_description; ?></div>
                                     </td>
                                     <td><?php echo $file_mime_type; ?></td>
-                                    <td><?php echo $file_size_KB; ?> KB</td>
+                                    <td><span class="text-monospace"><?php echo $file_size_KB; ?></span> KB</td>
                                     <td><?php echo $file_created_at; ?></td>
                                     <td class="text-center">
                                         <a href="post.php?unlink_contact_from_file&contact_id=<?php echo $contact_id; ?>&file_id=<?php echo $file_id; ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>" class="btn btn-secondary btn-sm" title="Unlink"><i class="fas fa-fw fa-unlink"></i></a>

@@ -198,7 +198,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             <a href="quotes.php?client_id=<?php echo $client_id; ?>"><?php echo $client_name; ?></a>
                         </td>
                         <?php } ?>
-                        <td class="text-right text-bold"><?php echo numfmt_format_currency($currency_format, $quote_amount, $quote_currency_code); ?></td>
+                        <td class="text-right text-monospace"><?php echo numfmt_format_currency($currency_format, $quote_amount, $quote_currency_code); ?></td>
                         <td><?php echo $quote_date; ?></td>
                         <td><?php echo $quote_expire; ?></td>
                         <td><?php echo $category_name; ?></td>
@@ -222,7 +222,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                             data-modal-url="modals/quote/quote_copy.php?id=<?= $quote_id ?>">
                                             <i class="fas fa-fw fa-copy mr-2"></i>Copy
                                         </a>
-                                        <?php if (!empty($config_smtp_host)) { ?>
+                                        <?php if (!empty($config_smtp_provider)) { ?>
                                             <div class="dropdown-divider"></div>
                                             <a class="dropdown-item" href="post.php?email_quote=<?= $quote_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                                                 <i class="fas fa-fw fa-paper-plane mr-2"></i>Email
