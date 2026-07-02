@@ -10,28 +10,26 @@ if (isset($_POST['oauth_connect_microsoft_mail'])) {
 
     validateCSRFToken($_POST['csrf_token']);
 
-    // Save current IMAP/OAuth form values first so auth flow always uses latest inputs.
-    $config_imap_provider = sanitizeInput($_POST['config_imap_provider'] ?? '');
-    $config_imap_username = sanitizeInput($_POST['config_imap_username'] ?? '');
-    $config_mail_oauth_client_id = sanitizeInput($_POST['config_mail_oauth_client_id'] ?? '');
+    // Save the OAuth credential fields from this form so the auth flow uses the latest inputs
+    $config_mail_oauth_client_id     = sanitizeInput($_POST['config_mail_oauth_client_id'] ?? '');
     $config_mail_oauth_client_secret = sanitizeInput($_POST['config_mail_oauth_client_secret'] ?? '');
-    $config_mail_oauth_tenant_id = sanitizeInput($_POST['config_mail_oauth_tenant_id'] ?? '');
+    $config_mail_oauth_tenant_id     = sanitizeInput($_POST['config_mail_oauth_tenant_id'] ?? $config_mail_oauth_tenant_id);
     $config_mail_oauth_refresh_token = sanitizeInput($_POST['config_mail_oauth_refresh_token'] ?? '');
-    $config_mail_oauth_access_token = sanitizeInput($_POST['config_mail_oauth_access_token'] ?? '');
+    $config_mail_oauth_access_token  = sanitizeInput($_POST['config_mail_oauth_access_token'] ?? '');
 
     mysqli_query($mysqli, "UPDATE settings SET
-        config_imap_provider = '$config_imap_provider',
-        config_imap_username = '$config_imap_username',
-        config_mail_oauth_client_id = '$config_mail_oauth_client_id',
+        config_mail_oauth_client_id     = '$config_mail_oauth_client_id',
         config_mail_oauth_client_secret = '$config_mail_oauth_client_secret',
-        config_mail_oauth_tenant_id = '$config_mail_oauth_tenant_id',
+        config_mail_oauth_tenant_id     = '$config_mail_oauth_tenant_id',
         config_mail_oauth_refresh_token = '$config_mail_oauth_refresh_token',
-        config_mail_oauth_access_token = '$config_mail_oauth_access_token'
+        config_mail_oauth_access_token  = '$config_mail_oauth_access_token'
         WHERE company_id = 1
     ");
 
-    if ($config_imap_provider !== 'microsoft_oauth') {
-        flash_alert("Please set IMAP Provider to Microsoft 365 (OAuth) before connecting.", 'error');
+    // Check the SAVED providers (loaded from config at bootstrap), not $_POST —
+    // the provider dropdowns live in different forms and are never posted here
+    if ($config_imap_provider !== 'microsoft_oauth' && $config_smtp_provider !== 'microsoft_oauth') {
+        flash_alert("Please set the SMTP or IMAP Provider to Microsoft 365 (OAuth) and save it before connecting.", 'error');
         redirect();
     }
 
@@ -80,18 +78,11 @@ if (isset($_POST['edit_mail_smtp_settings'])) {
     validateCSRFToken($_POST['csrf_token']);
 
     $config_smtp_provider            = sanitizeInput($_POST['config_smtp_provider']);
-    $config_smtp_host                = sanitizeInput($_POST['config_smtp_host']);
-    $config_smtp_port                = intval($_POST['config_smtp_port'] ?? 0);
-    $config_smtp_encryption          = sanitizeInput($_POST['config_smtp_encryption']);
-    $config_smtp_username            = sanitizeInput($_POST['config_smtp_username']);
-    $config_smtp_password            = sanitizeInput($_POST['config_smtp_password']);
-
-    // Shared OAuth fields
-    $config_mail_oauth_client_id     = sanitizeInput($_POST['config_mail_oauth_client_id']);
-    $config_mail_oauth_client_secret = sanitizeInput($_POST['config_mail_oauth_client_secret']);
-    $config_mail_oauth_tenant_id     = sanitizeInput($_POST['config_mail_oauth_tenant_id']);
-    $config_mail_oauth_refresh_token = sanitizeInput($_POST['config_mail_oauth_refresh_token']);
-    $config_mail_oauth_access_token  = sanitizeInput($_POST['config_mail_oauth_access_token']);
+    $config_smtp_host       = sanitizeInput($_POST['config_smtp_host'] ?? $config_smtp_host);
+    $config_smtp_port       = intval($_POST['config_smtp_port'] ?? $config_smtp_port);
+    $config_smtp_encryption = sanitizeInput($_POST['config_smtp_encryption'] ?? $config_smtp_encryption);
+    $config_smtp_username   = sanitizeInput($_POST['config_smtp_username'] ?? $config_smtp_username);
+    $config_smtp_password   = sanitizeInput($_POST['config_smtp_password'] ?? $config_smtp_password);
 
     mysqli_query($mysqli, "
         UPDATE settings SET
@@ -100,12 +91,7 @@ if (isset($_POST['edit_mail_smtp_settings'])) {
             config_smtp_port                  = $config_smtp_port,
             config_smtp_encryption            = '$config_smtp_encryption',
             config_smtp_username              = '$config_smtp_username',
-            config_smtp_password              = '$config_smtp_password',
-            config_mail_oauth_client_id       = '$config_mail_oauth_client_id',
-            config_mail_oauth_client_secret   = '$config_mail_oauth_client_secret',
-            config_mail_oauth_tenant_id       = '$config_mail_oauth_tenant_id',
-            config_mail_oauth_refresh_token   = '$config_mail_oauth_refresh_token',
-            config_mail_oauth_access_token    = '$config_mail_oauth_access_token'
+            config_smtp_password              = '$config_smtp_password'
         WHERE company_id = 1
     ");
 
@@ -122,18 +108,11 @@ if (isset($_POST['edit_mail_imap_settings'])) {
     validateCSRFToken($_POST['csrf_token']);
 
     $config_imap_provider            = sanitizeInput($_POST['config_imap_provider']);
-    $config_imap_host                = sanitizeInput($_POST['config_imap_host']);
-    $config_imap_port                = intval($_POST['config_imap_port'] ?? 0);
-    $config_imap_encryption          = sanitizeInput($_POST['config_imap_encryption']);
-    $config_imap_username            = sanitizeInput($_POST['config_imap_username']);
-    $config_imap_password            = sanitizeInput($_POST['config_imap_password']);
-
-    // Shared OAuth fields
-    $config_mail_oauth_client_id     = sanitizeInput($_POST['config_mail_oauth_client_id']);
-    $config_mail_oauth_client_secret = sanitizeInput($_POST['config_mail_oauth_client_secret']);
-    $config_mail_oauth_tenant_id     = sanitizeInput($_POST['config_mail_oauth_tenant_id']);
-    $config_mail_oauth_refresh_token = sanitizeInput($_POST['config_mail_oauth_refresh_token']);
-    $config_mail_oauth_access_token  = sanitizeInput($_POST['config_mail_oauth_access_token']);
+    $config_imap_host       = sanitizeInput($_POST['config_imap_host'] ?? $config_imap_host);
+    $config_imap_port       = intval($_POST['config_imap_port'] ?? $config_imap_port);
+    $config_imap_encryption = sanitizeInput($_POST['config_imap_encryption'] ?? $config_imap_encryption);
+    $config_imap_username   = sanitizeInput($_POST['config_imap_username'] ?? $config_imap_username);
+    $config_imap_password   = sanitizeInput($_POST['config_imap_password'] ?? $config_imap_password);
 
     mysqli_query($mysqli, "
         UPDATE settings SET
@@ -142,12 +121,7 @@ if (isset($_POST['edit_mail_imap_settings'])) {
             config_imap_port                  = $config_imap_port,
             config_imap_encryption            = '$config_imap_encryption',
             config_imap_username              = '$config_imap_username',
-            config_imap_password              = '$config_imap_password',
-            config_mail_oauth_client_id       = '$config_mail_oauth_client_id',
-            config_mail_oauth_client_secret   = '$config_mail_oauth_client_secret',
-            config_mail_oauth_tenant_id       = '$config_mail_oauth_tenant_id',
-            config_mail_oauth_refresh_token   = '$config_mail_oauth_refresh_token',
-            config_mail_oauth_access_token    = '$config_mail_oauth_access_token'
+            config_imap_password              = '$config_imap_password'
         WHERE company_id = 1
     ");
 
@@ -157,6 +131,30 @@ if (isset($_POST['edit_mail_imap_settings'])) {
 
     redirect();
 
+}
+
+if (isset($_POST['edit_mail_oauth_settings'])) {
+
+    validateCSRFToken($_POST['csrf_token']);
+
+    $config_mail_oauth_client_id     = sanitizeInput($_POST['config_mail_oauth_client_id'] ?? '');
+    $config_mail_oauth_client_secret = sanitizeInput($_POST['config_mail_oauth_client_secret'] ?? '');
+    $config_mail_oauth_tenant_id     = sanitizeInput($_POST['config_mail_oauth_tenant_id'] ?? $config_mail_oauth_tenant_id);
+    $config_mail_oauth_refresh_token = sanitizeInput($_POST['config_mail_oauth_refresh_token'] ?? '');
+    $config_mail_oauth_access_token  = sanitizeInput($_POST['config_mail_oauth_access_token'] ?? '');
+
+    mysqli_query($mysqli, "UPDATE settings SET
+        config_mail_oauth_client_id     = '$config_mail_oauth_client_id',
+        config_mail_oauth_client_secret = '$config_mail_oauth_client_secret',
+        config_mail_oauth_tenant_id     = '$config_mail_oauth_tenant_id',
+        config_mail_oauth_refresh_token = '$config_mail_oauth_refresh_token',
+        config_mail_oauth_access_token  = '$config_mail_oauth_access_token'
+        WHERE company_id = 1
+    ");
+
+    logAction("Settings", "Edit", "$session_name edited mail OAuth settings");
+    flash_alert("Mail OAuth Settings updated");
+    redirect();
 }
 
 if (isset($_POST['edit_mail_from_settings'])) {
