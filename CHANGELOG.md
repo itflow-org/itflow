@@ -2,6 +2,12 @@
 
 This file documents all notable changes made to ITFlow.
 
+## [26.07.1]
+
+### Bug fixes
+- Fixed broken M365 and Google Workspaces OAUTH2 in Mail Settings.
+
+
 ## [26.07]
 
 ### Major Changes
