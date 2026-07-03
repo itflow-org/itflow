@@ -182,6 +182,8 @@ if (isset($_GET['share_generate_link'])) {
         $item_expires_friendly = "1 month";
     }
 
+    enforceClientAccess($client_id);
+
     $item_key = randomString(32);
 
     if ($item_type == "Document") {
