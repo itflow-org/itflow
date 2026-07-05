@@ -147,7 +147,7 @@ $phpConfig[] = [
 $shellCommands = [];
 
 if ($shell_exec_enabled) {
-    $commands = ['whois', 'dig', 'git'];
+    $commands = ['git'];
 
     foreach ($commands as $command) {
         $which = trim(shell_exec("which $command 2>/dev/null"));
@@ -160,7 +160,7 @@ if ($shell_exec_enabled) {
     }
 } else {
     // If shell_exec is disabled, mark commands as unavailable
-    foreach (['whois', 'dig', 'git'] as $command) {
+    foreach (['git'] as $command) {
         $shellCommands[] = [
             'name' => "Command '$command' available",
             'passed' => false,

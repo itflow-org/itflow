@@ -1053,46 +1053,32 @@ function getTicketStatusName($ticket_status) {
 
 }
 
-
 function fetchUpdates() {
+
     global $repo_branch;
- 
-    $repo_dir = dirname(__DIR__); // Adjust to wherever the repo root is relative to this file
- 
-    $output = array();
-    $result = 0;
- 
-    $current_version = getCurrentGitCommit($repo_dir);
-    if (empty($current_version)) {
-        $output[] = 'Could not read current commit from .git - check file permissions';
-        $result = 1;
-    }
- 
-    $repo = getGitHubRepoFromConfig($repo_dir);
- 
-    $api_error = null;
-    $latest_version = getLatestGitCommit($repo, $repo_branch, $api_error);
-    if (empty($latest_version)) {
-        $output[] = $api_error ?: 'Could not determine latest commit';
-        $result = 1;
-    }
- 
-    if ($result !== 0) {
-        $update_message = 'Update check failed';
-    } elseif ($current_version == $latest_version) {
-        $update_message = 'No Updates available';
+
+    // Fetch the latest code changes but don't apply them
+    exec("git fetch", $output, $result);
+    $latest_version = exec("git rev-parse origin/$repo_branch");
+    $current_version = exec("git rev-parse HEAD");
+
+    if ($current_version == $latest_version) {
+        $update_message = "No Updates available";
     } else {
         $update_message = "New Updates are Available [$latest_version]";
     }
- 
+
+
     $updates = new stdClass();
     $updates->output = $output;
     $updates->result = $result;
     $updates->current_version = $current_version;
     $updates->latest_version = $latest_version;
     $updates->update_message = $update_message;
- 
+
+
     return $updates;
+
 }
 
 

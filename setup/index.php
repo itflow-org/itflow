@@ -939,7 +939,7 @@ if (isset($_POST['add_telemetry'])) {
                     $shellCommands = [];
 
                     if ($shell_exec_enabled) {
-                        $commands = ['whois', 'dig', 'git'];
+                        $commands = ['git'];
 
                         foreach ($commands as $command) {
                             $which = trim(shell_exec("which $command 2>/dev/null"));
