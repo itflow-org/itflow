@@ -438,8 +438,7 @@ Generates what is probably best described as a session key (ephemeral-ish)
 - Only the user can decrypt their session ciphertext to get the master key
 - Encryption key never hits the disk in cleartext
 */
-function generateUserSessionKey($site_encryption_master_key)
-{
+function generateUserSessionKey($site_encryption_master_key) {
     $user_encryption_session_key = randomString();
     $user_encryption_session_iv = randomString();
     $user_encryption_session_ciphertext = openssl_encrypt($site_encryption_master_key, 'aes-128-cbc', $user_encryption_session_key, 0, $user_encryption_session_iv);
@@ -460,8 +459,7 @@ function generateUserSessionKey($site_encryption_master_key)
 }
 
 // Decrypts an encrypted password (website/asset credentials), returns it as a string
-function decryptCredentialEntry($credential_password_ciphertext)
-{
+function decryptCredentialEntry($credential_password_ciphertext) {
 
     // Split the credential into IV and Ciphertext
     $credential_iv =  substr($credential_password_ciphertext, 0, 16);
@@ -480,8 +478,7 @@ function decryptCredentialEntry($credential_password_ciphertext)
 }
 
 // Encrypts a website/asset credential password
-function encryptCredentialEntry($credential_password_cleartext)
-{
+function encryptCredentialEntry($credential_password_cleartext) {
     $iv = randomString();
 
     // Get the user session info.
@@ -498,8 +495,7 @@ function encryptCredentialEntry($credential_password_cleartext)
     return $iv . $ciphertext;
 }
 
-function apiDecryptCredentialEntry($credential_ciphertext, $api_key_decrypt_hash, #[\SensitiveParameter]$api_key_decrypt_password)
-{
+function apiDecryptCredentialEntry($credential_ciphertext, $api_key_decrypt_hash, #[\SensitiveParameter]$api_key_decrypt_password) {
     // Split the Credential entry (username/password) into IV and Ciphertext
     $credential_iv =  substr($credential_ciphertext, 0, 16);
     $credential_ciphertext = $salt = substr($credential_ciphertext, 16);
@@ -511,8 +507,7 @@ function apiDecryptCredentialEntry($credential_ciphertext, $api_key_decrypt_hash
     return openssl_decrypt($credential_ciphertext, 'aes-128-cbc', $site_encryption_master_key, 0, $credential_iv);
 }
 
-function apiEncryptCredentialEntry(#[\SensitiveParameter]$credential_cleartext, $api_key_decrypt_hash, #[\SensitiveParameter]$api_key_decrypt_password)
-{
+function apiEncryptCredentialEntry(#[\SensitiveParameter]$credential_cleartext, $api_key_decrypt_hash, #[\SensitiveParameter]$api_key_decrypt_password) {
     $iv = randomString();
 
     // Decrypt the api hash to get the master key
@@ -524,129 +519,15 @@ function apiEncryptCredentialEntry(#[\SensitiveParameter]$credential_cleartext, 
     return $iv . $ciphertext;
 }
 
-// Get domain general info (whois + NS/A/MX records)
-function getDomainRecords($name)
-{
-    $records = array();
 
-    // Only run if we think the domain is valid
-    if (!filter_var($name, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME) || !checkdnsrr($name, 'SOA')) {
-        $records['a'] = '';
-        $records['ns'] = '';
-        $records['mx'] = '';
-        $records['whois'] = '';
-        return $records;
-    }
-
-    $domain = escapeshellarg(str_replace('www.', '', $name));
-
-    // Get A, NS, MX, TXT, and WHOIS records
-    $records['a'] = trim(strip_tags(shell_exec("dig +short $domain")));
-    $records['ns'] = trim(strip_tags(shell_exec("dig +short NS $domain")));
-    $records['mx'] = trim(strip_tags(shell_exec("dig +short MX $domain")));
-    $records['txt'] = trim(strip_tags(shell_exec("dig +short TXT $domain")));
-    $records['whois'] = substr(trim(strip_tags(shell_exec("whois -H $domain | head -30 | sed 's/   //g'"))), 0, 254);
-
-    // Sort A records (if multiple records exist)
-    if (!empty($records['a'])) {
-        $a_records = explode("\n", $records['a']);
-        array_walk($a_records, function(&$record) {
-            $record = trim($record);
-        });
-        sort($a_records);
-        $records['a'] = implode("\n", $a_records);
-    }
-
-    // Sort NS records (if multiple records exist)
-    if (!empty($records['ns'])) {
-        $ns_records = explode("\n", $records['ns']);
-        array_walk($ns_records, function(&$record) {
-            $record = trim($record);
-        });
-        sort($ns_records);
-        $records['ns'] = implode("\n", $ns_records);
-    }
-
-    // Sort MX records (if multiple records exist)
-    if (!empty($records['mx'])) {
-        $mx_records = explode("\n", $records['mx']);
-        array_walk($mx_records, function(&$record) {
-            $record = trim($record);
-        });
-        sort($mx_records);
-        $records['mx'] = implode("\n", $mx_records);
-    }
-
-    // Sort TXT records (if multiple records exist)
-    if (!empty($records['txt'])) {
-        $txt_records = explode("\n", $records['txt']);
-        array_walk($txt_records, function(&$record) {
-            $record = trim($record);
-        });
-        sort($txt_records);
-        $records['txt'] = implode("\n", $txt_records);
-    }
-
-    return $records;
-}
-
-// Used to automatically attempt to get SSL certificates as part of adding domains
-// The logic for the fetch (sync) button on the client_certificates page is in ajax.php, and allows ports other than 443
-function getSSL($full_name)
-{
-
-    // Parse host and port
-    $name = parse_url("//$full_name", PHP_URL_HOST);
-    $port = parse_url("//$full_name", PHP_URL_PORT);
-
-    // Default port
-    if (!$port) {
-        $port = "443";
-    }
-
-    $certificate = array();
-    $certificate['success'] = false;
-
-    // Only run if we think the domain is valid
-    if (!filter_var($name, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME)) {
-        $certificate['expire'] = '';
-        $certificate['issued_by'] = '';
-        $certificate['public_key'] = '';
-        return $certificate;
-    }
-
-    // Get SSL/TSL certificate (using verify peer false to allow for self-signed certs) for domain on default port
-    $socket = "ssl://$name:$port";
-    $get = stream_context_create(array("ssl" => array("capture_peer_cert" => true, "verify_peer" => false,)));
-    $read = stream_socket_client($socket, $errno, $errstr, 5, STREAM_CLIENT_CONNECT, $get);
-
-    // If the socket connected
-    if ($read) {
-        $cert = stream_context_get_params($read);
-        $cert_public_key_obj = openssl_x509_parse($cert['options']['ssl']['peer_certificate']);
-        openssl_x509_export($cert['options']['ssl']['peer_certificate'], $export);
-
-        if ($cert_public_key_obj) {
-            $certificate['success'] = true;
-            $certificate['expire'] = date('Y-m-d', $cert_public_key_obj['validTo_time_t']);
-            $certificate['issued_by'] = strip_tags($cert_public_key_obj['issuer']['O']);
-            $certificate['public_key'] = $export;
-        }
-    }
-
-    return $certificate;
-}
-
-function strtoAZaz09($string)
-{
+function strtoAZaz09($string) {
     // Gets rid of non-alphanumerics
     return preg_replace('/[^A-Za-z0-9_-]/', '', $string);
 }
 
 // Cross-Site Request Forgery check for sensitive functions
 // Validates the CSRF token provided matches the one in the users session
-function validateCSRFToken($token)
-{
+function validateCSRFToken($token) {
     if (hash_equals($token, $_SESSION['csrf_token'])) {
         return true;
     } else {
@@ -698,13 +579,11 @@ function validateAccountantRole() {
     }
 }
 
-function roundUpToNearestMultiple($n, $increment = 1000)
-{
+function roundUpToNearestMultiple($n, $increment = 1000) {
     return (int) ($increment * ceil($n / $increment));
 }
 
-function getAssetIcon($asset_type)
-{
+function getAssetIcon($asset_type) {
     if ($asset_type == 'Laptop') {
         $device_icon = "laptop";
     } elseif ($asset_type == 'Desktop') {
@@ -738,8 +617,7 @@ function getAssetIcon($asset_type)
     return $device_icon;
 }
 
-function getInvoiceBadgeColor($invoice_status)
-{
+function getInvoiceBadgeColor($invoice_status) {
     if ($invoice_status == "Sent") {
         $invoice_badge_color = "warning text-white";
     } elseif ($invoice_status == "Viewed") {
@@ -758,8 +636,7 @@ function getInvoiceBadgeColor($invoice_status)
 }
 
 // Pass $_FILE['file'] to check an uploaded file before saving it
-function checkFileUpload($file, $allowed_extensions)
-{
+function checkFileUpload($file, $allowed_extensions) {
     // Variables
     $name = $file['name'];
     $tmp = $file['tmp_name'];
@@ -841,16 +718,14 @@ function cleanInput($input) {
 }
 
 
-function sanitizeForEmail($data)
-{
+function sanitizeForEmail($data) {
     $sanitized = htmlspecialchars($data);
     $sanitized = strip_tags($sanitized);
     $sanitized = trim($sanitized);
     return $sanitized;
 }
 
-function timeAgo($datetime)
-{
+function timeAgo($datetime) {
     if (is_null($datetime)) {
         return "-";
     }
@@ -891,8 +766,7 @@ function removeEmoji($text)
     return preg_replace('/\x{1F3F4}\x{E0067}\x{E0062}(?:\x{E0077}\x{E006C}\x{E0073}|\x{E0073}\x{E0063}\x{E0074}|\x{E0065}\x{E006E}\x{E0067})\x{E007F}|(?:\x{1F9D1}\x{1F3FF}\x{200D}\x{2764}(?:\x{FE0F}\x{200D}(?:\x{1F48B}\x{200D})?|\x{200D}(?:\x{1F48B}\x{200D})?)\x{1F9D1}|\x{1F469}\x{1F3FF}\x{200D}\x{1F91D}\x{200D}[\x{1F468}\x{1F469}]|\x{1FAF1}\x{1F3FF}\x{200D}\x{1FAF2})[\x{1F3FB}-\x{1F3FE}]|(?:\x{1F9D1}\x{1F3FE}\x{200D}\x{2764}(?:\x{FE0F}\x{200D}(?:\x{1F48B}\x{200D})?|\x{200D}(?:\x{1F48B}\x{200D})?)\x{1F9D1}|\x{1F469}\x{1F3FE}\x{200D}\x{1F91D}\x{200D}[\x{1F468}\x{1F469}]|\x{1FAF1}\x{1F3FE}\x{200D}\x{1FAF2})[\x{1F3FB}-\x{1F3FD}\x{1F3FF}]|(?:\x{1F9D1}\x{1F3FD}\x{200D}\x{2764}(?:\x{FE0F}\x{200D}(?:\x{1F48B}\x{200D})?|\x{200D}(?:\x{1F48B}\x{200D})?)\x{1F9D1}|\x{1F469}\x{1F3FD}\x{200D}\x{1F91D}\x{200D}[\x{1F468}\x{1F469}]|\x{1FAF1}\x{1F3FD}\x{200D}\x{1FAF2})[\x{1F3FB}\x{1F3FC}\x{1F3FE}\x{1F3FF}]|(?:\x{1F9D1}\x{1F3FC}\x{200D}\x{2764}(?:\x{FE0F}\x{200D}(?:\x{1F48B}\x{200D})?|\x{200D}(?:\x{1F48B}\x{200D})?)\x{1F9D1}|\x{1F469}\x{1F3FC}\x{200D}\x{1F91D}\x{200D}[\x{1F468}\x{1F469}]|\x{1FAF1}\x{1F3FC}\x{200D}\x{1FAF2})[\x{1F3FB}\x{1F3FD}-\x{1F3FF}]|(?:\x{1F9D1}\x{1F3FB}\x{200D}\x{2764}(?:\x{FE0F}\x{200D}(?:\x{1F48B}\x{200D})?|\x{200D}(?:\x{1F48B}\x{200D})?)\x{1F9D1}|\x{1F469}\x{1F3FB}\x{200D}\x{1F91D}\x{200D}[\x{1F468}\x{1F469}]|\x{1FAF1}\x{1F3FB}\x{200D}\x{1FAF2})[\x{1F3FC}-\x{1F3FF}]|\x{1F468}(?:\x{1F3FB}(?:\x{200D}(?:\x{2764}(?:\x{FE0F}\x{200D}(?:\x{1F48B}\x{200D}\x{1F468}[\x{1F3FB}-\x{1F3FF}]|\x{1F468}[\x{1F3FB}-\x{1F3FF}])|\x{200D}(?:\x{1F48B}\x{200D}\x{1F468}[\x{1F3FB}-\x{1F3FF}]|\x{1F468}[\x{1F3FB}-\x{1F3FF}]))|\x{1F91D}\x{200D}\x{1F468}[\x{1F3FC}-\x{1F3FF}]|[\x{2695}\x{2696}\x{2708}]\x{FE0F}|[\x{2695}\x{2696}\x{2708}]|[\x{1F33E}\x{1F373}\x{1F37C}\x{1F393}\x{1F3A4}\x{1F3A8}\x{1F3EB}\x{1F3ED}\x{1F4BB}\x{1F4BC}\x{1F527}\x{1F52C}\x{1F680}\x{1F692}\x{1F9AF}-\x{1F9B3}\x{1F9BC}\x{1F9BD}]))?|[\x{1F3FC}-\x{1F3FF}]\x{200D}\x{2764}(?:\x{FE0F}\x{200D}(?:\x{1F48B}\x{200D}\x{1F468}[\x{1F3FB}-\x{1F3FF}]|\x{1F468}[\x{1F3FB}-\x{1F3FF}])|\x{200D}(?:\x{1F48B}\x{200D}\x{1F468}[\x{1F3FB}-\x{1F3FF}]|\x{1F468}[\x{1F3FB}-\x{1F3FF}]))|\x{200D}(?:\x{2764}(?:\x{FE0F}\x{200D}(?:\x{1F48B}\x{200D})?|\x{200D}(?:\x{1F48B}\x{200D})?)\x{1F468}|[\x{1F468}\x{1F469}]\x{200D}(?:\x{1F466}\x{200D}\x{1F466}|\x{1F467}\x{200D}[\x{1F466}\x{1F467}])|\x{1F466}\x{200D}\x{1F466}|\x{1F467}\x{200D}[\x{1F466}\x{1F467}]|[\x{1F33E}\x{1F373}\x{1F37C}\x{1F393}\x{1F3A4}\x{1F3A8}\x{1F3EB}\x{1F3ED}\x{1F4BB}\x{1F4BC}\x{1F527}\x{1F52C}\x{1F680}\x{1F692}\x{1F9AF}-\x{1F9B3}\x{1F9BC}\x{1F9BD}])|\x{1F3FF}\x{200D}(?:\x{1F91D}\x{200D}\x{1F468}[\x{1F3FB}-\x{1F3FE}]|[\x{1F33E}\x{1F373}\x{1F37C}\x{1F393}\x{1F3A4}\x{1F3A8}\x{1F3EB}\x{1F3ED}\x{1F4BB}\x{1F4BC}\x{1F527}\x{1F52C}\x{1F680}\x{1F692}\x{1F9AF}-\x{1F9B3}\x{1F9BC}\x{1F9BD}])|\x{1F3FE}\x{200D}(?:\x{1F91D}\x{200D}\x{1F468}[\x{1F3FB}-\x{1F3FD}\x{1F3FF}]|[\x{1F33E}\x{1F373}\x{1F37C}\x{1F393}\x{1F3A4}\x{1F3A8}\x{1F3EB}\x{1F3ED}\x{1F4BB}\x{1F4BC}\x{1F527}\x{1F52C}\x{1F680}\x{1F692}\x{1F9AF}-\x{1F9B3}\x{1F9BC}\x{1F9BD}])|\x{1F3FD}\x{200D}(?:\x{1F91D}\x{200D}\x{1F468}[\x{1F3FB}\x{1F3FC}\x{1F3FE}\x{1F3FF}]|[\x{1F33E}\x{1F373}\x{1F37C}\x{1F393}\x{1F3A4}\x{1F3A8}\x{1F3EB}\x{1F3ED}\x{1F4BB}\x{1F4BC}\x{1F527}\x{1F52C}\x{1F680}\x{1F692}\x{1F9AF}-\x{1F9B3}\x{1F9BC}\x{1F9BD}])|\x{1F3FC}\x{200D}(?:\x{1F91D}\x{200D}\x{1F468}[\x{1F3FB}\x{1F3FD}-\x{1F3FF}]|[\x{1F33E}\x{1F373}\x{1F37C}\x{1F393}\x{1F3A4}\x{1F3A8}\x{1F3EB}\x{1F3ED}\x{1F4BB}\x{1F4BC}\x{1F527}\x{1F52C}\x{1F680}\x{1F692}\x{1F9AF}-\x{1F9B3}\x{1F9BC}\x{1F9BD}])|(?:\x{1F3FF}\x{200D}[\x{2695}\x{2696}\x{2708}]|\x{1F3FE}\x{200D}[\x{2695}\x{2696}\x{2708}]|\x{1F3FD}\x{200D}[\x{2695}\x{2696}\x{2708}]|\x{1F3FC}\x{200D}[\x{2695}\x{2696}\x{2708}]|\x{200D}[\x{2695}\x{2696}\x{2708}])\x{FE0F}|\x{200D}(?:[\x{1F468}\x{1F469}]\x{200D}[\x{1F466}\x{1F467}]|[\x{1F466}\x{1F467}])|\x{1F3FF}\x{200D}[\x{2695}\x{2696}\x{2708}]|\x{1F3FE}\x{200D}[\x{2695}\x{2696}\x{2708}]|\x{1F3FD}\x{200D}[\x{2695}\x{2696}\x{2708}]|\x{1F3FC}\x{200D}[\x{2695}\x{2696}\x{2708}]|\x{1F3FF}|\x{1F3FE}|\x{1F3FD}|\x{1F3FC}|\x{200D}[\x{2695}\x{2696}\x{2708}])?|(?:\x{1F469}(?:\x{1F3FB}\x{200D}\x{2764}(?:\x{FE0F}\x{200D}(?:\x{1F48B}\x{200D}[\x{1F468}\x{1F469}]|[\x{1F468}\x{1F469}])|\x{200D}(?:\x{1F48B}\x{200D}[\x{1F468}\x{1F469}]|[\x{1F468}\x{1F469}]))|[\x{1F3FC}-\x{1F3FF}]\x{200D}\x{2764}(?:\x{FE0F}\x{200D}(?:\x{1F48B}\x{200D}[\x{1F468}\x{1F469}]|[\x{1F468}\x{1F469}])|\x{200D}(?:\x{1F48B}\x{200D}[\x{1F468}\x{1F469}]|[\x{1F468}\x{1F469}])))|\x{1F9D1}[\x{1F3FB}-\x{1F3FF}]\x{200D}\x{1F91D}\x{200D}\x{1F9D1})[\x{1F3FB}-\x{1F3FF}]|\x{1F469}\x{200D}\x{1F469}\x{200D}(?:\x{1F466}\x{200D}\x{1F466}|\x{1F467}\x{200D}[\x{1F466}\x{1F467}])|\x{1F469}(?:\x{200D}(?:\x{2764}(?:\x{FE0F}\x{200D}(?:\x{1F48B}\x{200D}[\x{1F468}\x{1F469}]|[\x{1F468}\x{1F469}])|\x{200D}(?:\x{1F48B}\x{200D}[\x{1F468}\x{1F469}]|[\x{1F468}\x{1F469}]))|[\x{1F33E}\x{1F373}\x{1F37C}\x{1F393}\x{1F3A4}\x{1F3A8}\x{1F3EB}\x{1F3ED}\x{1F4BB}\x{1F4BC}\x{1F527}\x{1F52C}\x{1F680}\x{1F692}\x{1F9AF}-\x{1F9B3}\x{1F9BC}\x{1F9BD}])|\x{1F3FF}\x{200D}[\x{1F33E}\x{1F373}\x{1F37C}\x{1F393}\x{1F3A4}\x{1F3A8}\x{1F3EB}\x{1F3ED}\x{1F4BB}\x{1F4BC}\x{1F527}\x{1F52C}\x{1F680}\x{1F692}\x{1F9AF}-\x{1F9B3}\x{1F9BC}\x{1F9BD}]|\x{1F3FE}\x{200D}[\x{1F33E}\x{1F373}\x{1F37C}\x{1F393}\x{1F3A4}\x{1F3A8}\x{1F3EB}\x{1F3ED}\x{1F4BB}\x{1F4BC}\x{1F527}\x{1F52C}\x{1F680}\x{1F692}\x{1F9AF}-\x{1F9B3}\x{1F9BC}\x{1F9BD}]|\x{1F3FD}\x{200D}[\x{1F33E}\x{1F373}\x{1F37C}\x{1F393}\x{1F3A4}\x{1F3A8}\x{1F3EB}\x{1F3ED}\x{1F4BB}\x{1F4BC}\x{1F527}\x{1F52C}\x{1F680}\x{1F692}\x{1F9AF}-\x{1F9B3}\x{1F9BC}\x{1F9BD}]|\x{1F3FC}\x{200D}[\x{1F33E}\x{1F373}\x{1F37C}\x{1F393}\x{1F3A4}\x{1F3A8}\x{1F3EB}\x{1F3ED}\x{1F4BB}\x{1F4BC}\x{1F527}\x{1F52C}\x{1F680}\x{1F692}\x{1F9AF}-\x{1F9B3}\x{1F9BC}\x{1F9BD}]|\x{1F3FB}\x{200D}[\x{1F33E}\x{1F373}\x{1F37C}\x{1F393}\x{1F3A4}\x{1F3A8}\x{1F3EB}\x{1F3ED}\x{1F4BB}\x{1F4BC}\x{1F527}\x{1F52C}\x{1F680}\x{1F692}\x{1F9AF}-\x{1F9B3}\x{1F9BC}\x{1F9BD}])|\x{1F9D1}(?:\x{200D}(?:\x{1F91D}\x{200D}\x{1F9D1}|[\x{1F33E}\x{1F373}\x{1F37C}\x{1F384}\x{1F393}\x{1F3A4}\x{1F3A8}\x{1F3EB}\x{1F3ED}\x{1F4BB}\x{1F4BC}\x{1F527}\x{1F52C}\x{1F680}\x{1F692}\x{1F9AF}-\x{1F9B3}\x{1F9BC}\x{1F9BD}])|\x{1F3FF}\x{200D}[\x{1F33E}\x{1F373}\x{1F37C}\x{1F384}\x{1F393}\x{1F3A4}\x{1F3A8}\x{1F3EB}\x{1F3ED}\x{1F4BB}\x{1F4BC}\x{1F527}\x{1F52C}\x{1F680}\x{1F692}\x{1F9AF}-\x{1F9B3}\x{1F9BC}\x{1F9BD}]|\x{1F3FE}\x{200D}[\x{1F33E}\x{1F373}\x{1F37C}\x{1F384}\x{1F393}\x{1F3A4}\x{1F3A8}\x{1F3EB}\x{1F3ED}\x{1F4BB}\x{1F4BC}\x{1F527}\x{1F52C}\x{1F680}\x{1F692}\x{1F9AF}-\x{1F9B3}\x{1F9BC}\x{1F9BD}]|\x{1F3FD}\x{200D}[\x{1F33E}\x{1F373}\x{1F37C}\x{1F384}\x{1F393}\x{1F3A4}\x{1F3A8}\x{1F3EB}\x{1F3ED}\x{1F4BB}\x{1F4BC}\x{1F527}\x{1F52C}\x{1F680}\x{1F692}\x{1F9AF}-\x{1F9B3}\x{1F9BC}\x{1F9BD}]|\x{1F3FC}\x{200D}[\x{1F33E}\x{1F373}\x{1F37C}\x{1F384}\x{1F393}\x{1F3A4}\x{1F3A8}\x{1F3EB}\x{1F3ED}\x{1F4BB}\x{1F4BC}\x{1F527}\x{1F52C}\x{1F680}\x{1F692}\x{1F9AF}-\x{1F9B3}\x{1F9BC}\x{1F9BD}]|\x{1F3FB}\x{200D}[\x{1F33E}\x{1F373}\x{1F37C}\x{1F384}\x{1F393}\x{1F3A4}\x{1F3A8}\x{1F3EB}\x{1F3ED}\x{1F4BB}\x{1F4BC}\x{1F527}\x{1F52C}\x{1F680}\x{1F692}\x{1F9AF}-\x{1F9B3}\x{1F9BC}\x{1F9BD}])|\x{1F469}\x{200D}\x{1F466}\x{200D}\x{1F466}|\x{1F469}\x{200D}\x{1F469}\x{200D}[\x{1F466}\x{1F467}]|\x{1F469}\x{200D}\x{1F467}\x{200D}[\x{1F466}\x{1F467}]|(?:\x{1F441}\x{FE0F}?\x{200D}\x{1F5E8}|\x{1F9D1}(?:\x{1F3FF}\x{200D}[\x{2695}\x{2696}\x{2708}]|\x{1F3FE}\x{200D}[\x{2695}\x{2696}\x{2708}]|\x{1F3FD}\x{200D}[\x{2695}\x{2696}\x{2708}]|\x{1F3FC}\x{200D}[\x{2695}\x{2696}\x{2708}]|\x{1F3FB}\x{200D}[\x{2695}\x{2696}\x{2708}]|\x{200D}[\x{2695}\x{2696}\x{2708}])|\x{1F469}(?:\x{1F3FF}\x{200D}[\x{2695}\x{2696}\x{2708}]|\x{1F3FE}\x{200D}[\x{2695}\x{2696}\x{2708}]|\x{1F3FD}\x{200D}[\x{2695}\x{2696}\x{2708}]|\x{1F3FC}\x{200D}[\x{2695}\x{2696}\x{2708}]|\x{1F3FB}\x{200D}[\x{2695}\x{2696}\x{2708}]|\x{200D}[\x{2695}\x{2696}\x{2708}])|\x{1F636}\x{200D}\x{1F32B}|\x{1F3F3}\x{FE0F}?\x{200D}\x{26A7}|\x{1F43B}\x{200D}\x{2744}|(?:[\x{1F3C3}\x{1F3C4}\x{1F3CA}\x{1F46E}\x{1F470}\x{1F471}\x{1F473}\x{1F477}\x{1F481}\x{1F482}\x{1F486}\x{1F487}\x{1F645}-\x{1F647}\x{1F64B}\x{1F64D}\x{1F64E}\x{1F6A3}\x{1F6B4}-\x{1F6B6}\x{1F926}\x{1F935}\x{1F937}-\x{1F939}\x{1F93D}\x{1F93E}\x{1F9B8}\x{1F9B9}\x{1F9CD}-\x{1F9CF}\x{1F9D4}\x{1F9D6}-\x{1F9DD}][\x{1F3FB}-\x{1F3FF}]|[\x{1F46F}\x{1F9DE}\x{1F9DF}])\x{200D}[\x{2640}\x{2642}]|[\x{26F9}\x{1F3CB}\x{1F3CC}\x{1F575}](?:[\x{FE0F}\x{1F3FB}-\x{1F3FF}]\x{200D}[\x{2640}\x{2642}]|\x{200D}[\x{2640}\x{2642}])|\x{1F3F4}\x{200D}\x{2620}|[\x{1F3C3}\x{1F3C4}\x{1F3CA}\x{1F46E}\x{1F470}\x{1F471}\x{1F473}\x{1F477}\x{1F481}\x{1F482}\x{1F486}\x{1F487}\x{1F645}-\x{1F647}\x{1F64B}\x{1F64D}\x{1F64E}\x{1F6A3}\x{1F6B4}-\x{1F6B6}\x{1F926}\x{1F935}\x{1F937}-\x{1F939}\x{1F93C}-\x{1F93E}\x{1F9B8}\x{1F9B9}\x{1F9CD}-\x{1F9CF}\x{1F9D4}\x{1F9D6}-\x{1F9DD}]\x{200D}[\x{2640}\x{2642}]|[\xA9\xAE\x{203C}\x{2049}\x{2122}\x{2139}\x{2194}-\x{2199}\x{21A9}\x{21AA}\x{231A}\x{231B}\x{2328}\x{23CF}\x{23ED}-\x{23EF}\x{23F1}\x{23F2}\x{23F8}-\x{23FA}\x{24C2}\x{25AA}\x{25AB}\x{25B6}\x{25C0}\x{25FB}\x{25FC}\x{25FE}\x{2600}-\x{2604}\x{260E}\x{2611}\x{2614}\x{2615}\x{2618}\x{2620}\x{2622}\x{2623}\x{2626}\x{262A}\x{262E}\x{262F}\x{2638}-\x{263A}\x{2640}\x{2642}\x{2648}-\x{2653}\x{265F}\x{2660}\x{2663}\x{2665}\x{2666}\x{2668}\x{267B}\x{267E}\x{267F}\x{2692}\x{2694}-\x{2697}\x{2699}\x{269B}\x{269C}\x{26A0}\x{26A7}\x{26AA}\x{26B0}\x{26B1}\x{26BD}\x{26BE}\x{26C4}\x{26C8}\x{26CF}\x{26D1}\x{26D3}\x{26E9}\x{26F0}-\x{26F5}\x{26F7}\x{26F8}\x{26FA}\x{2702}\x{2708}\x{2709}\x{270F}\x{2712}\x{2714}\x{2716}\x{271D}\x{2721}\x{2733}\x{2734}\x{2744}\x{2747}\x{2763}\x{27A1}\x{2934}\x{2935}\x{2B05}-\x{2B07}\x{2B1B}\x{2B1C}\x{2B55}\x{3030}\x{303D}\x{3297}\x{3299}\x{1F004}\x{1F170}\x{1F171}\x{1F17E}\x{1F17F}\x{1F202}\x{1F237}\x{1F321}\x{1F324}-\x{1F32C}\x{1F336}\x{1F37D}\x{1F396}\x{1F397}\x{1F399}-\x{1F39B}\x{1F39E}\x{1F39F}\x{1F3CD}\x{1F3CE}\x{1F3D4}-\x{1F3DF}\x{1F3F5}\x{1F3F7}\x{1F43F}\x{1F4FD}\x{1F549}\x{1F54A}\x{1F56F}\x{1F570}\x{1F573}\x{1F576}-\x{1F579}\x{1F587}\x{1F58A}-\x{1F58D}\x{1F5A5}\x{1F5A8}\x{1F5B1}\x{1F5B2}\x{1F5BC}\x{1F5C2}-\x{1F5C4}\x{1F5D1}-\x{1F5D3}\x{1F5DC}-\x{1F5DE}\x{1F5E1}\x{1F5E3}\x{1F5E8}\x{1F5EF}\x{1F5F3}\x{1F5FA}\x{1F6CB}\x{1F6CD}-\x{1F6CF}\x{1F6E0}-\x{1F6E5}\x{1F6E9}\x{1F6F0}\x{1F6F3}])\x{FE0F}|\x{1F441}\x{FE0F}?\x{200D}\x{1F5E8}|\x{1F9D1}(?:\x{1F3FF}\x{200D}[\x{2695}\x{2696}\x{2708}]|\x{1F3FE}\x{200D}[\x{2695}\x{2696}\x{2708}]|\x{1F3FD}\x{200D}[\x{2695}\x{2696}\x{2708}]|\x{1F3FC}\x{200D}[\x{2695}\x{2696}\x{2708}]|\x{1F3FB}\x{200D}[\x{2695}\x{2696}\x{2708}]|\x{200D}[\x{2695}\x{2696}\x{2708}])|\x{1F469}(?:\x{1F3FF}\x{200D}[\x{2695}\x{2696}\x{2708}]|\x{1F3FE}\x{200D}[\x{2695}\x{2696}\x{2708}]|\x{1F3FD}\x{200D}[\x{2695}\x{2696}\x{2708}]|\x{1F3FC}\x{200D}[\x{2695}\x{2696}\x{2708}]|\x{1F3FB}\x{200D}[\x{2695}\x{2696}\x{2708}]|\x{200D}[\x{2695}\x{2696}\x{2708}])|\x{1F3F3}\x{FE0F}?\x{200D}\x{1F308}|\x{1F469}\x{200D}\x{1F467}|\x{1F469}\x{200D}\x{1F466}|\x{1F636}\x{200D}\x{1F32B}|\x{1F3F3}\x{FE0F}?\x{200D}\x{26A7}|\x{1F635}\x{200D}\x{1F4AB}|\x{1F62E}\x{200D}\x{1F4A8}|\x{1F415}\x{200D}\x{1F9BA}|\x{1FAF1}(?:\x{1F3FF}|\x{1F3FE}|\x{1F3FD}|\x{1F3FC}|\x{1F3FB})?|\x{1F9D1}(?:\x{1F3FF}|\x{1F3FE}|\x{1F3FD}|\x{1F3FC}|\x{1F3FB})?|\x{1F469}(?:\x{1F3FF}|\x{1F3FE}|\x{1F3FD}|\x{1F3FC}|\x{1F3FB})?|\x{1F43B}\x{200D}\x{2744}|(?:[\x{1F3C3}\x{1F3C4}\x{1F3CA}\x{1F46E}\x{1F470}\x{1F471}\x{1F473}\x{1F477}\x{1F481}\x{1F482}\x{1F486}\x{1F487}\x{1F645}-\x{1F647}\x{1F64B}\x{1F64D}\x{1F64E}\x{1F6A3}\x{1F6B4}-\x{1F6B6}\x{1F926}\x{1F935}\x{1F937}-\x{1F939}\x{1F93D}\x{1F93E}\x{1F9B8}\x{1F9B9}\x{1F9CD}-\x{1F9CF}\x{1F9D4}\x{1F9D6}-\x{1F9DD}][\x{1F3FB}-\x{1F3FF}]|[\x{1F46F}\x{1F9DE}\x{1F9DF}])\x{200D}[\x{2640}\x{2642}]|[\x{26F9}\x{1F3CB}\x{1F3CC}\x{1F575}](?:[\x{FE0F}\x{1F3FB}-\x{1F3FF}]\x{200D}[\x{2640}\x{2642}]|\x{200D}[\x{2640}\x{2642}])|\x{1F3F4}\x{200D}\x{2620}|\x{1F1FD}\x{1F1F0}|\x{1F1F6}\x{1F1E6}|\x{1F1F4}\x{1F1F2}|\x{1F408}\x{200D}\x{2B1B}|\x{2764}(?:\x{FE0F}\x{200D}[\x{1F525}\x{1FA79}]|\x{200D}[\x{1F525}\x{1FA79}])|\x{1F441}\x{FE0F}?|\x{1F3F3}\x{FE0F}?|[\x{1F3C3}\x{1F3C4}\x{1F3CA}\x{1F46E}\x{1F470}\x{1F471}\x{1F473}\x{1F477}\x{1F481}\x{1F482}\x{1F486}\x{1F487}\x{1F645}-\x{1F647}\x{1F64B}\x{1F64D}\x{1F64E}\x{1F6A3}\x{1F6B4}-\x{1F6B6}\x{1F926}\x{1F935}\x{1F937}-\x{1F939}\x{1F93C}-\x{1F93E}\x{1F9B8}\x{1F9B9}\x{1F9CD}-\x{1F9CF}\x{1F9D4}\x{1F9D6}-\x{1F9DD}]\x{200D}[\x{2640}\x{2642}]|\x{1F1FF}[\x{1F1E6}\x{1F1F2}\x{1F1FC}]|\x{1F1FE}[\x{1F1EA}\x{1F1F9}]|\x{1F1FC}[\x{1F1EB}\x{1F1F8}]|\x{1F1FB}[\x{1F1E6}\x{1F1E8}\x{1F1EA}\x{1F1EC}\x{1F1EE}\x{1F1F3}\x{1F1FA}]|\x{1F1FA}[\x{1F1E6}\x{1F1EC}\x{1F1F2}\x{1F1F3}\x{1F1F8}\x{1F1FE}\x{1F1FF}]|\x{1F1F9}[\x{1F1E6}\x{1F1E8}\x{1F1E9}\x{1F1EB}-\x{1F1ED}\x{1F1EF}-\x{1F1F4}\x{1F1F7}\x{1F1F9}\x{1F1FB}\x{1F1FC}\x{1F1FF}]|\x{1F1F8}[\x{1F1E6}-\x{1F1EA}\x{1F1EC}-\x{1F1F4}\x{1F1F7}-\x{1F1F9}\x{1F1FB}\x{1F1FD}-\x{1F1FF}]|\x{1F1F7}[\x{1F1EA}\x{1F1F4}\x{1F1F8}\x{1F1FA}\x{1F1FC}]|\x{1F1F5}[\x{1F1E6}\x{1F1EA}-\x{1F1ED}\x{1F1F0}-\x{1F1F3}\x{1F1F7}-\x{1F1F9}\x{1F1FC}\x{1F1FE}]|\x{1F1F3}[\x{1F1E6}\x{1F1E8}\x{1F1EA}-\x{1F1EC}\x{1F1EE}\x{1F1F1}\x{1F1F4}\x{1F1F5}\x{1F1F7}\x{1F1FA}\x{1F1FF}]|\x{1F1F2}[\x{1F1E6}\x{1F1E8}-\x{1F1ED}\x{1F1F0}-\x{1F1FF}]|\x{1F1F1}[\x{1F1E6}-\x{1F1E8}\x{1F1EE}\x{1F1F0}\x{1F1F7}-\x{1F1FB}\x{1F1FE}]|\x{1F1F0}[\x{1F1EA}\x{1F1EC}-\x{1F1EE}\x{1F1F2}\x{1F1F3}\x{1F1F5}\x{1F1F7}\x{1F1FC}\x{1F1FE}\x{1F1FF}]|\x{1F1EF}[\x{1F1EA}\x{1F1F2}\x{1F1F4}\x{1F1F5}]|\x{1F1EE}[\x{1F1E8}-\x{1F1EA}\x{1F1F1}-\x{1F1F4}\x{1F1F6}-\x{1F1F9}]|\x{1F1ED}[\x{1F1F0}\x{1F1F2}\x{1F1F3}\x{1F1F7}\x{1F1F9}\x{1F1FA}]|\x{1F1EC}[\x{1F1E6}\x{1F1E7}\x{1F1E9}-\x{1F1EE}\x{1F1F1}-\x{1F1F3}\x{1F1F5}-\x{1F1FA}\x{1F1FC}\x{1F1FE}]|\x{1F1EB}[\x{1F1EE}-\x{1F1F0}\x{1F1F2}\x{1F1F4}\x{1F1F7}]|\x{1F1EA}[\x{1F1E6}\x{1F1E8}\x{1F1EA}\x{1F1EC}\x{1F1ED}\x{1F1F7}-\x{1F1FA}]|\x{1F1E9}[\x{1F1EA}\x{1F1EC}\x{1F1EF}\x{1F1F0}\x{1F1F2}\x{1F1F4}\x{1F1FF}]|\x{1F1E8}[\x{1F1E6}\x{1F1E8}\x{1F1E9}\x{1F1EB}-\x{1F1EE}\x{1F1F0}-\x{1F1F5}\x{1F1F7}\x{1F1FA}-\x{1F1FF}]|\x{1F1E7}[\x{1F1E6}\x{1F1E7}\x{1F1E9}-\x{1F1EF}\x{1F1F1}-\x{1F1F4}\x{1F1F6}-\x{1F1F9}\x{1F1FB}\x{1F1FC}\x{1F1FE}\x{1F1FF}]|\x{1F1E6}[\x{1F1E8}-\x{1F1EC}\x{1F1EE}\x{1F1F1}\x{1F1F2}\x{1F1F4}\x{1F1F6}-\x{1F1FA}\x{1F1FC}\x{1F1FD}\x{1F1FF}]|[#\*0-9]\x{FE0F}?\x{20E3}|\x{1F93C}[\x{1F3FB}-\x{1F3FF}]|\x{2764}\x{FE0F}?|[\x{1F3C3}\x{1F3C4}\x{1F3CA}\x{1F46E}\x{1F470}\x{1F471}\x{1F473}\x{1F477}\x{1F481}\x{1F482}\x{1F486}\x{1F487}\x{1F645}-\x{1F647}\x{1F64B}\x{1F64D}\x{1F64E}\x{1F6A3}\x{1F6B4}-\x{1F6B6}\x{1F926}\x{1F935}\x{1F937}-\x{1F939}\x{1F93D}\x{1F93E}\x{1F9B8}\x{1F9B9}\x{1F9CD}-\x{1F9CF}\x{1F9D4}\x{1F9D6}-\x{1F9DD}][\x{1F3FB}-\x{1F3FF}]|[\x{26F9}\x{1F3CB}\x{1F3CC}\x{1F575}][\x{FE0F}\x{1F3FB}-\x{1F3FF}]?|\x{1F3F4}|[\x{270A}\x{270B}\x{1F385}\x{1F3C2}\x{1F3C7}\x{1F442}\x{1F443}\x{1F446}-\x{1F450}\x{1F466}\x{1F467}\x{1F46B}-\x{1F46D}\x{1F472}\x{1F474}-\x{1F476}\x{1F478}\x{1F47C}\x{1F483}\x{1F485}\x{1F48F}\x{1F491}\x{1F4AA}\x{1F57A}\x{1F595}\x{1F596}\x{1F64C}\x{1F64F}\x{1F6C0}\x{1F6CC}\x{1F90C}\x{1F90F}\x{1F918}-\x{1F91F}\x{1F930}-\x{1F934}\x{1F936}\x{1F977}\x{1F9B5}\x{1F9B6}\x{1F9BB}\x{1F9D2}\x{1F9D3}\x{1F9D5}\x{1FAC3}-\x{1FAC5}\x{1FAF0}\x{1FAF2}-\x{1FAF6}][\x{1F3FB}-\x{1F3FF}]|[\x{261D}\x{270C}\x{270D}\x{1F574}\x{1F590}][\x{FE0F}\x{1F3FB}-\x{1F3FF}]|[\x{261D}\x{270A}-\x{270D}\x{1F385}\x{1F3C2}\x{1F3C7}\x{1F408}\x{1F415}\x{1F43B}\x{1F442}\x{1F443}\x{1F446}-\x{1F450}\x{1F466}\x{1F467}\x{1F46B}-\x{1F46D}\x{1F472}\x{1F474}-\x{1F476}\x{1F478}\x{1F47C}\x{1F483}\x{1F485}\x{1F48F}\x{1F491}\x{1F4AA}\x{1F574}\x{1F57A}\x{1F590}\x{1F595}\x{1F596}\x{1F62E}\x{1F635}\x{1F636}\x{1F64C}\x{1F64F}\x{1F6C0}\x{1F6CC}\x{1F90C}\x{1F90F}\x{1F918}-\x{1F91F}\x{1F930}-\x{1F934}\x{1F936}\x{1F93C}\x{1F977}\x{1F9B5}\x{1F9B6}\x{1F9BB}\x{1F9D2}\x{1F9D3}\x{1F9D5}\x{1FAC3}-\x{1FAC5}\x{1FAF0}\x{1FAF2}-\x{1FAF6}]|[\x{1F3C3}\x{1F3C4}\x{1F3CA}\x{1F46E}\x{1F470}\x{1F471}\x{1F473}\x{1F477}\x{1F481}\x{1F482}\x{1F486}\x{1F487}\x{1F645}-\x{1F647}\x{1F64B}\x{1F64D}\x{1F64E}\x{1F6A3}\x{1F6B4}-\x{1F6B6}\x{1F926}\x{1F935}\x{1F937}-\x{1F939}\x{1F93D}\x{1F93E}\x{1F9B8}\x{1F9B9}\x{1F9CD}-\x{1F9CF}\x{1F9D4}\x{1F9D6}-\x{1F9DD}]|[\x{1F46F}\x{1F9DE}\x{1F9DF}]|[\xA9\xAE\x{203C}\x{2049}\x{2122}\x{2139}\x{2194}-\x{2199}\x{21A9}\x{21AA}\x{231A}\x{231B}\x{2328}\x{23CF}\x{23ED}-\x{23EF}\x{23F1}\x{23F2}\x{23F8}-\x{23FA}\x{24C2}\x{25AA}\x{25AB}\x{25B6}\x{25C0}\x{25FB}\x{25FC}\x{25FE}\x{2600}-\x{2604}\x{260E}\x{2611}\x{2614}\x{2615}\x{2618}\x{2620}\x{2622}\x{2623}\x{2626}\x{262A}\x{262E}\x{262F}\x{2638}-\x{263A}\x{2640}\x{2642}\x{2648}-\x{2653}\x{265F}\x{2660}\x{2663}\x{2665}\x{2666}\x{2668}\x{267B}\x{267E}\x{267F}\x{2692}\x{2694}-\x{2697}\x{2699}\x{269B}\x{269C}\x{26A0}\x{26A7}\x{26AA}\x{26B0}\x{26B1}\x{26BD}\x{26BE}\x{26C4}\x{26C8}\x{26CF}\x{26D1}\x{26D3}\x{26E9}\x{26F0}-\x{26F5}\x{26F7}\x{26F8}\x{26FA}\x{2702}\x{2708}\x{2709}\x{270F}\x{2712}\x{2714}\x{2716}\x{271D}\x{2721}\x{2733}\x{2734}\x{2744}\x{2747}\x{2763}\x{27A1}\x{2934}\x{2935}\x{2B05}-\x{2B07}\x{2B1B}\x{2B1C}\x{2B55}\x{3030}\x{303D}\x{3297}\x{3299}\x{1F004}\x{1F170}\x{1F171}\x{1F17E}\x{1F17F}\x{1F202}\x{1F237}\x{1F321}\x{1F324}-\x{1F32C}\x{1F336}\x{1F37D}\x{1F396}\x{1F397}\x{1F399}-\x{1F39B}\x{1F39E}\x{1F39F}\x{1F3CD}\x{1F3CE}\x{1F3D4}-\x{1F3DF}\x{1F3F5}\x{1F3F7}\x{1F43F}\x{1F4FD}\x{1F549}\x{1F54A}\x{1F56F}\x{1F570}\x{1F573}\x{1F576}-\x{1F579}\x{1F587}\x{1F58A}-\x{1F58D}\x{1F5A5}\x{1F5A8}\x{1F5B1}\x{1F5B2}\x{1F5BC}\x{1F5C2}-\x{1F5C4}\x{1F5D1}-\x{1F5D3}\x{1F5DC}-\x{1F5DE}\x{1F5E1}\x{1F5E3}\x{1F5E8}\x{1F5EF}\x{1F5F3}\x{1F5FA}\x{1F6CB}\x{1F6CD}-\x{1F6CF}\x{1F6E0}-\x{1F6E5}\x{1F6E9}\x{1F6F0}\x{1F6F3}]|[\x{23E9}-\x{23EC}\x{23F0}\x{23F3}\x{25FD}\x{2693}\x{26A1}\x{26AB}\x{26C5}\x{26CE}\x{26D4}\x{26EA}\x{26FD}\x{2705}\x{2728}\x{274C}\x{274E}\x{2753}-\x{2755}\x{2757}\x{2795}-\x{2797}\x{27B0}\x{27BF}\x{2B50}\x{1F0CF}\x{1F18E}\x{1F191}-\x{1F19A}\x{1F201}\x{1F21A}\x{1F22F}\x{1F232}-\x{1F236}\x{1F238}-\x{1F23A}\x{1F250}\x{1F251}\x{1F300}-\x{1F320}\x{1F32D}-\x{1F335}\x{1F337}-\x{1F37C}\x{1F37E}-\x{1F384}\x{1F386}-\x{1F393}\x{1F3A0}-\x{1F3C1}\x{1F3C5}\x{1F3C6}\x{1F3C8}\x{1F3C9}\x{1F3CF}-\x{1F3D3}\x{1F3E0}-\x{1F3F0}\x{1F3F8}-\x{1F407}\x{1F409}-\x{1F414}\x{1F416}-\x{1F43A}\x{1F43C}-\x{1F43E}\x{1F440}\x{1F444}\x{1F445}\x{1F451}-\x{1F465}\x{1F46A}\x{1F479}-\x{1F47B}\x{1F47D}-\x{1F480}\x{1F484}\x{1F488}-\x{1F48E}\x{1F490}\x{1F492}-\x{1F4A9}\x{1F4AB}-\x{1F4FC}\x{1F4FF}-\x{1F53D}\x{1F54B}-\x{1F54E}\x{1F550}-\x{1F567}\x{1F5A4}\x{1F5FB}-\x{1F62D}\x{1F62F}-\x{1F634}\x{1F637}-\x{1F644}\x{1F648}-\x{1F64A}\x{1F680}-\x{1F6A2}\x{1F6A4}-\x{1F6B3}\x{1F6B7}-\x{1F6BF}\x{1F6C1}-\x{1F6C5}\x{1F6D0}-\x{1F6D2}\x{1F6D5}-\x{1F6D7}\x{1F6DD}-\x{1F6DF}\x{1F6EB}\x{1F6EC}\x{1F6F4}-\x{1F6FC}\x{1F7E0}-\x{1F7EB}\x{1F7F0}\x{1F90D}\x{1F90E}\x{1F910}-\x{1F917}\x{1F920}-\x{1F925}\x{1F927}-\x{1F92F}\x{1F93A}\x{1F93F}-\x{1F945}\x{1F947}-\x{1F976}\x{1F978}-\x{1F9B4}\x{1F9B7}\x{1F9BA}\x{1F9BC}-\x{1F9CC}\x{1F9D0}\x{1F9E0}-\x{1F9FF}\x{1FA70}-\x{1FA74}\x{1FA78}-\x{1FA7C}\x{1FA80}-\x{1FA86}\x{1FA90}-\x{1FAAC}\x{1FAB0}-\x{1FABA}\x{1FAC0}-\x{1FAC2}\x{1FAD0}-\x{1FAD9}\x{1FAE0}-\x{1FAE7}]/u', '', $text);
 }
 
-function shortenClient($client)
-{
+function shortenClient($client) {
     // Pre-process by removing any non-alphanumeric characters except for certain punctuations.
     $client = html_entity_decode($client); // Decode any HTML entities
     $client = str_replace("'", "", $client); // Removing all occurrences of '
@@ -933,8 +807,7 @@ function shortenClient($client)
     return strtoupper(substr($shortened, 0, 3));
 }
 
-function roundToNearest15($time)
-{
+function roundToNearest15($time) {
     // Validate the input time format
     if (!preg_match('/^(\d{2}):(\d{2}):(\d{2})$/', $time, $matches)) {
         return false; // or throw an exception
@@ -1182,145 +1055,516 @@ function getTicketStatusName($ticket_status) {
 
 
 function fetchUpdates() {
-
     global $repo_branch;
-
-    // Fetch the latest code changes but don't apply them
-    exec("git fetch", $output, $result);
-    $latest_version = exec("git rev-parse origin/$repo_branch");
-    $current_version = exec("git rev-parse HEAD");
-
-    if ($current_version == $latest_version) {
-        $update_message = "No Updates available";
+ 
+    $repo_dir = dirname(__DIR__); // Adjust to wherever the repo root is relative to this file
+ 
+    $output = array();
+    $result = 0;
+ 
+    $current_version = getCurrentGitCommit($repo_dir);
+    if (empty($current_version)) {
+        $output[] = 'Could not read current commit from .git - check file permissions';
+        $result = 1;
+    }
+ 
+    $repo = getGitHubRepoFromConfig($repo_dir);
+ 
+    $api_error = null;
+    $latest_version = getLatestGitCommit($repo, $repo_branch, $api_error);
+    if (empty($latest_version)) {
+        $output[] = $api_error ?: 'Could not determine latest commit';
+        $result = 1;
+    }
+ 
+    if ($result !== 0) {
+        $update_message = 'Update check failed';
+    } elseif ($current_version == $latest_version) {
+        $update_message = 'No Updates available';
     } else {
         $update_message = "New Updates are Available [$latest_version]";
     }
-
-
+ 
     $updates = new stdClass();
     $updates->output = $output;
     $updates->result = $result;
     $updates->current_version = $current_version;
     $updates->latest_version = $latest_version;
     $updates->update_message = $update_message;
-
-
+ 
     return $updates;
-
 }
 
-function getDomainExpirationDate($domain) {
-    // Execute the whois command
-    $result = shell_exec("whois " . escapeshellarg($domain));
-    if (!$result || !checkdnsrr($domain, 'SOA')) {
-        return null; // Return null if WHOIS query fails
+
+// Plain HTTPS GET via curl (used for RDAP)
+function rdapHttpGet($url, &$http_code = null) {
+    $ch = curl_init($url);
+    curl_setopt_array($ch, array(
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_CONNECTTIMEOUT => 5,
+        CURLOPT_TIMEOUT        => 10,
+        CURLOPT_USERAGENT      => 'ITFlow-Domain-Check',
+        CURLOPT_PROTOCOLS      => CURLPROTO_HTTPS,
+        CURLOPT_FOLLOWLOCATION => true, // RDAP bootstrap/redirectors use 30x
+        CURLOPT_MAXREDIRS      => 5,
+        CURLOPT_HTTPHEADER     => array('Accept: application/rdap+json'),
+    ));
+ 
+    $response = curl_exec($ch);
+    $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+ 
+    return ($response === false) ? '' : $response;
+}
+ 
+// Find the RDAP base URL for a TLD using IANA's bootstrap registry,
+// cached locally for a week (the mapping changes very rarely)
+function getRdapBaseUrl($tld) {
+    static $bootstrap = null;
+ 
+    if ($bootstrap === null) {
+        $cache_file = sys_get_temp_dir() . '/itflow_rdap_bootstrap.json';
+ 
+        if (is_readable($cache_file) && (time() - filemtime($cache_file)) < 604800) {
+            $bootstrap = json_decode(file_get_contents($cache_file), true);
+        }
+ 
+        if (empty($bootstrap['services'])) {
+            $raw = rdapHttpGet('https://data.iana.org/rdap/dns.json', $code);
+            if ($code === 200 && !empty($raw)) {
+                $decoded = json_decode($raw, true);
+                if (!empty($decoded['services'])) {
+                    $bootstrap = $decoded;
+                    @file_put_contents($cache_file, $raw);
+                }
+            }
+        }
+ 
+        if (empty($bootstrap['services'])) {
+            $bootstrap = array('services' => array()); // don't retry every call this run
+        }
     }
-
-    $expireDate = '';
-
-    // Regular expressions to match different date formats
-    $patterns = [
-        '/Expiration Date: (.+)/',
-        '/Registry Expiry Date: (.+)/',
-        '/expires: (.+)/',
-        '/Expiry Date: (.+)/',
-        '/renewal date: (.+)/',
-        '/Expires On: (.+)/',
-        '/paid-till: (.+)/',
-        '/Expiration Time: (.+)/',
-        '/\[Expires on\]\s+(.+)/',
-        '/expire: (.+)/',
-        '/validity: (.+)/',
-        '/Expires on.*: (.+)/i',
-        '/Expiry on.*: (.+)/i',
-        '/renewal: (.+)/i',
-        '/Expir\w+ Date: (.+)/i',
-        '/Valid Until: (.+)/i',
-        '/Valid until: (.+)/i',
-        '/expire-date: (.+)/i',
-        '/Expiration Date: (.+)/i',
-        '/Registry Expiry Date: (.+)/i',
-        '/Expire Date: (.+)/i',
-        '/expiry: (.+)/i',
-        '/expires: (.+)/i',
-        '/Registry Expiry Date: (.+)/i',
-        '/Expiration Time: (.+)/i',
-        '/validity: (.+)/i',
-        '/expires: (.+)/i',
-        '/paid-till: (.+)/i',
-        '/Expire Date: (.+)/i',
-        '/Expiration Date: (.+)/i',
-        '/expire: (.+)/i',
-        '/expiry: (.+)/i',
-        '/renewal date: (.+)/i',
-        '/Expiration Date: (.+)/i',
-        '/Expiration Time: (.+)/i',
-        '/Expires: (.+)/i',
-    ];
-
-    // Known date formats
-    $knownFormats = [
-        "d-M-Y",
-        "d-F-Y",
-        "d-m-Y",
-        "Y-m-d",
-        "d.m.Y",
-        "Y.m.d",
-        "Y/m/d",
-        "Y/m/d H:i:s",
-        "Ymd",
-        "Ymd H:i:s",
-        "d/m/Y",
-        "Y. m. d.",
-        "Y.m.d H:i:s",
-        "d-M-Y H:i:s",
-        "D M d H:i:s T Y",
-        "D M d Y",
-        "Y-m-d\TH:i:s",
-        "Y-m-d\TH:i:s\Z",
-        "Y-m-d H:i:s\Z",
-        "Y-m-d H:i:s",
-        "d M Y H:i:s",
-        "d/m/Y H:i:s",
-        "d/m/Y H:i:s T",
-        "B d Y",
-        "d.m.Y H:i:s",
-        "before M-Y",
-        "before Y-m-d",
-        "before Ymd",
-        "Y-m-d H:i:s (\T\Z\Z)",
-        "Y-M-d.",
-    ];
-
-    // Check each pattern to find a match
-    foreach ($patterns as $pattern) {
-        if (preg_match($pattern, $result, $matches)) {
-            $expireDate = trim($matches[1]);
+ 
+    foreach ($bootstrap['services'] as $service) {
+        // [0] = list of TLDs, [1] = list of base URLs
+        if (in_array($tld, $service[0])) {
+            return rtrim($service[1][0], '/') . '/';
+        }
+    }
+ 
+    return '';
+}
+ 
+// Fetch and decode the RDAP record for a domain (cached per-run so
+// getDomainRecords + getDomainExpirationDate on the same domain = one request)
+function getDomainRdap($domain) {
+    static $cache = array();
+ 
+    if (array_key_exists($domain, $cache)) {
+        return $cache[$domain];
+    }
+    $cache[$domain] = null;
+ 
+    $tld = substr(strrchr($domain, '.'), 1);
+    if (empty($tld)) {
+        return null;
+    }
+ 
+    // Primary: IANA bootstrap -> registry RDAP server directly
+    $base = getRdapBaseUrl($tld);
+    if (!empty($base)) {
+        $raw = rdapHttpGet($base . 'domain/' . rawurlencode($domain), $code);
+        if ($code === 200 && !empty($raw)) {
+            $decoded = json_decode($raw, true);
+            if (is_array($decoded)) {
+                $cache[$domain] = $decoded;
+                return $decoded;
+            }
+        }
+        if ($code === 404) {
+            return null; // Domain genuinely not found - don't bother the fallback
+        }
+    }
+ 
+    // Fallback: rdap.org redirector (covers gaps and bootstrap fetch failures)
+    $raw = rdapHttpGet('https://rdap.org/domain/' . rawurlencode($domain), $code);
+    if ($code === 200 && !empty($raw)) {
+        $decoded = json_decode($raw, true);
+        if (is_array($decoded)) {
+            $cache[$domain] = $decoded;
+        }
+    }
+ 
+    return $cache[$domain];
+}
+ 
+// Pull a named event date (expiration, registration, last changed) from RDAP
+function getRdapEventDate($rdap, $action) {
+    if (empty($rdap['events']) || !is_array($rdap['events'])) {
+        return '';
+    }
+    foreach ($rdap['events'] as $event) {
+        if (isset($event['eventAction'], $event['eventDate']) && $event['eventAction'] === $action) {
+            return $event['eventDate'];
+        }
+    }
+    return '';
+}
+ 
+// Registrar name from RDAP entities (vCard "fn" field)
+function getRdapRegistrar($rdap) {
+    if (empty($rdap['entities']) || !is_array($rdap['entities'])) {
+        return '';
+    }
+    foreach ($rdap['entities'] as $entity) {
+        if (empty($entity['roles']) || !in_array('registrar', $entity['roles'])) {
+            continue;
+        }
+        if (!empty($entity['vcardArray'][1]) && is_array($entity['vcardArray'][1])) {
+            foreach ($entity['vcardArray'][1] as $field) {
+                if (isset($field[0], $field[3]) && $field[0] === 'fn' && is_string($field[3])) {
+                    return $field[3];
+                }
+            }
+        }
+    }
+    return '';
+}
+ 
+// Build a human-readable summary to fill the old "whois" display field
+function getRdapSummary($rdap) {
+    $lines = array();
+ 
+    $registrar = getRdapRegistrar($rdap);
+    if (!empty($registrar)) {
+        $lines[] = "Registrar: $registrar";
+    }
+ 
+    $registered = getRdapEventDate($rdap, 'registration');
+    if (!empty($registered)) {
+        $lines[] = 'Registered: ' . substr($registered, 0, 10);
+    }
+ 
+    $expires = getRdapEventDate($rdap, 'expiration');
+    if (!empty($expires)) {
+        $lines[] = 'Expires: ' . substr($expires, 0, 10);
+    }
+ 
+    if (!empty($rdap['status']) && is_array($rdap['status'])) {
+        $lines[] = 'Status: ' . implode(', ', array_slice($rdap['status'], 0, 3));
+    }
+ 
+    if (!empty($rdap['nameservers']) && is_array($rdap['nameservers'])) {
+        $ns = array();
+        foreach ($rdap['nameservers'] as $nameserver) {
+            if (!empty($nameserver['ldhName'])) {
+                $ns[] = strtolower($nameserver['ldhName']);
+            }
+        }
+        if (!empty($ns)) {
+            sort($ns);
+            $lines[] = 'Nameservers: ' . implode(', ', $ns);
+        }
+    }
+ 
+    return implode("\n", $lines);
+}
+ 
+// Raw whois query against a server on port 43 (fallback for TLDs without RDAP)
+function whoisSocketQuery($server, $query) {
+    $response = '';
+ 
+    $fp = @fsockopen($server, 43, $errno, $errstr, 5);
+    if (!$fp) {
+        return '';
+    }
+ 
+    stream_set_timeout($fp, 5);
+    fwrite($fp, $query . "\r\n");
+ 
+    while (!feof($fp)) {
+        $line = fgets($fp, 1024);
+        if ($line === false) {
+            break;
+        }
+        $response .= $line;
+ 
+        // Sanity cap - expiry/registrar fields always appear well before this
+        if (strlen($response) > 32768) {
             break;
         }
     }
-
-    if ($expireDate) {
-        // Try parsing with known formats
-        foreach ($knownFormats as $format) {
-            $parsedDate = DateTime::createFromFormat($format, $expireDate);
-            if ($parsedDate && $parsedDate->format($format) === $expireDate) {
-                return $parsedDate->format('Y-m-d');
+    fclose($fp);
+ 
+    return $response;
+}
+ 
+// Look up the responsible whois server via IANA, query it, follow one registrar referral
+// Returns the full raw response - callers trim as needed
+function getDomainWhois($domain) {
+    $tld = substr(strrchr($domain, '.'), 1);
+    if (empty($tld)) {
+        return '';
+    }
+ 
+    // Ask IANA which whois server handles this TLD
+    $server = '';
+    $iana_response = whoisSocketQuery('whois.iana.org', $tld);
+    if (preg_match('/^whois:\s*(\S+)/mi', $iana_response, $matches)) {
+        $server = $matches[1];
+    }
+    if (empty($server)) {
+        return '';
+    }
+ 
+    // Verisign registries match nameservers too unless you use exact-match syntax
+    $query = in_array($tld, array('com', 'net')) ? "=$domain" : $domain;
+ 
+    $result = whoisSocketQuery($server, $query);
+ 
+    // Thin registries (.com/.net) refer to the registrar's whois - follow it once
+    if (preg_match('/Registrar WHOIS Server:\s*(\S+)/i', $result, $matches)) {
+        $referral = rtrim(trim($matches[1]), '/');
+        $referral = preg_replace('#^r?whois://#i', '', $referral);
+        if (!empty($referral) && strcasecmp($referral, $server) !== 0) {
+            $referred_result = whoisSocketQuery($referral, $domain);
+            if (trim($referred_result) !== '') {
+                $result = $referred_result;
             }
         }
-
-        // If none of the formats matched, try to parse it directly
-        $parsedDate = date_create($expireDate);
-        if ($parsedDate) {
+    }
+ 
+    return $result;
+}
+ 
+// Get domain general info (whois + NS/A/MX records) - no shell_exec
+function getDomainRecords($name) {
+    $records = array(
+        'a' => '',
+        'ns' => '',
+        'mx' => '',
+        'txt' => '',
+        'whois' => '',
+        'expire' => ''
+    );
+ 
+    // Only run if we think the domain is valid
+    if (!filter_var($name, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME) || !checkdnsrr($name, 'SOA')) {
+        return $records;
+    }
+ 
+    // Anchored so we don't mangle domains that merely start with "www"
+    $domain = preg_replace('/^www\./i', '', strtolower(trim($name)));
+ 
+    // A records
+    $a = @dns_get_record($domain, DNS_A);
+    if (is_array($a) && !empty($a)) {
+        $a_records = array_column($a, 'ip');
+        sort($a_records);
+        $records['a'] = implode("\n", $a_records);
+    }
+ 
+    // NS records
+    $ns = @dns_get_record($domain, DNS_NS);
+    if (is_array($ns) && !empty($ns)) {
+        $ns_records = array_column($ns, 'target');
+        sort($ns_records);
+        $records['ns'] = implode("\n", $ns_records);
+    }
+ 
+    // MX records - mimic dig +short output format ("10 mail.example.com")
+    $mx = @dns_get_record($domain, DNS_MX);
+    if (is_array($mx) && !empty($mx)) {
+        $mx_records = array();
+        foreach ($mx as $record) {
+            $mx_records[] = $record['pri'] . ' ' . $record['target'];
+        }
+        sort($mx_records, SORT_NATURAL);
+        $records['mx'] = implode("\n", $mx_records);
+    }
+ 
+    // TXT records
+    $txt = @dns_get_record($domain, DNS_TXT);
+    if (is_array($txt) && !empty($txt)) {
+        $txt_records = array_column($txt, 'txt');
+        sort($txt_records);
+        $records['txt'] = implode("\n", $txt_records);
+    }
+ 
+    // Registration data - RDAP first, legacy whois only if the TLD has no RDAP
+    $rdap = getDomainRdap($domain);
+    if ($rdap !== null) {
+        $records['whois'] = substr(getRdapSummary($rdap), 0, 254);
+ 
+        $expires = getRdapEventDate($rdap, 'expiration');
+        if (!empty($expires)) {
+            $parsed = date_create($expires);
+            if ($parsed) {
+                $records['expire'] = $parsed->format('Y-m-d');
+            }
+        }
+    } else {
+        $whois_raw = getDomainWhois($domain);
+        if (!empty($whois_raw) && stripos($whois_raw, 'rate limit') === false) {
+            // Approximate the old `head -30 | sed 's/   //g'`
+            $lines = array_slice(explode("\n", $whois_raw), 0, 30);
+            $lines = array_map(function ($line) {
+                return preg_replace('/   +/', ' ', rtrim($line));
+            }, $lines);
+            $records['whois'] = substr(trim(strip_tags(implode("\n", $lines))), 0, 254);
+        }
+    }
+ 
+    return $records;
+}
+ 
+// Used to automatically attempt to get SSL certificates as part of adding domains
+// The logic for the fetch (sync) button on the client_certificates page is in ajax.php, and allows ports other than 443
+function getSSL($full_name) {
+ 
+    // Parse host and port
+    $name = parse_url("//$full_name", PHP_URL_HOST);
+    $port = parse_url("//$full_name", PHP_URL_PORT);
+ 
+    // Default port
+    if (!$port) {
+        $port = "443";
+    }
+ 
+    $certificate = array();
+    $certificate['success'] = false;
+ 
+    // Only run if we think the domain is valid
+    if (!filter_var($name, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME)) {
+        $certificate['expire'] = '';
+        $certificate['issued_by'] = '';
+        $certificate['public_key'] = '';
+        return $certificate;
+    }
+ 
+    // Get SSL/TSL certificate (using verify peer false to allow for self-signed certs) for domain on default port
+    $socket = "ssl://$name:$port";
+    $get = stream_context_create(array("ssl" => array("capture_peer_cert" => true, "verify_peer" => false,)));
+    $read = stream_socket_client($socket, $errno, $errstr, 5, STREAM_CLIENT_CONNECT, $get);
+ 
+    // If the socket connected
+    if ($read) {
+        $cert = stream_context_get_params($read);
+        $cert_public_key_obj = openssl_x509_parse($cert['options']['ssl']['peer_certificate']);
+        openssl_x509_export($cert['options']['ssl']['peer_certificate'], $export);
+ 
+        if ($cert_public_key_obj) {
+            $certificate['success'] = true;
+            $certificate['expire'] = date('Y-m-d', $cert_public_key_obj['validTo_time_t']);
+            $certificate['issued_by'] = strip_tags($cert_public_key_obj['issuer']['O']);
+            $certificate['public_key'] = $export;
+        }
+    }
+ 
+    return $certificate;
+}
+ 
+// Get domain expiration date - RDAP first, whois parsing as last resort
+function getDomainExpirationDate($domain) {
+    if (!filter_var($domain, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME) || !checkdnsrr($domain, 'SOA')) {
+        return null;
+    }
+ 
+    $domain = preg_replace('/^www\./i', '', strtolower(trim($domain)));
+ 
+    // RDAP: expiration is a structured field - no regex, no date-format guessing
+    $rdap = getDomainRdap($domain);
+    if ($rdap !== null) {
+        $expires = getRdapEventDate($rdap, 'expiration');
+        if (!empty($expires)) {
+            $parsed = date_create($expires);
+            if ($parsed) {
+                return $parsed->format('Y-m-d');
+            }
+        }
+        return null; // RDAP answered but had no expiry (rare) - trust it, don't re-query
+    }
+ 
+    // Fallback for TLDs without RDAP: legacy whois parsing
+    $result = getDomainWhois($domain);
+    if (empty($result) || stripos($result, 'rate limit') !== false) {
+        return null;
+    }
+ 
+    // Every expiry label seen in the wild, longest/most-specific first
+    $labels = array(
+        'Registrar Registration Expiration Date',
+        'Registry Expiry Date',
+        'Expiration Date',
+        'Expiration Time',
+        '\[Expires on\]',
+        'Expires On',
+        'Expiry Date',
+        'Expire Date',
+        'expire-date',
+        'renewal date',
+        'Valid Until',
+        'paid-till',
+        'validity',
+        'renewal',
+        'Expires',
+        'expiry',
+        'expire',
+    );
+ 
+    if (!preg_match('/(?:' . implode('|', $labels) . ')\s*:?\s+(.+)/i', $result, $matches)) {
+        return null;
+    }
+    $expireDate = trim($matches[1]);
+ 
+    // Known date formats (roundtrip-checked to avoid d-m-Y vs Y-m-d ambiguity)
+    $knownFormats = array(
+        'Y-m-d',
+        'Y.m.d',
+        'Y/m/d',
+        'Ymd',
+        'Y. m. d.',
+        'Y-M-d.',
+        'd-M-Y',
+        'd-F-Y',
+        'd-m-Y',
+        'd.m.Y',
+        'd/m/Y',
+        'Y/m/d H:i:s',
+        'Ymd H:i:s',
+        'Y.m.d H:i:s',
+        'Y-m-d H:i:s',
+        'd-M-Y H:i:s',
+        'd.m.Y H:i:s',
+        'd/m/Y H:i:s',
+        'd M Y H:i:s',
+        'd/m/Y H:i:s T',
+        'D M d H:i:s T Y',
+        'D M d Y',
+    );
+ 
+    foreach ($knownFormats as $format) {
+        $parsedDate = DateTime::createFromFormat($format, $expireDate);
+        if ($parsedDate && $parsedDate->format($format) === $expireDate) {
             return $parsedDate->format('Y-m-d');
         }
     }
-
-    return null; // Return null if expiration date is not found
+ 
+    // Fallback - handles ISO 8601 (2026-07-05T04:00:00Z) and most everything else
+    $parsedDate = date_create($expireDate);
+    if ($parsedDate) {
+        $year = (int) $parsedDate->format('Y');
+        // Reject obviously bogus parses
+        if ($year >= 1995 && $year <= ((int) date('Y') + 100)) {
+            return $parsedDate->format('Y-m-d');
+        }
+    }
+ 
+    return null;
 }
 
-function validateWhitelabelKey($key)
-{
+
+function validateWhitelabelKey($key) {
     $public_key = "-----BEGIN PUBLIC KEY-----
 MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAr0k+4ZJudkdGMCFLx5b9
 H/sOozvWphFJsjVIF0vPVx9J0bTdml65UdS+32JagIHfPtEUTohaMnI3IAxxCDzl
