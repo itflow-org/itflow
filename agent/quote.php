@@ -212,7 +212,7 @@ if (isset($_GET['quote_id'])) {
                             <a class="dropdown-item" href="post.php?export_quote_pdf=<?= $quote_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>" target="_blank">
                                 <i class="fa fa-fw fa-download text-secondary mr-2"></i>Download PDF
                             </a>
-                            <?php if (!empty($config_smtp_host) && !empty($contact_email)) { ?>
+                            <?php if (!empty($config_smtp_provider) && !empty($contact_email)) { ?>
                                 <a class="dropdown-item" href="post.php?email_quote=<?= $quote_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                                     <i class="fa fa-fw fa-paper-plane text-secondary mr-2"></i>Send Email
                                 </a>
