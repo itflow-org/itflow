@@ -225,7 +225,7 @@ if (isset($_GET['invoice_id'])) {
                                     <i class="fas fa-fw fa-paper-plane mr-2"></i>Send
                                 </button>
                                 <div class="dropdown-menu">
-                                    <?php if (!empty($config_smtp_host) && !empty($contact_email)) { ?>
+                                    <?php if (!empty($config_smtp_provider) && !empty($contact_email)) { ?>
                                         <a class="dropdown-item" href="post.php?email_invoice=<?= $invoice_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                                             <i class="fas fa-fw fa-paper-plane mr-2"></i>Send Email
                                         </a>
