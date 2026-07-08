@@ -597,11 +597,67 @@ try {
 
 $inbox = $mailbox->inbox();
 
-$targetFolderPath = 'ITFlow';
+// Resolve the processed-mail folder in a namespace-aware way.
+// Most servers (Gmail, M365, Dovecot with an empty namespace prefix) allow
+// root-level folders, so "ITFlow" is preferred. cPanel-style Dovecot uses a
+// Maildir++ layout where the personal namespace prefix is "INBOX." - root
+// CREATE fails there with "Client tried to access nonexistent namespace",
+// and the folder must be addressed as "INBOX.ITFlow" (clients still display
+// it as a top-level folder alongside Inbox).
+$targetFolderName = 'ITFlow';
 try {
-    $targetFolder = $mailbox->folders()->firstOrCreate($targetFolderPath);
+    // INBOX always exists (RFC 3501) - use it to learn the hierarchy delimiter
+    // (ImapEngine returns the literal string "NIL" for servers with a flat namespace)
+    $delimiter = $mailbox->folders()->findOrFail('INBOX')->delimiter();
+    if ($delimiter === '' || strcasecmp($delimiter, 'NIL') === 0) {
+        $delimiter = '.';
+    }
+
+    // Candidate paths, in order of preference
+    $candidates = [
+        $targetFolderName,                              // Root-level (empty namespace prefix)
+        'INBOX' . $delimiter . $targetFolderName,       // INBOX-prefixed namespace (e.g. cPanel Dovecot)
+    ];
+
+    // Re-use the folder if it already exists at either location
+    $targetFolder = null;
+    foreach ($candidates as $candidate) {
+        if ($targetFolder = $mailbox->folders()->find($candidate)) {
+            $targetFolderPath = $candidate;
+            break;
+        }
+    }
+
+    // Otherwise create it, falling back to the namespace-prefixed path if the
+    // server rejects root-level creation
+    if (!$targetFolder) {
+        $creation_errors = [];
+        foreach ($candidates as $candidate) {
+            try {
+                $targetFolder = $mailbox->folders()->create($candidate);
+                $targetFolderPath = $candidate;
+                break;
+            } catch (\Throwable $e) {
+                $creation_errors[] = "[$candidate]: " . $e->getMessage();
+            }
+        }
+        if (!$targetFolder) {
+            throw new \Exception("CREATE rejected for all candidate paths - " . implode(' / ', $creation_errors));
+        }
+
+        // Subscribe to the newly created folder so it's visible in mail clients
+        // that only display subscribed folders (common with Dovecot/Roundcube).
+        // Non-fatal - some servers ignore or reject SUBSCRIBE entirely.
+        try {
+            $mailbox->connection()->subscribe(
+                \DirectoryTree\ImapEngine\Support\Str::toImapUtf7($targetFolderPath)
+            );
+        } catch (\Throwable $e) {
+            logApp("Cron-Email-Parser", "warning", "Created folder [$targetFolderPath] but could not subscribe to it: " . $e->getMessage());
+        }
+    }
 } catch (\Throwable $e) {
-    logApp("Cron-Email-Parser", "error", "Unable to find/create target folder [$targetFolderPath]: " . $e->getMessage());
+    logApp("Cron-Email-Parser", "error", "Unable to find/create target folder [$targetFolderName]: " . $e->getMessage());
     @unlink($lock_file_path);
     exit(1);
 }
