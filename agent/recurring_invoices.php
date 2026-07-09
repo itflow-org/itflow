@@ -37,6 +37,8 @@ $sql = mysqli_query(
     AND DATE(recurring_invoice_created_at) BETWEEN '$dtf' AND '$dtt'
     $status_query
     $client_query
+    $access_permission_query
+
     ORDER BY $sort $order LIMIT $record_from, $record_to");
 
 $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));

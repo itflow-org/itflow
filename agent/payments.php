@@ -49,6 +49,7 @@ $sql = mysqli_query(
     $account_query
     $payment_method_query
     $client_query
+    $access_permission_query
     ORDER BY $sort $order LIMIT $record_from, $record_to"
 );
 
