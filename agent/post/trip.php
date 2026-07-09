@@ -40,7 +40,7 @@ if (isset($_POST['edit_trip'])) {
 
     $trip_id = intval($_POST['trip_id']);
 
-    $client_id = intval(getFieldById('trips', $trip_id, 'trip_client_id'));
+    $client_id = intval($_POST['client_id']);
 
     if ($client_id) {
         enforceClientAccess();

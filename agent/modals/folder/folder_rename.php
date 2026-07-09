@@ -8,11 +8,14 @@ $sql = mysqli_query($mysqli, "SELECT * FROM folders WHERE folder_id = $folder_id
 
 $row = mysqli_fetch_assoc($sql);
 $folder_name = nullable_htmlentities($row['folder_name']);
+$client_id = intval($row['folder_client_id']);
 
+enforceClientAccess();
 
-// Generate the HTML form content using output buffering.
 ob_start();
+
 ?>
+
 <div class="modal-header bg-dark">
     <h5 class="modal-title"><i class="fa fa-fw fa-folder mr-2"></i>Renaming folder: <strong><?php echo $folder_name; ?></strong></h5>
     <button type="button" class="close text-white" data-dismiss="modal">

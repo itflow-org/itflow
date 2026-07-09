@@ -32,8 +32,10 @@ $amount_paid = floatval($row['amount_paid']);
 
 $balance = $invoice_amount - $amount_paid;
 
-// Generate the HTML form content using output buffering.
+enforceClientAccess();
+
 ob_start();
+
 ?>
 
 <div class="modal-header bg-dark">

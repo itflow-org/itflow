@@ -19,8 +19,10 @@ $row = mysqli_fetch_assoc($sql_credit_balance);
 
 $credit_balance = floatval($row['credit_balance']);
 
-// Generate the HTML form content using output buffering.
+enforceClientAccess();
+
 ob_start();
+
 ?>
 
 <div class="modal-header bg-dark">

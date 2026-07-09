@@ -17,6 +17,10 @@ $ticket_reply_time_worked_formatted = date_format($ticket_reply_time_worked, 'H:
 $ticket_reply = nullable_htmlentities($row['ticket_reply']);
 $client_id = intval($row['ticket_client_id']);
 
+if ($client_id) {
+    enforceClientAccess();
+}
+
 // Generate the HTML form content using output buffering.
 ob_start();
 

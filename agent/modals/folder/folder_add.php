@@ -6,9 +6,12 @@ $client_id = intval($_GET['client_id'] ?? 0);
 $current_folder_id = intval($_GET['current_folder_id'] ?? 0);
 $folder_name = nullable_htmlentities(getFieldByID('folders', $current_folder_id, 'folder_name') ?? '/');
 
+enforceClientAccess();
+
 ob_start();
 
 ?>
+
 <div class="modal-header bg-dark">
     <h5 class="modal-title"><i class="fa fa-fw fa-folder-plus mr-2"></i>Creating folder in <strong><?= $folder_name ?></strong></h5>
     <button type="button" class="close text-white" data-dismiss="modal">

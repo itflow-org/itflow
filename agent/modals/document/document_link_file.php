@@ -13,6 +13,8 @@ $row = mysqli_fetch_assoc($sql);
 $document_name = nullable_htmlentities($row['document_name']);
 $client_id = intval($row['document_client_id']);
 
+enforceClientAccess();
+
 ob_start();
 
 ?>

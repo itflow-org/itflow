@@ -7,6 +7,7 @@ $client_id = intval($_GET['client_id'] ?? 0);
 
 if ($client_id) {
     $client_ticket_select_query = "AND ticket_client_id = $client_id"; // Used when linking a ticket to the project
+    enforceClientAccess();
 } else {
     $client_ticket_select_query = '';
 }

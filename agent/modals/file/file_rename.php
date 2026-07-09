@@ -35,8 +35,10 @@ if ($file_ext == 'pdf') {
     $file_icon = "file";
 }
 
-// Generate the HTML form content using output buffering.
+enforceClientAccess();
+
 ob_start();
+
 ?>
 <div class="modal-header bg-dark">
     <h5 class="modal-title"><i class="fa fa-fw fa-<?php echo $file_icon; ?> mr-2"></i>Renaming file: <strong><?php echo $file_name; ?></strong></h5>

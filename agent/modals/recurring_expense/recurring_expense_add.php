@@ -213,7 +213,7 @@ ob_start();
                             <option value="0">- Client (Optional) -</option>
                             <?php
 
-                            $sql = mysqli_query($mysqli, "SELECT client_id, client_name FROM clients ORDER BY client_name ASC");
+                            $sql = mysqli_query($mysqli, "SELECT client_id, client_name FROM clients WHERE client_archived_at IS NULL $access_permission_query ORDER BY client_name ASC");
                             while ($row = mysqli_fetch_assoc($sql)) {
                                 $client_id_select = intval($row['client_id']);
                                 $client_name = nullable_htmlentities($row['client_name']);

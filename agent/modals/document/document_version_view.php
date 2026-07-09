@@ -12,15 +12,17 @@ $purifier = new HTMLPurifier($purifier_config);
 
 $document_version_id = intval($_GET['id']);
 
-$sql = mysqli_query($mysqli, "SELECT * FROM document_versions WHERE document_version_id = $document_version_id LIMIT 1");
+$sql = mysqli_query($mysqli, "SELECT * FROM document_versions LEFT JOIN documents ON document_id = document_version_document_id WHERE document_version_id = $document_version_id LIMIT 1");
 
 $row = mysqli_fetch_assoc($sql);
 $document_version_name = nullable_htmlentities($row['document_version_name']);
 $document_version_content = $purifier->purify($row['document_version_content']);
+$client_id = intval($row['document_client_id']);
 
+enforceClientAccess();
 
-// Generate the HTML form content using output buffering.
 ob_start();
+
 ?>
 
 <div class="modal-header bg-dark">

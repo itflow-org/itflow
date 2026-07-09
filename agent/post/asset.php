@@ -1201,6 +1201,8 @@ if (isset($_POST['export_assets_csv'])) {
         $client_row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT client_name FROM clients WHERE client_id = $client_id"));
         $client_name = $client_row['client_name'];
         $file_name_prepend = "$client_name-";
+
+        enforceClientAccess();
     } else {
         $client_query = '';
         $client_id = 0; // for Logging

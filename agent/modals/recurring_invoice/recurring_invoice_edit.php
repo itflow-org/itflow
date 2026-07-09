@@ -16,9 +16,12 @@ $recurring_invoice_created_at = date('Y-m-d', strtotime($row['recurring_invoice_
 $recurring_invoice_next_date = nullable_htmlentities($row['recurring_invoice_next_date']);
 $recurring_invoice_discount = floatval($row['recurring_invoice_discount_amount']);
 $category_id = intval($row['recurring_invoice_category_id']);
+$client_id = intval($row['recurring_invoice_client_id']);
 
-// Generate the HTML form content using output buffering.
+enforceClientAccess();
+
 ob_start();
+
 ?>
 
 <div class="modal-header bg-dark">

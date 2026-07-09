@@ -18,8 +18,12 @@ $trip_archived_at = nullable_htmlentities($row['trip_archived_at']);
 $round_trip = nullable_htmlentities($row['round_trip']);
 $client_id = intval($row['trip_client_id']);
 
-// Generate the HTML form content using output buffering.
+if ($client_id) {
+    enforceClientAccess();
+}
+
 ob_start();
+
 ?>
 
 <div class="modal-header bg-dark">
@@ -144,7 +148,7 @@ ob_start();
                         <option value="">- Client (Optional) -</option>
                         <?php
 
-                        $sql_clients = mysqli_query($mysqli, "SELECT * FROM clients WHERE client_archived_at IS NULL ORDER BY client_name ASC");
+                        $sql_clients = mysqli_query($mysqli, "SELECT * FROM clients WHERE client_archived_at IS NULL $access_permission_query ORDER BY client_name ASC");
                         while ($row = mysqli_fetch_assoc($sql_clients)) {
                             $client_id_select = intval($row['client_id']);
                             $client_name_select = nullable_htmlentities($row['client_name']);

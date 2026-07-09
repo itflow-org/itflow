@@ -7,9 +7,12 @@ $contact_id = intval($_GET['contact_id'] ?? 0);
 $asset_id = intval($_GET['asset_id'] ?? 0);
 intval($_GET['folder_id'] ?? 0);
 
+enforceClientAccess();
+
 ob_start();
 
 ?>
+
 <div class="modal-header bg-dark">
     <h5 class="modal-title"><i class="fa fa-fw fa-cloud-upload-alt mr-2"></i>Upload File(s)</h5>
     <button type="button" class="close text-white" data-dismiss="modal">

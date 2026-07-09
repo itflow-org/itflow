@@ -10,9 +10,12 @@ $row = mysqli_fetch_assoc($sql);
 $rack_name = nullable_htmlentities($row['rack_name']);
 $client_id = intval($row['rack_client_id']);
 
-// Generate the HTML form content using output buffering.
+enforceClientAccess();
+
 ob_start();
+
 ?>
+
 <div class="modal-header bg-dark">
     <h5 class="modal-title"><i class="fa fa-fw fa-server mr-2"></i>Adding Device to Rack <strong><?php echo $rack_name; ?></strong></h5>
     <button type="button" class="close text-white" data-dismiss="modal">

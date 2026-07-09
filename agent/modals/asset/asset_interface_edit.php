@@ -28,6 +28,8 @@ $interface_ipv6 = nullable_htmlentities($row['interface_ipv6']);
 $interface_primary = intval($row['interface_primary']);
 $interface_notes = nullable_htmlentities($row['interface_notes']);
 
+enforceClientAccess();
+
 // Determine the linked interface for $interface_id
 $linked_interface_id = null;
 $sql_link = mysqli_query($mysqli, "
@@ -45,9 +47,10 @@ if ($link_row = mysqli_fetch_assoc($sql_link)) {
     }
 }
 
-// Generate the HTML form content using output buffering.
 ob_start();
+
 ?>
+
 <div class="modal-header bg-dark">
     <h5 class="modal-title"><i class='fa fa-fw fa-ethernet mr-2'></i>Editing Interface: <?php echo $asset_name; ?> - <strong><?php echo $interface_name; ?></strong></h5>
     <button type="button" class="close text-white" data-dismiss="modal">

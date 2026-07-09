@@ -13,6 +13,8 @@ $count_files = count($file_ids);
 $count_docs  = count($document_ids);
 $total       = $count_files + $count_docs;
 
+enforceClientAccess();
+
 ob_start();
 
 ?>

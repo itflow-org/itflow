@@ -18,6 +18,8 @@ $service_updated_at = nullable_htmlentities($row['service_updated_at']);
 $service_review_due = nullable_htmlentities($row['service_review_due']);
 $client_id = intval($row['service_client_id']);
 
+enforceClientAccess();
+
 // Associated Assets (and their credentials/networks/locations)
 $sql_assets = mysqli_query(
     $mysqli,
@@ -81,9 +83,10 @@ $sql_docs = mysqli_query(
     WHERE service_id = $service_id"
 );
 
-// Generate the HTML form content using output buffering.
 ob_start();
+
 ?>
+
 <div class="modal-header bg-dark">
     <h5 class="modal-title text-white"><i class="fa fa-fw fa-stream mr-2"></i>Editing service: <strong><?php echo $service_name; ?></strong></h5>
     <button type="button" class="close text-white" data-dismiss="modal">

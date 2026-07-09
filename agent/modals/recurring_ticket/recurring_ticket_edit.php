@@ -27,8 +27,12 @@ while ($row = mysqli_fetch_assoc($sql_additional_assets)) {
     $additional_assets_array[] = $additional_asset_id;
 }
 
-// Generate the HTML form content using output buffering.
+if ($client_id) {
+    enforceClientAccess();
+}
+
 ob_start();
+
 ?>
 
 <div class="modal-header bg-dark">

@@ -12,8 +12,10 @@ $quote_number = intval($row['quote_number']);
 $client_id = intval($row['client_id']);
 $client_name = nullable_htmlentities($row['client_name']);
 
-// Generate the HTML form content using output buffering.
+enforceClientAccess();
+
 ob_start();
+
 ?>
 
 <div class="modal-header bg-dark">

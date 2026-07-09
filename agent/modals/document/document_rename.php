@@ -10,10 +10,12 @@ $row = mysqli_fetch_assoc($sql);
 $client_id = intval($row['document_client_id']);
 $document_name = nullable_htmlentities($row['document_name']);
 
+enforceClientAccess();
 
-// Generate the HTML form content using output buffering.
 ob_start();
+
 ?>
+
 <div class="modal-header bg-dark">
     <h5 class="modal-title"><i class="fa fa-fw fa-file-alt mr-2"></i>Renaming document: <strong><?php echo $document_name; ?></strong></h5>
     <button type="button" class="close text-white" data-dismiss="modal">

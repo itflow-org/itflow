@@ -21,8 +21,12 @@ $project_archived_at = nullable_htmlentities($row['project_archived_at']);
 $client_id = intval($row['project_client_id']);
 $project_manager = intval($row['project_manager']);
 
-// Generate the HTML form content using output buffering.
+if ($client_id) {
+    enforceClientAccess();
+}
+
 ob_start();
+
 ?>
 
 <div class="modal-header bg-dark">

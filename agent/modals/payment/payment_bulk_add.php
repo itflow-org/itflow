@@ -30,6 +30,8 @@ $amount_paid = floatval($row['amount_paid']);
 
 $balance = $invoice_amounts - $amount_paid;
 
+enforceClientAccess();
+
 ob_start();
 
 ?>

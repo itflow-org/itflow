@@ -4,7 +4,7 @@ require_once '../../../includes/modal_header.php';
 
 $item_id = intval($_GET['id']);
 
-$sql = mysqli_query($mysqli, "SELECT * FROM recurring_invoice_items WHERE item_id = $item_id LIMIT 1");
+$sql = mysqli_query($mysqli, "SELECT * FROM recurring_invoice_items LEFT JOIN recurring_invoices ON recurring_invoice_id = item_recurring_invoice_id WHERE item_id = $item_id LIMIT 1");
 $row = mysqli_fetch_assoc($sql);
 $item_name = nullable_htmlentities($row['item_name']);
 $item_description = nullable_htmlentities($row['item_description']);
@@ -13,9 +13,12 @@ $item_price = floatval($row['item_price']);
 $item_created_at = nullable_htmlentities($row['item_created_at']);
 $tax_id = intval($row['item_tax_id']);
 $product_id = intval($row['item_product_id']);
+$client_id = intval($row['recurring_invoice_client_id']);
 
-// Generate the HTML form content using output buffering.
+enforceClientAccess();
+
 ob_start();
+
 ?>
 
 <div class="modal-header bg-dark">

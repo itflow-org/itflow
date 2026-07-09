@@ -10,9 +10,12 @@ $row = mysqli_fetch_assoc($sql);
 $invoice_prefix = nullable_htmlentities($row['invoice_prefix']);
 $invoice_number = intval($row['invoice_number']);
 $client_name = nullable_htmlentities($row['client_name']);
+$client_id = intval($row['invoice_client_id']);
 
-// Generate the HTML form content using output buffering.
+enforceClientAccess();
+
 ob_start();
+
 ?>
 
 <div class="modal-header bg-dark">

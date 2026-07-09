@@ -7,6 +7,8 @@ $selected_ids = array_map('intval', $_GET['selected_ids'] ?? []);
 
 $count = count($selected_ids);
 
+enforceClientAccess();
+
 ob_start();
 
 ?>

@@ -4,7 +4,7 @@ require_once '../../../includes/modal_header.php';
 
 $payment_id = intval($_GET['id']);
 
-$sql = mysqli_query($mysqli, "SELECT * FROM payments WHERE payment_id = $payment_id LIMIT 1");
+$sql = mysqli_query($mysqli, "SELECT * FROM payments LEFT JOIN invoices ON invoice_id = payment_invoice_id WHERE payment_id = $payment_id LIMIT 1");
 
 $row = mysqli_fetch_assoc($sql);
 $payment_date = nullable_htmlentities($row['payment_date']);
@@ -12,8 +12,12 @@ $payment_method = nullable_htmlentities($row['payment_method']);
 $payment_amount = floatval($row['payment_amount']);
 $payment_reference = nullable_htmlentities($row['payment_reference']);
 $payment_account_id = intval($row['payment_account_id']);
+$client_id = intval($row['invoice_client_id']);
+
+enforceClientAccess();
 
 ob_start();
+
 ?>
 
 <div class="modal-header bg-dark">

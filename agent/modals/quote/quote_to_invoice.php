@@ -9,8 +9,12 @@ $sql = mysqli_query($mysqli, "SELECT * FROM quotes WHERE quote_id = $quote_id LI
 $row = mysqli_fetch_assoc($sql);
 $quote_prefix = nullable_htmlentities($row['quote_prefix']);
 $quote_number = intval($row['quote_number']);
+$client_id = intval($row['quote_client_id']);
+
+enforceClientAccess();
 
 ob_start();
+
 ?>
 
 <div class="modal-header bg-dark">

@@ -28,6 +28,8 @@ $location_contact_id = intval($row['location_contact_id']);
 $client_id = intval($row['location_client_id']);
 $location_primary = intval($row['location_primary']);
 
+enforceClientAccess();
+
 // Tags
 $location_tag_id_array = array();
 $sql_location_tags = mysqli_query($mysqli, "SELECT * FROM location_tags WHERE location_id = $location_id");

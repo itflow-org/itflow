@@ -12,8 +12,10 @@ $invoice_number = intval($row['invoice_number']);
 $invoice_amount = floatval($row['invoice_amount']);
 $client_id = intval($row['invoice_client_id']);
 
-// Generate the HTML form content using output buffering.
+enforceClientAccess();
+
 ob_start();
+
 ?>
 
 <div class="modal-header bg-dark">
