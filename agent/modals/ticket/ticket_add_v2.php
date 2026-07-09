@@ -33,11 +33,6 @@ ob_start();
             <li class="nav-item">
                 <a class="nav-link active" data-toggle="pill" href="#pills-add-details"><i class="fa fa-fw fa-life-ring mr-2"></i>Details</a>
             </li>
-            <?php if (!$contact_id) { ?>
-                <li class="nav-item">
-                    <a class="nav-link" data-toggle="pill" href="#pills-add-contacts"><i class="fa fa-fw fa-users mr-2"></i>Contact</a>
-                </li>
-            <?php } ?>
             <li class="nav-item">
                 <a class="nav-link" data-toggle="pill" href="#pills-add-relationships"><i class="fa fa-fw fa-desktop mr-2"></i>Assignment</a>
             </li>
@@ -48,6 +43,52 @@ ob_start();
 
             <!-- Ticket details -->
             <div class="tab-pane fade show active" id="pills-add-details">
+
+                <!-- Ticket client/contact -->
+                <?php if ($contact_id) { ?>
+                    <input type="hidden" name="contact_id" value="<?php echo $contact_id; ?>">
+                <?php } else { ?>
+
+                    <div class="row">
+                        <div class="col">
+                            <div class="form-group">
+                                <label>Client <strong class="text-danger">*</strong></label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
+                                    </div>
+                                    <select class="form-control select2" name="client_id" id="changeClientSelect" required <?php if ($client_id) { echo "disabled"; } ?>>
+                                        <option value="">- Select a Client -</option>
+                                        <?php
+
+                                        $sql = mysqli_query($mysqli, "SELECT * FROM clients WHERE client_lead = 0 AND client_archived_at IS NULL $access_permission_query ORDER BY client_name ASC");
+                                        while ($row = mysqli_fetch_assoc($sql)) {
+                                            $client_id_select = intval($row['client_id']);
+                                            $client_name = nullable_htmlentities($row['client_name']); ?>
+
+                                            <option value="<?php echo $client_id_select; ?>" <?php if ($client_id == $client_id_select) {echo "selected"; } ?>><?php echo $client_name; ?></option>
+
+                                        <?php } ?>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="form-group">
+                                <label>Contact </label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
+                                    </div>
+                                    <select class="form-control select2" name="contact_id" id="contactSelect">
+                                        <option value="">No Contact</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                <?php } ?>
 
                 <div class="form-group">
                     <label>Template</label>
@@ -90,12 +131,19 @@ ob_start();
                 </div>
 
                 <div class="form-group">
-                    <label>Subject <strong class="text-danger">*</strong></label>
+                    <label>Subject <strong class="text-danger">*</strong> <?php if ($config_module_enable_accounting) { ?>/ <span class="text-secondary">Billable</span><?php } ?></label>
                     <div class="input-group">
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
                         </div>
                         <input type="text" class="form-control" id="subjectInput" name="subject" placeholder="Subject" maxlength="500" required>
+                        <?php if ($config_module_enable_accounting) { ?>
+                        <div class="input-group-append">
+                            <div class="input-group-text">
+                                <input type="checkbox" name="billable" <?php if ($config_ticket_default_billable == 1) { echo "checked"; } ?> value="1">
+                            </div>
+                        </div>
+                        <?php } ?>
                     </div>
                 </div>
 
@@ -176,58 +224,7 @@ ob_start();
                     </div>
                 </div>
 
-                <?php if ($config_module_enable_accounting) { ?>
-                    <div class="form-group">
-                        <div class="custom-control custom-switch">
-                            <input type="checkbox" class="custom-control-input" name="billable" <?php if ($config_ticket_default_billable == 1) { echo "checked"; } ?> value="1" id="billable">
-                            <label class="custom-control-label" for="billable">Mark Billable</label>
-                        </div>
-                    </div>
-                <?php } ?>
-
             </div>
-
-            <!-- Ticket client/contact -->
-            <?php if ($contact_id) { ?>
-                <input type="hidden" name="contact_id" value="<?php echo $contact_id; ?>">
-            <?php } else { ?>
-                <div class="tab-pane fade" id="pills-add-contacts">
-
-                    <div class="form-group">
-                        <label>Client <strong class="text-danger">*</strong></label>
-                        <div class="input-group">
-                            <div class="input-group-prepend">
-                                <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
-                            </div>
-                            <select class="form-control select2" name="client_id" id="changeClientSelect" required <?php if ($client_id) { echo "disabled"; } ?>>
-                                <option value="">- Client -</option>
-                                <?php
-
-                                $sql = mysqli_query($mysqli, "SELECT * FROM clients WHERE client_lead = 0 AND client_archived_at IS NULL $access_permission_query ORDER BY client_name ASC");
-                                while ($row = mysqli_fetch_assoc($sql)) {
-                                    $client_id_select = intval($row['client_id']);
-                                    $client_name = nullable_htmlentities($row['client_name']); ?>
-
-                                    <option value="<?php echo $client_id_select; ?>" <?php if ($client_id == $client_id_select) {echo "selected"; } ?>><?php echo $client_name; ?></option>
-
-                                <?php } ?>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Contact </label>
-                        <div class="input-group">
-                            <div class="input-group-prepend">
-                                <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
-                            </div>
-                            <select class="form-control select2" name="contact_id" id="contactSelect">
-                            </select>
-                        </div>
-                    </div>
-
-                </div>
-            <?php } ?>
 
             <div class="tab-pane fade" id="pills-add-relationships">
                 To-do: project, etc.
@@ -290,7 +287,7 @@ ob_start();
     </div>
 
     <div class="modal-footer">
-        <button type="submit" name="add_ticket" class="btn btn-primary text-bold"><i class="fas fa-check mr-2"></i>Create</button>
+        <button type="submit" name="add_ticket" class="btn btn-primary text-bold"><i class="fas fa-check mr-2"></i>Create Ticket</button>
         <button type="button" class="btn btn-light" data-dismiss="modal"><i class="fas fa-times mr-2"></i>Cancel</button>
     </div>
 

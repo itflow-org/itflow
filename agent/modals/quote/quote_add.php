@@ -18,16 +18,6 @@ ob_start();
 
     <div class="modal-body">
 
-        <div class="form-group">
-            <label>Scope</label>
-            <div class="input-group">
-                <div class="input-group-prepend">
-                    <span class="input-group-text"><i class="fa fa-fw fa-comment"></i></span>
-                </div>
-                <input type="text" class="form-control" name="scope" placeholder="Quick description" maxlength="255">
-            </div>
-        </div>
-
         <?php if ($client_id) { ?>
             <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
         <?php } else { ?>
@@ -39,7 +29,7 @@ ob_start();
                         <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
                     </div>
                     <select class="form-control select2" name="client_id" required>
-                        <option value="">- Client -</option>
+                        <option value="">- Select a Client -</option>
                         <?php
 
                         //select unarchived clients
@@ -56,6 +46,16 @@ ob_start();
             </div>
 
         <?php } ?>
+
+        <div class="form-group">
+            <label>Scope</label>
+            <div class="input-group">
+                <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fa fa-fw fa-comment"></i></span>
+                </div>
+                <input type="text" class="form-control" name="scope" placeholder="Quick description" maxlength="255">
+            </div>
+        </div>
 
         <div class="form-group">
             <label>Category <strong class="text-danger">*</strong></label>
