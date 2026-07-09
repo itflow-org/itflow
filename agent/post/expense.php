@@ -57,6 +57,10 @@ if (isset($_POST['edit_expense'])) {
 
     require_once 'expense_model.php';
 
+    if ($client_id) {
+        enforceClientAccess();
+    }
+
     $expense_id = intval($_POST['expense_id']);
 
     // Get old receipt
@@ -106,6 +110,10 @@ if (isset($_GET['delete_expense'])) {
     $expense_description = sanitizeInput($row['expense_description']);
     $client_id = intval($row['expense_client_id']);
 
+    if ($client_id) {
+        enforceClientAccess();
+    }
+
     unlink("../uploads/expenses/$expense_receipt");
 
     mysqli_query($mysqli,"DELETE FROM expenses WHERE expense_id = $expense_id");
@@ -143,6 +151,10 @@ if (isset($_POST['bulk_edit_expense_category'])) {
             $row = mysqli_fetch_assoc($sql);
             $expense_description = sanitizeInput($row['expense_description']);
             $client_id = intval($row['expense_client_id']);
+
+            if ($client_id) {
+                enforceClientAccess();
+            }
 
             mysqli_query($mysqli,"UPDATE expenses SET expense_category_id = $category_id WHERE expense_id = $expense_id");
 
@@ -185,6 +197,10 @@ if (isset($_POST['bulk_edit_expense_account'])) {
             $expense_description = sanitizeInput($row['expense_description']);
             $client_id = intval($row['expense_client_id']);
 
+            if ($client_id) {
+                enforceClientAccess();
+            }
+
             mysqli_query($mysqli,"UPDATE expenses SET expense_account_id = $account_id WHERE expense_id = $expense_id");
 
             logAction("Expense", "Edit", "$session_name assigned expense $expense_descrition to account $account_name", $client_id, $expense_id);
@@ -207,6 +223,8 @@ if (isset($_POST['bulk_edit_expense_client'])) {
     enforceUserPermission('module_financial', 2);
 
     $client_id = intval($_POST['bulk_client_id']);
+
+    enforceClientAccess();
 
     // Get Client name for logging and Notification
     $client_name = sanitizeInput(getFieldById('clients', $client_id, 'client_name'));
@@ -257,6 +275,10 @@ if (isset($_POST['bulk_delete_expenses'])) {
             $expense_description = sanitizeInput($row['expense_description']);
             $expense_receipt = sanitizeInput($row['expense_receipt']);
             $client_id = intval($row['expense_client_id']);
+
+            if ($client_id) {
+                enforceClientAccess();
+            }
 
             unlink("../uploads/expenses/$expense_receipt");
 
@@ -324,11 +346,13 @@ if (isset($_POST['export_expenses_csv'])) {
       LEFT JOIN categories ON expense_category_id = category_id
       LEFT JOIN vendors ON expense_vendor_id = vendor_id
       LEFT JOIN accounts ON expense_account_id = account_id
+      LEFT JOIN clients ON expense_client_id = client_id
       WHERE expense_vendor_id > 0
       $date_query
       $account_query
       $vendor_query
       $category_query
+      $access_permission_query
       ORDER BY expense_date DESC
     ");
 

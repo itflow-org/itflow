@@ -21,9 +21,13 @@ $expense_created_at = nullable_htmlentities($row['expense_created_at']);
 $expense_vendor_id = intval($row['expense_vendor_id']);
 $expense_category_id = intval($row['expense_category_id']);
 $expense_account_id = intval($row['expense_account_id']);
-$expense_client_id = intval($row['expense_client_id']);
+$client_id = intval($row['expense_client_id']);
 $vendor_name = nullable_htmlentities($row['vendor_name']);
 $category_name = nullable_htmlentities($row['category_name']);
+
+if ($client_id) {
+    enforceClientAccess();
+}
 
 // Generate the HTML form content using output buffering.
 ob_start();
@@ -199,12 +203,12 @@ ob_start();
                             <option value="">- Select Client -</option>
                             <?php
 
-                            $sql_clients = mysqli_query($mysqli, "SELECT client_id, client_name FROM clients ORDER BY client_name ASC");
+                            $sql_clients = mysqli_query($mysqli, "SELECT client_id, client_name FROM clients WHERE 1 = 1 $access_permission_query ORDER BY client_name ASC");
                             while ($row = mysqli_fetch_assoc($sql_clients)) {
                                 $client_id_select = intval($row['client_id']);
                                 $client_name_select = nullable_htmlentities($row['client_name']);
                                 ?>
-                                <option <?php if ($expense_client_id == $client_id_select) { echo "selected"; } ?> value="<?php echo $client_id_select; ?>"><?php echo $client_name_select; ?></option>
+                                <option <?php if ($client_id == $client_id_select) { echo "selected"; } ?> value="<?php echo $client_id_select; ?>"><?php echo $client_name_select; ?></option>
 
                                 <?php
                             }

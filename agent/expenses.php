@@ -52,6 +52,7 @@ $sql = mysqli_query(
     $category_query
     AND (vendor_name LIKE '%$q%' OR client_name LIKE '%$q%' OR category_name LIKE '%$q%' OR account_name LIKE '%$q%' OR expense_description LIKE '%$q%' OR expense_amount LIKE '%$q%')
     $account_query
+    $access_permission_query
     ORDER BY $sort $order LIMIT $record_from, $record_to"
 );
 
