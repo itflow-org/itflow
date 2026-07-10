@@ -81,23 +81,16 @@ ob_start();
                         </div>
                     </div>
                 </div>
-                
+
                 <?php } ?>
 
                 <div class="form-group">
-                    <label>Subject <strong class="text-danger">*</strong> <?php if ($config_module_enable_accounting) { ?>/ <span class="text-secondary">Billable</span><?php } ?></label>
+                    <label>Subject <strong class="text-danger">*</strong></label>
                     <div class="input-group">
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
                         </div>
                         <input type="text" class="form-control" name="subject" placeholder="Subject" maxlength="500" required>
-                        <?php if ($config_module_enable_accounting) { ?>
-                        <div class="input-group-append">
-                            <div class="input-group-text">
-                                <input type="checkbox" name="billable" <?php if ($config_ticket_default_billable == 1) { echo "checked"; } ?> value="1">
-                            </div>
-                        </div>
-                        <?php } ?>
                     </div>
                 </div>
 
@@ -179,9 +172,16 @@ ob_start();
                     </div>
                 </div>
 
-            </div>
+                <?php if ($config_module_enable_accounting) { ?>
+                <div class="form-group">
+                    <div class="custom-control custom-switch">
+                        <input type="checkbox" class="custom-control-input" name="billable" <?php if ($config_ticket_default_billable == 1) { echo "checked"; } ?> value="1" id="billable">
+                        <label class="custom-control-label" for="billable">Mark Billable</label>
+                    </div>
+                </div>
+                <?php } ?>
 
-            
+            </div>
 
             <div class="tab-pane fade" id="pills-add-schedule">
 
