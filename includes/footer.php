@@ -30,24 +30,24 @@ if (basename(dirname($_SERVER['REQUEST_URI'])) === 'guest') { ?>
 <!-- REQUIRED SCRIPTS -->
 
 <!-- Bootstrap 4 -->
-<script src="/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+<script src="/libs/bootstrap/js/bootstrap.bundle.min.js"></script>
 
 <!-- Custom js-->
-<script src="/plugins/moment/moment.min.js"></script>
-<script src="/plugins/chart.js/chart.umd.min.js"></script>
-<script src="/plugins/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4.min.js"></script>
-<script src="/plugins/daterangepicker/daterangepicker.js"></script>
-<script src="/plugins/select2/js/select2.min.js"></script>
-<script src="/plugins/inputmask/jquery.inputmask.min.js"></script>
-<script src="/plugins/tinymce/tinymce.min.js" referrerpolicy="origin"></script>
-<script src="/plugins/Show-Hide-Passwords-Bootstrap-4/bootstrap-show-password.min.js"></script>
-<script src="/plugins/clipboardjs/clipboard.min.js"></script>
+<script src="/libs/moment/moment.min.js"></script>
+<script src="/libs/chart.js/chart.umd.min.js"></script>
+<script src="/libs/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4.min.js"></script>
+<script src="/libs/daterangepicker/daterangepicker.js"></script>
+<script src="/libs/select2/js/select2.min.js"></script>
+<script src="/libs/inputmask/jquery.inputmask.min.js"></script>
+<script src="/libs/tinymce/tinymce.min.js" referrerpolicy="origin"></script>
+<script src="/libs/Show-Hide-Passwords-Bootstrap-4/bootstrap-show-password.min.js"></script>
+<script src="/libs/clipboardjs/clipboard.min.js"></script>
 <script src="/js/keepalive.js"></script>
-<script src="/plugins/DataTables/datatables.min.js"></script>
-<script src="/plugins/intl-tel-input/js/intlTelInput.min.js"></script>
+<script src="/libs/DataTables/datatables.min.js"></script>
+<script src="/libs/intl-tel-input/js/intlTelInput.min.js"></script>
 
 <!-- AdminLTE App -->
-<script src="/plugins/adminlte/js/adminlte.min.js"></script>
+<script src="/libs/adminlte/js/adminlte.min.js"></script>
 <script src="/js/app.js"></script>
 <script src="/js/ajax_modal.js"></script>
 <script src="/js/confirm_modal.js"></script>

@@ -3,7 +3,7 @@
 require_once '../../../includes/modal_header.php';
 
 // Initialize the HTML Purifier to prevent XSS
-require_once "../../../plugins/htmlpurifier/HTMLPurifier.standalone.php";
+require_once "../../../libs/htmlpurifier/HTMLPurifier.standalone.php";
 
 $purifier_config = HTMLPurifier_Config::createDefault();
 $purifier_config->set('Cache.DefinitionImpl', null); // Disable cache by setting a non-existent directory or an invalid one

@@ -524,8 +524,8 @@ ob_start();
 </form>
 
 <!-- JSON Autocomplete / type ahead -->
-<link rel="stylesheet" href="/plugins/jquery-ui/jquery-ui.min.css">
-<script src="/plugins/jquery-ui/jquery-ui.min.js"></script>
+<link rel="stylesheet" href="/libs/jquery-ui/jquery-ui.min.css">
+<script src="/libs/jquery-ui/jquery-ui.min.js"></script>
 <script>
     $(function() {
         var operatingSystems = <?php echo $json_os; ?>;

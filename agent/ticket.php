@@ -19,7 +19,7 @@ if ($client_access_string) {
 enforceUserPermission('module_support');
 
 // Initialize the HTML Purifier to prevent XSS
-require_once "../plugins/htmlpurifier/HTMLPurifier.standalone.php";
+require_once "../libs/htmlpurifier/HTMLPurifier.standalone.php";
 
 $purifier_config = HTMLPurifier_Config::createDefault();
 $purifier_config->set('Cache.DefinitionImpl', null); // Disable cache by setting a non-existent directory or an invalid one
@@ -1331,7 +1331,7 @@ require_once "../includes/footer.php";
 
 <script src="/js/pretty_content.js"></script>
 
-<script src="/plugins/SortableJS/Sortable.min.js"></script>
+<script src="/libs/SortableJS/Sortable.min.js"></script>
 <script>
 new Sortable(document.querySelector('table#tasks tbody'), {
     handle: '.drag-handle',

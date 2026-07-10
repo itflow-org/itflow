@@ -703,7 +703,7 @@ if (isset($_GET['export_document'])) {
     enforceClientAccess();
 
     // Include the TCPDF class
-    require_once('../plugins/TCPDF/tcpdf.php');
+    require_once('../libs/TCPDF/tcpdf.php');
 
     $pdf = new TCPDF();
 

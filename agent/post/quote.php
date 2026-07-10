@@ -828,7 +828,7 @@ if (isset($_GET['export_quote_pdf'])) {
         $quote_badge_color = "secondary";
     }
 
-    require_once("../plugins/TCPDF/tcpdf.php");
+    require_once("../libs/TCPDF/tcpdf.php");
 
     // Start TCPDF
     $pdf = new TCPDF('P', 'mm', 'A4', true, 'UTF-8', false);

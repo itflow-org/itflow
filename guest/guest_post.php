@@ -329,7 +329,7 @@ if (isset($_GET['export_quote_pdf'])) {
         //Set Currency Format
         $currency_format = numfmt_create($company_locale, NumberFormatter::CURRENCY);
 
-        require_once("../plugins/TCPDF/tcpdf.php");
+        require_once("../libs/TCPDF/tcpdf.php");
 
         // Start TCPDF
         $pdf = new TCPDF('P', 'mm', 'A4', true, 'UTF-8', false);
@@ -555,7 +555,7 @@ if (isset($_GET['export_invoice_pdf'])) {
         //Set Badge color based off of invoice status
         $invoice_badge_color = getInvoiceBadgeColor($invoice_status);
 
-        require_once("../plugins/TCPDF/tcpdf.php");
+        require_once("../libs/TCPDF/tcpdf.php");
 
         // Start TCPDF
         $pdf = new TCPDF('P', 'mm', 'A4', true, 'UTF-8', false);

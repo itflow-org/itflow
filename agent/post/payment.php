@@ -396,7 +396,7 @@ if (isset($_POST['add_payment_stripe'])) {
     }
 
     // Initialize Stripe
-    require_once __DIR__ . '/../../plugins/stripe-php/init.php';
+    require_once __DIR__ . '/../../libs/stripe-php/init.php';
     $stripe = new \Stripe\StripeClient($private_key);
 
     $balance_to_pay = round($invoice_amount, 2);
@@ -581,7 +581,7 @@ if (isset($_GET['add_payment_stripe'])) {
     }
 
     // Initialize Stripe
-    require_once __DIR__ . '/../plugins/stripe-php/init.php';
+    require_once __DIR__ . '/../libs/stripe-php/init.php';
     $stripe = new \Stripe\StripeClient($config_stripe_secret);
 
     $balance_to_pay = round($invoice_amount, 2);

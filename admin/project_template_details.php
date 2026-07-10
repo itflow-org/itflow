@@ -212,7 +212,7 @@ if (isset($_GET['project_template_id'])) {
 
 </div> <!-- End row -->
 
-<script src="../plugins/SortableJS/Sortable.min.js"></script>
+<script src="../libs/SortableJS/Sortable.min.js"></script>
 <script>
 new Sortable(document.querySelector('table#ticket_templates tbody'), {
     handle: '.drag-handle',

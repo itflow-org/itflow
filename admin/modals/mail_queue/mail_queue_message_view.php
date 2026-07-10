@@ -9,7 +9,7 @@ if (!isset($session_is_admin) || !$session_is_admin) {
 $email_id = intval($_GET['id']);
 
 //Initialize the HTML Purifier to prevent XSS
-require "../../../plugins/htmlpurifier/HTMLPurifier.standalone.php";
+require "../../../libs/htmlpurifier/HTMLPurifier.standalone.php";
 
 $purifier_config = HTMLPurifier_Config::createDefault();
 $purifier_config->set('Cache.DefinitionImpl', null); // Disable cache by setting a non-existent directory or an invalid one

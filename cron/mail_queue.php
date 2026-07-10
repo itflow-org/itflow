@@ -10,14 +10,14 @@ if (php_sapi_name() !== 'cli') {
 require_once "../config.php";
 require_once "../includes/inc_set_timezone.php";
 require_once "../functions.php";
-require_once "../plugins/vendor/autoload.php";
+require_once "../libs/vendor/autoload.php";
 
 // PHP Mailer Libs
-require_once "../plugins/PHPMailer/src/Exception.php";
-require_once "../plugins/PHPMailer/src/PHPMailer.php";
-require_once "../plugins/PHPMailer/src/SMTP.php";
-require_once "../plugins/PHPMailer/src/OAuthTokenProvider.php";
-require_once "../plugins/PHPMailer/src/OAuth.php";
+require_once "../libs/PHPMailer/src/Exception.php";
+require_once "../libs/PHPMailer/src/PHPMailer.php";
+require_once "../libs/PHPMailer/src/SMTP.php";
+require_once "../libs/PHPMailer/src/OAuthTokenProvider.php";
+require_once "../libs/PHPMailer/src/OAuth.php";
 
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;

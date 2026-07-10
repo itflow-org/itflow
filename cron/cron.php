@@ -838,7 +838,7 @@ while ($row = mysqli_fetch_assoc($sql_recurring_payments)) {
         // Stripe
         if ($provider_name === "Stripe") {
             if ($provider_private_key && $stripe_customer_id && $stripe_payment_method_id) {
-                require_once __DIR__ . '/../plugins/stripe-php/init.php';
+                require_once __DIR__ . '/../libs/stripe-php/init.php';
                 $stripe = new \Stripe\StripeClient($provider_private_key);
 
                 $balance_to_pay = round($invoice_amount, 2);

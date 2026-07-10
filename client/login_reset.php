@@ -182,7 +182,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
     <meta name="robots" content="noindex">
 
     <!-- Font Awesome -->
-    <link rel="stylesheet" href="../plugins/fontawesome-free/css/all.min.css">
+    <link rel="stylesheet" href="../libs/fontawesome-free/css/all.min.css">
 
     <!--
     Favicon
@@ -193,7 +193,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
     <?php } ?>
 
     <!-- Theme style -->
-    <link rel="stylesheet" href="../plugins/adminlte/css/adminlte.min.css">
+    <link rel="stylesheet" href="../libs/adminlte/css/adminlte.min.css">
 
 </head>
 
@@ -288,13 +288,13 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
 <!-- /.login-box -->
 
 <!-- jQuery -->
-<script src="../plugins/jquery/jquery.min.js"></script>
+<script src="../libs/jquery/jquery.min.js"></script>
 
 <!-- Bootstrap 4 -->
-<script src="../plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+<script src="../libs/bootstrap/js/bootstrap.bundle.min.js"></script>
 
 <!-- AdminLTE App -->
-<script src="../plugins/adminlte/js/adminlte.min.js"></script>
+<script src="../libs/adminlte/js/adminlte.min.js"></script>
 
 <!-- Prevents resubmit on refresh or back -->
 <script src="../js/login_prevent_resubmit.js"></script>

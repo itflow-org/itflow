@@ -146,11 +146,11 @@ while ($row = mysqli_fetch_assoc($sql)) {
 ?>
 
 <!-- FullCalendar v7: theme + CSS are now separate plugins, must be loaded alongside the core bundle -->
-<link href='/plugins/fullcalendar/skeleton.css' rel='stylesheet' />
-<link href='/plugins/fullcalendar/themes/classic/theme.css' rel='stylesheet' />
-<link href='/plugins/fullcalendar/themes/classic/palette.css' rel='stylesheet' />
-<script src='/plugins/fullcalendar/fullcalendar.global.js'></script>
-<script src='/plugins/fullcalendar/themes/classic/global.js'></script>
+<link href='/libs/fullcalendar/skeleton.css' rel='stylesheet' />
+<link href='/libs/fullcalendar/themes/classic/theme.css' rel='stylesheet' />
+<link href='/libs/fullcalendar/themes/classic/palette.css' rel='stylesheet' />
+<script src='/libs/fullcalendar/fullcalendar.global.js'></script>
+<script src='/libs/fullcalendar/themes/classic/global.js'></script>
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {

@@ -1384,7 +1384,7 @@ if (isset($_POST["export_client_pdf"])) {
             asset_name, software_name;"
     );
 
-    require_once("../plugins/TCPDF/tcpdf.php");
+    require_once("../libs/TCPDF/tcpdf.php");
 
     $pdf = new TCPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, "UTF-8", false);
     $pdf->SetCreator(PDF_CREATOR);

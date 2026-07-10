@@ -17,19 +17,19 @@
     <?php } ?>
 
     <!-- Font Awesome Icons -->
-    <link rel="stylesheet" href="/plugins/fontawesome-free/css/all.min.css">
+    <link rel="stylesheet" href="/libs/fontawesome-free/css/all.min.css">
     <!-- Theme style -->
-    <link rel="stylesheet" href="/plugins/adminlte/css/adminlte.min.css">
+    <link rel="stylesheet" href="/libs/adminlte/css/adminlte.min.css">
 
     <!-- Custom Style Sheet -->
-    <link rel="stylesheet" href="/plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css">
-    <link rel="stylesheet" href="/plugins/select2/css/select2.min.css">
-    <link rel="stylesheet" href="/plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css">
-    <link rel="stylesheet" href='/plugins/daterangepicker/daterangepicker.css'>
+    <link rel="stylesheet" href="/libs/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css">
+    <link rel="stylesheet" href="/libs/select2/css/select2.min.css">
+    <link rel="stylesheet" href="/libs/select2-bootstrap4-theme/select2-bootstrap4.min.css">
+    <link rel="stylesheet" href='/libs/daterangepicker/daterangepicker.css'>
 
     <!-- Scripts -->
-    <script src="/plugins/jquery/jquery.min.js"></script>
-    <script src="/plugins/toastr/toastr.min.js"></script>
+    <script src="/libs/jquery/jquery.min.js"></script>
+    <script src="/libs/toastr/toastr.min.js"></script>
 
 </head>
 <body class="layout-top-nav">

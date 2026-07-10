@@ -4,7 +4,7 @@ require_once "includes/inc_all_admin.php";
 
 
 //Initialize the HTML Purifier to prevent XSS
-require "../plugins/htmlpurifier/HTMLPurifier.standalone.php";
+require "../libs/htmlpurifier/HTMLPurifier.standalone.php";
 
 $purifier_config = HTMLPurifier_Config::createDefault();
 $purifier_config->set('Cache.DefinitionImpl', null); // Disable cache by setting a non-existent directory or an invalid one
@@ -134,7 +134,7 @@ $sql_task_templates = mysqli_query($mysqli, "SELECT * FROM task_templates WHERE 
 
 <script src="../js/pretty_content.js"></script>
 
-<script src="../plugins/SortableJS/Sortable.min.js"></script>
+<script src="../libs/SortableJS/Sortable.min.js"></script>
 <script>
 new Sortable(document.querySelector('table#tasks tbody'), {
     handle: '.drag-handle',

@@ -728,12 +728,12 @@ if (isset($_POST['add_telemetry'])) {
     <title>ITFlow Setup</title>
 
     <!-- Font Awesome Icons -->
-    <link rel="stylesheet" href="/plugins/fontawesome-free/css/all.min.css">
+    <link rel="stylesheet" href="/libs/fontawesome-free/css/all.min.css">
     <!-- Theme style -->
-    <link rel="stylesheet" href="/plugins/adminlte/css/adminlte.min.css">
+    <link rel="stylesheet" href="/libs/adminlte/css/adminlte.min.css">
     <!-- Custom Style Sheet -->
-    <link href="/plugins/select2/css/select2.min.css" rel="stylesheet" type="text/css">
-    <link href="/plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css" rel="stylesheet" type="text/css">
+    <link href="/libs/select2/css/select2.min.css" rel="stylesheet" type="text/css">
+    <link href="/libs/select2-bootstrap4-theme/select2-bootstrap4.min.css" rel="stylesheet" type="text/css">
 
 </head>
 
@@ -1622,14 +1622,14 @@ if (isset($_POST['add_telemetry'])) {
 <!-- REQUIRED SCRIPTS -->
 
 <!-- jQuery -->
-<script src="/plugins/jquery/jquery.min.js"></script>
+<script src="/libs/jquery/jquery.min.js"></script>
 <!-- Bootstrap 4 -->
-<script src="/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+<script src="/libs/bootstrap/js/bootstrap.bundle.min.js"></script>
 <!-- Custom js-->
-<script src='/plugins/select2/js/select2.min.js'></script>
-<script src="/plugins/Show-Hide-Passwords-Bootstrap-4/bootstrap-show-password.min.js"></script>
+<script src='/libs/select2/js/select2.min.js'></script>
+<script src="/libs/Show-Hide-Passwords-Bootstrap-4/bootstrap-show-password.min.js"></script>
 <!-- AdminLTE App -->
-<script src="/plugins/adminlte/js/adminlte.min.js"></script>
+<script src="/libs/adminlte/js/adminlte.min.js"></script>
 
 <!-- Custom js-->
 <script src="/js/app.js"></script>

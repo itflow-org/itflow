@@ -16,7 +16,7 @@ if (php_sapi_name() !== 'cli') {
 }
 
 // Autoload (Webklex & any composer deps)
-require_once "../plugins/vendor/autoload.php";
+require_once "../libs/vendor/autoload.php";
 
 // Get ITFlow config & helper functions
 require_once "../config.php";

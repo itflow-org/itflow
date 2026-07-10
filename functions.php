@@ -976,7 +976,7 @@ function addToMailQueue($data) {
 
 function createiCalStr($datetime, $title, $description, $location)
 {
-    require_once "plugins/zapcal/zapcallib.php";
+    require_once "libs/zapcal/zapcallib.php";
 
     // Create the iCal object
     $cal_event = new ZCiCal();
@@ -1009,7 +1009,7 @@ function isMobile()
 }
 
 function createiCalStrCancel($originaliCalStr) {
-    require_once "plugins/zapcal/zapcallib.php";
+    require_once "libs/zapcal/zapcallib.php";
 
     // Import the original iCal string
     $cal_event = new ZCiCal($originaliCalStr);

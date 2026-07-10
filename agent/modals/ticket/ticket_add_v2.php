@@ -318,8 +318,8 @@ $(document).on('change', '#ticket_template_select', function () {
 </script>
 
 <!-- Ticket Client/Contact JS -->
-<link rel="stylesheet" href="/plugins/jquery-ui/jquery-ui.min.css">
-<script src="/plugins/jquery-ui/jquery-ui.min.js"></script>
+<link rel="stylesheet" href="/libs/jquery-ui/jquery-ui.min.css">
+<script src="/libs/jquery-ui/jquery-ui.min.js"></script>
 <script src="/agent/js/tickets_add_modal.js"></script>
 
 <?php

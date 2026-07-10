@@ -6,7 +6,7 @@ require_once "includes/inc_all_client.php";
 enforceUserPermission('module_sales');
 
 // Initialize stripe
-require_once 'plugins/stripe-php/init.php';
+require_once 'libs/stripe-php/init.php';
 
 // Get Stripe vars
 $stripe_vars = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT config_stripe_enable, config_stripe_publishable, config_stripe_secret FROM settings WHERE company_id = 1"));

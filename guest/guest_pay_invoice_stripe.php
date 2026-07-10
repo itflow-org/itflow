@@ -76,7 +76,7 @@ if (isset($_GET['invoice_id'], $_GET['url_key']) && !isset($_GET['payment_intent
 
     <!-- Stripe & jQuery -->
     <script src="https://js.stripe.com/v3/"></script>
-    <script src="../plugins/jquery/jquery.min.js"></script>
+    <script src="../libs/jquery/jquery.min.js"></script>
 
     <div class="row pt-5">
         <div class="col-sm">
@@ -161,7 +161,7 @@ if (isset($_GET['invoice_id'], $_GET['url_key']) && !isset($_GET['payment_intent
     $pi_id = sanitizeInput($_GET['payment_intent']);
     $pi_cs = $_GET['payment_intent_client_secret'];
 
-    require_once '../plugins/stripe-php/init.php';
+    require_once '../libs/stripe-php/init.php';
     \Stripe\Stripe::setApiKey($stripe_secret);
 
     $pi_obj = \Stripe\PaymentIntent::retrieve($pi_id);

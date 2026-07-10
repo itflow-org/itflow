@@ -14,7 +14,7 @@ if ($session_contact_primary == 0 && !$session_contact_is_technical_contact) {
 }
 
 //Initialize the HTML Purifier to prevent XSS
-require_once "../plugins/htmlpurifier/HTMLPurifier.standalone.php";
+require_once "../libs/htmlpurifier/HTMLPurifier.standalone.php";
 
 $purifier_config = HTMLPurifier_Config::createDefault();
 $purifier_config->set('Cache.DefinitionImpl', null); // Disable cache by setting a non-existent directory or an invalid one

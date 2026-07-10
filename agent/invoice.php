@@ -739,8 +739,8 @@ require_once "../includes/footer.php";
 ?>
 
 <!-- JSON Autocomplete / type ahead -->
-<link rel="stylesheet" href="../plugins/jquery-ui/jquery-ui.min.css">
-<script src="../plugins/jquery-ui/jquery-ui.min.js"></script>
+<link rel="stylesheet" href="../libs/jquery-ui/jquery-ui.min.css">
+<script src="../libs/jquery-ui/jquery-ui.min.js"></script>
 <script>
 
 $(function() {
@@ -803,7 +803,7 @@ $(function() {
 
 </script>
 
-<script src="../plugins/SortableJS/Sortable.min.js"></script>
+<script src="../libs/SortableJS/Sortable.min.js"></script>
 <script>
 new Sortable(document.querySelector('table#items tbody'), {
     handle: '.drag-handle',

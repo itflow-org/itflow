@@ -173,5 +173,5 @@ echo "const CONFIG_TICKET_ORDERING = " . json_encode($config_ticket_ordering) . 
 echo "</script>";
 ?>
 
-<script src="../plugins/SortableJS/Sortable.min.js"></script>
+<script src="../libs/SortableJS/Sortable.min.js"></script>
 <script src="js/tickets_kanban.js"></script>

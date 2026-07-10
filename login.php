@@ -11,7 +11,7 @@ if (!file_exists('config.php')) {
 
 require_once "config.php";
 require_once "functions.php";
-require_once "plugins/totp/totp.php";
+require_once "libs/totp/totp.php";
 
 if (session_status() === PHP_SESSION_NONE) {
     ini_set("session.cookie_httponly", true);
@@ -628,13 +628,13 @@ $show_login_form = (!$show_role_choice && !$show_mfa_form);
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="robots" content="noindex">
 
-    <link rel="stylesheet" href="plugins/fontawesome-free/css/all.min.css">
+    <link rel="stylesheet" href="libs/fontawesome-free/css/all.min.css">
 
     <?php if(file_exists('uploads/favicon.ico')) { ?>
         <link rel="icon" type="image/x-icon" href="/uploads/favicon.ico">
     <?php } ?>
 
-    <link rel="stylesheet" href="plugins/adminlte/css/adminlte.min.css">
+    <link rel="stylesheet" href="libs/adminlte/css/adminlte.min.css">
 </head>
 <body class="hold-transition login-page">
 
@@ -746,9 +746,9 @@ if (!$config_whitelabel_enabled) {
 }
 ?>
 
-<script src="plugins/jquery/jquery.min.js"></script>
-<script src="plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
-<script src="plugins/adminlte/js/adminlte.min.js"></script>
+<script src="libs/jquery/jquery.min.js"></script>
+<script src="libs/bootstrap/js/bootstrap.bundle.min.js"></script>
+<script src="libs/adminlte/js/adminlte.min.js"></script>
 <script src="js/login_prevent_resubmit.js"></script>
 
 </body>
