@@ -117,6 +117,10 @@ class Attachment implements Arrayable, JsonSerializable
      */
     public function contents(): string
     {
+        if ($this->contentStream->isSeekable()) {
+            $this->contentStream->rewind();
+        }
+
         return $this->contentStream->getContents();
     }
 

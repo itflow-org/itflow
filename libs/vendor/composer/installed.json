@@ -74,17 +74,17 @@
         },
         {
             "name": "directorytree/imapengine",
-            "version": "v1.25.0",
-            "version_normalized": "1.25.0.0",
+            "version": "v1.25.1",
+            "version_normalized": "1.25.1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/DirectoryTree/ImapEngine.git",
-                "reference": "ac8a4d028334c2d3a4bc8fd975317a75cd968a47"
+                "reference": "7dd94f76a800a4ca1fd06b132b71484f55b60767"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/DirectoryTree/ImapEngine/zipball/ac8a4d028334c2d3a4bc8fd975317a75cd968a47",
-                "reference": "ac8a4d028334c2d3a4bc8fd975317a75cd968a47",
+                "url": "https://api.github.com/repos/DirectoryTree/ImapEngine/zipball/7dd94f76a800a4ca1fd06b132b71484f55b60767",
+                "reference": "7dd94f76a800a4ca1fd06b132b71484f55b60767",
                 "shasum": ""
             },
             "require": {
@@ -99,7 +99,7 @@
                 "pestphp/pest": "^2.0|^3.0|^4.0",
                 "spatie/ray": "^1.0"
             },
-            "time": "2026-06-19T17:03:06+00:00",
+            "time": "2026-07-06T16:08:31+00:00",
             "type": "library",
             "installation-source": "dist",
             "autoload": {
@@ -127,7 +127,7 @@
             ],
             "support": {
                 "issues": "https://github.com/DirectoryTree/ImapEngine/issues",
-                "source": "https://github.com/DirectoryTree/ImapEngine/tree/v1.25.0"
+                "source": "https://github.com/DirectoryTree/ImapEngine/tree/v1.25.1"
             },
             "funding": [
                 {
