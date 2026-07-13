@@ -14,19 +14,19 @@ $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('recurring_ticket_
 $num_recurring_tickets = $row['num'];
 
 // Active Project Count
-$row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('project_id') AS num FROM projects WHERE project_archived_at IS NULL AND project_completed_at IS NULL"));
+$row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('project_id') AS num FROM projects LEFT JOIN clients ON project_client_id = client_id WHERE project_archived_at IS NULL AND project_completed_at IS NULL $access_permission_query"));
 $num_active_projects = $row['num'];
 
 // Open Invoices Count
-$row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('invoice_id') AS num FROM invoices WHERE (invoice_status = 'Sent' OR invoice_status = 'Viewed' OR invoice_status = 'Partial') AND invoice_archived_at IS NULL"));
+$row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('invoice_id') AS num FROM invoices LEFT JOIN clients ON invoice_client_id = client_id WHERE (invoice_status = 'Sent' OR invoice_status = 'Viewed' OR invoice_status = 'Partial' OR invoice_status = 'Draft') AND invoice_archived_at IS NULL $access_permission_query"));
 $num_open_invoices = $row['num'];
 
 // Recurring Invoice Count
-$row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('recurring_invoice_id') AS num FROM recurring_invoices WHERE recurring_invoice_archived_at IS NULL"));
+$row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('recurring_invoice_id') AS num FROM recurring_invoices LEFT JOIN clients ON recurring_invoice_client_id = client_id WHERE recurring_invoice_archived_at IS NULL $access_permission_query"));
 $num_recurring_invoices = $row['num'];
 
 // Open Quotes Count
-$row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('quote_id') AS num FROM quotes WHERE (quote_status = 'Sent' OR quote_status = 'Viewed') AND quote_archived_at IS NULL"));
+$row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('quote_id') AS num FROM quotes LEFT JOIN clients ON quote_client_id = client_id WHERE (quote_status = 'Sent' OR quote_status = 'Viewed') AND quote_archived_at IS NULL $access_permission_query"));
 $num_open_quotes = $row['num'];
 
 // Recurring Expenses Count
