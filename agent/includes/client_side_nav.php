@@ -3,7 +3,7 @@
 
     <a class="brand-link pb-1 mt-1" href="/agent/clients.php">
         <p class="h5">
-            <i class="nav-icon fas fa-arrow-left ml-3 mr-2"></i>
+            <i class="nav-icon fas fa-arrow-left ml-3 mr-1"></i>
              <span class="brand-text">
                  Back | <strong><?php echo truncate($client_name, 7); ?></strong>
             </span>
