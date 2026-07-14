@@ -278,7 +278,7 @@ function roundUpToNearestMultiple($n, $increment = 1000)
     return (int) ($increment * ceil($n / $increment));
 }
 
-function roundToNearest15($time)
+function roundToNearest15Min($time)
 {
     // Validate the input time format
     if (!preg_match('/^(\d{2}):(\d{2}):(\d{2})$/', $time, $matches)) {

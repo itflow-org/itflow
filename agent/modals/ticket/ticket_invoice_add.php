@@ -272,7 +272,7 @@ ob_start();
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-balance-scale"></i></span>
                         </div>
-                        <input type="text" class="form-control" inputmode="decimal" pattern="-?[0-9]*\.?[0-9]{0,2}" name="qty" value="<?php echo roundToNearest15($ticket_total_reply_time); ?>" required>
+                        <input type="text" class="form-control" inputmode="decimal" pattern="-?[0-9]*\.?[0-9]{0,2}" name="qty" value="<?php echo roundToNearest15Min($ticket_total_reply_time); ?>" required>
                     </div>
                     <small class="form-text text-muted">
                         Based off Ticket time spent <strong><?= $ticket_total_reply_time ?></strong> in 15 Min Increments rounded up.
