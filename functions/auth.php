@@ -3,36 +3,6 @@
 // Role and permission enforcement
 // Split from the former monolithic functions.php
 
-
-/*
- * LEGACY Role validation
- * Admin - 3
- * Tech - 2
- * Accountant - 1
- */
-
-function validateAdminRole() {
-    global $session_user_role;
-    if (!isset($session_user_role) || $session_user_role != 3) {
-        $_SESSION['alert_type'] = "danger";
-        $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-        header("Location: " . $_SERVER["HTTP_REFERER"]);
-        exit();
-    }
-}
-
-// LEGACY
-// Validates a user is an accountant (or admin). Stops page load and attempts to direct away from the page if not (i.e. user is a tech)
-function validateAccountantRole() {
-    global $session_user_role;
-    if (!isset($session_user_role) || $session_user_role == 2) {
-        $_SESSION['alert_type'] = "danger";
-        $_SESSION['alert_message'] = WORDING_ROLECHECK_FAILED;
-        header("Location: " . $_SERVER["HTTP_REFERER"]);
-        exit();
-    }
-}
-
 // When provided a module name (e.g. module_support), returns the associated permission level (false=none, 1=read, 2=write, 3=full)
 function lookupUserPermission($module) {
     global $mysqli, $session_is_admin, $session_user_role;
@@ -65,6 +35,15 @@ function lookupUserPermission($module) {
 
     // Default return for no module permission
     return false;
+}
+
+// Enforce admin portal access - single canonical admin gate ($session_is_admin)
+function enforceAdminPermission() {
+    global $session_is_admin;
+    if (!isset($session_is_admin) || !$session_is_admin) {
+        exit(WORDING_ROLECHECK_FAILED . "<br>Tell your admin: Your role does not have admin access.");
+    }
+    return true;
 }
 
 // Ensures a user has access to a module (e.g. module_support) with at least the required permission level provided (defaults to read)

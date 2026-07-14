@@ -13,7 +13,6 @@
     <hr>
     <p>This is a great starting point for new custom pages.</p>
     <h1><?php echo $session_user_role; ?></h1>
-    <?php validateAdminRole(); ?>
 
 <?php
 
