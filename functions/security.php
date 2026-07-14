@@ -14,8 +14,8 @@ function randomString(int $length = 16): string {
     );
 }
 
-// Used only for TOTP
-function key32gen() {
+// Generate a cryptographically secure 32-char base32 secret for TOTP
+function generateTotpSecret() {
     $chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
     $key = '';
     for ($i = 0; $i < 32; $i++) {

@@ -3,7 +3,7 @@ require_once '../../libs/totp/totp.php';
 
 // Only generate the token once and store it in session:
 if (empty($_SESSION['mfa_token'])) {
-    $token = key32gen();
+    $token = generateTotpSecret();
     $_SESSION['mfa_token'] = $token;
 }
 $token = $_SESSION['mfa_token'];
