@@ -74,11 +74,6 @@ function getTicketStatusName($ticket_status) {
 
 }
 
-// Helper function for missing data fallback
-function valueOrDash($data) {
-    return !empty($data) ? $data : '-';
-}
-
 /**
  * Retrieves a specified field's value from a table based on the record's id.
  * It validates the table and field names, automatically determines the primary key (or uses the first column as fallback),
@@ -312,7 +307,7 @@ function createiCalStr($datetime, $title, $description, $location)
 }
 
 function createiCalStrCancel($originaliCalStr) {
-    require_once "plugins/zapcal/zapcallib.php";
+    require_once "libs/zapcal/zapcallib.php";
 
     // Import the original iCal string
     $cal_event = new ZCiCal($originaliCalStr);

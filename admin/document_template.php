@@ -73,7 +73,7 @@
                             $document_template_content = escapeHtml($row['document_template_content']);
                             $document_template_created_by_name = escapeHtml($row['user_name']);
                             $document_template_created_at = escapeHtml($row['document_template_created_at']);
-                            $document_template_updated_at = escapeHtml(valueOrDash($row['document_template_updated_at']));
+                            $document_template_updated_at = escapeHtml($row['document_template_updated_at']) ?: '-';
 
                     ?>
 
