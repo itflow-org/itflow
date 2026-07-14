@@ -319,7 +319,7 @@ if (mysqli_num_rows($sql_queue) > 0) {
 
         // Check sender
         if (!filter_var($email_from, FILTER_VALIDATE_EMAIL)) {
-            $email_from_logging = sanitizeInput($rowq['email_from']);
+            $email_from_logging = escapeSql($rowq['email_from']);
             mysqli_query($mysqli, "UPDATE email_queue SET email_status = 2, email_attempts = 99 WHERE email_id = $email_id");
             logApp("Cron-Mail-Queue", "Error", "Failed to send email #$email_id due to invalid sender address: $email_from_logging - check configuration in settings.");
             appNotify("Mail", "Failed to send email #$email_id due to invalid sender address");
@@ -331,19 +331,19 @@ if (mysqli_num_rows($sql_queue) > 0) {
         // Basic recipient syntax check
         if (!filter_var($email_recipient, FILTER_VALIDATE_EMAIL)) {
             mysqli_query($mysqli, "UPDATE email_queue SET email_status = 2, email_attempts = 99 WHERE email_id = $email_id");
-            $email_to_logging = sanitizeInput($email_recipient);
-            $email_subject_logging = sanitizeInput($rowq['email_subject']);
+            $email_to_logging = escapeSql($email_recipient);
+            $email_subject_logging = escapeSql($rowq['email_subject']);
             logApp("Cron-Mail-Queue", "Error", "Failed to send email: $email_id to $email_to_logging due to invalid recipient address. Email subject was: $email_subject_logging");
             appNotify("Mail", "Failed to send email #$email_id to $email_to_logging due to invalid recipient address: Email subject was: $email_subject_logging");
             continue;
         }
 
         // More intelligent recipient MX check (if not disabled with --no-mx-validation)
-        $domain = sanitizeInput(substr($email_recipient, strpos($email_recipient, '@') + 1));
+        $domain = escapeSql(substr($email_recipient, strpos($email_recipient, '@') + 1));
         if (!in_array('--no-mx-validation', $argv) && !checkdnsrr($domain, 'MX')) {
             mysqli_query($mysqli, "UPDATE email_queue SET email_status = 2, email_attempts = 99 WHERE email_id = $email_id");
-            $email_to_logging = sanitizeInput($email_recipient);
-            $email_subject_logging = sanitizeInput($rowq['email_subject']);
+            $email_to_logging = escapeSql($email_recipient);
+            $email_subject_logging = escapeSql($rowq['email_subject']);
             logApp("Cron-Mail-Queue", "Error", "Failed to send email: $email_id to $email_to_logging due to invalid recipient domain (no MX). Email subject was: $email_subject_logging");
             appNotify("Mail", "Failed to send email #$email_id to $email_to_logging due to invalid recipient domain (no MX): Email subject was: $email_subject_logging");
             continue;
@@ -377,8 +377,8 @@ if (mysqli_num_rows($sql_queue) > 0) {
         } catch (Exception $e) {
             mysqli_query($mysqli, "UPDATE email_queue SET email_status = 2, email_failed_at = NOW(), email_attempts = 1 WHERE email_id = $email_id");
 
-            $email_recipient_logging = sanitizeInput($rowq['email_recipient']);
-            $email_subject_logging   = sanitizeInput($rowq['email_subject']);
+            $email_recipient_logging = escapeSql($rowq['email_recipient']);
+            $email_subject_logging   = escapeSql($rowq['email_subject']);
             $err = substr("Mailer Error: " . $e->getMessage(), 0, 100) . "...";
 
             appNotify("Cron-Mail-Queue", "Failed to send email #$email_id to $email_recipient_logging");
@@ -447,8 +447,8 @@ if (mysqli_num_rows($sql_failed_queue) > 0) {
         } catch (Exception $e) {
             mysqli_query($mysqli, "UPDATE email_queue SET email_status = 2, email_failed_at = NOW(), email_attempts = $email_attempts WHERE email_id = $email_id");
 
-            $email_recipient_logging = sanitizeInput($rowf['email_recipient']);
-            $email_subject_logging   = sanitizeInput($rowf['email_subject']);
+            $email_recipient_logging = escapeSql($rowf['email_recipient']);
+            $email_subject_logging   = escapeSql($rowf['email_subject']);
             $err = substr("Mailer Error: " . $e->getMessage(), 0, 100) . "...";
 
             logApp("Cron-Mail-Queue", "Error", "Failed to re-send email #$email_id to $email_recipient_logging regarding $email_subject_logging. $err");

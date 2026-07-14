@@ -12,7 +12,7 @@ if (isset($_GET['stripe_remove_pm'])) {
     }
 
     $client_id = intval($_GET['client_id']);
-    $payment_method = sanitizeInput($_GET['pm']);
+    $payment_method = escapeSql($_GET['pm']);
 
     try {
         // Initialize stripe

@@ -20,8 +20,8 @@ if (isset($_POST['create_recurring_expense'])) {
     $vendor = intval($_POST['vendor']);
     $client_id = intval($_POST['client_id']);
     $category = intval($_POST['category']);
-    $description = sanitizeInput($_POST['description']);
-    $reference = sanitizeInput($_POST['reference']);
+    $description = escapeSql($_POST['description']);
+    $reference = escapeSql($_POST['reference']);
 
     $year = date('Y');
     if (strtotime("$year-$month-$day") < time()) {
@@ -56,8 +56,8 @@ if (isset($_POST['edit_recurring_expense'])) {
     $vendor = intval($_POST['vendor']);
     $client_id = intval($_POST['client_id']);
     $category = intval($_POST['category']);
-    $description = sanitizeInput($_POST['description']);
-    $reference = sanitizeInput($_POST['reference']);
+    $description = escapeSql($_POST['description']);
+    $reference = escapeSql($_POST['reference']);
 
     $year = date('Y');
     if (strtotime("$year-$month-$day") < time()) {
@@ -86,7 +86,7 @@ if (isset($_GET['delete_recurring_expense'])) {
     // Get Recurring Expense Details for Logging
     $sql = mysqli_query($mysqli,"SELECT recurring_expense_description, recurring_expense_client_id FROM recurring_expenses WHERE recurring_expense_id = $recurring_expense_id");
     $row = mysqli_fetch_assoc($sql);
-    $recurring_expense_description = sanitizeInput($row['recurring_expense_description']);
+    $recurring_expense_description = escapeSql($row['recurring_expense_description']);
     $client_id = intval($row['recurring_expense_client_id']);
 
     mysqli_query($mysqli,"DELETE FROM recurring_expenses WHERE recurring_expense_id = $recurring_expense_id");

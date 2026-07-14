@@ -160,7 +160,7 @@ function getFieldById($table, $id, $field, $escape_method = 'sql') {
                 if (stripos($columns[$field]['type'], 'int') !== false) {
                     return (int)$value;
                 } else {
-                    return sanitizeInput($value); // Escape for SQL using a custom function
+                    return escapeSql($value); // Escape for SQL using a custom function
                 }
         }
     }
@@ -271,7 +271,7 @@ function addToMailQueue($data) {
 
         // Check if 'email_queued_at' is set and not empty
         if (isset($email['queued_at']) && !empty($email['queued_at'])) {
-            $queued_at = "'" . sanitizeInput($email['queued_at']) . "'";
+            $queued_at = "'" . escapeSql($email['queued_at']) . "'";
         } else {
             // Use the current date and time if 'email_queued_at' is not set or empty
             $queued_at = 'CURRENT_TIMESTAMP()';

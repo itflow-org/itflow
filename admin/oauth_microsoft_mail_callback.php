@@ -11,10 +11,10 @@ if (!isset($session_is_admin) || !$session_is_admin) {
     redirect($settings_mail_path);
 }
 
-$state = sanitizeInput($_GET['state'] ?? '');
+$state = escapeSql($_GET['state'] ?? '');
 $code = $_GET['code'] ?? '';
-$error = sanitizeInput($_GET['error'] ?? '');
-$error_description = sanitizeInput($_GET['error_description'] ?? '');
+$error = escapeSql($_GET['error'] ?? '');
+$error_description = escapeSql($_GET['error_description'] ?? '');
 
 $session_state = $_SESSION['mail_oauth_state'] ?? '';
 $session_state_expires = intval($_SESSION['mail_oauth_state_expires_at'] ?? 0);

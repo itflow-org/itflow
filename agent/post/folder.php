@@ -14,7 +14,7 @@ if (isset($_POST['create_folder'])) {
 
     $client_id = intval($_POST['client_id']);
     $folder_location = intval($_POST['folder_location']);
-    $folder_name = sanitizeInput($_POST['folder_name']);
+    $folder_name = escapeSql($_POST['folder_name']);
     $parent_folder = intval($_POST['parent_folder']);
 
     enforceClientAccess();
@@ -38,12 +38,12 @@ if (isset($_POST['rename_folder'])) {
     enforceUserPermission('module_support', 2);
 
     $folder_id = intval($_POST['folder_id']);
-    $folder_name = sanitizeInput($_POST['folder_name']);
+    $folder_name = escapeSql($_POST['folder_name']);
 
     // Get old Folder Name Client ID for Logging
     $sql = mysqli_query($mysqli,"SELECT folder_name, folder_client_id FROM folders WHERE folder_id = $folder_id");
     $row = mysqli_fetch_assoc($sql);
-    $old_folder_name = sanitizeInput($row['folder_name']);
+    $old_folder_name = escapeSql($row['folder_name']);
     $client_id = intval($row['folder_client_id']);
 
     enforceClientAccess();
@@ -70,7 +70,7 @@ if (isset($_GET['delete_folder'])) {
     // Get Folder Name Client ID for Logging
     $sql = mysqli_query($mysqli,"SELECT folder_name, folder_client_id FROM folders WHERE folder_id = $folder_id");
     $row = mysqli_fetch_assoc($sql);
-    $folder_name = sanitizeInput($row['folder_name']);
+    $folder_name = escapeSql($row['folder_name']);
     $client_id = intval($row['folder_client_id']);
 
     enforceClientAccess();

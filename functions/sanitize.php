@@ -9,7 +9,7 @@ function escapeHtml($unsanitizedInput) {
     return htmlspecialchars($unsanitizedInput ?? '', ENT_QUOTES, 'UTF-8');
 }
 
-function sanitizeInput($input) {
+function escapeSql($input) {
     global $mysqli;
 
     if (!empty($input)) {

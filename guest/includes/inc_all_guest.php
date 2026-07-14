@@ -9,10 +9,10 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/session_init.php';
 // Set Timezone
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/inc_set_timezone.php';
 
-$ip = sanitizeInput(getIP());
-$user_agent = sanitizeInput($_SERVER['HTTP_USER_AGENT']);
-$os = sanitizeInput(getOS($user_agent));
-$browser = sanitizeInput(getWebBrowser($user_agent));
+$ip = escapeSql(getIP());
+$user_agent = escapeSql($_SERVER['HTTP_USER_AGENT']);
+$os = escapeSql(getOS($user_agent));
+$browser = escapeSql(getWebBrowser($user_agent));
 
 // Get Company Name
 $sql = mysqli_query($mysqli, "SELECT company_name FROM companies WHERE company_id = 1");

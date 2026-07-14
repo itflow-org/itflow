@@ -20,7 +20,7 @@ $stripe_flat_fee         = floatval($stripe_provider['payment_provider_expense_f
 // Show payment form
 if (isset($_GET['invoice_id'], $_GET['url_key']) && !isset($_GET['payment_intent'])) {
 
-    $invoice_url_key = sanitizeInput($_GET['url_key']);
+    $invoice_url_key = escapeSql($_GET['url_key']);
     $invoice_id      = intval($_GET['invoice_id']);
 
     // Query invoice details
@@ -158,7 +158,7 @@ if (isset($_GET['invoice_id'], $_GET['url_key']) && !isset($_GET['payment_intent
 // Payment result processing
 } elseif (isset($_GET['payment_intent'], $_GET['payment_intent_client_secret'])) {
 
-    $pi_id = sanitizeInput($_GET['payment_intent']);
+    $pi_id = escapeSql($_GET['payment_intent']);
     $pi_cs = $_GET['payment_intent_client_secret'];
 
     require_once '../libs/stripe-php/init.php';
@@ -181,7 +181,7 @@ if (isset($_GET['invoice_id'], $_GET['url_key']) && !isset($_GET['payment_intent
     $pi_invoice_id = intval($pi_obj->metadata->itflow_invoice_id);
     $pi_client_id = intval($pi_obj->metadata->itflow_client_id);
     $pi_amount_paid = floatval(($pi_obj->amount_received / 100));
-    $pi_currency = strtoupper(sanitizeInput($pi_obj->currency));
+    $pi_currency = strtoupper(escapeSql($pi_obj->currency));
     $pi_livemode = $pi_obj->livemode;
 
     // Get/Check invoice (& client/primary contact)
@@ -201,21 +201,21 @@ if (isset($_GET['invoice_id'], $_GET['url_key']) && !isset($_GET['payment_intent
 
     $row = mysqli_fetch_assoc($invoice_sql);
     $invoice_id = intval($row['invoice_id']);
-    $invoice_prefix = sanitizeInput($row['invoice_prefix']);
+    $invoice_prefix = escapeSql($row['invoice_prefix']);
     $invoice_number = intval($row['invoice_number']);
     $invoice_amount = floatval($row['invoice_amount']);
-    $invoice_currency_code = sanitizeInput($row['invoice_currency_code']);
-    $invoice_url_key = sanitizeInput($row['invoice_url_key']);
+    $invoice_currency_code = escapeSql($row['invoice_currency_code']);
+    $invoice_url_key = escapeSql($row['invoice_url_key']);
     $client_id = intval($row['client_id']);
-    $client_name = sanitizeInput($row['client_name']);
-    $contact_name = sanitizeInput($row['contact_name']);
-    $contact_email = sanitizeInput($row['contact_email']);
+    $client_name = escapeSql($row['client_name']);
+    $contact_name = escapeSql($row['contact_name']);
+    $contact_email = escapeSql($row['contact_email']);
 
     $sql_company = mysqli_query($mysqli, "SELECT * FROM companies WHERE company_id = 1");
     $row = mysqli_fetch_assoc($sql_company);
-    $company_name = sanitizeInput($row['company_name']);
-    $company_phone = sanitizeInput(formatPhoneNumber($row['company_phone']));
-    $company_locale = sanitizeInput($row['company_locale']);
+    $company_name = escapeSql($row['company_name']);
+    $company_phone = escapeSql(formatPhoneNumber($row['company_phone']));
+    $company_locale = escapeSql($row['company_locale']);
 
     $currency_format = numfmt_create($company_locale, NumberFormatter::CURRENCY);
 
@@ -257,9 +257,9 @@ if (isset($_GET['invoice_id'], $_GET['url_key']) && !isset($_GET['payment_intent
     $settings = mysqli_fetch_assoc($sql_settings);
 
     $config_smtp_host = $settings['config_smtp_host'];
-    $config_invoice_from_name = sanitizeInput($settings['config_invoice_from_name']);
-    $config_invoice_from_email = sanitizeInput($settings['config_invoice_from_email']);
-    $config_invoice_paid_notification_email = sanitizeInput($settings['config_invoice_paid_notification_email']);
+    $config_invoice_from_name = escapeSql($settings['config_invoice_from_name']);
+    $config_invoice_from_email = escapeSql($settings['config_invoice_from_email']);
+    $config_invoice_paid_notification_email = escapeSql($settings['config_invoice_paid_notification_email']);
 
     if (!empty($config_smtp_host)) {
         $subject = "Payment Received - Invoice $invoice_prefix$invoice_number";

@@ -36,7 +36,7 @@ $stripe_customer_query = mysqli_query($mysqli, "
     LIMIT 1
 ");
 $stripe_customer = mysqli_fetch_assoc($stripe_customer_query);
-$stripe_customer_id = $stripe_customer ? sanitizeInput($stripe_customer['payment_provider_client']) : null;
+$stripe_customer_id = $stripe_customer ? escapeSql($stripe_customer['payment_provider_client']) : null;
 
 // Get saved payment methods
 $saved_methods_query = mysqli_query($mysqli, "

@@ -13,15 +13,15 @@ if (isset($_POST['add_rack'])) {
     enforceUserPermission('module_support', 2);
 
     $client_id = intval($_POST['client_id']);
-    $name = sanitizeInput($_POST['name']);
-    $description = sanitizeInput($_POST['description']);
-    $type = sanitizeInput($_POST['type']);
-    $model = sanitizeInput($_POST['model']);
-    $depth = sanitizeInput($_POST['depth']);
+    $name = escapeSql($_POST['name']);
+    $description = escapeSql($_POST['description']);
+    $type = escapeSql($_POST['type']);
+    $model = escapeSql($_POST['model']);
+    $depth = escapeSql($_POST['depth']);
     $units = intval($_POST['units']);
-    $physical_location = sanitizeInput($_POST['physical_location']);
+    $physical_location = escapeSql($_POST['physical_location']);
     $location = intval($_POST['location']);
-    $notes = sanitizeInput($_POST['notes']);
+    $notes = escapeSql($_POST['notes']);
 
     enforceClientAccess();
 
@@ -60,15 +60,15 @@ if (isset($_POST['edit_rack'])) {
     enforceUserPermission('module_support', 2);
 
     $rack_id = intval($_POST['rack_id']);
-    $name = sanitizeInput($_POST['name']);
-    $description = sanitizeInput($_POST['description']);
-    $type = sanitizeInput($_POST['type']);
-    $model = sanitizeInput($_POST['model']);
-    $depth = sanitizeInput($_POST['depth']);
+    $name = escapeSql($_POST['name']);
+    $description = escapeSql($_POST['description']);
+    $type = escapeSql($_POST['type']);
+    $model = escapeSql($_POST['model']);
+    $depth = escapeSql($_POST['depth']);
     $units = intval($_POST['units']);
-    $physical_location = sanitizeInput($_POST['physical_location']);
+    $physical_location = escapeSql($_POST['physical_location']);
     $location = intval($_POST['location']);
-    $notes = sanitizeInput($_POST['notes']);
+    $notes = escapeSql($_POST['notes']);
 
     $client_id = intval(getFieldById('racks', $rack_id, 'rack_client_id'));
 
@@ -113,7 +113,7 @@ if (isset($_GET['archive_rack'])) {
     // Get Name and Client ID for logging and alert message
     $sql = mysqli_query($mysqli,"SELECT rack_name, rack_client_id FROM racks WHERE rack_id = $rack_id");
     $row = mysqli_fetch_assoc($sql);
-    $rack_name = sanitizeInput($row['rack_name']);
+    $rack_name = escapeSql($row['rack_name']);
     $client_id = intval($row['rack_client_id']);
 
     mysqli_query($mysqli,"UPDATE racks SET rack_archived_at = NOW() WHERE rack_id = $rack_id");
@@ -137,7 +137,7 @@ if (isset($_GET['restore_rack'])) {
     // Get Name and Client ID for logging and alert message
     $sql = mysqli_query($mysqli,"SELECT rack_name, rack_client_id FROM racks WHERE rack_id = $rack_id");
     $row = mysqli_fetch_assoc($sql);
-    $rack_name = sanitizeInput($row['rack_name']);
+    $rack_name = escapeSql($row['rack_name']);
     $client_id = intval($row['rack_client_id']);
 
     enforceClientAccess();
@@ -163,8 +163,8 @@ if (isset($_GET['delete_rack'])) {
     // Get Name and Client ID for logging and alert message
     $sql = mysqli_query($mysqli,"SELECT rack_name, rack_client_id, rack_photo FROM racks WHERE rack_id = $rack_id");
     $row = mysqli_fetch_assoc($sql);
-    $rack_name = sanitizeInput($row['rack_name']);
-    $rack_photo = sanitizeInput($row['rack_photo']);
+    $rack_name = escapeSql($row['rack_name']);
+    $rack_photo = escapeSql($row['rack_photo']);
     $client_id = intval($row['rack_client_id']);
 
     enforceClientAccess();
@@ -191,7 +191,7 @@ if (isset($_POST['add_rack_unit'])) {
     enforceUserPermission('module_support', 2);
 
     $rack_id = intval($_POST['rack_id']);
-    $name = sanitizeInput($_POST['name']);
+    $name = escapeSql($_POST['name']);
     $unit_start = intval($_POST['unit_start']);
     $unit_end = intval($_POST['unit_end']);
     $asset = intval($_POST['asset']);
@@ -199,7 +199,7 @@ if (isset($_POST['add_rack_unit'])) {
     // Get Name and Client ID for logging and alert message
     $sql = mysqli_query($mysqli,"SELECT rack_name, rack_client_id FROM racks WHERE rack_id = $rack_id");
     $row = mysqli_fetch_assoc($sql);
-    $rack_name = sanitizeInput($row['rack_name']);
+    $rack_name = escapeSql($row['rack_name']);
     $client_id = intval($row['rack_client_id']);
 
     enforceClientAccess();
@@ -240,7 +240,7 @@ if (isset($_POST['edit_rack_unit'])) {
 
     $unit_id = intval($_POST['unit_id']);
     $rack_id = intval($_POST['rack_id']);
-    $name = sanitizeInput($_POST['name']);
+    $name = escapeSql($_POST['name']);
     $unit_start = intval($_POST['unit_start']);
     $unit_end = intval($_POST['unit_end']);
     $asset = intval($_POST['asset']);
@@ -248,7 +248,7 @@ if (isset($_POST['edit_rack_unit'])) {
     // Get Name and Client ID for logging and alert message
     $sql = mysqli_query($mysqli,"SELECT rack_name, rack_client_id FROM racks WHERE rack_id = $rack_id");
     $row = mysqli_fetch_assoc($sql);
-    $rack_name = sanitizeInput($row['rack_name']);
+    $rack_name = escapeSql($row['rack_name']);
     $client_id = intval($row['rack_client_id']);
 
     enforceClientAccess();
@@ -274,8 +274,8 @@ if (isset($_GET['remove_rack_unit'])) {
     // Get Name and Client ID for logging and alert message
     $sql = mysqli_query($mysqli,"SELECT rack_name, rack_id, rack_client_id FROM racks LEFT JOIN rack_units ON unit_rack_id = rack_id WHERE unit_id = $unit_id");
     $row = mysqli_fetch_assoc($sql);
-    $rack_name = sanitizeInput($row['rack_name']);
-    $unit_device = sanitizeInput($row['unit_device']);
+    $rack_name = escapeSql($row['rack_name']);
+    $unit_device = escapeSql($row['unit_device']);
     $client_id = intval($row['rack_client_id']);
     $rack_id = intval($row['rack_id']);
 

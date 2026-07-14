@@ -64,7 +64,7 @@ if (isset($_POST['edit_expense'])) {
     $expense_id = intval($_POST['expense_id']);
 
     // Get old receipt
-    $existing_file_name = sanitizeInput(getFieldById('expenses', $expense_id, 'expense_receipt'));
+    $existing_file_name = escapeSql(getFieldById('expenses', $expense_id, 'expense_receipt'));
 
     // Check for and process attachment
     $extended_alert_description = '';
@@ -106,8 +106,8 @@ if (isset($_GET['delete_expense'])) {
 
     $sql = mysqli_query($mysqli,"SELECT * FROM expenses WHERE expense_id = $expense_id");
     $row = mysqli_fetch_assoc($sql);
-    $expense_receipt = sanitizeInput($row['expense_receipt']);
-    $expense_description = sanitizeInput($row['expense_description']);
+    $expense_receipt = escapeSql($row['expense_receipt']);
+    $expense_description = escapeSql($row['expense_description']);
     $client_id = intval($row['expense_client_id']);
 
     if ($client_id) {
@@ -135,7 +135,7 @@ if (isset($_POST['bulk_edit_expense_category'])) {
     $category_id = intval($_POST['bulk_category_id']);
 
     // Get Category name for logging and Notification
-    $category_name = sanitizeInput(getFieldById('categories', $category_id, 'category_name'));
+    $category_name = escapeSql(getFieldById('categories', $category_id, 'category_name'));
 
     // Assign category to Selected Expenses
     if (isset($_POST['expense_ids'])) {
@@ -149,7 +149,7 @@ if (isset($_POST['bulk_edit_expense_category'])) {
             // Get Expense Details for Logging
             $sql = mysqli_query($mysqli,"SELECT expense_description, expense_client_id FROM expenses WHERE expense_id = $expense_id");
             $row = mysqli_fetch_assoc($sql);
-            $expense_description = sanitizeInput($row['expense_description']);
+            $expense_description = escapeSql($row['expense_description']);
             $client_id = intval($row['expense_client_id']);
 
             if ($client_id) {
@@ -180,7 +180,7 @@ if (isset($_POST['bulk_edit_expense_account'])) {
     $account_id = intval($_POST['bulk_account_id']);
 
     // Get Account name for logging and Notification
-    $account_name = sanitizeInput(getFieldById('accounts', $account_id, 'account_name'));
+    $account_name = escapeSql(getFieldById('accounts', $account_id, 'account_name'));
 
     // Assign account to Selected Expenses
     if (isset($_POST['expense_ids'])) {
@@ -194,7 +194,7 @@ if (isset($_POST['bulk_edit_expense_account'])) {
             // Get Expense Details for Logging
             $sql = mysqli_query($mysqli,"SELECT expense_description, expense_client_id FROM expenses WHERE expense_id = $expense_id");
             $row = mysqli_fetch_assoc($sql);
-            $expense_description = sanitizeInput($row['expense_description']);
+            $expense_description = escapeSql($row['expense_description']);
             $client_id = intval($row['expense_client_id']);
 
             if ($client_id) {
@@ -227,7 +227,7 @@ if (isset($_POST['bulk_edit_expense_client'])) {
     enforceClientAccess();
 
     // Get Client name for logging and Notification
-    $client_name = sanitizeInput(getFieldById('clients', $client_id, 'client_name'));
+    $client_name = escapeSql(getFieldById('clients', $client_id, 'client_name'));
 
     // Assign Client to Selected Expenses
     if (isset($_POST['expense_ids'])) {
@@ -239,7 +239,7 @@ if (isset($_POST['bulk_edit_expense_client'])) {
             $expense_id = intval($expense_id);
 
             // Get Expense Details for Logging
-            $expense_description = sanitizeInput(getFieldById('expenses', $expense_id, 'expense_description'));
+            $expense_description = escapeSql(getFieldById('expenses', $expense_id, 'expense_description'));
 
             mysqli_query($mysqli,"UPDATE expenses SET expense_client_id = $client_id WHERE expense_id = $expense_id");
 
@@ -272,8 +272,8 @@ if (isset($_POST['bulk_delete_expenses'])) {
 
             $sql = mysqli_query($mysqli,"SELECT * FROM expenses WHERE expense_id = $expense_id");
             $row = mysqli_fetch_assoc($sql);
-            $expense_description = sanitizeInput($row['expense_description']);
-            $expense_receipt = sanitizeInput($row['expense_receipt']);
+            $expense_description = escapeSql($row['expense_description']);
+            $expense_receipt = escapeSql($row['expense_receipt']);
             $client_id = intval($row['expense_client_id']);
 
             if ($client_id) {
@@ -304,8 +304,8 @@ if (isset($_POST['export_expenses_csv'])) {
 
     enforceUserPermission('module_financial');
 
-    $date_from = sanitizeInput($_POST['date_from']);
-    $date_to = sanitizeInput($_POST['date_to']);
+    $date_from = escapeSql($_POST['date_from']);
+    $date_to = escapeSql($_POST['date_to']);
     $account = intval($_POST['account']);
     $vendor = intval($_POST['vendor']);
     $category = intval($_POST['category']);

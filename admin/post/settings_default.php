@@ -6,11 +6,11 @@ if (isset($_POST['edit_default_settings'])) {
 
     validateCSRFToken($_POST['csrf_token']);
 
-    $start_page = sanitizeInput($_POST['start_page']);
+    $start_page = escapeSql($_POST['start_page']);
     $expense_account = intval($_POST['expense_account']);
     $payment_account = intval($_POST['payment_account']);
-    $payment_method = sanitizeInput($_POST['payment_method']);
-    $expense_payment_method = sanitizeInput($_POST['expense_payment_method']);
+    $payment_method = escapeSql($_POST['payment_method']);
+    $expense_payment_method = escapeSql($_POST['expense_payment_method']);
     $transfer_from_account = intval($_POST['transfer_from_account']);
     $transfer_to_account = intval($_POST['transfer_to_account']);
     $calendar = intval($_POST['calendar']);

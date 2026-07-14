@@ -17,8 +17,8 @@ $config_stripe_secret = escapeHtml($stripe_vars['config_stripe_secret']);
 // Get client's StripeID from database
 $stripe_client_details = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT * FROM client_stripe WHERE client_id = $client_id LIMIT 1"));
 if ($stripe_client_details) {
-    $stripe_id = sanitizeInput($stripe_client_details['stripe_id']);
-    $stripe_pm = sanitizeInput($stripe_client_details['stripe_pm']);
+    $stripe_id = escapeSql($stripe_client_details['stripe_id']);
+    $stripe_pm = escapeSql($stripe_client_details['stripe_pm']);
 }
 
 // Stripe not enabled in settings

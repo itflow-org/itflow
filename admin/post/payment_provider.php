@@ -10,9 +10,9 @@ if (isset($_POST['add_payment_provider'])) {
 
     validateCSRFToken($_POST['csrf_token']);
 
-    $provider = sanitizeInput($_POST['provider']);
-    $public_key = sanitizeInput($_POST['public_key']);
-    $private_key = sanitizeInput($_POST['private_key']);
+    $provider = escapeSql($_POST['provider']);
+    $public_key = escapeSql($_POST['public_key']);
+    $private_key = escapeSql($_POST['private_key']);
     $threshold = floatval($_POST['threshold']);
     $account = intval($_POST['account']);
     $expense_vendor = intval($_POST['expense_vendor']) ?? 0;
@@ -44,9 +44,9 @@ if (isset($_POST['edit_payment_provider'])) {
     validateCSRFToken($_POST['csrf_token']);
 
     $provider_id = intval($_POST['provider_id']);
-    $description = sanitizeInput($_POST['description']);
-    $public_key = sanitizeInput($_POST['public_key']);
-    $private_key = sanitizeInput($_POST['private_key']);
+    $description = escapeSql($_POST['description']);
+    $public_key = escapeSql($_POST['public_key']);
+    $private_key = escapeSql($_POST['private_key']);
     $threshold = floatval($_POST['threshold']);
     $account = intval($_POST['account']);
     $expense_vendor = intval($_POST['expense_vendor']) ?? 0;
@@ -75,7 +75,7 @@ if (isset($_GET['delete_payment_provider'])) {
     // Delete all Saved Cards related
     // Delete Client Payment Provider Releation
 
-    $provider_name = sanitizeInput(getFieldById('payment_providers', $provider_id, 'provider_name'));
+    $provider_name = escapeSql(getFieldById('payment_providers', $provider_id, 'provider_name'));
 
     // Delete provider
     mysqli_query($mysqli,"DELETE FROM payment_providers WHERE payment_provider_id = $provider_id");

@@ -14,9 +14,9 @@ if (isset($_POST['add_credit'])) {
 
     $client_id = intval($_POST['client']);
     $amount = floatval($_POST['amount']);
-    $type = sanitizeInput($_POST['type']);
-    $expire = sanitizeInput($_POST['expire']);
-    $note = sanitizeInput($_POST['note']);
+    $type = escapeSql($_POST['type']);
+    $expire = escapeSql($_POST['expire']);
+    $note = escapeSql($_POST['note']);
 
     mysqli_query($mysqli,"INSERT INTO credits SET credit_amount = $amount, credit_type = '$type', credit_note = '$note', credit_created_by = $session_user_id, credit_client_id = $client_id");
     

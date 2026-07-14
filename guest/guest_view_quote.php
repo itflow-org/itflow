@@ -11,7 +11,7 @@ if (!isset($_GET['quote_id'], $_GET['url_key'])) {
 }
 
 
-$url_key = sanitizeInput($_GET['url_key']);
+$url_key = escapeSql($_GET['url_key']);
 $quote_id = intval($_GET['quote_id']);
 
 $sql = mysqli_query(
@@ -46,7 +46,7 @@ $quote_currency_code = escapeHtml($row['quote_currency_code']);
 $quote_note = escapeHtml($row['quote_note']);
 $client_id = intval($row['client_id']);
 $client_name = escapeHtml($row['client_name']);
-$client_name_escaped = sanitizeInput($row['client_name']);
+$client_name_escaped = escapeSql($row['client_name']);
 $location_address = escapeHtml($row['location_address']);
 $location_city = escapeHtml($row['location_city']);
 $location_state = escapeHtml($row['location_state']);

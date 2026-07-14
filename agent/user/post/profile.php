@@ -10,23 +10,23 @@ if (isset($_POST['edit_your_user_details'])) {
 
     validateCSRFToken($_POST['csrf_token']);
 
-    $name = sanitizeInput($_POST['name']);
-    $email = sanitizeInput($_POST['email']);
+    $name = escapeSql($_POST['name']);
+    $email = escapeSql($_POST['email']);
     $signature = mysqli_escape_string($mysqli,$_POST['signature']);
 
-    $existing_file_name = sanitizeInput(getFieldById('users', $session_user_id, 'user_avatar'));
+    $existing_file_name = escapeSql(getFieldById('users', $session_user_id, 'user_avatar'));
 
     $logout = false;
     $extended_log_description = '';
 
     // Email notification when password or email is changed
     $user_old_email_sql = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT user_email FROM users WHERE user_id = $session_user_id"));
-    $user_old_email = sanitizeInput($user_old_email_sql['user_email']);
+    $user_old_email = escapeSql($user_old_email_sql['user_email']);
 
     // Sanitize Config Vars from get_settings.php and Session Vars from check_login.php
-    $config_mail_from_name = sanitizeInput($config_mail_from_name);
-    $config_mail_from_email = sanitizeInput($config_mail_from_email);
-    $config_app_name = sanitizeInput($config_app_name);
+    $config_mail_from_name = escapeSql($config_mail_from_name);
+    $config_mail_from_email = escapeSql($config_mail_from_email);
+    $config_app_name = escapeSql($config_app_name);
 
     if (!empty($config_smtp_host) && ($user_old_email !== $email)) {
 
@@ -96,7 +96,7 @@ if (isset($_GET['clear_your_user_avatar'])) {
 
     validateCSRFToken($_GET['csrf_token']);
 
-    $user_avatar = sanitizeInput(getFieldById('users', $session_user_id, 'user_avatar'));
+    $user_avatar = escapeSql(getFieldById('users', $session_user_id, 'user_avatar'));
 
     unlink("../../uploads/users/$session_user_id/$user_avatar");
 
@@ -122,13 +122,13 @@ if (isset($_POST['edit_your_user_password'])) {
 
     // Email notification when password or email is changed
     $user_sql = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT user_name, user_email FROM users WHERE user_id = $session_user_id"));
-    $name = sanitizeInput($user_sql['user_name']);
-    $user_email = sanitizeInput($user_sql['user_email']);
+    $name = escapeSql($user_sql['user_name']);
+    $user_email = escapeSql($user_sql['user_email']);
 
     // Sanitize Config Vars from get_settings.php and Session Vars from check_login.php
-    $config_mail_from_name = sanitizeInput($config_mail_from_name);
-    $config_mail_from_email = sanitizeInput($config_mail_from_email);
-    $config_app_name = sanitizeInput($config_app_name);
+    $config_mail_from_name = escapeSql($config_mail_from_name);
+    $config_mail_from_email = escapeSql($config_mail_from_email);
+    $config_app_name = escapeSql($config_app_name);
 
     if (!empty($config_smtp_host)){
 
@@ -276,9 +276,9 @@ if (isset($_GET['disable_mfa'])){
     mysqli_query($mysqli, "DELETE FROM remember_tokens WHERE remember_token_user_id = $session_user_id");
 
     // Sanitize Config Vars from get_settings.php and Session Vars from check_login.php
-    $config_mail_from_name = sanitizeInput($config_mail_from_name);
-    $config_mail_from_email = sanitizeInput($config_mail_from_email);
-    $config_app_name = sanitizeInput($config_app_name);
+    $config_mail_from_name = escapeSql($config_mail_from_name);
+    $config_mail_from_email = escapeSql($config_mail_from_email);
+    $config_app_name = escapeSql($config_app_name);
 
     // Email notification
     if (!empty($config_smtp_host)) {

@@ -11,11 +11,11 @@ if (isset($_POST['oauth_connect_microsoft_mail'])) {
     validateCSRFToken($_POST['csrf_token']);
 
     // Save the OAuth credential fields from this form so the auth flow uses the latest inputs
-    $config_mail_oauth_client_id     = sanitizeInput($_POST['config_mail_oauth_client_id'] ?? '');
-    $config_mail_oauth_client_secret = sanitizeInput($_POST['config_mail_oauth_client_secret'] ?? '');
-    $config_mail_oauth_tenant_id     = sanitizeInput($_POST['config_mail_oauth_tenant_id'] ?? $config_mail_oauth_tenant_id);
-    $config_mail_oauth_refresh_token = sanitizeInput($_POST['config_mail_oauth_refresh_token'] ?? '');
-    $config_mail_oauth_access_token  = sanitizeInput($_POST['config_mail_oauth_access_token'] ?? '');
+    $config_mail_oauth_client_id     = escapeSql($_POST['config_mail_oauth_client_id'] ?? '');
+    $config_mail_oauth_client_secret = escapeSql($_POST['config_mail_oauth_client_secret'] ?? '');
+    $config_mail_oauth_tenant_id     = escapeSql($_POST['config_mail_oauth_tenant_id'] ?? $config_mail_oauth_tenant_id);
+    $config_mail_oauth_refresh_token = escapeSql($_POST['config_mail_oauth_refresh_token'] ?? '');
+    $config_mail_oauth_access_token  = escapeSql($_POST['config_mail_oauth_access_token'] ?? '');
 
     mysqli_query($mysqli, "UPDATE settings SET
         config_mail_oauth_client_id     = '$config_mail_oauth_client_id',
@@ -77,12 +77,12 @@ if (isset($_POST['edit_mail_smtp_settings'])) {
 
     validateCSRFToken($_POST['csrf_token']);
 
-    $config_smtp_provider            = sanitizeInput($_POST['config_smtp_provider']);
-    $config_smtp_host       = sanitizeInput($_POST['config_smtp_host'] ?? $config_smtp_host);
+    $config_smtp_provider            = escapeSql($_POST['config_smtp_provider']);
+    $config_smtp_host       = escapeSql($_POST['config_smtp_host'] ?? $config_smtp_host);
     $config_smtp_port       = intval($_POST['config_smtp_port'] ?? $config_smtp_port);
-    $config_smtp_encryption = sanitizeInput($_POST['config_smtp_encryption'] ?? $config_smtp_encryption);
-    $config_smtp_username   = sanitizeInput($_POST['config_smtp_username'] ?? $config_smtp_username);
-    $config_smtp_password   = sanitizeInput($_POST['config_smtp_password'] ?? $config_smtp_password);
+    $config_smtp_encryption = escapeSql($_POST['config_smtp_encryption'] ?? $config_smtp_encryption);
+    $config_smtp_username   = escapeSql($_POST['config_smtp_username'] ?? $config_smtp_username);
+    $config_smtp_password   = escapeSql($_POST['config_smtp_password'] ?? $config_smtp_password);
 
     mysqli_query($mysqli, "
         UPDATE settings SET
@@ -107,12 +107,12 @@ if (isset($_POST['edit_mail_imap_settings'])) {
 
     validateCSRFToken($_POST['csrf_token']);
 
-    $config_imap_provider            = sanitizeInput($_POST['config_imap_provider']);
-    $config_imap_host       = sanitizeInput($_POST['config_imap_host'] ?? $config_imap_host);
+    $config_imap_provider            = escapeSql($_POST['config_imap_provider']);
+    $config_imap_host       = escapeSql($_POST['config_imap_host'] ?? $config_imap_host);
     $config_imap_port       = intval($_POST['config_imap_port'] ?? $config_imap_port);
-    $config_imap_encryption = sanitizeInput($_POST['config_imap_encryption'] ?? $config_imap_encryption);
-    $config_imap_username   = sanitizeInput($_POST['config_imap_username'] ?? $config_imap_username);
-    $config_imap_password   = sanitizeInput($_POST['config_imap_password'] ?? $config_imap_password);
+    $config_imap_encryption = escapeSql($_POST['config_imap_encryption'] ?? $config_imap_encryption);
+    $config_imap_username   = escapeSql($_POST['config_imap_username'] ?? $config_imap_username);
+    $config_imap_password   = escapeSql($_POST['config_imap_password'] ?? $config_imap_password);
 
     mysqli_query($mysqli, "
         UPDATE settings SET
@@ -137,11 +137,11 @@ if (isset($_POST['edit_mail_oauth_settings'])) {
 
     validateCSRFToken($_POST['csrf_token']);
 
-    $config_mail_oauth_client_id     = sanitizeInput($_POST['config_mail_oauth_client_id'] ?? '');
-    $config_mail_oauth_client_secret = sanitizeInput($_POST['config_mail_oauth_client_secret'] ?? '');
-    $config_mail_oauth_tenant_id     = sanitizeInput($_POST['config_mail_oauth_tenant_id'] ?? $config_mail_oauth_tenant_id);
-    $config_mail_oauth_refresh_token = sanitizeInput($_POST['config_mail_oauth_refresh_token'] ?? '');
-    $config_mail_oauth_access_token  = sanitizeInput($_POST['config_mail_oauth_access_token'] ?? '');
+    $config_mail_oauth_client_id     = escapeSql($_POST['config_mail_oauth_client_id'] ?? '');
+    $config_mail_oauth_client_secret = escapeSql($_POST['config_mail_oauth_client_secret'] ?? '');
+    $config_mail_oauth_tenant_id     = escapeSql($_POST['config_mail_oauth_tenant_id'] ?? $config_mail_oauth_tenant_id);
+    $config_mail_oauth_refresh_token = escapeSql($_POST['config_mail_oauth_refresh_token'] ?? '');
+    $config_mail_oauth_access_token  = escapeSql($_POST['config_mail_oauth_access_token'] ?? '');
 
     mysqli_query($mysqli, "UPDATE settings SET
         config_mail_oauth_client_id     = '$config_mail_oauth_client_id',
@@ -161,17 +161,17 @@ if (isset($_POST['edit_mail_from_settings'])) {
 
     validateCSRFToken($_POST['csrf_token']);
 
-    $config_mail_from_email = sanitizeInput(filter_var($_POST['config_mail_from_email'], FILTER_VALIDATE_EMAIL));
-    $config_mail_from_name = sanitizeInput(preg_replace('/[^a-zA-Z0-9\s]/', '', $_POST['config_mail_from_name']));
+    $config_mail_from_email = escapeSql(filter_var($_POST['config_mail_from_email'], FILTER_VALIDATE_EMAIL));
+    $config_mail_from_name = escapeSql(preg_replace('/[^a-zA-Z0-9\s]/', '', $_POST['config_mail_from_name']));
 
-    $config_invoice_from_email = sanitizeInput(filter_var($_POST['config_invoice_from_email'], FILTER_VALIDATE_EMAIL));
-    $config_invoice_from_name = sanitizeInput(preg_replace('/[^a-zA-Z0-9\s]/', '', $_POST['config_invoice_from_name']));
+    $config_invoice_from_email = escapeSql(filter_var($_POST['config_invoice_from_email'], FILTER_VALIDATE_EMAIL));
+    $config_invoice_from_name = escapeSql(preg_replace('/[^a-zA-Z0-9\s]/', '', $_POST['config_invoice_from_name']));
 
-    $config_quote_from_email = sanitizeInput(filter_var($_POST['config_quote_from_email'], FILTER_VALIDATE_EMAIL));
-    $config_quote_from_name = sanitizeInput(preg_replace('/[^a-zA-Z0-9\s]/', '', $_POST['config_quote_from_name']));
+    $config_quote_from_email = escapeSql(filter_var($_POST['config_quote_from_email'], FILTER_VALIDATE_EMAIL));
+    $config_quote_from_name = escapeSql(preg_replace('/[^a-zA-Z0-9\s]/', '', $_POST['config_quote_from_name']));
 
-    $config_ticket_from_email = sanitizeInput(filter_var($_POST['config_ticket_from_email'], FILTER_VALIDATE_EMAIL));
-    $config_ticket_from_name = sanitizeInput(preg_replace('/[^a-zA-Z0-9\s]/', '', $_POST['config_ticket_from_name']));
+    $config_ticket_from_email = escapeSql(filter_var($_POST['config_ticket_from_email'], FILTER_VALIDATE_EMAIL));
+    $config_ticket_from_name = escapeSql(preg_replace('/[^a-zA-Z0-9\s]/', '', $_POST['config_ticket_from_name']));
 
     mysqli_query($mysqli,"UPDATE settings SET config_mail_from_email = '$config_mail_from_email', config_mail_from_name = '$config_mail_from_name', config_invoice_from_email = '$config_invoice_from_email', config_invoice_from_name = '$config_invoice_from_name', config_quote_from_email = '$config_quote_from_email', config_quote_from_name = '$config_quote_from_name', config_ticket_from_email = '$config_ticket_from_email', config_ticket_from_name = '$config_ticket_from_name' WHERE company_id = 1");
 
@@ -190,20 +190,20 @@ if (isset($_POST['test_email_smtp'])) {
     $test_email = intval($_POST['test_email']);
 
     if($test_email == 1) {
-        $email_from = sanitizeInput($config_mail_from_email);
-        $email_from_name = sanitizeInput($config_mail_from_name);
+        $email_from = escapeSql($config_mail_from_email);
+        $email_from_name = escapeSql($config_mail_from_name);
     } elseif ($test_email == 2) {
-        $email_from = sanitizeInput($config_invoice_from_email);
-        $email_from_name = sanitizeInput($config_invoice_from_name);
+        $email_from = escapeSql($config_invoice_from_email);
+        $email_from_name = escapeSql($config_invoice_from_name);
     } elseif ($test_email == 3) {
-        $email_from = sanitizeInput($config_quote_from_email);
-        $email_from_name = sanitizeInput($config_quote_from_name);
+        $email_from = escapeSql($config_quote_from_email);
+        $email_from_name = escapeSql($config_quote_from_name);
     } else {
-        $email_from = sanitizeInput($config_ticket_from_email);
-        $email_from_name = sanitizeInput($config_ticket_from_name);
+        $email_from = escapeSql($config_ticket_from_email);
+        $email_from_name = escapeSql($config_ticket_from_name);
     }
 
-    $email_to = sanitizeInput($_POST['email_to']);
+    $email_to = escapeSql($_POST['email_to']);
     $subject = "Test email from ITFlow";
     $body = "This is a test email from ITFlow. If you are reading this, it worked!";
 
@@ -234,7 +234,7 @@ if (isset($_POST['test_email_imap'])) {
 
     validateCSRFToken($_POST['csrf_token']);
 
-    $provider = sanitizeInput($config_imap_provider ?? '');
+    $provider = escapeSql($config_imap_provider ?? '');
 
     $host       = $config_imap_host;
     $port       = (int) $config_imap_port;
@@ -499,17 +499,17 @@ if (isset($_POST['test_oauth_token_refresh'])) {
 
     validateCSRFToken($_POST['csrf_token']);
 
-    $provider = sanitizeInput($_POST['oauth_provider'] ?? '');
+    $provider = escapeSql($_POST['oauth_provider'] ?? '');
 
     if ($provider !== 'google_oauth' && $provider !== 'microsoft_oauth') {
         flash_alert("OAuth token test failed: unsupported provider.", 'error');
         redirect();
     }
 
-    $oauth_client_id = sanitizeInput($config_mail_oauth_client_id ?? '');
-    $oauth_client_secret = sanitizeInput($config_mail_oauth_client_secret ?? '');
-    $oauth_tenant_id = sanitizeInput($config_mail_oauth_tenant_id ?? '');
-    $oauth_refresh_token = sanitizeInput($config_mail_oauth_refresh_token ?? '');
+    $oauth_client_id = escapeSql($config_mail_oauth_client_id ?? '');
+    $oauth_client_secret = escapeSql($config_mail_oauth_client_secret ?? '');
+    $oauth_tenant_id = escapeSql($config_mail_oauth_tenant_id ?? '');
+    $oauth_refresh_token = escapeSql($config_mail_oauth_refresh_token ?? '');
 
     if (empty($oauth_client_id) || empty($oauth_client_secret) || empty($oauth_refresh_token)) {
         flash_alert("OAuth token test failed: missing client ID, client secret, or refresh token.", 'error');
@@ -557,9 +557,9 @@ if (isset($_POST['test_oauth_token_refresh'])) {
         redirect();
     }
 
-    $new_access_token = sanitizeInput($json['access_token']);
+    $new_access_token = escapeSql($json['access_token']);
     $new_expires_at = date('Y-m-d H:i:s', time() + (int)($json['expires_in'] ?? 3600));
-    $new_refresh_token = !empty($json['refresh_token']) ? sanitizeInput($json['refresh_token']) : '';
+    $new_refresh_token = !empty($json['refresh_token']) ? escapeSql($json['refresh_token']) : '';
 
     $new_access_token_esc = mysqli_real_escape_string($mysqli, $new_access_token);
     $new_expires_at_esc = mysqli_real_escape_string($mysqli, $new_expires_at);

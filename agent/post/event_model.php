@@ -2,11 +2,11 @@
 defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
 
 $calendar_id = intval($_POST['calendar']);
-$title = sanitizeInput($_POST['title']);
-$location = sanitizeInput($_POST['location']);
-$description = sanitizeInput($_POST['description']);
-$start = sanitizeInput($_POST['start']);
-$end = sanitizeInput($_POST['end']);
-$repeat = sanitizeInput($_POST['repeat'] ?? 0);
+$title = escapeSql($_POST['title']);
+$location = escapeSql($_POST['location']);
+$description = escapeSql($_POST['description']);
+$start = escapeSql($_POST['start']);
+$end = escapeSql($_POST['end']);
+$repeat = escapeSql($_POST['repeat'] ?? 0);
 $client_id = intval($_POST['client_id']);
 $email_event = intval($_POST['email_event'] ?? 0);

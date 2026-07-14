@@ -350,7 +350,7 @@ if (isset($_GET['archive_client'])) {
     }
 
     // Get Client Name
-    $client_name = sanitizeInput(getFieldById('clients', $client_id, 'client_name'));
+    $client_name = escapeSql(getFieldById('clients', $client_id, 'client_name'));
 
     logAction("Client", "Archive", "$session_name archived client $client_name", $client_id, $client_id);
 
@@ -369,7 +369,7 @@ if (isset($_GET['restore_client'])) {
     $client_id = intval($_GET['restore_client']);
 
     // Get Client Name
-    $client_name = sanitizeInput(getFieldById('clients', $client_id, 'client_name'));
+    $client_name = escapeSql(getFieldById('clients', $client_id, 'client_name'));
 
     mysqli_query($mysqli, "UPDATE clients SET client_archived_at = NULL WHERE client_id = $client_id");
 
@@ -390,7 +390,7 @@ if (isset($_GET['delete_client'])) {
     $client_id = intval($_GET['delete_client']);
 
     // Get Client Name
-    $client_name = sanitizeInput(getFieldById('clients', $client_id, 'client_name'));
+    $client_name = escapeSql(getFieldById('clients', $client_id, 'client_name'));
 
     // Delete Associations
     // Delete Client Data
@@ -580,7 +580,7 @@ if (isset($_POST["import_clients_csv"])) {
         while(($column = fgetcsv($file, 1000, ",")) !== false) {
             $duplicate_detect = 0;
             if (isset($column[0])) {
-                $name = sanitizeInput($column[0]);
+                $name = escapeSql($column[0]);
                 if (mysqli_num_rows(mysqli_query($mysqli,"SELECT * FROM clients WHERE client_name = '$name'")) > 0) {
                     $duplicate_detect = 1;
                 }
@@ -588,22 +588,22 @@ if (isset($_POST["import_clients_csv"])) {
 
             $industry = '';
             if (isset($column[1])) {
-                $industry = sanitizeInput($column[1]);
+                $industry = escapeSql($column[1]);
             }
 
             $referral = '';
             if (isset($column[2])) {
-                $referral = sanitizeInput($column[2]);
+                $referral = escapeSql($column[2]);
             }
 
             $website = '';
             if (isset($column[3])) {
-                $website = sanitizeInput(preg_replace("(^https?://)", "", $column[3]));
+                $website = escapeSql(preg_replace("(^https?://)", "", $column[3]));
             }
 
             $location_name = '';
             if (isset($column[4])) {
-                $location_name = sanitizeInput($column[4]);
+                $location_name = escapeSql($column[4]);
             }
 
             $location_phone = '';
@@ -613,37 +613,37 @@ if (isset($_POST["import_clients_csv"])) {
 
             $address = '';
             if (isset($column[6])) {
-                $address = sanitizeInput($column[6]);
+                $address = escapeSql($column[6]);
             }
 
             $city = '';
             if (isset($column[7])) {
-                $city = sanitizeInput($column[7]);
+                $city = escapeSql($column[7]);
             }
 
             $state = '';
             if (isset($column[8])) {
-                $state = sanitizeInput($column[8]);
+                $state = escapeSql($column[8]);
             }
 
             $zip = '';
             if (isset($column[9])) {
-                $zip = sanitizeInput($column[9]);
+                $zip = escapeSql($column[9]);
             }
 
             $country = '';
             if (isset($column[10])) {
-                $country = sanitizeInput($column[10]);
+                $country = escapeSql($column[10]);
             }
 
             $contact_name = '';
             if (isset($column[11])) {
-                $contact_name = sanitizeInput($column[11]);
+                $contact_name = escapeSql($column[11]);
             }
 
             $title = '';
             if (isset($column[12])) {
-                $title = sanitizeInput($column[12]);
+                $title = escapeSql($column[12]);
             }
 
             $contact_phone = '';
@@ -663,7 +663,7 @@ if (isset($_POST["import_clients_csv"])) {
 
             $contact_email = '';
             if (isset($column[16])) {
-                $contact_email = sanitizeInput($column[16]);
+                $contact_email = escapeSql($column[16]);
             }
 
             $hourly_rate = $config_default_hourly_rate;
@@ -671,24 +671,24 @@ if (isset($_POST["import_clients_csv"])) {
                 $hourly_rate = floatval($column[17]);
             }
 
-            $currency_code = sanitizeInput($session_company_currency);
+            $currency_code = escapeSql($session_company_currency);
             if (isset($column[18])) {
-                $currency_code = sanitizeInput($column[18]);
+                $currency_code = escapeSql($column[18]);
             }
 
-            $payment_terms = sanitizeInput($config_default_net_terms);
+            $payment_terms = escapeSql($config_default_net_terms);
             if (isset($column[19])) {
                 $payment_terms = intval($column[19]);
             }
 
             $tax_id_number = '';
             if (isset($column[20])) {
-                $tax_id_number = sanitizeInput($column[20]);
+                $tax_id_number = escapeSql($column[20]);
             }
 
             $abbreviation = '';
             if (isset($column[21])) {
-                $abbreviation = sanitizeInput($column[21]);
+                $abbreviation = escapeSql($column[21]);
             }
 
             // Check if duplicate was detected
@@ -783,8 +783,8 @@ if (isset($_POST['bulk_add_client_ticket'])) {
     } else {
         $ticket_status = 2;
     }
-    $subject = sanitizeInput($_POST['bulk_subject']);
-    $priority = sanitizeInput($_POST['bulk_priority']);
+    $subject = escapeSql($_POST['bulk_subject']);
+    $priority = escapeSql($_POST['bulk_priority']);
     $category_id = intval($_POST['bulk_category']);
     $details = mysqli_real_escape_string($mysqli, $_POST['bulk_details']);
     $project_id = intval($_POST['bulk_project']);
@@ -799,7 +799,7 @@ if (isset($_POST['bulk_add_client_ticket'])) {
 
         // Override Template Subject
         if(empty($subject)) {
-            $subject = sanitizeInput($row['ticket_template_subject']);
+            $subject = escapeSql($row['ticket_template_subject']);
         }
         $details = mysqli_escape_string($mysqli, $row['ticket_template_details']);
 
@@ -820,7 +820,7 @@ if (isset($_POST['bulk_add_client_ticket'])) {
             $sql = mysqli_query($mysqli, "SELECT * FROM clients WHERE client_id = $client_id");
             $row = mysqli_fetch_assoc($sql);
 
-            $client_name = sanitizeInput($row['client_name']);
+            $client_name = escapeSql($row['client_name']);
 
             // Atomically increment and get the new ticket number
             mysqli_query($mysqli, "
@@ -834,10 +834,10 @@ if (isset($_POST['bulk_add_client_ticket'])) {
             $ticket_number = mysqli_insert_id($mysqli);
 
             // Sanitize Config Vars from get_settings.php and Session Vars from check_login.php
-            $config_ticket_prefix = sanitizeInput($config_ticket_prefix);
-            $config_ticket_from_name = sanitizeInput($config_ticket_from_name);
-            $config_ticket_from_email = sanitizeInput($config_ticket_from_email);
-            $config_base_url = sanitizeInput($config_base_url);
+            $config_ticket_prefix = escapeSql($config_ticket_prefix);
+            $config_ticket_from_name = escapeSql($config_ticket_from_name);
+            $config_ticket_from_email = escapeSql($config_ticket_from_email);
+            $config_base_url = escapeSql($config_base_url);
 
             //Generate a unique URL key for clients to access
             $url_key = randomString(32);
@@ -849,7 +849,7 @@ if (isset($_POST['bulk_add_client_ticket'])) {
             // Add Tasks
             if (!empty($_POST['tasks'])) {
                 foreach ($_POST['tasks'] as $task) {
-                    $task_name = sanitizeInput($task);
+                    $task_name = escapeSql($task);
                     // Check that task_name is not-empty (For some reason the !empty on the array doesnt work here like in watchers)
                     if (!empty($task_name)) {
                         mysqli_query($mysqli,"INSERT INTO tasks SET task_name = '$task_name', task_ticket_id = $ticket_id");
@@ -862,7 +862,7 @@ if (isset($_POST['bulk_add_client_ticket'])) {
                 if (mysqli_num_rows($sql_task_templates) > 0) {
                     while ($row = mysqli_fetch_assoc($sql_task_templates)) {
                         $task_order = intval($row['task_template_order']);
-                        $task_name = sanitizeInput($row['task_template_name']);
+                        $task_name = escapeSql($row['task_template_name']);
 
                         mysqli_query($mysqli,"INSERT INTO tasks SET task_name = '$task_name', task_order = $task_order, task_ticket_id = $ticket_id");
                     }
@@ -889,7 +889,7 @@ if (isset($_POST['bulk_edit_client_industry'])) {
 
     enforceUserPermission('module_client', 2);
 
-    $industry = sanitizeInput($_POST['bulk_industry']);
+    $industry = escapeSql($_POST['bulk_industry']);
 
     if (isset($_POST['client_ids'])) {
 
@@ -900,7 +900,7 @@ if (isset($_POST['bulk_edit_client_industry'])) {
 
             $sql = mysqli_query($mysqli,"SELECT client_name FROM clients WHERE client_id = $client_id");
             $row = mysqli_fetch_assoc($sql);
-            $client_name = sanitizeInput($row['client_name']);
+            $client_name = escapeSql($row['client_name']);
 
             mysqli_query($mysqli,"UPDATE clients SET client_type = '$industry' WHERE client_id = $client_id");
 
@@ -923,7 +923,7 @@ if (isset($_POST['bulk_edit_client_referral'])) {
 
     enforceUserPermission('module_client', 2);
 
-    $referral = sanitizeInput($_POST['bulk_referral']);
+    $referral = escapeSql($_POST['bulk_referral']);
 
     if (isset($_POST['client_ids'])) {
 
@@ -934,7 +934,7 @@ if (isset($_POST['bulk_edit_client_referral'])) {
 
             $sql = mysqli_query($mysqli,"SELECT client_name FROM clients WHERE client_id = $client_id");
             $row = mysqli_fetch_assoc($sql);
-            $client_name = sanitizeInput($row['client_name']);
+            $client_name = escapeSql($row['client_name']);
 
             mysqli_query($mysqli,"UPDATE clients SET client_referral = '$referral' WHERE client_id = $client_id");
 
@@ -968,7 +968,7 @@ if (isset($_POST['bulk_edit_client_hourly_rate'])) {
 
             $sql = mysqli_query($mysqli,"SELECT client_name FROM clients WHERE client_id = $client_id");
             $row = mysqli_fetch_assoc($sql);
-            $client_name = sanitizeInput($row['client_name']);
+            $client_name = escapeSql($row['client_name']);
 
             mysqli_query($mysqli,"UPDATE clients SET client_rate = '$rate' WHERE client_id = $client_id");
 
@@ -1002,7 +1002,7 @@ if (isset($_POST['bulk_edit_client_net_terms'])) {
 
             $sql = mysqli_query($mysqli,"SELECT client_name FROM clients WHERE client_id = $client_id");
             $row = mysqli_fetch_assoc($sql);
-            $client_name = sanitizeInput($row['client_name']);
+            $client_name = escapeSql($row['client_name']);
 
             mysqli_query($mysqli,"UPDATE clients SET client_net_terms = $net_terms WHERE client_id = $client_id");
 
@@ -1034,7 +1034,7 @@ if (isset($_POST['bulk_assign_client_tags'])) {
 
             $sql = mysqli_query($mysqli,"SELECT client_name FROM clients WHERE client_id = $client_id");
             $row = mysqli_fetch_assoc($sql);
-            $client_name = sanitizeInput($row['client_name']);
+            $client_name = escapeSql($row['client_name']);
 
             if ($_POST['bulk_remove_tags']) {
                 mysqli_query($mysqli, "DELETE FROM client_tags WHERE client_id = $client_id");
@@ -1074,11 +1074,11 @@ if (isset($_POST['bulk_send_client_email']) && isset($_POST['client_ids'])) {
     $count = count($client_ids);
 
     // Email metadata
-    $mail_from = sanitizeInput($_POST['mail_from']);
-    $mail_from_name = sanitizeInput($_POST['mail_from_name']);
-    $subject = sanitizeInput($_POST['subject']);
+    $mail_from = escapeSql($_POST['mail_from']);
+    $mail_from_name = escapeSql($_POST['mail_from_name']);
+    $subject = escapeSql($_POST['subject']);
     $body = mysqli_real_escape_string($mysqli, $_POST['body']);
-    $queued_at = sanitizeInput($_POST['queued_at']);
+    $queued_at = escapeSql($_POST['queued_at']);
 
     // Build contact type filters
     $filters = [];
@@ -1115,7 +1115,7 @@ if (isset($_POST['bulk_send_client_email']) && isset($_POST['client_ids'])) {
     $unique_contacts = [];
 
     while ($row = mysqli_fetch_assoc($result)) {
-        $contact_email = sanitizeInput($row['contact_email']);
+        $contact_email = escapeSql($row['contact_email']);
 
         // Skip if email is missing or invalid
         if (empty($contact_email) || !filter_var($contact_email, FILTER_VALIDATE_EMAIL)) {
@@ -1128,7 +1128,7 @@ if (isset($_POST['bulk_send_client_email']) && isset($_POST['client_ids'])) {
         }
         $unique_contacts[$contact_email] = true;
 
-        $contact_name = sanitizeInput($row['contact_name']);
+        $contact_name = escapeSql($row['contact_name']);
 
         $data[] = [
             'from' => $mail_from,
@@ -1169,7 +1169,7 @@ if (isset($_POST['bulk_archive_clients'])) {
 
             $sql = mysqli_query($mysqli,"SELECT client_name FROM clients WHERE client_id = $client_id");
             $row = mysqli_fetch_assoc($sql);
-            $client_name = sanitizeInput($row['client_name']);
+            $client_name = escapeSql($row['client_name']);
 
             mysqli_query($mysqli,"UPDATE clients SET client_archived_at = NOW() WHERE client_id = $client_id");
 
@@ -1205,7 +1205,7 @@ if (isset($_POST['bulk_unarchive_clients'])) {
 
             $sql = mysqli_query($mysqli,"SELECT client_name FROM clients WHERE client_id = $client_id");
             $row = mysqli_fetch_assoc($sql);
-            $client_name = sanitizeInput($row['client_name']);
+            $client_name = escapeSql($row['client_name']);
 
             mysqli_query($mysqli,"UPDATE clients SET client_archived_at = NULL WHERE client_id = $client_id");
 

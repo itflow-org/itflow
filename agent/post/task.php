@@ -13,7 +13,7 @@ if (isset($_POST['add_task'])) {
     enforceUserPermission('module_support', 2);
 
     $ticket_id = intval($_POST['ticket_id']);
-    $task_name = sanitizeInput($_POST['name']);
+    $task_name = escapeSql($_POST['name']);
 
     // Get Client ID from tickets using the ticket_id
     $client_id = intval(getFieldById('tickets', $ticket_id, 'ticket_client_id'));
@@ -37,7 +37,7 @@ if (isset($_POST['edit_ticket_task'])) {
     enforceUserPermission('module_support', 2);
 
     $task_id = intval($_POST['task_id']);
-    $task_name = sanitizeInput($_POST['name']);
+    $task_name = escapeSql($_POST['name']);
     $task_order = intval($_POST['order']);
     $task_completion_estimate = intval($_POST['completion_estimate']);
 
@@ -63,7 +63,7 @@ if (isset($_POST['edit_ticket_template_task'])) {
     enforceUserPermission('module_support', 2);
 
     $task_template_id = intval($_POST['task_template_id']);
-    $task_name = sanitizeInput($_POST['name']);
+    $task_name = escapeSql($_POST['name']);
     $task_order = intval($_POST['order']);
     $task_completion_estimate = intval($_POST['completion_estimate']);
 
@@ -89,7 +89,7 @@ if (isset($_GET['delete_task'])) {
     $sql = mysqli_query($mysqli, "SELECT * FROM tasks LEFT JOIN tickets ON ticket_id = task_ticket_id WHERE task_id = $task_id");
     $row = mysqli_fetch_assoc($sql);
     $client_id = intval($row['ticket_client_id']);
-    $task_name = sanitizeInput($row['task_name']);
+    $task_name = escapeSql($row['task_name']);
 
     mysqli_query($mysqli, "DELETE FROM tasks WHERE task_id = $task_id");
 
@@ -113,7 +113,7 @@ if (isset($_GET['complete_task'])) {
     $sql = mysqli_query($mysqli, "SELECT * FROM tasks LEFT JOIN tickets ON ticket_id = task_ticket_id WHERE task_id = $task_id");
     $row = mysqli_fetch_assoc($sql);
     $client_id = intval($row['ticket_client_id']);
-    $task_name = sanitizeInput($row['task_name']);
+    $task_name = escapeSql($row['task_name']);
     $task_completion_estimate = intval($row['task_completion_estimate']);
     $ticket_id = intval($row['ticket_id']);
 
@@ -147,7 +147,7 @@ if (isset($_GET['undo_complete_task'])) {
     $sql = mysqli_query($mysqli, "SELECT * FROM tasks LEFT JOIN tickets ON ticket_id = task_ticket_id WHERE task_id = $task_id");
     $row = mysqli_fetch_assoc($sql);
     $client_id = intval($row['ticket_client_id']);
-    $task_name = sanitizeInput($row['task_name']);
+    $task_name = escapeSql($row['task_name']);
     $ticket_id = intval($row['ticket_id']);
 
     mysqli_query($mysqli, "UPDATE tasks SET task_completed_at = NULL, task_completed_by = NULL WHERE task_id = $task_id");
@@ -172,8 +172,8 @@ if (isset($_POST['add_ticket_task_approver'])) {
     enforceUserPermission('module_support', 2);
 
     $task_id = intval($_POST['task_id']);
-    $scope = sanitizeInput($_POST['approval_scope']);
-    $type = sanitizeInput($_POST['approval_type']);
+    $scope = escapeSql($_POST['approval_scope']);
+    $type = escapeSql($_POST['approval_type']);
     $approval_url_key = randomString(32);
 
     $required_user_id = "NULL";
@@ -193,27 +193,27 @@ if (isset($_POST['add_ticket_task_approver'])) {
         WHERE task_id = $task_id LIMIT 1
         ")
     );
-    $task_name = sanitizeInput($tt_row['task_name']);
+    $task_name = escapeSql($tt_row['task_name']);
     $ticket_id = intval($tt_row['task_ticket_id']);
-    $ticket_prefix = sanitizeInput($tt_row['ticket_prefix']);
+    $ticket_prefix = escapeSql($tt_row['ticket_prefix']);
     $ticket_number = intval($tt_row['ticket_number']);
-    $ticket_subject = sanitizeInput($tt_row['ticket_subject']);
-    $ticket_status = sanitizeInput($tt_row['ticket_status_name']);
-    $ticket_url_key = sanitizeInput($tt_row['ticket_url_key']);
+    $ticket_subject = escapeSql($tt_row['ticket_subject']);
+    $ticket_status = escapeSql($tt_row['ticket_status_name']);
+    $ticket_url_key = escapeSql($tt_row['ticket_url_key']);
     $ticket_contact_id = intval($tt_row['ticket_contact_id']);
     $client_id = intval($tt_row['ticket_client_id']);
 
     // --Notifications--
 
     // Sanitize Config vars from get_settings.php
-    $config_ticket_from_name = sanitizeInput($config_ticket_from_name);
-    $config_ticket_from_email = sanitizeInput($config_ticket_from_email);
-    $config_base_url = sanitizeInput($config_base_url);
+    $config_ticket_from_name = escapeSql($config_ticket_from_name);
+    $config_ticket_from_email = escapeSql($config_ticket_from_email);
+    $config_base_url = escapeSql($config_base_url);
 
     // Get Company Info
     $crow = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT company_name, company_phone, company_phone_country_code FROM companies WHERE company_id = 1"));
-    $company_name = sanitizeInput($crow['company_name']);
-    $company_phone = sanitizeInput(formatPhoneNumber($crow['company_phone'], $crow['company_phone_country_code']));
+    $company_name = escapeSql($crow['company_name']);
+    $company_phone = escapeSql(formatPhoneNumber($crow['company_phone'], $crow['company_phone_country_code']));
 
     // Email contents
     $subject = "Ticket task approval required - [$ticket_prefix$ticket_number] - $ticket_subject";
@@ -224,8 +224,8 @@ if (isset($_POST['add_ticket_task_approver'])) {
 
         if (!empty($config_smtp_host)) {
             $agent_contact = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT user_name, user_email FROM users WHERE user_id = $required_user_id AND user_archived_at IS NULL"));
-            $name = sanitizeInput($agent_contact['user_name']);
-            $email = sanitizeInput($agent_contact['user_email']);
+            $name = escapeSql($agent_contact['user_name']);
+            $email = escapeSql($agent_contact['user_email']);
 
             // Only add contact to email queue if email is valid
             if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
@@ -247,8 +247,8 @@ if (isset($_POST['add_ticket_task_approver'])) {
     if (!empty($config_smtp_host) && $scope == 'client' && $type == 'any') {
 
         $contact_row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT contact_name, contact_email FROM contacts WHERE contact_id = $ticket_contact_id LIMIT 1"));
-        $contact_name = sanitizeInput($contact_row['contact_name']);
-        $contact_email = sanitizeInput($contact_row['contact_email']);
+        $contact_name = escapeSql($contact_row['contact_name']);
+        $contact_email = escapeSql($contact_row['contact_email']);
 
         $data = [];
 
@@ -279,8 +279,8 @@ if (isset($_POST['add_ticket_task_approver'])) {
         $data = [];
 
         while ($technical_contact = mysqli_fetch_assoc($sql_technical_contacts)) {
-            $technical_contact_name = sanitizeInput($technical_contact['contact_name']);
-            $technical_contact_email = sanitizeInput($technical_contact['contact_email']);
+            $technical_contact_name = escapeSql($technical_contact['contact_name']);
+            $technical_contact_email = escapeSql($technical_contact['contact_email']);
 
             if (filter_var($technical_contact_email, FILTER_VALIDATE_EMAIL)) {
                 $data[] = [
@@ -312,8 +312,8 @@ if (isset($_POST['add_ticket_task_approver'])) {
         $data = [];
 
         while ($billing_contact = mysqli_fetch_assoc($sql_billing_contacts)) {
-            $billing_contact_name = sanitizeInput($billing_contact['contact_name']);
-            $billing_contact_email = sanitizeInput($billing_contact['contact_email']);
+            $billing_contact_name = escapeSql($billing_contact['contact_name']);
+            $billing_contact_email = escapeSql($billing_contact['contact_email']);
 
             if (filter_var($billing_contact_email, FILTER_VALIDATE_EMAIL)) {
                 $data[] = [

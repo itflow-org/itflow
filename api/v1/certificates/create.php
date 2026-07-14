@@ -19,7 +19,7 @@ if (!empty($name) && !empty($domain) && !empty($client_id)) {
         $public_key_obj = openssl_x509_parse($_POST['certificate_public_key']);
         if ($public_key_obj) {
             $expire = date('Y-m-d', $public_key_obj['validTo_time_t']);
-            $issued_by = sanitizeInput($public_key_obj['issuer']['O']);
+            $issued_by = escapeSql($public_key_obj['issuer']['O']);
         }
     }
 

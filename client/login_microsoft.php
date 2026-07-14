@@ -20,8 +20,8 @@ if (!isset($_SESSION)) {
 // Set Timezone after session starts
 require_once "../includes/inc_set_timezone.php";
 
-$session_ip = sanitizeInput(getIP());
-$session_user_agent = sanitizeInput($_SERVER['HTTP_USER_AGENT']);
+$session_ip = escapeSql(getIP());
+$session_user_agent = escapeSql($_SERVER['HTTP_USER_AGENT']);
 
 $sql_settings = mysqli_query($mysqli, "SELECT config_azure_client_id, config_azure_client_secret FROM settings WHERE company_id = 1");
 $settings = mysqli_fetch_assoc($sql_settings);
@@ -115,8 +115,8 @@ if (isset($_POST['code']) && $_POST['state'] == session_id()) {
             $user_id = intval($row['user_id']);
             $session_user_id = $user_id; // to pass the user_id to logAction function
             $contact_id = intval($row['contact_id']);
-            $user_email = sanitizeInput($row['user_email']);
-            $user_auth_method = sanitizeInput($row['user_auth_method']);
+            $user_email = escapeSql($row['user_email']);
+            $user_auth_method = escapeSql($row['user_auth_method']);
 
             if ($user_auth_method == 'azure') {
 

@@ -8,18 +8,18 @@ require_once "../includes/inc_set_timezone.php";
 require_once "../functions.php";
 
 
-$session_ip = sanitizeInput(getIP());
-$session_user_agent = sanitizeInput($_SERVER['HTTP_USER_AGENT']);
+$session_ip = escapeSql(getIP());
+$session_user_agent = escapeSql($_SERVER['HTTP_USER_AGENT']);
 
 if (isset($_GET['id']) && isset($_GET['key'])) {
     $item_id = intval($_GET['id']);
-    $item_key = sanitizeInput($_GET['key']);
+    $item_key = escapeSql($_GET['key']);
 
     $sql = mysqli_query($mysqli, "SELECT * FROM shared_items WHERE item_id = $item_id AND item_key = '$item_key' AND item_expire_at > NOW() LIMIT 1");
     $row = mysqli_fetch_assoc($sql);
 
     $item_active = intval($row['item_active']);
-    $item_type = sanitizeInput($row['item_type']);
+    $item_type = escapeSql($row['item_type']);
     $item_views = intval($row['item_views']);
     $item_view_limit = intval($row['item_view_limit']);
     $item_related_id = intval($row['item_related_id']);
@@ -56,8 +56,8 @@ if (isset($_GET['id']) && isset($_GET['key'])) {
         exit("Item cannot be viewed at this time (No file, may have been deleted).");
     }
 
-    $file_name = sanitizeInput($file_row['file_name']);
-    $file_reference_name = sanitizeInput($file_row['file_reference_name']);
+    $file_name = escapeSql($file_row['file_name']);
+    $file_reference_name = escapeSql($file_row['file_reference_name']);
     $client_id = intval($file_row['file_client_id']);
     $file_path = "../uploads/clients/$client_id/$file_reference_name";
 

@@ -28,15 +28,15 @@ require_once "../functions.php";
 // Get settings for the "default" company
 require_once "../includes/load_global_settings.php";
 
-$config_ticket_prefix = sanitizeInput($config_ticket_prefix);
-$config_ticket_from_name = sanitizeInput($config_ticket_from_name);
+$config_ticket_prefix = escapeSql($config_ticket_prefix);
+$config_ticket_from_name = escapeSql($config_ticket_from_name);
 $config_ticket_email_parse_unknown_senders = intval($row['config_ticket_email_parse_unknown_senders']);
 
 // Get company name & phone & timezone
 $sql = mysqli_query($mysqli, "SELECT * FROM companies, settings WHERE companies.company_id = settings.company_id AND companies.company_id = 1");
 $row = mysqli_fetch_assoc($sql);
-$company_name = sanitizeInput($row['company_name']);
-$company_phone = sanitizeInput(formatPhoneNumber($row['company_phone'], $row['company_phone_country_code']));
+$company_name = escapeSql($row['company_name']);
+$company_phone = escapeSql(formatPhoneNumber($row['company_phone'], $row['company_phone_country_code']));
 
 // Check setting enabled
 if ($config_ticket_email_parse == 0) {
@@ -143,8 +143,8 @@ function addTicket($contact_id, $contact_name, $contact_email, $client_id, $date
             $att_saved_path = $att_dir . $att_saved_filename;
             file_put_contents($att_saved_path, $attachment['content']);
 
-            $ticket_attachment_name = sanitizeInput($att_name);
-            $ticket_attachment_reference_name = sanitizeInput($att_saved_filename);
+            $ticket_attachment_name = escapeSql($att_name);
+            $ticket_attachment_reference_name = escapeSql($att_saved_filename);
 
             $ticket_attachment_name_esc = mysqli_real_escape_string($mysqli, $ticket_attachment_name);
             $ticket_attachment_reference_name_esc = mysqli_real_escape_string($mysqli, $ticket_attachment_reference_name);
@@ -191,7 +191,7 @@ function addTicket($contact_id, $contact_name, $contact_email, $client_id, $date
         } else {
             $client_sql = mysqli_query($mysqli, "SELECT client_name FROM clients WHERE client_id = $client_id");
             $client_row = mysqli_fetch_assoc($client_sql);
-            $client_name = sanitizeInput($client_row['client_name']);
+            $client_name = escapeSql($client_row['client_name']);
             $client_uri = "&client_id=$client_id";
         }
         $email_subject = "$config_app_name - New Ticket - $client_name: $subject";
@@ -260,17 +260,17 @@ function addReply($from_email, $date, $subject, $ticket_number, $message, $attac
 
     if ($row) {
         $ticket_id = intval($row['ticket_id']);
-        $ticket_subject = sanitizeInput($row['ticket_subject']);
-        $ticket_status = sanitizeInput($row['ticket_status']);
+        $ticket_subject = escapeSql($row['ticket_subject']);
+        $ticket_status = escapeSql($row['ticket_status']);
         $ticket_reply_contact = intval($row['ticket_contact_id']);
-        $ticket_contact_email = sanitizeInput($row['contact_email']);
+        $ticket_contact_email = escapeSql($row['contact_email']);
         $client_id = intval($row['ticket_client_id']);
         if ($client_id) {
             $client_uri = "&client_id=$client_id";
         } else {
             $client_uri = '';
         }
-        $client_name = sanitizeInput($row['client_name']);
+        $client_name = escapeSql($row['client_name']);
 
         if ($ticket_status == 5) {
             $config_ticket_prefix_esc = mysqli_real_escape_string($mysqli, $config_ticket_prefix);
@@ -324,8 +324,8 @@ function addReply($from_email, $date, $subject, $ticket_number, $message, $attac
                 $att_saved_path = $ticket_dir . $att_saved_filename;
                 file_put_contents($att_saved_path, $attachment['content']);
 
-                $ticket_attachment_name = sanitizeInput($att_name);
-                $ticket_attachment_reference_name = sanitizeInput($att_saved_filename);
+                $ticket_attachment_name = escapeSql($att_name);
+                $ticket_attachment_reference_name = escapeSql($att_saved_filename);
 
                 $ticket_attachment_name_esc = mysqli_real_escape_string($mysqli, $ticket_attachment_name);
                 $ticket_attachment_reference_name_esc = mysqli_real_escape_string($mysqli, $ticket_attachment_reference_name);
@@ -344,8 +344,8 @@ function addReply($from_email, $date, $subject, $ticket_number, $message, $attac
             if ($ticket_assigned_to) {
                 $tech_sql = mysqli_query($mysqli, "SELECT user_email, user_name FROM users WHERE user_id = $ticket_assigned_to LIMIT 1");
                 $tech_row = mysqli_fetch_assoc($tech_sql);
-                $tech_email = sanitizeInput($tech_row['user_email']);
-                $tech_name = sanitizeInput($tech_row['user_name']);
+                $tech_email = escapeSql($tech_row['user_email']);
+                $tech_name = escapeSql($tech_row['user_name']);
 
                 $email_subject = "$config_app_name - Ticket updated - [$config_ticket_prefix$ticket_number] $ticket_subject";
                 $email_body    = "Hello $tech_name,<br><br>A new reply has been added to the below ticket.<br><br>Client: $client_name<br>Ticket: $config_ticket_prefix$ticket_number<br>Subject: $ticket_subject<br>Link: https://$config_base_url/agent/ticket.php?ticket_id=$ticket_id$client_uri<br><br>--------------------------------<br>$message_esc";
@@ -686,14 +686,14 @@ foreach ($messages as $message) {
 
         // From
         $from_addr  = $message->from(); // ?Address
-        $from_email = sanitizeInput($from_addr?->email() ?: 'itflow-guest@example.com');
-        $from_name  = sanitizeInput($from_addr?->name() ?: 'Unknown');
+        $from_email = escapeSql($from_addr?->email() ?: 'itflow-guest@example.com');
+        $from_name  = escapeSql($from_addr?->name() ?: 'Unknown');
 
         $from_domain = explode("@", $from_email);
-        $from_domain = sanitizeInput(end($from_domain));
+        $from_domain = escapeSql(end($from_domain));
 
         // Subject
-        $subject = sanitizeInput((string)$message->subject() ?: 'No Subject');
+        $subject = escapeSql((string)$message->subject() ?: 'No Subject');
 
         // Skip vacation/out-of-office auto-responders to prevent mail loops (RFC 3834)
         // NDRs use "auto-generated" and are still handled by the NDR logic below
@@ -724,7 +724,7 @@ foreach ($messages as $message) {
 
         // Date (string)
         $dateObj = $message->date(); // ?CarbonInterface
-        $date    = sanitizeInput($dateObj ? $dateObj->setTimezone(date_default_timezone_get())->format('Y-m-d H:i:s') : date('Y-m-d H:i:s'));
+        $date    = escapeSql($dateObj ? $dateObj->setTimezone(date_default_timezone_get())->format('Y-m-d H:i:s') : date('Y-m-d H:i:s'));
 
         // Body (prefer HTML)
         $message_body_html = $message->html();
@@ -751,7 +751,7 @@ foreach ($messages as $message) {
 
             // Skip oversized attachments entirely
             if ($size > $max_attachment_bytes) {
-                logApp("Cron-Email-Parser", "warning", "Email parser skipped oversized attachment " . sanitizeInput($name) . " (" . round($size / 1048576, 1) . " MB) from $from_email ($subject)");
+                logApp("Cron-Email-Parser", "warning", "Email parser skipped oversized attachment " . escapeSql($name) . " (" . round($size / 1048576, 1) . " MB) from $from_email ($subject)");
                 continue;
             }
 
@@ -831,9 +831,9 @@ foreach ($messages as $message) {
             $rowc = mysqli_fetch_assoc($any_contact_sql);
 
             if ($rowc) {
-                $contact_name  = sanitizeInput($rowc['contact_name']);
+                $contact_name  = escapeSql($rowc['contact_name']);
                 $contact_id    = intval($rowc['contact_id']);
-                $contact_email = sanitizeInput($rowc['contact_email']);
+                $contact_email = escapeSql($rowc['contact_email']);
                 $client_id     = intval($rowc['contact_client_id']);
 
                 $email_processed = addTicket($contact_id, $contact_name, $contact_email, $client_id, $date, $subject, $message_body, $attachments, $original_message_file, $ccs);
@@ -889,15 +889,15 @@ foreach ($messages as $message) {
                     if (strpos($ctype, 'delivery-status') !== false) {
 
                         if (preg_match('/Final-Recipient:\s*rfc822;\s*(.+)/i', $body, $m)) {
-                            $failed_recipient = sanitizeInput(trim($m[1]));
+                            $failed_recipient = escapeSql(trim($m[1]));
                         }
 
                         if (preg_match('/Diagnostic-Code:\s*(.+)/i', $body, $m)) {
-                            $diagnostic_code = sanitizeInput(trim($m[1]));
+                            $diagnostic_code = escapeSql(trim($m[1]));
                         }
 
                         if (preg_match('/Status:\s*([0-9\.]+)/i', $body, $m)) {
-                            $status_code = sanitizeInput(trim($m[1]));
+                            $status_code = escapeSql(trim($m[1]));
                         }
                     }
 
@@ -905,11 +905,11 @@ foreach ($messages as $message) {
                     if (strpos($ctype, 'message/rfc822') !== false) {
 
                         if (preg_match('/^To:\s*(.+)$/mi', $body, $m)) {
-                            $original_to = sanitizeInput(trim($m[1]));
+                            $original_to = escapeSql(trim($m[1]));
                         }
 
                         if (preg_match('/^Subject:\s*(.+)$/mi', $body, $m)) {
-                            $original_subject = sanitizeInput(trim($m[1]));
+                            $original_subject = escapeSql(trim($m[1]));
                         }
                     }
                 }
@@ -920,7 +920,7 @@ foreach ($messages as $message) {
 
                     // Exim puts diagnostics on an indented line
                     if (preg_match('/\n\s{2,}(.+)/', $text, $m)) {
-                        $diagnostic_code = sanitizeInput(trim($m[1]));
+                        $diagnostic_code = escapeSql(trim($m[1]));
                     }
                 }
 

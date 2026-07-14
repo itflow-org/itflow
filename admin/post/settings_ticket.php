@@ -6,7 +6,7 @@ if (isset($_POST['edit_ticket_settings'])) {
 
     validateCSRFToken($_POST['csrf_token']);
 
-    $config_ticket_prefix = sanitizeInput($_POST['config_ticket_prefix']);
+    $config_ticket_prefix = escapeSql($_POST['config_ticket_prefix']);
     $config_ticket_next_number = intval($_POST['config_ticket_next_number']);
     $config_ticket_email_parse = intval($_POST['config_ticket_email_parse'] ?? 0);
     $config_ticket_email_parse_unknown_senders = intval($_POST['config_ticket_email_parse_unknown_senders'] ?? 0);
@@ -14,7 +14,7 @@ if (isset($_POST['edit_ticket_settings'])) {
     $config_ticket_autoclose_hours = intval($_POST['config_ticket_autoclose_hours']);
     $config_ticket_new_ticket_notification_email = '';
     if (filter_var($_POST['config_ticket_new_ticket_notification_email'], FILTER_VALIDATE_EMAIL)) {
-        $config_ticket_new_ticket_notification_email = sanitizeInput($_POST['config_ticket_new_ticket_notification_email']);
+        $config_ticket_new_ticket_notification_email = escapeSql($_POST['config_ticket_new_ticket_notification_email']);
     }
     $config_ticket_default_view = intval($_POST['config_ticket_default_view']);
     $config_ticket_moving_columns = intval($_POST['config_ticket_moving_columns']);

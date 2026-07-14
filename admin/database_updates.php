@@ -1668,10 +1668,10 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
         $sql = mysqli_query($mysqli, "SELECT * FROM assets");
         while ($row = mysqli_fetch_assoc($sql)) {
             $asset_id = intval($row['asset_id']);
-            $mac = sanitizeInput($row['asset_mac']);
-            $ip = sanitizeInput($row['asset_ip']);
-            $nat_ip = sanitizeInput($row['asset_nat_ip']);
-            $ipv6 = sanitizeInput($row['asset_ipv6']);
+            $mac = escapeSql($row['asset_mac']);
+            $ip = escapeSql($row['asset_ip']);
+            $nat_ip = escapeSql($row['asset_nat_ip']);
+            $ipv6 = escapeSql($row['asset_ipv6']);
             $network = intval($row['asset_network_id']);
 
             mysqli_query($mysqli, "INSERT INTO `asset_interfaces` SET interface_name = 'Primary', interface_mac = '$mac', interface_ip = '$ip', interface_nat_ip = '$nat_ip', interface_ipv6 = '$ipv6', interface_port = 'eth0', interface_primary = 1, interface_network_id = $network, interface_asset_id = $asset_id");
@@ -1793,8 +1793,8 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
          $sql_tickets_2 = mysqli_query($mysqli, "SELECT ticket_id, ticket_updated_at, ticket_closed_at FROM tickets WHERE tickets.ticket_closed_at IS NOT NULL");
          foreach ($sql_tickets_2 as $row) {
              $ticket_id = intval($row['ticket_id']);
-             $ticket_updated_at = sanitizeInput($row['ticket_updated_at']); // To keep old updated_at time
-             $ticket_closed_at = sanitizeInput($row['ticket_closed_at']);
+             $ticket_updated_at = escapeSql($row['ticket_updated_at']); // To keep old updated_at time
+             $ticket_closed_at = escapeSql($row['ticket_closed_at']);
              mysqli_query($mysqli, "UPDATE tickets SET ticket_resolved_at = '$ticket_closed_at', ticket_updated_at = '$ticket_updated_at' WHERE ticket_id = '$ticket_id'");
          }
 
@@ -3933,7 +3933,7 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
         $sql_categories = mysqli_query($mysqli, "SELECT * FROM categories WHERE category_type = 'Payment Method' AND category_name != 'Stripe' AND category_archived_at IS NULL");
 
         while ($row = mysqli_fetch_assoc($sql_categories)) {
-            $category_name = sanitizeInput($row['category_name']);
+            $category_name = escapeSql($row['category_name']);
 
             mysqli_query($mysqli,"INSERT INTO payment_methods SET payment_method_name = '$category_name'");
         }

@@ -33,11 +33,11 @@ if (isset($_POST['add_domain'])) {
 
     // NS, MX, A and WHOIS records/data
     $records = getDomainRecords($name);
-    $a = sanitizeInput($records['a']);
-    $ns = sanitizeInput($records['ns']);
-    $mx = sanitizeInput($records['mx']);
-    $txt = sanitizeInput($records['txt']);
-    $whois = sanitizeInput($records['whois']);
+    $a = escapeSql($records['a']);
+    $ns = escapeSql($records['ns']);
+    $mx = escapeSql($records['mx']);
+    $txt = escapeSql($records['txt']);
+    $whois = escapeSql($records['whois']);
 
     // Add domain record
     mysqli_query($mysqli,"INSERT INTO domains SET domain_name = '$name', domain_description = '$description', domain_registrar = $registrar,  domain_webhost = $webhost, domain_dnshost = $dnshost, domain_mailhost = $mailhost, domain_expire = $expire, domain_ip = '$a', domain_name_servers = '$ns', domain_mail_servers = '$mx', domain_txt = '$txt', domain_raw_whois = '$whois', domain_notes = '$notes', domain_client_id = $client_id");
@@ -48,9 +48,9 @@ if (isset($_POST['add_domain'])) {
     // Get SSL cert for domain (if exists)
     $certificate = getSSL($name);
     if ($certificate['success'] == "TRUE") {
-        $expire = sanitizeInput($certificate['expire']);
-        $issued_by = sanitizeInput($certificate['issued_by']);
-        $public_key = sanitizeInput($certificate['public_key']);
+        $expire = escapeSql($certificate['expire']);
+        $issued_by = escapeSql($certificate['issued_by']);
+        $public_key = escapeSql($certificate['public_key']);
 
         mysqli_query($mysqli,"INSERT INTO certificates SET certificate_name = '$name', certificate_domain = '$name', certificate_issued_by = '$issued_by', certificate_expire = '$expire', certificate_public_key = '$public_key', certificate_domain_id = $domain_id, certificate_client_id = $client_id");
         $extended_log_description = ', with associated SSL cert';
@@ -95,11 +95,11 @@ if (isset($_POST['edit_domain'])) {
 
     // Update NS, MX, A and WHOIS records/data
     $records = getDomainRecords($name);
-    $a = sanitizeInput($records['a']);
-    $ns = sanitizeInput($records['ns']);
-    $mx = sanitizeInput($records['mx']);
-    $txt = sanitizeInput($records['txt']);
-    $whois = sanitizeInput($records['whois']);
+    $a = escapeSql($records['a']);
+    $ns = escapeSql($records['ns']);
+    $mx = escapeSql($records['mx']);
+    $txt = escapeSql($records['txt']);
+    $whois = escapeSql($records['whois']);
 
     // Current domain info
     $original_domain_info = mysqli_fetch_assoc(mysqli_query($mysqli,"
@@ -141,9 +141,9 @@ if (isset($_POST['edit_domain'])) {
     foreach ($original_domain_info as $column => $old_value) {
         $new_value = $new_domain_info[$column];
         if ($old_value != $new_value && !in_array($column, $ignored_columns)) {
-            $column = sanitizeInput($column);
-            $old_value = sanitizeInput($old_value);
-            $new_value = sanitizeInput($new_value);
+            $column = escapeSql($column);
+            $old_value = escapeSql($old_value);
+            $new_value = escapeSql($new_value);
             mysqli_query($mysqli,"INSERT INTO domain_history SET domain_history_column = '$column', domain_history_old_value = '$old_value', domain_history_new_value = '$new_value', domain_history_domain_id = $domain_id");
         }
     }
@@ -167,7 +167,7 @@ if (isset($_GET['archive_domain'])) {
     //Get domain Name
     $sql = mysqli_query($mysqli,"SELECT * FROM domains WHERE domain_id = $domain_id");
     $row = mysqli_fetch_assoc($sql);
-    $domain_name = sanitizeInput($row['domain_name']);
+    $domain_name = escapeSql($row['domain_name']);
     $client_id = intval($row['domain_client_id']);
 
     enforceClientAccess();
@@ -193,7 +193,7 @@ if(isset($_GET['restore_domain'])){
     // Get Name and Client ID for logging and alert message
     $sql = mysqli_query($mysqli,"SELECT domain_name, domain_client_id FROM domains WHERE domain_id = $domain_id");
     $row = mysqli_fetch_assoc($sql);
-    $domain_name = sanitizeInput($row['domain_name']);
+    $domain_name = escapeSql($row['domain_name']);
     $client_id = intval($row['domain_client_id']);
 
     enforceClientAccess();
@@ -219,7 +219,7 @@ if (isset($_GET['delete_domain'])) {
     // Get Domain Name and Client ID for logging and alert message
     $sql = mysqli_query($mysqli,"SELECT domain_name, domain_client_id FROM domains WHERE domain_id = $domain_id");
     $row = mysqli_fetch_assoc($sql);
-    $domain_name = sanitizeInput($row['domain_name']);
+    $domain_name = escapeSql($row['domain_name']);
     $client_id = intval($row['domain_client_id']);
 
     enforceClientAccess();
@@ -253,7 +253,7 @@ if (isset($_POST['bulk_archive_domains'])) {
             // Get Name and Client ID for logging and alert message
             $sql = mysqli_query($mysqli,"SELECT domain_name, domain_client_id FROM domains WHERE domain_id = $domain_id");
             $row = mysqli_fetch_assoc($sql);
-            $domain_name = sanitizeInput($row['domain_name']);
+            $domain_name = escapeSql($row['domain_name']);
             $client_id = intval($row['domain_client_id']);
 
             enforceClientAccess();
@@ -292,7 +292,7 @@ if (isset($_POST['bulk_restore_domains'])) {
             // Get Name and Client ID for logging and alert message
             $sql = mysqli_query($mysqli,"SELECT domain_name, domain_client_id FROM domains WHERE domain_id = $domain_id");
             $row = mysqli_fetch_assoc($sql);
-            $domain_name = sanitizeInput($row['domain_name']);
+            $domain_name = escapeSql($row['domain_name']);
             $client_id = intval($row['domain_client_id']);
 
             enforceClientAccess();
@@ -332,7 +332,7 @@ if (isset($_POST['bulk_delete_domains'])) {
             // Get Name and Client ID for logging and alert message
             $sql = mysqli_query($mysqli,"SELECT domain_name, domain_client_id FROM domains WHERE domain_id = $domain_id");
             $row = mysqli_fetch_assoc($sql);
-            $domain_name = sanitizeInput($row['domain_name']);
+            $domain_name = escapeSql($row['domain_name']);
             $client_id = intval($row['domain_client_id']);
 
             enforceClientAccess();

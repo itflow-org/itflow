@@ -7,8 +7,8 @@ if (isset($_POST['edit_online_payment_settings'])) {
     validateCSRFToken($_POST['csrf_token']);
 
     $config_stripe_enable = intval($_POST['config_stripe_enable'] ?? 0);
-    $config_stripe_publishable = sanitizeInput($_POST['config_stripe_publishable']);
-    $config_stripe_secret = sanitizeInput($_POST['config_stripe_secret']);
+    $config_stripe_publishable = escapeSql($_POST['config_stripe_publishable']);
+    $config_stripe_secret = escapeSql($_POST['config_stripe_secret']);
     $config_stripe_account = intval($_POST['config_stripe_account']);
     $config_stripe_expense_vendor = intval($_POST['config_stripe_expense_vendor']);
     $config_stripe_expense_category = intval($_POST['config_stripe_expense_category']);

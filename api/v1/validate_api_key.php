@@ -17,8 +17,8 @@ header('Content-Type: application/json');
 $_POST = json_decode(file_get_contents('php://input'), true);
 
 // Get IP & UA
-$ip = sanitizeInput(getIP());
-$user_agent = sanitizeInput($_SERVER['HTTP_USER_AGENT']);
+$ip = escapeSql(getIP());
+$user_agent = escapeSql($_SERVER['HTTP_USER_AGENT']);
 
 // Temp Added this to work with the new logAction function
 $session_ip = $ip;
@@ -60,15 +60,15 @@ if (!isset($_GET['api_key']) && !isset($_POST['api_key'])) {
 
 // Set API key variable
 if (isset($_GET['api_key'])) {
-    $api_key = sanitizeInput($_GET['api_key']);
+    $api_key = escapeSql($_GET['api_key']);
 }
 if (isset($_POST['api_key'])) {
-    $api_key = sanitizeInput($_POST['api_key']);
+    $api_key = escapeSql($_POST['api_key']);
 }
 
 // Validate API key
 if (isset($api_key)) {
-    $api_key = sanitizeInput($api_key);
+    $api_key = escapeSql($api_key);
 
     $sql = mysqli_query($mysqli, "SELECT * FROM api_keys WHERE api_key_secret = '$api_key' AND api_key_expire > NOW() LIMIT 1");
 
@@ -76,7 +76,7 @@ if (isset($api_key)) {
     if (mysqli_num_rows($sql) !== 1) {
         // Invalid Key
 
-        $url_path = sanitizeInput(parse_url($_SERVER["REQUEST_URI"], PHP_URL_PATH));
+        $url_path = escapeSql(parse_url($_SERVER["REQUEST_URI"], PHP_URL_PATH));
         mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'API', log_action = 'Failed', log_description = 'Incorrect or expired key (endpoint: $url_path)', log_ip = '$ip', log_user_agent = '$user_agent'");
 
         $return_arr['success'] = "False";

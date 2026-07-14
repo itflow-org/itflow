@@ -371,8 +371,8 @@ if (isset($_POST['add_user'])) {
         exit;
     }
 
-    $name = sanitizeInput($_POST['name']);
-    $email = sanitizeInput($_POST['email']);
+    $name = escapeSql($_POST['name']);
+    $email = escapeSql($_POST['email']);
     $password = password_hash(trim($_POST['password']), PASSWORD_DEFAULT);
 
     //Generate master encryption key
@@ -440,16 +440,16 @@ if (isset($_POST['add_user'])) {
 
 if (isset($_POST['add_company_settings'])) {
 
-    $name = sanitizeInput($_POST['name']);
-    $country = sanitizeInput($_POST['country']);
-    $address = sanitizeInput($_POST['address']);
-    $city = sanitizeInput($_POST['city']);
-    $state = sanitizeInput($_POST['state']);
-    $zip = sanitizeInput($_POST['zip']);
+    $name = escapeSql($_POST['name']);
+    $country = escapeSql($_POST['country']);
+    $address = escapeSql($_POST['address']);
+    $city = escapeSql($_POST['city']);
+    $state = escapeSql($_POST['state']);
+    $zip = escapeSql($_POST['zip']);
     $phone = preg_replace("/[^0-9]/", '',$_POST['phone']);
-    $email = sanitizeInput($_POST['email']);
-    $website = sanitizeInput($_POST['website']);
-    $tax_id = sanitizeInput($_POST['tax_id']);
+    $email = escapeSql($_POST['email']);
+    $website = escapeSql($_POST['website']);
+    $tax_id = escapeSql($_POST['tax_id']);
 
     mysqli_query($mysqli,"INSERT INTO companies SET company_name = '$name', company_address = '$address', company_city = '$city', company_state = '$state', company_zip = '$zip', company_country = '$country', company_phone = '$phone', company_email = '$email', company_website = '$website', company_tax_id = '$tax_id'");
 
@@ -635,9 +635,9 @@ if (isset($_POST['add_company_settings'])) {
 
 if (isset($_POST['add_localization_settings'])) {
 
-    $locale = sanitizeInput($_POST['locale']);
-    $currency_code = sanitizeInput($_POST['currency_code']);
-    $timezone = sanitizeInput($_POST['timezone']);
+    $locale = escapeSql($_POST['locale']);
+    $currency_code = escapeSql($_POST['currency_code']);
+    $timezone = escapeSql($_POST['timezone']);
 
     mysqli_query($mysqli,"UPDATE companies SET company_locale = '$locale', company_currency = '$currency_code' WHERE company_id = 1");
 
@@ -659,7 +659,7 @@ if (isset($_POST['add_telemetry'])) {
 
         mysqli_query($mysqli,"UPDATE settings SET config_telemetry = 2");
 
-        $comments = sanitizeInput($_POST['comments']);
+        $comments = escapeSql($_POST['comments']);
 
         $sql = mysqli_query($mysqli,"SELECT * FROM companies WHERE company_id = 1");
         $row = mysqli_fetch_assoc($sql);

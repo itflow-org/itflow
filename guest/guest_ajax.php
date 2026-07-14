@@ -26,7 +26,7 @@ if (isset($_GET['stripe_create_pi'])) {
     $jsonStr = file_get_contents('php://input');
     $jsonObj = json_decode($jsonStr, true);
     $invoice_id = intval($jsonObj['invoice_id']);
-    $url_key = sanitizeInput($jsonObj['url_key']);
+    $url_key = escapeSql($jsonObj['url_key']);
 
     // Query invoice details
     $invoice_sql = mysqli_query(

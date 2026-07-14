@@ -8,7 +8,7 @@ require_once "includes/inc_all_admin.php";
 
 
 if (isset($_GET['table'])) {
-    $table = sanitizeInput($_GET['table']);
+    $table = escapeSql($_GET['table']);
 } else {
     $table = "client_assets";
 }

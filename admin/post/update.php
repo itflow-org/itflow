@@ -23,12 +23,12 @@ if (isset($_GET['update'])) {
         $sql = mysqli_query($mysqli,"SELECT * FROM companies WHERE company_id = 1");
         $row = mysqli_fetch_assoc($sql);
 
-        $company_name = sanitizeInput($row['company_name']);
-        $website = sanitizeInput($row['company_website']);
-        $city = sanitizeInput($row['company_city']);
-        $state = sanitizeInput($row['company_state']);
-        $country = sanitizeInput($row['company_country']);
-        $currency = sanitizeInput($row['company_currency']);
+        $company_name = escapeSql($row['company_name']);
+        $website = escapeSql($row['company_website']);
+        $city = escapeSql($row['company_city']);
+        $state = escapeSql($row['company_state']);
+        $country = escapeSql($row['company_country']);
+        $currency = escapeSql($row['company_currency']);
         $current_version = exec("git rev-parse HEAD");
 
         // Client Count

@@ -10,10 +10,10 @@ if (isset($_POST['add_api_key'])) {
 
     validateCSRFToken($_POST['csrf_token']);
 
-    $name = sanitizeInput($_POST['name']);
-    $expire = sanitizeInput($_POST['expire']);
+    $name = escapeSql($_POST['name']);
+    $expire = escapeSql($_POST['expire']);
     $client_id = intval($_POST['client']);
-    $secret = sanitizeInput($_POST['key']); // API Key
+    $secret = escapeSql($_POST['key']); // API Key
 
     // Credential decryption password
     $password = password_hash(trim($_POST['password']), PASSWORD_DEFAULT);
@@ -39,7 +39,7 @@ if (isset($_GET['revoke_api_key'])) {
 
     // Get API Key Name
     $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT api_key_name, api_key_client_id FROM api_keys WHERE api_key_id = $api_key_id"));
-    $api_key_name = sanitizeInput($row['api_key_name']);
+    $api_key_name = escapeSql($row['api_key_name']);
     $client_id = intval($row['api_key_client_id']);
 
     mysqli_query($mysqli,"UPDATE api_keys SET api_key_expire = NOW() WHERE api_key_id = $api_key_id");
@@ -60,7 +60,7 @@ if (isset($_GET['delete_api_key'])) {
 
     // Get API Key Name
     $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT api_key_name, api_key_client_id FROM api_keys WHERE api_key_id = $api_key_id"));
-    $api_key_name = sanitizeInput($row['api_key_name']);
+    $api_key_name = escapeSql($row['api_key_name']);
     $client_id = intval($row['api_key_client_id']);
 
     mysqli_query($mysqli,"DELETE FROM api_keys WHERE api_key_id = $api_key_id");
@@ -88,7 +88,7 @@ if (isset($_POST['bulk_delete_api_keys'])) {
 
             // Get API Key Name
             $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT api_key_name, api_key_client_id FROM api_keys WHERE api_key_id = $api_key_id"));
-            $api_key_name = sanitizeInput($row['api_key_name']);
+            $api_key_name = escapeSql($row['api_key_name']);
             $client_id = intval($row['api_key_client_id']);
 
             mysqli_query($mysqli, "DELETE FROM api_keys WHERE api_key_id = $api_key_id");

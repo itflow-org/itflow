@@ -11,9 +11,9 @@ if (isset($_POST['add_ai_model'])) {
     validateCSRFToken($_POST['csrf_token']);
 
     $provider_id = intval($_POST['provider']);
-    $model = sanitizeInput($_POST['model']);
-    $prompt = sanitizeInput($_POST['prompt']);
-    $use_case = sanitizeInput($_POST['use_case']);
+    $model = escapeSql($_POST['model']);
+    $prompt = escapeSql($_POST['prompt']);
+    $use_case = escapeSql($_POST['use_case']);
 
     mysqli_query($mysqli,"INSERT INTO ai_models SET ai_model_name = '$model', ai_model_prompt = '$prompt', ai_model_use_case = '$use_case', ai_model_ai_provider_id = $provider_id");
 
@@ -32,9 +32,9 @@ if (isset($_POST['edit_ai_model'])) {
     validateCSRFToken($_POST['csrf_token']);
 
     $model_id = intval($_POST['model_id']);
-    $model = sanitizeInput($_POST['model']);
-    $prompt = sanitizeInput($_POST['prompt']);
-    $use_case = sanitizeInput($_POST['use_case']);
+    $model = escapeSql($_POST['model']);
+    $prompt = escapeSql($_POST['prompt']);
+    $use_case = escapeSql($_POST['use_case']);
 
     mysqli_query($mysqli,"UPDATE ai_models SET ai_model_name = '$model', ai_model_prompt = '$prompt', ai_model_use_case = '$use_case' WHERE ai_model_id = $model_id");
 
@@ -52,7 +52,7 @@ if (isset($_GET['delete_ai_model'])) {
 
     $model_id = intval($_GET['delete_ai_model']);
 
-    $model_name = sanitizeInput(getFieldById('ai_models', $model_id, 'ai_model_name'));
+    $model_name = escapeSql(getFieldById('ai_models', $model_id, 'ai_model_name'));
 
     mysqli_query($mysqli,"DELETE FROM ai_models WHERE ai_model_id = $model_id");
 

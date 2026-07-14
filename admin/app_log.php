@@ -8,7 +8,7 @@ require_once "includes/inc_all_admin.php";
 
 // Log Type Filter
 if (isset($_GET['type']) & !empty($_GET['type'])) {
-    $log_type_query = "AND (app_log_type  = '" . sanitizeInput($_GET['type']) . "')";
+    $log_type_query = "AND (app_log_type  = '" . escapeSql($_GET['type']) . "')";
     $type_filter = escapeHtml($_GET['type']);
 } else {
     // Default - any
@@ -18,7 +18,7 @@ if (isset($_GET['type']) & !empty($_GET['type'])) {
 
 // Log Category Filter
 if (isset($_GET['category']) & !empty($_GET['catergory'])) {
-    $log_category_query = "AND (app_log_category  = '" . sanitizeInput($_GET['category']) . "')";
+    $log_category_query = "AND (app_log_category  = '" . escapeSql($_GET['category']) . "')";
     $category_filter = escapeHtml($_GET['category']);
 } else {
     // Default - any

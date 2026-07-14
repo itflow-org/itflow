@@ -6,8 +6,8 @@ if (isset($_POST['add_ticket_status'])) {
 
     validateCSRFToken($_POST['csrf_token']);
 
-    $name = sanitizeInput($_POST['name']);
-    $color = sanitizeInput($_POST['color']);
+    $name = escapeSql($_POST['name']);
+    $color = escapeSql($_POST['color']);
 
     mysqli_query($mysqli, "INSERT INTO ticket_statuses SET ticket_status_name = '$name', ticket_status_color = '$color'");
 
@@ -26,8 +26,8 @@ if (isset($_POST['edit_ticket_status'])) {
     validateCSRFToken($_POST['csrf_token']);
 
     $ticket_status_id = intval($_POST['ticket_status_id']);
-    $name = sanitizeInput($_POST['name']);
-    $color = sanitizeInput($_POST['color']);
+    $name = escapeSql($_POST['name']);
+    $color = escapeSql($_POST['color']);
     $order = intval($_POST['order']);
     $status = intval($_POST['status']);
 
@@ -51,7 +51,7 @@ if (isset($_GET['delete_ticket_status'])) {
         exit("Can't delete built-in statuses");
     }
 
-    $ticlet_status_name = sanitizeInput(getFieldById('ticket_statuses', $ticket_status_id, 'ticket_status_name'));
+    $ticlet_status_name = escapeSql(getFieldById('ticket_statuses', $ticket_status_id, 'ticket_status_name'));
 
     mysqli_query($mysqli, "DELETE FROM ticket_statuses WHERE ticket_status_id = $ticket_status_id");
 

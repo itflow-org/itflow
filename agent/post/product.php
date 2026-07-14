@@ -13,7 +13,7 @@ if (isset($_POST['add_product'])) {
     enforceUserPermission('module_sales', 2);
 
     require_once 'product_model.php';
-    $type = sanitizeInput($_POST['type']);
+    $type = escapeSql($_POST['type']);
 
     mysqli_query($mysqli,"INSERT INTO products SET product_name = '$name', product_type = '$type', product_description = '$description', product_code = '$code', product_location = '$location', product_price = '$price', product_currency_code = '$session_company_currency', product_tax_id = $tax, product_category_id = $category");
 
@@ -55,7 +55,7 @@ if (isset($_GET['archive_product'])) {
 
     $product_id = intval($_GET['archive_product']);
 
-    $product_name = sanitizeInput(getFieldById('products', $product_id, 'product_name'));
+    $product_name = escapeSql(getFieldById('products', $product_id, 'product_name'));
 
     mysqli_query($mysqli,"UPDATE products SET product_archived_at = NOW() WHERE product_id = $product_id");
 
@@ -75,7 +75,7 @@ if (isset($_GET['restore_product'])) {
 
     $product_id = intval($_GET['restore_product']);
 
-    $product_name = sanitizeInput(getFieldById('products', $product_id, 'product_name'));
+    $product_name = escapeSql(getFieldById('products', $product_id, 'product_name'));
 
     mysqli_query($mysqli,"UPDATE products SET product_archived_at = NULL WHERE product_id = $product_id");
 
@@ -96,7 +96,7 @@ if (isset($_GET['delete_product'])) {
     $product_id = intval($_GET['delete_product']);
 
     //Get Product Name
-    $product_name = sanitizeInput(getFieldById('products', $product_id, 'product_name'));
+    $product_name = escapeSql(getFieldById('products', $product_id, 'product_name'));
 
     mysqli_query($mysqli,"DELETE FROM products WHERE product_id = $product_id");
 
@@ -117,7 +117,7 @@ if (isset($_POST['bulk_edit_product_category'])) {
     $category_id = intval($_POST['bulk_category_id']);
 
     // Get Category name for logging and Notification
-    $category_name = sanitizeInput(getFieldById('categories', $category_id, 'category_name'));
+    $category_name = escapeSql(getFieldById('categories', $category_id, 'category_name'));
 
     // Assign category to Selected Products
     if (isset($_POST['product_ids'])) {
@@ -129,7 +129,7 @@ if (isset($_POST['bulk_edit_product_category'])) {
             $product_id = intval($product_id);
 
             // Get Product Details for Logging
-            $product_name = sanitizeInput(getFieldById('products', $product_id, 'product_name'));
+            $product_name = escapeSql(getFieldById('products', $product_id, 'product_name'));
 
             mysqli_query($mysqli,"UPDATE products SET product_category_id = $category_id WHERE product_id = $product_id");
 
@@ -161,7 +161,7 @@ if (isset($_POST['bulk_archive_products'])) {
 
             $product_id = intval($product_id);
 
-            $product_name = sanitizeInput(getFieldById('products', $product_id, 'product_name'));
+            $product_name = escapeSql(getFieldById('products', $product_id, 'product_name'));
 
             mysqli_query($mysqli,"UPDATE products SET product_archived_at = NOW() WHERE product_id = $product_id");
 
@@ -193,7 +193,7 @@ if (isset($_POST['bulk_restore_products'])) {
 
             $product_id = intval($product_id);
 
-            $product_name = sanitizeInput(getFieldById('products', $product_id, 'product_name'));
+            $product_name = escapeSql(getFieldById('products', $product_id, 'product_name'));
 
             mysqli_query($mysqli,"UPDATE products SET product_archived_at = NULL WHERE product_id = $product_id");
 
@@ -226,7 +226,7 @@ if (isset($_POST['bulk_delete_products'])) {
         foreach ($_POST['product_ids'] as $product_id) {
             $product_id = intval($product_id);
 
-            $product_name = sanitizeInput(getFieldById('products', $product_id, 'product_name'));
+            $product_name = escapeSql(getFieldById('products', $product_id, 'product_name'));
 
             mysqli_query($mysqli, "DELETE FROM products WHERE product_id = $product_id");
 
@@ -298,10 +298,10 @@ if (isset($_POST['add_product_stock'])) {
     $product_id = intval($_POST['product_id']);
     $qty = intval($_POST['qty']);
     $expense = intval($_POST['expense']);
-    $note = sanitizeInput($_POST['note']);
+    $note = escapeSql($_POST['note']);
 
     // Get product name
-    $product_name = sanitizeInput(getFieldById('products', $product_id, 'product_name'));
+    $product_name = escapeSql(getFieldById('products', $product_id, 'product_name'));
 
     mysqli_query($mysqli,"INSERT INTO product_stock SET stock_qty = $qty, stock_expense_id = $expense, stock_note = '$note', stock_product_id = $product_id");
 

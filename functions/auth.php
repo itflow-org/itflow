@@ -11,7 +11,7 @@ function lookupUserPermission($module) {
         return 3;
     }
 
-    $module = sanitizeInput($module);
+    $module = escapeSql($module);
 
     $sql = mysqli_query(
         $mysqli,

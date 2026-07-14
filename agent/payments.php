@@ -20,7 +20,7 @@ enforceUserPermission('module_financial');
 
 // Payment Method Filter
 if (isset($_GET['method']) & !empty($_GET['method'])) {
-    $payment_method_query = "AND (payment_method  = '" . sanitizeInput($_GET['method']) . "')";
+    $payment_method_query = "AND (payment_method  = '" . escapeSql($_GET['method']) . "')";
     $method_filter = escapeHtml($_GET['method']);
 } else {
     // Default - any

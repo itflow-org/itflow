@@ -8,8 +8,8 @@ if (isset($_POST['add_document_template'])) {
 
     validateCSRFToken($_POST['csrf_token']);
 
-    $name = sanitizeInput($_POST['name']);
-    $description = sanitizeInput($_POST['description']);
+    $name = escapeSql($_POST['name']);
+    $description = escapeSql($_POST['description']);
 
     mysqli_query($mysqli,"INSERT INTO document_templates SET document_template_name = '$name', document_template_description = '$description', document_template_content = '', document_template_created_by = $session_user_id");
 
@@ -41,8 +41,8 @@ if (isset($_POST['edit_document_template'])) {
     validateCSRFToken($_POST['csrf_token']);
 
     $document_template_id = intval($_POST['document_template_id']);
-    $name = sanitizeInput($_POST['name']);
-    $description = sanitizeInput($_POST['description']);
+    $name = escapeSql($_POST['name']);
+    $description = escapeSql($_POST['description']);
 
     $processed_content = saveBase64Images(
         $_POST['content'],
@@ -77,7 +77,7 @@ if (isset($_GET['delete_document_template'])) {
 
     $document_template_id = intval($_GET['delete_document_template']);
 
-    $document_template_name = sanitizeInput(getFieldById('document_templates', $document_template_id, 'document_template_name'));
+    $document_template_name = escapeSql(getFieldById('document_templates', $document_template_id, 'document_template_name'));
 
     mysqli_query($mysqli,"DELETE FROM document_templates WHERE document_template_id = $document_template_id");
 

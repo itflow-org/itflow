@@ -14,16 +14,16 @@ if (isset($_POST['add_ticket'])) {
 
     validateCSRFToken($_POST['csrf_token']);
 
-    $subject = sanitizeInput($_POST['subject']);
+    $subject = escapeSql($_POST['subject']);
     $details = mysqli_real_escape_string($mysqli, ($_POST['details']));
     $category = intval($_POST['category']);
     $asset = intval($_POST['asset']);
 
     // Get settings from load_global_settings.php
-    $config_ticket_prefix = sanitizeInput($config_ticket_prefix);
-    $config_ticket_from_name = sanitizeInput($config_ticket_from_name);
-    $config_ticket_from_email = sanitizeInput($config_ticket_from_email);
-    $config_base_url = sanitizeInput($config_base_url);
+    $config_ticket_prefix = escapeSql($config_ticket_prefix);
+    $config_ticket_from_name = escapeSql($config_ticket_from_name);
+    $config_ticket_from_email = escapeSql($config_ticket_from_email);
+    $config_base_url = escapeSql($config_base_url);
     $config_ticket_new_ticket_notification_email = filter_var($config_ticket_new_ticket_notification_email, FILTER_VALIDATE_EMAIL);
 
     //Generate a unique URL key for clients to access
@@ -33,7 +33,7 @@ if (isset($_POST['add_ticket'])) {
     if ($_POST['priority'] !== "Low" && $_POST['priority'] !== "Medium" && $_POST['priority'] !== "High") {
         $priority = "Low";
     } else {
-        $priority = sanitizeInput($_POST['priority']);
+        $priority = escapeSql($_POST['priority']);
     }
 
     // Atomically increment and get the new ticket number
@@ -53,7 +53,7 @@ if (isset($_POST['add_ticket'])) {
     // Notify agent DL of the new ticket, if populated with a valid email
     if ($config_ticket_new_ticket_notification_email) {
 
-        $client_name = sanitizeInput($session_client_name);
+        $client_name = escapeSql($session_client_name);
         $details = removeEmoji($details);
 
         $email_subject = "ITFlow - New Ticket - $client_name: $subject";
@@ -112,15 +112,15 @@ if (isset($_POST['add_ticket_comment'])) {
 
         $ticket_number = intval($ticket_details['ticket_number']);
         $ticket_assigned_to = intval($ticket_details['ticket_assigned_to']);
-        $ticket_subject = sanitizeInput($ticket_details['ticket_subject']);
-        $client_name = sanitizeInput($ticket_details['client_name']);
+        $ticket_subject = escapeSql($ticket_details['ticket_subject']);
+        $client_name = escapeSql($ticket_details['client_name']);
 
         if ($ticket_details && $ticket_assigned_to !== 0) {
 
             // Get tech details
             $tech_details = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT user_email, user_name FROM users WHERE user_id = $ticket_assigned_to LIMIT 1"));
-            $tech_email = sanitizeInput($tech_details['user_email']);
-            $tech_name = sanitizeInput($tech_details['user_name']);
+            $tech_email = escapeSql($tech_details['user_email']);
+            $tech_name = escapeSql($tech_details['user_name']);
 
             $subject = "$config_app_name Ticket updated - [$config_ticket_prefix$ticket_number] $ticket_subject";
             $body    = "Hello $tech_name,<br><br>A new reply has been added to the below ticket, check ITFlow for full details.<br><br>Client: $client_name<br>Ticket: $config_ticket_prefix$ticket_number<br>Subject: $ticket_subject<br><br>https://$config_base_url/agent/ticket.php?ticket_id=$ticket_id&client_id=$session_client_id";
@@ -162,9 +162,9 @@ if (isset($_POST['add_ticket_comment'])) {
 
                     $file_tmp_path = $_FILES['file']['tmp_name'][$i];
 
-                    $file_name = sanitizeInput($_FILES['file']['name'][$i]);
+                    $file_name = escapeSql($_FILES['file']['name'][$i]);
                     $extarr = explode('.', $_FILES['file']['name'][$i]);
-                    $file_extension = sanitizeInput(strtolower(end($extarr)));
+                    $file_extension = escapeSql(strtolower(end($extarr)));
 
                     // Define destination file path
                     $dest_path = $upload_file_dir . $ticket_attachment_ref_name;
@@ -195,7 +195,7 @@ if (isset($_GET['approve_ticket_task'])) {
 
     $task_id = intval($_GET['approve_ticket_task']);
     $approval_id = intval($_GET['approval_id']);
-    $url_key = sanitizeInput($_GET['approval_url_key']);
+    $url_key = escapeSql($_GET['approval_url_key']);
 
     $approval_row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT * FROM task_approvals LEFT JOIN tasks on task_id = approval_task_id WHERE approval_id = $approval_id AND approval_task_id = $task_id AND approval_url_key = '$url_key' AND approval_status = 'pending' AND approval_scope = 'client'"));
 
@@ -233,7 +233,7 @@ if (isset($_POST['add_ticket_feedback'])) {
     validateCSRFToken($_POST['csrf_token']);
 
     $ticket_id = intval($_POST['ticket_id']);
-    $feedback = sanitizeInput($_POST['add_ticket_feedback']);
+    $feedback = escapeSql($_POST['add_ticket_feedback']);
 
     // Verify the contact has access to the provided ticket ID
     if (verifyContactTicketAccess($ticket_id, "Closed")) {
@@ -269,7 +269,7 @@ if (isset($_GET['resolve_ticket'])) {
     // Get ticket details for logging
     $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT * FROM tickets WHERE ticket_id = $ticket_id LIMIT 1"));
 
-    $ticket_prefix = sanitizeInput($row['ticket_prefix']);
+    $ticket_prefix = escapeSql($row['ticket_prefix']);
     $ticket_number = intval($row['ticket_number']);
 
     // Verify the contact has access to the provided ticket ID
@@ -304,7 +304,7 @@ if (isset($_GET['reopen_ticket'])) {
     // Get ticket details for logging
     $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT * FROM tickets WHERE ticket_id = $ticket_id LIMIT 1"));
 
-    $ticket_prefix = sanitizeInput($row['ticket_prefix']);
+    $ticket_prefix = escapeSql($row['ticket_prefix']);
     $ticket_number = intval($row['ticket_number']);
 
     // Verify the contact has access to the provided ticket ID
@@ -339,7 +339,7 @@ if (isset($_GET['close_ticket'])) {
     // Get ticket details for logging
     $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT * FROM tickets WHERE ticket_id = $ticket_id LIMIT 1"));
 
-    $ticket_prefix = sanitizeInput($row['ticket_prefix']);
+    $ticket_prefix = escapeSql($row['ticket_prefix']);
     $ticket_number = intval($row['ticket_number']);
 
     // Verify the contact has access to the provided ticket ID
@@ -402,11 +402,11 @@ if (isset($_POST['add_contact'])) {
         redirect("post.php?logout");
     }
 
-    $contact_name = sanitizeInput($_POST['contact_name']);
-    $contact_email = sanitizeInput($_POST['contact_email']);
+    $contact_name = escapeSql($_POST['contact_name']);
+    $contact_email = escapeSql($_POST['contact_email']);
     $contact_technical = intval($_POST['contact_technical'] ?? 0);
     $contact_billing = intval($_POST['contact_billing'] ?? 0);
-    $contact_auth_method = sanitizeInput($_POST['contact_auth_method']);
+    $contact_auth_method = escapeSql($_POST['contact_auth_method']);
 
     // Check the email isn't already in use
     $sql = mysqli_query($mysqli, "SELECT user_id FROM users WHERE user_email = '$contact_email'");
@@ -452,11 +452,11 @@ if (isset($_POST['edit_contact'])) {
     }
 
     $contact_id = intval($_POST['contact_id']);
-    $contact_name = sanitizeInput($_POST['contact_name']);
-    $contact_email = sanitizeInput($_POST['contact_email']);
+    $contact_name = escapeSql($_POST['contact_name']);
+    $contact_email = escapeSql($_POST['contact_email']);
     $contact_technical = intval($_POST['contact_technical'] ?? 0);
     $contact_billing = intval($_POST['contact_billing'] ?? 0);
-    $contact_auth_method = sanitizeInput($_POST['contact_auth_method']);
+    $contact_auth_method = escapeSql($_POST['contact_auth_method']);
 
     // Get the existing contact_user_id - we look it up ourselves so the user can't just overwrite random users
     $sql = mysqli_query($mysqli,"SELECT contact_user_id FROM contacts WHERE contact_id = $contact_id AND contact_client_id = $session_client_id");
@@ -510,51 +510,51 @@ if (isset($_GET['add_payment_by_provider'])) {
     );
     $row = mysqli_fetch_assoc($sql);
     $invoice_number = intval($row['invoice_number']);
-    $invoice_status = sanitizeInput($row['invoice_status']);
+    $invoice_status = escapeSql($row['invoice_status']);
     $invoice_amount = floatval($row['invoice_amount']);
-    $invoice_prefix = sanitizeInput($row['invoice_prefix']);
+    $invoice_prefix = escapeSql($row['invoice_prefix']);
     $invoice_number = intval($row['invoice_number']);
-    $invoice_url_key = sanitizeInput($row['invoice_url_key']);
-    $invoice_currency_code = sanitizeInput($row['invoice_currency_code']);
+    $invoice_url_key = escapeSql($row['invoice_url_key']);
+    $invoice_currency_code = escapeSql($row['invoice_currency_code']);
     $client_id = intval($row['client_id']);
-    $client_name = sanitizeInput($row['client_name']);
-    $contact_name = sanitizeInput($row['contact_name']);
-    $contact_email = sanitizeInput($row['contact_email']);
-    $contact_phone = sanitizeInput(formatPhoneNumber($row['contact_phone'], $row['contact_phone_country_code']));
+    $client_name = escapeSql($row['client_name']);
+    $contact_name = escapeSql($row['contact_name']);
+    $contact_email = escapeSql($row['contact_email']);
+    $contact_phone = escapeSql(formatPhoneNumber($row['contact_phone'], $row['contact_phone_country_code']));
     $contact_extension = preg_replace("/[^0-9]/", '',$row['contact_extension']);
-    $contact_mobile = sanitizeInput(formatPhoneNumber($row['contact_mobile'], $row['contact_mobile_country_code']));
+    $contact_mobile = escapeSql(formatPhoneNumber($row['contact_mobile'], $row['contact_mobile_country_code']));
 
     // Get ITFlow company details
     $sql = mysqli_query($mysqli,"SELECT * FROM companies WHERE company_id = 1");
     $row = mysqli_fetch_assoc($sql);
-    $company_name = sanitizeInput($row['company_name']);
-    $company_country = sanitizeInput($row['company_country']);
-    $company_address = sanitizeInput($row['company_address']);
-    $company_city = sanitizeInput($row['company_city']);
-    $company_state = sanitizeInput($row['company_state']);
-    $company_zip = sanitizeInput($row['company_zip']);
-    $company_phone = sanitizeInput(formatPhoneNumber($row['company_phone'], $row['company_phone_country_code']));
-    $company_email = sanitizeInput($row['company_email']);
-    $company_website = sanitizeInput($row['company_website']);
+    $company_name = escapeSql($row['company_name']);
+    $company_country = escapeSql($row['company_country']);
+    $company_address = escapeSql($row['company_address']);
+    $company_city = escapeSql($row['company_city']);
+    $company_state = escapeSql($row['company_state']);
+    $company_zip = escapeSql($row['company_zip']);
+    $company_phone = escapeSql(formatPhoneNumber($row['company_phone'], $row['company_phone_country_code']));
+    $company_email = escapeSql($row['company_email']);
+    $company_website = escapeSql($row['company_website']);
 
     // Sanitize Config vars from get_settings.php
-    $config_invoice_from_name = sanitizeInput($config_invoice_from_name);
-    $config_invoice_from_email = sanitizeInput($config_invoice_from_email);
+    $config_invoice_from_name = escapeSql($config_invoice_from_name);
+    $config_invoice_from_email = escapeSql($config_invoice_from_email);
 
     // Get Client Payment Details
     $sql = mysqli_query($mysqli, "SELECT * FROM client_saved_payment_methods LEFT JOIN payment_providers ON saved_payment_provider_id = payment_provider_id LEFT JOIN client_payment_provider ON saved_payment_client_id = client_id WHERE saved_payment_id = $saved_payment_id AND saved_payment_client_id = $session_client_id LIMIT 1");
     $row = mysqli_fetch_assoc($sql);
 
-    $public_key = sanitizeInput($row['payment_provider_public_key']);
-    $private_key = sanitizeInput($row['payment_provider_private_key']);
+    $public_key = escapeSql($row['payment_provider_public_key']);
+    $private_key = escapeSql($row['payment_provider_private_key']);
     $account_id = intval($row['payment_provider_account']);
     $expense_category_id = intval($row['payment_provider_expense_category']);
     $expense_vendor_id = intval($row['payment_provider_expense_vendor']);
     $expense_percentage_fee = floatval($row['payment_provider_expense_percentage_fee']);
     $expense_flat_fee = floatval($row['payment_provider_expense_flat_fee']);
-    $payment_provider_client = sanitizeInput($row['payment_provider_client']);
-    $saved_payment_method = sanitizeInput($row['saved_payment_provider_method']);
-    $saved_payment_description = sanitizeInput($row['saved_payment_description']);
+    $payment_provider_client = escapeSql($row['payment_provider_client']);
+    $saved_payment_method = escapeSql($row['saved_payment_provider_method']);
+    $saved_payment_description = escapeSql($row['saved_payment_description']);
     $payment_client_id = intval($row['saved_payment_client_id']);
 
     // Sanity checks
@@ -602,10 +602,10 @@ if (isset($_GET['add_payment_by_provider'])) {
         ]);
 
         // Get details from PI
-        $pi_id = sanitizeInput($payment_intent->id);
+        $pi_id = escapeSql($payment_intent->id);
         $pi_date = date('Y-m-d', $payment_intent->created);
         $pi_amount_paid = floatval(($payment_intent->amount_received / 100));
-        $pi_currency = strtoupper(sanitizeInput($payment_intent->currency));
+        $pi_currency = strtoupper(escapeSql($payment_intent->currency));
         $pi_livemode = $payment_intent->livemode;
 
     } catch (Exception $e) {
@@ -750,7 +750,7 @@ if (isset($_POST['create_stripe_customer'])) {
                 ]
             ]);
 
-            $stripe_customer_id = sanitizeInput($customer->id);
+            $stripe_customer_id = escapeSql($customer->id);
 
             // Insert customer into client_payment_provider
             mysqli_query($mysqli, "
@@ -894,7 +894,7 @@ if (isset($_GET['stripe_save_card'])) {
         LIMIT 1
     ");
     $client_provider = mysqli_fetch_assoc($client_provider_query);
-    $stripe_customer_id = sanitizeInput($client_provider['payment_provider_client'] ?? '');
+    $stripe_customer_id = escapeSql($client_provider['payment_provider_client'] ?? '');
 
     if (empty($stripe_customer_id)) {
         flash_alert("Stripe customer ID not found for client.", 'danger');
@@ -902,7 +902,7 @@ if (isset($_GET['stripe_save_card'])) {
     }
 
     // Get session ID from URL
-    $checkout_session_id = sanitizeInput($_GET['session_id']);
+    $checkout_session_id = escapeSql($_GET['session_id']);
 
     try {
         require_once '../libs/stripe-php/init.php';
@@ -912,17 +912,17 @@ if (isset($_GET['stripe_save_card'])) {
         $checkout_session = $stripe->checkout->sessions->retrieve($checkout_session_id, []);
         $setup_intent_id = $checkout_session->setup_intent;
         $setup_intent = $stripe->setupIntents->retrieve($setup_intent_id, []);
-        $payment_method_id = sanitizeInput($setup_intent->payment_method);
+        $payment_method_id = escapeSql($setup_intent->payment_method);
 
         // Attach the payment method to the Stripe customer
         $stripe->paymentMethods->attach($payment_method_id, ['customer' => $stripe_customer_id]);
 
         // Retrieve PM details for logging and UI
         $payment_method_details = $stripe->paymentMethods->retrieve($payment_method_id, []);
-        $card_brand = sanitizeInput($payment_method_details->card->brand);
-        $last4 = sanitizeInput($payment_method_details->card->last4);
-        $exp_month = sanitizeInput($payment_method_details->card->exp_month);
-        $exp_year = sanitizeInput($payment_method_details->card->exp_year);
+        $card_brand = escapeSql($payment_method_details->card->brand);
+        $last4 = escapeSql($payment_method_details->card->last4);
+        $exp_month = escapeSql($payment_method_details->card->exp_month);
+        $exp_year = escapeSql($payment_method_details->card->exp_year);
 
         $saved_payment_description = "$card_brand - $last4 | Exp $exp_month/$exp_year";
 
@@ -954,10 +954,10 @@ if (isset($_GET['stripe_save_card'])) {
     ");
     $row = mysqli_fetch_assoc($sql_settings);
 
-    $company_name = sanitizeInput($row['company_name']);
-    $company_phone = sanitizeInput(formatPhoneNumber($row['company_phone'], $row['company_phone_country_code']));
-    $config_invoice_from_email = sanitizeInput($row['config_invoice_from_email']);
-    $config_invoice_from_name = sanitizeInput($row['config_invoice_from_name']);
+    $company_name = escapeSql($row['company_name']);
+    $company_phone = escapeSql(formatPhoneNumber($row['company_phone'], $row['company_phone_country_code']));
+    $config_invoice_from_email = escapeSql($row['config_invoice_from_email']);
+    $config_invoice_from_name = escapeSql($row['config_invoice_from_name']);
 
     if (!empty($row['config_smtp_host'])) {
         $subject = "Payment method saved";
@@ -1034,7 +1034,7 @@ if (isset($_GET['delete_saved_payment'])) {
         redirect("saved_payment_methods.php");
     }
 
-    $payment_method_id = sanitizeInput($saved_payment['saved_payment_provider_method']);
+    $payment_method_id = escapeSql($saved_payment['saved_payment_provider_method']);
 
     $saved_payment_id = intval($saved_payment['saved_payment_id']);
     $saved_payment_description = escapeHtml($saved_payment['saved_payment_description']);
@@ -1100,9 +1100,9 @@ if (isset($_POST['set_recurring_payment'])) {
     // Get Recurring Invoice Info for logging and alerting
     $sql = mysqli_query($mysqli, "SELECT * FROM recurring_invoices WHERE recurring_invoice_id = $recurring_invoice_id AND recurring_invoice_client_id = $session_client_id");
     $row = mysqli_fetch_assoc($sql);
-    $recurring_invoice_prefix = sanitizeInput($row['recurring_invoice_prefix']);
+    $recurring_invoice_prefix = escapeSql($row['recurring_invoice_prefix']);
     $recurring_invoice_number = intval($row['recurring_invoice_number']);
-    $recurring_invoice_currency_code = sanitizeInput($row['recurring_invoice_currency_code']);
+    $recurring_invoice_currency_code = escapeSql($row['recurring_invoice_currency_code']);
     $recurring_invoice_amount = floatval($row['recurring_invoice_amount']);
 
     if ($saved_payment_id) {
@@ -1119,9 +1119,9 @@ if (isset($_POST['set_recurring_payment'])) {
         $row = mysqli_fetch_assoc($sql);
 
         $provider_id = intval($row['payment_provider_id']);
-        $provider_name = sanitizeInput($row['payment_provider_name']);
+        $provider_name = escapeSql($row['payment_provider_name']);
         $account_id = intval($row['payment_provider_account']);
-        $saved_payment_description = sanitizeInput($row['saved_payment_description']);
+        $saved_payment_description = escapeSql($row['saved_payment_description']);
 
         mysqli_query($mysqli, "DELETE FROM recurring_payments WHERE recurring_payment_recurring_invoice_id = $recurring_invoice_id");
         mysqli_query($mysqli,"INSERT INTO recurring_payments SET recurring_payment_currency_code = '$recurring_invoice_currency_code', recurring_payment_account_id = $account_id, recurring_payment_method = 'Credit Card', recurring_payment_recurring_invoice_id = $recurring_invoice_id, recurring_payment_saved_payment_id = $saved_payment_id");
@@ -1153,9 +1153,9 @@ if (isset($_POST['client_add_document'])) {
         redirect("post.php?logout");
     }
 
-    $document_name = sanitizeInput($_POST['document_name']);
-    $document_description = sanitizeInput($_POST['document_description']);
-    $document_content_raw = sanitizeInput($document_name . " " . strip_tags($_POST['document_content']));
+    $document_name = escapeSql($_POST['document_name']);
+    $document_description = escapeSql($_POST['document_description']);
+    $document_content_raw = escapeSql($document_name . " " . strip_tags($_POST['document_content']));
 
     // Create document
     mysqli_query($mysqli, "INSERT INTO documents SET
@@ -1199,8 +1199,8 @@ if (isset($_POST['client_upload_document'])) {
         redirect("post.php?logout");
     }
 
-    $document_name = sanitizeInput($_POST['document_name']);
-    $document_description = sanitizeInput($_POST['document_description']);
+    $document_name = escapeSql($_POST['document_name']);
+    $document_description = escapeSql($_POST['document_description']);
     $client_dir = "../uploads/clients/$session_client_id";
 
     // Create client directory if it doesn't exist
@@ -1218,10 +1218,10 @@ if (isset($_POST['client_upload_document'])) {
         if ($file_reference_name = checkFileUpload($_FILES['document_file'], $allowedExtensions)) {
 
             $file_tmp_path = $_FILES['document_file']['tmp_name'];
-            $file_name = sanitizeInput($_FILES['document_file']['name']);
+            $file_name = escapeSql($_FILES['document_file']['name']);
             $extParts = explode('.', $file_name);
             $file_extension = strtolower(end($extParts));
-            $file_mime_type = sanitizeInput($_FILES['document_file']['type']);
+            $file_mime_type = escapeSql($_FILES['document_file']['type']);
             $file_size = intval($_FILES['document_file']['size']);
 
             // Define destination path and move the uploaded file

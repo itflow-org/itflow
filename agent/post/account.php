@@ -12,10 +12,10 @@ if (isset($_POST['add_account'])) {
 
     enforceUserPermission('module_financial', 2);
 
-    $name = sanitizeInput($_POST['name']);
+    $name = escapeSql($_POST['name']);
     $opening_balance = floatval($_POST['opening_balance']);
-    $currency_code = sanitizeInput($_POST['currency_code']);
-    $notes = sanitizeInput($_POST['notes']);
+    $currency_code = escapeSql($_POST['currency_code']);
+    $notes = escapeSql($_POST['notes']);
 
     mysqli_query($mysqli,"INSERT INTO accounts SET account_name = '$name', opening_balance = $opening_balance, account_currency_code = '$currency_code', account_notes = '$notes'");
 
@@ -34,8 +34,8 @@ if (isset($_POST['edit_account'])) {
     enforceUserPermission('module_financial', 2);
 
     $account_id = intval($_POST['account_id']);
-    $name = sanitizeInput($_POST['name']);
-    $notes = sanitizeInput($_POST['notes']);
+    $name = escapeSql($_POST['name']);
+    $notes = escapeSql($_POST['notes']);
 
     mysqli_query($mysqli,"UPDATE accounts SET account_name = '$name', account_notes = '$notes' WHERE account_id = $account_id");
 
@@ -55,7 +55,7 @@ if (isset($_GET['archive_account'])) {
 
     $account_id = intval($_GET['archive_account']);
 
-    $account_name = sanitizeInput(getFieldById('accounts', $account_id, 'account_name'));
+    $account_name = escapeSql(getFieldById('accounts', $account_id, 'account_name'));
 
     mysqli_query($mysqli,"UPDATE accounts SET account_archived_at = NOW() WHERE account_id = $account_id");
 
@@ -76,7 +76,7 @@ if (isset($_GET['delete_account'])) {
 
     $account_id = intval($_GET['delete_account']);
 
-    $account_name = sanitizeInput(getFieldById('accounts', $account_id, 'account_name'));
+    $account_name = escapeSql(getFieldById('accounts', $account_id, 'account_name'));
 
     mysqli_query($mysqli,"DELETE FROM accounts WHERE account_id = $account_id");
 

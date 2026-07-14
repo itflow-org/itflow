@@ -5,7 +5,7 @@ require_once '../../../includes/modal_header.php';
 $product_id = intval($_GET['id']);
 
 // Get product name
-$product_name = sanitizeInput(getFieldById('products', $product_id, 'product_name'));
+$product_name = escapeSql(getFieldById('products', $product_id, 'product_name'));
 
 // Generate the HTML form content using output buffering.
 ob_start();

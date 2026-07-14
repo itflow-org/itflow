@@ -94,7 +94,7 @@ if(isset($_GET['archive_credential'])){
     // Get Name and Client ID for logging and alert message
     $sql = mysqli_query($mysqli,"SELECT credential_name, credential_client_id FROM credentials WHERE credential_id = $credential_id");
     $row = mysqli_fetch_assoc($sql);
-    $credential_name = sanitizeInput($row['credential_name']);
+    $credential_name = escapeSql($row['credential_name']);
     $client_id = intval($row['credential_client_id']);
 
     enforceClientAccess();
@@ -120,7 +120,7 @@ if(isset($_GET['restore_credential'])){
     // Get Name and Client ID for logging and alert message
     $sql = mysqli_query($mysqli,"SELECT credential_name, credential_client_id FROM credentials WHERE credential_id = $credential_id");
     $row = mysqli_fetch_assoc($sql);
-    $credential_name = sanitizeInput($row['credential_name']);
+    $credential_name = escapeSql($row['credential_name']);
     $client_id = intval($row['credential_client_id']);
 
     enforceClientAccess();
@@ -146,7 +146,7 @@ if (isset($_GET['delete_credential'])) {
     // Get Credential Name and Client ID for logging and alert message
     $sql = mysqli_query($mysqli,"SELECT credential_name, credential_client_id FROM credentials WHERE credential_id = $credential_id");
     $row = mysqli_fetch_assoc($sql);
-    $credential_name = sanitizeInput($row['credential_name']);
+    $credential_name = escapeSql($row['credential_name']);
     $client_id = intval($row['credential_client_id']);
 
     enforceClientAccess();
@@ -179,7 +179,7 @@ if (isset($_POST['bulk_assign_credential_tags'])) {
             // Get Contact Details for Logging
             $sql = mysqli_query($mysqli,"SELECT credential_name, credential_client_id FROM credentials WHERE credential_id = $credential_id");
             $row = mysqli_fetch_assoc($sql);
-            $credential_name = sanitizeInput($row['credential_name']);
+            $credential_name = escapeSql($row['credential_name']);
             $client_id = intval($row['credential_client_id']);
 
             enforceClientAccess();
@@ -232,7 +232,7 @@ if (isset($_POST['bulk_favorite_credentials'])) {
             // Get Asset Name and Client ID for logging and alert message
             $sql = mysqli_query($mysqli,"SELECT credential_name, credential_client_id FROM credentials WHERE credential_id = $credential_id");
             $row = mysqli_fetch_assoc($sql);
-            $credential_name = sanitizeInput($row['credential_name']);
+            $credential_name = escapeSql($row['credential_name']);
             $client_id = intval($row['credential_client_id']);
 
             enforceClientAccess();
@@ -270,7 +270,7 @@ if (isset($_POST['bulk_unfavorite_credentials'])) {
             // Get Asset Name and Client ID for logging and alert message
             $sql = mysqli_query($mysqli,"SELECT credential_name, credential_client_id FROM credentials WHERE credential_id = $credential_id");
             $row = mysqli_fetch_assoc($sql);
-            $credential_name = sanitizeInput($row['credential_name']);
+            $credential_name = escapeSql($row['credential_name']);
             $client_id = intval($row['credential_client_id']);
 
             enforceClientAccess();
@@ -310,7 +310,7 @@ if (isset($_POST['bulk_archive_credentials'])) {
             // Get Name and Client ID for logging and alert message
             $sql = mysqli_query($mysqli,"SELECT credential_name, credential_client_id FROM credentials WHERE credential_id = $credential_id");
             $row = mysqli_fetch_assoc($sql);
-            $credential_name = sanitizeInput($row['credential_name']);
+            $credential_name = escapeSql($row['credential_name']);
             $client_id = intval($row['credential_client_id']);
 
             enforceClientAccess();
@@ -349,7 +349,7 @@ if (isset($_POST['bulk_restore_credentials'])) {
             // Get Name and Client ID for logging and alert message
             $sql = mysqli_query($mysqli,"SELECT credential_name, credential_client_id FROM credentials WHERE credential_id = $credential_id");
             $row = mysqli_fetch_assoc($sql);
-            $credential_name = sanitizeInput($row['credential_name']);
+            $credential_name = escapeSql($row['credential_name']);
             $client_id = intval($row['credential_client_id']);
 
             enforceClientAccess();
@@ -389,7 +389,7 @@ if (isset($_POST['bulk_delete_credentials'])) {
             // Get Name and Client ID for logging and alert message
             $sql = mysqli_query($mysqli,"SELECT credential_name, credential_client_id FROM credentials WHERE credential_id = $credential_id");
             $row = mysqli_fetch_assoc($sql);
-            $credential_name = sanitizeInput($row['credential_name']);
+            $credential_name = escapeSql($row['credential_name']);
             $client_id = intval($row['credential_client_id']);
 
             enforceClientAccess();
@@ -521,30 +521,30 @@ if (isset($_POST["import_credentials_csv"])) {
             $duplicate_detect = 0;
             // Name
             if (isset($column[0])) {
-                $name = sanitizeInput($column[0]);
+                $name = escapeSql($column[0]);
                 if (mysqli_num_rows(mysqli_query($mysqli,"SELECT * FROM credentials WHERE credential_name = '$name' AND credential_client_id = $client_id")) > 0){
                     $duplicate_detect = 1;
                 }
             }
             // Desc
             if (isset($column[1])) {
-                $description = sanitizeInput($column[1]);
+                $description = escapeSql($column[1]);
             }
             // User
             if (isset($column[2])) {
-                $username = sanitizeInput(encryptCredentialEntry($column[2]));
+                $username = escapeSql(encryptCredentialEntry($column[2]));
             }
             // Pass
             if (isset($column[3])) {
-                $password = sanitizeInput(encryptCredentialEntry($column[3]));
+                $password = escapeSql(encryptCredentialEntry($column[3]));
             }
             // OTP
             if (isset($column[4])) {
-                $totp = sanitizeInput($column[4]);
+                $totp = escapeSql($column[4]);
             }
             // URL
             if (isset($column[4])) {
-                $uri = sanitizeInput($column[5]);
+                $uri = escapeSql($column[5]);
             }
 
             // Check if duplicate was detected

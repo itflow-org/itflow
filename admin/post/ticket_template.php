@@ -12,9 +12,9 @@ if (isset($_POST['add_ticket_template'])) {
 
     validateCSRFToken($_POST['csrf_token']);
 
-    $name = sanitizeInput($_POST['name']);
-    $description = sanitizeInput($_POST['description']);
-    $subject = sanitizeInput($_POST['subject']);
+    $name = escapeSql($_POST['name']);
+    $description = escapeSql($_POST['description']);
+    $subject = escapeSql($_POST['subject']);
     $details = mysqli_real_escape_string($mysqli, $_POST['details']);
     $project_template_id = intval($_POST['project_template']);
 
@@ -39,9 +39,9 @@ if (isset($_POST['edit_ticket_template'])) {
     validateCSRFToken($_POST['csrf_token']);
 
     $ticket_template_id = intval($_POST['ticket_template_id']);
-    $name = sanitizeInput($_POST['name']);
-    $description = sanitizeInput($_POST['description']);
-    $subject = sanitizeInput($_POST['subject']);
+    $name = escapeSql($_POST['name']);
+    $description = escapeSql($_POST['description']);
+    $subject = escapeSql($_POST['subject']);
     $details = mysqli_real_escape_string($mysqli, $_POST['details']);
 
     mysqli_query($mysqli, "UPDATE ticket_templates SET ticket_template_name = '$name', ticket_template_description = '$description', ticket_template_subject = '$subject', ticket_template_details = '$details' WHERE ticket_template_id = $ticket_template_id");
@@ -60,7 +60,7 @@ if (isset($_GET['delete_ticket_template'])) {
 
     $ticket_template_id = intval($_GET['delete_ticket_template']);
 
-    $ticket_template_name = sanitizeInput(getFieldById('ticket_templates', $ticket_template_id, 'ticket_template_name'));
+    $ticket_template_name = escapeSql(getFieldById('ticket_templates', $ticket_template_id, 'ticket_template_name'));
 
     mysqli_query($mysqli, "DELETE FROM ticket_templates WHERE ticket_template_id = $ticket_template_id");
 
@@ -81,7 +81,7 @@ if (isset($_POST['add_ticket_template_task'])) {
     validateCSRFToken($_POST['csrf_token']);
 
     $ticket_template_id = intval($_POST['ticket_template_id']);
-    $task_name = sanitizeInput($_POST['task_name']);
+    $task_name = escapeSql($_POST['task_name']);
 
     mysqli_query($mysqli, "INSERT INTO task_templates SET task_template_name = '$task_name', task_template_ticket_template_id = $ticket_template_id");
 
@@ -101,7 +101,7 @@ if (isset($_GET['delete_task_template'])) {
 
     $task_template_id = intval($_GET['delete_task_template']);
 
-    $task_template_name = sanitizeInput(getFieldById('tags', $task_template_id, 'task_template_name'));
+    $task_template_name = escapeSql(getFieldById('tags', $task_template_id, 'task_template_name'));
 
     mysqli_query($mysqli, "DELETE FROM task_templates WHERE task_template_id = $task_template_id");
 

@@ -92,8 +92,8 @@ $sql_assets = mysqli_query($mysqli, "SELECT asset_id, asset_name, asset_type FRO
 
                             while ($row = mysqli_fetch_assoc($sql_assets)) {
                                 $asset_id = intval($row['asset_id']);
-                                $asset_name = sanitizeInput($row['asset_name']);
-                                $asset_type = sanitizeInput($row['asset_type']);
+                                $asset_name = escapeSql($row['asset_name']);
+                                $asset_type = escapeSql($row['asset_type']);
                                 ?>
                                 <option value="<?php echo $asset_id ?>"><?php echo "$asset_name ($asset_type)"; ?></option>
                                 <?php

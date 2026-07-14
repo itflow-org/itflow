@@ -2,7 +2,7 @@
 
 // Variable assignment from POST (or: blank/from DB is updating)
 if (isset($_POST['asset_name'])) {
-    $name = sanitizeInput($_POST['asset_name']);
+    $name = escapeSql($_POST['asset_name']);
 } elseif (isset($asset_row) && isset($asset_row['asset_name'])) {
     $name = mysqli_real_escape_string($mysqli, $asset_row['asset_name']);
 } else {
@@ -10,7 +10,7 @@ if (isset($_POST['asset_name'])) {
 }
 
 if (isset($_POST['asset_description'])) {
-    $description = sanitizeInput($_POST['asset_description']);
+    $description = escapeSql($_POST['asset_description']);
 } elseif (isset($asset_row) && isset($asset_row['asset_description'])) {
     $description = mysqli_real_escape_string($mysqli, $asset_row['asset_description']);
 } else {
@@ -18,7 +18,7 @@ if (isset($_POST['asset_description'])) {
 }
 
 if (isset($_POST['asset_type'])) {
-    $type = sanitizeInput($_POST['asset_type']);
+    $type = escapeSql($_POST['asset_type']);
 } elseif (isset($asset_row) && isset($asset_row['asset_type'])) {
     $type = mysqli_real_escape_string($mysqli, $asset_row['asset_type']);
 } else {
@@ -26,14 +26,14 @@ if (isset($_POST['asset_type'])) {
 }
 
 if (isset($_POST['asset_make'])) {
-    $make = sanitizeInput($_POST['asset_make']);
+    $make = escapeSql($_POST['asset_make']);
 } elseif (isset($asset_row) && isset($asset_row['asset_make'])) {
     $make = mysqli_real_escape_string($mysqli, $asset_row['asset_make']);
 } else {
     $make = '';
 }
 if (isset($_POST['asset_model'])) {
-    $model = sanitizeInput($_POST['asset_model']);
+    $model = escapeSql($_POST['asset_model']);
 } elseif (isset($asset_row) && isset($asset_row['asset_model'])) {
     $model = mysqli_real_escape_string($mysqli, $asset_row['asset_model']);
 } else {
@@ -41,7 +41,7 @@ if (isset($_POST['asset_model'])) {
 }
 
 if (isset($_POST['asset_serial'])) {
-    $serial = sanitizeInput($_POST['asset_serial']);
+    $serial = escapeSql($_POST['asset_serial']);
 } elseif (isset($asset_row) && isset($asset_row['asset_serial'])) {
     $serial = mysqli_real_escape_string($mysqli, $asset_row['asset_serial']);
 } else {
@@ -49,7 +49,7 @@ if (isset($_POST['asset_serial'])) {
 }
 
 if (isset($_POST['asset_os'])) {
-    $os = sanitizeInput($_POST['asset_os']);
+    $os = escapeSql($_POST['asset_os']);
 } elseif (isset($asset_row) && isset($asset_row['asset_os'])) {
     $os = mysqli_real_escape_string($mysqli, $asset_row['asset_os']);
 } else {
@@ -57,7 +57,7 @@ if (isset($_POST['asset_os'])) {
 }
 
 if (isset($_POST['asset_ip'])) {
-    $ip = sanitizeInput($_POST['asset_ip']);
+    $ip = escapeSql($_POST['asset_ip']);
 } elseif (isset($asset_row) && isset($asset_row['interface_ip'])) {
     $ip = mysqli_real_escape_string($mysqli, $asset_row['interface_ip']);
 } else {
@@ -65,7 +65,7 @@ if (isset($_POST['asset_ip'])) {
 }
 
 if (isset($_POST['asset_mac'])) {
-    $mac = sanitizeInput($_POST['asset_mac']);
+    $mac = escapeSql($_POST['asset_mac']);
 } elseif (isset($asset_row) && isset($asset_row['interface_mac'])) {
     $mac = mysqli_real_escape_string($mysqli, $asset_row['interface_mac']);
 } else {
@@ -73,7 +73,7 @@ if (isset($_POST['asset_mac'])) {
 }
 
 if (isset($_POST['asset_uri'])) {
-    $uri = sanitizeInput($_POST['asset_uri']);
+    $uri = escapeSql($_POST['asset_uri']);
 } elseif (isset($asset_row) && isset($asset_row['asset_uri'])) {
     $uri = mysqli_real_escape_string($mysqli, $asset_row['asset_uri']);
 } else {
@@ -81,7 +81,7 @@ if (isset($_POST['asset_uri'])) {
 }
 
 if (isset($_POST['asset_uri_2'])) {
-    $uri_2 = sanitizeInput($_POST['asset_uri_2']);
+    $uri_2 = escapeSql($_POST['asset_uri_2']);
 } elseif (isset($asset_row) && isset($asset_row['asset_uri_2'])) {
     $uri_2 = mysqli_real_escape_string($mysqli, $asset_row['asset_uri_2']);
 } else {
@@ -89,7 +89,7 @@ if (isset($_POST['asset_uri_2'])) {
 }
 
 if (isset($_POST['asset_status'])) {
-    $status = sanitizeInput($_POST['asset_status']);
+    $status = escapeSql($_POST['asset_status']);
 } elseif (isset($asset_row) && isset($asset_row['asset_status'])) {
     $status = mysqli_real_escape_string($mysqli, $asset_row['asset_status']);
 } else {
@@ -97,7 +97,7 @@ if (isset($_POST['asset_status'])) {
 }
 
 if (isset($_POST['asset_purchase_date']) && !empty($_POST['asset_purchase_date'])) {
-    $purchase_date = "'" . sanitizeInput($_POST['asset_purchase_date']) . "'";
+    $purchase_date = "'" . escapeSql($_POST['asset_purchase_date']) . "'";
 } elseif (isset($asset_row) && isset($asset_row['asset_purchase_date'])) {
     $purchase_date = "'" . mysqli_real_escape_string($mysqli, $asset_row['asset_purchase_date']) . "'";
 } else {
@@ -105,7 +105,7 @@ if (isset($_POST['asset_purchase_date']) && !empty($_POST['asset_purchase_date']
 }
 
 if (isset($_POST['asset_warranty_expire']) && !empty($_POST['asset_warranty_expire'])) {
-    $warranty_expire = "'" . sanitizeInput($_POST['asset_warranty_expire']) . "'";
+    $warranty_expire = "'" . escapeSql($_POST['asset_warranty_expire']) . "'";
 } elseif (isset($asset_row) && isset($asset_row['asset_warranty_expire'])) {
     $warranty_expire = "'" . mysqli_real_escape_string($mysqli, $asset_row['asset_warranty_expire']) . "'";
 } else {
@@ -113,7 +113,7 @@ if (isset($_POST['asset_warranty_expire']) && !empty($_POST['asset_warranty_expi
 }
 
 if (isset($_POST['asset_install_date']) && !empty($_POST['asset_install_date'])) {
-    $install_date = "'" . sanitizeInput($_POST['asset_install_date']) . "'";
+    $install_date = "'" . escapeSql($_POST['asset_install_date']) . "'";
 } elseif (isset($asset_row) && isset($asset_row['asset_install_date'])) {
     $install_date = "'" . mysqli_real_escape_string($mysqli, $asset_row['asset_install_date']) . "'";
 } else {
@@ -121,7 +121,7 @@ if (isset($_POST['asset_install_date']) && !empty($_POST['asset_install_date']))
 }
 
 if (isset($_POST['asset_notes'])) {
-    $notes = sanitizeInput($_POST['asset_notes']);
+    $notes = escapeSql($_POST['asset_notes']);
 } elseif (isset($asset_row) && isset($asset_row['asset_notes'])) {
     $notes = mysqli_real_escape_string($mysqli, $asset_row['asset_notes']);
 } else {

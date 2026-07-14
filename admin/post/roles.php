@@ -10,8 +10,8 @@ if (isset($_POST['add_role'])) {
 
     validateCSRFToken($_POST['csrf_token']);
 
-    $name = sanitizeInput($_POST['role_name']);
-    $description = sanitizeInput($_POST['role_description']);
+    $name = escapeSql($_POST['role_name']);
+    $description = escapeSql($_POST['role_description']);
     $admin = intval($_POST['role_is_admin']);
 
     mysqli_query($mysqli, "INSERT INTO user_roles SET role_name = '$name', role_description = '$description', role_is_admin = $admin");
@@ -45,8 +45,8 @@ if (isset($_POST['edit_role'])) {
     validateCSRFToken($_POST['csrf_token']);
 
     $role_id = intval($_POST['role_id']);
-    $name = sanitizeInput($_POST['role_name']);
-    $description = sanitizeInput($_POST['role_description']);
+    $name = escapeSql($_POST['role_name']);
+    $description = escapeSql($_POST['role_description']);
     $admin = intval($_POST['role_is_admin']);
 
     mysqli_query($mysqli, "UPDATE user_roles SET role_name = '$name', role_description = '$description', role_is_admin = $admin WHERE role_id = $role_id");
@@ -90,7 +90,7 @@ if (isset($_GET['archive_role'])) {
 
     mysqli_query($mysqli, "UPDATE user_roles SET role_archived_at = NOW() WHERE role_id = $role_id");
 
-    $role_name = sanitizeInput(getFieldById('user_roles', $role_id, 'role_name'));
+    $role_name = escapeSql(getFieldById('user_roles', $role_id, 'role_name'));
 
     logAction("User Role", "Archive", "$session_name archived user role $role_name", 0, $role_id);
 

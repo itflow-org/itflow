@@ -15,12 +15,12 @@ if (isset($_POST['add_payment'])) {
 
     $invoice_id = intval($_POST['invoice_id']);
     $balance = floatval($_POST['balance']);
-    $date = sanitizeInput($_POST['date']);
+    $date = escapeSql($_POST['date']);
     $amount = floatval($_POST['amount']);
     $account = intval($_POST['account']);
-    $currency_code = sanitizeInput($_POST['currency_code']);
-    $payment_method = sanitizeInput($_POST['payment_method']);
-    $reference = sanitizeInput($_POST['reference']);
+    $currency_code = escapeSql($_POST['currency_code']);
+    $payment_method = escapeSql($_POST['payment_method']);
+    $reference = escapeSql($_POST['reference']);
     $email_receipt = intval($_POST['email_receipt']);
 
     $client_id = intval(getFieldById('invoices', $invoice_id, 'invoice_client_id'));
@@ -51,34 +51,34 @@ if (isset($_POST['add_payment'])) {
 
         $row = mysqli_fetch_assoc($sql);
         $invoice_amount = floatval($row['invoice_amount']);
-        $invoice_prefix = sanitizeInput($row['invoice_prefix']);
+        $invoice_prefix = escapeSql($row['invoice_prefix']);
         $invoice_number = intval($row['invoice_number']);
-        $invoice_url_key = sanitizeInput($row['invoice_url_key']);
-        $invoice_currency_code = sanitizeInput($row['invoice_currency_code']);
-        $client_name = sanitizeInput($row['client_name']);
-        $contact_name = sanitizeInput($row['contact_name']);
-        $contact_email = sanitizeInput($row['contact_email']);
-        $contact_phone = sanitizeInput(formatPhoneNumber($row['contact_phone'], $row['contact_phone_country_code']));
+        $invoice_url_key = escapeSql($row['invoice_url_key']);
+        $invoice_currency_code = escapeSql($row['invoice_currency_code']);
+        $client_name = escapeSql($row['client_name']);
+        $contact_name = escapeSql($row['contact_name']);
+        $contact_email = escapeSql($row['contact_email']);
+        $contact_phone = escapeSql(formatPhoneNumber($row['contact_phone'], $row['contact_phone_country_code']));
         $contact_extension = preg_replace("/[^0-9]/", '',$row['contact_extension']);
-        $contact_mobile = sanitizeInput(formatPhoneNumber($row['contact_mobile'], $row['contact_mobile_country_code']));
+        $contact_mobile = escapeSql(formatPhoneNumber($row['contact_mobile'], $row['contact_mobile_country_code']));
 
         $sql = mysqli_query($mysqli,"SELECT * FROM companies WHERE company_id = 1");
         $row = mysqli_fetch_assoc($sql);
 
-        $company_name = sanitizeInput($row['company_name']);
-        $company_country = sanitizeInput($row['company_country']);
-        $company_address = sanitizeInput($row['company_address']);
-        $company_city = sanitizeInput($row['company_city']);
-        $company_state = sanitizeInput($row['company_state']);
-        $company_zip = sanitizeInput($row['company_zip']);
-        $company_phone = sanitizeInput(formatPhoneNumber($row['company_phone'], $row['company_phone_country_code']));
-        $company_email = sanitizeInput($row['company_email']);
-        $company_website = sanitizeInput($row['company_website']);
-        $company_logo = sanitizeInput($row['company_logo']);
+        $company_name = escapeSql($row['company_name']);
+        $company_country = escapeSql($row['company_country']);
+        $company_address = escapeSql($row['company_address']);
+        $company_city = escapeSql($row['company_city']);
+        $company_state = escapeSql($row['company_state']);
+        $company_zip = escapeSql($row['company_zip']);
+        $company_phone = escapeSql(formatPhoneNumber($row['company_phone'], $row['company_phone_country_code']));
+        $company_email = escapeSql($row['company_email']);
+        $company_website = escapeSql($row['company_website']);
+        $company_logo = escapeSql($row['company_logo']);
 
         // Sanitize Config vars from get_settings.php
-        $config_invoice_from_name = sanitizeInput($config_invoice_from_name);
-        $config_invoice_from_email = sanitizeInput($config_invoice_from_email);
+        $config_invoice_from_name = escapeSql($config_invoice_from_name);
+        $config_invoice_from_email = escapeSql($config_invoice_from_email);
 
         //Calculate the Invoice balance
         $invoice_balance = $invoice_amount - $total_payments_amount;
@@ -184,11 +184,11 @@ if (isset($_POST['edit_payment'])) {
     enforceUserPermission('module_financial', 3);
 
     $payment_id = intval($_POST['payment_id']);
-    $date = sanitizeInput($_POST['date']);
+    $date = escapeSql($_POST['date']);
     $amount = floatval($_POST['amount']);
     $account = intval($_POST['account']);
-    $payment_method = sanitizeInput($_POST['payment_method']);
-    $reference = sanitizeInput($_POST['reference']);
+    $payment_method = escapeSql($_POST['payment_method']);
+    $reference = escapeSql($_POST['reference']);
 
     $client_id = intval(getFieldById('payments', $payment_id, 'payment_client_id'));
 
@@ -220,9 +220,9 @@ if (isset($_POST['apply_credit'])) {
     $sql = mysqli_query($mysqli, "SELECT * FROM invoices LEFT JOIN clients ON invoice_client_id = client_id WHERE invoice_id = $invoice_id");
     $row = mysqli_fetch_assoc($sql);
 
-    $invoice_prefix = sanitizeInput($row['invoice_prefix']);
+    $invoice_prefix = escapeSql($row['invoice_prefix']);
     $invoice_number = intval($row['invoice_number']);
-    $invoice_status = sanitizeInput($row['invoice_status']);
+    $invoice_status = escapeSql($row['invoice_status']);
     $invoice_credit_amount = floatval($row['invoice_credit_amount']);
     $invoice_amount = floatval('invoice_amount');
     $client_id = intval($row['invoice_client_id']);
@@ -335,53 +335,53 @@ if (isset($_POST['add_payment_stripe'])) {
     );
     $row = mysqli_fetch_assoc($sql);
     $invoice_number = intval($row['invoice_number']);
-    $invoice_status = sanitizeInput($row['invoice_status']);
+    $invoice_status = escapeSql($row['invoice_status']);
     $invoice_amount = floatval($row['invoice_amount']);
-    $invoice_prefix = sanitizeInput($row['invoice_prefix']);
+    $invoice_prefix = escapeSql($row['invoice_prefix']);
     $invoice_number = intval($row['invoice_number']);
-    $invoice_url_key = sanitizeInput($row['invoice_url_key']);
-    $invoice_currency_code = sanitizeInput($row['invoice_currency_code']);
+    $invoice_url_key = escapeSql($row['invoice_url_key']);
+    $invoice_currency_code = escapeSql($row['invoice_currency_code']);
     $client_id = intval($row['client_id']);
-    $client_name = sanitizeInput($row['client_name']);
-    $contact_name = sanitizeInput($row['contact_name']);
-    $contact_email = sanitizeInput($row['contact_email']);
-    $contact_phone = sanitizeInput(formatPhoneNumber($row['contact_phone'], $row['contact_phone_country_code']));
+    $client_name = escapeSql($row['client_name']);
+    $contact_name = escapeSql($row['contact_name']);
+    $contact_email = escapeSql($row['contact_email']);
+    $contact_phone = escapeSql(formatPhoneNumber($row['contact_phone'], $row['contact_phone_country_code']));
     $contact_extension = preg_replace("/[^0-9]/", '',$row['contact_extension']);
-    $contact_mobile = sanitizeInput(formatPhoneNumber($row['contact_mobile'], $row['contact_mobile_country_code']));
+    $contact_mobile = escapeSql(formatPhoneNumber($row['contact_mobile'], $row['contact_mobile_country_code']));
 
     enforceClientAccess();
 
     // Get ITFlow company details
     $sql = mysqli_query($mysqli,"SELECT * FROM companies WHERE company_id = 1");
     $row = mysqli_fetch_assoc($sql);
-    $company_name = sanitizeInput($row['company_name']);
-    $company_country = sanitizeInput($row['company_country']);
-    $company_address = sanitizeInput($row['company_address']);
-    $company_city = sanitizeInput($row['company_city']);
-    $company_state = sanitizeInput($row['company_state']);
-    $company_zip = sanitizeInput($row['company_zip']);
-    $company_phone = sanitizeInput(formatPhoneNumber($row['company_phone'], $row['company_phone_country_code']));
-    $company_email = sanitizeInput($row['company_email']);
-    $company_website = sanitizeInput($row['company_website']);
+    $company_name = escapeSql($row['company_name']);
+    $company_country = escapeSql($row['company_country']);
+    $company_address = escapeSql($row['company_address']);
+    $company_city = escapeSql($row['company_city']);
+    $company_state = escapeSql($row['company_state']);
+    $company_zip = escapeSql($row['company_zip']);
+    $company_phone = escapeSql(formatPhoneNumber($row['company_phone'], $row['company_phone_country_code']));
+    $company_email = escapeSql($row['company_email']);
+    $company_website = escapeSql($row['company_website']);
 
     // Sanitize Config vars from get_settings.php
-    $config_invoice_from_name = sanitizeInput($config_invoice_from_name);
-    $config_invoice_from_email = sanitizeInput($config_invoice_from_email);
+    $config_invoice_from_name = escapeSql($config_invoice_from_name);
+    $config_invoice_from_email = escapeSql($config_invoice_from_email);
 
     // Get Client Payment Details
     $sql = mysqli_query($mysqli, "SELECT * FROM client_saved_payment_methods LEFT JOIN payment_providers ON saved_payment_provider_id = payment_provider_id LEFT JOIN client_payment_provider ON saved_payment_client_id = client_id WHERE saved_payment_id = $saved_payment_id LIMIT 1");
     $row = mysqli_fetch_assoc($sql);
 
-    $public_key = sanitizeInput($row['payment_provider_public_key']);
-    $private_key = sanitizeInput($row['payment_provider_private_key']);
+    $public_key = escapeSql($row['payment_provider_public_key']);
+    $private_key = escapeSql($row['payment_provider_private_key']);
     $account_id = intval($row['payment_provider_account']);
     $expense_category_id = intval($row['payment_provider_expense_category']);
     $expense_vendor_id = intval($row['payment_provider_expense_vendor']);
     $expense_percentage_fee = floatval($row['payment_provider_expense_percentage_fee']);
     $expense_flat_fee = floatval($row['payment_provider_expense_flat_fee']);
-    $payment_provider_client = sanitizeInput($row['payment_provider_client']);
-    $saved_payment_method = sanitizeInput($row['saved_payment_provider_method']);
-    $saved_payment_description = sanitizeInput($row['saved_payment_description']);
+    $payment_provider_client = escapeSql($row['payment_provider_client']);
+    $saved_payment_method = escapeSql($row['saved_payment_provider_method']);
+    $saved_payment_description = escapeSql($row['saved_payment_description']);
 
     // Sanity checks
     if (!$payment_provider_client || !$saved_payment_method) {
@@ -421,10 +421,10 @@ if (isset($_POST['add_payment_stripe'])) {
         ]);
 
         // Get details from PI
-        $pi_id = sanitizeInput($payment_intent->id);
+        $pi_id = escapeSql($payment_intent->id);
         $pi_date = date('Y-m-d', $payment_intent->created);
         $pi_amount_paid = floatval(($payment_intent->amount_received / 100));
-        $pi_currency = strtoupper(sanitizeInput($payment_intent->currency));
+        $pi_currency = strtoupper(escapeSql($payment_intent->currency));
         $pi_livemode = $payment_intent->livemode;
 
     } catch (Exception $e) {
@@ -532,41 +532,41 @@ if (isset($_GET['add_payment_stripe'])) {
     );
     $row = mysqli_fetch_assoc($sql);
     $invoice_number = intval($row['invoice_number']);
-    $invoice_status = sanitizeInput($row['invoice_status']);
+    $invoice_status = escapeSql($row['invoice_status']);
     $invoice_amount = floatval($row['invoice_amount']);
-    $invoice_prefix = sanitizeInput($row['invoice_prefix']);
+    $invoice_prefix = escapeSql($row['invoice_prefix']);
     $invoice_number = intval($row['invoice_number']);
-    $invoice_url_key = sanitizeInput($row['invoice_url_key']);
-    $invoice_currency_code = sanitizeInput($row['invoice_currency_code']);
+    $invoice_url_key = escapeSql($row['invoice_url_key']);
+    $invoice_currency_code = escapeSql($row['invoice_currency_code']);
     $client_id = intval($row['client_id']);
-    $client_name = sanitizeInput($row['client_name']);
-    $contact_name = sanitizeInput($row['contact_name']);
-    $contact_email = sanitizeInput($row['contact_email']);
-    $contact_phone = sanitizeInput(formatPhoneNumber($row['contact_phone'], $row['contact_phone_country_code']));
+    $client_name = escapeSql($row['client_name']);
+    $contact_name = escapeSql($row['contact_name']);
+    $contact_email = escapeSql($row['contact_email']);
+    $contact_phone = escapeSql(formatPhoneNumber($row['contact_phone'], $row['contact_phone_country_code']));
     $contact_extension = preg_replace("/[^0-9]/", '',$row['contact_extension']);
-    $contact_mobile = sanitizeInput(formatPhoneNumber($row['contact_mobile'], $row['contact_mobile_country_code']));
+    $contact_mobile = escapeSql(formatPhoneNumber($row['contact_mobile'], $row['contact_mobile_country_code']));
 
     // Get ITFlow company details
     $sql = mysqli_query($mysqli,"SELECT * FROM companies WHERE company_id = 1");
     $row = mysqli_fetch_assoc($sql);
-    $company_name = sanitizeInput($row['company_name']);
-    $company_country = sanitizeInput($row['company_country']);
-    $company_address = sanitizeInput($row['company_address']);
-    $company_city = sanitizeInput($row['company_city']);
-    $company_state = sanitizeInput($row['company_state']);
-    $company_zip = sanitizeInput($row['company_zip']);
-    $company_phone = sanitizeInput(formatPhoneNumber($row['company_phone'], $row['company_phone_country_code']));
-    $company_email = sanitizeInput($row['company_email']);
-    $company_website = sanitizeInput($row['company_website']);
+    $company_name = escapeSql($row['company_name']);
+    $company_country = escapeSql($row['company_country']);
+    $company_address = escapeSql($row['company_address']);
+    $company_city = escapeSql($row['company_city']);
+    $company_state = escapeSql($row['company_state']);
+    $company_zip = escapeSql($row['company_zip']);
+    $company_phone = escapeSql(formatPhoneNumber($row['company_phone'], $row['company_phone_country_code']));
+    $company_email = escapeSql($row['company_email']);
+    $company_website = escapeSql($row['company_website']);
 
     // Sanitize Config vars from get_settings.php
-    $config_invoice_from_name = sanitizeInput($config_invoice_from_name);
-    $config_invoice_from_email = sanitizeInput($config_invoice_from_email);
+    $config_invoice_from_name = escapeSql($config_invoice_from_name);
+    $config_invoice_from_email = escapeSql($config_invoice_from_email);
 
     // Get Client Stripe details
     $stripe_client_details = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT * FROM client_stripe WHERE client_id = $client_id LIMIT 1"));
-    $stripe_id = sanitizeInput($stripe_client_details['stripe_id']);
-    $stripe_pm = sanitizeInput($stripe_client_details['stripe_pm']);
+    $stripe_id = escapeSql($stripe_client_details['stripe_id']);
+    $stripe_pm = escapeSql($stripe_client_details['stripe_pm']);
 
     // Sanity checks
     if (!$config_stripe_enable || !$stripe_id || !$stripe_pm) {
@@ -606,10 +606,10 @@ if (isset($_GET['add_payment_stripe'])) {
         ]);
 
         // Get details from PI
-        $pi_id = sanitizeInput($payment_intent->id);
+        $pi_id = escapeSql($payment_intent->id);
         $pi_date = date('Y-m-d', $payment_intent->created);
         $pi_amount_paid = floatval(($payment_intent->amount_received / 100));
-        $pi_currency = strtoupper(sanitizeInput($payment_intent->currency));
+        $pi_currency = strtoupper(escapeSql($payment_intent->currency));
         $pi_livemode = $payment_intent->livemode;
 
     } catch (Exception $e) {
@@ -708,14 +708,14 @@ if (isset($_POST['add_bulk_payment'])) {
     enforceUserPermission('module_financial', 2);
 
     $client_id = intval($_POST['client_id']);
-    $date = sanitizeInput($_POST['date']);
+    $date = escapeSql($_POST['date']);
     $bulk_payment_amount = floatval($_POST['amount']);
     $bulk_payment_amount_static = floatval($_POST['amount']);
     $total_account_balance = floatval($_POST['balance']);
     $account = intval($_POST['account']);
-    $currency_code = sanitizeInput($_POST['currency_code']);
-    $payment_method = sanitizeInput($_POST['payment_method']);
-    $reference = sanitizeInput($_POST['reference']);
+    $currency_code = escapeSql($_POST['currency_code']);
+    $payment_method = escapeSql($_POST['payment_method']);
+    $reference = escapeSql($_POST['reference']);
     $email_receipt = intval($_POST['email_receipt']);
 
     enforceClientAccess();
@@ -738,10 +738,10 @@ if (isset($_POST['add_bulk_payment'])) {
     // Loop Through Each Invoice
     while ($row = mysqli_fetch_assoc($result_invoices)) {
         $invoice_id = intval($row['invoice_id']);
-        $invoice_prefix = sanitizeInput($row['invoice_prefix']);
+        $invoice_prefix = escapeSql($row['invoice_prefix']);
         $invoice_number = intval($row['invoice_number']);
         $invoice_amount = floatval($row['invoice_amount']);
-        $invoice_url_key = sanitizeInput($row['invoice_url_key']);
+        $invoice_url_key = escapeSql($row['invoice_url_key']);
         $invoice_balance_query = "SELECT SUM(payment_amount) AS amount_paid FROM payments WHERE payment_invoice_id = $invoice_id";
         $result_amount_paid = mysqli_query($mysqli, $invoice_balance_query);
         $row_amount_paid = mysqli_fetch_assoc($result_amount_paid);
@@ -798,19 +798,19 @@ if (isset($_POST['add_bulk_payment'])) {
         );
 
         $row = mysqli_fetch_assoc($sql_client);
-        $client_name = sanitizeInput($row['client_name']);
-        $contact_name = sanitizeInput($row['contact_name']);
-        $contact_email = sanitizeInput($row['contact_email']);
+        $client_name = escapeSql($row['client_name']);
+        $contact_name = escapeSql($row['contact_name']);
+        $contact_email = escapeSql($row['contact_email']);
 
         $sql_company = mysqli_query($mysqli,"SELECT company_name, company_phone, company_phone_country_code FROM companies WHERE company_id = 1");
         $row = mysqli_fetch_assoc($sql_company);
 
-        $company_name = sanitizeInput($row['company_name']);
-        $company_phone = sanitizeInput(formatPhoneNumber($row['company_phone'], $row['company_phone_country_code']));
+        $company_name = escapeSql($row['company_name']);
+        $company_phone = escapeSql(formatPhoneNumber($row['company_phone'], $row['company_phone_country_code']));
 
         // Sanitize Config vars from get_settings.php
-        $config_invoice_from_name = sanitizeInput($config_invoice_from_name);
-        $config_invoice_from_email = sanitizeInput($config_invoice_from_email);
+        $config_invoice_from_name = escapeSql($config_invoice_from_name);
+        $config_invoice_from_email = escapeSql($config_invoice_from_email);
 
         $subject = "Payment Received - Multiple Invoices";
         $body = "Hello $contact_name,<br><br>Thank you for your payment of " . numfmt_format_currency($currency_format, $bulk_payment_amount_static, $currency_code) . " We\'ve applied your payment to the following invoices, updating their balances accordingly:<br><br>$email_body_invoices<br><br><br>We appreciate your continued business!<br><br>Sincerely,<br>$company_name - Billing<br>$config_invoice_from_email<br>$company_phone";
@@ -861,7 +861,7 @@ if (isset($_GET['delete_payment'])) {
     // Get the invoice total and details
     $sql = mysqli_query($mysqli,"SELECT * FROM invoices WHERE invoice_id = $invoice_id");
     $row = mysqli_fetch_assoc($sql);
-    $invoice_prefix = sanitizeInput($row['invoice_prefix']);
+    $invoice_prefix = escapeSql($row['invoice_prefix']);
     $invoice_number = intval($row['invoice_number']);
     $invoice_amount = floatval($row['invoice_amount']);
 

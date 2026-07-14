@@ -11,7 +11,7 @@ $purifier = new HTMLPurifier($purifier_config);
 
 if (isset($_GET['query'])) {
 
-    $query = sanitizeInput($_GET['query']);
+    $query = escapeSql($_GET['query']);
 
     $phone_query = preg_replace("/[^0-9]/", '', $query);
     if (empty($phone_query)) {

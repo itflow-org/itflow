@@ -32,7 +32,7 @@ if (isset($_GET['tags']) && is_array($_GET['tags']) && !empty($_GET['tags'])) {
 
 // Industry Filter
 if (isset($_GET['industry']) & !empty($_GET['industry'])) {
-    $industry_query = "AND (clients.client_type  = '" . sanitizeInput($_GET['industry']) . "')";
+    $industry_query = "AND (clients.client_type  = '" . escapeSql($_GET['industry']) . "')";
     $industry_filter = escapeHtml($_GET['industry']);
 } else {
     // Default - any
@@ -42,7 +42,7 @@ if (isset($_GET['industry']) & !empty($_GET['industry'])) {
 
 // Referral Filter
 if (isset($_GET['referral']) & !empty($_GET['referral'])) {
-    $referral_query = "AND (clients.client_referral  = '" . sanitizeInput($_GET['referral']) . "')";
+    $referral_query = "AND (clients.client_referral  = '" . escapeSql($_GET['referral']) . "')";
     $referral_filter = escapeHtml($_GET['referral']);
 } else {
     // Default - any

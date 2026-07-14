@@ -13,12 +13,12 @@ if (isset($_POST['add_service'])) {
     enforceUserPermission('module_support', 2);
 
     $client_id = intval($_POST['client_id']);
-    $service_name = sanitizeInput($_POST['name']);
-    $service_description = sanitizeInput($_POST['description']);
-    $service_category = sanitizeInput($_POST['category']); //TODO: Needs integration with company categories
-    $service_importance = sanitizeInput($_POST['importance']);
-    $service_backup = sanitizeInput($_POST['backup']);
-    $service_notes = sanitizeInput($_POST['note']);
+    $service_name = escapeSql($_POST['name']);
+    $service_description = escapeSql($_POST['description']);
+    $service_category = escapeSql($_POST['category']); //TODO: Needs integration with company categories
+    $service_importance = escapeSql($_POST['importance']);
+    $service_backup = escapeSql($_POST['backup']);
+    $service_notes = escapeSql($_POST['note']);
 
     enforceClientAccess();
 
@@ -93,12 +93,12 @@ if (isset($_POST['edit_service'])) {
     enforceUserPermission('module_support', 2);
 
     $service_id = intval($_POST['service_id']);
-    $service_name = sanitizeInput($_POST['name']);
-    $service_description = sanitizeInput($_POST['description']);
-    $service_category = sanitizeInput($_POST['category']); //TODO: Needs integration with company categories
-    $service_importance = sanitizeInput($_POST['importance']);
-    $service_backup = sanitizeInput($_POST['backup']);
-    $service_notes = sanitizeInput($_POST['note']);
+    $service_name = escapeSql($_POST['name']);
+    $service_description = escapeSql($_POST['description']);
+    $service_category = escapeSql($_POST['category']); //TODO: Needs integration with company categories
+    $service_importance = escapeSql($_POST['importance']);
+    $service_backup = escapeSql($_POST['backup']);
+    $service_notes = escapeSql($_POST['note']);
 
     $client_id = intval(getFieldById('services', $service_id, 'service_client_id'));
 
@@ -185,7 +185,7 @@ if (isset($_GET['delete_service'])) {
     // Get Service Details
     $sql = mysqli_query($mysqli,"SELECT service_name, service_client_id FROM services WHERE service_id = $service_id");
     $row = mysqli_fetch_assoc($sql);
-    $service_name = sanitizeInput($row['service_name']);
+    $service_name = escapeSql($row['service_name']);
     $client_id = intval($row['service_client_id']);
 
     enforceClientAccess();

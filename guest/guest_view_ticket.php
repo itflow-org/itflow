@@ -34,7 +34,7 @@ $company_phone_country_code = escapeHtml($company_sql_row['company_phone_country
 $company_phone = escapeHtml(formatPhoneNumber($company_sql_row['company_phone'], $company_phone_country_code));
 $company_website = escapeHtml($company_sql_row['company_website']);
 
-$url_key = sanitizeInput($_GET['url_key']);
+$url_key = escapeSql($_GET['url_key']);
 $ticket_id = intval($_GET['ticket_id']);
 
 $ticket_sql = mysqli_query($mysqli,

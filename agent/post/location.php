@@ -77,7 +77,7 @@ if(isset($_POST['edit_location'])){
     // Get old location photo
     $sql = mysqli_query($mysqli,"SELECT location_photo, location_client_id FROM locations WHERE location_id = $location_id");
     $row = mysqli_fetch_assoc($sql);
-    $existing_file_name = sanitizeInput($row['location_photo']);
+    $existing_file_name = escapeSql($row['location_photo']);
     $client_id = intval($row['location_client_id']);
 
     enforceClientAccess();
@@ -142,7 +142,7 @@ if(isset($_GET['archive_location'])){
     // Get Location Name and Client ID for logging and alert message
     $sql = mysqli_query($mysqli,"SELECT location_name, location_client_id FROM locations WHERE location_id = $location_id");
     $row = mysqli_fetch_assoc($sql);
-    $location_name = sanitizeInput($row['location_name']);
+    $location_name = escapeSql($row['location_name']);
     $client_id = intval($row['location_client_id']);
 
     enforceClientAccess();
@@ -168,7 +168,7 @@ if(isset($_GET['restore_location'])){
     // Get Location Name and Client ID for logging and alert message
     $sql = mysqli_query($mysqli,"SELECT location_name, location_client_id FROM locations WHERE location_id = $location_id");
     $row = mysqli_fetch_assoc($sql);
-    $location_name = sanitizeInput($row['location_name']);
+    $location_name = escapeSql($row['location_name']);
     $client_id = intval($row['location_client_id']);
 
     enforceClientAccess();
@@ -194,7 +194,7 @@ if(isset($_GET['delete_location'])){
     // Get Location Name and Client ID for logging and alert message
     $sql = mysqli_query($mysqli,"SELECT location_name, location_client_id FROM locations WHERE location_id = $location_id");
     $row = mysqli_fetch_assoc($sql);
-    $location_name = sanitizeInput($row['location_name']);
+    $location_name = escapeSql($row['location_name']);
     $client_id = intval($row['location_client_id']);
 
     enforceClientAccess();
@@ -227,7 +227,7 @@ if (isset($_POST['bulk_assign_location_tags'])) {
             // Get Contact Details for Logging
             $sql = mysqli_query($mysqli,"SELECT location_name, location_client_id FROM locations WHERE location_id = $location_id");
             $row = mysqli_fetch_assoc($sql);
-            $location_name = sanitizeInput($row['location_name']);
+            $location_name = escapeSql($row['location_name']);
             $client_id = intval($row['location_client_id']);
 
             enforceClientAccess();
@@ -281,7 +281,7 @@ if (isset($_POST['bulk_archive_locations'])) {
             // Get Name and Client ID for logging and alert message
             $sql = mysqli_query($mysqli,"SELECT location_name, location_client_id, location_primary FROM locations WHERE location_id = $location_id");
             $row = mysqli_fetch_assoc($sql);
-            $location_name = sanitizeInput($row['location_name']);
+            $location_name = escapeSql($row['location_name']);
             $location_primary = intval($row['location_primary']);
             $client_id = intval($row['location_client_id']);
 
@@ -327,7 +327,7 @@ if (isset($_POST['bulk_restore_locations'])) {
             // Get Name and Client ID for logging and alert message
             $sql = mysqli_query($mysqli,"SELECT location_name, location_client_id FROM locations WHERE location_id = $location_id");
             $row = mysqli_fetch_assoc($sql);
-            $location_name = sanitizeInput($row['location_name']);
+            $location_name = escapeSql($row['location_name']);
             $client_id = intval($row['location_client_id']);
 
             enforceClientAccess();
@@ -367,7 +367,7 @@ if (isset($_POST['bulk_delete_locations'])) {
             // Get Name and Client ID for logging and alert message
             $sql = mysqli_query($mysqli,"SELECT location_name, location_client_id FROM locations WHERE location_id = $location_id");
             $row = mysqli_fetch_assoc($sql);
-            $location_name = sanitizeInput($row['location_name']);
+            $location_name = escapeSql($row['location_name']);
             $client_id = intval($row['location_client_id']);
 
             enforceClientAccess();
@@ -496,31 +496,31 @@ if (isset($_POST["import_locations_csv"])) {
         while(($column = fgetcsv($file, 1000, ",")) !== false){
             $duplicate_detect = 0;
             if(isset($column[0])){
-                $name = sanitizeInput($column[0]);
+                $name = escapeSql($column[0]);
                 if(mysqli_num_rows(mysqli_query($mysqli,"SELECT * FROM locations WHERE location_name = '$name' AND location_client_id = $client_id")) > 0){
                     $duplicate_detect = 1;
                 }
             }
             if(isset($column[1])){
-                $description = sanitizeInput($column[1]);
+                $description = escapeSql($column[1]);
             }
             if(isset($column[2])){
-                $address = sanitizeInput($column[2]);
+                $address = escapeSql($column[2]);
             }
             if(isset($column[3])){
-                $city = sanitizeInput($column[3]);
+                $city = escapeSql($column[3]);
             }
             if(isset($column[4])){
-                $state = sanitizeInput($column[4]);
+                $state = escapeSql($column[4]);
             }
             if(isset($column[5])){
-                $zip = sanitizeInput($column[5]);
+                $zip = escapeSql($column[5]);
             }
             if(isset($column[6])){
                 $phone = preg_replace("/[^0-9]/", '',$column[6]);
             }
             if(isset($column[7])){
-                $hours = sanitizeInput($column[7]);
+                $hours = escapeSql($column[7]);
             }
 
             // Check if duplicate was detected

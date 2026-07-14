@@ -8,12 +8,12 @@ if (isset($_POST['add_software_template'])) {
 
     validateCSRFToken($_POST['csrf_token']);
 
-    $name = sanitizeInput($_POST['name']);
-    $version = sanitizeInput($_POST['version']);
-    $description = sanitizeInput($_POST['description']);
-    $type = sanitizeInput($_POST['type']);
-    $license_type = sanitizeInput($_POST['license_type']);
-    $notes = sanitizeInput($_POST['notes']);
+    $name = escapeSql($_POST['name']);
+    $version = escapeSql($_POST['version']);
+    $description = escapeSql($_POST['description']);
+    $type = escapeSql($_POST['type']);
+    $license_type = escapeSql($_POST['license_type']);
+    $notes = escapeSql($_POST['notes']);
 
     mysqli_query($mysqli,"INSERT INTO software_templates SET software_template_name = '$name', software_template_version = '$version', software_template_description = '$description', software_template_type = '$type', software_template_license_type = '$license_type', software_template_notes = '$notes'");
 
@@ -32,12 +32,12 @@ if (isset($_POST['edit_software_template'])) {
     validateCSRFToken($_POST['csrf_token']);
 
     $software_template_id = intval($_POST['software_template_id']);
-    $name = sanitizeInput($_POST['name']);
-    $version = sanitizeInput($_POST['version']);
-    $description = sanitizeInput($_POST['description']);
-    $type = sanitizeInput($_POST['type']);
-    $license_type = sanitizeInput($_POST['license_type']);
-    $notes = sanitizeInput($_POST['notes']);
+    $name = escapeSql($_POST['name']);
+    $version = escapeSql($_POST['version']);
+    $description = escapeSql($_POST['description']);
+    $type = escapeSql($_POST['type']);
+    $license_type = escapeSql($_POST['license_type']);
+    $notes = escapeSql($_POST['notes']);
 
     mysqli_query($mysqli,"UPDATE software_templates SET software_template_name = '$name', software_template_version = '$version', software_template_description = '$description', software_template_type = '$type', software_template_license_type = '$license_type', software_template_notes = '$notes' WHERE software_template_id = $software_template_id");
 
@@ -58,7 +58,7 @@ if (isset($_GET['delete_software_template'])) {
     // Get Software Template Name for logging and alert message
     $sql = mysqli_query($mysqli,"SELECT software_template_name FROM software_templates WHERE software_template_id = $software_template_id");
     $row = mysqli_fetch_assoc($sql);
-    $software_template_name = sanitizeInput($row['software_template_name']);
+    $software_template_name = escapeSql($row['software_template_name']);
 
     mysqli_query($mysqli,"DELETE FROM software_templates WHERE software_template_id = $software_template_id");
 

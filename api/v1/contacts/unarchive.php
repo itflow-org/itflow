@@ -21,7 +21,7 @@ if (!empty($contact_id)) {
 
     if ($row) {
 
-        $contact_name = sanitizeInput($row['contact_name']);
+        $contact_name = escapeSql($row['contact_name']);
         $contact_user_id = intval($row['contact_user_id']);
 
         // Un-archive associated user if applicable

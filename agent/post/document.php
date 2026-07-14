@@ -60,8 +60,8 @@ if (isset($_POST['add_document_from_template'])) {
     enforceUserPermission('module_support', 2);
 
     $client_id             = intval($_POST['client_id']);
-    $document_name         = sanitizeInput($_POST['name']);
-    $document_description  = sanitizeInput($_POST['description']);
+    $document_name         = escapeSql($_POST['name']);
+    $document_description  = escapeSql($_POST['description']);
     $document_template_id  = intval($_POST['document_template_id']);
     $folder                = intval($_POST['folder']);
 
@@ -76,7 +76,7 @@ if (isset($_POST['add_document_from_template'])) {
 
     $row = mysqli_fetch_assoc($sql_document);
 
-    $document_template_name = sanitizeInput($row['document_template_name']);
+    $document_template_name = escapeSql($row['document_template_name']);
     $template_content_html  = $row['document_template_content']; // raw HTML from template
 
     // 1) Create the new document with placeholder content to get an ID
@@ -110,7 +110,7 @@ if (isset($_POST['add_document_from_template'])) {
     // 4) Prepare content + content_raw
     $content = mysqli_real_escape_string($mysqli, $processed_html);
 
-    $content_raw = sanitizeInput(
+    $content_raw = escapeSql(
         $document_name . " " . str_replace("<", " <", $processed_html)
     );
     $content_raw = mysqli_real_escape_string($mysqli, $content_raw);
@@ -161,13 +161,13 @@ if (isset($_POST['edit_document'])) {
 
     $row = mysqli_fetch_assoc($sql_original_document);
 
-    $original_document_name        = sanitizeInput($row['document_name']);
-    $original_document_description = sanitizeInput($row['document_description']);
+    $original_document_name        = escapeSql($row['document_name']);
+    $original_document_description = escapeSql($row['document_description']);
     $original_document_content     = mysqli_real_escape_string($mysqli, $row['document_content']);
     $original_document_created_by  = intval($row['document_created_by']);
     $original_document_updated_by  = intval($row['document_updated_by']);
-    $original_document_created_at  = sanitizeInput($row['document_created_at']);
-    $original_document_updated_at  = sanitizeInput($row['document_updated_at']);
+    $original_document_created_at  = escapeSql($row['document_created_at']);
+    $original_document_updated_at  = escapeSql($row['document_updated_at']);
 
     if ($original_document_updated_at) {
         $document_version_created_at = $original_document_updated_at;
@@ -211,7 +211,7 @@ if (isset($_POST['edit_document'])) {
     $content = mysqli_real_escape_string($mysqli, $processed_html);
 
     // Rebuild content_raw for full-text search
-    $content_raw = sanitizeInput(
+    $content_raw = escapeSql(
         $name . " " . str_replace("<", " <", $processed_html)
     );
     $content_raw = mysqli_real_escape_string($mysqli, $content_raw);
@@ -254,7 +254,7 @@ if (isset($_POST['move_document'])) {
     // Get Document Name Client ID for logging
     $sql_document = mysqli_query($mysqli,"SELECT document_name, document_client_id FROM documents WHERE document_id = $document_id");
     $row = mysqli_fetch_assoc($sql_document);
-    $document_name = sanitizeInput($row['document_name']);
+    $document_name = escapeSql($row['document_name']);
     $client_id = intval($row['document_client_id']);
 
     enforceClientAccess();
@@ -262,7 +262,7 @@ if (isset($_POST['move_document'])) {
     // Get Folder Name for logging
     $sql_folder = mysqli_query($mysqli,"SELECT folder_name FROM folders WHERE folder_id = $folder_id");
     $row = mysqli_fetch_assoc($sql_folder);
-    $folder_name = sanitizeInput($row['folder_name']);
+    $folder_name = escapeSql($row['folder_name']);
 
     // Document edit query
     mysqli_query($mysqli,"UPDATE documents SET document_folder_id = $folder_id, document_updated_at = document_updated_at WHERE document_id = $document_id");
@@ -282,7 +282,7 @@ if (isset($_POST['rename_document'])) {
     enforceUserPermission('module_support', 2);
 
     $document_id = intval($_POST['document_id']);
-    $name = sanitizeInput($_POST['name']);
+    $name = escapeSql($_POST['name']);
 
     $client_id = intval(getFieldById('documents', $document_id, 'document_client_id'));
 
@@ -291,7 +291,7 @@ if (isset($_POST['rename_document'])) {
     // Get Document Name before renaming for logging
     $sql_document = mysqli_query($mysqli,"SELECT document_name FROM documents WHERE document_id = $document_id");
     $row = mysqli_fetch_assoc($sql_document);
-    $old_document_name = sanitizeInput($row['document_name']);
+    $old_document_name = escapeSql($row['document_name']);
 
     // Document edit query
     mysqli_query($mysqli,"UPDATE documents SET document_name = '$name', document_updated_at = document_updated_at WHERE document_id = $document_id");
@@ -316,7 +316,7 @@ if (isset($_POST['bulk_move_document'])) {
     // Get folder name for logging and Notification
     $sql = mysqli_query($mysqli,"SELECT folder_name, folder_client_id FROM folders WHERE folder_id = $folder_id");
     $row = mysqli_fetch_assoc($sql);
-    $folder_name = sanitizeInput($row['folder_name']);
+    $folder_name = escapeSql($row['folder_name']);
     $client_id = intval($row['folder_client_id']);
 
     enforceClientAccess();
@@ -330,7 +330,7 @@ if (isset($_POST['bulk_move_document'])) {
         foreach($_POST['document_ids'] as $document_id) {
             $document_id = intval($document_id);
             // Get document name for logging
-            $document_name = sanitizeInput(getFieldById('documents', $document_id, 'document_name'));
+            $document_name = escapeSql(getFieldById('documents', $document_id, 'document_name'));
 
             // Document move query
             mysqli_query($mysqli,"UPDATE documents SET document_folder_id = $folder_id, document_updated_at = document_updated_at WHERE document_id = $document_id");
@@ -359,13 +359,13 @@ if (isset($_POST['link_file_to_document'])) {
     // Get Document Name and Client ID for logging
     $sql_document = mysqli_query($mysqli,"SELECT document_name, document_client_id FROM documents WHERE document_id = $document_id");
     $row = mysqli_fetch_assoc($sql_document);
-    $document_name = sanitizeInput($row['document_name']);
+    $document_name = escapeSql($row['document_name']);
     $client_id = intval($row['document_client_id']);
 
     enforceClientAccess();
 
     // Get File Name for logging
-    $file_name = sanitizeInput(getFieldById('files', $file_id, 'file_name'));
+    $file_name = escapeSql(getFieldById('files', $file_id, 'file_name'));
 
     // Document add query
     mysqli_query($mysqli,"INSERT INTO document_files SET file_id = $file_id, document_id = $document_id");
@@ -390,13 +390,13 @@ if (isset($_GET['unlink_file_from_document'])) {
     // Get Document Name and Client ID for logging
     $sql_document = mysqli_query($mysqli,"SELECT document_name, document_client_id FROM documents WHERE document_id = $document_id");
     $row = mysqli_fetch_assoc($sql_document);
-    $document_name = sanitizeInput($row['document_name']);
+    $document_name = escapeSql($row['document_name']);
     $client_id = intval($row['document_client_id']);
 
     enforceClientAccess();
 
     // Get File Name for logging
-    $file_name = sanitizeInput(getFieldById('files', $file_id, 'file_name'));
+    $file_name = escapeSql(getFieldById('files', $file_id, 'file_name'));
 
     mysqli_query($mysqli,"DELETE FROM document_files WHERE file_id = $file_id AND document_id = $document_id");
 
@@ -420,13 +420,13 @@ if (isset($_POST['link_vendor_to_document'])) {
     // Get Document Name and Client ID for logging
     $sql_document = mysqli_query($mysqli,"SELECT document_name, document_client_id FROM documents WHERE document_id = $document_id");
     $row = mysqli_fetch_assoc($sql_document);
-    $document_name = sanitizeInput($row['document_name']);
+    $document_name = escapeSql($row['document_name']);
     $client_id = intval($row['document_client_id']);
 
     enforceClientAccess();
 
     // Get Vendor Name for logging
-    $vendor_name = sanitizeInput(getFieldById('vendors', $vendor_id, 'vendor_name'));
+    $vendor_name = escapeSql(getFieldById('vendors', $vendor_id, 'vendor_name'));
 
     // Document add query
     mysqli_query($mysqli,"INSERT INTO vendor_documents SET vendor_id = $vendor_id, document_id = $document_id");
@@ -451,13 +451,13 @@ if (isset($_GET['unlink_vendor_from_document'])) {
     // Get Document Name and Client ID for logging
     $sql_document = mysqli_query($mysqli,"SELECT document_name, document_client_id FROM documents WHERE document_id = $document_id");
     $row = mysqli_fetch_assoc($sql_document);
-    $document_name = sanitizeInput($row['document_name']);
+    $document_name = escapeSql($row['document_name']);
     $client_id = intval($row['document_client_id']);
 
     enforceClientAccess();
 
     // Get Vendor Name for logging
-    $vendor_name = sanitizeInput(getFieldById('vendors', $vendor_id, 'vendor_name'));
+    $vendor_name = escapeSql(getFieldById('vendors', $vendor_id, 'vendor_name'));
 
     mysqli_query($mysqli,"DELETE FROM vendor_documents WHERE vendor_id = $vendor_id AND document_id = $document_id");
 
@@ -482,13 +482,13 @@ if (isset($_POST['link_contact_to_document'])) {
     // Get Document Name and Client ID for logging
     $sql_document = mysqli_query($mysqli,"SELECT document_name, document_client_id FROM documents WHERE document_id = $document_id");
     $row = mysqli_fetch_assoc($sql_document);
-    $document_name = sanitizeInput($row['document_name']);
+    $document_name = escapeSql($row['document_name']);
     $client_id = intval($row['document_client_id']);
 
     enforceClientAccess();
 
     // Get Contact Name for logging
-    $contact_name = sanitizeInput(getFieldById('contacts', $contact_id, 'contact_name'));
+    $contact_name = escapeSql(getFieldById('contacts', $contact_id, 'contact_name'));
 
     // Contact add query
     mysqli_query($mysqli,"INSERT INTO contact_documents SET contact_id = $contact_id, document_id = $document_id");
@@ -513,13 +513,13 @@ if (isset($_GET['unlink_contact_from_document'])) {
     // Get Document Name and Client ID for logging
     $sql_document = mysqli_query($mysqli,"SELECT document_name, document_client_id FROM documents WHERE document_id = $document_id");
     $row = mysqli_fetch_assoc($sql_document);
-    $document_name = sanitizeInput($row['document_name']);
+    $document_name = escapeSql($row['document_name']);
     $client_id = intval($row['document_client_id']);
 
     enforceClientAccess();
 
     // Get Contact Name for logging
-    $contact_name = sanitizeInput(getFieldById('contacts', $contact_id, 'contact_name'));
+    $contact_name = escapeSql(getFieldById('contacts', $contact_id, 'contact_name'));
 
     mysqli_query($mysqli,"DELETE FROM contact_documents WHERE contact_id = $contact_id AND document_id = $document_id");
 
@@ -543,13 +543,13 @@ if (isset($_POST['link_asset_to_document'])) {
     // Get Document Name and Client ID for logging
     $sql_document = mysqli_query($mysqli,"SELECT document_name, document_client_id FROM documents WHERE document_id = $document_id");
     $row = mysqli_fetch_assoc($sql_document);
-    $document_name = sanitizeInput($row['document_name']);
+    $document_name = escapeSql($row['document_name']);
     $client_id = intval($row['document_client_id']);
 
     enforceClientAccess();
 
     // Get Asset Name for logging
-    $asset_name = sanitizeInput(getFieldById('assets', $asset_id, 'asset_name'));
+    $asset_name = escapeSql(getFieldById('assets', $asset_id, 'asset_name'));
 
     mysqli_query($mysqli,"INSERT INTO asset_documents SET asset_id = $asset_id, document_id = $document_id");
 
@@ -573,13 +573,13 @@ if (isset($_GET['unlink_asset_from_document'])) {
     // Get Document Name and Client ID for logging
     $sql_document = mysqli_query($mysqli,"SELECT document_name, document_client_id FROM documents WHERE document_id = $document_id");
     $row = mysqli_fetch_assoc($sql_document);
-    $document_name = sanitizeInput($row['document_name']);
+    $document_name = escapeSql($row['document_name']);
     $client_id = intval($row['document_client_id']);
 
     enforceClientAccess();
 
     // Get Asset Name for logging
-    $asset_name = sanitizeInput(getFieldById('assets', $asset_id, 'asset_name'));
+    $asset_name = escapeSql(getFieldById('assets', $asset_id, 'asset_name'));
 
     mysqli_query($mysqli,"DELETE FROM asset_documents WHERE asset_id = $asset_id AND document_id = $document_id");
 
@@ -603,13 +603,13 @@ if (isset($_POST['link_software_to_document'])) {
     // Get Document Name and Client ID for logging
     $sql_document = mysqli_query($mysqli,"SELECT document_name, document_client_id FROM documents WHERE document_id = $document_id");
     $row = mysqli_fetch_assoc($sql_document);
-    $document_name = sanitizeInput($row['document_name']);
+    $document_name = escapeSql($row['document_name']);
     $client_id = intval($row['document_client_id']);
 
     enforceClientAccess();
 
     // Get Software Name for logging
-    $software_name = sanitizeInput(getFieldById('software', $software_id, 'software_name'));
+    $software_name = escapeSql(getFieldById('software', $software_id, 'software_name'));
 
     // Contact add query
     mysqli_query($mysqli,"INSERT INTO software_documents SET software_id = $software_id, document_id = $document_id");
@@ -634,13 +634,13 @@ if (isset($_GET['unlink_software_from_document'])) {
     // Get Document Name and Client ID for logging
     $sql_document = mysqli_query($mysqli,"SELECT document_name, document_client_id FROM documents WHERE document_id = $document_id");
     $row = mysqli_fetch_assoc($sql_document);
-    $document_name = sanitizeInput($row['document_name']);
+    $document_name = escapeSql($row['document_name']);
     $client_id = intval($row['document_client_id']);
 
     enforceClientAccess();
 
     // Get Software Name for logging
-    $software_name = sanitizeInput(getFieldById('software', $software_id, 'software_name'));
+    $software_name = escapeSql(getFieldById('software', $software_id, 'software_name'));
 
     mysqli_query($mysqli,"DELETE FROM software_documents WHERE software_id = $software_id AND document_id = $document_id");
 
@@ -670,7 +670,7 @@ if (isset($_POST['toggle_document_visibility'])) {
     // Get Document Name and Client ID for logging
     $sql_document = mysqli_query($mysqli,"SELECT document_name, document_client_id FROM documents WHERE document_id = $document_id");
     $row = mysqli_fetch_assoc($sql_document);
-    $document_name = sanitizeInput($row['document_name']);
+    $document_name = escapeSql($row['document_name']);
     $client_id = intval($row['document_client_id']);
 
     enforceClientAccess();
@@ -696,7 +696,7 @@ if (isset($_GET['export_document'])) {
     // Get Contact Name and Client ID for logging and alert message
     $sql = mysqli_query($mysqli,"SELECT document_name, document_content, document_client_id FROM documents WHERE document_id = $document_id");
     $row = mysqli_fetch_assoc($sql);
-    $document_name = sanitizeInput($row['document_name']);
+    $document_name = escapeSql($row['document_name']);
     $document_content = $row['document_content'];
     $client_id = intval($row['document_client_id']);
 
@@ -744,7 +744,7 @@ if (isset($_GET['archive_document'])) {
     // Get Contact Name and Client ID for logging and alert message
     $sql = mysqli_query($mysqli,"SELECT document_name, document_client_id FROM documents WHERE document_id = $document_id");
     $row = mysqli_fetch_assoc($sql);
-    $document_name = sanitizeInput($row['document_name']);
+    $document_name = escapeSql($row['document_name']);
     $client_id = intval($row['document_client_id']);
 
     enforceClientAccess();
@@ -789,7 +789,7 @@ if (isset($_GET['restore_document'])) {
     // Get Document Name and Client ID for logging and alert message
     $sql = mysqli_query($mysqli,"SELECT document_name, document_client_id FROM documents WHERE document_id = $document_id");
     $row = mysqli_fetch_assoc($sql);
-    $document_name = sanitizeInput($row['document_name']);
+    $document_name = escapeSql($row['document_name']);
     $client_id = intval($row['document_client_id']);
 
     enforceClientAccess();
@@ -816,7 +816,7 @@ if (isset($_GET['delete_document_version'])) {
     $sql = mysqli_query($mysqli,"SELECT document_version_name, document_client_id FROM documents, document_versions WHERE document_version_document_id = document_id AND document_version_id = $document_version_id");
     $row = mysqli_fetch_assoc($sql);
     $client_id = intval($row['document_client_id']);
-    $document_version_name = sanitizeInput($row['document_version_name']);
+    $document_version_name = escapeSql($row['document_version_name']);
 
     enforceClientAccess();
 
@@ -842,7 +842,7 @@ if (isset($_GET['delete_document'])) {
     $sql = mysqli_query($mysqli,"SELECT document_name, document_client_id FROM documents WHERE document_id = $document_id");
     $row = mysqli_fetch_assoc($sql);
     $client_id = intval($row['document_client_id']);
-    $document_name = sanitizeInput($row['document_name']);
+    $document_name = escapeSql($row['document_name']);
 
     enforceClientAccess();
 

@@ -19,43 +19,43 @@ $sql_companies = mysqli_query($mysqli, "SELECT * FROM companies, settings WHERE 
 $row = mysqli_fetch_assoc($sql_companies);
 
 // Company Details
-$company_name = sanitizeInput($row['company_name']);
-$company_phone = sanitizeInput(formatPhoneNumber($row['company_phone'], $row['company_phone_country_code']));
-$company_email = sanitizeInput($row['company_email']);
-$company_website = sanitizeInput($row['company_website']);
-$company_city = sanitizeInput($row['company_city']);
-$company_state = sanitizeInput($row['company_state']);
-$company_country = sanitizeInput($row['company_country']);
-$company_locale = sanitizeInput($row['company_locale']);
-$company_currency = sanitizeInput($row['company_currency']);
+$company_name = escapeSql($row['company_name']);
+$company_phone = escapeSql(formatPhoneNumber($row['company_phone'], $row['company_phone_country_code']));
+$company_email = escapeSql($row['company_email']);
+$company_website = escapeSql($row['company_website']);
+$company_city = escapeSql($row['company_city']);
+$company_state = escapeSql($row['company_state']);
+$company_country = escapeSql($row['company_country']);
+$company_locale = escapeSql($row['company_locale']);
+$company_currency = escapeSql($row['company_currency']);
 
 // Company Settings
 $config_enable_cron = intval($row['config_enable_cron']);
 $config_invoice_overdue_reminders = $row['config_invoice_overdue_reminders'];
-$config_invoice_prefix = sanitizeInput($row['config_invoice_prefix']);
-$config_invoice_from_email = sanitizeInput($row['config_invoice_from_email']);
-$config_invoice_from_name = sanitizeInput($row['config_invoice_from_name']);
+$config_invoice_prefix = escapeSql($row['config_invoice_prefix']);
+$config_invoice_from_email = escapeSql($row['config_invoice_from_email']);
+$config_invoice_from_name = escapeSql($row['config_invoice_from_name']);
 $config_invoice_late_fee_enable = intval($row['config_invoice_late_fee_enable']);
 $config_invoice_late_fee_percent = floatval($row['config_invoice_late_fee_percent']);
 
 // Mail Settings
-$config_smtp_provider = sanitizeInput($row['config_smtp_provider']);
+$config_smtp_provider = escapeSql($row['config_smtp_provider']);
 $config_smtp_host = $row['config_smtp_host'];
 $config_smtp_username = $row['config_smtp_username'];
 $config_smtp_password = $row['config_smtp_password'];
 $config_smtp_port = intval($row['config_smtp_port']);
 $config_smtp_encryption = $row['config_smtp_encryption'];
-$config_mail_from_email = sanitizeInput($row['config_mail_from_email']);
-$config_mail_from_name = sanitizeInput($row['config_mail_from_name']);
+$config_mail_from_email = escapeSql($row['config_mail_from_email']);
+$config_mail_from_name = escapeSql($row['config_mail_from_name']);
 $config_recurring_auto_send_invoice = intval($row['config_recurring_auto_send_invoice']);
 
 // Tickets
-$config_ticket_prefix = sanitizeInput($row['config_ticket_prefix']);
-$config_ticket_from_name = sanitizeInput($row['config_ticket_from_name']);
-$config_ticket_from_email = sanitizeInput($row['config_ticket_from_email']);
+$config_ticket_prefix = escapeSql($row['config_ticket_prefix']);
+$config_ticket_from_name = escapeSql($row['config_ticket_from_name']);
+$config_ticket_from_email = escapeSql($row['config_ticket_from_email']);
 $config_ticket_client_general_notifications = intval($row['config_ticket_client_general_notifications']);
 $config_ticket_autoclose_hours = intval($row['config_ticket_autoclose_hours']);
-$config_ticket_new_ticket_notification_email = sanitizeInput($row['config_ticket_new_ticket_notification_email']);
+$config_ticket_new_ticket_notification_email = escapeSql($row['config_ticket_new_ticket_notification_email']);
 
 // Get Config for Telemetry
 $config_theme = $row['config_theme'];
@@ -186,10 +186,10 @@ if ($config_enable_alert_domain_expire == 1) {
 
         while ($row = mysqli_fetch_assoc($sql)) {
             $domain_id = intval($row['domain_id']);
-            $domain_name = sanitizeInput($row['domain_name']);
-            $domain_expire = sanitizeInput($row['domain_expire']);
+            $domain_name = escapeSql($row['domain_name']);
+            $domain_expire = escapeSql($row['domain_expire']);
             $client_id = intval($row['client_id']);
-            $client_name = sanitizeInput($row['client_name']);
+            $client_name = escapeSql($row['client_name']);
 
             appNotify("Domain Expiring", "Domain $domain_name for $client_name will expire in $day Days on $domain_expire", "/agent/domains.php?client_id=$client_id", $client_id);
 
@@ -216,12 +216,12 @@ foreach ($certificateAlertArray as $day) {
 
     while ($row = mysqli_fetch_assoc($sql)) {
         $certificate_id = intval($row['certificate_id']);
-        $certificate_name = sanitizeInput($row['certificate_name']);
-        $certificate_domain = sanitizeInput($row['certificate_domain']);
-        $certificate_expire = sanitizeInput($row['certificate_expire']);
+        $certificate_name = escapeSql($row['certificate_name']);
+        $certificate_domain = escapeSql($row['certificate_domain']);
+        $certificate_expire = escapeSql($row['certificate_expire']);
         $certificate_public_key = $row['certificate_public_key']; // Sanitize input breaks parsing
         $client_id = intval($row['client_id']);
-        $client_name = sanitizeInput($row['client_name']);
+        $client_name = escapeSql($row['client_name']);
 
         // Calculate the validity period
         if (!empty($certificate_public_key)) {
@@ -266,10 +266,10 @@ foreach ($warranty_alert_array as $day) {
 
     while ($row = mysqli_fetch_assoc($sql)) {
         $asset_id = intval($row['asset_id']);
-        $asset_name = sanitizeInput($row['asset_name']);
-        $asset_warranty_expire = sanitizeInput($row['asset_warranty_expire']);
+        $asset_name = escapeSql($row['asset_name']);
+        $asset_warranty_expire = escapeSql($row['asset_warranty_expire']);
         $client_id = intval($row['client_id']);
-        $client_name = sanitizeInput($row['client_name']);
+        $client_name = escapeSql($row['client_name']);
 
         appNotify("Asset Warranty Expiring", "Asset $asset_name warranty for $client_name will expire in $day Days on $asset_warranty_expire", "/agent/assets.php?client_id=$client_id", $client_id);
 
@@ -302,10 +302,10 @@ if (mysqli_num_rows($sql_recurring_tickets) > 0) {
     while ($row = mysqli_fetch_assoc($sql_recurring_tickets)) {
 
         $recurring_ticket_id = intval($row['recurring_ticket_id']);
-        $subject = sanitizeInput($row['recurring_ticket_subject']);
+        $subject = escapeSql($row['recurring_ticket_subject']);
         $details = mysqli_real_escape_string($mysqli, $row['recurring_ticket_details']);
-        $priority = sanitizeInput($row['recurring_ticket_priority']);
-        $frequency = sanitizeInput(strtolower($row['recurring_ticket_frequency']));
+        $priority = escapeSql($row['recurring_ticket_priority']);
+        $frequency = escapeSql(strtolower($row['recurring_ticket_frequency']));
         $billable = intval($row['recurring_ticket_billable']);
         $created_id = intval($row['recurring_ticket_created_by']);
         $assigned_id = intval($row['recurring_ticket_assigned_to']);
@@ -363,15 +363,15 @@ if (mysqli_num_rows($sql_recurring_tickets) > 0) {
         );
         $row = mysqli_fetch_assoc($sql);
 
-        $contact_name = sanitizeInput($row['contact_name']);
-        $contact_email = sanitizeInput($row['contact_email']);
-        $client_name = sanitizeInput($row['client_name']);
-        $contact_name = sanitizeInput($row['contact_name']);
-        $contact_email = sanitizeInput($row['contact_email']);
-        $ticket_prefix = sanitizeInput($row['ticket_prefix']);
+        $contact_name = escapeSql($row['contact_name']);
+        $contact_email = escapeSql($row['contact_email']);
+        $client_name = escapeSql($row['client_name']);
+        $contact_name = escapeSql($row['contact_name']);
+        $contact_email = escapeSql($row['contact_email']);
+        $ticket_prefix = escapeSql($row['ticket_prefix']);
         $ticket_number = intval($row['ticket_number']);
-        $ticket_priority = sanitizeInput($row['ticket_priority']);
-        $ticket_subject = sanitizeInput($row['ticket_subject']);
+        $ticket_priority = escapeSql($row['ticket_priority']);
+        $ticket_subject = escapeSql($row['ticket_subject']);
         $ticket_details = mysqli_real_escape_string($mysqli, $row['ticket_details']);
 
         $data = [];
@@ -450,7 +450,7 @@ if (mysqli_num_rows($sql_recurring_tickets) > 0) {
 // Flag any active recurring "next run" dates that are in the past
 $sql_invalid_recurring_tickets = mysqli_query($mysqli, "SELECT * FROM recurring_tickets WHERE recurring_ticket_next_run < CURDATE()");
 while ($row = mysqli_fetch_assoc($sql_invalid_recurring_tickets)) {
-    $subject = sanitizeInput($row['recurring_ticket_subject']);
+    $subject = escapeSql($row['recurring_ticket_subject']);
     appNotify("Ticket", "Recurring ticket $subject next run date is in the past!", "/agent/recurring_tickets.php");
 }
 
@@ -471,11 +471,11 @@ $sql_resolved_tickets_to_close = mysqli_query(
 while ($row = mysqli_fetch_assoc($sql_resolved_tickets_to_close)) {
 
     $ticket_id = $row['ticket_id'];
-    $ticket_prefix = sanitizeInput($row['ticket_prefix']);
+    $ticket_prefix = escapeSql($row['ticket_prefix']);
     $ticket_number = intval($row['ticket_number']);
-    $ticket_subject = sanitizeInput($row['ticket_subject']);
-    $ticket_status = sanitizeInput($row['ticket_status']);
-    $ticket_assigned_to = sanitizeInput($row['ticket_assigned_to']);
+    $ticket_subject = escapeSql($row['ticket_subject']);
+    $ticket_status = escapeSql($row['ticket_status']);
+    $ticket_assigned_to = escapeSql($row['ticket_assigned_to']);
     $client_id = intval($row['ticket_client_id']);
 
     mysqli_query($mysqli,"UPDATE tickets SET ticket_status = 5, ticket_closed_at = NOW(), ticket_closed_by = $ticket_assigned_to WHERE ticket_id = $ticket_id");
@@ -511,18 +511,18 @@ if ($config_send_invoice_reminders == 1) {
 
         while ($row = mysqli_fetch_assoc($sql)) {
             $invoice_id = intval($row['invoice_id']);
-            $invoice_prefix = sanitizeInput($row['invoice_prefix']);
+            $invoice_prefix = escapeSql($row['invoice_prefix']);
             $invoice_number = intval($row['invoice_number']);
-            $invoice_status = sanitizeInput($row['invoice_status']);
-            $invoice_date = sanitizeInput($row['invoice_date']);
-            $invoice_due = sanitizeInput($row['invoice_due']);
-            $invoice_url_key = sanitizeInput($row['invoice_url_key']);
+            $invoice_status = escapeSql($row['invoice_status']);
+            $invoice_date = escapeSql($row['invoice_date']);
+            $invoice_due = escapeSql($row['invoice_due']);
+            $invoice_url_key = escapeSql($row['invoice_url_key']);
             $invoice_amount = floatval($row['invoice_amount']);
-            $invoice_currency_code = sanitizeInput($row['invoice_currency_code']);
+            $invoice_currency_code = escapeSql($row['invoice_currency_code']);
             $client_id = intval($row['client_id']);
-            $client_name = sanitizeInput($row['client_name']);
-            $contact_name = sanitizeInput($row['contact_name']);
-            $contact_email = sanitizeInput($row['contact_email']);
+            $client_name = escapeSql($row['client_name']);
+            $contact_name = escapeSql($row['contact_name']);
+            $contact_email = escapeSql($row['contact_email']);
 
             // Sum payments already applied, derive the real balance owed
             $sql_paid = mysqli_query($mysqli, "SELECT SUM(payment_amount) AS amount_paid FROM payments WHERE payment_invoice_id = $invoice_id");
@@ -610,24 +610,24 @@ $sql_recurring_invoices = mysqli_query($mysqli, "SELECT * FROM recurring_invoice
 
 while ($row = mysqli_fetch_assoc($sql_recurring_invoices)) {
     $recurring_invoice_id = intval($row['recurring_invoice_id']);
-    $recurring_invoice_scope = sanitizeInput($row['recurring_invoice_scope']);
-    $recurring_invoice_frequency = sanitizeInput($row['recurring_invoice_frequency']);
-    $recurring_invoice_status = sanitizeInput($row['recurring_invoice_status']);
-    $recurring_invoice_last_sent = sanitizeInput($row['recurring_invoice_last_sent']);
-    $recurring_invoice_next_date = sanitizeInput($row['recurring_invoice_next_date']);
+    $recurring_invoice_scope = escapeSql($row['recurring_invoice_scope']);
+    $recurring_invoice_frequency = escapeSql($row['recurring_invoice_frequency']);
+    $recurring_invoice_status = escapeSql($row['recurring_invoice_status']);
+    $recurring_invoice_last_sent = escapeSql($row['recurring_invoice_last_sent']);
+    $recurring_invoice_next_date = escapeSql($row['recurring_invoice_next_date']);
     $recurring_invoice_discount_amount = floatval($row['recurring_invoice_discount_amount']);
     $recurring_invoice_amount = floatval($row['recurring_invoice_amount']);
-    $recurring_invoice_currency_code = sanitizeInput($row['recurring_invoice_currency_code']);
-    $recurring_invoice_note = sanitizeInput($row['recurring_invoice_note']);
+    $recurring_invoice_currency_code = escapeSql($row['recurring_invoice_currency_code']);
+    $recurring_invoice_note = escapeSql($row['recurring_invoice_note']);
     $recurring_invoice_email_notify = intval($row['recurring_invoice_email_notify']);
     $category_id = intval($row['recurring_invoice_category_id']);
     $client_id = intval($row['recurring_invoice_client_id']);
-    $client_name = sanitizeInput($row['client_name']);
+    $client_name = escapeSql($row['client_name']);
     $client_net_terms = intval($row['client_net_terms']);
 
     $recurring_payment_recurring_invoice_id = intval($row['recurring_payment_recurring_invoice_id']);
-    $recurring_payment_currency_code = sanitizeInput($row['recurring_payment_currency_code']);
-    $recurring_payment_method = sanitizeInput($row['recurring_payment_method']);
+    $recurring_payment_currency_code = escapeSql($row['recurring_payment_currency_code']);
+    $recurring_payment_method = escapeSql($row['recurring_payment_method']);
     $recurring_payment_account_id = intval($row['recurring_payment_account_id']);
 
     // Atomically increment and get the new invoice number
@@ -653,8 +653,8 @@ while ($row = mysqli_fetch_assoc($sql_recurring_invoices)) {
 
     while ($row = mysqli_fetch_assoc($sql_invoice_items)) {
         $item_id = intval($row['item_id']);
-        $item_name = sanitizeInput($row['item_name']); //SQL Escape incase of ,
-        $item_description = sanitizeInput($row['item_description']); //SQL Escape incase of ,
+        $item_name = escapeSql($row['item_name']); //SQL Escape incase of ,
+        $item_description = escapeSql($row['item_description']); //SQL Escape incase of ,
         $item_quantity = floatval($row['item_quantity']);
         $item_price = floatval($row['item_price']);
         $item_subtotal = floatval($row['item_subtotal']);
@@ -687,17 +687,17 @@ while ($row = mysqli_fetch_assoc($sql_recurring_invoices)) {
             WHERE invoice_id = $new_invoice_id"
     );
     $row = mysqli_fetch_assoc($sql);
-    $invoice_prefix = sanitizeInput($row['invoice_prefix']);
+    $invoice_prefix = escapeSql($row['invoice_prefix']);
     $invoice_number = intval($row['invoice_number']);
-    $invoice_scope = sanitizeInput($row['invoice_scope']);
-    $invoice_date = sanitizeInput($row['invoice_date']);
-    $invoice_due = sanitizeInput($row['invoice_due']);
+    $invoice_scope = escapeSql($row['invoice_scope']);
+    $invoice_date = escapeSql($row['invoice_date']);
+    $invoice_due = escapeSql($row['invoice_due']);
     $invoice_amount = floatval($row['invoice_amount']);
-    $invoice_url_key = sanitizeInput($row['invoice_url_key']);
+    $invoice_url_key = escapeSql($row['invoice_url_key']);
     $client_id = intval($row['client_id']);
-    $client_name = sanitizeInput($row['client_name']);
-    $contact_name = sanitizeInput($row['contact_name']);
-    $contact_email = sanitizeInput($row['contact_email']);
+    $client_name = escapeSql($row['client_name']);
+    $contact_name = escapeSql($row['contact_name']);
+    $contact_email = escapeSql($row['contact_email']);
 
     if ($config_recurring_auto_send_invoice == 1 && $recurring_invoice_email_notify == 1) {
 
@@ -737,8 +737,8 @@ while ($row = mysqli_fetch_assoc($sql_recurring_invoices)) {
         );
 
         while ($billing_contact = mysqli_fetch_assoc($sql_billing_contacts)) {
-            $billing_contact_name = sanitizeInput($billing_contact['contact_name']);
-            $billing_contact_email = sanitizeInput($billing_contact['contact_email']);
+            $billing_contact_name = escapeSql($billing_contact['contact_name']);
+            $billing_contact_email = escapeSql($billing_contact['contact_email']);
 
             $data = [
                 [
@@ -761,7 +761,7 @@ while ($row = mysqli_fetch_assoc($sql_recurring_invoices)) {
 // Start Flag any active recurring "next run" dates that are in the past
 $sql_invalid_recurring_invoices = mysqli_query($mysqli, "SELECT * FROM recurring_invoices WHERE recurring_invoice_next_date < CURDATE() AND recurring_invoice_status = 1");
 while ($row = mysqli_fetch_assoc($sql_invalid_recurring_invoices)) {
-    $invoice_prefix = sanitizeInput($row['recurring_invoice_prefix']);
+    $invoice_prefix = escapeSql($row['recurring_invoice_prefix']);
     $invoice_number = intval($row['recurring_invoice_number']);
     appNotify("Invoice", "Recurring invoice $invoice_prefix$invoice_number next run date is in the past!", "/agent/recurring_invoices.php");
 }
@@ -780,22 +780,22 @@ $sql_recurring_payments = mysqli_query($mysqli, "
 
 while ($row = mysqli_fetch_assoc($sql_recurring_payments)) {
     $invoice_id = intval($row['invoice_id']);
-    $invoice_prefix = sanitizeInput($row['invoice_prefix']);
+    $invoice_prefix = escapeSql($row['invoice_prefix']);
     $invoice_number = intval($row['invoice_number']);
-    $invoice_scope = sanitizeInput($row['invoice_scope']);
-    $invoice_date = sanitizeInput($row['invoice_date']);
-    $invoice_due = sanitizeInput($row['invoice_due']);
+    $invoice_scope = escapeSql($row['invoice_scope']);
+    $invoice_date = escapeSql($row['invoice_date']);
+    $invoice_due = escapeSql($row['invoice_due']);
     $invoice_amount = floatval($row['invoice_amount']);
-    $invoice_url_key = sanitizeInput($row['invoice_url_key']);
-    $invoice_currency_code = sanitizeInput($row['invoice_currency_code']);
+    $invoice_url_key = escapeSql($row['invoice_url_key']);
+    $invoice_currency_code = escapeSql($row['invoice_currency_code']);
     $recurring_payment_account_id = intval($row['recurring_payment_account_id']);
-    $recurring_payment_method = sanitizeInput($row['recurring_payment_method']);
-    $recurring_payment_currency_code = sanitizeInput($row['recurring_payment_currency_code']);
+    $recurring_payment_method = escapeSql($row['recurring_payment_method']);
+    $recurring_payment_currency_code = escapeSql($row['recurring_payment_currency_code']);
     $recurring_payment_saved_payment_id = intval($row['recurring_payment_saved_payment_id']);
     $client_id = intval($row['client_id']);
-    $client_name = sanitizeInput($row['client_name']);
-    $contact_name = sanitizeInput($row['contact_name']);
-    $contact_email = sanitizeInput($row['contact_email']);
+    $client_name = escapeSql($row['client_name']);
+    $contact_name = escapeSql($row['contact_name']);
+    $contact_email = escapeSql($row['contact_email']);
 
     // Only attempt autopay if a saved payment method is set
     if ($recurring_payment_saved_payment_id) {
@@ -815,14 +815,14 @@ while ($row = mysqli_fetch_assoc($sql_recurring_payments)) {
         }
 
         $provider_id = intval($saved_payment['payment_provider_id']);
-        $provider_name = sanitizeInput($saved_payment['payment_provider_name']);
+        $provider_name = escapeSql($saved_payment['payment_provider_name']);
         $provider_private_key = $saved_payment['payment_provider_private_key'];
         $account_id = intval($saved_payment['payment_provider_account']);
         $expense_category_id = intval($saved_payment['payment_provider_expense_category']);
         $expense_vendor_id = intval($saved_payment['payment_provider_expense_vendor']);
         $expense_percentage_fee = floatval($saved_payment['payment_provider_expense_percentage_fee']);
         $expense_flat_fee = floatval($saved_payment['payment_provider_expense_flat_fee']);
-        $saved_payment_description = sanitizeInput($saved_payment['saved_payment_description']);
+        $saved_payment_description = escapeSql($saved_payment['saved_payment_description']);
         $stripe_payment_method_id = $saved_payment['saved_payment_provider_method'];
 
         // NEW: Get the payment_provider_client (Stripe Customer ID) from client_payment_provider
@@ -833,7 +833,7 @@ while ($row = mysqli_fetch_assoc($sql_recurring_payments)) {
             LIMIT 1
         ");
         $cpp_row = mysqli_fetch_assoc($cpp_query);
-        $stripe_customer_id = $cpp_row ? sanitizeInput($cpp_row['payment_provider_client']) : '';
+        $stripe_customer_id = $cpp_row ? escapeSql($cpp_row['payment_provider_client']) : '';
 
         // Stripe
         if ($provider_name === "Stripe") {
@@ -861,10 +861,10 @@ while ($row = mysqli_fetch_assoc($sql_recurring_payments)) {
                         ]
                     ]);
 
-                    $pi_id = sanitizeInput($payment_intent->id);
+                    $pi_id = escapeSql($payment_intent->id);
                     $pi_date = date('Y-m-d', $payment_intent->created);
                     $pi_amount_paid = floatval($payment_intent->amount_received / 100);
-                    $pi_currency = strtoupper(sanitizeInput($payment_intent->currency));
+                    $pi_currency = strtoupper(escapeSql($payment_intent->currency));
                     $pi_livemode = $payment_intent->livemode;
 
                 } catch (Exception $e) {
@@ -957,11 +957,11 @@ while ($row = mysqli_fetch_assoc($sql_recurring_expenses)) {
     $recurring_expense_frequency = intval($row['recurring_expense_frequency']);
     $recurring_expense_month = intval($row['recurring_expense_month']);
     $recurring_expense_day = intval($row['recurring_expense_day']);
-    $recurring_expense_description = sanitizeInput($row['recurring_expense_description']);
+    $recurring_expense_description = escapeSql($row['recurring_expense_description']);
     $recurring_expense_amount = floatval($row['recurring_expense_amount']);
-    $recurring_expense_payment_method = sanitizeInput($row['recurring_expense_payment_method']);
-    $recurring_expense_reference = sanitizeInput($row['recurring_expense_reference']);
-    $recurring_expense_currency_code = sanitizeInput($row['recurring_expense_currency_code']);
+    $recurring_expense_payment_method = escapeSql($row['recurring_expense_payment_method']);
+    $recurring_expense_reference = escapeSql($row['recurring_expense_reference']);
+    $recurring_expense_currency_code = escapeSql($row['recurring_expense_currency_code']);
     $recurring_expense_vendor_id = intval($row['recurring_expense_vendor_id']);
     $recurring_expense_category_id = intval($row['recurring_expense_category_id']);
     $recurring_expense_account_id = intval($row['recurring_expense_account_id']);
@@ -993,7 +993,7 @@ while ($row = mysqli_fetch_assoc($sql_recurring_expenses)) {
 // Flag any active recurring "next run" dates that are in the past
 $sql_invalid_recurring_expenses = mysqli_query($mysqli, "SELECT * FROM recurring_expenses WHERE recurring_expense_next_date < CURDATE() AND recurring_expense_status = 1");
 while ($row = mysqli_fetch_assoc($sql_invalid_recurring_expenses)) {
-    $recurring_expense_description = sanitizeInput($row['recurring_expense_description']);
+    $recurring_expense_description = escapeSql($row['recurring_expense_description']);
     appNotify("Expense", "Recurring expense $recurring_expense_description next run date is in the past!", "/agent/recurring_expenses.php");
 }
 

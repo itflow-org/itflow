@@ -35,22 +35,22 @@ if (!isset($_SESSION)) {
 // Set Timezone after session
 require_once "../includes/inc_set_timezone.php";
 
-$ip = sanitizeInput(getIP());
-$user_agent = sanitizeInput($_SERVER['HTTP_USER_AGENT']);
+$ip = escapeSql(getIP());
+$user_agent = escapeSql($_SERVER['HTTP_USER_AGENT']);
 
 // Get Company Info
 $company_sql = mysqli_query($mysqli, "SELECT company_name, company_phone FROM companies WHERE company_id = 1");
 $company_results = mysqli_fetch_assoc($company_sql);
-$company_name = sanitizeInput($company_results['company_name']);
-$company_phone = sanitizeInput(formatPhoneNumber($company_results['company_phone']));
+$company_name = escapeSql($company_results['company_name']);
+$company_phone = escapeSql(formatPhoneNumber($company_results['company_phone']));
 $company_name_display = $company_results['company_name'];
 
 // Get settings from load_global_settings.php and sanitize them
-$config_ticket_from_name = sanitizeInput($config_ticket_from_name);
-$config_ticket_from_email = sanitizeInput($config_ticket_from_email);
-$config_mail_from_name = sanitizeInput($config_mail_from_name);
-$config_mail_from_email = sanitizeInput($config_mail_from_email);
-$config_base_url = sanitizeInput($config_base_url);
+$config_ticket_from_name = escapeSql($config_ticket_from_name);
+$config_ticket_from_email = escapeSql($config_ticket_from_email);
+$config_mail_from_name = escapeSql($config_mail_from_name);
+$config_mail_from_email = escapeSql($config_mail_from_email);
+$config_base_url = escapeSql($config_base_url);
 
 DEFINE("WORDING_ERROR", "Something went wrong! Your link may have expired. Please request a new password reset e-mail.");
 
@@ -61,7 +61,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
      */
     if (isset($_POST['password_reset_email_request'])) {
 
-        $email = sanitizeInput($_POST['email']);
+        $email = escapeSql($_POST['email']);
 
         $sql = mysqli_query($mysqli, "SELECT contact_id, contact_name, user_email, contact_client_id, user_id FROM users LEFT JOIN contacts ON user_id = contact_user_id WHERE user_email = '$email' AND user_auth_method = 'local' AND user_type = 2 AND user_status = 1 AND user_archived_at IS NULL LIMIT 1");
         $row = mysqli_fetch_assoc($sql);
@@ -69,7 +69,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
         if ($row['user_email'] == $email) {
             $id = intval($row['contact_id']);
             $user_id = intval($row['user_id']);
-            $name = sanitizeInput($row['contact_name']);
+            $name = escapeSql($row['contact_name']);
             $client = intval($row['contact_client_id']);
 
             $token = randomString(32);
@@ -112,8 +112,8 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
             $_SESSION['login_message'] = WORDING_ERROR;
         }
 
-        $token = sanitizeInput($_POST['token']);
-        $email = sanitizeInput($_POST['email']);
+        $token = escapeSql($_POST['token']);
+        $email = escapeSql($_POST['email']);
         $client = intval($_POST['client']);
 
         // Query user
@@ -121,7 +121,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
         $user_row = mysqli_fetch_assoc($sql);
         $contact_id = intval($user_row['contact_id']);
         $user_id = intval($user_row['user_id']);
-        $name = sanitizeInput($user_row['contact_name']);
+        $name = escapeSql($user_row['contact_name']);
 
         // Ensure the token is correct
         if (sha1($user_row['user_password_reset_token']) == sha1($token)) {
@@ -211,8 +211,8 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
                  */
                 if (isset($_GET['token']) && isset($_GET['email']) && isset($_GET['client'])) {
 
-                    $token = sanitizeInput($_GET['token']);
-                    $email = sanitizeInput($_GET['email']);
+                    $token = escapeSql($_GET['token']);
+                    $email = escapeSql($_GET['email']);
                     $client = intval($_GET['client']);
 
                     $sql = mysqli_query($mysqli, "SELECT * FROM users LEFT JOIN contacts ON user_id = contact_user_id WHERE user_email = '$email' AND user_password_reset_token = '$token' AND contact_client_id = $client LIMIT 1");

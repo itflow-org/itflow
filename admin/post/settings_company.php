@@ -6,21 +6,21 @@ if (isset($_POST['edit_company'])) {
 
     validateCSRFToken($_POST['csrf_token']);
 
-    $name = sanitizeInput($_POST['name']);
-    $address = sanitizeInput($_POST['address']);
-    $city = sanitizeInput($_POST['city']);
-    $state = sanitizeInput($_POST['state']);
-    $zip = sanitizeInput($_POST['zip']);
-    $country = sanitizeInput($_POST['country']);
+    $name = escapeSql($_POST['name']);
+    $address = escapeSql($_POST['address']);
+    $city = escapeSql($_POST['city']);
+    $state = escapeSql($_POST['state']);
+    $zip = escapeSql($_POST['zip']);
+    $country = escapeSql($_POST['country']);
     $phone_country_code = preg_replace("/[^0-9]/", '',$_POST['phone_country_code']);
     $phone = preg_replace("/[^0-9]/", '',$_POST['phone']);
-    $email = sanitizeInput($_POST['email']);
-    $website = sanitizeInput($_POST['website']);
-    $tax_id = sanitizeInput($_POST['tax_id']);
+    $email = escapeSql($_POST['email']);
+    $website = escapeSql($_POST['website']);
+    $tax_id = escapeSql($_POST['tax_id']);
 
     $sql = mysqli_query($mysqli,"SELECT company_logo FROM companies WHERE company_id = 1");
     $row = mysqli_fetch_assoc($sql);
-    $existing_file_name = sanitizeInput($row['company_logo']);
+    $existing_file_name = escapeSql($row['company_logo']);
 
     // Company logo
     if (isset($_FILES['file']['tmp_name'])) {

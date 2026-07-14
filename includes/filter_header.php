@@ -47,7 +47,7 @@ if(isset($order) && $order == "ASC") {
 
 // Search
 if (isset($_GET['q'])) {
-    $q = sanitizeInput($_GET['q']);
+    $q = escapeSql($_GET['q']);
     //Phone Numbers
     $phone_query = preg_replace("/[^0-9]/", '', $q);
     if (empty($phone_query)) {
@@ -60,7 +60,7 @@ if (isset($_GET['q'])) {
 
 // Sortby
 if (!empty($_GET['sort'])) {
-    $sort = sanitizeInput(preg_replace('/[^a-z_]/', '', $_GET['sort'])); // JQ 2023-05-09 - See issue #673 on GitHub to see the reasoning why we used preg_replace technically sanitizeInput() should have been enough to escape SQL Commands
+    $sort = escapeSql(preg_replace('/[^a-z_]/', '', $_GET['sort'])); // JQ 2023-05-09 - See issue #673 on GitHub to see the reasoning why we used preg_replace technically escapeSql() should have been enough to escape SQL Commands
 }
 
 // Date Handling
@@ -72,8 +72,8 @@ if (empty($_GET['canned_date'])) {
 
 // Date Filter
 if ($_GET['canned_date'] == "custom" && !empty($_GET['dtf'])) {
-    $dtf = sanitizeInput($_GET['dtf']);
-    $dtt = sanitizeInput($_GET['dtt']);
+    $dtf = escapeSql($_GET['dtf']);
+    $dtt = escapeSql($_GET['dtt']);
 } elseif ($_GET['canned_date'] == "today") {
     $dtf = date('Y-m-d');
     $dtt = date('Y-m-d');

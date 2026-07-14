@@ -56,12 +56,12 @@ if (isset($_POST['add_quote_copy'])) {
 
     $quote_id = intval($_POST['quote_id']);
     $client_id = intval($_POST['client_id']);
-    $date = sanitizeInput($_POST['date']);
-    $expire = sanitizeInput($_POST['expire']);
+    $date = escapeSql($_POST['date']);
+    $expire = escapeSql($_POST['expire']);
 
     enforceClientAccess();
 
-    $config_quote_prefix = sanitizeInput($config_quote_prefix);
+    $config_quote_prefix = escapeSql($config_quote_prefix);
 
     // Atomically increment and get the new quote number
     mysqli_query($mysqli, "
@@ -76,13 +76,13 @@ if (isset($_POST['add_quote_copy'])) {
 
     $sql = mysqli_query($mysqli,"SELECT * FROM quotes WHERE quote_id = $quote_id");
     $row = mysqli_fetch_assoc($sql);
-    $original_quote_prefix = sanitizeInput($row['quote_prefix']);
-    $original_quote_number = sanitizeInput($row['quote_number']);
+    $original_quote_prefix = escapeSql($row['quote_prefix']);
+    $original_quote_number = escapeSql($row['quote_number']);
     $quote_discount_amount = floatval($row['quote_discount_amount']);
     $quote_amount = floatval($row['quote_amount']);
-    $quote_currency_code = sanitizeInput($row['quote_currency_code']);
-    $quote_scope = sanitizeInput($row['quote_scope']);
-    $quote_note = sanitizeInput($row['quote_note']);
+    $quote_currency_code = escapeSql($row['quote_currency_code']);
+    $quote_scope = escapeSql($row['quote_scope']);
+    $quote_note = escapeSql($row['quote_note']);
     $category_id = intval($row['quote_category_id']);
 
     //Generate a unique URL key for clients to access
@@ -97,8 +97,8 @@ if (isset($_POST['add_quote_copy'])) {
     $sql_items = mysqli_query($mysqli,"SELECT * FROM quote_items WHERE item_quote_id = $quote_id");
     while($row = mysqli_fetch_assoc($sql_items)) {
         $item_id = intval($row['item_id']);
-        $item_name = sanitizeInput($row['item_name']);
-        $item_description = sanitizeInput($row['item_description']);
+        $item_name = escapeSql($row['item_name']);
+        $item_description = escapeSql($row['item_description']);
         $item_quantity = floatval($row['item_quantity']);
         $item_price = floatval($row['item_price']);
         $item_subtotal = floatval($row['item_subtotal']);
@@ -127,25 +127,25 @@ if (isset($_POST['add_quote_to_invoice'])) {
     enforceUserPermission('module_sales', 2);
 
     $quote_id = intval($_POST['quote_id']);
-    $date = sanitizeInput($_POST['date']);
+    $date = escapeSql($_POST['date']);
 
     $sql = mysqli_query($mysqli,"SELECT * FROM clients, quotes WHERE client_id = quote_client_id AND quote_id = $quote_id");
     $row = mysqli_fetch_assoc($sql);
     $client_net_terms = intval($row['client_net_terms']);
-    $quote_prefix = sanitizeInput($row['quote_prefix']);
-    $quote_number = sanitizeInput($row['quote_number']);
+    $quote_prefix = escapeSql($row['quote_prefix']);
+    $quote_number = escapeSql($row['quote_number']);
     $quote_discount_amount = floatval($row['quote_discount_amount']);
     $quote_amount = floatval($row['quote_amount']);
-    $quote_currency_code = sanitizeInput($row['quote_currency_code']);
-    $quote_scope = sanitizeInput($row['quote_scope']);
-    $quote_note = sanitizeInput($row['quote_note']);
+    $quote_currency_code = escapeSql($row['quote_currency_code']);
+    $quote_scope = escapeSql($row['quote_scope']);
+    $quote_note = escapeSql($row['quote_note']);
 
     $client_id = intval($row['quote_client_id']);
     $category_id = intval($row['quote_category_id']);
 
     enforceClientAccess();
 
-    $config_invoice_prefix = sanitizeInput($config_invoice_prefix);
+    $config_invoice_prefix = escapeSql($config_invoice_prefix);
 
     // Atomically increment and get the new invoice number
     mysqli_query($mysqli, "
@@ -170,8 +170,8 @@ if (isset($_POST['add_quote_to_invoice'])) {
     $sql_items = mysqli_query($mysqli,"SELECT * FROM quote_items WHERE item_quote_id = $quote_id");
     while($row = mysqli_fetch_assoc($sql_items)) {
         $item_id = intval($row['item_id']);
-        $item_name = sanitizeInput($row['item_name']);
-        $item_description = sanitizeInput($row['item_description']);
+        $item_name = escapeSql($row['item_name']);
+        $item_description = escapeSql($row['item_description']);
         $item_quantity = floatval($row['item_quantity']);
         $item_price = floatval($row['item_price']);
         $item_subtotal = floatval($row['item_subtotal']);
@@ -199,7 +199,7 @@ if (isset($_POST['add_quote_to_invoice'])) {
 
     if ($result_ticket && $row = mysqli_fetch_assoc($result_ticket)) {
         $ticket_id = intval($row['ticket_id']);
-        $ticket_prefix = sanitizeInput($row['ticket_prefix']);
+        $ticket_prefix = escapeSql($row['ticket_prefix']);
         $ticket_number = intval($row['ticket_number']);
 
         mysqli_query($mysqli, "UPDATE tickets SET ticket_invoice_id = $new_invoice_id WHERE ticket_id = $ticket_id AND ticket_invoice_id = '0'"); // Only if ticket doesn't already have an invoice
@@ -220,8 +220,8 @@ if (isset($_POST['add_quote_item'])) {
     enforceUserPermission('module_sales', 2);
 
     $quote_id = intval($_POST['quote_id']);
-    $name = sanitizeInput($_POST['name']);
-    $description = sanitizeInput($_POST['description']);
+    $name = escapeSql($_POST['name']);
+    $description = escapeSql($_POST['description']);
     $qty = floatval($_POST['qty']);
     $price = floatval($_POST['price']);
     $tax_id = intval($_POST['tax_id']);
@@ -249,8 +249,8 @@ if (isset($_POST['add_quote_item'])) {
     // Get Quote Details
     $sql = mysqli_query($mysqli,"SELECT * FROM quotes WHERE quote_id = $quote_id");
     $row = mysqli_fetch_assoc($sql);
-    $quote_prefix = sanitizeInput($row['quote_prefix']);
-    $quote_number = sanitizeInput($row['quote_number']);
+    $quote_prefix = escapeSql($row['quote_prefix']);
+    $quote_number = escapeSql($row['quote_number']);
     $quote_discount_amount = floatval($row['quote_discount_amount']);
     $client_id = intval($row['quote_client_id']);
 
@@ -280,8 +280,8 @@ if (isset($_POST['edit_quote_item'])) {
     enforceUserPermission('module_sales', 2);
 
     $item_id = intval($_POST['item_id']);
-    $name = sanitizeInput($_POST['name']);
-    $description = sanitizeInput($_POST['description']);
+    $name = escapeSql($_POST['name']);
+    $description = escapeSql($_POST['description']);
     $qty = floatval($_POST['qty']);
     $price = floatval($_POST['price']);
     $tax_id = intval($_POST['tax_id']);
@@ -308,7 +308,7 @@ if (isset($_POST['edit_quote_item'])) {
     //Get Discount Amount
     $sql = mysqli_query($mysqli,"SELECT * FROM quotes WHERE quote_id = $quote_id");
     $row = mysqli_fetch_assoc($sql);
-    $quote_prefix = sanitizeInput($row['quote_prefix']);
+    $quote_prefix = escapeSql($row['quote_prefix']);
     $quote_number = intval($row['quote_number']);
     $client_id = intval($row['quote_client_id']);
     $quote_discount = floatval($row['quote_discount_amount']);
@@ -339,13 +339,13 @@ if (isset($_POST['quote_note'])) {
     enforceUserPermission('module_sales', 2);
 
     $quote_id = intval($_POST['quote_id']);
-    $note = sanitizeInput($_POST['note']);
+    $note = escapeSql($_POST['note']);
 
     // Get Quote Details
     $sql = mysqli_query($mysqli,"SELECT * FROM quotes WHERE quote_id = $quote_id");
     $row = mysqli_fetch_assoc($sql);
-    $quote_prefix = sanitizeInput($row['quote_prefix']);
-    $quote_number = sanitizeInput($row['quote_number']);
+    $quote_prefix = escapeSql($row['quote_prefix']);
+    $quote_number = escapeSql($row['quote_number']);
     $client_id = intval($row['quote_client_id']);
 
     enforceClientAccess();
@@ -373,8 +373,8 @@ if (isset($_POST['edit_quote'])) {
     // Get Quote Details for logging
     $sql = mysqli_query($mysqli,"SELECT * FROM quotes WHERE quote_id = $quote_id");
     $row = mysqli_fetch_assoc($sql);
-    $quote_prefix = sanitizeInput($row['quote_prefix']);
-    $quote_number = sanitizeInput($row['quote_number']);
+    $quote_prefix = escapeSql($row['quote_prefix']);
+    $quote_number = escapeSql($row['quote_number']);
     $client_id = intval($row['quote_client_id']);
 
     enforceClientAccess();
@@ -409,8 +409,8 @@ if (isset($_GET['delete_quote'])) {
     // Get Quote Details for logging
     $sql = mysqli_query($mysqli,"SELECT * FROM quotes WHERE quote_id = $quote_id");
     $row = mysqli_fetch_assoc($sql);
-    $quote_prefix = sanitizeInput($row['quote_prefix']);
-    $quote_number = sanitizeInput($row['quote_number']);
+    $quote_prefix = escapeSql($row['quote_prefix']);
+    $quote_number = escapeSql($row['quote_number']);
     $client_id = intval($row['quote_client_id']);
 
     enforceClientAccess();
@@ -454,7 +454,7 @@ if (isset($_GET['delete_quote_item'])) {
 
     $sql = mysqli_query($mysqli,"SELECT * FROM quote_items WHERE item_id = $item_id");
     $row = mysqli_fetch_assoc($sql);
-    $item_name = sanitizeInput($row['item_name']);
+    $item_name = escapeSql($row['item_name']);
     $quote_id = intval($row['item_quote_id']);
     $item_subtotal = floatval($row['item_subtotal']);
     $item_tax = floatval($row['item_tax']);
@@ -462,8 +462,8 @@ if (isset($_GET['delete_quote_item'])) {
 
     $sql = mysqli_query($mysqli,"SELECT * FROM quotes WHERE quote_id = $quote_id");
     $row = mysqli_fetch_assoc($sql);
-    $quote_prefix = sanitizeInput($row['quote_prefix']);
-    $quote_number = sanitizeInput($row['quote_number']);
+    $quote_prefix = escapeSql($row['quote_prefix']);
+    $quote_number = escapeSql($row['quote_number']);
     $client_id = intval($row['quote_client_id']);
 
     enforceClientAccess();
@@ -492,8 +492,8 @@ if (isset($_GET['mark_quote_sent'])) {
 
     $sql = mysqli_query($mysqli,"SELECT * FROM quotes WHERE quote_id = $quote_id");
     $row = mysqli_fetch_assoc($sql);
-    $quote_prefix = sanitizeInput($row['quote_prefix']);
-    $quote_number = sanitizeInput($row['quote_number']);
+    $quote_prefix = escapeSql($row['quote_prefix']);
+    $quote_number = escapeSql($row['quote_number']);
     $client_id = intval($row['quote_client_id']);
 
     enforceClientAccess();
@@ -520,8 +520,8 @@ if (isset($_GET['accept_quote'])) {
 
     $sql = mysqli_query($mysqli,"SELECT * FROM quotes WHERE quote_id = $quote_id");
     $row = mysqli_fetch_assoc($sql);
-    $quote_prefix = sanitizeInput($row['quote_prefix']);
-    $quote_number = sanitizeInput($row['quote_number']);
+    $quote_prefix = escapeSql($row['quote_prefix']);
+    $quote_number = escapeSql($row['quote_number']);
     $client_id = intval($row['quote_client_id']);
 
     enforceClientAccess();
@@ -550,8 +550,8 @@ if (isset($_GET['decline_quote'])) {
 
     $sql = mysqli_query($mysqli,"SELECT * FROM quotes WHERE quote_id = $quote_id");
     $row = mysqli_fetch_assoc($sql);
-    $quote_prefix = sanitizeInput($row['quote_prefix']);
-    $quote_number = sanitizeInput($row['quote_number']);
+    $quote_prefix = escapeSql($row['quote_prefix']);
+    $quote_number = escapeSql($row['quote_number']);
     $client_id = intval($row['quote_client_id']);
 
     enforceClientAccess();
@@ -585,40 +585,40 @@ if (isset($_GET['email_quote'])) {
     );
 
     $row = mysqli_fetch_assoc($sql);
-    $quote_prefix = sanitizeInput($row['quote_prefix']);
+    $quote_prefix = escapeSql($row['quote_prefix']);
     $quote_number = intval($row['quote_number']);
-    $quote_scope = sanitizeInput($row['quote_scope']);
-    $quote_status = sanitizeInput($row['quote_status']);
-    $quote_date = sanitizeInput($row['quote_date']);
-    $quote_expire = sanitizeInput($row['quote_expire']);
+    $quote_scope = escapeSql($row['quote_scope']);
+    $quote_status = escapeSql($row['quote_status']);
+    $quote_date = escapeSql($row['quote_date']);
+    $quote_expire = escapeSql($row['quote_expire']);
     $quote_amount = floatval($row['quote_amount']);
-    $quote_url_key = sanitizeInput($row['quote_url_key']);
-    $quote_currency_code = sanitizeInput($row['quote_currency_code']);
+    $quote_url_key = escapeSql($row['quote_url_key']);
+    $quote_currency_code = escapeSql($row['quote_currency_code']);
     $client_id = intval($row['client_id']);
-    $client_name = sanitizeInput($row['client_name']);
-    $contact_name = sanitizeInput($row['contact_name']);
-    $contact_email = sanitizeInput($row['contact_email']);
+    $client_name = escapeSql($row['client_name']);
+    $contact_name = escapeSql($row['contact_name']);
+    $contact_email = escapeSql($row['contact_email']);
 
     enforceClientAccess();
 
     $sql = mysqli_query($mysqli,"SELECT * FROM companies WHERE company_id = 1");
     $row = mysqli_fetch_assoc($sql);
 
-    $company_name = sanitizeInput($row['company_name']);
-    $company_country = sanitizeInput($row['company_country']);
-    $company_address = sanitizeInput($row['company_address']);
-    $company_city = sanitizeInput($row['company_city']);
-    $company_state = sanitizeInput($row['company_state']);
-    $company_zip = sanitizeInput($row['company_zip']);
-    $company_phone = sanitizeInput(formatPhoneNumber($row['company_phone'], $row['company_phone_country_code']));
-    $company_email = sanitizeInput($row['company_email']);
-    $company_website = sanitizeInput($row['company_website']);
-    $company_logo = sanitizeInput($row['company_logo']);
+    $company_name = escapeSql($row['company_name']);
+    $company_country = escapeSql($row['company_country']);
+    $company_address = escapeSql($row['company_address']);
+    $company_city = escapeSql($row['company_city']);
+    $company_state = escapeSql($row['company_state']);
+    $company_zip = escapeSql($row['company_zip']);
+    $company_phone = escapeSql(formatPhoneNumber($row['company_phone'], $row['company_phone_country_code']));
+    $company_email = escapeSql($row['company_email']);
+    $company_website = escapeSql($row['company_website']);
+    $company_logo = escapeSql($row['company_logo']);
 
     // Sanitize Config vars from get_settings.php
-    $config_quote_from_name = sanitizeInput($config_quote_from_name);
-    $config_quote_from_email = sanitizeInput($config_quote_from_email);
-    $config_base_url = sanitizeInput($config_base_url);
+    $config_quote_from_name = escapeSql($config_quote_from_name);
+    $config_quote_from_email = escapeSql($config_quote_from_email);
+    $config_base_url = escapeSql($config_base_url);
 
     $subject = "Quote [$quote_scope]";
     $body = "Hello $contact_name,<br><br>Thank you for your inquiry, we are pleased to provide you with the following estimate.<br><br><br>$quote_scope<br>Total Cost: " . numfmt_format_currency($currency_format, $quote_amount, $quote_currency_code) . "<br><br><br>View and accept your estimate online <a href=\'https://$config_base_url/guest/guest_view_quote.php?quote_id=$quote_id&url_key=$quote_url_key\'>here</a><br><br><br>--<br>$company_name - Sales<br>$config_quote_from_email<br>$company_phone";
@@ -662,8 +662,8 @@ if (isset($_GET['mark_quote_invoiced'])) {
 
     $sql = mysqli_query($mysqli,"SELECT * FROM quotes WHERE quote_id = $quote_id");
     $row = mysqli_fetch_assoc($sql);
-    $quote_prefix = sanitizeInput($row['quote_prefix']);
-    $quote_number = sanitizeInput($row['quote_number']);
+    $quote_prefix = escapeSql($row['quote_prefix']);
+    $quote_number = escapeSql($row['quote_number']);
     $client_id = intval($row['quote_client_id']);
 
     enforceClientAccess();

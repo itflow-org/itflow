@@ -65,7 +65,7 @@ if (isset($_GET['archive_network'])) {
     // Get Network Name and Client ID for logging and alert message
     $sql = mysqli_query($mysqli,"SELECT network_name, network_client_id FROM networks WHERE network_id = $network_id");
     $row = mysqli_fetch_assoc($sql);
-    $network_name = sanitizeInput($row['network_name']);
+    $network_name = escapeSql($row['network_name']);
     $client_id = intval($row['network_client_id']);
 
     enforceClientAccess();
@@ -91,7 +91,7 @@ if (isset($_GET['restore_network'])) {
     // Get Network Name and Client ID for logging and alert message
     $sql = mysqli_query($mysqli,"SELECT network_name, network_client_id FROM networks WHERE network_id = $network_id");
     $row = mysqli_fetch_assoc($sql);
-    $network_name = sanitizeInput($row['network_name']);
+    $network_name = escapeSql($row['network_name']);
     $client_id = intval($row['network_client_id']);
 
     enforceClientAccess();
@@ -117,7 +117,7 @@ if (isset($_GET['delete_network'])) {
     // Get Network Name and Client ID for logging and alert message
     $sql = mysqli_query($mysqli,"SELECT network_name, network_client_id FROM networks WHERE network_id = $network_id");
     $row = mysqli_fetch_assoc($sql);
-    $network_name = sanitizeInput($row['network_name']);
+    $network_name = escapeSql($row['network_name']);
     $client_id = intval($row['network_client_id']);
 
     enforceClientAccess();
@@ -151,7 +151,7 @@ if (isset($_POST['bulk_delete_networks'])) {
             // Get Network Name and Client ID for logging and alert message
             $sql = mysqli_query($mysqli,"SELECT network_name, network_client_id FROM networks WHERE network_id = $network_id");
             $row = mysqli_fetch_assoc($sql);
-            $network_name = sanitizeInput($row['network_name']);
+            $network_name = escapeSql($row['network_name']);
             $client_id = intval($row['network_client_id']);
 
             enforceClientAccess();
@@ -324,14 +324,14 @@ if (isset($_POST['import_networks_csv'])) {
 
             $duplicate_detect = 0;
 
-            $name         = isset($column[0]) ? sanitizeInput($column[0]) : '';
-            $description  = isset($column[1]) ? sanitizeInput($column[1]) : '';
+            $name         = isset($column[0]) ? escapeSql($column[0]) : '';
+            $description  = isset($column[1]) ? escapeSql($column[1]) : '';
             $vlan         = isset($column[2]) ? intval($column[2])         : 0;
-            $network      = isset($column[3]) ? sanitizeInput($column[3]) : '';
-            $gateway      = isset($column[4]) ? sanitizeInput($column[4]) : '';
-            $dhcp_range   = isset($column[5]) ? sanitizeInput($column[5]) : '';
-            $primary_dns  = isset($column[6]) ? sanitizeInput($column[6]) : '';
-            $secondary_dns = isset($column[7]) ? sanitizeInput($column[7]) : '';
+            $network      = isset($column[3]) ? escapeSql($column[3]) : '';
+            $gateway      = isset($column[4]) ? escapeSql($column[4]) : '';
+            $dhcp_range   = isset($column[5]) ? escapeSql($column[5]) : '';
+            $primary_dns  = isset($column[6]) ? escapeSql($column[6]) : '';
+            $secondary_dns = isset($column[7]) ? escapeSql($column[7]) : '';
 
             // Skip rows with no name
             if ($name === '') {

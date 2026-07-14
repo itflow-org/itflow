@@ -17,13 +17,13 @@ if (isset($_POST['add_transfer'])) {
     // Get Source Account Name for logging
     $sql = mysqli_query($mysqli,"SELECT account_name, account_currency_code FROM accounts WHERE account_id = $account_from");
     $row = mysqli_fetch_assoc($sql);
-    $source_account_name = sanitizeInput($row['account_name']);
-    $account_currency_code = sanitizeInput($row['account_currency_code']);
+    $source_account_name = escapeSql($row['account_name']);
+    $account_currency_code = escapeSql($row['account_currency_code']);
 
     // Get Destination Account Name for logging
     $sql = mysqli_query($mysqli,"SELECT account_name FROM accounts WHERE account_id = $account_to");
     $row = mysqli_fetch_assoc($sql);
-    $destination_account_name = sanitizeInput($row['account_name']);
+    $destination_account_name = escapeSql($row['account_name']);
 
     mysqli_query($mysqli,"INSERT INTO expenses SET expense_date = '$date', expense_amount = $amount, expense_currency_code = '$session_company_currency', expense_vendor_id = 0, expense_category_id = 0, expense_account_id = $account_from");
     $expense_id = mysqli_insert_id($mysqli);

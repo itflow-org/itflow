@@ -10,10 +10,10 @@ if (isset($_POST['add_custom_link'])) {
 
     validateCSRFToken($_POST['csrf_token']);
 
-    $name = sanitizeInput($_POST['name']);
-    $uri = sanitizeInput($_POST['uri']);
+    $name = escapeSql($_POST['name']);
+    $uri = escapeSql($_POST['uri']);
     $new_tab = intval($_POST['new_tab'] ?? 0);
-    $icon = preg_replace("/[^0-9a-zA-Z-]/", "", sanitizeInput($_POST['icon']));
+    $icon = preg_replace("/[^0-9a-zA-Z-]/", "", escapeSql($_POST['icon']));
     $order = intval($_POST['order'] ?? 0);
     $location = intval($_POST['location']);
 
@@ -34,10 +34,10 @@ if (isset($_POST['edit_custom_link'])) {
     validateCSRFToken($_POST['csrf_token']);
 
     $custom_link_id = intval($_POST['custom_link_id']);
-    $name = sanitizeInput($_POST['name']);
-    $uri = sanitizeInput($_POST['uri']);
+    $name = escapeSql($_POST['name']);
+    $uri = escapeSql($_POST['uri']);
     $new_tab = intval($_POST['new_tab'] ?? 0);
-    $icon = preg_replace("/[^0-9a-zA-Z-]/", "", sanitizeInput($_POST['icon']));
+    $icon = preg_replace("/[^0-9a-zA-Z-]/", "", escapeSql($_POST['icon']));
     $order = intval($_POST['order'] ?? 0);
     $location = intval($_POST['location']);
 
@@ -60,8 +60,8 @@ if (isset($_GET['delete_custom_link'])) {
     // Get Custom Link name and uri for logging
     $sql = mysqli_query($mysqli,"SELECT custom_link_name, custom_link_uri FROM custom_links WHERE custom_link_id = $custom_link_id");
     $row = mysqli_fetch_assoc($sql);
-    $custom_link_name = sanitizeInput($row['custom_link_name']);
-    $custom_link_uri = sanitizeInput($row['custom_link_uri']);
+    $custom_link_name = escapeSql($row['custom_link_name']);
+    $custom_link_uri = escapeSql($row['custom_link_uri']);
 
     mysqli_query($mysqli,"DELETE FROM custom_links WHERE custom_link_id = $custom_link_id");
 

@@ -8,7 +8,7 @@ require_once "includes/inc_all_admin.php";
 
 
 if (isset($_GET['category'])) {
-    $category = sanitizeInput($_GET['category']);
+    $category = escapeSql($_GET['category']);
 } else {
     $category = "Expense";
 }

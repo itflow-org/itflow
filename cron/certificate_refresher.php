@@ -44,13 +44,13 @@ $sql_certificates = mysqli_query(
 
 while ($row = mysqli_fetch_assoc($sql_certificates)) {
     $certificate_id = intval($row['certificate_id']);
-    $domain = sanitizeInput($row['certificate_domain']);
+    $domain = escapeSql($row['certificate_domain']);
 
     $certificate = getSSL($domain);
 
-    $expire = sanitizeInput($certificate['expire']);
-    $issued_by = sanitizeInput($certificate['issued_by']);
-    $public_key = sanitizeInput($certificate['public_key']);
+    $expire = escapeSql($certificate['expire']);
+    $issued_by = escapeSql($certificate['issued_by']);
+    $public_key = escapeSql($certificate['public_key']);
 
     if (!empty($expire)) {
 
@@ -89,9 +89,9 @@ while ($row = mysqli_fetch_assoc($sql_certificates)) {
         foreach ($original_certificate_info as $column => $old_value) {
             $new_value = $new_certificate_info[$column];
             if ($old_value != $new_value && !in_array($column, $ignored_columns)) {
-                $column = sanitizeInput($column);
-                $old_value = sanitizeInput($old_value);
-                $new_value = sanitizeInput($new_value);
+                $column = escapeSql($column);
+                $old_value = escapeSql($old_value);
+                $new_value = escapeSql($new_value);
                 mysqli_query($mysqli,"INSERT INTO certificate_history SET certificate_history_column = '$column', certificate_history_old_value = '$old_value', certificate_history_new_value = '$new_value', certificate_history_certificate_id = $certificate_id");
             }
         }

@@ -21,12 +21,12 @@ if (isset($_POST['add_software_from_template'])) {
     // GET Software Template Info
     $sql_software_templates = mysqli_query($mysqli,"SELECT * FROM software_templates WHERE software_template_id = $software_template_id");
     $row = mysqli_fetch_assoc($sql_software_templates);
-    $name = sanitizeInput($row['software_template_name']);
-    $version = sanitizeInput($row['software_template_version']);
-    $description = sanitizeInput($row['software_template_description']);
-    $type = sanitizeInput($row['software_template_type']);
-    $license_type = sanitizeInput($row['software_template_license_type']);
-    $notes = sanitizeInput($row['software_template_notes']);
+    $name = escapeSql($row['software_template_name']);
+    $version = escapeSql($row['software_template_version']);
+    $description = escapeSql($row['software_template_description']);
+    $type = escapeSql($row['software_template_type']);
+    $license_type = escapeSql($row['software_template_license_type']);
+    $notes = escapeSql($row['software_template_notes']);
     $vendor = intval($_POST['vendor'] ?? 0);
 
     // Software add query
@@ -49,28 +49,28 @@ if (isset($_POST['add_software'])) {
     enforceUserPermission('module_support', 2);
 
     $client_id = intval($_POST['client_id']);
-    $name = sanitizeInput($_POST['name']);
-    $version = sanitizeInput($_POST['version']);
-    $description = sanitizeInput($_POST['description']);
-    $type = sanitizeInput($_POST['type']);
-    $license_type = sanitizeInput($_POST['license_type']);
-    $notes = sanitizeInput($_POST['notes']);
-    $key = sanitizeInput($_POST['key']);
+    $name = escapeSql($_POST['name']);
+    $version = escapeSql($_POST['version']);
+    $description = escapeSql($_POST['description']);
+    $type = escapeSql($_POST['type']);
+    $license_type = escapeSql($_POST['license_type']);
+    $notes = escapeSql($_POST['notes']);
+    $key = escapeSql($_POST['key']);
     $seats = intval($_POST['seats']);
-    $purchase_reference = sanitizeInput($_POST['purchase_reference']);
-    $purchase = sanitizeInput($_POST['purchase']);
+    $purchase_reference = escapeSql($_POST['purchase_reference']);
+    $purchase = escapeSql($_POST['purchase']);
     if (empty($purchase)) {
         $purchase = "NULL";
     } else {
         $purchase = "'" . $purchase . "'";
     }
-    $expire = sanitizeInput($_POST['expire']);
+    $expire = escapeSql($_POST['expire']);
     if (empty($expire)) {
         $expire = "NULL";
     } else {
         $expire = "'" . $expire . "'";
     }
-    $notes = sanitizeInput($_POST['notes']);
+    $notes = escapeSql($_POST['notes']);
     $vendor = intval($_POST['vendor'] ?? 0);
 
     enforceClientAccess();
@@ -112,28 +112,28 @@ if (isset($_POST['edit_software'])) {
     enforceUserPermission('module_support', 2);
 
     $software_id = intval($_POST['software_id']);
-    $name = sanitizeInput($_POST['name']);
-    $version = sanitizeInput($_POST['version']);
-    $description = sanitizeInput($_POST['description']);
-    $type = sanitizeInput($_POST['type']);
-    $license_type = sanitizeInput($_POST['license_type']);
-    $notes = sanitizeInput($_POST['notes']);
-    $key = sanitizeInput($_POST['key']);
+    $name = escapeSql($_POST['name']);
+    $version = escapeSql($_POST['version']);
+    $description = escapeSql($_POST['description']);
+    $type = escapeSql($_POST['type']);
+    $license_type = escapeSql($_POST['license_type']);
+    $notes = escapeSql($_POST['notes']);
+    $key = escapeSql($_POST['key']);
     $seats = intval($_POST['seats']);
-    $purchase_reference = sanitizeInput($_POST['purchase_reference']);
-    $purchase = sanitizeInput($_POST['purchase']);
+    $purchase_reference = escapeSql($_POST['purchase_reference']);
+    $purchase = escapeSql($_POST['purchase']);
     if (empty($purchase)) {
         $purchase = "NULL";
     } else {
         $purchase = "'" . $purchase . "'";
     }
-    $expire = sanitizeInput($_POST['expire']);
+    $expire = escapeSql($_POST['expire']);
     if (empty($expire)) {
         $expire = "NULL";
     } else {
         $expire = "'" . $expire . "'";
     }
-    $notes = sanitizeInput($_POST['notes']);
+    $notes = escapeSql($_POST['notes']);
     $vendor = intval($_POST['vendor'] ?? 0);
 
     $client_id = intval(getFieldById('software', $software_id, 'software_client_id'));
@@ -180,7 +180,7 @@ if (isset($_GET['archive_software'])) {
     // Get Software Name and Client ID for logging and alert message
     $sql = mysqli_query($mysqli,"SELECT software_name, software_client_id FROM software WHERE software_id = $software_id");
     $row = mysqli_fetch_assoc($sql);
-    $software_name = sanitizeInput($row['software_name']);
+    $software_name = escapeSql($row['software_name']);
     $client_id = intval($row['software_client_id']);
 
     enforceClientAccess();
@@ -210,7 +210,7 @@ if (isset($_GET['delete_software'])) {
     // Get Software Name and Client ID for logging and alert message
     $sql = mysqli_query($mysqli,"SELECT software_name, software_client_id FROM software WHERE software_id = $software_id");
     $row = mysqli_fetch_assoc($sql);
-    $software_name = sanitizeInput($row['software_name']);
+    $software_name = escapeSql($row['software_name']);
     $client_id = intval($row['software_client_id']);
 
     enforceClientAccess();

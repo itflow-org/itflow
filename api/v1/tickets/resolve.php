@@ -19,9 +19,9 @@ if (!empty($ticket_id)) {
 
     // Grab what we need, not using the model
     $ticket_id = intval($ticket_row['ticket_id']); // Override so things fail if this is bad
-    $ticket_prefix = sanitizeInput($ticket_row['ticket_prefix']);
+    $ticket_prefix = escapeSql($ticket_row['ticket_prefix']);
     $ticket_number = intval($ticket_row['ticket_number']);
-    $ticket_first_response_at = sanitizeInput($ticket_row['ticket_first_response_at']);
+    $ticket_first_response_at = escapeSql($ticket_row['ticket_first_response_at']);
 
     // Mark FR (if not)
     if (empty($ticket_first_response_at)) {

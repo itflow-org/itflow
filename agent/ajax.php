@@ -47,7 +47,7 @@ if (isset($_POST['client_set_notes'])) {
     enforceUserPermission('module_client', 2);
 
     $client_id = intval($_POST['client_id']);
-    $notes = sanitizeInput($_POST['notes']);
+    $notes = escapeSql($_POST['notes']);
 
     // Update notes
     mysqli_query($mysqli, "UPDATE clients SET client_notes = '$notes' WHERE client_id = $client_id");
@@ -64,14 +64,14 @@ if (isset($_POST['contact_set_notes'])) {
     enforceUserPermission('module_client', 2);
 
     $contact_id = intval($_POST['contact_id']);
-    $notes = sanitizeInput($_POST['notes']);
+    $notes = escapeSql($_POST['notes']);
 
     // Get Contact Details and Client ID for Logging
     $sql = mysqli_query($mysqli,"SELECT contact_name, contact_client_id
         FROM contacts WHERE contact_id = $contact_id"
     );
     $row = mysqli_fetch_assoc($sql);
-    $contact_name = sanitizeInput($row['contact_name']);
+    $contact_name = escapeSql($row['contact_name']);
     $client_id = intval($row['contact_client_id']);
 
     // Update notes
@@ -89,14 +89,14 @@ if (isset($_POST['asset_set_notes'])) {
     enforceUserPermission('module_support', 2);
 
     $asset_id = intval($_POST['asset_id']);
-    $notes = sanitizeInput($_POST['notes']);
+    $notes = escapeSql($_POST['notes']);
 
     // Get Asset Details and Client ID for Logging
     $sql = mysqli_query($mysqli,"SELECT asset_name, asset_client_id
         FROM assets WHERE asset_id = $asset_id"
     );
     $row = mysqli_fetch_assoc($sql);
-    $asset_name = sanitizeInput($row['asset_name']);
+    $asset_name = escapeSql($row['asset_name']);
     $client_id = intval($row['asset_client_id']);
 
     // Update notes
@@ -161,10 +161,10 @@ if (isset($_GET['share_generate_link'])) {
     $item_encrypted_credential = '';  // Default empty
 
     $client_id = intval($_GET['client_id']);
-    $item_type = sanitizeInput($_GET['type']);
+    $item_type = escapeSql($_GET['type']);
     $item_id = intval($_GET['id']);
-    $item_email = sanitizeInput($_GET['contact_email']);
-    $item_note = sanitizeInput($_GET['note']);
+    $item_email = escapeSql($_GET['contact_email']);
+    $item_note = escapeSql($_GET['note']);
     $item_view_limit = intval($_GET['views']);
     $item_view_limit_wording = "";
     if ($item_view_limit == 1) {
@@ -188,19 +188,19 @@ if (isset($_GET['share_generate_link'])) {
 
     if ($item_type == "Document") {
         $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT document_name FROM documents WHERE document_id = $item_id AND document_client_id = $client_id LIMIT 1"));
-        $item_name = sanitizeInput($row['document_name']);
+        $item_name = escapeSql($row['document_name']);
     }
 
     if ($item_type == "File") {
         $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT file_name FROM files WHERE file_id = $item_id AND file_client_id = $client_id LIMIT 1"));
-        $item_name = sanitizeInput($row['file_name']);
+        $item_name = escapeSql($row['file_name']);
     }
 
     if ($item_type == "Credential") {
         $credential = mysqli_query($mysqli, "SELECT credential_name, credential_username, credential_password FROM credentials WHERE credential_id = $item_id AND credential_client_id = $client_id LIMIT 1");
         $row = mysqli_fetch_assoc($credential);
 
-        $item_name = sanitizeInput($row['credential_name']);
+        $item_name = escapeSql($row['credential_name']);
 
         // Decrypt & re-encrypt username/password for sharing
         $credential_encryption_key = randomString();
@@ -230,14 +230,14 @@ if (isset($_GET['share_generate_link'])) {
 
     $sql = mysqli_query($mysqli,"SELECT * FROM companies WHERE company_id = 1");
     $row = mysqli_fetch_assoc($sql);
-    $company_name = sanitizeInput($row['company_name']);
-    $company_phone = sanitizeInput(formatPhoneNumber($row['company_phone'], $row['company_phone_country_code']));
+    $company_name = escapeSql($row['company_name']);
+    $company_phone = escapeSql(formatPhoneNumber($row['company_phone'], $row['company_phone_country_code']));
 
     // Sanitize Config vars from get_settings.php
-    $config_ticket_from_name = sanitizeInput($config_ticket_from_name);
-    $config_ticket_from_email = sanitizeInput($config_ticket_from_email);
-    $config_mail_from_name = sanitizeInput($config_mail_from_name);
-    $config_mail_from_email = sanitizeInput($config_mail_from_email);
+    $config_ticket_from_name = escapeSql($config_ticket_from_name);
+    $config_ticket_from_email = escapeSql($config_ticket_from_email);
+    $config_mail_from_name = escapeSql($config_mail_from_name);
+    $config_mail_from_email = escapeSql($config_mail_from_email);
 
     // Send user e-mail, if specified
     if(!empty($config_smtp_host) && filter_var($item_email, FILTER_VALIDATE_EMAIL)){
@@ -401,7 +401,7 @@ if (isset($_GET['get_totp_token_via_id'])) {
     $credential_id = intval($_GET['credential_id']);
 
     $sql = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT credential_name, credential_otp_secret, credential_client_id FROM credentials WHERE credential_id = $credential_id"));
-    $name = sanitizeInput($sql['credential_name']);
+    $name = escapeSql($sql['credential_name']);
     $totp_secret = $sql['credential_otp_secret'];
     $client_id = intval($sql['credential_client_id']);
 
@@ -501,26 +501,26 @@ if (isset($_POST['update_kanban_ticket'])) {
                     ");
                     $row = mysqli_fetch_assoc($ticket_sql);
 
-                    $contact_name = sanitizeInput($row['contact_name']);
-                    $contact_email = sanitizeInput($row['contact_email']);
-                    $ticket_prefix = sanitizeInput($row['ticket_prefix']);
+                    $contact_name = escapeSql($row['contact_name']);
+                    $contact_email = escapeSql($row['contact_email']);
+                    $ticket_prefix = escapeSql($row['ticket_prefix']);
                     $ticket_number = intval($row['ticket_number']);
-                    $ticket_subject = sanitizeInput($row['ticket_subject']);
+                    $ticket_subject = escapeSql($row['ticket_subject']);
                     $client_id = intval($row['ticket_client_id']);
                     $ticket_assigned_to = intval($row['ticket_assigned_to']);
-                    $ticket_status = sanitizeInput($row['ticket_status_name']);
-                    $url_key = sanitizeInput($row['ticket_url_key']);
+                    $ticket_status = escapeSql($row['ticket_status_name']);
+                    $url_key = escapeSql($row['ticket_url_key']);
 
                     // Sanitize Config vars from get_settings.php
-                    $config_ticket_from_name = sanitizeInput($config_ticket_from_name);
-                    $config_ticket_from_email = sanitizeInput($config_ticket_from_email);
-                    $config_base_url = sanitizeInput($config_base_url);
+                    $config_ticket_from_name = escapeSql($config_ticket_from_name);
+                    $config_ticket_from_email = escapeSql($config_ticket_from_email);
+                    $config_base_url = escapeSql($config_base_url);
 
                     // Get Company Info
                     $sql = mysqli_query($mysqli, "SELECT company_name, company_phone, company_phone_country_code FROM companies WHERE company_id = 1");
                     $row = mysqli_fetch_assoc($sql);
-                    $company_name = sanitizeInput($row['company_name']);
-                    $company_phone = sanitizeInput(formatPhoneNumber($row['company_phone'], $row['company_phone_country_code']));
+                    $company_name = escapeSql($row['company_name']);
+                    $company_phone = escapeSql(formatPhoneNumber($row['company_phone'], $row['company_phone_country_code']));
 
                     // EMAIL
                     $subject = "Ticket resolved - [$ticket_prefix$ticket_number] - $ticket_subject | (pending closure)";
@@ -548,7 +548,7 @@ if (isset($_POST['update_kanban_ticket'])) {
                     $sql_watchers = mysqli_query($mysqli, "SELECT watcher_email FROM ticket_watchers WHERE watcher_ticket_id = $ticket_id");
                     $body .= "<br><br>----------------------------------------<br>YOU ARE A COLLABORATOR ON THIS TICKET";
                     while ($row = mysqli_fetch_assoc($sql_watchers)) {
-                        $watcher_email = sanitizeInput($row['watcher_email']);
+                        $watcher_email = escapeSql($row['watcher_email']);
 
                         // Queue Mail
                         $data[] = [
@@ -712,7 +712,7 @@ if (isset($_POST['update_recurring_invoice_items_order'])) {
 if (isset($_GET['client_duplicate_check'])) {
     enforceUserPermission('module_client', 2);
 
-    $name = sanitizeInput($_GET['name']);
+    $name = escapeSql($_GET['name']);
 
     $response['message'] = ""; // default
 
@@ -736,8 +736,8 @@ if (isset($_GET['client_duplicate_check'])) {
 if (isset($_GET['contact_email_check'])) {
     enforceUserPermission('module_client', 2);
 
-    $email = sanitizeInput($_GET['email']);
-    $domain = sanitizeInput(substr($_GET['email'], strpos($_GET['email'], '@') + 1));
+    $email = escapeSql($_GET['email']);
+    $domain = escapeSql(substr($_GET['email'], strpos($_GET['email'], '@') + 1));
 
     $response['message'] = ""; // default
 
@@ -1014,7 +1014,7 @@ if (isset($_GET['ai_ticket_summary'])) {
 if (isset($_GET['apex_domain_check'])) {
     enforceUserPermission('module_support', 2);
 
-    $domain = sanitizeInput($_GET['domain']);
+    $domain = escapeSql($_GET['domain']);
 
     $response['message'] = ""; // default
 

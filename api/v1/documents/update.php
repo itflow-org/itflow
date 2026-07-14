@@ -25,13 +25,13 @@ if (!empty($document_id)) {
         $row = mysqli_fetch_assoc($sql_original_document);
 
         // Pull original fields for versioning
-        $original_document_name        = sanitizeInput($row['document_name']);
-        $original_document_description = sanitizeInput($row['document_description']);
+        $original_document_name        = escapeSql($row['document_name']);
+        $original_document_description = escapeSql($row['document_description']);
         $original_document_content     = mysqli_real_escape_string($mysqli, $row['document_content']);
         $original_document_created_by  = intval($row['document_created_by']);
         $original_document_updated_by  = intval($row['document_updated_by']);
-        $original_document_created_at  = sanitizeInput($row['document_created_at']);
-        $original_document_updated_at  = sanitizeInput($row['document_updated_at']);
+        $original_document_created_at  = escapeSql($row['document_created_at']);
+        $original_document_updated_at  = escapeSql($row['document_updated_at']);
 
         // Determine who/when created the version (same logic as app)
         if (!empty($original_document_updated_at)) {
@@ -89,7 +89,7 @@ if (!empty($document_id)) {
         $content_db = mysqli_real_escape_string($mysqli, $processed_html);
 
         // Rebuild content_raw for full-text search (same technique as app)
-        $content_raw = sanitizeInput($name . " " . str_replace("<", " <", $processed_html));
+        $content_raw = escapeSql($name . " " . str_replace("<", " <", $processed_html));
         $content_raw = mysqli_real_escape_string($mysqli, $content_raw);
 
         // Escape name/description too (document_model.php may already sanitize; do DB escaping here regardless)

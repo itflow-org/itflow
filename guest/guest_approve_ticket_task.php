@@ -35,7 +35,7 @@ $company_phone = escapeHtml(formatPhoneNumber($company_sql_row['company_phone'],
 $company_website = escapeHtml($company_sql_row['company_website']);
 
 $approval_id = intval($_GET['task_approval_id']);
-$url_key = sanitizeInput($_GET['url_key']);
+$url_key = escapeSql($_GET['url_key']);
 
 $task_row = mysqli_fetch_assoc(mysqli_query($mysqli,
     "SELECT * FROM task_approvals

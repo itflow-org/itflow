@@ -10,8 +10,8 @@ if (isset($_POST['add_calendar'])) {
 
     validateCSRFToken($_POST['csrf_token']);
 
-    $name = sanitizeInput($_POST['name']);
-    $color = sanitizeInput($_POST['color']);
+    $name = escapeSql($_POST['name']);
+    $color = escapeSql($_POST['color']);
 
     mysqli_query($mysqli,"INSERT INTO calendars SET calendar_name = '$name', calendar_color = '$color'");
 
@@ -30,8 +30,8 @@ if (isset($_POST['edit_calendar'])) {
     validateCSRFToken($_POST['csrf_token']);
 
     $calendar_id = intval($_POST['calendar_id']);
-    $name = sanitizeInput($_POST['name']);
-    $color = sanitizeInput($_POST['color']);
+    $name = escapeSql($_POST['name']);
+    $color = escapeSql($_POST['color']);
 
     mysqli_query($mysqli,"UPDATE calendars SET calendar_name = '$name', calendar_color = '$color' WHERE calendar_id = $calendar_id");
 
@@ -52,7 +52,7 @@ if (isset($_GET['delete_calendar'])) {
     // Get Calendar Name
     $sql = mysqli_query($mysqli,"SELECT * FROM calendars WHERE calendar_id = $calendar_id");
     $row = mysqli_fetch_assoc($sql);
-    $calendar_name = sanitizeInput($row['calendar_name']);
+    $calendar_name = escapeSql($row['calendar_name']);
 
     // Delete Calendar
     mysqli_query($mysqli,"DELETE FROM calendars WHERE calendar_id = $calendar_id");
@@ -84,33 +84,33 @@ if (isset($_POST['add_event'])) {
     $event_id = mysqli_insert_id($mysqli);
 
     // Get Calendar Name
-    $calendar_name = sanitizeInput(getFieldById('calendars', $calendar_id, 'calendar_name'));
+    $calendar_name = escapeSql(getFieldById('calendars', $calendar_id, 'calendar_name'));
 
     //If email is checked
     if ($email_event == 1) {
 
         $sql_client = mysqli_query($mysqli,"SELECT * FROM clients JOIN contacts ON contact_client_id = client_id WHERE contact_primary = 1 AND client_id = $client_id");
         $row = mysqli_fetch_assoc($sql_client);
-        $client_name = sanitizeInput($row['client_name']);
-        $contact_name = sanitizeInput($row['contact_name']);
-        $contact_email = sanitizeInput($row['contact_email']);
+        $client_name = escapeSql($row['client_name']);
+        $contact_name = escapeSql($row['contact_name']);
+        $contact_email = escapeSql($row['contact_email']);
 
         $sql_company = mysqli_query($mysqli,"SELECT * FROM companies WHERE company_id = 1");
         $row = mysqli_fetch_assoc($sql_company);
-        $company_name = sanitizeInput($row['company_name']);
-        $company_country = sanitizeInput($row['company_country']);
-        $company_address = sanitizeInput($row['company_address']);
-        $company_city = sanitizeInput($row['company_city']);
-        $company_state = sanitizeInput($row['company_state']);
-        $company_zip = sanitizeInput($row['company_zip']);
-        $company_phone = sanitizeInput(formatPhoneNumber($row['company_phone']));
-        $company_email = sanitizeInput($row['company_email']);
-        $company_website = sanitizeInput($row['company_website']);
-        $company_logo = sanitizeInput($row['company_logo']);
+        $company_name = escapeSql($row['company_name']);
+        $company_country = escapeSql($row['company_country']);
+        $company_address = escapeSql($row['company_address']);
+        $company_city = escapeSql($row['company_city']);
+        $company_state = escapeSql($row['company_state']);
+        $company_zip = escapeSql($row['company_zip']);
+        $company_phone = escapeSql(formatPhoneNumber($row['company_phone']));
+        $company_email = escapeSql($row['company_email']);
+        $company_website = escapeSql($row['company_website']);
+        $company_logo = escapeSql($row['company_logo']);
 
         // Sanitize Config Vars from get_settings.php and Session Vars from check_login.php
-        $config_mail_from_name = sanitizeInput($config_mail_from_name);
-        $config_mail_from_email = sanitizeInput($config_mail_from_email);
+        $config_mail_from_name = escapeSql($config_mail_from_name);
+        $config_mail_from_email = escapeSql($config_mail_from_email);
 
         $subject = "New Calendar Event";
         $body = "Hello $contact_name,<br><br>A calendar event has been scheduled:<br><br>Event Title: $title<br>Event Date: $start<br><br><br>--<br>$company_name<br>$company_phone";
@@ -165,26 +165,26 @@ if (isset($_POST['edit_event'])) {
 
         $sql_client = mysqli_query($mysqli,"SELECT * FROM clients JOIN contacts ON contact_client_id = client_id WHERE contact_primary = 1 AND client_id = $client_id");
         $row = mysqli_fetch_assoc($sql_client);
-        $client_name = sanitizeInput($row['client_name']);
-        $contact_name = sanitizeInput($row['contact_name']);
-        $contact_email = sanitizeInput($row['contact_email']);
+        $client_name = escapeSql($row['client_name']);
+        $contact_name = escapeSql($row['contact_name']);
+        $contact_email = escapeSql($row['contact_email']);
 
         $sql_company = mysqli_query($mysqli,"SELECT * FROM companies WHERE company_id = 1");
         $row = mysqli_fetch_assoc($sql_company);
-        $company_name = sanitizeInput($row['company_name']);
-        $company_country = sanitizeInput($row['company_country']);
-        $company_address = sanitizeInput($row['company_address']);
-        $company_city = sanitizeInput($row['company_city']);
-        $company_state = sanitizeInput($row['company_state']);
-        $company_zip = sanitizeInput($row['company_zip']);
-        $company_phone = sanitizeInput(formatPhoneNumber($row['company_phone']));
-        $company_email = sanitizeInput($row['company_email']);
-        $company_website = sanitizeInput($row['company_website']);
-        $company_logo = sanitizeInput($row['company_logo']);
+        $company_name = escapeSql($row['company_name']);
+        $company_country = escapeSql($row['company_country']);
+        $company_address = escapeSql($row['company_address']);
+        $company_city = escapeSql($row['company_city']);
+        $company_state = escapeSql($row['company_state']);
+        $company_zip = escapeSql($row['company_zip']);
+        $company_phone = escapeSql(formatPhoneNumber($row['company_phone']));
+        $company_email = escapeSql($row['company_email']);
+        $company_website = escapeSql($row['company_website']);
+        $company_logo = escapeSql($row['company_logo']);
 
         // Sanitize Config Vars from get_settings.php and Session Vars from check_login.php
-        $config_mail_from_name = sanitizeInput($config_mail_from_name);
-        $config_mail_from_email = sanitizeInput($config_mail_from_email);
+        $config_mail_from_name = escapeSql($config_mail_from_name);
+        $config_mail_from_email = escapeSql($config_mail_from_email);
 
 
         $subject = "Calendar Event Rescheduled";
@@ -228,7 +228,7 @@ if (isset($_GET['delete_event'])) {
     // Get Event Title
     $sql = mysqli_query($mysqli,"SELECT * FROM calendar_events WHERE event_id = $event_id");
     $row = mysqli_fetch_assoc($sql);
-    $event_title = sanitizeInput($row['event_title']);
+    $event_title = escapeSql($row['event_title']);
     $client_id = intval($row['event_client_id']);
 
     // Don't Enforce Client Access if Calendar event doesn't have a client

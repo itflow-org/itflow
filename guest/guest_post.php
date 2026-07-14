@@ -11,16 +11,16 @@ require_once "../includes/inc_set_timezone.php"; // Must be included after sessi
 if (isset($_GET['accept_quote'], $_GET['url_key'])) {
 
     $quote_id = intval($_GET['accept_quote']);
-    $url_key = sanitizeInput($_GET['url_key']);
+    $url_key = escapeSql($_GET['url_key']);
 
     // Select only the necessary fields
     $sql = mysqli_query($mysqli, "SELECT quote_prefix, quote_number, client_name, client_id FROM quotes LEFT JOIN clients ON quote_client_id = client_id WHERE quote_id = $quote_id AND quote_url_key = '$url_key'");
 
     if (mysqli_num_rows($sql) == 1) {
         $row = mysqli_fetch_assoc($sql);
-        $quote_prefix = sanitizeInput($row['quote_prefix']);
+        $quote_prefix = escapeSql($row['quote_prefix']);
         $quote_number = intval($row['quote_number']);
-        $client_name = sanitizeInput($row['client_name']);
+        $client_name = escapeSql($row['client_name']);
         $client_id = intval($row['client_id']);
 
         mysqli_query($mysqli, "UPDATE quotes SET quote_status = 'Accepted' WHERE quote_id = $quote_id");
@@ -34,7 +34,7 @@ if (isset($_GET['accept_quote'], $_GET['url_key'])) {
 
         $sql_company = mysqli_query($mysqli, "SELECT company_name FROM companies WHERE company_id = 1");
         $row = mysqli_fetch_assoc($sql_company);
-        $company_name = sanitizeInput($row['company_name']);
+        $company_name = escapeSql($row['company_name']);
 
         $sql_settings = mysqli_query($mysqli, "SELECT * FROM settings WHERE company_id = 1");
         $row = mysqli_fetch_assoc($sql_settings);
@@ -43,10 +43,10 @@ if (isset($_GET['accept_quote'], $_GET['url_key'])) {
         $config_smtp_encryption = $row['config_smtp_encryption'];
         $config_smtp_username = $row['config_smtp_username'];
         $config_smtp_password = $row['config_smtp_password'];
-        $config_quote_from_name = sanitizeInput($row['config_quote_from_name']);
-        $config_quote_from_email = sanitizeInput($row['config_quote_from_email']);
-        $config_quote_notification_email = sanitizeInput($row['config_quote_notification_email']);
-        $config_base_url = sanitizeInput($config_base_url);
+        $config_quote_from_name = escapeSql($row['config_quote_from_name']);
+        $config_quote_from_email = escapeSql($row['config_quote_from_email']);
+        $config_quote_notification_email = escapeSql($row['config_quote_notification_email']);
+        $config_base_url = escapeSql($config_base_url);
 
         if (!empty($config_smtp_host) && !empty($config_quote_notification_email)) {
             $subject = "Quote Accepted - $client_name - Quote $quote_prefix$quote_number";
@@ -76,16 +76,16 @@ if (isset($_GET['accept_quote'], $_GET['url_key'])) {
 if (isset($_GET['decline_quote'], $_GET['url_key'])) {
 
     $quote_id = intval($_GET['decline_quote']);
-    $url_key = sanitizeInput($_GET['url_key']);
+    $url_key = escapeSql($_GET['url_key']);
 
     // Select only the necessary fields
     $sql = mysqli_query($mysqli, "SELECT quote_prefix, quote_number, client_name, client_id FROM quotes LEFT JOIN clients ON quote_client_id = client_id WHERE quote_id = $quote_id AND quote_url_key = '$url_key'");
 
     if (mysqli_num_rows($sql) == 1) {
         $row = mysqli_fetch_assoc($sql);
-        $quote_prefix = sanitizeInput($row['quote_prefix']);
+        $quote_prefix = escapeSql($row['quote_prefix']);
         $quote_number = intval($row['quote_number']);
-        $client_name = sanitizeInput($row['client_name']);
+        $client_name = escapeSql($row['client_name']);
         $client_id = intval($row['client_id']);
 
         mysqli_query($mysqli, "UPDATE quotes SET quote_status = 'Declined' WHERE quote_id = $quote_id");
@@ -99,7 +99,7 @@ if (isset($_GET['decline_quote'], $_GET['url_key'])) {
 
         $sql_company = mysqli_query($mysqli, "SELECT company_name FROM companies WHERE company_id = 1");
         $row = mysqli_fetch_assoc($sql_company);
-        $company_name = sanitizeInput($row['company_name']);
+        $company_name = escapeSql($row['company_name']);
 
         $sql_settings = mysqli_query($mysqli, "SELECT * FROM settings WHERE company_id = 1");
         $row = mysqli_fetch_assoc($sql_settings);
@@ -108,10 +108,10 @@ if (isset($_GET['decline_quote'], $_GET['url_key'])) {
         $config_smtp_encryption = $row['config_smtp_encryption'];
         $config_smtp_username = $row['config_smtp_username'];
         $config_smtp_password = $row['config_smtp_password'];
-        $config_quote_from_name = sanitizeInput($row['config_quote_from_name']);
-        $config_quote_from_email = sanitizeInput($row['config_quote_from_email']);
-        $config_quote_notification_email = sanitizeInput($row['config_quote_notification_email']);
-        $config_base_url = sanitizeInput($config_base_url);
+        $config_quote_from_name = escapeSql($row['config_quote_from_name']);
+        $config_quote_from_email = escapeSql($row['config_quote_from_email']);
+        $config_quote_notification_email = escapeSql($row['config_quote_notification_email']);
+        $config_base_url = escapeSql($config_base_url);
 
         if (!empty($config_smtp_host) && !empty($config_quote_notification_email)) {
             $subject = "Quote Declined - $client_name - Quote $quote_prefix$quote_number";
@@ -140,7 +140,7 @@ if (isset($_GET['decline_quote'], $_GET['url_key'])) {
 if (isset($_GET['reopen_ticket'], $_GET['url_key'])) {
 
     $ticket_id = intval($_GET['ticket_id']);
-    $url_key = sanitizeInput($_GET['url_key']);
+    $url_key = escapeSql($_GET['url_key']);
 
     // Select only the necessary fields
     $sql = mysqli_query($mysqli, "SELECT ticket_id FROM tickets WHERE ticket_id = $ticket_id AND ticket_url_key = '$url_key' AND ticket_resolved_at IS NOT NULL AND ticket_closed_at IS NULL");
@@ -167,7 +167,7 @@ if (isset($_GET['reopen_ticket'], $_GET['url_key'])) {
 if (isset($_GET['close_ticket'], $_GET['url_key'])) {
 
     $ticket_id = intval($_GET['ticket_id']);
-    $url_key = sanitizeInput($_GET['url_key']);
+    $url_key = escapeSql($_GET['url_key']);
 
     // Select only the necessary fields
     $sql = mysqli_query($mysqli, "SELECT ticket_id FROM tickets WHERE ticket_id = $ticket_id AND ticket_url_key = '$url_key' AND ticket_resolved_at IS NOT NULL AND ticket_closed_at IS NULL");
@@ -194,8 +194,8 @@ if (isset($_GET['close_ticket'], $_GET['url_key'])) {
 if (isset($_GET['add_ticket_feedback'], $_GET['url_key'])) {
 
     $ticket_id = intval($_GET['ticket_id']);
-    $url_key = sanitizeInput($_GET['url_key']);
-    $feedback = sanitizeInput($_GET['feedback']);
+    $url_key = escapeSql($_GET['url_key']);
+    $feedback = escapeSql($_GET['feedback']);
 
     // Select only the necessary fields
     $sql = mysqli_query($mysqli, "SELECT ticket_id FROM tickets WHERE ticket_id = $ticket_id AND ticket_url_key = '$url_key' AND ticket_closed_at IS NOT NULL");
@@ -207,7 +207,7 @@ if (isset($_GET['add_ticket_feedback'], $_GET['url_key'])) {
         // Notify on bad feedback
         if ($feedback == "Bad") {
             $ticket_details = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT ticket_prefix, ticket_number FROM tickets WHERE ticket_id = $ticket_id LIMIT 1"));
-            $ticket_prefix = sanitizeInput($ticket_details['ticket_prefix']);
+            $ticket_prefix = escapeSql($ticket_details['ticket_prefix']);
             $ticket_number = intval($ticket_details['ticket_number']);
 
             appNotify("Feedback", "Guest rated ticket number $ticket_prefix$ticket_number (ID: $ticket_id) as bad", "/agent/ticket.php?ticket_id=$ticket_id");
@@ -229,7 +229,7 @@ if (isset($_GET['approve_ticket_task'])) {
 
     $task_id = intval($_GET['approve_ticket_task']);
     $approval_id = intval($_GET['approval_id']);
-    $url_key = sanitizeInput($_GET['approval_url_key']);
+    $url_key = escapeSql($_GET['approval_url_key']);
 
     $approval_row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT * FROM task_approvals LEFT JOIN tasks on task_id = approval_task_id WHERE approval_id = $approval_id AND approval_task_id = $task_id AND approval_url_key = '$url_key' AND approval_status = 'pending'"));
 
@@ -261,7 +261,7 @@ if (isset($_GET['approve_ticket_task'])) {
 if (isset($_GET['export_quote_pdf'])) {
 
     $quote_id = intval($_GET['export_quote_pdf']);
-    $url_key = sanitizeInput($_GET['url_key']);
+    $url_key = escapeSql($_GET['url_key']);
 
     $sql = mysqli_query(
         $mysqli,
@@ -462,7 +462,7 @@ if (isset($_GET['export_quote_pdf'])) {
 if (isset($_GET['export_invoice_pdf'])) {
 
     $invoice_id = intval($_GET['export_invoice_pdf']);
-    $url_key = sanitizeInput($_GET['url_key']);
+    $url_key = escapeSql($_GET['url_key']);
 
     $sql = mysqli_query(
         $mysqli,
@@ -691,14 +691,14 @@ if (isset($_GET['export_invoice_pdf'])) {
 if (isset($_POST['guest_quote_upload_file'])) {
 
     $quote_id = intval($_POST['quote_id']);
-    $url_key = sanitizeInput($_POST['url_key']);
+    $url_key = escapeSql($_POST['url_key']);
 
     // Select only the necessary fields
     $sql = mysqli_query($mysqli, "SELECT quote_prefix, quote_number, client_id FROM quotes LEFT JOIN clients ON quote_client_id = client_id WHERE quote_id = $quote_id AND quote_url_key = '$url_key'");
 
     if (mysqli_num_rows($sql) == 1) {
         $row = mysqli_fetch_assoc($sql);
-        $quote_prefix = sanitizeInput($row['quote_prefix']);
+        $quote_prefix = escapeSql($row['quote_prefix']);
         $quote_number = intval($row['quote_number']);
         $client_id = intval($row['client_id']);
 
@@ -723,12 +723,12 @@ if (isset($_POST['guest_quote_upload_file'])) {
 
                     $file_tmp_path = $_FILES['file']['tmp_name'][$i];
 
-                    $file_name = sanitizeInput($_FILES['file']['name'][$i]);
+                    $file_name = escapeSql($_FILES['file']['name'][$i]);
                     $extarr = explode('.', $_FILES['file']['name'][$i]);
-                    $file_extension = sanitizeInput(strtolower(end($extarr)));
+                    $file_extension = escapeSql(strtolower(end($extarr)));
 
                     // Extract the file mime type and size
-                    $file_mime_type = sanitizeInput($single_file['type']);
+                    $file_mime_type = escapeSql($single_file['type']);
                     $file_size = intval($single_file['size']);
 
                     // Define destination file path

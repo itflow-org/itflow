@@ -67,8 +67,8 @@ if (isset($_GET['delete_trip'])) {
     // Get Trip Info and Client ID for logging
     $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT * FROM trips WHERE trip_id = $trip_id"));
     $client_id = intval($row['trip_client_id']);
-    $trip_source = sanitizeInput($row['trip_source']);
-    $trip_destination = sanitizeInput($row['trip_destination']);
+    $trip_source = escapeSql($row['trip_source']);
+    $trip_destination = escapeSql($row['trip_destination']);
 
     if ($client_id) {
         enforceClientAccess();
@@ -102,8 +102,8 @@ if (isset($_POST['export_trips_csv'])) {
         $file_name_prepend = "$session_company_name-";
     }
 
-    $date_from = sanitizeInput($_POST['date_from']);
-    $date_to = sanitizeInput($_POST['date_to']);
+    $date_from = escapeSql($_POST['date_from']);
+    $date_to = escapeSql($_POST['date_to']);
     if (!empty($date_from) && !empty($date_to)){
         $date_query = "DATE(trip_date) BETWEEN '$date_from' AND '$date_to'";
         $file_name_date = "$date_from-to-$date_to";

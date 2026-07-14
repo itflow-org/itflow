@@ -62,12 +62,12 @@ if (isset($_POST['edit_invoice'])) {
     require_once 'invoice_model.php';
 
     $invoice_id = intval($_POST['invoice_id']);
-    $due = sanitizeInput($_POST['due']);
+    $due = escapeSql($_POST['due']);
 
     // Get Invoice Number and Prefix and Client ID for Logging
     $sql = mysqli_query($mysqli,"SELECT invoice_prefix, invoice_number, invoice_client_id FROM invoices WHERE invoice_id = $invoice_id");
     $row = mysqli_fetch_assoc($sql);
-    $invoice_prefix = sanitizeInput($row['invoice_prefix']);
+    $invoice_prefix = escapeSql($row['invoice_prefix']);
     $invoice_number = intval($row['invoice_number']);
     $client_id = intval($row['invoice_client_id']);
 
@@ -100,20 +100,20 @@ if (isset($_POST['add_invoice_copy'])) {
     enforceUserPermission('module_sales', 2);
 
     $invoice_id = intval($_POST['invoice_id']);
-    $date = sanitizeInput($_POST['date']);
+    $date = escapeSql($_POST['date']);
 
     //Get Net Terms
     $sql = mysqli_query($mysqli,"SELECT * FROM clients, invoices WHERE client_id = invoice_client_id AND invoice_id = $invoice_id");
     $row = mysqli_fetch_assoc($sql);
     $client_net_terms = intval($row['client_net_terms']);
-    $invoice_scope = sanitizeInput($row['invoice_scope']);
+    $invoice_scope = escapeSql($row['invoice_scope']);
     $invoice_discount_amount = floatval($row['invoice_discount_amount']);
     $invoice_amount = floatval($row['invoice_amount']);
-    $invoice_currency_code = sanitizeInput($row['invoice_currency_code']);
-    $invoice_note = sanitizeInput($row['invoice_note']);
+    $invoice_currency_code = escapeSql($row['invoice_currency_code']);
+    $invoice_note = escapeSql($row['invoice_note']);
     $client_id = intval($row['invoice_client_id']);
     $category_id = intval($row['invoice_category_id']);
-    $old_invoice_prefix = sanitizeInput($row['invoice_prefix']);
+    $old_invoice_prefix = escapeSql($row['invoice_prefix']);
     $old_invoice_number = intval($row['invoice_number']);
 
     enforceClientAccess();
@@ -141,8 +141,8 @@ if (isset($_POST['add_invoice_copy'])) {
     $sql_items = mysqli_query($mysqli,"SELECT * FROM invoice_items WHERE item_invoice_id = $invoice_id");
     while($row = mysqli_fetch_assoc($sql_items)) {
         $item_id = intval($row['item_id']);
-        $item_name = sanitizeInput($row['item_name']);
-        $item_description = sanitizeInput($row['item_description']);
+        $item_name = escapeSql($row['item_name']);
+        $item_description = escapeSql($row['item_description']);
         $item_quantity = floatval($row['item_quantity']);
         $item_price = floatval($row['item_price']);
         $item_subtotal = floatval($row['item_subtotal']);
@@ -175,7 +175,7 @@ if (isset($_GET['mark_invoice_sent'])) {
     // Get Invoice Number and Prefix and Client ID for Logging
     $sql = mysqli_query($mysqli,"SELECT invoice_prefix, invoice_number, invoice_client_id FROM invoices WHERE invoice_id = $invoice_id");
     $row = mysqli_fetch_assoc($sql);
-    $invoice_prefix = sanitizeInput($row['invoice_prefix']);
+    $invoice_prefix = escapeSql($row['invoice_prefix']);
     $invoice_number = intval($row['invoice_number']);
     $client_id = intval($row['invoice_client_id']);
 
@@ -204,7 +204,7 @@ if (isset($_GET['mark_invoice_non-billable'])) {
     // Get Invoice Number and Prefix and Client ID for Logging
     $sql = mysqli_query($mysqli,"SELECT invoice_prefix, invoice_number, invoice_client_id FROM invoices WHERE invoice_id = $invoice_id");
     $row = mysqli_fetch_assoc($sql);
-    $invoice_prefix = sanitizeInput($row['invoice_prefix']);
+    $invoice_prefix = escapeSql($row['invoice_prefix']);
     $invoice_number = intval($row['invoice_number']);
     $client_id = intval($row['invoice_client_id']);
 
@@ -233,7 +233,7 @@ if (isset($_GET['cancel_invoice'])) {
     // Get Invoice Number and Prefix and Client ID for Logging
     $sql = mysqli_query($mysqli,"SELECT invoice_prefix, invoice_number, invoice_client_id FROM invoices WHERE invoice_id = $invoice_id");
     $row = mysqli_fetch_assoc($sql);
-    $invoice_prefix = sanitizeInput($row['invoice_prefix']);
+    $invoice_prefix = escapeSql($row['invoice_prefix']);
     $invoice_number = intval($row['invoice_number']);
     $client_id = intval($row['invoice_client_id']);
 
@@ -262,7 +262,7 @@ if (isset($_GET['delete_invoice'])) {
     // Get Invoice Number and Prefix and Client ID for Logging
     $sql = mysqli_query($mysqli,"SELECT invoice_prefix, invoice_number, invoice_client_id FROM invoices WHERE invoice_id = $invoice_id");
     $row = mysqli_fetch_assoc($sql);
-    $invoice_prefix = sanitizeInput($row['invoice_prefix']);
+    $invoice_prefix = escapeSql($row['invoice_prefix']);
     $invoice_number = intval($row['invoice_number']);
     $client_id = intval($row['invoice_client_id']);
 
@@ -309,8 +309,8 @@ if (isset($_POST['add_invoice_item'])) {
     enforceUserPermission('module_sales', 2);
 
     $invoice_id = intval($_POST['invoice_id']);
-    $name = sanitizeInput($_POST['name']);
-    $description = sanitizeInput($_POST['description']);
+    $name = escapeSql($_POST['name']);
+    $description = escapeSql($_POST['description']);
     $qty = floatval($_POST['qty']);
     $price = floatval($_POST['price']);
     $tax_id = intval($_POST['tax_id']);
@@ -326,7 +326,7 @@ if (isset($_POST['add_invoice_item'])) {
     // Update Product Inventory
     if ($product_id) {
          // Only enforce stock for tangible products
-        $product_type = sanitizeInput(getFieldById('products', $product_id, 'product_type'));
+        $product_type = escapeSql(getFieldById('products', $product_id, 'product_type'));
         if ($product_type === 'product') {
 
             // Current available stock
@@ -367,7 +367,7 @@ if (isset($_POST['add_invoice_item'])) {
     // Get Discount and Invoice Details
     $sql = mysqli_query($mysqli,"SELECT * FROM invoices WHERE invoice_id = $invoice_id");
     $row = mysqli_fetch_assoc($sql);
-    $invoice_prefix = sanitizeInput($row['invoice_prefix']);
+    $invoice_prefix = escapeSql($row['invoice_prefix']);
     $invoice_number = intval($row['invoice_number']);
     $invoice_discount = floatval($row['invoice_discount_amount']);
 
@@ -397,12 +397,12 @@ if (isset($_POST['invoice_note'])) {
     enforceUserPermission('module_sales', 2);
 
     $invoice_id = intval($_POST['invoice_id']);
-    $note = sanitizeInput($_POST['note']);
+    $note = escapeSql($_POST['note']);
 
     // Get Invoice Details for logging
     $sql = mysqli_query($mysqli,"SELECT * FROM invoices WHERE invoice_id = $invoice_id");
     $row = mysqli_fetch_assoc($sql);
-    $invoice_prefix = sanitizeInput($row['invoice_prefix']);
+    $invoice_prefix = escapeSql($row['invoice_prefix']);
     $invoice_number = intval($row['invoice_number']);
     $client_id = intval($row['invoice_client_id']);
 
@@ -425,8 +425,8 @@ if (isset($_POST['edit_invoice_item'])) {
     enforceUserPermission('module_sales', 2);
 
     $item_id = intval($_POST['item_id']);
-    $name = sanitizeInput($_POST['name']);
-    $description = sanitizeInput($_POST['description']);
+    $name = escapeSql($_POST['name']);
+    $description = escapeSql($_POST['description']);
     $qty = floatval($_POST['qty']);
     $price = floatval($_POST['price']);
     $tax_id = intval($_POST['tax_id']);
@@ -453,7 +453,7 @@ if (isset($_POST['edit_invoice_item'])) {
     //Get Discount Amount
     $sql = mysqli_query($mysqli,"SELECT * FROM invoices WHERE invoice_id = $invoice_id");
     $row = mysqli_fetch_assoc($sql);
-    $invoice_prefix = sanitizeInput($row['invoice_prefix']);
+    $invoice_prefix = escapeSql($row['invoice_prefix']);
     $invoice_number = intval($row['invoice_number']);
     $client_id = intval($row['invoice_client_id']);
     $invoice_discount = floatval($row['invoice_discount_amount']);
@@ -488,7 +488,7 @@ if (isset($_GET['delete_invoice_item'])) {
     $sql = mysqli_query($mysqli,"SELECT * FROM invoice_items WHERE item_id = $item_id");
     $row = mysqli_fetch_assoc($sql);
     $invoice_id = intval($row['item_invoice_id']);
-    $item_name = sanitizeInput($row['item_name']);
+    $item_name = escapeSql($row['item_name']);
     $item_quantity = floatval($row['item_quantity']);
     $item_product_id = intval($row['item_product_id']);
     $item_subtotal = floatval($row['item_subtotal']);
@@ -497,7 +497,7 @@ if (isset($_GET['delete_invoice_item'])) {
 
     $sql = mysqli_query($mysqli,"SELECT * FROM invoices WHERE invoice_id = $invoice_id");
     $row = mysqli_fetch_assoc($sql);
-    $invoice_prefix = sanitizeInput($row['invoice_prefix']);
+    $invoice_prefix = escapeSql($row['invoice_prefix']);
     $invoice_number = intval($row['invoice_number']);
     $client_id = intval($row['invoice_client_id']);
 
@@ -538,39 +538,39 @@ if (isset($_GET['email_invoice'])) {
     $row = mysqli_fetch_assoc($sql);
 
     $invoice_id = intval($row['invoice_id']);
-    $invoice_prefix = sanitizeInput($row['invoice_prefix']);
+    $invoice_prefix = escapeSql($row['invoice_prefix']);
     $invoice_number = intval($row['invoice_number']);
-    $invoice_scope = sanitizeInput($row['invoice_scope']);
-    $invoice_status = sanitizeInput($row['invoice_status']);
-    $invoice_date = sanitizeInput(validateDate($row['invoice_date']));
-    $invoice_due = sanitizeInput(validateDate($row['invoice_due']));
+    $invoice_scope = escapeSql($row['invoice_scope']);
+    $invoice_status = escapeSql($row['invoice_status']);
+    $invoice_date = escapeSql(validateDate($row['invoice_date']));
+    $invoice_due = escapeSql(validateDate($row['invoice_due']));
     $invoice_amount = floatval($row['invoice_amount']);
-    $invoice_url_key = sanitizeInput($row['invoice_url_key']);
-    $invoice_currency_code = sanitizeInput($row['invoice_currency_code']);
+    $invoice_url_key = escapeSql($row['invoice_url_key']);
+    $invoice_currency_code = escapeSql($row['invoice_currency_code']);
     $client_id = intval($row['client_id']);
-    $client_name = sanitizeInput($row['client_name']);
-    $contact_name = sanitizeInput($row['contact_name']);
-    $contact_email = sanitizeInput($row['contact_email']);
+    $client_name = escapeSql($row['client_name']);
+    $contact_name = escapeSql($row['contact_name']);
+    $contact_email = escapeSql($row['contact_email']);
 
     enforceClientAccess();
 
     $sql = mysqli_query($mysqli,"SELECT * FROM companies WHERE company_id = 1");
     $row = mysqli_fetch_assoc($sql);
 
-    $company_name = sanitizeInput($row['company_name']);
-    $company_country = sanitizeInput($row['company_country']);
-    $company_address = sanitizeInput($row['company_address']);
-    $company_city = sanitizeInput($row['company_city']);
-    $company_state = sanitizeInput($row['company_state']);
-    $company_zip = sanitizeInput($row['company_zip']);
-    $company_phone = sanitizeInput(formatPhoneNumber($row['company_phone'], $row['company_phone_country_code']));
-    $company_email = sanitizeInput($row['company_email']);
-    $company_website = sanitizeInput($row['company_website']);
-    $company_logo = sanitizeInput($row['company_logo']);
+    $company_name = escapeSql($row['company_name']);
+    $company_country = escapeSql($row['company_country']);
+    $company_address = escapeSql($row['company_address']);
+    $company_city = escapeSql($row['company_city']);
+    $company_state = escapeSql($row['company_state']);
+    $company_zip = escapeSql($row['company_zip']);
+    $company_phone = escapeSql(formatPhoneNumber($row['company_phone'], $row['company_phone_country_code']));
+    $company_email = escapeSql($row['company_email']);
+    $company_website = escapeSql($row['company_website']);
+    $company_logo = escapeSql($row['company_logo']);
 
     // Sanitize Config vars from get_settings.php
-    $config_invoice_from_name = sanitizeInput($config_invoice_from_name);
-    $config_invoice_from_email = sanitizeInput($config_invoice_from_email);
+    $config_invoice_from_name = escapeSql($config_invoice_from_name);
+    $config_invoice_from_email = escapeSql($config_invoice_from_email);
 
     $sql_payments = mysqli_query($mysqli,"SELECT * FROM payments, accounts WHERE payment_account_id = account_id AND payment_invoice_id = $invoice_id ORDER BY payment_id DESC");
 
@@ -628,8 +628,8 @@ if (isset($_GET['email_invoice'])) {
     $data = [];
 
     while ($billing_contact = mysqli_fetch_assoc($sql_billing_contacts)) {
-        $billing_contact_name = sanitizeInput($billing_contact['contact_name']);
-        $billing_contact_email = sanitizeInput($billing_contact['contact_email']);
+        $billing_contact_name = escapeSql($billing_contact['contact_name']);
+        $billing_contact_email = escapeSql($billing_contact['contact_email']);
 
         $data[] = [
                 'from' => $config_invoice_from_email,
@@ -668,8 +668,8 @@ if (isset($_POST['export_invoices_csv'])) {
         $file_name_prepend = "$session_company_name-";
     }
 
-    $date_from = sanitizeInput($_POST['date_from']);
-    $date_to = sanitizeInput($_POST['date_to']);
+    $date_from = escapeSql($_POST['date_from']);
+    $date_to = escapeSql($_POST['date_to']);
     if (!empty($date_from) && !empty($date_to)) {
         $date_query = "DATE(invoice_date) BETWEEN '$date_from' AND '$date_to'";
         $file_name_date = "$date_from-to-$date_to";
@@ -1145,7 +1145,7 @@ if (isset($_POST['bulk_edit_invoice_category'])) {
     $category_id = intval($_POST['bulk_category_id']);
 
     // Get Category name for logging and Notification
-    $category_name = sanitizeInput(getFieldById('categories', $category_id, 'category_name'));
+    $category_name = escapeSql(getFieldById('categories', $category_id, 'category_name'));
 
     // Assign Income category to Selected Invoices
     if (isset($_POST['invoice_ids'])) {
@@ -1159,9 +1159,9 @@ if (isset($_POST['bulk_edit_invoice_category'])) {
             // Get Invoice Details for Logging
             $sql = mysqli_query($mysqli,"SELECT * FROM invoices WHERE invoice_id = $invoice_id");
             $row = mysqli_fetch_assoc($sql);
-            $invoice_prefix = sanitizeInput($row['invoice_prefix']);
+            $invoice_prefix = escapeSql($row['invoice_prefix']);
             $invoice_number = intval($row['invoice_number']);
-            $invoice_scope = sanitizeInput($row['invoice_scope']);
+            $invoice_scope = escapeSql($row['invoice_scope']);
             $client_id = intval($row['invoice_client_id']);
 
             enforceClientAccess();

@@ -28,7 +28,7 @@ if (isset($_GET['client']) & !empty($_GET['client'])) {
 
 // Log Type Filter
 if (isset($_GET['type']) & !empty($_GET['type'])) {
-    $log_type_query = "AND (log_type  = '" . sanitizeInput($_GET['type']) . "')";
+    $log_type_query = "AND (log_type  = '" . escapeSql($_GET['type']) . "')";
     $type_filter = escapeHtml($_GET['type']);
 } else {
     // Default - any
@@ -38,7 +38,7 @@ if (isset($_GET['type']) & !empty($_GET['type'])) {
 
 // Log Action Filter
 if (isset($_GET['action']) & !empty($_GET['action'])) {
-    $log_action_query = "AND (log_action  = '" . sanitizeInput($_GET['action']) . "')";
+    $log_action_query = "AND (log_action  = '" . escapeSql($_GET['action']) . "')";
     $action_filter = escapeHtml($_GET['action']);
 } else {
     // Default - any

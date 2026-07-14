@@ -2,7 +2,7 @@
 // Variable assignment from POST (or: blank/from DB is updating)
 
 if (isset($_POST['document_name'])) {
-    $name = sanitizeInput($_POST['document_name']);
+    $name = escapeSql($_POST['document_name']);
 } elseif (isset($document_row) && isset($document_row['document_name'])) {
     $name = mysqli_real_escape_string($mysqli, $document_row['document_name']);
 } else {
@@ -10,7 +10,7 @@ if (isset($_POST['document_name'])) {
 }
 
 if (isset($_POST['document_description'])) {
-    $description = sanitizeInput($_POST['document_description']);
+    $description = escapeSql($_POST['document_description']);
 } elseif (isset($document_row) && isset($document_row['document_description'])) {
     $description = mysqli_real_escape_string($mysqli, $document_row['document_description']);
 } else {
@@ -27,7 +27,7 @@ if (isset($_POST['document_content'])) {
 
 // Raw content (used for FULL INDEX searching)
 if (isset($_POST['document_content'])) {
-    $content_raw = sanitizeInput($_POST['document_name'] . $_POST['document_description'] . " " . str_replace("<", " <", $_POST['document_content']));
+    $content_raw = escapeSql($_POST['document_name'] . $_POST['document_description'] . " " . str_replace("<", " <", $_POST['document_content']));
 } elseif (isset($document_row) && isset($document_row['document_content_raw'])) {
     $content_raw = mysqli_real_escape_string($mysqli, $document_row['document_content_raw']);
 } else {

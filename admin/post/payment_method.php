@@ -63,7 +63,7 @@ if (isset($_GET['delete_payment_method'])) {
 
     $payment_method_id = intval($_GET['delete_payment_method']);
 
-    $payment_method_name = sanitizeInput(getFieldById('payment_methods', $payment_method_is, 'payment_method_name'));
+    $payment_method_name = escapeSql(getFieldById('payment_methods', $payment_method_is, 'payment_method_name'));
 
     mysqli_query($mysqli,"DELETE FROM payment_methods WHERE payment_method_id = $payment_method_id");
 

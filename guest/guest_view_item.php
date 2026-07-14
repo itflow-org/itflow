@@ -45,7 +45,7 @@ if (!isset($_GET['id']) || !isset($_GET['key'])) {
 }
 
 $item_id = intval($_GET['id']);
-$item_key = sanitizeInput($_GET['key']);
+$item_key = escapeSql($_GET['key']);
 
 $sql = mysqli_query($mysqli, "SELECT * FROM shared_items WHERE item_id = $item_id AND item_key = '$item_key' AND item_expire_at > NOW() LIMIT 1");
 $row = mysqli_fetch_assoc($sql);
@@ -80,8 +80,8 @@ $item_expire = date('Y-m-d h:i A', strtotime($row['item_expire_at']));
 $client_id = intval($row['item_client_id']);
 
 // Create in-app notification
-$item_type_sql_escaped = sanitizeInput($row['item_type']);
-$item_recipient_sql_escaped = sanitizeInput($row['item_recipient']);
+$item_type_sql_escaped = escapeSql($row['item_type']);
+$item_recipient_sql_escaped = escapeSql($row['item_recipient']);
 
 appNotify("Share Viewed", "$item_type_sql_escaped has been viewed by $item_recipient_sql_escaped", "/agent/client_overview.php?client_id=$client_id", $client_id);
 
@@ -129,7 +129,7 @@ if ($item_type == "Document") {
     }
 
     $doc_title = escapeHtml($doc_row['document_name']);
-    $doc_title_escaped = sanitizeInput($doc_row['document_name']);
+    $doc_title_escaped = escapeSql($doc_row['document_name']);
     $doc_content = $purifier->purify($doc_row['document_content']);
 
     echo "<h3>$doc_title</h3>";
@@ -256,7 +256,7 @@ if ($item_type == "Document") {
     mysqli_query($mysqli, "UPDATE shared_items SET item_views = $new_item_views WHERE item_id = $item_id");
 
     // Logging
-    $name = sanitizeInput($credential_row['credential_name']);
+    $name = escapeSql($credential_row['credential_name']);
     logAction("Share", "View", "Viewed shared $item_type $name via link", $client_id);
 
 }

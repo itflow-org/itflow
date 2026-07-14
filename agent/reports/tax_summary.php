@@ -79,7 +79,7 @@ $sql_tax = mysqli_query($mysqli, "SELECT `tax_name` FROM `taxes`");
                     while ($row = mysqli_fetch_assoc($sql_tax)) {
 
                         $tax_name_raw = $row['tax_name'];
-                        $tax_name = sanitizeInput($tax_name_raw);
+                        $tax_name = escapeSql($tax_name_raw);
 
                         echo "<tr>";
                         echo "<td>" . escapeHtml($tax_name_raw) . "</td>";

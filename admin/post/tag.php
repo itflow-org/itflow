@@ -48,7 +48,7 @@ if (isset($_GET['delete_tag'])) {
 
     $tag_id = intval($_GET['delete_tag']);
 
-    $tag_name = sanitizeInput(getFieldById('tags', $tag_id, 'tag_name'));
+    $tag_name = escapeSql(getFieldById('tags', $tag_id, 'tag_name'));
 
     mysqli_query($mysqli,"DELETE FROM tags WHERE tag_id = $tag_id");
 

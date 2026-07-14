@@ -24,7 +24,7 @@ if (isset($_POST['add_certificate'])) {
         $public_key_obj = openssl_x509_parse($_POST['public_key']);
         if ($public_key_obj) {
             $expire = date('Y-m-d', $public_key_obj['validTo_time_t']);
-            $issued_by = sanitizeInput($public_key_obj['issuer']['O']);
+            $issued_by = escapeSql($public_key_obj['issuer']['O']);
         }
     }
 
@@ -66,7 +66,7 @@ if (isset($_POST['edit_certificate'])) {
         $public_key_obj = openssl_x509_parse($_POST['public_key']);
         if ($public_key_obj) {
             $expire = date('Y-m-d', $public_key_obj['validTo_time_t']);
-            $issued_by = sanitizeInput($public_key_obj['issuer']['O']);
+            $issued_by = escapeSql($public_key_obj['issuer']['O']);
         }
     }
 
@@ -104,9 +104,9 @@ if (isset($_POST['edit_certificate'])) {
     foreach ($original_certificate_info as $column => $old_value) {
         $new_value = $new_certificate_info[$column];
         if ($old_value != $new_value && !in_array($column, $ignored_columns)) {
-            $column = sanitizeInput($column);
-            $old_value = sanitizeInput($old_value);
-            $new_value = sanitizeInput($new_value);
+            $column = escapeSql($column);
+            $old_value = escapeSql($old_value);
+            $new_value = escapeSql($new_value);
             mysqli_query($mysqli,"INSERT INTO certificate_history SET certificate_history_column = '$column', certificate_history_old_value = '$old_value', certificate_history_new_value = '$new_value', certificate_history_certificate_id = $certificate_id");
         }
     }
@@ -130,7 +130,7 @@ if (isset($_GET['archive_certificate'])) {
     // Get Certificate Name and Client ID for logging and alert message
     $sql = mysqli_query($mysqli,"SELECT certificate_name, certificate_client_id FROM certificates WHERE certificate_id = $certificate_id");
     $row = mysqli_fetch_assoc($sql);
-    $certificate_name = sanitizeInput($row['certificate_name']);
+    $certificate_name = escapeSql($row['certificate_name']);
     $client_id = intval($row['certificate_client_id']);
 
     enforceClientAccess();
@@ -156,7 +156,7 @@ if (isset($_GET['restore_certificate'])) {
     // Get Certificate Name and Client ID for logging and alert message
     $sql = mysqli_query($mysqli,"SELECT certificate_name, certificate_client_id FROM certificates WHERE certificate_id = $certificate_id");
     $row = mysqli_fetch_assoc($sql);
-    $certificate_name = sanitizeInput($row['certificate_name']);
+    $certificate_name = escapeSql($row['certificate_name']);
     $client_id = intval($row['certificate_client_id']);
 
     enforceClientAccess();
@@ -182,7 +182,7 @@ if (isset($_GET['delete_certificate'])) {
     // Get Certificate Name and Client ID for logging and alert message
     $sql = mysqli_query($mysqli,"SELECT certificate_name, certificate_client_id FROM certificates WHERE certificate_id = $certificate_id");
     $row = mysqli_fetch_assoc($sql);
-    $certificate_name = sanitizeInput($row['certificate_name']);
+    $certificate_name = escapeSql($row['certificate_name']);
     $client_id = intval($row['certificate_client_id']);
 
     enforceClientAccess();
@@ -216,7 +216,7 @@ if (isset($_POST['bulk_delete_certificates'])) {
             // Get Certificate Name and Client ID for logging and alert message
             $sql = mysqli_query($mysqli,"SELECT certificate_name, certificate_client_id FROM certificates WHERE certificate_id = $certificate_id");
             $row = mysqli_fetch_assoc($sql);
-            $certificate_name = sanitizeInput($row['certificate_name']);
+            $certificate_name = escapeSql($row['certificate_name']);
             $client_id = intval($row['certificate_client_id']);
 
             enforceClientAccess();

@@ -6,8 +6,8 @@ if (isset($_POST['add_project_template'])) {
 
     validateCSRFToken($_POST['csrf_token']);
 
-    $name = sanitizeInput($_POST['name']);
-    $description = sanitizeInput($_POST['description']);
+    $name = escapeSql($_POST['name']);
+    $description = escapeSql($_POST['description']);
 
     mysqli_query($mysqli, "INSERT INTO project_templates SET project_template_name = '$name', project_template_description = '$description'");
 
@@ -26,8 +26,8 @@ if (isset($_POST['edit_project_template'])) {
     validateCSRFToken($_POST['csrf_token']);
 
     $project_template_id = intval($_POST['project_template_id']);
-    $name = sanitizeInput($_POST['name']);
-    $description = sanitizeInput($_POST['description']);
+    $name = escapeSql($_POST['name']);
+    $description = escapeSql($_POST['description']);
 
     mysqli_query($mysqli, "UPDATE project_templates SET project_template_name = '$name', project_template_description = '$description' WHERE project_template_id = $project_template_id");
 
@@ -94,7 +94,7 @@ if (isset($_GET['delete_project_template'])) {
 
     $project_template_id = intval($_GET['delete_project_template']);
 
-    $project_template_name = sanitizeInput(getFieldById('project_templates', $project_template_id, 'project_template_name'));
+    $project_template_name = escapeSql(getFieldById('project_templates', $project_template_id, 'project_template_name'));
 
     mysqli_query($mysqli, "DELETE FROM project_templates WHERE project_template_id = $project_template_id");
 

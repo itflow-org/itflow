@@ -10,7 +10,7 @@ if(isset($_POST['create_custom_field'])){
 
     require_once 'custom_field_model.php';
 
-    $table = sanitizeInput($_POST['table']);
+    $table = escapeSql($_POST['table']);
 
     mysqli_query($mysqli,"INSERT INTO custom_fields SET custom_field_table = '$table', custom_field_label = '$label', custom_field_type = '$type'");
 
@@ -44,7 +44,7 @@ if(isset($_GET['delete_custom_field'])){
     
     $custom_field_id = intval($_GET['delete_custom_field']);
 
-    $label = sanitizeInput(getFieldById('custom_fields', $custom_field_id, 'custom_field_label'));
+    $label = escapeSql(getFieldById('custom_fields', $custom_field_id, 'custom_field_label'));
 
     mysqli_query($mysqli,"DELETE FROM custom_fields WHERE custom_field_id = $custom_field_id");
 

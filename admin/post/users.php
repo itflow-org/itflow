@@ -54,14 +54,14 @@ if (isset($_POST['add_user'])) {
 
     $sql = mysqli_query($mysqli,"SELECT * FROM companies WHERE company_id = 1");
     $row = mysqli_fetch_assoc($sql);
-    $company_name = sanitizeInput($row['company_name']);
+    $company_name = escapeSql($row['company_name']);
 
     // Sanitize Config vars from load_global_settings.php
-    $config_mail_from_name = sanitizeInput($config_mail_from_name);
-    $config_mail_from_email = sanitizeInput($config_mail_from_email);
-    $config_ticket_from_email = sanitizeInput($config_ticket_from_email);
+    $config_mail_from_name = escapeSql($config_mail_from_name);
+    $config_mail_from_email = escapeSql($config_mail_from_email);
+    $config_ticket_from_email = escapeSql($config_ticket_from_email);
     $config_login_key_secret = mysqli_real_escape_string($mysqli, $config_login_key_secret);
-    $config_base_url = sanitizeInput($config_base_url);
+    $config_base_url = escapeSql($config_base_url);
 
     // Send user e-mail, if specified
     if (isset($_POST['send_email']) && !empty($config_smtp_host) && filter_var($email, FILTER_VALIDATE_EMAIL)) {
@@ -119,7 +119,7 @@ if (isset($_POST['edit_user'])) {
     // Get current Avatar
     $sql = mysqli_query($mysqli, "SELECT user_avatar FROM users WHERE user_id = $user_id");
     $row = mysqli_fetch_assoc($sql);
-    $existing_file_name = sanitizeInput($row['user_avatar']);
+    $existing_file_name = escapeSql($row['user_avatar']);
 
     $extended_log_description = '';
     if (!empty($_POST['2fa'])) {
@@ -184,7 +184,7 @@ if (isset($_GET['activate_user'])) {
 
     $user_id = intval($_GET['activate_user']);
 
-    $user_name = sanitizeInput(getFieldById('users', $user_id, 'user_name'));
+    $user_name = escapeSql(getFieldById('users', $user_id, 'user_name'));
 
     mysqli_query($mysqli, "UPDATE users SET user_status = 1 WHERE user_id = $user_id");
 
@@ -202,7 +202,7 @@ if (isset($_GET['disable_user'])) {
 
     $user_id = intval($_GET['disable_user']);
 
-    $user_name = sanitizeInput(getFieldById('users', $user_id, 'user_name'));
+    $user_name = escapeSql(getFieldById('users', $user_id, 'user_name'));
 
     mysqli_query($mysqli, "UPDATE users SET user_status = 0 WHERE user_id = $user_id");
 
@@ -224,7 +224,7 @@ if (isset($_GET['revoke_remember_me'])) {
 
     $user_id = intval($_GET['revoke_remember_me']);
 
-    $user_name = sanitizeInput(getFieldById('users', $user_id, 'user_name'));
+    $user_name = escapeSql(getFieldById('users', $user_id, 'user_name'));
 
     mysqli_query($mysqli, "DELETE FROM remember_tokens WHERE remember_token_user_id = $user_id");
 
@@ -244,7 +244,7 @@ if (isset($_POST['archive_user'])) {
     $ticket_assign = intval($_POST['ticket_assign']);
     $password = password_hash(randomString(), PASSWORD_DEFAULT);
 
-    $user_name = sanitizeInput(getFieldById('users', $user_id, 'user_name'));
+    $user_name = escapeSql(getFieldById('users', $user_id, 'user_name'));
 
     // Un-assign / Re-assign tickets
     mysqli_query($mysqli, "UPDATE tickets SET ticket_assigned_to = $ticket_assign WHERE ticket_assigned_to = $user_id AND ticket_closed_at IS NULL AND ticket_resolved_at IS NULL");
@@ -270,7 +270,7 @@ if (isset($_POST['restore_user'])) {
     $role = intval($_POST['role']);
 
     $user_name = getFieldById('users', $user_id, 'user_name');
-    $user_name = sanitizeInput(str_replace(" (archived)", "", $user_name)); //Removed (archived) from user_name
+    $user_name = escapeSql(str_replace(" (archived)", "", $user_name)); //Removed (archived) from user_name
 
     // Restore user query
     mysqli_query($mysqli, "UPDATE users SET user_name = '$user_name', user_status = 1, user_role_id = $role, user_archived_at = NULL WHERE user_id = $user_id");
@@ -366,7 +366,7 @@ if (isset($_POST['ir_reset_user_password'])) {
     // Reset passwords
     while ($row = mysqli_fetch_assoc($sql_users)) {
         $user_id = intval($row['user_id']);
-        $user_email = sanitizeInput($row['user_email']);
+        $user_email = escapeSql($row['user_email']);
         $new_password = randomString();
         $user_specific_encryption_ciphertext = encryptUserSpecificKey(trim($new_password));
 

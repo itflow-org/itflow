@@ -51,8 +51,8 @@ if (isset($_GET['archive_category'])) {
     // Get Category Name and Type for logging
     $sql = mysqli_query($mysqli,"SELECT category_name, category_type FROM categories WHERE category_id = $category_id");
     $row = mysqli_fetch_assoc($sql);
-    $category_name = sanitizeInput($row['category_name']);
-    $category_type = sanitizeInput($row['category_type']);
+    $category_name = escapeSql($row['category_name']);
+    $category_type = escapeSql($row['category_type']);
 
     mysqli_query($mysqli,"UPDATE categories SET category_archived_at = NOW() WHERE category_id = $category_id");
 
@@ -73,8 +73,8 @@ if (isset($_GET['restore_category'])) {
     // Get Category Name and Type for logging
     $sql = mysqli_query($mysqli,"SELECT category_name, category_type FROM categories WHERE category_id = $category_id");
     $row = mysqli_fetch_assoc($sql);
-    $category_name = sanitizeInput($row['category_name']);
-    $category_type = sanitizeInput($row['category_type']);
+    $category_name = escapeSql($row['category_name']);
+    $category_type = escapeSql($row['category_type']);
 
     mysqli_query($mysqli,"UPDATE categories SET category_archived_at = NULL WHERE category_id = $category_id");
 
@@ -95,8 +95,8 @@ if (isset($_GET['delete_category'])) {
     // Get Category Name and Type for logging
     $sql = mysqli_query($mysqli,"SELECT category_name, category_type FROM categories WHERE category_id = $category_id");
     $row = mysqli_fetch_assoc($sql);
-    $category_name = sanitizeInput($row['category_name']);
-    $category_type = sanitizeInput($row['category_type']);
+    $category_name = escapeSql($row['category_name']);
+    $category_type = escapeSql($row['category_type']);
 
     mysqli_query($mysqli,"DELETE FROM categories WHERE category_id = $category_id");
 

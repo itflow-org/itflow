@@ -9,11 +9,11 @@ defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
 if (isset($_POST['add_contract_template'])) {
 
     // Sanitize text inputs
-    $name = sanitizeInput($_POST['name']);
-    $description = sanitizeInput($_POST['description']);
-    $type = sanitizeInput($_POST['type']);
-    $renewal_frequency = sanitizeInput($_POST['renewal_frequency']);
-    $support_hours = sanitizeInput($_POST['support_hours']);
+    $name = escapeSql($_POST['name']);
+    $description = escapeSql($_POST['description']);
+    $type = escapeSql($_POST['type']);
+    $renewal_frequency = escapeSql($_POST['renewal_frequency']);
+    $support_hours = escapeSql($_POST['support_hours']);
     $details = mysqli_escape_string($mysqli, $_POST['details']);
 
     // Numeric fields cast to integer
@@ -62,11 +62,11 @@ if (isset($_POST['add_contract_template'])) {
 if (isset($_POST['edit_contract_template'])) {
 
     $contract_template_id = intval($_POST['contract_template_id']);
-    $name            = sanitizeInput($_POST['name']);
-    $description     = sanitizeInput($_POST['description']);
-    $type            = sanitizeInput($_POST['type']);
-    $renewal_frequency= sanitizeInput($_POST['renewal_frequency']);
-    $support_hours   = sanitizeInput($_POST['support_hours']);
+    $name            = escapeSql($_POST['name']);
+    $description     = escapeSql($_POST['description']);
+    $type            = escapeSql($_POST['type']);
+    $renewal_frequency= escapeSql($_POST['renewal_frequency']);
+    $support_hours   = escapeSql($_POST['support_hours']);
     $details         = mysqli_escape_string($mysqli, $_POST['details']);
     $sla_low_resp  = intval($_POST['sla_low_response_time']);
     $sla_med_resp  = intval($_POST['sla_medium_response_time']);

@@ -39,8 +39,8 @@ if (
 
 require_once "includes/inc_set_timezone.php";
 
-$session_ip = sanitizeInput(getIP());
-$session_user_agent = sanitizeInput($_SERVER['HTTP_USER_AGENT'] ?? '');
+$session_ip = escapeSql(getIP());
+$session_user_agent = escapeSql($_SERVER['HTTP_USER_AGENT'] ?? '');
 
 // IMPORTANT (Option B support): ensure this exists in this scope so logAction() can use it
 $session_user_id = intval($_SESSION['user_id'] ?? 0);
@@ -83,8 +83,8 @@ $config_smtp_port       = intval($row['config_smtp_port']);
 $config_smtp_encryption = $row['config_smtp_encryption'];
 $config_smtp_username   = $row['config_smtp_username'];
 $config_smtp_password   = $row['config_smtp_password'];
-$config_mail_from_email = sanitizeInput($row['config_mail_from_email']);
-$config_mail_from_name  = sanitizeInput($row['config_mail_from_name']);
+$config_mail_from_email = escapeSql($row['config_mail_from_email']);
+$config_mail_from_name  = escapeSql($row['config_mail_from_name']);
 
 $config_client_portal_enable     = intval($row['config_client_portal_enable']);
 $config_login_remember_me_expire = intval($row['config_login_remember_me_expire']);
@@ -132,7 +132,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['login']) || isset($_
                 Your login session expired. Please sign in again.
               </div>";
         } else {
-            $email = sanitizeInput($sess['email'] ?? '');
+            $email = escapeSql($sess['email'] ?? '');
         }
     }
 
@@ -152,7 +152,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['login']) || isset($_
                 Your MFA session expired. Please sign in again.
               </div>";
         } else {
-            $email = sanitizeInput($sess['email'] ?? '');
+            $email = escapeSql($sess['email'] ?? '');
             $role_choice = 'agent';
         }
     }
@@ -161,7 +161,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['login']) || isset($_
     // STEP 1: INITIAL CREDENTIALS
     // -----------------------------------
     if ($is_login_step && empty($response)) {
-        $email    = sanitizeInput($_POST['email'] ?? '');
+        $email    = escapeSql($_POST['email'] ?? '');
         $password = $_POST['password'] ?? '';
 
         if (empty($email) || empty($password) || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
@@ -313,7 +313,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['login']) || isset($_
                 // NOTE: do NOT unset pending_dual_login here anymore; we may still need agent_master_key for MFA or role-step agent login
 
                 $user_id    = intval($selectedRow['user_id']);
-                $user_email = sanitizeInput($selectedRow['user_email']);
+                $user_email = escapeSql($selectedRow['user_email']);
 
                 // =========================
                 // AGENT FLOW
@@ -326,8 +326,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['login']) || isset($_
                         }
                     }
 
-                    $user_name                  = sanitizeInput($selectedRow['user_name']);
-                    $token                      = sanitizeInput($selectedRow['user_token']);
+                    $user_name                  = escapeSql($selectedRow['user_name']);
+                    $token                      = escapeSql($selectedRow['user_token']);
                     $force_mfa                  = intval($selectedRow['user_config_force_mfa']);
                     $user_encryption_ciphertext = $selectedRow['user_specific_encryption_ciphertext'];
 
@@ -390,7 +390,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['login']) || isset($_
                               AND log_ip = '$session_ip'
                               AND log_user_id = $user_id
                         "));
-                        $ip_previous_logins = sanitizeInput($sql_ip_prev_logins['ip_previous_logins']);
+                        $ip_previous_logins = escapeSql($sql_ip_prev_logins['ip_previous_logins']);
 
                         $sql_ua_prev_logins = mysqli_fetch_assoc(mysqli_query($mysqli, "
                             SELECT COUNT(log_id) AS ua_previous_logins
@@ -400,7 +400,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['login']) || isset($_
                               AND log_user_agent = '$session_user_agent'
                               AND log_user_id = $user_id
                         "));
-                        $ua_prev_logins = sanitizeInput($sql_ua_prev_logins['ua_previous_logins']);
+                        $ua_prev_logins = escapeSql($sql_ua_prev_logins['ua_previous_logins']);
 
                         if (!empty($config_smtp_provider) && $ip_previous_logins == 0 && $ua_prev_logins == 0) {
                             $subject = "$config_app_name new login for $user_name";
@@ -563,7 +563,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['login']) || isset($_
 
                         $client_id        = intval($selectedRow['contact_client_id'] ?? 0);
                         $contact_id       = intval($selectedRow['contact_id'] ?? 0);
-                        $user_auth_method = sanitizeInput($selectedRow['user_auth_method'] ?? '');
+                        $user_auth_method = escapeSql($selectedRow['user_auth_method'] ?? '');
 
                         if ($client_id && $contact_id && $user_auth_method === 'local') {
 
