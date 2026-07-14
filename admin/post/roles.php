@@ -32,7 +32,7 @@ if (isset($_POST['add_role'])) {
         }
     }
 
-    logAction("User Role", "Create", "$session_name created user role $name", 0, $role_id);
+    logAudit("User Role", "Create", "$session_name created user role $name", 0, $role_id);
 
     flash_alert("User Role <strong>$name</strong> created");
 
@@ -65,7 +65,7 @@ if (isset($_POST['edit_role'])) {
 
     }
 
-    logAction("User Role", "Edit", "$session_name edited user role $name", 0, $role_id);
+    logAudit("User Role", "Edit", "$session_name edited user role $name", 0, $role_id);
 
     flash_alert("User Role <strong>$name</strong> edited");
 
@@ -92,7 +92,7 @@ if (isset($_GET['archive_role'])) {
 
     $role_name = escapeSql(getFieldById('user_roles', $role_id, 'role_name'));
 
-    logAction("User Role", "Archive", "$session_name archived user role $role_name", 0, $role_id);
+    logAudit("User Role", "Archive", "$session_name archived user role $role_name", 0, $role_id);
 
     flash_alert("User Role <strong>$role_name</strong> archived", 'error');
 

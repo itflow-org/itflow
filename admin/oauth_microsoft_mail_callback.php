@@ -98,6 +98,6 @@ mysqli_query($mysqli, "UPDATE settings SET
     WHERE company_id = 1
 ");
 
-logAction("Settings", "Edit", "$session_name completed Microsoft OAuth connect flow for mail settings");
+logAudit("Settings", "Edit", "$session_name completed Microsoft OAuth connect flow for mail settings");
 flash_alert("Microsoft OAuth connected successfully. Token expires at $expires_at.");
 redirect($settings_mail_path);

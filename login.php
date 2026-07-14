@@ -42,7 +42,7 @@ require_once "includes/inc_set_timezone.php";
 $session_ip = escapeSql(getIP());
 $session_user_agent = escapeSql($_SERVER['HTTP_USER_AGENT'] ?? '');
 
-// IMPORTANT (Option B support): ensure this exists in this scope so logAction() can use it
+// IMPORTANT (Option B support): ensure this exists in this scope so logAudit() can use it
 $session_user_id = intval($_SESSION['user_id'] ?? 0);
 
 $row = mysqli_fetch_assoc(mysqli_query(
@@ -58,7 +58,7 @@ $failed_login_count = intval($row['failed_login_count']);
 
 if ($failed_login_count >= 15) {
     // Make sure global session_user_id is not required here (will be 0 anyway)
-    logAction("Login", "Blocked", "$session_ip was blocked access to login due to IP lockout");
+    logAudit("Login", "Blocked", "$session_ip was blocked access to login due to IP lockout");
     header("HTTP/1.1 429 Too Many Requests");
     exit("<h2>$config_app_name</h2>Your IP address has been blocked due to repeated failed login attempts. Please try again later. <br><br>This action has been logged.");
 }
@@ -244,7 +244,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['login']) || isset($_
             header("HTTP/1.1 401 Unauthorized");
 
             // Option B not possible here (we don't know user_id reliably)
-            logAction("Login", "Failed", "Failed login attempt using $email");
+            logAudit("Login", "Failed", "Failed login attempt using $email");
 
             $response = "
               <div class='alert alert-danger'>
@@ -417,9 +417,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['login']) || isset($_
                             addToMailQueue($data);
                         }
 
-                        // Option B: set session_user_id BEFORE logAction()
+                        // Option B: set session_user_id BEFORE logAudit()
                         $session_user_id = $user_id;
-                        logAction("Login", "Success", "$user_name successfully logged in $extended_log", 0, $user_id);
+                        logAudit("Login", "Success", "$user_name successfully logged in $extended_log", 0, $user_id);
 
                         $_SESSION['user_id']    = $user_id;
                         $_SESSION['csrf_token'] = randomString(32);
@@ -513,9 +513,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['login']) || isset($_
 
                         if ($current_code !== 0) {
 
-                            // Option B: set session_user_id BEFORE logAction()
+                            // Option B: set session_user_id BEFORE logAudit()
                             $session_user_id = $user_id;
-                            logAction("Login", "MFA Failed", "$user_email failed MFA", 0, $user_id);
+                            logAudit("Login", "MFA Failed", "$user_email failed MFA", 0, $user_id);
 
                             if (!empty($config_smtp_provider)) {
                                 $subject = "Important: $config_app_name failed 2FA login attempt for $user_name";
@@ -546,7 +546,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['login']) || isset($_
                     if ($config_client_portal_enable != 1) {
                         header("HTTP/1.1 401 Unauthorized");
 
-                        logAction("Client Login", "Failed", "Client portal disabled; login attempt using $email");
+                        logAudit("Client Login", "Failed", "Client portal disabled; login attempt using $email");
 
                         $response = "
                           <div class='alert alert-danger'>
@@ -578,9 +578,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['login']) || isset($_
                             $_SESSION['logged']     = true;
                             $_SESSION['csrf_token'] = randomString(32);
 
-                            // Option B: set session_user_id BEFORE logAction()
+                            // Option B: set session_user_id BEFORE logAudit()
                             $session_user_id = $user_id;
-                            logAction("Client Login", "Success", "Client contact $user_email successfully logged in locally", $client_id, $user_id);
+                            logAudit("Client Login", "Success", "Client contact $user_email successfully logged in locally", $client_id, $user_id);
 
                             // Clear any pending sessions (avoid stale dual-role/MFA state)
                             unset($_SESSION['pending_dual_login']);
@@ -593,7 +593,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['login']) || isset($_
 
                             // if we have a users.user_id, log it
                             $session_user_id = $user_id ?: 0;
-                            logAction(
+                            logAudit(
                                 "Client Login",
                                 "Failed",
                                 "Failed client portal login attempt using $email (invalid auth method or missing contact/client)",

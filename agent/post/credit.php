@@ -22,7 +22,7 @@ if (isset($_POST['add_credit'])) {
     
     $credit_id = mysqli_insert_id($mysqli);
 
-    logAction("Credit", "Create", "$session_name added " . numfmt_format_currency($currency_format, $amount, $session_company_currency) . "", $client_id, $credit_id);
+    logAudit("Credit", "Create", "$session_name added " . numfmt_format_currency($currency_format, $amount, $session_company_currency) . "", $client_id, $credit_id);
 
     flash_alert(numfmt_format_currency($currency_format, $amount, $session_company_currency) . " Credit Added");
 

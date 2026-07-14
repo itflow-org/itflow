@@ -16,7 +16,7 @@ if (isset($_POST['add_category'])) {
 
     $category_id = mysqli_insert_id($mysqli);
 
-    logAction("Category", "Create", "$session_name created category $type $name", 0, $category_id);
+    logAudit("Category", "Create", "$session_name created category $type $name", 0, $category_id);
 
     flash_alert("Category $type <strong>$name</strong> created");
 

@@ -33,7 +33,7 @@ if (isset($_POST['create_recurring_expense'])) {
 
     $recurring_expense_id = mysqli_insert_id($mysqli);
 
-    logAction("Recurring Expense", "Create", "$session_name created recurring expense $description", $client_id, $recurring_expense_id);
+    logAudit("Recurring Expense", "Create", "$session_name created recurring expense $description", $client_id, $recurring_expense_id);
 
     flash_alert("Recurring Expense created");
 
@@ -67,7 +67,7 @@ if (isset($_POST['edit_recurring_expense'])) {
 
     mysqli_query($mysqli,"UPDATE recurring_expenses SET recurring_expense_frequency = $frequency, recurring_expense_day = $day, recurring_expense_month = $month, recurring_expense_next_date = '$start_date', recurring_expense_description = '$description', recurring_expense_reference = '$reference', recurring_expense_amount = $amount, recurring_expense_currency_code = '$session_company_currency', recurring_expense_vendor_id = $vendor, recurring_expense_client_id = $client_id, recurring_expense_category_id = $category, recurring_expense_account_id = $account WHERE recurring_expense_id = $recurring_expense_id");
 
-    logAction("Recurring Expense", "Edit", "$session_name edited recurring expense $description", $client_id, $recurring_expense_id);
+    logAudit("Recurring Expense", "Edit", "$session_name edited recurring expense $description", $client_id, $recurring_expense_id);
 
     flash_alert("Recurring Expense edited");
 
@@ -91,7 +91,7 @@ if (isset($_GET['delete_recurring_expense'])) {
 
     mysqli_query($mysqli,"DELETE FROM recurring_expenses WHERE recurring_expense_id = $recurring_expense_id");
 
-    logAction("Recurring Expense", "Delete", "$session_name deleted recurring expense $recurring_expense_description", $client_id);
+    logAudit("Recurring Expense", "Delete", "$session_name deleted recurring expense $recurring_expense_description", $client_id);
 
     flash_alert("Recurring Expense deleted", 'error');
 

@@ -31,7 +31,7 @@ if (isset($_POST['add_payment_provider'])) {
 
     $provider_id = mysqli_insert_id($mysqli);
 
-    logAction("Payment Provider", "Create", "$session_name created AI Provider $provider");
+    logAudit("Payment Provider", "Create", "$session_name created AI Provider $provider");
 
     flash_alert("Payment provider <strong>$provider</strong> created");
 
@@ -56,7 +56,7 @@ if (isset($_POST['edit_payment_provider'])) {
 
     mysqli_query($mysqli,"UPDATE payment_providers SET payment_provider_public_key = '$public_key', payment_provider_private_key = '$private_key', payment_provider_threshold = $threshold, payment_provider_account = $account, payment_provider_expense_vendor = $expense_vendor, payment_provider_expense_category = $expense_category, payment_provider_expense_percentage_fee = $percentage_fee, payment_provider_expense_flat_fee = $flat_fee WHERE payment_provider_id = $provider_id");
 
-    logAction("Payment Provider", "Edit", "$session_name edited Payment Provider $provider");
+    logAudit("Payment Provider", "Edit", "$session_name edited Payment Provider $provider");
 
     flash_alert("Payment Provider <strong>$provider</strong> edited");
 
@@ -80,7 +80,7 @@ if (isset($_GET['delete_payment_provider'])) {
     // Delete provider
     mysqli_query($mysqli,"DELETE FROM payment_providers WHERE payment_provider_id = $provider_id");
 
-    logAction("Payment Provider", "Delete", "$session_name deleted Payment Provider $provider_name");
+    logAudit("Payment Provider", "Delete", "$session_name deleted Payment Provider $provider_name");
 
     flash_alert("Payment Provider <strong>$provider_name</strong> deleted", 'error');
 

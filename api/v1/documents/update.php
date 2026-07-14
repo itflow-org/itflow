@@ -118,13 +118,13 @@ if (!empty($document_id)) {
         }
 
         // Logging
-        logAction("Document", "Edit", "$name_db via API ($api_key_name), previous version kept", $client_id, $document_version_id);
-        logAction("API", "Success", "Edited document $name_db via API ($api_key_name)", $client_id);
+        logAudit("Document", "Edit", "$name_db via API ($api_key_name), previous version kept", $client_id, $document_version_id);
+        logAudit("API", "Success", "Edited document $name_db via API ($api_key_name)", $client_id);
 
     } else {
         // Not found (or not this client's doc)
         $update_count = false;
-        logAction("API", "Error", "Document update failed (not found or unauthorized) via API ($api_key_name)", $client_id);
+        logAudit("API", "Error", "Document update failed (not found or unauthorized) via API ($api_key_name)", $client_id);
     }
 }
 

@@ -72,6 +72,6 @@ if (isset($_GET['id']) && isset($_GET['key'])) {
     mysqli_query($mysqli, "UPDATE shared_items SET item_views = $new_item_views WHERE item_id = $item_id");
 
     //Logging
-    logAction("Share", "View", "Downloaded shared file $file_name via link", $client_id);
+    logAudit("Share", "View", "Downloaded shared file $file_name via link", $client_id);
 
 }

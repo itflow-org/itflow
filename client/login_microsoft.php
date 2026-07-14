@@ -129,7 +129,7 @@ if (isset($_POST['code']) && $_POST['state'] == session_id()) {
                 $_SESSION['login_method'] = "azure";
 
                 // Logging
-                logAction("Client Login", "Success", "Client contact $upn successfully logged in via Entra", $client_id, $user_id);
+                logAudit("Client Login", "Success", "Client contact $upn successfully logged in via Entra", $client_id, $user_id);
 
                 header("Location: index.php");
 

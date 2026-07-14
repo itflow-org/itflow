@@ -24,7 +24,7 @@ if (isset($_POST['add_trip'])) {
 
     $trip_id = mysqli_insert_id($mysqli);
 
-    logAction("Trip", "Create", "$session_name logged trip from $source to $destination", $client_id , $trip_id);
+    logAudit("Trip", "Create", "$session_name logged trip from $source to $destination", $client_id , $trip_id);
 
     flash_alert("Trip from <strong>$source</strong> to <strong>$destination</strong> logged");
 
@@ -48,7 +48,7 @@ if (isset($_POST['edit_trip'])) {
 
     mysqli_query($mysqli,"UPDATE trips SET trip_date = '$date', trip_source = '$source', trip_destination = '$destination', trip_miles = $miles, trip_purpose = '$purpose', round_trip = $roundtrip, trip_user_id = $user_id, trip_client_id = $client_id WHERE trip_id = $trip_id");
 
-    logAction("Trip", "Edit", "$session_name edited trip", $client_id , $trip_id);
+    logAudit("Trip", "Edit", "$session_name edited trip", $client_id , $trip_id);
 
     flash_alert("Trip edited");
 
@@ -76,7 +76,7 @@ if (isset($_GET['delete_trip'])) {
 
     mysqli_query($mysqli,"DELETE FROM trips WHERE trip_id = $trip_id");
 
-    logAction("Trip", "Delete", "$session_name deleted trip ($trip_source - $trip_destination)", $client_id);
+    logAudit("Trip", "Delete", "$session_name deleted trip ($trip_source - $trip_destination)", $client_id);
 
     flash_alert("Trip ($trip_source - $trip_destination) deleted", 'error');
 
@@ -152,7 +152,7 @@ if (isset($_POST['export_trips_csv'])) {
         //output all remaining data on a file pointer
         fpassthru($f);
 
-        logAction("Trip", "Export", "$session_name exported $count trip(s) to a CSV file");
+        logAudit("Trip", "Export", "$session_name exported $count trip(s) to a CSV file");
     }
     exit;
 

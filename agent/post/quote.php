@@ -38,7 +38,7 @@ if (isset($_POST['add_quote'])) {
 
     mysqli_query($mysqli,"INSERT INTO history SET history_status = 'Draft', history_description = 'Quote created!', history_quote_id = $quote_id");
 
-    logAction("Quote", "Create", "$session_name created quote $config_quote_prefix$quote_number", $client_id, $quote_id);
+    logAudit("Quote", "Create", "$session_name created quote $config_quote_prefix$quote_number", $client_id, $quote_id);
 
     customAction('quote_create', $quote_id);
 
@@ -110,7 +110,7 @@ if (isset($_POST['add_quote_copy'])) {
         mysqli_query($mysqli,"INSERT INTO quote_items SET item_name = '$item_name', item_description = '$item_description', item_quantity = $item_quantity, item_price = $item_price, item_subtotal = $item_subtotal, item_tax = $item_tax, item_total = $item_total, item_order = $item_order, item_tax_id = $tax_id, item_quote_id = $new_quote_id");
     }
 
-    logAction("Quote", "Create", "$session_name created quote $config_quote_prefix$quote_number from quote $original_quote_prefix$original_quote_number", $client_id, $new_quote_id);
+    logAudit("Quote", "Create", "$session_name created quote $config_quote_prefix$quote_number from quote $original_quote_prefix$original_quote_number", $client_id, $new_quote_id);
 
     customAction('quote_create', $new_quote_id);
 
@@ -187,7 +187,7 @@ if (isset($_POST['add_quote_to_invoice'])) {
 
     mysqli_query($mysqli,"INSERT INTO history SET history_status = 'Invoiced', history_description = 'Quote invoiced as $config_invoice_prefix$invoice_number', history_quote_id = $quote_id");
 
-    logAction("Invoice", "Create", "$session_name created invoice $config_invoice_prefix$invoice_number from quote $config_quote_prefix$quote_number", $client_id, $new_invoice_id);
+    logAudit("Invoice", "Create", "$session_name created invoice $config_invoice_prefix$invoice_number from quote $config_quote_prefix$quote_number", $client_id, $new_invoice_id);
 
     // Check & update any quote-ticket association
     $ticket_id = 0;
@@ -265,7 +265,7 @@ if (isset($_POST['add_quote_item'])) {
 
     mysqli_query($mysqli,"UPDATE quotes SET quote_amount = $new_quote_amount WHERE quote_id = $quote_id");
 
-    logAction("Quote", "Edit", "$session_name added item $name to quote $quote_prefix$quote_number", $client_id, $quote_id);
+    logAudit("Quote", "Edit", "$session_name added item $name to quote $quote_prefix$quote_number", $client_id, $quote_id);
 
     flash_alert("Item <strong>$name</strong> added");
 
@@ -324,7 +324,7 @@ if (isset($_POST['edit_quote_item'])) {
 
     mysqli_query($mysqli,"UPDATE quotes SET quote_amount = $new_quote_amount WHERE quote_id = $quote_id");
 
-    logAction("Quote", "Edit", "$session_name edited item $name on quote $quote_prefix$quote_number", $client_id, $quote_id);
+    logAudit("Quote", "Edit", "$session_name edited item $name on quote $quote_prefix$quote_number", $client_id, $quote_id);
 
     flash_alert("Item <strong>$name</strong> updated");
 
@@ -352,7 +352,7 @@ if (isset($_POST['quote_note'])) {
 
     mysqli_query($mysqli,"UPDATE quotes SET quote_note = '$note' WHERE quote_id = $quote_id");
 
-    logAction("Quote", "Edit", "$session_name added notes to quote $quote_prefix$quote_number", $client_id, $quote_id);
+    logAudit("Quote", "Edit", "$session_name added notes to quote $quote_prefix$quote_number", $client_id, $quote_id);
 
     flash_alert("Notes added");
 
@@ -390,7 +390,7 @@ if (isset($_POST['edit_quote'])) {
 
     mysqli_query($mysqli,"UPDATE quotes SET quote_scope = '$scope', quote_date = '$date', quote_expire = '$expire', quote_discount_amount = '$quote_discount', quote_amount = '$quote_amount', quote_category_id = $category WHERE quote_id = $quote_id");
 
-    logAction("Quote", "Edit", "$session_name edited quote $quote_prefix$quote_number", $client_id, $quote_id);
+    logAudit("Quote", "Edit", "$session_name edited quote $quote_prefix$quote_number", $client_id, $quote_id);
 
     flash_alert("Quote edited");
 
@@ -431,7 +431,7 @@ if (isset($_GET['delete_quote'])) {
         mysqli_query($mysqli,"DELETE FROM history WHERE history_id = $history_id");
     }
 
-    logAction("Quote", "Delete", "$session_name deleted quote $quote_prefix$quote_number", $client_id);
+    logAudit("Quote", "Delete", "$session_name deleted quote $quote_prefix$quote_number", $client_id);
 
     flash_alert("Quote <strong>$quote_prefix$quote_number</strong> deleted", 'error');
 
@@ -474,7 +474,7 @@ if (isset($_GET['delete_quote_item'])) {
 
     mysqli_query($mysqli,"DELETE FROM quote_items WHERE item_id = $item_id");
 
-    logAction("Quote", "Edit", "$session_name removed item $item_name from $quote_prefix$quote_number", $client_id, $quote_id);
+    logAudit("Quote", "Edit", "$session_name removed item $item_name from $quote_prefix$quote_number", $client_id, $quote_id);
 
     flash_alert("Item <strong>$item_name</strong> removed", 'error');
 
@@ -502,7 +502,7 @@ if (isset($_GET['mark_quote_sent'])) {
 
     mysqli_query($mysqli,"INSERT INTO history SET history_status = 'Sent', history_description = 'Quote marked sent', history_quote_id = $quote_id");
 
-    logAction("Quote", "Sent", "$session_name marked quote $quote_prefix$quote_number as sent", $client_id, $quote_id);
+    logAudit("Quote", "Sent", "$session_name marked quote $quote_prefix$quote_number as sent", $client_id, $quote_id);
 
     flash_alert("Quote marked sent");
 
@@ -530,7 +530,7 @@ if (isset($_GET['accept_quote'])) {
 
     mysqli_query($mysqli,"INSERT INTO history SET history_status = 'Accepted', history_description = 'Quote accepted by $session_name', history_quote_id = $quote_id");
 
-    logAction("Quote", "Edit", "$session_name marked quote $quote_prefix$quote_number as accepted", $client_id, $quote_id);
+    logAudit("Quote", "Edit", "$session_name marked quote $quote_prefix$quote_number as accepted", $client_id, $quote_id);
 
     customAction('quote_accept', $quote_id);
 
@@ -562,7 +562,7 @@ if (isset($_GET['decline_quote'])) {
 
     customAction('quote_decline', $quote_id);
 
-    logAction("Quote", "Edit", "$session_name marked quote $quote_prefix$quote_number as declined", $client_id, $quote_id);
+    logAudit("Quote", "Edit", "$session_name marked quote $quote_prefix$quote_number as declined", $client_id, $quote_id);
 
     flash_alert("Quote declined", 'error');
 
@@ -639,7 +639,7 @@ if (isset($_GET['email_quote'])) {
     // Update History
     mysqli_query($mysqli,"INSERT INTO history SET history_status = 'Sent', history_description = 'Emailed Quote', history_quote_id = $quote_id");
 
-    logAction("Quote", "Email", "$session_name emailed quote $quote_prefix$quote_number to $contact_email", $client_id, $quote_id);
+    logAudit("Quote", "Email", "$session_name emailed quote $quote_prefix$quote_number to $contact_email", $client_id, $quote_id);
 
     flash_alert("Quote sent!");
 
@@ -672,7 +672,7 @@ if (isset($_GET['mark_quote_invoiced'])) {
 
     mysqli_query($mysqli,"INSERT INTO history SET history_status = 'Invoiced', history_description = 'Quote marked as invoiced', history_quote_id = $quote_id");
 
-    logAction("Quote", "Sent", "$session_name marked quote $quote_prefix$quote_number as invoiced", $client_id, $quote_id);
+    logAudit("Quote", "Sent", "$session_name marked quote $quote_prefix$quote_number as invoiced", $client_id, $quote_id);
 
     flash_alert("Quote marked invoiced");
 
@@ -733,7 +733,7 @@ if(isset($_POST['export_quotes_csv'])){
         fpassthru($f);
     }
 
-    logAction("Quote", "Export", "$session_name exported $num_rows quote(s) to a CSV file");
+    logAudit("Quote", "Export", "$session_name exported $num_rows quote(s) to a CSV file");
 
     flash_alert("Exported <strong>$num_rows</strong> quote(s)");
 

@@ -26,7 +26,7 @@ if (isset($_POST['add_ticket_template'])) {
         mysqli_query($mysqli, "INSERT INTO project_template_ticket_templates SET project_template_id = $project_template_id, ticket_template_id = $ticket_template_id");
     }
 
-    logAction("Ticket Template", "Create", "$session_name created ticket template $name", 0, $ticket_template_id);
+    logAudit("Ticket Template", "Create", "$session_name created ticket template $name", 0, $ticket_template_id);
 
     flash_alert("Ticket Template <strong>$name</strong> created");
 
@@ -46,7 +46,7 @@ if (isset($_POST['edit_ticket_template'])) {
 
     mysqli_query($mysqli, "UPDATE ticket_templates SET ticket_template_name = '$name', ticket_template_description = '$description', ticket_template_subject = '$subject', ticket_template_details = '$details' WHERE ticket_template_id = $ticket_template_id");
 
-    logAction("Ticket Template", "Edit", "$session_name edited ticket template $name", 0, $ticket_template_id);
+    logAudit("Ticket Template", "Edit", "$session_name edited ticket template $name", 0, $ticket_template_id);
 
     flash_alert("Ticket Template <strong>$name</strong> edited");
 
@@ -68,7 +68,7 @@ if (isset($_GET['delete_ticket_template'])) {
     mysqli_query($mysqli, "DELETE FROM task_templates WHERE task_template_ticket_template_id = $ticket_template_id");
     mysqli_query($mysqli, "DELETE FROM project_template_ticket_templates WHERE ticket_template_id = $ticket_template_id");
 
-    logAction("Ticket Template", "Delete", "$session_name deleted ticket template $ticket_template_name");
+    logAudit("Ticket Template", "Delete", "$session_name deleted ticket template $ticket_template_name");
 
     flash_alert("Ticket Template <strong>$ticket_template_name</strong> and its associated tasks deleted", 'error');
 
@@ -87,7 +87,7 @@ if (isset($_POST['add_ticket_template_task'])) {
 
     $task_template_id = mysqli_insert_id($mysqli);
 
-    logAction("Ticket Template", "Create", "$session_name created task $task_name for ticket template", 0, $ticket_template_id);
+    logAudit("Ticket Template", "Create", "$session_name created task $task_name for ticket template", 0, $ticket_template_id);
 
     flash_alert("Added Task <strong>$task_name</strong>");
 
@@ -105,7 +105,7 @@ if (isset($_GET['delete_task_template'])) {
 
     mysqli_query($mysqli, "DELETE FROM task_templates WHERE task_template_id = $task_template_id");
 
-    logAction("Ticket Template", "Edit", "$session_name deleted task $task_template_name from ticket template");
+    logAudit("Ticket Template", "Edit", "$session_name deleted task $task_template_name from ticket template");
 
     flash_alert("Task <strong>$task_template_name</strong> deleted", 'error');
 

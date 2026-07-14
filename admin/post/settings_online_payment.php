@@ -17,7 +17,7 @@ if (isset($_POST['edit_online_payment_settings'])) {
 
     mysqli_query($mysqli,"UPDATE settings SET config_stripe_enable = $config_stripe_enable, config_stripe_publishable = '$config_stripe_publishable', config_stripe_secret = '$config_stripe_secret', config_stripe_account = $config_stripe_account, config_stripe_expense_vendor = $config_stripe_expense_vendor, config_stripe_expense_category = $config_stripe_expense_category, config_stripe_percentage_fee = $config_stripe_percentage_fee, config_stripe_flat_fee = $config_stripe_flat_fee WHERE company_id = 1");
 
-    logAction("Settings", "Edit", "$session_name edited online payment settings");
+    logAudit("Settings", "Edit", "$session_name edited online payment settings");
 
     if ($config_stripe_enable && $config_stripe_account == 0) {
         flash_alert("Stripe payment account must be specified!", 'error');

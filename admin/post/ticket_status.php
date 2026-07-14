@@ -13,7 +13,7 @@ if (isset($_POST['add_ticket_status'])) {
 
     $ticket_status_id = mysqli_insert_id($mysqli);
 
-    logAction("Ticket Status", "Create", "$session_name created custom ticket status $name", 0, $ticket_status_id);
+    logAudit("Ticket Status", "Create", "$session_name created custom ticket status $name", 0, $ticket_status_id);
 
     flash_alert("Custom Ticket Status <strong>$name</strong> created");
 
@@ -33,7 +33,7 @@ if (isset($_POST['edit_ticket_status'])) {
 
     mysqli_query($mysqli, "UPDATE ticket_statuses SET ticket_status_name = '$name', ticket_status_color = '$color', ticket_status_order = $order, ticket_status_active = $status WHERE ticket_status_id = $ticket_status_id");
 
-    logAction("Ticket Status", "Edit", "$session_name edited custom ticket status $name", 0, $ticket_status_id);
+    logAudit("Ticket Status", "Edit", "$session_name edited custom ticket status $name", 0, $ticket_status_id);
 
     flash_alert("Custom Ticket Status <strong>$name</strong> edited");
 
@@ -55,7 +55,7 @@ if (isset($_GET['delete_ticket_status'])) {
 
     mysqli_query($mysqli, "DELETE FROM ticket_statuses WHERE ticket_status_id = $ticket_status_id");
 
-    logAction("Ticket Status", "Delete", "$session_name deleted custom ticket status $ticket_status_name");
+    logAudit("Ticket Status", "Delete", "$session_name deleted custom ticket status $ticket_status_name");
 
     flash_alert("Custom Ticket Status <strong>$ticket_status_name</strong> Deleted", 'error');
 

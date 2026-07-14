@@ -56,7 +56,7 @@ if(isset($_POST['add_location'])){
         }
     }
 
-    logAction("Location", "Create", "$session_name created location $name", $client_id, $location_id);
+    logAudit("Location", "Create", "$session_name created location $name", $client_id, $location_id);
 
     flash_alert("Location <strong>$name</strong> created.");
 
@@ -123,7 +123,7 @@ if(isset($_POST['edit_location'])){
 
     }
 
-    logAction("Location", "Edit", "$session_name edited location $name", $client_id, $location_id);
+    logAudit("Location", "Edit", "$session_name edited location $name", $client_id, $location_id);
 
     flash_alert("Location <strong>$name</strong> updated");
 
@@ -149,7 +149,7 @@ if(isset($_GET['archive_location'])){
 
     mysqli_query($mysqli,"UPDATE locations SET location_archived_at = NOW() WHERE location_id = $location_id");
 
-    logAction("Location", "Archive", "$session_name archived location $location_name", $client_id, $location_id);
+    logAudit("Location", "Archive", "$session_name archived location $location_name", $client_id, $location_id);
 
     flash_alert("Location <strong>$location_name</strong> archived", 'error');
 
@@ -175,7 +175,7 @@ if(isset($_GET['restore_location'])){
 
     mysqli_query($mysqli,"UPDATE locations SET location_archived_at = NULL WHERE location_id = $location_id");
 
-    logAction("Location", "Restore", "$session_name restored location $location_name", $client_id, $location_id);
+    logAudit("Location", "Restore", "$session_name restored location $location_name", $client_id, $location_id);
 
     flash_alert("Location <strong>$location_name</strong> restored");
 
@@ -201,7 +201,7 @@ if(isset($_GET['delete_location'])){
 
     mysqli_query($mysqli,"DELETE FROM locations WHERE location_id = $location_id");
 
-    logAction("Location", "Delete", "$session_name deleted location $location_name", $client_id);
+    logAudit("Location", "Delete", "$session_name deleted location $location_name", $client_id);
 
     flash_alert("Location <strong>$location_name</strong> deleted", 'error');
 
@@ -249,11 +249,11 @@ if (isset($_POST['bulk_assign_location_tags'])) {
                 }
             }
 
-            logAction("Location", "Edit", "$session_name assigned tags to location $location_name", $client_id, $location_id);
+            logAudit("Location", "Edit", "$session_name assigned tags to location $location_name", $client_id, $location_id);
 
         } // End Assign Location Loop
 
-        logAction("Location", "Bulk Edit", "$session_name assigned tags to $count location(s)", $client_id);
+        logAudit("Location", "Bulk Edit", "$session_name assigned tags to $count location(s)", $client_id);
 
         flash_alert("Assigned tags for <strong>$count</strong> locations");
 
@@ -291,14 +291,14 @@ if (isset($_POST['bulk_archive_locations'])) {
                 mysqli_query($mysqli,"UPDATE locations SET location_archived_at = NOW() WHERE location_id = $location_id");
 
                 // Individual Contact logging
-                logAction("Location", "Archive", "$session_name archived location $location_name", $client_id, $location_id);
+                logAudit("Location", "Archive", "$session_name archived location $location_name", $client_id, $location_id);
 
                 $count++;
             }
 
         }
 
-        logAction("Location", "Bulk Archive", "$session_name archived $count location(s)");
+        logAudit("Location", "Bulk Archive", "$session_name archived $count location(s)");
 
         flash_alert("Archived <strong>$count</strong> location(s)", 'error');
 
@@ -334,11 +334,11 @@ if (isset($_POST['bulk_restore_locations'])) {
 
             mysqli_query($mysqli,"UPDATE locations SET location_archived_at = NULL WHERE location_id = $location_id");
 
-            logAction("Location", "Restore", "$session_name restored location $location_name", $client_id, $location_id);
+            logAudit("Location", "Restore", "$session_name restored location $location_name", $client_id, $location_id);
 
         }
 
-        logAction("Location", "Bulk Restore", "$session_name restored $count location(s)", $client_id);
+        logAudit("Location", "Bulk Restore", "$session_name restored $count location(s)", $client_id);
 
         flash_alert("Restored <strong>$count</strong> location(s)");
 
@@ -374,11 +374,11 @@ if (isset($_POST['bulk_delete_locations'])) {
 
             mysqli_query($mysqli, "DELETE FROM locations WHERE location_id = $location_id AND location_client_id = $client_id");
 
-            logAction("Location", "Delete", "$session_name deleted location $location_name", $client_id);
+            logAudit("Location", "Delete", "$session_name deleted location $location_name", $client_id);
 
         }
 
-        logAction("Location", "Bulk Delete", "$session_name deleted $count location(s)", $client_id);
+        logAudit("Location", "Bulk Delete", "$session_name deleted $count location(s)", $client_id);
 
         flash_alert("Deleted <strong>$count</strong> location(s)", 'error');
 
@@ -440,7 +440,7 @@ if(isset($_POST['export_locations_csv'])){
         fpassthru($f);
     }
 
-    logAction("Location", "Export", "$session_name exported $num_rows location(s) to a CSV file", $client_id);
+    logAudit("Location", "Export", "$session_name exported $num_rows location(s) to a CSV file", $client_id);
 
     exit;
 
@@ -534,7 +534,7 @@ if (isset($_POST["import_locations_csv"])) {
         }
         fclose($file);
 
-        logAction("Location", "Import", "$session_name imported $row_count location(s). $duplicate_count duplicate(s) found and not imported", $client_id);
+        logAudit("Location", "Import", "$session_name imported $row_count location(s). $duplicate_count duplicate(s) found and not imported", $client_id);
 
         flash_alert("$row_count Location(s) imported, $duplicate_count duplicate(s) detected and not imported");
 

@@ -78,7 +78,7 @@ if (isset($_POST['add_service'])) {
         }
     }
 
-    logAction("Service", "Create", "$session_name created service $service_name", $client_id, $service_id);
+    logAudit("Service", "Create", "$session_name created service $service_name", $client_id, $service_id);
 
     flash_alert("Service <strong>$service_name</strong> created");
 
@@ -166,7 +166,7 @@ if (isset($_POST['edit_service'])) {
         }
     }
 
-    logAction("Service", "Edit", "$session_name edited service $service_name", $client_id, $service_id);
+    logAudit("Service", "Edit", "$session_name edited service $service_name", $client_id, $service_id);
 
     flash_alert("Service <strong>$service_name</strong> edited");
 
@@ -193,7 +193,7 @@ if (isset($_GET['delete_service'])) {
     // Delete service
     mysqli_query($mysqli, "DELETE FROM services WHERE service_id = $service_id");
 
-    logAction("Service", "Delete", "$session_name deleted service $service_name", $client_id);
+    logAudit("Service", "Delete", "$session_name deleted service $service_name", $client_id);
 
     flash_alert("Service <strong>$service_name</strong> deleted", 'error');
 

@@ -34,7 +34,7 @@ if (isset($_POST['add_software_from_template'])) {
 
     $software_id = mysqli_insert_id($mysqli);
 
-    logAction("Software", "Create", "$session_name created software $name using template", $client_id, $software_id);
+    logAudit("Software", "Create", "$session_name created software $name using template", $client_id, $software_id);
 
     flash_alert("Software <strong>$name</strong> created from template");
 
@@ -97,7 +97,7 @@ if (isset($_POST['add_software'])) {
         }
     }
 
-    logAction("Software", "Create", "$session_name created software $name", $client_id, $software_id);
+    logAudit("Software", "Create", "$session_name created software $name", $client_id, $software_id);
 
     flash_alert("Software <strong>$name</strong> created $alert_extended");
 
@@ -161,7 +161,7 @@ if (isset($_POST['edit_software'])) {
         }
     }
 
-    logAction("Software", "Edit", "$session_name edited software $name", $client_id, $software_id);
+    logAudit("Software", "Edit", "$session_name edited software $name", $client_id, $software_id);
 
     flash_alert("Software <strong>$name</strong> updated");
 
@@ -191,7 +191,7 @@ if (isset($_GET['archive_software'])) {
     mysqli_query($mysqli,"DELETE FROM software_contacts WHERE software_id = $software_id");
     mysqli_query($mysqli,"DELETE FROM software_assets WHERE software_id = $software_id");
 
-    logAction("Software", "Archive", "$session_name archived software $software_name and removed all device/user license associations", $client_id, $software_id);
+    logAudit("Software", "Archive", "$session_name archived software $software_name and removed all device/user license associations", $client_id, $software_id);
 
     flash_alert("Software <strong>$software_name</strong> archived and removed all device/user license associations", 'error');
 
@@ -217,7 +217,7 @@ if (isset($_GET['delete_software'])) {
 
     mysqli_query($mysqli,"DELETE FROM software WHERE software_id = $software_id");
 
-    logAction("Software", "Delete", "$session_name deleted software $software_name and removed all device/user license associations", $client_id);
+    logAudit("Software", "Delete", "$session_name deleted software $software_name and removed all device/user license associations", $client_id);
 
     flash_alert("Software <strong>$software_name</strong> deleted and removed all device/user license associations", 'error');
 
@@ -304,7 +304,7 @@ if (isset($_POST['export_software_csv'])) {
         fpassthru($f);
     }
 
-    logAction("Software", "Export", "$session_name exported $num_rows software(s) $software_name to a CSV file", $client_id);
+    logAudit("Software", "Export", "$session_name exported $num_rows software(s) $software_name to a CSV file", $client_id);
 
     exit;
 

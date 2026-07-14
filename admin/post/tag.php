@@ -16,7 +16,7 @@ if (isset($_POST['add_tag'])) {
 
     $tag_id = mysqli_insert_id($mysqli);
 
-    logAction("Tag", "Create", "$session_name created tag $name", 0, $tag_id);
+    logAudit("Tag", "Create", "$session_name created tag $name", 0, $tag_id);
 
     flash_alert("Tag <strong>$name</strong> created");
 
@@ -34,7 +34,7 @@ if (isset($_POST['edit_tag'])) {
 
     mysqli_query($mysqli,"UPDATE tags SET tag_name = '$name', tag_color = '$color', tag_icon = '$icon' WHERE tag_id = $tag_id");
 
-    logAction("Tag", "Edit", "$session_name edited tag $name", 0, $tag_id);
+    logAudit("Tag", "Edit", "$session_name edited tag $name", 0, $tag_id);
 
     flash_alert("Tag <strong>$name</strong> edited");
 
@@ -52,7 +52,7 @@ if (isset($_GET['delete_tag'])) {
 
     mysqli_query($mysqli,"DELETE FROM tags WHERE tag_id = $tag_id");
 
-    logAction("Tag", "Delete", "$session_name deleted tag $tag_name");
+    logAudit("Tag", "Delete", "$session_name deleted tag $tag_name");
 
     flash_alert("Tag <strong>$tag_name</strong> deleted", 'error');
 

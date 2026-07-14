@@ -41,7 +41,7 @@ if (isset($_POST['add_expense'])) {
         }
     }
 
-    logAction("Expense", "Create", "$session_name created expense $description", $client_id, $expense_id);
+    logAudit("Expense", "Create", "$session_name created expense $description", $client_id, $expense_id);
 
     flash_alert("Expense added" . $extended_alert_description);
 
@@ -88,7 +88,7 @@ if (isset($_POST['edit_expense'])) {
 
     mysqli_query($mysqli,"UPDATE expenses SET expense_date = '$date', expense_amount = $amount, expense_account_id = $account, expense_vendor_id = $vendor, expense_client_id = $client_id, expense_category_id = $category, expense_description = '$description', expense_reference = '$reference' WHERE expense_id = $expense_id");
 
-    logAction("Expense", "Edit", "$session_name edited expense $description", $client_id, $expense_id);
+    logAudit("Expense", "Edit", "$session_name edited expense $description", $client_id, $expense_id);
 
     flash_alert("Expense modified" . $extended_alert_description);
 
@@ -118,7 +118,7 @@ if (isset($_GET['delete_expense'])) {
 
     mysqli_query($mysqli,"DELETE FROM expenses WHERE expense_id = $expense_id");
 
-    logAction("Expense", "Delete", "$session_name deleted expense $expense_description", $client_id);
+    logAudit("Expense", "Delete", "$session_name deleted expense $expense_description", $client_id);
 
     flash_alert("Expense deleted", 'error');
 
@@ -158,11 +158,11 @@ if (isset($_POST['bulk_edit_expense_category'])) {
 
             mysqli_query($mysqli,"UPDATE expenses SET expense_category_id = $category_id WHERE expense_id = $expense_id");
 
-            logAction("Expense", "Edit", "$session_name assigned expense $expense_descrition to category $category_name", $client_id, $expense_id);
+            logAudit("Expense", "Edit", "$session_name assigned expense $expense_descrition to category $category_name", $client_id, $expense_id);
 
         } // End Assign Loop
 
-        logAction("Expense", "Bulk Edit", "$session_name assigned $count expenses to category $category_name");
+        logAudit("Expense", "Bulk Edit", "$session_name assigned $count expenses to category $category_name");
 
         flash_alert("You assigned expense category <strong>$category_name</strong> to <strong>$count</strong> expense(s)");
     }
@@ -203,11 +203,11 @@ if (isset($_POST['bulk_edit_expense_account'])) {
 
             mysqli_query($mysqli,"UPDATE expenses SET expense_account_id = $account_id WHERE expense_id = $expense_id");
 
-            logAction("Expense", "Edit", "$session_name assigned expense $expense_descrition to account $account_name", $client_id, $expense_id);
+            logAudit("Expense", "Edit", "$session_name assigned expense $expense_descrition to account $account_name", $client_id, $expense_id);
 
         } // End Assign Loop
 
-        logAction("Expense", "Bulk Edit", "$session_name assigned $count expense(s) to account $account_name");
+        logAudit("Expense", "Bulk Edit", "$session_name assigned $count expense(s) to account $account_name");
 
         flash_alert("You assigned account <strong>$account_name</strong> to <strong>$count</strong> expense(s)");
     }
@@ -243,7 +243,7 @@ if (isset($_POST['bulk_edit_expense_client'])) {
 
             mysqli_query($mysqli,"UPDATE expenses SET expense_client_id = $client_id WHERE expense_id = $expense_id");
 
-            logAction("Expense", "Edit", "$session_name assigned expense $expense_descrition to client $client_name", $client_id, $expense_id);
+            logAudit("Expense", "Edit", "$session_name assigned expense $expense_descrition to client $client_name", $client_id, $expense_id);
 
         } // End Assign Loop
 
@@ -284,11 +284,11 @@ if (isset($_POST['bulk_delete_expenses'])) {
 
             mysqli_query($mysqli, "DELETE FROM expenses WHERE expense_id = $expense_id");
 
-            logAction("Expense", "Delete", "$session_name deleted expense $expense_descrition", $client_id);
+            logAudit("Expense", "Delete", "$session_name deleted expense $expense_descrition", $client_id);
 
         }
 
-        logAction("Expense", "Bulk Delete", "$session_name deleted $count expense(s)");
+        logAudit("Expense", "Bulk Delete", "$session_name deleted $count expense(s)");
 
         flash_alert("Deleted <strong>$count</strong> expense(s)", 'error');
 
@@ -387,7 +387,7 @@ if (isset($_POST['export_expenses_csv'])) {
         fpassthru($f);
     }
 
-    logAction("Expense", "Export", "$session_name exported $num_rows expense(s) to CSV file");
+    logAudit("Expense", "Export", "$session_name exported $num_rows expense(s) to CSV file");
 
     exit;
 

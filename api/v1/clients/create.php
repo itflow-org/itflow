@@ -22,8 +22,8 @@ if (!empty($name) && $client_id == 0) {
         $insert_id = mysqli_insert_id($mysqli);
         
         // Logging
-        logAction("Client", "Create", "$name via API ($api_key_name)", $insert_id);
-        logAction("API", "Success", "Created client $name via API ($api_key_name)", $insert_id);
+        logAudit("Client", "Create", "$name via API ($api_key_name)", $insert_id);
+        logAudit("API", "Success", "Created client $name via API ($api_key_name)", $insert_id);
     }
 
 }

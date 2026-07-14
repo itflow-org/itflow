@@ -37,7 +37,7 @@ if (!empty($contact_id)) {
             $update_count = mysqli_affected_rows($mysqli);
 
             // Logging
-            logAction("Contact", "Unarchive", "$contact_name unarchived via API ($api_key_name)", $client_id, $contact_id);
+            logAudit("Contact", "Unarchive", "$contact_name unarchived via API ($api_key_name)", $client_id, $contact_id);
         }
     }
 }

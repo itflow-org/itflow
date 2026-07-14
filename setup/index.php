@@ -342,7 +342,7 @@ if (isset($_POST['restore'])) {
     if (file_exists($versionTxt)) {
         $versionInfo = @file_get_contents($versionTxt);
         if ($versionInfo !== false) {
-            logAction("Backup Restore", "Version Info", $versionInfo);
+            logAudit("Backup Restore", "Version Info", $versionInfo);
         }
     }
 

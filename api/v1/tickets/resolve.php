@@ -36,8 +36,8 @@ if (!empty($ticket_id)) {
         $update_count = mysqli_affected_rows($mysqli);
 
         // Logging
-        logAction("Ticket", "Resolved", "$ticket_prefix$ticket_number ticket via API ($api_key_name)", $client_id, $ticket_id);
-        logAction("API", "Success", "Resolved ticket $ticket_prefix$ticket_number via API ($api_key_name)", $client_id);
+        logAudit("Ticket", "Resolved", "$ticket_prefix$ticket_number ticket via API ($api_key_name)", $client_id, $ticket_id);
+        logAudit("API", "Success", "Resolved ticket $ticket_prefix$ticket_number via API ($api_key_name)", $client_id);
     }
 
     customAction('ticket_resolve', $ticket_id);

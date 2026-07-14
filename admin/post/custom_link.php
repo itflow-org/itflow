@@ -21,7 +21,7 @@ if (isset($_POST['add_custom_link'])) {
 
     $custom_link_id = mysqli_insert_id($mysqli);
 
-    logAction("Custom Link", "Create", "$session_name created custom link $name -> $uri", 0, $custom_link_id);
+    logAudit("Custom Link", "Create", "$session_name created custom link $name -> $uri", 0, $custom_link_id);
 
     flash_alert("Custom link <strong>$name</strong> created");
 
@@ -43,7 +43,7 @@ if (isset($_POST['edit_custom_link'])) {
 
     mysqli_query($mysqli,"UPDATE custom_links SET custom_link_name = '$name', custom_link_uri = '$uri', custom_link_new_tab = $new_tab, custom_link_icon = '$icon', custom_link_order = $order, custom_link_location = $location WHERE custom_link_id = $custom_link_id");
 
-    logAction("Custom Link", "Edit", "$session_name edited custom link $name -> $uri", 0, $custom_link_id);
+    logAudit("Custom Link", "Edit", "$session_name edited custom link $name -> $uri", 0, $custom_link_id);
 
     flash_alert("Custom Link <strong>$name</strong> edited");
 
@@ -65,7 +65,7 @@ if (isset($_GET['delete_custom_link'])) {
 
     mysqli_query($mysqli,"DELETE FROM custom_links WHERE custom_link_id = $custom_link_id");
 
-    logAction("Custom Link", "Delete", "$session_name deleted custom link $custom_link_name -> $custom_link_uri");
+    logAudit("Custom Link", "Delete", "$session_name deleted custom link $custom_link_name -> $custom_link_uri");
 
     flash_alert("Custom Link <strong>$name</strong> deleted", 'error');
 

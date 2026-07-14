@@ -23,8 +23,8 @@ if (!empty($name) && !empty($client_id)) {
         mysqli_query($mysqli,"INSERT INTO asset_interfaces SET interface_name = '1', interface_mac = '$mac', interface_ip = '$ip', interface_primary = 1, interface_network_id = $network, interface_asset_id = $insert_id");
 
         // Logging
-        logAction("Asset", "Create", "$name via API ($api_key_name)", $client_id, $insert_id);
-        logAction("API", "Success", "Created asset $name via API ($api_key_name)", $client_id);
+        logAudit("Asset", "Create", "$name via API ($api_key_name)", $client_id, $insert_id);
+        logAudit("API", "Success", "Created asset $name via API ($api_key_name)", $client_id);
     }
 }
 

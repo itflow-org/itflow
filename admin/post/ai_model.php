@@ -19,7 +19,7 @@ if (isset($_POST['add_ai_model'])) {
 
     $ai_model_id = mysqli_insert_id($mysqli);
 
-    logAction("AI Model", "Create", "$session_name created AI Model $model");
+    logAudit("AI Model", "Create", "$session_name created AI Model $model");
 
     flash_alert("AI Model <strong>$model</strong> created");
 
@@ -38,7 +38,7 @@ if (isset($_POST['edit_ai_model'])) {
 
     mysqli_query($mysqli,"UPDATE ai_models SET ai_model_name = '$model', ai_model_prompt = '$prompt', ai_model_use_case = '$use_case' WHERE ai_model_id = $model_id");
 
-    logAction("AI Model", "Edit", "$session_name edited AI Model $model");
+    logAudit("AI Model", "Edit", "$session_name edited AI Model $model");
 
     flash_alert("AI Model <strong>$model</strong> edited");
 
@@ -56,7 +56,7 @@ if (isset($_GET['delete_ai_model'])) {
 
     mysqli_query($mysqli,"DELETE FROM ai_models WHERE ai_model_id = $model_id");
 
-    logAction("AI Model", "Delete", "$session_name deleted AI Model $model_name");
+    logAudit("AI Model", "Delete", "$session_name deleted AI Model $model_name");
 
     flash_alert("AI Model <strong>$model_name</strong> deleted", 'error');
 

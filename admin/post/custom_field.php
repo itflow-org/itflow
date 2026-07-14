@@ -16,7 +16,7 @@ if(isset($_POST['create_custom_field'])){
 
     $custom_field_id = mysqli_insert_id($mysqli);
 
-    logAction("Custom Field", "Create", "$session_name created custom field $label", 0, $custom_field_id);
+    logAudit("Custom Field", "Create", "$session_name created custom field $label", 0, $custom_field_id);
 
     flash_alert("Custom field <strong>$label</strong> created");
 
@@ -32,7 +32,7 @@ if(isset($_POST['edit_custom_field'])){
 
     mysqli_query($mysqli,"UPDATE custom_fields SET custom_field_label = '$label', custom_field_type = '$type' WHERE custom_field_id = $custom_field_id");
 
-    logAction("Custom Field", "Edit", "$session_name edited custom field $label", 0, $custom_field_id);
+    logAudit("Custom Field", "Edit", "$session_name edited custom field $label", 0, $custom_field_id);
 
     flash_alert("Custom field <strong>$label</strong> edited");
 
@@ -48,7 +48,7 @@ if(isset($_GET['delete_custom_field'])){
 
     mysqli_query($mysqli,"DELETE FROM custom_fields WHERE custom_field_id = $custom_field_id");
 
-    logAction("Custom Field", "Delete", "$session_name deleted custom field $label");
+    logAudit("Custom Field", "Delete", "$session_name deleted custom field $label");
 
     flash_alert("Custom field <strong>$label</strong> deleted", 'error');
 

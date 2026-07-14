@@ -53,7 +53,7 @@ if (isset($_POST['client_set_notes'])) {
     mysqli_query($mysqli, "UPDATE clients SET client_notes = '$notes' WHERE client_id = $client_id");
 
     // Logging
-    logAction("Client", "Edit", "$session_name edited client notes", $client_id);
+    logAudit("Client", "Edit", "$session_name edited client notes", $client_id);
 
 }
 
@@ -78,7 +78,7 @@ if (isset($_POST['contact_set_notes'])) {
     mysqli_query($mysqli, "UPDATE contacts SET contact_notes = '$notes' WHERE contact_id = $contact_id");
 
     // Logging
-    logAction("Contact", "Edit", "$session_name edited contact notes for $contact_name", $client_id, $contact_id);
+    logAudit("Contact", "Edit", "$session_name edited contact notes for $contact_name", $client_id, $contact_id);
 
 }
 
@@ -103,7 +103,7 @@ if (isset($_POST['asset_set_notes'])) {
     mysqli_query($mysqli, "UPDATE assets SET asset_notes = '$notes' WHERE asset_id = $asset_id");
 
     // Logging
-    logAction("Asset", "Edit", "$session_name edited asset notes for $asset_name", $client_id, $asset_id);
+    logAudit("Asset", "Edit", "$session_name edited asset notes for $asset_name", $client_id, $asset_id);
 
 }
 
@@ -269,7 +269,7 @@ if (isset($_GET['share_generate_link'])) {
     echo json_encode($url);
 
     // Logging
-    logAction("Share", "Create", "$session_name created shared link for $item_type - $item_name", $client_id, $item_id);
+    logAudit("Share", "Create", "$session_name created shared link for $item_type - $item_name", $client_id, $item_id);
 
 }
 
@@ -417,7 +417,7 @@ if (isset($_GET['get_totp_token_via_id'])) {
 
     if ($recent_totp_view_logged_count == 0) {
         // Logging
-        logAction("Credential", "View TOTP", "$session_name viewed credential TOTP code for $name", $client_id, $credential_id);
+        logAudit("Credential", "View TOTP", "$session_name viewed credential TOTP code for $name", $client_id, $credential_id);
 
     }
 }

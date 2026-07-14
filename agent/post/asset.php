@@ -61,7 +61,7 @@ if (isset($_POST['add_asset'])) {
 
         $credential_id = mysqli_insert_id($mysqli);
 
-        logAction("Credential", "Create", "$session_name created login credential for asset $asset_name", $client_id, $credential_id);
+        logAudit("Credential", "Create", "$session_name created login credential for asset $asset_name", $client_id, $credential_id);
 
         $alert_extended = " along with login credentials";
 
@@ -70,7 +70,7 @@ if (isset($_POST['add_asset'])) {
     // Add to History
     mysqli_query($mysqli,"INSERT INTO asset_history SET asset_history_status = '$status', asset_history_description = '$session_name created $name', asset_history_asset_id = $asset_id");
 
-    logAction("Asset", "Create", "$session_name created asset $name", $client_id, $asset_id);
+    logAudit("Asset", "Create", "$session_name created asset $name", $client_id, $asset_id);
 
     flash_alert("Asset <strong>$name</strong> created $alert_extended");
 
@@ -139,7 +139,7 @@ if (isset($_POST['edit_asset'])) {
     // Add to History
     mysqli_query($mysqli,"INSERT INTO asset_history SET asset_history_status = '$status', asset_history_description = '$session_name updated $name', asset_history_asset_id = $asset_id");
 
-    logAction("Asset", "Edit", "$session_name edited asset $name", $client_id, $asset_id);
+    logAudit("Asset", "Edit", "$session_name edited asset $name", $client_id, $asset_id);
 
     flash_alert("Asset <strong>$name</strong> edited");
 
@@ -168,7 +168,7 @@ if (isset($_GET['archive_asset'])) {
     // Add to History
     mysqli_query($mysqli,"INSERT INTO asset_history SET asset_history_status = 'Archived', asset_history_description = '$session_name archived $asset_name', asset_history_asset_id = $asset_id");
 
-    logAction("Asset", "Archive", "$session_name archived asset $asset_name", $client_id, $asset_id);
+    logAudit("Asset", "Archive", "$session_name archived asset $asset_name", $client_id, $asset_id);
 
     flash_alert("Asset <strong>$asset_name</strong> archived", 'error');
 
@@ -197,7 +197,7 @@ if (isset($_GET['restore_asset'])) {
     // Add to History
     mysqli_query($mysqli,"INSERT INTO asset_history SET asset_history_status = 'Restored', asset_history_description = '$session_name restored $asset_name', asset_history_asset_id = $asset_id");
 
-    logAction("Asset", "Restore", "$session_name restored asset $asset_name", $client_id, $asset_id);
+    logAudit("Asset", "Restore", "$session_name restored asset $asset_name", $client_id, $asset_id);
 
     flash_alert("Asset <strong>$asset_name</strong> Restored");
 
@@ -223,7 +223,7 @@ if (isset($_GET['delete_asset'])) {
 
     mysqli_query($mysqli,"DELETE FROM assets WHERE asset_id = $asset_id");
 
-    logAction("Asset", "Delete", "$session_name deleted asset $asset_name", $client_id);
+    logAudit("Asset", "Delete", "$session_name deleted asset $asset_name", $client_id);
 
     flash_alert("Asset <strong>$asset_name</strong> deleted");
 
@@ -266,11 +266,11 @@ if (isset($_POST['bulk_assign_asset_tags'])) {
                 }
             }
 
-            logAction("Asset", "Edit", "$session_name added tags to asset $asset_name", $client_id, $asset_id);
+            logAudit("Asset", "Edit", "$session_name added tags to asset $asset_name", $client_id, $asset_id);
 
         }
 
-        logAction("Asset", "Bulk Edit", "$session_name added tags for $asset_count assets", $client_id);
+        logAudit("Asset", "Bulk Edit", "$session_name added tags for $asset_count assets", $client_id);
 
         flash_alert("Assigned tags for <strong>$count</strong> assets");
     }
@@ -314,11 +314,11 @@ if (isset($_POST['bulk_assign_asset_location'])) {
 
             mysqli_query($mysqli,"UPDATE assets SET asset_location_id = $location_id WHERE asset_id = $asset_id");
 
-            logAction("Asset", "Edit", "$session_name assigned asset $asset_name to location $location_name", $client_id, $asset_id);
+            logAudit("Asset", "Edit", "$session_name assigned asset $asset_name to location $location_name", $client_id, $asset_id);
 
         } // End Assign Location Loop
 
-        logAction("Asset", "Bulk Edit", "$session_name assigned $asset_count assets to location $location_name", $client_id);
+        logAudit("Asset", "Bulk Edit", "$session_name assigned $asset_count assets to location $location_name", $client_id);
 
         flash_alert("You assigned <strong>$asset_count</strong> assets to location <strong>$location_name</strong>");
     }
@@ -354,11 +354,11 @@ if (isset($_POST['bulk_assign_asset_physical_location'])) {
 
             mysqli_query($mysqli,"UPDATE assets SET asset_physical_location = '$physical_location' WHERE asset_id = $asset_id");
 
-            logAction("Asset", "Edit", "$session_name set asset $asset_name to physical location $physical_location", $client_id, $asset_id);
+            logAudit("Asset", "Edit", "$session_name set asset $asset_name to physical location $physical_location", $client_id, $asset_id);
 
         } // End Assign Location Loop
 
-        logAction("Asset", "Bulk Edit", "$session_name set $asset_count assets to physical location $physical_location", $client_id);
+        logAudit("Asset", "Bulk Edit", "$session_name set $asset_count assets to physical location $physical_location", $client_id);
 
         flash_alert("You moved <strong>$asset_count</strong> assets to location <strong>$physical_location</strong>");
     }
@@ -431,24 +431,24 @@ if (isset($_POST['bulk_transfer_client_asset'])) {
             mysqli_query($mysqli,"INSERT INTO asset_history SET asset_history_status = 'Transferred', asset_history_description = '$session_name transferred $asset_name to $new_client_name', asset_history_asset_id = $current_asset_id");
 
             // Log Archive
-            logAction("Asset", "Archive", "$session_name archived asset $asset_name (via transfer)", $current_client_id, $current_asset_id);
+            logAudit("Asset", "Archive", "$session_name archived asset $asset_name (via transfer)", $current_client_id, $current_asset_id);
 
             // Log Transfer
-            logAction("Asset", "Transfer", "$session_name Transferred asset $asset_name (old asset ID: $current_asset_id) from $current_client_name to $new_client_name (new asset ID: $new_asset_id)", $current_client_id, $current_asset_id);
+            logAudit("Asset", "Transfer", "$session_name Transferred asset $asset_name (old asset ID: $current_asset_id) from $current_client_name to $new_client_name (new asset ID: $new_asset_id)", $current_client_id, $current_asset_id);
             mysqli_query($mysqli, "UPDATE assets SET asset_notes = '$notes' WHERE asset_id = $current_asset_id");
 
             // Log the new asset
             $notes = $asset_notes . "\r\n\r\n---\r\n* " . date('Y-m-d H:i:s') . ": Transferred asset $asset_name (old asset ID: $current_asset_id) from $current_client_name to $new_client_name (new asset ID: $new_asset_id)";
-            logAction("Asset", "Create", "$session_name created asset $name (via transfer)", $new_client_id, $new_asset_id);
+            logAudit("Asset", "Create", "$session_name created asset $name (via transfer)", $new_client_id, $new_asset_id);
             mysqli_query($mysqli,"INSERT INTO asset_history SET asset_history_status = 'Transferred', asset_history_description = '$session_name created asset via transfer from $current_client_name', asset_history_asset_id = $new_asset_id");
 
-            logAction("Asset", "Transfer", "$session_name Transferred asset $asset_name (old asset ID: $current_asset_id) from $current_client_name to $new_client_name (new asset ID: $new_asset_id)", $new_client_id, $new_asset_id);
+            logAudit("Asset", "Transfer", "$session_name Transferred asset $asset_name (old asset ID: $current_asset_id) from $current_client_name to $new_client_name (new asset ID: $new_asset_id)", $new_client_id, $new_asset_id);
 
             mysqli_query($mysqli, "UPDATE assets SET asset_notes = '$notes' WHERE asset_id = $new_asset_id");
 
         } // End Transfer to Client Loop
 
-        logAction("Asset", "Bulk Transfer", "$session_name transferred $asset_count assets to $new_client_name", $new_client_id);
+        logAudit("Asset", "Bulk Transfer", "$session_name transferred $asset_count assets to $new_client_name", $new_client_id);
 
         flash_alert("Transferred <strong>$asset_count</strong> assets to <strong>$new_client_name</strong>.");
     }
@@ -489,11 +489,11 @@ if (isset($_POST['bulk_assign_asset_contact'])) {
 
             mysqli_query($mysqli,"UPDATE assets SET asset_contact_id = $contact_id WHERE asset_id = $asset_id");
 
-            logAction("Asset", "Edit", "$session_name assigned asset $asset_name to contact $contact_name", $client_id, $asset_id);
+            logAudit("Asset", "Edit", "$session_name assigned asset $asset_name to contact $contact_name", $client_id, $asset_id);
 
         } // End Assign Contact Loop
 
-        logAction("Asset", "Bulk Edit", "$session_name assigned $asset_count assets to contact $contact_name", $client_id);
+        logAudit("Asset", "Bulk Edit", "$session_name assigned $asset_count assets to contact $contact_name", $client_id);
 
         flash_alert("You assigned <strong>$asset_count</strong> assets to contact <strong>$contact_name</strong>");
     }
@@ -527,14 +527,14 @@ if (isset($_POST['bulk_edit_asset_status'])) {
 
             mysqli_query($mysqli,"UPDATE assets SET asset_status = '$status' WHERE asset_id = $asset_id");
 
-            logAction("Asset", "Edit", "$session_name set status to $status on $asset_name", $client_id, $asset_id);
+            logAudit("Asset", "Edit", "$session_name set status to $status on $asset_name", $client_id, $asset_id);
 
             // Add to History
             mysqli_query($mysqli,"INSERT INTO asset_history SET asset_history_status = '$status', asset_history_description = '$session_name updated $asset_name', asset_history_asset_id = $asset_id");
 
         }
 
-        logAction("Asset", "Bulk Edit", "$session_name set status to $status on $asset_count assets", $client_id);
+        logAudit("Asset", "Bulk Edit", "$session_name set status to $status on $asset_count assets", $client_id);
 
         flash_alert("You set the status <strong>$status</strong> on <strong>$asset_count</strong> assets.");
     }
@@ -567,11 +567,11 @@ if (isset($_POST['bulk_favorite_assets'])) {
 
             mysqli_query($mysqli,"UPDATE assets SET asset_favorite = 1 WHERE asset_id = $asset_id");
 
-            logAction("Asset", "Edit", "$session_name marked asset $asset_name a favorite", $client_id, $asset_id);
+            logAudit("Asset", "Edit", "$session_name marked asset $asset_name a favorite", $client_id, $asset_id);
 
         }
 
-        logAction("Asset", "Bulk Edit", "$session_name favorited $count assets", $client_id);
+        logAudit("Asset", "Bulk Edit", "$session_name favorited $count assets", $client_id);
 
         flash_alert("Favorited <strong>$count</strong> asset(s)");
 
@@ -605,11 +605,11 @@ if (isset($_POST['bulk_unfavorite_assets'])) {
 
             mysqli_query($mysqli,"UPDATE assets SET asset_favorite = 0 WHERE asset_id = $asset_id");
 
-            logAction("Asset", "Edit", "$session_name unfavorited asset $asset_name", $client_id, $asset_id);
+            logAudit("Asset", "Edit", "$session_name unfavorited asset $asset_name", $client_id, $asset_id);
 
         }
 
-        logAction("Asset", "Bulk Edit", "$session_name unfavorited $count assets", $client_id);
+        logAudit("Asset", "Bulk Edit", "$session_name unfavorited $count assets", $client_id);
 
         flash_alert("Unfavorited <strong>$count</strong> asset(s)");
 
@@ -643,14 +643,14 @@ if (isset($_POST['bulk_archive_assets'])) {
 
             mysqli_query($mysqli,"UPDATE assets SET asset_archived_at = NOW() WHERE asset_id = $asset_id");
 
-            logAction("Asset", "Archive", "$session_name archived asset $asset_name", $client_id, $asset_id);
+            logAudit("Asset", "Archive", "$session_name archived asset $asset_name", $client_id, $asset_id);
 
             // Add to History
             mysqli_query($mysqli,"INSERT INTO asset_history SET asset_history_status = 'Archived', asset_history_description = '$session_name archived $asset_name', asset_history_asset_id = $asset_id");
 
         }
 
-        logAction("Asset", "Bulk Archive", "$session_name archived $count assets", $client_id);
+        logAudit("Asset", "Bulk Archive", "$session_name archived $count assets", $client_id);
 
         flash_alert("Archived <strong>$count</strong> asset(s)", 'error');
 
@@ -685,14 +685,14 @@ if (isset($_POST['bulk_restore_assets'])) {
             mysqli_query($mysqli,"UPDATE assets SET asset_archived_at = NULL WHERE asset_id = $asset_id");
 
             // Individual Asset logging
-            logAction("Asset", "Restore", "$session_name restored asset $asset_name", $client_id, $asset_id);
+            logAudit("Asset", "Restore", "$session_name restored asset $asset_name", $client_id, $asset_id);
 
             // Add to History
             mysqli_query($mysqli,"INSERT INTO asset_history SET asset_history_status = 'Restored', asset_history_description = '$session_name restored $asset_name', asset_history_asset_id = $asset_id");
 
         }
 
-        logAction("Asset", "Bulk Restore", "$session_name restored $count assets");
+        logAudit("Asset", "Bulk Restore", "$session_name restored $count assets");
 
         flash_alert("Restored $count asset(s)");
 
@@ -726,10 +726,10 @@ if (isset($_POST['bulk_delete_assets'])) {
 
             mysqli_query($mysqli,"DELETE FROM assets WHERE asset_id = $asset_id");
 
-            logAction("Asset", "Delete", "$session_name deleted asset $asset_name", $client_id, $asset_id);
+            logAudit("Asset", "Delete", "$session_name deleted asset $asset_name", $client_id, $asset_id);
         }
 
-        logAction("Asset", "Bulk Delete", "$session_name deleted $count assets");
+        logAudit("Asset", "Bulk Delete", "$session_name deleted $count assets");
 
         flash_alert("Deleted <strong>$count</strong> asset(s)", 'error');
     }
@@ -762,7 +762,7 @@ if (isset($_POST['link_software_to_asset'])) {
 
     mysqli_query($mysqli,"INSERT INTO software_assets SET asset_id = $asset_id, software_id = $software_id");
 
-    logAction("Software", "Link", "$session_name added software license $software_name to asset $asset_name", $client_id, $software_id);
+    logAudit("Software", "Link", "$session_name added software license $software_name to asset $asset_name", $client_id, $software_id);
 
     flash_alert("Software <strong>$software_name</strong> licensed for asset <strong>$asset_name</strong>");
 
@@ -792,7 +792,7 @@ if (isset($_GET['unlink_software_from_asset'])) {
 
     mysqli_query($mysqli,"DELETE FROM software_assets WHERE asset_id = $asset_id AND software_id = $software_id");
 
-    logAction("software", "Unlink", "$session_name removed software license $software_name from asset $asset_name", $client_id, $software_id);
+    logAudit("software", "Unlink", "$session_name removed software license $software_name from asset $asset_name", $client_id, $software_id);
 
     flash_alert("Removed Software License <strong>$software_name</strong> for Asset <strong>$asset_name</strong>", 'error');
 
@@ -823,7 +823,7 @@ if (isset($_POST['link_asset_to_credential'])) {
 
     mysqli_query($mysqli,"UPDATE credentials SET credential_asset_id = $asset_id WHERE credential_id = $credential_id");
 
-    logAction("Credential", "Link", "$session_name linked credential $credential_name to asset $asset_name", $client_id, $credential_id);
+    logAudit("Credential", "Link", "$session_name linked credential $credential_name to asset $asset_name", $client_id, $credential_id);
 
     flash_alert("Asset <strong>$asset_name</strong> linked with credential <strong>$crdential_name</strong>");
 
@@ -853,7 +853,7 @@ if (isset($_GET['unlink_credential_from_asset'])) {
 
     mysqli_query($mysqli,"UPDATE credentials SET credential_asset_id = 0 WHERE credential_id = $credential_id");
 
-    logAction("Credential", "Unlink", "$session_name unlinked asset $asset_name from credential $credential_name", $client_id, $credential_id);
+    logAudit("Credential", "Unlink", "$session_name unlinked asset $asset_name from credential $credential_name", $client_id, $credential_id);
 
     flash_alert("Credential <strong>$credential_name</strong> unlinked from Asset <strong>$asset_name</strong>", 'errpr');
 
@@ -883,7 +883,7 @@ if (isset($_POST['link_service_to_asset'])) {
 
     mysqli_query($mysqli,"INSERT INTO service_assets SET asset_id = $asset_id, service_id = $service_id");
 
-    logAction("Service", "Link", "$session_name linked asset $asset_name to service $service_name", $client_id, $service_id);
+    logAudit("Service", "Link", "$session_name linked asset $asset_name to service $service_name", $client_id, $service_id);
 
     flash_alert("Service <strong>$service_name</strong> linked with asset <strong>$asset_name</strong>");
 
@@ -913,7 +913,7 @@ if (isset($_GET['unlink_service_from_asset'])) {
 
     mysqli_query($mysqli,"DELETE FROM service_assets WHERE asset_id = $asset_id AND service_id = $service_id");
 
-    logAction("Service", "Unlink", "$session_name unlinked asset $asset_name from service $service_name", $client_id, $service_id);
+    logAudit("Service", "Unlink", "$session_name unlinked asset $asset_name from service $service_name", $client_id, $service_id);
 
     flash_alert("Asset <strong>$asset_name</strong> unlinked from service <strong>$service_name</strong>", 'error');
 
@@ -944,7 +944,7 @@ if (isset($_POST['link_asset_to_file'])) {
     // asset add query
     mysqli_query($mysqli,"INSERT INTO asset_files SET asset_id = $asset_id, file_id = $file_id");
 
-    logAction("File", "Link", "$session_name linked asset $asset_name to file $file_name", $client_id, $file_id);
+    logAudit("File", "Link", "$session_name linked asset $asset_name to file $file_name", $client_id, $file_id);
 
     flash_alert("Asset <strong>$asset_name</strong> linked with File <strong>$file_name</strong>");
 
@@ -974,7 +974,7 @@ if (isset($_GET['unlink_asset_from_file'])) {
 
     mysqli_query($mysqli,"DELETE FROM asset_files WHERE asset_id = $asset_id AND file_id = $file_id");
 
-    logAction("File", "Unlink", "$session_name unlinked asset $asset_name from file $file_name", $client_id, $file_id);
+    logAudit("File", "Unlink", "$session_name unlinked asset $asset_name from file $file_name", $client_id, $file_id);
 
     flash_alert("Asset <strong>$asset_name</strong> unlinked from file <strong>$file_name</strong>", 'error');
 
@@ -1139,7 +1139,7 @@ if (isset($_POST["import_assets_csv"])) {
         }
         fclose($file);
 
-        logAction("Asset", "Import", "$session_name imported $row_count asset(s) via CSV file", $client_id);
+        logAudit("Asset", "Import", "$session_name imported $row_count asset(s) via CSV file", $client_id);
 
         flash_alert("$row_count Asset(s) added, $duplicate_count duplicate(s) detected");
 
@@ -1243,7 +1243,7 @@ if (isset($_POST['export_assets_csv'])) {
         fpassthru($f);
     }
 
-    logAction("Asset", "Export", "$session_name exported $num_rows asset(s) to a CSV file", $client_id);
+    logAudit("Asset", "Export", "$session_name exported $num_rows asset(s) to a CSV file", $client_id);
 
     exit;
 
@@ -1311,7 +1311,7 @@ if (isset($_POST['add_asset_interface'])) {
     }
 
     // 6) Logging
-    logAction(
+    logAudit(
         "Asset Interface",
         "Create",
         "$session_name created interface $name for asset $asset_name",
@@ -1362,10 +1362,10 @@ if (isset($_POST['add_asset_multiple_interfaces'])) {
         ";
         mysqli_query($mysqli, $sql_insert);
 
-        logAction("Asset Interface", "Create", "$session_name created interface $name for asset $asset_name", $client_id, $asset_id);
+        logAudit("Asset Interface", "Create", "$session_name created interface $name for asset $asset_name", $client_id, $asset_id);
     }
 
-    logAction("Asset Interface", "Bulk Create", "$session_name created $interfaces for asset $asset_name", $client_id, $asset_id);
+    logAudit("Asset Interface", "Bulk Create", "$session_name created $interfaces for asset $asset_name", $client_id, $asset_id);
 
     flash_alert("Created <strong>$interfaces</strong> Interface(s) for asset <strong>$asset_name</strong>");
 
@@ -1439,7 +1439,7 @@ if (isset($_POST['edit_asset_interface'])) {
     }
 
     // 5) Logging
-    logAction(
+    logAudit(
         "Asset Interface",
         "Edit",
         "$session_name edited interface $name for asset $asset_name",
@@ -1484,7 +1484,7 @@ if (isset($_GET['delete_asset_interface'])) {
     ");
 
     // 3) Logging
-    logAction(
+    logAudit(
         "Asset Interface",
         "Delete",
         "$session_name deleted interface $interface_name from asset $asset_name",
@@ -1532,10 +1532,10 @@ if (isset($_POST['bulk_edit_asset_interface_type'])) {
             // Update inteface type
             mysqli_query($mysqli,"UPDATE asset_interfaces SET interface_type = '$type' WHERE interface_id = $interface_id");
 
-            logAction("Asset Interface", "Edit", "$session_name set interface type to $type for asset $asset_name", $client_id, $asset_id);
+            logAudit("Asset Interface", "Edit", "$session_name set interface type to $type for asset $asset_name", $client_id, $asset_id);
         }
 
-        logAction("Asset Interface", "Bulk Edit", "$session_name set interface type to $type on $interface_count interfaces for asset $asset_name", $client_id);
+        logAudit("Asset Interface", "Bulk Edit", "$session_name set interface type to $type on $interface_count interfaces for asset $asset_name", $client_id);
 
         flash_alert("Type set to <strong>$type</strong> on <strong>$interface_count</strong> interfaces.");
 
@@ -1581,10 +1581,10 @@ if (isset($_POST['bulk_edit_asset_interface_network'])) {
             // Update inteface type
             mysqli_query($mysqli,"UPDATE asset_interfaces SET interface_network_id = $network_id WHERE interface_id = $interface_id");
 
-            logAction("Asset Interface", "Edit", "$session_name set network to $network_name for asset $asset_name", $client_id, $asset_id);
+            logAudit("Asset Interface", "Edit", "$session_name set network to $network_name for asset $asset_name", $client_id, $asset_id);
         }
 
-        logAction("Asset Interface", "Bulk Edit", "$session_name set network to $network_name on $interface_count interfaces for asset $asset_name", $client_id);
+        logAudit("Asset Interface", "Bulk Edit", "$session_name set network to $network_name on $interface_count interfaces for asset $asset_name", $client_id);
 
         flash_alert("Network set to <strong>$network_name</strong> on <strong>$interface_count</strong> interfaces.");
     }
@@ -1624,10 +1624,10 @@ if (isset($_POST['bulk_edit_asset_interface_ip_dhcp'])) {
             // Update inteface type
             mysqli_query($mysqli,"UPDATE asset_interfaces SET interface_ip = 'DHCP' WHERE interface_id = $interface_id");
 
-            logAction("Asset Interface", "Edit", "$session_name set interface IP to DHCP for asset $asset_name", $client_id, $asset_id);
+            logAudit("Asset Interface", "Edit", "$session_name set interface IP to DHCP for asset $asset_name", $client_id, $asset_id);
         }
 
-        logAction("Asset Interface", "Bulk Edit", "$session_name set interface IP to DHCP on $interface_count interfaces for asset $asset_name", $client_id);
+        logAudit("Asset Interface", "Bulk Edit", "$session_name set interface IP to DHCP on $interface_count interfaces for asset $asset_name", $client_id);
 
         flash_alert("Interface IP set to <strong>DHCP</strong> on <strong>$interface_count</strong> interfaces.");
 
@@ -1668,10 +1668,10 @@ if (isset($_POST['bulk_delete_asset_interfaces'])) {
 
             mysqli_query($mysqli, "DELETE FROM asset_interfaces WHERE interface_id = $interface_id");
 
-            logAction("Asset Interface", "Delete", "$session_name deleted interface $interface_name from asset $asset_name", $client_id, $asset_id);
+            logAudit("Asset Interface", "Delete", "$session_name deleted interface $interface_name from asset $asset_name", $client_id, $asset_id);
         }
 
-        logAction("Asset Interface", "Bulk Delete", "$session_name deleted $interface_count interfaces for asset $asset_name", $client_id);
+        logAudit("Asset Interface", "Bulk Delete", "$session_name deleted $interface_count interfaces for asset $asset_name", $client_id);
 
         flash_alert("<strong>$interface_count</strong> interfaces deleted.", 'error');
     }
@@ -1786,7 +1786,7 @@ if (isset($_POST["import_client_asset_interfaces_csv"])) {
         }
         fclose($file);
 
-        logAction("Asset", "Import", "$session_name imported $row_count interfaces(s) to asset $asset_name via CSV file", $client_id);
+        logAudit("Asset", "Import", "$session_name imported $row_count interfaces(s) to asset $asset_name via CSV file", $client_id);
 
         flash_alert("<strong>$row_count</strong> Interfaces(s) added to asset <strong>$asset_name</stong>, <strong>$duplicate_count</strong> duplicate(s) detected");
 
@@ -1885,7 +1885,7 @@ if (isset($_POST['export_client_asset_interfaces_csv'])) {
         fpassthru($f);
     }
 
-    logAction("Asset Interface", "Export", "$session_name exported $num_rows interfaces(s) to a CSV file", $client_id);
+    logAudit("Asset Interface", "Export", "$session_name exported $num_rows interfaces(s) to a CSV file", $client_id);
 
     exit;
 

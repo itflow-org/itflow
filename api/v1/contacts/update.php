@@ -30,8 +30,8 @@ if (!empty($contact_id)) {
         $update_count = mysqli_affected_rows($mysqli);
 
         // Logging
-        logAction("Contact", "Edit", "$name via API ($api_key_name)", $client_id, $contact_id);
-        logAction("API", "Success", "Edited contact $name via API ($api_key_name)", $client_id);
+        logAudit("Contact", "Edit", "$name via API ($api_key_name)", $client_id, $contact_id);
+        logAudit("API", "Success", "Edited contact $name via API ($api_key_name)", $client_id);
     }
 }
 

@@ -80,7 +80,7 @@ if (isset($_POST['edit_your_user_details'])) {
 
     mysqli_query($mysqli,"UPDATE user_settings SET user_config_signature = '$signature' WHERE user_id = $session_user_id");
 
-    logAction("User Account", "Edit", "$session_name edited their account $extended_log_description");
+    logAudit("User Account", "Edit", "$session_name edited their account $extended_log_description");
 
     flash_alert("User details updated");
 
@@ -102,7 +102,7 @@ if (isset($_GET['clear_your_user_avatar'])) {
 
     mysqli_query($mysqli,"UPDATE users SET user_avatar = NULL WHERE user_id = $session_user_id");
 
-    logAction("User Account", "Edit", "$session_name cleared their avatar");
+    logAudit("User Account", "Edit", "$session_name cleared their avatar");
 
     flash_alert("Avatar cleared", 'error');
 
@@ -154,7 +154,7 @@ if (isset($_POST['edit_your_user_password'])) {
     $user_specific_encryption_ciphertext = encryptUserSpecificKey($_POST['new_password']);
     mysqli_query($mysqli,"UPDATE users SET user_password = '$new_password', user_specific_encryption_ciphertext = '$user_specific_encryption_ciphertext' WHERE user_id = $session_user_id");
 
-    logAction("User Account", "Edit", "$session_name changed their password");
+    logAudit("User Account", "Edit", "$session_name changed their password");
 
     flash_alert("Your password was updated");
 
@@ -190,7 +190,7 @@ if (isset($_POST['edit_your_user_preferences'])) {
         $extended_log_description .= "disabled browser extension access";
     }
 
-    logAction("User Account", "Edit", "$session_name $extended_log_description");
+    logAudit("User Account", "Edit", "$session_name $extended_log_description");
 
     flash_alert("User preferences updated");
 
@@ -223,7 +223,7 @@ if (isset($_POST['enable_mfa'])) {
         // Delete any existing MFA tokens - these browsers should be re-validated
         mysqli_query($mysqli, "DELETE FROM remember_tokens WHERE remember_token_user_id = $session_user_id");
 
-        logAction("User Account", "Edit", "$session_name enabled MFA on their account");
+        logAudit("User Account", "Edit", "$session_name enabled MFA on their account");
 
         flash_alert("Multi-Factor authentication enabled");
 
@@ -298,7 +298,7 @@ if (isset($_GET['disable_mfa'])){
         $mail = addToMailQueue($data);
     }
 
-    logAction("User Account", "Edit", "$session_name disabled MFA on their account");
+    logAudit("User Account", "Edit", "$session_name disabled MFA on their account");
 
     flash_alert("Multi-Factor authentication disabled", 'error');
 
@@ -313,7 +313,7 @@ if (isset($_POST['revoke_your_2fa_remember_tokens'])) {
     // Delete tokens
     mysqli_query($mysqli, "DELETE FROM remember_tokens WHERE remember_token_user_id = $session_user_id");
 
-    logAction("User Account", "Edit", "$session_name revoked all their remember-me tokens");
+    logAudit("User Account", "Edit", "$session_name revoked all their remember-me tokens");
 
     flash_alert("Remember me tokens revoked", 'error');
 

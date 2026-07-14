@@ -43,7 +43,7 @@ if (isset($_POST['add_invoice'])) {
 
     mysqli_query($mysqli,"INSERT INTO history SET history_status = 'Draft', history_description = 'Invoice created by $session_name', history_invoice_id = $invoice_id");
 
-    logAction("Invoice", "Create", "$session_name created Invoice $config_invoice_prefix$invoice_number - $scope", $client_id, $invoice_id);
+    logAudit("Invoice", "Create", "$session_name created Invoice $config_invoice_prefix$invoice_number - $scope", $client_id, $invoice_id);
 
     customAction('invoice_create', $invoice_id);
 
@@ -85,7 +85,7 @@ if (isset($_POST['edit_invoice'])) {
 
     mysqli_query($mysqli,"UPDATE invoices SET invoice_scope = '$scope', invoice_date = '$date', invoice_due = '$due', invoice_category_id = $category, invoice_discount_amount = '$invoice_discount', invoice_amount = '$invoice_amount' WHERE invoice_id = $invoice_id");
 
-    logAction("Invoice", "Edit", "$session_name edited Invoice $invoice_prefix$invoice_number - $scope", $client_id, $invoice_id);
+    logAudit("Invoice", "Edit", "$session_name edited Invoice $invoice_prefix$invoice_number - $scope", $client_id, $invoice_id);
 
     flash_alert("Invoice <strong>$invoice_prefix$invoice_number</strong> edited");
 
@@ -154,7 +154,7 @@ if (isset($_POST['add_invoice_copy'])) {
         mysqli_query($mysqli,"INSERT INTO invoice_items SET item_name = '$item_name', item_description = '$item_description', item_quantity = $item_quantity, item_price = $item_price, item_subtotal = $item_subtotal, item_tax = $item_tax, item_total = $item_total, item_order = $item_order, item_tax_id = $tax_id, item_invoice_id = $new_invoice_id");
     }
 
-    logAction("Invoice", "Create", "$session_name created new Invoice $config_invoice_prefix$new_invoice_number from $old_invoice_prefix$old_invoice_prefix", $client_id, $new_invoice_id);
+    logAudit("Invoice", "Create", "$session_name created new Invoice $config_invoice_prefix$new_invoice_number from $old_invoice_prefix$old_invoice_prefix", $client_id, $new_invoice_id);
 
     customAction('invoice_create', $new_invoice_id);
 
@@ -185,7 +185,7 @@ if (isset($_GET['mark_invoice_sent'])) {
 
     mysqli_query($mysqli,"INSERT INTO history SET history_status = 'Sent', history_description = 'Invoice marked sent by $session_name', history_invoice_id = $invoice_id");
 
-    logAction("Invoice", "Edit", "$session_name marked invoice $invoice_prefix$invoice_number sent", $client_id, $invoice_id);
+    logAudit("Invoice", "Edit", "$session_name marked invoice $invoice_prefix$invoice_number sent", $client_id, $invoice_id);
 
     flash_alert("Invoice marked sent");
 
@@ -214,7 +214,7 @@ if (isset($_GET['mark_invoice_non-billable'])) {
 
     mysqli_query($mysqli,"INSERT INTO history SET history_status = 'Non-Billable', history_description = 'INVOICE marked Non-Billable', history_invoice_id = $invoice_id");
 
-    logAction("Invoice", "Edit", "$session_name marked invoice $invoice_prefix$invoice_number Non-Billable", $client_id, $invoice_id);
+    logAudit("Invoice", "Edit", "$session_name marked invoice $invoice_prefix$invoice_number Non-Billable", $client_id, $invoice_id);
 
     flash_alert("Invoice marked Non-Billable");
 
@@ -243,7 +243,7 @@ if (isset($_GET['cancel_invoice'])) {
 
     mysqli_query($mysqli,"INSERT INTO history SET history_status = 'Cancelled', history_description = 'Invoice cancelled by $session_name', history_invoice_id = $invoice_id");
 
-    logAction("Invoice", "Edit", "$session_name cancelled invoice $invoice_prefix$invoice_number", $client_id, $invoice_id);
+    logAudit("Invoice", "Edit", "$session_name cancelled invoice $invoice_prefix$invoice_number", $client_id, $invoice_id);
 
     flash_alert("Invoice <strong>$invoice_prefix$invoice_number</strong> cancelled", 'error');
 
@@ -294,7 +294,7 @@ if (isset($_GET['delete_invoice'])) {
     //unlink tickets from invoice
     mysqli_query($mysqli,"UPDATE tickets SET ticket_invoice_id = 0 WHERE ticket_invoice_id = $invoice_id");
 
-    logAction("Invoice", "Delete", "$session_name deleted invoice $invoice_prefix$invoice_number", $client_id);
+    logAudit("Invoice", "Delete", "$session_name deleted invoice $invoice_prefix$invoice_number", $client_id);
 
     flash_alert("Invoice <strong>$invoice_prefix$invoice_number</strong> deleted", 'error');
 
@@ -382,7 +382,7 @@ if (isset($_POST['add_invoice_item'])) {
 
     mysqli_query($mysqli,"UPDATE invoices SET invoice_amount = $new_invoice_amount WHERE invoice_id = $invoice_id");
 
-    logAction("Invoice", "Edit", "$session_name added item $name to invoice $invoice_prefix$invoice_number", $client_id, $invoice_id);
+    logAudit("Invoice", "Edit", "$session_name added item $name to invoice $invoice_prefix$invoice_number", $client_id, $invoice_id);
 
     flash_alert("Item <strong>$name</strong> added to invoice");
 
@@ -410,7 +410,7 @@ if (isset($_POST['invoice_note'])) {
 
     mysqli_query($mysqli,"UPDATE invoices SET invoice_note = '$note' WHERE invoice_id = $invoice_id");
 
-    logAction("Invoice", "Edit", "$session_name added note to invoice $invoice_prefix$invoice_number", $client_id, $invoice_id);
+    logAudit("Invoice", "Edit", "$session_name added note to invoice $invoice_prefix$invoice_number", $client_id, $invoice_id);
 
     flash_alert("Notes added");
 
@@ -469,7 +469,7 @@ if (isset($_POST['edit_invoice_item'])) {
 
     mysqli_query($mysqli,"UPDATE invoices SET invoice_amount = $new_invoice_amount WHERE invoice_id = $invoice_id");
 
-    logAction("Invoice", "Edit", "$session_name edited item $name on invoice $invoice_prefix$invoice_number", $client_id, $invoice_id);
+    logAudit("Invoice", "Edit", "$session_name edited item $name on invoice $invoice_prefix$invoice_number", $client_id, $invoice_id);
 
     flash_alert("Item <strong>$name</strong> updated");
 
@@ -514,7 +514,7 @@ if (isset($_GET['delete_invoice_item'])) {
         mysqli_query($mysqli,"INSERT INTO product_stock SET stock_qty = $item_quantity, stock_note = 'Returned QTY $item_quantity back to stock from Invoice $invoice_id', stock_product_id = $item_product_id");
     }
 
-    logAction("Invoice", "Delete", "$session_name removed item $item_name from invoice $invoice_prefix$invoice_number", $client_id, $invoice_id);
+    logAudit("Invoice", "Delete", "$session_name removed item $item_name from invoice $invoice_prefix$invoice_number", $client_id, $invoice_id);
 
     flash_alert("Item <strong>$item_name</strong> removed from invoice", 'error');
 
@@ -613,7 +613,7 @@ if (isset($_GET['email_invoice'])) {
         mysqli_query($mysqli,"UPDATE invoices SET invoice_status = 'Sent' WHERE invoice_id = $invoice_id");
     }
 
-    logAction("Invoice", "Email", "$session_name Emailed $contact_email Invoice $invoice_prefix$invoice_number Email queued to Email ID: $email_id", $client_id, $invoice_id);
+    logAudit("Invoice", "Email", "$session_name Emailed $contact_email Invoice $invoice_prefix$invoice_number Email queued to Email ID: $email_id", $client_id, $invoice_id);
 
     // Send copies of the invoice to any additional billing contacts
     $sql_billing_contacts = mysqli_query(
@@ -640,7 +640,7 @@ if (isset($_GET['email_invoice'])) {
                 'body' => $body
         ];
 
-        logAction("Invoice", "Email", "$session_name Emailed $billing_contact_email Invoice $invoice_prefix$invoice_number Email queued Email ID: $email_id", $client_id, $invoice_id);
+        logAudit("Invoice", "Email", "$session_name Emailed $billing_contact_email Invoice $invoice_prefix$invoice_number Email queued Email ID: $email_id", $client_id, $invoice_id);
 
     }
 
@@ -712,7 +712,7 @@ if (isset($_POST['export_invoices_csv'])) {
         fpassthru($f);
     }
 
-    logAction("Invoice", "Export", "$session_name exported $num_rows invoices to CSV file");
+    logAudit("Invoice", "Export", "$session_name exported $num_rows invoices to CSV file");
 
     exit;
 
@@ -1168,11 +1168,11 @@ if (isset($_POST['bulk_edit_invoice_category'])) {
 
             mysqli_query($mysqli,"UPDATE invoices SET invoice_category_id = $category_id WHERE invoice_id = $invoice_id");
 
-            logAction("Invoice", "Edit", "$session_name assigned Invoice $invoice_prefix$invoice_number to category $category_name", $client_id, $invoice_id);
+            logAudit("Invoice", "Edit", "$session_name assigned Invoice $invoice_prefix$invoice_number to category $category_name", $client_id, $invoice_id);
 
         } // End Assign Loop
 
-        logAction("Invoice", "Bulk Edit", "$session_name assigned $count invoices to category $category_name");
+        logAudit("Invoice", "Bulk Edit", "$session_name assigned $count invoices to category $category_name");
 
         flash_alert("Assigned income category <strong>$category_name</strong> to <strong>$count</strong> invoice(s)");
     }

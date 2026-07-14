@@ -49,8 +49,8 @@ if (!empty($name) && !empty($domain) && !empty($client_id)) {
         $insert_id = mysqli_insert_id($mysqli);
 
         // Logging
-        logAction("Certificate", "Create", "$name via API ($api_key_name)", $client_id, $insert_id);
-        logAction("API", "Success", "Created certificate $name via API ($api_key_name)", $client_id, $insert_id);
+        logAudit("Certificate", "Create", "$name via API ($api_key_name)", $client_id, $insert_id);
+        logAudit("API", "Success", "Created certificate $name via API ($api_key_name)", $client_id, $insert_id);
     }
 }
 

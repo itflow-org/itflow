@@ -68,7 +68,7 @@ if (isset($_POST['oauth_connect_microsoft_mail'])) {
             'prompt' => 'consent',
         ], '', '&', PHP_QUERY_RFC3986);
 
-    logAction("Settings", "Edit", "$session_name started Microsoft OAuth connect flow for mail settings");
+    logAudit("Settings", "Edit", "$session_name started Microsoft OAuth connect flow for mail settings");
 
     redirect($authorize_url);
 }
@@ -95,7 +95,7 @@ if (isset($_POST['edit_mail_smtp_settings'])) {
         WHERE company_id = 1
     ");
 
-    logAction("Settings", "Edit", "$session_name edited SMTP settings");
+    logAudit("Settings", "Edit", "$session_name edited SMTP settings");
 
     flash_alert("SMTP Mail Settings updated");
 
@@ -125,7 +125,7 @@ if (isset($_POST['edit_mail_imap_settings'])) {
         WHERE company_id = 1
     ");
 
-    logAction("Settings", "Edit", "$session_name edited IMAP settings");
+    logAudit("Settings", "Edit", "$session_name edited IMAP settings");
 
     flash_alert("IMAP Mail Settings updated");
 
@@ -152,7 +152,7 @@ if (isset($_POST['edit_mail_oauth_settings'])) {
         WHERE company_id = 1
     ");
 
-    logAction("Settings", "Edit", "$session_name edited mail OAuth settings");
+    logAudit("Settings", "Edit", "$session_name edited mail OAuth settings");
     flash_alert("Mail OAuth Settings updated");
     redirect();
 }
@@ -175,7 +175,7 @@ if (isset($_POST['edit_mail_from_settings'])) {
 
     mysqli_query($mysqli,"UPDATE settings SET config_mail_from_email = '$config_mail_from_email', config_mail_from_name = '$config_mail_from_name', config_invoice_from_email = '$config_invoice_from_email', config_invoice_from_name = '$config_invoice_from_name', config_quote_from_email = '$config_quote_from_email', config_quote_from_name = '$config_quote_from_name', config_ticket_from_email = '$config_ticket_from_email', config_ticket_from_name = '$config_ticket_from_name' WHERE company_id = 1");
 
-    logAction("Settings", "Edit", "$session_name edited mail from settings");
+    logAudit("Settings", "Edit", "$session_name edited mail from settings");
 
     flash_alert("Mail From Settings updated");
 
@@ -573,7 +573,7 @@ if (isset($_POST['test_oauth_token_refresh'])) {
     mysqli_query($mysqli, "UPDATE settings SET config_mail_oauth_access_token = '$new_access_token_esc', config_mail_oauth_access_token_expires_at = '$new_expires_at_esc'$refresh_sql WHERE company_id = 1");
 
     $provider_label = $provider === 'microsoft_oauth' ? 'Microsoft 365' : 'Google Workspace';
-    logAction("Settings", "Edit", "$session_name tested OAuth token refresh for $provider_label mail settings");
+    logAudit("Settings", "Edit", "$session_name tested OAuth token refresh for $provider_label mail settings");
 
     flash_alert("OAuth token refresh successful for $provider_label. Access token expires at $new_expires_at.");
     redirect();

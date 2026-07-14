@@ -45,7 +45,7 @@ if (isset($_POST['add_rack'])) {
         mysqli_query($mysqli,"UPDATE racks SET rack_photo = '$new_file_name' WHERE rack_id = $rack_id");
     }
 
-    logAction("Rack", "Create", "$session_name created rack $name", $client_id, $rack_id);
+    logAudit("Rack", "Create", "$session_name created rack $name", $client_id, $rack_id);
 
     flash_alert("Rack <strong>$name</strong> created");
 
@@ -92,7 +92,7 @@ if (isset($_POST['edit_rack'])) {
         mysqli_query($mysqli,"UPDATE racks SET rack_photo = '$new_file_name' WHERE rack_id = $rack_id");
     }
 
-    logAction("Rack", "Edit", "$session_name edited rack $name", $client_id, $rack_id);
+    logAudit("Rack", "Edit", "$session_name edited rack $name", $client_id, $rack_id);
 
     flash_alert("Rack <strong>$name</strong> edited");
 
@@ -118,7 +118,7 @@ if (isset($_GET['archive_rack'])) {
 
     mysqli_query($mysqli,"UPDATE racks SET rack_archived_at = NOW() WHERE rack_id = $rack_id");
 
-    logAction("Rack", "Archive", "$session_name archived rack $rack_name", $client_id, $rack_id);
+    logAudit("Rack", "Archive", "$session_name archived rack $rack_name", $client_id, $rack_id);
 
     flash_alert("Rack <strong>$rack_name</strong> archived", 'error');
 
@@ -144,7 +144,7 @@ if (isset($_GET['restore_rack'])) {
 
     mysqli_query($mysqli,"UPDATE racks SET rack_archived_at = NULL WHERE rack_id = $rack_id");
 
-    logAction("Rack", "Restore", "$session_name restored rack $rack_name", $client_id, $rack_id);
+    logAudit("Rack", "Restore", "$session_name restored rack $rack_name", $client_id, $rack_id);
 
     flash_alert("Rack <strong>$rack_name</strong> Restored");
 
@@ -176,7 +176,7 @@ if (isset($_GET['delete_rack'])) {
         unlink("../uploads/clients/$client_id/$rack_photo");
     }
 
-    logAction("Rack", "Delete", "$session_name deleted rack $rack_name", $client_id);
+    logAudit("Rack", "Delete", "$session_name deleted rack $rack_name", $client_id);
 
     flash_alert("Rack <strong>$rack_name</strong> deleted", 'error');
 
@@ -224,7 +224,7 @@ if (isset($_POST['add_rack_unit'])) {
 
     $unit_id = mysqli_insert_id($mysqli);
 
-    logAction("Rack", "Edit", "$session_name added device $name to units $unit_start - $unit_end in rack $rack_name", $client_id, $rack_id);
+    logAudit("Rack", "Edit", "$session_name added device $name to units $unit_start - $unit_end in rack $rack_name", $client_id, $rack_id);
 
     flash_alert("Device <strong>$name</strong> added to units $unit_start - $unit_end in rack.");
 
@@ -255,7 +255,7 @@ if (isset($_POST['edit_rack_unit'])) {
 
     mysqli_query($mysqli,"UPDATE rack_units SET unit_device = '$name', unit_asset_id = $asset, unit_start_number = $unit_start, unit_end_number = $unit_end WHERE unit_id = $unit_id");
 
-    logAction("Rack", "Edit", "$session_name edited device $name in rack $rack_name", $client_id, $rack_id);
+    logAudit("Rack", "Edit", "$session_name edited device $name in rack $rack_name", $client_id, $rack_id);
 
     flash_alert("Device $name edited on the rack");
 
@@ -283,7 +283,7 @@ if (isset($_GET['remove_rack_unit'])) {
 
     mysqli_query($mysqli,"DELETE FROM rack_units WHERE unit_id = $unit_id");
 
-    logAction("Rack", "Edit", "$session_name removed device $device_name from rack $rack_name", $client_id, $rack_id);
+    logAudit("Rack", "Edit", "$session_name removed device $device_name from rack $rack_name", $client_id, $rack_id);
 
     flash_alert("Device <strong>$device_name</strong> removed from rack", 'error');
 

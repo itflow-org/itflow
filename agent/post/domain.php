@@ -56,7 +56,7 @@ if (isset($_POST['add_domain'])) {
         $extended_log_description = ', with associated SSL cert';
     }
 
-    logAction("Domain", "Create", "$session_name created domain $name$extended_log_description", $client_id, $domain_id);
+    logAudit("Domain", "Create", "$session_name created domain $name$extended_log_description", $client_id, $domain_id);
 
     flash_alert("Domain <strong>$name</strong> created");
 
@@ -148,7 +148,7 @@ if (isset($_POST['edit_domain'])) {
         }
     }
 
-    logAction("Domain", "Edit", "$session_name edited domain $name", $client_id, $domain_id);
+    logAudit("Domain", "Edit", "$session_name edited domain $name", $client_id, $domain_id);
 
     flash_alert("Domain <strong>$name</strong> edited");
 
@@ -174,7 +174,7 @@ if (isset($_GET['archive_domain'])) {
 
     mysqli_query($mysqli,"UPDATE domains SET domain_archived_at = NOW() WHERE domain_id = $domain_id");
 
-    logAction("Domain", "Archive", "$session_name archived domain $domain_name", $client_id, $domain_id);
+    logAudit("Domain", "Archive", "$session_name archived domain $domain_name", $client_id, $domain_id);
 
     flash_alert("Domain <strong>$domain_name archived", 'error');
 
@@ -200,7 +200,7 @@ if(isset($_GET['restore_domain'])){
 
     mysqli_query($mysqli,"UPDATE domains SET domain_archived_at = NULL WHERE domain_id = $domain_id");
 
-    logAction("Domain", "Restore", "$session_name restored domain $domain_name", $client_id, $domain_id);
+    logAudit("Domain", "Restore", "$session_name restored domain $domain_name", $client_id, $domain_id);
 
     flash_alert("Domain <strong>$domain_name</strong> restored");
 
@@ -226,7 +226,7 @@ if (isset($_GET['delete_domain'])) {
 
     mysqli_query($mysqli,"DELETE FROM domains WHERE domain_id = $domain_id");
 
-    logAction("Domain", "Delete", "$session_name deleted domain $domain_name", $client_id);
+    logAudit("Domain", "Delete", "$session_name deleted domain $domain_name", $client_id);
 
     flash_alert("Domain <strong>$domain_name</strong> deleted", 'error');
 
@@ -260,10 +260,10 @@ if (isset($_POST['bulk_archive_domains'])) {
 
             mysqli_query($mysqli,"UPDATE domains SET domain_archived_at = NOW() WHERE domain_id = $domain_id");
 
-            logAction("Domain", "Archive", "$session_name archived domain $domain_name", $client_id, $domain_id);
+            logAudit("Domain", "Archive", "$session_name archived domain $domain_name", $client_id, $domain_id);
         }
 
-        logAction("Domain", "Bulk Archive", "$session_name archived $count domain(s)", $client_id);
+        logAudit("Domain", "Bulk Archive", "$session_name archived $count domain(s)", $client_id);
 
         flash_alert("Archived <strong>$count</strong> domain(s)", 'error');
 
@@ -299,11 +299,11 @@ if (isset($_POST['bulk_restore_domains'])) {
 
             mysqli_query($mysqli,"UPDATE domains SET domain_archived_at = NULL WHERE domain_id = $domain_id");
 
-            logAction("Domain", "Restore", "$session_name restored domain $domain_name", $client_id, $domain_id);
+            logAudit("Domain", "Restore", "$session_name restored domain $domain_name", $client_id, $domain_id);
 
         }
 
-        logAction("Domain", "Bulk Restore", "$session_name restored $count domain(s)", $client_id);
+        logAudit("Domain", "Bulk Restore", "$session_name restored $count domain(s)", $client_id);
 
         flash_alert("Restored <strong>$count</strong> domain(s)");
 
@@ -339,10 +339,10 @@ if (isset($_POST['bulk_delete_domains'])) {
 
             mysqli_query($mysqli, "DELETE FROM domains WHERE domain_id = $domain_id AND domain_client_id = $client_id");
 
-            logAction("Domain", "Delete", "$session_name deleted domain $domain_name", $client_id);
+            logAudit("Domain", "Delete", "$session_name deleted domain $domain_name", $client_id);
         }
 
-        logAction("Domain", "Bulk Delete", "$session_name deleted $count domain(s)", $client_id);
+        logAudit("Domain", "Bulk Delete", "$session_name deleted $count domain(s)", $client_id);
 
         flash_alert("Deleted <strong>$count</strong> domain(s)", 'error');
 
@@ -404,7 +404,7 @@ if (isset($_POST['export_domains_csv'])) {
         fpassthru($f);
     }
 
-    logAction("Domain", "Export", "$session_name exported $num_rows domain(s)", $client_id);
+    logAudit("Domain", "Export", "$session_name exported $num_rows domain(s)", $client_id);
 
     exit;
 

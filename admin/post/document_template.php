@@ -28,7 +28,7 @@ if (isset($_POST['add_document_template'])) {
     // Document template update content
     mysqli_query($mysqli,"UPDATE document_templates SET document_template_content = '$processed_content' WHERE document_template_id = $document_template_id");
 
-    logAction("Document Template", "Create", "$session_name created document template $name", 0, $document_template_id);
+    logAudit("Document Template", "Create", "$session_name created document template $name", 0, $document_template_id);
 
     flash_alert("Document template <strong>$name</strong> created");
 
@@ -63,7 +63,7 @@ if (isset($_POST['edit_document_template'])) {
     // Document edit query
     mysqli_query($mysqli,"UPDATE document_templates SET document_template_name = '$name', document_template_description = '$description', document_template_content = '$processed_content_escaped', document_template_updated_by = $session_user_id WHERE document_template_id = $document_template_id");
 
-    logAction("Document Template", "Edit", "$session_name edited document template $name", 0, $document_template_id);
+    logAudit("Document Template", "Edit", "$session_name edited document template $name", 0, $document_template_id);
 
     flash_alert("Document Template <strong>$name</strong> edited");
 
@@ -84,7 +84,7 @@ if (isset($_GET['delete_document_template'])) {
     // Delete uploads/document_templates/$document_template_id if exists
     removeDirectory($_SERVER['DOCUMENT_ROOT'] . "/uploads/document_templates/" . $document_template_id);
 
-    logAction("Document Template", "Delete", "$session_name deleted document template $document_template_name");
+    logAudit("Document Template", "Delete", "$session_name deleted document template $document_template_name");
 
     flash_alert("Document Template <strong>$document_template_name</strong> deleted", 'error');
 

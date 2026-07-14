@@ -22,7 +22,7 @@ if (isset($_POST['add_payment_method'])) {
 
     mysqli_stmt_execute($query);
 
-    logAction("Payment Method", "Create", "$session_name created Payment Method $name");
+    logAudit("Payment Method", "Create", "$session_name created Payment Method $name");
 
     flash_alert("Payment Method <strong>$name</strong> created");
 
@@ -49,7 +49,7 @@ if (isset($_POST['edit_payment_method'])) {
 
     mysqli_stmt_execute($query);
 
-    logAction("Payment Method", "Edit", "$session_name edited Payment Method $name");
+    logAudit("Payment Method", "Edit", "$session_name edited Payment Method $name");
 
     flash_alert("Payment Method <strong>$name</strong> edited");
 
@@ -67,7 +67,7 @@ if (isset($_GET['delete_payment_method'])) {
 
     mysqli_query($mysqli,"DELETE FROM payment_methods WHERE payment_method_id = $payment_method_id");
 
-    logAction("Payment Method", "Delete", "$session_name deleted Payment Method $payment_method_name");
+    logAudit("Payment Method", "Delete", "$session_name deleted Payment Method $payment_method_name");
 
     flash_alert("Payment Method <strong>$payment_method_name</strong> deleted", 'error');
 

@@ -295,7 +295,7 @@ if (isset($_GET['download_backup'])) {
     fclose($fp);
 
     // Log + UX
-    logAction("System", "Backup Download", ($session_name ?? 'Unknown User') . " downloaded full backup.");
+    logAudit("System", "Backup Download", ($session_name ?? 'Unknown User') . " downloaded full backup.");
     flash_alert("Full backup downloaded.");
     exit;
 }
@@ -312,7 +312,7 @@ if (isset($_POST['backup_master_key'])) {
     if (password_verify($password, $row['user_password'])) {
         $site_encryption_master_key = decryptUserSpecificKey($row['user_specific_encryption_ciphertext'], $password);
 
-        logAction("Master Key", "Download", "$session_name retrieved the master encryption key");
+        logAudit("Master Key", "Download", "$session_name retrieved the master encryption key");
 
         appNotify("Master Key", "$session_name retrieved the master encryption key");
 
@@ -322,7 +322,7 @@ if (isset($_POST['backup_master_key'])) {
         echo "<br>==============================";
 
     } else {
-        logAction("Master Key", "Download", "$session_name attempted to retrieve the master encryption key but failed");
+        logAudit("Master Key", "Download", "$session_name attempted to retrieve the master encryption key but failed");
 
         flash_alert("Incorrect password.", 'error');
 

@@ -23,7 +23,7 @@ if (isset($_POST['add_api_key'])) {
 
     $api_key_id = mysqli_insert_id($mysqli);
 
-    logAction("API Key", "Create", "$session_name created API key $name set to expire on $expire", $client_id, $api_key_id);
+    logAudit("API Key", "Create", "$session_name created API key $name set to expire on $expire", $client_id, $api_key_id);
 
     flash_alert("API Key <strong>$name</strong> created");
 
@@ -44,7 +44,7 @@ if (isset($_GET['revoke_api_key'])) {
 
     mysqli_query($mysqli,"UPDATE api_keys SET api_key_expire = NOW() WHERE api_key_id = $api_key_id");
 
-    logAction("API Key", "Revoke", "$session_name revoked API key $name", $client_id);
+    logAudit("API Key", "Revoke", "$session_name revoked API key $name", $client_id);
 
     flash_alert("API Key <strong>$name</strong> revoked", 'error');
 
@@ -65,7 +65,7 @@ if (isset($_GET['delete_api_key'])) {
 
     mysqli_query($mysqli,"DELETE FROM api_keys WHERE api_key_id = $api_key_id");
 
-    logAction("API Key", "Delete", "$session_name deleted API key $name", $client_id);
+    logAudit("API Key", "Delete", "$session_name deleted API key $name", $client_id);
 
     flash_alert("API Key <strong>$name</strong> deleted", 'error');
 
@@ -93,11 +93,11 @@ if (isset($_POST['bulk_delete_api_keys'])) {
 
             mysqli_query($mysqli, "DELETE FROM api_keys WHERE api_key_id = $api_key_id");
 
-            logAction("API Key", "Delete", "$session_name deleted API key $name", $client_id);
+            logAudit("API Key", "Delete", "$session_name deleted API key $name", $client_id);
 
         }
 
-        logAction("API Key", "Bulk Delete", "$session_name deleted $count API key(s)");
+        logAudit("API Key", "Bulk Delete", "$session_name deleted $count API key(s)");
 
         flash_alert("Deleted <strong>$count</strong> API keys(s)", 'error');
 

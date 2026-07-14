@@ -24,7 +24,7 @@ if (isset($_POST['add_revenue'])) {
 
     $revenue_id = mysqli_insert_id($mysqli);
 
-    logAction("Revenue", "Create", "$session_name added revenue $description", 0, $revenue_id);
+    logAudit("Revenue", "Create", "$session_name added revenue $description", 0, $revenue_id);
 
     flash_alert("Revenue added");
 
@@ -49,7 +49,7 @@ if (isset($_POST['edit_revenue'])) {
 
     mysqli_query($mysqli,"UPDATE revenues SET revenue_date = '$date', revenue_amount = $amount, revenue_payment_method = '$payment_method', revenue_reference = '$reference', revenue_description = '$description', revenue_category_id = $category, revenue_account_id = $account WHERE revenue_id = $revenue_id");
 
-    logAction("Revenue", "Edit", "$session_name edited revenue $description", 0, $revenue_id);
+    logAudit("Revenue", "Edit", "$session_name edited revenue $description", 0, $revenue_id);
 
     flash_alert("Revenue edited");
 
@@ -70,7 +70,7 @@ if (isset($_GET['delete_revenue'])) {
 
     mysqli_query($mysqli,"DELETE FROM revenues WHERE revenue_id = $revenue_id");
 
-    logAction("Revenue", "Delete", "$session_name deleted revenue $revenue_description");
+    logAudit("Revenue", "Delete", "$session_name deleted revenue $revenue_description");
 
     flash_alert("Revenue removed", 'error');
 

@@ -92,7 +92,7 @@ if (isset($_POST['upload_files'])) {
                 mysqli_query($mysqli,"INSERT INTO asset_files SET asset_id = $asset_id, file_id = $file_id");
             }
 
-            logAction("File", "Upload", "$session_name uploaded file $file_name", $client_id, $file_id);
+            logAudit("File", "Upload", "$session_name uploaded file $file_name", $client_id, $file_id);
 
             flash_alert("Uploaded file <strong>$file_name</strong>");
         }
@@ -124,7 +124,7 @@ if (isset($_POST['rename_file'])) {
     // file edit query
     mysqli_query($mysqli,"UPDATE files SET file_name = '$file_name' ,file_description = '$file_description' WHERE file_id = $file_id");
 
-    logAction("File", "Rename", "$session_name renamed file $old_file_name to $file_name", $client_id, $file_id);
+    logAudit("File", "Rename", "$session_name renamed file $old_file_name to $file_name", $client_id, $file_id);
 
     flash_alert("Renamed file <strong>$old_file_name</strong> to <strong>$file_name</strong>");
 
@@ -154,7 +154,7 @@ if (isset($_POST['move_file'])) {
 
     mysqli_query($mysqli,"UPDATE files SET file_folder_id = $folder_id WHERE file_id = $file_id");
 
-    logAction("File", "Move", "$session_name moved file $file_name to $folder_name", $client_id, $file_id);
+    logAudit("File", "Move", "$session_name moved file $file_name to $folder_name", $client_id, $file_id);
 
     flash_alert("File <strong>$file_name</strong> moved to <strong>$folder_name</strong>");
 
@@ -180,7 +180,7 @@ if (isset($_GET['archive_file'])) {
 
     mysqli_query($mysqli,"UPDATE files SET file_archived_at = NOW() WHERE file_id = $file_id");
 
-    logAction("File", "Archive", "$session_name archived file $file_name", $client_id, $file_id);
+    logAudit("File", "Archive", "$session_name archived file $file_name", $client_id, $file_id);
 
     flash_alert("File <strong>$file_name</strong> archived", 'error');
 
@@ -206,7 +206,7 @@ if (isset($_GET['restore_file'])) {
 
     mysqli_query($mysqli,"UPDATE files SET file_archived_at = NULL WHERE file_id = $file_id");
 
-    logAction("File", "Restore", "$session_name restored file $file_name", $client_id, $file_id);
+    logAudit("File", "Restore", "$session_name restored file $file_name", $client_id, $file_id);
 
     flash_alert("File <strong>$file_name</strong> Restored");
 
@@ -243,7 +243,7 @@ if (isset($_POST['delete_file'])) {
 
     mysqli_query($mysqli,"DELETE FROM files WHERE file_id = $file_id");
 
-    logAction("File", "Delete", "$session_name deleted file $file_name", $client_id);
+    logAudit("File", "Delete", "$session_name deleted file $file_name", $client_id);
 
     flash_alert("File <strong>$file_name</strong> deleted", 'alert');
 
@@ -276,7 +276,7 @@ if (isset($_POST['bulk_archive_files'])) {
 
             mysqli_query($mysqli,"UPDATE files SET file_archived_at = NOW() WHERE file_id = $file_id");
 
-            logAction("File", "Archive", "$session_name archived file $file_name", $client_id, $file_id);
+            logAudit("File", "Archive", "$session_name archived file $file_name", $client_id, $file_id);
         }
 
     }
@@ -300,13 +300,13 @@ if (isset($_POST['bulk_archive_files'])) {
 
             mysqli_query($mysqli,"UPDATE documents SET document_archived_at = NOW(), document_updated_at = document_updated_at WHERE document_id = $document_id");
 
-            logAction("Document", "Archive", "$session_name archived document $document_name", $client_id, $document_id);
+            logAudit("Document", "Archive", "$session_name archived document $document_name", $client_id, $document_id);
 
         }
 
     }
 
-    logAction("File", "Bulk Archive", "$session_name archived $document_count document(s) and $file_count file(s)", $client_id);
+    logAudit("File", "Bulk Archive", "$session_name archived $document_count document(s) and $file_count file(s)", $client_id);
 
     flash_alert("Archived <strong>$document_count</strong> Documents and <strong>$file_count</strong> files", 'error');
 
@@ -351,7 +351,7 @@ if (isset($_POST['bulk_delete_files'])) {
 
             mysqli_query($mysqli,"DELETE FROM files WHERE file_id = $file_id");
 
-            logAction("File", "Delete", "$session_name deleted file $file_name", $client_id);
+            logAudit("File", "Delete", "$session_name deleted file $file_name", $client_id);
         }
 
     }
@@ -381,13 +381,13 @@ if (isset($_POST['bulk_delete_files'])) {
             // Delete uploads/document/$document_id if exists
             removeDirectory($_SERVER['DOCUMENT_ROOT'] . "/uploads/documents/" . $document_id);
 
-            logAction("Document", "Delete", "$session_name deleted document $document_name and all versions", $client_id);
+            logAudit("Document", "Delete", "$session_name deleted document $document_name and all versions", $client_id);
 
         }
 
     }
 
-    logAction("File", "Bulk Delete", "$session_name deleted $document_count document(s) and $file_count file(s)", $client_id);
+    logAudit("File", "Bulk Delete", "$session_name deleted $document_count document(s) and $file_count file(s)", $client_id);
 
     flash_alert("Deleted <strong>$document_count</strong> Documents and <strong>$file_count</strong> files", 'error');
 
@@ -420,7 +420,7 @@ if (isset($_POST['bulk_restore_files'])) {
 
             mysqli_query($mysqli,"UPDATE files SET file_archived_at = NULL WHERE file_id = $file_id");
 
-            logAction("File", "Restore", "$session_name restored file $file_name", $client_id, $file_id);
+            logAudit("File", "Restore", "$session_name restored file $file_name", $client_id, $file_id);
         }
 
     }
@@ -444,13 +444,13 @@ if (isset($_POST['bulk_restore_files'])) {
 
             mysqli_query($mysqli,"UPDATE documents SET document_archived_at = NULL, document_updated_at = document_updated_at WHERE document_id = $document_id");
 
-            logAction("Document", "Restore", "$session_name restored document $document_name", $client_id, $document_id);
+            logAudit("Document", "Restore", "$session_name restored document $document_name", $client_id, $document_id);
 
         }
 
     }
 
-    logAction("File", "Bulk Restore", "$session_name restored $document_count document(s) and $file_count file(s)", $client_id);
+    logAudit("File", "Bulk Restore", "$session_name restored $document_count document(s) and $file_count file(s)", $client_id);
 
     flash_alert("Restored <strong>$document_count</strong> Documents and <strong>$file_count</strong> files");
 
@@ -503,7 +503,7 @@ if (isset($_POST['bulk_move_files'])) {
             mysqli_query($mysqli,"UPDATE files SET file_folder_id = $folder_id WHERE file_id = $file_id");
 
             // Per-file log
-            logAction(
+            logAudit(
                 "File",
                 "Move",
                 "$session_name moved file $file_name to folder $folder_name",
@@ -513,7 +513,7 @@ if (isset($_POST['bulk_move_files'])) {
         }
 
         // Bulk summary log for files
-        logAction(
+        logAudit(
             "File",
             "Bulk Move",
             "$session_name moved $file_count file(s) to folder $folder_name",
@@ -541,7 +541,7 @@ if (isset($_POST['bulk_move_files'])) {
             mysqli_query($mysqli,"UPDATE documents SET document_folder_id = $folder_id, document_updated_at = document_updated_at WHERE document_id = $document_id");
 
             // Per-document log
-            logAction(
+            logAudit(
                 "Document",
                 "Move",
                 "$session_name moved document $document_name to folder $folder_name",
@@ -551,7 +551,7 @@ if (isset($_POST['bulk_move_files'])) {
         }
 
         // Bulk summary log for documents
-        logAction(
+        logAudit(
             "Document",
             "Bulk Move",
             "$session_name moved $document_count document(s) to folder $folder_name",
@@ -599,7 +599,7 @@ if (isset($_POST['link_asset_to_file'])) {
     // Contact add query
     mysqli_query($mysqli,"INSERT INTO asset_files SET asset_id = $asset_id, file_id = $file_id");
 
-    logAction("File", "Link", "$session_name linked asset $asset_name to file $file_name", $client_id, $file_id);
+    logAudit("File", "Link", "$session_name linked asset $asset_name to file $file_name", $client_id, $file_id);
 
     flash_alert("Asset <strong>$asset_name</strong> linked to File <strong>$file_name</strong>");
 
@@ -629,7 +629,7 @@ if (isset($_GET['unlink_asset_from_file'])) {
 
     mysqli_query($mysqli,"DELETE FROM asset_files WHERE asset_id = $asset_id AND file_id = $file_id");
 
-    logAction("File", "Link", "$session_name unlinked asset $asset_name from file $file_name", $client_id, $file_id);
+    logAudit("File", "Link", "$session_name unlinked asset $asset_name from file $file_name", $client_id, $file_id);
 
     flash_alert("Asset <strong>$asset_name</strong> unlinked from File <strong>$file_name</strong>");
 

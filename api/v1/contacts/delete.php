@@ -22,7 +22,7 @@ if (!empty($contact_id)) {
         $delete_count = mysqli_affected_rows($mysqli);
 
         // Logging
-        logAction("Contact", "Delete", "$contact_name via API ($api_key_name)", $client_id);
+        logAudit("Contact", "Delete", "$contact_name via API ($api_key_name)", $client_id);
     }
 }
 

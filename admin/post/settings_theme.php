@@ -10,7 +10,7 @@ if (isset($_POST['edit_theme_settings'])) {
 
     mysqli_query($mysqli,"UPDATE settings SET config_theme = '$theme' WHERE company_id = 1");
 
-    logAction("Settings", "Edit", "$session_name edited theme settings $dark_mode");
+    logAudit("Settings", "Edit", "$session_name edited theme settings $dark_mode");
 
     flash_alert("Changed theme to <strong>$theme</strong>");
 
@@ -42,7 +42,7 @@ if (isset($_POST['edit_favicon_settings'])) {
         }
     }
 
-    logAction("Settings", "Edit", "$session_name changed the favicon");
+    logAudit("Settings", "Edit", "$session_name changed the favicon");
 
     flash_alert("Favicon Updated");
 
@@ -58,7 +58,7 @@ if (isset($_GET['reset_favicon'])) {
         unlink("../uploads/favicon.ico");
     }
 
-    logAction("Settings", "Edit", "$session_name reset Favicon");
+    logAudit("Settings", "Edit", "$session_name reset Favicon");
 
     flash_alert("Favicon reset", 'error');
 

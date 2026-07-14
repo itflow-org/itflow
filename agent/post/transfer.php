@@ -35,7 +35,7 @@ if (isset($_POST['add_transfer'])) {
 
     $transfer_id = mysqli_insert_id($mysqli);
 
-    logAction("Account Transfer", "Create", "$session_name transferred " . numfmt_format_currency($currency_format, $amount, $account_currency_code) . " from account $source_account_name to $destination_account_name", 0, $transfer_id);
+    logAudit("Account Transfer", "Create", "$session_name transferred " . numfmt_format_currency($currency_format, $amount, $account_currency_code) . " from account $source_account_name to $destination_account_name", 0, $transfer_id);
 
     flash_alert("Transferred <strong>" . numfmt_format_currency($currency_format, $amount, $account_currency_code) . "</strong> from <strong>$source_account_name</strong> to <strong>$destination_account_name</strong>");
 
@@ -61,7 +61,7 @@ if (isset($_POST['edit_transfer'])) {
 
     mysqli_query($mysqli,"UPDATE transfers SET transfer_method = '$transfer_method', transfer_notes = '$notes' WHERE transfer_id = $transfer_id");
 
-    logAction("Account Transfer", "Edit", "$session_name edited transfer", 0, $transfer_id);
+    logAudit("Account Transfer", "Edit", "$session_name edited transfer", 0, $transfer_id);
 
     flash_alert("Transfer edited");
 
@@ -88,7 +88,7 @@ if (isset($_GET['delete_transfer'])) {
 
     mysqli_query($mysqli,"DELETE FROM transfers WHERE transfer_id = $transfer_id");
 
-    logAction("Account Transfer", "Delete", "$session_name deleted transfer");
+    logAudit("Account Transfer", "Delete", "$session_name deleted transfer");
 
     flash_alert("Transfer deleted", 'error');
 

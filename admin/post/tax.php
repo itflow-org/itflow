@@ -17,7 +17,7 @@ if (isset($_POST['add_tax'])) {
 
     $tax_id = mysqli_insert_id($mysqli);
 
-    logAction("Tax", "Create", "$session_name created tax $name - $percent%", 0, $tax_id);
+    logAudit("Tax", "Create", "$session_name created tax $name - $percent%", 0, $tax_id);
 
     flash_alert("Tax <strong>$name</strong> ($percent%) created");
 
@@ -35,7 +35,7 @@ if (isset($_POST['edit_tax'])) {
 
     mysqli_query($mysqli,"UPDATE taxes SET tax_name = '$name', tax_percent = $percent WHERE tax_id = $tax_id");
 
-    logAction("Tax", "Edit", "$session_name edited tax $name - $percent%", 0, $tax_id);
+    logAudit("Tax", "Edit", "$session_name edited tax $name - $percent%", 0, $tax_id);
 
     flash_alert("Tax <strong>$name</strong> ($percent%) edited");
 
@@ -53,7 +53,7 @@ if (isset($_GET['archive_tax'])) {
 
     mysqli_query($mysqli,"UPDATE taxes SET tax_archived_at = NOW() WHERE tax_id = $tax_id");
 
-    logAction("Tax", "Archive", "$session_name archived tax $tax_name", 0, $tax_id);
+    logAudit("Tax", "Archive", "$session_name archived tax $tax_name", 0, $tax_id);
 
     flash_alert("Tax <strong>$tax_name</strong> Archived", 'error');
 
@@ -71,7 +71,7 @@ if (isset($_GET['delete_tax'])) {
 
     mysqli_query($mysqli,"DELETE FROM taxes WHERE tax_id = $tax_id");
 
-    logAction("Tax", "Delete", "$session_name deleted tax $tax_name");
+    logAudit("Tax", "Delete", "$session_name deleted tax $tax_name");
 
     flash_alert("Tax <strong>$tax_name</strong> deleted", 'error');
 

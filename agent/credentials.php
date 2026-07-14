@@ -19,7 +19,7 @@ if (isset($_GET['client_id'])) {
     }
 
     // Log when users load the Credentials page
-    logAction("Credential", "View", "$session_name viewed the Credentials page for client", $client_id);
+    logAudit("Credential", "View", "$session_name viewed the Credentials page for client", $client_id);
 
 } else {
     require_once "includes/inc_client_overview_all.php";
@@ -34,7 +34,7 @@ if (isset($_GET['client_id'])) {
         $archive_query = "(client_archived_at IS NULL AND credential_archived_at IS NULL)";
     }
     // Log when users load the Credentials page
-    logAction("Credential", "View", "$session_name viewed the All Credentials page");
+    logAudit("Credential", "View", "$session_name viewed the All Credentials page");
 }
 
 // Perms

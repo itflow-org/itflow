@@ -251,7 +251,7 @@ if (isset($_GET['approve_ticket_task'])) {
     mysqli_query($mysqli, "INSERT INTO notifications SET notification_type = 'Ticket', notification = 'Guest approved ticket task $task_name', notification_action = 'ticket.php?ticket_id=$ticket_id', notification_user_id = $created_by");
 
     // Logging
-    logAction("Task", "Edit", "Guest user approved task $task_name via link (approval $approval_id)", 0, $task_id);
+    logAudit("Task", "Edit", "Guest user approved task $task_name via link (approval $approval_id)", 0, $task_id);
 
     flash_alert("Task Approved");
     redirect();
@@ -744,7 +744,7 @@ if (isset($_POST['guest_quote_upload_file'])) {
                         // Create
                         mysqli_query($mysqli,"INSERT INTO folders SET folder_name = 'Client Uploads', parent_folder = 0, folder_location = 1, folder_client_id = $client_id");
                         $folder_id = mysqli_insert_id($mysqli);
-                        logAction("Folder", "Create", "Automatically created folder Client Uploads", $client_id, $folder_id);
+                        logAudit("Folder", "Create", "Automatically created folder Client Uploads", $client_id, $folder_id);
                     }
 
                     // Do move/upload
@@ -764,7 +764,7 @@ if (isset($_POST['guest_quote_upload_file'])) {
 
                     mysqli_query($mysqli, "INSERT INTO history SET history_status = 'Upload', history_description = 'Client uploaded file $file_name', history_quote_id = $quote_id");
 
-                    logAction("File", "Upload", "Guest uploaded file $file_name to quote $quote_prefix$quote_number", $client_id);
+                    logAudit("File", "Upload", "Guest uploaded file $file_name to quote $quote_prefix$quote_number", $client_id);
 
                 } else {
                     flash_alert('Something went wrong uploading the file - please let the support team know.', 'error');

@@ -19,7 +19,7 @@ if (isset($_POST['add_account'])) {
 
     mysqli_query($mysqli,"INSERT INTO accounts SET account_name = '$name', opening_balance = $opening_balance, account_currency_code = '$currency_code', account_notes = '$notes'");
 
-    logAction("Account", "Create", "$session_name created account $name");
+    logAudit("Account", "Create", "$session_name created account $name");
 
     flash_alert("Account <strong>$name</strong> created");
 
@@ -39,7 +39,7 @@ if (isset($_POST['edit_account'])) {
 
     mysqli_query($mysqli,"UPDATE accounts SET account_name = '$name', account_notes = '$notes' WHERE account_id = $account_id");
 
-    logAction("Account", "Edit", "$session_name edited account $name");
+    logAudit("Account", "Edit", "$session_name edited account $name");
 
     flash_alert("Account <strong>$name</strong> edited");
 
@@ -59,7 +59,7 @@ if (isset($_GET['archive_account'])) {
 
     mysqli_query($mysqli,"UPDATE accounts SET account_archived_at = NOW() WHERE account_id = $account_id");
 
-    logAction("Account", "Archive", "$session_name archived account $account_name");
+    logAudit("Account", "Archive", "$session_name archived account $account_name");
 
     flash_alert("Account <strong>$account_name</strong> archived", 'error');
 
@@ -80,7 +80,7 @@ if (isset($_GET['delete_account'])) {
 
     mysqli_query($mysqli,"DELETE FROM accounts WHERE account_id = $account_id");
 
-    logAction("Account", "Delete", "$session_name deleted account $account_name");
+    logAudit("Account", "Delete", "$session_name deleted account $account_name");
 
     flash_alert("Account <strong>$account_name</strong> deleted", 'error');
 

@@ -108,7 +108,7 @@ function enforceClientAccess($client_id = null) {
         return true;
     }
 
-    logAction(
+    logAudit(
         'Client',
         'Access',
         "$session_name was denied permission from accessing client",

@@ -72,7 +72,7 @@ if (isset($_POST['add_contact'])) {
         }
     }
 
-    logAction("Contact", "Create", "$session_name created contact $name", $client_id, $contact_id);
+    logAudit("Contact", "Create", "$session_name created contact $name", $client_id, $contact_id);
 
     customAction('contact_create', $contact_id);
 
@@ -217,7 +217,7 @@ if (isset($_POST['edit_contact'])) {
 
     }
 
-    logAction("Contact", "Edit", "$session_name edited contact $name", $client_id, $contact_id);
+    logAudit("Contact", "Edit", "$session_name edited contact $name", $client_id, $contact_id);
 
     customAction('contact_update', $contact_id);
 
@@ -250,7 +250,7 @@ if (isset($_POST['add_contact_note'])) {
     $contact_note_id = mysqli_insert_id($mysqli);
 
     //Logging
-    logAction("Contact", "Edit", "$session_name created a $type note for contact $contact_name", $client_id, $contact_id);
+    logAudit("Contact", "Edit", "$session_name created a $type note for contact $contact_name", $client_id, $contact_id);
 
     $_SESSION['alert_message'] = "Note <strong>$type</strong> created for <strong>$contact_name</strong>";
 
@@ -278,7 +278,7 @@ if (isset($_GET['archive_contact_note'])) {
 
     mysqli_query($mysqli,"UPDATE contact_notes SET contact_note_archived_at = NOW() WHERE contact_note_id = $contact_note_id");
 
-    logAction("Contact", "Edit", "$session_name archived note $contact_note_type for $contact_name", $client_id, $contact_id);
+    logAudit("Contact", "Edit", "$session_name archived note $contact_note_type for $contact_name", $client_id, $contact_id);
 
     flash_alert("Note <strong>$contact_note_type</strong> archived", 'error');
 
@@ -306,7 +306,7 @@ if (isset($_GET['restore_contact_note'])) {
 
     mysqli_query($mysqli,"UPDATE contact_notes SET contact_note_archived_at = NULL WHERE contact_note_id = $contact_note_id");
 
-    logAction("Contact", "Edit", "$session_name restored note $contact_note_type for $contact_name", $client_id, $contact_id);
+    logAudit("Contact", "Edit", "$session_name restored note $contact_note_type for $contact_name", $client_id, $contact_id);
 
     flash_alert("Note <strong>$contact_note_type</strong> restored");
 
@@ -334,7 +334,7 @@ if (isset($_GET['delete_contact_note'])) {
 
     mysqli_query($mysqli,"DELETE FROM contact_notes WHERE contact_note_id = $contact_note_id");
 
-    logAction("Contact", "Edit", "$session_name deleted $contact_note_type note for $contact_name", $client_id, $contact_id);
+    logAudit("Contact", "Edit", "$session_name deleted $contact_note_type note for $contact_name", $client_id, $contact_id);
 
     flash_alert("Note <strong>$contact_note_type</strong> deleted.", 'error');
 
@@ -374,11 +374,11 @@ if (isset($_POST['bulk_assign_contact_location'])) {
 
             mysqli_query($mysqli,"UPDATE contacts SET contact_location_id = $location_id WHERE contact_id = $contact_id");
 
-            logAction("Contact", "Edit", "$session_name assigned $contaxt_name to location $location_name", $client_id, $contact_id);
+            logAudit("Contact", "Edit", "$session_name assigned $contaxt_name to location $location_name", $client_id, $contact_id);
 
         } // End Assign Location Loop
 
-        logAction("Contact", "Bulk Edit", "$session_name assigned $contact_count contacts to location $location_name", $client_id);
+        logAudit("Contact", "Bulk Edit", "$session_name assigned $contact_count contacts to location $location_name", $client_id);
 
         flash_alert("<b>$contact_count</b> contacts assigned to location <b>$location_name</b>");
     }
@@ -414,11 +414,11 @@ if (isset($_POST['bulk_edit_contact_phone'])) {
 
             mysqli_query($mysqli,"UPDATE contacts SET contact_phone = '$phone' WHERE contact_id = $contact_id");
 
-            logAction("Contact", "Edit", "$session_name set Phone Number to $phone for $contact_name", $client_id, $contact_id);
+            logAudit("Contact", "Edit", "$session_name set Phone Number to $phone for $contact_name", $client_id, $contact_id);
 
         } // End Assign Location Loop
 
-        logAction("Contact", "Bulk Edit", "$session_name set the Phone Number $phone for $contact_count contacts", $client_id);
+        logAudit("Contact", "Bulk Edit", "$session_name set the Phone Number $phone for $contact_count contacts", $client_id);
 
         flash_alert("Phone Number set to <b>" . formatPhoneNumber($phone) . "</b> on $contact_count</b> contacts");
     }
@@ -454,11 +454,11 @@ if (isset($_POST['bulk_edit_contact_department'])) {
 
             mysqli_query($mysqli,"UPDATE contacts SET contact_department = '$department' WHERE contact_id = $contact_id");
 
-            logAction("Contact", "Edit", "$session_name set Department to $department for $contact_name", $client_id, $contact_id);
+            logAudit("Contact", "Edit", "$session_name set Department to $department for $contact_name", $client_id, $contact_id);
 
         } // End Assign Location Loop
 
-        logAction("Contact", "Bulk Edit", "$session_name set the department $department for $contact_count contacts", $client_id);
+        logAudit("Contact", "Bulk Edit", "$session_name set the department $department for $contact_count contacts", $client_id);
 
         flash_alert("You set the Department to <strong>$department</strong> for <strong>$contact_count</strong> contacts");
     }
@@ -496,13 +496,13 @@ if (isset($_POST['bulk_edit_contact_role'])) {
 
             mysqli_query($mysqli,"UPDATE contacts SET contact_important = $contact_important, contact_billing = $contact_billing, contact_technical = $contact_technical WHERE contact_id = $contact_id");
 
-            logAction("Contact", "Edit", "$session_name updated the contact role for $contact_name", $client_id, $contact_id);
+            logAudit("Contact", "Edit", "$session_name updated the contact role for $contact_name", $client_id, $contact_id);
 
             customAction('contact_update', $contact_id);
 
         } // End Assign Location Loop
 
-        logAction("Contact", "Bulk Edit", "$session_name edited the contact role for $contact_count contacts", $client_id);
+        logAudit("Contact", "Bulk Edit", "$session_name edited the contact role for $contact_count contacts", $client_id);
 
         flash_alert("You updated contact roles for <b>$contact_count</b> contacts");
     }
@@ -551,11 +551,11 @@ if (isset($_POST['bulk_assign_contact_tags'])) {
                 }
             }
 
-            logAction("Contact", "Edit", "$session_name added tags to $contact_name", $client_id, $contact_id);
+            logAudit("Contact", "Edit", "$session_name added tags to $contact_name", $client_id, $contact_id);
 
         } // End Assign Location Loop
 
-        logAction("Contact", "Bulk Edit", "$session_name added tags for $contact_count contacts", $client_id);
+        logAudit("Contact", "Bulk Edit", "$session_name added tags for $contact_count contacts", $client_id);
 
         flash_alert("You assigned tags for <strong>$count</strong> contacts");
     }
@@ -605,7 +605,7 @@ if (isset($_POST['send_bulk_mail_now'])) {
         }
         addToMailQueue($data);
 
-        logAction("Bulk Mail", "Send", "$session_name sent $count messages via bulk mail");
+        logAudit("Bulk Mail", "Send", "$session_name sent $count messages via bulk mail");
 
         flash_alert("<strong>$count</strong> messages queued");
 
@@ -650,14 +650,14 @@ if (isset($_POST['bulk_archive_contacts'])) {
                 mysqli_query($mysqli,"UPDATE contacts SET contact_important = 0, contact_billing = 0, contact_technical = 0, contact_archived_at = NOW() WHERE contact_id = $contact_id");
 
                 // Individual Contact logging
-                logAction("Contact", "Archive", "$session_name archived $contact_name", $client_id, $contact_id);
+                logAudit("Contact", "Archive", "$session_name archived $contact_name", $client_id, $contact_id);
 
                 $count++;
             }
 
         }
 
-        logAction("Contact", "Bulk Archive", "$session_name archived $count contacts", $client_id);
+        logAudit("Contact", "Bulk Archive", "$session_name archived $count contacts", $client_id);
 
         flash_alert("Archived $count contact(s)", 'error');
 
@@ -698,11 +698,11 @@ if (isset($_POST['bulk_restore_contacts'])) {
 
             mysqli_query($mysqli,"UPDATE contacts SET contact_archived_at = NULL WHERE contact_id = $contact_id");
 
-            logAction("Contact", "Restore", "$session_name restored $contact_name", $client_id, $contact_id);
+            logAudit("Contact", "Restore", "$session_name restored $contact_name", $client_id, $contact_id);
 
         }
 
-        logAction("Contact", "Bulk Restore", "$session_name restored $count contacts", $client_id);
+        logAudit("Contact", "Bulk Restore", "$session_name restored $count contacts", $client_id);
 
         flash_alert("Restored <strong>$count</strong> contact(s)");
 
@@ -743,11 +743,11 @@ if (isset($_POST['bulk_delete_contacts'])) {
 
             mysqli_query($mysqli, "DELETE FROM contacts WHERE contact_id = $contact_id AND contact_client_id = $client_id");
 
-            logAction("Contact", "Delete", "$session_name deleted $contact_name", $client_id);
+            logAudit("Contact", "Delete", "$session_name deleted $contact_name", $client_id);
 
         }
 
-        logAction("Contact", "Bulk Delete", "$session_name deleted $count contacts", $client_id);
+        logAudit("Contact", "Bulk Delete", "$session_name deleted $count contacts", $client_id);
 
         flash_alert("You deleted <strong>$count</strong> contact(s)");
 
@@ -857,7 +857,7 @@ if (isset($_GET['anonymize_contact'])) {
     // Archive contact
     mysqli_query($mysqli,"UPDATE contacts SET contact_archived_at = NOW() WHERE contact_id = $contact_id");
 
-    logAction("Contact", "Archive", "$session_name archived and anonymized contact", $client_id, $contact_id);
+    logAudit("Contact", "Archive", "$session_name archived and anonymized contact", $client_id, $contact_id);
 
     flash_alert("Contact $contact_name anonymized & archived", 'error');
 
@@ -889,7 +889,7 @@ if (isset($_GET['archive_contact'])) {
 
     mysqli_query($mysqli,"UPDATE contacts SET contact_important = 0, contact_billing = 0, contact_technical = 0, contact_archived_at = NOW() WHERE contact_id = $contact_id");
 
-    logAction("Contact", "Archive", "$session_name archived contact $contact_name", $client_id, $contact_id);
+    logAudit("Contact", "Archive", "$session_name archived contact $contact_name", $client_id, $contact_id);
 
     flash_alert("Contact <strong>$contact_name</strong> has been archived", 'error');
 
@@ -921,7 +921,7 @@ if (isset($_GET['restore_contact'])) {
 
     mysqli_query($mysqli,"UPDATE contacts SET contact_archived_at = NULL WHERE contact_id = $contact_id");
 
-    logAction("Contact", "Restore", "$session_name restored contact $contact_name", $client_id, $contact_id);
+    logAudit("Contact", "Restore", "$session_name restored contact $contact_name", $client_id, $contact_id);
 
     flash_alert("Contact <strong>$contact_name</strong> Restored");
 
@@ -953,7 +953,7 @@ if (isset($_GET['delete_contact'])) {
 
     mysqli_query($mysqli,"DELETE FROM contacts WHERE contact_id = $contact_id");
 
-    logAction("Contact", "Delete", "$session_name deleted contact $contact_name", $client_id);
+    logAudit("Contact", "Delete", "$session_name deleted contact $contact_name", $client_id);
 
     flash_alert("Contact <strong>$contact_name</strong> has been deleted.", 'error');
 
@@ -983,7 +983,7 @@ if (isset($_POST['link_contact_to_asset'])) {
 
     mysqli_query($mysqli,"UPDATE assets SET asset_contact_id = $contact_id WHERE asset_id = $asset_id");
 
-    logAction("Asset", "Link", "$session_name linked asset $asset_name to contact $contact_name", $client_id, $asset_id);
+    logAudit("Asset", "Link", "$session_name linked asset $asset_name to contact $contact_name", $client_id, $asset_id);
 
     flash_alert("Contact <strong>$contact_name</strong> linked with asset <strong>$asset_name</strong>");
 
@@ -1013,7 +1013,7 @@ if (isset($_GET['unlink_asset_from_contact'])) {
 
     mysqli_query($mysqli,"UPDATE assets SET asset_contact_id = 0 WHERE asset_id = $asset_id");
 
-    logAction("Asset", "Unlink", "$session_name unlinked contact $contact_name from asset $asset_name", $client_id, $asset_id);
+    logAudit("Asset", "Unlink", "$session_name unlinked contact $contact_name from asset $asset_name", $client_id, $asset_id);
 
     flash_alert("Asset <strong>$asset_name</strong> unlinked from Contact <strong>$contact_name</strong>", 'error');
 
@@ -1043,7 +1043,7 @@ if (isset($_POST['link_software_to_contact'])) {
 
     mysqli_query($mysqli,"INSERT INTO software_contacts SET contact_id = $contact_id, software_id = $software_id");
 
-    logAction("Software", "Link", "$session_name added software license $software_name to contact $contact_name", $client_id, $software_id);
+    logAudit("Software", "Link", "$session_name added software license $software_name to contact $contact_name", $client_id, $software_id);
 
     flash_alert("Software <strong>$software_name</strong> licensed for contact <strong>$contact_name</strong>");
 
@@ -1073,7 +1073,7 @@ if (isset($_GET['unlink_software_from_contact'])) {
 
     mysqli_query($mysqli,"DELETE FROM software_contacts WHERE contact_id = $contact_id AND software_id = $software_id");
 
-    logAction("software", "Unlink", "$session_name removed software license $software_name from contact $contact_name", $client_id, $software_id);
+    logAudit("software", "Unlink", "$session_name removed software license $software_name from contact $contact_name", $client_id, $software_id);
 
     flash_alert("Removed Software License <strong>$software_name</strong> for Contact <strong>$contact_name</strong>", 'error');
 
@@ -1103,7 +1103,7 @@ if (isset($_POST['link_contact_to_credential'])) {
 
     mysqli_query($mysqli,"UPDATE credentials SET credential_contact_id = $contact_id WHERE credential_id = $credential_id");
 
-    logAction("Asset", "Link", "$session_name linked credential $credential_name to contact $contact_name", $client_id, $credential_id);
+    logAudit("Asset", "Link", "$session_name linked credential $credential_name to contact $contact_name", $client_id, $credential_id);
 
     flash_alert("Contact <strong>$contact_name</strong> linked with credential <strong>$credential_name</strong>");
 
@@ -1133,7 +1133,7 @@ if (isset($_GET['unlink_credential_from_contact'])) {
 
     mysqli_query($mysqli,"UPDATE credentials SET credential_contact_id = 0 WHERE credential_id = $credential_id");
 
-    logAction("Credential", "Unlink", "$session_name unlinked contact $contact_name from credential $credential_name", $client_id, $credential_id);
+    logAudit("Credential", "Unlink", "$session_name unlinked contact $contact_name from credential $credential_name", $client_id, $credential_id);
 
     flash_alert("Credential <strong>$credential_name</strong> unlinked from Contact <strong>$contact_name</strong>", 'error');
 
@@ -1163,7 +1163,7 @@ if (isset($_POST['link_service_to_contact'])) {
 
     mysqli_query($mysqli,"INSERT INTO service_contacts SET contact_id = $contact_id, service_id = $service_id");
 
-    logAction("Service", "Link", "$session_name linked contact $contact_name to service $service_name", $client_id, $service_id);
+    logAudit("Service", "Link", "$session_name linked contact $contact_name to service $service_name", $client_id, $service_id);
 
     flash_alert("service <strong>$service_name</strong> linked with contact <strong>$contact_name</strong>");
 
@@ -1193,7 +1193,7 @@ if (isset($_GET['unlink_service_from_contact'])) {
 
     mysqli_query($mysqli,"DELETE FROM service_contacts WHERE contact_id = $contact_id AND service_id = $service_id");
 
-    logAction("service", "Unlink", "$session_name unlinked contact $contact_name from service $service_name", $client_id, $service_id);
+    logAudit("service", "Unlink", "$session_name unlinked contact $contact_name from service $service_name", $client_id, $service_id);
 
     flash_alert("Contact <strong>$contact_name</strong> unlinked from service <strong>$service_name</strong>", 'error');
 
@@ -1224,7 +1224,7 @@ if (isset($_POST['link_contact_to_file'])) {
     // Contact add query
     mysqli_query($mysqli,"INSERT INTO contact_files SET contact_id = $contact_id, file_id = $file_id");
 
-    logAction("File", "Link", "$session_name linked contact $contact_name to file $file_name", $client_id, $file_id);
+    logAudit("File", "Link", "$session_name linked contact $contact_name to file $file_name", $client_id, $file_id);
 
     flash_alert("Contact <strong>$contact_name</strong> linked with File <strong>$file_name</strong>");
 
@@ -1254,7 +1254,7 @@ if (isset($_GET['unlink_contact_from_file'])) {
 
     mysqli_query($mysqli,"DELETE FROM contact_files WHERE contact_id = $contact_id AND file_id = $file_id");
 
-    logAction("File", "Unlink", "$session_name unlinked contact $contact_name from file $file_name", $client_id, $file_id);
+    logAudit("File", "Unlink", "$session_name unlinked contact $contact_name from file $file_name", $client_id, $file_id);
 
     flash_alert("Contact <strong>$contact_name</strong> unlinked from file <strong>$file_name</strong>", 'error');
 
@@ -1314,7 +1314,7 @@ if (isset($_POST['export_contacts_csv'])) {
 
     }
 
-    logAction("Contact", "Export", "$session_name exported $num_rows contact(s) to a CSV file", $client_id);
+    logAudit("Contact", "Export", "$session_name exported $num_rows contact(s) to a CSV file", $client_id);
 
     exit;
 
@@ -1413,7 +1413,7 @@ if (isset($_POST["import_contacts_csv"])) {
         }
         fclose($file);
 
-        logAction("Contact", "Import", "$session_name imported $row_count contact(s) via CSV file", $client_id);
+        logAudit("Contact", "Import", "$session_name imported $row_count contact(s) via CSV file", $client_id);
 
         flash_alert("$row_count Contact(s) added, $duplicate_count duplicate(s) detected", 'warning');
 

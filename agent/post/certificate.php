@@ -38,7 +38,7 @@ if (isset($_POST['add_certificate'])) {
 
     $certificate_id = mysqli_insert_id($mysqli);
 
-    logAction("Certificate", "Create", "$session_name created certificate $name", $client_id, $certificate_id);
+    logAudit("Certificate", "Create", "$session_name created certificate $name", $client_id, $certificate_id);
 
     flash_alert("Certificate <strong>$name</strong> created");
 
@@ -111,7 +111,7 @@ if (isset($_POST['edit_certificate'])) {
         }
     }
 
-    logAction("Certificate", "Edit", "$session_name edited certificate $name", $client_id, $certificate_id);
+    logAudit("Certificate", "Edit", "$session_name edited certificate $name", $client_id, $certificate_id);
 
     flash_alert("Certificate <strong>$name</strong> updated");
 
@@ -137,7 +137,7 @@ if (isset($_GET['archive_certificate'])) {
 
     mysqli_query($mysqli,"UPDATE certificates SET certificate_archived_at = NOW() WHERE certificate_id = $certificate_id");
 
-    logAction("Certificate", "Archive", "$session_name archived certificate $certificate_name", $client_id, $certificate_id);
+    logAudit("Certificate", "Archive", "$session_name archived certificate $certificate_name", $client_id, $certificate_id);
 
     flash_alert("Certificate <strong>$certificate_name</strong> archived", 'alert');
 
@@ -163,7 +163,7 @@ if (isset($_GET['restore_certificate'])) {
 
     mysqli_query($mysqli,"UPDATE certificates SET certificate_archived_at = NULL WHERE certificate_id = $certificate_id");
 
-    logAction("Certificate", "Restore", "$session_name restored certificate $certificate_name", $client_id, $certificate_id);
+    logAudit("Certificate", "Restore", "$session_name restored certificate $certificate_name", $client_id, $certificate_id);
 
     flash_alert("Certificate <strong>$certificate_name</strong> restored");
 
@@ -189,7 +189,7 @@ if (isset($_GET['delete_certificate'])) {
 
     mysqli_query($mysqli,"DELETE FROM certificates WHERE certificate_id = $certificate_id");
 
-    logAction("Certificate", "Delete", "$session_name deleted certificate $name", $client_id);
+    logAudit("Certificate", "Delete", "$session_name deleted certificate $name", $client_id);
 
     flash_alert("Certificate <strong>$certificate_name</strong> deleted");
 
@@ -223,11 +223,11 @@ if (isset($_POST['bulk_delete_certificates'])) {
 
             mysqli_query($mysqli, "DELETE FROM certificates WHERE certificate_id = $certificate_id AND certificate_client_id = $client_id");
 
-            logAction("Certificate", "Delete", "$session_name deleted certificate $certificate_name", $client_id);
+            logAudit("Certificate", "Delete", "$session_name deleted certificate $certificate_name", $client_id);
 
         }
 
-        logAction("Certificate", "Bulk Delete", "$session_name deleted $count certificates", $client_id);
+        logAudit("Certificate", "Bulk Delete", "$session_name deleted $count certificates", $client_id);
 
         flash_alert("Deleted <strong>$count</strong> certificate(s)", 'error');
 
@@ -289,7 +289,7 @@ if (isset($_POST['export_certificates_csv'])) {
         fpassthru($f);
     }
 
-    logAction("Certificate", "Export", "$session_name exported $num_rows certificate(s) to a CSV file", $client_id);
+    logAudit("Certificate", "Export", "$session_name exported $num_rows certificate(s) to a CSV file", $client_id);
 
     exit;
 

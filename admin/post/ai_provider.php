@@ -19,7 +19,7 @@ if (isset($_POST['add_ai_provider'])) {
 
     $ai_provider_id = mysqli_insert_id($mysqli);
 
-    logAction("AI Provider", "Create", "$session_name created AI Provider $provider");
+    logAudit("AI Provider", "Create", "$session_name created AI Provider $provider");
 
     flash_alert("AI Model <strong>$provider</strong> created");
 
@@ -38,7 +38,7 @@ if (isset($_POST['edit_ai_provider'])) {
 
     mysqli_query($mysqli,"UPDATE ai_providers SET ai_provider_name = '$provider', ai_provider_api_url = '$url', ai_provider_api_key = '$api_key' WHERE ai_provider_id = $provider_id");
 
-    logAction("AI Provider", "Edit", "$session_name edited AI Provider $provider");
+    logAudit("AI Provider", "Edit", "$session_name edited AI Provider $provider");
 
     flash_alert("AI Model <strong>$provider</strong> edited");
 
@@ -56,7 +56,7 @@ if (isset($_GET['delete_ai_provider'])) {
 
     mysqli_query($mysqli,"DELETE FROM ai_providers WHERE ai_provider_id = $provider_id");
 
-    logAction("AI Provider", "Delete", "$session_name deleted AI Provider $provider_name", 'error');
+    logAudit("AI Provider", "Delete", "$session_name deleted AI Provider $provider_name", 'error');
 
     flash_alert("AI Provider <strong>$provider_name</strong> deleted", 'error');
 

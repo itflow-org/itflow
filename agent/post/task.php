@@ -22,7 +22,7 @@ if (isset($_POST['add_task'])) {
 
     $task_id = mysqli_insert_id($mysqli);
 
-    logAction("Task", "Create", "$session_name created task $task_name", $client_id, $task_id);
+    logAudit("Task", "Create", "$session_name created task $task_name", $client_id, $task_id);
 
     flash_alert("You created Task <strong>$task_name</strong>");
 
@@ -48,7 +48,7 @@ if (isset($_POST['edit_ticket_task'])) {
 
     mysqli_query($mysqli, "UPDATE tasks SET task_name = '$task_name', task_order = $task_order, task_completion_estimate = $task_completion_estimate WHERE task_id = $task_id");
 
-    logAction("Task", "Edit", "$session_name edited task $task_name", $client_id, $task_id);
+    logAudit("Task", "Edit", "$session_name edited task $task_name", $client_id, $task_id);
 
     flash_alert("Task <strong>$task_name</strong> edited");
 
@@ -69,7 +69,7 @@ if (isset($_POST['edit_ticket_template_task'])) {
 
     mysqli_query($mysqli, "UPDATE task_templates SET task_template_name = '$task_name', task_template_order = $task_order, task_template_completion_estimate = $task_completion_estimate WHERE task_template_id = $task_template_id");
 
-    logAction("Task", "Edit", "$session_name edited task $task_name", 0, $task_template_id);
+    logAudit("Task", "Edit", "$session_name edited task $task_name", 0, $task_template_id);
 
     flash_alert("Task <strong>$task_name</strong> edited");
 
@@ -93,7 +93,7 @@ if (isset($_GET['delete_task'])) {
 
     mysqli_query($mysqli, "DELETE FROM tasks WHERE task_id = $task_id");
 
-    logAction("Task", "Delete", "$session_name deleted task $task_name", $client_id, $task_id);
+    logAudit("Task", "Delete", "$session_name deleted task $task_name", $client_id, $task_id);
 
     flash_alert("Task <strong>$task_name</strong> deleted", 'error');
 
@@ -127,7 +127,7 @@ if (isset($_GET['complete_task'])) {
 
     $ticket_reply_id = mysqli_insert_id($mysqli);
 
-    logAction("Task", "Edit", "$session_name completed task $task_name", $client_id, $task_id);
+    logAudit("Task", "Edit", "$session_name completed task $task_name", $client_id, $task_id);
 
     flash_alert("Task <strong>$task_name</strong> Completed");
 
@@ -157,7 +157,7 @@ if (isset($_GET['undo_complete_task'])) {
 
     $ticket_reply_id = mysqli_insert_id($mysqli);
 
-    logAction("Task", "Edit", "$session_name marked task $task_name as incomplete", $client_id, $task_id);
+    logAudit("Task", "Edit", "$session_name marked task $task_name as incomplete", $client_id, $task_id);
 
     flash_alert("Task <strong>$task_name</strong> marked as incomplete", 'error');
 
@@ -333,7 +333,7 @@ if (isset($_POST['add_ticket_task_approver'])) {
     }
 
     // Logging
-    logAction("Task", "Edit", "$session_name added task approver for $task_name", $client_id, $task_id);
+    logAudit("Task", "Edit", "$session_name added task approver for $task_name", $client_id, $task_id);
 
     flash_alert("Added approver");
     redirect();
@@ -383,7 +383,7 @@ if (isset($_GET['approve_ticket_task'])) {
     // TODO: Email agent
 
     // Logging
-    logAction("Task", "Edit", "$session_name approved task $task_name (approval $approval_id)", 0, $task_id);
+    logAudit("Task", "Edit", "$session_name approved task $task_name (approval $approval_id)", 0, $task_id);
 
     flash_alert("Approved");
     redirect();
@@ -400,7 +400,7 @@ if (isset($_GET['delete_ticket_task_approver'])) {
 
     mysqli_query($mysqli, "DELETE FROM task_approvals WHERE approval_id = $approval_id");
 
-    logAction("Task", "Delete", "$session_name deleted task approval request ($approval_id)", 0, 0);
+    logAudit("Task", "Delete", "$session_name deleted task approval request ($approval_id)", 0, 0);
 
     flash_alert("Approval request deleted", 'error');
 
@@ -426,7 +426,7 @@ if (isset($_GET['complete_all_tasks'])) {
 
     $ticket_reply_id = mysqli_insert_id($mysqli);
 
-    logAction("Ticket", "Edit", "$session_name marked all tasks complete for ticket", $client_id, $ticket_id);
+    logAudit("Ticket", "Edit", "$session_name marked all tasks complete for ticket", $client_id, $ticket_id);
 
     flash_alert("Marked all tasks Complete");
 
@@ -452,7 +452,7 @@ if (isset($_GET['undo_complete_all_tasks'])) {
 
     $ticket_reply_id = mysqli_insert_id($mysqli);
 
-    logAction("Ticket", "Edit", "$session_name marked all tasks as incomplete for ticket", $client_id, $ticket_id);
+    logAudit("Ticket", "Edit", "$session_name marked all tasks as incomplete for ticket", $client_id, $ticket_id);
 
     flash_alert("Marked all tasks Incomplete", 'error');
 

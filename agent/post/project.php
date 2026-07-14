@@ -86,7 +86,7 @@ if (isset($_POST['add_project'])) {
         } // End Ticket Loop
     } // End If Project Template
 
-    logAction("Project", "Create", "$session_name created project $project_name", $client_id, $project_id);
+    logAudit("Project", "Create", "$session_name created project $project_name", $client_id, $project_id);
 
     flash_alert("You created Project <strong>$project_name</strong>");
 
@@ -114,7 +114,7 @@ if (isset($_POST['edit_project'])) {
 
     mysqli_query($mysqli, "UPDATE projects SET project_name = '$project_name', project_description = '$project_description', project_due = '$due_date', project_manager = $project_manager, project_client_id = $client_id WHERE project_id = $project_id");
 
-    logAction("Project", "Edit", "$session_name edited project $project_name", $client_id, $project_id);
+    logAudit("Project", "Edit", "$session_name edited project $project_name", $client_id, $project_id);
 
     flash_alert("Project <strong>$project_name</strong> edited");
 
@@ -143,7 +143,7 @@ if (isset($_GET['close_project'])) {
 
     mysqli_query($mysqli, "UPDATE projects SET project_completed_at = NOW() WHERE project_id = $project_id");
 
-    logAction("Project", "Close", "$session_name closed project $project_name", $client_id, $project_id);
+    logAudit("Project", "Close", "$session_name closed project $project_name", $client_id, $project_id);
 
     flash_alert("Project <strong>$project_name</strong> closed");
 
@@ -172,7 +172,7 @@ if (isset($_GET['archive_project'])) {
 
     mysqli_query($mysqli, "UPDATE projects SET project_archived_at = NOW() WHERE project_id = $project_id");
 
-    logAction("Project", "Archive", "$session_name archived project $project_name", $client_id, $project_id);
+    logAudit("Project", "Archive", "$session_name archived project $project_name", $client_id, $project_id);
 
     flash_alert("Project <strong>$project_name</strong> archived", 'error');
 
@@ -201,7 +201,7 @@ if (isset($_GET['restore_project'])) {
 
     mysqli_query($mysqli, "UPDATE projects SET project_archived_at = NULL WHERE project_id = $project_id");
 
-    logAction("Project", "Restore", "$session_name restored project $project_name", $client_id, $project_id);
+    logAudit("Project", "Restore", "$session_name restored project $project_name", $client_id, $project_id);
 
     flash_alert("Project <strong>$project_name</strong> restored");
 
@@ -230,7 +230,7 @@ if (isset($_GET['delete_project'])) {
 
     mysqli_query($mysqli, "DELETE FROM projects WHERE project_id = $project_id");
 
-    logAction("Project", "Delete", "$session_name deleted project $project_name", $client_id, $project_id);
+    logAudit("Project", "Delete", "$session_name deleted project $project_name", $client_id, $project_id);
 
     flash_alert("Project <strong>$project_name</strong> Deleted", 'error');
 
@@ -275,11 +275,11 @@ if (isset($_POST['link_ticket_to_project'])) {
 
             mysqli_query($mysqli, "UPDATE tickets SET ticket_project_id = $project_id WHERE ticket_id = $ticket_id");
 
-            logAction("Project", "Edit", "$session_name added ticket $ticket_prefix$ticket_number - $ticket_subject to project $project_name", $client_id, $project_id);
+            logAudit("Project", "Edit", "$session_name added ticket $ticket_prefix$ticket_number - $ticket_subject to project $project_name", $client_id, $project_id);
 
         }
 
-        logAction("Project", "Bulk Edit", "$session_name added $count ticket(s) to project $project_name", $client_id, $project_id);
+        logAudit("Project", "Bulk Edit", "$session_name added $count ticket(s) to project $project_name", $client_id, $project_id);
 
         flash_alert("<strong>$count</strong> Ticket(s) added to <strong>$project_name</strong>");
     }
@@ -323,7 +323,7 @@ if (isset($_POST['link_closed_ticket_to_project'])) {
 
     mysqli_query($mysqli, "UPDATE tickets SET ticket_project_id = $project_id, ticket_updated_at = '$ticket_updated' WHERE ticket_id = $ticket_id");
 
-    logAction("Project", "Edit", "$session_name added ticket $ticket_prefix$ticket_number - $ticket_subject to project $project_name", $client_id, $project_id);
+    logAudit("Project", "Edit", "$session_name added ticket $ticket_prefix$ticket_number - $ticket_subject to project $project_name", $client_id, $project_id);
 
     flash_alert("Ticket added to <strong>$project_name</strong>");
 

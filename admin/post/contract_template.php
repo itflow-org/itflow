@@ -50,7 +50,7 @@ if (isset($_POST['add_contract_template'])) {
     $contract_template_id = mysqli_insert_id($mysqli);
 
     // Log action
-    logAction("Contract Template", "Create", "$session_name created contract template $name", 0, $contract_template_id);
+    logAudit("Contract Template", "Create", "$session_name created contract template $name", 0, $contract_template_id);
 
     // Flash message
     flash_alert("Contract Template <strong>$name</strong> created");
@@ -99,7 +99,7 @@ if (isset($_POST['edit_contract_template'])) {
     ");
 
     // Log action
-    logAction("Contract Template", "Update", "$session_name updated contract template $name", 0, $contract_template_id);
+    logAudit("Contract Template", "Update", "$session_name updated contract template $name", 0, $contract_template_id);
 
     // Flash + redirect
     flash_alert("Contract Template <strong>$name</strong> updated");
@@ -117,7 +117,7 @@ if (isset($_GET['archive_contract_template'])) {
         LIMIT 1
     ");
 
-    logAction("Contract Template", "Archive", "$session_name archived contract template $name", 0, $contract_template_id);
+    logAudit("Contract Template", "Archive", "$session_name archived contract template $name", 0, $contract_template_id);
     flash_alert("Contract Template <strong>$name</strong> archived", "danger");
     redirect();
 }
@@ -133,7 +133,7 @@ if (isset($_GET['restore_contract_template'])) {
         LIMIT 1
     ");
 
-    logAction("Contract Template", "Restore", "$session_name restored contract template $name", 0, $contract_template_id);
+    logAudit("Contract Template", "Restore", "$session_name restored contract template $name", 0, $contract_template_id);
     flash_alert("Contract Template <strong>$name</strong> restored");
     redirect();
 }
@@ -149,7 +149,7 @@ if (isset($_GET['delete_contract_template'])) {
         LIMIT 1
     ");
 
-    logAction("Contract Template", "Delete", "$session_name deleted contract template $name", 0, $contract_template_id);
+    logAudit("Contract Template", "Delete", "$session_name deleted contract template $name", 0, $contract_template_id);
     flash_alert("Contract Template <strong>$name</strong> deleted", "danger");
     redirect();
 }

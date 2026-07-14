@@ -14,7 +14,7 @@ if (isset($_POST['edit_notification_settings'])) {
 
     mysqli_query($mysqli,"UPDATE settings SET config_send_invoice_reminders = $config_send_invoice_reminders, config_recurring_auto_send_invoice = $config_recurring_auto_send_invoice, config_enable_cron = $config_enable_cron, config_enable_alert_domain_expire = $config_enable_alert_domain_expire, config_ticket_client_general_notifications = $config_ticket_client_general_notifications WHERE company_id = 1");
 
-    logAction("Settings", "Edit", "$session_name edited notification settings");
+    logAudit("Settings", "Edit", "$session_name edited notification settings");
 
     flash_alert("Notification Settings updated");
 

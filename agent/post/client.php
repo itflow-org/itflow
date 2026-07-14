@@ -92,7 +92,7 @@ if (isset($_POST['add_client'])) {
         mysqli_stmt_bind_param($query, "s", $referral);
         mysqli_stmt_execute($query);
 
-        logAction("Category", "Create", "$session_name created referral category $referral");
+        logAudit("Category", "Create", "$session_name created referral category $referral");
     }
 
     // Insert primary location using SET
@@ -244,7 +244,7 @@ if (isset($_POST['add_client'])) {
         }
     }
 
-    logAction("Client", "Create", "$session_name created client $name$extended_log_description", $client_id, $client_id);
+    logAudit("Client", "Create", "$session_name created client $name$extended_log_description", $client_id, $client_id);
 
     flash_alert("Client <strong>$name</strong> created");
 
@@ -305,7 +305,7 @@ if (isset($_POST['edit_client'])) {
         mysqli_stmt_bind_param($query, "s", $referral);
         mysqli_stmt_execute($query);
 
-        logAction("Category", "Create", "$session_name created referral category $referral");
+        logAudit("Category", "Create", "$session_name created referral category $referral");
     }
 
     // Tags - delete existing and re-insert
@@ -322,7 +322,7 @@ if (isset($_POST['edit_client'])) {
         }
     }
 
-    logAction("Client", "Edit", "$session_name edited client $name", $client_id, $client_id);
+    logAudit("Client", "Edit", "$session_name edited client $name", $client_id, $client_id);
 
     flash_alert("Client <strong>$name</strong> updated");
 
@@ -352,7 +352,7 @@ if (isset($_GET['archive_client'])) {
     // Get Client Name
     $client_name = escapeSql(getFieldById('clients', $client_id, 'client_name'));
 
-    logAction("Client", "Archive", "$session_name archived client $client_name", $client_id, $client_id);
+    logAudit("Client", "Archive", "$session_name archived client $client_name", $client_id, $client_id);
 
     flash_alert("Client <strong>$client_name</strong> archived", 'error');
 
@@ -373,7 +373,7 @@ if (isset($_GET['restore_client'])) {
 
     mysqli_query($mysqli, "UPDATE clients SET client_archived_at = NULL WHERE client_id = $client_id");
 
-    logAction("Client", "Restored", "$session_name restored client $client_name", $client_id);
+    logAudit("Client", "Restored", "$session_name restored client $client_name", $client_id);
 
     flash_alert("Client <strong>$client_name</strong> restored");
 
@@ -475,7 +475,7 @@ if (isset($_GET['delete_client'])) {
     //Finally Remove the Client
     mysqli_query($mysqli, "DELETE FROM clients WHERE client_id = $client_id");
 
-    logAction("Client", "Deleted", "$session_name deleted Client $client_name and all associated data");
+    logAudit("Client", "Deleted", "$session_name deleted Client $client_name and all associated data");
 
     flash_alert("Client <strong>$client_name</strong> deleted along with all associated data", 'error');
 
@@ -527,7 +527,7 @@ if (isset($_POST['export_clients_csv'])) {
         //output all remaining data on a file pointer
         fpassthru($f);
 
-        logAction("Client", "Export", "$session_name exported $num_rows client(s) to a CSV file");
+        logAudit("Client", "Export", "$session_name exported $num_rows client(s) to a CSV file");
 
     }
 
@@ -709,7 +709,7 @@ if (isset($_POST["import_clients_csv"])) {
                 if(mysqli_num_rows($sql) == 0) {
                     mysqli_query($mysqli, "INSERT INTO categories SET category_name = '$referral', category_type = 'Referral'");
                     // Logging
-                    logAction("Category", "Create", "$session_name created new refferal category $referral");
+                    logAudit("Category", "Create", "$session_name created new refferal category $referral");
                 }
 
                 // Create Location
@@ -729,7 +729,7 @@ if (isset($_POST["import_clients_csv"])) {
         }
         fclose($file);
 
-        logAction("Client", "Import", "$session_name imported $row_count client(s) via CSV file, $duplicate_count duplicate(s) found");
+        logAudit("Client", "Import", "$session_name imported $row_count client(s) via CSV file, $duplicate_count duplicate(s) found");
 
         flash_alert("<strong>$row_count</strong> Client(s) added, <strong>$duplicate_count</strong> duplicate(s) found");
 
@@ -873,7 +873,7 @@ if (isset($_POST['bulk_add_client_ticket'])) {
             customAction('ticket_create', $ticket_id);
         }
 
-        logAction("Ticket", "Bulk Create", "$session_name created $client_count tickets for $client_name");
+        logAudit("Ticket", "Bulk Create", "$session_name created $client_count tickets for $client_name");
 
         flash_alert("<strong>$client_count</strong> tickets created for selected clients");
 
@@ -904,11 +904,11 @@ if (isset($_POST['bulk_edit_client_industry'])) {
 
             mysqli_query($mysqli,"UPDATE clients SET client_type = '$industry' WHERE client_id = $client_id");
 
-            logAction("Client", "Edit", "$session_name set Industry to $industry for $client_name", $client_id);
+            logAudit("Client", "Edit", "$session_name set Industry to $industry for $client_name", $client_id);
 
         }
 
-        logAction("Client", "Bulk Edit", "$session_name set the department $industry for $count client(s)", $client_id);
+        logAudit("Client", "Bulk Edit", "$session_name set the department $industry for $count client(s)", $client_id);
 
         flash_alert("Set the Industry to <strong>$industry</strong> for <strong>$count</strong> clients");
     }
@@ -938,11 +938,11 @@ if (isset($_POST['bulk_edit_client_referral'])) {
 
             mysqli_query($mysqli,"UPDATE clients SET client_referral = '$referral' WHERE client_id = $client_id");
 
-            logAction("Client", "Edit", "$session_name set Referral to $referral for $client_name", $client_id);
+            logAudit("Client", "Edit", "$session_name set Referral to $referral for $client_name", $client_id);
 
         }
 
-        logAction("Client", "Bulk Edit", "$session_name set the referral $referral for $count client(s)", $client_id);
+        logAudit("Client", "Bulk Edit", "$session_name set the referral $referral for $count client(s)", $client_id);
 
         flash_alert("Set the Referral to <strong>$referral</strong> for <strong>$count</strong> clients");
     }
@@ -972,11 +972,11 @@ if (isset($_POST['bulk_edit_client_hourly_rate'])) {
 
             mysqli_query($mysqli,"UPDATE clients SET client_rate = '$rate' WHERE client_id = $client_id");
 
-            logAction("Client", "Edit", "$session_name set Hourly Rate to" . numfmt_format_currency($currency_format, $rate, $session_company_currency) . "for $client_name", $client_id);
+            logAudit("Client", "Edit", "$session_name set Hourly Rate to" . numfmt_format_currency($currency_format, $rate, $session_company_currency) . "for $client_name", $client_id);
 
         }
 
-        logAction("Client", "Bulk Edit", "$session_name set the hourly rate" . numfmt_format_currency($currency_format, $rate, $session_company_currency) . "for $count client(s)", $client_id);
+        logAudit("Client", "Bulk Edit", "$session_name set the hourly rate" . numfmt_format_currency($currency_format, $rate, $session_company_currency) . "for $count client(s)", $client_id);
 
         flash_alert("Set the Hourly Rate to <strong>" . numfmt_format_currency($currency_format, $rate, $session_company_currency) . "</strong> for <strong>$count</strong> client(s)");
     }
@@ -1006,11 +1006,11 @@ if (isset($_POST['bulk_edit_client_net_terms'])) {
 
             mysqli_query($mysqli,"UPDATE clients SET client_net_terms = $net_terms WHERE client_id = $client_id");
 
-            logAction("Client", "Edit", "$session_name set net terms to $net_terms days for $client_name", $client_id);
+            logAudit("Client", "Edit", "$session_name set net terms to $net_terms days for $client_name", $client_id);
 
         }
 
-        logAction("Client", "Bulk Edit", "$session_name set the net terms to $net_terms days for $count client(s)", $client_id);
+        logAudit("Client", "Bulk Edit", "$session_name set the net terms to $net_terms days for $count client(s)", $client_id);
 
         flash_alert("Set Net Term to <strong>$net_terms days</strong> for <strong>$count</strong> client(s)");
     }
@@ -1051,11 +1051,11 @@ if (isset($_POST['bulk_assign_client_tags'])) {
                 }
             }
 
-            logAction("Client", "Edit", "$session_name added tags to $client_name", $client_id, $client_id);
+            logAudit("Client", "Edit", "$session_name added tags to $client_name", $client_id, $client_id);
 
         }
 
-        logAction("Client", "Bulk Edit", "$session_name added tags for $count clients", $client_id);
+        logAudit("Client", "Bulk Edit", "$session_name added tags for $count clients", $client_id);
 
         flash_alert("Assigned tags for <strong>$count</strong> clients");
     }
@@ -1143,7 +1143,7 @@ if (isset($_POST['bulk_send_client_email']) && isset($_POST['client_ids'])) {
 
     if (!empty($data)) {
         addToMailQueue($data);
-        logAction("Bulk Mail", "Send", "$session_name sent " . count($data) . " messages via bulk mail");
+        logAudit("Bulk Mail", "Send", "$session_name sent " . count($data) . " messages via bulk mail");
         flash_alert("<strong>" . count($data) . "</strong> messages queued");
     } else {
         flash_alert("No valid contacts found to queue emails.", 'error');
@@ -1173,13 +1173,13 @@ if (isset($_POST['bulk_archive_clients'])) {
 
             mysqli_query($mysqli,"UPDATE clients SET client_archived_at = NOW() WHERE client_id = $client_id");
 
-            logAction("Client", "Archive", "$session_name archived $client_name", $client_id);
+            logAudit("Client", "Archive", "$session_name archived $client_name", $client_id);
 
             $count++;
 
         }
 
-        logAction("Client", "Bulk Archive", "$session_name archived $count clients", $client_id);
+        logAudit("Client", "Bulk Archive", "$session_name archived $count clients", $client_id);
 
         flash_alert("Archived $count client(s)", 'error');
 
@@ -1209,11 +1209,11 @@ if (isset($_POST['bulk_unarchive_clients'])) {
 
             mysqli_query($mysqli,"UPDATE clients SET client_archived_at = NULL WHERE client_id = $client_id");
 
-            logAction("client", "Restore", "$session_name restored $client_name", $client_id);
+            logAudit("client", "Restore", "$session_name restored $client_name", $client_id);
 
         }
 
-        logAction("Client", "Bulk Restore", "$session_name restored $count client(s)", $client_id);
+        logAudit("Client", "Bulk Restore", "$session_name restored $count client(s)", $client_id);
 
         flash_alert("You restored <strong>$count</strong> client(s)");
 
@@ -1264,7 +1264,7 @@ if (isset($_POST["export_client_pdf"])) {
     $export_trips = intval($_POST["export_trips"]);
     $export_logs = intval($_POST["export_logs"]);
 
-    logAction("Client", "Export", "$session_name exported client data to a PDF file", $client_id, $client_id);
+    logAudit("Client", "Export", "$session_name exported client data to a PDF file", $client_id, $client_id);
 
     // Get client record (joining primary contact and primary location)
     $sql = mysqli_query($mysqli, "SELECT * FROM clients

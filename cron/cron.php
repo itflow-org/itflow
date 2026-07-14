@@ -151,7 +151,7 @@ while ($row = mysqli_fetch_assoc($sql)) {
 }
 
 // Logging
-// logAction("Cron", "Task", "Cron cleaned up old data");
+// logAudit("Cron", "Task", "Cron cleaned up old data");
 
 /*
  * ###############################################################################################################
@@ -197,7 +197,7 @@ if ($config_enable_alert_domain_expire == 1) {
 
     }
     // Logging
-    // logAction("Cron", "Task", "Cron created notifications for domains expiring");
+    // logAudit("Cron", "Task", "Cron created notifications for domains expiring");
 }
 
 // CERTIFICATES EXPIRING
@@ -248,7 +248,7 @@ foreach ($certificateAlertArray as $day) {
 
 }
 // Logging
-// logAction("Cron", "Task", "Cron created notifications for certificates expiring");
+// logAudit("Cron", "Task", "Cron created notifications for certificates expiring");
 
 // Asset Warranties Expiring
 
@@ -277,7 +277,7 @@ foreach ($warranty_alert_array as $day) {
 
 }
 // Logging
-// logAction("Cron", "Task", "Cron created notifications for asset warranties expiring");
+// logAudit("Cron", "Task", "Cron created notifications for asset warranties expiring");
 
 // Notify of New Tickets
 // Get Ticket Pending Assignment
@@ -347,7 +347,7 @@ if (mysqli_num_rows($sql_recurring_tickets) > 0) {
         WHERE recurring_ticket_id = $recurring_ticket_id");
 
         // Logging
-        logAction("Ticket", "Create", "Cron created recurring scheduled $frequency ticket - $subject", $client_id, $id);
+        logAudit("Ticket", "Create", "Cron created recurring scheduled $frequency ticket - $subject", $client_id, $id);
 
         customAction('ticket_create', $id);
 
@@ -455,7 +455,7 @@ while ($row = mysqli_fetch_assoc($sql_invalid_recurring_tickets)) {
 }
 
 // Logging
-// logAction("Cron", "Task", "Cron created sent out recurring tickets");
+// logAudit("Cron", "Task", "Cron created sent out recurring tickets");
 
 
 // TICKET RESOLUTION/CLOSURE PROCESS
@@ -481,7 +481,7 @@ while ($row = mysqli_fetch_assoc($sql_resolved_tickets_to_close)) {
     mysqli_query($mysqli,"UPDATE tickets SET ticket_status = 5, ticket_closed_at = NOW(), ticket_closed_by = $ticket_assigned_to WHERE ticket_id = $ticket_id");
 
     //Logging
-    logAction("Ticket", "Closed", "$ticket_prefix$ticket_number auto closed", $client_id, $ticket_id);
+    logAudit("Ticket", "Closed", "$ticket_prefix$ticket_number auto closed", $client_id, $ticket_id);
 
     customAction('ticket_close', $ticket_id);
 
@@ -596,7 +596,7 @@ if ($config_send_invoice_reminders == 1) {
     }
 }
 // Logging
-// logAction("Cron", "Task", "Cron created notifications for past due invoices and sent out notifications to the primary and billing contacts email");
+// logAudit("Cron", "Task", "Cron created notifications for past due invoices and sent out notifications to the primary and billing contacts email");
 
 // Send Recurring Invoices that match todays date and are active
 
@@ -810,7 +810,7 @@ while ($row = mysqli_fetch_assoc($sql_recurring_payments)) {
         "));
 
         if (!$saved_payment) {
-            logAction("Invoice", "Payment", "Failed auto Payment for invoice $invoice_prefix$invoice_number: Saved payment method not found or provider inactive", $client_id, $invoice_id);
+            logAudit("Invoice", "Payment", "Failed auto Payment for invoice $invoice_prefix$invoice_number: Saved payment method not found or provider inactive", $client_id, $invoice_id);
             continue;
         }
 
@@ -872,7 +872,7 @@ while ($row = mysqli_fetch_assoc($sql_recurring_payments)) {
                     error_log("Stripe payment error - encountered exception during payment intent for invoice ID $invoice_id / $invoice_prefix$invoice_number: $error");
                     logApp("Stripe", "error", "Exception during PI for invoice ID $invoice_id: $error");
                     mysqli_query($mysqli, "INSERT INTO history SET history_status = 'Payment failed', history_description = 'Stripe autopay failed due to payment error', history_invoice_id = $invoice_id");
-                    logAction("Invoice", "Payment", "Failed auto Payment amount of invoice $invoice_prefix$invoice_number due to Stripe payment error: $error", $client_id, $invoice_id);
+                    logAudit("Invoice", "Payment", "Failed auto Payment amount of invoice $invoice_prefix$invoice_number due to Stripe payment error: $error", $client_id, $invoice_id);
                     continue;
                 }
 
@@ -921,18 +921,18 @@ while ($row = mysqli_fetch_assoc($sql_recurring_payments)) {
                         $mail = addToMailQueue($data);
                         $email_id = mysqli_insert_id($mysqli);
                         mysqli_query($mysqli,"INSERT INTO history SET history_status = 'Sent', history_description = 'Payment Receipt sent to mail queue ID: $email_id!', history_invoice_id = $invoice_id");
-                        logAction("Invoice", "Payment", "Payment receipt for invoice $invoice_prefix$invoice_number queued to $contact_email Email ID: $email_id", $client_id, $invoice_id);
+                        logAudit("Invoice", "Payment", "Payment receipt for invoice $invoice_prefix$invoice_number queued to $contact_email Email ID: $email_id", $client_id, $invoice_id);
                     }
 
                     // LOGGING
                     $extended_log_desc = !$pi_livemode ? '(DEV MODE)' : '';
                     appNotify("Invoice Paid", "Invoice $invoice_prefix$invoice_number automatically paid", "/agent/invoice.php?invoice_id=$invoice_id", $client_id);
-                    logAction("Invoice", "Payment", "Auto Stripe payment amount of " . numfmt_format_currency($currency_format, $invoice_amount, $recurring_payment_currency_code) . " added to invoice $invoice_prefix$invoice_number - $pi_id $extended_log_desc", $client_id, $invoice_id);
+                    logAudit("Invoice", "Payment", "Auto Stripe payment amount of " . numfmt_format_currency($currency_format, $invoice_amount, $recurring_payment_currency_code) . " added to invoice $invoice_prefix$invoice_number - $pi_id $extended_log_desc", $client_id, $invoice_id);
                     customAction('invoice_pay', $invoice_id);
 
                 } else {
                     mysqli_query($mysqli, "INSERT INTO history SET history_status = 'Payment failed', history_description = 'Stripe autopay failed: Status {$payment_intent->status}', history_invoice_id = $invoice_id");
-                    logAction("Invoice", "Payment", "Failed auto Payment for invoice $invoice_prefix$invoice_number. Stripe PI status: {$payment_intent->status}", $client_id, $invoice_id);
+                    logAudit("Invoice", "Payment", "Failed auto Payment for invoice $invoice_prefix$invoice_number. Stripe PI status: {$payment_intent->status}", $client_id, $invoice_id);
                 }
             } // End if Stripe creds and IDs
         } // End if Stripe provider
@@ -944,7 +944,7 @@ while ($row = mysqli_fetch_assoc($sql_recurring_payments)) {
 
         mysqli_query($mysqli, "UPDATE invoices SET invoice_status = 'Paid' WHERE invoice_id = $invoice_id");
         mysqli_query($mysqli, "INSERT INTO history SET history_status = 'Paid', history_description = 'Payment added via Auto Pay', history_invoice_id = $invoice_id");
-        logAction("Invoice", "Payment", "Auto Payment amount of $recurring_payment_currency_code $invoice_amount added to invoice $invoice_prefix$invoice_number", $client_id, $invoice_id);
+        logAudit("Invoice", "Payment", "Auto Payment amount of $recurring_payment_currency_code $invoice_amount added to invoice $invoice_prefix$invoice_number", $client_id, $invoice_id);
     }
 }
 
@@ -1245,7 +1245,7 @@ if ($config_telemetry > 0 || $config_telemetry == 2) {
     $result = file_get_contents('https://telemetry.itflow.org', false, $context);
 
     // Logging
-    // logAction("Cron", "Task", "Cron sent telemetry results to ITFlow Developers");
+    // logAudit("Cron", "Task", "Cron sent telemetry results to ITFlow Developers");
 
 }
 

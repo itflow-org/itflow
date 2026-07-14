@@ -90,7 +90,7 @@ if (isset($_POST['add_user'])) {
 
     }
 
-    logAction("User", "Create", "$session_name created user $name", 0, $user_id);
+    logAudit("User", "Create", "$session_name created user $name", 0, $user_id);
 
     flash_alert("User <strong>$name</strong> created" . $extended_alert_description);
 
@@ -170,7 +170,7 @@ if (isset($_POST['edit_user'])) {
     //Update User Settings
     mysqli_query($mysqli, "UPDATE user_settings SET user_config_force_mfa = $force_mfa WHERE user_id = $user_id");
 
-    logAction("User", "Edit", "$session_name edited user $name", 0, $user_id);
+    logAudit("User", "Edit", "$session_name edited user $name", 0, $user_id);
 
     flash_alert("User <strong>$name</strong> updated" . $extended_alert_description);
 
@@ -188,7 +188,7 @@ if (isset($_GET['activate_user'])) {
 
     mysqli_query($mysqli, "UPDATE users SET user_status = 1 WHERE user_id = $user_id");
 
-    logAction("User", "Activate", "$session_name activated user $user_name", 0, $user_id);
+    logAudit("User", "Activate", "$session_name activated user $user_name", 0, $user_id);
 
     flash_alert("User <strong>$user_name</strong> activated");
 
@@ -210,7 +210,7 @@ if (isset($_GET['disable_user'])) {
     mysqli_query($mysqli, "UPDATE tickets SET ticket_assigned_to = 0 WHERE ticket_assigned_to = $user_id AND ticket_closed_at IS NULL");
     mysqli_query($mysqli, "UPDATE recurring_tickets SET recurring_ticket_assigned_to = 0 WHERE recurring_ticket_assigned_to = $user_id");
 
-    logAction("User", "Disable", "$session_name disabled user $name", 0, $user_id);
+    logAudit("User", "Disable", "$session_name disabled user $name", 0, $user_id);
 
     flash_alert("User <strong>$user_name</strong> disabled", 'error');
 
@@ -228,7 +228,7 @@ if (isset($_GET['revoke_remember_me'])) {
 
     mysqli_query($mysqli, "DELETE FROM remember_tokens WHERE remember_token_user_id = $user_id");
 
-    logAction("User", "Edit", "$session_name revoked all remember me tokens for user $user_name", 0, $user_id);
+    logAudit("User", "Edit", "$session_name revoked all remember me tokens for user $user_name", 0, $user_id);
 
     flash_alert("User <strong>$user_name</strong> remember me tokens revoked", 'error');
 
@@ -253,7 +253,7 @@ if (isset($_POST['archive_user'])) {
     // Archive user query
     mysqli_query($mysqli, "UPDATE users SET user_name = '$user_name (archived)', user_password = '$password', user_status = 0, user_specific_encryption_ciphertext = '', user_archived_at = NOW() WHERE user_id = $user_id");
 
-    logAction("User", "Archive", "$session_name archived user $user_name", 0, $user_id);
+    logAudit("User", "Archive", "$session_name archived user $user_name", 0, $user_id);
 
     flash_alert("User <strong>$user_name</strong> archived", 'error');
 
@@ -283,7 +283,7 @@ if (isset($_POST['restore_user'])) {
         $extended_log_description .= ", password changed";
     }
 
-    logAction("User", "Restored", "$session_name restored user $user_name", 0, $user_id);
+    logAudit("User", "Restored", "$session_name restored user $user_name", 0, $user_id);
 
     flash_alert("User <strong>$user_name</strong> restored");
 
@@ -338,7 +338,7 @@ if (isset($_POST['export_users_csv'])) {
         fpassthru($f);
 
         // Logging
-        logAction("User", "Export", "$session_name exported $count user(s) to a CSV file");
+        logAudit("User", "Export", "$session_name exported $count user(s) to a CSV file");
     }
     exit;
 
@@ -378,7 +378,7 @@ if (isset($_POST['ir_reset_user_password'])) {
         echo "<br><br>";
     }
 
-    logAction("User", "Edit", "$session_name reset ALL user passwords");
+    logAudit("User", "Edit", "$session_name reset ALL user passwords");
 
     exit; // Stay on the plain text password page
 

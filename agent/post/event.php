@@ -17,7 +17,7 @@ if (isset($_POST['add_calendar'])) {
 
     $calendar_id = mysqli_insert_id($mysqli);
 
-    logAction("Calendar", "Create", "$session_name created calendar $name", 0, $calendar_id);
+    logAudit("Calendar", "Create", "$session_name created calendar $name", 0, $calendar_id);
 
     flash_alert("Calendar <strong>$name</strong> created");
 
@@ -35,7 +35,7 @@ if (isset($_POST['edit_calendar'])) {
 
     mysqli_query($mysqli,"UPDATE calendars SET calendar_name = '$name', calendar_color = '$color' WHERE calendar_id = $calendar_id");
 
-    logAction("Calendar", "Edit", "$session_name edited calendar $name", 0, $calendar_id);
+    logAudit("Calendar", "Edit", "$session_name edited calendar $name", 0, $calendar_id);
 
     flash_alert("Calendar <strong>$name</strong> edited");
 
@@ -60,7 +60,7 @@ if (isset($_GET['delete_calendar'])) {
     // Delete Events
     mysqli_query($mysqli,"DELETE FROM calendar_events WHERE event_calendar_id = $calendar_id");
 
-    logAction("Calendar", "Delete", "$session_name deleted calendar $calendar_name and associated events");
+    logAudit("Calendar", "Delete", "$session_name deleted calendar $calendar_name and associated events");
 
     flash_alert("Calendar <strong>$calendar_name</strong> deleted", 'error');
 
@@ -129,15 +129,15 @@ if (isset($_POST['add_event'])) {
 
         // Logging for email (success/fail)
         if ($mail === true) {
-            logAction("Calendar Event", "Email", "$session_name emailed event $title to $contact_name from client $client_name", $client_id, $event_id);
+            logAudit("Calendar Event", "Email", "$session_name emailed event $title to $contact_name from client $client_name", $client_id, $event_id);
         } else {
             appNotify("Mail", "Failed to send email to $contact_email");
-            logAction("Mail", "Error", "Failed to send email to $contact_email regarding $subject. $mail");
+            logAudit("Mail", "Error", "Failed to send email to $contact_email regarding $subject. $mail");
         }
 
     } // End mail IF
 
-    logAction("Calendar Event", "Create", "$session_name created a calendar event titled $title in calendar $calendar_name", $client_id, $event_id);
+    logAudit("Calendar Event", "Create", "$session_name created a calendar event titled $title in calendar $calendar_name", $client_id, $event_id);
 
     flash_alert("Event <strong>$title</strong> created in calendar <strong>$calendar_name</strong>");
 
@@ -203,15 +203,15 @@ if (isset($_POST['edit_event'])) {
         $mail = addToMailQueue($data);
         // Logging for email (success/fail)
         if ($mail === true) {
-            logAction("Calendar Event", "Email", "$session_name Emailed modified event $title to $contact_name email $contact_email", $client_id, $event_id);
+            logAudit("Calendar Event", "Email", "$session_name Emailed modified event $title to $contact_name email $contact_email", $client_id, $event_id);
         } else {
             appNotify("Mail", "Failed to send email to $contact_email");
-            logAction("Mail", "Error", "Failed to send email to $contact_email regarding $subject. $mail");
+            logAudit("Mail", "Error", "Failed to send email to $contact_email regarding $subject. $mail");
         }
 
     } // End mail IF
 
-    logAction("Calendar Event", "Edit", "$session_name edited calendar event $title", $client_id, $event_id);
+    logAudit("Calendar Event", "Edit", "$session_name edited calendar event $title", $client_id, $event_id);
 
     flash_alert("Calendar event titled <strong>$title</strong> edited");
 
@@ -238,7 +238,7 @@ if (isset($_GET['delete_event'])) {
 
     mysqli_query($mysqli,"DELETE FROM calendar_events WHERE event_id = $event_id");
 
-    logAction("Calendar Event", "Delete", "$session_name deleted calendar event $event_title", $client_id);
+    logAudit("Calendar Event", "Delete", "$session_name deleted calendar event $event_title", $client_id);
 
     flash_alert("Calendar event titled <strong>$event_title</strong> deleted", 'error');
 

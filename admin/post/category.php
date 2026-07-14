@@ -16,7 +16,7 @@ if (isset($_POST['add_category'])) {
 
     $category_id = mysqli_insert_id($mysqli);
 
-    logAction("Category", "Create", "$session_name created category $type $name", 0, $category_id);
+    logAudit("Category", "Create", "$session_name created category $type $name", 0, $category_id);
 
     flash_alert("Category $type <strong>$name</strong> created");
 
@@ -34,7 +34,7 @@ if (isset($_POST['edit_category'])) {
 
     mysqli_query($mysqli,"UPDATE categories SET category_name = '$name', category_description = '$description', category_type = '$type', category_color = '$color' WHERE category_id = $category_id");
 
-    logAction("Category", "Edit", "$session_name edited category $type $name", 0, $category_id);
+    logAudit("Category", "Edit", "$session_name edited category $type $name", 0, $category_id);
 
     flash_alert("Category $type <strong>$name</strong> edited");
 
@@ -56,7 +56,7 @@ if (isset($_GET['archive_category'])) {
 
     mysqli_query($mysqli,"UPDATE categories SET category_archived_at = NOW() WHERE category_id = $category_id");
 
-    logAction("Category", "Archive", "$session_name archived category $category_type $category_name", 0, $category_id);
+    logAudit("Category", "Archive", "$session_name archived category $category_type $category_name", 0, $category_id);
 
     flash_alert("Category $category_type <strong>$category_name</strong> archived", 'error');
 
@@ -78,7 +78,7 @@ if (isset($_GET['restore_category'])) {
 
     mysqli_query($mysqli,"UPDATE categories SET category_archived_at = NULL WHERE category_id = $category_id");
 
-    logAction("Category", "Restore", "$session_name retored category $category_type $category_name", 0, $category_id);
+    logAudit("Category", "Restore", "$session_name retored category $category_type $category_name", 0, $category_id);
 
     flash_alert("Category $category_type <strong>$category_name</strong> restored");
 
@@ -100,7 +100,7 @@ if (isset($_GET['delete_category'])) {
 
     mysqli_query($mysqli,"DELETE FROM categories WHERE category_id = $category_id");
 
-    logAction("Category", "Delete", "$session_name deleted category $category_type $category_name");
+    logAudit("Category", "Delete", "$session_name deleted category $category_type $category_name");
 
     flash_alert("Category $category_type <strong>$category_name</strong> deleted", 'error');
 

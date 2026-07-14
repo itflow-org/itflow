@@ -28,8 +28,8 @@ if (!empty($_POST['api_key_decrypt_password']) && !empty($credential_id)) {
         }
 
         // Logging
-        logAction("Credential", "Edit", "$name via API ($api_key_name)", $client_id, $credential_id);
-        logAction("API", "Success", "Updated credential $name via API ($api_key_name)", $client_id);
+        logAudit("Credential", "Edit", "$name via API ($api_key_name)", $client_id, $credential_id);
+        logAudit("API", "Success", "Updated credential $name via API ($api_key_name)", $client_id);
     }
 
 }

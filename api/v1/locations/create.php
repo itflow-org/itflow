@@ -25,8 +25,8 @@ if (!empty($name) && !empty($client_id)) {
         $insert_id = mysqli_insert_id($mysqli);
 
         // Logging
-        logAction("Location", "Create", "$name via API ($api_key_name)", $client_id, $insert_id);
-        logAction("API", "Success", "Created location $name via API ($api_key_name)", $client_id);
+        logAudit("Location", "Create", "$name via API ($api_key_name)", $client_id, $insert_id);
+        logAudit("API", "Success", "Created location $name via API ($api_key_name)", $client_id);
     }
 
 }

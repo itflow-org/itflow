@@ -35,7 +35,7 @@ if (!empty($client_id)) {
             $update_count = mysqli_affected_rows($mysqli);
 
             // Logging
-            logAction("Contact", "Archive", "$client_name archived via API ($api_key_name)", $client_id);
+            logAudit("Contact", "Archive", "$client_name archived via API ($api_key_name)", $client_id);
         }
     }
 }

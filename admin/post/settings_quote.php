@@ -16,7 +16,7 @@ if (isset($_POST['edit_quote_settings'])) {
 
     mysqli_query($mysqli,"UPDATE settings SET config_quote_prefix = '$config_quote_prefix', config_quote_next_number = $config_quote_next_number, config_quote_footer = '$config_quote_footer', config_quote_notification_email = '$config_quote_notification_email' WHERE company_id = 1");
 
-    logAction("Settings", "Edit", "$session_name edited Quote settings");
+    logAudit("Settings", "Edit", "$session_name edited Quote settings");
 
     flash_alert("Quote Settings updated");
 

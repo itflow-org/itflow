@@ -19,7 +19,7 @@ if (isset($_POST['add_product'])) {
 
     $product_id = mysqli_insert_id($mysqli);
 
-    logAction("Product", "Create", "$session_name created product $name", 0, $product_id);
+    logAudit("Product", "Create", "$session_name created product $name", 0, $product_id);
 
     flash_alert("Product <strong>$name</strong> created");
 
@@ -39,7 +39,7 @@ if (isset($_POST['edit_product'])) {
 
     mysqli_query($mysqli,"UPDATE products SET product_name = '$name', product_description = '$description', product_code = '$code', product_location = '$location', product_price = '$price', product_tax_id = $tax, product_category_id = $category WHERE product_id = $product_id");
 
-    logAction("Product", "Edit", "$session_name edited product $name", 0, $product_id);
+    logAudit("Product", "Edit", "$session_name edited product $name", 0, $product_id);
 
     flash_alert("Product <strong>$name</strong> edited");
 
@@ -59,7 +59,7 @@ if (isset($_GET['archive_product'])) {
 
     mysqli_query($mysqli,"UPDATE products SET product_archived_at = NOW() WHERE product_id = $product_id");
 
-    logAction("Product", "Archive", "$session_name archived product $product_name", 0, $product_id);
+    logAudit("Product", "Archive", "$session_name archived product $product_name", 0, $product_id);
 
     flash_alert("Product <strong>$product_name</strong> archived", 'error');
 
@@ -79,7 +79,7 @@ if (isset($_GET['restore_product'])) {
 
     mysqli_query($mysqli,"UPDATE products SET product_archived_at = NULL WHERE product_id = $product_id");
 
-    logAction("Product", "Restore", "$session_name restored product $product_name", 0, $product_id);
+    logAudit("Product", "Restore", "$session_name restored product $product_name", 0, $product_id);
 
     flash_alert("Product <strong>$product_name</strong> restored");
 
@@ -100,7 +100,7 @@ if (isset($_GET['delete_product'])) {
 
     mysqli_query($mysqli,"DELETE FROM products WHERE product_id = $product_id");
 
-    logAction("Product", "Delete", "$session_name deleted product $product_name");
+    logAudit("Product", "Delete", "$session_name deleted product $product_name");
 
     flash_alert("Product <strong>$product_name</strong> deleted", 'error');
 
@@ -133,11 +133,11 @@ if (isset($_POST['bulk_edit_product_category'])) {
 
             mysqli_query($mysqli,"UPDATE products SET product_category_id = $category_id WHERE product_id = $product_id");
 
-            logAction("Product", "Edit", "$session_name assigned product $product_name to category $category_name", 0, $product_id);
+            logAudit("Product", "Edit", "$session_name assigned product $product_name to category $category_name", 0, $product_id);
 
         } // End Assign Product Loop
 
-        logAction("Product", "Edit", "$session_name assigned category $category_name to $count product(s)");
+        logAudit("Product", "Edit", "$session_name assigned category $category_name to $count product(s)");
 
         flash_alert("Assigned category <strong>$category_name</strong> to <strong>$count</strong> product(s)");
     }
@@ -165,10 +165,10 @@ if (isset($_POST['bulk_archive_products'])) {
 
             mysqli_query($mysqli,"UPDATE products SET product_archived_at = NOW() WHERE product_id = $product_id");
 
-            logAction("Product", "Archive", "$session_name archived product $product_name", 0, $product_id);
+            logAudit("Product", "Archive", "$session_name archived product $product_name", 0, $product_id);
         }
 
-        logAction("Product", "Bulk Archive", "$session_name archived $count product(s)");
+        logAudit("Product", "Bulk Archive", "$session_name archived $count product(s)");
 
         flash_alert("Archived <strong>$count</strong> product(s)", 'error');
 
@@ -197,11 +197,11 @@ if (isset($_POST['bulk_restore_products'])) {
 
             mysqli_query($mysqli,"UPDATE products SET product_archived_at = NULL WHERE product_id = $product_id");
 
-            logAction("Product", "Restore", "$session_name restored product $product_name", 0, $product_id);
+            logAudit("Product", "Restore", "$session_name restored product $product_name", 0, $product_id);
 
         }
 
-        logAction("Product", "Bulk Restore", "$session_name restored $count product(s)");
+        logAudit("Product", "Bulk Restore", "$session_name restored $count product(s)");
 
         flash_alert("Restored <strong>$count</strong> product(s)");
 
@@ -230,11 +230,11 @@ if (isset($_POST['bulk_delete_products'])) {
 
             mysqli_query($mysqli, "DELETE FROM products WHERE product_id = $product_id");
 
-            logAction("Product", "Delete", "$session_name deleted product $product_name");
+            logAudit("Product", "Delete", "$session_name deleted product $product_name");
 
         }
 
-        logAction("Product", "Bulk Delete", "$session_name deleted $count product(s)");
+        logAudit("Product", "Bulk Delete", "$session_name deleted $count product(s)");
 
         flash_alert("Deleted <strong>$count</strong> product(s)", 'error');
 
@@ -286,7 +286,7 @@ if (isset($_POST['export_products_csv'])) {
         fpassthru($f);
     }
 
-    logAction("Product", "Export", "$session_name exported $num_rows product(s) to a CSV file");
+    logAudit("Product", "Export", "$session_name exported $num_rows product(s) to a CSV file");
 
     exit;
 }
@@ -305,7 +305,7 @@ if (isset($_POST['add_product_stock'])) {
 
     mysqli_query($mysqli,"INSERT INTO product_stock SET stock_qty = $qty, stock_expense_id = $expense, stock_note = '$note', stock_product_id = $product_id");
 
-    logAction("Product", "Stock", "$session_name added $qty units to stock for product $product_name", 0, $product_id);
+    logAudit("Product", "Stock", "$session_name added $qty units to stock for product $product_name", 0, $product_id);
 
     flash_alert("Added $qty units to <strong>$product_name</strong> stock");
 

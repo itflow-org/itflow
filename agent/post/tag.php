@@ -14,7 +14,7 @@ if (isset($_POST['add_tag'])) {
 
     $tag_id = mysqli_insert_id($mysqli);
 
-    logAction("Tag", "Create", "$session_name created tag $name", 0, $tag_id);
+    logAudit("Tag", "Create", "$session_name created tag $name", 0, $tag_id);
 
     flash_alert("Tag <strong>$name</strong> created");
 

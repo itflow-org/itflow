@@ -22,7 +22,7 @@ if (isset($_POST['add_network'])) {
 
     $network_id = mysqli_insert_id($mysqli);
 
-    logAction("Network", "Create", "$session_name created network $name", $client_id, $network_id);
+    logAudit("Network", "Create", "$session_name created network $name", $client_id, $network_id);
 
     flash_alert("Network <strong>$name</strong> created");
 
@@ -46,7 +46,7 @@ if (isset($_POST['edit_network'])) {
 
     mysqli_query($mysqli,"UPDATE networks SET network_name = '$name', network_description = '$description', network_vlan = $vlan, network = '$network', network_gateway = '$gateway', network_primary_dns = '$primary_dns', network_secondary_dns = '$secondary_dns', network_dhcp_range = '$dhcp_range', network_notes = '$notes', network_location_id = $location_id WHERE network_id = $network_id");
 
-    logAction("Network", "Edit", "$session_name edited network $name", $client_id, $network_id);
+    logAudit("Network", "Edit", "$session_name edited network $name", $client_id, $network_id);
 
     flash_alert("Network <strong>$name</strong> updated");
 
@@ -72,7 +72,7 @@ if (isset($_GET['archive_network'])) {
 
     mysqli_query($mysqli,"UPDATE networks SET network_archived_at = NOW() WHERE network_id = $network_id");
 
-    logAction("Network", "Archive", "$session_name archived network $network_name", $client_id, $network_id);
+    logAudit("Network", "Archive", "$session_name archived network $network_name", $client_id, $network_id);
 
     flash_alert("Network <strong>$network_name</strong> archived", 'error');
 
@@ -98,7 +98,7 @@ if (isset($_GET['restore_network'])) {
 
     mysqli_query($mysqli,"UPDATE networks SET network_archived_at = NULL WHERE network_id = $network_id");
 
-    logAction("Network", "Restore", "$session_name restored contact $contact_name", $client_id, $network_id);
+    logAudit("Network", "Restore", "$session_name restored contact $contact_name", $client_id, $network_id);
 
     flash_alert("Network <strong>$network_name</strong> restored");
 
@@ -124,7 +124,7 @@ if (isset($_GET['delete_network'])) {
 
     mysqli_query($mysqli,"DELETE FROM networks WHERE network_id = $network_id");
 
-    logAction("Network", "Delete", "$session_name deleted network $network_name", $client_id);
+    logAudit("Network", "Delete", "$session_name deleted network $network_name", $client_id);
 
     flash_alert("Network <strong>$network_name</strong> deleted", 'error');
 
@@ -158,11 +158,11 @@ if (isset($_POST['bulk_delete_networks'])) {
 
             mysqli_query($mysqli, "DELETE FROM networks WHERE network_id = $network_id AND network_client_id = $client_id");
 
-            logAction("Network", "Delete", "$session_name deleted network $network_name", $client_id);
+            logAudit("Network", "Delete", "$session_name deleted network $network_name", $client_id);
 
         }
 
-        logAction("Network", "Bulk Delete", "$session_name deleted $count network(s)", $client_id);
+        logAudit("Network", "Bulk Delete", "$session_name deleted $count network(s)", $client_id);
 
         flash_alert("Deleted <strong>$count</strong> network(s)", 'error');
 
@@ -222,7 +222,7 @@ if (isset($_POST['export_networks_csv'])) {
         fpassthru($f);
     }
 
-    logAction("Network", "Export", "$session_name deleted $num_rows network(s) to a CSV file", $client_id);
+    logAudit("Network", "Export", "$session_name deleted $num_rows network(s) to a CSV file", $client_id);
 
     exit;
 
@@ -373,7 +373,7 @@ if (isset($_POST['import_networks_csv'])) {
 
         fclose($file);
 
-        logAction("Network", "Import", "$session_name imported $row_count network(s). $duplicate_count duplicate(s) found and not imported", $client_id);
+        logAudit("Network", "Import", "$session_name imported $row_count network(s). $duplicate_count duplicate(s) found and not imported", $client_id);
 
         flash_alert("$row_count Network(s) imported, $duplicate_count duplicate(s) detected and not imported");
 

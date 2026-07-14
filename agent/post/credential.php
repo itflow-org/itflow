@@ -30,7 +30,7 @@ if (isset($_POST['add_credential'])) {
         }
     }
 
-    logAction("Credential", "Create", "$session_name created credential $name", $client_id, $credential_id);
+    logAudit("Credential", "Create", "$session_name created credential $name", $client_id, $credential_id);
 
     flash_alert("Credential <strong>$name</strong> created");
 
@@ -75,7 +75,7 @@ if (isset($_POST['edit_credential'])) {
         }
     }
 
-    logAction("Credential", "Edit", "$session_name edited credential $name", $client_id, $credential_id);
+    logAudit("Credential", "Edit", "$session_name edited credential $name", $client_id, $credential_id);
 
     flash_alert("Credential <strong>$name</strong> edited");
 
@@ -101,7 +101,7 @@ if(isset($_GET['archive_credential'])){
 
     mysqli_query($mysqli,"UPDATE credentials SET credential_archived_at = NOW() WHERE credential_id = $credential_id");
 
-    logAction("Credential", "Archive", "$session_name archived credential $credential_name", $client_id, $credential_id);
+    logAudit("Credential", "Archive", "$session_name archived credential $credential_name", $client_id, $credential_id);
 
     flash_alert("Credential <strong>$credential_name</strong> archived", 'error');
 
@@ -127,7 +127,7 @@ if(isset($_GET['restore_credential'])){
 
     mysqli_query($mysqli,"UPDATE credentials SET credential_archived_at = NULL WHERE credential_id = $credential_id");
 
-    logAction("Credential", "Restore", "$session_name restored credential $credential_name", $client_id, $credential_id);
+    logAudit("Credential", "Restore", "$session_name restored credential $credential_name", $client_id, $credential_id);
 
     flash_alert("Credential <strong>$credential_name</strong> restored");
 
@@ -153,7 +153,7 @@ if (isset($_GET['delete_credential'])) {
 
     mysqli_query($mysqli,"DELETE FROM credentials WHERE credential_id = $credential_id");
 
-    logAction("Credential", "Delete", "$session_name deleted credential $credential_name", $client_id);
+    logAudit("Credential", "Delete", "$session_name deleted credential $credential_name", $client_id);
 
     flash_alert("Credential <strong>$credential_name</strong> deleted", 'error');
 
@@ -201,13 +201,13 @@ if (isset($_POST['bulk_assign_credential_tags'])) {
                 }
             }
 
-            logAction("Credential", "Edit", "$session_name added tags to $credential_name", $client_id, $credential_id);
+            logAudit("Credential", "Edit", "$session_name added tags to $credential_name", $client_id, $credential_id);
 
             flash_alert("Assigned tags for <strong>$count</strong> credentials");
 
         } // End Assign Loop
 
-        logAction("Credential", "Bulk Edit", "$session_name added tags to $count credentials", $client_id);
+        logAudit("Credential", "Bulk Edit", "$session_name added tags to $count credentials", $client_id);
 
     }
 
@@ -239,11 +239,11 @@ if (isset($_POST['bulk_favorite_credentials'])) {
 
             mysqli_query($mysqli,"UPDATE credentials SET credential_favorite = 1 WHERE credential_id = $credential_id");
 
-            logAction("Credential", "Edit", "$session_name marked credential $credential_name a favorite", $client_id, $credential_id);
+            logAudit("Credential", "Edit", "$session_name marked credential $credential_name a favorite", $client_id, $credential_id);
 
         }
 
-        logAction("Credential", "Bulk Edit", "$session_name favorited $count credentials", $client_id);
+        logAudit("Credential", "Bulk Edit", "$session_name favorited $count credentials", $client_id);
 
         flash_alert("Favorited <strong>$count</strong> credential(s)");
 
@@ -277,11 +277,11 @@ if (isset($_POST['bulk_unfavorite_credentials'])) {
 
             mysqli_query($mysqli,"UPDATE credentials SET credential_favorite = 0 WHERE credential_id = $credential_id");
 
-            logAction("Credential", "Edit", "$session_name unfavorited credential $credential_name", $client_id, $credential_id);
+            logAudit("Credential", "Edit", "$session_name unfavorited credential $credential_name", $client_id, $credential_id);
 
         }
 
-        logAction("Crednetial", "Bulk Edit", "$session_name unfavorited $count credentials", $client_id);
+        logAudit("Crednetial", "Bulk Edit", "$session_name unfavorited $count credentials", $client_id);
 
         flash_alert("Unfavorited <strong>$count</strong> credential(s)");
 
@@ -317,10 +317,10 @@ if (isset($_POST['bulk_archive_credentials'])) {
 
             mysqli_query($mysqli,"UPDATE credentials SET credential_archived_at = NOW() WHERE credential_id = $credential_id");
 
-            logAction("Credential", "Archive", "$session_name archived credential $credential_name", $client_id, $credential_id);
+            logAudit("Credential", "Archive", "$session_name archived credential $credential_name", $client_id, $credential_id);
         }
 
-        logAction("Credential", "Bulk Archive", "$session_name archived $count credentials", $client_id);
+        logAudit("Credential", "Bulk Archive", "$session_name archived $count credentials", $client_id);
 
         flash_alert("Archived <strong>$count</strong> credential(s)", 'error');
 
@@ -356,11 +356,11 @@ if (isset($_POST['bulk_restore_credentials'])) {
 
             mysqli_query($mysqli,"UPDATE credentials SET credential_archived_at = NULL WHERE credential_id = $credential_id");
 
-            logAction("Credential", "Restore", "$session_name restored credential $credential_name", $client_id, $credential_id);
+            logAudit("Credential", "Restore", "$session_name restored credential $credential_name", $client_id, $credential_id);
 
         }
 
-        logAction("Credential", "Bulk Restore", "$session_name restored $count credential(s)", $client_id);
+        logAudit("Credential", "Bulk Restore", "$session_name restored $count credential(s)", $client_id);
 
         flash_alert("Restored <strong>$count</strong> credential(s)");
 
@@ -396,11 +396,11 @@ if (isset($_POST['bulk_delete_credentials'])) {
 
             mysqli_query($mysqli, "DELETE FROM credentials WHERE credential_id = $credential_id AND credential_client_id = $client_id");
 
-            logAction("Credential", "Delete", "$session_name deleted credential $credential_name", $client_id);
+            logAudit("Credential", "Delete", "$session_name deleted credential $credential_name", $client_id);
 
         }
 
-        logAction("Credential", "Bulk Delete", "$session_name deleted $count credential(s)", $client_id);
+        logAudit("Credential", "Bulk Delete", "$session_name deleted $count credential(s)", $client_id);
 
         flash_alert("Deleted <strong>$count</strong> credential(s)", 'error');
 
@@ -464,7 +464,7 @@ if (isset($_POST['export_credentials_csv'])) {
         fpassthru($f);
     }
 
-    logAction("Credential", "Export", "$session_name exported $num_rows credential(s) to a CSV file", $client_id);
+    logAudit("Credential", "Export", "$session_name exported $num_rows credential(s) to a CSV file", $client_id);
 
     exit;
 
@@ -558,7 +558,7 @@ if (isset($_POST["import_credentials_csv"])) {
         }
         fclose($file);
 
-        logAction("Credential", "Import", "$session_name imported $row_count credential(s) via CSV file. $duplicate_count duplicate(s) found and not imported", $client_id);
+        logAudit("Credential", "Import", "$session_name imported $row_count credential(s) via CSV file. $duplicate_count duplicate(s) found and not imported", $client_id);
 
         flash_alert("<strong>$row_count</strong> credential(s) imported, <strong>$duplicate_count</strong> duplicate(s) detected and not imported", 'warning');
 

@@ -27,7 +27,7 @@ if (isset($_GET['dismiss_notification'])) {
     mysqli_query($mysqli,"UPDATE notifications SET notification_dismissed_at = NOW(), notification_dismissed_by = $session_user_id WHERE notification_user_id = $session_user_id AND notification_id = $notification_id");
 
     // Logging
-    logAction("Notification", "Dismiss", "$session_name dismissed notification");
+    logAudit("Notification", "Dismiss", "$session_name dismissed notification");
 
     $_SESSION['alert_message'] = "Notification Dismissed";
 
@@ -52,7 +52,7 @@ if (isset($_GET['dismiss_all_notifications'])) {
     }
 
     // Logging
-    logAction("Notification", "Dismiss", "$session_name dismissed $num_notifications notifications");
+    logAudit("Notification", "Dismiss", "$session_name dismissed $num_notifications notifications");
 
     $_SESSION['alert_message'] = "<strong>$num_notifications</strong> Notifications Dismissed";
 
@@ -80,7 +80,7 @@ if (isset($_GET['deactivate_shared_item'])) {
     mysqli_query($mysqli, "DELETE FROM shared_items WHERE item_id = $item_id");
 
     // Logging
-    logAction("Sharing", "Delete", "$session_name deactivated shared $item_type link Item ID: $item_related_id. Share ID $item_id", $client_id, $item_id);
+    logAudit("Sharing", "Delete", "$session_name deactivated shared $item_type link Item ID: $item_related_id. Share ID $item_id", $client_id, $item_id);
 
     $_SESSION['alert_message'] = "Share Link deactivated";
 
