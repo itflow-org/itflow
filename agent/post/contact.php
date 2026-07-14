@@ -76,7 +76,7 @@ if (isset($_POST['add_contact'])) {
 
     customAction('contact_create', $contact_id);
 
-    flash_alert("Contact <strong>$name</strong> created");
+    flashAlert("Contact <strong>$name</strong> created");
 
     redirect();
 
@@ -221,7 +221,7 @@ if (isset($_POST['edit_contact'])) {
 
     customAction('contact_update', $contact_id);
 
-    flash_alert("Contact <strong>$name</strong> updated");
+    flashAlert("Contact <strong>$name</strong> updated");
 
     redirect();
 
@@ -280,7 +280,7 @@ if (isset($_GET['archive_contact_note'])) {
 
     logAudit("Contact", "Edit", "$session_name archived note $contact_note_type for $contact_name", $client_id, $contact_id);
 
-    flash_alert("Note <strong>$contact_note_type</strong> archived", 'error');
+    flashAlert("Note <strong>$contact_note_type</strong> archived", 'error');
 
     redirect();
 
@@ -308,7 +308,7 @@ if (isset($_GET['restore_contact_note'])) {
 
     logAudit("Contact", "Edit", "$session_name restored note $contact_note_type for $contact_name", $client_id, $contact_id);
 
-    flash_alert("Note <strong>$contact_note_type</strong> restored");
+    flashAlert("Note <strong>$contact_note_type</strong> restored");
 
     redirect();
 
@@ -336,7 +336,7 @@ if (isset($_GET['delete_contact_note'])) {
 
     logAudit("Contact", "Edit", "$session_name deleted $contact_note_type note for $contact_name", $client_id, $contact_id);
 
-    flash_alert("Note <strong>$contact_note_type</strong> deleted.", 'error');
+    flashAlert("Note <strong>$contact_note_type</strong> deleted.", 'error');
 
     redirect();
 
@@ -380,7 +380,7 @@ if (isset($_POST['bulk_assign_contact_location'])) {
 
         logAudit("Contact", "Bulk Edit", "$session_name assigned $contact_count contacts to location $location_name", $client_id);
 
-        flash_alert("<b>$contact_count</b> contacts assigned to location <b>$location_name</b>");
+        flashAlert("<b>$contact_count</b> contacts assigned to location <b>$location_name</b>");
     }
 
     redirect();
@@ -420,7 +420,7 @@ if (isset($_POST['bulk_edit_contact_phone'])) {
 
         logAudit("Contact", "Bulk Edit", "$session_name set the Phone Number $phone for $contact_count contacts", $client_id);
 
-        flash_alert("Phone Number set to <b>" . formatPhoneNumber($phone) . "</b> on $contact_count</b> contacts");
+        flashAlert("Phone Number set to <b>" . formatPhoneNumber($phone) . "</b> on $contact_count</b> contacts");
     }
 
     redirect();
@@ -460,7 +460,7 @@ if (isset($_POST['bulk_edit_contact_department'])) {
 
         logAudit("Contact", "Bulk Edit", "$session_name set the department $department for $contact_count contacts", $client_id);
 
-        flash_alert("You set the Department to <strong>$department</strong> for <strong>$contact_count</strong> contacts");
+        flashAlert("You set the Department to <strong>$department</strong> for <strong>$contact_count</strong> contacts");
     }
 
     redirect();
@@ -504,7 +504,7 @@ if (isset($_POST['bulk_edit_contact_role'])) {
 
         logAudit("Contact", "Bulk Edit", "$session_name edited the contact role for $contact_count contacts", $client_id);
 
-        flash_alert("You updated contact roles for <b>$contact_count</b> contacts");
+        flashAlert("You updated contact roles for <b>$contact_count</b> contacts");
     }
 
     redirect();
@@ -557,7 +557,7 @@ if (isset($_POST['bulk_assign_contact_tags'])) {
 
         logAudit("Contact", "Bulk Edit", "$session_name added tags for $contact_count contacts", $client_id);
 
-        flash_alert("You assigned tags for <strong>$count</strong> contacts");
+        flashAlert("You assigned tags for <strong>$count</strong> contacts");
     }
 
     redirect();
@@ -607,7 +607,7 @@ if (isset($_POST['send_bulk_mail_now'])) {
 
         logAudit("Bulk Mail", "Send", "$session_name sent $count messages via bulk mail");
 
-        flash_alert("<strong>$count</strong> messages queued");
+        flashAlert("<strong>$count</strong> messages queued");
 
     }
 
@@ -659,7 +659,7 @@ if (isset($_POST['bulk_archive_contacts'])) {
 
         logAudit("Contact", "Bulk Archive", "$session_name archived $count contacts", $client_id);
 
-        flash_alert("Archived $count contact(s)", 'error');
+        flashAlert("Archived $count contact(s)", 'error');
 
     }
 
@@ -704,7 +704,7 @@ if (isset($_POST['bulk_restore_contacts'])) {
 
         logAudit("Contact", "Bulk Restore", "$session_name restored $count contacts", $client_id);
 
-        flash_alert("Restored <strong>$count</strong> contact(s)");
+        flashAlert("Restored <strong>$count</strong> contact(s)");
 
     }
 
@@ -749,7 +749,7 @@ if (isset($_POST['bulk_delete_contacts'])) {
 
         logAudit("Contact", "Bulk Delete", "$session_name deleted $count contacts", $client_id);
 
-        flash_alert("You deleted <strong>$count</strong> contact(s)");
+        flashAlert("You deleted <strong>$count</strong> contact(s)");
 
     }
 
@@ -859,7 +859,7 @@ if (isset($_GET['anonymize_contact'])) {
 
     logAudit("Contact", "Archive", "$session_name archived and anonymized contact", $client_id, $contact_id);
 
-    flash_alert("Contact $contact_name anonymized & archived", 'error');
+    flashAlert("Contact $contact_name anonymized & archived", 'error');
 
     redirect();
 
@@ -891,7 +891,7 @@ if (isset($_GET['archive_contact'])) {
 
     logAudit("Contact", "Archive", "$session_name archived contact $contact_name", $client_id, $contact_id);
 
-    flash_alert("Contact <strong>$contact_name</strong> has been archived", 'error');
+    flashAlert("Contact <strong>$contact_name</strong> has been archived", 'error');
 
     redirect();
 
@@ -923,7 +923,7 @@ if (isset($_GET['restore_contact'])) {
 
     logAudit("Contact", "Restore", "$session_name restored contact $contact_name", $client_id, $contact_id);
 
-    flash_alert("Contact <strong>$contact_name</strong> Restored");
+    flashAlert("Contact <strong>$contact_name</strong> Restored");
 
     redirect();
 
@@ -955,7 +955,7 @@ if (isset($_GET['delete_contact'])) {
 
     logAudit("Contact", "Delete", "$session_name deleted contact $contact_name", $client_id);
 
-    flash_alert("Contact <strong>$contact_name</strong> has been deleted.", 'error');
+    flashAlert("Contact <strong>$contact_name</strong> has been deleted.", 'error');
 
     redirect();
 
@@ -985,7 +985,7 @@ if (isset($_POST['link_contact_to_asset'])) {
 
     logAudit("Asset", "Link", "$session_name linked asset $asset_name to contact $contact_name", $client_id, $asset_id);
 
-    flash_alert("Contact <strong>$contact_name</strong> linked with asset <strong>$asset_name</strong>");
+    flashAlert("Contact <strong>$contact_name</strong> linked with asset <strong>$asset_name</strong>");
 
     redirect();
 
@@ -1015,7 +1015,7 @@ if (isset($_GET['unlink_asset_from_contact'])) {
 
     logAudit("Asset", "Unlink", "$session_name unlinked contact $contact_name from asset $asset_name", $client_id, $asset_id);
 
-    flash_alert("Asset <strong>$asset_name</strong> unlinked from Contact <strong>$contact_name</strong>", 'error');
+    flashAlert("Asset <strong>$asset_name</strong> unlinked from Contact <strong>$contact_name</strong>", 'error');
 
     redirect();
 
@@ -1045,7 +1045,7 @@ if (isset($_POST['link_software_to_contact'])) {
 
     logAudit("Software", "Link", "$session_name added software license $software_name to contact $contact_name", $client_id, $software_id);
 
-    flash_alert("Software <strong>$software_name</strong> licensed for contact <strong>$contact_name</strong>");
+    flashAlert("Software <strong>$software_name</strong> licensed for contact <strong>$contact_name</strong>");
 
     redirect();
 
@@ -1075,7 +1075,7 @@ if (isset($_GET['unlink_software_from_contact'])) {
 
     logAudit("software", "Unlink", "$session_name removed software license $software_name from contact $contact_name", $client_id, $software_id);
 
-    flash_alert("Removed Software License <strong>$software_name</strong> for Contact <strong>$contact_name</strong>", 'error');
+    flashAlert("Removed Software License <strong>$software_name</strong> for Contact <strong>$contact_name</strong>", 'error');
 
     redirect();
 
@@ -1105,7 +1105,7 @@ if (isset($_POST['link_contact_to_credential'])) {
 
     logAudit("Asset", "Link", "$session_name linked credential $credential_name to contact $contact_name", $client_id, $credential_id);
 
-    flash_alert("Contact <strong>$contact_name</strong> linked with credential <strong>$credential_name</strong>");
+    flashAlert("Contact <strong>$contact_name</strong> linked with credential <strong>$credential_name</strong>");
 
     redirect();
 
@@ -1135,7 +1135,7 @@ if (isset($_GET['unlink_credential_from_contact'])) {
 
     logAudit("Credential", "Unlink", "$session_name unlinked contact $contact_name from credential $credential_name", $client_id, $credential_id);
 
-    flash_alert("Credential <strong>$credential_name</strong> unlinked from Contact <strong>$contact_name</strong>", 'error');
+    flashAlert("Credential <strong>$credential_name</strong> unlinked from Contact <strong>$contact_name</strong>", 'error');
 
     redirect();
 
@@ -1165,7 +1165,7 @@ if (isset($_POST['link_service_to_contact'])) {
 
     logAudit("Service", "Link", "$session_name linked contact $contact_name to service $service_name", $client_id, $service_id);
 
-    flash_alert("service <strong>$service_name</strong> linked with contact <strong>$contact_name</strong>");
+    flashAlert("service <strong>$service_name</strong> linked with contact <strong>$contact_name</strong>");
 
     redirect();
 
@@ -1195,7 +1195,7 @@ if (isset($_GET['unlink_service_from_contact'])) {
 
     logAudit("service", "Unlink", "$session_name unlinked contact $contact_name from service $service_name", $client_id, $service_id);
 
-    flash_alert("Contact <strong>$contact_name</strong> unlinked from service <strong>$service_name</strong>", 'error');
+    flashAlert("Contact <strong>$contact_name</strong> unlinked from service <strong>$service_name</strong>", 'error');
 
     redirect();
 
@@ -1226,7 +1226,7 @@ if (isset($_POST['link_contact_to_file'])) {
 
     logAudit("File", "Link", "$session_name linked contact $contact_name to file $file_name", $client_id, $file_id);
 
-    flash_alert("Contact <strong>$contact_name</strong> linked with File <strong>$file_name</strong>");
+    flashAlert("Contact <strong>$contact_name</strong> linked with File <strong>$file_name</strong>");
 
     redirect();
 
@@ -1256,7 +1256,7 @@ if (isset($_GET['unlink_contact_from_file'])) {
 
     logAudit("File", "Unlink", "$session_name unlinked contact $contact_name from file $file_name", $client_id, $file_id);
 
-    flash_alert("Contact <strong>$contact_name</strong> unlinked from file <strong>$file_name</strong>", 'error');
+    flashAlert("Contact <strong>$contact_name</strong> unlinked from file <strong>$file_name</strong>", 'error');
 
     redirect();
 
@@ -1287,7 +1287,7 @@ if (isset($_POST['export_contacts_csv'])) {
         $delimiter = ",";
         $enclosure = '"';
         $escape    = '\\';   // backslash
-        $filename = sanitize_filename($file_name_prepend . "Contacts-" . date('Y-m-d_H-i-s') . ".csv");
+        $filename = sanitizeFilename($file_name_prepend . "Contacts-" . date('Y-m-d_H-i-s') . ".csv");
 
         //create a file pointer
         $f = fopen('php://memory', 'w');
@@ -1335,7 +1335,7 @@ if (isset($_POST["import_contacts_csv"])) {
     if (!empty($_FILES["file"]["tmp_name"])) {
         $file_name = $_FILES["file"]["tmp_name"];
     } else {
-        flash_alert("Please select a file to upload.", 'error');
+        flashAlert("Please select a file to upload.", 'error');
         redirect();
     }
 
@@ -1344,13 +1344,13 @@ if (isset($_POST["import_contacts_csv"])) {
     $allowed_file_extensions = array('csv');
     if (in_array($file_extension,$allowed_file_extensions) === false) {
         $error = true;
-        flash_alert("Bad file extension", 'error');
+        flashAlert("Bad file extension", 'error');
     }
 
     //Check file isn't empty
     elseif ($_FILES["file"]["size"] < 1) {
         $error = true;
-        flash_alert("Bad file size (empty?)", 'error');
+        flashAlert("Bad file size (empty?)", 'error');
     }
 
     //(Else)Check column count
@@ -1358,7 +1358,7 @@ if (isset($_POST["import_contacts_csv"])) {
     $f_columns = fgetcsv($f, 1000, ",");
     if (!$error & count($f_columns) != 8) {
         $error = true;
-        flash_alert("Bad column count.", 'error');
+        flashAlert("Bad column count.", 'error');
     }
 
     //Else, parse the file
@@ -1415,7 +1415,7 @@ if (isset($_POST["import_contacts_csv"])) {
 
         logAudit("Contact", "Import", "$session_name imported $row_count contact(s) via CSV file", $client_id);
 
-        flash_alert("$row_count Contact(s) added, $duplicate_count duplicate(s) detected", 'warning');
+        flashAlert("$row_count Contact(s) added, $duplicate_count duplicate(s) detected", 'warning');
 
         redirect();
 

@@ -82,7 +82,7 @@ if (isset($_POST['edit_your_user_details'])) {
 
     logAudit("User Account", "Edit", "$session_name edited their account $extended_log_description");
 
-    flash_alert("User details updated");
+    flashAlert("User details updated");
 
     if ($logout) {
         redirect('post.php?logout');
@@ -104,7 +104,7 @@ if (isset($_GET['clear_your_user_avatar'])) {
 
     logAudit("User Account", "Edit", "$session_name cleared their avatar");
 
-    flash_alert("Avatar cleared", 'error');
+    flashAlert("Avatar cleared", 'error');
 
     redirect();
 
@@ -156,7 +156,7 @@ if (isset($_POST['edit_your_user_password'])) {
 
     logAudit("User Account", "Edit", "$session_name changed their password");
 
-    flash_alert("Your password was updated");
+    flashAlert("Your password was updated");
 
     redirect('post.php?logout');
 }
@@ -192,7 +192,7 @@ if (isset($_POST['edit_your_user_preferences'])) {
 
     logAudit("User Account", "Edit", "$session_name $extended_log_description");
 
-    flash_alert("User preferences updated");
+    flashAlert("User preferences updated");
 
     redirect();
 
@@ -225,7 +225,7 @@ if (isset($_POST['enable_mfa'])) {
 
         logAudit("User Account", "Edit", "$session_name enabled MFA on their account");
 
-        flash_alert("Multi-Factor authentication enabled");
+        flashAlert("Multi-Factor authentication enabled");
 
         // Clear the mfa_token from the session to avoid re-use.
         unset($_SESSION['mfa_token']);
@@ -242,7 +242,7 @@ if (isset($_POST['enable_mfa'])) {
 
     } else {
         // FAILURE
-        flash_alert("Verification code invalid, please try again.", 'error');
+        flashAlert("Verification code invalid, please try again.", 'error');
 
         // Set a flag to automatically open the MFA modal again
         $_SESSION['show_mfa_modal'] = true;
@@ -264,7 +264,7 @@ if (isset($_POST['enable_mfa'])) {
 if (isset($_GET['disable_mfa'])){
 
     if ($session_user_config_force_mfa) {
-        flash_alert("Multi-Factor authentication cannot be disabled for your account", 'error');
+        flashAlert("Multi-Factor authentication cannot be disabled for your account", 'error');
         redirect();
     }
 
@@ -300,7 +300,7 @@ if (isset($_GET['disable_mfa'])){
 
     logAudit("User Account", "Edit", "$session_name disabled MFA on their account");
 
-    flash_alert("Multi-Factor authentication disabled", 'error');
+    flashAlert("Multi-Factor authentication disabled", 'error');
 
     redirect();
 
@@ -315,7 +315,7 @@ if (isset($_POST['revoke_your_2fa_remember_tokens'])) {
 
     logAudit("User Account", "Edit", "$session_name revoked all their remember-me tokens");
 
-    flash_alert("Remember me tokens revoked", 'error');
+    flashAlert("Remember me tokens revoked", 'error');
 
     redirect();
 

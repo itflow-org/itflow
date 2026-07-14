@@ -169,7 +169,7 @@ function getFieldById($table, $id, $field, $escape_method = 'sql') {
 }
 
 // Recursive function to display folder options - Used in folders files and documents
-function display_folder_options($parent_folder_id, $client_id, $indent = 0) {
+function displayFolderOptions($parent_folder_id, $client_id, $indent = 0) {
     global $mysqli;
 
     $sql_folders = mysqli_query($mysqli, "SELECT * FROM folders WHERE parent_folder = $parent_folder_id AND folder_client_id = $client_id ORDER BY folder_name ASC");
@@ -190,7 +190,7 @@ function display_folder_options($parent_folder_id, $client_id, $indent = 0) {
         echo "<option value=\"$folder_id\" $selected>$indentation$folder_name</option>";
 
         // Recursively display subfolders
-        display_folder_options($folder_id, $client_id, $indent + 1);
+        displayFolderOptions($folder_id, $client_id, $indent + 1);
     }
 }
 

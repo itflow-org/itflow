@@ -15,7 +15,7 @@ if (isset($_POST['add_ticket_status'])) {
 
     logAudit("Ticket Status", "Create", "$session_name created custom ticket status $name", 0, $ticket_status_id);
 
-    flash_alert("Custom Ticket Status <strong>$name</strong> created");
+    flashAlert("Custom Ticket Status <strong>$name</strong> created");
 
     redirect();
 
@@ -35,7 +35,7 @@ if (isset($_POST['edit_ticket_status'])) {
 
     logAudit("Ticket Status", "Edit", "$session_name edited custom ticket status $name", 0, $ticket_status_id);
 
-    flash_alert("Custom Ticket Status <strong>$name</strong> edited");
+    flashAlert("Custom Ticket Status <strong>$name</strong> edited");
 
     redirect();
 
@@ -57,7 +57,7 @@ if (isset($_GET['delete_ticket_status'])) {
 
     logAudit("Ticket Status", "Delete", "$session_name deleted custom ticket status $ticket_status_name");
 
-    flash_alert("Custom Ticket Status <strong>$ticket_status_name</strong> Deleted", 'error');
+    flashAlert("Custom Ticket Status <strong>$ticket_status_name</strong> Deleted", 'error');
 
     redirect();
 

@@ -246,7 +246,7 @@ if (isset($_POST['add_client'])) {
 
     logAudit("Client", "Create", "$session_name created client $name$extended_log_description", $client_id, $client_id);
 
-    flash_alert("Client <strong>$name</strong> created");
+    flashAlert("Client <strong>$name</strong> created");
 
     redirect();
 
@@ -324,7 +324,7 @@ if (isset($_POST['edit_client'])) {
 
     logAudit("Client", "Edit", "$session_name edited client $name", $client_id, $client_id);
 
-    flash_alert("Client <strong>$name</strong> updated");
+    flashAlert("Client <strong>$name</strong> updated");
 
     redirect();
 
@@ -354,7 +354,7 @@ if (isset($_GET['archive_client'])) {
 
     logAudit("Client", "Archive", "$session_name archived client $client_name", $client_id, $client_id);
 
-    flash_alert("Client <strong>$client_name</strong> archived", 'error');
+    flashAlert("Client <strong>$client_name</strong> archived", 'error');
 
     redirect();
 
@@ -375,7 +375,7 @@ if (isset($_GET['restore_client'])) {
 
     logAudit("Client", "Restored", "$session_name restored client $client_name", $client_id);
 
-    flash_alert("Client <strong>$client_name</strong> restored");
+    flashAlert("Client <strong>$client_name</strong> restored");
 
     redirect();
 
@@ -477,7 +477,7 @@ if (isset($_GET['delete_client'])) {
 
     logAudit("Client", "Deleted", "$session_name deleted Client $client_name and all associated data");
 
-    flash_alert("Client <strong>$client_name</strong> deleted along with all associated data", 'error');
+    flashAlert("Client <strong>$client_name</strong> deleted along with all associated data", 'error');
 
     redirect('clients.php');
 
@@ -502,7 +502,7 @@ if (isset($_POST['export_clients_csv'])) {
         $delimiter = ",";
         $enclosure = '"';
         $escape    = '\\';   // backslash
-        $filename = sanitize_filename($session_company_name . "-Clients-" . date('Y-m-d_H-i-s') . ".csv");
+        $filename = sanitizeFilename($session_company_name . "-Clients-" . date('Y-m-d_H-i-s') . ".csv");
 
         //create a file pointer
         $f = fopen('php://memory', 'w');
@@ -545,7 +545,7 @@ if (isset($_POST["import_clients_csv"])) {
     if (!empty($_FILES["file"]["tmp_name"])) {
         $file_name = $_FILES["file"]["tmp_name"];
     } else {
-        flash_alert("Please select a file to upload.", 'error');
+        flashAlert("Please select a file to upload.", 'error');
         redirect();
     }
 
@@ -554,13 +554,13 @@ if (isset($_POST["import_clients_csv"])) {
     $allowed_file_extensions = array('csv');
     if (in_array($file_extension,$allowed_file_extensions) === false) {
         $error = true;
-        flash_alert("Bad file extension", 'error');
+        flashAlert("Bad file extension", 'error');
     }
 
     //Check file isn't empty
     elseif ($_FILES["file"]["size"] < 1) {
         $error = true;
-        flash_alert("Bad file size (empty?)", 'error');
+        flashAlert("Bad file size (empty?)", 'error');
     }
 
     //(Else)Check column count
@@ -568,7 +568,7 @@ if (isset($_POST["import_clients_csv"])) {
     $f_columns = fgetcsv($f, 1000, ",");
     if (!$error & count($f_columns) != 22) {
         $error = true;
-        flash_alert("Bad column count.", 'error');
+        flashAlert("Bad column count.", 'error');
     }
 
     //Else, parse the file
@@ -731,7 +731,7 @@ if (isset($_POST["import_clients_csv"])) {
 
         logAudit("Client", "Import", "$session_name imported $row_count client(s) via CSV file, $duplicate_count duplicate(s) found");
 
-        flash_alert("<strong>$row_count</strong> Client(s) added, <strong>$duplicate_count</strong> duplicate(s) found");
+        flashAlert("<strong>$row_count</strong> Client(s) added, <strong>$duplicate_count</strong> duplicate(s) found");
 
         redirect();
 
@@ -875,7 +875,7 @@ if (isset($_POST['bulk_add_client_ticket'])) {
 
         logAudit("Ticket", "Bulk Create", "$session_name created $client_count tickets for $client_name");
 
-        flash_alert("<strong>$client_count</strong> tickets created for selected clients");
+        flashAlert("<strong>$client_count</strong> tickets created for selected clients");
 
     }
 
@@ -910,7 +910,7 @@ if (isset($_POST['bulk_edit_client_industry'])) {
 
         logAudit("Client", "Bulk Edit", "$session_name set the department $industry for $count client(s)", $client_id);
 
-        flash_alert("Set the Industry to <strong>$industry</strong> for <strong>$count</strong> clients");
+        flashAlert("Set the Industry to <strong>$industry</strong> for <strong>$count</strong> clients");
     }
 
     redirect();
@@ -944,7 +944,7 @@ if (isset($_POST['bulk_edit_client_referral'])) {
 
         logAudit("Client", "Bulk Edit", "$session_name set the referral $referral for $count client(s)", $client_id);
 
-        flash_alert("Set the Referral to <strong>$referral</strong> for <strong>$count</strong> clients");
+        flashAlert("Set the Referral to <strong>$referral</strong> for <strong>$count</strong> clients");
     }
 
     redirect();
@@ -978,7 +978,7 @@ if (isset($_POST['bulk_edit_client_hourly_rate'])) {
 
         logAudit("Client", "Bulk Edit", "$session_name set the hourly rate" . numfmt_format_currency($currency_format, $rate, $session_company_currency) . "for $count client(s)", $client_id);
 
-        flash_alert("Set the Hourly Rate to <strong>" . numfmt_format_currency($currency_format, $rate, $session_company_currency) . "</strong> for <strong>$count</strong> client(s)");
+        flashAlert("Set the Hourly Rate to <strong>" . numfmt_format_currency($currency_format, $rate, $session_company_currency) . "</strong> for <strong>$count</strong> client(s)");
     }
 
     redirect();
@@ -1012,7 +1012,7 @@ if (isset($_POST['bulk_edit_client_net_terms'])) {
 
         logAudit("Client", "Bulk Edit", "$session_name set the net terms to $net_terms days for $count client(s)", $client_id);
 
-        flash_alert("Set Net Term to <strong>$net_terms days</strong> for <strong>$count</strong> client(s)");
+        flashAlert("Set Net Term to <strong>$net_terms days</strong> for <strong>$count</strong> client(s)");
     }
 
     redirect();
@@ -1057,7 +1057,7 @@ if (isset($_POST['bulk_assign_client_tags'])) {
 
         logAudit("Client", "Bulk Edit", "$session_name added tags for $count clients", $client_id);
 
-        flash_alert("Assigned tags for <strong>$count</strong> clients");
+        flashAlert("Assigned tags for <strong>$count</strong> clients");
     }
 
     redirect();
@@ -1144,9 +1144,9 @@ if (isset($_POST['bulk_send_client_email']) && isset($_POST['client_ids'])) {
     if (!empty($data)) {
         addToMailQueue($data);
         logAudit("Bulk Mail", "Send", "$session_name sent " . count($data) . " messages via bulk mail");
-        flash_alert("<strong>" . count($data) . "</strong> messages queued");
+        flashAlert("<strong>" . count($data) . "</strong> messages queued");
     } else {
-        flash_alert("No valid contacts found to queue emails.", 'error');
+        flashAlert("No valid contacts found to queue emails.", 'error');
     }
 
     redirect();
@@ -1181,7 +1181,7 @@ if (isset($_POST['bulk_archive_clients'])) {
 
         logAudit("Client", "Bulk Archive", "$session_name archived $count clients", $client_id);
 
-        flash_alert("Archived $count client(s)", 'error');
+        flashAlert("Archived $count client(s)", 'error');
 
     }
 
@@ -1215,7 +1215,7 @@ if (isset($_POST['bulk_unarchive_clients'])) {
 
         logAudit("Client", "Bulk Restore", "$session_name restored $count client(s)", $client_id);
 
-        flash_alert("You restored <strong>$count</strong> client(s)");
+        flashAlert("You restored <strong>$count</strong> client(s)");
 
     }
 

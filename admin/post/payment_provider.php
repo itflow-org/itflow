@@ -23,7 +23,7 @@ if (isset($_POST['add_payment_provider'])) {
     // Check to ensure provider isn't added twice
     $sql = mysqli_query($mysqli, "SELECT 1 FROM payment_providers WHERE payment_provider_name = '$provider' LIMIT 1");
     if (mysqli_num_rows($sql) > 0) {
-        flash_alert("Payment Provider <strong>$provider</strong> already exists", 'error');
+        flashAlert("Payment Provider <strong>$provider</strong> already exists", 'error');
         redirect();
     }
 
@@ -33,7 +33,7 @@ if (isset($_POST['add_payment_provider'])) {
 
     logAudit("Payment Provider", "Create", "$session_name created AI Provider $provider");
 
-    flash_alert("Payment provider <strong>$provider</strong> created");
+    flashAlert("Payment provider <strong>$provider</strong> created");
 
     redirect();
 
@@ -58,7 +58,7 @@ if (isset($_POST['edit_payment_provider'])) {
 
     logAudit("Payment Provider", "Edit", "$session_name edited Payment Provider $provider");
 
-    flash_alert("Payment Provider <strong>$provider</strong> edited");
+    flashAlert("Payment Provider <strong>$provider</strong> edited");
 
     redirect();
 
@@ -82,7 +82,7 @@ if (isset($_GET['delete_payment_provider'])) {
 
     logAudit("Payment Provider", "Delete", "$session_name deleted Payment Provider $provider_name");
 
-    flash_alert("Payment Provider <strong>$provider_name</strong> deleted", 'error');
+    flashAlert("Payment Provider <strong>$provider_name</strong> deleted", 'error');
 
     redirect();
 

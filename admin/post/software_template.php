@@ -21,7 +21,7 @@ if (isset($_POST['add_software_template'])) {
 
     logAudit("Software Template", "Create", "$session_name created software template $name", 0, $software_template_id);
 
-    flash_alert("Software template <strong>$name</strong> created");
+    flashAlert("Software template <strong>$name</strong> created");
 
     redirect();
 
@@ -43,7 +43,7 @@ if (isset($_POST['edit_software_template'])) {
 
     logAudit("Software Template", "Edit", "$session_name edited software template $name", 0, $software_template_id);
 
-    flash_alert("Software template <strong>$name</strong> edited");
+    flashAlert("Software template <strong>$name</strong> edited");
 
     redirect();
 
@@ -64,7 +64,7 @@ if (isset($_GET['delete_software_template'])) {
 
     logAudit("Software Template", "Delete", "$session_name deleted software template $software_template_name");
 
-    flash_alert("Software Template <strong>$software_template_name</strong> deleted", 'error');
+    flashAlert("Software Template <strong>$software_template_name</strong> deleted", 'error');
 
     redirect();
 

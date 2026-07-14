@@ -25,7 +25,7 @@ if (isset($_POST['edit_ticket_settings'])) {
 
     logAudit("Settings", "Edit", "$session_name edited ticket settings");
 
-    flash_alert("Ticket Settings updated");
+    flashAlert("Ticket Settings updated");
 
     redirect();
 

@@ -36,7 +36,7 @@ if (isset($_POST['add_software_from_template'])) {
 
     logAudit("Software", "Create", "$session_name created software $name using template", $client_id, $software_id);
 
-    flash_alert("Software <strong>$name</strong> created from template");
+    flashAlert("Software <strong>$name</strong> created from template");
 
     redirect();
 
@@ -99,7 +99,7 @@ if (isset($_POST['add_software'])) {
 
     logAudit("Software", "Create", "$session_name created software $name", $client_id, $software_id);
 
-    flash_alert("Software <strong>$name</strong> created $alert_extended");
+    flashAlert("Software <strong>$name</strong> created $alert_extended");
 
     redirect();
 
@@ -163,7 +163,7 @@ if (isset($_POST['edit_software'])) {
 
     logAudit("Software", "Edit", "$session_name edited software $name", $client_id, $software_id);
 
-    flash_alert("Software <strong>$name</strong> updated");
+    flashAlert("Software <strong>$name</strong> updated");
 
     redirect();
 
@@ -193,7 +193,7 @@ if (isset($_GET['archive_software'])) {
 
     logAudit("Software", "Archive", "$session_name archived software $software_name and removed all device/user license associations", $client_id, $software_id);
 
-    flash_alert("Software <strong>$software_name</strong> archived and removed all device/user license associations", 'error');
+    flashAlert("Software <strong>$software_name</strong> archived and removed all device/user license associations", 'error');
 
     redirect();
 
@@ -219,7 +219,7 @@ if (isset($_GET['delete_software'])) {
 
     logAudit("Software", "Delete", "$session_name deleted software $software_name and removed all device/user license associations", $client_id);
 
-    flash_alert("Software <strong>$software_name</strong> deleted and removed all device/user license associations", 'error');
+    flashAlert("Software <strong>$software_name</strong> deleted and removed all device/user license associations", 'error');
 
     redirect();
 
@@ -250,7 +250,7 @@ if (isset($_POST['export_software_csv'])) {
         $delimiter = ",";
         $enclosure = '"';
         $escape    = '\\';   // backslash
-        $filename = sanitize_filename($file_name_prepend . "Software-" . date('Y-m-d_H-i-s') . ".csv");
+        $filename = sanitizeFilename($file_name_prepend . "Software-" . date('Y-m-d_H-i-s') . ".csv");
 
         //create a file pointer
         $f = fopen('php://memory', 'w');

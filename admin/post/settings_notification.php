@@ -16,7 +16,7 @@ if (isset($_POST['edit_notification_settings'])) {
 
     logAudit("Settings", "Edit", "$session_name edited notification settings");
 
-    flash_alert("Notification Settings updated");
+    flashAlert("Notification Settings updated");
 
     redirect();
 

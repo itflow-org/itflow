@@ -47,7 +47,7 @@ if (isset($_POST['add_document'])) {
 
     logAudit("Document", "Create", "$session_name created document $name", $client_id, $document_id);
 
-    flash_alert("Document <strong>$name</strong> created");
+    flashAlert("Document <strong>$name</strong> created");
 
     redirect();
 
@@ -132,7 +132,7 @@ if (isset($_POST['add_document_from_template'])) {
         $document_id
     );
 
-    flash_alert("Document <strong>$document_name</strong> created from template");
+    flashAlert("Document <strong>$document_name</strong> created from template");
 
     redirect("document_details.php?client_id=$client_id&document_id=$document_id");
 }
@@ -236,7 +236,7 @@ if (isset($_POST['edit_document'])) {
         $document_version_id
     );
 
-    flash_alert("Document <strong>$name</strong> edited, previous version kept");
+    flashAlert("Document <strong>$name</strong> edited, previous version kept");
 
     redirect("document_details.php?client_id=$client_id&document_id=$document_id");
 
@@ -269,7 +269,7 @@ if (isset($_POST['move_document'])) {
 
     logAudit("Document", "Move", "$session_name moved document $document_name to folder $folder_name", $client_id, $document_id);
 
-    flash_alert("Document <strong>$document_name</strong> moved to folder <strong>$folder_name</strong>");
+    flashAlert("Document <strong>$document_name</strong> moved to folder <strong>$folder_name</strong>");
 
     redirect();
 
@@ -299,7 +299,7 @@ if (isset($_POST['rename_document'])) {
     logAudit("Document", "Edit", "$session_name renamed document $old_document_name to $name", $client_id, $document_id);
 
 
-    flash_alert("You renamed Document from <strong>$old_document_name</strong> to <strong>$name</strong>");
+    flashAlert("You renamed Document from <strong>$old_document_name</strong> to <strong>$name</strong>");
 
     redirect();
 
@@ -341,7 +341,7 @@ if (isset($_POST['bulk_move_document'])) {
         logAudit("Document", "Bulk Move", "$session_name moved $count document(s) to folder $folder_name", $client_id);
     }
 
-    flash_alert("You moved <strong>$count</strong> document(s) to the folder <strong>$folder_name</strong>");
+    flashAlert("You moved <strong>$count</strong> document(s) to the folder <strong>$folder_name</strong>");
 
     redirect();
 
@@ -372,7 +372,7 @@ if (isset($_POST['link_file_to_document'])) {
 
     logAudit("Document", "Link", "$session_name linked file $file_name to document $document_name", $client_id, $document_id);
 
-    flash_alert("File <strong>$file_name</strong> linked with Document <strong>$document_name</strong>");
+    flashAlert("File <strong>$file_name</strong> linked with Document <strong>$document_name</strong>");
 
     redirect();
 
@@ -402,7 +402,7 @@ if (isset($_GET['unlink_file_from_document'])) {
 
     logAudit("Document", "Unlink", "$session_name unlinked file $file_name from document $document_name", $client_id, $document_id);
 
-    flash_alert("File <strong>$file_name</strong> unlinked from Document <strong>$document_name</strong>", 'error');
+    flashAlert("File <strong>$file_name</strong> unlinked from Document <strong>$document_name</strong>", 'error');
 
     redirect();
 
@@ -433,7 +433,7 @@ if (isset($_POST['link_vendor_to_document'])) {
 
     logAudit("Document", "Link", "$session_name linked vendor $vendor_name to document $document_name", $client_id, $document_id);
 
-    flash_alert("Vendor <strong>$vendor_name</strong> linked with Document <strong>$document_name</strong>");
+    flashAlert("Vendor <strong>$vendor_name</strong> linked with Document <strong>$document_name</strong>");
 
     redirect();
 
@@ -463,7 +463,7 @@ if (isset($_GET['unlink_vendor_from_document'])) {
 
     logAudit("Document", "Unlink", "$session_name unlinked vendor $vendor_name from document $document_name", $client_id, $document_id);
 
-    flash_alert("Vendor <strong>$vendor_name</strong> unlinked from Document <strong>$document_name</strong>", 'error');
+    flashAlert("Vendor <strong>$vendor_name</strong> unlinked from Document <strong>$document_name</strong>", 'error');
 
     redirect();
 
@@ -495,7 +495,7 @@ if (isset($_POST['link_contact_to_document'])) {
 
     logAudit("Document", "Link", "$session_name linked contact $contact_name to document $document_name", $client_id, $document_id);
 
-    flash_alert("Contact <strong>$contact_name</strong> linked with Document <strong>$document_name</strong>");
+    flashAlert("Contact <strong>$contact_name</strong> linked with Document <strong>$document_name</strong>");
 
     redirect();
 
@@ -525,7 +525,7 @@ if (isset($_GET['unlink_contact_from_document'])) {
 
     logAudit("Document", "Unlink", "$session_name unlinked contact $contact_name from document $document_name", $client_id, $document_id);
 
-    flash_alert("Contact <strong>$contact_name</strong> unlinked from Document <strong>$document_name</strong>", 'error');
+    flashAlert("Contact <strong>$contact_name</strong> unlinked from Document <strong>$document_name</strong>", 'error');
 
     redirect();
 
@@ -555,7 +555,7 @@ if (isset($_POST['link_asset_to_document'])) {
 
     logAudit("Document", "Link", "$session_name linked asset $asset_name to document $document_name", $client_id, $document_id);
 
-    flash_alert("Asset <strong>$asset_name</strong> linked with Document <strong>$document_name</strong>");
+    flashAlert("Asset <strong>$asset_name</strong> linked with Document <strong>$document_name</strong>");
 
     redirect();
 
@@ -585,7 +585,7 @@ if (isset($_GET['unlink_asset_from_document'])) {
 
     logAudit("Document", "Unlink", "$session_name unlinked asset $asset_name from document $document_name", $client_id, $document_id);
 
-    flash_alert("Asset <strong>$asset_name</strong> unlinked from Document <strong>$document_name</strong>", 'error');
+    flashAlert("Asset <strong>$asset_name</strong> unlinked from Document <strong>$document_name</strong>", 'error');
 
     redirect();
 
@@ -616,7 +616,7 @@ if (isset($_POST['link_software_to_document'])) {
 
     logAudit("Document", "Link", "$session_name linked software $software_name to document $document_name", $client_id, $document_id);
 
-    flash_alert("Software <strong>$software_name</strong> linked with Document <strong>$document_name</strong>");
+    flashAlert("Software <strong>$software_name</strong> linked with Document <strong>$document_name</strong>");
 
     redirect();
 
@@ -646,7 +646,7 @@ if (isset($_GET['unlink_software_from_document'])) {
 
     logAudit("Document", "Unlink", "$session_name unlinked software $software_name from document $document_name", $client_id, $document_id);
 
-    flash_alert("Software <strong>$software_name</strong> unlinked from Document <strong>$document_name</strong>", 'error');
+    flashAlert("Software <strong>$software_name</strong> unlinked from Document <strong>$document_name</strong>", 'error');
 
     redirect();
 
@@ -679,7 +679,7 @@ if (isset($_POST['toggle_document_visibility'])) {
 
     logAudit("Document", "Edit", "$session_name changed document $document_name visibilty to $visable_wording in the client portal", $client_id, $document_id);
 
-    flash_alert("Document <strong>$document_name</strong> changed to <strong>$visable_wording</strong> in the client portal");
+    flashAlert("Document <strong>$document_name</strong> changed to <strong>$visable_wording</strong> in the client portal");
 
     redirect();
 
@@ -727,7 +727,7 @@ if (isset($_GET['export_document'])) {
     // Logging
     logAudit("Document", "Export", "$session_name exported document $document_name", $client_id, $document_id);
 
-    flash_alert("Document <strong>$document_name</strong> exported");
+    flashAlert("Document <strong>$document_name</strong> exported");
 
     redirect();
 
@@ -772,7 +772,7 @@ if (isset($_GET['archive_document'])) {
 
     logAudit("Document", "Archive", "$session_name archived document $document_name", $client_id, $document_id);
 
-    flash_alert("Document <strong>$document_name</strong> archived", 'error');
+    flashAlert("Document <strong>$document_name</strong> archived", 'error');
 
     redirect();
 
@@ -798,7 +798,7 @@ if (isset($_GET['restore_document'])) {
 
     logAudit("Document", "Restore", "$session_name restored document $document_name", $client_id, $document_id);
 
-    flash_alert("Document <strong>$document_name</strong> Restored");
+    flashAlert("Document <strong>$document_name</strong> Restored");
 
     redirect();
 
@@ -824,7 +824,7 @@ if (isset($_GET['delete_document_version'])) {
 
     logAudit("Document Version", "Delete", "$session_name deleted document version $document_version_name", $client_id);
 
-    flash_alert("Document $document_version_name version deleted", 'error');
+    flashAlert("Document $document_version_name version deleted", 'error');
 
     redirect();
 
@@ -856,7 +856,7 @@ if (isset($_GET['delete_document'])) {
 
     logAudit("Document", "Delete", "$session_name deleted document $document_name and all versions", $client_id);
 
-    flash_alert("Document <strong>$document_name</strong> deleted and all versions", 'error');
+    flashAlert("Document <strong>$document_name</strong> deleted and all versions", 'error');
 
     // Determine redirect behavior
     // If there's a "from" parameter, we can use it to decide where to go

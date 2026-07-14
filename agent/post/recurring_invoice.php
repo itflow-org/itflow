@@ -64,7 +64,7 @@ if (isset($_POST['add_invoice_recurring'])) {
 
     logAudit("Recurring Invoice", "Create", "$session_name created recurring Invoice from Invoice $invoice_prefix$invoice_number", $client_id, $recurring_invoice_id);
 
-    flash_alert("Created recurring Invoice from Invoice <strong>$invoice_prefix$invoice_number</strong>");
+    flashAlert("Created recurring Invoice from Invoice <strong>$invoice_prefix$invoice_number</strong>");
 
     redirect("recurring_invoice.php?recurring_invoice_id=$recurring_invoice_id");
 
@@ -103,7 +103,7 @@ if (isset($_POST['add_recurring_invoice'])) {
 
     logAudit("Recurring Invoice", "Create", "$session_name created recurring invoice $config_recurring_invoice_prefix$recurring_invoice_number - $scope", $client_id, $recurring_invoice_id);
 
-    flash_alert("Recurring Invoice <strong>$config_recurring_invoice_prefix$recurring_invoice_number</strong> created");
+    flashAlert("Recurring Invoice <strong>$config_recurring_invoice_prefix$recurring_invoice_number</strong> created");
 
     redirect("recurring_invoice.php?recurring_invoice_id=$recurring_invoice_id");
 
@@ -147,7 +147,7 @@ if (isset($_POST['edit_recurring_invoice'])) {
 
     logAudit("Recurring Invoice", "Edit", "$session_name edited recurring invoice $recurring_invoice_prefix$recurring_invoice_number - $scope", $client_id, $recurring_invoice_id);
 
-    flash_alert("Recurring Invoice <strong>$recurring_invoice_prefix$recurring_invoice_number</strong> edited");
+    flashAlert("Recurring Invoice <strong>$recurring_invoice_prefix$recurring_invoice_number</strong> edited");
 
     redirect();
 
@@ -189,7 +189,7 @@ if (isset($_GET['delete_recurring_invoice'])) {
 
     logAudit("Recurring Invoice", "Delete", "$session_name deleted recurring invoice $recurring_invoice_prefix$recurring_invoice_number - $recurring_invoice_scope", $client_id);
 
-    flash_alert("Recurring Invoice <strong>$recurring_invoice_prefix$recurring_invoice_number</strong> deleted", 'error');
+    flashAlert("Recurring Invoice <strong>$recurring_invoice_prefix$recurring_invoice_number</strong> deleted", 'error');
 
     redirect();
 
@@ -249,7 +249,7 @@ if (isset($_POST['add_recurring_invoice_item'])) {
 
     logAudit("Recurring Invoice", "Edit", "$session_name added item $name to recurring invoice $recurring_invoice_prefix$recurring_invoice_number", $client_id, $recurring_invoice_id);
 
-    flash_alert("Item <srrong>$name</strong> added to Recurring Invoice");
+    flashAlert("Item <srrong>$name</strong> added to Recurring Invoice");
 
     redirect();
 
@@ -309,7 +309,7 @@ if (isset($_POST['edit_recurring_invoice_item'])) {
     // Logging
     logAudit("Recurring Invoice", "Edit", "$session_name edited item $name on recurring invoice $recurring_invoice_prefix$recurring_invoice_number", $client_id, $recurring_invoice_id);
 
-    flash_alert("Item <strong>$name</strong> updated");
+    flashAlert("Item <strong>$name</strong> updated");
 
     redirect();
 
@@ -337,7 +337,7 @@ if (isset($_POST['recurring_invoice_note'])) {
 
     logAudit("Recurring Invoice", "Edit", "$session_name added note to recurring invoice $recurring_invoice_prefix$recurring_invoice_number", $client_id, $recurring_invoice_id);
 
-    flash_alert("Notes added");
+    flashAlert("Notes added");
 
     redirect();
 
@@ -375,7 +375,7 @@ if (isset($_GET['delete_recurring_invoice_item'])) {
 
     logAudit("Recurring Invoice", "Edit", "$session_name removed item $item_name from recurring invoice $recurring_invoice_prefix$recurring_invoice_number", $client_id);
 
-    flash_alert("Item <strong>$item_name</strong> removed", 'error');
+    flashAlert("Item <strong>$item_name</strong> removed", 'error');
 
     redirect();
 
@@ -542,7 +542,7 @@ if (isset($_GET['force_recurring'])) {
 
     customAction('invoice_create', $new_invoice_id);
 
-    flash_alert("Recurring Invoice Forced");
+    flashAlert("Recurring Invoice Forced");
 
     redirect();
 
@@ -591,14 +591,14 @@ if (isset($_POST['set_recurring_payment'])) {
 
         logAudit("Recurring Invoice", "Auto Payment", "$session_name created Auto Pay for Recurring Invoice $recurring_invoice_prefix$recurring_invoice_number in the amount of " . numfmt_format_currency($currency_format, $recurring_invoice_amount, $recurring_invoice_currency_code), $client_id, $recurring_invoice_id);
 
-        flash_alert("Automatic Payment <strong>$saved_payment_description</strong> enabled for Recurring Invoice $recurring_invoice_prefix$recurring_invoice_number");
+        flashAlert("Automatic Payment <strong>$saved_payment_description</strong> enabled for Recurring Invoice $recurring_invoice_prefix$recurring_invoice_number");
     } else {
         // Delete
         mysqli_query($mysqli, "DELETE FROM recurring_payments WHERE recurring_payment_recurring_invoice_id = $recurring_invoice_id");
 
         logAudit("Recurring Invoice", "Auto Payment", "$session_name removed Auto Pay for Recurring Invoice $recurring_invoice_prefix$recurring_invoice_number in the amount of " . numfmt_format_currency($currency_format, $recurring_invoice_amount, $recurring_invoice_currency_code), $client_id, $recurring_invoice_id);
 
-        flash_alert("Automatic Payment <strong>Disabled</strong> for Recurring Invoice $recurring_invoice_prefix$recurring_invoice_number", 'error');
+        flashAlert("Automatic Payment <strong>Disabled</strong> for Recurring Invoice $recurring_invoice_prefix$recurring_invoice_number", 'error');
     }
 
     redirect();
@@ -687,7 +687,7 @@ if (isset($_GET['recurring_invoice_email_notify'])) {
 
     logAudit("Recurring Invoice", "Edit", "$session_name turned $notify_wording Email Notifications for Recurring Invoice $recurring_invoice_prefix$recurring_invoice_number", $client_id, $recurring_invoice_id);
 
-    flash_alert("Email Notifications <strong>$notify_wording</strong>", 'error');
+    flashAlert("Email Notifications <strong>$notify_wording</strong>", 'error');
 
     redirect();
 

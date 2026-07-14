@@ -32,7 +32,7 @@ if (isset($_POST['add_credential'])) {
 
     logAudit("Credential", "Create", "$session_name created credential $name", $client_id, $credential_id);
 
-    flash_alert("Credential <strong>$name</strong> created");
+    flashAlert("Credential <strong>$name</strong> created");
 
     redirect();
 
@@ -77,7 +77,7 @@ if (isset($_POST['edit_credential'])) {
 
     logAudit("Credential", "Edit", "$session_name edited credential $name", $client_id, $credential_id);
 
-    flash_alert("Credential <strong>$name</strong> edited");
+    flashAlert("Credential <strong>$name</strong> edited");
 
     redirect();
 
@@ -103,7 +103,7 @@ if(isset($_GET['archive_credential'])){
 
     logAudit("Credential", "Archive", "$session_name archived credential $credential_name", $client_id, $credential_id);
 
-    flash_alert("Credential <strong>$credential_name</strong> archived", 'error');
+    flashAlert("Credential <strong>$credential_name</strong> archived", 'error');
 
     redirect();
 
@@ -129,7 +129,7 @@ if(isset($_GET['restore_credential'])){
 
     logAudit("Credential", "Restore", "$session_name restored credential $credential_name", $client_id, $credential_id);
 
-    flash_alert("Credential <strong>$credential_name</strong> restored");
+    flashAlert("Credential <strong>$credential_name</strong> restored");
 
     redirect();
 
@@ -155,7 +155,7 @@ if (isset($_GET['delete_credential'])) {
 
     logAudit("Credential", "Delete", "$session_name deleted credential $credential_name", $client_id);
 
-    flash_alert("Credential <strong>$credential_name</strong> deleted", 'error');
+    flashAlert("Credential <strong>$credential_name</strong> deleted", 'error');
 
     redirect();
 
@@ -203,7 +203,7 @@ if (isset($_POST['bulk_assign_credential_tags'])) {
 
             logAudit("Credential", "Edit", "$session_name added tags to $credential_name", $client_id, $credential_id);
 
-            flash_alert("Assigned tags for <strong>$count</strong> credentials");
+            flashAlert("Assigned tags for <strong>$count</strong> credentials");
 
         } // End Assign Loop
 
@@ -245,7 +245,7 @@ if (isset($_POST['bulk_favorite_credentials'])) {
 
         logAudit("Credential", "Bulk Edit", "$session_name favorited $count credentials", $client_id);
 
-        flash_alert("Favorited <strong>$count</strong> credential(s)");
+        flashAlert("Favorited <strong>$count</strong> credential(s)");
 
     }
 
@@ -283,7 +283,7 @@ if (isset($_POST['bulk_unfavorite_credentials'])) {
 
         logAudit("Crednetial", "Bulk Edit", "$session_name unfavorited $count credentials", $client_id);
 
-        flash_alert("Unfavorited <strong>$count</strong> credential(s)");
+        flashAlert("Unfavorited <strong>$count</strong> credential(s)");
 
     }
 
@@ -322,7 +322,7 @@ if (isset($_POST['bulk_archive_credentials'])) {
 
         logAudit("Credential", "Bulk Archive", "$session_name archived $count credentials", $client_id);
 
-        flash_alert("Archived <strong>$count</strong> credential(s)", 'error');
+        flashAlert("Archived <strong>$count</strong> credential(s)", 'error');
 
     }
 
@@ -362,7 +362,7 @@ if (isset($_POST['bulk_restore_credentials'])) {
 
         logAudit("Credential", "Bulk Restore", "$session_name restored $count credential(s)", $client_id);
 
-        flash_alert("Restored <strong>$count</strong> credential(s)");
+        flashAlert("Restored <strong>$count</strong> credential(s)");
 
     }
 
@@ -402,7 +402,7 @@ if (isset($_POST['bulk_delete_credentials'])) {
 
         logAudit("Credential", "Bulk Delete", "$session_name deleted $count credential(s)", $client_id);
 
-        flash_alert("Deleted <strong>$count</strong> credential(s)", 'error');
+        flashAlert("Deleted <strong>$count</strong> credential(s)", 'error');
 
     }
 
@@ -436,7 +436,7 @@ if (isset($_POST['export_credentials_csv'])) {
         $delimiter = ",";
         $enclosure = '"';
         $escape    = '\\';   // backslash
-        $filename = sanitize_filename($file_name_prepend . "Credentials-" . date('Y-m-d_H-i-s') . ".csv");
+        $filename = sanitizeFilename($file_name_prepend . "Credentials-" . date('Y-m-d_H-i-s') . ".csv");
 
         //create a file pointer
         $f = fopen('php://memory', 'w');
@@ -485,7 +485,7 @@ if (isset($_POST["import_credentials_csv"])) {
     if (!empty($_FILES["file"]["tmp_name"])) {
         $file_name = $_FILES["file"]["tmp_name"];
     } else {
-        flash_alert("Please select a file to upload.", 'error');
+        flashAlert("Please select a file to upload.", 'error');
         redirect();
     }
 
@@ -494,13 +494,13 @@ if (isset($_POST["import_credentials_csv"])) {
     $allowed_file_extensions = array('csv');
     if (in_array($file_extension,$allowed_file_extensions) === false){
         $error = true;
-        flash_alert("Bad file extension", 'error');
+        flashAlert("Bad file extension", 'error');
     }
 
     //Check file isn't empty
     elseif ($_FILES["file"]["size"] < 1){
         $error = true;
-        flash_alert("Bad file size (empty?)", 'error');
+        flashAlert("Bad file size (empty?)", 'error');
     }
 
     //(Else)Check column count
@@ -508,7 +508,7 @@ if (isset($_POST["import_credentials_csv"])) {
     $f_columns = fgetcsv($f, 1000, ",");
     if (!$error & count($f_columns) != 6) {
         $error = true;
-        flash_alert("Bad column count.", 'error');
+        flashAlert("Bad column count.", 'error');
     }
 
     //Else, parse the file
@@ -560,7 +560,7 @@ if (isset($_POST["import_credentials_csv"])) {
 
         logAudit("Credential", "Import", "$session_name imported $row_count credential(s) via CSV file. $duplicate_count duplicate(s) found and not imported", $client_id);
 
-        flash_alert("<strong>$row_count</strong> credential(s) imported, <strong>$duplicate_count</strong> duplicate(s) detected and not imported", 'warning');
+        flashAlert("<strong>$row_count</strong> credential(s) imported, <strong>$duplicate_count</strong> duplicate(s) detected and not imported", 'warning');
 
         redirect();
     }

@@ -26,7 +26,7 @@ if (isset($_POST['add_revenue'])) {
 
     logAudit("Revenue", "Create", "$session_name added revenue $description", 0, $revenue_id);
 
-    flash_alert("Revenue added");
+    flashAlert("Revenue added");
 
     redirect();
 
@@ -51,7 +51,7 @@ if (isset($_POST['edit_revenue'])) {
 
     logAudit("Revenue", "Edit", "$session_name edited revenue $description", 0, $revenue_id);
 
-    flash_alert("Revenue edited");
+    flashAlert("Revenue edited");
 
     redirect();
 
@@ -72,7 +72,7 @@ if (isset($_GET['delete_revenue'])) {
 
     logAudit("Revenue", "Delete", "$session_name deleted revenue $revenue_description");
 
-    flash_alert("Revenue removed", 'error');
+    flashAlert("Revenue removed", 'error');
 
     redirect();
 

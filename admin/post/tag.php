@@ -18,7 +18,7 @@ if (isset($_POST['add_tag'])) {
 
     logAudit("Tag", "Create", "$session_name created tag $name", 0, $tag_id);
 
-    flash_alert("Tag <strong>$name</strong> created");
+    flashAlert("Tag <strong>$name</strong> created");
 
     redirect();
 
@@ -36,7 +36,7 @@ if (isset($_POST['edit_tag'])) {
 
     logAudit("Tag", "Edit", "$session_name edited tag $name", 0, $tag_id);
 
-    flash_alert("Tag <strong>$name</strong> edited");
+    flashAlert("Tag <strong>$name</strong> edited");
 
     redirect();
 
@@ -54,7 +54,7 @@ if (isset($_GET['delete_tag'])) {
 
     logAudit("Tag", "Delete", "$session_name deleted tag $tag_name");
 
-    flash_alert("Tag <strong>$tag_name</strong> deleted", 'error');
+    flashAlert("Tag <strong>$tag_name</strong> deleted", 'error');
 
     redirect();
 

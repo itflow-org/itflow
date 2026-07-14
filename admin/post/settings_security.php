@@ -21,7 +21,7 @@ if (isset($_POST['edit_security_settings'])) {
 
     logAudit("Settings", "Edit", "$session_name edited security settings");
 
-    flash_alert("Security settings updated");
+    flashAlert("Security settings updated");
 
     redirect();
 

@@ -35,7 +35,7 @@ if (isset($_POST['create_recurring_expense'])) {
 
     logAudit("Recurring Expense", "Create", "$session_name created recurring expense $description", $client_id, $recurring_expense_id);
 
-    flash_alert("Recurring Expense created");
+    flashAlert("Recurring Expense created");
 
     redirect();
 
@@ -69,7 +69,7 @@ if (isset($_POST['edit_recurring_expense'])) {
 
     logAudit("Recurring Expense", "Edit", "$session_name edited recurring expense $description", $client_id, $recurring_expense_id);
 
-    flash_alert("Recurring Expense edited");
+    flashAlert("Recurring Expense edited");
 
     redirect();
 
@@ -93,7 +93,7 @@ if (isset($_GET['delete_recurring_expense'])) {
 
     logAudit("Recurring Expense", "Delete", "$session_name deleted recurring expense $recurring_expense_description", $client_id);
 
-    flash_alert("Recurring Expense deleted", 'error');
+    flashAlert("Recurring Expense deleted", 'error');
 
     redirect();
 

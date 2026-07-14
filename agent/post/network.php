@@ -24,7 +24,7 @@ if (isset($_POST['add_network'])) {
 
     logAudit("Network", "Create", "$session_name created network $name", $client_id, $network_id);
 
-    flash_alert("Network <strong>$name</strong> created");
+    flashAlert("Network <strong>$name</strong> created");
 
     redirect();
 
@@ -48,7 +48,7 @@ if (isset($_POST['edit_network'])) {
 
     logAudit("Network", "Edit", "$session_name edited network $name", $client_id, $network_id);
 
-    flash_alert("Network <strong>$name</strong> updated");
+    flashAlert("Network <strong>$name</strong> updated");
 
     redirect();
 
@@ -74,7 +74,7 @@ if (isset($_GET['archive_network'])) {
 
     logAudit("Network", "Archive", "$session_name archived network $network_name", $client_id, $network_id);
 
-    flash_alert("Network <strong>$network_name</strong> archived", 'error');
+    flashAlert("Network <strong>$network_name</strong> archived", 'error');
 
     redirect();
 
@@ -100,7 +100,7 @@ if (isset($_GET['restore_network'])) {
 
     logAudit("Network", "Restore", "$session_name restored contact $contact_name", $client_id, $network_id);
 
-    flash_alert("Network <strong>$network_name</strong> restored");
+    flashAlert("Network <strong>$network_name</strong> restored");
 
     redirect();
 
@@ -126,7 +126,7 @@ if (isset($_GET['delete_network'])) {
 
     logAudit("Network", "Delete", "$session_name deleted network $network_name", $client_id);
 
-    flash_alert("Network <strong>$network_name</strong> deleted", 'error');
+    flashAlert("Network <strong>$network_name</strong> deleted", 'error');
 
     redirect();
 
@@ -164,7 +164,7 @@ if (isset($_POST['bulk_delete_networks'])) {
 
         logAudit("Network", "Bulk Delete", "$session_name deleted $count network(s)", $client_id);
 
-        flash_alert("Deleted <strong>$count</strong> network(s)", 'error');
+        flashAlert("Deleted <strong>$count</strong> network(s)", 'error');
 
     }
 
@@ -196,7 +196,7 @@ if (isset($_POST['export_networks_csv'])) {
         $delimiter = ",";
         $enclosure = '"';
         $escape    = '\\';   // backslash
-        $filename = sanitize_filename($file_name_prepend . "Networks-" . date('Y-m-d_H-i-s') . ".csv");
+        $filename = sanitizeFilename($file_name_prepend . "Networks-" . date('Y-m-d_H-i-s') . ".csv");
 
         //create a file pointer
         $f = fopen('php://memory', 'w');
@@ -283,7 +283,7 @@ if (isset($_POST['import_networks_csv'])) {
     if (!empty($_FILES['file']['tmp_name'])) {
         $file_name = $_FILES['file']['tmp_name'];
     } else {
-        flash_alert("Please select a file to upload.", 'error');
+        flashAlert("Please select a file to upload.", 'error');
         redirect();
     }
 
@@ -291,13 +291,13 @@ if (isset($_POST['import_networks_csv'])) {
     $file_extension = strtolower(end(explode('.', $_FILES['file']['name'])));
     if ($file_extension !== 'csv') {
         $error = true;
-        flash_alert("Bad file extension — only .csv files are accepted.", 'error');
+        flashAlert("Bad file extension — only .csv files are accepted.", 'error');
     }
 
     // Check not empty
     elseif ($_FILES['file']['size'] < 1) {
         $error = true;
-        flash_alert("Bad file size (empty file?).", 'error');
+        flashAlert("Bad file size (empty file?).", 'error');
     }
 
     // Check column count matches the 8-column export/template format
@@ -308,7 +308,7 @@ if (isset($_POST['import_networks_csv'])) {
 
         if (count($f_columns) !== 8) {
             $error = true;
-            flash_alert("Bad column count — expected 8 columns: Name, Description, VLAN, Network (CIDR), Gateway, IP Range, Primary DNS, Secondary DNS.", 'error');
+            flashAlert("Bad column count — expected 8 columns: Name, Description, VLAN, Network (CIDR), Gateway, IP Range, Primary DNS, Secondary DNS.", 'error');
         }
     }
 
@@ -375,7 +375,7 @@ if (isset($_POST['import_networks_csv'])) {
 
         logAudit("Network", "Import", "$session_name imported $row_count network(s). $duplicate_count duplicate(s) found and not imported", $client_id);
 
-        flash_alert("$row_count Network(s) imported, $duplicate_count duplicate(s) detected and not imported");
+        flashAlert("$row_count Network(s) imported, $duplicate_count duplicate(s) detected and not imported");
 
         redirect();
     }

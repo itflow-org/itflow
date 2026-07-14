@@ -20,7 +20,7 @@ if (isset($_POST['edit_ai_settings'])) {
 
     logAudit("Settings", "Edit", "$session_name edited AI settings");
 
-    flash_alert("AI Settings updated");
+    flashAlert("AI Settings updated");
 
     redirect();
 

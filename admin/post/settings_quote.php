@@ -18,7 +18,7 @@ if (isset($_POST['edit_quote_settings'])) {
 
     logAudit("Settings", "Edit", "$session_name edited Quote settings");
 
-    flash_alert("Quote Settings updated");
+    flashAlert("Quote Settings updated");
 
     redirect();
 

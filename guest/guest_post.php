@@ -63,7 +63,7 @@ if (isset($_GET['accept_quote'], $_GET['url_key'])) {
             $mail = addToMailQueue($data);
         }
 
-        flash_alert("Quote Accepted");
+        flashAlert("Quote Accepted");
 
         redirect();
 
@@ -127,7 +127,7 @@ if (isset($_GET['decline_quote'], $_GET['url_key'])) {
 
             $mail = addToMailQueue($data);
         }
-        flash_alert("Quote Declined", 'danger');
+        flashAlert("Quote Declined", 'danger');
 
         redirect();
 
@@ -154,7 +154,7 @@ if (isset($_GET['reopen_ticket'], $_GET['url_key'])) {
 
         customAction('ticket_update', $ticket_id);
 
-        flash_alert("Ticket reopened");
+        flashAlert("Ticket reopened");
 
         redirect();
 
@@ -182,7 +182,7 @@ if (isset($_GET['close_ticket'], $_GET['url_key'])) {
 
         customAction('ticket_close', $ticket_id);
 
-        flash_alert("Ticket closed");
+        flashAlert("Ticket closed");
 
         redirect();
 
@@ -213,7 +213,7 @@ if (isset($_GET['add_ticket_feedback'], $_GET['url_key'])) {
             appNotify("Feedback", "Guest rated ticket number $ticket_prefix$ticket_number (ID: $ticket_id) as bad", "/agent/ticket.php?ticket_id=$ticket_id");
         }
 
-        flash_alert("Feedback recorded - thank you");
+        flashAlert("Feedback recorded - thank you");
 
         redirect();
 
@@ -253,7 +253,7 @@ if (isset($_GET['approve_ticket_task'])) {
     // Logging
     logAudit("Task", "Edit", "Guest user approved task $task_name via link (approval $approval_id)", 0, $task_id);
 
-    flash_alert("Task Approved");
+    flashAlert("Task Approved");
     redirect();
 
 }
@@ -758,7 +758,7 @@ if (isset($_POST['guest_quote_upload_file'])) {
                     mysqli_query($mysqli, "INSERT INTO quote_files SET quote_id = $quote_id, file_id = $file_id");
 
                     // Logging & feedback
-                    flash_alert('File uploaded!');
+                    flashAlert('File uploaded!');
 
                     appNotify("Quote File", "$file_name was uploaded to quote $quote_prefix$quote_number", "/agent/quote.php?quote_id=$quote_id", $client_id);
 
@@ -767,7 +767,7 @@ if (isset($_POST['guest_quote_upload_file'])) {
                     logAudit("File", "Upload", "Guest uploaded file $file_name to quote $quote_prefix$quote_number", $client_id);
 
                 } else {
-                    flash_alert('Something went wrong uploading the file - please let the support team know.', 'error');
+                    flashAlert('Something went wrong uploading the file - please let the support team know.', 'error');
 
                     logApp("Guest", "error", "Error uploading file to invoice");
                 }

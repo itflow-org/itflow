@@ -190,7 +190,7 @@ if (isset($_POST['add_ticket'])) {
 
     logAudit("Ticket", "Create", "$session_name created ticket $config_ticket_prefix$ticket_number - $ticket_subject", $client_id, $ticket_id);
 
-    flash_alert("Ticket <strong>$config_ticket_prefix$ticket_number</strong> created");
+    flashAlert("Ticket <strong>$config_ticket_prefix$ticket_number</strong> created");
 
     redirect("ticket.php?client_id=$client_id&ticket_id=$ticket_id");
 
@@ -308,7 +308,7 @@ if (isset($_POST['edit_ticket'])) {
 
     logAudit("Ticket", "Edit", "$session_name edited ticket $ticket_prefix$ticket_number", $client_id, $ticket_id);
 
-    flash_alert("Ticket <strong>$ticket_prefix$ticket_number</strong> updated");
+    flashAlert("Ticket <strong>$ticket_prefix$ticket_number</strong> updated");
 
     redirect();
 
@@ -352,7 +352,7 @@ if (isset($_POST['edit_ticket_priority'])) {
 
     customAction('ticket_update', $ticket_id);
 
-    flash_alert("Priority updated from <strong>$original_priority</strong> to <strong>$priority</strong>");
+    flashAlert("Priority updated from <strong>$original_priority</strong> to <strong>$priority</strong>");
 
     redirect();
 
@@ -443,7 +443,7 @@ if (isset($_POST['edit_ticket_contact'])) {
 
     logAudit("Ticket", "Edit", "$session_name changed the contact from $original_contact_name to $contact_name for ticket $ticket_prefix$ticket_number", $client_id, $ticket_id);
 
-    flash_alert("Contact changed from <strong>$original_contact_name</strong> to <strong>$contact_name</strong>");
+    flashAlert("Contact changed from <strong>$original_contact_name</strong> to <strong>$contact_name</strong>");
 
     redirect();
 
@@ -472,7 +472,7 @@ if (isset($_POST['edit_ticket_project'])) {
 
     logAudit("Ticket", "Edit", "$session_name set ticket $ticket_prefix$ticket_number project to $project_name", $client_id, $ticket_id);
 
-    flash_alert("Project changed to <strong>$project_name</strong> for Ticket <strong>$ticket_prefix$ticket_number</strong>");
+    flashAlert("Project changed to <strong>$project_name</strong> for Ticket <strong>$ticket_prefix$ticket_number</strong>");
 
     redirect();
 
@@ -557,7 +557,7 @@ if (isset($_POST['add_ticket_watcher'])) {
 
     }
 
-    flash_alert("Added watcher(s)");
+    flashAlert("Added watcher(s)");
 
     redirect();
 
@@ -598,7 +598,7 @@ if (isset($_GET['delete_ticket_watcher'])) {
 
     logAudit("Ticket", "Edit", "$session_name removed $watcher_email as a watcher for ticket $ticket_prefix$ticket_number", $client_id, $ticket_id);
 
-    flash_alert("Removed ticket watcher <strong>$watcher_email</strong>", 'error');
+    flashAlert("Removed ticket watcher <strong>$watcher_email</strong>", 'error');
 
     redirect();
 
@@ -639,7 +639,7 @@ if (isset($_GET['delete_ticket_additional_asset'])) {
 
     logAudit("Ticket", "Edit", "$session_name removed asset $asset_name from ticket $ticket_prefix$ticket_number", $client_id, $ticket_id);
 
-    flash_alert("Removed asset <strong>$asset_name</strong> from ticket.", 'error');
+    flashAlert("Removed asset <strong>$asset_name</strong> from ticket.", 'error');
 
     redirect();
 
@@ -692,7 +692,7 @@ if (isset($_POST['edit_ticket_asset'])) {
 
     logAudit("Ticket", "Edit", "$session_name changed asset to $asset_name for ticket $ticket_prefix$ticket_number", $client_id, $ticket_id);
 
-    flash_alert("Ticket <strong>$ticket_prefix$ticket_number</strong> asset updated to <strong>$asset_name</strong>");
+    flashAlert("Ticket <strong>$ticket_prefix$ticket_number</strong> asset updated to <strong>$asset_name</strong>");
 
     redirect();
 
@@ -732,7 +732,7 @@ if (isset($_POST['edit_ticket_vendor'])) {
 
     logAudit("Ticket", "Edit", "$session_name set vendor to $vendor_name for ticket $ticket_prefix$ticket_number", $client_id, $ticket_id);
 
-    flash_alert("Set vendor to <strong>$vendor_name</strong> for ticket <strong>$ticket_prefix$ticket_number</strong>");
+    flashAlert("Set vendor to <strong>$vendor_name</strong> for ticket <strong>$ticket_prefix$ticket_number</strong>");
 
     redirect();
 
@@ -768,7 +768,7 @@ if (isset($_POST['assign_ticket'])) {
         $ticket_reply = "Ticket re-assigned to $agent_name.";
 
         if (!$agent_name) {
-            flash_alert("Invalid agent!", 'error');
+            flashAlert("Invalid agent!", 'error');
             redirect();
         }
     }
@@ -789,7 +789,7 @@ if (isset($_POST['assign_ticket'])) {
     }
 
     if (!$ticket_subject) {
-        flash_alert("Invalid ticket!", 'error');
+        flashAlert("Invalid ticket!", 'error');
         redirect();
     }
 
@@ -841,7 +841,7 @@ if (isset($_POST['assign_ticket'])) {
 
     customAction('ticket_assign', $ticket_id);
 
-    flash_alert("Ticket <strong>$ticket_prefix$ticket_number</strong> assigned to <strong>$agent_name</strong>");
+    flashAlert("Ticket <strong>$ticket_prefix$ticket_number</strong> assigned to <strong>$agent_name</strong>");
 
     redirect();
 
@@ -890,7 +890,7 @@ if (isset($_GET['delete_ticket'])) {
 
         logAudit("Ticket", "Delete", "$session_name deleted $ticket_prefix$ticket_number along with all replies", $client_id);
 
-        flash_alert("Ticket <strong>$ticket_prefix$ticket_number</strong> along with all replies deleted", 'error');
+        flashAlert("Ticket <strong>$ticket_prefix$ticket_number</strong> along with all replies deleted", 'error');
 
         customAction('ticket_delete', $ticket_id);
 
@@ -944,7 +944,7 @@ if (isset($_POST['bulk_delete_tickets'])) {
 
         logAudit("Ticket", "Bulk Delete", "$session_name deleted $count ticket(s)");
 
-        flash_alert("Deleted <strong>$count</strong> ticket(s)", 'error');
+        flashAlert("Deleted <strong>$count</strong> ticket(s)", 'error');
     }
 
     redirect();
@@ -1001,7 +1001,7 @@ if (isset($_POST['bulk_assign_ticket'])) {
                 $ticket_reply = "Ticket re-assigned to $agent_name.";
 
                 if (!$agent_name) {
-                    flash_alert("Invalid agent!", 'error');
+                    flashAlert("Invalid agent!", 'error');
                     redirect();
                 }
             }
@@ -1052,7 +1052,7 @@ if (isset($_POST['bulk_assign_ticket'])) {
         }
     }
 
-    flash_alert("You assigned <b>$ticket_count</b> Tickets to <b>$agent_name</b>");
+    flashAlert("You assigned <b>$ticket_count</b> Tickets to <b>$agent_name</b>");
 
     redirect();
 
@@ -1102,7 +1102,7 @@ if (isset($_POST['bulk_edit_ticket_priority'])) {
 
         logAudit("Ticket", " Bulk Edit", "$session_name updated the priority on $ticket_count");
 
-        flash_alert("You updated the priority for <strong>$ticket_count</strong> Tickets to <strong>$priority</strong>");
+        flashAlert("You updated the priority for <strong>$ticket_count</strong> Tickets to <strong>$priority</strong>");
     }
 
     redirect();
@@ -1154,7 +1154,7 @@ if (isset($_POST['bulk_edit_ticket_category'])) {
 
         logAudit("Ticket", " Bulk Edit", "$session_name updated the category to $category_name on $ticket_count");
 
-        flash_alert("Category set to $category_name for <strong>$ticket_count</strong> Tickets");
+        flashAlert("Category set to $category_name for <strong>$ticket_count</strong> Tickets");
     }
 
     redirect();
@@ -1175,7 +1175,7 @@ if (isset($_POST['bulk_merge_tickets'])) {
     // Get merge into ticket id (as it may differ from the number)
     $sql = mysqli_query($mysqli, "SELECT ticket_id, ticket_number FROM tickets WHERE ticket_id = $merge_into_ticket_id");
     if (mysqli_num_rows($sql) == 0) {
-        flash_alert("Cannot merge into that ticket.", 'error');
+        flashAlert("Cannot merge into that ticket.", 'error');
         redirect();
     }
     $merge_row = mysqli_fetch_assoc($sql);
@@ -1227,7 +1227,7 @@ if (isset($_POST['bulk_merge_tickets'])) {
 
         mysqli_query($mysqli, "UPDATE tickets SET ticket_updated_at = NOW() WHERE ticket_id = $merge_into_ticket_id");
 
-        flash_alert("<strong>$ticket_count</strong> tickets merged into <strong>$ticket_prefix$merge_into_ticket_number</strong>");
+        flashAlert("<strong>$ticket_count</strong> tickets merged into <strong>$ticket_prefix$merge_into_ticket_number</strong>");
 
     }
 
@@ -1369,10 +1369,10 @@ if (isset($_POST['bulk_resolve_tickets'])) {
         } // End Loop
     } // End Array Empty Check
 
-    flash_alert("Resolved <strong>$ticket_count</strong> Tickets");
+    flashAlert("Resolved <strong>$ticket_count</strong> Tickets");
 
     if ($skipped_count > 0) {
-        flash_alert("Resolved <strong>$ticket_count</strong> Tickets <strong>$skipped_count</strong> ticket(s) could not be resolved because they have open tasks.", 'info');
+        flashAlert("Resolved <strong>$ticket_count</strong> Tickets <strong>$skipped_count</strong> ticket(s) could not be resolved because they have open tasks.", 'info');
     }
 
     redirect();
@@ -1542,7 +1542,7 @@ if (isset($_POST['bulk_ticket_reply'])) {
 
     }
 
-    flash_alert("Updated <strong>$ticket_count</strong> tickets");
+    flashAlert("Updated <strong>$ticket_count</strong> tickets");
 
     redirect();
 
@@ -1595,7 +1595,7 @@ if (isset($_POST['bulk_add_ticket_project'])) {
 
         } // End For Each Ticket ID Loop
 
-        flash_alert("<strong>$ticket_count</strong> Tickets added to Project <strong>$project_name</strong>");
+        flashAlert("<strong>$ticket_count</strong> Tickets added to Project <strong>$project_name</strong>");
 
     }
 
@@ -1715,7 +1715,7 @@ if (isset($_POST['bulk_add_asset_ticket'])) {
 
         logAudit("Ticket", "Bulk Create", "$session_name created $asset_count tickets for $asset_count");
 
-        flash_alert("You created <b>$asset_count</b> tickets for the selected assets");
+        flashAlert("You created <b>$asset_count</b> tickets for the selected assets");
 
     }
 
@@ -1895,10 +1895,10 @@ if (isset($_POST['add_ticket_reply'])) {
             customAction('reply_reply_agent_public', $ticket_id);
         }
 
-        flash_alert("Ticket <strong>$ticket_prefix$ticket_number</strong> has been updated with your reply and was <strong>$ticket_reply_type</strong>");
+        flashAlert("Ticket <strong>$ticket_prefix$ticket_number</strong> has been updated with your reply and was <strong>$ticket_reply_type</strong>");
 
     } else {
-        flash_alert("Ticket updated");
+        flashAlert("Ticket updated");
     }
 
     logAudit("Ticket", "Reply", "$session_name replied to ticket $ticket_prefix$ticket_number - $ticket_subject and was a $ticket_reply_type reply", $client_id, $ticket_id);
@@ -1929,7 +1929,7 @@ if (isset($_POST['edit_ticket_reply'])) {
 
     logAudit("Ticket", "Reply", "$session_name edited ticket_reply", $client_id, $ticket_reply_id);
 
-    flash_alert("Ticket reply updated");
+    flashAlert("Ticket reply updated");
 
     redirect();
 
@@ -1955,7 +1955,7 @@ if (isset($_POST['redact_ticket_reply'])) {
 
     logAudit("Ticket", "Reply", "$session_name redacted ticket_reply", $client_id, $ticket_reply_id);
 
-    flash_alert("Ticket reply redacted");
+    flashAlert("Ticket reply redacted");
 
     redirect();
 
@@ -1981,7 +1981,7 @@ if (isset($_GET['archive_ticket_reply'])) {
 
     logAudit("Ticket Reply", "Archive", "$session_name archived ticket_reply", $client_id, $ticket_reply_id);
 
-    flash_alert("Ticket reply archived", 'error');
+    flashAlert("Ticket reply archived", 'error');
 
     redirect();
 
@@ -2002,7 +2002,7 @@ if (isset($_POST['merge_ticket'])) {
     // Get current ticket details
     $sql = mysqli_query($mysqli, "SELECT ticket_prefix, ticket_number, ticket_subject, ticket_details FROM tickets WHERE ticket_id = $ticket_id");
     if (mysqli_num_rows($sql) == 0) {
-        flash_alert("No ticket with that ID found.", 'error');
+        flashAlert("No ticket with that ID found.", 'error');
         redirect();
     }
     // CURRENT ticket details
@@ -2017,7 +2017,7 @@ if (isset($_POST['merge_ticket'])) {
     // Get merge into ticket id (as it may differ from the number)
     $sql = mysqli_query($mysqli, "SELECT ticket_id, ticket_number, ticket_client_id FROM tickets WHERE ticket_id = $merge_into_ticket_id");
     if (mysqli_num_rows($sql) == 0) {
-        flash_alert("Cannot merge into that ticket.", 'error');
+        flashAlert("Cannot merge into that ticket.", 'error');
         redirect();
     }
     $merge_row = mysqli_fetch_assoc($sql);
@@ -2034,7 +2034,7 @@ if (isset($_POST['merge_ticket'])) {
     }
     // Sanity check
     if ($ticket_id == $merge_into_ticket_id) {
-        flash_alert("Cannot merge into the same ticket.", 'error');
+        flashAlert("Cannot merge into the same ticket.", 'error');
         redirect();
     }
 
@@ -2061,7 +2061,7 @@ if (isset($_POST['merge_ticket'])) {
 
     customAction('ticket_merge', $ticket_id);
 
-    flash_alert("Ticket merged into $ticket_prefix$merge_into_ticket_number");
+    flashAlert("Ticket merged into $ticket_prefix$merge_into_ticket_number");
 
     redirect("ticket.php?ticket_id=$merge_into_ticket_id$has_client");
 
@@ -2092,7 +2092,7 @@ if (isset($_POST['change_client_ticket'])) {
 
     customAction('ticket_update', $ticket_id);
 
-    flash_alert("Ticket client updated");
+    flashAlert("Ticket client updated");
 
     redirect();
 
@@ -2204,7 +2204,7 @@ if (isset($_GET['resolve_ticket'])) {
     }
     //End Mail IF
 
-    flash_alert("Ticket resolved");
+    flashAlert("Ticket resolved");
 
     redirect();
 
@@ -2303,7 +2303,7 @@ if (isset($_GET['close_ticket'])) {
     }
     //End Mail IF
 
-    flash_alert("Ticket Closed, this cannot not be reopened but you may start another one");
+    flashAlert("Ticket Closed, this cannot not be reopened but you may start another one");
 
     redirect();
 
@@ -2330,7 +2330,7 @@ if (isset($_GET['reopen_ticket'])) {
 
     customAction('ticket_update', $ticket_id);
 
-    flash_alert("Ticket re-opened");
+    flashAlert("Ticket re-opened");
 
     redirect();
 
@@ -2451,7 +2451,7 @@ if (isset($_POST['add_invoice_from_ticket'])) {
 
     logAudit("Invoice", "Create", "$session_name created invoice $invoice_prefix$invoice_number from Ticket $ticket_prefix$ticket_number", $client_id, $invoice_id);
 
-    flash_alert("Invoice $invoice_prefix$invoice_number created from ticket");
+    flashAlert("Invoice $invoice_prefix$invoice_number created from ticket");
 
     redirect("invoice.php?invoice_id=$invoice_id");
 
@@ -2527,7 +2527,7 @@ if (isset($_POST['add_quote_from_ticket'])) {
 
     customAction('quote_create', $quote_id);
 
-    flash_alert("Quote <strong>$config_quote_prefix$quote_number</strong> created");
+    flashAlert("Quote <strong>$config_quote_prefix$quote_number</strong> created");
     redirect("quote.php?quote_id=$quote_id");
 
 }
@@ -2560,7 +2560,7 @@ if (isset($_POST['export_tickets_csv'])) {
         $delimiter = ",";
         $enclosure = '"';
         $escape    = '\\';   // backslash
-        $filename = sanitize_filename($file_name_prepend . "Tickets-" . date('Y-m-d_H-i-s') . ".csv");
+        $filename = sanitizeFilename($file_name_prepend . "Tickets-" . date('Y-m-d_H-i-s') . ".csv");
 
         //create a file pointer
         $f = fopen('php://memory', 'w');
@@ -2618,7 +2618,7 @@ if (isset($_POST['edit_ticket_billable_status'])) {
 
     logAudit("Ticket", "Edit", "$session_name marked ticket $ticket_prefix$ticket_number as $billable_wording Billable", $client_id, $ticket_id);
 
-    flash_alert("Ticket marked <strong>$billable_wording Billable</strong>");
+    flashAlert("Ticket marked <strong>$billable_wording Billable</strong>");
 
     redirect();
 
@@ -2792,11 +2792,11 @@ if (isset($_POST['edit_ticket_schedule'])) {
     customAction('ticket_schedule', $ticket_id);
 
     if (empty($conflicting_tickets)) {
-        flash_alert("Ticket scheduled for $email_datetime");
+        flashAlert("Ticket scheduled for $email_datetime");
         redirect();
     } else {
         $_SESSION['alert_type'] = "error";
-        flash_alert("Ticket scheduled for $email_datetime. Yet there are conflicting tickets scheduled for the same time: <br>" . implode(", <br>", $conflicting_tickets), 'error');
+        flashAlert("Ticket scheduled for $email_datetime. Yet there are conflicting tickets scheduled for the same time: <br>" . implode(", <br>", $conflicting_tickets), 'error');
         redirect("calendar.php");
     }
 
@@ -2955,7 +2955,7 @@ if (isset($_GET['cancel_ticket_schedule'])) {
 
     customAction('ticket_unschedule', $ticket_id);
 
-    flash_alert("Ticket schedule cancelled", 'error');
+    flashAlert("Ticket schedule cancelled", 'error');
 
     redirect();
 

@@ -46,7 +46,7 @@ if (isset($_POST['edit_company'])) {
 
     logAudit("Settings", "Edit", "$session_name edited company details");
 
-    flash_alert("Company <strong>$name</strong> edited");
+    flashAlert("Company <strong>$name</strong> edited");
 
     redirect();
 
@@ -66,7 +66,7 @@ if (isset($_GET['remove_company_logo'])) {
 
     logAudit("Settings", "Edit", "$session_name deleted company logo");
 
-    flash_alert("Removed company logo", 'error');
+    flashAlert("Removed company logo", 'error');
 
     redirect();
 

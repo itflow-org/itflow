@@ -18,7 +18,7 @@ if (isset($_POST['add_category'])) {
 
     logAudit("Category", "Create", "$session_name created category $type $name", 0, $category_id);
 
-    flash_alert("Category $type <strong>$name</strong> created");
+    flashAlert("Category $type <strong>$name</strong> created");
 
     redirect();
 
@@ -36,7 +36,7 @@ if (isset($_POST['edit_category'])) {
 
     logAudit("Category", "Edit", "$session_name edited category $type $name", 0, $category_id);
 
-    flash_alert("Category $type <strong>$name</strong> edited");
+    flashAlert("Category $type <strong>$name</strong> edited");
 
     redirect();
 
@@ -58,7 +58,7 @@ if (isset($_GET['archive_category'])) {
 
     logAudit("Category", "Archive", "$session_name archived category $category_type $category_name", 0, $category_id);
 
-    flash_alert("Category $category_type <strong>$category_name</strong> archived", 'error');
+    flashAlert("Category $category_type <strong>$category_name</strong> archived", 'error');
 
     redirect();
 
@@ -80,7 +80,7 @@ if (isset($_GET['restore_category'])) {
 
     logAudit("Category", "Restore", "$session_name retored category $category_type $category_name", 0, $category_id);
 
-    flash_alert("Category $category_type <strong>$category_name</strong> restored");
+    flashAlert("Category $category_type <strong>$category_name</strong> restored");
 
     redirect();
 
@@ -102,7 +102,7 @@ if (isset($_GET['delete_category'])) {
 
     logAudit("Category", "Delete", "$session_name deleted category $category_type $category_name");
 
-    flash_alert("Category $category_type <strong>$category_name</strong> deleted", 'error');
+    flashAlert("Category $category_type <strong>$category_name</strong> deleted", 'error');
 
     redirect();
 

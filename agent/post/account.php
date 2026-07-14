@@ -21,7 +21,7 @@ if (isset($_POST['add_account'])) {
 
     logAudit("Account", "Create", "$session_name created account $name");
 
-    flash_alert("Account <strong>$name</strong> created");
+    flashAlert("Account <strong>$name</strong> created");
 
     redirect();
 
@@ -41,7 +41,7 @@ if (isset($_POST['edit_account'])) {
 
     logAudit("Account", "Edit", "$session_name edited account $name");
 
-    flash_alert("Account <strong>$name</strong> edited");
+    flashAlert("Account <strong>$name</strong> edited");
 
     redirect();
 
@@ -61,7 +61,7 @@ if (isset($_GET['archive_account'])) {
 
     logAudit("Account", "Archive", "$session_name archived account $account_name");
 
-    flash_alert("Account <strong>$account_name</strong> archived", 'error');
+    flashAlert("Account <strong>$account_name</strong> archived", 'error');
 
     redirect();
 
@@ -82,7 +82,7 @@ if (isset($_GET['delete_account'])) {
 
     logAudit("Account", "Delete", "$session_name deleted account $account_name");
 
-    flash_alert("Account <strong>$account_name</strong> deleted", 'error');
+    flashAlert("Account <strong>$account_name</strong> deleted", 'error');
 
     redirect();
 

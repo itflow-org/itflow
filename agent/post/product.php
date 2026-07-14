@@ -21,7 +21,7 @@ if (isset($_POST['add_product'])) {
 
     logAudit("Product", "Create", "$session_name created product $name", 0, $product_id);
 
-    flash_alert("Product <strong>$name</strong> created");
+    flashAlert("Product <strong>$name</strong> created");
 
     redirect();
 
@@ -41,7 +41,7 @@ if (isset($_POST['edit_product'])) {
 
     logAudit("Product", "Edit", "$session_name edited product $name", 0, $product_id);
 
-    flash_alert("Product <strong>$name</strong> edited");
+    flashAlert("Product <strong>$name</strong> edited");
 
     redirect();
 
@@ -61,7 +61,7 @@ if (isset($_GET['archive_product'])) {
 
     logAudit("Product", "Archive", "$session_name archived product $product_name", 0, $product_id);
 
-    flash_alert("Product <strong>$product_name</strong> archived", 'error');
+    flashAlert("Product <strong>$product_name</strong> archived", 'error');
 
     redirect();
 
@@ -81,7 +81,7 @@ if (isset($_GET['restore_product'])) {
 
     logAudit("Product", "Restore", "$session_name restored product $product_name", 0, $product_id);
 
-    flash_alert("Product <strong>$product_name</strong> restored");
+    flashAlert("Product <strong>$product_name</strong> restored");
 
     redirect();
 
@@ -102,7 +102,7 @@ if (isset($_GET['delete_product'])) {
 
     logAudit("Product", "Delete", "$session_name deleted product $product_name");
 
-    flash_alert("Product <strong>$product_name</strong> deleted", 'error');
+    flashAlert("Product <strong>$product_name</strong> deleted", 'error');
 
     redirect();
 
@@ -139,7 +139,7 @@ if (isset($_POST['bulk_edit_product_category'])) {
 
         logAudit("Product", "Edit", "$session_name assigned category $category_name to $count product(s)");
 
-        flash_alert("Assigned category <strong>$category_name</strong> to <strong>$count</strong> product(s)");
+        flashAlert("Assigned category <strong>$category_name</strong> to <strong>$count</strong> product(s)");
     }
 
     redirect();
@@ -170,7 +170,7 @@ if (isset($_POST['bulk_archive_products'])) {
 
         logAudit("Product", "Bulk Archive", "$session_name archived $count product(s)");
 
-        flash_alert("Archived <strong>$count</strong> product(s)", 'error');
+        flashAlert("Archived <strong>$count</strong> product(s)", 'error');
 
     }
 
@@ -203,7 +203,7 @@ if (isset($_POST['bulk_restore_products'])) {
 
         logAudit("Product", "Bulk Restore", "$session_name restored $count product(s)");
 
-        flash_alert("Restored <strong>$count</strong> product(s)");
+        flashAlert("Restored <strong>$count</strong> product(s)");
 
     }
 
@@ -236,7 +236,7 @@ if (isset($_POST['bulk_delete_products'])) {
 
         logAudit("Product", "Bulk Delete", "$session_name deleted $count product(s)");
 
-        flash_alert("Deleted <strong>$count</strong> product(s)", 'error');
+        flashAlert("Deleted <strong>$count</strong> product(s)", 'error');
 
     }
 
@@ -260,7 +260,7 @@ if (isset($_POST['export_products_csv'])) {
         $delimiter = ",";
         $enclosure = '"';
         $escape    = '\\';   // backslash
-        $filename = sanitize_filename("$session_company_name-Products-" . date('Y-m-d_H-i-s') . ".csv");
+        $filename = sanitizeFilename("$session_company_name-Products-" . date('Y-m-d_H-i-s') . ".csv");
 
         //create a file pointer
         $f = fopen('php://memory', 'w');
@@ -307,7 +307,7 @@ if (isset($_POST['add_product_stock'])) {
 
     logAudit("Product", "Stock", "$session_name added $qty units to stock for product $product_name", 0, $product_id);
 
-    flash_alert("Added $qty units to <strong>$product_name</strong> stock");
+    flashAlert("Added $qty units to <strong>$product_name</strong> stock");
 
     redirect();
 

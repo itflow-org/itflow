@@ -13,7 +13,7 @@ if (isset($_POST['edit_project_settings'])) {
 
     logAudit("Settings", "Edit", "$session_name edited project settings");
 
-    flash_alert("Project Settings updated");
+    flashAlert("Project Settings updated");
 
     redirect();
 

@@ -88,7 +88,7 @@ if (isset($_POST['add_project'])) {
 
     logAudit("Project", "Create", "$session_name created project $project_name", $client_id, $project_id);
 
-    flash_alert("You created Project <strong>$project_name</strong>");
+    flashAlert("You created Project <strong>$project_name</strong>");
 
     redirect();
 
@@ -116,7 +116,7 @@ if (isset($_POST['edit_project'])) {
 
     logAudit("Project", "Edit", "$session_name edited project $project_name", $client_id, $project_id);
 
-    flash_alert("Project <strong>$project_name</strong> edited");
+    flashAlert("Project <strong>$project_name</strong> edited");
 
     redirect();
 
@@ -145,7 +145,7 @@ if (isset($_GET['close_project'])) {
 
     logAudit("Project", "Close", "$session_name closed project $project_name", $client_id, $project_id);
 
-    flash_alert("Project <strong>$project_name</strong> closed");
+    flashAlert("Project <strong>$project_name</strong> closed");
 
     redirect();
 
@@ -174,7 +174,7 @@ if (isset($_GET['archive_project'])) {
 
     logAudit("Project", "Archive", "$session_name archived project $project_name", $client_id, $project_id);
 
-    flash_alert("Project <strong>$project_name</strong> archived", 'error');
+    flashAlert("Project <strong>$project_name</strong> archived", 'error');
 
     redirect();
 
@@ -203,7 +203,7 @@ if (isset($_GET['restore_project'])) {
 
     logAudit("Project", "Restore", "$session_name restored project $project_name", $client_id, $project_id);
 
-    flash_alert("Project <strong>$project_name</strong> restored");
+    flashAlert("Project <strong>$project_name</strong> restored");
 
     redirect();
 
@@ -232,7 +232,7 @@ if (isset($_GET['delete_project'])) {
 
     logAudit("Project", "Delete", "$session_name deleted project $project_name", $client_id, $project_id);
 
-    flash_alert("Project <strong>$project_name</strong> Deleted", 'error');
+    flashAlert("Project <strong>$project_name</strong> Deleted", 'error');
 
     redirect();
 
@@ -281,7 +281,7 @@ if (isset($_POST['link_ticket_to_project'])) {
 
         logAudit("Project", "Bulk Edit", "$session_name added $count ticket(s) to project $project_name", $client_id, $project_id);
 
-        flash_alert("<strong>$count</strong> Ticket(s) added to <strong>$project_name</strong>");
+        flashAlert("<strong>$count</strong> Ticket(s) added to <strong>$project_name</strong>");
     }
 
     redirect();
@@ -311,7 +311,7 @@ if (isset($_POST['link_closed_ticket_to_project'])) {
     // Get ticket details
     $sql = mysqli_query($mysqli, "SELECT ticket_id, ticket_prefix, ticket_number, ticket_subject, ticket_updated_at FROM tickets WHERE ticket_number = $ticket_number");
     if (mysqli_num_rows($sql) == 0) {
-        flash_alert("Cannot merge into that ticket.", 'error');
+        flashAlert("Cannot merge into that ticket.", 'error');
         redirect();
     }
     $row = mysqli_fetch_assoc($sql);
@@ -325,7 +325,7 @@ if (isset($_POST['link_closed_ticket_to_project'])) {
 
     logAudit("Project", "Edit", "$session_name added ticket $ticket_prefix$ticket_number - $ticket_subject to project $project_name", $client_id, $project_id);
 
-    flash_alert("Ticket added to <strong>$project_name</strong>");
+    flashAlert("Ticket added to <strong>$project_name</strong>");
 
     redirect();
 

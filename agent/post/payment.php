@@ -29,7 +29,7 @@ if (isset($_POST['add_payment'])) {
 
     //Check to see if amount entered is greater than the balance of the invoice
     if ($amount > $balance) {
-        flash_alert("Payment can not be more than the balance", 'error');
+        flashAlert("Payment can not be more than the balance", 'error');
         redirect();
     } else {
         mysqli_query($mysqli,"INSERT INTO payments SET payment_date = '$date', payment_amount = $amount, payment_currency_code = '$currency_code', payment_account_id = $account, payment_method = '$payment_method', payment_reference = '$reference', payment_invoice_id = $invoice_id");
@@ -168,7 +168,7 @@ if (isset($_POST['add_payment'])) {
 
         customAction('invoice_pay', $invoice_id);
 
-        flash_alert("Payment amount <strong>" . numfmt_format_currency($currency_format, $amount, $invoice_currency_code) . "</strong> added");
+        flashAlert("Payment amount <strong>" . numfmt_format_currency($currency_format, $amount, $invoice_currency_code) . "</strong> added");
 
         redirect();
 
@@ -198,7 +198,7 @@ if (isset($_POST['edit_payment'])) {
 
     logAudit("Payment", "Edit", "Payment edited amount of " . numfmt_format_currency($currency_format, $amount, $session_company_currency));
 
-    flash_alert("Payment edited to amount <strong>" . numfmt_format_currency($currency_format, $amount, $session_company_currency) . "</strong> added");
+    flashAlert("Payment edited to amount <strong>" . numfmt_format_currency($currency_format, $amount, $session_company_currency) . "</strong> added");
 
     redirect();
 
@@ -250,13 +250,13 @@ if (isset($_POST['apply_credit'])) {
 
     // Check to see if amount entered is greater than the balance of the invoice
     if ($credit_amount_applied > $invoice_balance) {
-        flash_alert("Credit can not be more than the balance", 'alert');
+        flashAlert("Credit can not be more than the balance", 'alert');
         redirect();
     }
 
     // Check to see if amount entered is greater than the credit balance
     if ($credit_amount_applied > $credit_balance) {
-        flash_alert("Credit can not be more than the available credit", 'alert');
+        flashAlert("Credit can not be more than the available credit", 'alert');
         redirect();
     }
 
@@ -309,7 +309,7 @@ if (isset($_POST['apply_credit'])) {
 
     customAction('invoice_pay', $invoice_id);
 
-    flash_alert("Credit amount <strong>" . numfmt_format_currency($currency_format, $amount, $session_company_currency) . "</strong> applied");
+    flashAlert("Credit amount <strong>" . numfmt_format_currency($currency_format, $amount, $session_company_currency) . "</strong> applied");
 
     redirect();
 
@@ -385,13 +385,13 @@ if (isset($_POST['add_payment_stripe'])) {
 
     // Sanity checks
     if (!$payment_provider_client || !$saved_payment_method) {
-        flash_alert("Stripe not enabled or no client card saved", 'error');
+        flashAlert("Stripe not enabled or no client card saved", 'error');
         redirect();
     } elseif ($invoice_status !== 'Sent' && $invoice_status !== 'Viewed') {
-        flash_alert("Invalid invoice state (draft/partial/paid/not billable)", 'error');
+        flashAlert("Invalid invoice state (draft/partial/paid/not billable)", 'error');
         redirect();
     } elseif ($invoice_amount == 0) {
-        flash_alert("Invalid invoice amount", 'error');
+        flashAlert("Invalid invoice amount", 'error');
         redirect();
     }
 
@@ -499,7 +499,7 @@ if (isset($_POST['add_payment_stripe'])) {
         logAudit("Invoice", "Payment", "$session_name initiated Stripe payment amount of " . numfmt_format_currency($currency_format, $invoice_amount, $invoice_currency_code) . " added to invoice $invoice_prefix$invoice_number - $pi_id $extended_log_desc", $client_id, $invoice_id);
         customAction('invoice_pay', $invoice_id);
 
-        flash_alert("Payment amount <strong>" . numfmt_format_currency($currency_format, $invoice_amount, $invoice_currency_code) . "</strong> added");
+        flashAlert("Payment amount <strong>" . numfmt_format_currency($currency_format, $invoice_amount, $invoice_currency_code) . "</strong> added");
 
         redirect();
 
@@ -507,7 +507,7 @@ if (isset($_POST['add_payment_stripe'])) {
         mysqli_query($mysqli, "INSERT INTO history SET history_status = 'Payment failed', history_description = 'Stripe pay failed due to payment error', history_invoice_id = $invoice_id");
 
         logAudit("Invoice", "Payment", "Failed online payment amount of invoice $invoice_prefix$invoice_number due to Stripe payment error", $client_id, $invoice_id);
-        flash_alert("Payment failed", 'error');
+        flashAlert("Payment failed", 'error');
 
         redirect();
     }
@@ -570,13 +570,13 @@ if (isset($_GET['add_payment_stripe'])) {
 
     // Sanity checks
     if (!$config_stripe_enable || !$stripe_id || !$stripe_pm) {
-        flash_alert("Stripe not enabled or no client card saved", 'error');
+        flashAlert("Stripe not enabled or no client card saved", 'error');
         redirect();
     } elseif ($invoice_status !== 'Sent' && $invoice_status !== 'Viewed') {
-        flash_alert("Invalid invoice state (draft/partial/paid/not billable)", 'error');
+        flashAlert("Invalid invoice state (draft/partial/paid/not billable)", 'error');
         redirect();
     } elseif ($invoice_amount == 0) {
-        flash_alert("Invalid invoice amount", 'error');
+        flashAlert("Invalid invoice amount", 'error');
         redirect();
     }
 
@@ -684,7 +684,7 @@ if (isset($_GET['add_payment_stripe'])) {
         logAudit("Invoice", "Payment", "$session_name initiated Stripe payment amount of " . numfmt_format_currency($currency_format, $invoice_amount, $invoice_currency_code) . " added to invoice $invoice_prefix$invoice_number - $pi_id $extended_log_desc", $client_id, $invoice_id);
         customAction('invoice_pay', $invoice_id);
 
-        flash_alert("Payment amount <strong>" . numfmt_format_currency($currency_format, $invoice_amount, $invoice_currency_code) . "</strong> added");
+        flashAlert("Payment amount <strong>" . numfmt_format_currency($currency_format, $invoice_amount, $invoice_currency_code) . "</strong> added");
 
         redirect();
 
@@ -692,7 +692,7 @@ if (isset($_GET['add_payment_stripe'])) {
         mysqli_query($mysqli, "INSERT INTO history SET history_status = 'Payment failed', history_description = 'Stripe pay failed due to payment error', history_invoice_id = $invoice_id");
 
         logAudit("Invoice", "Payment", "Failed online payment amount of invoice $invoice_prefix$invoice_number due to Stripe payment error", $client_id, $invoice_id);
-        flash_alert("Payment failed", 'error');
+        flashAlert("Payment failed", 'error');
 
         redirect();
     }
@@ -722,7 +722,7 @@ if (isset($_POST['add_bulk_payment'])) {
 
     // Check if bulk_payment_amount exceeds total_account_balance
     if ($bulk_payment_amount > $total_account_balance) {
-        flash_alert("Payment exceeds Client Balance.", 'error');
+        flashAlert("Payment exceeds Client Balance.", 'error');
         redirect();
     }
 
@@ -830,7 +830,7 @@ if (isset($_POST['add_bulk_payment'])) {
 
     logAudit("Invoice", "Payment", "Bulk Payment amount of " . numfmt_format_currency($currency_format, $bulk_payment_amount_static, $currency_code) . " applied to multiple invoices", $client_id);
 
-    flash_alert("$alert_message Bulk Payment added");
+    flashAlert("$alert_message Bulk Payment added");
 
     redirect();
 
@@ -885,9 +885,9 @@ if (isset($_GET['delete_payment'])) {
 
     logAudit("Invoice", "Edit", "$session_name deleted Payment on Invoice $invoice_prefix$invoice_number", $client_id, $invoice_id);
 
-    flash_alert("Payment deleted", 'error');
+    flashAlert("Payment deleted", 'error');
     if ($config_stripe_enable) {
-       flash_alert("Payment deleted - Stripe payments must be manually refunded in Stripe", 'error');
+       flashAlert("Payment deleted - Stripe payments must be manually refunded in Stripe", 'error');
     }
 
     redirect();
@@ -920,7 +920,7 @@ if (isset($_POST['export_payments_csv'])) {
         $delimiter = ",";
         $enclosure = '"';
         $escape    = '\\';   // backslash
-        $filename = sanitize_filename($file_name_prepend . "Payments-" . date('Y-m-d_H-i-s') . ".csv");
+        $filename = sanitizeFilename($file_name_prepend . "Payments-" . date('Y-m-d_H-i-s') . ".csv");
 
         //create a file pointer
         $f = fopen('php://memory', 'w');

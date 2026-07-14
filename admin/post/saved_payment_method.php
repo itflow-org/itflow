@@ -63,7 +63,7 @@ if (isset($_GET['delete_saved_payment'])) {
 
     logAudit("Payment Provider", "Update", "$session_name deleted saved payment method $saved_payment_description (PM: $payment_method)", $client_id);
 
-    flash_alert("Payment method <strong>$saved_payment_description</strong> removed", 'error');
+    flashAlert("Payment method <strong>$saved_payment_description</strong> removed", 'error');
 
     redirect();
 

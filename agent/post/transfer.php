@@ -37,7 +37,7 @@ if (isset($_POST['add_transfer'])) {
 
     logAudit("Account Transfer", "Create", "$session_name transferred " . numfmt_format_currency($currency_format, $amount, $account_currency_code) . " from account $source_account_name to $destination_account_name", 0, $transfer_id);
 
-    flash_alert("Transferred <strong>" . numfmt_format_currency($currency_format, $amount, $account_currency_code) . "</strong> from <strong>$source_account_name</strong> to <strong>$destination_account_name</strong>");
+    flashAlert("Transferred <strong>" . numfmt_format_currency($currency_format, $amount, $account_currency_code) . "</strong> from <strong>$source_account_name</strong> to <strong>$destination_account_name</strong>");
 
     redirect();
 
@@ -63,7 +63,7 @@ if (isset($_POST['edit_transfer'])) {
 
     logAudit("Account Transfer", "Edit", "$session_name edited transfer", 0, $transfer_id);
 
-    flash_alert("Transfer edited");
+    flashAlert("Transfer edited");
 
     redirect();
 
@@ -90,7 +90,7 @@ if (isset($_GET['delete_transfer'])) {
 
     logAudit("Account Transfer", "Delete", "$session_name deleted transfer");
 
-    flash_alert("Transfer deleted", 'error');
+    flashAlert("Transfer deleted", 'error');
 
     redirect();
 

@@ -30,7 +30,7 @@ if (isset($_POST['add_document_template'])) {
 
     logAudit("Document Template", "Create", "$session_name created document template $name", 0, $document_template_id);
 
-    flash_alert("Document template <strong>$name</strong> created");
+    flashAlert("Document template <strong>$name</strong> created");
 
     redirect();
 
@@ -65,7 +65,7 @@ if (isset($_POST['edit_document_template'])) {
 
     logAudit("Document Template", "Edit", "$session_name edited document template $name", 0, $document_template_id);
 
-    flash_alert("Document Template <strong>$name</strong> edited");
+    flashAlert("Document Template <strong>$name</strong> edited");
 
     redirect();
 
@@ -86,7 +86,7 @@ if (isset($_GET['delete_document_template'])) {
 
     logAudit("Document Template", "Delete", "$session_name deleted document template $document_template_name");
 
-    flash_alert("Document Template <strong>$document_template_name</strong> deleted", 'error');
+    flashAlert("Document Template <strong>$document_template_name</strong> deleted", 'error');
 
     redirect();
 

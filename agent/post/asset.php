@@ -72,7 +72,7 @@ if (isset($_POST['add_asset'])) {
 
     logAudit("Asset", "Create", "$session_name created asset $name", $client_id, $asset_id);
 
-    flash_alert("Asset <strong>$name</strong> created $alert_extended");
+    flashAlert("Asset <strong>$name</strong> created $alert_extended");
 
     redirect();
 
@@ -141,7 +141,7 @@ if (isset($_POST['edit_asset'])) {
 
     logAudit("Asset", "Edit", "$session_name edited asset $name", $client_id, $asset_id);
 
-    flash_alert("Asset <strong>$name</strong> edited");
+    flashAlert("Asset <strong>$name</strong> edited");
 
     redirect();
 
@@ -170,7 +170,7 @@ if (isset($_GET['archive_asset'])) {
 
     logAudit("Asset", "Archive", "$session_name archived asset $asset_name", $client_id, $asset_id);
 
-    flash_alert("Asset <strong>$asset_name</strong> archived", 'error');
+    flashAlert("Asset <strong>$asset_name</strong> archived", 'error');
 
     redirect();
 
@@ -199,7 +199,7 @@ if (isset($_GET['restore_asset'])) {
 
     logAudit("Asset", "Restore", "$session_name restored asset $asset_name", $client_id, $asset_id);
 
-    flash_alert("Asset <strong>$asset_name</strong> Restored");
+    flashAlert("Asset <strong>$asset_name</strong> Restored");
 
     redirect();
 
@@ -225,7 +225,7 @@ if (isset($_GET['delete_asset'])) {
 
     logAudit("Asset", "Delete", "$session_name deleted asset $asset_name", $client_id);
 
-    flash_alert("Asset <strong>$asset_name</strong> deleted");
+    flashAlert("Asset <strong>$asset_name</strong> deleted");
 
     redirect();
 
@@ -272,7 +272,7 @@ if (isset($_POST['bulk_assign_asset_tags'])) {
 
         logAudit("Asset", "Bulk Edit", "$session_name added tags for $asset_count assets", $client_id);
 
-        flash_alert("Assigned tags for <strong>$count</strong> assets");
+        flashAlert("Assigned tags for <strong>$count</strong> assets");
     }
 
     redirect();
@@ -320,7 +320,7 @@ if (isset($_POST['bulk_assign_asset_location'])) {
 
         logAudit("Asset", "Bulk Edit", "$session_name assigned $asset_count assets to location $location_name", $client_id);
 
-        flash_alert("You assigned <strong>$asset_count</strong> assets to location <strong>$location_name</strong>");
+        flashAlert("You assigned <strong>$asset_count</strong> assets to location <strong>$location_name</strong>");
     }
 
     redirect();
@@ -360,7 +360,7 @@ if (isset($_POST['bulk_assign_asset_physical_location'])) {
 
         logAudit("Asset", "Bulk Edit", "$session_name set $asset_count assets to physical location $physical_location", $client_id);
 
-        flash_alert("You moved <strong>$asset_count</strong> assets to location <strong>$physical_location</strong>");
+        flashAlert("You moved <strong>$asset_count</strong> assets to location <strong>$physical_location</strong>");
     }
 
     redirect();
@@ -450,7 +450,7 @@ if (isset($_POST['bulk_transfer_client_asset'])) {
 
         logAudit("Asset", "Bulk Transfer", "$session_name transferred $asset_count assets to $new_client_name", $new_client_id);
 
-        flash_alert("Transferred <strong>$asset_count</strong> assets to <strong>$new_client_name</strong>.");
+        flashAlert("Transferred <strong>$asset_count</strong> assets to <strong>$new_client_name</strong>.");
     }
 
     redirect();
@@ -495,7 +495,7 @@ if (isset($_POST['bulk_assign_asset_contact'])) {
 
         logAudit("Asset", "Bulk Edit", "$session_name assigned $asset_count assets to contact $contact_name", $client_id);
 
-        flash_alert("You assigned <strong>$asset_count</strong> assets to contact <strong>$contact_name</strong>");
+        flashAlert("You assigned <strong>$asset_count</strong> assets to contact <strong>$contact_name</strong>");
     }
 
     redirect();
@@ -536,7 +536,7 @@ if (isset($_POST['bulk_edit_asset_status'])) {
 
         logAudit("Asset", "Bulk Edit", "$session_name set status to $status on $asset_count assets", $client_id);
 
-        flash_alert("You set the status <strong>$status</strong> on <strong>$asset_count</strong> assets.");
+        flashAlert("You set the status <strong>$status</strong> on <strong>$asset_count</strong> assets.");
     }
 
     redirect();
@@ -573,7 +573,7 @@ if (isset($_POST['bulk_favorite_assets'])) {
 
         logAudit("Asset", "Bulk Edit", "$session_name favorited $count assets", $client_id);
 
-        flash_alert("Favorited <strong>$count</strong> asset(s)");
+        flashAlert("Favorited <strong>$count</strong> asset(s)");
 
     }
 
@@ -611,7 +611,7 @@ if (isset($_POST['bulk_unfavorite_assets'])) {
 
         logAudit("Asset", "Bulk Edit", "$session_name unfavorited $count assets", $client_id);
 
-        flash_alert("Unfavorited <strong>$count</strong> asset(s)");
+        flashAlert("Unfavorited <strong>$count</strong> asset(s)");
 
     }
 
@@ -652,7 +652,7 @@ if (isset($_POST['bulk_archive_assets'])) {
 
         logAudit("Asset", "Bulk Archive", "$session_name archived $count assets", $client_id);
 
-        flash_alert("Archived <strong>$count</strong> asset(s)", 'error');
+        flashAlert("Archived <strong>$count</strong> asset(s)", 'error');
 
     }
 
@@ -694,7 +694,7 @@ if (isset($_POST['bulk_restore_assets'])) {
 
         logAudit("Asset", "Bulk Restore", "$session_name restored $count assets");
 
-        flash_alert("Restored $count asset(s)");
+        flashAlert("Restored $count asset(s)");
 
     }
 
@@ -731,7 +731,7 @@ if (isset($_POST['bulk_delete_assets'])) {
 
         logAudit("Asset", "Bulk Delete", "$session_name deleted $count assets");
 
-        flash_alert("Deleted <strong>$count</strong> asset(s)", 'error');
+        flashAlert("Deleted <strong>$count</strong> asset(s)", 'error');
     }
 
     redirect();
@@ -764,7 +764,7 @@ if (isset($_POST['link_software_to_asset'])) {
 
     logAudit("Software", "Link", "$session_name added software license $software_name to asset $asset_name", $client_id, $software_id);
 
-    flash_alert("Software <strong>$software_name</strong> licensed for asset <strong>$asset_name</strong>");
+    flashAlert("Software <strong>$software_name</strong> licensed for asset <strong>$asset_name</strong>");
 
     redirect();
 
@@ -794,7 +794,7 @@ if (isset($_GET['unlink_software_from_asset'])) {
 
     logAudit("software", "Unlink", "$session_name removed software license $software_name from asset $asset_name", $client_id, $software_id);
 
-    flash_alert("Removed Software License <strong>$software_name</strong> for Asset <strong>$asset_name</strong>", 'error');
+    flashAlert("Removed Software License <strong>$software_name</strong> for Asset <strong>$asset_name</strong>", 'error');
 
     redirect();
 
@@ -825,7 +825,7 @@ if (isset($_POST['link_asset_to_credential'])) {
 
     logAudit("Credential", "Link", "$session_name linked credential $credential_name to asset $asset_name", $client_id, $credential_id);
 
-    flash_alert("Asset <strong>$asset_name</strong> linked with credential <strong>$crdential_name</strong>");
+    flashAlert("Asset <strong>$asset_name</strong> linked with credential <strong>$crdential_name</strong>");
 
     redirect();
 
@@ -855,7 +855,7 @@ if (isset($_GET['unlink_credential_from_asset'])) {
 
     logAudit("Credential", "Unlink", "$session_name unlinked asset $asset_name from credential $credential_name", $client_id, $credential_id);
 
-    flash_alert("Credential <strong>$credential_name</strong> unlinked from Asset <strong>$asset_name</strong>", 'errpr');
+    flashAlert("Credential <strong>$credential_name</strong> unlinked from Asset <strong>$asset_name</strong>", 'errpr');
 
     redirect();
 
@@ -885,7 +885,7 @@ if (isset($_POST['link_service_to_asset'])) {
 
     logAudit("Service", "Link", "$session_name linked asset $asset_name to service $service_name", $client_id, $service_id);
 
-    flash_alert("Service <strong>$service_name</strong> linked with asset <strong>$asset_name</strong>");
+    flashAlert("Service <strong>$service_name</strong> linked with asset <strong>$asset_name</strong>");
 
     redirect();
 
@@ -915,7 +915,7 @@ if (isset($_GET['unlink_service_from_asset'])) {
 
     logAudit("Service", "Unlink", "$session_name unlinked asset $asset_name from service $service_name", $client_id, $service_id);
 
-    flash_alert("Asset <strong>$asset_name</strong> unlinked from service <strong>$service_name</strong>", 'error');
+    flashAlert("Asset <strong>$asset_name</strong> unlinked from service <strong>$service_name</strong>", 'error');
 
     redirect();
 
@@ -946,7 +946,7 @@ if (isset($_POST['link_asset_to_file'])) {
 
     logAudit("File", "Link", "$session_name linked asset $asset_name to file $file_name", $client_id, $file_id);
 
-    flash_alert("Asset <strong>$asset_name</strong> linked with File <strong>$file_name</strong>");
+    flashAlert("Asset <strong>$asset_name</strong> linked with File <strong>$file_name</strong>");
 
     redirect();
 
@@ -976,7 +976,7 @@ if (isset($_GET['unlink_asset_from_file'])) {
 
     logAudit("File", "Unlink", "$session_name unlinked asset $asset_name from file $file_name", $client_id, $file_id);
 
-    flash_alert("Asset <strong>$asset_name</strong> unlinked from file <strong>$file_name</strong>", 'error');
+    flashAlert("Asset <strong>$asset_name</strong> unlinked from file <strong>$file_name</strong>", 'error');
 
     redirect();
 
@@ -1002,7 +1002,7 @@ if (isset($_POST["import_assets_csv"])) {
     if (!empty($_FILES["file"]["tmp_name"])) {
         $file_name = $_FILES["file"]["tmp_name"];
     } else {
-        flash_alert("Please select a file to upload.", 'error');
+        flashAlert("Please select a file to upload.", 'error');
         redirect();
     }
 
@@ -1011,13 +1011,13 @@ if (isset($_POST["import_assets_csv"])) {
     $allowed_file_extensions = array('csv');
     if (in_array($file_extension,$allowed_file_extensions) === false) {
         $error = true;
-        flash_alert("Bad file extension", 'error');
+        flashAlert("Bad file extension", 'error');
     }
 
     //Check file isn't empty
     elseif ($_FILES["file"]["size"] < 1) {
         $error = true;
-        flash_alert("Bad file size (empty?)", 'error');
+        flashAlert("Bad file size (empty?)", 'error');
     }
 
     //(Else)Check column count (name, desc, type, make, model, serial, os, purchase date, assigned to, location, notes)
@@ -1025,7 +1025,7 @@ if (isset($_POST["import_assets_csv"])) {
     $f_columns = fgetcsv($f, 1000, ",");
     if (!$error & count($f_columns) != 12) {
         $error = true;
-        flash_alert("Invalid column count.", 'error');
+        flashAlert("Invalid column count.", 'error');
     }
 
     //Else, parse the file
@@ -1141,7 +1141,7 @@ if (isset($_POST["import_assets_csv"])) {
 
         logAudit("Asset", "Import", "$session_name imported $row_count asset(s) via CSV file", $client_id);
 
-        flash_alert("$row_count Asset(s) added, $duplicate_count duplicate(s) detected");
+        flashAlert("$row_count Asset(s) added, $duplicate_count duplicate(s) detected");
 
         redirect();
 
@@ -1217,7 +1217,7 @@ if (isset($_POST['export_assets_csv'])) {
         $delimiter = ",";
         $enclosure = '"';
         $escape    = '\\';   // backslash
-        $filename = sanitize_filename($file_name_prepend . "Assets-" . date('Y-m-d_H-i-s') . ".csv");
+        $filename = sanitizeFilename($file_name_prepend . "Assets-" . date('Y-m-d_H-i-s') . ".csv");
 
         //create a file pointer
         $f = fopen('php://memory', 'w');
@@ -1320,7 +1320,7 @@ if (isset($_POST['add_asset_interface'])) {
     );
 
     // 7) Alert message + redirect
-    flash_alert("Interface <strong>$name</strong> created");
+    flashAlert("Interface <strong>$name</strong> created");
 
     redirect();
 
@@ -1367,7 +1367,7 @@ if (isset($_POST['add_asset_multiple_interfaces'])) {
 
     logAudit("Asset Interface", "Bulk Create", "$session_name created $interfaces for asset $asset_name", $client_id, $asset_id);
 
-    flash_alert("Created <strong>$interfaces</strong> Interface(s) for asset <strong>$asset_name</strong>");
+    flashAlert("Created <strong>$interfaces</strong> Interface(s) for asset <strong>$asset_name</strong>");
 
     redirect();
 
@@ -1448,7 +1448,7 @@ if (isset($_POST['edit_asset_interface'])) {
     );
 
     // 6) Alert and redirect
-    flash_alert("Interface <strong>$name</strong> edited");
+    flashAlert("Interface <strong>$name</strong> edited");
 
     redirect();
 
@@ -1493,7 +1493,7 @@ if (isset($_GET['delete_asset_interface'])) {
     );
 
     // 4) Alert and redirect
-    flash_alert("Interface <strong>$interface_name</strong> deleted", 'error');
+    flashAlert("Interface <strong>$interface_name</strong> deleted", 'error');
 
     redirect();
 
@@ -1537,7 +1537,7 @@ if (isset($_POST['bulk_edit_asset_interface_type'])) {
 
         logAudit("Asset Interface", "Bulk Edit", "$session_name set interface type to $type on $interface_count interfaces for asset $asset_name", $client_id);
 
-        flash_alert("Type set to <strong>$type</strong> on <strong>$interface_count</strong> interfaces.");
+        flashAlert("Type set to <strong>$type</strong> on <strong>$interface_count</strong> interfaces.");
 
     }
 
@@ -1586,7 +1586,7 @@ if (isset($_POST['bulk_edit_asset_interface_network'])) {
 
         logAudit("Asset Interface", "Bulk Edit", "$session_name set network to $network_name on $interface_count interfaces for asset $asset_name", $client_id);
 
-        flash_alert("Network set to <strong>$network_name</strong> on <strong>$interface_count</strong> interfaces.");
+        flashAlert("Network set to <strong>$network_name</strong> on <strong>$interface_count</strong> interfaces.");
     }
 
         redirect();
@@ -1629,7 +1629,7 @@ if (isset($_POST['bulk_edit_asset_interface_ip_dhcp'])) {
 
         logAudit("Asset Interface", "Bulk Edit", "$session_name set interface IP to DHCP on $interface_count interfaces for asset $asset_name", $client_id);
 
-        flash_alert("Interface IP set to <strong>DHCP</strong> on <strong>$interface_count</strong> interfaces.");
+        flashAlert("Interface IP set to <strong>DHCP</strong> on <strong>$interface_count</strong> interfaces.");
 
     }
 
@@ -1673,7 +1673,7 @@ if (isset($_POST['bulk_delete_asset_interfaces'])) {
 
         logAudit("Asset Interface", "Bulk Delete", "$session_name deleted $interface_count interfaces for asset $asset_name", $client_id);
 
-        flash_alert("<strong>$interface_count</strong> interfaces deleted.", 'error');
+        flashAlert("<strong>$interface_count</strong> interfaces deleted.", 'error');
     }
 
         redirect();
@@ -1702,7 +1702,7 @@ if (isset($_POST["import_client_asset_interfaces_csv"])) {
     if (!empty($_FILES["file"]["tmp_name"])) {
         $file_name = $_FILES["file"]["tmp_name"];
     } else {
-        flash_alert("Please select a file to upload.", 'error');
+        flashAlert("Please select a file to upload.", 'error');
         redirect();
     }
 
@@ -1711,13 +1711,13 @@ if (isset($_POST["import_client_asset_interfaces_csv"])) {
     $allowed_file_extensions = array('csv');
     if (in_array($file_extension,$allowed_file_extensions) === false) {
         $error = true;
-        flash_alert("Bad file extension", 'error');
+        flashAlert("Bad file extension", 'error');
     }
 
     //Check file isn't empty
     elseif ($_FILES["file"]["size"] < 1) {
         $error = true;
-        flash_alert("Bad file size (empty?)", 'error');
+        flashAlert("Bad file size (empty?)", 'error');
     }
 
     //(Else)Check column count (Name, Description, Type, MAC, IP, NAT IP, IPv6, Network)
@@ -1725,7 +1725,7 @@ if (isset($_POST["import_client_asset_interfaces_csv"])) {
     $f_columns = fgetcsv($f, 1000, ",");
     if (!$error & count($f_columns) != 8) {
         $error = true;
-        flash_alert("Bad column count.", 'error');
+        flashAlert("Bad column count.", 'error');
     }
 
     //Else, parse the file
@@ -1788,7 +1788,7 @@ if (isset($_POST["import_client_asset_interfaces_csv"])) {
 
         logAudit("Asset", "Import", "$session_name imported $row_count interfaces(s) to asset $asset_name via CSV file", $client_id);
 
-        flash_alert("<strong>$row_count</strong> Interfaces(s) added to asset <strong>$asset_name</stong>, <strong>$duplicate_count</strong> duplicate(s) detected");
+        flashAlert("<strong>$row_count</strong> Interfaces(s) added to asset <strong>$asset_name</stong>, <strong>$duplicate_count</strong> duplicate(s) detected");
 
         redirect();
 

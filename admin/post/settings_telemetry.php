@@ -12,7 +12,7 @@ if (isset($_POST['edit_telemetry_settings'])) {
 
     logAudit("Settings", "Edit", "$session_name edited telemetry settings");
 
-    flash_alert("Telemetry Settings updated");
+    flashAlert("Telemetry Settings updated");
 
     redirect();
 

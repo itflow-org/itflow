@@ -13,7 +13,7 @@ if (isset($_POST['edit_identity_provider'])) {
 
     logAudit("Settings", "Edit", "$session_name edited identity provider settings");
 
-    flash_alert("Identity Provider Settings updated");
+    flashAlert("Identity Provider Settings updated");
 
     redirect();
 

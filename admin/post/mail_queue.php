@@ -12,7 +12,7 @@ if (isset($_GET['send_failed_mail'])) {
 
     logAudit("Email", "Send", "$session_name attempted to force send email id: $email_id in the mail queue", 0, $email_id);
 
-    flash_alert("Email Force Sent, give it a minute to resend");
+    flashAlert("Email Force Sent, give it a minute to resend");
 
     redirect();
 
@@ -28,7 +28,7 @@ if (isset($_GET['cancel_mail'])) {
 
     logAudit("Email", "Send", "$session_name canceled send email id: $email_id in the mail queue", 0, $email_id);
 
-    flash_alert("Email cancelled and marked as failed.", 'error');
+    flashAlert("Email cancelled and marked as failed.", 'error');
 
     redirect();
 
@@ -54,7 +54,7 @@ if (isset($_POST['bulk_cancel_emails'])) {
 
         logAudit("Email", "Bulk Cancel", "$session_name cancelled $count email(s) in the mail queue");
 
-        flash_alert("Cancelled <strong>$count</strong> email(s)", 'error');
+        flashAlert("Cancelled <strong>$count</strong> email(s)", 'error');
 
     }
 
@@ -82,7 +82,7 @@ if (isset($_POST['bulk_delete_emails'])) {
 
         logAudit("Email", "Bulk Delete", "$session_name deleted $count email(s) from the mail queue");
 
-        flash_alert("Deleted <strong>$count</strong> email(s)", 'error');
+        flashAlert("Deleted <strong>$count</strong> email(s)", 'error');
 
     }
 

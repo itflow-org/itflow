@@ -29,12 +29,12 @@ if (isset($_POST['oauth_connect_microsoft_mail'])) {
     // Check the SAVED providers (loaded from config at bootstrap), not $_POST —
     // the provider dropdowns live in different forms and are never posted here
     if ($config_imap_provider !== 'microsoft_oauth' && $config_smtp_provider !== 'microsoft_oauth') {
-        flash_alert("Please set the SMTP or IMAP Provider to Microsoft 365 (OAuth) and save it before connecting.", 'error');
+        flashAlert("Please set the SMTP or IMAP Provider to Microsoft 365 (OAuth) and save it before connecting.", 'error');
         redirect();
     }
 
     if (empty($config_mail_oauth_client_id) || empty($config_mail_oauth_client_secret) || empty($config_mail_oauth_tenant_id)) {
-        flash_alert("Missing Microsoft OAuth settings. Please provide Client ID, Client Secret, and Tenant ID first.", 'error');
+        flashAlert("Missing Microsoft OAuth settings. Please provide Client ID, Client Secret, and Tenant ID first.", 'error');
         redirect();
     }
 
@@ -97,7 +97,7 @@ if (isset($_POST['edit_mail_smtp_settings'])) {
 
     logAudit("Settings", "Edit", "$session_name edited SMTP settings");
 
-    flash_alert("SMTP Mail Settings updated");
+    flashAlert("SMTP Mail Settings updated");
 
     redirect();
 
@@ -127,7 +127,7 @@ if (isset($_POST['edit_mail_imap_settings'])) {
 
     logAudit("Settings", "Edit", "$session_name edited IMAP settings");
 
-    flash_alert("IMAP Mail Settings updated");
+    flashAlert("IMAP Mail Settings updated");
 
     redirect();
 
@@ -153,7 +153,7 @@ if (isset($_POST['edit_mail_oauth_settings'])) {
     ");
 
     logAudit("Settings", "Edit", "$session_name edited mail OAuth settings");
-    flash_alert("Mail OAuth Settings updated");
+    flashAlert("Mail OAuth Settings updated");
     redirect();
 }
 
@@ -177,7 +177,7 @@ if (isset($_POST['edit_mail_from_settings'])) {
 
     logAudit("Settings", "Edit", "$session_name edited mail from settings");
 
-    flash_alert("Mail From Settings updated");
+    flashAlert("Mail From Settings updated");
 
     redirect();
 
@@ -221,9 +221,9 @@ if (isset($_POST['test_email_smtp'])) {
     $mail = addToMailQueue($data);
 
     if ($mail === true) {
-        flash_alert("Test email queued! <a class='text-bold text-light' href='mail_queue.php'>Check Admin > Mail queue</a>");
+        flashAlert("Test email queued! <a class='text-bold text-light' href='mail_queue.php'>Check Admin > Mail queue</a>");
     } else {
-        flash_alert("Failed to add test mail to queue", 'error');
+        flashAlert("Failed to add test mail to queue", 'error');
     }
 
     redirect();
@@ -275,7 +275,7 @@ if (isset($_POST['test_email_imap'])) {
     }
 
     if (empty($host) || empty($port) || empty($username)) {
-        flash_alert("<strong>IMAP connection failed:</strong> Missing host, port, or username.", 'error');
+        flashAlert("<strong>IMAP connection failed:</strong> Missing host, port, or username.", 'error');
         redirect();
     }
 
@@ -319,7 +319,7 @@ if (isset($_POST['test_email_imap'])) {
             $password = $config_mail_oauth_access_token;
         } else {
             if (empty($config_mail_oauth_client_id) || empty($config_mail_oauth_client_secret) || empty($config_mail_oauth_refresh_token)) {
-                flash_alert("<strong>IMAP OAuth failed:</strong> Missing OAuth client credentials or refresh token.", 'error');
+                flashAlert("<strong>IMAP OAuth failed:</strong> Missing OAuth client credentials or refresh token.", 'error');
                 redirect();
             }
 
@@ -332,7 +332,7 @@ if (isset($_POST['test_email_imap'])) {
                 ]);
             } else {
                 if (empty($config_mail_oauth_tenant_id)) {
-                    flash_alert("<strong>IMAP OAuth failed:</strong> Microsoft tenant ID is required.", 'error');
+                    flashAlert("<strong>IMAP OAuth failed:</strong> Microsoft tenant ID is required.", 'error');
                     redirect();
                 }
 
@@ -346,13 +346,13 @@ if (isset($_POST['test_email_imap'])) {
             }
 
             if (!$response['ok']) {
-                flash_alert("<strong>IMAP OAuth failed:</strong> Could not refresh access token.", 'error');
+                flashAlert("<strong>IMAP OAuth failed:</strong> Could not refresh access token.", 'error');
                 redirect();
             }
 
             $json = json_decode($response['body'], true);
             if (!is_array($json) || empty($json['access_token'])) {
-                flash_alert("<strong>IMAP OAuth failed:</strong> Token response did not include an access token.", 'error');
+                flashAlert("<strong>IMAP OAuth failed:</strong> Token response did not include an access token.", 'error');
                 redirect();
             }
 
@@ -476,9 +476,9 @@ if (isset($_POST['test_email_imap'])) {
 
         if ($success) {
             if ($is_oauth) {
-                flash_alert("Connected successfully using OAuth");
+                flashAlert("Connected successfully using OAuth");
             } else {
-                flash_alert("Connected successfully");
+                flashAlert("Connected successfully");
             }
         } else {
             if (!$error_line) {
@@ -488,7 +488,7 @@ if (isset($_POST['test_email_imap'])) {
         }
 
     } catch (Exception $e) {
-        flash_alert("<strong>IMAP connection failed:</strong> " . htmlspecialchars($e->getMessage()), 'error');
+        flashAlert("<strong>IMAP connection failed:</strong> " . htmlspecialchars($e->getMessage()), 'error');
     }
 
     redirect();
@@ -502,7 +502,7 @@ if (isset($_POST['test_oauth_token_refresh'])) {
     $provider = escapeSql($_POST['oauth_provider'] ?? '');
 
     if ($provider !== 'google_oauth' && $provider !== 'microsoft_oauth') {
-        flash_alert("OAuth token test failed: unsupported provider.", 'error');
+        flashAlert("OAuth token test failed: unsupported provider.", 'error');
         redirect();
     }
 
@@ -512,12 +512,12 @@ if (isset($_POST['test_oauth_token_refresh'])) {
     $oauth_refresh_token = escapeSql($config_mail_oauth_refresh_token ?? '');
 
     if (empty($oauth_client_id) || empty($oauth_client_secret) || empty($oauth_refresh_token)) {
-        flash_alert("OAuth token test failed: missing client ID, client secret, or refresh token.", 'error');
+        flashAlert("OAuth token test failed: missing client ID, client secret, or refresh token.", 'error');
         redirect();
     }
 
     if ($provider === 'microsoft_oauth' && empty($oauth_tenant_id)) {
-        flash_alert("OAuth token test failed: Microsoft tenant ID is required.", 'error');
+        flashAlert("OAuth token test failed: Microsoft tenant ID is required.", 'error');
         redirect();
     }
 
@@ -546,14 +546,14 @@ if (isset($_POST['test_oauth_token_refresh'])) {
 
     if ($raw_body === false || $http_code < 200 || $http_code >= 300) {
         $err_msg = !empty($curl_err) ? $curl_err : "HTTP $http_code";
-        flash_alert("OAuth token test failed: $err_msg", 'error');
+        flashAlert("OAuth token test failed: $err_msg", 'error');
         redirect();
     }
 
     $json = json_decode($raw_body, true);
 
     if (!is_array($json) || empty($json['access_token'])) {
-        flash_alert("OAuth token test failed: access token missing in provider response.", 'error');
+        flashAlert("OAuth token test failed: access token missing in provider response.", 'error');
         redirect();
     }
 
@@ -575,6 +575,6 @@ if (isset($_POST['test_oauth_token_refresh'])) {
     $provider_label = $provider === 'microsoft_oauth' ? 'Microsoft 365' : 'Google Workspace';
     logAudit("Settings", "Edit", "$session_name tested OAuth token refresh for $provider_label mail settings");
 
-    flash_alert("OAuth token refresh successful for $provider_label. Access token expires at $new_expires_at.");
+    flashAlert("OAuth token refresh successful for $provider_label. Access token expires at $new_expires_at.");
     redirect();
 }

@@ -94,7 +94,7 @@ function redirect($url = null, $permanent = false) {
 }
 
 //Flash Alert Function
-function flash_alert(string $message, string $type = 'success'): void {
+function flashAlert(string $message, string $type = 'success'): void {
     $_SESSION['alert_type'] = $type;
     $_SESSION['alert_message'] = $message;
 }

@@ -16,7 +16,7 @@ if (isset($_POST['edit_localization'])) {
 
     logAudit("Settings", "Edit", "$session_name edited localization settings");
 
-    flash_alert("Company localization updated");
+    flashAlert("Company localization updated");
 
     redirect();
 

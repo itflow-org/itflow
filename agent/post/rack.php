@@ -47,7 +47,7 @@ if (isset($_POST['add_rack'])) {
 
     logAudit("Rack", "Create", "$session_name created rack $name", $client_id, $rack_id);
 
-    flash_alert("Rack <strong>$name</strong> created");
+    flashAlert("Rack <strong>$name</strong> created");
 
     redirect();
 
@@ -94,7 +94,7 @@ if (isset($_POST['edit_rack'])) {
 
     logAudit("Rack", "Edit", "$session_name edited rack $name", $client_id, $rack_id);
 
-    flash_alert("Rack <strong>$name</strong> edited");
+    flashAlert("Rack <strong>$name</strong> edited");
 
     redirect();
 
@@ -120,7 +120,7 @@ if (isset($_GET['archive_rack'])) {
 
     logAudit("Rack", "Archive", "$session_name archived rack $rack_name", $client_id, $rack_id);
 
-    flash_alert("Rack <strong>$rack_name</strong> archived", 'error');
+    flashAlert("Rack <strong>$rack_name</strong> archived", 'error');
 
     redirect();
 
@@ -146,7 +146,7 @@ if (isset($_GET['restore_rack'])) {
 
     logAudit("Rack", "Restore", "$session_name restored rack $rack_name", $client_id, $rack_id);
 
-    flash_alert("Rack <strong>$rack_name</strong> Restored");
+    flashAlert("Rack <strong>$rack_name</strong> Restored");
 
     redirect();
 
@@ -178,7 +178,7 @@ if (isset($_GET['delete_rack'])) {
 
     logAudit("Rack", "Delete", "$session_name deleted rack $rack_name", $client_id);
 
-    flash_alert("Rack <strong>$rack_name</strong> deleted", 'error');
+    flashAlert("Rack <strong>$rack_name</strong> deleted", 'error');
 
     redirect();
 
@@ -206,7 +206,7 @@ if (isset($_POST['add_rack_unit'])) {
 
     // **New Validation Check**
     if ($unit_start > $unit_end) {
-        flash_alert("Unit Start number cannot be higher than Unit End number.", 'error');
+        flashAlert("Unit Start number cannot be higher than Unit End number.", 'error');
         redirect();
     }
 
@@ -215,7 +215,7 @@ if (isset($_POST['add_rack_unit'])) {
 
     if (mysqli_num_rows($check_sql) > 0) {
         // If there is an overlap, return an error message;
-        flash_alert("Units $unit_start to $unit_end are already in use by another device.", 'error');
+        flashAlert("Units $unit_start to $unit_end are already in use by another device.", 'error');
         redirect();
     }
 
@@ -226,7 +226,7 @@ if (isset($_POST['add_rack_unit'])) {
 
     logAudit("Rack", "Edit", "$session_name added device $name to units $unit_start - $unit_end in rack $rack_name", $client_id, $rack_id);
 
-    flash_alert("Device <strong>$name</strong> added to units $unit_start - $unit_end in rack.");
+    flashAlert("Device <strong>$name</strong> added to units $unit_start - $unit_end in rack.");
 
     redirect();
 
@@ -257,7 +257,7 @@ if (isset($_POST['edit_rack_unit'])) {
 
     logAudit("Rack", "Edit", "$session_name edited device $name in rack $rack_name", $client_id, $rack_id);
 
-    flash_alert("Device $name edited on the rack");
+    flashAlert("Device $name edited on the rack");
 
     redirect();
 
@@ -285,7 +285,7 @@ if (isset($_GET['remove_rack_unit'])) {
 
     logAudit("Rack", "Edit", "$session_name removed device $device_name from rack $rack_name", $client_id, $rack_id);
 
-    flash_alert("Device <strong>$device_name</strong> removed from rack", 'error');
+    flashAlert("Device <strong>$device_name</strong> removed from rack", 'error');
 
     redirect();
 

@@ -46,7 +46,7 @@ ob_start();
                     <option value="0">/</option>
                     <?php
                     // Start displaying folder options from the root (parent_folder = 0)
-                    display_folder_options(0, $client_id, 1);
+                    displayFolderOptions(0, $client_id, 1);
                     ?>
                 </select>
             </div>

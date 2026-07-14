@@ -58,7 +58,7 @@ if(isset($_POST['add_location'])){
 
     logAudit("Location", "Create", "$session_name created location $name", $client_id, $location_id);
 
-    flash_alert("Location <strong>$name</strong> created.");
+    flashAlert("Location <strong>$name</strong> created.");
 
     redirect();
 
@@ -125,7 +125,7 @@ if(isset($_POST['edit_location'])){
 
     logAudit("Location", "Edit", "$session_name edited location $name", $client_id, $location_id);
 
-    flash_alert("Location <strong>$name</strong> updated");
+    flashAlert("Location <strong>$name</strong> updated");
 
     redirect();
 
@@ -151,7 +151,7 @@ if(isset($_GET['archive_location'])){
 
     logAudit("Location", "Archive", "$session_name archived location $location_name", $client_id, $location_id);
 
-    flash_alert("Location <strong>$location_name</strong> archived", 'error');
+    flashAlert("Location <strong>$location_name</strong> archived", 'error');
 
     redirect();
 
@@ -177,7 +177,7 @@ if(isset($_GET['restore_location'])){
 
     logAudit("Location", "Restore", "$session_name restored location $location_name", $client_id, $location_id);
 
-    flash_alert("Location <strong>$location_name</strong> restored");
+    flashAlert("Location <strong>$location_name</strong> restored");
 
     redirect();
 
@@ -203,7 +203,7 @@ if(isset($_GET['delete_location'])){
 
     logAudit("Location", "Delete", "$session_name deleted location $location_name", $client_id);
 
-    flash_alert("Location <strong>$location_name</strong> deleted", 'error');
+    flashAlert("Location <strong>$location_name</strong> deleted", 'error');
 
     redirect();
 
@@ -255,7 +255,7 @@ if (isset($_POST['bulk_assign_location_tags'])) {
 
         logAudit("Location", "Bulk Edit", "$session_name assigned tags to $count location(s)", $client_id);
 
-        flash_alert("Assigned tags for <strong>$count</strong> locations");
+        flashAlert("Assigned tags for <strong>$count</strong> locations");
 
     }
 
@@ -300,7 +300,7 @@ if (isset($_POST['bulk_archive_locations'])) {
 
         logAudit("Location", "Bulk Archive", "$session_name archived $count location(s)");
 
-        flash_alert("Archived <strong>$count</strong> location(s)", 'error');
+        flashAlert("Archived <strong>$count</strong> location(s)", 'error');
 
     }
 
@@ -340,7 +340,7 @@ if (isset($_POST['bulk_restore_locations'])) {
 
         logAudit("Location", "Bulk Restore", "$session_name restored $count location(s)", $client_id);
 
-        flash_alert("Restored <strong>$count</strong> location(s)");
+        flashAlert("Restored <strong>$count</strong> location(s)");
 
     }
 
@@ -380,7 +380,7 @@ if (isset($_POST['bulk_delete_locations'])) {
 
         logAudit("Location", "Bulk Delete", "$session_name deleted $count location(s)", $client_id);
 
-        flash_alert("Deleted <strong>$count</strong> location(s)", 'error');
+        flashAlert("Deleted <strong>$count</strong> location(s)", 'error');
 
     }
 
@@ -414,7 +414,7 @@ if(isset($_POST['export_locations_csv'])){
         $delimiter = ",";
         $enclosure = '"';
         $escape    = '\\';   // backslash
-        $filename = sanitize_filename($file_name_prepend . "Locations-" . date('Y-m-d_H-i-s') . ".csv");
+        $filename = sanitizeFilename($file_name_prepend . "Locations-" . date('Y-m-d_H-i-s') . ".csv");
 
         //create a file pointer
         $f = fopen('php://memory', 'w');
@@ -461,7 +461,7 @@ if (isset($_POST["import_locations_csv"])) {
     if (!empty($_FILES["file"]["tmp_name"])) {
         $file_name = $_FILES["file"]["tmp_name"];
     } else {
-        flash_alert("Please select a file to upload.", 'error');
+        flashAlert("Please select a file to upload.", 'error');
         redirect();
     }
 
@@ -470,13 +470,13 @@ if (isset($_POST["import_locations_csv"])) {
     $allowed_file_extensions = array('csv');
     if(in_array($file_extension,$allowed_file_extensions) === false){
         $error = true;
-        flash_alert("Bad file extension", 'error');
+        flashAlert("Bad file extension", 'error');
     }
 
     //Check file isn't empty
     elseif($_FILES["file"]["size"] < 1){
         $error = true;
-        flash_alert("Bad file size (empty?)", 'error');
+        flashAlert("Bad file size (empty?)", 'error');
     }
 
     //(Else)Check column count
@@ -484,7 +484,7 @@ if (isset($_POST["import_locations_csv"])) {
     $f_columns = fgetcsv($f, 1000, ",");
     if(!$error & count($f_columns) != 8) {
         $error = true;
-        flash_alert("Bad column count.", 'error');
+        flashAlert("Bad column count.", 'error');
     }
 
     //Else, parse the file
@@ -536,7 +536,7 @@ if (isset($_POST["import_locations_csv"])) {
 
         logAudit("Location", "Import", "$session_name imported $row_count location(s). $duplicate_count duplicate(s) found and not imported", $client_id);
 
-        flash_alert("$row_count Location(s) imported, $duplicate_count duplicate(s) detected and not imported");
+        flashAlert("$row_count Location(s) imported, $duplicate_count duplicate(s) detected and not imported");
 
         redirect();
     }

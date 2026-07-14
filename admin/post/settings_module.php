@@ -23,7 +23,7 @@ if (isset($_POST['edit_module_settings'])) {
 
     logAudit("Settings", "Edit", "$session_name edited module settings");
 
-    flash_alert("Module Settings updated");
+    flashAlert("Module Settings updated");
 
     redirect();
 

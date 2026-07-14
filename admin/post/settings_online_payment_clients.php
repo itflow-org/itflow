@@ -7,7 +7,7 @@ if (isset($_GET['stripe_remove_pm'])) {
     validateCSRFToken($_GET['csrf_token']);
 
     if (!$config_stripe_enable) {
-        flash_alert("Stripe not enabled", 'error');
+        flashAlert("Stripe not enabled", 'error');
         redirect();
     }
 
@@ -41,7 +41,7 @@ if (isset($_GET['stripe_remove_pm'])) {
 
     logAudit("Stripe", "Update", "$session_name deleted saved Stripe payment method (PM: $payment_method)", $client_id);
 
-    flash_alert("Payment method removed", 'error');
+    flashAlert("Payment method removed", 'error');
 
     redirect();
 
@@ -66,7 +66,7 @@ if (isset($_GET['stripe_reset_customer'])) {
 
     logAudit("Stripe", "Delete", "$session_name reset Stripe settings for client", $client_id);
 
-    flash_alert("Reset client Stripe settings", 'error');
+    flashAlert("Reset client Stripe settings", 'error');
 
     redirect();
 

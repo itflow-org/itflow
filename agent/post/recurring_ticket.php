@@ -34,7 +34,7 @@ if (isset($_POST['add_recurring_ticket'])) {
 
     logAudit("Recurring Ticket", "Create", "$session_name created recurring ticket for $subject - $frequency", $client_id, $recurring_ticket_id);
 
-    flash_alert("Recurring ticket <strong>$subject - $frequency</strong> created");
+    flashAlert("Recurring ticket <strong>$subject - $frequency</strong> created");
 
     redirect();
 
@@ -68,7 +68,7 @@ if (isset($_POST['edit_recurring_ticket'])) {
 
     logAudit("Recurring Ticket", "Edit", "$session_name edited recurring ticket $subject", $client_id, $recurring_ticket_id);
 
-    flash_alert("Recurring ticket <strong>$subject - $frequency</strong> updated");
+    flashAlert("Recurring ticket <strong>$subject - $frequency</strong> updated");
 
     redirect();
 
@@ -211,7 +211,7 @@ if (isset($_POST['bulk_force_recurring_tickets'])) {
 
         }
 
-        flash_alert("$count Recurring Tickets Forced");
+        flashAlert("$count Recurring Tickets Forced");
     }
 
     redirect();
@@ -347,12 +347,12 @@ if (isset($_GET['force_recurring_ticket'])) {
 
         logAudit("Ticket", "Create", "$session_name force created recurring scheduled $frequency ticket - $config_ticket_prefix$ticket_number - $subject", $client_id, $id);
 
-        flash_alert("Recurring Ticket Forced");
+        flashAlert("Recurring Ticket Forced");
 
         redirect();
 
     } else {
-        flash_alert("Recurring Ticket Force failed", 'error');
+        flashAlert("Recurring Ticket Force failed", 'error');
         redirect();
     }
 
@@ -380,7 +380,7 @@ if (isset($_GET['delete_recurring_ticket'])) {
 
     logAudit("Recurring Ticket", "Delete", "$session_name deleted recurring ticket $subject", $client_id, $recurring_ticket_id);
 
-    flash_alert("Recurring ticket <strong>$subject - $frequency</strong> deleted", 'error');
+    flashAlert("Recurring ticket <strong>$subject - $frequency</strong> deleted", 'error');
 
     redirect();
 
@@ -418,7 +418,7 @@ if (isset($_POST['bulk_delete_recurring_tickets'])) {
 
         logAudit("Recurring Ticket", "Bulk Delete", "$session_name deleted $count recurring ticket(s)");
 
-        flash_alert("Deleted <strong>$count</strong> recurring ticket(s)", 'error');
+        flashAlert("Deleted <strong>$count</strong> recurring ticket(s)", 'error');
     }
 
     redirect();
@@ -464,7 +464,7 @@ if (isset($_POST['bulk_assign_recurring_ticket'])) {
                 $agent_email = escapeSql($agent_details['user_email']);
 
                 if (!$agent_name) {
-                    flash_alert("Invalid agent!", 'error');
+                    flashAlert("Invalid agent!", 'error');
                     redirect();
                 }
             }
@@ -511,7 +511,7 @@ if (isset($_POST['bulk_assign_recurring_ticket'])) {
         }
     }
 
-    flash_alert("Assigned <strong>$recurring_ticket_count</strong> Recurring Tickets to <strong>$agent_name</strong>");
+    flashAlert("Assigned <strong>$recurring_ticket_count</strong> Recurring Tickets to <strong>$agent_name</strong>");
 
     redirect();
 
@@ -553,7 +553,7 @@ if (isset($_POST['bulk_edit_recurring_ticket_priority'])) {
 
         logAudit("Recurring Ticket", " Bulk Edit", "$session_name updated the priority to $priority on $recurring_ticket_count Recurring Tickets");
 
-        flash_alert("Priority updated to <strong>$priority</strong> for <strong>$recurring_ticket_count</strong> Recurring Tickets");
+        flashAlert("Priority updated to <strong>$priority</strong> for <strong>$recurring_ticket_count</strong> Recurring Tickets");
     }
 
     redirect();
@@ -595,7 +595,7 @@ if (isset($_POST['bulk_edit_recurring_ticket_category'])) {
 
         logAudit("Recurring Ticket", " Bulk Edit", "$session_name updated the category to $category_name for $recurring_ticket_count Recurring Tickets");
 
-        flash_alert("Category set to $category_name for <strong>$recurring_ticket_count</strong> Recurring Tickets");
+        flashAlert("Category set to $category_name for <strong>$recurring_ticket_count</strong> Recurring Tickets");
     }
 
     redirect();
@@ -646,7 +646,7 @@ if (isset($_POST['bulk_edit_recurring_ticket_billable'])) {
 
         logAudit("Recurring Ticket", " Bulk Edit", "$session_name updated the billable status to $billable_status for $recurring_ticket_count Recurring Tickets");
 
-        flash_alert("Billable status set to $billable_status for <strong>$recurring_ticket_count</strong> Recurring Tickets");
+        flashAlert("Billable status set to $billable_status for <strong>$recurring_ticket_count</strong> Recurring Tickets");
     }
 
     redirect();
@@ -686,7 +686,7 @@ if (isset($_POST['bulk_edit_recurring_ticket_next_run_date'])) {
 
         logAudit("Recurring Ticket", " Bulk Edit", "$session_name updated the Next run date to $next_run_date for $recurring_ticket_count Recurring Tickets");
 
-        flash_alert("Next run date set to <strong>$next_run_date</strong> for <strong>$recurring_ticket_count</strong> Recurring Tickets");
+        flashAlert("Next run date set to <strong>$next_run_date</strong> for <strong>$recurring_ticket_count</strong> Recurring Tickets");
     }
 
     redirect();

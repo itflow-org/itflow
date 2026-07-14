@@ -92,7 +92,7 @@ if (isset($_POST['add_user'])) {
 
     logAudit("User", "Create", "$session_name created user $name", 0, $user_id);
 
-    flash_alert("User <strong>$name</strong> created" . $extended_alert_description);
+    flashAlert("User <strong>$name</strong> created" . $extended_alert_description);
 
     redirect();
 
@@ -172,7 +172,7 @@ if (isset($_POST['edit_user'])) {
 
     logAudit("User", "Edit", "$session_name edited user $name", 0, $user_id);
 
-    flash_alert("User <strong>$name</strong> updated" . $extended_alert_description);
+    flashAlert("User <strong>$name</strong> updated" . $extended_alert_description);
 
     redirect();
 
@@ -190,7 +190,7 @@ if (isset($_GET['activate_user'])) {
 
     logAudit("User", "Activate", "$session_name activated user $user_name", 0, $user_id);
 
-    flash_alert("User <strong>$user_name</strong> activated");
+    flashAlert("User <strong>$user_name</strong> activated");
 
     redirect();
 
@@ -212,7 +212,7 @@ if (isset($_GET['disable_user'])) {
 
     logAudit("User", "Disable", "$session_name disabled user $name", 0, $user_id);
 
-    flash_alert("User <strong>$user_name</strong> disabled", 'error');
+    flashAlert("User <strong>$user_name</strong> disabled", 'error');
 
     redirect();
 
@@ -230,7 +230,7 @@ if (isset($_GET['revoke_remember_me'])) {
 
     logAudit("User", "Edit", "$session_name revoked all remember me tokens for user $user_name", 0, $user_id);
 
-    flash_alert("User <strong>$user_name</strong> remember me tokens revoked", 'error');
+    flashAlert("User <strong>$user_name</strong> remember me tokens revoked", 'error');
 
     redirect();
 
@@ -255,7 +255,7 @@ if (isset($_POST['archive_user'])) {
 
     logAudit("User", "Archive", "$session_name archived user $user_name", 0, $user_id);
 
-    flash_alert("User <strong>$user_name</strong> archived", 'error');
+    flashAlert("User <strong>$user_name</strong> archived", 'error');
 
     redirect();
 
@@ -285,7 +285,7 @@ if (isset($_POST['restore_user'])) {
 
     logAudit("User", "Restored", "$session_name restored user $user_name", 0, $user_id);
 
-    flash_alert("User <strong>$user_name</strong> restored");
+    flashAlert("User <strong>$user_name</strong> restored");
 
     redirect();
 
@@ -356,7 +356,7 @@ if (isset($_POST['ir_reset_user_password'])) {
     $userRow = mysqli_fetch_assoc($sql);
 
     if (!password_verify($admin_password, $userRow['user_password'])) {
-        flash_alert("Incorrect password.", 'error');
+        flashAlert("Incorrect password.", 'error');
         redirect();
     }
 

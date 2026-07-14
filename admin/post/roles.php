@@ -34,7 +34,7 @@ if (isset($_POST['add_role'])) {
 
     logAudit("User Role", "Create", "$session_name created user role $name", 0, $role_id);
 
-    flash_alert("User Role <strong>$name</strong> created");
+    flashAlert("User Role <strong>$name</strong> created");
 
     redirect();
 
@@ -67,7 +67,7 @@ if (isset($_POST['edit_role'])) {
 
     logAudit("User Role", "Edit", "$session_name edited user role $name", 0, $role_id);
 
-    flash_alert("User Role <strong>$name</strong> edited");
+    flashAlert("User Role <strong>$name</strong> edited");
 
     redirect();
 
@@ -83,7 +83,7 @@ if (isset($_GET['archive_role'])) {
     $sql_role_user_count = mysqli_query($mysqli, "SELECT COUNT(user_id) FROM users WHERE user_role_id = $role_id AND user_archived_at IS NULL");
     $role_user_count = mysqli_fetch_row($sql_role_user_count)[0];
     if ($role_user_count != 0) {
-        flash_alert("Role must not in use to archive it", 'error');
+        flashAlert("Role must not in use to archive it", 'error');
 
         redirect();
     }
@@ -94,7 +94,7 @@ if (isset($_GET['archive_role'])) {
 
     logAudit("User Role", "Archive", "$session_name archived user role $role_name", 0, $role_id);
 
-    flash_alert("User Role <strong>$role_name</strong> archived", 'error');
+    flashAlert("User Role <strong>$role_name</strong> archived", 'error');
 
     redirect();
 

@@ -19,7 +19,7 @@ if (isset($_POST['add_tax'])) {
 
     logAudit("Tax", "Create", "$session_name created tax $name - $percent%", 0, $tax_id);
 
-    flash_alert("Tax <strong>$name</strong> ($percent%) created");
+    flashAlert("Tax <strong>$name</strong> ($percent%) created");
 
     redirect();
 
@@ -37,7 +37,7 @@ if (isset($_POST['edit_tax'])) {
 
     logAudit("Tax", "Edit", "$session_name edited tax $name - $percent%", 0, $tax_id);
 
-    flash_alert("Tax <strong>$name</strong> ($percent%) edited");
+    flashAlert("Tax <strong>$name</strong> ($percent%) edited");
 
     redirect();
 
@@ -55,7 +55,7 @@ if (isset($_GET['archive_tax'])) {
 
     logAudit("Tax", "Archive", "$session_name archived tax $tax_name", 0, $tax_id);
 
-    flash_alert("Tax <strong>$tax_name</strong> Archived", 'error');
+    flashAlert("Tax <strong>$tax_name</strong> Archived", 'error');
 
     redirect();
 
@@ -73,7 +73,7 @@ if (isset($_GET['delete_tax'])) {
 
     logAudit("Tax", "Delete", "$session_name deleted tax $tax_name");
 
-    flash_alert("Tax <strong>$tax_name</strong> deleted", 'error');
+    flashAlert("Tax <strong>$tax_name</strong> deleted", 'error');
 
     redirect();
 

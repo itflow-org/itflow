@@ -18,7 +18,7 @@ if(isset($_POST['create_custom_field'])){
 
     logAudit("Custom Field", "Create", "$session_name created custom field $label", 0, $custom_field_id);
 
-    flash_alert("Custom field <strong>$label</strong> created");
+    flashAlert("Custom field <strong>$label</strong> created");
 
     redirect();
 
@@ -34,7 +34,7 @@ if(isset($_POST['edit_custom_field'])){
 
     logAudit("Custom Field", "Edit", "$session_name edited custom field $label", 0, $custom_field_id);
 
-    flash_alert("Custom field <strong>$label</strong> edited");
+    flashAlert("Custom field <strong>$label</strong> edited");
 
     redirect();
 
@@ -50,7 +50,7 @@ if(isset($_GET['delete_custom_field'])){
 
     logAudit("Custom Field", "Delete", "$session_name deleted custom field $label");
 
-    flash_alert("Custom field <strong>$label</strong> deleted", 'error');
+    flashAlert("Custom field <strong>$label</strong> deleted", 'error');
 
     redirect();
 

@@ -80,7 +80,7 @@ if (isset($_POST['add_service'])) {
 
     logAudit("Service", "Create", "$session_name created service $service_name", $client_id, $service_id);
 
-    flash_alert("Service <strong>$service_name</strong> created");
+    flashAlert("Service <strong>$service_name</strong> created");
 
     redirect();
 
@@ -168,7 +168,7 @@ if (isset($_POST['edit_service'])) {
 
     logAudit("Service", "Edit", "$session_name edited service $service_name", $client_id, $service_id);
 
-    flash_alert("Service <strong>$service_name</strong> edited");
+    flashAlert("Service <strong>$service_name</strong> edited");
 
     redirect();
 
@@ -195,7 +195,7 @@ if (isset($_GET['delete_service'])) {
 
     logAudit("Service", "Delete", "$session_name deleted service $service_name", $client_id);
 
-    flash_alert("Service <strong>$service_name</strong> deleted", 'error');
+    flashAlert("Service <strong>$service_name</strong> deleted", 'error');
 
     redirect();
 

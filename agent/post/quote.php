@@ -42,7 +42,7 @@ if (isset($_POST['add_quote'])) {
 
     customAction('quote_create', $quote_id);
 
-    flash_alert("Quote <strong>$config_quote_prefix$quote_number</strong> created");
+    flashAlert("Quote <strong>$config_quote_prefix$quote_number</strong> created");
 
     redirect("quote.php?quote_id=$quote_id");
 
@@ -114,7 +114,7 @@ if (isset($_POST['add_quote_copy'])) {
 
     customAction('quote_create', $new_quote_id);
 
-    flash_alert("Quote copied");
+    flashAlert("Quote copied");
 
     redirect("quote.php?quote_id=$new_quote_id");
 
@@ -207,7 +207,7 @@ if (isset($_POST['add_quote_to_invoice'])) {
 
     customAction('invoice_create', $new_invoice_id);
 
-    flash_alert("Invoice created from quote <strong>$quote_prefix$quote_number</strong>");
+    flashAlert("Invoice created from quote <strong>$quote_prefix$quote_number</strong>");
 
     redirect("invoice.php?invoice_id=$new_invoice_id");
 
@@ -267,7 +267,7 @@ if (isset($_POST['add_quote_item'])) {
 
     logAudit("Quote", "Edit", "$session_name added item $name to quote $quote_prefix$quote_number", $client_id, $quote_id);
 
-    flash_alert("Item <strong>$name</strong> added");
+    flashAlert("Item <strong>$name</strong> added");
 
     redirect();
 
@@ -326,7 +326,7 @@ if (isset($_POST['edit_quote_item'])) {
 
     logAudit("Quote", "Edit", "$session_name edited item $name on quote $quote_prefix$quote_number", $client_id, $quote_id);
 
-    flash_alert("Item <strong>$name</strong> updated");
+    flashAlert("Item <strong>$name</strong> updated");
 
     redirect();
 
@@ -354,7 +354,7 @@ if (isset($_POST['quote_note'])) {
 
     logAudit("Quote", "Edit", "$session_name added notes to quote $quote_prefix$quote_number", $client_id, $quote_id);
 
-    flash_alert("Notes added");
+    flashAlert("Notes added");
 
     redirect();
 
@@ -392,7 +392,7 @@ if (isset($_POST['edit_quote'])) {
 
     logAudit("Quote", "Edit", "$session_name edited quote $quote_prefix$quote_number", $client_id, $quote_id);
 
-    flash_alert("Quote edited");
+    flashAlert("Quote edited");
 
     redirect();
 
@@ -433,7 +433,7 @@ if (isset($_GET['delete_quote'])) {
 
     logAudit("Quote", "Delete", "$session_name deleted quote $quote_prefix$quote_number", $client_id);
 
-    flash_alert("Quote <strong>$quote_prefix$quote_number</strong> deleted", 'error');
+    flashAlert("Quote <strong>$quote_prefix$quote_number</strong> deleted", 'error');
 
     if (isset($_GET['client_id'])) {
         $client_id = intval($_GET['client_id']);
@@ -476,7 +476,7 @@ if (isset($_GET['delete_quote_item'])) {
 
     logAudit("Quote", "Edit", "$session_name removed item $item_name from $quote_prefix$quote_number", $client_id, $quote_id);
 
-    flash_alert("Item <strong>$item_name</strong> removed", 'error');
+    flashAlert("Item <strong>$item_name</strong> removed", 'error');
 
     redirect();
 
@@ -504,7 +504,7 @@ if (isset($_GET['mark_quote_sent'])) {
 
     logAudit("Quote", "Sent", "$session_name marked quote $quote_prefix$quote_number as sent", $client_id, $quote_id);
 
-    flash_alert("Quote marked sent");
+    flashAlert("Quote marked sent");
 
     redirect();
 
@@ -534,7 +534,7 @@ if (isset($_GET['accept_quote'])) {
 
     customAction('quote_accept', $quote_id);
 
-    flash_alert("Quote accepted");
+    flashAlert("Quote accepted");
 
     redirect();
 
@@ -564,7 +564,7 @@ if (isset($_GET['decline_quote'])) {
 
     logAudit("Quote", "Edit", "$session_name marked quote $quote_prefix$quote_number as declined", $client_id, $quote_id);
 
-    flash_alert("Quote declined", 'error');
+    flashAlert("Quote declined", 'error');
 
     redirect();
 
@@ -641,7 +641,7 @@ if (isset($_GET['email_quote'])) {
 
     logAudit("Quote", "Email", "$session_name emailed quote $quote_prefix$quote_number to $contact_email", $client_id, $quote_id);
 
-    flash_alert("Quote sent!");
+    flashAlert("Quote sent!");
 
     //Don't change the status to sent if the status is anything but draft
     if ($quote_status == 'Draft') {
@@ -674,7 +674,7 @@ if (isset($_GET['mark_quote_invoiced'])) {
 
     logAudit("Quote", "Sent", "$session_name marked quote $quote_prefix$quote_number as invoiced", $client_id, $quote_id);
 
-    flash_alert("Quote marked invoiced");
+    flashAlert("Quote marked invoiced");
 
     redirect();
 
@@ -707,7 +707,7 @@ if(isset($_POST['export_quotes_csv'])){
         $delimiter = ",";
         $enclosure = '"';
         $escape    = '\\';   // backslash
-        $filename = sanitize_filename($file_name_prepend . "Quotes-" . date('Y-m-d_H-i-s') . ".csv");
+        $filename = sanitizeFilename($file_name_prepend . "Quotes-" . date('Y-m-d_H-i-s') . ".csv");
 
         //create a file pointer
         $f = fopen('php://memory', 'w');
@@ -735,7 +735,7 @@ if(isset($_POST['export_quotes_csv'])){
 
     logAudit("Quote", "Export", "$session_name exported $num_rows quote(s) to a CSV file");
 
-    flash_alert("Exported <strong>$num_rows</strong> quote(s)");
+    flashAlert("Exported <strong>$num_rows</strong> quote(s)");
 
     exit;
 

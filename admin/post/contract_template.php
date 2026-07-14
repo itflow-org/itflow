@@ -53,7 +53,7 @@ if (isset($_POST['add_contract_template'])) {
     logAudit("Contract Template", "Create", "$session_name created contract template $name", 0, $contract_template_id);
 
     // Flash message
-    flash_alert("Contract Template <strong>$name</strong> created");
+    flashAlert("Contract Template <strong>$name</strong> created");
 
     // Redirect back
     redirect();
@@ -102,7 +102,7 @@ if (isset($_POST['edit_contract_template'])) {
     logAudit("Contract Template", "Update", "$session_name updated contract template $name", 0, $contract_template_id);
 
     // Flash + redirect
-    flash_alert("Contract Template <strong>$name</strong> updated");
+    flashAlert("Contract Template <strong>$name</strong> updated");
     redirect();
 }
 
@@ -118,7 +118,7 @@ if (isset($_GET['archive_contract_template'])) {
     ");
 
     logAudit("Contract Template", "Archive", "$session_name archived contract template $name", 0, $contract_template_id);
-    flash_alert("Contract Template <strong>$name</strong> archived", "danger");
+    flashAlert("Contract Template <strong>$name</strong> archived", "danger");
     redirect();
 }
 
@@ -134,7 +134,7 @@ if (isset($_GET['restore_contract_template'])) {
     ");
 
     logAudit("Contract Template", "Restore", "$session_name restored contract template $name", 0, $contract_template_id);
-    flash_alert("Contract Template <strong>$name</strong> restored");
+    flashAlert("Contract Template <strong>$name</strong> restored");
     redirect();
 }
 
@@ -150,7 +150,7 @@ if (isset($_GET['delete_contract_template'])) {
     ");
 
     logAudit("Contract Template", "Delete", "$session_name deleted contract template $name", 0, $contract_template_id);
-    flash_alert("Contract Template <strong>$name</strong> deleted", "danger");
+    flashAlert("Contract Template <strong>$name</strong> deleted", "danger");
     redirect();
 }
 

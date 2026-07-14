@@ -78,7 +78,7 @@ function enforceClientAccess($client_id = null) {
     $session_user_id = (int) $session_user_id;
 
     if (empty($client_id) || empty($session_user_id)) {
-        flash_alert('Access Denied.', 'error');
+        flashAlert('Access Denied.', 'error');
         redirect('clients.php');
     }
 
@@ -116,6 +116,6 @@ function enforceClientAccess($client_id = null) {
         $client_id
     );
 
-    flash_alert('Access Denied - You do not have permission to access that client!', 'error');
+    flashAlert('Access Denied - You do not have permission to access that client!', 'error');
     redirect('clients.php');
 }

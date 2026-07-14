@@ -23,7 +23,7 @@ if (isset($_POST['edit_invoice_settings'])) {
 
     logAudit("Settings", "Edit", "$session_name edited invoice settings");
 
-    flash_alert("Invoice Settings edited");
+    flashAlert("Invoice Settings edited");
 
     redirect();
 

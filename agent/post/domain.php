@@ -58,7 +58,7 @@ if (isset($_POST['add_domain'])) {
 
     logAudit("Domain", "Create", "$session_name created domain $name$extended_log_description", $client_id, $domain_id);
 
-    flash_alert("Domain <strong>$name</strong> created");
+    flashAlert("Domain <strong>$name</strong> created");
 
     redirect();
 
@@ -150,7 +150,7 @@ if (isset($_POST['edit_domain'])) {
 
     logAudit("Domain", "Edit", "$session_name edited domain $name", $client_id, $domain_id);
 
-    flash_alert("Domain <strong>$name</strong> edited");
+    flashAlert("Domain <strong>$name</strong> edited");
 
     redirect();
 
@@ -176,7 +176,7 @@ if (isset($_GET['archive_domain'])) {
 
     logAudit("Domain", "Archive", "$session_name archived domain $domain_name", $client_id, $domain_id);
 
-    flash_alert("Domain <strong>$domain_name archived", 'error');
+    flashAlert("Domain <strong>$domain_name archived", 'error');
 
     redirect();
 
@@ -202,7 +202,7 @@ if(isset($_GET['restore_domain'])){
 
     logAudit("Domain", "Restore", "$session_name restored domain $domain_name", $client_id, $domain_id);
 
-    flash_alert("Domain <strong>$domain_name</strong> restored");
+    flashAlert("Domain <strong>$domain_name</strong> restored");
 
     redirect();
 
@@ -228,7 +228,7 @@ if (isset($_GET['delete_domain'])) {
 
     logAudit("Domain", "Delete", "$session_name deleted domain $domain_name", $client_id);
 
-    flash_alert("Domain <strong>$domain_name</strong> deleted", 'error');
+    flashAlert("Domain <strong>$domain_name</strong> deleted", 'error');
 
     redirect();
 
@@ -265,7 +265,7 @@ if (isset($_POST['bulk_archive_domains'])) {
 
         logAudit("Domain", "Bulk Archive", "$session_name archived $count domain(s)", $client_id);
 
-        flash_alert("Archived <strong>$count</strong> domain(s)", 'error');
+        flashAlert("Archived <strong>$count</strong> domain(s)", 'error');
 
     }
 
@@ -305,7 +305,7 @@ if (isset($_POST['bulk_restore_domains'])) {
 
         logAudit("Domain", "Bulk Restore", "$session_name restored $count domain(s)", $client_id);
 
-        flash_alert("Restored <strong>$count</strong> domain(s)");
+        flashAlert("Restored <strong>$count</strong> domain(s)");
 
     }
 
@@ -344,7 +344,7 @@ if (isset($_POST['bulk_delete_domains'])) {
 
         logAudit("Domain", "Bulk Delete", "$session_name deleted $count domain(s)", $client_id);
 
-        flash_alert("Deleted <strong>$count</strong> domain(s)", 'error');
+        flashAlert("Deleted <strong>$count</strong> domain(s)", 'error');
 
     }
 
@@ -378,7 +378,7 @@ if (isset($_POST['export_domains_csv'])) {
         $delimiter = ",";
         $enclosure = '"';
         $escape    = '\\';   // backslash
-        $filename = sanitize_filename($file_name_prepend . "Domains-" . date('Y-m-d_H-i-s') . ".csv");
+        $filename = sanitizeFilename($file_name_prepend . "Domains-" . date('Y-m-d_H-i-s') . ".csv");
 
         //create a file pointer
         $f = fopen('php://memory', 'w');

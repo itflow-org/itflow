@@ -12,7 +12,7 @@ if (isset($_POST['edit_theme_settings'])) {
 
     logAudit("Settings", "Edit", "$session_name edited theme settings $dark_mode");
 
-    flash_alert("Changed theme to <strong>$theme</strong>");
+    flashAlert("Changed theme to <strong>$theme</strong>");
 
     redirect();
 
@@ -44,7 +44,7 @@ if (isset($_POST['edit_favicon_settings'])) {
 
     logAudit("Settings", "Edit", "$session_name changed the favicon");
 
-    flash_alert("Favicon Updated");
+    flashAlert("Favicon Updated");
 
     redirect();
 
@@ -60,7 +60,7 @@ if (isset($_GET['reset_favicon'])) {
 
     logAudit("Settings", "Edit", "$session_name reset Favicon");
 
-    flash_alert("Favicon reset", 'error');
+    flashAlert("Favicon reset", 'error');
 
     redirect();
 

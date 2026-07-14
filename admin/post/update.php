@@ -274,7 +274,7 @@ if (isset($_GET['update'])) {
 
     logAudit("App", "Update", "$session_name ran updates");
 
-    flash_alert("Update successful");
+    flashAlert("Update successful");
 
     sleep(1);
 
@@ -292,7 +292,7 @@ if (isset($_GET['update_db'])) {
 
     logAudit("Database", "Update", "$session_name updated the database structure");
 
-    flash_alert("Database structure update successful");
+    flashAlert("Database structure update successful");
 
     sleep(1);
 

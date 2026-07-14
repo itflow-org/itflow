@@ -16,7 +16,7 @@ if (isset($_POST['add_tag'])) {
 
     logAudit("Tag", "Create", "$session_name created tag $name", 0, $tag_id);
 
-    flash_alert("Tag <strong>$name</strong> created");
+    flashAlert("Tag <strong>$name</strong> created");
 
     redirect();
 

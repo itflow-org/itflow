@@ -25,7 +25,7 @@ if (isset($_POST['create_folder'])) {
 
     logAudit("Folder", "Create", "$session_name created folder $folder_name", $client_id, $folder_id);
 
-    flash_alert("Folder <strong>$folder_name</strong> created");
+    flashAlert("Folder <strong>$folder_name</strong> created");
 
     redirect();
 
@@ -53,7 +53,7 @@ if (isset($_POST['rename_folder'])) {
 
     logAudit("Folder", "Rename", "$session_name renamed folder $old_folder_name to $folder_name", $client_id, $folder_id);
 
-    flash_alert("Folder <strong>$old_folder_name</strong> renamed to <strong>$folder_name</strong>");
+    flashAlert("Folder <strong>$old_folder_name</strong> renamed to <strong>$folder_name</strong>");
 
     redirect();
 
@@ -87,7 +87,7 @@ if (isset($_GET['delete_folder'])) {
 
     logAudit("Folder", "Delete", "$session_name deleted folder $folder_name", $client_id);
 
-    flash_alert("Folder <strong>$folder_name</strong> deleted", 'error');
+    flashAlert("Folder <strong>$folder_name</strong> deleted", 'error');
 
     redirect();
 

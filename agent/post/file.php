@@ -63,7 +63,7 @@ if (isset($_POST['upload_files'])) {
             $dest_path       = $upload_file_dir . $file_reference_name;
 
             if (!move_uploaded_file($file_tmp_path, $dest_path)) {
-                flash_alert('Error moving file to upload directory. Please ensure the directory is writable.', 'error');
+                flashAlert('Error moving file to upload directory. Please ensure the directory is writable.', 'error');
                 continue; // Skip processing this file
             }
 
@@ -94,7 +94,7 @@ if (isset($_POST['upload_files'])) {
 
             logAudit("File", "Upload", "$session_name uploaded file $file_name", $client_id, $file_id);
 
-            flash_alert("Uploaded file <strong>$file_name</strong>");
+            flashAlert("Uploaded file <strong>$file_name</strong>");
         }
     }
 
@@ -126,7 +126,7 @@ if (isset($_POST['rename_file'])) {
 
     logAudit("File", "Rename", "$session_name renamed file $old_file_name to $file_name", $client_id, $file_id);
 
-    flash_alert("Renamed file <strong>$old_file_name</strong> to <strong>$file_name</strong>");
+    flashAlert("Renamed file <strong>$old_file_name</strong> to <strong>$file_name</strong>");
 
     redirect();
 
@@ -156,7 +156,7 @@ if (isset($_POST['move_file'])) {
 
     logAudit("File", "Move", "$session_name moved file $file_name to $folder_name", $client_id, $file_id);
 
-    flash_alert("File <strong>$file_name</strong> moved to <strong>$folder_name</strong>");
+    flashAlert("File <strong>$file_name</strong> moved to <strong>$folder_name</strong>");
 
     redirect();
 
@@ -182,7 +182,7 @@ if (isset($_GET['archive_file'])) {
 
     logAudit("File", "Archive", "$session_name archived file $file_name", $client_id, $file_id);
 
-    flash_alert("File <strong>$file_name</strong> archived", 'error');
+    flashAlert("File <strong>$file_name</strong> archived", 'error');
 
     redirect();
 
@@ -208,7 +208,7 @@ if (isset($_GET['restore_file'])) {
 
     logAudit("File", "Restore", "$session_name restored file $file_name", $client_id, $file_id);
 
-    flash_alert("File <strong>$file_name</strong> Restored");
+    flashAlert("File <strong>$file_name</strong> Restored");
 
     redirect();
 
@@ -245,7 +245,7 @@ if (isset($_POST['delete_file'])) {
 
     logAudit("File", "Delete", "$session_name deleted file $file_name", $client_id);
 
-    flash_alert("File <strong>$file_name</strong> deleted", 'alert');
+    flashAlert("File <strong>$file_name</strong> deleted", 'alert');
 
     redirect();
 
@@ -308,7 +308,7 @@ if (isset($_POST['bulk_archive_files'])) {
 
     logAudit("File", "Bulk Archive", "$session_name archived $document_count document(s) and $file_count file(s)", $client_id);
 
-    flash_alert("Archived <strong>$document_count</strong> Documents and <strong>$file_count</strong> files", 'error');
+    flashAlert("Archived <strong>$document_count</strong> Documents and <strong>$file_count</strong> files", 'error');
 
     redirect();
 
@@ -389,7 +389,7 @@ if (isset($_POST['bulk_delete_files'])) {
 
     logAudit("File", "Bulk Delete", "$session_name deleted $document_count document(s) and $file_count file(s)", $client_id);
 
-    flash_alert("Deleted <strong>$document_count</strong> Documents and <strong>$file_count</strong> files", 'error');
+    flashAlert("Deleted <strong>$document_count</strong> Documents and <strong>$file_count</strong> files", 'error');
 
     redirect();
 
@@ -452,7 +452,7 @@ if (isset($_POST['bulk_restore_files'])) {
 
     logAudit("File", "Bulk Restore", "$session_name restored $document_count document(s) and $file_count file(s)", $client_id);
 
-    flash_alert("Restored <strong>$document_count</strong> Documents and <strong>$file_count</strong> files");
+    flashAlert("Restored <strong>$document_count</strong> Documents and <strong>$file_count</strong> files");
 
     redirect();
 
@@ -563,13 +563,13 @@ if (isset($_POST['bulk_move_files'])) {
     // Flash message
     // -------------------------
     if ($file_count && $document_count) {
-        flash_alert("Moved <strong>$file_count</strong> file(s) and <strong>$document_count</strong> document(s) to the folder <strong>$folder_name</strong>");
+        flashAlert("Moved <strong>$file_count</strong> file(s) and <strong>$document_count</strong> document(s) to the folder <strong>$folder_name</strong>");
     } elseif ($file_count) {
-        flash_alert("Moved <strong>$file_count</strong> file(s) to the folder <strong>$folder_name</strong>");
+        flashAlert("Moved <strong>$file_count</strong> file(s) to the folder <strong>$folder_name</strong>");
     } elseif ($document_count) {
-        flash_alert("Moved <strong>$document_count</strong> document(s) to the folder <strong>$folder_name</strong>");
+        flashAlert("Moved <strong>$document_count</strong> document(s) to the folder <strong>$folder_name</strong>");
     } else {
-        flash_alert("No items were moved.");
+        flashAlert("No items were moved.");
     }
 
     redirect();
@@ -601,7 +601,7 @@ if (isset($_POST['link_asset_to_file'])) {
 
     logAudit("File", "Link", "$session_name linked asset $asset_name to file $file_name", $client_id, $file_id);
 
-    flash_alert("Asset <strong>$asset_name</strong> linked to File <strong>$file_name</strong>");
+    flashAlert("Asset <strong>$asset_name</strong> linked to File <strong>$file_name</strong>");
 
     redirect();
 
@@ -631,7 +631,7 @@ if (isset($_GET['unlink_asset_from_file'])) {
 
     logAudit("File", "Link", "$session_name unlinked asset $asset_name from file $file_name", $client_id, $file_id);
 
-    flash_alert("Asset <strong>$asset_name</strong> unlinked from File <strong>$file_name</strong>");
+    flashAlert("Asset <strong>$asset_name</strong> unlinked from File <strong>$file_name</strong>");
 
     redirect();
 

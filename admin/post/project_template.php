@@ -15,7 +15,7 @@ if (isset($_POST['add_project_template'])) {
 
     logAudit("Project Template", "Create", "$session_name created project template $name", 0, $project_template_id);
 
-    flash_alert("Project Template <strong>$name</strong> created");
+    flashAlert("Project Template <strong>$name</strong> created");
 
     redirect();
 
@@ -33,7 +33,7 @@ if (isset($_POST['edit_project_template'])) {
 
     logAudit("Project Template", "Edit", "$session_name edited project template $name", 0, $project_template_id);
 
-    flash_alert("Project Template <strong>$name</strong> edited");
+    flashAlert("Project Template <strong>$name</strong> edited");
 
     redirect();
 
@@ -65,7 +65,7 @@ if (isset($_POST['add_ticket_template_to_project_template'])) {
 
     logAudit("Project Template", "Edit", "$session_name added ticket template to project_template", 0, $project_template_id);
 
-    flash_alert("Ticket template added");
+    flashAlert("Ticket template added");
 
     redirect();
 
@@ -82,7 +82,7 @@ if (isset($_POST['remove_ticket_template_from_project_template'])) {
 
     logAudit("Project Template", "Edit", "$session_name removed ticket template from project template", 0, $project_template_id);
 
-    flash_alert("Ticket template removed", 'error');
+    flashAlert("Ticket template removed", 'error');
 
     redirect();
 
@@ -103,7 +103,7 @@ if (isset($_GET['delete_project_template'])) {
 
     logAudit("Project Template", "Delete", "$session_name deleted project template $project_template_name and its associated ticket templates and tasks");
 
-    flash_alert("Project Template <strong>$project_template_name</strong> and its associated ticket templates and tasks deleted", 'error');
+    flashAlert("Project Template <strong>$project_template_name</strong> and its associated ticket templates and tasks deleted", 'error');
 
     redirect();
 

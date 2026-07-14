@@ -47,7 +47,7 @@ if (isset($_POST['add_invoice'])) {
 
     customAction('invoice_create', $invoice_id);
 
-    flash_alert("Invoice <strong>$config_invoice_prefix$invoice_number</strong> created");
+    flashAlert("Invoice <strong>$config_invoice_prefix$invoice_number</strong> created");
 
     redirect("invoice.php?invoice_id=$invoice_id");
 
@@ -87,7 +87,7 @@ if (isset($_POST['edit_invoice'])) {
 
     logAudit("Invoice", "Edit", "$session_name edited Invoice $invoice_prefix$invoice_number - $scope", $client_id, $invoice_id);
 
-    flash_alert("Invoice <strong>$invoice_prefix$invoice_number</strong> edited");
+    flashAlert("Invoice <strong>$invoice_prefix$invoice_number</strong> edited");
 
     redirect();
 
@@ -158,7 +158,7 @@ if (isset($_POST['add_invoice_copy'])) {
 
     customAction('invoice_create', $new_invoice_id);
 
-    flash_alert("Created new Invoice <strong>$config_invoice_prefix$new_invoice_number</strong> from <strong>$old_invoice_prefix$old_invoice_prefix</strong>");
+    flashAlert("Created new Invoice <strong>$config_invoice_prefix$new_invoice_number</strong> from <strong>$old_invoice_prefix$old_invoice_prefix</strong>");
 
     redirect("invoice.php?invoice_id=$new_invoice_id");
 
@@ -187,7 +187,7 @@ if (isset($_GET['mark_invoice_sent'])) {
 
     logAudit("Invoice", "Edit", "$session_name marked invoice $invoice_prefix$invoice_number sent", $client_id, $invoice_id);
 
-    flash_alert("Invoice marked sent");
+    flashAlert("Invoice marked sent");
 
     redirect();
 
@@ -216,7 +216,7 @@ if (isset($_GET['mark_invoice_non-billable'])) {
 
     logAudit("Invoice", "Edit", "$session_name marked invoice $invoice_prefix$invoice_number Non-Billable", $client_id, $invoice_id);
 
-    flash_alert("Invoice marked Non-Billable");
+    flashAlert("Invoice marked Non-Billable");
 
     redirect();
 
@@ -245,7 +245,7 @@ if (isset($_GET['cancel_invoice'])) {
 
     logAudit("Invoice", "Edit", "$session_name cancelled invoice $invoice_prefix$invoice_number", $client_id, $invoice_id);
 
-    flash_alert("Invoice <strong>$invoice_prefix$invoice_number</strong> cancelled", 'error');
+    flashAlert("Invoice <strong>$invoice_prefix$invoice_number</strong> cancelled", 'error');
 
     redirect();
 
@@ -296,7 +296,7 @@ if (isset($_GET['delete_invoice'])) {
 
     logAudit("Invoice", "Delete", "$session_name deleted invoice $invoice_prefix$invoice_number", $client_id);
 
-    flash_alert("Invoice <strong>$invoice_prefix$invoice_number</strong> deleted", 'error');
+    flashAlert("Invoice <strong>$invoice_prefix$invoice_number</strong> deleted", 'error');
 
     redirect();
 
@@ -344,7 +344,7 @@ if (isset($_POST['add_invoice_item'])) {
                 mysqli_query($mysqli,"INSERT INTO product_stock SET stock_qty = -$qty, stock_note = 'QTY $qty - Invoice $invoice_id', stock_product_id = $product_id");
             } else {
                 // Not enough in stock: stop and notify
-                flash_alert("Not Enough <strong>$name</strong> in stock", 'error');
+                flashAlert("Not Enough <strong>$name</strong> in stock", 'error');
                 redirect();
             }
         }
@@ -384,7 +384,7 @@ if (isset($_POST['add_invoice_item'])) {
 
     logAudit("Invoice", "Edit", "$session_name added item $name to invoice $invoice_prefix$invoice_number", $client_id, $invoice_id);
 
-    flash_alert("Item <strong>$name</strong> added to invoice");
+    flashAlert("Item <strong>$name</strong> added to invoice");
 
     redirect();
 
@@ -412,7 +412,7 @@ if (isset($_POST['invoice_note'])) {
 
     logAudit("Invoice", "Edit", "$session_name added note to invoice $invoice_prefix$invoice_number", $client_id, $invoice_id);
 
-    flash_alert("Notes added");
+    flashAlert("Notes added");
 
     redirect();
 
@@ -471,7 +471,7 @@ if (isset($_POST['edit_invoice_item'])) {
 
     logAudit("Invoice", "Edit", "$session_name edited item $name on invoice $invoice_prefix$invoice_number", $client_id, $invoice_id);
 
-    flash_alert("Item <strong>$name</strong> updated");
+    flashAlert("Item <strong>$name</strong> updated");
 
     redirect();
 
@@ -516,7 +516,7 @@ if (isset($_GET['delete_invoice_item'])) {
 
     logAudit("Invoice", "Delete", "$session_name removed item $item_name from invoice $invoice_prefix$invoice_number", $client_id, $invoice_id);
 
-    flash_alert("Item <strong>$item_name</strong> removed from invoice", 'error');
+    flashAlert("Item <strong>$item_name</strong> removed from invoice", 'error');
 
     redirect();
 
@@ -604,7 +604,7 @@ if (isset($_GET['email_invoice'])) {
     // Get Email ID for reference
     $email_id = mysqli_insert_id($mysqli);
 
-    flash_alert("Invoice sent!");
+    flashAlert("Invoice sent!");
 
     mysqli_query($mysqli,"INSERT INTO history SET history_status = 'Sent', history_description = 'Invoice sent by $session_name (mail queue ID: $email_id)', history_invoice_id = $invoice_id");
 
@@ -686,7 +686,7 @@ if (isset($_POST['export_invoices_csv'])) {
         $delimiter = ",";
         $enclosure = '"';
         $escape    = '\\';   // backslash
-        $filename = sanitize_filename($file_name_prepend . "Invoices-$file_name_date.csv");
+        $filename = sanitizeFilename($file_name_prepend . "Invoices-$file_name_date.csv");
 
         //create a file pointer
         $f = fopen('php://memory', 'w');
@@ -733,7 +733,7 @@ if (isset($_POST['link_invoice_to_ticket'])) {
 
     mysqli_query($mysqli,"UPDATE invoices SET invoice_ticket_id = $ticket_id WHERE invoice_id = $invoice_id");
 
-    flash_alert("Invoice linked to ticket");
+    flashAlert("Invoice linked to ticket");
 
     redirect();
 
@@ -754,7 +754,7 @@ if (isset($_POST['add_ticket_to_invoice'])) {
 
     mysqli_query($mysqli,"UPDATE tickets SET ticket_invoice_id = $invoice_id WHERE ticket_id = $ticket_id");
 
-    flash_alert("Ticket linked to invoice");
+    flashAlert("Ticket linked to invoice");
 
     redirect("post.php?add_ticket_to_invoice=$invoice_id");
 
@@ -1174,7 +1174,7 @@ if (isset($_POST['bulk_edit_invoice_category'])) {
 
         logAudit("Invoice", "Bulk Edit", "$session_name assigned $count invoices to category $category_name");
 
-        flash_alert("Assigned income category <strong>$category_name</strong> to <strong>$count</strong> invoice(s)");
+        flashAlert("Assigned income category <strong>$category_name</strong> to <strong>$count</strong> invoice(s)");
     }
 
     redirect();

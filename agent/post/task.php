@@ -24,7 +24,7 @@ if (isset($_POST['add_task'])) {
 
     logAudit("Task", "Create", "$session_name created task $task_name", $client_id, $task_id);
 
-    flash_alert("You created Task <strong>$task_name</strong>");
+    flashAlert("You created Task <strong>$task_name</strong>");
 
     redirect();
 
@@ -50,7 +50,7 @@ if (isset($_POST['edit_ticket_task'])) {
 
     logAudit("Task", "Edit", "$session_name edited task $task_name", $client_id, $task_id);
 
-    flash_alert("Task <strong>$task_name</strong> edited");
+    flashAlert("Task <strong>$task_name</strong> edited");
 
     redirect();
 
@@ -71,7 +71,7 @@ if (isset($_POST['edit_ticket_template_task'])) {
 
     logAudit("Task", "Edit", "$session_name edited task $task_name", 0, $task_template_id);
 
-    flash_alert("Task <strong>$task_name</strong> edited");
+    flashAlert("Task <strong>$task_name</strong> edited");
 
     redirect();
 
@@ -95,7 +95,7 @@ if (isset($_GET['delete_task'])) {
 
     logAudit("Task", "Delete", "$session_name deleted task $task_name", $client_id, $task_id);
 
-    flash_alert("Task <strong>$task_name</strong> deleted", 'error');
+    flashAlert("Task <strong>$task_name</strong> deleted", 'error');
 
     redirect();
 
@@ -129,7 +129,7 @@ if (isset($_GET['complete_task'])) {
 
     logAudit("Task", "Edit", "$session_name completed task $task_name", $client_id, $task_id);
 
-    flash_alert("Task <strong>$task_name</strong> Completed");
+    flashAlert("Task <strong>$task_name</strong> Completed");
 
     redirect();
 
@@ -159,7 +159,7 @@ if (isset($_GET['undo_complete_task'])) {
 
     logAudit("Task", "Edit", "$session_name marked task $task_name as incomplete", $client_id, $task_id);
 
-    flash_alert("Task <strong>$task_name</strong> marked as incomplete", 'error');
+    flashAlert("Task <strong>$task_name</strong> marked as incomplete", 'error');
 
     redirect();
 
@@ -335,7 +335,7 @@ if (isset($_POST['add_ticket_task_approver'])) {
     // Logging
     logAudit("Task", "Edit", "$session_name added task approver for $task_name", $client_id, $task_id);
 
-    flash_alert("Added approver");
+    flashAlert("Added approver");
     redirect();
 }
 
@@ -358,19 +358,19 @@ if (isset($_GET['approve_ticket_task'])) {
     $ticket_id = intval($approval_row['task_ticket_id']);
 
     if (!$approval_row) {
-        flash_alert("Cannot find/approve that task", 'error');
+        flashAlert("Cannot find/approve that task", 'error');
         redirect();
         exit;
     }
 
     // Validate approver (deny)
     if ($required_user > 0 && $required_user !== $session_user_id) {
-        flash_alert("You cannot approve that task", 'error');
+        flashAlert("You cannot approve that task", 'error');
         redirect();
         exit;
     }
     if ($required_user == 0 && $type == 'any' && $created_by == $session_user_id) {
-        flash_alert("You cannot approve your own task", 'error');
+        flashAlert("You cannot approve your own task", 'error');
         redirect();
         exit;
     }
@@ -385,7 +385,7 @@ if (isset($_GET['approve_ticket_task'])) {
     // Logging
     logAudit("Task", "Edit", "$session_name approved task $task_name (approval $approval_id)", 0, $task_id);
 
-    flash_alert("Approved");
+    flashAlert("Approved");
     redirect();
 
 }
@@ -402,7 +402,7 @@ if (isset($_GET['delete_ticket_task_approver'])) {
 
     logAudit("Task", "Delete", "$session_name deleted task approval request ($approval_id)", 0, 0);
 
-    flash_alert("Approval request deleted", 'error');
+    flashAlert("Approval request deleted", 'error');
 
     redirect();
 
@@ -428,7 +428,7 @@ if (isset($_GET['complete_all_tasks'])) {
 
     logAudit("Ticket", "Edit", "$session_name marked all tasks complete for ticket", $client_id, $ticket_id);
 
-    flash_alert("Marked all tasks Complete");
+    flashAlert("Marked all tasks Complete");
 
     redirect();
 
@@ -454,7 +454,7 @@ if (isset($_GET['undo_complete_all_tasks'])) {
 
     logAudit("Ticket", "Edit", "$session_name marked all tasks as incomplete for ticket", $client_id, $ticket_id);
 
-    flash_alert("Marked all tasks Incomplete", 'error');
+    flashAlert("Marked all tasks Incomplete", 'error');
 
     redirect();
 

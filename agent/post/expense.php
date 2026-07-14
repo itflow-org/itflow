@@ -43,7 +43,7 @@ if (isset($_POST['add_expense'])) {
 
     logAudit("Expense", "Create", "$session_name created expense $description", $client_id, $expense_id);
 
-    flash_alert("Expense added" . $extended_alert_description);
+    flashAlert("Expense added" . $extended_alert_description);
 
     redirect();
 
@@ -90,7 +90,7 @@ if (isset($_POST['edit_expense'])) {
 
     logAudit("Expense", "Edit", "$session_name edited expense $description", $client_id, $expense_id);
 
-    flash_alert("Expense modified" . $extended_alert_description);
+    flashAlert("Expense modified" . $extended_alert_description);
 
     redirect();
 
@@ -120,7 +120,7 @@ if (isset($_GET['delete_expense'])) {
 
     logAudit("Expense", "Delete", "$session_name deleted expense $expense_description", $client_id);
 
-    flash_alert("Expense deleted", 'error');
+    flashAlert("Expense deleted", 'error');
 
     redirect();
 
@@ -164,7 +164,7 @@ if (isset($_POST['bulk_edit_expense_category'])) {
 
         logAudit("Expense", "Bulk Edit", "$session_name assigned $count expenses to category $category_name");
 
-        flash_alert("You assigned expense category <strong>$category_name</strong> to <strong>$count</strong> expense(s)");
+        flashAlert("You assigned expense category <strong>$category_name</strong> to <strong>$count</strong> expense(s)");
     }
 
     redirect();
@@ -209,7 +209,7 @@ if (isset($_POST['bulk_edit_expense_account'])) {
 
         logAudit("Expense", "Bulk Edit", "$session_name assigned $count expense(s) to account $account_name");
 
-        flash_alert("You assigned account <strong>$account_name</strong> to <strong>$count</strong> expense(s)");
+        flashAlert("You assigned account <strong>$account_name</strong> to <strong>$count</strong> expense(s)");
     }
 
     redirect();
@@ -247,7 +247,7 @@ if (isset($_POST['bulk_edit_expense_client'])) {
 
         } // End Assign Loop
 
-       flash_alert("You assigned Client <b>$client_name</b> to <b>$expense_count</b> expenses");
+       flashAlert("You assigned Client <b>$client_name</b> to <b>$expense_count</b> expenses");
     }
 
     redirect();
@@ -290,7 +290,7 @@ if (isset($_POST['bulk_delete_expenses'])) {
 
         logAudit("Expense", "Bulk Delete", "$session_name deleted $count expense(s)");
 
-        flash_alert("Deleted <strong>$count</strong> expense(s)", 'error');
+        flashAlert("Deleted <strong>$count</strong> expense(s)", 'error');
 
     }
 
@@ -361,7 +361,7 @@ if (isset($_POST['export_expenses_csv'])) {
         $delimiter = ",";
         $enclosure = '"';
         $escape    = '\\';   // backslash
-        $filename = sanitize_filename("$session_company_name-Expenses-" . date('Y-m-d_H-i-s') . ".csv");
+        $filename = sanitizeFilename("$session_company_name-Expenses-" . date('Y-m-d_H-i-s') . ".csv");
 
         //create a file pointer
         $f = fopen('php://memory', 'w');

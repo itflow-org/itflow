@@ -296,7 +296,7 @@ if (isset($_GET['download_backup'])) {
 
     // Log + UX
     logAudit("System", "Backup Download", ($session_name ?? 'Unknown User') . " downloaded full backup.");
-    flash_alert("Full backup downloaded.");
+    flashAlert("Full backup downloaded.");
     exit;
 }
 
@@ -324,7 +324,7 @@ if (isset($_POST['backup_master_key'])) {
     } else {
         logAudit("Master Key", "Download", "$session_name attempted to retrieve the master encryption key but failed");
 
-        flash_alert("Incorrect password.", 'error');
+        flashAlert("Incorrect password.", 'error');
 
         redirect();
     }

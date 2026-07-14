@@ -26,7 +26,7 @@ if (isset($_POST['add_trip'])) {
 
     logAudit("Trip", "Create", "$session_name logged trip from $source to $destination", $client_id , $trip_id);
 
-    flash_alert("Trip from <strong>$source</strong> to <strong>$destination</strong> logged");
+    flashAlert("Trip from <strong>$source</strong> to <strong>$destination</strong> logged");
 
     redirect();
 
@@ -50,7 +50,7 @@ if (isset($_POST['edit_trip'])) {
 
     logAudit("Trip", "Edit", "$session_name edited trip", $client_id , $trip_id);
 
-    flash_alert("Trip edited");
+    flashAlert("Trip edited");
 
     redirect();
 
@@ -78,7 +78,7 @@ if (isset($_GET['delete_trip'])) {
 
     logAudit("Trip", "Delete", "$session_name deleted trip ($trip_source - $trip_destination)", $client_id);
 
-    flash_alert("Trip ($trip_source - $trip_destination) deleted", 'error');
+    flashAlert("Trip ($trip_source - $trip_destination) deleted", 'error');
 
     redirect();
 
@@ -127,7 +127,7 @@ if (isset($_POST['export_trips_csv'])) {
         $delimiter = ",";
         $enclosure = '"';
         $escape    = '\\';   // backslash
-        $filename = sanitize_filename($file_name_prepend . "Trips-" . date('Y-m-d_H-i-s') . ".csv");
+        $filename = sanitizeFilename($file_name_prepend . "Trips-" . date('Y-m-d_H-i-s') . ".csv");
 
         //create a file pointer
         $f = fopen('php://memory', 'w');

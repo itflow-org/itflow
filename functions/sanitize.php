@@ -77,7 +77,7 @@ function sanitize_url($url) {
 }
 
 // Sanitize File Names
-function sanitize_filename($filename, $strict = false) {
+function sanitizeFilename($filename, $strict = false) {
     // Remove path information and dots around the filename
     $filename = basename($filename);
 

@@ -19,7 +19,7 @@ if (isset($_POST['add_calendar'])) {
 
     logAudit("Calendar", "Create", "$session_name created calendar $name", 0, $calendar_id);
 
-    flash_alert("Calendar <strong>$name</strong> created");
+    flashAlert("Calendar <strong>$name</strong> created");
 
     redirect();
 
@@ -37,7 +37,7 @@ if (isset($_POST['edit_calendar'])) {
 
     logAudit("Calendar", "Edit", "$session_name edited calendar $name", 0, $calendar_id);
 
-    flash_alert("Calendar <strong>$name</strong> edited");
+    flashAlert("Calendar <strong>$name</strong> edited");
 
     redirect();
 
@@ -62,7 +62,7 @@ if (isset($_GET['delete_calendar'])) {
 
     logAudit("Calendar", "Delete", "$session_name deleted calendar $calendar_name and associated events");
 
-    flash_alert("Calendar <strong>$calendar_name</strong> deleted", 'error');
+    flashAlert("Calendar <strong>$calendar_name</strong> deleted", 'error');
 
     redirect();
 
@@ -139,7 +139,7 @@ if (isset($_POST['add_event'])) {
 
     logAudit("Calendar Event", "Create", "$session_name created a calendar event titled $title in calendar $calendar_name", $client_id, $event_id);
 
-    flash_alert("Event <strong>$title</strong> created in calendar <strong>$calendar_name</strong>");
+    flashAlert("Event <strong>$title</strong> created in calendar <strong>$calendar_name</strong>");
 
     redirect();
 
@@ -213,7 +213,7 @@ if (isset($_POST['edit_event'])) {
 
     logAudit("Calendar Event", "Edit", "$session_name edited calendar event $title", $client_id, $event_id);
 
-    flash_alert("Calendar event titled <strong>$title</strong> edited");
+    flashAlert("Calendar event titled <strong>$title</strong> edited");
 
     redirect();
 
@@ -240,7 +240,7 @@ if (isset($_GET['delete_event'])) {
 
     logAudit("Calendar Event", "Delete", "$session_name deleted calendar event $event_title", $client_id);
 
-    flash_alert("Calendar event titled <strong>$event_title</strong> deleted", 'error');
+    flashAlert("Calendar event titled <strong>$event_title</strong> deleted", 'error');
 
     redirect();
 

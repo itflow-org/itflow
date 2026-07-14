@@ -21,7 +21,7 @@ if (isset($_POST['add_ai_provider'])) {
 
     logAudit("AI Provider", "Create", "$session_name created AI Provider $provider");
 
-    flash_alert("AI Model <strong>$provider</strong> created");
+    flashAlert("AI Model <strong>$provider</strong> created");
 
     redirect();
 
@@ -40,7 +40,7 @@ if (isset($_POST['edit_ai_provider'])) {
 
     logAudit("AI Provider", "Edit", "$session_name edited AI Provider $provider");
 
-    flash_alert("AI Model <strong>$provider</strong> edited");
+    flashAlert("AI Model <strong>$provider</strong> edited");
 
     redirect();
 
@@ -58,7 +58,7 @@ if (isset($_GET['delete_ai_provider'])) {
 
     logAudit("AI Provider", "Delete", "$session_name deleted AI Provider $provider_name", 'error');
 
-    flash_alert("AI Provider <strong>$provider_name</strong> deleted", 'error');
+    flashAlert("AI Provider <strong>$provider_name</strong> deleted", 'error');
 
     redirect();
 

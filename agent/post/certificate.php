@@ -40,7 +40,7 @@ if (isset($_POST['add_certificate'])) {
 
     logAudit("Certificate", "Create", "$session_name created certificate $name", $client_id, $certificate_id);
 
-    flash_alert("Certificate <strong>$name</strong> created");
+    flashAlert("Certificate <strong>$name</strong> created");
 
     redirect();
 
@@ -113,7 +113,7 @@ if (isset($_POST['edit_certificate'])) {
 
     logAudit("Certificate", "Edit", "$session_name edited certificate $name", $client_id, $certificate_id);
 
-    flash_alert("Certificate <strong>$name</strong> updated");
+    flashAlert("Certificate <strong>$name</strong> updated");
 
     redirect();
 
@@ -139,7 +139,7 @@ if (isset($_GET['archive_certificate'])) {
 
     logAudit("Certificate", "Archive", "$session_name archived certificate $certificate_name", $client_id, $certificate_id);
 
-    flash_alert("Certificate <strong>$certificate_name</strong> archived", 'alert');
+    flashAlert("Certificate <strong>$certificate_name</strong> archived", 'alert');
 
     redirect();
 
@@ -165,7 +165,7 @@ if (isset($_GET['restore_certificate'])) {
 
     logAudit("Certificate", "Restore", "$session_name restored certificate $certificate_name", $client_id, $certificate_id);
 
-    flash_alert("Certificate <strong>$certificate_name</strong> restored");
+    flashAlert("Certificate <strong>$certificate_name</strong> restored");
 
     redirect();
 
@@ -191,7 +191,7 @@ if (isset($_GET['delete_certificate'])) {
 
     logAudit("Certificate", "Delete", "$session_name deleted certificate $name", $client_id);
 
-    flash_alert("Certificate <strong>$certificate_name</strong> deleted");
+    flashAlert("Certificate <strong>$certificate_name</strong> deleted");
 
     redirect();
 
@@ -229,7 +229,7 @@ if (isset($_POST['bulk_delete_certificates'])) {
 
         logAudit("Certificate", "Bulk Delete", "$session_name deleted $count certificates", $client_id);
 
-        flash_alert("Deleted <strong>$count</strong> certificate(s)", 'error');
+        flashAlert("Deleted <strong>$count</strong> certificate(s)", 'error');
 
     }
 
@@ -263,7 +263,7 @@ if (isset($_POST['export_certificates_csv'])) {
         $delimiter = ",";
         $enclosure = '"';
         $escape    = '\\';   // backslash
-        $filename = sanitize_filename($file_name_prepend . "Certificates-" . date('Y-m-d_H-i-s') . ".csv");
+        $filename = sanitizeFilename($file_name_prepend . "Certificates-" . date('Y-m-d_H-i-s') . ".csv");
 
         //create a file pointer
         $f = fopen('php://memory', 'w');

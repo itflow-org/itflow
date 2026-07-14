@@ -21,7 +21,7 @@ if (isset($_POST['edit_default_settings'])) {
 
     logAudit("Settings", "Edit", "$session_name edited default settings");
 
-    flash_alert("Default settings edited");
+    flashAlert("Default settings edited");
 
     redirect();
 

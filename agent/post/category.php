@@ -18,7 +18,7 @@ if (isset($_POST['add_category'])) {
 
     logAudit("Category", "Create", "$session_name created category $type $name", 0, $category_id);
 
-    flash_alert("Category $type <strong>$name</strong> created");
+    flashAlert("Category $type <strong>$name</strong> created");
 
     redirect();
 
