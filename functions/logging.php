@@ -4,7 +4,7 @@
 // Split from the former monolithic functions.php
 
 
-function customAction($trigger, $entity) {
+function triggerCustomAction($trigger, $entity) {
     $original_dir = getcwd(); // Save
 
     chdir(dirname(__FILE__));

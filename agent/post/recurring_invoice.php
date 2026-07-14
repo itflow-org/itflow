@@ -540,7 +540,7 @@ if (isset($_GET['force_recurring'])) {
 
     logAudit("Invoice", "Create", "$session_name forced recurring invoice into an invoice", $client_id, $new_invoice_id);
 
-    customAction('invoice_create', $new_invoice_id);
+    triggerCustomAction('invoice_create', $new_invoice_id);
 
     flashAlert("Recurring Invoice Forced");
 

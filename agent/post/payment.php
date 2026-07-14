@@ -166,7 +166,7 @@ if (isset($_POST['add_payment'])) {
 
         logAudit("Invoice", "Payment", "Payment amount of " . numfmt_format_currency($currency_format, $amount, $invoice_currency_code) . " added to invoice $invoice_prefix$invoice_number", $client_id, $invoice_id);
 
-        customAction('invoice_pay', $invoice_id);
+        triggerCustomAction('invoice_pay', $invoice_id);
 
         flashAlert("Payment amount <strong>" . numfmt_format_currency($currency_format, $amount, $invoice_currency_code) . "</strong> added");
 
@@ -307,7 +307,7 @@ if (isset($_POST['apply_credit'])) {
 
     logAudit("Invoice", "Payment", "Credit " . numfmt_format_currency($currency_format, $amount, $session_company_currency) . " applied to invoice $invoice_prefix$invoice_number", $client_id, $invoice_id);
 
-    customAction('invoice_pay', $invoice_id);
+    triggerCustomAction('invoice_pay', $invoice_id);
 
     flashAlert("Credit amount <strong>" . numfmt_format_currency($currency_format, $amount, $session_company_currency) . "</strong> applied");
 
@@ -497,7 +497,7 @@ if (isset($_POST['add_payment_stripe'])) {
         // Notify/log
         appNotify("Invoice Paid", "Invoice $invoice_prefix$invoice_number automatically paid", "/agent/invoice.php?invoice_id=$invoice_id", $client_id);
         logAudit("Invoice", "Payment", "$session_name initiated Stripe payment amount of " . numfmt_format_currency($currency_format, $invoice_amount, $invoice_currency_code) . " added to invoice $invoice_prefix$invoice_number - $pi_id $extended_log_desc", $client_id, $invoice_id);
-        customAction('invoice_pay', $invoice_id);
+        triggerCustomAction('invoice_pay', $invoice_id);
 
         flashAlert("Payment amount <strong>" . numfmt_format_currency($currency_format, $invoice_amount, $invoice_currency_code) . "</strong> added");
 
@@ -682,7 +682,7 @@ if (isset($_GET['add_payment_stripe'])) {
         // Notify/log
         appNotify("Invoice Paid", "Invoice $invoice_prefix$invoice_number automatically paid", "invoice.php?invoice_id=$invoice_id", $client_id);
         logAudit("Invoice", "Payment", "$session_name initiated Stripe payment amount of " . numfmt_format_currency($currency_format, $invoice_amount, $invoice_currency_code) . " added to invoice $invoice_prefix$invoice_number - $pi_id $extended_log_desc", $client_id, $invoice_id);
-        customAction('invoice_pay', $invoice_id);
+        triggerCustomAction('invoice_pay', $invoice_id);
 
         flashAlert("Payment amount <strong>" . numfmt_format_currency($currency_format, $invoice_amount, $invoice_currency_code) . "</strong> added");
 
@@ -783,7 +783,7 @@ if (isset($_POST['add_bulk_payment'])) {
         // Add to Email Body Invoice Portion
         $email_body_invoices .= "<br>Invoice <a href=\'https://$config_base_url/guest/guest_view_invoice.php?invoice_id=$invoice_id&url_key=$invoice_url_key\'>$invoice_prefix$invoice_number</a> - Outstanding Amount: " . numfmt_format_currency($currency_format, $invoice_balance, $currency_code) . " - Payment Applied: " . numfmt_format_currency($currency_format, $payment_amount, $currency_code) . " - New Balance: " . numfmt_format_currency($currency_format, $remaining_invoice_balance, $currency_code);
 
-        customAction('invoice_pay', $invoice_id);
+        triggerCustomAction('invoice_pay', $invoice_id);
 
     } // End Invoice Loop
 

@@ -186,7 +186,7 @@ if (isset($_POST['add_ticket'])) {
     }
 
     // Custom action/notif handler
-    customAction('ticket_create', $ticket_id);
+    triggerCustomAction('ticket_create', $ticket_id);
 
     logAudit("Ticket", "Create", "$session_name created ticket $config_ticket_prefix$ticket_number - $ticket_subject", $client_id, $ticket_id);
 
@@ -304,7 +304,7 @@ if (isset($_POST['edit_ticket'])) {
     }
 
     // Custom action/notif handler
-    customAction('ticket_update', $ticket_id);
+    triggerCustomAction('ticket_update', $ticket_id);
 
     logAudit("Ticket", "Edit", "$session_name edited ticket $ticket_prefix$ticket_number", $client_id, $ticket_id);
 
@@ -350,7 +350,7 @@ if (isset($_POST['edit_ticket_priority'])) {
 
     logAudit("Ticket", "Edit", "$session_name changed priority from $original_priority to $priority for ticket $ticket_prefix$ticket_number", $client_id, $ticket_id);
 
-    customAction('ticket_update', $ticket_id);
+    triggerCustomAction('ticket_update', $ticket_id);
 
     flashAlert("Priority updated from <strong>$original_priority</strong> to <strong>$priority</strong>");
 
@@ -436,7 +436,7 @@ if (isset($_POST['edit_ticket_contact'])) {
     }
 
     // Custom action/notif handler
-    customAction('ticket_update', $ticket_id);
+    triggerCustomAction('ticket_update', $ticket_id);
 
     // Update Ticket History
     mysqli_query($mysqli, "INSERT INTO ticket_history SET ticket_history_status = '$ticket_status', ticket_history_description = '$session_name changed the contact from $original_contact_name to $contact_name', ticket_history_ticket_id = $ticket_id");
@@ -839,7 +839,7 @@ if (isset($_POST['assign_ticket'])) {
         }
     }
 
-    customAction('ticket_assign', $ticket_id);
+    triggerCustomAction('ticket_assign', $ticket_id);
 
     flashAlert("Ticket <strong>$ticket_prefix$ticket_number</strong> assigned to <strong>$agent_name</strong>");
 
@@ -892,7 +892,7 @@ if (isset($_GET['delete_ticket'])) {
 
         flashAlert("Ticket <strong>$ticket_prefix$ticket_number</strong> along with all replies deleted", 'error');
 
-        customAction('ticket_delete', $ticket_id);
+        triggerCustomAction('ticket_delete', $ticket_id);
 
         redirect("tickets.php");
     }
@@ -1013,7 +1013,7 @@ if (isset($_POST['bulk_assign_ticket'])) {
 
             logAudit("Ticket", "Edit", "$session_name reassigned ticket $ticket_prefix$ticket_number to $agent_name", $client_id, $ticket_id);
 
-            customAction('ticket_assign', $ticket_id);
+            triggerCustomAction('ticket_assign', $ticket_id);
 
             $tickets_assigned_body .= "$ticket_prefix$ticket_number - $ticket_subject<br>";
         } // End For Each Ticket ID Loop
@@ -1097,7 +1097,7 @@ if (isset($_POST['bulk_edit_ticket_priority'])) {
 
             logAudit("Ticket", "Edit", "$session_name updated the priority on ticket $ticket_prefix$ticket_number - $ticket_subject from $original_ticket_priority to $priority", $client_id, $ticket_id);
 
-            customAction('ticket_update', $ticket_id);
+            triggerCustomAction('ticket_update', $ticket_id);
         } // End For Each Ticket ID Loop
 
         logAudit("Ticket", " Bulk Edit", "$session_name updated the priority on $ticket_count");
@@ -1149,7 +1149,7 @@ if (isset($_POST['bulk_edit_ticket_category'])) {
 
             logAudit("Ticket", "Edit", "$session_name updated the category on ticket $ticket_prefix$ticket_number - $ticket_subject from $previous_category_name to $category_name", $client_id, $ticket_id);
 
-            customAction('ticket_update', $ticket_id);
+            triggerCustomAction('ticket_update', $ticket_id);
         } // End For Each Ticket ID Loop
 
         logAudit("Ticket", " Bulk Edit", "$session_name updated the category to $category_name on $ticket_count");
@@ -1220,7 +1220,7 @@ if (isset($_POST['bulk_merge_tickets'])) {
                 logAudit("Ticket", "Merged", "$session_name Merged ticket $ticket_prefix$ticket_number into $ticket_prefix$merge_into_ticket_number", $client_id, $ticket_id);
 
                 // Custom action/notif handler
-                customAction('ticket_merge', $ticket_id);
+                triggerCustomAction('ticket_merge', $ticket_id);
 
             }
         } // End For Each Ticket ID Loop
@@ -1297,7 +1297,7 @@ if (isset($_POST['bulk_resolve_tickets'])) {
 
                 logAudit("Ticket", "Resolve", "$session_name resolved $ticket_prefix$ticket_number - $ticket_subject", $client_id, $ticket_id);
 
-                customAction('ticket_resolve', $ticket_id);
+                triggerCustomAction('ticket_resolve', $ticket_id);
 
                 // Client notification email
                 if ((!empty($config_smtp_provider)) && $config_ticket_client_general_notifications == 1 && $private_note == 0) {
@@ -1444,9 +1444,9 @@ if (isset($_POST['bulk_ticket_reply'])) {
 
             // Custom action/notif handler
             if ($ticket_reply_type == 'Internal') {
-                customAction('ticket_reply_agent_internal', $ticket_id);
+                triggerCustomAction('ticket_reply_agent_internal', $ticket_id);
             } else {
-                customAction('reply_reply_agent_public', $ticket_id);
+                triggerCustomAction('reply_reply_agent_public', $ticket_id);
             }
 
             // Resolve the ticket, if set
@@ -1456,7 +1456,7 @@ if (isset($_POST['bulk_ticket_reply'])) {
                 // Logging
                 logAudit("Ticket", "Resolved", "$session_name resolved Ticket $ticket_prefix$ticket_number", $client_id, $ticket_id);
 
-                customAction('ticket_resolve', $ticket_id);
+                triggerCustomAction('ticket_resolve', $ticket_id);
             }
 
             // Get Contact Details
@@ -1710,7 +1710,7 @@ if (isset($_POST['bulk_add_asset_ticket'])) {
             }
 
             // Custom action/notif handler
-            customAction('ticket_create', $ticket_id);
+            triggerCustomAction('ticket_create', $ticket_id);
         }
 
         logAudit("Ticket", "Bulk Create", "$session_name created $asset_count tickets for $asset_count");
@@ -1890,9 +1890,9 @@ if (isset($_POST['add_ticket_reply'])) {
 
         // Custom action/notif handler
         if ($ticket_reply_type == 'Internal') {
-            customAction('ticket_reply_agent_internal', $ticket_id);
+            triggerCustomAction('ticket_reply_agent_internal', $ticket_id);
         } else {
-            customAction('reply_reply_agent_public', $ticket_id);
+            triggerCustomAction('reply_reply_agent_public', $ticket_id);
         }
 
         flashAlert("Ticket <strong>$ticket_prefix$ticket_number</strong> has been updated with your reply and was <strong>$ticket_reply_type</strong>");
@@ -2059,7 +2059,7 @@ if (isset($_POST['merge_ticket'])) {
 
     logAudit("Ticket", "Merged", "$session_name Merged ticket $ticket_prefix$ticket_number into $ticket_prefix$merge_into_ticket_number");
 
-    customAction('ticket_merge', $ticket_id);
+    triggerCustomAction('ticket_merge', $ticket_id);
 
     flashAlert("Ticket merged into $ticket_prefix$merge_into_ticket_number");
 
@@ -2090,7 +2090,7 @@ if (isset($_POST['change_client_ticket'])) {
 
     logAudit("Ticket", "Change", "$session_name changed ticket client", $client_id, $ticket_id);
 
-    customAction('ticket_update', $ticket_id);
+    triggerCustomAction('ticket_update', $ticket_id);
 
     flashAlert("Ticket client updated");
 
@@ -2128,7 +2128,7 @@ if (isset($_GET['resolve_ticket'])) {
 
     logAudit("Ticket", "Resolved", "$session_name resolved ticket $ticket_prefix$ticket_number (ID: $ticket_id)", $client_id, $ticket_id);
 
-    customAction('ticket_resolve', $ticket_id);
+    triggerCustomAction('ticket_resolve', $ticket_id);
 
     // Client notification email
     if ((!empty($config_smtp_provider)) && $config_ticket_client_general_notifications == 1) {
@@ -2230,7 +2230,7 @@ if (isset($_GET['close_ticket'])) {
 
     logAudit("Ticket", "Closed", "$session_name closed ticket ID $ticket_id", $client_id, $ticket_id);
 
-    customAction('ticket_close', $ticket_id);
+    triggerCustomAction('ticket_close', $ticket_id);
 
     // Client notification email
     if ((!empty($config_smtp_provider)) && $config_ticket_client_general_notifications == 1) {
@@ -2328,7 +2328,7 @@ if (isset($_GET['reopen_ticket'])) {
 
     logAudit("Ticket", "Reopened", "$session_name reopened ticket ID $ticket_id", $client_id, $ticket_id);
 
-    customAction('ticket_update', $ticket_id);
+    triggerCustomAction('ticket_update', $ticket_id);
 
     flashAlert("Ticket re-opened");
 
@@ -2525,7 +2525,7 @@ if (isset($_POST['add_quote_from_ticket'])) {
     mysqli_query($mysqli,"INSERT INTO history SET history_status = 'Draft', history_description = 'Quote created from Ticket $ticket_prefix$ticket_number!', history_quote_id = $quote_id");
     logAudit("Quote", "Create", "$session_name created quote $config_quote_prefix$quote_number from ticket $ticket_prefix$ticket_number", $client_id, $quote_id);
 
-    customAction('quote_create', $quote_id);
+    triggerCustomAction('quote_create', $quote_id);
 
     flashAlert("Quote <strong>$config_quote_prefix$quote_number</strong> created");
     redirect("quote.php?quote_id=$quote_id");
@@ -2789,7 +2789,7 @@ if (isset($_POST['edit_ticket_schedule'])) {
 
     logAudit("Ticket", "Edit", "$session_name edited ticket schedule", $client_id, $ticket_id);
 
-    customAction('ticket_schedule', $ticket_id);
+    triggerCustomAction('ticket_schedule', $ticket_id);
 
     if (empty($conflicting_tickets)) {
         flashAlert("Ticket scheduled for $email_datetime");
@@ -2953,7 +2953,7 @@ if (isset($_GET['cancel_ticket_schedule'])) {
 
     logAudit("Ticket", "Edit", "$session_name cancelled ticket schedule", $client_id, $ticket_id);
 
-    customAction('ticket_unschedule', $ticket_id);
+    triggerCustomAction('ticket_unschedule', $ticket_id);
 
     flashAlert("Ticket schedule cancelled", 'error');
 

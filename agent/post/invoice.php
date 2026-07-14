@@ -45,7 +45,7 @@ if (isset($_POST['add_invoice'])) {
 
     logAudit("Invoice", "Create", "$session_name created Invoice $config_invoice_prefix$invoice_number - $scope", $client_id, $invoice_id);
 
-    customAction('invoice_create', $invoice_id);
+    triggerCustomAction('invoice_create', $invoice_id);
 
     flashAlert("Invoice <strong>$config_invoice_prefix$invoice_number</strong> created");
 
@@ -156,7 +156,7 @@ if (isset($_POST['add_invoice_copy'])) {
 
     logAudit("Invoice", "Create", "$session_name created new Invoice $config_invoice_prefix$new_invoice_number from $old_invoice_prefix$old_invoice_prefix", $client_id, $new_invoice_id);
 
-    customAction('invoice_create', $new_invoice_id);
+    triggerCustomAction('invoice_create', $new_invoice_id);
 
     flashAlert("Created new Invoice <strong>$config_invoice_prefix$new_invoice_number</strong> from <strong>$old_invoice_prefix$old_invoice_prefix</strong>");
 

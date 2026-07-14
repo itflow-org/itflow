@@ -870,7 +870,7 @@ if (isset($_POST['bulk_add_client_ticket'])) {
             }
 
             // Custom action/notif handler
-            customAction('ticket_create', $ticket_id);
+            triggerCustomAction('ticket_create', $ticket_id);
         }
 
         logAudit("Ticket", "Bulk Create", "$session_name created $client_count tickets for $client_name");

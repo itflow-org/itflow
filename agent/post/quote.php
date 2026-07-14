@@ -40,7 +40,7 @@ if (isset($_POST['add_quote'])) {
 
     logAudit("Quote", "Create", "$session_name created quote $config_quote_prefix$quote_number", $client_id, $quote_id);
 
-    customAction('quote_create', $quote_id);
+    triggerCustomAction('quote_create', $quote_id);
 
     flashAlert("Quote <strong>$config_quote_prefix$quote_number</strong> created");
 
@@ -112,7 +112,7 @@ if (isset($_POST['add_quote_copy'])) {
 
     logAudit("Quote", "Create", "$session_name created quote $config_quote_prefix$quote_number from quote $original_quote_prefix$original_quote_number", $client_id, $new_quote_id);
 
-    customAction('quote_create', $new_quote_id);
+    triggerCustomAction('quote_create', $new_quote_id);
 
     flashAlert("Quote copied");
 
@@ -205,7 +205,7 @@ if (isset($_POST['add_quote_to_invoice'])) {
         mysqli_query($mysqli, "UPDATE tickets SET ticket_invoice_id = $new_invoice_id WHERE ticket_id = $ticket_id AND ticket_invoice_id = '0'"); // Only if ticket doesn't already have an invoice
     }
 
-    customAction('invoice_create', $new_invoice_id);
+    triggerCustomAction('invoice_create', $new_invoice_id);
 
     flashAlert("Invoice created from quote <strong>$quote_prefix$quote_number</strong>");
 
@@ -532,7 +532,7 @@ if (isset($_GET['accept_quote'])) {
 
     logAudit("Quote", "Edit", "$session_name marked quote $quote_prefix$quote_number as accepted", $client_id, $quote_id);
 
-    customAction('quote_accept', $quote_id);
+    triggerCustomAction('quote_accept', $quote_id);
 
     flashAlert("Quote accepted");
 
@@ -560,7 +560,7 @@ if (isset($_GET['decline_quote'])) {
 
     mysqli_query($mysqli,"INSERT INTO history SET history_status = 'Cancelled', history_description = 'Quote declined by $session_name', history_quote_id = $quote_id");
 
-    customAction('quote_decline', $quote_id);
+    triggerCustomAction('quote_decline', $quote_id);
 
     logAudit("Quote", "Edit", "$session_name marked quote $quote_prefix$quote_number as declined", $client_id, $quote_id);
 

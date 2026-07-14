@@ -40,7 +40,7 @@ if (!empty($ticket_id)) {
         logAudit("API", "Success", "Resolved ticket $ticket_prefix$ticket_number via API ($api_key_name)", $client_id);
     }
 
-    customAction('ticket_resolve', $ticket_id);
+    triggerCustomAction('ticket_resolve', $ticket_id);
 
 }
 

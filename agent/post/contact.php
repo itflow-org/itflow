@@ -74,7 +74,7 @@ if (isset($_POST['add_contact'])) {
 
     logAudit("Contact", "Create", "$session_name created contact $name", $client_id, $contact_id);
 
-    customAction('contact_create', $contact_id);
+    triggerCustomAction('contact_create', $contact_id);
 
     flashAlert("Contact <strong>$name</strong> created");
 
@@ -219,7 +219,7 @@ if (isset($_POST['edit_contact'])) {
 
     logAudit("Contact", "Edit", "$session_name edited contact $name", $client_id, $contact_id);
 
-    customAction('contact_update', $contact_id);
+    triggerCustomAction('contact_update', $contact_id);
 
     flashAlert("Contact <strong>$name</strong> updated");
 
@@ -498,7 +498,7 @@ if (isset($_POST['bulk_edit_contact_role'])) {
 
             logAudit("Contact", "Edit", "$session_name updated the contact role for $contact_name", $client_id, $contact_id);
 
-            customAction('contact_update', $contact_id);
+            triggerCustomAction('contact_update', $contact_id);
 
         } // End Assign Location Loop
 

@@ -478,16 +478,16 @@ if (isset($_POST['update_kanban_ticket'])) {
         if ($oldStatus === false) {
             // if ticket was not moved, just uptdate the order on kanban
             mysqli_query($mysqli, "UPDATE tickets SET ticket_order = $kanban WHERE ticket_id = $ticket_id");
-            customAction('ticket_update', $ticket_id);
+            triggerCustomAction('ticket_update', $ticket_id);
         } else {
             // If the ticket was moved from a resolved status to another status, we need to update ticket_resolved_at
             if ($oldStatus === $statuses['Resolved']) {
                 mysqli_query($mysqli, "UPDATE tickets SET ticket_order = $kanban, ticket_status = $status, ticket_resolved_at = NULL WHERE ticket_id = $ticket_id");
-                customAction('ticket_update', $ticket_id);
+                triggerCustomAction('ticket_update', $ticket_id);
             } elseif ($status === $statuses['Resolved']) {
                 // If the ticket was moved to a resolved status, we need to update ticket_resolved_at
                 mysqli_query($mysqli, "UPDATE tickets SET ticket_order = $kanban, ticket_status = $status, ticket_resolved_at = NOW() WHERE ticket_id = $ticket_id");
-                customAction('ticket_update', $ticket_id);
+                triggerCustomAction('ticket_update', $ticket_id);
 
                 // Client notification email
                 if (!empty($config_smtp_host) && $config_ticket_client_general_notifications == 1) {
@@ -567,7 +567,7 @@ if (isset($_POST['update_kanban_ticket'])) {
             } else {
                 // If the ticket was moved from any status to another status
                 mysqli_query($mysqli, "UPDATE tickets SET ticket_order = $kanban, ticket_status = $status WHERE ticket_id = $ticket_id");
-                customAction('ticket_update', $ticket_id);
+                triggerCustomAction('ticket_update', $ticket_id);
             }
         }
 

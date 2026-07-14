@@ -208,7 +208,7 @@ function addTicket($contact_id, $contact_name, $contact_email, $client_id, $date
     }
 
     addToMailQueue($data);
-    customAction('ticket_create', $id);
+    triggerCustomAction('ticket_create', $id);
 
     return true;
 }
@@ -367,7 +367,7 @@ function addReply($from_email, $date, $subject, $ticket_number, $message, $attac
         mysqli_query($mysqli, "UPDATE tickets SET ticket_status = 2, ticket_resolved_at = NULL WHERE ticket_id = $ticket_id AND ticket_client_id = $client_id LIMIT 1");
 
         logAudit("Ticket", "Edit", "Email parser: Client contact $from_email_esc updated ticket $config_ticket_prefix$ticket_number_esc ($subject)", $client_id, $ticket_id);
-        customAction('ticket_reply_client', $ticket_id);
+        triggerCustomAction('ticket_reply_client', $ticket_id);
         return true;
     } else {
         return false;
@@ -856,7 +856,7 @@ foreach ($messages as $message) {
                 $contact_id = mysqli_insert_id($mysqli);
 
                 logAudit("Contact", "Create", "Email parser: created contact " . mysqli_real_escape_string($mysqli, $contact_name), $client_id, $contact_id);
-                customAction('contact_create', $contact_id);
+                triggerCustomAction('contact_create', $contact_id);
 
                 $email_processed = addTicket($contact_id, $contact_name, $contact_email, $client_id, $date, $subject, $message_body, $attachments, $original_message_file, $ccs);
             }

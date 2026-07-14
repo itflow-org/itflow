@@ -140,7 +140,7 @@ if (isset($_POST['bulk_force_recurring_tickets'])) {
 
                 // Notifications
 
-                customAction('ticket_create', $id);
+                triggerCustomAction('ticket_create', $id);
 
                 // Get client/contact/ticket details
                 $sql = mysqli_query(
@@ -280,7 +280,7 @@ if (isset($_GET['force_recurring_ticket'])) {
 
         // Notifications
 
-        customAction('ticket_create', $id);
+        triggerCustomAction('ticket_create', $id);
 
         // Get client/contact/ticket details
         $sql = mysqli_query(
@@ -548,7 +548,7 @@ if (isset($_POST['bulk_edit_recurring_ticket_priority'])) {
 
             logAudit("Ticket", "Edit", "$session_name updated the priority on recurring ticket $ticket_subject from $original_recurring_ticket_priority to $priority", $client_id, $recurring_ticket_id);
 
-            customAction('recurring_ticket_update', $recurring_ticket_id);
+            triggerCustomAction('recurring_ticket_update', $recurring_ticket_id);
         } // End For Each Recurring Ticket ID Loop
 
         logAudit("Recurring Ticket", " Bulk Edit", "$session_name updated the priority to $priority on $recurring_ticket_count Recurring Tickets");
@@ -590,7 +590,7 @@ if (isset($_POST['bulk_edit_recurring_ticket_category'])) {
 
             logAudit("Recurring Ticket", "Edit", "$session_name updated the category on recurring ticket $recurring_ticket_subject from $previous_recurring_ticket_category_name to $category_name", $client_id, $recurring_ticket_id);
 
-            customAction('recurring_ticket_update', $recurring_ticket_id);
+            triggerCustomAction('recurring_ticket_update', $recurring_ticket_id);
         }
 
         logAudit("Recurring Ticket", " Bulk Edit", "$session_name updated the category to $category_name for $recurring_ticket_count Recurring Tickets");
@@ -641,7 +641,7 @@ if (isset($_POST['bulk_edit_recurring_ticket_billable'])) {
 
             logAudit("Recurring Ticket", "Edit", "$session_name updated the billable status on recurring ticket $recurring_ticket_subject from $previous_billable_status to $billable_status", $client_id, $recurring_ticket_id);
 
-            customAction('recurring_ticket_update', $recurring_ticket_id);
+            triggerCustomAction('recurring_ticket_update', $recurring_ticket_id);
         }
 
         logAudit("Recurring Ticket", " Bulk Edit", "$session_name updated the billable status to $billable_status for $recurring_ticket_count Recurring Tickets");
@@ -681,7 +681,7 @@ if (isset($_POST['bulk_edit_recurring_ticket_next_run_date'])) {
 
             logAudit("Recurring Ticket", "Edit", "$session_name updated the Next run date on recurring ticket $recurring_ticket_subject from $previous_recurring_ticket_next_run_date to $next_run_date", $client_id, $recurring_ticket_id);
 
-            customAction('recurring_ticket_update', $recurring_ticket_id);
+            triggerCustomAction('recurring_ticket_update', $recurring_ticket_id);
         }
 
         logAudit("Recurring Ticket", " Bulk Edit", "$session_name updated the Next run date to $next_run_date for $recurring_ticket_count Recurring Tickets");

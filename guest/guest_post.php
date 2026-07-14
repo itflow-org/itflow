@@ -28,7 +28,7 @@ if (isset($_GET['accept_quote'], $_GET['url_key'])) {
 
         // Notification
         appNotify("Quote Accepted", "Quote $quote_prefix$quote_number has been accepted by $client_name", "/agent/quote.php?quote_id=$quote_id", $client_id);
-        customAction('quote_accept', $quote_id);
+        triggerCustomAction('quote_accept', $quote_id);
 
         // Internal email notification
 
@@ -93,7 +93,7 @@ if (isset($_GET['decline_quote'], $_GET['url_key'])) {
 
         // Notification
         appNotify("Quote Declined", "Quote $quote_prefix$quote_number has been declined by $client_name", "/agent/quote.php?quote_id=$quote_id", $client_id);
-        customAction('quote_decline', $quote_id);
+        triggerCustomAction('quote_decline', $quote_id);
 
         // Internal email notification
 
@@ -152,7 +152,7 @@ if (isset($_GET['reopen_ticket'], $_GET['url_key'])) {
         // Add reply
         mysqli_query($mysqli, "INSERT INTO ticket_replies SET ticket_reply = 'Ticket reopened by client (guest URL).', ticket_reply_type = 'Internal', ticket_reply_by = 0, ticket_reply_ticket_id = $ticket_id");
 
-        customAction('ticket_update', $ticket_id);
+        triggerCustomAction('ticket_update', $ticket_id);
 
         flashAlert("Ticket reopened");
 
@@ -180,7 +180,7 @@ if (isset($_GET['close_ticket'], $_GET['url_key'])) {
         // Add reply
         mysqli_query($mysqli, "INSERT INTO ticket_replies SET ticket_reply = 'Ticket closed by client (guest URL).', ticket_reply_type = 'Internal', ticket_reply_by = 0, ticket_reply_ticket_id = $ticket_id");
 
-        customAction('ticket_close', $ticket_id);
+        triggerCustomAction('ticket_close', $ticket_id);
 
         flashAlert("Ticket closed");
 
@@ -217,7 +217,7 @@ if (isset($_GET['add_ticket_feedback'], $_GET['url_key'])) {
 
         redirect();
 
-        customAction('ticket_feedback', $ticket_id);
+        triggerCustomAction('ticket_feedback', $ticket_id);
 
     } else {
         echo "Invalid!!";

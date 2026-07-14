@@ -244,7 +244,7 @@ if (isset($_GET['invoice_id'], $_GET['url_key']) && !isset($_GET['payment_intent
     // Notify
     appNotify("Invoice Paid", "Invoice $invoice_prefix$invoice_number has been paid by $client_name - $ip - $os - $browser", "/agent/invoice.php?invoice_id=$invoice_id", $pi_client_id);
 
-    customAction('invoice_pay', $invoice_id);
+    triggerCustomAction('invoice_pay', $invoice_id);
 
     $extended_log_desc = '';
     if (!$pi_livemode) {

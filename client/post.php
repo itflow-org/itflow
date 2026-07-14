@@ -74,7 +74,7 @@ if (isset($_POST['add_ticket'])) {
         }
 
     // Custom action/notif handler
-    customAction('ticket_create', $ticket_id);
+    triggerCustomAction('ticket_create', $ticket_id);
 
     logAudit("Ticket", "Create", "$session_contact_name created ticket $config_ticket_prefix$ticket_number - $subject from the client portal", $session_client_id, $ticket_id);
 
@@ -178,7 +178,7 @@ if (isset($_POST['add_ticket_comment'])) {
         }
 
         // Custom action/notif handler
-        customAction('ticket_reply_client', $ticket_id);
+        triggerCustomAction('ticket_reply_client', $ticket_id);
 
         // Redirect back to original page
         redirect();
@@ -249,7 +249,7 @@ if (isset($_POST['add_ticket_feedback'])) {
         }
 
         // Custom action/notif handler
-        customAction('ticket_feedback', $ticket_id);
+        triggerCustomAction('ticket_feedback', $ticket_id);
 
         // Redirect
         redirect();
@@ -284,7 +284,7 @@ if (isset($_GET['resolve_ticket'])) {
         logAudit("Ticket", "Edit", "$session_contact_name marked ticket $ticket_prefix$ticket_number as resolved in the client portal", $session_client_id, $ticket_id);
 
         // Custom action/notif handler
-        customAction('ticket_resolve', $ticket_id);
+        triggerCustomAction('ticket_resolve', $ticket_id);
 
         redirect("ticket.php?id=" . $ticket_id);
 
@@ -319,7 +319,7 @@ if (isset($_GET['reopen_ticket'])) {
         logAudit("Ticket", "Edit", "$session_contact_name reopend ticket $ticket_prefix$ticket_number in the client portal", $session_client_id, $ticket_id);
 
         // Custom action/notif handler
-        customAction('ticket_update', $ticket_id);
+        triggerCustomAction('ticket_update', $ticket_id);
 
         redirect("ticket.php?id=" . $ticket_id);
 
@@ -354,7 +354,7 @@ if (isset($_GET['close_ticket'])) {
         logAudit("Ticket", "Edit", "$session_contact_name closed ticket $ticket_prefix$ticket_number in the client portal", $session_client_id, $ticket_id);
 
         // Custom action/notif handler
-        customAction('ticket_close', $ticket_id);
+        triggerCustomAction('ticket_close', $ticket_id);
 
         redirect("ticket.php?id=" . $ticket_id);
 
@@ -435,7 +435,7 @@ if (isset($_POST['add_contact'])) {
     // Logging
     logAudit("Contact", "Create", "Client contact $session_contact_name created contact $contact_name in the client portal", $session_client_id, $contact_id);
 
-    customAction('contact_create', $contact_id);
+    triggerCustomAction('contact_create', $contact_id);
 
     flashAlert("Contact $contact_name created");
 
@@ -491,7 +491,7 @@ if (isset($_POST['edit_contact'])) {
 
     redirect('contacts.php');
 
-    customAction('contact_update', $contact_id);
+    triggerCustomAction('contact_update', $contact_id);
 
 }
 
@@ -678,7 +678,7 @@ if (isset($_GET['add_payment_by_provider'])) {
         // Notify/log
         appNotify("Invoice Paid", "Invoice $invoice_prefix$invoice_number automatically paid", "/agent/invoice.php?invoice_id=$invoice_id", $client_id);
         logAudit("Invoice", "Payment", "$session_name initiated Stripe payment amount of " . numfmt_format_currency($currency_format, $invoice_amount, $invoice_currency_code) . " added to invoice $invoice_prefix$invoice_number - $pi_id $extended_log_desc", $client_id, $invoice_id);
-        customAction('invoice_pay', $invoice_id);
+        triggerCustomAction('invoice_pay', $invoice_id);
 
         flashAlert("The amount " . numfmt_format_currency($currency_format, $invoice_amount, $invoice_currency_code) . " paid Invoice $invoice_prefix$invoice_number");
 

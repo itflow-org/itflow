@@ -349,7 +349,7 @@ if (mysqli_num_rows($sql_recurring_tickets) > 0) {
         // Logging
         logAudit("Ticket", "Create", "Cron created recurring scheduled $frequency ticket - $subject", $client_id, $id);
 
-        customAction('ticket_create', $id);
+        triggerCustomAction('ticket_create', $id);
 
         // Notifications
 
@@ -483,7 +483,7 @@ while ($row = mysqli_fetch_assoc($sql_resolved_tickets_to_close)) {
     //Logging
     logAudit("Ticket", "Closed", "$ticket_prefix$ticket_number auto closed", $client_id, $ticket_id);
 
-    customAction('ticket_close', $ticket_id);
+    triggerCustomAction('ticket_close', $ticket_id);
 
     //TODO: Add client notifs if $config_ticket_client_general_notifications is on
 }
@@ -672,7 +672,7 @@ while ($row = mysqli_fetch_assoc($sql_recurring_invoices)) {
 
     appNotify("Recurring Sent", "Recurring Invoice $config_invoice_prefix$new_invoice_number for $client_name Sent", "/agent/invoice.php?invoice_id=$new_invoice_id", $client_id);
 
-    customAction('invoice_create', $new_invoice_id);
+    triggerCustomAction('invoice_create', $new_invoice_id);
 
     //Update recurring dates
 
@@ -928,7 +928,7 @@ while ($row = mysqli_fetch_assoc($sql_recurring_payments)) {
                     $extended_log_desc = !$pi_livemode ? '(DEV MODE)' : '';
                     appNotify("Invoice Paid", "Invoice $invoice_prefix$invoice_number automatically paid", "/agent/invoice.php?invoice_id=$invoice_id", $client_id);
                     logAudit("Invoice", "Payment", "Auto Stripe payment amount of " . numfmt_format_currency($currency_format, $invoice_amount, $recurring_payment_currency_code) . " added to invoice $invoice_prefix$invoice_number - $pi_id $extended_log_desc", $client_id, $invoice_id);
-                    customAction('invoice_pay', $invoice_id);
+                    triggerCustomAction('invoice_pay', $invoice_id);
 
                 } else {
                     mysqli_query($mysqli, "INSERT INTO history SET history_status = 'Payment failed', history_description = 'Stripe autopay failed: Status {$payment_intent->status}', history_invoice_id = $invoice_id");
