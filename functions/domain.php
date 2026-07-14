@@ -5,7 +5,7 @@
 
 
 // Get domain general info (whois + NS/A/MX records)
-function getDomainRecords($name)
+function getDnsRecords($name)
 {
     $records = array();
 

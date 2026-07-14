@@ -180,7 +180,7 @@ if (isset($_POST['add_client'])) {
     // Insert domain and SSL using SET
     if (!empty($website) && filter_var($website, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME)) {
         $expire = getDomainExpirationDate($website);
-        $records = getDomainRecords($website);
+        $records = getDnsRecords($website);
         $a = cleanInput($records['a']);
         $ns = cleanInput($records['ns']);
         $mx = cleanInput($records['mx']);

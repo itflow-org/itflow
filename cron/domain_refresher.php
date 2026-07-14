@@ -49,7 +49,7 @@ if ($row) {
 
     // Lookup fresh info
     $expire = getDomainExpirationDate($domain_name);
-    $records = getDomainRecords($domain_name);
+    $records = getDnsRecords($domain_name);
     $a = escapeSql($records['a']);
     $ns = escapeSql($records['ns']);
     $mx = escapeSql($records['mx']);
