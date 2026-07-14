@@ -1166,7 +1166,7 @@ if (isset($_GET['download_assets_csv_template'])) {
     $delimiter = ",";
     $enclosure = '"';
     $escape    = '\\';
-    $filename = strtoAZaz09($client_name) . "-Assets-Template.csv";
+    $filename = toAlphanumeric($client_name) . "-Assets-Template.csv";
 
     //create a file pointer
     $f = fopen('php://memory', 'w');
@@ -1813,7 +1813,7 @@ if (isset($_GET['download_client_asset_interfaces_csv_template'])) {
     $delimiter = ",";
     $enclosure = '"';
     $escape    = '\\';
-    $filename = strtoAZaz09($asset_name) . "-Asset-Interfaces-Template.csv";
+    $filename = toAlphanumeric($asset_name) . "-Asset-Interfaces-Template.csv";
 
     //create a file pointer
     $f = fopen('php://memory', 'w');
@@ -1859,7 +1859,7 @@ if (isset($_POST['export_client_asset_interfaces_csv'])) {
         $delimiter = ",";
         $enclosure = '"';
         $escape    = '\\';   // backslash
-        $filename = strtoAZaz09($asset_name) . "-Interfaces-" . date('Y-m-d') . ".csv";
+        $filename = toAlphanumeric($asset_name) . "-Interfaces-" . date('Y-m-d') . ".csv";
 
         //create a file pointer
         $f = fopen('php://memory', 'w');

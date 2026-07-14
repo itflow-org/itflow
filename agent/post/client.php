@@ -2063,7 +2063,7 @@ if (isset($_POST["export_client_pdf"])) {
     $pdf->writeHTML($html, true, false, true, false, "");
 
     // Output the PDF document for download
-    $pdf->Output(strtoAZaz09($client_name) . "-IT_Documentation-" . date("Y-m-d") . ".pdf", "D");
+    $pdf->Output(toAlphanumeric($client_name) . "-IT_Documentation-" . date("Y-m-d") . ".pdf", "D");
     exit;
 
 }

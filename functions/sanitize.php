@@ -51,7 +51,7 @@ function cleanInput($input) {
     return $input;
 }
 
-function strtoAZaz09($string)
+function toAlphanumeric($string)
 {
     // Gets rid of non-alphanumerics
     return preg_replace('/[^A-Za-z0-9_-]/', '', $string);
