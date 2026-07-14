@@ -46,7 +46,7 @@ while ($row = mysqli_fetch_assoc($sql_certificates)) {
     $certificate_id = intval($row['certificate_id']);
     $domain = escapeSql($row['certificate_domain']);
 
-    $certificate = getSSL($domain);
+    $certificate = getSslCertificate($domain);
 
     $expire = escapeSql($certificate['expire']);
     $issued_by = escapeSql($certificate['issued_by']);

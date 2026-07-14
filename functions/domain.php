@@ -72,7 +72,7 @@ function getDnsRecords($name)
 
 // Used to automatically attempt to get SSL certificates as part of adding domains
 // The logic for the fetch (sync) button on the client_certificates page is in ajax.php, and allows ports other than 443
-function getSSL($full_name)
+function getSslCertificate($full_name)
 {
 
     // Parse host and port

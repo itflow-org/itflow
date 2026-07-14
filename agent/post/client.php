@@ -209,7 +209,7 @@ if (isset($_POST['add_client'])) {
         }
 
         $domain_id = mysqli_insert_id($mysqli);
-        $certificate = getSSL($website);
+        $certificate = getSslCertificate($website);
 
         if ($certificate['success'] == "TRUE") {
             $expire = cleanInput($certificate['expire']);

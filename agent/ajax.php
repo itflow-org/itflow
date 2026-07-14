@@ -25,7 +25,7 @@ if (isset($_GET['certificate_fetch_parse_json_details'])) {
     $name = $_GET['domain'];
 
     // Get SSL cert for domain (if exists)
-    $certificate = getSSL($name);
+    $certificate = getSslCertificate($name);
 
     if ($certificate['success'] == "TRUE") {
         $response['success'] = "TRUE";

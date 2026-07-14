@@ -46,7 +46,7 @@ if (isset($_POST['add_domain'])) {
     $domain_id = mysqli_insert_id($mysqli);
 
     // Get SSL cert for domain (if exists)
-    $certificate = getSSL($name);
+    $certificate = getSslCertificate($name);
     if ($certificate['success'] == "TRUE") {
         $expire = escapeSql($certificate['expire']);
         $issued_by = escapeSql($certificate['issued_by']);
