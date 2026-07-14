@@ -16,15 +16,10 @@ function randomString(int $length = 16): string {
 
 // Older keygen function - only used for TOTP currently
 function key32gen() {
-    $chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-    $chars .= "234567";
-    while (1) {
-        $key = '';
-        srand((float) microtime() * 1000000);
-        for ($i = 0; $i < 32; $i++) {
-            $key .= substr($chars, (rand() % (strlen($chars))), 1);
-        }
-        break;
+    $chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
+    $key = '';
+    for ($i = 0; $i < 32; $i++) {
+        $key .= $chars[random_int(0, strlen($chars) - 1)];
     }
     return $key;
 }
