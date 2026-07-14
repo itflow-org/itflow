@@ -367,7 +367,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                     // Abbreviation
                     if (empty($client_abbreviation)) {
-                        $client_abbreviation = shortenClient($client_name);
+                        $client_abbreviation = shortenClientName($client_name);
                     }
 
                     // Client Tags

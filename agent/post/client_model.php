@@ -10,7 +10,7 @@ $net_terms = intval($_POST['net_terms'] ?? $config_default_net_terms);
 $tax_id_number = cleanInput($_POST['tax_id_number'] ?? '');
 $abbreviation = cleanInput($_POST['abbreviation'] ?? '');
 if (empty($abbreviation)) {
-    $abbreviation = shortenClient($name);
+    $abbreviation = shortenClientName($name);
 }
 $notes = cleanInput($_POST['notes'] ?? '');
 $lead = intval($_POST['lead'] ?? 0);
