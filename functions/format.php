@@ -15,6 +15,7 @@ function initials($string) {
     }
 }
 
+
 function truncate($text, $chars) {
     if (strlen($text) <= $chars) {
         return $text;
@@ -27,6 +28,7 @@ function truncate($text, $chars) {
     }
     return $text . "...";
 }
+
 
 function formatPhoneNumber($phoneNumber, $country_code = '', $show_country_code = false) {
     // Remove all non-digit characters
@@ -189,8 +191,8 @@ function formatPhoneNumber($phoneNumber, $country_code = '', $show_country_code 
     return $show_country_code && $country_code ? "+$country_code $formatted" : $formatted;
 }
 
-function timeAgo($datetime)
-{
+
+function timeAgo($datetime) {
     if (is_null($datetime)) {
         return "-";
     }
@@ -225,8 +227,8 @@ function timeAgo($datetime)
     }
 }
 
-function shortenClientName($client)
-{
+
+function shortenClientName($client) {
     // Pre-process by removing any non-alphanumeric characters except for certain punctuations.
     $client = html_entity_decode($client); // Decode any HTML entities
     $client = str_replace("'", "", $client); // Removing all occurrences of '
@@ -267,13 +269,13 @@ function shortenClientName($client)
     return strtoupper(substr($shortened, 0, 3));
 }
 
-function roundUpToNearestMultiple($n, $increment = 1000)
-{
+
+function roundUpToNearestMultiple($n, $increment = 1000) {
     return (int) ($increment * ceil($n / $increment));
 }
 
-function roundToNearest15Min($time)
-{
+
+function roundToNearest15Min($time) {
     // Validate the input time format
     if (!preg_match('/^(\d{2}):(\d{2}):(\d{2})$/', $time, $matches)) {
         return false; // or throw an exception
@@ -301,6 +303,7 @@ function roundToNearest15Min($time)
     return number_format($decimalHours, 2);
 }
 
+
 function formatDuration($time) {
     // expects "HH:MM:SS"
     [$h, $m, $s] = array_map('intval', explode(':', $time));
@@ -317,6 +320,7 @@ function formatDuration($time) {
 
     return implode(' ', $parts);
 }
+
 
 function validateDate($date) {
     if (preg_match('/^\d{4}-\d{2}-\d{2}$/', $date)) {
