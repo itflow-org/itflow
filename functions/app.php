@@ -194,7 +194,7 @@ function display_folder_options($parent_folder_id, $client_id, $indent = 0) {
     }
 }
 
-function fetchUpdates() {
+function checkForUpdates() {
 
     global $repo_branch;
 

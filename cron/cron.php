@@ -1251,7 +1251,7 @@ if ($config_telemetry > 0 || $config_telemetry == 2) {
 
 
 // Fetch Updates
-$updates = fetchUpdates();
+$updates = checkForUpdates();
 
 $update_message = $updates->update_message;
 

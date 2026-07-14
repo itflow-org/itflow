@@ -3,7 +3,7 @@ require_once "includes/inc_all_admin.php";
 
 require_once "../includes/database_version.php";
 
-$updates = fetchUpdates();
+$updates = checkForUpdates();
 
 $latest_version = $updates->latest_version;
 $current_version = $updates->current_version;
