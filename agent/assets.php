@@ -536,10 +536,10 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             $asset_serial_display = "-";
                         }
                         $asset_os = escapeHtml($row['asset_os']);
-                        $asset_ip = getFallBack(escapeHtml($row['interface_ip']));
+                        $asset_ip = escapeHtml($row['interface_ip']) ?: '-';
                         $asset_ipv6 = escapeHtml($row['interface_ipv6']);
                         $asset_nat_ip = escapeHtml($row['interface_nat_ip']);
-                        $asset_mac = escapeHtml(getFallBack($row['interface_mac']));
+                        $asset_mac = escapeHtml($row['interface_mac']) ?: '-';
                         $asset_uri = sanitize_url($row['asset_uri']);
                         $asset_uri_2 = sanitize_url($row['asset_uri_2']);
                         $asset_uri_client = sanitize_url($row['asset_uri_client']);

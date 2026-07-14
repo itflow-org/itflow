@@ -338,7 +338,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         } else {
                             $contact_title_display = "<small class='text-secondary'>$contact_title</small>";
                         }
-                        $contact_department = getFallBack(escapeHtml($row['contact_department']));
+                        $contact_department = escapeHtml($row['contact_department']) ?: '-';
                         $contact_extension = escapeHtml($row['contact_extension']);
                         if (empty($contact_extension)) {
                             $contact_extension_display = "";

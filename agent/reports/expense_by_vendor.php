@@ -76,7 +76,7 @@ $sql_vendor_expenses = mysqli_query($mysqli, "
                 <?php
                 while ($row = mysqli_fetch_assoc($sql_vendor_expenses)) {
                     $vendor_id = intval($row['vendor_id']);
-                    $vendor_name = nullable_htmlentities($row['vendor_name']);
+                    $vendor_name = escapeHtml($row['vendor_name']);
                     $amount_paid = floatval($row['amount_paid']); ?>
 
                     <tr>
