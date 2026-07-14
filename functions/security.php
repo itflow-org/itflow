@@ -14,7 +14,7 @@ function randomString(int $length = 16): string {
     );
 }
 
-// Older keygen function - only used for TOTP currently
+// Used only for TOTP
 function key32gen() {
     $chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
     $key = '';
