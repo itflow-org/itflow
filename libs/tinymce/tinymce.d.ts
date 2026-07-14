@@ -559,7 +559,7 @@ interface DOMUtils {
     dispatch: (target: Node | Window, name: string, evt?: {}) => EventUtils;
     getContentEditable: (node: Node) => string | null;
     getContentEditableParent: (node: Node) => string | null;
-    isEditable: (node: Node | null | undefined) => boolean;
+    isEditable: (node: Node | null | undefined) => node is HTMLElement;
     destroy: () => void;
     isChildOf: (node: Node, parent: Node) => boolean;
     dumpRng: (r: Range) => string;
@@ -1131,6 +1131,7 @@ interface TabSpec {
 interface TabPanelSpec {
     type: 'tabpanel';
     tabs: TabSpec[];
+    dynamicHeight?: boolean;
 }
 type DialogDataItem = any;
 type DialogData = Record<string, DialogDataItem>;
@@ -3075,6 +3076,9 @@ declare class Editor implements EditorObservable {
     addVisual(elm?: HTMLElement): void;
     setEditableRoot(state: boolean): void;
     hasEditableRoot(): boolean;
+    announce(message: string, options?: {
+        assertive?: boolean;
+    }): void;
     remove(): void;
     destroy(automatic?: boolean): void;
     uploadImages(): Promise<UploadResult$1[]>;
@@ -3254,6 +3258,11 @@ type TextPatterns_d_InlineFormatPattern = InlineFormatPattern;
 declare namespace TextPatterns_d {
     export { TextPatterns_d_Pattern as Pattern, TextPatterns_d_RawPattern as RawPattern, TextPatterns_d_DynamicPatternsLookup as DynamicPatternsLookup, TextPatterns_d_RawDynamicPatternsLookup as RawDynamicPatternsLookup, TextPatterns_d_DynamicPatternContext as DynamicPatternContext, TextPatterns_d_BlockCmdPattern as BlockCmdPattern, TextPatterns_d_BlockPattern as BlockPattern, TextPatterns_d_BlockFormatPattern as BlockFormatPattern, TextPatterns_d_InlineCmdPattern as InlineCmdPattern, TextPatterns_d_InlinePattern as InlinePattern, TextPatterns_d_InlineFormatPattern as InlineFormatPattern, };
 }
+interface AriaAnnouncer {
+    readonly announce: (message: string, options?: {
+        assertive?: boolean;
+    }) => void;
+}
 interface Delay {
     setEditorInterval: (editor: Editor, callback: () => void, time?: number) => number;
     setEditorTimeout: (editor: Editor, callback: () => void, time?: number) => number;
@@ -3369,6 +3378,7 @@ interface TinyMCE extends EditorManager {
         BookmarkManager: BookmarkManagerNamespace;
         Selection: (dom: DOMUtils, win: Window, serializer: DomSerializer, editor: Editor) => EditorSelection;
         StyleSheetLoader: (documentOrShadowRoot: Document | ShadowRoot, settings: StyleSheetLoaderSettings) => StyleSheetLoader;
+        AriaAnnouncer: AriaAnnouncer;
         Event: EventUtils;
     };
     html: {
