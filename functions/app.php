@@ -75,7 +75,7 @@ function getTicketStatusName($ticket_status) {
 }
 
 // Helper function for missing data fallback
-function getFallback($data) {
+function valueOrDash($data) {
     return !empty($data) ? $data : '-';
 }
 

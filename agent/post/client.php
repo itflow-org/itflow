@@ -1608,11 +1608,11 @@ if (isset($_POST["export_client_pdf"])) {
           <tbody>";
         while ($row = mysqli_fetch_assoc($sql_credentials)) {
             $credential_name = escapeHtml($row["credential_name"]);
-            $credential_description = getFallback(escapeHtml($row["credential_description"]));
+            $credential_description = valueOrDash(escapeHtml($row["credential_description"]));
             $credential_username = escapeHtml(decryptCredentialEntry($row["credential_username"]));
             $credential_password = escapeHtml(decryptCredentialEntry($row["credential_password"]));
-            $credential_totp_secret = getFallback(escapeHtml($row['credential_otp_secret']));
-            $credential_uri = getFallback(escapeHtml($row["credential_uri"]));
+            $credential_totp_secret = valueOrDash(escapeHtml($row['credential_otp_secret']));
+            $credential_uri = valueOrDash(escapeHtml($row["credential_uri"]));
             $html .= "
             <tr>
               <td>$credential_name</td>
