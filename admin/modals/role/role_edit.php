@@ -7,8 +7,8 @@ $role_id = intval($_GET['id']);
 $sql = mysqli_query($mysqli, "SELECT * FROM user_roles WHERE role_id = $role_id LIMIT 1");
 
 $row = mysqli_fetch_assoc($sql);
-$role_name = nullable_htmlentities($row['role_name']);
-$role_description = nullable_htmlentities($row['role_description']);
+$role_name = escapeHtml($row['role_name']);
+$role_description = escapeHtml($row['role_description']);
 $role_admin = intval($row['role_is_admin']);
 
 // Count number of users that have each role
@@ -21,7 +21,7 @@ $user_names = [];
 
 // Fetch each row and store the user_name in the array
 while($row = mysqli_fetch_assoc($sql_users)) {
-    $user_names[] = nullable_htmlentities($row['user_name']);
+    $user_names[] = escapeHtml($row['user_name']);
 }
 
 // Convert the array of user names to a comma-separated string
@@ -116,9 +116,9 @@ ob_start();
                 $sql_modules = mysqli_query($mysqli, "SELECT * FROM modules");
                 while ($row_modules = mysqli_fetch_assoc($sql_modules)) {
                     $module_id = intval($row_modules['module_id']);
-                    $module_name = nullable_htmlentities($row_modules['module_name']);
+                    $module_name = escapeHtml($row_modules['module_name']);
                     $module_name_display = ucfirst(str_replace("module_","",$module_name));
-                    $module_description = nullable_htmlentities($row_modules['module_description']);
+                    $module_description = escapeHtml($row_modules['module_description']);
 
                     // Get permission level for module
                     $module_permission_row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT user_role_permission_level FROM user_role_permissions WHERE module_id = $module_id AND user_role_id = $role_id LIMIT 1"));

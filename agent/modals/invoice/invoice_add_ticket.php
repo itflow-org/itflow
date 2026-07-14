@@ -20,10 +20,10 @@
                         </thead>
                         <?php while ($row = mysqli_fetch_assoc($sql_tickets_billable)) {
                             $ticket_id = intval($row['ticket_id']);
-                            $ticket_subject = nullable_htmlentities($row['ticket_subject']);
+                            $ticket_subject = escapeHtml($row['ticket_subject']);
                             $ticket_number = intval($row['ticket_number']);
-                            $ticket_prefix = nullable_htmlentities($row['ticket_prefix']);
-                            $ticket_status = nullable_htmlentities($row['ticket_status']);
+                            $ticket_prefix = escapeHtml($row['ticket_prefix']);
+                            $ticket_status = escapeHtml($row['ticket_status']);
 
                             switch ($ticket_status) {
                                 case 'Closed':

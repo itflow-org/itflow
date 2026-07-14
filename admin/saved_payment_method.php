@@ -52,7 +52,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
             <div class="row">
                 <div class="col-md-4">
                     <div class="input-group">
-                        <input type="search" class="form-control" name="q" value="<?php if (isset($q)) {echo stripslashes(nullable_htmlentities($q));} ?>" placeholder="Search Saved Payment Methods">
+                        <input type="search" class="form-control" name="q" value="<?php if (isset($q)) {echo stripslashes(escapeHtml($q));} ?>" placeholder="Search Saved Payment Methods">
                         <div class="input-group-append">
                             <button class="btn btn-primary"><i class="fa fa-search"></i></button>
                         </div>
@@ -107,13 +107,13 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                 while ($row = mysqli_fetch_assoc($sql)) {
                     $saved_payment_id = intval($row['saved_payment_id']);
                     $client_id = intval($row['saved_payment_client_id']);
-                    $client_name = nullable_htmlentities($row['client_name']);
+                    $client_name = escapeHtml($row['client_name']);
                     $provider_id = intval($row['saved_payment_provider_id']);
-                    $provider_name = nullable_htmlentities($row['payment_provider_name']);
-                    $saved_payment_description = nullable_htmlentities($row['saved_payment_description']);
-                    $provider_client = nullable_htmlentities($row['payment_provider_client']);
-                    $provider_payment_method = nullable_htmlentities($row['saved_payment_provider_method']);
-                    $saved_payment_created_at = nullable_htmlentities($row['saved_payment_created_at']);
+                    $provider_name = escapeHtml($row['payment_provider_name']);
+                    $saved_payment_description = escapeHtml($row['saved_payment_description']);
+                    $provider_client = escapeHtml($row['payment_provider_client']);
+                    $provider_payment_method = escapeHtml($row['saved_payment_provider_method']);
+                    $saved_payment_created_at = escapeHtml($row['saved_payment_created_at']);
 
                     ?>
                     <tr>

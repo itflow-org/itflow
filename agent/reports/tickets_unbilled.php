@@ -89,7 +89,7 @@ $rows = 0;
                     <?php
                     while ($row = mysqli_fetch_assoc($sql_clients)) {
                         $client_id = intval($row['client_id']);
-                        $client_name = nullable_htmlentities($row['client_name']);
+                        $client_name = escapeHtml($row['client_name']);
 
                         // Calculate total tickets raised in period
                         $sql_ticket_raised_count = mysqli_query(

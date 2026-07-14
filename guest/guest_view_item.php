@@ -18,18 +18,18 @@ $purifier = new HTMLPurifier($purifier_config);
 $sql = mysqli_query($mysqli, "SELECT * FROM companies, settings WHERE companies.company_id = settings.company_id AND companies.company_id = 1");
 $row = mysqli_fetch_assoc($sql);
 
-$company_name = nullable_htmlentities($row['company_name']);
-$company_address = nullable_htmlentities($row['company_address']);
-$company_city = nullable_htmlentities($row['company_city']);
-$company_state = nullable_htmlentities($row['company_state']);
-$company_zip = nullable_htmlentities($row['company_zip']);
-$company_phone_country_code = nullable_htmlentities($row['company_phone_country_code']);
-$company_phone = nullable_htmlentities(formatPhoneNumber($row['company_phone'], $company_phone_country_code));
-$company_email = nullable_htmlentities($row['company_email']);
-$company_website = nullable_htmlentities($row['company_website']);
-$company_logo = nullable_htmlentities($row['company_logo']);
-$company_locale = nullable_htmlentities($row['company_locale']);
-$config_invoice_footer = nullable_htmlentities($row['config_invoice_footer']);
+$company_name = escapeHtml($row['company_name']);
+$company_address = escapeHtml($row['company_address']);
+$company_city = escapeHtml($row['company_city']);
+$company_state = escapeHtml($row['company_state']);
+$company_zip = escapeHtml($row['company_zip']);
+$company_phone_country_code = escapeHtml($row['company_phone_country_code']);
+$company_phone = escapeHtml(formatPhoneNumber($row['company_phone'], $company_phone_country_code));
+$company_email = escapeHtml($row['company_email']);
+$company_website = escapeHtml($row['company_website']);
+$company_logo = escapeHtml($row['company_logo']);
+$company_locale = escapeHtml($row['company_locale']);
+$config_invoice_footer = escapeHtml($row['config_invoice_footer']);
 
 //Set Currency Format
 $currency_format = numfmt_create($company_locale, NumberFormatter::CURRENCY);
@@ -68,14 +68,14 @@ if ($row['item_active'] !== "1" || ($row['item_view_limit'] > 0 && $row['item_vi
 
 // If we got here, we have valid information
 
-$item_type = nullable_htmlentities($row['item_type']);
+$item_type = escapeHtml($row['item_type']);
 $item_related_id = intval($row['item_related_id']);
-$item_encrypted_credential = nullable_htmlentities($row['item_encrypted_credential']);
-$item_note = nullable_htmlentities($row['item_note']);
-$item_recipient = nullable_htmlentities($row['item_recipient']);
+$item_encrypted_credential = escapeHtml($row['item_encrypted_credential']);
+$item_note = escapeHtml($row['item_note']);
+$item_recipient = escapeHtml($row['item_recipient']);
 $item_views = intval($row['item_views']);
 $item_view_limit = intval($row['item_view_limit']);
-$item_created = nullable_htmlentities($row['item_created_at']);
+$item_created = escapeHtml($row['item_created_at']);
 $item_expire = date('Y-m-d h:i A', strtotime($row['item_expire_at']));
 $client_id = intval($row['item_client_id']);
 
@@ -89,7 +89,7 @@ appNotify("Share Viewed", "$item_type_sql_escaped has been viewed by $item_recip
 
 <?php
     if (!empty($company_logo)) { ?>
-            <img alt="<?=nullable_htmlentities($company_name)?> logo" height="40" width="80" class="img-fluid" src="<?php echo "../uploads/settings/$company_logo"; ?>">
+            <img alt="<?=escapeHtml($company_name)?> logo" height="40" width="80" class="img-fluid" src="<?php echo "../uploads/settings/$company_logo"; ?>">
         <?php
         } else {
             echo "<h3>$company_name</h3>";
@@ -128,7 +128,7 @@ if ($item_type == "Document") {
         exit();
     }
 
-    $doc_title = nullable_htmlentities($doc_row['document_name']);
+    $doc_title = escapeHtml($doc_row['document_name']);
     $doc_title_escaped = sanitizeInput($doc_row['document_name']);
     $doc_content = $purifier->purify($doc_row['document_content']);
 
@@ -155,7 +155,7 @@ if ($item_type == "Document") {
         exit();
     }
 
-    $file_name = nullable_htmlentities($file_row['file_name']);
+    $file_name = escapeHtml($file_row['file_name']);
 
     echo "<h3>A file has been shared with you</h3>";
     if (!empty($item_note)) {
@@ -177,20 +177,20 @@ if ($item_type == "Document") {
     }
 
     $credential_id = intval($credential_row['credential_id']);
-    $credential_name = nullable_htmlentities($credential_row['credential_name']);
-    $credential_uri = nullable_htmlentities($credential_row['credential_uri']);
+    $credential_name = escapeHtml($credential_row['credential_name']);
+    $credential_uri = escapeHtml($credential_row['credential_uri']);
 
     $username_iv = substr($row['item_encrypted_username'], 0, 16);
     $username_ciphertext = substr($row['item_encrypted_username'], 16);
-    $credential_username = nullable_htmlentities(openssl_decrypt($username_ciphertext, 'aes-128-cbc', $encryption_key, 0, $username_iv));
+    $credential_username = escapeHtml(openssl_decrypt($username_ciphertext, 'aes-128-cbc', $encryption_key, 0, $username_iv));
 
     $password_iv = substr($row['item_encrypted_credential'], 0, 16);
     $password_ciphertext = substr($row['item_encrypted_credential'], 16);
-    $credential_password = nullable_htmlentities(openssl_decrypt($password_ciphertext, 'aes-128-cbc', $encryption_key, 0, $password_iv));
+    $credential_password = escapeHtml(openssl_decrypt($password_ciphertext, 'aes-128-cbc', $encryption_key, 0, $password_iv));
 
-    $credential_otp = nullable_htmlentities($credential_row['credential_otp_secret']);
+    $credential_otp = escapeHtml($credential_row['credential_otp_secret']);
 
-    $credential_otp_secret = nullable_htmlentities($credential_row['credential_otp_secret']);
+    $credential_otp_secret = escapeHtml($credential_row['credential_otp_secret']);
     $credential_id_with_secret = '"' . $credential_row['credential_id'] . '","' . $credential_row['credential_otp_secret'] . '"';
     if (empty($credential_otp_secret)) {
         $otp_display = "-";
@@ -198,7 +198,7 @@ if ($item_type == "Document") {
         $otp_display = "<span onmouseenter='showOTP($credential_id_with_secret)'><i class='far fa-clock'></i> <span id='otp_$credential_id'><i>Hover..</i></span></span>";
     }
 
-    $credential_notes = nullable_htmlentities($credential_row['credential_note']);
+    $credential_notes = escapeHtml($credential_row['credential_note']);
 
 
 

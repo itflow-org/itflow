@@ -73,7 +73,7 @@ $largest_income_month = 0;
                 <tbody>
                 <?php while ($row = mysqli_fetch_assoc($sql_categories)) {
                     $category_id = intval($row['category_id']);
-                    $category_name = nullable_htmlentities($row['category_name']); ?>
+                    $category_name = escapeHtml($row['category_name']); ?>
                     <tr>
                         <td><?php echo $category_name; ?></td>
                         <?php

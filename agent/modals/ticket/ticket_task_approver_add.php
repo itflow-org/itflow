@@ -10,7 +10,7 @@ $sql = mysqli_query($mysqli, "SELECT * FROM tasks
 );
 
 $row = mysqli_fetch_assoc($sql);
-$task_name = nullable_htmlentities($row['task_name']);
+$task_name = escapeHtml($row['task_name']);
 
 // Generate the HTML form content using output buffering.
 ob_start();

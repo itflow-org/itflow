@@ -58,7 +58,7 @@ $remember_token_count = mysqli_num_rows($sql_remember_tokens);
             <ul>
                 <?php while ($row = mysqli_fetch_assoc($sql_remember_tokens)) {
                     $token_id = intval($row['remember_token_id']);
-                    $token_created = nullable_htmlentities($row['remember_token_created_at']);
+                    $token_created = escapeHtml($row['remember_token_created_at']);
 
                     echo "<li>ID: $token_id | Created: $token_created</li>";
                 } ?>

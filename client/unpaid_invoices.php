@@ -67,8 +67,8 @@ $balance = $invoice_amounts - $amount_paid;
             <?php
             while ($row = mysqli_fetch_assoc($sql_saved_payment_methods)) {
                 $saved_payment_id = intval($row['saved_payment_id']);
-                $saved_payment_description = nullable_htmlentities($row['saved_payment_description']);
-                $payment_provider_name = nullable_htmlentities($row['payment_provider_name']);
+                $saved_payment_description = escapeHtml($row['saved_payment_description']);
+                $payment_provider_name = escapeHtml($row['payment_provider_name']);
                 ?>
 
                 <a class="dropdown-item confirm-link" href="post.php?add_payment_by_provider=<?php echo $saved_payment_provider_id; ?>&invoice_id=<?php echo $invoice_id; ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"><?php echo "$payment_provider_name | $saved_payment_description"; ?></a>
@@ -98,14 +98,14 @@ $balance = $invoice_amounts - $amount_paid;
             <?php
             while ($row = mysqli_fetch_assoc($invoices_sql)) {
                 $invoice_id = intval($row['invoice_id']);
-                $invoice_prefix = nullable_htmlentities($row['invoice_prefix']);
+                $invoice_prefix = escapeHtml($row['invoice_prefix']);
                 $invoice_number = intval($row['invoice_number']);
-                $invoice_scope = nullable_htmlentities($row['invoice_scope']);
-                $invoice_status = nullable_htmlentities($row['invoice_status']);
-                $invoice_date = nullable_htmlentities($row['invoice_date']);
-                $invoice_due = nullable_htmlentities($row['invoice_due']);
+                $invoice_scope = escapeHtml($row['invoice_scope']);
+                $invoice_status = escapeHtml($row['invoice_status']);
+                $invoice_date = escapeHtml($row['invoice_date']);
+                $invoice_due = escapeHtml($row['invoice_due']);
                 $invoice_amount = floatval($row['invoice_amount']);
-                $invoice_url_key = nullable_htmlentities($row['invoice_url_key']);
+                $invoice_url_key = escapeHtml($row['invoice_url_key']);
 
                 if (empty($invoice_scope)) {
                     $invoice_scope_display = "-";
@@ -170,7 +170,7 @@ $balance = $invoice_amounts - $amount_paid;
                             <?php
                             while ($row = mysqli_fetch_assoc($sql_saved_payment_methods)) {
                                 $saved_payment_id = intval($row['saved_payment_id']);
-                                $saved_payment_description = nullable_htmlentities($row['saved_payment_description']);
+                                $saved_payment_description = escapeHtml($row['saved_payment_description']);
                                 $payment_icon = "fas fa-credit-card"; // default icon
                                 if (strpos($saved_payment_description, "visa") !== false) {
                                     $payment_icon = "fab fa-cc-visa";
@@ -181,7 +181,7 @@ $balance = $invoice_amounts - $amount_paid;
                                 } elseif (strpos($saved_payment_description, "discover") !== false) {
                                     $payment_icon = "fab fa-cc-discover";
                                 }
-                                $payment_provider_name = nullable_htmlentities($row['payment_provider_name']);
+                                $payment_provider_name = escapeHtml($row['payment_provider_name']);
                                 ?>
 
                                 <a class="dropdown-item confirm-link"

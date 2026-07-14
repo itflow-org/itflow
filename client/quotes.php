@@ -36,13 +36,13 @@ $quotes_sql = mysqli_query($mysqli, "SELECT * FROM quotes WHERE quote_client_id 
             <?php
             while ($row = mysqli_fetch_assoc($quotes_sql)) {
                 $quote_id = intval($row['quote_id']);
-                $quote_prefix = nullable_htmlentities($row['quote_prefix']);
+                $quote_prefix = escapeHtml($row['quote_prefix']);
                 $quote_number = intval($row['quote_number']);
-                $quote_scope = nullable_htmlentities($row['quote_scope']);
-                $quote_status = nullable_htmlentities($row['quote_status']);
-                $quote_date = nullable_htmlentities($row['quote_date']);
+                $quote_scope = escapeHtml($row['quote_scope']);
+                $quote_status = escapeHtml($row['quote_status']);
+                $quote_date = escapeHtml($row['quote_date']);
                 $quote_amount = floatval($row['quote_amount']);
-                $quote_url_key = nullable_htmlentities($row['quote_url_key']);
+                $quote_url_key = escapeHtml($row['quote_url_key']);
 
                 if (empty($quote_scope)) {
                     $quote_scope_display = "-";

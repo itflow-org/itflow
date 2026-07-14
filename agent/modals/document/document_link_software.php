@@ -10,7 +10,7 @@ $sql = mysqli_query($mysqli, "SELECT * FROM documents
 ");
 
 $row = mysqli_fetch_assoc($sql);
-$document_name = nullable_htmlentities($row['document_name']);
+$document_name = escapeHtml($row['document_name']);
 $client_id = intval($row['document_client_id']);
 
 enforceClientAccess();
@@ -52,7 +52,7 @@ ob_start();
 
                     while ($row = mysqli_fetch_assoc($sql_software_select)) {
                         $software_id = intval($row['software_id']);
-                        $software_name = nullable_htmlentities($row['software_name']);
+                        $software_name = escapeHtml($row['software_name']);
 
                         ?>
                         <option value="<?= $software_id ?>"><?= $software_name ?></option>

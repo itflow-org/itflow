@@ -86,7 +86,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                 <div class="row">
                     <div class="col-sm-4">
                         <div class="input-group mb-3 mb-sm-0">
-                            <input type="search" class="form-control" name="q" value="<?php if (isset($q)) {echo stripslashes(nullable_htmlentities($q));} ?>" placeholder="Search <?= $type_display ?>">
+                            <input type="search" class="form-control" name="q" value="<?php if (isset($q)) {echo stripslashes(escapeHtml($q));} ?>" placeholder="Search <?= $type_display ?>">
                             <div class="input-group-append">
                                 <button class="btn btn-primary"><i class="fa fa-search"></i></button>
                             </div>
@@ -101,7 +101,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 $sql_categories_filter = mysqli_query($mysqli, "SELECT category_id, category_name FROM categories WHERE category_type = 'Income' AND EXISTS (SELECT 1 FROM products WHERE product_category_id = category_id AND product_$archive_query $type_query) ORDER BY category_name ASC");
                                 while ($row = mysqli_fetch_assoc($sql_categories_filter)) {
                                     $category_id = intval($row['category_id']);
-                                    $category_name = nullable_htmlentities($row['category_name']);
+                                    $category_name = escapeHtml($row['category_name']);
                                 ?>
                                     <option <?php if ($category_filter == $category_id) { echo "selected"; } ?> value="<?php echo $category_id; ?>"><?php echo $category_name; ?></option>
                                 <?php
@@ -228,24 +228,24 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                         while ($row = mysqli_fetch_assoc($sql)) {
                             $product_id = intval($row['product_id']);
-                            $product_name = nullable_htmlentities($row['product_name']);
-                            $product_description = nullable_htmlentities($row['product_description']);
+                            $product_name = escapeHtml($row['product_name']);
+                            $product_description = escapeHtml($row['product_description']);
                             if (empty($product_description)) {
                                 $product_description_display = "-";
                             } else {
                                 $product_description_display = "<div style='white-space:pre-line'>$product_description</div>";
                             }
                             $product_qty = intval($row['product_qty']);
-                            $product_code = nullable_htmlentities($row['product_code']);
-                            $product_location = nullable_htmlentities(getFallBack($row['product_location']));
+                            $product_code = escapeHtml($row['product_code']);
+                            $product_location = escapeHtml(getFallBack($row['product_location']));
                             $product_price = floatval($row['product_price']);
-                            $product_currency_code = nullable_htmlentities($row['product_currency_code']);
-                            $product_created_at = nullable_htmlentities($row['product_created_at']);
-                            $product_archived_at = nullable_htmlentities($row['product_archived_at']);
+                            $product_currency_code = escapeHtml($row['product_currency_code']);
+                            $product_created_at = escapeHtml($row['product_created_at']);
+                            $product_archived_at = escapeHtml($row['product_archived_at']);
                             $category_id = intval($row['category_id']);
-                            $category_name = nullable_htmlentities($row['category_name']);
+                            $category_name = escapeHtml($row['category_name']);
                             $product_tax_id = intval($row['product_tax_id']);
-                            $tax_name = nullable_htmlentities(getFallBack($row['tax_name']));
+                            $tax_name = escapeHtml(getFallBack($row['tax_name']));
                             $tax_percent = floatval($row['tax_percent']);
 
 

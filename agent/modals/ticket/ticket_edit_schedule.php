@@ -11,12 +11,12 @@ $sql = mysqli_query($mysqli, "SELECT * FROM tickets
 );
 
 $row = mysqli_fetch_assoc($sql);
-$ticket_prefix = nullable_htmlentities($row['ticket_prefix']);
+$ticket_prefix = escapeHtml($row['ticket_prefix']);
 $ticket_number = intval($row['ticket_number']);
-$ticket_scheduled_for = nullable_htmlentities($row['ticket_schedule']);
+$ticket_scheduled_for = escapeHtml($row['ticket_schedule']);
 $ticket_onsite = intval($row['ticket_onsite']);
 $client_id = intval($row['ticket_client_id']);
-$client_name = nullable_htmlentities($row['client_name']);
+$client_name = escapeHtml($row['client_name']);
 
 // Generate the HTML form content using output buffering.
 ob_start();

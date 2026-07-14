@@ -29,7 +29,7 @@ ob_start();
                         $sql_ai_providers = mysqli_query($mysqli, "SELECT * FROM ai_providers");
                         while ($row = mysqli_fetch_assoc($sql_ai_providers)) {
                             $ai_provider_id = intval($row['ai_provider_id']);
-                            $ai_provider_name = nullable_htmlentities($row['ai_provider_name']);
+                            $ai_provider_name = escapeHtml($row['ai_provider_name']);
 
                         ?>
                         <option value="<?php echo $ai_provider_id; ?>"><?php echo $ai_provider_name; ?></option>

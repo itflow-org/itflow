@@ -9,18 +9,18 @@ $software_id = intval($_GET['id']);
 $sql = mysqli_query($mysqli, "SELECT * FROM software WHERE software_id = $software_id LIMIT 1");
 
 $row = mysqli_fetch_assoc($sql);
-$software_name = nullable_htmlentities($row['software_name']);
-$software_description = nullable_htmlentities($row['software_description']);
-$software_version = nullable_htmlentities($row['software_version']);
-$software_type = nullable_htmlentities($row['software_type']);
-$software_license_type = nullable_htmlentities($row['software_license_type']);
-$software_key = nullable_htmlentities($row['software_key']);
-$software_seats = nullable_htmlentities($row['software_seats']);
-$software_purchase_reference = nullable_htmlentities($row['software_purchase_reference']);
-$software_purchase = nullable_htmlentities($row['software_purchase']);
-$software_expire = nullable_htmlentities($row['software_expire']);
-$software_notes = nullable_htmlentities($row['software_notes']);
-$software_created_at = nullable_htmlentities($row['software_created_at']);
+$software_name = escapeHtml($row['software_name']);
+$software_description = escapeHtml($row['software_description']);
+$software_version = escapeHtml($row['software_version']);
+$software_type = escapeHtml($row['software_type']);
+$software_license_type = escapeHtml($row['software_license_type']);
+$software_key = escapeHtml($row['software_key']);
+$software_seats = escapeHtml($row['software_seats']);
+$software_purchase_reference = escapeHtml($row['software_purchase_reference']);
+$software_purchase = escapeHtml($row['software_purchase']);
+$software_expire = escapeHtml($row['software_expire']);
+$software_notes = escapeHtml($row['software_notes']);
+$software_created_at = escapeHtml($row['software_created_at']);
 $software_vendor_id = intval($row['software_vendor_id']);
 $client_id = intval($row['software_client_id']);
 $seat_count = 0;
@@ -110,7 +110,7 @@ ob_start();
                                 ORDER BY category_order ASC, category_name ASC
                             ");
                             while ($row = mysqli_fetch_assoc($sql_software_types_select)) {
-                                $software_type_select = nullable_htmlentities($row['category_name']);
+                                $software_type_select = escapeHtml($row['category_name']);
                                 ?>
                                 <option <?php if ($software_type == $software_type_select) { echo "selected"; } ?>>
                                     <?= $software_type_select ?>
@@ -262,15 +262,15 @@ ob_start();
 
                     while ($row = mysqli_fetch_assoc($sql_assets_select)) {
                         $asset_id_select = intval($row['asset_id']);
-                        $asset_name_select = nullable_htmlentities($row['asset_name']);
-                        $asset_type_select = nullable_htmlentities($row['asset_type']);
-                        $asset_archived_at = nullable_htmlentities($row['asset_archived_at']);
+                        $asset_name_select = escapeHtml($row['asset_name']);
+                        $asset_type_select = escapeHtml($row['asset_type']);
+                        $asset_archived_at = escapeHtml($row['asset_archived_at']);
                         if (empty($asset_archived_at)) {
                             $asset_archived_display = "";
                         } else {
                             $asset_archived_display = "Archived - ";
                         }
-                        $contact_name_select = nullable_htmlentities($row['contact_name']);
+                        $contact_name_select = escapeHtml($row['contact_name']);
 
                         ?>
                         <li class="list-group-item">
@@ -302,9 +302,9 @@ ob_start();
 
                     while ($row = mysqli_fetch_assoc($sql_contacts_select)) {
                         $contact_id_select = intval($row['contact_id']);
-                        $contact_name_select = nullable_htmlentities($row['contact_name']);
-                        $contact_email_select = nullable_htmlentities($row['contact_email']);
-                        $contact_archived_at = nullable_htmlentities($row['contact_archived_at']);
+                        $contact_name_select = escapeHtml($row['contact_name']);
+                        $contact_email_select = escapeHtml($row['contact_email']);
+                        $contact_archived_at = escapeHtml($row['contact_archived_at']);
                         if (empty($contact_archived_at)) {
                             $contact_archived_display = "";
                         } else {

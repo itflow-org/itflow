@@ -7,8 +7,8 @@ $calendar_id = intval($_GET['id']);
 $sql = mysqli_query($mysqli, "SELECT * FROM calendars WHERE calendar_id = $calendar_id LIMIT 1");
 
 $row = mysqli_fetch_assoc($sql);
-$calendar_name = nullable_htmlentities($row['calendar_name']);
-$calendar_color = nullable_htmlentities($row['calendar_color']);
+$calendar_name = escapeHtml($row['calendar_name']);
+$calendar_color = escapeHtml($row['calendar_color']);
 
 // Generate the HTML form content using output buffering.
 ob_start();

@@ -64,7 +64,7 @@ ob_start();
 
                                 while ($row = mysqli_fetch_assoc($sql_client_select)) {
                                     $client_id_select = intval($row['client_id']);
-                                    $client_name = nullable_htmlentities($row['client_name']); ?>
+                                    $client_name = escapeHtml($row['client_name']); ?>
                                     <option <?php if ($client_id_select == $client_id) { echo "selected"; } ?> value="<?= $client_id_select ?>"><?= $client_name ?></option>
 
                                 <?php } ?>
@@ -170,7 +170,7 @@ ob_start();
 
                             while ($row = mysqli_fetch_assoc($sql_location_select)) {
                                 $location_id = intval($row['location_id']);
-                                $location_name = nullable_htmlentities($row['location_name']);
+                                $location_name = escapeHtml($row['location_name']);
                             ?>
                                 <option value="<?= $location_id ?>"><?= $location_name ?></option>
                             <?php } ?>
@@ -290,7 +290,7 @@ ob_start();
 
                             while ($row = mysqli_fetch_assoc($sql_tags_select)) {
                                 $tag_id = intval($row['tag_id']);
-                                $tag_name = nullable_htmlentities($row['tag_name']);
+                                $tag_name = escapeHtml($row['tag_name']);
                                 ?>
                                 <option value="<?= $tag_id ?>"><?= $tag_name ?></option>
                             <?php } ?>

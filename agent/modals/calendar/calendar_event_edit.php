@@ -7,15 +7,15 @@ $event_id = intval($_GET['id']);
 $sql = mysqli_query($mysqli, "SELECT * FROM calendar_events LEFT JOIN calendars ON event_calendar_id = calendar_id WHERE event_id = $event_id LIMIT 1");
 
 $row = mysqli_fetch_assoc($sql);
-$event_title = nullable_htmlentities($row['event_title']);
-$event_description = nullable_htmlentities($row['event_description']);
-$event_location = nullable_htmlentities($row['event_location']);
-$event_start = nullable_htmlentities($row['event_start']);
-$event_end = nullable_htmlentities($row['event_end']);
-$event_repeat = nullable_htmlentities($row['event_repeat']);
+$event_title = escapeHtml($row['event_title']);
+$event_description = escapeHtml($row['event_description']);
+$event_location = escapeHtml($row['event_location']);
+$event_start = escapeHtml($row['event_start']);
+$event_end = escapeHtml($row['event_end']);
+$event_repeat = escapeHtml($row['event_repeat']);
 $calendar_id = intval($row['calendar_id']);
-$calendar_name = nullable_htmlentities($row['calendar_name']);
-$calendar_color = nullable_htmlentities($row['calendar_color']);
+$calendar_name = escapeHtml($row['calendar_name']);
+$calendar_color = escapeHtml($row['calendar_color']);
 $client_id = intval($row['event_client_id']);
 
 // Generate the HTML form content using output buffering.
@@ -64,8 +64,8 @@ ob_start();
                             $sql_calendars_select = mysqli_query($mysqli, "SELECT * FROM calendars ORDER BY calendar_name ASC");
                             while ($row = mysqli_fetch_assoc($sql_calendars_select)) {
                                 $calendar_id_select = intval($row['calendar_id']);
-                                $calendar_name_select = nullable_htmlentities($row['calendar_name']);
-                                $calendar_color_select = nullable_htmlentities($row['calendar_color']);
+                                $calendar_name_select = escapeHtml($row['calendar_name']);
+                                $calendar_color_select = escapeHtml($row['calendar_color']);
                                 ?>
                                 <option data-content="<i class='fa fa-circle mr-2' style='color:<?php echo $calendar_color_select; ?>;'></i> <?php echo $calendar_name_select; ?>"<?php if ($calendar_id == $calendar_id_select) { echo "selected"; } ?> value="<?php echo $calendar_id_select; ?>"><?php echo $calendar_name_select; ?></option>
 
@@ -159,8 +159,8 @@ ob_start();
                                 $sql_clients = mysqli_query($mysqli, "SELECT * FROM clients LEFT JOIN contacts ON clients.client_id = contacts.contact_client_id AND contact_primary = 1 ORDER BY client_name ASC");
                                 while ($row = mysqli_fetch_assoc($sql_clients)) {
                                     $client_id_select = intval($row['client_id']);
-                                    $client_name_select = nullable_htmlentities($row['client_name']);
-                                    $contact_email_select = nullable_htmlentities($row['contact_email']);
+                                    $client_name_select = escapeHtml($row['client_name']);
+                                    $contact_email_select = escapeHtml($row['contact_email']);
                                     ?>
                                     <option <?php if ($client_id == $client_id_select) { echo "selected"; } ?> value="<?php echo $client_id_select; ?>"><?php echo $client_name_select; ?></option>
 

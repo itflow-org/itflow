@@ -31,28 +31,28 @@ if (isset($_GET['contact_id'])) {
 
     $row = mysqli_fetch_assoc($sql);
     $client_id = intval($row['client_id']);
-    $client_name = nullable_htmlentities($row['client_name']);
-    $contact_name = nullable_htmlentities($row['contact_name']);
-    $contact_title = nullable_htmlentities($row['contact_title']);
-    $contact_department =nullable_htmlentities($row['contact_department']);
-    $contact_phone_country_code = nullable_htmlentities($row['contact_phone_country_code']);
-    $contact_phone = nullable_htmlentities(formatPhoneNumber($row['contact_phone'], $contact_phone_country_code));
-    $contact_extension = nullable_htmlentities($row['contact_extension']);
-    $contact_mobile_country_code = nullable_htmlentities($row['contact_mobile_country_code']);
-    $contact_mobile = nullable_htmlentities(formatPhoneNumber($row['contact_mobile'], $contact_mobile_country_code));
-    $contact_email = nullable_htmlentities($row['contact_email']);
-    $contact_photo = nullable_htmlentities($row['contact_photo']);
-    $contact_pin = nullable_htmlentities($row['contact_pin']);
+    $client_name = escapeHtml($row['client_name']);
+    $contact_name = escapeHtml($row['contact_name']);
+    $contact_title = escapeHtml($row['contact_title']);
+    $contact_department =escapeHtml($row['contact_department']);
+    $contact_phone_country_code = escapeHtml($row['contact_phone_country_code']);
+    $contact_phone = escapeHtml(formatPhoneNumber($row['contact_phone'], $contact_phone_country_code));
+    $contact_extension = escapeHtml($row['contact_extension']);
+    $contact_mobile_country_code = escapeHtml($row['contact_mobile_country_code']);
+    $contact_mobile = escapeHtml(formatPhoneNumber($row['contact_mobile'], $contact_mobile_country_code));
+    $contact_email = escapeHtml($row['contact_email']);
+    $contact_photo = escapeHtml($row['contact_photo']);
+    $contact_pin = escapeHtml($row['contact_pin']);
     $contact_initials = initials($contact_name);
-    $contact_notes = nullable_htmlentities($row['contact_notes']);
+    $contact_notes = escapeHtml($row['contact_notes']);
     $contact_primary = intval($row['contact_primary']);
     $contact_important = intval($row['contact_important']);
     $contact_billing = intval($row['contact_billing']);
     $contact_technical = intval($row['contact_technical']);
-    $contact_created_at = nullable_htmlentities($row['contact_created_at']);
+    $contact_created_at = escapeHtml($row['contact_created_at']);
     $contact_location_id = intval($row['contact_location_id']);
-    $location_name = nullable_htmlentities($row['location_name']);
-    $auth_method = nullable_htmlentities($row['user_auth_method']);
+    $location_name = escapeHtml($row['location_name']);
+    $auth_method = escapeHtml($row['user_auth_method']);
     $contact_client_id = intval($row['contact_client_id']);
 
     // Override Tab Title // No Sanitizing needed as this var will opnly be used in the tab title
@@ -123,12 +123,12 @@ if (isset($_GET['contact_id'])) {
     while ($row = mysqli_fetch_assoc($sql_contact_tags)) {
 
         $contact_tag_id = intval($row['tag_id']);
-        $contact_tag_name = nullable_htmlentities($row['tag_name']);
-        $contact_tag_color = nullable_htmlentities($row['tag_color']);
+        $contact_tag_name = escapeHtml($row['tag_name']);
+        $contact_tag_color = escapeHtml($row['tag_color']);
         if (empty($contact_tag_color)) {
             $contact_tag_color = "dark";
         }
-        $contact_tag_icon = nullable_htmlentities($row['tag_icon']);
+        $contact_tag_icon = escapeHtml($row['tag_icon']);
         if (empty($contact_tag_icon)) {
             $contact_tag_icon = "tag";
         }
@@ -365,48 +365,48 @@ if (isset($_GET['contact_id'])) {
 
                             while ($row = mysqli_fetch_assoc($sql_related_assets)) {
                                 $asset_id = intval($row['asset_id']);
-                                $asset_type = nullable_htmlentities($row['asset_type']);
-                                $asset_name = nullable_htmlentities($row['asset_name']);
-                                $asset_description = nullable_htmlentities($row['asset_description']);
-                                $asset_make = nullable_htmlentities($row['asset_make']);
-                                $asset_model = nullable_htmlentities($row['asset_model']);
-                                $asset_serial = nullable_htmlentities($row['asset_serial']);
+                                $asset_type = escapeHtml($row['asset_type']);
+                                $asset_name = escapeHtml($row['asset_name']);
+                                $asset_description = escapeHtml($row['asset_description']);
+                                $asset_make = escapeHtml($row['asset_make']);
+                                $asset_model = escapeHtml($row['asset_model']);
+                                $asset_serial = escapeHtml($row['asset_serial']);
                                 if ($asset_serial) {
                                     $asset_serial_display = $asset_serial;
                                 } else {
                                      $asset_serial_display = "-";
                                 }
-                                $asset_os = nullable_htmlentities($row['asset_os']);
+                                $asset_os = escapeHtml($row['asset_os']);
                                 if (empty($asset_os)) {
                                     $asset_os_display = "-";
                                 } else {
                                     $asset_os_display = $asset_os;
                                 }
-                                $asset_ip = nullable_htmlentities($row['interface_ip']);
+                                $asset_ip = escapeHtml($row['interface_ip']);
                                 if (empty($asset_ip)) {
                                     $asset_ip_display = "-";
                                 } else {
                                     $asset_ip_display = "$asset_ip<button class='btn btn-sm' data-clipboard-text='$asset_ip'><i class='far fa-copy text-secondary'></i></button>";
                                 }
-                                $asset_nat_ip = nullable_htmlentities($row['interface_nat_ip']);
-                                $asset_ipv6 = nullable_htmlentities($row['interface_ipv6']);
-                                $asset_mac = nullable_htmlentities($row['interface_mac']);
-                                $asset_status = nullable_htmlentities($row['asset_status']);
-                                $asset_purchase_date = nullable_htmlentities($row['asset_purchase_date']);
-                                $asset_warranty_expire = nullable_htmlentities($row['asset_warranty_expire']);
-                                $asset_install_date = nullable_htmlentities($row['asset_install_date']);
+                                $asset_nat_ip = escapeHtml($row['interface_nat_ip']);
+                                $asset_ipv6 = escapeHtml($row['interface_ipv6']);
+                                $asset_mac = escapeHtml($row['interface_mac']);
+                                $asset_status = escapeHtml($row['asset_status']);
+                                $asset_purchase_date = escapeHtml($row['asset_purchase_date']);
+                                $asset_warranty_expire = escapeHtml($row['asset_warranty_expire']);
+                                $asset_install_date = escapeHtml($row['asset_install_date']);
                                 if (empty($asset_install_date)) {
                                     $asset_install_date_display = "-";
                                 } else {
                                     $asset_install_date_display = $asset_install_date;
                                 }
-                                $asset_uri = nullable_htmlentities($row['asset_uri']);
-                                $asset_uri_2 = nullable_htmlentities($row['asset_uri_2']);
-                                $asset_photo = nullable_htmlentities($row['asset_photo']);
-                                $asset_physical_location = nullable_htmlentities($row['asset_physical_location']);
-                                $asset_notes = nullable_htmlentities($row['asset_notes']);
+                                $asset_uri = escapeHtml($row['asset_uri']);
+                                $asset_uri_2 = escapeHtml($row['asset_uri_2']);
+                                $asset_photo = escapeHtml($row['asset_photo']);
+                                $asset_physical_location = escapeHtml($row['asset_physical_location']);
+                                $asset_notes = escapeHtml($row['asset_notes']);
                                 $asset_favorite = intval($row['asset_favorite']);
-                                $asset_created_at = nullable_htmlentities($row['asset_created_at']);
+                                $asset_created_at = escapeHtml($row['asset_created_at']);
                                 $device_icon = getAssetIcon($asset_type);
 
                                 // Tags
@@ -416,12 +416,12 @@ if (isset($_GET['contact_id'])) {
                                 while ($row = mysqli_fetch_assoc($sql_asset_tags)) {
 
                                     $asset_tag_id = intval($row['tag_id']);
-                                    $asset_tag_name = nullable_htmlentities($row['tag_name']);
-                                    $asset_tag_color = nullable_htmlentities($row['tag_color']);
+                                    $asset_tag_name = escapeHtml($row['tag_name']);
+                                    $asset_tag_color = escapeHtml($row['tag_color']);
                                     if (empty($asset_tag_color)) {
                                         $asset_tag_color = "dark";
                                     }
-                                    $asset_tag_icon = nullable_htmlentities($row['tag_icon']);
+                                    $asset_tag_icon = escapeHtml($row['tag_icon']);
                                     if (empty($asset_tag_icon)) {
                                         $asset_tag_icon = "tag";
                                     }
@@ -537,30 +537,30 @@ if (isset($_GET['contact_id'])) {
 
                             while ($row = mysqli_fetch_assoc($sql_related_credentials)) {
                                 $credential_id = intval($row['credentials_credential_id']);
-                                $credential_name = nullable_htmlentities($row['credential_name']);
-                                $credential_description = nullable_htmlentities($row['credential_description']);
-                                $credential_uri = nullable_htmlentities($row['credential_uri']);
+                                $credential_name = escapeHtml($row['credential_name']);
+                                $credential_description = escapeHtml($row['credential_description']);
+                                $credential_uri = escapeHtml($row['credential_uri']);
                                 if (empty($credential_uri)) {
                                     $credential_uri_display = "-";
                                 } else {
                                     $credential_uri_display = "$credential_uri<button class='btn btn-sm clipboardjs' data-clipboard-text='$credential_uri'><i class='far fa-copy text-secondary'></i></button><a href='$credential_uri' target='_blank'><i class='fa fa-external-link-alt text-secondary'></i></a>";
                                 }
-                                $credential_uri_2 = nullable_htmlentities($row['credential_uri_2']);
-                                $credential_username = nullable_htmlentities(decryptCredentialEntry($row['credential_username']));
+                                $credential_uri_2 = escapeHtml($row['credential_uri_2']);
+                                $credential_username = escapeHtml(decryptCredentialEntry($row['credential_username']));
                                 if (empty($credential_username)) {
                                     $credential_username_display = "-";
                                 } else {
                                     $credential_username_display = "$credential_username<button class='btn btn-sm clipboardjs' data-clipboard-text='$credential_username'><i class='far fa-copy text-secondary'></i></button>";
                                 }
-                                $credential_password = nullable_htmlentities(decryptCredentialEntry($row['credential_password']));
-                                $credential_otp_secret = nullable_htmlentities($row['credential_otp_secret']);
+                                $credential_password = escapeHtml(decryptCredentialEntry($row['credential_password']));
+                                $credential_otp_secret = escapeHtml($row['credential_otp_secret']);
                                 $credential_id_with_secret = '"' . $row['credential_id'] . '","' . $row['credential_otp_secret'] . '"';
                                 if (empty($credential_otp_secret)) {
                                     $otp_display = "-";
                                 } else {
                                     $otp_display = "<span onmouseenter='showOTPViaCredentialID($credential_id)'><i class='far fa-clock'></i> <span id='otp_$credential_id'><i>Hover..</i></span></span>";
                                 }
-                                $credential_note = nullable_htmlentities($row['credential_note']);
+                                $credential_note = escapeHtml($row['credential_note']);
                                 $credential_favorite = intval($row['credential_favorite']);
                                 $credential_contact_id = intval($row['credential_contact_id']);
                                 $credential_asset_id = intval($row['credential_asset_id']);
@@ -572,12 +572,12 @@ if (isset($_GET['contact_id'])) {
                                 while ($row = mysqli_fetch_assoc($sql_credential_tags)) {
 
                                     $credential_tag_id = intval($row['tag_id']);
-                                    $credential_tag_name = nullable_htmlentities($row['tag_name']);
-                                    $credential_tag_color = nullable_htmlentities($row['tag_color']);
+                                    $credential_tag_name = escapeHtml($row['tag_name']);
+                                    $credential_tag_color = escapeHtml($row['tag_color']);
                                     if (empty($credential_tag_color)) {
                                         $credential_tag_color = "dark";
                                     }
-                                    $credential_tag_icon = nullable_htmlentities($row['tag_icon']);
+                                    $credential_tag_icon = escapeHtml($row['tag_icon']);
                                     if (empty($credential_tag_icon)) {
                                         $credential_tag_icon = "tag";
                                     }
@@ -674,15 +674,15 @@ if (isset($_GET['contact_id'])) {
 
                             while ($row = mysqli_fetch_assoc($sql_linked_software)) {
                                 $software_id = intval($row['software_id']);
-                                $software_name = nullable_htmlentities($row['software_name']);
-                                $software_version = nullable_htmlentities($row['software_version']);
-                                $software_type = nullable_htmlentities($row['software_type']);
-                                $software_license_type = nullable_htmlentities($row['software_license_type']);
-                                $software_key = nullable_htmlentities($row['software_key']);
-                                $software_seats = nullable_htmlentities($row['software_seats']);
-                                $software_purchase = nullable_htmlentities($row['software_purchase']);
-                                $software_expire = nullable_htmlentities($row['software_expire']);
-                                $software_notes = nullable_htmlentities($row['software_notes']);
+                                $software_name = escapeHtml($row['software_name']);
+                                $software_version = escapeHtml($row['software_version']);
+                                $software_type = escapeHtml($row['software_type']);
+                                $software_license_type = escapeHtml($row['software_license_type']);
+                                $software_key = escapeHtml($row['software_key']);
+                                $software_seats = escapeHtml($row['software_seats']);
+                                $software_purchase = escapeHtml($row['software_purchase']);
+                                $software_expire = escapeHtml($row['software_expire']);
+                                $software_notes = escapeHtml($row['software_notes']);
 
                                 $seat_count = 0;
 
@@ -749,10 +749,10 @@ if (isset($_GET['contact_id'])) {
 
                             while ($row = mysqli_fetch_assoc($sql_related_recurring_tickets)) {
                                 $recurring_ticket_id = intval($row['recurring_ticket_id']);
-                                $recurring_ticket_subject = nullable_htmlentities($row['recurring_ticket_subject']);
-                                $recurring_ticket_priority = nullable_htmlentities($row['recurring_ticket_priority']);
-                                $recurring_ticket_frequency = nullable_htmlentities($row['recurring_ticket_frequency']);
-                                $recurring_ticket_next_run = nullable_htmlentities($row['recurring_ticket_next_run']);
+                                $recurring_ticket_subject = escapeHtml($row['recurring_ticket_subject']);
+                                $recurring_ticket_priority = escapeHtml($row['recurring_ticket_priority']);
+                                $recurring_ticket_frequency = escapeHtml($row['recurring_ticket_frequency']);
+                                $recurring_ticket_next_run = escapeHtml($row['recurring_ticket_next_run']);
                             ?>
 
                                 <tr>
@@ -829,15 +829,15 @@ if (isset($_GET['contact_id'])) {
 
                             while ($row = mysqli_fetch_assoc($sql_related_tickets)) {
                                 $ticket_id = intval($row['ticket_id']);
-                                $ticket_prefix = nullable_htmlentities($row['ticket_prefix']);
+                                $ticket_prefix = escapeHtml($row['ticket_prefix']);
                                 $ticket_number = intval($row['ticket_number']);
-                                $ticket_subject = nullable_htmlentities($row['ticket_subject']);
-                                $ticket_priority = nullable_htmlentities($row['ticket_priority']);
-                                $ticket_status = nullable_htmlentities($row['ticket_status']);
-                                $ticket_status_name = nullable_htmlentities($row['ticket_status_name']);
-                                $ticket_status_color = nullable_htmlentities($row['ticket_status_color']);
-                                $ticket_created_at = nullable_htmlentities($row['ticket_created_at']);
-                                $ticket_updated_at = nullable_htmlentities($row['ticket_updated_at']);
+                                $ticket_subject = escapeHtml($row['ticket_subject']);
+                                $ticket_priority = escapeHtml($row['ticket_priority']);
+                                $ticket_status = escapeHtml($row['ticket_status']);
+                                $ticket_status_name = escapeHtml($row['ticket_status_name']);
+                                $ticket_status_color = escapeHtml($row['ticket_status_color']);
+                                $ticket_created_at = escapeHtml($row['ticket_created_at']);
+                                $ticket_updated_at = escapeHtml($row['ticket_updated_at']);
                                 if (empty($ticket_updated_at)) {
                                     if ($ticket_status == "Closed") {
                                         $ticket_updated_at_display = "<p>Never</p>";
@@ -847,7 +847,7 @@ if (isset($_GET['contact_id'])) {
                                 } else {
                                     $ticket_updated_at_display = $ticket_updated_at;
                                 }
-                                $ticket_closed_at = nullable_htmlentities($row['ticket_closed_at']);
+                                $ticket_closed_at = escapeHtml($row['ticket_closed_at']);
 
                                 if ($ticket_priority == "High") {
                                     $ticket_priority_display = "<span class='p-2 badge badge-danger'>$ticket_priority</span>";
@@ -866,7 +866,7 @@ if (isset($_GET['contact_id'])) {
                                         $ticket_assigned_to_display = "<p class='text-danger'>Not Assigned</p>";
                                     }
                                 } else {
-                                    $ticket_assigned_to_display = nullable_htmlentities($row['user_name']);
+                                    $ticket_assigned_to_display = escapeHtml($row['user_name']);
                                 }
 
                                 ?>
@@ -918,10 +918,10 @@ if (isset($_GET['contact_id'])) {
 
                             while ($row = mysqli_fetch_assoc($sql_linked_services)) {
                                 $service_id = intval($row['service_id']);
-                                $service_name = nullable_htmlentities($row['service_name']);
-                                $service_description = nullable_htmlentities($row['service_description']);
-                                $service_category = nullable_htmlentities($row['service_category']);
-                                $service_importance = nullable_htmlentities($row['service_importance']);
+                                $service_name = escapeHtml($row['service_name']);
+                                $service_description = escapeHtml($row['service_description']);
+                                $service_category = escapeHtml($row['service_category']);
+                                $service_importance = escapeHtml($row['service_importance']);
 
                                 $linked_services[] = $service_id;
 
@@ -977,11 +977,11 @@ if (isset($_GET['contact_id'])) {
 
                             while ($row = mysqli_fetch_assoc($sql_linked_documents)) {
                                 $document_id = intval($row['document_id']);
-                                $document_name = nullable_htmlentities($row['document_name']);
-                                $document_description = nullable_htmlentities($row['document_description']);
-                                $document_created_by = nullable_htmlentities($row['user_name']);
-                                $document_created_at = nullable_htmlentities($row['document_created_at']);
-                                $document_updated_at = nullable_htmlentities($row['document_updated_at']);
+                                $document_name = escapeHtml($row['document_name']);
+                                $document_description = escapeHtml($row['document_description']);
+                                $document_created_by = escapeHtml($row['user_name']);
+                                $document_created_at = escapeHtml($row['document_created_at']);
+                                $document_updated_at = escapeHtml($row['document_updated_at']);
 
                                 $linked_documents[] = $document_id;
 
@@ -1043,13 +1043,13 @@ if (isset($_GET['contact_id'])) {
 
                             while ($row = mysqli_fetch_assoc($sql_linked_files)) {
                                 $file_id = intval($row['file_id']);
-                                $file_name = nullable_htmlentities($row['file_name']);
-                                $file_description = nullable_htmlentities($row['file_description']);
-                                $file_size = nullable_htmlentities($row['file_size']);
+                                $file_name = escapeHtml($row['file_name']);
+                                $file_description = escapeHtml($row['file_description']);
+                                $file_size = escapeHtml($row['file_size']);
                                 $file_size_KB = round($file_size / 1024);
-                                $file_reference_name = nullable_htmlentities($row['file_reference_name']);
-                                $file_mime_type = nullable_htmlentities($row['file_mime_type']);
-                                $file_created_at = nullable_htmlentities($row['file_created_at']);
+                                $file_reference_name = escapeHtml($row['file_reference_name']);
+                                $file_mime_type = escapeHtml($row['file_mime_type']);
+                                $file_created_at = escapeHtml($row['file_created_at']);
 
                                 $linked_files[] = $file_id;
 
@@ -1115,10 +1115,10 @@ if (isset($_GET['contact_id'])) {
 
                             while ($row = mysqli_fetch_assoc($sql_related_notes)) {
                                 $contact_note_id = intval($row['contact_note_id']);
-                                $contact_note_type = nullable_htmlentities($row['contact_note_type']);
-                                $contact_note = nl2br(nullable_htmlentities($row['contact_note']));
-                                $note_by = nullable_htmlentities($row['user_name']);
-                                $contact_note_created_at = nullable_htmlentities($row['contact_note_created_at']);
+                                $contact_note_type = escapeHtml($row['contact_note_type']);
+                                $contact_note = nl2br(escapeHtml($row['contact_note']));
+                                $note_by = escapeHtml($row['user_name']);
+                                $contact_note_created_at = escapeHtml($row['contact_note_created_at']);
 
                                 // Get the corresponding icon for the note type
                                 $note_type_icon = isset($note_types_array[$contact_note_type]) ? $note_types_array[$contact_note_type] : 'fa-fw fa-sticky-note'; // default icon if not found

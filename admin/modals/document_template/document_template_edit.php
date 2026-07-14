@@ -6,9 +6,9 @@ $document_template_id = intval($_GET['id']);
 
 $sql = mysqli_query($mysqli, "SELECT * FROM document_templates WHERE document_template_id = $document_template_id LIMIT 1");
 $row = mysqli_fetch_assoc($sql);
-$document_template_name = nullable_htmlentities($row['document_template_name']);
-$document_template_description = nullable_htmlentities($row['document_template_description']);
-$document_template_content = nullable_htmlentities($row['document_template_content']);
+$document_template_name = escapeHtml($row['document_template_name']);
+$document_template_description = escapeHtml($row['document_template_description']);
+$document_template_content = escapeHtml($row['document_template_content']);
 
 ob_start();
 ?>

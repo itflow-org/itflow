@@ -1,9 +1,9 @@
 <!-- Main Sidebar Container -->
-<aside class="main-sidebar sidebar-dark-<?php echo nullable_htmlentities($config_theme); ?> d-print-none">
+<aside class="main-sidebar sidebar-dark-<?php echo escapeHtml($config_theme); ?> d-print-none">
 
     <a class="brand-link" href="/agent/dashboard.php">
         <div class="brand-image"></div>
-        <span class="brand-text h4"><?php echo nullable_htmlentities($session_company_name); ?></span>
+        <span class="brand-text h4"><?php echo escapeHtml($session_company_name); ?></span>
     </a>
 
     <!-- Sidebar -->
@@ -205,9 +205,9 @@
                 );
 
                 while ($row = mysqli_fetch_assoc($sql_custom_links)) {
-                    $custom_link_name = nullable_htmlentities($row['custom_link_name']);
+                    $custom_link_name = escapeHtml($row['custom_link_name']);
                     $custom_link_uri = sanitize_url($row['custom_link_uri']);
-                    $custom_link_icon = nullable_htmlentities($row['custom_link_icon']);
+                    $custom_link_icon = escapeHtml($row['custom_link_icon']);
                     $custom_link_new_tab = intval($row['custom_link_new_tab']);
                     if ($custom_link_new_tab == 1) {
                         $target = "target='_blank' rel='noopener noreferrer'";

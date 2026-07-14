@@ -9,17 +9,17 @@ $rack_id = intval($_GET['id']);
 $sql = mysqli_query($mysqli, "SELECT * FROM racks WHERE rack_id = $rack_id LIMIT 1");
 
 $row = mysqli_fetch_assoc($sql);
-$rack_name = nullable_htmlentities($row['rack_name']);
-$rack_description = nullable_htmlentities($row['rack_description']);
-$rack_model = nullable_htmlentities($row['rack_model']);
-$rack_depth = nullable_htmlentities($row['rack_depth']);
-$rack_type = nullable_htmlentities($row['rack_type']);
+$rack_name = escapeHtml($row['rack_name']);
+$rack_description = escapeHtml($row['rack_description']);
+$rack_model = escapeHtml($row['rack_model']);
+$rack_depth = escapeHtml($row['rack_depth']);
+$rack_type = escapeHtml($row['rack_type']);
 $rack_units = intval($row['rack_units']);
-$rack_photo = nullable_htmlentities($row['rack_photo']);
-$rack_physical_location = nullable_htmlentities($row['rack_physical_location']);
-$rack_notes = nullable_htmlentities($row['rack_notes']);
-$rack_location_id = nullable_htmlentities($row['rack_location_id']);
-$rack_created_at = nullable_htmlentities($row['rack_created_at']);
+$rack_photo = escapeHtml($row['rack_photo']);
+$rack_physical_location = escapeHtml($row['rack_physical_location']);
+$rack_notes = escapeHtml($row['rack_notes']);
+$rack_location_id = escapeHtml($row['rack_location_id']);
+$rack_created_at = escapeHtml($row['rack_created_at']);
 $client_id = intval($row['rack_client_id']);
 
 enforceClientAccess();
@@ -72,7 +72,7 @@ ob_start();
                                 ORDER BY category_order ASC, category_name ASC
                             ");
                             while ($row = mysqli_fetch_assoc($sql_rack_types_select)) {
-                                $rack_type_select = nullable_htmlentities($row['category_name']);
+                                $rack_type_select = escapeHtml($row['category_name']);
                                 ?>
                                 <option <?php if ($rack_type == $rack_type_select) { echo "selected"; } ?>>
                                     <?= $rack_type_select ?>
@@ -135,7 +135,7 @@ ob_start();
                             $sql_location_select = mysqli_query($mysqli, "SELECT * FROM locations WHERE location_archived_at IS NULL AND location_client_id = $client_id ORDER BY location_name ASC");
                             while ($row = mysqli_fetch_assoc($sql_location_select)) {
                                 $location_id_select = intval($row['location_id']);
-                                $location_name_select = nullable_htmlentities($row['location_name']);
+                                $location_name_select = escapeHtml($row['location_name']);
                                 ?>
                                 <option <?php if ($rack_location_id == $location_id_select) { echo "selected"; } ?> value="<?php echo $location_id_select; ?>"><?php echo $location_name_select; ?></option>
                             <?php } ?>

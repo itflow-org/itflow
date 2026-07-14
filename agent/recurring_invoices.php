@@ -64,7 +64,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
             <div class="row">
                 <div class="col-sm-4">
                     <div class="input-group mb-3 mb-sm-0">
-                        <input type="search" class="form-control" name="q" value="<?php if (isset($q)) {echo strip_tags(nullable_htmlentities($q));} ?>" placeholder="Search Recurring Invoices">
+                        <input type="search" class="form-control" name="q" value="<?php if (isset($q)) {echo strip_tags(escapeHtml($q));} ?>" placeholder="Search Recurring Invoices">
                         <div class="input-group-append">
                             <button class="btn btn-secondary" type="button" data-toggle="collapse" data-target="#advancedFilter"><i class="fas fa-filter"></i></button>
                             <button class="btn btn-primary"><i class="fa fa-search"></i></button>
@@ -86,9 +86,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         <div class="form-group">
                             <label>Date range</label>
                             <input type="text" id="dateFilter" class="form-control" autocomplete="off">
-                            <input type="hidden" name="canned_date" id="canned_date" value="<?php echo nullable_htmlentities($_GET['canned_date']) ?? ''; ?>">
-                            <input type="hidden" name="dtf" id="dtf" value="<?php echo nullable_htmlentities($dtf ?? ''); ?>">
-                            <input type="hidden" name="dtt" id="dtt" value="<?php echo nullable_htmlentities($dtt ?? ''); ?>">
+                            <input type="hidden" name="canned_date" id="canned_date" value="<?php echo escapeHtml($_GET['canned_date']) ?? ''; ?>">
+                            <input type="hidden" name="dtf" id="dtf" value="<?php echo escapeHtml($dtf ?? ''); ?>">
+                            <input type="hidden" name="dtt" id="dtt" value="<?php echo escapeHtml($dtt ?? ''); ?>">
                         </div>
                     </div>
                 </div>
@@ -159,25 +159,25 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                 while ($row = mysqli_fetch_assoc($sql)) {
                     $recurring_invoice_id = intval($row['recurring_invoice_id']);
-                    $recurring_invoice_prefix = nullable_htmlentities($row['recurring_invoice_prefix']);
+                    $recurring_invoice_prefix = escapeHtml($row['recurring_invoice_prefix']);
                     $recurring_invoice_number = intval($row['recurring_invoice_number']);
-                    $recurring_invoice_scope = nullable_htmlentities($row['recurring_invoice_scope']);
-                    $recurring_invoice_frequency = nullable_htmlentities($row['recurring_invoice_frequency']);
-                    $recurring_invoice_status = nullable_htmlentities($row['recurring_invoice_status']);
+                    $recurring_invoice_scope = escapeHtml($row['recurring_invoice_scope']);
+                    $recurring_invoice_frequency = escapeHtml($row['recurring_invoice_frequency']);
+                    $recurring_invoice_status = escapeHtml($row['recurring_invoice_status']);
                     $recurring_invoice_discount = floatval($row['recurring_invoice_discount_amount']);
                     $recurring_invoice_last_sent = $row['recurring_invoice_last_sent'];
                     if ($recurring_invoice_last_sent == 0) {
                         $recurring_invoice_last_sent = "-";
                     }
-                    $recurring_invoice_next_date = nullable_htmlentities($row['recurring_invoice_next_date']);
+                    $recurring_invoice_next_date = escapeHtml($row['recurring_invoice_next_date']);
                     $recurring_invoice_amount = floatval($row['recurring_invoice_amount']);
-                    $recurring_invoice_currency_code = nullable_htmlentities($row['recurring_invoice_currency_code']);
-                    $recurring_invoice_created_at = nullable_htmlentities($row['recurring_invoice_created_at']);
+                    $recurring_invoice_currency_code = escapeHtml($row['recurring_invoice_currency_code']);
+                    $recurring_invoice_created_at = escapeHtml($row['recurring_invoice_created_at']);
                     $client_id = intval($row['client_id']);
-                    $client_name = nullable_htmlentities($row['client_name']);
-                    $client_currency_code = nullable_htmlentities($row['client_currency_code']);
+                    $client_name = escapeHtml($row['client_name']);
+                    $client_currency_code = escapeHtml($row['client_currency_code']);
                     $category_id = intval($row['category_id']);
-                    $category_name = nullable_htmlentities($row['category_name']);
+                    $category_name = escapeHtml($row['category_name']);
                     if ($recurring_invoice_status == 1) {
                         $status = "Active";
                         $status_badge_color = "success";
@@ -218,7 +218,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                         <?php
                                             while ($row = mysqli_fetch_assoc($sql_saved_payments)) {
                                                 $saved_payment_id = intval($row['saved_payment_id']);
-                                                $saved_payment_description = nullable_htmlentities($row['saved_payment_description']);
+                                                $saved_payment_description = escapeHtml($row['saved_payment_description']);
 
                                             ?>
                                             <option <?php if ($recurring_payment_saved_payment_id == $saved_payment_id) { echo "selected"; } ?> value="<?php echo $saved_payment_id; ?>"><?php echo $saved_payment_description; ?></option>

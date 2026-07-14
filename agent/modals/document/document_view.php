@@ -15,7 +15,7 @@ $document_id = intval($_GET['id']);
 $sql = mysqli_query($mysqli, "SELECT * FROM documents WHERE document_id = $document_id LIMIT 1");
 
 $row = mysqli_fetch_assoc($sql);
-$document_name = nullable_htmlentities($row['document_name']);
+$document_name = escapeHtml($row['document_name']);
 $document_content = $purifier->purify($row['document_content']);
 $client_id = intval($row['document_client_id']);
 

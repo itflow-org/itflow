@@ -7,7 +7,7 @@ require_once '../../libs/totp/totp.php'; //TOTP MFA Lib
 // Get Company Logo
 $sql = mysqli_query($mysqli, "SELECT company_logo FROM companies");
 $row = mysqli_fetch_assoc($sql);
-$company_logo = nullable_htmlentities($row['company_logo']);
+$company_logo = escapeHtml($row['company_logo']);
 
 
 // Only generate the token once and store it in session:
@@ -57,7 +57,7 @@ $data = "otpauth://totp/ITFlow:$session_email?secret=$token";
     <div class="login-box">
         <div class="login-logo">
             <?php if (!empty($company_logo)) { ?>
-                <img alt="<?= nullable_htmlentities($company_name)?> logo" height="110" width="380" class="img-fluid" src="<?php echo "../../uploads/settings/$company_logo"; ?>">
+                <img alt="<?= escapeHtml($company_name)?> logo" height="110" width="380" class="img-fluid" src="<?php echo "../../uploads/settings/$company_logo"; ?>">
             <?php } else { ?>
                 <span class="text-primary text-bold"><i class="fas fa-paper-plane mr-2"></i>IT</span>Flow
             <?php } ?>

@@ -10,18 +10,18 @@ $sql = mysqli_query($mysqli, "SELECT * FROM credentials WHERE credential_id = $c
 
 $row = mysqli_fetch_assoc($sql);
 $client_id = intval($row['credential_client_id']);
-$credential_name = nullable_htmlentities($row['credential_name']);
-$credential_description = nullable_htmlentities($row['credential_description']);
-$credential_uri = nullable_htmlentities($row['credential_uri']);
-$credential_uri_2 = nullable_htmlentities($row['credential_uri_2']);
+$credential_name = escapeHtml($row['credential_name']);
+$credential_description = escapeHtml($row['credential_description']);
+$credential_uri = escapeHtml($row['credential_uri']);
+$credential_uri_2 = escapeHtml($row['credential_uri_2']);
 $credential_uri_link = sanitize_url($row['credential_uri']);
 $credential_uri_2_link = sanitize_url($row['credential_uri_2']);
-$credential_username = nullable_htmlentities(decryptCredentialEntry($row['credential_username']));
-$credential_password = nullable_htmlentities(decryptCredentialEntry($row['credential_password']));
-$credential_otp_secret = nullable_htmlentities($row['credential_otp_secret']);
-$credential_note = nullable_htmlentities($row['credential_note']);
-$credential_created_at = nullable_htmlentities($row['credential_created_at']);
-$credential_archived_at = nullable_htmlentities($row['credential_archived_at']);
+$credential_username = escapeHtml(decryptCredentialEntry($row['credential_username']));
+$credential_password = escapeHtml(decryptCredentialEntry($row['credential_password']));
+$credential_otp_secret = escapeHtml($row['credential_otp_secret']);
+$credential_note = escapeHtml($row['credential_note']);
+$credential_created_at = escapeHtml($row['credential_created_at']);
+$credential_archived_at = escapeHtml($row['credential_archived_at']);
 $credential_favorite = intval($row['credential_favorite']);
 $credential_contact_id = intval($row['credential_contact_id']);
 $credential_asset_id = intval($row['credential_asset_id']);
@@ -190,7 +190,7 @@ ob_start();
                             $sql_contacts = mysqli_query($mysqli, "SELECT contact_id, contact_name FROM contacts WHERE contact_client_id = $client_id ORDER BY contact_name ASC");
                             while ($row = mysqli_fetch_assoc($sql_contacts)) {
                                 $contact_id_select = intval($row['contact_id']);
-                                $contact_name_select = nullable_htmlentities($row['contact_name']);
+                                $contact_name_select = escapeHtml($row['contact_name']);
                                 ?>
                                 <option <?php if ($credential_contact_id == $contact_id_select) { echo "selected"; } ?> value="<?php echo $contact_id_select; ?>"><?php echo $contact_name_select; ?></option>
                             <?php } ?>
@@ -211,8 +211,8 @@ ob_start();
                             $sql_assets = mysqli_query($mysqli, "SELECT asset_id, asset_name, location_name  FROM assets LEFT JOIN locations on asset_location_id = location_id WHERE asset_client_id = $client_id AND asset_archived_at IS NULL ORDER BY asset_name ASC");
                             while ($row = mysqli_fetch_assoc($sql_assets)) {
                                 $asset_id_select = intval($row['asset_id']);
-                                $asset_name_select = nullable_htmlentities($row['asset_name']);
-                                $asset_location_select = nullable_htmlentities($row['location_name']);
+                                $asset_name_select = escapeHtml($row['asset_name']);
+                                $asset_location_select = escapeHtml($row['location_name']);
 
                                 $asset_select_display_string = $asset_name_select;
                                 if (!empty($asset_location_select)) {
@@ -247,7 +247,7 @@ ob_start();
                             $sql_tags_select = mysqli_query($mysqli, "SELECT tag_id, tag_name FROM tags WHERE tag_type = 4 ORDER BY tag_name ASC");
                             while ($row = mysqli_fetch_assoc($sql_tags_select)) {
                                 $tag_id_select = intval($row['tag_id']);
-                                $tag_name_select = nullable_htmlentities($row['tag_name']);
+                                $tag_name_select = escapeHtml($row['tag_name']);
                                 ?>
                                 <option value="<?php echo $tag_id_select; ?>" <?php if (in_array($tag_id_select, $credential_tag_id_array)) { echo "selected"; } ?>><?php echo $tag_name_select; ?></option>
                             <?php } ?>

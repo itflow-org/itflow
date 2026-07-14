@@ -7,10 +7,10 @@ $user_id = intval($_GET['id']);
 $sql = mysqli_query($mysqli, "SELECT * FROM users WHERE users.user_id = $user_id LIMIT 1");
 
 $row = mysqli_fetch_assoc($sql);
-$user_name = nullable_htmlentities($row['user_name']);
-$user_email = nullable_htmlentities($row['user_email']);
-$user_avatar = nullable_htmlentities($row['user_avatar']);
-$user_initials = nullable_htmlentities(initials($user_name));
+$user_name = escapeHtml($row['user_name']);
+$user_email = escapeHtml($row['user_email']);
+$user_avatar = escapeHtml($row['user_avatar']);
+$user_initials = escapeHtml(initials($user_name));
 
 $sql_related_tickets = mysqli_query($mysqli, "SELECT * FROM tickets
     WHERE ticket_assigned_to = $user_id AND ticket_resolved_at IS NULL AND ticket_closed_at IS NULL");
@@ -62,7 +62,7 @@ ob_start();
                     $sql_users = mysqli_query($mysqli, "SELECT * FROM users WHERE user_type = 1 AND user_archived_at IS NULL");
                     while ($row = mysqli_fetch_assoc($sql_users)) {
                         $user_id_select = intval($row['user_id']);
-                        $user_name_select = nullable_htmlentities($row['user_name']);
+                        $user_name_select = escapeHtml($row['user_name']);
 
                         ?>
                         <option value="<?= $user_id_select ?>"><?= $user_name_select ?></option>

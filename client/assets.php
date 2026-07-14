@@ -45,16 +45,16 @@ $assets_sql = mysqli_query($mysqli, "SELECT * FROM assets LEFT JOIN contacts ON 
                 <?php
                 while ($row = mysqli_fetch_assoc($assets_sql)) {
                     $asset_id = intval($row['asset_id']);
-                    $asset_name = nullable_htmlentities($row['asset_name']);
-                    $asset_description = nullable_htmlentities($row['asset_description']);
-                    $asset_type = nullable_htmlentities($row['asset_type']);
-                    $asset_make = nullable_htmlentities($row['asset_make']);
-                    $asset_model = nullable_htmlentities($row['asset_model']);
-                    $asset_serial = nullable_htmlentities($row['asset_serial']);
-                    $asset_purchase_date = nullable_htmlentities($row['asset_purchase_date'] ?? "-");
-                    $asset_warranty_expire = nullable_htmlentities($row['asset_warranty_expire'] ?? "-");
-                    $assigned_to = nullable_htmlentities($row['contact_name'] ?? "-");
-                    $asset_status = nullable_htmlentities($row['asset_status']);
+                    $asset_name = escapeHtml($row['asset_name']);
+                    $asset_description = escapeHtml($row['asset_description']);
+                    $asset_type = escapeHtml($row['asset_type']);
+                    $asset_make = escapeHtml($row['asset_make']);
+                    $asset_model = escapeHtml($row['asset_model']);
+                    $asset_serial = escapeHtml($row['asset_serial']);
+                    $asset_purchase_date = escapeHtml($row['asset_purchase_date'] ?? "-");
+                    $asset_warranty_expire = escapeHtml($row['asset_warranty_expire'] ?? "-");
+                    $assigned_to = escapeHtml($row['contact_name'] ?? "-");
+                    $asset_status = escapeHtml($row['asset_status']);
                     $asset_uri_client = sanitize_url($row['asset_uri_client']);
 
                     ?>

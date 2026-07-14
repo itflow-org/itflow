@@ -69,7 +69,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
             <div class="row">
                 <div class="col-sm-4">
                     <div class="input-group mb-3 mb-sm-0">
-                        <input type="search" class="form-control" name="q" value="<?php if (isset($q)) {echo stripslashes(nullable_htmlentities($q));} ?>" placeholder="Search Projects">
+                        <input type="search" class="form-control" name="q" value="<?php if (isset($q)) {echo stripslashes(escapeHtml($q));} ?>" placeholder="Search Projects">
                         <div class="input-group-append">
                             <button class="btn btn-secondary" type="button" data-toggle="collapse" data-target="#advancedFilter"><i class="fas fa-filter"></i></button>
                             <button class="btn btn-primary"><i class="fa fa-search"></i></button>
@@ -99,9 +99,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         <div class="form-group">
                             <label>Date range</label>
                             <input type="text" id="dateFilter" class="form-control" autocomplete="off">
-                            <input type="hidden" name="canned_date" id="canned_date" value="<?php echo nullable_htmlentities($_GET['canned_date']) ?? ''; ?>">
-                            <input type="hidden" name="dtf" id="dtf" value="<?php echo nullable_htmlentities($dtf ?? ''); ?>">
-                            <input type="hidden" name="dtt" id="dtt" value="<?php echo nullable_htmlentities($dtt ?? ''); ?>">
+                            <input type="hidden" name="canned_date" id="canned_date" value="<?php echo escapeHtml($_GET['canned_date']) ?? ''; ?>">
+                            <input type="hidden" name="dtf" id="dtf" value="<?php echo escapeHtml($dtf ?? ''); ?>">
+                            <input type="hidden" name="dtt" id="dtt" value="<?php echo escapeHtml($dtt ?? ''); ?>">
                         </div>
                     </div>
                 </div>
@@ -160,20 +160,20 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                 while ($row = mysqli_fetch_assoc($sql_projects)) {
                     $project_id = intval($row['project_id']);
-                    $project_prefix = nullable_htmlentities($row['project_prefix']);
+                    $project_prefix = escapeHtml($row['project_prefix']);
                     $project_number = intval($row['project_number']);
-                    $project_name = nullable_htmlentities($row['project_name']);
-                    $project_description = nullable_htmlentities($row['project_description']);
-                    $project_due = nullable_htmlentities($row['project_due']);
-                    $project_created_at = nullable_htmlentities($row['project_created_at']);
+                    $project_name = escapeHtml($row['project_name']);
+                    $project_description = escapeHtml($row['project_description']);
+                    $project_due = escapeHtml($row['project_due']);
+                    $project_created_at = escapeHtml($row['project_created_at']);
                     $project_created_at_display = date("Y-m-d", strtotime($project_created_at));
-                    $project_updated_at = nullable_htmlentities($row['project_updated_at']);
-                    $project_completed_at = nullable_htmlentities($row['project_completed_at']);
+                    $project_updated_at = escapeHtml($row['project_updated_at']);
+                    $project_completed_at = escapeHtml($row['project_completed_at']);
                     $project_completed_at_display = date("Y-m-d", strtotime($project_completed_at));
-                    $project_archived_at = nullable_htmlentities($row['project_archived_at']);
+                    $project_archived_at = escapeHtml($row['project_archived_at']);
 
                     $client_id = intval($row['client_id']);
-                    $client_name = nullable_htmlentities($row['client_name']);
+                    $client_name = escapeHtml($row['client_name']);
                     if ($client_name) {
                         $client_name_display = "<a href='projects.php?client_id=$client_id'>$client_name</a>";
                     } else {
@@ -182,7 +182,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                     $project_manager = intval($row['user_id']);
                     if ($project_manager) {
-                        $project_manager_display = nullable_htmlentities($row['user_name']);
+                        $project_manager_display = escapeHtml($row['user_name']);
                     } else {
                         $project_manager_display = "-";
                     }

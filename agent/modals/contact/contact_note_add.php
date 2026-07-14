@@ -6,7 +6,7 @@ $contact_id = intval($_GET['id']);
 
 $sql = mysqli_query($mysqli, "SELECT contact_name FROM contacts WHERE contact_id = $contact_id LIMIT 1");
 $row = mysqli_fetch_assoc($sql);
-$contact_name = nullable_htmlentities($row['contact_name']);
+$contact_name = escapeHtml($row['contact_name']);
 
 ob_start();
 
@@ -40,7 +40,7 @@ ob_start();
                         ORDER BY category_order ASC, category_name ASC
                     ");
                     while ($row = mysqli_fetch_assoc($sql_contact_note_types_select)) {
-                        $contact_note_type_select = nullable_htmlentities($row['category_name']);
+                        $contact_note_type_select = escapeHtml($row['category_name']);
                         ?>
                         <option><?= $contact_note_type_select ?></option>
                     <?php } ?>

@@ -29,7 +29,7 @@ if (isset($_GET['client']) & !empty($_GET['client'])) {
 // Log Type Filter
 if (isset($_GET['type']) & !empty($_GET['type'])) {
     $log_type_query = "AND (log_type  = '" . sanitizeInput($_GET['type']) . "')";
-    $type_filter = nullable_htmlentities($_GET['type']);
+    $type_filter = escapeHtml($_GET['type']);
 } else {
     // Default - any
     $log_type_query = '';
@@ -39,7 +39,7 @@ if (isset($_GET['type']) & !empty($_GET['type'])) {
 // Log Action Filter
 if (isset($_GET['action']) & !empty($_GET['action'])) {
     $log_action_query = "AND (log_action  = '" . sanitizeInput($_GET['action']) . "')";
-    $action_filter = nullable_htmlentities($_GET['action']);
+    $action_filter = escapeHtml($_GET['action']);
 } else {
     // Default - any
     $log_action_query = '';
@@ -73,7 +73,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                 <div class="row">
                     <div class="col-sm-4">
                         <div class="input-group mb-3 mb-md-0">
-                            <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(nullable_htmlentities($q)); } ?>" placeholder="Search audit logs">
+                            <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search audit logs">
                             <div class="input-group-append">
                                 <button class="btn btn-secondary" type="button" data-toggle="collapse" data-target="#advancedFilter"><i class="fas fa-filter"></i></button>
                                 <button class="btn btn-primary"><i class="fa fa-search"></i></button>
@@ -90,7 +90,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 $sql_clients_filter = mysqli_query($mysqli, "SELECT * FROM clients ORDER BY client_name ASC");
                                 while ($row = mysqli_fetch_assoc($sql_clients_filter)) {
                                     $client_id = intval($row['client_id']);
-                                    $client_name = nullable_htmlentities($row['client_name']);
+                                    $client_name = escapeHtml($row['client_name']);
                                 ?>
                                     <option <?php if ($client_filter == $client_id) { echo "selected"; } ?> value="<?php echo $client_id; ?>"><?php echo $client_name; ?></option>
                                 <?php
@@ -110,7 +110,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 $sql_users_filter = mysqli_query($mysqli, "SELECT * FROM users ORDER BY user_name ASC");
                                 while ($row = mysqli_fetch_assoc($sql_users_filter)) {
                                     $user_id = intval($row['user_id']);
-                                    $user_name = nullable_htmlentities($row['user_name']);
+                                    $user_name = escapeHtml($row['user_name']);
                                 ?>
                                     <option <?php if ($user_filter == $user_id) { echo "selected"; } ?> value="<?php echo $user_id; ?>"><?php echo $user_name; ?></option>
                                 <?php
@@ -129,7 +129,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 <?php
                                 $sql_types_filter = mysqli_query($mysqli, "SELECT DISTINCT log_type FROM logs ORDER BY log_type ASC");
                                 while ($row = mysqli_fetch_assoc($sql_types_filter)) {
-                                    $log_type = nullable_htmlentities($row['log_type']);
+                                    $log_type = escapeHtml($row['log_type']);
                                 ?>
                                     <option <?php if ($type_filter == $log_type) { echo "selected"; } ?>><?php echo $log_type; ?></option>
                                 <?php
@@ -148,7 +148,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 <?php
                                 $sql_actions_filter = mysqli_query($mysqli, "SELECT DISTINCT log_action FROM logs ORDER BY log_action ASC");
                                 while ($row = mysqli_fetch_assoc($sql_actions_filter)) {
-                                    $log_action = nullable_htmlentities($row['log_action']);
+                                    $log_action = escapeHtml($row['log_action']);
                                 ?>
                                     <option <?php if ($action_filter == $log_action) { echo "selected"; } ?>><?php echo $log_action; ?></option>
                                 <?php
@@ -165,9 +165,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             <div class="form-group">
                                 <label>Date range</label>
                                 <input type="text" id="dateFilter" class="form-control" autocomplete="off">
-                                <input type="hidden" name="canned_date" id="canned_date" value="<?php echo nullable_htmlentities($_GET['canned_date']) ?? ''; ?>">
-                                <input type="hidden" name="dtf" id="dtf" value="<?php echo nullable_htmlentities($dtf ?? ''); ?>">
-                                <input type="hidden" name="dtt" id="dtt" value="<?php echo nullable_htmlentities($dtt ?? ''); ?>">
+                                <input type="hidden" name="canned_date" id="canned_date" value="<?php echo escapeHtml($_GET['canned_date']) ?? ''; ?>">
+                                <input type="hidden" name="dtf" id="dtf" value="<?php echo escapeHtml($dtf ?? ''); ?>">
+                                <input type="hidden" name="dtt" id="dtt" value="<?php echo escapeHtml($dtt ?? ''); ?>">
                             </div>
                         </div>
                     </div>
@@ -227,22 +227,22 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                     while ($row = mysqli_fetch_assoc($sql)) {
                         $log_id = intval($row['log_id']);
-                        $log_type = nullable_htmlentities($row['log_type']);
-                        $log_action = nullable_htmlentities($row['log_action']);
-                        $log_description = nullable_htmlentities($row['log_description']);
-                        $log_ip = nullable_htmlentities($row['log_ip']);
-                        $log_user_agent = nullable_htmlentities($row['log_user_agent']);
+                        $log_type = escapeHtml($row['log_type']);
+                        $log_action = escapeHtml($row['log_action']);
+                        $log_description = escapeHtml($row['log_description']);
+                        $log_ip = escapeHtml($row['log_ip']);
+                        $log_user_agent = escapeHtml($row['log_user_agent']);
                         $log_user_os = getOS($log_user_agent);
                         $log_user_browser = getWebBrowser($log_user_agent);
-                        $log_created_at = nullable_htmlentities($row['log_created_at']);
+                        $log_created_at = escapeHtml($row['log_created_at']);
                         $user_id = intval($row['user_id']);
-                        $user_name = nullable_htmlentities($row['user_name']);
+                        $user_name = escapeHtml($row['user_name']);
                         if (empty($user_name)) {
                             $user_name_display = "-";
                         } else {
                             $user_name_display = $user_name;
                         }
-                        $client_name = nullable_htmlentities($row['client_name']);
+                        $client_name = escapeHtml($row['client_name']);
                         $client_id = intval($row['client_id']);
                         if (empty($client_name)) {
                             $client_name_display = "-";

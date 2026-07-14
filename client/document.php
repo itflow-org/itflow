@@ -39,9 +39,9 @@ $row = mysqli_fetch_assoc($sql_document);
 
 if ($row) {
     $document_id = intval($row['document_id']);
-    $document_name = nullable_htmlentities($row['document_name']);
+    $document_name = escapeHtml($row['document_name']);
     $document_content = $purifier->purify($row['document_content']);
-    $document_description = nullable_htmlentities($row['document_description']);
+    $document_description = escapeHtml($row['document_description']);
 } else {
     header("Location: post.php?logout");
     exit();
@@ -75,11 +75,11 @@ $sql_files = mysqli_query($mysqli,
 if (mysqli_num_rows($sql_files) > 0) {
     $file_row = mysqli_fetch_assoc($sql_files);
     $file_id = intval($file_row['file_id']);
-    $file_name = nullable_htmlentities($file_row['file_name']);
-    $file_reference_name = nullable_htmlentities($file_row['file_reference_name']);
+    $file_name = escapeHtml($file_row['file_name']);
+    $file_reference_name = escapeHtml($file_row['file_reference_name']);
     $file_ext = strtolower($file_row['file_ext']);
     $file_size = intval($file_row['file_size']);
-    $file_mime_type = nullable_htmlentities($file_row['file_mime_type']);
+    $file_mime_type = escapeHtml($file_row['file_mime_type']);
     $file_size_formatted = formatBytes($file_size);
 
     $file_path = "../uploads/clients/$session_client_id/$file_reference_name";

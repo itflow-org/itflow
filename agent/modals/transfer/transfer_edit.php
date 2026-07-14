@@ -12,13 +12,13 @@ $sql = mysqli_query($mysqli, "SELECT transfer_created_at, expense_date AS transf
 );
 
 $row = mysqli_fetch_assoc($sql);
-$transfer_date = nullable_htmlentities($row['transfer_date']);
+$transfer_date = escapeHtml($row['transfer_date']);
 $transfer_account_from = intval($row['transfer_account_from']);
 $transfer_account_to = intval($row['transfer_account_to']);
 $transfer_amount = floatval($row['transfer_amount']);
-$transfer_method = nullable_htmlentities($row['transfer_method']);
-$transfer_notes = nullable_htmlentities($row['transfer_notes']);
-$transfer_created_at = nullable_htmlentities($row['transfer_created_at']);
+$transfer_method = escapeHtml($row['transfer_method']);
+$transfer_notes = escapeHtml($row['transfer_notes']);
+$transfer_created_at = escapeHtml($row['transfer_created_at']);
 $expense_id = intval($row['transfer_expense_id']);
 $revenue_id = intval($row['transfer_revenue_id']);
 
@@ -76,9 +76,9 @@ ob_start();
                     $sql_accounts = mysqli_query($mysqli, "SELECT * FROM accounts WHERE (account_archived_at > '$transfer_created_at' OR account_archived_at IS NULL) ORDER BY account_archived_at ASC, account_name ASC");
                     while ($row = mysqli_fetch_assoc($sql_accounts)) {
                         $account_id_select = intval($row['account_id']);
-                        $account_name_select = nullable_htmlentities($row['account_name']);
+                        $account_name_select = escapeHtml($row['account_name']);
                         $opening_balance = floatval($row['opening_balance']);
-                        $account_archived_at = nullable_htmlentities($row['account_archived_at']);
+                        $account_archived_at = escapeHtml($row['account_archived_at']);
                         if (empty($account_archived_at)) {
                             $account_archived_display = "";
                         } else {
@@ -120,9 +120,9 @@ ob_start();
                     $sql2 = mysqli_query($mysqli, "SELECT * FROM accounts WHERE (account_archived_at > '$transfer_created_at' OR account_archived_at IS NULL) ORDER BY account_archived_at ASC, account_name ASC");
                     while ($row = mysqli_fetch_assoc($sql2)) {
                         $account_id2 = intval($row['account_id']);
-                        $account_name = nullable_htmlentities($row['account_name']);
+                        $account_name = escapeHtml($row['account_name']);
                         $opening_balance = floatval($row['opening_balance']);
-                        $account_archived_at = nullable_htmlentities($row['account_archived_at']);
+                        $account_archived_at = escapeHtml($row['account_archived_at']);
                         if (empty($account_archived_at)) {
                             $account_archived_display = "";
                         } else {
@@ -169,7 +169,7 @@ ob_start();
 
                     $sql_transfer_method_select = mysqli_query($mysqli, "SELECT * FROM payment_methods ORDER BY payment_method_name ASC");
                     while ($row = mysqli_fetch_assoc($sql_transfer_method_select)) {
-                        $payment_method_name_select = nullable_htmlentities($row['payment_method_name']);
+                        $payment_method_name_select = escapeHtml($row['payment_method_name']);
                     ?>
                         <option <?php if($transfer_method == $payment_method_name_select) { echo "selected"; } ?> ><?php echo $payment_method_name_select; ?></option>
 

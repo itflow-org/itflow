@@ -8,8 +8,8 @@ $sql = mysqli_query($mysqli, "SELECT * FROM payment_methods WHERE payment_method
 
 $row = mysqli_fetch_assoc($sql);
 $payment_method_id = intval($row['payment_method_id']);
-$payment_method_name = nullable_htmlentities($row['payment_method_name']);
-$payment_method_description = nullable_htmlentities($row['payment_method_description']);
+$payment_method_name = escapeHtml($row['payment_method_name']);
+$payment_method_description = escapeHtml($row['payment_method_description']);
 
 // Generate the HTML form content using output buffering.
 ob_start();

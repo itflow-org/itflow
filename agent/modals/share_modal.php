@@ -31,8 +31,8 @@
                                     $sql_client_contacts_select = mysqli_query($mysqli, "SELECT * FROM contacts WHERE contact_client_id = $client_id AND contact_email <> '' AND contact_archived_at IS NULL ORDER BY contact_name ASC");
                                     while ($row = mysqli_fetch_assoc($sql_client_contacts_select)) {
                                         $contact_id_select = intval($row['contact_id']);
-                                        $contact_name_select = nullable_htmlentities($row['contact_name']);
-                                        $contact_email_select = nullable_htmlentities($row['contact_email']);
+                                        $contact_name_select = escapeHtml($row['contact_name']);
+                                        $contact_email_select = escapeHtml($row['contact_email']);
                                         ?>
                                         <option value="<?php echo $contact_email_select; ?>"><?php echo "$contact_name_select - $contact_email_select"; ?></option>
 

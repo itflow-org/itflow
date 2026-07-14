@@ -7,10 +7,10 @@ $tag_id = intval($_GET['id']);
 $sql = mysqli_query($mysqli, "SELECT * FROM tags WHERE tag_id = $tag_id LIMIT 1");
 
 $row = mysqli_fetch_assoc($sql);
-$tag_name = nullable_htmlentities($row['tag_name']);
+$tag_name = escapeHtml($row['tag_name']);
 $tag_type = intval($row['tag_type']);
-$tag_color = nullable_htmlentities($row['tag_color']);
-$tag_icon = nullable_htmlentities($row['tag_icon']);
+$tag_color = escapeHtml($row['tag_color']);
+$tag_icon = escapeHtml($row['tag_icon']);
 
 if ($tag_type == 1) {
     $tag_type_display = "Client";

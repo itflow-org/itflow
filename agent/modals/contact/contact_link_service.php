@@ -10,7 +10,7 @@ $sql = mysqli_query($mysqli, "SELECT * FROM contacts
 ");
 
 $row = mysqli_fetch_assoc($sql);
-$contact_name = nullable_htmlentities($row['contact_name']);
+$contact_name = escapeHtml($row['contact_name']);
 $client_id = intval($row['contact_client_id']);
 
 // Generate the HTML form content using output buffering.
@@ -49,7 +49,7 @@ ob_start();
                     ");
                     while ($row = mysqli_fetch_assoc($sql_services_select)) {
                         $service_id = intval($row['service_id']);
-                        $service_name = nullable_htmlentities($row['service_name']);
+                        $service_name = escapeHtml($row['service_name']);
                         ?>
                         <option value="<?php echo $service_id ?>"><?php echo $service_name; ?></option>
                         <?php

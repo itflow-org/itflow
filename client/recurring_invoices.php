@@ -25,7 +25,7 @@ $recurring_invoices_sql = mysqli_query($mysqli, "SELECT * FROM recurring_invoice
 $payment_provider_sql = mysqli_query($mysqli, "SELECT * FROM payment_providers WHERE payment_provider_active = 1 LIMIT 1");
 $row = mysqli_fetch_assoc($payment_provider_sql);
 $payment_provider_id = intval($row['payment_provider_id']);
-$payment_provider_name = nullable_htmlentities($row['payment_provider_name']);
+$payment_provider_name = escapeHtml($row['payment_provider_name']);
 $payment_provider_threshold = floatval($row['payment_provider_threshold']);
 
 ?>
@@ -52,12 +52,12 @@ $payment_provider_threshold = floatval($row['payment_provider_threshold']);
             <?php
             while ($row = mysqli_fetch_assoc($recurring_invoices_sql)) {
                 $recurring_invoice_id = intval($row['recurring_invoice_id']);
-                $recurring_invoice_prefix = nullable_htmlentities($row['recurring_invoice_prefix']);
+                $recurring_invoice_prefix = escapeHtml($row['recurring_invoice_prefix']);
                 $recurring_invoice_number = intval($row['recurring_invoice_number']);
-                $recurring_invoice_scope = nullable_htmlentities($row['recurring_invoice_scope']);
-                $recurring_invoice_status = nullable_htmlentities($row['recurring_invoice_status']);
-                $recurring_invoice_next_date = nullable_htmlentities($row['recurring_invoice_next_date']);
-                $recurring_invoice_frequency = nullable_htmlentities($row['recurring_invoice_frequency']);
+                $recurring_invoice_scope = escapeHtml($row['recurring_invoice_scope']);
+                $recurring_invoice_status = escapeHtml($row['recurring_invoice_status']);
+                $recurring_invoice_next_date = escapeHtml($row['recurring_invoice_next_date']);
+                $recurring_invoice_frequency = escapeHtml($row['recurring_invoice_frequency']);
                 $recurring_invoice_amount = floatval($row['recurring_invoice_amount']);
                 $recurring_payment_id = intval($row['recurring_payment_id']);
                 $recurring_payment_recurring_invoice_id = intval($row['recurring_payment_recurring_invoice_id']);
@@ -88,7 +88,7 @@ $payment_provider_threshold = floatval($row['payment_provider_threshold']);
                                     <?php
                                         while ($row = mysqli_fetch_assoc($sql)) {
                                             $saved_payment_id = intval($row['saved_payment_id']);
-                                            $saved_payment_description = nullable_htmlentities($row['saved_payment_description']);
+                                            $saved_payment_description = escapeHtml($row['saved_payment_description']);
 
                                         ?>
                                         <option <?php if ($recurring_payment_saved_payment_id == $saved_payment_id) { echo "selected"; } ?> value="<?php echo $saved_payment_id; ?>"><?php echo $saved_payment_description; ?></option>

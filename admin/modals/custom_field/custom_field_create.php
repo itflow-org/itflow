@@ -2,14 +2,14 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header bg-dark">
-                <h5 class="modal-title"><i class="fa fa-fw fa-th-list mr-2"></i>Create <?php echo nullable_htmlentities($table); ?> field</h5>
+                <h5 class="modal-title"><i class="fa fa-fw fa-th-list mr-2"></i>Create <?php echo escapeHtml($table); ?> field</h5>
                 <button type="button" class="close text-white" data-dismiss="modal">
                     <span>&times;</span>
                 </button>
             </div>
             <form action="post.php" method="post" autocomplete="off">
                 <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token'] ?>">
-                <input type="hidden" name="table" value="<?php echo nullable_htmlentities($table); ?>">
+                <input type="hidden" name="table" value="<?php echo escapeHtml($table); ?>">
 
                 <div class="modal-body">
 

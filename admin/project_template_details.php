@@ -21,10 +21,10 @@ if (isset($_GET['project_template_id'])) {
 
     $row = mysqli_fetch_assoc($sql_project_templates);
 
-    $project_template_name = nullable_htmlentities($row['project_template_name']);
-    $project_template_description = nullable_htmlentities($row['project_template_description']);
+    $project_template_name = escapeHtml($row['project_template_name']);
+    $project_template_description = escapeHtml($row['project_template_description']);
     $project_template_created_at = date("Y-m-d", strtotime($row['project_template_created_at']));
-    $project_template_updated_at = nullable_htmlentities($row['project_template_updated_at']);
+    $project_template_updated_at = escapeHtml($row['project_template_updated_at']);
 
     // Get Associated Ticket Templates
     $sql_ticket_templates = mysqli_query($mysqli, "SELECT * FROM ticket_templates, project_template_ticket_templates
@@ -145,11 +145,11 @@ if (isset($_GET['project_template_id'])) {
                         while ($row = mysqli_fetch_assoc($sql_ticket_templates)) {
                             $ticket_template_id = intval($row['ticket_template_id']);
                             $ticket_template_order = intval($row['ticket_template_order']);
-                            $ticket_template_name = nullable_htmlentities($row['ticket_template_name']);
-                            $ticket_template_description = nullable_htmlentities($row['ticket_template_description']);
-                            $ticket_template_subject = nullable_htmlentities($row['ticket_template_subject']);
-                            $ticket_template_created_at = nullable_htmlentities($row['ticket_template_created_at']);
-                            $ticket_template_updated_at = nullable_htmlentities($row['ticket_template_updated_at']);
+                            $ticket_template_name = escapeHtml($row['ticket_template_name']);
+                            $ticket_template_description = escapeHtml($row['ticket_template_description']);
+                            $ticket_template_subject = escapeHtml($row['ticket_template_subject']);
+                            $ticket_template_created_at = escapeHtml($row['ticket_template_created_at']);
+                            $ticket_template_updated_at = escapeHtml($row['ticket_template_updated_at']);
 
                             ?>
 
@@ -194,7 +194,7 @@ if (isset($_GET['project_template_id'])) {
                 <?php
                 while($row = mysqli_fetch_assoc($sql_task_templates)){
                     $task_template_id = intval($row['task_template_id']);
-                    $task_template_name = nullable_htmlentities($row['task_template_name']);
+                    $task_template_name = escapeHtml($row['task_template_name']);
                 ?>
                     <tr>
                         <td>

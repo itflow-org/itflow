@@ -9,7 +9,7 @@ $sql = mysqli_query($mysqli, "SELECT invoice_prefix, invoice_number, invoice_cli
 ");
 
 $row = mysqli_fetch_assoc($sql);
-$invoice_prefix = nullable_htmlentities($row['invoice_prefix']);
+$invoice_prefix = escapeHtml($row['invoice_prefix']);
 $invoice_number = intval($row['invoice_number']);
 $client_id = intval($row['invoice_client_id']);
 

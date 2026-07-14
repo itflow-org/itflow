@@ -12,7 +12,7 @@
                 <?php
                 while ($row = mysqli_fetch_assoc($sql_related_documents)) {
                     $related_document_id = intval($row['document_id']);
-                    $related_document_name = nullable_htmlentities($row['document_name']);
+                    $related_document_name = escapeHtml($row['document_name']);
                     ?>
                     <p>
                         <i class="fas fa-fw fa-document text-secondary"></i>

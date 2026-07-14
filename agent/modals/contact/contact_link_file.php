@@ -10,7 +10,7 @@ $sql = mysqli_query($mysqli, "SELECT * FROM contacts
 ");
 
 $row = mysqli_fetch_assoc($sql);
-$contact_name = nullable_htmlentities($row['contact_name']);
+$contact_name = escapeHtml($row['contact_name']);
 $client_id = intval($row['contact_client_id']);
 
 // Generate the HTML form content using output buffering.
@@ -52,8 +52,8 @@ ob_start();
 
                     while ($row = mysqli_fetch_assoc($sql_files_select)) {
                         $file_id = intval($row['file_id']);
-                        $file_name = nullable_htmlentities($row['file_name']);
-                        $folder_name = nullable_htmlentities($row['folder_name']);
+                        $file_name = escapeHtml($row['file_name']);
+                        $folder_name = escapeHtml($row['folder_name']);
                         ?>
                         <option value="<?php echo $file_id ?>"><?php echo "$folder_name/$file_name"; ?></option>
                         <?php

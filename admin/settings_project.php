@@ -18,7 +18,7 @@ require_once "includes/inc_all_admin.php";
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-barcode"></i></span>
                         </div>
-                        <input type="text" class="form-control" name="config_project_prefix" placeholder="Project Prefix" value="<?php echo nullable_htmlentities($config_project_prefix); ?>" required>
+                        <input type="text" class="form-control" name="config_project_prefix" placeholder="Project Prefix" value="<?php echo escapeHtml($config_project_prefix); ?>" required>
                     </div>
                 </div>
 

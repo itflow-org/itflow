@@ -25,12 +25,12 @@ if (mysqli_num_rows($sql_ticket_template) == 0) {
 
 $row = mysqli_fetch_assoc($sql_ticket_template);
 
-$ticket_template_name = nullable_htmlentities($row['ticket_template_name']);
-$ticket_template_description = nullable_htmlentities($row['ticket_template_description']);
-$ticket_template_subject = nullable_htmlentities($row['ticket_template_subject']);
+$ticket_template_name = escapeHtml($row['ticket_template_name']);
+$ticket_template_description = escapeHtml($row['ticket_template_description']);
+$ticket_template_subject = escapeHtml($row['ticket_template_subject']);
 $ticket_template_details = $purifier->purify($row['ticket_template_details']);
-$ticket_template_created_at = nullable_htmlentities($row['ticket_template_created_at']);
-$ticket_template_updated_at = nullable_htmlentities($row['ticket_template_updated_at']);
+$ticket_template_created_at = escapeHtml($row['ticket_template_created_at']);
+$ticket_template_updated_at = escapeHtml($row['ticket_template_updated_at']);
 
 // Get Task Templates
 $sql_task_templates = mysqli_query($mysqli, "SELECT * FROM task_templates WHERE task_template_ticket_template_id = $ticket_template_id ORDER BY task_template_order ASC, task_template_id ASC");
@@ -92,9 +92,9 @@ $sql_task_templates = mysqli_query($mysqli, "SELECT * FROM task_templates WHERE 
                     <?php
                     while($row = mysqli_fetch_assoc($sql_task_templates)){
                         $task_id = intval($row['task_template_id']);
-                        $task_name = nullable_htmlentities($row['task_template_name']);
+                        $task_name = escapeHtml($row['task_template_name']);
                         $task_completion_estimate = intval($row['task_template_completion_estimate']);
-                        //$task_description = nullable_htmlentities($row['task_template_description']);
+                        //$task_description = escapeHtml($row['task_template_description']);
                         ?>
                         <tr data-task-id="<?php echo $task_id; ?>">
                             <td>

@@ -15,7 +15,7 @@ require_once "includes/inc_all_user.php";
             <div class="row">
                 <div class="col-md-3 text-center">
                     <?php if($session_avatar) { ?>
-                    <img class="img-thumbnail" src="<?php echo "../../uploads/users/$session_user_id/" . nullable_htmlentities($session_avatar); ?>">
+                    <img class="img-thumbnail" src="<?php echo "../../uploads/users/$session_user_id/" . escapeHtml($session_avatar); ?>">
                     <a href="post.php?clear_your_user_avatar&csrf_token=<?= $_SESSION['csrf_token'] ?>" class="btn btn-outline-danger btn-block">Remove Avatar</a>
                     <hr>
                     <?php } ?>
@@ -32,7 +32,7 @@ require_once "includes/inc_all_user.php";
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
                             </div>
-                            <input type="text" class="form-control" name="name" placeholder="Full Name" value="<?php echo stripslashes(nullable_htmlentities($session_name)); ?>" required>
+                            <input type="text" class="form-control" name="name" placeholder="Full Name" value="<?php echo stripslashes(escapeHtml($session_name)); ?>" required>
                         </div>
                     </div>
 
@@ -42,7 +42,7 @@ require_once "includes/inc_all_user.php";
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fa fa-fw fa-user-shield"></i></span>
                             </div>
-                            <input type="text" class="form-control" value="<?php echo nullable_htmlentities($session_user_role_display); ?>" disabled>
+                            <input type="text" class="form-control" value="<?php echo escapeHtml($session_user_role_display); ?>" disabled>
                         </div>
                     </div>
 
@@ -52,7 +52,7 @@ require_once "includes/inc_all_user.php";
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fa fa-fw fa-envelope"></i></span>
                             </div>
-                            <input type="email" class="form-control" name="email" placeholder="Email Address" value="<?php echo nullable_htmlentities($session_email); ?>" required>
+                            <input type="email" class="form-control" name="email" placeholder="Email Address" value="<?php echo escapeHtml($session_email); ?>" required>
                         </div>
                     </div>
 

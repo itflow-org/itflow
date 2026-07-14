@@ -8,8 +8,8 @@ $sql = mysqli_query($mysqli, "SELECT * FROM tickets LEFT JOIN clients ON client_
 
 $row = mysqli_fetch_assoc($sql);
 $client_id = intval($row['ticket_client_id']);
-$client_name = nullable_htmlentities($row['client_name']);
-$ticket_prefix = nullable_htmlentities($row['ticket_prefix']);
+$client_name = escapeHtml($row['client_name']);
+$ticket_prefix = escapeHtml($row['ticket_prefix']);
 $ticket_number = intval($row['ticket_number']);
 $ticket_project_id = intval($row['ticket_project_id']);
 
@@ -43,7 +43,7 @@ ob_start();
                     <?php
                     while ($row = mysqli_fetch_assoc($sql_projects)) {
                         $project_id = intval($row['project_id']);
-                        $project_name = nullable_htmlentities($row['project_name']); ?>
+                        $project_name = escapeHtml($row['project_name']); ?>
                         <option <?php if ($ticket_project_id == $project_id) { echo "selected"; } ?>
                             value="<?= $project_id ?>"><?= $project_name ?>
                         </option>

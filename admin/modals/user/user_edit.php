@@ -10,13 +10,13 @@ $sql = mysqli_query($mysqli, "SELECT * FROM users
 );
 
 $row = mysqli_fetch_assoc($sql);
-$user_name = nullable_htmlentities($row['user_name']);
-$user_email = nullable_htmlentities($row['user_email']);
-$user_avatar = nullable_htmlentities($row['user_avatar']);
-$user_token = nullable_htmlentities($row['user_token']);
+$user_name = escapeHtml($row['user_name']);
+$user_email = escapeHtml($row['user_email']);
+$user_avatar = escapeHtml($row['user_avatar']);
+$user_token = escapeHtml($row['user_token']);
 $user_config_force_mfa = intval($row['user_config_force_mfa']);
 $user_role_id = intval($row['user_role_id']);
-$user_initials = nullable_htmlentities(initials($user_name));
+$user_initials = escapeHtml(initials($user_name));
 
 // Get User Client Access Permissions
 $user_client_access_sql = mysqli_query($mysqli,"SELECT client_id FROM user_client_permissions WHERE user_id = $user_id");
@@ -116,7 +116,7 @@ ob_start();
                             $sql_user_roles = mysqli_query($mysqli, "SELECT * FROM user_roles WHERE role_archived_at IS NULL");
                             while ($row = mysqli_fetch_assoc($sql_user_roles)) {
                                 $role_id = intval($row['role_id']);
-                                $role_name = nullable_htmlentities($row['role_name']);
+                                $role_name = escapeHtml($row['role_name']);
 
                                 ?>
                                 <option <?php if ($role_id == $user_role_id) {echo "selected";} ?> value="<?php echo $role_id; ?>"><?php echo $role_name; ?></option>
@@ -177,7 +177,7 @@ ob_start();
                     $sql_client_select = mysqli_query($mysqli, "SELECT * FROM clients WHERE client_archived_at IS NULL ORDER BY client_name ASC");
                     while ($row = mysqli_fetch_assoc($sql_client_select)) {
                         $client_id_select = intval($row['client_id']);
-                        $client_name_select = nullable_htmlentities($row['client_name']);
+                        $client_name_select = escapeHtml($row['client_name']);
 
                     ?>
 

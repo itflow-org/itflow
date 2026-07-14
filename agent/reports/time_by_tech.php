@@ -110,7 +110,7 @@ $sql_users = mysqli_query($mysqli, "
 
                             while ($agent_row = mysqli_fetch_assoc($sql_users)) {
                                 $user_id = intval($agent_row['user_id']);
-                                $user_name = nullable_htmlentities($agent_row['user_name']);
+                                $user_name = escapeHtml($agent_row['user_name']);
 
                                 // Get tickets in period that are still assigned to the technician/agent
                                 $sql_ticket_count = mysqli_query($mysqli, "SELECT COUNT(ticket_id) AS ticket_count FROM tickets WHERE YEAR(ticket_created_at) = $year AND ticket_assigned_to = $user_id");
@@ -150,7 +150,7 @@ $sql_users = mysqli_query($mysqli, "
                                 // Calculate total time tracked towards tickets in the period (for this agent)
                                 $sql_time = mysqli_query($mysqli, "SELECT SEC_TO_TIME(SUM(TIME_TO_SEC(ticket_reply_time_worked))) as total_time FROM ticket_replies LEFT JOIN tickets ON tickets.ticket_id = ticket_replies.ticket_reply_ticket_id WHERE YEAR(ticket_created_at) = $year AND ticket_reply_by = $user_id AND ticket_reply_time_worked IS NOT NULL");
                                 $row = mysqli_fetch_assoc($sql_time);
-                                $ticket_total_time_worked = nullable_htmlentities($row['total_time']);
+                                $ticket_total_time_worked = escapeHtml($row['total_time']);
 
                                 ?>
 

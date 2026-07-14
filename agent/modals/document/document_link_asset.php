@@ -10,7 +10,7 @@ $sql = mysqli_query($mysqli, "SELECT * FROM documents
 ");
 
 $row = mysqli_fetch_assoc($sql);
-$document_name = nullable_htmlentities($row['document_name']);
+$document_name = escapeHtml($row['document_name']);
 $client_id = intval($row['document_client_id']);
 
 enforceClientAccess();
@@ -51,7 +51,7 @@ ob_start();
                     ");
                     while ($row = mysqli_fetch_assoc($sql_assets_select)) {
                         $asset_id = intval($row['asset_id']);
-                        $asset_name = nullable_htmlentities($row['asset_name']);
+                        $asset_name = escapeHtml($row['asset_name']);
 
                         ?>
                         <option value="<?= $asset_id ?>"><?= $asset_name ?></option>

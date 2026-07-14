@@ -6,15 +6,15 @@ $service_id = intval($_GET['id']);
 
 $sql = mysqli_query($mysqli, "SELECT * FROM services WHERE service_id = $service_id LIMIT 1");
 $row = mysqli_fetch_assoc($sql);
-$service_name = nullable_htmlentities($row['service_name']);
-$service_description = nullable_htmlentities($row['service_description']);
-$service_category = nullable_htmlentities($row['service_category']);
-$service_importance = nullable_htmlentities($row['service_importance']);
-$service_backup = nullable_htmlentities($row['service_backup']);
-$service_notes = nullable_htmlentities($row['service_notes']);
-$service_created_at = nullable_htmlentities($row['service_created_at']);
-$service_updated_at = nullable_htmlentities($row['service_updated_at']);
-$service_review_due = nullable_htmlentities($row['service_review_due']);
+$service_name = escapeHtml($row['service_name']);
+$service_description = escapeHtml($row['service_description']);
+$service_category = escapeHtml($row['service_category']);
+$service_importance = escapeHtml($row['service_importance']);
+$service_backup = escapeHtml($row['service_backup']);
+$service_notes = escapeHtml($row['service_notes']);
+$service_created_at = escapeHtml($row['service_created_at']);
+$service_updated_at = escapeHtml($row['service_updated_at']);
+$service_review_due = escapeHtml($row['service_review_due']);
 $client_id = intval($row['service_client_id']);
 
 enforceClientAccess();
@@ -121,8 +121,8 @@ ob_start();
                     mysqli_data_seek($sql_assets, 0);
                     while ($row = mysqli_fetch_assoc($sql_assets)) {
                         $asset_id = intval($row['asset_id']);
-                        $asset_name = nullable_htmlentities($row['asset_name']);
-                        $ip = !empty($row['interface_ip']) ? '(' . nullable_htmlentities($row['interface_ip']) . ')' : '';
+                        $asset_name = escapeHtml($row['asset_name']);
+                        $ip = !empty($row['interface_ip']) ? '(' . escapeHtml($row['interface_ip']) . ')' : '';
                         echo "<li><a class='ajax-modal' href='#' data-modal-size='lg' data-modal-url='modals/asset/asset_details.php?id=$asset_id'>$asset_name</a>$ip</li>";
                     }
                     echo "</ul>";
@@ -136,7 +136,7 @@ ob_start();
                     mysqli_data_seek($sql_assets, 0);
                     while ($row = mysqli_fetch_assoc($sql_assets)) {
                         if (!empty($row['network_name'])) {
-                            $network_data = nullable_htmlentities($row["network_name"]) . ':' . nullable_htmlentities($row["network_vlan"]);
+                            $network_data = escapeHtml($row["network_name"]) . ':' . escapeHtml($row["network_vlan"]);
                             $networks[] = $network_data;
                         }
                     }
@@ -161,7 +161,7 @@ ob_start();
                     mysqli_data_seek($sql_assets, 0);
                     while ($row = mysqli_fetch_assoc($sql_assets)) {
                         if (!empty($row['location_name'])) {
-                            $location_names[] = nullable_htmlentities($row['location_name']);
+                            $location_names[] = escapeHtml($row['location_name']);
                         }
                     }
                     $location_names = array_unique($location_names);
@@ -182,7 +182,7 @@ ob_start();
                     mysqli_data_seek($sql_domains, 0);
                     while ($row = mysqli_fetch_assoc($sql_domains)) {
                         if (!empty($row['domain_name'])) {
-                            $domain_name = nullable_htmlentities($row['domain_name']);
+                            $domain_name = escapeHtml($row['domain_name']);
                             echo "<li><a href='domains.php?client_id=$client_id&q=$domain_name'>$domain_name</a></li>";
                         }
                     }
@@ -197,8 +197,8 @@ ob_start();
                     mysqli_data_seek($sql_certificates, 0);
                     while ($row = mysqli_fetch_assoc($sql_certificates)) {
                         if (!empty($row['certificate_name'])) {
-                            $certificate_name = nullable_htmlentities($row['certificate_name']);
-                            $certificate_domain = nullable_htmlentities($row['certificate_domain']);
+                            $certificate_name = escapeHtml($row['certificate_name']);
+                            $certificate_domain = escapeHtml($row['certificate_domain']);
                             echo "<li><a href='certificates.php?client_id=$client_id&q=$certificate_name'>$certificate_name ($certificate_domain)</a></li>";
                         }
                     }
@@ -222,7 +222,7 @@ ob_start();
                     mysqli_data_seek($sql_vendors, 0);
                     while ($row = mysqli_fetch_assoc($sql_vendors)) {
                         $vendor_id = intval($row['vendor_id']);
-                        $vendor_name = nullable_htmlentities($row['vendor_name']);
+                        $vendor_name = escapeHtml($row['vendor_name']);
                         echo "<li><a class='ajax-modal' href='#' data-modal-size='lg' data-modal-url='modals/vendor/vendor_details.php?id=$vendor_id'>$vendor_name</a></li>";
                     }
                     echo "</ul>";
@@ -236,7 +236,7 @@ ob_start();
                     mysqli_data_seek($sql_contacts, 0);
                     while ($row = mysqli_fetch_assoc($sql_contacts)) {
                         $contact_id = intval($row['contact_id']);
-                        $contact_name = nullable_htmlentities($row['contact_name']);
+                        $contact_name = escapeHtml($row['contact_name']);
                         echo "<li><a href='#' class='ajax-modal' data-modal-size='lg' data-modal-url='modals/contact/contact_details.php?id=$contact_id'>$contact_name</a></li>";
                     }
                     echo "</ul>";
@@ -250,7 +250,7 @@ ob_start();
                     // Credentials linked to assets
                     mysqli_data_seek($sql_assets, 0);
                     while ($row = mysqli_fetch_assoc($sql_assets)) {
-                        $credential_name = nullable_htmlentities($row['credential_name']);
+                        $credential_name = escapeHtml($row['credential_name']);
                         if (!empty($credential_name)) {
                             echo "<li><a href='credentials.php?client_id=$client_id&q=$credential_name'>$credential_name</a></li>";
                         }
@@ -258,7 +258,7 @@ ob_start();
                     // Explicitly linked credentials
                     mysqli_data_seek($sql_credentials, 0);
                     while ($row = mysqli_fetch_assoc($sql_credentials)) {
-                        $credential_name = nullable_htmlentities($row['credential_name']);
+                        $credential_name = escapeHtml($row['credential_name']);
                         if (!empty($credential_name)) {
                             echo "<li><a href='credentials.php?client_id=$client_id&q=$credential_name'>$credential_name</a></li>";
                         }
@@ -300,7 +300,7 @@ ob_start();
                     mysqli_data_seek($sql_docs, 0);
                     while ($row = mysqli_fetch_assoc($sql_docs)) {
                         $document_id = intval($row['document_id']);
-                        $document_name = nullable_htmlentities($row['document_name']);
+                        $document_name = escapeHtml($row['document_name']);
                         echo "<li><a class='ajax-modal' href='#' data-modal-size='lg' data-modal-url='modals/document/document_view.php?id=$document_id'>$document_name</a></li>";
                     }
                     echo "</ul>";

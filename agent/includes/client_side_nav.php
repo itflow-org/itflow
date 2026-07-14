@@ -1,5 +1,5 @@
 <!-- Main Sidebar Container -->
-<aside class="main-sidebar sidebar-dark-<?php echo nullable_htmlentities($config_theme); ?> d-print-none">
+<aside class="main-sidebar sidebar-dark-<?php echo escapeHtml($config_theme); ?> d-print-none">
 
     <a class="brand-link pb-1 mt-1" href="/agent/clients.php">
         <p class="h5">

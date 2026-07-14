@@ -60,10 +60,10 @@ $total_tickets = intval($row['total_tickets']);
             <?php
             while ($row = mysqli_fetch_assoc($contact_tickets)) {
                 $ticket_id = intval($row['ticket_id']);
-                $ticket_prefix = nullable_htmlentities($row['ticket_prefix']);
+                $ticket_prefix = escapeHtml($row['ticket_prefix']);
                 $ticket_number = intval($row['ticket_number']);
-                $ticket_subject = nullable_htmlentities($row['ticket_subject']);
-                $ticket_status = nullable_htmlentities($row['ticket_status_name']);
+                $ticket_subject = escapeHtml($row['ticket_subject']);
+                $ticket_status = escapeHtml($row['ticket_status_name']);
             ?>
 
                 <tr>

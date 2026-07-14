@@ -11,19 +11,19 @@ $sql = mysqli_query($mysqli, "SELECT * FROM expenses
 );
 
 $row = mysqli_fetch_assoc($sql);
-$expense_date = nullable_htmlentities($row['expense_date']);
+$expense_date = escapeHtml($row['expense_date']);
 $expense_amount = floatval($row['expense_amount']);
-$expense_currency_code = nullable_htmlentities($row['expense_currency_code']);
-$expense_description = nullable_htmlentities($row['expense_description']);
-$expense_receipt = nullable_htmlentities($row['expense_receipt']);
-$expense_reference = nullable_htmlentities($row['expense_reference']);
-$expense_created_at = nullable_htmlentities($row['expense_created_at']);
+$expense_currency_code = escapeHtml($row['expense_currency_code']);
+$expense_description = escapeHtml($row['expense_description']);
+$expense_receipt = escapeHtml($row['expense_receipt']);
+$expense_reference = escapeHtml($row['expense_reference']);
+$expense_created_at = escapeHtml($row['expense_created_at']);
 $expense_vendor_id = intval($row['expense_vendor_id']);
 $expense_category_id = intval($row['expense_category_id']);
 $expense_account_id = intval($row['expense_account_id']);
 $client_id = intval($row['expense_client_id']);
-$vendor_name = nullable_htmlentities($row['vendor_name']);
-$category_name = nullable_htmlentities($row['category_name']);
+$vendor_name = escapeHtml($row['vendor_name']);
+$category_name = escapeHtml($row['category_name']);
 
 if ($client_id) {
     enforceClientAccess();
@@ -82,9 +82,9 @@ ob_start();
                         $sql_accounts = mysqli_query($mysqli, "SELECT account_id, account_name, opening_balance, account_archived_at FROM accounts WHERE (account_archived_at > '$expense_created_at' OR account_archived_at IS NULL) ORDER BY account_archived_at ASC, account_name ASC");
                         while ($row = mysqli_fetch_assoc($sql_accounts)) {
                             $account_id_select = intval($row['account_id']);
-                            $account_name_select = nullable_htmlentities($row['account_name']);
+                            $account_name_select = escapeHtml($row['account_name']);
                             $opening_balance = floatval($row['opening_balance']);
-                            $account_archived_at = nullable_htmlentities($row['account_archived_at']);
+                            $account_archived_at = escapeHtml($row['account_archived_at']);
                             if (empty($account_archived_at)) {
                                 $account_archived_display = "";
                             } else {
@@ -127,7 +127,7 @@ ob_start();
                         $sql_select = mysqli_query($mysqli, "SELECT vendor_id, vendor_name FROM vendors WHERE vendor_client_id = 0 AND (vendor_archived_at > '$expense_created_at' OR vendor_archived_at IS NULL) ORDER BY vendor_name ASC");
                         while ($row = mysqli_fetch_assoc($sql_select)) {
                             $vendor_id_select = intval($row['vendor_id']);
-                            $vendor_name_select = nullable_htmlentities($row['vendor_name']);
+                            $vendor_name_select = escapeHtml($row['vendor_name']);
                             ?>
                             <option <?php if ($expense_vendor_id == $vendor_id_select) { ?> selected <?php } ?> value="<?php echo $vendor_id_select; ?>"><?php echo $vendor_name_select; ?></option>
                             <?php
@@ -172,7 +172,7 @@ ob_start();
                         $sql_select = mysqli_query($mysqli, "SELECT category_id, category_name FROM categories WHERE category_type = 'Expense' AND (category_archived_at > '$expense_created_at' OR category_archived_at IS NULL) ORDER BY category_name ASC");
                         while ($row = mysqli_fetch_assoc($sql_select)) {
                             $category_id_select = intval($row['category_id']);
-                            $category_name_select = nullable_htmlentities($row['category_name']);
+                            $category_name_select = escapeHtml($row['category_name']);
                             ?>
                             <option <?php if ($expense_category_id == $category_id_select) { ?> selected <?php } ?> value="<?php echo $category_id_select; ?>"><?php echo $category_name_select; ?></option>
                             <?php
@@ -206,7 +206,7 @@ ob_start();
                             $sql_clients = mysqli_query($mysqli, "SELECT client_id, client_name FROM clients WHERE 1 = 1 $access_permission_query ORDER BY client_name ASC");
                             while ($row = mysqli_fetch_assoc($sql_clients)) {
                                 $client_id_select = intval($row['client_id']);
-                                $client_name_select = nullable_htmlentities($row['client_name']);
+                                $client_name_select = escapeHtml($row['client_name']);
                                 ?>
                                 <option <?php if ($client_id == $client_id_select) { echo "selected"; } ?> value="<?php echo $client_id_select; ?>"><?php echo $client_name_select; ?></option>
 

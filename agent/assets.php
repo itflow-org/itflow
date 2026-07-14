@@ -223,12 +223,12 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
             <?php if ($client_url) { ?>
             <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
             <?php } ?>
-            <input type="hidden" name="type" value="<?php echo stripslashes(nullable_htmlentities($_GET['type'])); ?>">
+            <input type="hidden" name="type" value="<?php echo stripslashes(escapeHtml($_GET['type'])); ?>">
             <input type="hidden" name="archived" value="<?php echo $archived; ?>">
             <div class="row">
                 <div class="col-md-4">
                     <div class="input-group mb-3 mb-md-0">
-                        <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(nullable_htmlentities($q)); } ?>" placeholder="Search <?php if (!empty($_GET['type'])) { echo ucwords(stripslashes(nullable_htmlentities($_GET['type']))); } else { echo "Asset"; } ?>s">
+                        <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search <?php if (!empty($_GET['type'])) { echo ucwords(stripslashes(escapeHtml($_GET['type']))); } else { echo "Asset"; } ?>s">
                         <div class="input-group-append">
                             <button class="btn btn-dark"><i class="fa fa-search"></i></button>
                         </div>
@@ -250,7 +250,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             ");
                             while ($row = mysqli_fetch_assoc($sql_locations_filter)) {
                                 $location_id = intval($row['location_id']);
-                                $location_name = nullable_htmlentities($row['location_name']);
+                                $location_name = escapeHtml($row['location_name']);
                             ?>
                                 <option <?php if ($location_filter == $location_id) { echo "selected"; } ?> value="<?php echo $location_id; ?>"><?php echo $location_name; ?></option>
                             <?php
@@ -277,7 +277,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             ");
                             while ($row = mysqli_fetch_assoc($sql_clients_filter)) {
                                 $client_id = intval($row['client_id']);
-                                $client_name = nullable_htmlentities($row['client_name']);
+                                $client_name = escapeHtml($row['client_name']);
                             ?>
                                 <option <?php if ($client == $client_id) { echo "selected"; } ?> value="<?php echo $client_id; ?>"><?php echo $client_name; ?></option>
                             <?php
@@ -305,7 +305,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             ");
                             while ($row = mysqli_fetch_assoc($sql_tags_filter)) {
                                 $tag_id = intval($row['tag_id']);
-                                $tag_name = nullable_htmlentities($row['tag_name']); ?>
+                                $tag_name = escapeHtml($row['tag_name']); ?>
 
                                 <option value="<?php echo $tag_id ?>" <?php if (isset($_GET['tags']) && in_array($tag_id, $_GET['tags'])) { echo 'selected'; } ?>> <?php echo $tag_name ?> </option>
 
@@ -517,63 +517,63 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                     while ($row = mysqli_fetch_assoc($sql)) {
                         $client_id = intval($row['client_id']);
-                        $client_name = nullable_htmlentities($row['client_name']);
+                        $client_name = escapeHtml($row['client_name']);
                         $asset_id = intval($row['asset_id']);
-                        $asset_type = nullable_htmlentities($row['asset_type']);
-                        $asset_name = nullable_htmlentities($row['asset_name']);
-                        $asset_description = nullable_htmlentities($row['asset_description']);
+                        $asset_type = escapeHtml($row['asset_type']);
+                        $asset_name = escapeHtml($row['asset_name']);
+                        $asset_description = escapeHtml($row['asset_description']);
                         if ($asset_description) {
                             $asset_description_display = $asset_description;
                         } else {
                             $asset_description_display = "-";
                         }
-                        $asset_make = nullable_htmlentities($row['asset_make']);
-                        $asset_model = nullable_htmlentities($row['asset_model']);
-                        $asset_serial = nullable_htmlentities($row['asset_serial']);
+                        $asset_make = escapeHtml($row['asset_make']);
+                        $asset_model = escapeHtml($row['asset_model']);
+                        $asset_serial = escapeHtml($row['asset_serial']);
                         if ($asset_serial) {
                             $asset_serial_display = "<span class='text-monospace'>$asset_serial</span>";
                         } else {
                             $asset_serial_display = "-";
                         }
-                        $asset_os = nullable_htmlentities($row['asset_os']);
-                        $asset_ip = getFallBack(nullable_htmlentities($row['interface_ip']));
-                        $asset_ipv6 = nullable_htmlentities($row['interface_ipv6']);
-                        $asset_nat_ip = nullable_htmlentities($row['interface_nat_ip']);
-                        $asset_mac = nullable_htmlentities(getFallBack($row['interface_mac']));
+                        $asset_os = escapeHtml($row['asset_os']);
+                        $asset_ip = getFallBack(escapeHtml($row['interface_ip']));
+                        $asset_ipv6 = escapeHtml($row['interface_ipv6']);
+                        $asset_nat_ip = escapeHtml($row['interface_nat_ip']);
+                        $asset_mac = escapeHtml(getFallBack($row['interface_mac']));
                         $asset_uri = sanitize_url($row['asset_uri']);
                         $asset_uri_2 = sanitize_url($row['asset_uri_2']);
                         $asset_uri_client = sanitize_url($row['asset_uri_client']);
-                        $asset_status = nullable_htmlentities($row['asset_status']);
-                        $asset_purchase_reference = nullable_htmlentities($row['asset_purchase_reference']);
-                        $asset_purchase_date = nullable_htmlentities($row['asset_purchase_date']);
+                        $asset_status = escapeHtml($row['asset_status']);
+                        $asset_purchase_reference = escapeHtml($row['asset_purchase_reference']);
+                        $asset_purchase_date = escapeHtml($row['asset_purchase_date']);
                         if ($asset_purchase_date) {
                             $asset_purchase_date_display = $asset_purchase_date;
                         } else {
                             $asset_purchase_date_display = "-";
                         }
-                        $asset_warranty_expire = nullable_htmlentities($row['asset_warranty_expire']);
+                        $asset_warranty_expire = escapeHtml($row['asset_warranty_expire']);
                         if ($asset_warranty_expire) {
                             $asset_warranty_expire_display = $asset_warranty_expire;
                         } else {
                             $asset_warranty_expire_display = "-";
                         }
-                        $asset_install_date = nullable_htmlentities($row['asset_install_date']);
+                        $asset_install_date = escapeHtml($row['asset_install_date']);
                         if ($asset_install_date) {
                             $asset_install_date_display = $asset_install_date;
                         } else {
                             $asset_install_date_display = "-";
                         }
-                        $asset_photo = nullable_htmlentities($row['asset_photo']);
-                        $asset_physical_location = nullable_htmlentities($row['asset_physical_location']);
+                        $asset_photo = escapeHtml($row['asset_photo']);
+                        $asset_physical_location = escapeHtml($row['asset_physical_location']);
                         if ($asset_physical_location) {
                             $asset_physical_location_display = "<div class='text-secondary'>$asset_physical_location</div>";
                         } else {
                             $asset_physical_location_display = "";
                         }
-                        $asset_notes = nullable_htmlentities($row['asset_notes']);
+                        $asset_notes = escapeHtml($row['asset_notes']);
                         $asset_favorite = intval($row['asset_favorite']);
-                        $asset_created_at = nullable_htmlentities($row['asset_created_at']);
-                        $asset_archived_at = nullable_htmlentities($row['asset_archived_at']);
+                        $asset_created_at = escapeHtml($row['asset_created_at']);
+                        $asset_archived_at = escapeHtml($row['asset_archived_at']);
                         $asset_vendor_id = intval($row['asset_vendor_id']);
                         $asset_location_id = intval($row['asset_location_id']);
                         $asset_contact_id = intval($row['asset_contact_id']);
@@ -581,24 +581,24 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                         $device_icon = getAssetIcon($asset_type);
 
-                        $contact_archived_at = nullable_htmlentities($row['contact_archived_at']);
+                        $contact_archived_at = escapeHtml($row['contact_archived_at']);
                         if ($contact_archived_at) {
                             $contact_archive_display = "<span class='text-danger'>(Archived)</span>";
                         } else {
                             $contact_archive_display = '';
                         }
-                        $contact_name = nullable_htmlentities($row['contact_name']);
+                        $contact_name = escapeHtml($row['contact_name']);
                         if ($contact_name) {
                             $contact_name_display = "<a class='ajax-modal' href='#' data-modal-url='modals/contact/contact_details.php?id=$asset_contact_id' data-modal-size='lg'>$contact_name $contact_archive_display</a>";
                         } else {
                             $contact_name_display = "-";
                         }
 
-                        $location_name = nullable_htmlentities($row['location_name']);
+                        $location_name = escapeHtml($row['location_name']);
                         if (empty($location_name)) {
                             $location_name = "-";
                         }
-                        $location_archived_at = nullable_htmlentities($row['location_archived_at']);
+                        $location_archived_at = escapeHtml($row['location_archived_at']);
                         if ($location_archived_at) {
                             $location_name_display = "<div class='text-danger' title='Archived'><s>$location_name</s></div>";
                         } else {
@@ -615,12 +615,12 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         while ($row = mysqli_fetch_assoc($sql_asset_tags)) {
 
                             $asset_tag_id = intval($row['tag_id']);
-                            $asset_tag_name = nullable_htmlentities($row['tag_name']);
-                            $asset_tag_color = nullable_htmlentities($row['tag_color']);
+                            $asset_tag_name = escapeHtml($row['tag_name']);
+                            $asset_tag_color = escapeHtml($row['tag_color']);
                             if (empty($asset_tag_color)) {
                                 $asset_tag_color = "dark";
                             }
-                            $asset_tag_icon = nullable_htmlentities($row['tag_icon']);
+                            $asset_tag_icon = escapeHtml($row['tag_icon']);
                             if (empty($asset_tag_icon)) {
                                 $asset_tag_icon = "tag";
                             }

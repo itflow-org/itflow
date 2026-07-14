@@ -109,7 +109,7 @@ ob_start();
                             <?php
 
                             while ($row = mysqli_fetch_assoc($referral_sql)) {
-                                $referral = nullable_htmlentities($row['category_name']); ?>
+                                $referral = escapeHtml($row['category_name']); ?>
                                 <option><?php echo $referral; ?></option>
                             <?php } ?>
 
@@ -144,7 +144,7 @@ ob_start();
 
                             while ($row = mysqli_fetch_assoc($sql_tags_select)) {
                                 $tag_id_select = intval($row['tag_id']);
-                                $tag_name_select = nullable_htmlentities($row['tag_name']);
+                                $tag_name_select = escapeHtml($row['tag_name']);
                                 ?>
                                 <option value="<?php echo $tag_id_select; ?>"><?php echo $tag_name_select; ?></option>
                             <?php } ?>

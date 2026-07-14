@@ -33,7 +33,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
             <div class="row">
                 <div class="col-md-4">
                     <div class="input-group">
-                        <input type="search" class="form-control" name="q" value="<?php if (isset($q)) {echo stripslashes(nullable_htmlentities($q));} ?>" placeholder="Search Modules">
+                        <input type="search" class="form-control" name="q" value="<?php if (isset($q)) {echo stripslashes(escapeHtml($q));} ?>" placeholder="Search Modules">
                         <div class="input-group-append">
                             <button class="btn btn-primary"><i class="fa fa-search"></i></button>
                         </div>
@@ -59,8 +59,8 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                 while ($row = mysqli_fetch_assoc($sql)) {
                     $module_id = intval($row['module_id']);
-                    $module_name = nullable_htmlentities($row['module_name']);
-                    $module_description = nullable_htmlentities($row['module_description']);
+                    $module_name = escapeHtml($row['module_name']);
+                    $module_description = escapeHtml($row['module_description']);
 
                     ?>
                     <tr>

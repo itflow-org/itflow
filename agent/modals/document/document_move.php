@@ -8,8 +8,8 @@ $sql = mysqli_query($mysqli, "SELECT * FROM documents WHERE document_id = $docum
 
 $row = mysqli_fetch_assoc($sql);
 $client_id = intval($row['document_client_id']);
-$document_folder_id = nullable_htmlentities($row['document_folder_id']);
-$document_name = nullable_htmlentities($row['document_name']);
+$document_folder_id = escapeHtml($row['document_folder_id']);
+$document_name = escapeHtml($row['document_name']);
 
 enforceClientAccess();
 
@@ -45,7 +45,7 @@ ob_start();
                     while ($row = mysqli_fetch_assoc($sql_all_folders)) {
                         $folders[$row['folder_id']] = array(
                             'folder_id' => intval($row['folder_id']),
-                            'folder_name' => nullable_htmlentities($row['folder_name']),
+                            'folder_name' => escapeHtml($row['folder_name']),
                             'parent_folder' => intval($row['parent_folder']),
                             'children' => array()
                         );

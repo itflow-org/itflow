@@ -35,50 +35,50 @@ if (mysqli_num_rows($sql) !== 1) {
 $row = mysqli_fetch_assoc($sql);
 
 $quote_id = intval($row['quote_id']);
-$quote_prefix = nullable_htmlentities($row['quote_prefix']);
+$quote_prefix = escapeHtml($row['quote_prefix']);
 $quote_number = intval($row['quote_number']);
-$quote_status = nullable_htmlentities($row['quote_status']);
-$quote_date = nullable_htmlentities($row['quote_date']);
-$quote_expire = nullable_htmlentities($row['quote_expire']);
+$quote_status = escapeHtml($row['quote_status']);
+$quote_date = escapeHtml($row['quote_date']);
+$quote_expire = escapeHtml($row['quote_expire']);
 $quote_discount = floatval($row['quote_discount_amount']);
 $quote_amount = floatval($row['quote_amount']);
-$quote_currency_code = nullable_htmlentities($row['quote_currency_code']);
-$quote_note = nullable_htmlentities($row['quote_note']);
+$quote_currency_code = escapeHtml($row['quote_currency_code']);
+$quote_note = escapeHtml($row['quote_note']);
 $client_id = intval($row['client_id']);
-$client_name = nullable_htmlentities($row['client_name']);
+$client_name = escapeHtml($row['client_name']);
 $client_name_escaped = sanitizeInput($row['client_name']);
-$location_address = nullable_htmlentities($row['location_address']);
-$location_city = nullable_htmlentities($row['location_city']);
-$location_state = nullable_htmlentities($row['location_state']);
-$location_zip = nullable_htmlentities($row['location_zip']);
-$location_country = nullable_htmlentities($row['location_country']);
-$contact_email = nullable_htmlentities($row['contact_email']);
-$contact_phone_country_code = nullable_htmlentities($row['contact_phone_country_code']);
-$contact_phone = nullable_htmlentities(formatPhoneNumber($row['contact_phone'], $contact_phone_country_code));
-$contact_extension = nullable_htmlentities($row['contact_extension']);
-$contact_mobile_country_code = nullable_htmlentities($row['contact_mobile_country_code']);
-$contact_mobile = nullable_htmlentities(formatPhoneNumber($row['contact_mobile'], $contact_mobile_country_code));
-$client_website = nullable_htmlentities($row['client_website']);
-$client_currency_code = nullable_htmlentities($row['client_currency_code']);
+$location_address = escapeHtml($row['location_address']);
+$location_city = escapeHtml($row['location_city']);
+$location_state = escapeHtml($row['location_state']);
+$location_zip = escapeHtml($row['location_zip']);
+$location_country = escapeHtml($row['location_country']);
+$contact_email = escapeHtml($row['contact_email']);
+$contact_phone_country_code = escapeHtml($row['contact_phone_country_code']);
+$contact_phone = escapeHtml(formatPhoneNumber($row['contact_phone'], $contact_phone_country_code));
+$contact_extension = escapeHtml($row['contact_extension']);
+$contact_mobile_country_code = escapeHtml($row['contact_mobile_country_code']);
+$contact_mobile = escapeHtml(formatPhoneNumber($row['contact_mobile'], $contact_mobile_country_code));
+$client_website = escapeHtml($row['client_website']);
+$client_currency_code = escapeHtml($row['client_currency_code']);
 
 $sql = mysqli_query($mysqli, "SELECT * FROM companies, settings WHERE companies.company_id = settings.company_id AND companies.company_id = 1");
 $row = mysqli_fetch_assoc($sql);
-$company_name = nullable_htmlentities($row['company_name']);
-$company_address = nullable_htmlentities($row['company_address']);
-$company_city = nullable_htmlentities($row['company_city']);
-$company_state = nullable_htmlentities($row['company_state']);
-$company_zip = nullable_htmlentities($row['company_zip']);
-$company_country = nullable_htmlentities($row['company_country']);
-$company_phone_country_code = nullable_htmlentities($row['company_phone_country_code']);
-$company_phone = nullable_htmlentities(formatPhoneNumber($row['company_phone'], $company_phone_country_code));
-$company_email = nullable_htmlentities($row['company_email']);
-$company_website = nullable_htmlentities($row['company_website']);
-$company_logo = nullable_htmlentities($row['company_logo']);
+$company_name = escapeHtml($row['company_name']);
+$company_address = escapeHtml($row['company_address']);
+$company_city = escapeHtml($row['company_city']);
+$company_state = escapeHtml($row['company_state']);
+$company_zip = escapeHtml($row['company_zip']);
+$company_country = escapeHtml($row['company_country']);
+$company_phone_country_code = escapeHtml($row['company_phone_country_code']);
+$company_phone = escapeHtml(formatPhoneNumber($row['company_phone'], $company_phone_country_code));
+$company_email = escapeHtml($row['company_email']);
+$company_website = escapeHtml($row['company_website']);
+$company_logo = escapeHtml($row['company_logo']);
 if (!empty($company_logo)) {
     $company_logo_base64 = base64_encode(file_get_contents("../uploads/settings/$company_logo"));
 }
-$company_locale = nullable_htmlentities($row['company_locale']);
-$config_quote_footer = nullable_htmlentities($row['config_quote_footer']);
+$company_locale = escapeHtml($row['company_locale']);
+$config_quote_footer = escapeHtml($row['config_quote_footer']);
 
 //Set Currency Format
 $currency_format = numfmt_create($company_locale, NumberFormatter::CURRENCY);
@@ -200,8 +200,8 @@ if ($quote_status == "Draft" || $quote_status == "Sent" || $quote_status == "Vie
 
                             while ($row = mysqli_fetch_assoc($sql_items)) {
                                 $item_id = intval($row['item_id']);
-                                $item_name = nullable_htmlentities($row['item_name']);
-                                $item_description = nullable_htmlentities($row['item_description']);
+                                $item_name = escapeHtml($row['item_name']);
+                                $item_description = escapeHtml($row['item_description']);
                                 $item_quantity = floatval($row['item_quantity']);
                                 $item_price = floatval($row['item_price']);
                                 $item_tax = floatval($row['item_tax']);

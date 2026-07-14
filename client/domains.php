@@ -32,8 +32,8 @@ $domains_sql = mysqli_query($mysqli, "SELECT domain_id, domain_name, domain_expi
 
                 <?php
                 while ($row = mysqli_fetch_assoc($domains_sql)) {
-                    $domain_name = nullable_htmlentities($row['domain_name']);
-                    $domain_expire = nullable_htmlentities($row['domain_expire']);
+                    $domain_name = escapeHtml($row['domain_name']);
+                    $domain_expire = escapeHtml($row['domain_expire']);
 
                     ?>
 

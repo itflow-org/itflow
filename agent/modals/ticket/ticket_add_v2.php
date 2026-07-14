@@ -64,7 +64,7 @@ ob_start();
                                         $sql = mysqli_query($mysqli, "SELECT * FROM clients WHERE client_lead = 0 AND client_archived_at IS NULL $access_permission_query ORDER BY client_name ASC");
                                         while ($row = mysqli_fetch_assoc($sql)) {
                                             $client_id_select = intval($row['client_id']);
-                                            $client_name = nullable_htmlentities($row['client_name']); ?>
+                                            $client_name = escapeHtml($row['client_name']); ?>
 
                                             <option value="<?php echo $client_id_select; ?>" <?php if ($client_id == $client_id_select) {echo "selected"; } ?>><?php echo $client_name; ?></option>
 
@@ -115,9 +115,9 @@ ob_start();
 
                             while ($row = mysqli_fetch_assoc($sql_ticket_templates)) {
                                 $ticket_template_id_select = intval($row['ticket_template_id']);
-                                $ticket_template_name_select = nullable_htmlentities($row['ticket_template_name']);
-                                $ticket_template_subject_select = nullable_htmlentities($row['ticket_template_subject']);
-                                $ticket_template_details_select = nullable_htmlentities($row['ticket_template_details']);
+                                $ticket_template_name_select = escapeHtml($row['ticket_template_name']);
+                                $ticket_template_subject_select = escapeHtml($row['ticket_template_subject']);
+                                $ticket_template_details_select = escapeHtml($row['ticket_template_details']);
                                 $task_count = intval($row['task_count']);
                                 ?>
                                 <option value="<?php echo $ticket_template_id_select; ?>"
@@ -175,7 +175,7 @@ ob_start();
                                     $sql_categories = mysqli_query($mysqli, "SELECT category_id, category_name FROM categories WHERE category_type = 'Ticket' AND category_archived_at IS NULL ORDER BY category_name ASC");
                                     while ($row = mysqli_fetch_assoc($sql_categories)) {
                                         $category_id = intval($row['category_id']);
-                                        $category_name = nullable_htmlentities($row['category_name']);
+                                        $category_name = escapeHtml($row['category_name']);
                                         ?>
                                         <option value="<?php echo $category_id; ?>"><?php echo $category_name; ?></option>
                                     <?php } ?>
@@ -210,7 +210,7 @@ ob_start();
                             );
                             while ($row = mysqli_fetch_assoc($sql)) {
                                 $user_id = intval($row['user_id']);
-                                $user_name = nullable_htmlentities($row['user_name']); ?>
+                                $user_name = escapeHtml($row['user_name']); ?>
                                 <option value="<?php echo $user_id; ?>"><?php echo $user_name; ?></option>
                             <?php } ?>
                         </select>

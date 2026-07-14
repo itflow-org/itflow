@@ -71,7 +71,7 @@ $sql_payment_years = mysqli_query($mysqli, "SELECT DISTINCT YEAR(payment_date) A
                 <?php
                 while ($row = mysqli_fetch_assoc($sql_clients)) {
                     $client_id = intval($row['client_id']);
-                    $client_name = nullable_htmlentities($row['client_name']);
+                    $client_name = escapeHtml($row['client_name']);
                     $amount_paid = floatval($row['amount_paid']);
 
                     ?>

@@ -11,10 +11,10 @@ $sql = mysqli_query($mysqli, "SELECT * FROM tickets
 );
 
 $row = mysqli_fetch_assoc($sql);
-$ticket_prefix = nullable_htmlentities($row['ticket_prefix']);
+$ticket_prefix = escapeHtml($row['ticket_prefix']);
 $ticket_number = intval($row['ticket_number']);
 $client_id = intval($row['ticket_client_id']);
-$client_name = nullable_htmlentities($row['client_name']);
+$client_name = escapeHtml($row['client_name']);
 
 $sql_merge = mysqli_query($mysqli, "SELECT * FROM tickets
     LEFT JOIN ticket_statuses ON ticket_status = ticket_status_id
@@ -53,11 +53,11 @@ ob_start();
                     <?php
                     while ($row = mysqli_fetch_assoc($sql_merge)) {
                         $ticket_id_merge = intval($row['ticket_id']);
-                        $ticket_prefix_merge = nullable_htmlentities($row['ticket_prefix']);
+                        $ticket_prefix_merge = escapeHtml($row['ticket_prefix']);
                         $ticket_number_merge = intval($row['ticket_number']);
-                        $ticket_status_name_merge = nullable_htmlentities($row['ticket_status_name']);
-                        $client_name_merge = nullable_htmlentities($row['client_name']);
-                        $ticket_subject_merge = nullable_htmlentities($row['ticket_subject']);
+                        $ticket_status_name_merge = escapeHtml($row['ticket_status_name']);
+                        $client_name_merge = escapeHtml($row['client_name']);
+                        $ticket_subject_merge = escapeHtml($row['ticket_subject']);
                         ?>
                         <option value="<?= $ticket_id_merge ?>">
                             <?= "$ticket_prefix_merge$ticket_number_merge ($ticket_status_name_merge) $client_name_merge -  $ticket_subject_merge" ?>

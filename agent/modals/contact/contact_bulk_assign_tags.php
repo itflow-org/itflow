@@ -40,7 +40,7 @@ ob_start();
                     $sql_tags_select = mysqli_query($mysqli, "SELECT * FROM tags WHERE tag_type = 3 ORDER BY tag_name ASC");
                     while ($row = mysqli_fetch_assoc($sql_tags_select)) {
                         $tag_id_select = intval($row['tag_id']);
-                        $tag_name_select = nullable_htmlentities($row['tag_name']);
+                        $tag_name_select = escapeHtml($row['tag_name']);
                         ?>
                         <option value="<?php echo $tag_id_select; ?>"><?php echo $tag_name_select; ?></option>
                     <?php } ?>

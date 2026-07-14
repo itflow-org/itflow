@@ -51,7 +51,7 @@ ob_start();
                                 $sql = mysqli_query($mysqli, "SELECT client_id, client_name FROM clients WHERE client_archived_at IS NULL $access_permission_query ORDER BY client_name ASC");
                                 while ($row = mysqli_fetch_assoc($sql)) {
                                     $client_id_select = intval($row['client_id']);
-                                    $client_name = nullable_htmlentities($row['client_name']); ?>
+                                    $client_name = escapeHtml($row['client_name']); ?>
                                     <option <?php if ($client_id == $client_id_select) { echo "selected"; } ?> value="<?php echo $client_id_select; ?>"><?php echo $client_name; ?></option>
 
                                 <?php } ?>
@@ -98,7 +98,7 @@ ob_start();
                             $sql = mysqli_query($mysqli, "SELECT * FROM vendors WHERE vendor_archived_at IS NULL AND vendor_client_id = $client_id ORDER BY vendor_name ASC");
                             while ($row = mysqli_fetch_assoc($sql)) {
                                 $vendor_id = intval($row['vendor_id']);
-                                $vendor_name = nullable_htmlentities($row['vendor_name']);
+                                $vendor_name = escapeHtml($row['vendor_name']);
                                 ?>
                                 <option value="<?php echo $vendor_id; ?>"><?php echo $vendor_name; ?></option>
                             <?php } ?>
@@ -119,7 +119,7 @@ ob_start();
                             $sql = mysqli_query($mysqli, "SELECT * FROM vendors WHERE vendor_archived_at IS NULL AND vendor_client_id = $client_id ORDER BY vendor_name ASC");
                             while ($row = mysqli_fetch_assoc($sql)) {
                                 $vendor_id = intval($row['vendor_id']);
-                                $vendor_name = nullable_htmlentities($row['vendor_name']);
+                                $vendor_name = escapeHtml($row['vendor_name']);
                                 ?>
                                 <option value="<?php echo $vendor_id; ?>"><?php echo $vendor_name; ?></option>
                             <?php } ?>
@@ -140,7 +140,7 @@ ob_start();
                             $sql = mysqli_query($mysqli, "SELECT * FROM vendors WHERE vendor_archived_at IS NULL AND vendor_client_id = $client_id ORDER BY vendor_name ASC");
                             while ($row = mysqli_fetch_assoc($sql)) {
                                 $vendor_id = intval($row['vendor_id']);
-                                $vendor_name = nullable_htmlentities($row['vendor_name']);
+                                $vendor_name = escapeHtml($row['vendor_name']);
                                 ?>
                                 <option value="<?php echo $vendor_id; ?>"><?php echo $vendor_name; ?></option>
                             <?php } ?>
@@ -161,7 +161,7 @@ ob_start();
                             $sql = mysqli_query($mysqli, "SELECT * FROM vendors WHERE vendor_archived_at IS NULL AND vendor_client_id = $client_id ORDER BY vendor_name ASC");
                             while ($row = mysqli_fetch_assoc($sql)) {
                                 $vendor_id = intval($row['vendor_id']);
-                                $vendor_name = nullable_htmlentities($row['vendor_name']);
+                                $vendor_name = escapeHtml($row['vendor_name']);
                                 ?>
                                 <option value="<?php echo $vendor_id; ?>"><?php echo $vendor_name; ?></option>
                             <?php } ?>

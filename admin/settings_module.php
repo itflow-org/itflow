@@ -49,7 +49,7 @@ require_once "includes/inc_all_admin.php";
 
             <div class="form-group">
                 <label>White-label key</label>
-                <textarea class="form-control" name="config_whitelabel_key" rows="2" placeholder="Enter a key to enable white-labelling the client portal"><?php echo nullable_htmlentities($config_whitelabel_key); ?></textarea>
+                <textarea class="form-control" name="config_whitelabel_key" rows="2" placeholder="Enter a key to enable white-labelling the client portal"><?php echo escapeHtml($config_whitelabel_key); ?></textarea>
             </div>
 
             <?php if ($config_whitelabel_enabled == 1 && validateWhitelabelKey($config_whitelabel_key)) {

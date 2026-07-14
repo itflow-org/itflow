@@ -58,7 +58,7 @@ ob_start();
                                 $sql = mysqli_query($mysqli, "SELECT client_id, client_name FROM clients WHERE client_archived_at IS NULL $access_permission_query ORDER BY client_name ASC");
                                 while ($row = mysqli_fetch_assoc($sql)) {
                                     $client_id_select = intval($row['client_id']);
-                                    $client_name = nullable_htmlentities($row['client_name']); ?>
+                                    $client_name = escapeHtml($row['client_name']); ?>
                                     <option <?php if ($client_id == $client_id_select) { echo "selected"; } ?> value="<?= $client_id_select ?>"><?= $client_name ?></option>
 
                                 <?php } ?>
@@ -174,7 +174,7 @@ ob_start();
                             $sql_contacts = mysqli_query($mysqli, "SELECT * FROM contacts WHERE contact_archived_at IS NULL AND contact_client_id = $client_id ORDER BY contact_name ASC");
                             while ($row = mysqli_fetch_assoc($sql_contacts)) {
                                 $contact_id = $row['contact_id'];
-                                $contact_name = nullable_htmlentities($row['contact_name']);
+                                $contact_name = escapeHtml($row['contact_name']);
                                 ?>
                                 <option value="<?php echo $contact_id; ?>"><?php echo $contact_name; ?></option>
                             <?php } ?>
@@ -249,7 +249,7 @@ ob_start();
                             $sql_tags_select = mysqli_query($mysqli, "SELECT * FROM tags WHERE tag_type = 2 ORDER BY tag_name ASC");
                             while ($row = mysqli_fetch_assoc($sql_tags_select)) {
                                 $tag_id_select = intval($row['tag_id']);
-                                $tag_name_select = nullable_htmlentities($row['tag_name']);
+                                $tag_name_select = escapeHtml($row['tag_name']);
                                 ?>
                                 <option value="<?php echo $tag_id_select; ?>"><?php echo $tag_name_select; ?></option>
                             <?php } ?>

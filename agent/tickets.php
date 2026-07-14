@@ -198,11 +198,11 @@ $sql_categories_filter = mysqli_query(
                     <input type="hidden" name="client_id" value="<?= $client_id ?>">
                 <?php } ?>
                 <input type="hidden" name="status" value="<?= $status ?>">
-                <input type="hidden" name="view" value="<?= nullable_htmlentities($_GET['view'] ?? 'list') ?>">
+                <input type="hidden" name="view" value="<?= escapeHtml($_GET['view'] ?? 'list') ?>">
                 <div class="row">
                     <div class="col-sm-4">
                         <div class="input-group mb-3 mb-sm-0">
-                            <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(nullable_htmlentities($q)); } ?>" placeholder="Search Tickets">
+                            <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search Tickets">
                             <div class="input-group-append">
                                 <button class="btn btn-secondary" type="button" data-toggle="collapse" data-target="#advancedFilter"><i class="fas fa-filter"></i></button>
                                 <button class="btn btn-primary"><i class="fa fa-search"></i></button>
@@ -218,7 +218,7 @@ $sql_categories_filter = mysqli_query(
                                 <?php
                                 while ($row = mysqli_fetch_assoc($sql_categories_filter)) {
                                     $category_id = intval($row['category_id']);
-                                    $category_name = nullable_htmlentities($row['category_name']);
+                                    $category_name = escapeHtml($row['category_name']);
                                 ?>
                                     <option <?php if ($category_filter == $category_id) { echo "selected"; } ?> value="<?php echo $category_id; ?>"><?php echo $category_name; ?></option>
                                 <?php
@@ -339,9 +339,9 @@ $sql_categories_filter = mysqli_query(
                             <div class="form-group">
                                 <label>Date range</label>
                                 <input type="text" id="dateFilter" class="form-control" autocomplete="off">
-                                <input type="hidden" name="canned_date" id="canned_date" value="<?php echo nullable_htmlentities($_GET['canned_date']) ?? ''; ?>">
-                                <input type="hidden" name="dtf" id="dtf" value="<?php echo nullable_htmlentities($dtf ?? ''); ?>">
-                                <input type="hidden" name="dtt" id="dtt" value="<?php echo nullable_htmlentities($dtt ?? ''); ?>">
+                                <input type="hidden" name="canned_date" id="canned_date" value="<?php echo escapeHtml($_GET['canned_date']) ?? ''; ?>">
+                                <input type="hidden" name="dtf" id="dtf" value="<?php echo escapeHtml($dtf ?? ''); ?>">
+                                <input type="hidden" name="dtt" id="dtt" value="<?php echo escapeHtml($dtt ?? ''); ?>">
                             </div>
                         </div>
                         <div class="col-md-3">
@@ -352,7 +352,7 @@ $sql_categories_filter = mysqli_query(
                                         <?php $sql_ticket_status = mysqli_query($mysqli, "SELECT * FROM ticket_statuses WHERE ticket_status_active = 1 ORDER BY ticket_status_order");
                                         while ($row = mysqli_fetch_assoc($sql_ticket_status)) {
                                             $ticket_status_id = intval($row['ticket_status_id']);
-                                            $ticket_status_name = nullable_htmlentities($row['ticket_status_name']); ?>
+                                            $ticket_status_name = escapeHtml($row['ticket_status_name']); ?>
 
                                             <option value="<?php echo $ticket_status_id ?>" <?php if (isset($_GET['status']) && is_array($_GET['status']) && in_array($ticket_status_id, $_GET['status'])) { echo 'selected'; } ?>> <?php echo $ticket_status_name ?> </option>
 
@@ -371,7 +371,7 @@ $sql_categories_filter = mysqli_query(
                                     $sql_assign_to = mysqli_query($mysqli, "SELECT * FROM users WHERE user_type = 1 AND user_archived_at IS NULL ORDER BY user_name ASC");
                                     while ($row = mysqli_fetch_assoc($sql_assign_to)) {
                                         $user_id = intval($row['user_id']);
-                                        $user_name = nullable_htmlentities($row['user_name']);
+                                        $user_name = escapeHtml($row['user_name']);
                                         ?>
                                         <option <?php if ($ticket_assigned_filter_id == $user_id) { echo "selected"; } ?> value="<?php echo $user_id; ?>"><?php echo $user_name; ?></option>
                                         <?php
@@ -391,9 +391,9 @@ $sql_categories_filter = mysqli_query(
                                     $sql_projects = mysqli_query($mysqli, "SELECT * FROM projects WHERE project_completed_at IS NULL and project_archived_at IS NULL ORDER BY project_name ASC");
                                     while ($row = mysqli_fetch_assoc($sql_projects)) {
                                         $project_id = intval($row['project_id']);
-                                        $project_prefix = nullable_htmlentities($row['project_prefix']);
+                                        $project_prefix = escapeHtml($row['project_prefix']);
                                         $project_number = intval($row['project_number']);
-                                        $project_name = nullable_htmlentities($row['project_name']);
+                                        $project_name = escapeHtml($row['project_name']);
                                         ?>
                                         <option <?php if ($ticket_project_filter_id == $project_id) { echo "selected"; } ?> value="<?php echo $project_id; ?>"><?php echo $project_prefix . $project_number . " - " . $project_name; ?></option>
                                         <?php

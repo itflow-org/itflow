@@ -14,29 +14,29 @@ $sql = mysqli_query($mysqli, "SELECT * FROM assets
 $row = mysqli_fetch_assoc($sql);
 $client_id = intval($row['asset_client_id']);
 $asset_id = intval($row['asset_id']);
-$asset_type = nullable_htmlentities($row['asset_type']);
-$asset_name = nullable_htmlentities($row['asset_name']);
-$asset_description = nullable_htmlentities($row['asset_description']);
-$asset_make = nullable_htmlentities($row['asset_make']);
-$asset_model = nullable_htmlentities($row['asset_model']);
-$asset_serial = nullable_htmlentities($row['asset_serial']);
-$asset_os = nullable_htmlentities($row['asset_os']);
-$asset_ip = nullable_htmlentities($row['interface_ip']);
-$asset_ipv6 = nullable_htmlentities($row['interface_ipv6']);
-$asset_nat_ip = nullable_htmlentities($row['interface_nat_ip']);
-$asset_mac = nullable_htmlentities($row['interface_mac']);
-$asset_uri = nullable_htmlentities($row['asset_uri']);
-$asset_uri_2 = nullable_htmlentities($row['asset_uri_2']);
-$asset_status = nullable_htmlentities($row['asset_status']);
-$asset_purchase_reference = nullable_htmlentities($row['asset_purchase_reference']);
-$asset_purchase_date = nullable_htmlentities($row['asset_purchase_date']);
-$asset_warranty_expire = nullable_htmlentities($row['asset_warranty_expire']);
-$asset_install_date = nullable_htmlentities($row['asset_install_date']);
-$asset_photo = nullable_htmlentities($row['asset_photo']);
-$asset_physical_location = nullable_htmlentities($row['asset_physical_location']);
-$asset_notes = nullable_htmlentities($row['asset_notes']);
-$asset_created_at = nullable_htmlentities($row['asset_created_at']);
-$asset_archived_at = nullable_htmlentities($row['asset_archived_at']);
+$asset_type = escapeHtml($row['asset_type']);
+$asset_name = escapeHtml($row['asset_name']);
+$asset_description = escapeHtml($row['asset_description']);
+$asset_make = escapeHtml($row['asset_make']);
+$asset_model = escapeHtml($row['asset_model']);
+$asset_serial = escapeHtml($row['asset_serial']);
+$asset_os = escapeHtml($row['asset_os']);
+$asset_ip = escapeHtml($row['interface_ip']);
+$asset_ipv6 = escapeHtml($row['interface_ipv6']);
+$asset_nat_ip = escapeHtml($row['interface_nat_ip']);
+$asset_mac = escapeHtml($row['interface_mac']);
+$asset_uri = escapeHtml($row['asset_uri']);
+$asset_uri_2 = escapeHtml($row['asset_uri_2']);
+$asset_status = escapeHtml($row['asset_status']);
+$asset_purchase_reference = escapeHtml($row['asset_purchase_reference']);
+$asset_purchase_date = escapeHtml($row['asset_purchase_date']);
+$asset_warranty_expire = escapeHtml($row['asset_warranty_expire']);
+$asset_install_date = escapeHtml($row['asset_install_date']);
+$asset_photo = escapeHtml($row['asset_photo']);
+$asset_physical_location = escapeHtml($row['asset_physical_location']);
+$asset_notes = escapeHtml($row['asset_notes']);
+$asset_created_at = escapeHtml($row['asset_created_at']);
+$asset_archived_at = escapeHtml($row['asset_archived_at']);
 $asset_vendor_id = intval($row['asset_vendor_id']);
 $asset_location_id = intval($row['asset_location_id']);
 $asset_contact_id = intval($row['asset_contact_id']);
@@ -184,7 +184,7 @@ ob_start();
                             $sql_locations = mysqli_query($mysqli, "SELECT * FROM locations WHERE location_archived_at IS NULL AND location_client_id = $client_id ORDER BY location_name ASC");
                             while ($row = mysqli_fetch_assoc($sql_locations)) {
                                 $location_id_select = intval($row['location_id']);
-                                $location_name_select = nullable_htmlentities($row['location_name']);
+                                $location_name_select = escapeHtml($row['location_name']);
                                 ?>
                                 <option <?php if ($asset_location_id == $location_id_select) { echo "selected"; } ?> value="<?php echo $location_id_select; ?>"><?php echo $location_name_select; ?></option>
                             <?php } ?>
@@ -216,7 +216,7 @@ ob_start();
                             $sql_contacts = mysqli_query($mysqli, "SELECT * FROM contacts WHERE contact_archived_at IS NULL AND contact_client_id = $client_id ORDER BY contact_name ASC");
                             while ($row = mysqli_fetch_assoc($sql_contacts)) {
                                 $contact_id_select = intval($row['contact_id']);
-                                $contact_name_select = nullable_htmlentities($row['contact_name']);
+                                $contact_name_select = escapeHtml($row['contact_name']);
                                 ?>
                                 <option value="<?php echo $contact_id_select; ?>"><?php echo $contact_name_select; ?></option>
                             <?php } ?>
@@ -241,7 +241,7 @@ ob_start();
                                 ORDER BY category_order ASC, category_name ASC
                             ");
                             while ($row = mysqli_fetch_assoc($sql_interface_types_select)) {
-                                $asset_status_select = nullable_htmlentities($row['category_name']);
+                                $asset_status_select = escapeHtml($row['category_name']);
                                 ?>
                                 <option <?php if ($asset_status_select == $asset_status) { echo "selected"; } ?>>
                                     <?= $asset_status_select ?>
@@ -268,8 +268,8 @@ ob_start();
                             $sql_networks = mysqli_query($mysqli, "SELECT * FROM networks WHERE network_archived_at IS NULL AND network_client_id = $client_id ORDER BY network_name ASC");
                             while ($row = mysqli_fetch_assoc($sql_networks)) {
                                 $network_id_select = intval($row['network_id']);
-                                $network_name_select = nullable_htmlentities($row['network_name']);
-                                $network_select = nullable_htmlentities($row['network']);
+                                $network_name_select = escapeHtml($row['network_name']);
+                                $network_select = escapeHtml($row['network']);
 
                                 ?>
                                 <option <?php if ($asset_network_id == $network_id_select) { echo "selected"; } ?> value="<?php echo $network_id_select; ?>"><?php echo $network_name_select; ?> - <?php echo $network_select; ?></option>
@@ -361,7 +361,7 @@ ob_start();
                             $sql_vendors = mysqli_query($mysqli, "SELECT * FROM vendors WHERE vendor_archived_at IS NULL AND vendor_client_id = $client_id ORDER BY vendor_name ASC");
                             while ($row = mysqli_fetch_assoc($sql_vendors)) {
                                 $vendor_id_select = intval($row['vendor_id']);
-                                $vendor_name_select = nullable_htmlentities($row['vendor_name']);
+                                $vendor_name_select = escapeHtml($row['vendor_name']);
                                 ?>
                                 <option <?php if ($asset_vendor_id == $vendor_id_select) { echo "selected"; } ?> value="<?php echo $vendor_id_select; ?>"><?php echo $vendor_name_select; ?></option>
 

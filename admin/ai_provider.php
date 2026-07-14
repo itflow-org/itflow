@@ -50,9 +50,9 @@ $num_rows = mysqli_num_rows($sql);
 
                 while ($row = mysqli_fetch_assoc($sql)) {
                     $provider_id = intval($row['ai_provider_id']);
-                    $provider_name = nullable_htmlentities($row['ai_provider_name']);
-                    $url = nullable_htmlentities($row['ai_provider_api_url']);
-                    $key = nullable_htmlentities($row['ai_provider_api_key']);
+                    $provider_name = escapeHtml($row['ai_provider_name']);
+                    $url = escapeHtml($row['ai_provider_api_url']);
+                    $key = escapeHtml($row['ai_provider_api_key']);
 
                     $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('ai_model_id') AS ai_model_count FROM ai_models WHERE ai_model_ai_provider_id = $provider_id"));
                     $ai_model_count = intval($row['ai_model_count']);

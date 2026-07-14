@@ -6,8 +6,8 @@ $project_template_id = intval($_GET['project_template_id']);
 
 $sql = mysqli_query($mysqli, "SELECT * FROM project_templates WHERE project_template_id = $project_template_id LIMIT 1");
 $row = mysqli_fetch_assoc($sql);
-$project_template_name = nullable_htmlentities($row['project_template_name']);
-$project_template_description = nullable_htmlentities($row['project_template_description']);
+$project_template_name = escapeHtml($row['project_template_name']);
+$project_template_description = escapeHtml($row['project_template_description']);
 
 ob_start();
 

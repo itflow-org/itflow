@@ -66,7 +66,7 @@ function getTicketStatusName($ticket_status) {
     $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT * FROM ticket_statuses WHERE ticket_status_id = $status_id LIMIT 1"));
 
     if ($row) {
-        return nullable_htmlentities($row['ticket_status_name']);
+        return escapeHtml($row['ticket_status_name']);
     }
 
     // Default return
@@ -175,7 +175,7 @@ function display_folder_options($parent_folder_id, $client_id, $indent = 0) {
     $sql_folders = mysqli_query($mysqli, "SELECT * FROM folders WHERE parent_folder = $parent_folder_id AND folder_client_id = $client_id ORDER BY folder_name ASC");
     while ($row = mysqli_fetch_assoc($sql_folders)) {
         $folder_id = intval($row['folder_id']);
-        $folder_name = nullable_htmlentities($row['folder_name']);
+        $folder_name = escapeHtml($row['folder_name']);
 
         // Indentation for subfolders
         $indentation = str_repeat('&nbsp;', $indent * 4);

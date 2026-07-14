@@ -11,7 +11,7 @@ $sql = mysqli_query($mysqli, "SELECT * FROM ticket_replies
 );
 
 $row = mysqli_fetch_assoc($sql);
-$ticket_reply = nullable_htmlentities($row['ticket_reply']);
+$ticket_reply = escapeHtml($row['ticket_reply']);
 $client_id = intval($row['ticket_client_id']);
 
 // Generate the HTML form content using output buffering.

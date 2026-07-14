@@ -2753,7 +2753,7 @@ if (isset($_POST['edit_ticket_schedule'])) {
                 'recipient' => $watcher_email,
                 'recipient_name' => $watcher_email,
                 'subject' => "Ticket Scheduled - [$ticket_prefix$ticket_number] - $ticket_subject",
-                'body' => mysqli_escape_string($mysqli, nullable_htmlentities("<div class='header'>
+                'body' => mysqli_escape_string($mysqli, escapeHtml("<div class='header'>
             Hello,
         </div>
         The ticket regarding $ticket_subject has been scheduled for $email_datetime.
@@ -2917,7 +2917,7 @@ if (isset($_GET['cancel_ticket_schedule'])) {
                 'recipient' => $watcher_email,
                 'recipient_name' => $watcher_email,
                 'subject' => "Ticket Schedule Cancelled - [$ticket_prefix$ticket_number] - $ticket_subject",
-                'body' => mysqli_escape_string($mysqli, nullable_htmlentities("<div class='header'>
+                'body' => mysqli_escape_string($mysqli, escapeHtml("<div class='header'>
             Hello,
         </div>
         Scheduled work for the ticket regarding $ticket_subject has been cancelled.

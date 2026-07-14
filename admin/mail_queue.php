@@ -27,7 +27,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                 <div class="row">
                     <div class="col-sm-4">
                         <div class="input-group">
-                            <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(nullable_htmlentities($q)); } ?>" placeholder="Search mail queue">
+                            <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search mail queue">
                             <div class="input-group-append">
                                 <button class="btn btn-secondary" type="button" data-toggle="collapse" data-target="#advancedFilter"><i class="fas fa-filter"></i></button>
                                 <button class="btn btn-primary"><i class="fa fa-search"></i></button>
@@ -59,9 +59,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             <div class="form-group">
                                 <label>Date range</label>
                                 <input type="text" id="dateFilter" class="form-control" autocomplete="off">
-                                <input type="hidden" name="canned_date" id="canned_date" value="<?php echo nullable_htmlentities($_GET['canned_date']) ?? ''; ?>">
-                                <input type="hidden" name="dtf" id="dtf" value="<?php echo nullable_htmlentities($dtf ?? ''); ?>">
-                                <input type="hidden" name="dtt" id="dtt" value="<?php echo nullable_htmlentities($dtt ?? ''); ?>">
+                                <input type="hidden" name="canned_date" id="canned_date" value="<?php echo escapeHtml($_GET['canned_date']) ?? ''; ?>">
+                                <input type="hidden" name="dtf" id="dtf" value="<?php echo escapeHtml($dtf ?? ''); ?>">
+                                <input type="hidden" name="dtt" id="dtt" value="<?php echo escapeHtml($dtt ?? ''); ?>">
                             </div>
                         </div>
                     </div>
@@ -118,15 +118,15 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                         while ($row = mysqli_fetch_assoc($sql)) {
                             $email_id = intval($row['email_id']);
-                            $email_from = nullable_htmlentities($row['email_from']);
-                            $email_from_name = nullable_htmlentities($row['email_from_name']);
-                            $email_recipient = nullable_htmlentities($row['email_recipient']);
-                            $email_recipient_name = nullable_htmlentities($row['email_recipient_name']);
-                            $email_subject = nullable_htmlentities($row['email_subject']);
+                            $email_from = escapeHtml($row['email_from']);
+                            $email_from_name = escapeHtml($row['email_from_name']);
+                            $email_recipient = escapeHtml($row['email_recipient']);
+                            $email_recipient_name = escapeHtml($row['email_recipient_name']);
+                            $email_subject = escapeHtml($row['email_subject']);
                             $email_attempts = intval($row['email_attempts']);
-                            $email_queued_at = nullable_htmlentities($row['email_queued_at']);
-                            $email_failed_at = nullable_htmlentities($row['email_failed_at']);
-                            $email_sent_at = nullable_htmlentities($row['email_sent_at']);
+                            $email_queued_at = escapeHtml($row['email_queued_at']);
+                            $email_failed_at = escapeHtml($row['email_failed_at']);
+                            $email_sent_at = escapeHtml($row['email_sent_at']);
                             $email_status = intval($row['email_status']);
                             if ($email_status == 0) {
                                 $email_status_display = "<div class='text-primary'>Queued</div>";

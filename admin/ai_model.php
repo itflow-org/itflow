@@ -60,11 +60,11 @@ $num_rows = mysqli_num_rows($sql);
 
                 while ($row = mysqli_fetch_assoc($sql)) {
                     $provider_id = intval($row['ai_provider_id']);
-                    $provider_name = nullable_htmlentities($row['ai_provider_name']);
+                    $provider_name = escapeHtml($row['ai_provider_name']);
                     $model_id = intval($row['ai_model_id']);
-                    $model_name = nullable_htmlentities($row['ai_model_name']);
-                    $use_case = nullable_htmlentities($row['ai_model_use_case']);
-                    $prompt = nl2br(nullable_htmlentities($row['ai_model_prompt']));
+                    $model_name = escapeHtml($row['ai_model_name']);
+                    $use_case = escapeHtml($row['ai_model_use_case']);
+                    $prompt = nl2br(escapeHtml($row['ai_model_prompt']));
 
                     ?>
                     <tr>

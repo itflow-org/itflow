@@ -30,9 +30,9 @@ if (isset($_GET['delete_saved_payment'])) {
     $row = mysqli_fetch_assoc($sql);
     $client_id = intval($row['saved_payment_client_id']);
     $provider_id = intval($row['saved_payment_provider_id']);
-    $payment_provider_name = nullable_htmlentities($row['payment_provider_name']);
-    $saved_payment_description = nullable_htmlentities($row['saved_payment_description']);
-    $provider_client = nullable_htmlentities($row['payment_provider_client']);
+    $payment_provider_name = escapeHtml($row['payment_provider_name']);
+    $saved_payment_description = escapeHtml($row['saved_payment_description']);
+    $provider_client = escapeHtml($row['payment_provider_client']);
     $payment_method = $row['saved_payment_provider_method'];
 
     $private_key = $row['payment_provider_private_key'];

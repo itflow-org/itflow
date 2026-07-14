@@ -6,22 +6,22 @@ $sql = mysqli_query($mysqli,"SELECT * FROM companies, settings WHERE companies.c
 
 $row = mysqli_fetch_assoc($sql);
 $company_id = intval($row['company_id']);
-$company_name = nullable_htmlentities($row['company_name']);
-$company_country = nullable_htmlentities($row['company_country']);
-$company_address = nullable_htmlentities($row['company_address']);
-$company_city = nullable_htmlentities($row['company_city']);
-$company_state = nullable_htmlentities($row['company_state']);
-$company_zip = nullable_htmlentities($row['company_zip']);
+$company_name = escapeHtml($row['company_name']);
+$company_country = escapeHtml($row['company_country']);
+$company_address = escapeHtml($row['company_address']);
+$company_city = escapeHtml($row['company_city']);
+$company_state = escapeHtml($row['company_state']);
+$company_zip = escapeHtml($row['company_zip']);
 $company_phone_country_code = formatPhoneNumber($row['company_phone_country_code']);
-$company_phone = nullable_htmlentities(formatPhoneNumber($row['company_phone'], $company_phone_country_code));
-$company_email = nullable_htmlentities($row['company_email']);
-$company_website = nullable_htmlentities($row['company_website']);
-$company_logo = nullable_htmlentities($row['company_logo']);
-$company_locale = nullable_htmlentities($row['company_locale']);
-$company_currency = nullable_htmlentities($row['company_currency']);
-$company_tax_id = nullable_htmlentities($row['company_tax_id']);
+$company_phone = escapeHtml(formatPhoneNumber($row['company_phone'], $company_phone_country_code));
+$company_email = escapeHtml($row['company_email']);
+$company_website = escapeHtml($row['company_website']);
+$company_logo = escapeHtml($row['company_logo']);
+$company_locale = escapeHtml($row['company_locale']);
+$company_currency = escapeHtml($row['company_currency']);
+$company_tax_id = escapeHtml($row['company_tax_id']);
 
-$company_initials = nullable_htmlentities(initials($company_name));
+$company_initials = escapeHtml(initials($company_name));
 
 ?>
 

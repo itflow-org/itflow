@@ -30,7 +30,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
             <div class="col-sm-4 mb-2">
                 <form autocomplete="off">
                     <div class="input-group">
-                        <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(nullable_htmlentities($q)); } ?>" placeholder="Search Ticket Statuses">
+                        <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search Ticket Statuses">
                         <div class="input-group-append">
                             <button class="btn btn-primary"><i class="fa fa-search"></i></button>
                         </div>
@@ -69,8 +69,8 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                 while ($row = mysqli_fetch_assoc($sql)) {
                     $ticket_status_id = intval($row['ticket_status_id']);
-                    $ticket_status_name = nullable_htmlentities($row['ticket_status_name']);
-                    $ticket_status_color = nullable_htmlentities($row['ticket_status_color']);
+                    $ticket_status_name = escapeHtml($row['ticket_status_name']);
+                    $ticket_status_color = escapeHtml($row['ticket_status_color']);
                     $ticket_status_active = intval($row['ticket_status_active']);
                     if ($ticket_status_active) {
                         $ticket_status_display = "<div class='text-success text-bold'>Active</div>";

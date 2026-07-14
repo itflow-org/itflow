@@ -31,58 +31,58 @@ if (isset($_GET['asset_id'])) {
 
         $row = mysqli_fetch_assoc($sql);
         $client_id = intval($row['client_id']);
-        $client_name = nullable_htmlentities($row['client_name']);
+        $client_name = escapeHtml($row['client_name']);
         $asset_id = intval($row['asset_id']);
-        $asset_type = nullable_htmlentities($row['asset_type']);
-        $asset_name = nullable_htmlentities($row['asset_name']);
-        $asset_description = nullable_htmlentities($row['asset_description']);
-        $asset_make = nullable_htmlentities($row['asset_make']);
-        $asset_model = nullable_htmlentities($row['asset_model']);
-        $asset_serial = nullable_htmlentities($row['asset_serial']);
-        $asset_os = nullable_htmlentities($row['asset_os']);
+        $asset_type = escapeHtml($row['asset_type']);
+        $asset_name = escapeHtml($row['asset_name']);
+        $asset_description = escapeHtml($row['asset_description']);
+        $asset_make = escapeHtml($row['asset_make']);
+        $asset_model = escapeHtml($row['asset_model']);
+        $asset_serial = escapeHtml($row['asset_serial']);
+        $asset_os = escapeHtml($row['asset_os']);
         $asset_uri = sanitize_url($row['asset_uri']);
         $asset_uri_2 = sanitize_url($row['asset_uri_2']);
         $asset_uri_client = sanitize_url($row['asset_uri_client']);
-        $asset_status = nullable_htmlentities($row['asset_status']);
-        $asset_purchase_reference = nullable_htmlentities($row['asset_purchase_reference']);
-        $asset_purchase_date = nullable_htmlentities($row['asset_purchase_date']);
-        $asset_warranty_expire = nullable_htmlentities($row['asset_warranty_expire']);
-        $asset_install_date = nullable_htmlentities($row['asset_install_date']);
-        $asset_photo = nullable_htmlentities($row['asset_photo']);
-        $asset_physical_location = nullable_htmlentities($row['asset_physical_location']);
-        $asset_notes = nullable_htmlentities($row['asset_notes']);
+        $asset_status = escapeHtml($row['asset_status']);
+        $asset_purchase_reference = escapeHtml($row['asset_purchase_reference']);
+        $asset_purchase_date = escapeHtml($row['asset_purchase_date']);
+        $asset_warranty_expire = escapeHtml($row['asset_warranty_expire']);
+        $asset_install_date = escapeHtml($row['asset_install_date']);
+        $asset_photo = escapeHtml($row['asset_photo']);
+        $asset_physical_location = escapeHtml($row['asset_physical_location']);
+        $asset_notes = escapeHtml($row['asset_notes']);
         $asset_favorite = intval($row['asset_favorite']);
-        $asset_created_at = nullable_htmlentities($row['asset_created_at']);
+        $asset_created_at = escapeHtml($row['asset_created_at']);
         $asset_vendor_id = intval($row['asset_vendor_id']);
         $asset_location_id = intval($row['asset_location_id']);
         $asset_contact_id = intval($row['asset_contact_id']);
 
-        $asset_ip = nullable_htmlentities($row['interface_ip']);
-        $asset_ipv6 = nullable_htmlentities($row['interface_ipv6']);
-        $asset_nat_ip = nullable_htmlentities($row['interface_nat_ip']);
-        $asset_mac = nullable_htmlentities($row['interface_mac']);
+        $asset_ip = escapeHtml($row['interface_ip']);
+        $asset_ipv6 = escapeHtml($row['interface_ipv6']);
+        $asset_nat_ip = escapeHtml($row['interface_nat_ip']);
+        $asset_mac = escapeHtml($row['interface_mac']);
         $asset_network_id = intval($row['interface_network_id']);
 
         $device_icon = getAssetIcon($asset_type);
 
-        $contact_name = nullable_htmlentities($row['contact_name']);
-        $contact_email = nullable_htmlentities($row['contact_email']);
-        $contact_phone_country_code = nullable_htmlentities($row['contact_phone_country_code']);
-        $contact_phone = nullable_htmlentities(formatPhoneNumber($row['contact_phone'], $contact_phone_country_code));
-        $contact_extension = nullable_htmlentities($row['contact_extension']);
-        $contact_mobile_country_code = nullable_htmlentities($row['contact_mobile_country_code']);
-        $contact_mobile = nullable_htmlentities(formatPhoneNumber($row['contact_mobile'], $contact_mobile_country_code));
-        $contact_archived_at = nullable_htmlentities($row['contact_archived_at']);
+        $contact_name = escapeHtml($row['contact_name']);
+        $contact_email = escapeHtml($row['contact_email']);
+        $contact_phone_country_code = escapeHtml($row['contact_phone_country_code']);
+        $contact_phone = escapeHtml(formatPhoneNumber($row['contact_phone'], $contact_phone_country_code));
+        $contact_extension = escapeHtml($row['contact_extension']);
+        $contact_mobile_country_code = escapeHtml($row['contact_mobile_country_code']);
+        $contact_mobile = escapeHtml(formatPhoneNumber($row['contact_mobile'], $contact_mobile_country_code));
+        $contact_archived_at = escapeHtml($row['contact_archived_at']);
         if ($contact_archived_at) {
             $contact_name_display = "<span class='text-danger' title='Archived'><s>$contact_name</s></span>";
         } else {
             $contact_name_display = $contact_name;
         }
-        $location_name = nullable_htmlentities($row['location_name']);
+        $location_name = escapeHtml($row['location_name']);
         if (empty($location_name)) {
             $location_name = "-";
         }
-        $location_archived_at = nullable_htmlentities($row['location_archived_at']);
+        $location_archived_at = escapeHtml($row['location_archived_at']);
         if ($location_archived_at) {
             $location_name_display = "<span class='text-danger' title='Archived'><s>$location_name</s></span>";
         } else {
@@ -129,12 +129,12 @@ if (isset($_GET['asset_id'])) {
         while ($row = mysqli_fetch_assoc($sql_asset_tags)) {
 
             $asset_tag_id = intval($row['tag_id']);
-            $asset_tag_name = nullable_htmlentities($row['tag_name']);
-            $asset_tag_color = nullable_htmlentities($row['tag_color']);
+            $asset_tag_name = escapeHtml($row['tag_name']);
+            $asset_tag_color = escapeHtml($row['tag_color']);
             if (empty($asset_tag_color)) {
                 $asset_tag_color = "dark";
             }
-            $asset_tag_icon = nullable_htmlentities($row['tag_icon']);
+            $asset_tag_icon = escapeHtml($row['tag_icon']);
             if (empty($asset_tag_icon)) {
                 $asset_tag_icon = "tag";
             }
@@ -528,17 +528,17 @@ if (isset($_GET['asset_id'])) {
                                 <?php while ($row = mysqli_fetch_assoc($sql_related_interfaces)) { ?>
                                     <?php
                                         $interface_id       = intval($row['interface_id']);
-                                        $interface_name     = nullable_htmlentities($row['interface_name']);
-                                        $interface_description = nullable_htmlentities($row['interface_description']);
-                                        $interface_type     = nullable_htmlentities($row['interface_type']);
-                                        $interface_mac      = nullable_htmlentities($row['interface_mac']);
-                                        $interface_ip       = nullable_htmlentities($row['interface_ip']);
-                                        $interface_nat_ip   = nullable_htmlentities($row['interface_nat_ip']);
-                                        $interface_ipv6     = nullable_htmlentities($row['interface_ipv6']);
+                                        $interface_name     = escapeHtml($row['interface_name']);
+                                        $interface_description = escapeHtml($row['interface_description']);
+                                        $interface_type     = escapeHtml($row['interface_type']);
+                                        $interface_mac      = escapeHtml($row['interface_mac']);
+                                        $interface_ip       = escapeHtml($row['interface_ip']);
+                                        $interface_nat_ip   = escapeHtml($row['interface_nat_ip']);
+                                        $interface_ipv6     = escapeHtml($row['interface_ipv6']);
                                         $interface_primary  = intval($row['interface_primary']);
                                         $network_id         = intval($row['network_id']);
-                                        $network_name       = nullable_htmlentities($row['network_name']);
-                                        $interface_notes    = nullable_htmlentities($row['interface_notes']);
+                                        $network_name       = escapeHtml($row['network_name']);
+                                        $interface_notes    = escapeHtml($row['interface_notes']);
 
                                         // Prepare display text
                                         $interface_mac_display = $interface_mac ?: '-';
@@ -550,10 +550,10 @@ if (isset($_GET['asset_id'])) {
 
                                         // Connected interface details
                                         $connected_asset_id = intval($row['connected_asset_id']);
-                                        $connected_asset_name = nullable_htmlentities($row['connected_asset_name']);
-                                        $connected_asset_type = nullable_htmlentities($row['connected_asset_type']);
+                                        $connected_asset_name = escapeHtml($row['connected_asset_name']);
+                                        $connected_asset_type = escapeHtml($row['connected_asset_type']);
                                         $connected_asset_icon = getAssetIcon($connected_asset_type);
-                                        $connected_interface_name = nullable_htmlentities($row['connected_interface_name']);
+                                        $connected_interface_name = escapeHtml($row['connected_interface_name']);
 
 
                                         // Show either "-" or "AssetName - Port"
@@ -640,29 +640,29 @@ if (isset($_GET['asset_id'])) {
 
                                 while ($row = mysqli_fetch_assoc($sql_related_credentials)) {
                                     $credential_id = intval($row['credential_id']);
-                                    $credential_name = nullable_htmlentities($row['credential_name']);
-                                    $credential_description = nullable_htmlentities($row['credential_description']);
-                                    $credential_uri = nullable_htmlentities($row['credential_uri']);
+                                    $credential_name = escapeHtml($row['credential_name']);
+                                    $credential_description = escapeHtml($row['credential_description']);
+                                    $credential_uri = escapeHtml($row['credential_uri']);
                                     if (empty($credential_uri)) {
                                         $credential_uri_display = "-";
                                     } else {
                                         $credential_uri_display = "$credential_uri<button class='btn btn-sm clipboardjs' data-clipboard-text='$credential_uri'><i class='far fa-copy text-secondary'></i></button><a href='$credential_uri' target='_blank'><i class='fa fa-external-link-alt text-secondary'></i></a>";
                                     }
-                                    $credential_username = nullable_htmlentities(decryptCredentialEntry($row['credential_username']));
+                                    $credential_username = escapeHtml(decryptCredentialEntry($row['credential_username']));
                                     if (empty($credential_username)) {
                                         $credential_username_display = "-";
                                     } else {
                                         $credential_username_display = "$credential_username<button class='btn btn-sm clipboardjs' data-clipboard-text='$credential_username'><i class='far fa-copy text-secondary'></i></button>";
                                     }
-                                    $credential_password = nullable_htmlentities(decryptCredentialEntry($row['credential_password']));
-                                    $credential_otp_secret = nullable_htmlentities($row['credential_otp_secret']);
+                                    $credential_password = escapeHtml(decryptCredentialEntry($row['credential_password']));
+                                    $credential_otp_secret = escapeHtml($row['credential_otp_secret']);
                                     $credential_id_with_secret = '"' . $row['credential_id'] . '","' . $row['credential_otp_secret'] . '"';
                                     if (empty($credential_otp_secret)) {
                                         $otp_display = "-";
                                     } else {
                                         $otp_display = "<span onmouseenter='showOTPViaCredentialID($credential_id)'><i class='far fa-clock'></i> <span id='otp_$credential_id'><i>Hover..</i></span></span>";
                                     }
-                                    $credential_note = nullable_htmlentities($row['credential_note']);
+                                    $credential_note = escapeHtml($row['credential_note']);
                                     $credential_favorite = intval($row['credential_favorite']);
                                     $credential_contact_id = intval($row['credential_contact_id']);
                                     $credential_asset_id = intval($row['credential_asset_id']);
@@ -674,12 +674,12 @@ if (isset($_GET['asset_id'])) {
                                     while ($row = mysqli_fetch_assoc($sql_credential_tags)) {
 
                                         $credential_tag_id = intval($row['tag_id']);
-                                        $credential_tag_name = nullable_htmlentities($row['tag_name']);
-                                        $credential_tag_color = nullable_htmlentities($row['tag_color']);
+                                        $credential_tag_name = escapeHtml($row['tag_name']);
+                                        $credential_tag_color = escapeHtml($row['tag_color']);
                                         if (empty($credential_tag_color)) {
                                             $credential_tag_color = "dark";
                                         }
-                                        $credential_tag_icon = nullable_htmlentities($row['tag_icon']);
+                                        $credential_tag_icon = escapeHtml($row['tag_icon']);
                                         if (empty($credential_tag_icon)) {
                                             $credential_tag_icon = "tag";
                                         }
@@ -774,15 +774,15 @@ if (isset($_GET['asset_id'])) {
 
                                 while ($row = mysqli_fetch_assoc($sql_related_software)) {
                                     $software_id = intval($row['software_id']);
-                                    $software_name = nullable_htmlentities($row['software_name']);
-                                    $software_version = nullable_htmlentities($row['software_version']);
-                                    $software_type = nullable_htmlentities($row['software_type']);
-                                    $software_license_type = nullable_htmlentities($row['software_license_type']);
-                                    $software_key = nullable_htmlentities($row['software_key']);
-                                    $software_seats = nullable_htmlentities($row['software_seats']);
-                                    $software_purchase = nullable_htmlentities($row['software_purchase']);
-                                    $software_expire = nullable_htmlentities($row['software_expire']);
-                                    $software_notes = nullable_htmlentities($row['software_notes']);
+                                    $software_name = escapeHtml($row['software_name']);
+                                    $software_version = escapeHtml($row['software_version']);
+                                    $software_type = escapeHtml($row['software_type']);
+                                    $software_license_type = escapeHtml($row['software_license_type']);
+                                    $software_key = escapeHtml($row['software_key']);
+                                    $software_seats = escapeHtml($row['software_seats']);
+                                    $software_purchase = escapeHtml($row['software_purchase']);
+                                    $software_expire = escapeHtml($row['software_expire']);
+                                    $software_notes = escapeHtml($row['software_notes']);
 
                                     $seat_count = 0;
 
@@ -860,11 +860,11 @@ if (isset($_GET['asset_id'])) {
 
                                 while ($row = mysqli_fetch_assoc($sql_related_documents)) {
                                     $document_id = intval($row['document_id']);
-                                    $document_name = nullable_htmlentities($row['document_name']);
-                                    $document_description = nullable_htmlentities($row['document_description']);
-                                    $document_created_by = nullable_htmlentities($row['user_name']);
-                                    $document_created_at = nullable_htmlentities($row['document_created_at']);
-                                    $document_updated_at = nullable_htmlentities($row['document_updated_at']);
+                                    $document_name = escapeHtml($row['document_name']);
+                                    $document_description = escapeHtml($row['document_description']);
+                                    $document_created_by = escapeHtml($row['user_name']);
+                                    $document_created_at = escapeHtml($row['document_created_at']);
+                                    $document_updated_at = escapeHtml($row['document_updated_at']);
 
                                     $linked_documents[] = $document_id;
 
@@ -939,10 +939,10 @@ if (isset($_GET['asset_id'])) {
 
                                 while ($row = mysqli_fetch_assoc($sql_related_files)) {
                                     $file_id = intval($row['file_id']);
-                                    $file_name = nullable_htmlentities($row['file_name']);
-                                    $file_description = nullable_htmlentities($row['file_description']);
-                                    $file_reference_name = nullable_htmlentities($row['file_reference_name']);
-                                    $file_ext = nullable_htmlentities($row['file_ext']);
+                                    $file_name = escapeHtml($row['file_name']);
+                                    $file_description = escapeHtml($row['file_description']);
+                                    $file_reference_name = escapeHtml($row['file_reference_name']);
+                                    $file_ext = escapeHtml($row['file_ext']);
                                     if ($file_ext == 'pdf') {
                                         $file_icon = "file-pdf";
                                     } elseif ($file_ext == 'gz' || $file_ext == 'tar' || $file_ext == 'zip' || $file_ext == '7z' || $file_ext == 'rar') {
@@ -966,7 +966,7 @@ if (isset($_GET['asset_id'])) {
                                     } else {
                                         $file_icon = "file";
                                     }
-                                    $file_created_at = nullable_htmlentities($row['file_created_at']);
+                                    $file_created_at = escapeHtml($row['file_created_at']);
 
                                     $linked_files[] = $file_id;
 
@@ -1011,10 +1011,10 @@ if (isset($_GET['asset_id'])) {
 
                                 while ($row = mysqli_fetch_assoc($sql_related_recurring_tickets)) {
                                     $recurring_ticket_id = intval($row['recurring_ticket_id']);
-                                    $recurring_ticket_subject = nullable_htmlentities($row['recurring_ticket_subject']);
-                                    $recurring_ticket_priority = nullable_htmlentities($row['recurring_ticket_priority']);
-                                    $recurring_ticket_frequency = nullable_htmlentities($row['recurring_ticket_frequency']);
-                                    $recurring_ticket_next_run = nullable_htmlentities($row['recurring_ticket_next_run']);
+                                    $recurring_ticket_subject = escapeHtml($row['recurring_ticket_subject']);
+                                    $recurring_ticket_priority = escapeHtml($row['recurring_ticket_priority']);
+                                    $recurring_ticket_frequency = escapeHtml($row['recurring_ticket_frequency']);
+                                    $recurring_ticket_next_run = escapeHtml($row['recurring_ticket_next_run']);
                                 ?>
 
                                     <tr>
@@ -1090,15 +1090,15 @@ if (isset($_GET['asset_id'])) {
 
                                 while ($row = mysqli_fetch_assoc($sql_related_tickets)) {
                                     $ticket_id = intval($row['ticket_id']);
-                                    $ticket_prefix = nullable_htmlentities($row['ticket_prefix']);
+                                    $ticket_prefix = escapeHtml($row['ticket_prefix']);
                                     $ticket_number = intval($row['ticket_number']);
-                                    $ticket_subject = nullable_htmlentities($row['ticket_subject']);
-                                    $ticket_priority = nullable_htmlentities($row['ticket_priority']);
+                                    $ticket_subject = escapeHtml($row['ticket_subject']);
+                                    $ticket_priority = escapeHtml($row['ticket_priority']);
                                     $ticket_status_id = intval($row['ticket_status_id']);
-                                    $ticket_status_name = nullable_htmlentities($row['ticket_status_name']);
-                                    $ticket_status_color = nullable_htmlentities($row['ticket_status_color']);
-                                    $ticket_created_at = nullable_htmlentities($row['ticket_created_at']);
-                                    $ticket_updated_at = nullable_htmlentities($row['ticket_updated_at']);
+                                    $ticket_status_name = escapeHtml($row['ticket_status_name']);
+                                    $ticket_status_color = escapeHtml($row['ticket_status_color']);
+                                    $ticket_created_at = escapeHtml($row['ticket_created_at']);
+                                    $ticket_updated_at = escapeHtml($row['ticket_updated_at']);
                                     if (empty($ticket_updated_at)) {
                                         if ($ticket_status_name == "Closed") {
                                             $ticket_updated_at_display = "<p>Never</p>";
@@ -1108,7 +1108,7 @@ if (isset($_GET['asset_id'])) {
                                     } else {
                                         $ticket_updated_at_display = $ticket_updated_at;
                                     }
-                                    $ticket_closed_at = nullable_htmlentities($row['ticket_closed_at']);
+                                    $ticket_closed_at = escapeHtml($row['ticket_closed_at']);
 
                                     if ($ticket_priority == "High") {
                                         $ticket_priority_display = "<span class='p-2 badge badge-danger'>$ticket_priority</span>";
@@ -1127,7 +1127,7 @@ if (isset($_GET['asset_id'])) {
                                             $ticket_assigned_to_display = "<p class='text-danger'>Not Assigned</p>";
                                         }
                                     } else {
-                                        $ticket_assigned_to_display = nullable_htmlentities($row['user_name']);
+                                        $ticket_assigned_to_display = escapeHtml($row['user_name']);
                                     }
 
                                     ?>
@@ -1181,10 +1181,10 @@ if (isset($_GET['asset_id'])) {
 
                                 while ($row = mysqli_fetch_assoc($sql_linked_services)) {
                                     $service_id = intval($row['service_id']);
-                                    $service_name = nullable_htmlentities($row['service_name']);
-                                    $service_description = nullable_htmlentities($row['service_description']);
-                                    $service_category = nullable_htmlentities($row['service_category']);
-                                    $service_importance = nullable_htmlentities($row['service_importance']);
+                                    $service_name = escapeHtml($row['service_name']);
+                                    $service_description = escapeHtml($row['service_description']);
+                                    $service_category = escapeHtml($row['service_category']);
+                                    $service_importance = escapeHtml($row['service_importance']);
 
                                     $linked_services[] = $service_id;
 

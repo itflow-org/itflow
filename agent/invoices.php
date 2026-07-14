@@ -181,7 +181,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
     <div class="card-body">
         <form class="mb-4" autocomplete="off">
-            <input type="hidden" name="status" value="<?php if (isset($_GET['status'])) { echo nullable_htmlentities($_GET['status']); } ?>">
+            <input type="hidden" name="status" value="<?php if (isset($_GET['status'])) { echo escapeHtml($_GET['status']); } ?>">
             <?php if ($client_url) { ?>
                 <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
             <?php } ?>
@@ -189,7 +189,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                 <div class="col-sm-4">
                     <div class="form-group mb-md-0">
                         <div class="input-group">
-                            <input type="search" class="form-control" name="q" value="<?php if (isset($q)) {echo stripslashes(nullable_htmlentities($q));} ?>" placeholder="Search Invoices">
+                            <input type="search" class="form-control" name="q" value="<?php if (isset($q)) {echo stripslashes(escapeHtml($q));} ?>" placeholder="Search Invoices">
                             <div class="input-group-append">
                                 <button class="btn btn-secondary" type="button" data-toggle="collapse" data-target="#advancedFilter"><i class="fas fa-filter"></i></button>
                                 <button class="btn btn-primary"><i class="fa fa-search"></i></button>
@@ -206,7 +206,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             $sql_categories_filter = mysqli_query($mysqli, "SELECT category_id, category_name FROM categories WHERE category_type = 'Income' AND EXISTS (SELECT 1 FROM invoices WHERE invoice_category_id = category_id) ORDER BY category_name ASC");
                             while ($row = mysqli_fetch_assoc($sql_categories_filter)) {
                                 $category_id = intval($row['category_id']);
-                                $category_name = nullable_htmlentities($row['category_name']);
+                                $category_name = escapeHtml($row['category_name']);
                             ?>
                                 <option <?php if ($category_filter == $category_id) { echo "selected"; } ?> value="<?php echo $category_id; ?>"><?php echo $category_name; ?></option>
                             <?php
@@ -246,9 +246,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         <div class="form-group">
                             <label>Date range</label>
                             <input type="text" id="dateFilter" class="form-control" autocomplete="off">
-                            <input type="hidden" name="canned_date" id="canned_date" value="<?php echo nullable_htmlentities($_GET['canned_date']) ?? ''; ?>">
-                            <input type="hidden" name="dtf" id="dtf" value="<?php echo nullable_htmlentities($dtf ?? ''); ?>">
-                            <input type="hidden" name="dtt" id="dtt" value="<?php echo nullable_htmlentities($dtt ?? ''); ?>">
+                            <input type="hidden" name="canned_date" id="canned_date" value="<?php echo escapeHtml($_GET['canned_date']) ?? ''; ?>">
+                            <input type="hidden" name="dtf" id="dtf" value="<?php echo escapeHtml($dtf ?? ''); ?>">
+                            <input type="hidden" name="dtt" id="dtt" value="<?php echo escapeHtml($dtt ?? ''); ?>">
                         </div>
                     </div>
                 </div>
@@ -317,33 +317,33 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                     while ($row = mysqli_fetch_assoc($sql)) {
                         $invoice_id = intval($row['invoice_id']);
-                        $invoice_prefix = nullable_htmlentities($row['invoice_prefix']);
-                        $invoice_number = nullable_htmlentities($row['invoice_number']);
-                        $invoice_scope = nullable_htmlentities($row['invoice_scope']);
+                        $invoice_prefix = escapeHtml($row['invoice_prefix']);
+                        $invoice_number = escapeHtml($row['invoice_number']);
+                        $invoice_scope = escapeHtml($row['invoice_scope']);
                         if (empty($invoice_scope)) {
                             $invoice_scope_display = "-";
                         } else {
                             $invoice_scope_display = $invoice_scope;
                         }
-                        $invoice_status = nullable_htmlentities($row['invoice_status']);
-                        $invoice_date = nullable_htmlentities($row['invoice_date']);
-                        $invoice_due = nullable_htmlentities($row['invoice_due']);
+                        $invoice_status = escapeHtml($row['invoice_status']);
+                        $invoice_date = escapeHtml($row['invoice_date']);
+                        $invoice_due = escapeHtml($row['invoice_due']);
                         $invoice_discount = floatval($row['invoice_discount_amount']);
                         $invoice_amount = floatval($row['invoice_amount']);
-                        $invoice_currency_code = nullable_htmlentities($row['invoice_currency_code']);
-                        $invoice_created_at = nullable_htmlentities($row['invoice_created_at']);
+                        $invoice_currency_code = escapeHtml($row['invoice_currency_code']);
+                        $invoice_created_at = escapeHtml($row['invoice_created_at']);
                         $client_id = intval($row['client_id']);
-                        $client_name = nullable_htmlentities($row['client_name']);
+                        $client_name = escapeHtml($row['client_name']);
                         $category_id = intval($row['category_id']);
-                        $category_name = nullable_htmlentities($row['category_name']);
-                        $client_currency_code = nullable_htmlentities($row['client_currency_code']);
+                        $category_name = escapeHtml($row['category_name']);
+                        $client_currency_code = escapeHtml($row['client_currency_code']);
                         $client_net_terms = intval($row['client_net_terms']);
                         if ($client_net_terms == 0) {
                             $client_net_terms = $config_default_net_terms;
                         }
                         $recurring_invoice_id = intval($row['recurring_invoice_id']);
-                        $recurring_invoice_prefix = nullable_htmlentities($row['recurring_invoice_prefix']);
-                        $recurring_invoice_number = nullable_htmlentities($row['recurring_invoice_number']);
+                        $recurring_invoice_prefix = escapeHtml($row['recurring_invoice_prefix']);
+                        $recurring_invoice_number = escapeHtml($row['recurring_invoice_number']);
                         if($recurring_invoice_id) {
                             $recurring_invoice_display = "<i class='fas fa-fw fa-redo-alt text-secondary mr-1'></i><a href='recurring_invoice.php?recurring_invoice_id=$recurring_invoice_id'>$recurring_invoice_prefix$recurring_invoice_number</a>";
                         } else {

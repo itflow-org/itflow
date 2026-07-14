@@ -64,7 +64,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                 <div class="row">
                     <div class="col-md-4">
                         <div class="input-group mb-3 mb-md-0">
-                            <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(nullable_htmlentities($q)); } ?>" placeholder="Search Services">
+                            <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search Services">
                             <div class="input-group-append">
                                 <button class="btn btn-dark"><i class="fa fa-search"></i></button>
                             </div>
@@ -90,7 +90,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 ");
                                 while ($row = mysqli_fetch_assoc($sql_clients_filter)) {
                                     $client_id = intval($row['client_id']);
-                                    $client_name = nullable_htmlentities($row['client_name']);
+                                    $client_name = escapeHtml($row['client_name']);
                                 ?>
                                     <option <?php if ($client == $client_id) { echo "selected"; } ?> value="<?php echo $client_id; ?>"><?php echo $client_name; ?></option>
                                 <?php
@@ -149,17 +149,17 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                     while ($row = mysqli_fetch_assoc($sql)) {
                         $client_id = intval($row['client_id']);
-                        $client_name = nullable_htmlentities($row['client_name']);
+                        $client_name = escapeHtml($row['client_name']);
                         $service_id = intval($row['service_id']);
-                        $service_name = nullable_htmlentities($row['service_name']);
-                        $service_description = nullable_htmlentities($row['service_description']);
-                        $service_category = nullable_htmlentities($row['service_category']);
-                        $service_importance = nullable_htmlentities($row['service_importance']);
-                        $service_backup = nullable_htmlentities($row['service_backup']);
-                        $service_notes = nullable_htmlentities($row['service_notes']);
-                        $service_created_at = nullable_htmlentities($row['service_created_at']);
-                        $service_updated_at = nullable_htmlentities($row['service_updated_at']);
-                        $service_review_due = nullable_htmlentities($row['service_review_due']);
+                        $service_name = escapeHtml($row['service_name']);
+                        $service_description = escapeHtml($row['service_description']);
+                        $service_category = escapeHtml($row['service_category']);
+                        $service_importance = escapeHtml($row['service_importance']);
+                        $service_backup = escapeHtml($row['service_backup']);
+                        $service_notes = escapeHtml($row['service_notes']);
+                        $service_created_at = escapeHtml($row['service_created_at']);
+                        $service_updated_at = escapeHtml($row['service_updated_at']);
+                        $service_review_due = escapeHtml($row['service_review_due']);
 
                         ?>
 

@@ -350,9 +350,9 @@ if (isset($_GET['approve_ticket_task'])) {
 
     $approval_row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT * FROM task_approvals LEFT JOIN tasks on task_id = approval_task_id WHERE approval_id = $approval_id AND approval_task_id = $task_id AND approval_scope = 'internal'"));
 
-    $task_name = nullable_htmlentities($approval_row['task_name']);
-    $scope = nullable_htmlentities($approval_row['approval_scope']);
-    $type = nullable_htmlentities($approval_row['approval_type']);
+    $task_name = escapeHtml($approval_row['task_name']);
+    $scope = escapeHtml($approval_row['approval_scope']);
+    $type = escapeHtml($approval_row['approval_type']);
     $required_user = intval($approval_row['approval_required_user_id']);
     $created_by = intval($approval_row['approval_created_by']);
     $ticket_id = intval($approval_row['task_ticket_id']);

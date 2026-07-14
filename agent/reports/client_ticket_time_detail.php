@@ -123,7 +123,7 @@ $result = $stmt->get_result();
     <div class="card-header bg-dark py-2">
         <h3 class="card-title mt-2">
             <i class="fas fa-fw fa-life-ring mr-2"></i>
-            Client Time Detail Audit Report (<?php echo nullable_htmlentities($from); ?> to <?php echo nullable_htmlentities($to); ?>)
+            Client Time Detail Audit Report (<?php echo escapeHtml($from); ?> to <?php echo escapeHtml($to); ?>)
             <?php if ($billable_only) { ?>
                 <span class="badge badge-success ml-2">Billable Only</span>
             <?php } ?>
@@ -141,12 +141,12 @@ $result = $stmt->get_result();
             <div class="row">
                 <div class="col-md-3 mb-2">
                     <label class="mb-1">From</label>
-                    <input type="date" class="form-control" name="from" value="<?php echo nullable_htmlentities($from); ?>">
+                    <input type="date" class="form-control" name="from" value="<?php echo escapeHtml($from); ?>">
                 </div>
 
                 <div class="col-md-3 mb-2">
                     <label class="mb-1">To</label>
-                    <input type="date" class="form-control" name="to" value="<?php echo nullable_htmlentities($to); ?>">
+                    <input type="date" class="form-control" name="to" value="<?php echo escapeHtml($to); ?>">
                 </div>
 
                 <div class="col-md-3 mb-2">
@@ -235,12 +235,12 @@ $result = $stmt->get_result();
                 $had_rows = true;
 
                 $client_id = (int)$r['client_id'];
-                $client_name_html = nullable_htmlentities($r['client_name']);
+                $client_name_html = escapeHtml($r['client_name']);
 
                 $ticket_id = (int)$r['ticket_id'];
-                $ticket_prefix = nullable_htmlentities($r['ticket_prefix']);
+                $ticket_prefix = escapeHtml($r['ticket_prefix']);
                 $ticket_number = (int)$r['ticket_number'];
-                $ticket_subject_html = nullable_htmlentities($r['ticket_subject']);
+                $ticket_subject_html = escapeHtml($r['ticket_subject']);
 
                 $reply_created_at = $r['ticket_reply_created_at'];
                 $reply_seconds = (int)$r['reply_time_seconds'];
@@ -254,7 +254,7 @@ $result = $stmt->get_result();
                 $reply_content_clean = strip_tags($reply_content_raw);
                 $reply_content_clean = str_replace(["\r\n", "\r"], "\n", $reply_content_clean);
                 $reply_content_clean = preg_replace("/\n{3,}/", "\n\n", $reply_content_clean);
-                $reply_content_html = nl2br(nullable_htmlentities(trim($reply_content_clean)));
+                $reply_content_html = nl2br(escapeHtml(trim($reply_content_clean)));
 
                 // Close out previous client if client changed
                 if ($current_client_id !== null && $client_id !== $current_client_id) {
@@ -303,7 +303,7 @@ $result = $stmt->get_result();
                 // Ticket label
                 $display_ticket = trim($ticket_prefix . $ticket_number);
                 if ($display_ticket === '') $display_ticket = (string)$ticket_number;
-                $ticket_label_html = nullable_htmlentities($display_ticket) . " - " . $ticket_subject_html;
+                $ticket_label_html = escapeHtml($display_ticket) . " - " . $ticket_subject_html;
 
                 // Ticket changed: close previous ticket subtotal
                 if ($current_ticket_id !== null && $ticket_id !== $current_ticket_id) {
@@ -340,7 +340,7 @@ $result = $stmt->get_result();
                 <tr>
                     <td class="pl-4 text-muted">
                         <i class="far fa-clock mr-1"></i>
-                        <?php echo nullable_htmlentities(date('Y-m-d g:i A', strtotime($reply_created_at))); ?>
+                        <?php echo escapeHtml(date('Y-m-d g:i A', strtotime($reply_created_at))); ?>
                         <div class="mt-1 text-body" style="white-space: normal;">
                             <?php echo $reply_content_html; ?>
                         </div>
@@ -404,7 +404,7 @@ $result = $stmt->get_result();
 
         <small class="text-muted p-2">
             This report shows only ticket replies with time worked within the selected date range.
-            “Billable (hrs)” is calculated by rounding each reply up to the nearest <?php echo (int)$billing_increment_minutes; ?> minutes (<?php echo nullable_htmlentities($billing_increment_key); ?> hours),
+            “Billable (hrs)” is calculated by rounding each reply up to the nearest <?php echo (int)$billing_increment_minutes; ?> minutes (<?php echo escapeHtml($billing_increment_key); ?> hours),
             then summing those rounded values for ticket/client/grand totals.
             <br>
             Reply content is displayed under each reply timestamp.

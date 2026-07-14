@@ -39,7 +39,7 @@ $sql = mysqli_query($mysqli, "
 
                 while ($row = mysqli_fetch_assoc($sql)) {
                     $client_id = intval($row['client_id']);
-                    $client_name = nullable_htmlentities($row['client_name']);
+                    $client_name = escapeHtml($row['client_name']);
                     $recurring_monthly_total = floatval($row['recurring_monthly_total']);
                     $recurring_total = $recurring_total + $recurring_monthly_total;
                 ?>

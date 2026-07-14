@@ -59,7 +59,7 @@ ob_start();
                                     $sql = mysqli_query($mysqli, "SELECT * FROM clients WHERE client_archived_at IS NULL $access_permission_query ORDER BY client_name ASC");
                                     while ($row = mysqli_fetch_assoc($sql)) {
                                         $client_id_select = intval($row['client_id']);
-                                        $client_name = nullable_htmlentities($row['client_name']); ?>
+                                        $client_name = escapeHtml($row['client_name']); ?>
 
                                         <option value="<?php echo $client_id_select; ?>" <?php if ($client_id == $client_id_select) {echo "selected"; } ?>><?php echo $client_name; ?></option>
 
@@ -129,7 +129,7 @@ ob_start();
                                     $sql_categories = mysqli_query($mysqli, "SELECT category_id, category_name FROM categories WHERE category_type = 'Ticket' AND category_archived_at IS NULL ORDER BY category_name ASC");
                                     while ($row = mysqli_fetch_assoc($sql_categories)) {
                                         $category_id = intval($row['category_id']);
-                                        $category_name = nullable_htmlentities($row['category_name']);
+                                        $category_name = escapeHtml($row['category_name']);
 
                                         ?>
                                         <option value="<?php echo $category_id; ?>"><?php echo $category_name; ?></option>
@@ -165,7 +165,7 @@ ob_start();
                             );
                             while ($row = mysqli_fetch_assoc($sql)) {
                                 $user_id = intval($row['user_id']);
-                                $user_name = nullable_htmlentities($row['user_name']); ?>
+                                $user_name = escapeHtml($row['user_name']); ?>
                                 <option value="<?php echo $user_id; ?>"><?php echo $user_name; ?></option>
                             <?php } ?>
                         </select>
@@ -248,11 +248,11 @@ ob_start();
 
                                 while ($row = mysqli_fetch_assoc($sql_assets)) {
                                     $asset_id_select = intval($row['asset_id']);
-                                    $asset_name_select = nullable_htmlentities($row['asset_name']);
-                                    $asset_type_select = nullable_htmlentities($row['asset_type']);
-                                    $asset_make_select = nullable_htmlentities($row['asset_make']);
-                                    $asset_model_select = nullable_htmlentities($row['asset_model']);
-                                    $contact_name_select = nullable_htmlentities($row['contact_name']);
+                                    $asset_name_select = escapeHtml($row['asset_name']);
+                                    $asset_type_select = escapeHtml($row['asset_type']);
+                                    $asset_make_select = escapeHtml($row['asset_make']);
+                                    $asset_model_select = escapeHtml($row['asset_model']);
+                                    $contact_name_select = escapeHtml($row['contact_name']);
 
                                     // Start new optgroup if type changes
                                     if ($asset_type_select !== $current_type) {
@@ -300,11 +300,11 @@ ob_start();
 
                                 while ($row = mysqli_fetch_assoc($sql_assets)) {
                                     $asset_id_select = intval($row['asset_id']);
-                                    $asset_name_select = nullable_htmlentities($row['asset_name']);
-                                    $asset_type_select = nullable_htmlentities($row['asset_type']);
-                                    $asset_make_select = nullable_htmlentities($row['asset_make']);
-                                    $asset_model_select = nullable_htmlentities($row['asset_model']);
-                                    $contact_name_select = nullable_htmlentities($row['contact_name']);
+                                    $asset_name_select = escapeHtml($row['asset_name']);
+                                    $asset_type_select = escapeHtml($row['asset_type']);
+                                    $asset_make_select = escapeHtml($row['asset_make']);
+                                    $asset_model_select = escapeHtml($row['asset_model']);
+                                    $contact_name_select = escapeHtml($row['contact_name']);
 
                                     // Start new optgroup if type changes
                                     if ($asset_type_select !== $current_type) {

@@ -12,7 +12,7 @@ header("X-Frame-Options: DENY"); // Legacy
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title><?php echo nullable_htmlentities($session_company_name); ?> | Client Portal</title>
+    <title><?php echo escapeHtml($session_company_name); ?> | Client Portal</title>
 
     <!-- Tell the browser to be responsive to screen width -->
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -35,7 +35,7 @@ header("X-Frame-Options: DENY"); // Legacy
 
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
     <div class="container">
-        <a class="navbar-brand" href="index.php"><?php echo nullable_htmlentities($session_company_name); ?></a>
+        <a class="navbar-brand" href="index.php"><?php echo escapeHtml($session_company_name); ?></a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent">
             <span class="navbar-toggler-icon"></span>
         </button>
@@ -85,8 +85,8 @@ header("X-Frame-Options: DENY"); // Legacy
                 );
 
                 while ($row = mysqli_fetch_assoc($sql_custom_links)) {
-                    $custom_link_name = nullable_htmlentities($row['custom_link_name']);
-                    $custom_link_uri = nullable_htmlentities($row['custom_link_uri']);
+                    $custom_link_name = escapeHtml($row['custom_link_name']);
+                    $custom_link_uri = escapeHtml($row['custom_link_uri']);
                     $custom_link_new_tab = intval($row['custom_link_new_tab']);
                     if ($custom_link_new_tab == 1) {
                         $target = "target='_blank' rel='noopener noreferrer'";
@@ -107,7 +107,7 @@ header("X-Frame-Options: DENY"); // Legacy
             <ul class="nav navbar-nav pull-right">
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown">
-                        <?php echo stripslashes(nullable_htmlentities($session_contact_name)); ?>
+                        <?php echo stripslashes(escapeHtml($session_contact_name)); ?>
                     </a>
                     <div class="dropdown-menu">
                         <a class="dropdown-item" href="/client/profile.php"><i class="fas fa-fw fa-user mr-2"></i>Account</a>
@@ -142,7 +142,7 @@ header("X-Frame-Options: DENY"); // Legacy
                 <?php if ($session_company_logo) { ?>
                     <img height="48" width="142" class="img-fluid float-right" src="<?php echo "/uploads/settings/$session_company_logo"; ?>">
                 <?php } ?>
-            <h4>Welcome, <strong><?php echo stripslashes(nullable_htmlentities($session_contact_name)); ?></strong>!</h4>
+            <h4>Welcome, <strong><?php echo stripslashes(escapeHtml($session_contact_name)); ?></strong>!</h4>
         </div>
     </div>
     <hr>
@@ -155,7 +155,7 @@ header("X-Frame-Options: DENY"); // Legacy
         }
         ?>
         <div class="alert alert-<?php echo $_SESSION['alert_type']; ?>" id="alert">
-            <?php echo nullable_htmlentities($_SESSION['alert_message']); ?>
+            <?php echo escapeHtml($_SESSION['alert_message']); ?>
             <button class='close' data-dismiss='alert'>&times;</button>
         </div>
         <?php

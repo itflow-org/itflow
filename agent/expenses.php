@@ -82,7 +82,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                 <div class="row">
                     <div class="col-sm-4">
                         <div class="input-group">
-                            <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(nullable_htmlentities($q)); } ?>" placeholder="Search Expenses">
+                            <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search Expenses">
                             <div class="input-group-append">
                                 <button class="btn btn-secondary" type="button" data-toggle="collapse" data-target="#advancedFilter"><i class="fas fa-filter"></i></button>
                                 <button class="btn btn-primary"><i class="fa fa-search"></i></button>
@@ -132,9 +132,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             <div class="form-group">
                                 <label>Date range</label>
                                 <input type="text" id="dateFilter" class="form-control" autocomplete="off">
-                                <input type="hidden" name="canned_date" id="canned_date" value="<?php echo nullable_htmlentities($_GET['canned_date']) ?? ''; ?>">
-                                <input type="hidden" name="dtf" id="dtf" value="<?php echo nullable_htmlentities($dtf ?? ''); ?>">
-                                <input type="hidden" name="dtt" id="dtt" value="<?php echo nullable_htmlentities($dtt ?? ''); ?>">
+                                <input type="hidden" name="canned_date" id="canned_date" value="<?php echo escapeHtml($_GET['canned_date']) ?? ''; ?>">
+                                <input type="hidden" name="dtf" id="dtf" value="<?php echo escapeHtml($dtf ?? ''); ?>">
+                                <input type="hidden" name="dtt" id="dtt" value="<?php echo escapeHtml($dtt ?? ''); ?>">
                             </div>
                         </div>
                         <div class="col-sm-2">
@@ -148,7 +148,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                                     while ($row = mysqli_fetch_assoc($sql_vendors_filter)) {
                                         $vendor_id = intval($row['vendor_id']);
-                                        $vendor_name = nullable_htmlentities($row['vendor_name']);
+                                        $vendor_name = escapeHtml($row['vendor_name']);
                                     ?>
                                         <option <?php if ($vendor_filter == $vendor_id) { echo "selected"; } ?> value="<?php echo $vendor_id; ?>"><?php echo $vendor_name; ?></option>
                                     <?php
@@ -168,7 +168,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                     $sql_categories_filter = mysqli_query($mysqli, "SELECT category_id, category_name FROM categories WHERE category_type = 'Expense' AND EXISTS (SELECT 1 FROM expenses WHERE expense_category_id = category_id) ORDER BY category_name ASC");
                                     while ($row = mysqli_fetch_assoc($sql_categories_filter)) {
                                         $category_id = intval($row['category_id']);
-                                        $category_name = nullable_htmlentities($row['category_name']);
+                                        $category_name = escapeHtml($row['category_name']);
                                     ?>
                                         <option <?php if ($category_filter == $category_id) { echo "selected"; } ?> value="<?php echo $category_id; ?>"><?php echo $category_name; ?></option>
                                     <?php
@@ -188,7 +188,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                     $sql_accounts_filter = mysqli_query($mysqli, "SELECT account_id, account_name FROM accounts WHERE EXISTS (SELECT 1 FROM expenses WHERE expense_account_id = account_id) ORDER BY account_name ASC");
                                     while ($row = mysqli_fetch_assoc($sql_accounts_filter)) {
                                         $account_id = intval($row['account_id']);
-                                        $account_name = nullable_htmlentities($row['account_name']);
+                                        $account_name = escapeHtml($row['account_name']);
                                     ?>
                                         <option <?php if ($account_filter == $account_id) { echo "selected"; } ?> value="<?php echo $account_id; ?>"><?php echo $account_name; ?></option>
                                     <?php
@@ -254,20 +254,20 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                     while ($row = mysqli_fetch_assoc($sql)) {
                         $expense_id = intval($row['expense_id']);
-                        $expense_date = nullable_htmlentities($row['expense_date']);
+                        $expense_date = escapeHtml($row['expense_date']);
                         $expense_amount = floatval($row['expense_amount']);
-                        $expense_currency_code = nullable_htmlentities($row['expense_currency_code']);
-                        $expense_description = nullable_htmlentities($row['expense_description']);
-                        $expense_receipt = nullable_htmlentities($row['expense_receipt']);
-                        $expense_reference = nullable_htmlentities($row['expense_reference']);
-                        $expense_created_at = nullable_htmlentities($row['expense_created_at']);
+                        $expense_currency_code = escapeHtml($row['expense_currency_code']);
+                        $expense_description = escapeHtml($row['expense_description']);
+                        $expense_receipt = escapeHtml($row['expense_receipt']);
+                        $expense_reference = escapeHtml($row['expense_reference']);
+                        $expense_created_at = escapeHtml($row['expense_created_at']);
                         $expense_vendor_id = intval($row['expense_vendor_id']);
-                        $vendor_name = nullable_htmlentities($row['vendor_name']);
+                        $vendor_name = escapeHtml($row['vendor_name']);
                         $expense_category_id = intval($row['expense_category_id']);
-                        $category_name = nullable_htmlentities($row['category_name']);
-                        $account_name = nullable_htmlentities($row['account_name']);
+                        $category_name = escapeHtml($row['category_name']);
+                        $account_name = escapeHtml($row['account_name']);
                         $expense_account_id = intval($row['expense_account_id']);
-                        $client_name = nullable_htmlentities($row['client_name']);
+                        $client_name = escapeHtml($row['client_name']);
                         if(empty($client_name)) {
                             $client_name_display = "-";
                         } else {

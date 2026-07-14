@@ -51,7 +51,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                 <div class="col-sm-4 mb-2">
                     <form autocomplete="off">
                         <div class="input-group">
-                            <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(nullable_htmlentities($q)); } ?>" placeholder="Search <?= $tag_type_display ?> Tags">
+                            <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search <?= $tag_type_display ?> Tags">
                             <div class="input-group-append">
                                 <button class="btn btn-primary"><i class="fa fa-search"></i></button>
                             </div>
@@ -119,9 +119,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                     while ($row = mysqli_fetch_assoc($sql)) {
                         $tag_id = intval($row['tag_id']);
-                        $tag_name = nullable_htmlentities($row['tag_name']);
-                        $tag_color = nullable_htmlentities($row['tag_color']);
-                        $tag_icon = nullable_htmlentities($row['tag_icon']);
+                        $tag_name = escapeHtml($row['tag_name']);
+                        $tag_color = escapeHtml($row['tag_color']);
+                        $tag_icon = escapeHtml($row['tag_icon']);
 
                         ?>
                         <tr>

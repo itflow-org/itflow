@@ -10,7 +10,7 @@ $sql = mysqli_query($mysqli, "SELECT * FROM contacts
 ");
 
 $row = mysqli_fetch_assoc($sql);
-$contact_name = nullable_htmlentities($row['contact_name']);
+$contact_name = escapeHtml($row['contact_name']);
 $client_id = intval($row['contact_client_id']);
 
 // Generate the HTML form content using output buffering.
@@ -51,7 +51,7 @@ ob_start();
                     ");
                     while ($row = mysqli_fetch_assoc($sql_software_select)) {
                         $software_id = intval($row['software_id']);
-                        $software_name = nullable_htmlentities($row['software_name']);
+                        $software_name = escapeHtml($row['software_name']);
                         ?>
                         <option value="<?php echo $software_id ?>"><?php echo $software_name; ?></option>
                         <?php

@@ -175,7 +175,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title><?php echo nullable_htmlentities($company_name_display); ?> | Password Reset</title>
+    <title><?php echo escapeHtml($company_name_display); ?> | Password Reset</title>
 
     <!-- Tell the browser to be responsive to screen width -->
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -199,7 +199,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
 
 <body class="hold-transition login-page">
 <div class="login-box">
-    <div class="login-logo"><b><?php echo nullable_htmlentities($company_name_display); ?></b> <br>Password Reset</h2></div>
+    <div class="login-logo"><b><?php echo escapeHtml($company_name_display); ?></b> <br>Password Reset</h2></div>
     <div class="card">
         <div class="card-body login-card-body">
 
@@ -269,7 +269,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
                 <?php
                 // Show feedback from session
                 if (!empty($_SESSION['login_message'])) {
-                    echo nullable_htmlentities($_SESSION['login_message']);
+                    echo escapeHtml($_SESSION['login_message']);
                     unset($_SESSION['login_message']);
                 }
                 ?>

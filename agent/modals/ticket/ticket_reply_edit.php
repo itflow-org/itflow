@@ -11,10 +11,10 @@ $sql = mysqli_query($mysqli, "SELECT * FROM ticket_replies
 );
 
 $row = mysqli_fetch_assoc($sql);
-$ticket_reply_type = nullable_htmlentities($row['ticket_reply_type']);
+$ticket_reply_type = escapeHtml($row['ticket_reply_type']);
 $ticket_reply_time_worked = date_create($row['ticket_reply_time_worked']);
 $ticket_reply_time_worked_formatted = date_format($ticket_reply_time_worked, 'H:i:s');
-$ticket_reply = nullable_htmlentities($row['ticket_reply']);
+$ticket_reply = escapeHtml($row['ticket_reply']);
 $client_id = intval($row['ticket_client_id']);
 
 if ($client_id) {

@@ -40,7 +40,7 @@ ob_start();
                     );
                     while ($row = mysqli_fetch_assoc($sql_ticket_templates_select)) {
                         $ticket_template_id_select = intval($row['ticket_template_id']);
-                        $ticket_template_name_select = nullable_htmlentities($row['ticket_template_name']);
+                        $ticket_template_name_select = escapeHtml($row['ticket_template_name']);
                         ?>
                         <option value="<?php echo $ticket_template_id_select; ?>"><?php echo $ticket_template_name_select; ?></option>
                         <?php

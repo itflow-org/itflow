@@ -108,7 +108,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                 <div class="col-md-4">
                     <div class="input-group mb-3 mb-md-0">
-                        <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(nullable_htmlentities($q)); } ?>" placeholder="Search Networks">
+                        <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search Networks">
                         <div class="input-group-append">
                             <button class="btn btn-dark"><i class="fa fa-search"></i></button>
                         </div>
@@ -131,7 +131,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             ");
                             while ($row = mysqli_fetch_assoc($sql_locations_filter)) {
                                 $location_id = intval($row['location_id']);
-                                $location_name = nullable_htmlentities($row['location_name']);
+                                $location_name = escapeHtml($row['location_name']);
                             ?>
                                 <option <?php if ($location_filter == $location_id) { echo "selected"; } ?> value="<?= $location_id ?>"><?= $location_name ?></option>
                             <?php
@@ -158,7 +158,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             ");
                             while ($row = mysqli_fetch_assoc($sql_clients_filter)) {
                                 $client_id = intval($row['client_id']);
-                                $client_name = nullable_htmlentities($row['client_name']);
+                                $client_name = escapeHtml($row['client_name']);
                             ?>
                                 <option <?php if ($client == $client_id) { echo "selected"; } ?> value="<?php echo $client_id; ?>"><?php echo $client_name; ?></option>
                             <?php
@@ -256,39 +256,39 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                     while ($row = mysqli_fetch_assoc($sql)) {
                         $client_id = intval($row['client_id']);
-                        $client_name = nullable_htmlentities($row['client_name']);
+                        $client_name = escapeHtml($row['client_name']);
                         $network_id = intval($row['network_id']);
-                        $network_name = nullable_htmlentities($row['network_name']);
-                        $network_description = nullable_htmlentities($row['network_description']);
+                        $network_name = escapeHtml($row['network_name']);
+                        $network_description = escapeHtml($row['network_description']);
                         $network_vlan = intval($row['network_vlan']);
                         if ($network_vlan) {
                             $network_vlan_display = $network_vlan;
                         } else {
                             $network_vlan_display = "-";
                         }
-                        $network = nullable_htmlentities($row['network']);
-                        $network_gateway = nullable_htmlentities($row['network_gateway']);
-                        $network_primary_dns = nullable_htmlentities($row['network_primary_dns']);
-                        $network_secondary_dns = nullable_htmlentities($row['network_secondary_dns']);
+                        $network = escapeHtml($row['network']);
+                        $network_gateway = escapeHtml($row['network_gateway']);
+                        $network_primary_dns = escapeHtml($row['network_primary_dns']);
+                        $network_secondary_dns = escapeHtml($row['network_secondary_dns']);
                         if ($network_primary_dns) {
                             $network_dns_display = "$network_primary_dns<div class='text-secondary mt-1'>$network_secondary_dns</div>";
                         } else {
                             $network_dns_display = "-";
                         }
-                        $network_dhcp_range = nullable_htmlentities($row['network_dhcp_range']);
+                        $network_dhcp_range = escapeHtml($row['network_dhcp_range']);
                         if (empty($network_dhcp_range)) {
                             $network_dhcp_range_display = "-";
                         } else {
                             $network_dhcp_range_display = $network_dhcp_range;
                         }
                         $network_location_id = intval($row['network_location_id']);
-                        $location_name = nullable_htmlentities($row['location_name']);
+                        $location_name = escapeHtml($row['location_name']);
                         if (empty($location_name)) {
                             $location_name_display = "-";
                         } else {
                             $location_name_display = $location_name;
                         }
-                        $network_archived_at = nullable_htmlentities($row['network_archived_at']);
+                        $network_archived_at = escapeHtml($row['network_archived_at']);
 
                         ?>
                         <tr>

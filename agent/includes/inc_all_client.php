@@ -32,38 +32,38 @@ if (isset($_GET['client_id'])) {
     } else {
 
         $row = mysqli_fetch_assoc($sql);
-        $client_name = nullable_htmlentities($row['client_name']);
+        $client_name = escapeHtml($row['client_name']);
         $client_is_lead = intval($row['client_lead']);
-        $client_type = nullable_htmlentities($row['client_type']);
-        $client_website = nullable_htmlentities($row['client_website']);
-        $client_referral = nullable_htmlentities($row['client_referral']);
-        $client_currency_code = nullable_htmlentities($row['client_currency_code']);
+        $client_type = escapeHtml($row['client_type']);
+        $client_website = escapeHtml($row['client_website']);
+        $client_referral = escapeHtml($row['client_referral']);
+        $client_currency_code = escapeHtml($row['client_currency_code']);
         $client_net_terms = intval($row['client_net_terms']);
-        $client_tax_id_number = nullable_htmlentities($row['client_tax_id_number']);
-        $client_abbreviation = nullable_htmlentities($row['client_abbreviation']);
+        $client_tax_id_number = escapeHtml($row['client_tax_id_number']);
+        $client_abbreviation = escapeHtml($row['client_abbreviation']);
         $client_rate = floatval($row['client_rate']);
-        $client_notes = nullable_htmlentities($row['client_notes']);
-        $client_created_at = nullable_htmlentities($row['client_created_at']);
-        $client_archived_at = nullable_htmlentities($row['client_archived_at']);
+        $client_notes = escapeHtml($row['client_notes']);
+        $client_created_at = escapeHtml($row['client_created_at']);
+        $client_archived_at = escapeHtml($row['client_archived_at']);
         $contact_id = intval($row['contact_id']);
-        $contact_name = nullable_htmlentities($row['contact_name']);
-        $contact_title = nullable_htmlentities($row['contact_title']);
-        $contact_email = nullable_htmlentities($row['contact_email']);
-        $contact_phone_country_code = nullable_htmlentities($row['contact_phone_country_code']);
-        $contact_phone = nullable_htmlentities(formatPhoneNumber($row['contact_phone'], $contact_phone_country_code));
-        $contact_extension = nullable_htmlentities($row['contact_extension']);
-        $contact_mobile_country_code = nullable_htmlentities($row['contact_mobile_country_code']);
-        $contact_mobile = nullable_htmlentities(formatPhoneNumber($row['contact_mobile'], $contact_mobile_country_code));
+        $contact_name = escapeHtml($row['contact_name']);
+        $contact_title = escapeHtml($row['contact_title']);
+        $contact_email = escapeHtml($row['contact_email']);
+        $contact_phone_country_code = escapeHtml($row['contact_phone_country_code']);
+        $contact_phone = escapeHtml(formatPhoneNumber($row['contact_phone'], $contact_phone_country_code));
+        $contact_extension = escapeHtml($row['contact_extension']);
+        $contact_mobile_country_code = escapeHtml($row['contact_mobile_country_code']);
+        $contact_mobile = escapeHtml(formatPhoneNumber($row['contact_mobile'], $contact_mobile_country_code));
         $contact_primary = intval($row['contact_primary']);
         $location_id = intval($row['location_id']);
-        $location_name = nullable_htmlentities($row['location_name']);
-        $location_address = nullable_htmlentities($row['location_address']);
-        $location_city = nullable_htmlentities($row['location_city']);
-        $location_state = nullable_htmlentities($row['location_state']);
-        $location_zip = nullable_htmlentities($row['location_zip']);
-        $location_country = nullable_htmlentities($row['location_country']);
-        $location_phone_country_code = nullable_htmlentities($row['location_phone_country_code']);
-        $location_phone = nullable_htmlentities(formatPhoneNumber($row['location_phone'], $location_phone_country_code));
+        $location_name = escapeHtml($row['location_name']);
+        $location_address = escapeHtml($row['location_address']);
+        $location_city = escapeHtml($row['location_city']);
+        $location_state = escapeHtml($row['location_state']);
+        $location_zip = escapeHtml($row['location_zip']);
+        $location_country = escapeHtml($row['location_country']);
+        $location_phone_country_code = escapeHtml($row['location_phone_country_code']);
+        $location_phone = escapeHtml(formatPhoneNumber($row['location_phone'], $location_phone_country_code));
         $location_primary = intval($row['location_primary']);
 
         // Tab Title // No Sanitizing needed
@@ -77,12 +77,12 @@ if (isset($_GET['client_id'])) {
         while ($row = mysqli_fetch_assoc($sql_client_tags)) {
 
             $client_tag_id = intval($row['tag_id']);
-            $client_tag_name = nullable_htmlentities($row['tag_name']);
-            $client_tag_color = nullable_htmlentities($row['tag_color']);
+            $client_tag_name = escapeHtml($row['tag_name']);
+            $client_tag_color = escapeHtml($row['tag_color']);
             if (empty($client_tag_color)) {
                 $client_tag_color = "dark";
             }
-            $client_tag_icon = nullable_htmlentities($row['tag_icon']);
+            $client_tag_icon = escapeHtml($row['tag_icon']);
             if (empty($client_tag_icon)) {
                 $client_tag_icon = "tag";
             }

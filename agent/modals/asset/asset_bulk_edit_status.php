@@ -38,7 +38,7 @@ ob_start();
                         ORDER BY category_order ASC, category_name ASC
                     ");
                     while ($row = mysqli_fetch_assoc($sql_interface_types_select)) {
-                        $asset_status_select = nullable_htmlentities($row['category_name']);
+                        $asset_status_select = escapeHtml($row['category_name']);
                         ?>
                         <option><?= $asset_status_select ?></option>
                     <?php } ?>

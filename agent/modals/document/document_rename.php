@@ -8,7 +8,7 @@ $sql = mysqli_query($mysqli, "SELECT * FROM documents WHERE document_id = $docum
 
 $row = mysqli_fetch_assoc($sql);
 $client_id = intval($row['document_client_id']);
-$document_name = nullable_htmlentities($row['document_name']);
+$document_name = escapeHtml($row['document_name']);
 
 enforceClientAccess();
 

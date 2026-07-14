@@ -7,23 +7,23 @@ $location_id = intval($_GET['id']);
 $sql = mysqli_query($mysqli, "SELECT * FROM locations WHERE location_id = $location_id LIMIT 1");
 
 $row = mysqli_fetch_assoc($sql);
-$location_name = nullable_htmlentities($row['location_name']);
-$location_description = nullable_htmlentities($row['location_description']);
-$location_country = nullable_htmlentities($row['location_country']);
-$location_address = nullable_htmlentities($row['location_address']);
-$location_city = nullable_htmlentities($row['location_city']);
-$location_state = nullable_htmlentities($row['location_state']);
-$location_zip = nullable_htmlentities($row['location_zip']);
-$location_phone_country_code = nullable_htmlentities($row['location_phone_country_code']);
-$location_phone = nullable_htmlentities(formatPhoneNumber($row['location_phone'], $location_phone_country_code));
+$location_name = escapeHtml($row['location_name']);
+$location_description = escapeHtml($row['location_description']);
+$location_country = escapeHtml($row['location_country']);
+$location_address = escapeHtml($row['location_address']);
+$location_city = escapeHtml($row['location_city']);
+$location_state = escapeHtml($row['location_state']);
+$location_zip = escapeHtml($row['location_zip']);
+$location_phone_country_code = escapeHtml($row['location_phone_country_code']);
+$location_phone = escapeHtml(formatPhoneNumber($row['location_phone'], $location_phone_country_code));
 //$location_extension = intval($row['location_extension']);
-$location_fax_country_code = nullable_htmlentities($row['location_fax_country_code']);
-$location_fax = nullable_htmlentities(formatPhoneNumber($row['location_fax'], $location_fax_country_code));
-$location_hours = nullable_htmlentities($row['location_hours']);
-$location_photo = nullable_htmlentities($row['location_photo']);
-$location_notes = nullable_htmlentities($row['location_notes']);
-$location_created_at = nullable_htmlentities($row['location_created_at']);
-$location_archived_at = nullable_htmlentities($row['location_archived_at']);
+$location_fax_country_code = escapeHtml($row['location_fax_country_code']);
+$location_fax = escapeHtml(formatPhoneNumber($row['location_fax'], $location_fax_country_code));
+$location_hours = escapeHtml($row['location_hours']);
+$location_photo = escapeHtml($row['location_photo']);
+$location_notes = escapeHtml($row['location_notes']);
+$location_created_at = escapeHtml($row['location_created_at']);
+$location_archived_at = escapeHtml($row['location_archived_at']);
 $location_contact_id = intval($row['location_contact_id']);
 $client_id = intval($row['location_client_id']);
 $location_primary = intval($row['location_primary']);
@@ -187,8 +187,8 @@ ob_start();
                             $sql_contacts = mysqli_query($mysqli, "SELECT * FROM contacts WHERE (contact_archived_at > '$location_created_at' OR contact_archived_at IS NULL) AND contact_client_id = $client_id ORDER BY contact_archived_at ASC, contact_name ASC");
                             while ($row = mysqli_fetch_assoc($sql_contacts)) {
                                 $contact_id_select = intval($row['contact_id']);
-                                $contact_name_select = nullable_htmlentities($row['contact_name']);
-                                $contact_archived_at = nullable_htmlentities($row['contact_archived_at']);
+                                $contact_name_select = escapeHtml($row['contact_name']);
+                                $contact_archived_at = escapeHtml($row['contact_archived_at']);
                                 if (empty($contact_archived_at)) {
                                     $contact_archived_display = "";
                                 } else {
@@ -268,7 +268,7 @@ ob_start();
                             $sql_tags_select = mysqli_query($mysqli, "SELECT * FROM tags WHERE tag_type = 2 ORDER BY tag_name ASC");
                             while ($row = mysqli_fetch_assoc($sql_tags_select)) {
                                 $tag_id_select = intval($row['tag_id']);
-                                $tag_name_select = nullable_htmlentities($row['tag_name']);
+                                $tag_name_select = escapeHtml($row['tag_name']);
                                 ?>
                                 <option value="<?php echo $tag_id_select; ?>" <?php if (in_array($tag_id_select, $location_tag_id_array)) { echo "selected"; } ?>><?php echo $tag_name_select; ?></option>
                             <?php } ?>

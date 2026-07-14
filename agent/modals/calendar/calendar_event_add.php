@@ -42,8 +42,8 @@
                                         $sql = mysqli_query($mysqli, "SELECT * FROM calendars ORDER BY calendar_name ASC");
                                         while ($row = mysqli_fetch_assoc($sql)) {
                                             $calendar_id = intval($row['calendar_id']);
-                                            $calendar_name = nullable_htmlentities($row['calendar_name']);
-                                            $calendar_color = nullable_htmlentities($row['calendar_color']);
+                                            $calendar_name = escapeHtml($row['calendar_name']);
+                                            $calendar_color = escapeHtml($row['calendar_color']);
                                             ?>
                                             <option <?php if ($config_default_calendar == $calendar_id) { echo "selected"; } ?> data-content="<i class='fa fa-circle mr-2' style='color:<?php echo $calendar_color; ?>;'></i> <?php echo $calendar_name; ?>" value="<?php echo $calendar_id; ?>"><?php echo $calendar_name; ?></option>
                                         <?php } ?>
@@ -136,8 +136,8 @@
                                             $sql = mysqli_query($mysqli, "SELECT * FROM clients LEFT JOIN contacts ON clients.client_id = contacts.contact_client_id AND contact_primary = 1 ORDER BY client_name ASC");
                                             while ($row = mysqli_fetch_assoc($sql)) {
                                                 $client_id = intval($row['client_id']);
-                                                $client_name = nullable_htmlentities($row['client_name']);
-                                                $contact_email = nullable_htmlentities($row['contact_email']);
+                                                $client_name = escapeHtml($row['client_name']);
+                                                $contact_email = escapeHtml($row['contact_email']);
                                                 ?>
                                                 <option value="<?php echo $client_id; ?>"><?php echo $client_name; ?></option>
 

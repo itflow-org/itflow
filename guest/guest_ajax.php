@@ -43,12 +43,12 @@ if (isset($_GET['stripe_create_pi'])) {
     }
 
     $row = mysqli_fetch_assoc($invoice_sql);
-    $invoice_prefix = nullable_htmlentities($row['invoice_prefix']);
+    $invoice_prefix = escapeHtml($row['invoice_prefix']);
     $invoice_number = intval($row['invoice_number']);
     $invoice_amount = floatval($row['invoice_amount']);
-    $invoice_currency_code = nullable_htmlentities($row['invoice_currency_code']);
+    $invoice_currency_code = escapeHtml($row['invoice_currency_code']);
     $client_id = intval($row['client_id']);
-    $client_name = nullable_htmlentities($row['client_name']);
+    $client_name = escapeHtml($row['client_name']);
 
     // Add up all the payments for the invoice and get the total amount paid to the invoice
     $sql_amount_paid = mysqli_query($mysqli, "SELECT SUM(payment_amount) AS amount_paid FROM payments WHERE payment_invoice_id = $invoice_id");

@@ -38,17 +38,17 @@ if (isset($_GET['id']) && intval($_GET['id'])) {
 
     if ($ticket_row) {
 
-        $ticket_prefix = nullable_htmlentities($ticket_row['ticket_prefix']);
+        $ticket_prefix = escapeHtml($ticket_row['ticket_prefix']);
         $ticket_number = intval($ticket_row['ticket_number']);
-        $ticket_status = nullable_htmlentities($ticket_row['ticket_status_name']);
-        $ticket_priority = nullable_htmlentities($ticket_row['ticket_priority']);
-        $ticket_subject = nullable_htmlentities($ticket_row['ticket_subject']);
+        $ticket_status = escapeHtml($ticket_row['ticket_status_name']);
+        $ticket_priority = escapeHtml($ticket_row['ticket_priority']);
+        $ticket_subject = escapeHtml($ticket_row['ticket_subject']);
         $ticket_details = $purifier->purify($ticket_row['ticket_details']);
-        $ticket_assigned_to = nullable_htmlentities($ticket_row['user_name']);
-        $ticket_resolved_at = nullable_htmlentities($ticket_row['ticket_resolved_at']);
-        $ticket_closed_at = nullable_htmlentities($ticket_row['ticket_closed_at']);
-        $ticket_feedback = nullable_htmlentities($ticket_row['ticket_feedback']);
-        $ticket_category = nullable_htmlentities($ticket_row['category_name']);
+        $ticket_assigned_to = escapeHtml($ticket_row['user_name']);
+        $ticket_resolved_at = escapeHtml($ticket_row['ticket_resolved_at']);
+        $ticket_closed_at = escapeHtml($ticket_row['ticket_closed_at']);
+        $ticket_feedback = escapeHtml($ticket_row['ticket_feedback']);
+        $ticket_category = escapeHtml($ticket_row['category_name']);
 
         // Get Ticket Attachments (not associated with a specific reply)
         $sql_ticket_attachments = mysqli_query(
@@ -129,8 +129,8 @@ if (isset($_GET['id']) && intval($_GET['id'])) {
 
                 <?php
                 while ($ticket_attachment = mysqli_fetch_assoc($sql_ticket_attachments)) {
-                    $name = nullable_htmlentities($ticket_attachment['ticket_attachment_name']);
-                    $ref_name = nullable_htmlentities($ticket_attachment['ticket_attachment_reference_name']);
+                    $name = escapeHtml($ticket_attachment['ticket_attachment_name']);
+                    $ref_name = escapeHtml($ticket_attachment['ticket_attachment_reference_name']);
                     echo "<hr><i class='fas fa-fw fa-paperclip text-secondary mr-1'></i>$name | <a href='../uploads/tickets/$ticket_id/$ref_name' download='$name'><i class='fas fa-fw fa-download mr-1'></i>Download</a> | <a target='_blank' href='../uploads/tickets/$ticket_id/$ref_name'><i class='fas fa-fw fa-external-link-alt mr-1'></i>View</a>";
                 }
                 ?>
@@ -150,9 +150,9 @@ if (isset($_GET['id']) && intval($_GET['id'])) {
                         while ($approvals = mysqli_fetch_assoc($sql_task_approvals)) {
                             $task_id = intval($approvals['task_id']);
                             $approval_id = intval($approvals['approval_id']);
-                            $task_name = nullable_htmlentities($approvals['task_name']);
-                            $approval_type = nullable_htmlentities($approvals['approval_type']);
-                            $approval_url_key = nullable_htmlentities($approvals['approval_url_key']);
+                            $task_name = escapeHtml($approvals['task_name']);
+                            $approval_type = escapeHtml($approvals['approval_type']);
+                            $approval_url_key = escapeHtml($approvals['approval_url_key']);
 
                             $contact_can_approve = false; // Default
 
@@ -261,18 +261,18 @@ if (isset($_GET['id']) && intval($_GET['id'])) {
         while ($row = mysqli_fetch_assoc($sql)) {
             $ticket_reply_id = intval($row['ticket_reply_id']);
             $ticket_reply = $purifier->purify($row['ticket_reply']);
-            $ticket_reply_created_at = nullable_htmlentities($row['ticket_reply_created_at']);
-            $ticket_reply_updated_at = nullable_htmlentities($row['ticket_reply_updated_at']);
+            $ticket_reply_created_at = escapeHtml($row['ticket_reply_created_at']);
+            $ticket_reply_updated_at = escapeHtml($row['ticket_reply_updated_at']);
             $ticket_reply_by = intval($row['ticket_reply_by']);
             $ticket_reply_type = $row['ticket_reply_type'];
 
             if ($ticket_reply_type == "Client") {
-                $ticket_reply_by_display = nullable_htmlentities($row['contact_name']);
+                $ticket_reply_by_display = escapeHtml($row['contact_name']);
                 $user_initials = initials($row['contact_name']);
                 $user_avatar = $row['contact_photo'];
                 $avatar_link = "../uploads/clients/$session_client_id/$user_avatar";
             } else {
-                $ticket_reply_by_display = nullable_htmlentities($row['user_name']);
+                $ticket_reply_by_display = escapeHtml($row['user_name']);
                 $user_id = intval($row['user_id']);
                 $user_avatar = $row['user_avatar'];
                 $user_initials = initials($row['user_name']);
@@ -321,8 +321,8 @@ if (isset($_GET['id']) && intval($_GET['id'])) {
 
                     <?php
                     while ($ticket_attachment = mysqli_fetch_assoc($sql_ticket_reply_attachments)) {
-                        $name = nullable_htmlentities($ticket_attachment['ticket_attachment_name']);
-                        $ref_name = nullable_htmlentities($ticket_attachment['ticket_attachment_reference_name']);
+                        $name = escapeHtml($ticket_attachment['ticket_attachment_name']);
+                        $ref_name = escapeHtml($ticket_attachment['ticket_attachment_reference_name']);
                         echo "<hr><i class='fas fa-fw fa-paperclip text-secondary mr-1'></i>$name | <a href='../uploads/tickets/$ticket_id/$ref_name' download='$name'><i class='fas fa-fw fa-download mr-1'></i>Download</a> | <a target='_blank' href='../uploads/tickets/$ticket_id/$ref_name'><i class='fas fa-fw fa-external-link-alt mr-1'></i>View</a>";
                     }
                     ?>

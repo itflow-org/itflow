@@ -28,7 +28,7 @@
                                 );
                                 while ($row = mysqli_fetch_assoc($sql_assets_select)) {
                                     $asset_id = intval($row['asset_id']);
-                                    $asset_name = nullable_htmlentities($row['asset_name']);
+                                    $asset_name = escapeHtml($row['asset_name']);
 
                                     ?>
                                     <option value="<?php echo $asset_id ?>"><?php echo $asset_name; ?></option>
@@ -50,7 +50,7 @@
 
                             while ($row = mysqli_fetch_assoc($sql_assets)) {
                                 $asset_id = intval($row['asset_id']);
-                                $asset_name = nullable_htmlentities($row['asset_name']);
+                                $asset_name = escapeHtml($row['asset_name']);
 
                                 $linked_assets[] = $asset_id;
 

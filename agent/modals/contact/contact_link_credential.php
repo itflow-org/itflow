@@ -10,7 +10,7 @@ $sql = mysqli_query($mysqli, "SELECT * FROM contacts
 ");
 
 $row = mysqli_fetch_assoc($sql);
-$contact_name = nullable_htmlentities($row['contact_name']);
+$contact_name = escapeHtml($row['contact_name']);
 $client_id = intval($row['contact_client_id']);
 
 // Generate the HTML form content using output buffering.
@@ -47,7 +47,7 @@ ob_start();
                     ");
                     while ($row = mysqli_fetch_assoc($sql_credentials_select)) {
                         $credential_id = intval($row['credential_id']);
-                        $credential_name = nullable_htmlentities($row['credential_name']);
+                        $credential_name = escapeHtml($row['credential_name']);
                         ?>
                         <option value="<?php echo $credential_id ?>"><?php echo $credential_name; ?></option>
                         <?php

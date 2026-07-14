@@ -32,15 +32,15 @@ if (mysqli_num_rows($sql_document) == 0) {
 
 $row = mysqli_fetch_assoc($sql_document);
 
-$folder_name = nullable_htmlentities($row['folder_name']);
-$document_name = nullable_htmlentities($row['document_name']);
-$document_description = nullable_htmlentities($row['document_description']);
+$folder_name = escapeHtml($row['folder_name']);
+$document_name = escapeHtml($row['document_name']);
+$document_description = escapeHtml($row['document_description']);
 $document_content = $purifier->purify($row['document_content']);
 $document_created_by_id = intval($row['document_created_by']);
-$document_created_by_name = nullable_htmlentities($row['user_name']);
-$document_created_at = nullable_htmlentities($row['document_created_at']);
-$document_updated_at = nullable_htmlentities($row['document_updated_at']);
-$document_archived_at = nullable_htmlentities($row['document_archived_at']);
+$document_created_by_name = escapeHtml($row['user_name']);
+$document_created_at = escapeHtml($row['document_created_at']);
+$document_updated_at = escapeHtml($row['document_updated_at']);
+$document_archived_at = escapeHtml($row['document_archived_at']);
 $document_folder_id = intval($row['document_folder_id']);
 $document_client_visible = intval($row['document_client_visible']);
 
@@ -64,7 +64,7 @@ $page_title = $row['document_name'];
     while ($folder_id > 0) {
         $sql_folder = mysqli_query($mysqli, "SELECT folder_name, parent_folder FROM folders WHERE folder_id = $folder_id");
         if ($row_folder = mysqli_fetch_assoc($sql_folder)) {
-            $folder_name = nullable_htmlentities($row_folder['folder_name']);
+            $folder_name = escapeHtml($row_folder['folder_name']);
             $parent_folder = intval($row_folder['parent_folder']);
 
             // Prepend the folder to the beginning of the array
@@ -152,14 +152,14 @@ $page_title = $row['document_name'];
 
                         while ($row = mysqli_fetch_assoc($sql_document_versions)) {
                             $document_version_id = intval($row['document_version_id']);
-                            $document_version_name = nullable_htmlentities($row['document_version_name']);
-                            $document_version_description = nullable_htmlentities($row['document_version_description']);
+                            $document_version_name = escapeHtml($row['document_version_name']);
+                            $document_version_description = escapeHtml($row['document_version_description']);
                             if ($document_version_description ) {
                                 $document_version_description_display = $document_version_description;
                             } else {
                                 $document_version_description_display = "-";
                             }
-                            $document_version_author = nullable_htmlentities($row['user_name']);
+                            $document_version_author = escapeHtml($row['user_name']);
                             $document_version_created_date = date('Y-m-d', strtotime($row['document_version_created_at']));
 
                         ?>
@@ -219,7 +219,7 @@ $page_title = $row['document_name'];
             while ($row = mysqli_fetch_assoc($sql_files)) {
                 $file_id = intval($row['file_id']);
                 $folder_id = intval($row['file_folder_id']);
-                $file_name = nullable_htmlentities($row['file_name']);
+                $file_name = escapeHtml($row['file_name']);
 
                 $linked_files[] = $file_id;
 
@@ -251,7 +251,7 @@ $page_title = $row['document_name'];
 
             while ($row = mysqli_fetch_assoc($sql_contacts)) {
                 $contact_id = intval($row['contact_id']);
-                $contact_name = nullable_htmlentities($row['contact_name']);
+                $contact_name = escapeHtml($row['contact_name']);
 
                 $linked_contacts[] = $contact_id;
 
@@ -285,7 +285,7 @@ $page_title = $row['document_name'];
 
             while ($row = mysqli_fetch_assoc($sql_assets)) {
                 $asset_id = intval($row['asset_id']);
-                $asset_name = nullable_htmlentities($row['asset_name']);
+                $asset_name = escapeHtml($row['asset_name']);
 
                 $linked_assets[] = $asset_id;
 
@@ -321,7 +321,7 @@ $page_title = $row['document_name'];
 
             while ($row = mysqli_fetch_assoc($sql_software)) {
                 $software_id = intval($row['software_id']);
-                $software_name = nullable_htmlentities($row['software_name']);
+                $software_name = escapeHtml($row['software_name']);
 
                 $linked_software[] = $software_id;
 
@@ -353,7 +353,7 @@ $page_title = $row['document_name'];
 
             while ($row = mysqli_fetch_assoc($sql_vendors)) {
                 $vendor_id = intval($row['vendor_id']);
-                $vendor_name = nullable_htmlentities($row['vendor_name']);
+                $vendor_name = escapeHtml($row['vendor_name']);
 
                 $associated_vendors[] = $vendor_id;
 
@@ -402,10 +402,10 @@ $page_title = $row['document_name'];
 
             while ($row = mysqli_fetch_assoc($sql_document_versions)) {
                 $document_version_id = intval($row['document_version_id']);
-                $document_version_name = nullable_htmlentities($row['document_version_name']);
-                $document_version_description = nullable_htmlentities($row['document_version_description']);
-                $document_version_author = nullable_htmlentities($row['user_name']);
-                $document_version_created_date = nullable_htmlentities($row['document_version_created_at']);
+                $document_version_name = escapeHtml($row['document_version_name']);
+                $document_version_description = escapeHtml($row['document_version_description']);
+                $document_version_author = escapeHtml($row['user_name']);
+                $document_version_created_date = escapeHtml($row['document_version_created_at']);
 
                 ?>
                 <div class="mt-1 <?php if($document_id === $document_version_id){ echo "text-bold"; } ?>">

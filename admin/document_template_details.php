@@ -25,11 +25,11 @@ if (mysqli_num_rows($sql_document) == 0) {
 
 $row = mysqli_fetch_assoc($sql_document);
 
-$document_template_name = nullable_htmlentities($row['document_template_name']);
-$document_template_description = nullable_htmlentities($row['document_template_description']);
+$document_template_name = escapeHtml($row['document_template_name']);
+$document_template_description = escapeHtml($row['document_template_description']);
 $document_template_content = $purifier->purify($row['document_template_content']);
-$document_template_created_at = nullable_htmlentities($row['document_template_created_at']);
-$document_template_updated_at = nullable_htmlentities($row['document_template_updated_at']);
+$document_template_created_at = escapeHtml($row['document_template_created_at']);
+$document_template_updated_at = escapeHtml($row['document_template_updated_at']);
 
 ?>
 

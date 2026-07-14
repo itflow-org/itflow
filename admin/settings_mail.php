@@ -116,7 +116,7 @@ $imap_ready = $imap_standard_ready || $imap_oauth_ready;
                                 <label>SMTP Host</label>
                                 <div class="input-group">
                                     <div class="input-group-prepend"><span class="input-group-text"><i class="fa fa-fw fa-server"></i></span></div>
-                                    <input type="text" class="form-control" name="config_smtp_host" placeholder="smtp.yourcompany.com" value="<?php echo nullable_htmlentities($config_smtp_host); ?>" required>
+                                    <input type="text" class="form-control" name="config_smtp_host" placeholder="smtp.yourcompany.com" value="<?php echo escapeHtml($config_smtp_host); ?>" required>
                                 </div>
                             </div>
                             <div class="form-group col-md-3">
@@ -145,7 +145,7 @@ $imap_ready = $imap_standard_ready || $imap_oauth_ready;
                             <label id="smtp_user_label">SMTP Username</label>
                             <div class="input-group">
                                 <div class="input-group-prepend"><span class="input-group-text"><i class="fa fa-fw fa-user"></i></span></div>
-                                <input type="text" class="form-control" name="config_smtp_username" id="config_smtp_username" placeholder="usually your full email address" value="<?php echo nullable_htmlentities($config_smtp_username); ?>">
+                                <input type="text" class="form-control" name="config_smtp_username" id="config_smtp_username" placeholder="usually your full email address" value="<?php echo escapeHtml($config_smtp_username); ?>">
                             </div>
                             <small class="form-text text-muted" id="smtp_user_hint">Leave blank if no authentication is required.</small>
                         </div>
@@ -153,7 +153,7 @@ $imap_ready = $imap_standard_ready || $imap_oauth_ready;
                             <label>SMTP Password</label>
                             <div class="input-group">
                                 <div class="input-group-prepend"><span class="input-group-text"><i class="fa fa-fw fa-key"></i></span></div>
-                                <input type="password" class="form-control" data-toggle="password" name="config_smtp_password" placeholder="mailbox or app password" value="<?php echo nullable_htmlentities($config_smtp_password); ?>" autocomplete="new-password">
+                                <input type="password" class="form-control" data-toggle="password" name="config_smtp_password" placeholder="mailbox or app password" value="<?php echo escapeHtml($config_smtp_password); ?>" autocomplete="new-password">
                                 <div class="input-group-append"><span class="input-group-text"><i class="fa fa-fw fa-eye"></i></span></div>
                             </div>
                         </div>
@@ -196,7 +196,7 @@ $imap_ready = $imap_standard_ready || $imap_oauth_ready;
                                 <label>IMAP Host</label>
                                 <div class="input-group">
                                     <div class="input-group-prepend"><span class="input-group-text"><i class="fa fa-fw fa-server"></i></span></div>
-                                    <input type="text" class="form-control" name="config_imap_host" placeholder="imap.yourcompany.com" value="<?php echo nullable_htmlentities($config_imap_host); ?>">
+                                    <input type="text" class="form-control" name="config_imap_host" placeholder="imap.yourcompany.com" value="<?php echo escapeHtml($config_imap_host); ?>">
                                 </div>
                             </div>
                             <div class="form-group col-md-3">
@@ -225,7 +225,7 @@ $imap_ready = $imap_standard_ready || $imap_oauth_ready;
                             <label id="imap_user_label">IMAP Username</label>
                             <div class="input-group">
                                 <div class="input-group-prepend"><span class="input-group-text"><i class="fa fa-fw fa-user"></i></span></div>
-                                <input type="text" class="form-control" name="config_imap_username" placeholder="tickets@yourcompany.com" value="<?php echo nullable_htmlentities($config_imap_username); ?>" required>
+                                <input type="text" class="form-control" name="config_imap_username" placeholder="tickets@yourcompany.com" value="<?php echo escapeHtml($config_imap_username); ?>" required>
                             </div>
                             <small class="form-text text-muted" id="imap_user_hint">The mailbox address to monitor for incoming tickets.</small>
                         </div>
@@ -233,7 +233,7 @@ $imap_ready = $imap_standard_ready || $imap_oauth_ready;
                             <label>IMAP Password</label>
                             <div class="input-group">
                                 <div class="input-group-prepend"><span class="input-group-text"><i class="fa fa-fw fa-key"></i></span></div>
-                                <input type="password" class="form-control" data-toggle="password" name="config_imap_password" placeholder="mailbox or app password" value="<?php echo nullable_htmlentities($config_imap_password); ?>" autocomplete="new-password">
+                                <input type="password" class="form-control" data-toggle="password" name="config_imap_password" placeholder="mailbox or app password" value="<?php echo escapeHtml($config_imap_password); ?>" autocomplete="new-password">
                                 <div class="input-group-append"><span class="input-group-text"><i class="fa fa-fw fa-eye"></i></span></div>
                             </div>
                         </div>
@@ -265,14 +265,14 @@ $imap_ready = $imap_standard_ready || $imap_oauth_ready;
                             <label>OAuth Client ID</label>
                             <div class="input-group">
                                 <div class="input-group-prepend"><span class="input-group-text"><i class="fa fa-fw fa-id-badge"></i></span></div>
-                                <input type="text" class="form-control" name="config_mail_oauth_client_id" id="config_mail_oauth_client_id" placeholder="Application (client) ID" value="<?php echo nullable_htmlentities($config_mail_oauth_client_id ?? ''); ?>">
+                                <input type="text" class="form-control" name="config_mail_oauth_client_id" id="config_mail_oauth_client_id" placeholder="Application (client) ID" value="<?php echo escapeHtml($config_mail_oauth_client_id ?? ''); ?>">
                             </div>
                         </div>
                         <div class="form-group col-md-6">
                             <label>OAuth Client Secret</label>
                             <div class="input-group">
                                 <div class="input-group-prepend"><span class="input-group-text"><i class="fa fa-fw fa-key"></i></span></div>
-                                <input type="password" class="form-control" data-toggle="password" name="config_mail_oauth_client_secret" id="config_mail_oauth_client_secret" placeholder="Client secret value" value="<?php echo nullable_htmlentities($config_mail_oauth_client_secret ?? ''); ?>" autocomplete="new-password">
+                                <input type="password" class="form-control" data-toggle="password" name="config_mail_oauth_client_secret" id="config_mail_oauth_client_secret" placeholder="Client secret value" value="<?php echo escapeHtml($config_mail_oauth_client_secret ?? ''); ?>" autocomplete="new-password">
                                 <div class="input-group-append"><span class="input-group-text"><i class="fa fa-fw fa-eye"></i></span></div>
                             </div>
                         </div>
@@ -282,18 +282,18 @@ $imap_ready = $imap_standard_ready || $imap_oauth_ready;
                         <label>Tenant ID <small class="text-muted">— Microsoft 365 only</small></label>
                         <div class="input-group">
                             <div class="input-group-prepend"><span class="input-group-text"><i class="fa fa-fw fa-building"></i></span></div>
-                            <input type="text" class="form-control" name="config_mail_oauth_tenant_id" placeholder="Directory (tenant) ID, e.g. 00000000-0000-0000-0000-000000000000" value="<?php echo nullable_htmlentities($config_mail_oauth_tenant_id ?? ''); ?>">
+                            <input type="text" class="form-control" name="config_mail_oauth_tenant_id" placeholder="Directory (tenant) ID, e.g. 00000000-0000-0000-0000-000000000000" value="<?php echo escapeHtml($config_mail_oauth_tenant_id ?? ''); ?>">
                         </div>
                     </div>
 
                     <div class="form-row">
                         <div class="form-group col-md-6">
                             <label>Refresh Token</label>
-                            <textarea class="form-control" name="config_mail_oauth_refresh_token" rows="2" placeholder="Paste a refresh token, or use the Connect button below to fetch one"><?php echo nullable_htmlentities($config_mail_oauth_refresh_token ?? ''); ?></textarea>
+                            <textarea class="form-control" name="config_mail_oauth_refresh_token" rows="2" placeholder="Paste a refresh token, or use the Connect button below to fetch one"><?php echo escapeHtml($config_mail_oauth_refresh_token ?? ''); ?></textarea>
                         </div>
                         <div class="form-group col-md-6">
                             <label>Access Token <small class="text-muted">— optional</small></label>
-                            <textarea class="form-control" name="config_mail_oauth_access_token" rows="2" placeholder="Leave blank — auto-refreshed from the refresh token"><?php echo nullable_htmlentities($config_mail_oauth_access_token ?? ''); ?></textarea>
+                            <textarea class="form-control" name="config_mail_oauth_access_token" rows="2" placeholder="Leave blank — auto-refreshed from the refresh token"><?php echo escapeHtml($config_mail_oauth_access_token ?? ''); ?></textarea>
                             <small class="form-text text-muted">Expires at: <?php echo !empty($config_mail_oauth_access_token_expires_at) ? htmlspecialchars($config_mail_oauth_access_token_expires_at) : 'n/a'; ?></small>
                         </div>
                     </div>
@@ -335,23 +335,23 @@ $imap_ready = $imap_standard_ready || $imap_oauth_ready;
                         <tbody>
                             <tr>
                                 <td class="align-middle">System Default<br><small class="text-muted">share links &amp; system tasks</small></td>
-                                <td class="align-middle"><input type="email" class="form-control form-control-sm" name="config_mail_from_email" placeholder="noreply@yourcompany.com" value="<?php echo nullable_htmlentities($config_mail_from_email); ?>"></td>
-                                <td class="align-middle"><input type="text" class="form-control form-control-sm" name="config_mail_from_name" placeholder="YourCompany" value="<?php echo nullable_htmlentities($config_mail_from_name); ?>"></td>
+                                <td class="align-middle"><input type="email" class="form-control form-control-sm" name="config_mail_from_email" placeholder="noreply@yourcompany.com" value="<?php echo escapeHtml($config_mail_from_email); ?>"></td>
+                                <td class="align-middle"><input type="text" class="form-control form-control-sm" name="config_mail_from_name" placeholder="YourCompany" value="<?php echo escapeHtml($config_mail_from_name); ?>"></td>
                             </tr>
                             <tr>
                                 <td class="align-middle">Invoices<br><small class="text-muted">sent when emailing invoices</small></td>
-                                <td class="align-middle"><input type="email" class="form-control form-control-sm" name="config_invoice_from_email" placeholder="billing@yourcompany.com" value="<?php echo nullable_htmlentities($config_invoice_from_email); ?>"></td>
-                                <td class="align-middle"><input type="text" class="form-control form-control-sm" name="config_invoice_from_name" placeholder="YourCompany Billing" value="<?php echo nullable_htmlentities($config_invoice_from_name); ?>"></td>
+                                <td class="align-middle"><input type="email" class="form-control form-control-sm" name="config_invoice_from_email" placeholder="billing@yourcompany.com" value="<?php echo escapeHtml($config_invoice_from_email); ?>"></td>
+                                <td class="align-middle"><input type="text" class="form-control form-control-sm" name="config_invoice_from_name" placeholder="YourCompany Billing" value="<?php echo escapeHtml($config_invoice_from_name); ?>"></td>
                             </tr>
                             <tr>
                                 <td class="align-middle">Quotes<br><small class="text-muted">sent when emailing quotes</small></td>
-                                <td class="align-middle"><input type="email" class="form-control form-control-sm" name="config_quote_from_email" placeholder="sales@yourcompany.com" value="<?php echo nullable_htmlentities($config_quote_from_email); ?>"></td>
-                                <td class="align-middle"><input type="text" class="form-control form-control-sm" name="config_quote_from_name" placeholder="YourCompany Sales" value="<?php echo nullable_htmlentities($config_quote_from_name); ?>"></td>
+                                <td class="align-middle"><input type="email" class="form-control form-control-sm" name="config_quote_from_email" placeholder="sales@yourcompany.com" value="<?php echo escapeHtml($config_quote_from_email); ?>"></td>
+                                <td class="align-middle"><input type="text" class="form-control form-control-sm" name="config_quote_from_name" placeholder="YourCompany Sales" value="<?php echo escapeHtml($config_quote_from_name); ?>"></td>
                             </tr>
                             <tr>
                                 <td class="align-middle">Tickets<br><small class="text-muted">ticket creation &amp; client replies</small></td>
-                                <td class="align-middle"><input type="email" class="form-control form-control-sm" name="config_ticket_from_email" placeholder="support@yourcompany.com" value="<?php echo nullable_htmlentities($config_ticket_from_email); ?>"></td>
-                                <td class="align-middle"><input type="text" class="form-control form-control-sm" name="config_ticket_from_name" placeholder="YourCompany Support" value="<?php echo nullable_htmlentities($config_ticket_from_name); ?>"></td>
+                                <td class="align-middle"><input type="email" class="form-control form-control-sm" name="config_ticket_from_email" placeholder="support@yourcompany.com" value="<?php echo escapeHtml($config_ticket_from_email); ?>"></td>
+                                <td class="align-middle"><input type="text" class="form-control form-control-sm" name="config_ticket_from_name" placeholder="YourCompany Support" value="<?php echo escapeHtml($config_ticket_from_name); ?>"></td>
                             </tr>
                         </tbody>
                     </table>
@@ -377,10 +377,10 @@ $imap_ready = $imap_standard_ready || $imap_oauth_ready;
                         <div class="input-group">
                             <select class="form-control select2" name="test_email" required>
                                 <option value="">- Select a From address -</option>
-                                <?php if ($config_mail_from_email) { ?><option value="1"><?php echo nullable_htmlentities($config_mail_from_name); ?> (<?php echo nullable_htmlentities($config_mail_from_email); ?>)</option><?php } ?>
-                                <?php if ($config_invoice_from_email) { ?><option value="2"><?php echo nullable_htmlentities($config_invoice_from_name); ?> (<?php echo nullable_htmlentities($config_invoice_from_email); ?>)</option><?php } ?>
-                                <?php if ($config_quote_from_email) { ?><option value="3"><?php echo nullable_htmlentities($config_quote_from_name); ?> (<?php echo nullable_htmlentities($config_quote_from_email); ?>)</option><?php } ?>
-                                <?php if ($config_ticket_from_email) { ?><option value="4"><?php echo nullable_htmlentities($config_ticket_from_name); ?> (<?php echo nullable_htmlentities($config_ticket_from_email); ?>)</option><?php } ?>
+                                <?php if ($config_mail_from_email) { ?><option value="1"><?php echo escapeHtml($config_mail_from_name); ?> (<?php echo escapeHtml($config_mail_from_email); ?>)</option><?php } ?>
+                                <?php if ($config_invoice_from_email) { ?><option value="2"><?php echo escapeHtml($config_invoice_from_name); ?> (<?php echo escapeHtml($config_invoice_from_email); ?>)</option><?php } ?>
+                                <?php if ($config_quote_from_email) { ?><option value="3"><?php echo escapeHtml($config_quote_from_name); ?> (<?php echo escapeHtml($config_quote_from_email); ?>)</option><?php } ?>
+                                <?php if ($config_ticket_from_email) { ?><option value="4"><?php echo escapeHtml($config_ticket_from_name); ?> (<?php echo escapeHtml($config_ticket_from_email); ?>)</option><?php } ?>
                             </select>
                             <input type="email" class="form-control" name="email_to" placeholder="recipient@example.com">
                             <div class="input-group-append">

@@ -6,7 +6,7 @@ $tax_id = intval($_GET['id']);
 
 $sql = mysqli_query($mysqli, "SELECT * FROM taxes WHERE tax_id = $tax_id LIMIT 1");
 $row = mysqli_fetch_assoc($sql);
-$tax_name = nullable_htmlentities($row['tax_name']);
+$tax_name = escapeHtml($row['tax_name']);
 $tax_percent = floatval($row['tax_percent']);
 
 // Generate the HTML form content using output buffering.

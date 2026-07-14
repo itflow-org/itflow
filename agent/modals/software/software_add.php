@@ -71,7 +71,7 @@ ob_start();
                                 $sql = mysqli_query($mysqli, "SELECT client_id, client_name FROM clients WHERE client_archived_at IS NULL $access_permission_query ORDER BY client_name ASC");
                                 while ($row = mysqli_fetch_assoc($sql)) {
                                     $client_id_select = intval($row['client_id']);
-                                    $client_name = nullable_htmlentities($row['client_name']); ?>
+                                    $client_name = escapeHtml($row['client_name']); ?>
                                     <option <?php if ($client_id == $client_id_select) { echo "selected"; } ?> value="<?php echo $client_id_select; ?>"><?php echo $client_name; ?></option>
 
                                 <?php } ?>
@@ -97,7 +97,7 @@ ob_start();
                                 ORDER BY category_order ASC, category_name ASC
                             ");
                             while ($row = mysqli_fetch_assoc($sql_software_types_select)) {
-                                $software_type_select = nullable_htmlentities($row['category_name']);
+                                $software_type_select = escapeHtml($row['category_name']);
                                 ?>
                                 <option><?= $software_type_select ?></option>
                             <?php } ?>
@@ -139,7 +139,7 @@ ob_start();
                             $sql = mysqli_query($mysqli, "SELECT vendor_name, vendor_id FROM vendors WHERE vendor_archived_at IS NULL AND vendor_client_id = $client_id ORDER BY vendor_name ASC");
                             while ($row = mysqli_fetch_assoc($sql)) {
                                 $vendor_id = intval($row['vendor_id']);
-                                $vendor_name = nullable_htmlentities($row['vendor_name']);
+                                $vendor_name = escapeHtml($row['vendor_name']);
                                 ?>
                                 <option value="<?php echo $vendor_id; ?>"><?php echo $vendor_name; ?></option>
                             <?php } ?>
@@ -248,15 +248,15 @@ ob_start();
 
                     while ($row = mysqli_fetch_assoc($sql_assets_select)) {
                         $asset_id_select = intval($row['asset_id']);
-                        $asset_name_select = nullable_htmlentities($row['asset_name']);
-                        $asset_type_select = nullable_htmlentities($row['asset_type']);
-                        $asset_archived_at = nullable_htmlentities($row['asset_archived_at']);
+                        $asset_name_select = escapeHtml($row['asset_name']);
+                        $asset_type_select = escapeHtml($row['asset_type']);
+                        $asset_archived_at = escapeHtml($row['asset_archived_at']);
                         if (empty($asset_archived_at)) {
                             $asset_archived_display = "";
                         } else {
                             $asset_archived_display = "Archived - ";
                         }
-                        $contact_name_select = nullable_htmlentities($row['contact_name']);
+                        $contact_name_select = escapeHtml($row['contact_name']);
 
                         ?>
                         <li class="list-group-item">
@@ -288,8 +288,8 @@ ob_start();
 
                     while ($row = mysqli_fetch_assoc($sql_contacts_select)) {
                         $contact_id_select = intval($row['contact_id']);
-                        $contact_name_select = nullable_htmlentities($row['contact_name']);
-                        $contact_email_select = nullable_htmlentities($row['contact_email']);
+                        $contact_name_select = escapeHtml($row['contact_name']);
+                        $contact_email_select = escapeHtml($row['contact_email']);
 
                         ?>
                         <li class="list-group-item">

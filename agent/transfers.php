@@ -57,7 +57,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                 <div class="row">
                     <div class="col-sm-4">
                         <div class="input-group">
-                            <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(nullable_htmlentities($q)); } ?>" placeholder="Search Transfers">
+                            <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search Transfers">
                             <div class="input-group-append">
                                 <button class="btn btn-secondary" type="button" data-toggle="collapse" data-target="#advancedFilter"><i class="fas fa-filter"></i></button>
                                 <button class="btn btn-primary"><i class="fa fa-search"></i></button>
@@ -71,9 +71,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             <div class="form-group">
                                 <label>Date range</label>
                                 <input type="text" id="dateFilter" class="form-control" autocomplete="off">
-                                <input type="hidden" name="canned_date" id="canned_date" value="<?php echo nullable_htmlentities($_GET['canned_date']) ?? ''; ?>">
-                                <input type="hidden" name="dtf" id="dtf" value="<?php echo nullable_htmlentities($dtf ?? ''); ?>">
-                                <input type="hidden" name="dtt" id="dtt" value="<?php echo nullable_htmlentities($dtt ?? ''); ?>">
+                                <input type="hidden" name="canned_date" id="canned_date" value="<?php echo escapeHtml($_GET['canned_date']) ?? ''; ?>">
+                                <input type="hidden" name="dtf" id="dtf" value="<?php echo escapeHtml($dtf ?? ''); ?>">
+                                <input type="hidden" name="dtt" id="dtt" value="<?php echo escapeHtml($dtt ?? ''); ?>">
                             </div>
                         </div>
                         <div class="col-sm-2">
@@ -86,7 +86,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                     $sql_accounts_from_filter = mysqli_query($mysqli, "SELECT account_id, account_name FROM accounts WHERE EXISTS (SELECT 1 FROM expenses WHERE expense_account_id = account_id) ORDER BY account_name ASC");
                                     while ($row = mysqli_fetch_assoc($sql_accounts_from_filter)) {
                                         $account_id = intval($row['account_id']);
-                                        $account_name = nullable_htmlentities($row['account_name']);
+                                        $account_name = escapeHtml($row['account_name']);
                                     ?>
                                         <option <?php if ($account_from_filter == $account_id) { echo "selected"; } ?> value="<?php echo $account_id; ?>"><?php echo $account_name; ?></option>
                                     <?php
@@ -106,7 +106,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                     $sql_accounts_to_filter = mysqli_query($mysqli, "SELECT account_id, account_name FROM accounts WHERE EXISTS (SELECT 1 FROM revenues WHERE revenue_account_id = account_id) ORDER BY account_name ASC");
                                     while ($row = mysqli_fetch_assoc($sql_accounts_to_filter)) {
                                         $account_id = intval($row['account_id']);
-                                        $account_name = nullable_htmlentities($row['account_name']);
+                                        $account_name = escapeHtml($row['account_name']);
                                     ?>
                                         <option <?php if ($account_to_filter == $account_id) { echo "selected"; } ?> value="<?php echo $account_id; ?>"><?php echo $account_name; ?></option>
                                     <?php
@@ -162,30 +162,30 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                     while ($row = mysqli_fetch_assoc($sql)) {
                         $transfer_id = intval($row['transfer_id']);
-                        $transfer_date = nullable_htmlentities($row['transfer_date']);
+                        $transfer_date = escapeHtml($row['transfer_date']);
                         $transfer_account_from = intval($row['transfer_account_from']);
                         $transfer_account_to = intval($row['transfer_account_to']);
                         $transfer_amount = floatval($row['transfer_amount']);
-                        $transfer_method = nullable_htmlentities($row['transfer_method']);
+                        $transfer_method = escapeHtml($row['transfer_method']);
                         if($transfer_method) {
                             $transfer_method_display = $transfer_method;
                         } else {
                             $transfer_method_display = "-";
                         }
-                        $transfer_notes = nullable_htmlentities($row['transfer_notes']);
+                        $transfer_notes = escapeHtml($row['transfer_notes']);
                         if(empty($transfer_notes)) {
                             $transfer_notes_display = "-";
                         } else {
                             $transfer_notes_display = nl2br($transfer_notes);
                         }
-                        $transfer_created_at = nullable_htmlentities($row['transfer_created_at']);
+                        $transfer_created_at = escapeHtml($row['transfer_created_at']);
                         $expense_id = intval($row['transfer_expense_id']);
                         $revenue_id = intval($row['transfer_revenue_id']);
 
                         $sql_from = mysqli_query($mysqli, "SELECT * FROM accounts WHERE account_id = $transfer_account_from");
                         $row = mysqli_fetch_assoc($sql_from);
-                        $account_name_from = nullable_htmlentities($row['account_name']);
-                        $account_from_archived_at = nullable_htmlentities($row['account_archived_at']);
+                        $account_name_from = escapeHtml($row['account_name']);
+                        $account_from_archived_at = escapeHtml($row['account_archived_at']);
                         if (empty($account_from_archived_at)) {
                             $account_from_archived_display = "";
                         } else {
@@ -194,8 +194,8 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                         $sql_to = mysqli_query($mysqli, "SELECT * FROM accounts WHERE account_id = $transfer_account_to");
                         $row = mysqli_fetch_assoc($sql_to);
-                        $account_name_to = nullable_htmlentities($row['account_name']);
-                        $account_to_archived_at = nullable_htmlentities($row['account_archived_at']);
+                        $account_name_to = escapeHtml($row['account_name']);
+                        $account_to_archived_at = escapeHtml($row['account_archived_at']);
                         if (empty($account_to_archived_at)) {
                             $account_to_archived_display = "";
                         } else {

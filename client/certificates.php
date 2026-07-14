@@ -34,10 +34,10 @@ $certificates_sql = mysqli_query($mysqli, "SELECT certificate_id, certificate_na
 
                 <?php
                 while ($row = mysqli_fetch_assoc($certificates_sql)) {
-                    $certificate_name = nullable_htmlentities($row['certificate_name']);
-                    $certificate_domain = nullable_htmlentities($row['certificate_domain']);
-                    $certificate_issued_by = nullable_htmlentities($row['certificate_issued_by']);
-                    $certificate_expire = nullable_htmlentities($row['certificate_expire']);
+                    $certificate_name = escapeHtml($row['certificate_name']);
+                    $certificate_domain = escapeHtml($row['certificate_domain']);
+                    $certificate_issued_by = escapeHtml($row['certificate_issued_by']);
+                    $certificate_expire = escapeHtml($row['certificate_expire']);
 
                     ?>
 

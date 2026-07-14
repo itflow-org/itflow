@@ -26,8 +26,8 @@ if (!$stripe_provider) {
 }
 
 $stripe_provider_id = intval($stripe_provider['payment_provider_id']);
-$stripe_public_key = nullable_htmlentities($stripe_provider['payment_provider_public_key']);
-$stripe_secret_key = nullable_htmlentities($stripe_provider['payment_provider_private_key']);
+$stripe_public_key = escapeHtml($stripe_provider['payment_provider_public_key']);
+$stripe_secret_key = escapeHtml($stripe_provider['payment_provider_private_key']);
 
 // Get client's Stripe customer ID
 $stripe_customer_query = mysqli_query($mysqli, "
@@ -90,7 +90,7 @@ if (!$stripe_public_key || !$stripe_secret_key) {
 
                         foreach ($saved_methods as $method) {
                             $stripe_pm_id = $method['saved_payment_provider_method'];
-                            $description = nullable_htmlentities($method['saved_payment_description']);
+                            $description = escapeHtml($method['saved_payment_description']);
                             $payment_icon = "fas fa-credit-card"; // default icon
                             if (strpos($description, "visa") !== false) {
                                 $payment_icon = "fab fa-cc-visa";
@@ -103,10 +103,10 @@ if (!$stripe_public_key || !$stripe_secret_key) {
                             }
 
                             $pm = $stripe->paymentMethods->retrieve($stripe_pm_id, []);
-                            $brand = nullable_htmlentities($pm->card->brand);
-                            $last4 = nullable_htmlentities($pm->card->last4);
-                            $exp_month = nullable_htmlentities($pm->card->exp_month);
-                            $exp_year = nullable_htmlentities($pm->card->exp_year);
+                            $brand = escapeHtml($pm->card->brand);
+                            $last4 = escapeHtml($pm->card->last4);
+                            $exp_month = escapeHtml($pm->card->exp_month);
+                            $exp_year = escapeHtml($pm->card->exp_year);
 
                             echo "<li><i class='$payment_icon fa-2x mr-2'></i>$brand x<strong>$last4</strong> | Exp. $exp_month/$exp_year";
                             echo " – <a class='text-danger' href='post.php?delete_saved_payment={$method['saved_payment_id']}&csrf_token={$_SESSION['csrf_token']}'>Remove</a></li>";

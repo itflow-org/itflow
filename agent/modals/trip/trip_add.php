@@ -35,7 +35,7 @@ ob_start();
                         $sql = mysqli_query($mysqli, "SELECT * FROM clients WHERE client_archived_at is NULL $access_permission_query ORDER BY client_name ASC");
                         while ($row = mysqli_fetch_assoc($sql)) {
                             $client_id_select = intval($row['client_id']);
-                            $client_name = nullable_htmlentities($row['client_name']);
+                            $client_name = escapeHtml($row['client_name']);
                             ?>
                             <option value="<?php echo $client_id_select; ?>"><?php echo $client_name; ?></option>
 
@@ -96,11 +96,11 @@ ob_start();
                     if ($client_id) {
                         $sql_locations = mysqli_query($mysqli, "SELECT * FROM locations WHERE location_archived_at IS NULL AND location_client_id = $client_id ORDER BY location_name ASC");
                     while ($row = mysqli_fetch_assoc($sql_locations)) {
-                        $location_name = nullable_htmlentities($row['location_name']);
-                        $location_address = nullable_htmlentities($row['location_address']);
-                        $location_city = nullable_htmlentities($row['location_city']);
-                        $location_state = nullable_htmlentities($row['location_state']);
-                        $location_zip = nullable_htmlentities($row['location_zip']);
+                        $location_name = escapeHtml($row['location_name']);
+                        $location_address = escapeHtml($row['location_address']);
+                        $location_city = escapeHtml($row['location_city']);
+                        $location_state = escapeHtml($row['location_state']);
+                        $location_zip = escapeHtml($row['location_zip']);
                         ?>
                         <option><?php echo "$location_address $location_city $location_state $location_zip"; ?></option>
                         <?php
@@ -130,7 +130,7 @@ ob_start();
                     );
                     while ($row = mysqli_fetch_assoc($sql)) {
                         $user_id = intval($row['user_id']);
-                        $user_name = nullable_htmlentities($row['user_name']);
+                        $user_name = escapeHtml($row['user_name']);
                         ?>
                         <option <?php if ($session_user_id == $user_id) { echo "selected"; } ?> value="<?php echo $user_id; ?>"><?php echo $user_name; ?></option>
 

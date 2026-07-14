@@ -147,7 +147,7 @@ if (isset($_GET['query'])) {
         ORDER BY ticket_id DESC, ticket_reply_id ASC LIMIT 20"
     );
 
-    $q = nullable_htmlentities($_GET['query']);
+    $q = escapeHtml($_GET['query']);
 
     ?>
 
@@ -181,10 +181,10 @@ if (isset($_GET['query'])) {
 
                             while ($row = mysqli_fetch_assoc($sql_clients)) {
                                 $client_id = intval($row['client_id']);
-                                $client_name = nullable_htmlentities($row['client_name']);
-                                $location_phone_country_code = nullable_htmlentities($row['location_phone_country_code']);
-                                $location_phone = nullable_htmlentities(formatPhoneNumber($row['location_phone'], $location_phone_country_code));
-                                $client_website = nullable_htmlentities($row['client_website']);
+                                $client_name = escapeHtml($row['client_name']);
+                                $location_phone_country_code = escapeHtml($row['location_phone_country_code']);
+                                $location_phone = escapeHtml(formatPhoneNumber($row['location_phone'], $location_phone_country_code));
+                                $client_website = escapeHtml($row['client_website']);
 
                                 ?>
                                 <tr>
@@ -227,17 +227,17 @@ if (isset($_GET['query'])) {
 
                             while ($row = mysqli_fetch_assoc($sql_contacts)) {
                                 $contact_id = intval($row['contact_id']);
-                                $contact_name = nullable_htmlentities($row['contact_name']);
-                                $contact_title = nullable_htmlentities($row['contact_title']);
-                                $contact_phone_country_code = nullable_htmlentities($row['contact_phone_country_code']);
-                                $contact_phone = nullable_htmlentities(formatPhoneNumber($row['contact_phone'], $contact_phone_country_code));
-                                $contact_extension = nullable_htmlentities($row['contact_extension']);
-                                $contact_mobile_country_code = nullable_htmlentities($row['contact_mobile_country_code']);
-                                $contact_mobile = nullable_htmlentities(formatPhoneNumber($row['contact_mobile'], $contact_mobile_country_code));
-                                $contact_email = nullable_htmlentities($row['contact_email']);
+                                $contact_name = escapeHtml($row['contact_name']);
+                                $contact_title = escapeHtml($row['contact_title']);
+                                $contact_phone_country_code = escapeHtml($row['contact_phone_country_code']);
+                                $contact_phone = escapeHtml(formatPhoneNumber($row['contact_phone'], $contact_phone_country_code));
+                                $contact_extension = escapeHtml($row['contact_extension']);
+                                $contact_mobile_country_code = escapeHtml($row['contact_mobile_country_code']);
+                                $contact_mobile = escapeHtml(formatPhoneNumber($row['contact_mobile'], $contact_mobile_country_code));
+                                $contact_email = escapeHtml($row['contact_email']);
                                 $client_id = intval($row['client_id']);
-                                $client_name = nullable_htmlentities($row['client_name']);
-                                $contact_department = nullable_htmlentities($row['contact_department']);
+                                $client_name = escapeHtml($row['client_name']);
+                                $contact_department = escapeHtml($row['contact_department']);
 
                                 ?>
                                 <tr>
@@ -283,12 +283,12 @@ if (isset($_GET['query'])) {
                             <?php
 
                             while ($row = mysqli_fetch_assoc($sql_vendors)) {
-                                $vendor_name = nullable_htmlentities($row['vendor_name']);
-                                $vendor_description = nullable_htmlentities($row['vendor_description']);
-                                $vendor_phone_country_code = nullable_htmlentities($row['vendor_phone_country_code']);
-                                $vendor_phone = nullable_htmlentities(formatPhoneNumber($row['vendor_phone'], $vendor_phone_country_code));
+                                $vendor_name = escapeHtml($row['vendor_name']);
+                                $vendor_description = escapeHtml($row['vendor_description']);
+                                $vendor_phone_country_code = escapeHtml($row['vendor_phone_country_code']);
+                                $vendor_phone = escapeHtml(formatPhoneNumber($row['vendor_phone'], $vendor_phone_country_code));
                                 $client_id = intval($row['client_id']);
-                                $client_name = nullable_htmlentities($row['client_name']);
+                                $client_name = escapeHtml($row['client_name']);
 
                                 ?>
                                 <tr>
@@ -330,11 +330,11 @@ if (isset($_GET['query'])) {
                             <?php
 
                             while ($row = mysqli_fetch_assoc($sql_domains)) {
-                                $domain_name = nullable_htmlentities($row['domain_name']);
-                                $domain_expiry = nullable_htmlentities($row['domain_expire']);
+                                $domain_name = escapeHtml($row['domain_name']);
+                                $domain_expiry = escapeHtml($row['domain_expire']);
                                 $domain_id = intval($row['domain_id']);
                                 $client_id = intval($row['client_id']);
-                                $client_name = nullable_htmlentities($row['client_name']);
+                                $client_name = escapeHtml($row['client_name']);
 
                                 ?>
                                 <tr>
@@ -373,8 +373,8 @@ if (isset($_GET['query'])) {
                             <?php
 
                             while ($row = mysqli_fetch_assoc($sql_products)) {
-                                $product_name = nullable_htmlentities($row['product_name']);
-                                $product_description = nullable_htmlentities($row['product_description']);
+                                $product_name = escapeHtml($row['product_name']);
+                                $product_description = escapeHtml($row['product_description']);
                                 ?>
                                 <tr>
                                     <td><a href="products.php?q=<?php echo $q ?>"><?php echo $product_name; ?></a></td>
@@ -413,9 +413,9 @@ if (isset($_GET['query'])) {
 
                             while ($row = mysqli_fetch_assoc($sql_documents)) {
                                 $document_id = intval($row['document_id']);
-                                $document_name = nullable_htmlentities($row['document_name']);
+                                $document_name = escapeHtml($row['document_name']);
                                 $client_id = intval($row['document_client_id']);
-                                $client_name = nullable_htmlentities($row['client_name']);
+                                $client_name = escapeHtml($row['client_name']);
 
                                 ?>
                                 <tr>
@@ -458,13 +458,13 @@ if (isset($_GET['query'])) {
 
                             while ($row = mysqli_fetch_assoc($sql_files)) {
                                 $file_id = intval($row['file_id']);
-                                $file_name = nullable_htmlentities($row['file_name']);
-                                $file_reference_name = nullable_htmlentities($row['file_reference_name']);
-                                $file_description = nullable_htmlentities($row['file_description']);
+                                $file_name = escapeHtml($row['file_name']);
+                                $file_reference_name = escapeHtml($row['file_reference_name']);
+                                $file_description = escapeHtml($row['file_description']);
                                 $folder_id = intval($row['folder_id']);
-                                $folder_name = nullable_htmlentities($row['folder_name']);
+                                $folder_name = escapeHtml($row['folder_name']);
                                 $client_id = intval($row['file_client_id']);
-                                $client_name = nullable_htmlentities($row['client_name']);
+                                $client_name = escapeHtml($row['client_name']);
 
                                 ?>
                                 <tr>
@@ -509,11 +509,11 @@ if (isset($_GET['query'])) {
 
                             while ($row = mysqli_fetch_assoc($sql_tickets)) {
                                 $ticket_id = intval($row['ticket_id']);
-                                $ticket_prefix = nullable_htmlentities($row['ticket_prefix']);
+                                $ticket_prefix = escapeHtml($row['ticket_prefix']);
                                 $ticket_number = intval($row['ticket_number']);
-                                $ticket_subject = nullable_htmlentities($row['ticket_subject']);
-                                $ticket_status_name = nullable_htmlentities($row['ticket_status_name']);
-                                $client_name = nullable_htmlentities($row['client_name']);
+                                $ticket_subject = escapeHtml($row['ticket_subject']);
+                                $ticket_status_name = escapeHtml($row['ticket_status_name']);
+                                $client_name = escapeHtml($row['client_name']);
                                 $client_id = intval($row['ticket_client_id']);
 
                                 ?>
@@ -559,10 +559,10 @@ if (isset($_GET['query'])) {
 
                             while ($row = mysqli_fetch_assoc($sql_recurring_tickets)) {
                                 $recurring_ticket_id = intval($row['recurring_ticket_id']);
-                                $recurring_ticket_subject = nullable_htmlentities($row['recurring_ticket_subject']);
-                                $recurring_ticket_frequency = nullable_htmlentities($row['recurring_ticket_frequency']);
-                                $recurring_ticket_next_run = nullable_htmlentities($row['recurring_ticket_next_run']);
-                                $client_name = nullable_htmlentities($row['client_name']);
+                                $recurring_ticket_subject = escapeHtml($row['recurring_ticket_subject']);
+                                $recurring_ticket_frequency = escapeHtml($row['recurring_ticket_frequency']);
+                                $recurring_ticket_next_run = escapeHtml($row['recurring_ticket_next_run']);
+                                $client_name = escapeHtml($row['client_name']);
                                 $client_id = intval($row['client_id']);
 
                                 ?>
@@ -608,13 +608,13 @@ if (isset($_GET['query'])) {
                             <?php
 
                             while ($row = mysqli_fetch_assoc($sql_credentials)) {
-                                $credential_name = nullable_htmlentities($row['credential_name']);
-                                $credential_description = nullable_htmlentities($row['credential_description']);
+                                $credential_name = escapeHtml($row['credential_name']);
+                                $credential_description = escapeHtml($row['credential_description']);
                                 $credential_client_id = intval($row['credential_client_id']);
-                                $credential_username = nullable_htmlentities(decryptCredentialEntry($row['credential_username']));
-                                $credential_password = nullable_htmlentities(decryptCredentialEntry($row['credential_password']));
+                                $credential_username = escapeHtml(decryptCredentialEntry($row['credential_username']));
+                                $credential_password = escapeHtml(decryptCredentialEntry($row['credential_password']));
                                 $client_id = intval($row['client_id']);
-                                $client_name = nullable_htmlentities($row['client_name']);
+                                $client_name = escapeHtml($row['client_name']);
 
                                 ?>
                                 <tr>
@@ -661,13 +661,13 @@ if (isset($_GET['query'])) {
 
                             while ($row = mysqli_fetch_assoc($sql_quotes)) {
                                 $quote_id = intval($row['quote_id']);
-                                $quote_prefix = nullable_htmlentities($row['quote_prefix']);
+                                $quote_prefix = escapeHtml($row['quote_prefix']);
                                 $quote_number = intval($row['quote_number']);
                                 $quote_amount = floatval($row['quote_amount']);
-                                $quote_currency_code = nullable_htmlentities($row['quote_currency_code']);
-                                $quote_status = nullable_htmlentities($row['quote_status']);
+                                $quote_currency_code = escapeHtml($row['quote_currency_code']);
+                                $quote_status = escapeHtml($row['quote_status']);
                                 $client_id = intval($row['client_id']);
-                                $client_name = nullable_htmlentities($row['client_name']);
+                                $client_name = escapeHtml($row['client_name']);
 
                                 ?>
                                 <tr>
@@ -712,13 +712,13 @@ if (isset($_GET['query'])) {
 
                             while ($row = mysqli_fetch_assoc($sql_invoices)) {
                                 $invoice_id = intval($row['invoice_id']);
-                                $invoice_prefix = nullable_htmlentities($row['invoice_prefix']);
+                                $invoice_prefix = escapeHtml($row['invoice_prefix']);
                                 $invoice_number = intval($row['invoice_number']);
                                 $invoice_amount = floatval($row['invoice_amount']);
-                                $invoice_currency_code = nullable_htmlentities($row['invoice_currency_code']);
-                                $invoice_status = nullable_htmlentities($row['invoice_status']);
+                                $invoice_currency_code = escapeHtml($row['invoice_currency_code']);
+                                $invoice_status = escapeHtml($row['invoice_status']);
                                 $client_id = intval($row['client_id']);
-                                $client_name = nullable_htmlentities($row['client_name']);
+                                $client_name = escapeHtml($row['client_name']);
 
                                 ?>
                                 <tr>
@@ -764,39 +764,39 @@ if (isset($_GET['query'])) {
 
                             while ($row = mysqli_fetch_assoc($sql_assets)) {
                                 $client_id = intval($row['asset_client_id']);
-                                $client_name = nullable_htmlentities($row['client_name']);
+                                $client_name = escapeHtml($row['client_name']);
                                 $asset_id = intval($row['asset_id']);
-                                $asset_type = nullable_htmlentities($row['asset_type']);
-                                $asset_name = nullable_htmlentities($row['asset_name']);
-                                $asset_description = nullable_htmlentities($row['asset_description']);
+                                $asset_type = escapeHtml($row['asset_type']);
+                                $asset_name = escapeHtml($row['asset_name']);
+                                $asset_description = escapeHtml($row['asset_description']);
                                 if (empty($asset_description)) {
                                     $asset_description_display = "-";
                                 } else {
                                     $asset_description_display = $asset_description;
                                 }
-                                $asset_make = nullable_htmlentities($row['asset_make']);
-                                $asset_model = nullable_htmlentities($row['asset_model']);
-                                $asset_serial = nullable_htmlentities($row['asset_serial']);
+                                $asset_make = escapeHtml($row['asset_make']);
+                                $asset_model = escapeHtml($row['asset_model']);
+                                $asset_serial = escapeHtml($row['asset_serial']);
                                 if (empty($asset_serial)) {
                                     $asset_serial_display = "-";
                                 } else {
                                     $asset_serial_display = $asset_serial;
                                 }
-                                $asset_uri = nullable_htmlentities($row['asset_uri']);
-                                $asset_status = nullable_htmlentities($row['asset_status']);
-                                $asset_created_at = nullable_htmlentities($row['asset_created_at']);
+                                $asset_uri = escapeHtml($row['asset_uri']);
+                                $asset_status = escapeHtml($row['asset_status']);
+                                $asset_created_at = escapeHtml($row['asset_created_at']);
                                 $asset_location_id = intval($row['asset_location_id']);
                                 $asset_contact_id = intval($row['asset_contact_id']);
                                 $device_icon = getAssetIcon($asset_type);
 
-                                $contact_name = nullable_htmlentities($row['contact_name']);
-                                $contact_id = nullable_htmlentities($row['contact_id']);
+                                $contact_name = escapeHtml($row['contact_name']);
+                                $contact_id = escapeHtml($row['contact_id']);
                                 if (empty($contact_name)) {
                                     $contact_name_display = "-";
                                 }else{
                                     $contact_name_display = "<a href='contact_details.php?client_id=$client_id&contact_id=$contact_id'>$contact_name</a>";
                                 }
-                                $contact_archived_at = nullable_htmlentities($row['contact_archived_at']);
+                                $contact_archived_at = escapeHtml($row['contact_archived_at']);
                                 if (empty($contact_archived_at)) {
                                     $contact_archived_display = "";
                                 } else {
@@ -853,11 +853,11 @@ if (isset($_GET['query'])) {
                                 echo '</div></div>';
                             }
 
-                            $ticket_prefix = nullable_htmlentities($row['ticket_prefix']);
+                            $ticket_prefix = escapeHtml($row['ticket_prefix']);
                             $ticket_number = intval($row['ticket_number']);
-                            $ticket_subject = nullable_htmlentities($row['ticket_subject']);
+                            $ticket_subject = escapeHtml($row['ticket_subject']);
                             $client_id = intval($row['ticket_client_id']);
-                            $client_name = nullable_htmlentities($row['client_name']);
+                            $client_name = escapeHtml($row['client_name']);
 
                             // Output the ticket header
                             ?>

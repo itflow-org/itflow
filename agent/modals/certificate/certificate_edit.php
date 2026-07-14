@@ -9,15 +9,15 @@ $certificate_id = intval($_GET['id']);
 $sql = mysqli_query($mysqli, "SELECT * FROM certificates WHERE certificate_id = $certificate_id LIMIT 1");
 
 $row = mysqli_fetch_assoc($sql);
-$certificate_name = nullable_htmlentities($row['certificate_name']);
-$certificate_description = nullable_htmlentities($row['certificate_description']);
-$certificate_domain = nullable_htmlentities($row['certificate_domain']);
+$certificate_name = escapeHtml($row['certificate_name']);
+$certificate_description = escapeHtml($row['certificate_description']);
+$certificate_domain = escapeHtml($row['certificate_domain']);
 $certificate_domain_id = intval($row['certificate_domain_id']);
-$certificate_issued_by = nullable_htmlentities($row['certificate_issued_by']);
-$certificate_public_key = nullable_htmlentities($row['certificate_public_key']);
-$certificate_notes = nullable_htmlentities($row['certificate_notes']);
-$certificate_expire = nullable_htmlentities($row['certificate_expire']);
-$certificate_created_at = nullable_htmlentities($row['certificate_created_at']);
+$certificate_issued_by = escapeHtml($row['certificate_issued_by']);
+$certificate_public_key = escapeHtml($row['certificate_public_key']);
+$certificate_notes = escapeHtml($row['certificate_notes']);
+$certificate_expire = escapeHtml($row['certificate_expire']);
+$certificate_created_at = escapeHtml($row['certificate_created_at']);
 $client_id = intval($row['certificate_client_id']);
 
 $history_sql = mysqli_query($mysqli, "SELECT * FROM certificate_history WHERE certificate_history_certificate_id = $certificate_id");
@@ -93,7 +93,7 @@ ob_start();
                             $domains_sql = mysqli_query($mysqli, "SELECT domain_id, domain_name FROM domains WHERE domain_client_id = $client_id");
                             while ($row = mysqli_fetch_assoc($domains_sql)) {
                                 $domain_id = intval($row['domain_id']);
-                                $domain_name = nullable_htmlentities($row['domain_name']);
+                                $domain_name = escapeHtml($row['domain_name']);
                             ?>
                             <option value="<?php echo $domain_id; ?>" <?php if ($certificate_domain_id == $domain_id) { echo "selected"; } ?>><?php echo $domain_name; ?></option>
 
@@ -171,10 +171,10 @@ ob_start();
                         <tbody>
                         <?php
                         while ($row = mysqli_fetch_assoc($history_sql)) {
-                            $certificate_modified_at = nullable_htmlentities($row['certificate_history_modified_at']);
-                            $certificate_field = nullable_htmlentities($row['certificate_history_column']);
-                            $certificate_before_value = nullable_htmlentities($row['certificate_history_old_value']);
-                            $certificate_after_value = nullable_htmlentities($row['certificate_history_new_value']);
+                            $certificate_modified_at = escapeHtml($row['certificate_history_modified_at']);
+                            $certificate_field = escapeHtml($row['certificate_history_column']);
+                            $certificate_before_value = escapeHtml($row['certificate_history_old_value']);
+                            $certificate_after_value = escapeHtml($row['certificate_history_new_value']);
                             ?>
                             <tr>
                                 <td><?php echo $certificate_modified_at; ?></td>

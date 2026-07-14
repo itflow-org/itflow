@@ -43,7 +43,7 @@ $breadcrumb_folder_id = $get_folder_id;
 while ($breadcrumb_folder_id > 0) {
     $sql_folder = mysqli_query($mysqli, "SELECT folder_name, parent_folder FROM folders WHERE folder_id = $breadcrumb_folder_id AND folder_client_id = $client_id");
     if ($row_folder = mysqli_fetch_assoc($sql_folder)) {
-        $folder_name = nullable_htmlentities($row_folder['folder_name']);
+        $folder_name = escapeHtml($row_folder['folder_name']);
         $parent_folder = intval($row_folder['parent_folder']);
 
         array_unshift($folder_path, [
@@ -107,7 +107,7 @@ function display_folders($parent_folder_id, $client_id, $indent = 0, $render_roo
 
     while ($row = mysqli_fetch_assoc($sql_folders)) {
         $folder_id   = intval($row['folder_id']);
-        $folder_name = nullable_htmlentities($row['folder_name']);
+        $folder_name = escapeHtml($row['folder_name']);
 
         $row_files = mysqli_fetch_assoc(mysqli_query(
             $mysqli,
@@ -307,14 +307,14 @@ if ($view == 1) {
     // Normalize FILES into $items
     while ($row = mysqli_fetch_assoc($sql_files)) {
         $file_id            = intval($row['file_id']);
-        $file_name          = nullable_htmlentities($row['file_name']);
-        $file_description   = nullable_htmlentities($row['file_description']);
-        $file_reference_name= nullable_htmlentities($row['file_reference_name']);
-        $file_ext           = nullable_htmlentities($row['file_ext']);
+        $file_name          = escapeHtml($row['file_name']);
+        $file_description   = escapeHtml($row['file_description']);
+        $file_reference_name= escapeHtml($row['file_reference_name']);
+        $file_ext           = escapeHtml($row['file_ext']);
         $file_size          = intval($row['file_size']);
-        $file_mime_type     = nullable_htmlentities($row['file_mime_type']);
-        $file_uploaded_by   = nullable_htmlentities($row['user_name']);
-        $file_created_at    = nullable_htmlentities($row['file_created_at']);
+        $file_mime_type     = escapeHtml($row['file_mime_type']);
+        $file_uploaded_by   = escapeHtml($row['user_name']);
+        $file_created_at    = escapeHtml($row['file_created_at']);
         $file_archived_at     = $row['file_archived_at'];
 
         // determine icon
@@ -360,9 +360,9 @@ if ($view == 1) {
     // Normalize DOCUMENTS into $items
     while ($row = mysqli_fetch_assoc($sql_documents)) {
         $document_id              = intval($row['document_id']);
-        $document_name            = nullable_htmlentities($row['document_name']);
-        $document_description     = nullable_htmlentities($row['document_description']);
-        $document_created_by_name = nullable_htmlentities($row['user_name']);
+        $document_name            = escapeHtml($row['document_name']);
+        $document_description     = escapeHtml($row['document_description']);
+        $document_created_by_name = escapeHtml($row['user_name']);
         $document_created_at      = $row['document_created_at'];
         $document_updated_at      = $row['document_updated_at'];
         $document_archived_at     = $row['document_archived_at'];
@@ -508,7 +508,7 @@ $num_root_items = intval($row_root_files['num']) + intval($row_root_docs['num'])
                         <div class="col-md-5">
                             <div class="input-group mb-3 mb-md-0">
                                 <input type="search" class="form-control" name="q"
-                                       value="<?php if (isset($q)) { echo stripslashes(nullable_htmlentities($q)); } ?>"
+                                       value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>"
                                        placeholder="Search files and documents in <?php echo ($get_folder_id == 0 ? 'all folders' : 'current folder'); ?>">
                                 <div class="input-group-append">
                                     <button class="btn btn-dark"><i class="fa fa-search"></i></button>
@@ -594,14 +594,14 @@ $num_root_items = intval($row_root_files['num']) + intval($row_root_docs['num'])
                         $files = [];
                         while ($row = mysqli_fetch_assoc($sql)) {
                             $file_id            = intval($row['file_id']);
-                            $file_name          = nullable_htmlentities($row['file_name']);
-                            $file_reference_name= nullable_htmlentities($row['file_reference_name']);
-                            $file_ext           = nullable_htmlentities($row['file_ext']);
+                            $file_name          = escapeHtml($row['file_name']);
+                            $file_reference_name= escapeHtml($row['file_reference_name']);
+                            $file_ext           = escapeHtml($row['file_ext']);
                             $file_size          = intval($row['file_size']);
                             $file_size_KB       = number_format($file_size / 1024);
-                            $file_mime_type     = nullable_htmlentities($row['file_mime_type']);
-                            $file_uploaded_by   = nullable_htmlentities($row['user_name']);
-                            $file_archived_at   = nullable_htmlentities($row['file_archived_at']);
+                            $file_mime_type     = escapeHtml($row['file_mime_type']);
+                            $file_uploaded_by   = escapeHtml($row['user_name']);
+                            $file_archived_at   = escapeHtml($row['file_archived_at']);
 
                             $files[] = [
                                 'id'      => $file_id,
@@ -743,7 +743,7 @@ $num_root_items = intval($row_root_files['num']) + intval($row_root_docs['num'])
                                         $file_shared = (mysqli_num_rows($sql_shared) > 0);
                                         if ($file_shared) {
                                             $row_shared = mysqli_fetch_assoc($sql_shared);
-                                            $item_recipient       = nullable_htmlentities($row_shared['item_recipient']);
+                                            $item_recipient       = escapeHtml($row_shared['item_recipient']);
                                             $item_expire_at_human = timeAgo($row_shared['item_expire_at']);
                                         }
                                         ?>
@@ -855,7 +855,7 @@ $num_root_items = intval($row_root_files['num']) + intval($row_root_docs['num'])
                                         $doc_shared = (mysqli_num_rows($sql_shared) > 0);
                                         if ($doc_shared) {
                                             $row_shared = mysqli_fetch_assoc($sql_shared);
-                                            $item_recipient       = nullable_htmlentities($row_shared['item_recipient']);
+                                            $item_recipient       = escapeHtml($row_shared['item_recipient']);
                                             $item_expire_at_human = timeAgo($row_shared['item_expire_at']);
                                         }
                                         ?>

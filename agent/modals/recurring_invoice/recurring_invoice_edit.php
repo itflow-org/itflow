@@ -7,13 +7,13 @@ $recurring_invoice_id = intval($_GET['id']);
 $sql = mysqli_query($mysqli, "SELECT * FROM recurring_invoices WHERE recurring_invoice_id = $recurring_invoice_id LIMIT 1");
 
 $row = mysqli_fetch_assoc($sql);
-$recurring_invoice_prefix = nullable_htmlentities($row['recurring_invoice_prefix']);
+$recurring_invoice_prefix = escapeHtml($row['recurring_invoice_prefix']);
 $recurring_invoice_number = intval($row['recurring_invoice_number']);
-$recurring_invoice_scope = nullable_htmlentities($row['recurring_invoice_scope']);
-$recurring_invoice_frequency = nullable_htmlentities($row['recurring_invoice_frequency']);
-$recurring_invoice_status = nullable_htmlentities($row['recurring_invoice_status']);
+$recurring_invoice_scope = escapeHtml($row['recurring_invoice_scope']);
+$recurring_invoice_frequency = escapeHtml($row['recurring_invoice_frequency']);
+$recurring_invoice_status = escapeHtml($row['recurring_invoice_status']);
 $recurring_invoice_created_at = date('Y-m-d', strtotime($row['recurring_invoice_created_at']));
-$recurring_invoice_next_date = nullable_htmlentities($row['recurring_invoice_next_date']);
+$recurring_invoice_next_date = escapeHtml($row['recurring_invoice_next_date']);
 $recurring_invoice_discount = floatval($row['recurring_invoice_discount_amount']);
 $category_id = intval($row['recurring_invoice_category_id']);
 $client_id = intval($row['recurring_invoice_client_id']);
@@ -83,7 +83,7 @@ ob_start();
                     $sql_income_category = mysqli_query($mysqli, "SELECT * FROM categories WHERE category_type = 'Income' AND (category_archived_at > '$recurring_invoice_created_at' OR category_archived_at IS NULL) ORDER BY category_name ASC");
                     while ($row = mysqli_fetch_assoc($sql_income_category)) {
                         $category_id_select = intval($row['category_id']);
-                        $category_name_select = nullable_htmlentities($row['category_name']);
+                        $category_name_select = escapeHtml($row['category_name']);
                     ?>
                         <option <?php if ($category_id == $category_id_select) { ?> selected <?php } ?> value="<?php echo $category_id_select; ?>"><?php echo $category_name_select; ?></option>
 

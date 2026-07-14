@@ -9,21 +9,21 @@ $domain_id = intval($_GET['id']);
 $sql = mysqli_query($mysqli, "SELECT * FROM domains WHERE domain_id = $domain_id LIMIT 1");
 
 $row = mysqli_fetch_assoc($sql);
-$domain_name = nullable_htmlentities($row['domain_name']);
-$domain_description = nullable_htmlentities($row['domain_description']);
-$domain_expire = nullable_htmlentities($row['domain_expire']);
+$domain_name = escapeHtml($row['domain_name']);
+$domain_description = escapeHtml($row['domain_description']);
+$domain_expire = escapeHtml($row['domain_expire']);
 $domain_registrar = intval($row['domain_registrar']);
 $domain_webhost = intval($row['domain_webhost']);
 $domain_dnshost = intval($row['domain_dnshost']);
 $domain_mailhost = intval($row['domain_mailhost']);
-$domain_ip = nullable_htmlentities($row['domain_ip']);
-$domain_name_servers = nullable_htmlentities($row['domain_name_servers']);
-$domain_mail_servers = nullable_htmlentities($row['domain_mail_servers']);
-$domain_txt = nullable_htmlentities($row['domain_txt']);
-$domain_raw_whois = nullable_htmlentities($row['domain_raw_whois']);
-$domain_notes = nullable_htmlentities($row['domain_notes']);
-$domain_created_at = nullable_htmlentities($row['domain_created_at']);
-$domain_archived_at = nullable_htmlentities($row['domain_archived_at']);
+$domain_ip = escapeHtml($row['domain_ip']);
+$domain_name_servers = escapeHtml($row['domain_name_servers']);
+$domain_mail_servers = escapeHtml($row['domain_mail_servers']);
+$domain_txt = escapeHtml($row['domain_txt']);
+$domain_raw_whois = escapeHtml($row['domain_raw_whois']);
+$domain_notes = escapeHtml($row['domain_notes']);
+$domain_created_at = escapeHtml($row['domain_created_at']);
+$domain_archived_at = escapeHtml($row['domain_archived_at']);
 $client_id = intval($row['domain_client_id']);
 
 $history_sql = mysqli_query($mysqli, "SELECT * FROM domain_history WHERE domain_history_domain_id = $domain_id");
@@ -261,10 +261,10 @@ ob_start();
                         <tbody>
                             <?php
                                 while ($row = mysqli_fetch_assoc($history_sql)) {
-                                $domain_modified_at = nullable_htmlentities($row['domain_history_modified_at']);
-                                $domain_field = nullable_htmlentities($row['domain_history_column']);
-                                $domain_before_value = nullable_htmlentities($row['domain_history_old_value']);
-                                $domain_after_value = nullable_htmlentities($row['domain_history_new_value']);
+                                $domain_modified_at = escapeHtml($row['domain_history_modified_at']);
+                                $domain_field = escapeHtml($row['domain_history_column']);
+                                $domain_before_value = escapeHtml($row['domain_history_old_value']);
+                                $domain_after_value = escapeHtml($row['domain_history_new_value']);
                             ?>
                             <tr>
                                 <td><?php echo $domain_modified_at; ?></td>

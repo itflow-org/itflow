@@ -135,10 +135,10 @@ if (isset($_GET['ticket_query_views'])) {
         $users = array_unique($users);
         if (count($users) > 1) {
             // Multiple viewers
-            $response['message'] = "<i class='fas fa-fw fa-eye mr-2'></i>" . nullable_htmlentities(implode(", ", $users) . " are viewing this ticket.");
+            $response['message'] = "<i class='fas fa-fw fa-eye mr-2'></i>" . escapeHtml(implode(", ", $users) . " are viewing this ticket.");
         } else {
             // Single viewer
-            $response['message'] = "<i class='fas fa-fw fa-eye mr-2'></i>" . nullable_htmlentities(implode("", $users) . " is viewing this ticket.");
+            $response['message'] = "<i class='fas fa-fw fa-eye mr-2'></i>" . escapeHtml(implode("", $users) . " is viewing this ticket.");
         }
     } else {
         // No viewers
@@ -725,7 +725,7 @@ if (isset($_GET['client_duplicate_check'])) {
 
         if (mysqli_num_rows($sql_clients) > 0) {
             while ($row = mysqli_fetch_assoc($sql_clients)) {
-                $response['message'] = "<i class='fas fa-fw fa-copy mr-2'></i> Potential duplicate: <i>" . nullable_htmlentities($row['client_name']) . "</i> already exists.";
+                $response['message'] = "<i class='fas fa-fw fa-copy mr-2'></i> Potential duplicate: <i>" . escapeHtml($row['client_name']) . "</i> already exists.";
             }
         }
     }
@@ -747,7 +747,7 @@ if (isset($_GET['contact_email_check'])) {
         $sql_contacts = mysqli_query($mysqli, "SELECT contact_email FROM contacts WHERE contact_email = '$email' LIMIT 1");
         if (mysqli_num_rows($sql_contacts) > 0) {
             while ($row = mysqli_fetch_assoc($sql_contacts)) {
-                $response['message'] = "<i class='fas fa-fw fa-copy mr-2'></i> Potential duplicate: <i>" . nullable_htmlentities($row['contact_email']) . "</i> already exists.";
+                $response['message'] = "<i class='fas fa-fw fa-copy mr-2'></i> Potential duplicate: <i>" . escapeHtml($row['contact_email']) . "</i> already exists.";
             }
         }
 

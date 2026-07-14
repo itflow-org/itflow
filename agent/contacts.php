@@ -122,7 +122,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                 <div class="col-md-4">
                     <div class="input-group mb-3 mb-md-0">
-                        <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(nullable_htmlentities($q)); } ?>" placeholder="Search Contacts">
+                        <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search Contacts">
                         <div class="input-group-append">
                             <button class="btn btn-dark"><i class="fa fa-search"></i></button>
                         </div>
@@ -146,7 +146,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             ");
                             while ($row = mysqli_fetch_assoc($sql_tags_filter)) {
                                 $tag_id = intval($row['tag_id']);
-                                $tag_name = nullable_htmlentities($row['tag_name']); ?>
+                                $tag_name = escapeHtml($row['tag_name']); ?>
 
                                 <option value="<?php echo $tag_id ?>" <?php if (isset($_GET['tags']) && in_array($tag_id, $_GET['tags'])) { echo 'selected'; } ?>> <?php echo $tag_name ?> </option>
 
@@ -171,7 +171,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             ");
                             while ($row = mysqli_fetch_assoc($sql_locations_filter)) {
                                 $location_id = intval($row['location_id']);
-                                $location_name = nullable_htmlentities($row['location_name']);
+                                $location_name = escapeHtml($row['location_name']);
                             ?>
                                 <option <?php if ($location_filter == $location_id) { echo "selected"; } ?> value="<?php echo $location_id; ?>"><?php echo $location_name; ?></option>
                             <?php
@@ -198,7 +198,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             ");
                             while ($row = mysqli_fetch_assoc($sql_clients_filter)) {
                                 $client_id = intval($row['client_id']);
-                                $client_name = nullable_htmlentities($row['client_name']);
+                                $client_name = escapeHtml($row['client_name']);
                             ?>
                                 <option <?php if ($client == $client_id) { echo "selected"; } ?> value="<?php echo $client_id; ?>"><?php echo $client_name; ?></option>
                             <?php
@@ -329,37 +329,37 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                     while ($row = mysqli_fetch_assoc($sql)) {
                         $client_id = intval($row['client_id']);
-                        $client_name = nullable_htmlentities($row['client_name']);
+                        $client_name = escapeHtml($row['client_name']);
                         $contact_id = intval($row['contact_id']);
-                        $contact_name = nullable_htmlentities($row['contact_name']);
-                        $contact_title = nullable_htmlentities($row['contact_title']);
+                        $contact_name = escapeHtml($row['contact_name']);
+                        $contact_title = escapeHtml($row['contact_title']);
                         if (empty($contact_title)) {
                             $contact_title_display = "";
                         } else {
                             $contact_title_display = "<small class='text-secondary'>$contact_title</small>";
                         }
-                        $contact_department = getFallBack(nullable_htmlentities($row['contact_department']));
-                        $contact_extension = nullable_htmlentities($row['contact_extension']);
+                        $contact_department = getFallBack(escapeHtml($row['contact_department']));
+                        $contact_extension = escapeHtml($row['contact_extension']);
                         if (empty($contact_extension)) {
                             $contact_extension_display = "";
                         } else {
                             $contact_extension_display = "<small class='text-secondary ml-1'>x$contact_extension</small>";
                         }
-                        $contact_phone_country_code = nullable_htmlentities($row['contact_phone_country_code']);
-                        $contact_phone = nullable_htmlentities(formatPhoneNumber($row['contact_phone'], $contact_phone_country_code));
+                        $contact_phone_country_code = escapeHtml($row['contact_phone_country_code']);
+                        $contact_phone = escapeHtml(formatPhoneNumber($row['contact_phone'], $contact_phone_country_code));
                         if (empty($contact_phone)) {
                             $contact_phone_display = "";
                         } else {
                             $contact_phone_display = "<div><i class='fas fa-fw fa-phone mr-2'></i><a href='tel:$contact_phone'>$contact_phone$contact_extension_display</a></div>";
                         }
-                        $contact_mobile_country_code = nullable_htmlentities($row['contact_mobile_country_code']);
-                        $contact_mobile = nullable_htmlentities(formatPhoneNumber($row['contact_mobile'], $contact_mobile_country_code));
+                        $contact_mobile_country_code = escapeHtml($row['contact_mobile_country_code']);
+                        $contact_mobile = escapeHtml(formatPhoneNumber($row['contact_mobile'], $contact_mobile_country_code));
                         if (empty($contact_mobile)) {
                             $contact_mobile_display = "";
                         } else {
                             $contact_mobile_display = "<div class='mt-2'><i class='fas fa-fw fa-mobile-alt mr-2'></i><a href='tel:$contact_mobile'>$contact_mobile</a></div>";
                         }
-                        $contact_email = nullable_htmlentities($row['contact_email']);
+                        $contact_email = escapeHtml($row['contact_email']);
                         if (empty($contact_email)) {
                             $contact_email_display = "";
                         } else {
@@ -369,33 +369,33 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         if (empty($contact_info_display)) {
                             $contact_info_display = "-";
                         }
-                        $contact_pin = nullable_htmlentities($row['contact_pin']);
-                        $contact_photo = nullable_htmlentities($row['contact_photo']);
+                        $contact_pin = escapeHtml($row['contact_pin']);
+                        $contact_photo = escapeHtml($row['contact_photo']);
                         $contact_initials = initials($contact_name);
-                        $contact_notes = nullable_htmlentities($row['contact_notes']);
+                        $contact_notes = escapeHtml($row['contact_notes']);
                         $contact_primary = intval($row['contact_primary']);
                         $contact_important = intval($row['contact_important']);
                         $contact_billing = intval($row['contact_billing']);
                         $contact_technical = intval($row['contact_technical']);
-                        $contact_created_at = nullable_htmlentities($row['contact_created_at']);
-                        $contact_archived_at = nullable_htmlentities($row['contact_archived_at']);
+                        $contact_created_at = escapeHtml($row['contact_created_at']);
+                        $contact_archived_at = escapeHtml($row['contact_archived_at']);
                         if ($contact_primary == 1) {
                             $contact_primary_display = "<small class='text-success'>Primary Contact</small>";
                         } else {
                             $contact_primary_display = false;
                         }
                         $contact_location_id = intval($row['contact_location_id']);
-                        $location_name = nullable_htmlentities($row['location_name']);
+                        $location_name = escapeHtml($row['location_name']);
                         if (empty($location_name)) {
                             $location_name = "<span class='text-muted'>N/A</span>";
                         }
-                        $location_archived_at = nullable_htmlentities($row['location_archived_at']);
+                        $location_archived_at = escapeHtml($row['location_archived_at']);
                         if ($location_archived_at) {
                             $location_name_display = "<div class='text-danger' title='Archived'><s>$location_name</s></div>";
                         } else {
                             $location_name_display = $location_name;
                         }
-                        $auth_method = nullable_htmlentities($row['user_auth_method']);
+                        $auth_method = escapeHtml($row['user_auth_method']);
                         $contact_user_id = intval($row['contact_user_id']);
                         if ($contact_user_id) {
                             $user_exists_display = "<span class='badge badge-pill badge-dark p-1' title='User: $auth_method'><i class='fas fa-fw fa-user'></i></span>";
@@ -448,12 +448,12 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         while ($row = mysqli_fetch_assoc($sql_contact_tags)) {
 
                             $contact_tag_id = intval($row['tag_id']);
-                            $contact_tag_name = nullable_htmlentities($row['tag_name']);
-                            $contact_tag_color = nullable_htmlentities($row['tag_color']);
+                            $contact_tag_name = escapeHtml($row['tag_name']);
+                            $contact_tag_color = escapeHtml($row['tag_color']);
                             if (empty($contact_tag_color)) {
                                 $contact_tag_color = "dark";
                             }
-                            $contact_tag_icon = nullable_htmlentities($row['tag_icon']);
+                            $contact_tag_icon = escapeHtml($row['tag_icon']);
                             if (empty($contact_tag_icon)) {
                                 $contact_tag_icon = "tag";
                             }

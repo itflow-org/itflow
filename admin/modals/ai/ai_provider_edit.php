@@ -7,9 +7,9 @@ $provider_id = intval($_GET['id']);
 $sql = mysqli_query($mysqli, "SELECT * FROM ai_providers WHERE ai_provider_id = $provider_id LIMIT 1");
 
 $row = mysqli_fetch_assoc($sql);
-$provider_name = nullable_htmlentities($row['ai_provider_name']);
-$url = nullable_htmlentities($row['ai_provider_api_url']);
-$key = nullable_htmlentities($row['ai_provider_api_key']);
+$provider_name = escapeHtml($row['ai_provider_name']);
+$url = escapeHtml($row['ai_provider_api_url']);
+$key = escapeHtml($row['ai_provider_api_key']);
 
 // Generate the HTML form content using output buffering.
 ob_start();

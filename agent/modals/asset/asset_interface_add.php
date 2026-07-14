@@ -72,7 +72,7 @@ ob_start();
                                 ORDER BY category_order ASC, category_name ASC
                             ");
                             while ($row = mysqli_fetch_assoc($sql_interface_types_select)) {
-                                $interface_type_select = nullable_htmlentities($row['category_name']);
+                                $interface_type_select = escapeHtml($row['category_name']);
                                 ?>
                                 <option><?= $interface_type_select ?></option>
                             <?php } ?>
@@ -114,8 +114,8 @@ ob_start();
                             $sql_network_select = mysqli_query($mysqli, "SELECT * FROM networks WHERE network_archived_at IS NULL AND network_client_id = $client_id ORDER BY network_name ASC");
                             while ($row = mysqli_fetch_assoc($sql_network_select)) {
                                 $network_id = $row['network_id'];
-                                $network_name = nullable_htmlentities($row['network_name']);
-                                $network = nullable_htmlentities($row['network']);
+                                $network_name = escapeHtml($row['network_name']);
+                                $network = escapeHtml($row['network']);
                                 ?>
                                 <option value="<?php echo $network_id; ?>">
                                     <?php echo "$network_name - $network"; ?>
@@ -205,8 +205,8 @@ ob_start();
 
                             while ($row = mysqli_fetch_assoc($sql_interfaces_select)) {
                                 $interface_id_select = intval($row['interface_id']);
-                                $interface_name_select = nullable_htmlentities($row['interface_name']);
-                                $asset_name_select = nullable_htmlentities($row['asset_name']);
+                                $interface_name_select = escapeHtml($row['interface_name']);
+                                $asset_name_select = escapeHtml($row['asset_name']);
                                 ?>
                                 <option value="<?php echo $interface_id_select; ?>">
                                     <?php echo "$asset_name_select - $interface_name_select"; ?>

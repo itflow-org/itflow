@@ -19,16 +19,16 @@ $purifier = new HTMLPurifier($purifier_config);
 $sql = mysqli_query($mysqli, "SELECT * FROM email_queue WHERE email_id = $email_id LIMIT 1");
 $row = mysqli_fetch_assoc($sql);
 
-$email_from = nullable_htmlentities($row['email_from']);
-$email_from_name = nullable_htmlentities($row['email_from_name']);
-$email_recipient = nullable_htmlentities($row['email_recipient']);
-$email_recipient_name = nullable_htmlentities($row['email_recipient_name']);
-$email_subject = nullable_htmlentities($row['email_subject']);
+$email_from = escapeHtml($row['email_from']);
+$email_from_name = escapeHtml($row['email_from_name']);
+$email_recipient = escapeHtml($row['email_recipient']);
+$email_recipient_name = escapeHtml($row['email_recipient_name']);
+$email_subject = escapeHtml($row['email_subject']);
 $email_content = $purifier->purify($row['email_content']);
 $email_attempts = intval($row['email_attempts']);
-$email_queued_at = nullable_htmlentities($row['email_queued_at']);
-$email_failed_at = nullable_htmlentities($row['email_failed_at']);
-$email_sent_at = nullable_htmlentities($row['email_sent_at']);
+$email_queued_at = escapeHtml($row['email_queued_at']);
+$email_failed_at = escapeHtml($row['email_failed_at']);
+$email_sent_at = escapeHtml($row['email_sent_at']);
 $email_status = intval($row['email_status']);
 if ($email_status == 0) {
     $email_status_display = "<div class='text-primary'>Queued</div>";

@@ -9,9 +9,9 @@ $sql = mysqli_query($mysqli, "SELECT * FROM ai_models WHERE ai_model_id = $model
 $row = mysqli_fetch_assoc($sql);
 $ai_model_ai_provider_id = intval($row['ai_model_ai_provider_id']);
 $model_id = intval($row['ai_model_id']);
-$model_name = nullable_htmlentities($row['ai_model_name']);
-$use_case = nullable_htmlentities($row['ai_model_use_case']);
-$prompt = nullable_htmlentities($row['ai_model_prompt']);
+$model_name = escapeHtml($row['ai_model_name']);
+$use_case = escapeHtml($row['ai_model_use_case']);
+$prompt = escapeHtml($row['ai_model_prompt']);
 
 // Generate the HTML form content using output buffering.
 ob_start();
@@ -41,7 +41,7 @@ ob_start();
                         $sql_ai_providers = mysqli_query($mysqli, "SELECT * FROM ai_providers");
                         while ($row = mysqli_fetch_assoc($sql_ai_providers)) {
                             $ai_provider_id = intval($row['ai_provider_id']);
-                            $ai_provider_name = nullable_htmlentities($row['ai_provider_name']);
+                            $ai_provider_name = escapeHtml($row['ai_provider_name']);
 
                         ?>
                         <option <?php if ($ai_provider_id = $ai_model_ai_provider_id) { echo "selected"; } ?> value="<?php echo $ai_provider_id; ?>"><?php echo $ai_provider_name; ?></option>

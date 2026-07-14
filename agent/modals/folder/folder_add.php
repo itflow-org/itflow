@@ -4,7 +4,7 @@ require_once '../../../includes/modal_header.php';
 
 $client_id = intval($_GET['client_id'] ?? 0);
 $current_folder_id = intval($_GET['current_folder_id'] ?? 0);
-$folder_name = nullable_htmlentities(getFieldByID('folders', $current_folder_id, 'folder_name') ?? '/');
+$folder_name = escapeHtml(getFieldByID('folders', $current_folder_id, 'folder_name') ?? '/');
 
 enforceClientAccess();
 

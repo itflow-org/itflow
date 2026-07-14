@@ -7,7 +7,7 @@ $invoice_id = intval($_GET['invoice_id']);
 $sql = mysqli_query($mysqli, "SELECT * FROM invoices WHERE invoice_id = $invoice_id LIMIT 1");
 
 $row = mysqli_fetch_assoc($sql);
-$invoice_prefix = nullable_htmlentities($row['invoice_prefix']);
+$invoice_prefix = escapeHtml($row['invoice_prefix']);
 $invoice_number = intval($row['invoice_number']);
 $client_id = intval($row['invoice_client_id']);
 

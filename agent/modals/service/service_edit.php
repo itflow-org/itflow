@@ -7,15 +7,15 @@ $service_id = intval($_GET['id']);
 $sql = mysqli_query($mysqli, "SELECT * FROM services WHERE service_id = $service_id LIMIT 1");
 
 $row = mysqli_fetch_assoc($sql);
-$service_name = nullable_htmlentities($row['service_name']);
-$service_description = nullable_htmlentities($row['service_description']);
-$service_category = nullable_htmlentities($row['service_category']);
-$service_importance = nullable_htmlentities($row['service_importance']);
-$service_backup = nullable_htmlentities($row['service_backup']);
-$service_notes = nullable_htmlentities($row['service_notes']);
-$service_created_at = nullable_htmlentities($row['service_created_at']);
-$service_updated_at = nullable_htmlentities($row['service_updated_at']);
-$service_review_due = nullable_htmlentities($row['service_review_due']);
+$service_name = escapeHtml($row['service_name']);
+$service_description = escapeHtml($row['service_description']);
+$service_category = escapeHtml($row['service_category']);
+$service_importance = escapeHtml($row['service_importance']);
+$service_backup = escapeHtml($row['service_backup']);
+$service_notes = escapeHtml($row['service_notes']);
+$service_created_at = escapeHtml($row['service_created_at']);
+$service_updated_at = escapeHtml($row['service_updated_at']);
+$service_review_due = escapeHtml($row['service_review_due']);
 $client_id = intval($row['service_client_id']);
 
 enforceClientAccess();
@@ -195,7 +195,7 @@ ob_start();
 
                         while ($row_all = mysqli_fetch_assoc($sql_all)) {
                             $contact_id = intval($row_all['contact_id']);
-                            $contact_name = nullable_htmlentities($row_all['contact_name']);
+                            $contact_name = escapeHtml($row_all['contact_name']);
 
                             if (in_array($contact_id, $selected_ids)) {
                                 echo "<option value=\"$contact_id\" selected>$contact_name</option>";
@@ -217,7 +217,7 @@ ob_start();
                         $sql_all = mysqli_query($mysqli, "SELECT * FROM vendors WHERE (vendor_archived_at > '$service_created_at' OR vendor_archived_at IS NULL) AND vendor_client_id = $client_id");
                         while ($row_all = mysqli_fetch_assoc($sql_all)) {
                             $vendor_id = intval($row_all['vendor_id']);
-                            $vendor_name = nullable_htmlentities($row_all['vendor_name']);
+                            $vendor_name = escapeHtml($row_all['vendor_name']);
 
                             if (in_array($vendor_id, $selected_ids)) {
                                 echo "<option value=\"$vendor_id\" selected>$vendor_name</option>";
@@ -239,7 +239,7 @@ ob_start();
                         $sql_all = mysqli_query($mysqli, "SELECT * FROM documents WHERE document_archived_at IS NULL AND document_client_id = $client_id");
                         while ($row_all = mysqli_fetch_assoc($sql_all)) {
                             $document_id = intval($row_all['document_id']);
-                            $document_name = nullable_htmlentities($row_all['document_name']);
+                            $document_name = escapeHtml($row_all['document_name']);
 
                             if (in_array($document_id, $selected_ids)) {
                                 echo "<option value=\"$document_id\" selected>$document_name</option>";
@@ -269,7 +269,7 @@ ob_start();
                         $sql_all = mysqli_query($mysqli, "SELECT * FROM assets WHERE (asset_archived_at > '$service_created_at' OR asset_archived_at IS NULL) AND asset_client_id = $client_id");
                         while ($row_all = mysqli_fetch_assoc($sql_all)) {
                             $asset_id = intval($row_all['asset_id']);
-                            $asset_name = nullable_htmlentities($row_all['asset_name']);
+                            $asset_name = escapeHtml($row_all['asset_name']);
 
                             if (in_array($asset_id, $selected_ids)) {
                                 echo "<option value=\"$asset_id\" selected>$asset_name</option>";
@@ -291,7 +291,7 @@ ob_start();
                         $sql_all = mysqli_query($mysqli, "SELECT * FROM credentials WHERE (credential_archived_at > '$service_created_at' OR credential_archived_at IS NULL) AND credential_client_id = $client_id");
                         while ($row_all = mysqli_fetch_assoc($sql_all)) {
                             $credential_id = intval($row_all['credential_id']);
-                            $credential_name = nullable_htmlentities($row_all['credential_name']);
+                            $credential_name = escapeHtml($row_all['credential_name']);
 
                             if (in_array($credential_id, $selected_ids)) {
                                 echo "<option value=\"$credential_id\" selected>$credential_name</option>";
@@ -313,7 +313,7 @@ ob_start();
                         $sql_all = mysqli_query($mysqli, "SELECT * FROM domains WHERE (domain_archived_at > '$service_created_at' OR domain_archived_at IS NULL) AND domain_client_id = $client_id");
                         while ($row_all = mysqli_fetch_assoc($sql_all)) {
                             $domain_id = intval($row_all['domain_id']);
-                            $domain_name = nullable_htmlentities($row_all['domain_name']);
+                            $domain_name = escapeHtml($row_all['domain_name']);
 
                             if (in_array($domain_id, $selected_ids)) {
                                 echo "<option value=\"$domain_id\" selected>$domain_name</option>";
@@ -335,7 +335,7 @@ ob_start();
                         $sql_all = mysqli_query($mysqli, "SELECT * FROM certificates WHERE (certificate_archived_at > '$service_created_at' OR certificate_archived_at IS NULL) AND certificate_client_id = $client_id");
                         while ($row_all = mysqli_fetch_assoc($sql_all)) {
                             $cert_id = intval($row_all['certificate_id']);
-                            $cert_name = nullable_htmlentities($row_all['certificate_name']);
+                            $cert_name = escapeHtml($row_all['certificate_name']);
 
                             if (in_array($cert_id, $selected_ids)) {
                                 echo "<option value=\"$cert_id\" selected>$cert_name</option>";

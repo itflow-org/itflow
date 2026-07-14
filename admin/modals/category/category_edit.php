@@ -7,10 +7,10 @@ $category_id = intval($_GET['id']);
 $sql = mysqli_query($mysqli, "SELECT * FROM categories WHERE category_id = $category_id LIMIT 1");
 
 $row = mysqli_fetch_assoc($sql);
-$category_name = nullable_htmlentities($row['category_name']);
-$category_description = nullable_htmlentities($row['category_description']);
-$category_color = nullable_htmlentities($row['category_color']);
-$category_type = nullable_htmlentities($row['category_type']);
+$category_name = escapeHtml($row['category_name']);
+$category_description = escapeHtml($row['category_description']);
+$category_color = escapeHtml($row['category_color']);
+$category_type = escapeHtml($row['category_type']);
 
 // Generate the HTML form content using output buffering.
 ob_start();

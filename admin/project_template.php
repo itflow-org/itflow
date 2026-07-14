@@ -31,7 +31,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                 <div class="col-md-4">
                     <div class="input-group mb-3 mb-md-0">
-                        <input type="search" class="form-control" name="q" value="<?php if(isset($q)){ echo stripslashes(nullable_htmlentities($q)); } ?>" placeholder="Search Project Templates">
+                        <input type="search" class="form-control" name="q" value="<?php if(isset($q)){ echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search Project Templates">
                         <div class="input-group-append">
                             <button class="btn btn-dark"><i class="fa fa-search"></i></button>
                         </div>
@@ -63,9 +63,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                 while($row = mysqli_fetch_assoc($sql)){
                     $project_template_id = intval($row['project_template_id']);
-                    $project_template_name = nullable_htmlentities($row['project_template_name']);
-                    $project_template_description = nullable_htmlentities($row['project_template_description']);
-                    $project_template_created_at = nullable_htmlentities($row['project_template_created_at']);
+                    $project_template_name = escapeHtml($row['project_template_name']);
+                    $project_template_description = escapeHtml($row['project_template_description']);
+                    $project_template_created_at = escapeHtml($row['project_template_created_at']);
 
                     // Get Ticket Template Count
                     $sql_ticket_templates = mysqli_query($mysqli, "SELECT * FROM ticket_templates, project_template_ticket_templates

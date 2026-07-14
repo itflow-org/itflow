@@ -74,8 +74,8 @@ $row = mysqli_fetch_assoc($sql_settings);
 
 $company_name          = $row['company_name'];
 $company_logo          = $row['company_logo'];
-$config_start_page     = nullable_htmlentities($row['config_start_page']);
-$config_login_message  = nullable_htmlentities($row['config_login_message']);
+$config_start_page     = escapeHtml($row['config_start_page']);
+$config_login_message  = escapeHtml($row['config_login_message']);
 
 $config_smtp_provider       = $row['config_smtp_provider'];
 $config_smtp_host       = $row['config_smtp_host'];
@@ -624,7 +624,7 @@ $show_login_form = (!$show_role_choice && !$show_mfa_form);
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title><?php echo nullable_htmlentities($company_name); ?> | Login</title>
+    <title><?php echo escapeHtml($company_name); ?> | Login</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="robots" content="noindex">
 
@@ -641,7 +641,7 @@ $show_login_form = (!$show_role_choice && !$show_mfa_form);
 <div class="login-box">
     <div class="login-logo">
         <?php if (!empty($company_logo)) { ?>
-            <img alt="<?=nullable_htmlentities($company_name)?> logo" height="110" width="380" class="img-fluid" src="<?php echo "uploads/settings/$company_logo"; ?>">
+            <img alt="<?=escapeHtml($company_name)?> logo" height="110" width="380" class="img-fluid" src="<?php echo "uploads/settings/$company_logo"; ?>">
         <?php } else { ?>
             <span class="text-primary text-bold"><i class="fas fa-paper-plane mr-2"></i>IT</span>Flow
         <?php } ?>

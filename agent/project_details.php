@@ -48,17 +48,17 @@ if (isset($_GET['project_id'])) {
     $row = mysqli_fetch_assoc($sql_project);
 
     $project_id = intval($row['project_id']);
-    $project_prefix = nullable_htmlentities($row['project_prefix']);
+    $project_prefix = escapeHtml($row['project_prefix']);
     $project_number = intval($row['project_number']);
-    $project_name = nullable_htmlentities($row['project_name']);
-    $project_description = nullable_htmlentities($row['project_description']);
-    $project_due = nullable_htmlentities($row['project_due']);
+    $project_name = escapeHtml($row['project_name']);
+    $project_description = escapeHtml($row['project_description']);
+    $project_due = escapeHtml($row['project_due']);
     $project_created_at = date("Y-m-d", strtotime($row['project_created_at']));
-    $project_updated_at = nullable_htmlentities($row['project_updated_at']);
-    $project_completed_at = nullable_htmlentities($row['project_completed_at']);
-    $project_archived_at = nullable_htmlentities($row['project_archived_at']);
+    $project_updated_at = escapeHtml($row['project_updated_at']);
+    $project_completed_at = escapeHtml($row['project_completed_at']);
+    $project_archived_at = escapeHtml($row['project_archived_at']);
     $client_id = intval($row['client_id']);
-    $client_name = nullable_htmlentities($row['client_name']);
+    $client_name = escapeHtml($row['client_name']);
     if ($client_name) {
         $client_name_display = "<div class='text-secondary'><i class='fas fa-fw fa-users mr-2'></i>$client_name</div>";
     } else {
@@ -66,7 +66,7 @@ if (isset($_GET['project_id'])) {
     }
 
     $project_manager = intval($row['user_id']);
-    $project_manager_name = nullable_htmlentities($row['user_name']);
+    $project_manager_name = escapeHtml($row['user_name']);
     if ($project_manager) {
         $project_manager_display = "<div class='text-secondary'><i class='fas fa-fw fa-user-tie mr-2'></i>$project_manager_name</div>";
     } else {
@@ -142,7 +142,7 @@ if (isset($_GET['project_id'])) {
         LEFT JOIN tickets ON ticket_id = ticket_reply_ticket_id
         WHERE ticket_reply_archived_at IS NULL AND ticket_project_id = $project_id");
     $row = mysqli_fetch_assoc($sql_ticket_total_reply_time);
-    $ticket_total_reply_time = nullable_htmlentities($row['ticket_total_reply_time']);
+    $ticket_total_reply_time = escapeHtml($row['ticket_total_reply_time']);
 
     // Get all Assigned ticket Users as a comma-separated string
     $sql_project_collaborators = mysqli_query($mysqli, "
@@ -157,7 +157,7 @@ if (isset($_GET['project_id'])) {
     $row = mysqli_fetch_assoc($sql_project_collaborators);
 
     // The user names in a comma-separated string
-    $ticket_collaborators = nullable_htmlentities($row['user_names']);
+    $ticket_collaborators = escapeHtml($row['user_names']);
 
     ?>
 
@@ -387,17 +387,17 @@ if (isset($_GET['project_id'])) {
 
                                 while ($row = mysqli_fetch_assoc($sql_tickets)) {
                                     $ticket_id = intval($row['ticket_id']);
-                                    $ticket_prefix = nullable_htmlentities($row['ticket_prefix']);
-                                    $ticket_number = nullable_htmlentities($row['ticket_number']);
-                                    $ticket_subject = nullable_htmlentities($row['ticket_subject']);
-                                    $ticket_priority = nullable_htmlentities($row['ticket_priority']);
+                                    $ticket_prefix = escapeHtml($row['ticket_prefix']);
+                                    $ticket_number = escapeHtml($row['ticket_number']);
+                                    $ticket_subject = escapeHtml($row['ticket_subject']);
+                                    $ticket_priority = escapeHtml($row['ticket_priority']);
                                     $ticket_status = intval($row['ticket_status']);
-                                    $ticket_status_name = nullable_htmlentities($row['ticket_status_name']);
-                                    $ticket_status_color = nullable_htmlentities($row['ticket_status_color']);
+                                    $ticket_status_name = escapeHtml($row['ticket_status_name']);
+                                    $ticket_status_color = escapeHtml($row['ticket_status_color']);
                                     $ticket_billable = intval($row['ticket_billable']);
-                                    $ticket_created_at = nullable_htmlentities($row['ticket_created_at']);
+                                    $ticket_created_at = escapeHtml($row['ticket_created_at']);
                                     $ticket_created_at_time_ago = timeAgo($row['ticket_created_at']);
-                                    $ticket_updated_at = nullable_htmlentities($row['ticket_updated_at']);
+                                    $ticket_updated_at = escapeHtml($row['ticket_updated_at']);
                                     $ticket_updated_at_time_ago = timeAgo($row['ticket_updated_at']);
                                     if (empty($ticket_updated_at)) {
                                         if ($ticket_status == 5) {
@@ -408,7 +408,7 @@ if (isset($_GET['project_id'])) {
                                     } else {
                                         $ticket_updated_at_display = "$ticket_updated_at_time_ago<br><small class='text-secondary'>$ticket_updated_at</small>";
                                     }
-                                    $ticket_closed_at = nullable_htmlentities($row['ticket_closed_at']);
+                                    $ticket_closed_at = escapeHtml($row['ticket_closed_at']);
 
                                     if ($ticket_priority == "High") {
                                         $ticket_priority_display = "<span class='p-2 badge badge-danger'>$ticket_priority</span>";
@@ -428,13 +428,13 @@ if (isset($_GET['project_id'])) {
                                             $ticket_assigned_to_display = "<p class='text-danger'>Not Assigned</p>";
                                         }
                                     } else {
-                                        $ticket_assigned_to_display = nullable_htmlentities($row['user_name']);
+                                        $ticket_assigned_to_display = escapeHtml($row['user_name']);
                                     }
 
                                     $project_id = intval($row['ticket_project_id']);
 
                                     $client_id = intval($row['client_id']);
-                                    $client_name = nullable_htmlentities($row['client_name']);
+                                    $client_name = escapeHtml($row['client_name']);
 
                                     // Get who last updated the ticket - to be shown in the last Response column
                                     $ticket_reply_type = "Client"; // Default to client for unreplied tickets
@@ -449,11 +449,11 @@ if (isset($_GET['project_id'])) {
                                     $row = mysqli_fetch_assoc($sql_ticket_reply);
 
                                     if ($row) {
-                                        $ticket_reply_type = nullable_htmlentities($row['ticket_reply_type']);
+                                        $ticket_reply_type = escapeHtml($row['ticket_reply_type']);
                                         if ($ticket_reply_type == "Client") {
-                                            $ticket_reply_by_display = nullable_htmlentities($row['contact_name']);
+                                            $ticket_reply_by_display = escapeHtml($row['contact_name']);
                                         } else {
-                                            $ticket_reply_by_display = nullable_htmlentities($row['user_name']);
+                                            $ticket_reply_by_display = escapeHtml($row['user_name']);
                                         }
                                     }
 
@@ -518,8 +518,8 @@ if (isset($_GET['project_id'])) {
                         <?php
                         while($row = mysqli_fetch_assoc($sql_tasks)){
                             $task_id = intval($row['task_id']);
-                            $task_name = nullable_htmlentities($row['task_name']);
-                            $task_completed_at = nullable_htmlentities($row['task_completed_at']);
+                            $task_name = escapeHtml($row['task_name']);
+                            $task_completed_at = escapeHtml($row['task_completed_at']);
                             ?>
                             <tr>
                                 <td>

@@ -7,10 +7,10 @@ $task_template_id = intval($_GET['id']);
 $sql = mysqli_query($mysqli, "SELECT * FROM task_templates WHERE task_template_id = $task_template_id LIMIT 1");
 
 $row = mysqli_fetch_assoc($sql);
-$task_template_name = nullable_htmlentities($row['task_template_name']);
+$task_template_name = escapeHtml($row['task_template_name']);
 $task_template_order = intval($row['task_template_order']);
 $task_template_completion_estimate = intval($row['task_template_completion_estimate']);
-//$task_template_description = nullable_htmlentities($row['task_template_description']);
+//$task_template_description = escapeHtml($row['task_template_description']);
 
 // Generate the HTML form content using output buffering.
 ob_start();

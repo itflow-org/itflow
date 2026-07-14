@@ -35,7 +35,7 @@ ob_start();
                     $sql = mysqli_query($mysqli, "SELECT category_id, category_name FROM categories WHERE category_type = 'Income' AND category_archived_at IS NULL ORDER BY category_name ASC");
                     while ($row = mysqli_fetch_assoc($sql)) {
                         $category_id = intval($row['category_id']);
-                        $category_name = nullable_htmlentities($row['category_name']);
+                        $category_name = escapeHtml($row['category_name']);
                         ?>
                         <option value="<?php echo $category_id; ?>"><?php echo $category_name; ?></option>
 

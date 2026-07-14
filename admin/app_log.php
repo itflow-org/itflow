@@ -9,7 +9,7 @@ require_once "includes/inc_all_admin.php";
 // Log Type Filter
 if (isset($_GET['type']) & !empty($_GET['type'])) {
     $log_type_query = "AND (app_log_type  = '" . sanitizeInput($_GET['type']) . "')";
-    $type_filter = nullable_htmlentities($_GET['type']);
+    $type_filter = escapeHtml($_GET['type']);
 } else {
     // Default - any
     $log_type_query = '';
@@ -19,7 +19,7 @@ if (isset($_GET['type']) & !empty($_GET['type'])) {
 // Log Category Filter
 if (isset($_GET['category']) & !empty($_GET['catergory'])) {
     $log_category_query = "AND (app_log_category  = '" . sanitizeInput($_GET['category']) . "')";
-    $category_filter = nullable_htmlentities($_GET['category']);
+    $category_filter = escapeHtml($_GET['category']);
 } else {
     // Default - any
     $log_category_query = '';
@@ -50,7 +50,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     <div class="col-sm-4">
                         <div class="form-group">
                             <div class="input-group">
-                                <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(nullable_htmlentities($q)); } ?>" placeholder="Search app logs">
+                                <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search app logs">
                                 <div class="input-group-append">
                                     <button class="btn btn-secondary" type="button" data-toggle="collapse" data-target="#advancedFilter"><i class="fas fa-filter"></i></button>
                                     <button class="btn btn-primary"><i class="fa fa-search"></i></button>
@@ -67,7 +67,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 <?php
                                 $sql_types_filter = mysqli_query($mysqli, "SELECT DISTINCT app_log_type FROM app_logs ORDER BY app_log_type ASC");
                                 while ($row = mysqli_fetch_assoc($sql_types_filter)) {
-                                    $log_type = nullable_htmlentities($row['app_log_type']);
+                                    $log_type = escapeHtml($row['app_log_type']);
                                 ?>
                                     <option <?php if ($type_filter == $log_type) { echo "selected"; } ?>><?php echo $log_type; ?></option>
                                 <?php
@@ -86,7 +86,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 <?php
                                 $sql_categories_filter = mysqli_query($mysqli, "SELECT DISTINCT app_log_category FROM app_logs ORDER BY app_log_category ASC");
                                 while ($row = mysqli_fetch_assoc($sql_categories_filter)) {
-                                    $log_category = nullable_htmlentities($row['app_log_category']);
+                                    $log_category = escapeHtml($row['app_log_category']);
                                 ?>
                                     <option <?php if ($category_filter == $log_category) { echo "selected"; } ?>><?php echo $log_category; ?></option>
                                 <?php
@@ -103,9 +103,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             <div class="form-group">
                                 <label>Date range</label>
                                 <input type="text" id="dateFilter" class="form-control" autocomplete="off">
-                                <input type="hidden" name="canned_date" id="canned_date" value="<?php echo nullable_htmlentities($_GET['canned_date']) ?? ''; ?>">
-                                <input type="hidden" name="dtf" id="dtf" value="<?php echo nullable_htmlentities($dtf ?? ''); ?>">
-                                <input type="hidden" name="dtt" id="dtt" value="<?php echo nullable_htmlentities($dtt ?? ''); ?>">
+                                <input type="hidden" name="canned_date" id="canned_date" value="<?php echo escapeHtml($_GET['canned_date']) ?? ''; ?>">
+                                <input type="hidden" name="dtf" id="dtf" value="<?php echo escapeHtml($dtf ?? ''); ?>">
+                                <input type="hidden" name="dtt" id="dtt" value="<?php echo escapeHtml($dtt ?? ''); ?>">
                             </div>
                         </div>
                     </div>
@@ -143,10 +143,10 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                     while ($row = mysqli_fetch_assoc($sql)) {
                         $log_id = intval($row['app_log_id']);
-                        $log_type = nullable_htmlentities($row['app_log_type']);
-                        $log_category = nullable_htmlentities($row['app_log_category']);
-                        $log_details = nullable_htmlentities($row['app_log_details']);
-                        $log_created_at = nullable_htmlentities($row['app_log_created_at']);
+                        $log_type = escapeHtml($row['app_log_type']);
+                        $log_category = escapeHtml($row['app_log_category']);
+                        $log_details = escapeHtml($row['app_log_details']);
+                        $log_created_at = escapeHtml($row['app_log_created_at']);
 
                         ?>
 

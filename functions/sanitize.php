@@ -4,7 +4,7 @@
 // Split from the former monolithic functions.php
 
 
-function nullable_htmlentities($unsanitizedInput) {
+function escapeHtml($unsanitizedInput) {
     //return htmlentities($unsanitizedInput ?? '');
     return htmlspecialchars($unsanitizedInput ?? '', ENT_QUOTES, 'UTF-8');
 }

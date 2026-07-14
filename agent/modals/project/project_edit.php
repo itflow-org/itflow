@@ -7,17 +7,17 @@ $project_id = intval($_GET['id']);
 $sql = mysqli_query($mysqli, "SELECT * FROM projects WHERE project_id = $project_id LIMIT 1");
 
 $row = mysqli_fetch_assoc($sql);
-$project_prefix = nullable_htmlentities($row['project_prefix']);
+$project_prefix = escapeHtml($row['project_prefix']);
 $project_number = intval($row['project_number']);
-$project_name = nullable_htmlentities($row['project_name']);
-$project_description = nullable_htmlentities($row['project_description']);
-$project_due = nullable_htmlentities($row['project_due']);
-$project_created_at = nullable_htmlentities($row['project_created_at']);
+$project_name = escapeHtml($row['project_name']);
+$project_description = escapeHtml($row['project_description']);
+$project_due = escapeHtml($row['project_due']);
+$project_created_at = escapeHtml($row['project_created_at']);
 $project_created_at_display = date("Y-m-d", strtotime($project_created_at));
-$project_updated_at = nullable_htmlentities($row['project_updated_at']);
-$project_completed_at = nullable_htmlentities($row['project_completed_at']);
+$project_updated_at = escapeHtml($row['project_updated_at']);
+$project_completed_at = escapeHtml($row['project_completed_at']);
 $project_completed_at_display = date("Y-m-d", strtotime($project_completed_at));
-$project_archived_at = nullable_htmlentities($row['project_archived_at']);
+$project_archived_at = escapeHtml($row['project_archived_at']);
 $client_id = intval($row['project_client_id']);
 $project_manager = intval($row['project_manager']);
 
@@ -84,7 +84,7 @@ ob_start();
                     );
                     while ($row = mysqli_fetch_assoc($sql_project_managers_select)) {
                         $user_id_select = intval($row['user_id']);
-                        $user_name_select = nullable_htmlentities($row['user_name']); ?>
+                        $user_name_select = escapeHtml($row['user_name']); ?>
                         <option <?php if ($project_manager == $user_id_select) { echo "selected"; } ?> value="<?php echo $user_id_select; ?>"><?php echo $user_name_select; ?></option>
                     <?php } ?>
                 </select>
@@ -102,7 +102,7 @@ ob_start();
                     $sql = mysqli_query($mysqli, "SELECT * FROM clients WHERE client_archived_at IS NULL $access_permission_query ORDER BY client_name ASC");
                     while ($row = mysqli_fetch_assoc($sql)) {
                         $select_client_id = intval($row['client_id']);
-                        $select_client_name = nullable_htmlentities($row['client_name']);
+                        $select_client_name = escapeHtml($row['client_name']);
                         ?>
                         <option value="<?php echo $select_client_id; ?>" <?php if ($client_id == $select_client_id) { echo "selected"; } ?>><?php echo $select_client_name; ?></option>
                     <?php } ?>

@@ -10,7 +10,7 @@ $sql = mysqli_query($mysqli, "SELECT * FROM assets
 ");
 
 $row = mysqli_fetch_assoc($sql);
-$asset_name = nullable_htmlentities($row['asset_name']);
+$asset_name = escapeHtml($row['asset_name']);
 $client_id = intval($row['asset_client_id']);
 
 // Generate the HTML form content using output buffering.
@@ -52,7 +52,7 @@ ob_start();
                     ");
                     while ($row = mysqli_fetch_assoc($sql_software_select)) {
                         $software_id = intval($row['software_id']);
-                        $software_name = nullable_htmlentities($row['software_name']);
+                        $software_name = escapeHtml($row['software_name']);
 
                         ?>
                         <option value="<?php echo $software_id ?>"><?php echo $software_name; ?></option>

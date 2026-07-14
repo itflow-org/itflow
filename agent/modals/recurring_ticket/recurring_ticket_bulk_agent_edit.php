@@ -39,7 +39,7 @@ ob_start();
                     );
                     while ($row = mysqli_fetch_assoc($sql_users_select)) {
                         $user_id_select = intval($row['user_id']);
-                        $user_name_select = nullable_htmlentities($row['user_name']);
+                        $user_name_select = escapeHtml($row['user_name']);
 
                         ?>
                         <option value="<?= $user_id_select ?>"><?= $user_name_select ?></option>

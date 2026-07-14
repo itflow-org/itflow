@@ -7,10 +7,10 @@ $payment_id = intval($_GET['id']);
 $sql = mysqli_query($mysqli, "SELECT * FROM payments LEFT JOIN invoices ON invoice_id = payment_invoice_id WHERE payment_id = $payment_id LIMIT 1");
 
 $row = mysqli_fetch_assoc($sql);
-$payment_date = nullable_htmlentities($row['payment_date']);
-$payment_method = nullable_htmlentities($row['payment_method']);
+$payment_date = escapeHtml($row['payment_date']);
+$payment_method = escapeHtml($row['payment_method']);
 $payment_amount = floatval($row['payment_amount']);
-$payment_reference = nullable_htmlentities($row['payment_reference']);
+$payment_reference = escapeHtml($row['payment_reference']);
 $payment_account_id = intval($row['payment_account_id']);
 $client_id = intval($row['invoice_client_id']);
 
@@ -75,7 +75,7 @@ ob_start();
                     $sql = mysqli_query($mysqli, "SELECT * FROM accounts WHERE account_archived_at IS NULL ORDER BY account_name ASC");
                     while ($row = mysqli_fetch_assoc($sql)) {
                         $account_id = intval($row['account_id']);
-                        $account_name = nullable_htmlentities($row['account_name']);
+                        $account_name = escapeHtml($row['account_name']);
                         $opening_balance = floatval($row['opening_balance']);
 
                         $sql_payments = mysqli_query($mysqli, "SELECT SUM(payment_amount) AS total_payments FROM payments WHERE payment_account_id = $account_id");
@@ -117,7 +117,7 @@ ob_start();
 
                     $sql = mysqli_query($mysqli, "SELECT payment_method_name FROM payment_methods ORDER BY payment_method_name ASC");
                     while ($row = mysqli_fetch_assoc($sql)) {
-                        $payment_method_name = nullable_htmlentities($row['payment_method_name']);
+                        $payment_method_name = escapeHtml($row['payment_method_name']);
                     ?>
                         <option <?php if ($payment_method == $payment_method_name) { echo "selected"; } ?>><?= $payment_method_name ?></option>
 

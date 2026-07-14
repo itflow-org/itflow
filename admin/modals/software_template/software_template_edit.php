@@ -6,12 +6,12 @@ $software_template_id = intval($_GET['id']);
 
 $sql = mysqli_query($mysqli, "SELECT * FROM software_templates WHERE software_template_id = $software_template_id LIMIT 1");
 $row = mysqli_fetch_assoc($sql);
-$software_name = nullable_htmlentities($row['software_template_name']);
-$software_version = nullable_htmlentities($row['software_template_version']);
-$software_description = nullable_htmlentities($row['software_template_description']);
-$software_type = nullable_htmlentities($row['software_template_type']);
-$software_license_type = nullable_htmlentities($row['software_template_license_type']);
-$software_notes = nullable_htmlentities($row['software_template_notes']);
+$software_name = escapeHtml($row['software_template_name']);
+$software_version = escapeHtml($row['software_template_version']);
+$software_description = escapeHtml($row['software_template_description']);
+$software_type = escapeHtml($row['software_template_type']);
+$software_license_type = escapeHtml($row['software_template_license_type']);
+$software_notes = escapeHtml($row['software_template_notes']);
 
 $license_types_array = array (
     'Device',
@@ -85,7 +85,7 @@ ob_start();
                         ORDER BY category_order ASC, category_name ASC
                     ");
                     while ($row = mysqli_fetch_assoc($sql_software_types_select)) {
-                        $software_type_select = nullable_htmlentities($row['category_name']);
+                        $software_type_select = escapeHtml($row['category_name']);
                         ?>
                         <option <?php if($software_type == $software_type_select) { echo "selected"; } ?>>
                             <?= $software_type_select ?>

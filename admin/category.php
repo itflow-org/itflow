@@ -28,14 +28,14 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 <div class="card card-dark">
     <div class="card-header py-2">
         <h3 class="card-title mt-2"><i class="fa fa-fw fa-list-ul mr-2"></i>
-            <?= nullable_htmlentities(ucwords(str_replace('_', ' ', $category))); ?> Categories
+            <?= escapeHtml(ucwords(str_replace('_', ' ', $category))); ?> Categories
         </h3>
         <?php
             if (!isset($_GET['archived'])) {
         ?>
         <div class="card-tools">
-            <button type="button" class="btn btn-primary ajax-modal" data-modal-url="modals/category/category_add.php?category=<?= nullable_htmlentities($category) ?>"><i
-                    class="fas fa-plus mr-2"></i>New <?= nullable_htmlentities(ucwords(str_replace('_', ' ', $category))); ?> Category</button>
+            <button type="button" class="btn btn-primary ajax-modal" data-modal-url="modals/category/category_add.php?category=<?= escapeHtml($category) ?>"><i
+                    class="fas fa-plus mr-2"></i>New <?= escapeHtml(ucwords(str_replace('_', ' ', $category))); ?> Category</button>
         </div>
         <?php
             }
@@ -43,15 +43,15 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
     </div>
     <div class="card-body">
         <form autocomplete="off">
-            <input type="hidden" name="category" value="<?php echo nullable_htmlentities($category); ?>">
+            <input type="hidden" name="category" value="<?php echo escapeHtml($category); ?>">
             <div class="row">
                 <div class="col-sm-4 mb-2">
                     <div class="input-group">
                         <input type="search" class="form-control" name="q"
                             value="<?php if (isset($q)) {
-                                echo stripslashes(nullable_htmlentities($q));
+                                echo stripslashes(escapeHtml($q));
                             } ?>"
-                            placeholder="Search <?= nullable_htmlentities(ucwords(str_replace('_', ' ', $category))); ?> Categories ">
+                            placeholder="Search <?= escapeHtml(ucwords(str_replace('_', ' ', $category))); ?> Categories ">
                         <div class="input-group-append">
                             <button class="btn btn-primary"><i class="fa fa-search"></i></button>
                         </div>
@@ -143,9 +143,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                     while ($row = mysqli_fetch_assoc($sql)) {
                         $category_id = intval($row['category_id']);
-                        $category_name = nullable_htmlentities($row['category_name']);
-                        $category_description = nullable_htmlentities($row['category_description']);
-                        $category_color = nullable_htmlentities($row['category_color']);
+                        $category_name = escapeHtml($row['category_name']);
+                        $category_description = escapeHtml($row['category_description']);
+                        $category_color = escapeHtml($row['category_color']);
 
                         ?>
                         <tr>

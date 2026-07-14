@@ -34,7 +34,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                 <div class="row">
                     <div class="col-md-4">
                         <div class="input-group">
-                            <input type="search" class="form-control" name="q" value="<?php if (isset($q)) {echo stripslashes(nullable_htmlentities($q));} ?>" placeholder="Search Roles">
+                            <input type="search" class="form-control" name="q" value="<?php if (isset($q)) {echo stripslashes(escapeHtml($q));} ?>" placeholder="Search Roles">
                             <div class="input-group-append">
                                 <button class="btn btn-primary"><i class="fa fa-search"></i></button>
                             </div>
@@ -66,10 +66,10 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                     while ($row = mysqli_fetch_assoc($sql)) {
                         $role_id = intval($row['role_id']);
-                        $role_name = nullable_htmlentities($row['role_name']);
-                        $role_description = nullable_htmlentities($row['role_description']);
+                        $role_name = escapeHtml($row['role_name']);
+                        $role_description = escapeHtml($row['role_description']);
                         $role_admin = intval($row['role_is_admin']);
-                        $role_archived_at = nullable_htmlentities($row['role_archived_at']);
+                        $role_archived_at = escapeHtml($row['role_archived_at']);
 
                         // Count number of users that have each role
                         $sql_role_user_count = mysqli_query($mysqli, "SELECT COUNT(user_id) FROM users WHERE user_role_id = $role_id AND user_archived_at IS NULL");
@@ -81,7 +81,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                         // Fetch each row and store the user_name in the array
                         while($row = mysqli_fetch_assoc($sql_users)) {
-                            $user_names[] = nullable_htmlentities($row['user_name']);
+                            $user_names[] = escapeHtml($row['user_name']);
                         }
 
                         // Convert the array of user names to a comma-separated string

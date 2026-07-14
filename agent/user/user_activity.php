@@ -24,11 +24,11 @@ $sql_recent_logs = mysqli_query($mysqli, "SELECT * FROM logs
 
         while ($row = mysqli_fetch_assoc($sql_recent_logins)) {
             $log_id = intval($row['log_id']);
-            $log_ip = nullable_htmlentities($row['log_ip']);
-            $log_user_agent = nullable_htmlentities($row['log_user_agent']);
+            $log_ip = escapeHtml($row['log_ip']);
+            $log_user_agent = escapeHtml($row['log_user_agent']);
             $log_user_os = getOS($log_user_agent);
             $log_user_browser = getWebBrowser($log_user_agent);
-            $log_created_at = nullable_htmlentities($row['log_created_at']);
+            $log_created_at = escapeHtml($row['log_created_at']);
 
             ?>
 
@@ -60,10 +60,10 @@ $sql_recent_logs = mysqli_query($mysqli, "SELECT * FROM logs
 
         while ($row = mysqli_fetch_assoc($sql_recent_logs)) {
             $log_id = intval($row['log_id']);
-            $log_type = nullable_htmlentities($row['log_type']);
-            $log_action = nullable_htmlentities($row['log_action']);
-            $log_description = nullable_htmlentities($row['log_description']);
-            $log_created_at = nullable_htmlentities($row['log_created_at']);
+            $log_type = escapeHtml($row['log_type']);
+            $log_action = escapeHtml($row['log_action']);
+            $log_description = escapeHtml($row['log_description']);
+            $log_created_at = escapeHtml($row['log_created_at']);
 
             if ($log_action == 'Create') {
                 $log_icon = "plus text-success";
@@ -90,7 +90,7 @@ $sql_recent_logs = mysqli_query($mysqli, "SELECT * FROM logs
     </table>
     <?php if (isset($session_is_admin) && $session_is_admin === true) { ?>
         <div class="card-footer">
-            <a href="../../admin/audit_log.php?q=<?php echo nullable_htmlentities($session_name); ?>">See More...</a>
+            <a href="../../admin/audit_log.php?q=<?php echo escapeHtml($session_name); ?>">See More...</a>
         </div>
     <?php } ?>
 </div>

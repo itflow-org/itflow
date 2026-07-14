@@ -49,8 +49,8 @@ ob_start();
 
                     while ($row = mysqli_fetch_assoc($expenses_sql)) {
                         $expense_id = intval($row['expense_id']);
-                        $expense_description = nullable_htmlentities($row['expense_description']);
-                        $expense_date = nullable_htmlentities($row['expense_date']);
+                        $expense_description = escapeHtml($row['expense_description']);
+                        $expense_date = escapeHtml($row['expense_date']);
                         ?>
                         <option value="<?= $expense_id ?>"><?= "($expense_date) $expense_description"; ?></option>
 

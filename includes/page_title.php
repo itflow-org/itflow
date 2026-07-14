@@ -16,6 +16,6 @@ $page_title = ucwords($page_title);
 $page_title_sanitized = sanitizeInput($page_title);
 
 // Sanitize the page title to prevent XSS for output
-$page_title = nullable_htmlentities($page_title);
+$page_title = escapeHtml($page_title);
 
 $tab_title = $session_company_name;

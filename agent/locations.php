@@ -109,7 +109,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                 <div class="col-md-4">
                     <div class="input-group mb-3 mb-md-0">
-                        <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(nullable_htmlentities($q)); } ?>" placeholder="Search Locations">
+                        <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search Locations">
                         <div class="input-group-append">
                             <button class="btn btn-dark"><i class="fa fa-search"></i></button>
                         </div>
@@ -132,7 +132,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             ");
                             while ($row = mysqli_fetch_assoc($sql_tags_filter)) {
                                 $tag_id = intval($row['tag_id']);
-                                $tag_name = nullable_htmlentities($row['tag_name']); ?>
+                                $tag_name = escapeHtml($row['tag_name']); ?>
 
                                 <option value="<?php echo $tag_id ?>" <?php if (isset($_GET['tags']) && is_array($_GET['tags']) && in_array($tag_id, $_GET['tags'])) { echo 'selected'; } ?>> <?php echo $tag_name ?> </option>
 
@@ -159,7 +159,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             ");
                             while ($row = mysqli_fetch_assoc($sql_clients_filter)) {
                                 $client_id = intval($row['client_id']);
-                                $client_name = nullable_htmlentities($row['client_name']);
+                                $client_name = escapeHtml($row['client_name']);
                             ?>
                                 <option <?php if ($client == $client_id) { echo "selected"; } ?> value="<?php echo $client_id; ?>"><?php echo $client_name; ?></option>
                             <?php
@@ -260,39 +260,39 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                     while ($row = mysqli_fetch_assoc($sql)) {
                         $client_id = intval($row['client_id']);
-                        $client_name = nullable_htmlentities($row['client_name']);
+                        $client_name = escapeHtml($row['client_name']);
                         $location_id = intval($row['location_id']);
-                        $location_name = nullable_htmlentities($row['location_name']);
-                        $location_description = nullable_htmlentities($row['location_description']);
-                        $location_country = nullable_htmlentities($row['location_country']);
-                        $location_address = nullable_htmlentities($row['location_address']);
-                        $location_city = nullable_htmlentities($row['location_city']);
-                        $location_state = nullable_htmlentities($row['location_state']);
-                        $location_zip = nullable_htmlentities($row['location_zip']);
-                        $location_phone_country_code = nullable_htmlentities($row['location_phone_country_code']);
-                        $location_phone = nullable_htmlentities(formatPhoneNumber($row['location_phone'], $location_phone_country_code));
+                        $location_name = escapeHtml($row['location_name']);
+                        $location_description = escapeHtml($row['location_description']);
+                        $location_country = escapeHtml($row['location_country']);
+                        $location_address = escapeHtml($row['location_address']);
+                        $location_city = escapeHtml($row['location_city']);
+                        $location_state = escapeHtml($row['location_state']);
+                        $location_zip = escapeHtml($row['location_zip']);
+                        $location_phone_country_code = escapeHtml($row['location_phone_country_code']);
+                        $location_phone = escapeHtml(formatPhoneNumber($row['location_phone'], $location_phone_country_code));
                         if (empty($location_phone)) {
                             $location_phone_display = "-";
                         } else {
                             $location_phone_display = $location_phone;
                         }
-                        $location_fax_country_code = nullable_htmlentities($row['location_fax_country_code']);
-                        $location_fax = nullable_htmlentities(formatPhoneNumber($row['location_fax'], $location_fax_country_code));
+                        $location_fax_country_code = escapeHtml($row['location_fax_country_code']);
+                        $location_fax = escapeHtml(formatPhoneNumber($row['location_fax'], $location_fax_country_code));
                         if ($location_fax) {
                             $location_fax_display = "<div class='text-secondary'>Fax: $location_fax</div>";
                         } else {
                             $location_fax_display = '';
                         }
-                        $location_hours = nullable_htmlentities($row['location_hours']);
+                        $location_hours = escapeHtml($row['location_hours']);
                         if (empty($location_hours)) {
                             $location_hours_display = "-";
                         } else {
                             $location_hours_display = $location_hours;
                         }
-                        $location_photo = nullable_htmlentities($row['location_photo']);
-                        $location_notes = nullable_htmlentities($row['location_notes']);
-                        $location_created_at = nullable_htmlentities($row['location_created_at']);
-                        $location_archived_at = nullable_htmlentities($row['location_archived_at']);
+                        $location_photo = escapeHtml($row['location_photo']);
+                        $location_notes = escapeHtml($row['location_notes']);
+                        $location_created_at = escapeHtml($row['location_created_at']);
+                        $location_archived_at = escapeHtml($row['location_archived_at']);
                         $location_contact_id = intval($row['location_contact_id']);
                         $location_primary = intval($row['location_primary']);
                         if ( $location_primary == 1 ) {
@@ -309,12 +309,12 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         while ($row = mysqli_fetch_assoc($sql_location_tags)) {
 
                             $location_tag_id = intval($row['tag_id']);
-                            $location_tag_name = nullable_htmlentities($row['tag_name']);
-                            $location_tag_color = nullable_htmlentities($row['tag_color']);
+                            $location_tag_name = escapeHtml($row['tag_name']);
+                            $location_tag_color = escapeHtml($row['tag_color']);
                             if (empty($location_tag_color)) {
                                 $location_tag_color = "dark";
                             }
-                            $location_tag_icon = nullable_htmlentities($row['tag_icon']);
+                            $location_tag_icon = escapeHtml($row['tag_icon']);
                             if (empty($location_tag_icon)) {
                                 $location_tag_icon = "tag";
                             }

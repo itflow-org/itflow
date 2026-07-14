@@ -78,7 +78,7 @@ ob_start();
                                 $sql_user_roles = mysqli_query($mysqli, "SELECT * FROM user_roles WHERE role_archived_at IS NULL");
                                 while ($row = mysqli_fetch_assoc($sql_user_roles)) {
                                     $role_id = intval($row['role_id']);
-                                    $role_name = nullable_htmlentities($row['role_name']);
+                                    $role_name = escapeHtml($row['role_name']);
 
                                 ?>
                                 <option value="<?php echo $role_id; ?>"><?php echo $role_name; ?></option>
@@ -131,7 +131,7 @@ ob_start();
                     $sql_client_select = mysqli_query($mysqli, "SELECT * FROM clients WHERE client_archived_at IS NULL ORDER BY client_name ASC");
                     while ($row = mysqli_fetch_assoc($sql_client_select)) {
                         $client_id = intval($row['client_id']);
-                        $client_name = nullable_htmlentities($row['client_name']);
+                        $client_name = escapeHtml($row['client_name']);
 
                     ?>
                     <li class="list-group-item">

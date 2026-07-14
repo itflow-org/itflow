@@ -6,11 +6,11 @@ $item_id = intval($_GET['id']);
 
 $sql = mysqli_query($mysqli, "SELECT * FROM recurring_invoice_items LEFT JOIN recurring_invoices ON recurring_invoice_id = item_recurring_invoice_id WHERE item_id = $item_id LIMIT 1");
 $row = mysqli_fetch_assoc($sql);
-$item_name = nullable_htmlentities($row['item_name']);
-$item_description = nullable_htmlentities($row['item_description']);
+$item_name = escapeHtml($row['item_name']);
+$item_description = escapeHtml($row['item_description']);
 $item_quantity = floatval($row['item_quantity']);
 $item_price = floatval($row['item_price']);
-$item_created_at = nullable_htmlentities($row['item_created_at']);
+$item_created_at = escapeHtml($row['item_created_at']);
 $tax_id = intval($row['item_tax_id']);
 $product_id = intval($row['item_product_id']);
 $client_id = intval($row['recurring_invoice_client_id']);
@@ -88,7 +88,7 @@ ob_start();
                         $taxes_sql = mysqli_query($mysqli, "SELECT * FROM taxes WHERE (tax_archived_at > '$item_created_at' OR tax_archived_at IS NULL) ORDER BY tax_name ASC");
                         while ($row = mysqli_fetch_assoc($taxes_sql)) {
                             $tax_id_select = intval($row['tax_id']);
-                            $tax_name = nullable_htmlentities($row['tax_name']);
+                            $tax_name = escapeHtml($row['tax_name']);
                             $tax_percent = floatval($row['tax_percent']);
                     ?>
                         <option <?php if ($tax_id_select == $tax_id) { echo "selected"; } ?> value="<?php echo $tax_id_select; ?>"><?php echo "$tax_name $tax_percent%"; ?></option>

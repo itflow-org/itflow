@@ -32,12 +32,12 @@ $row = mysqli_fetch_assoc($sql_contact);
 
 if ($row) {
     $contact_id = intval($row['contact_id']);
-    $contact_name = nullable_htmlentities($row['contact_name']);
-    $contact_email = nullable_htmlentities($row['contact_email']);
+    $contact_name = escapeHtml($row['contact_name']);
+    $contact_email = escapeHtml($row['contact_email']);
     $contact_primary = intval($row['contact_primary']);
     $contact_technical = intval($row['contact_technical']);
     $contact_billing = intval($row['contact_billing']);
-    $contact_auth_method = nullable_htmlentities($row['user_auth_method']);
+    $contact_auth_method = escapeHtml($row['user_auth_method']);
 } else {
     header("Location: post.php?logout");
     exit();
@@ -66,7 +66,7 @@ if ($row) {
                     <div class="input-group-prepend">
                         <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
                     </div>
-                    <input type="text" class="form-control" name="contact_name" value="<?php echo nullable_htmlentities($contact_name) ?>" required maxlength="200">
+                    <input type="text" class="form-control" name="contact_name" value="<?php echo escapeHtml($contact_name) ?>" required maxlength="200">
                 </div>
             </div>
 
@@ -76,7 +76,7 @@ if ($row) {
                     <div class="input-group-prepend">
                         <span class="input-group-text"><i class="fa fa-fw fa-envelope"></i></span>
                     </div>
-                    <input type="email" class="form-control" name="contact_email" value="<?php echo nullable_htmlentities($contact_email) ?>" required maxlength="200">
+                    <input type="email" class="form-control" name="contact_email" value="<?php echo escapeHtml($contact_email) ?>" required maxlength="200">
                 </div>
             </div>
 

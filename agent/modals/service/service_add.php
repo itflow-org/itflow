@@ -60,7 +60,7 @@ ob_start();
                                 $sql = mysqli_query($mysqli, "SELECT client_id, client_name FROM clients WHERE client_archived_at IS NULL $access_permission_query ORDER BY client_name ASC");
                                 while ($row = mysqli_fetch_assoc($sql)) {
                                     $client_id = intval($row['client_id']);
-                                    $client_name = nullable_htmlentities($row['client_name']); ?>
+                                    $client_name = escapeHtml($row['client_name']); ?>
                                     <option <?php if ($client_id == isset($_GET['client'])) { echo "selected"; } ?> value="<?php echo $client_id; ?>"><?php echo $client_name; ?></option>
 
                                 <?php } ?>
@@ -141,7 +141,7 @@ ob_start();
                         $sql = mysqli_query($mysqli, "SELECT * FROM contacts WHERE contact_archived_at IS NULL AND contact_client_id = $client_id");
                         while ($row = mysqli_fetch_assoc($sql)) {
                             $contact_id = intval($row['contact_id']);
-                            $contact_name = nullable_htmlentities($row['contact_name']);
+                            $contact_name = escapeHtml($row['contact_name']);
                             echo "<option value=\"$contact_id\">$contact_name</option>";
                         }
                         ?>
@@ -155,7 +155,7 @@ ob_start();
                         $sql = mysqli_query($mysqli, "SELECT * FROM vendors WHERE vendor_archived_at IS NULL AND vendor_client_id = $client_id");
                         while ($row = mysqli_fetch_assoc($sql)) {
                             $vendor_id = intval($row['vendor_id']);
-                            $vendor_name = nullable_htmlentities($row['vendor_name']);
+                            $vendor_name = escapeHtml($row['vendor_name']);
                             echo "<option value=\"$vendor_id\">$vendor_name</option>";
                         }
                         ?>
@@ -169,7 +169,7 @@ ob_start();
                         $sql = mysqli_query($mysqli, "SELECT * FROM documents WHERE document_archived_at IS NULL AND document_client_id = $client_id");
                         while ($row = mysqli_fetch_assoc($sql)) {
                             $document_id = intval($row['document_id']);
-                            $document_name = nullable_htmlentities($row['document_name']);
+                            $document_name = escapeHtml($row['document_name']);
                             echo "<option value=\"$document_id\">$document_name</option>";
                         }
                         ?>
@@ -189,7 +189,7 @@ ob_start();
                         $sql = mysqli_query($mysqli, "SELECT * FROM assets WHERE asset_archived_at IS NULL AND asset_client_id = $client_id");
                         while ($row = mysqli_fetch_assoc($sql)) {
                             $asset_id = intval($row['asset_id']);
-                            $asset_name = nullable_htmlentities($row['asset_name']);
+                            $asset_name = escapeHtml($row['asset_name']);
                             echo "<option value=\"$asset_id\">$asset_name</option>";
                         }
                         ?>
@@ -203,7 +203,7 @@ ob_start();
                         $sql = mysqli_query($mysqli, "SELECT * FROM credentials WHERE credential_archived_at IS NULL AND credential_client_id = $client_id");
                         while ($row = mysqli_fetch_assoc($sql)) {
                             $credential_id = intval($row['credential_id']);
-                            $credential_name = nullable_htmlentities($row['credential_name']);
+                            $credential_name = escapeHtml($row['credential_name']);
                             echo "<option value=\"$credential_id\">$credential_name</option>";
                         }
                         ?>
@@ -217,7 +217,7 @@ ob_start();
                         $sql = mysqli_query($mysqli, "SELECT * FROM domains WHERE domain_archived_at IS NULL AND domain_client_id = $client_id");
                         while ($row = mysqli_fetch_assoc($sql)) {
                             $domain_id = intval($row['domain_id']);
-                            $domain_name = nullable_htmlentities($row['domain_name']);
+                            $domain_name = escapeHtml($row['domain_name']);
                             echo "<option value=\"$domain_id\">$domain_name</option>";
                         }
                         ?>
@@ -231,8 +231,8 @@ ob_start();
                         $sql = mysqli_query($mysqli, "SELECT * FROM certificates WHERE certificate_archived_at IS NULL AND certificate_client_id = $client_id");
                         while ($row = mysqli_fetch_assoc($sql)) {
                             $cert_id = intval($row['certificate_id']);
-                            $cert_name = nullable_htmlentities($row['certificate_name']);
-                            $cert_domain = nullable_htmlentities($row['certificate_domain']);
+                            $cert_name = escapeHtml($row['certificate_name']);
+                            $cert_domain = escapeHtml($row['certificate_domain']);
                             echo "<option value=\"$cert_id\">$cert_name ($cert_domain)</option>";
                         }
                         ?>

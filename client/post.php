@@ -199,9 +199,9 @@ if (isset($_GET['approve_ticket_task'])) {
 
     $approval_row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT * FROM task_approvals LEFT JOIN tasks on task_id = approval_task_id WHERE approval_id = $approval_id AND approval_task_id = $task_id AND approval_url_key = '$url_key' AND approval_status = 'pending' AND approval_scope = 'client'"));
 
-    $task_name = nullable_htmlentities($approval_row['task_name']);
-    $scope = nullable_htmlentities($approval_row['approval_scope']);
-    $type = nullable_htmlentities($approval_row['approval_type']);
+    $task_name = escapeHtml($approval_row['task_name']);
+    $scope = escapeHtml($approval_row['approval_scope']);
+    $type = escapeHtml($approval_row['approval_type']);
     $required_user = intval($approval_row['approval_required_user_id']);
     $created_by = intval($approval_row['approval_created_by']);
     $ticket_id = intval($approval_row['task_ticket_id']);
@@ -718,7 +718,7 @@ if (isset($_POST['create_stripe_customer'])) {
     }
 
     $stripe_provider_id = intval($stripe_provider['payment_provider_id']);
-    $stripe_secret_key = nullable_htmlentities($stripe_provider['payment_provider_private_key']);
+    $stripe_secret_key = escapeHtml($stripe_provider['payment_provider_private_key']);
 
     if (empty($stripe_secret_key)) {
         flash_alert("Stripe credentials missing. Please contact support.", 'danger');
@@ -809,7 +809,7 @@ if (isset($_GET['create_stripe_checkout'])) {
     }
 
     $stripe_provider_id = intval($stripe_provider['payment_provider_id']);
-    $stripe_secret_key = nullable_htmlentities($stripe_provider['payment_provider_private_key']);
+    $stripe_secret_key = escapeHtml($stripe_provider['payment_provider_private_key']);
 
     if (empty($stripe_secret_key)) {
         http_response_code(400);
@@ -878,7 +878,7 @@ if (isset($_GET['stripe_save_card'])) {
     }
 
     $stripe_provider_id = intval($stripe_provider['payment_provider_id']);
-    $stripe_secret_key = nullable_htmlentities($stripe_provider['payment_provider_private_key']);
+    $stripe_secret_key = escapeHtml($stripe_provider['payment_provider_private_key']);
 
     if (empty($stripe_secret_key)) {
         flash_alert("Stripe credentials missing.", 'danger');
@@ -1011,7 +1011,7 @@ if (isset($_GET['delete_saved_payment'])) {
     }
 
     $stripe_provider_id = intval($stripe_provider['payment_provider_id']);
-    $stripe_secret_key = nullable_htmlentities($stripe_provider['payment_provider_private_key']);
+    $stripe_secret_key = escapeHtml($stripe_provider['payment_provider_private_key']);
 
     if (empty($stripe_secret_key)) {
         flash_alert("Stripe credentials are missing.", 'danger');
@@ -1037,7 +1037,7 @@ if (isset($_GET['delete_saved_payment'])) {
     $payment_method_id = sanitizeInput($saved_payment['saved_payment_provider_method']);
 
     $saved_payment_id = intval($saved_payment['saved_payment_id']);
-    $saved_payment_description = nullable_htmlentities($saved_payment['saved_payment_description']);
+    $saved_payment_description = escapeHtml($saved_payment['saved_payment_description']);
 
     try {
         // Initialize Stripe

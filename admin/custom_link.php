@@ -30,7 +30,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                 <div class="col-sm-4 mb-2">
                     <form autocomplete="off">
                         <div class="input-group">
-                            <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(nullable_htmlentities($q)); } ?>" placeholder="Search Links">
+                            <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search Links">
                             <div class="input-group-append">
                                 <button class="btn btn-primary"><i class="fa fa-search"></i></button>
                             </div>
@@ -74,9 +74,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                     while ($row = mysqli_fetch_assoc($sql)) {
                         $custom_link_id = intval($row['custom_link_id']);
-                        $custom_link_name = nullable_htmlentities($row['custom_link_name']);
-                        $custom_link_uri = nullable_htmlentities($row['custom_link_uri']);
-                        $custom_link_icon = nullable_htmlentities($row['custom_link_icon']);
+                        $custom_link_name = escapeHtml($row['custom_link_name']);
+                        $custom_link_uri = escapeHtml($row['custom_link_uri']);
+                        $custom_link_icon = escapeHtml($row['custom_link_icon']);
                         $custom_link_new_tab = intval($row['custom_link_new_tab']);
                         if ($custom_link_new_tab == 1 ) {
                             $custom_link_new_tab_display = "<i class='fas fa-fw fa-checkmark'></i>";

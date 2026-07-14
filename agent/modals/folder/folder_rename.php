@@ -7,7 +7,7 @@ $folder_id = intval($_GET['id']);
 $sql = mysqli_query($mysqli, "SELECT * FROM folders WHERE folder_id = $folder_id LIMIT 1");
 
 $row = mysqli_fetch_assoc($sql);
-$folder_name = nullable_htmlentities($row['folder_name']);
+$folder_name = escapeHtml($row['folder_name']);
 $client_id = intval($row['folder_client_id']);
 
 enforceClientAccess();

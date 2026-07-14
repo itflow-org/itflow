@@ -53,7 +53,7 @@ ob_start();
                     $sql = mysqli_query($mysqli, "SELECT * FROM accounts WHERE account_archived_at IS NULL ORDER BY account_name ASC");
                     while ($row = mysqli_fetch_assoc($sql)) {
                         $account_id = intval($row['account_id']);
-                        $account_name = nullable_htmlentities($row['account_name']);
+                        $account_name = escapeHtml($row['account_name']);
                         $opening_balance = floatval($row['opening_balance']);
 
                         $sql_payments = mysqli_query($mysqli, "SELECT SUM(payment_amount) AS total_payments FROM payments WHERE payment_account_id = $account_id");
@@ -91,7 +91,7 @@ ob_start();
                     $sql = mysqli_query($mysqli, "SELECT * FROM accounts WHERE account_archived_at IS NULL ORDER BY account_name ASC");
                     while ($row = mysqli_fetch_assoc($sql)) {
                         $account_id = intval($row['account_id']);
-                        $account_name = nullable_htmlentities($row['account_name']);
+                        $account_name = escapeHtml($row['account_name']);
                         $opening_balance = floatval($row['opening_balance']);
 
                         $sql_payments = mysqli_query($mysqli, "SELECT SUM(payment_amount) AS total_payments FROM payments WHERE payment_account_id = $account_id");
@@ -132,9 +132,9 @@ ob_start();
                         ORDER BY payment_id DESC LIMIT 25
                     ");
                     while ($row = mysqli_fetch_assoc($sql)) {
-                        $client_name = nullable_htmlentities($row['client_name']);
-                        $payment_method = nullable_htmlentities($row['payment_method']);
-                        $payment_reference = nullable_htmlentities($row['payment_reference']);
+                        $client_name = escapeHtml($row['client_name']);
+                        $payment_method = escapeHtml($row['payment_method']);
+                        $payment_reference = escapeHtml($row['payment_reference']);
                         $payment_amount = floatval($row['payment_amount']);
 
                         ?>
@@ -161,7 +161,7 @@ ob_start();
 
                     $sql = mysqli_query($mysqli, "SELECT * FROM payment_methods ORDER BY payment_method_name ASC");
                     while ($row = mysqli_fetch_assoc($sql)) {
-                        $payment_method_name = nullable_htmlentities($row['payment_method_name']);
+                        $payment_method_name = escapeHtml($row['payment_method_name']);
                     ?>
                         <option><?php echo $payment_method_name; ?></option>
 

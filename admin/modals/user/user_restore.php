@@ -8,9 +8,9 @@ $sql = mysqli_query($mysqli, "SELECT * FROM users WHERE user_id = $user_id AND u
 
 $row = mysqli_fetch_assoc($sql);
 $user_name = str_replace(" (archived)", "", $row['user_name']); //Removed (archived) from user_name
-$user_name = nullable_htmlentities($user_name);
-$user_email = nullable_htmlentities($row['user_email']);
-$user_avatar = nullable_htmlentities($row['user_avatar']);
+$user_name = escapeHtml($user_name);
+$user_email = escapeHtml($row['user_email']);
+$user_avatar = escapeHtml($row['user_avatar']);
 $user_initials = initials($user_name);
 $user_role_id = intval($row['user_role_id']);
 
@@ -66,7 +66,7 @@ ob_start();
                     $sql_user_roles = mysqli_query($mysqli, "SELECT * FROM user_roles WHERE role_archived_at IS NULL");
                     while ($row = mysqli_fetch_assoc($sql_user_roles)) {
                         $role_id = intval($row['role_id']);
-                        $role_name = nullable_htmlentities($row['role_name']);
+                        $role_name = escapeHtml($row['role_name']);
 
                         ?>
                         <option <?php if ($role_id == $user_role_id) {echo "selected";} ?> value="<?php echo $role_id; ?>"><?php echo $role_name; ?></option>

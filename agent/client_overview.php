@@ -235,15 +235,15 @@ $sql_asset_retired = mysqli_query(
 
                     while ($row = mysqli_fetch_assoc($sql_important_contacts)) {
                         $contact_id = intval($row['contact_id']);
-                        $contact_name = nullable_htmlentities($row['contact_name']);
-                        $contact_title = nullable_htmlentities($row['contact_title']);
-                        $contact_email = nullable_htmlentities($row['contact_email']);
-                        $contact_phone_country_code = nullable_htmlentities($row['contact_phone_country_code']);
-                        $contact_phone = nullable_htmlentities(formatPhoneNumber($row['contact_phone'], $contact_phone_country_code));
-                        $contact_extension = nullable_htmlentities($row['contact_extension']);
-                        $contact_mobile_country_code = nullable_htmlentities($row['contact_mobile_country_code']);
-                        $contact_mobile = nullable_htmlentities(formatPhoneNumber($row['contact_mobile'], $contact_mobile_country_code));
-                        $contact_photo = nullable_htmlentities($row['contact_photo']);
+                        $contact_name = escapeHtml($row['contact_name']);
+                        $contact_title = escapeHtml($row['contact_title']);
+                        $contact_email = escapeHtml($row['contact_email']);
+                        $contact_phone_country_code = escapeHtml($row['contact_phone_country_code']);
+                        $contact_phone = escapeHtml(formatPhoneNumber($row['contact_phone'], $contact_phone_country_code));
+                        $contact_extension = escapeHtml($row['contact_extension']);
+                        $contact_mobile_country_code = escapeHtml($row['contact_mobile_country_code']);
+                        $contact_mobile = escapeHtml(formatPhoneNumber($row['contact_mobile'], $contact_mobile_country_code));
+                        $contact_photo = escapeHtml($row['contact_photo']);
                         $contact_primary = intval($row['contact_primary']);
                         $contact_initials = initials($contact_name);
                         if ($contact_primary == 1) {
@@ -319,11 +319,11 @@ $sql_asset_retired = mysqli_query(
 
                 while ($row = mysqli_fetch_assoc($sql_favorite_assets)) {
                     $asset_id = intval($row['asset_id']);
-                    $asset_name = nullable_htmlentities($row['asset_name']);
-                    $asset_type = nullable_htmlentities($row['asset_type']);
+                    $asset_name = escapeHtml($row['asset_name']);
+                    $asset_type = escapeHtml($row['asset_type']);
                     $asset_icon = getAssetIcon($asset_type);
-                    $asset_make = nullable_htmlentities($row['asset_make']);
-                    $asset_model = nullable_htmlentities($row['asset_model']);
+                    $asset_make = escapeHtml($row['asset_make']);
+                    $asset_model = escapeHtml($row['asset_model']);
 
                     ?>
                     <tr>
@@ -363,8 +363,8 @@ $sql_asset_retired = mysqli_query(
 
                 while ($row = mysqli_fetch_assoc($sql_favorite_credentials)) {
                     $credential_id = intval($row['credential_id']);
-                    $credential_name = nullable_htmlentities($row['credential_name']);
-                    $credential_description = nullable_htmlentities($row['credential_description']);
+                    $credential_name = escapeHtml($row['credential_name']);
+                    $credential_description = escapeHtml($row['credential_description']);
                     $credential_uri = sanitize_url($row['credential_uri']);
                     if (empty($credential_uri)) {
                         $credential_uri_display = "-";
@@ -372,14 +372,14 @@ $sql_asset_retired = mysqli_query(
                         $credential_uri_display = "<a href='$credential_uri'>" . truncate($credential_uri,40) . "</a><button class='btn btn-sm clipboardjs' type='button' title='$credential_uri' data-clipboard-text='$credential_uri'><i class='far fa-copy text-secondary'></i></button>";
                     }
                     $credential_uri_2 = sanitize_url($row['credential_uri_2']);
-                    $credential_username = nullable_htmlentities(decryptCredentialEntry($row['credential_username']));
+                    $credential_username = escapeHtml(decryptCredentialEntry($row['credential_username']));
                     if (empty($credential_username)) {
                         $credential_username_display = "-";
                     } else {
                         $credential_username_display = "$credential_username<button class='btn btn-sm clipboardjs' type='button' data-clipboard-text='$credential_username'><i class='far fa-copy text-secondary'></i></button>";
                     }
-                    $credential_password = nullable_htmlentities(decryptCredentialEntry($row['credential_password']));
-                    $credential_otp_secret = nullable_htmlentities($row['credential_otp_secret']);
+                    $credential_password = escapeHtml(decryptCredentialEntry($row['credential_password']));
+                    $credential_otp_secret = escapeHtml($row['credential_otp_secret']);
                     $credential_id_with_secret = '"' . $row['credential_id'] . '","' . $row['credential_otp_secret'] . '"';
                     if (empty($credential_otp_secret)) {
                         $otp_display = "";
@@ -428,32 +428,32 @@ $sql_asset_retired = mysqli_query(
 
                         while ($row = mysqli_fetch_assoc($sql_shared_items)) {
                             $item_id = intval($row['item_id']);
-                            $item_active = nullable_htmlentities($row['item_active']);
-                            $item_key = nullable_htmlentities($row['item_key']);
-                            $item_type = nullable_htmlentities($row['item_type']);
+                            $item_active = escapeHtml($row['item_active']);
+                            $item_key = escapeHtml($row['item_key']);
+                            $item_type = escapeHtml($row['item_type']);
                             $item_related_id = intval($row['item_related_id']);
-                            $item_note = nullable_htmlentities($row['item_note']);
-                            $item_recipient = nullable_htmlentities($row['item_recipient']);
-                            $item_views = nullable_htmlentities($row['item_views']);
-                            $item_view_limit = nullable_htmlentities($row['item_view_limit']);
-                            $item_created_at = nullable_htmlentities($row['item_created_at']);
-                            $item_expire_at = nullable_htmlentities($row['item_expire_at']);
+                            $item_note = escapeHtml($row['item_note']);
+                            $item_recipient = escapeHtml($row['item_recipient']);
+                            $item_views = escapeHtml($row['item_views']);
+                            $item_view_limit = escapeHtml($row['item_view_limit']);
+                            $item_created_at = escapeHtml($row['item_created_at']);
+                            $item_expire_at = escapeHtml($row['item_expire_at']);
                             $item_expire_at_human = timeAgo($row['item_expire_at']);
 
                             if ($item_type == 'Credential') {
                                 $share_item_sql = mysqli_query($mysqli, "SELECT credential_name FROM credentials WHERE credential_id = $item_related_id AND credential_client_id = $client_id");
                                 $share_item = mysqli_fetch_assoc($share_item_sql);
-                                $item_name = nullable_htmlentities($share_item['credential_name']);
+                                $item_name = escapeHtml($share_item['credential_name']);
                                 $item_icon = "fas fa-key";
                             } elseif ($item_type == 'Document') {
                                 $share_item_sql = mysqli_query($mysqli, "SELECT document_name FROM documents WHERE document_id = $item_related_id AND document_client_id = $client_id");
                                 $share_item = mysqli_fetch_assoc($share_item_sql);
-                                $item_name = nullable_htmlentities($share_item['document_name']);
+                                $item_name = escapeHtml($share_item['document_name']);
                                 $item_icon = "fas fa-folder";
                             } elseif ($item_type == 'File') {
                                 $share_item_sql = mysqli_query($mysqli, "SELECT file_name FROM files WHERE file_id = $item_related_id AND file_client_id = $client_id");
                                 $share_item = mysqli_fetch_assoc($share_item_sql);
-                                $item_name = nullable_htmlentities($share_item['file_name']);
+                                $item_name = escapeHtml($share_item['file_name']);
                                 $item_icon = "fas fa-paperclip";
                             }
                             ?>
@@ -504,8 +504,8 @@ $sql_asset_retired = mysqli_query(
 
                     while ($row = mysqli_fetch_assoc($sql_domains_expiring)) {
                         $domain_id = intval($row['domain_id']);
-                        $domain_name = nullable_htmlentities($row['domain_name']);
-                        $domain_expire = nullable_htmlentities($row['domain_expire']);
+                        $domain_name = escapeHtml($row['domain_name']);
+                        $domain_expire = escapeHtml($row['domain_expire']);
                         $domain_expire_human = timeAgo($row['domain_expire']);
 
                         ?>
@@ -522,8 +522,8 @@ $sql_asset_retired = mysqli_query(
 
                     while ($row = mysqli_fetch_assoc($sql_certificates_expiring)) {
                         $certificate_id = intval($row['certificate_id']);
-                        $certificate_name = nullable_htmlentities($row['certificate_name']);
-                        $certificate_expire = nullable_htmlentities($row['certificate_expire']);
+                        $certificate_name = escapeHtml($row['certificate_name']);
+                        $certificate_expire = escapeHtml($row['certificate_expire']);
                         $certificate_expire_human = timeAgo($row['certificate_expire']);
 
                         ?>
@@ -540,8 +540,8 @@ $sql_asset_retired = mysqli_query(
 
                     while ($row = mysqli_fetch_assoc($sql_asset_warranties_expiring)) {
                         $asset_id = intval($row['asset_id']);
-                        $asset_name = nullable_htmlentities($row['asset_name']);
-                        $asset_warranty_expire = nullable_htmlentities($row['asset_warranty_expire']);
+                        $asset_name = escapeHtml($row['asset_name']);
+                        $asset_warranty_expire = escapeHtml($row['asset_warranty_expire']);
                         $asset_warranty_expire_human = timeAgo($row['asset_warranty_expire']);
 
                         ?>
@@ -560,8 +560,8 @@ $sql_asset_retired = mysqli_query(
 
                     while ($row = mysqli_fetch_assoc($sql_asset_retire)) {
                         $asset_id = intval($row['asset_id']);
-                        $asset_name = nullable_htmlentities($row['asset_name']);
-                        $asset_install_date = nullable_htmlentities($row['asset_install_date']);
+                        $asset_name = escapeHtml($row['asset_name']);
+                        $asset_install_date = escapeHtml($row['asset_install_date']);
                         $asset_install_date_human = timeAgo($row['asset_install_date']);
 
                         ?>
@@ -579,8 +579,8 @@ $sql_asset_retired = mysqli_query(
 
                     while ($row = mysqli_fetch_assoc($sql_licenses_expiring)) {
                         $software_id = intval($row['software_id']);
-                        $software_name = nullable_htmlentities($row['software_name']);
-                        $software_expire = nullable_htmlentities($row['software_expire']);
+                        $software_name = escapeHtml($row['software_name']);
+                        $software_expire = escapeHtml($row['software_expire']);
                         $software_expire_human = timeAgo($row['software_expire']);
 
                         ?>
@@ -622,8 +622,8 @@ $sql_asset_retired = mysqli_query(
 
                     while ($row = mysqli_fetch_assoc($sql_domains_expired)) {
                         $domain_id = intval($row['domain_id']);
-                        $domain_name = nullable_htmlentities($row['domain_name']);
-                        $domain_expire = nullable_htmlentities($row['domain_expire']);
+                        $domain_name = escapeHtml($row['domain_name']);
+                        $domain_expire = escapeHtml($row['domain_expire']);
                         $domain_expire_human = timeAgo($row['domain_expire']);
 
                         ?>
@@ -640,8 +640,8 @@ $sql_asset_retired = mysqli_query(
 
                     while ($row = mysqli_fetch_assoc($sql_certificates_expired)) {
                         $certificate_id = intval($row['certificate_id']);
-                        $certificate_name = nullable_htmlentities($row['certificate_name']);
-                        $certificate_expire = nullable_htmlentities($row['certificate_expire']);
+                        $certificate_name = escapeHtml($row['certificate_name']);
+                        $certificate_expire = escapeHtml($row['certificate_expire']);
                         $certificate_expire_human = timeAgo($row['certificate_expire']);
 
                         ?>
@@ -658,8 +658,8 @@ $sql_asset_retired = mysqli_query(
 
                     while ($row = mysqli_fetch_assoc($sql_asset_warranties_expired)) {
                         $asset_id = intval($row['asset_id']);
-                        $asset_name = nullable_htmlentities($row['asset_name']);
-                        $asset_warranty_expire = nullable_htmlentities($row['asset_warranty_expire']);
+                        $asset_name = escapeHtml($row['asset_name']);
+                        $asset_warranty_expire = escapeHtml($row['asset_warranty_expire']);
                         $asset_warranty_expire_human = timeAgo($row['asset_warranty_expire']);
 
                         ?>
@@ -678,8 +678,8 @@ $sql_asset_retired = mysqli_query(
 
                     while ($row = mysqli_fetch_assoc($sql_asset_retired)) {
                         $asset_id = intval($row['asset_id']);
-                        $asset_name = nullable_htmlentities($row['asset_name']);
-                        $asset_install_date = nullable_htmlentities($row['asset_install_date']);
+                        $asset_name = escapeHtml($row['asset_name']);
+                        $asset_install_date = escapeHtml($row['asset_install_date']);
                         $asset_install_date_human = timeAgo($row['asset_install_date']);
 
                         ?>
@@ -697,8 +697,8 @@ $sql_asset_retired = mysqli_query(
 
                     while ($row = mysqli_fetch_assoc($sql_licenses_expired)) {
                         $software_id = intval($row['software_id']);
-                        $software_name = nullable_htmlentities($row['software_name']);
-                        $software_expire = nullable_htmlentities($row['software_expire']);
+                        $software_name = escapeHtml($row['software_name']);
+                        $software_expire = escapeHtml($row['software_expire']);
                         $software_expire_human = timeAgo($row['software_expire']);
 
                         ?>
@@ -734,10 +734,10 @@ $sql_asset_retired = mysqli_query(
 
                     while ($row = mysqli_fetch_assoc($sql_stale_tickets)) {
                         $ticket_id = intval($row['ticket_id']);
-                        $ticket_prefix = nullable_htmlentities($row['ticket_prefix']);
+                        $ticket_prefix = escapeHtml($row['ticket_prefix']);
                         $ticket_number = intval($row['ticket_number']);
-                        $ticket_subject = nullable_htmlentities($row['ticket_subject']);
-                        $ticket_created_at = nullable_htmlentities($row['ticket_created_at']);
+                        $ticket_subject = escapeHtml($row['ticket_subject']);
+                        $ticket_created_at = escapeHtml($row['ticket_created_at']);
                         $ticket_created_at_human = timeAgo($row['ticket_created_at']);
 
                         ?>
@@ -774,7 +774,7 @@ $sql_asset_retired = mysqli_query(
 
                     while ($row = mysqli_fetch_assoc($sql_recent_activities)) {
                         $log_created_at_time_ago = timeAgo($row['log_created_at']);
-                        $log_description = nullable_htmlentities($row['log_description']);
+                        $log_description = escapeHtml($row['log_description']);
 
                         ?>
                         <tr>

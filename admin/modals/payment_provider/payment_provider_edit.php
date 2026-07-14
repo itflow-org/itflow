@@ -7,9 +7,9 @@ $provider_id = intval($_GET['id']);
 $sql = mysqli_query($mysqli, "SELECT * FROM payment_providers WHERE payment_provider_id = $provider_id LIMIT 1");
 
 $row = mysqli_fetch_assoc($sql);
-$provider_name = nullable_htmlentities($row['payment_provider_name']);
-$public_key = nullable_htmlentities($row['payment_provider_public_key']);
-$private_key = nullable_htmlentities($row['payment_provider_private_key']);
+$provider_name = escapeHtml($row['payment_provider_name']);
+$public_key = escapeHtml($row['payment_provider_public_key']);
+$private_key = escapeHtml($row['payment_provider_private_key']);
 $account_id = intval($row['payment_provider_account']);
 $threshold = floatval($row['payment_provider_threshold']);
 $vendor_id = intval($row['payment_provider_expense_vendor']);
@@ -80,7 +80,7 @@ ob_start();
                             $sql = mysqli_query($mysqli, "SELECT account_id, account_name FROM accounts WHERE account_archived_at IS NULL ORDER BY account_name ASC");
                             while ($row = mysqli_fetch_assoc($sql)) {
                                 $account_id_select = intval($row['account_id']);
-                                $account_name = nullable_htmlentities($row['account_name']);
+                                $account_name = escapeHtml($row['account_name']);
                                 ?>
                                 <option <?php if ($account_id === $account_id_select) { echo "selected"; } ?> value="<?= $account_id_select ?>"><?= $account_name ?></option>
 
@@ -119,7 +119,7 @@ ob_start();
                             $sql = mysqli_query($mysqli, "SELECT vendor_id, vendor_name FROM vendors WHERE vendor_client_id = 0 AND vendor_archived_at IS NULL ORDER BY vendor_name ASC");
                             while ($row = mysqli_fetch_assoc($sql)) {
                                 $vendor_id_select = intval($row['vendor_id']);
-                                $vendor_name = nullable_htmlentities($row['vendor_name']);
+                                $vendor_name = escapeHtml($row['vendor_name']);
                                 ?>
                                 <option <?php if ($vendor_id === $vendor_id_select) { echo "selected"; } ?>
                                     value="<?= $vendor_id_select ?>"><?= $vendor_name ?>
@@ -145,7 +145,7 @@ ob_start();
                             $sql_category = mysqli_query($mysqli, "SELECT category_id, category_name FROM categories WHERE category_type = 'Expense' AND category_archived_at IS NULL ORDER BY category_name ASC");
                             while ($row = mysqli_fetch_assoc($sql_category)) {
                                 $category_id_select = intval($row['category_id']);
-                                $category_name = nullable_htmlentities($row['category_name']);
+                                $category_name = escapeHtml($row['category_name']);
                                 ?>
                                 <option <?php if ($category_id === $category_id_select) { echo "selected"; } ?> value="<?= $category_id_select ?>"><?= $category_name ?></option>
 

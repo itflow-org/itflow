@@ -25,8 +25,8 @@
                                     WHERE file_client_id = $client_id ORDER BY folder_name ASC, file_name ASC");
                                 while ($row = mysqli_fetch_assoc($sql_files_select)) {
                                     $file_id = intval($row['file_id']);
-                                    $file_name = nullable_htmlentities($row['file_name']);
-                                    $folder_name = nullable_htmlentities($row['folder_name']);
+                                    $file_name = escapeHtml($row['file_name']);
+                                    $folder_name = escapeHtml($row['folder_name']);
 
                                     ?>
                                     <option value="<?php echo $file_id ?>"><?php echo "$folder_name/$file_name"; ?></option>

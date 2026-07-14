@@ -7,8 +7,8 @@ $account_id = intval($_GET['id']);
 $sql = mysqli_query($mysqli, "SELECT * FROM accounts WHERE account_id = $account_id LIMIT 1");
 
 $row = mysqli_fetch_assoc($sql);
-$account_name = nullable_htmlentities($row['account_name']);
-$account_notes = nullable_htmlentities($row['account_notes']);
+$account_name = escapeHtml($row['account_name']);
+$account_notes = escapeHtml($row['account_notes']);
 
 // Generate the HTML form content using output buffering.
 ob_start();

@@ -68,12 +68,12 @@ $num_rows = mysqli_num_rows($sql);
 
                 while ($row = mysqli_fetch_assoc($sql)) {
                     $provider_id = intval($row['payment_provider_id']);
-                    $provider_name = nullable_htmlentities($row['payment_provider_name']);
-                    $provider_description = nullable_htmlentities($row['payment_provider_description']);
-                    $account_name = nullable_htmlentities($row['account_name']);
+                    $provider_name = escapeHtml($row['payment_provider_name']);
+                    $provider_description = escapeHtml($row['payment_provider_description']);
+                    $account_name = escapeHtml($row['account_name']);
                     $threshold = floatval($row['payment_provider_threshold']);
-                    $vendor_name = nullable_htmlentities($row['vendor_name'] ?? "Expense Disabled");
-                    $category = nullable_htmlentities($row['category_name']);
+                    $vendor_name = escapeHtml($row['vendor_name'] ?? "Expense Disabled");
+                    $category = escapeHtml($row['category_name']);
                     $percent_fee = floatval($row['payment_provider_expense_percentage_fee']) * 100;
                     $flat_fee = floatval($row['payment_provider_expense_flat_fee']);
 

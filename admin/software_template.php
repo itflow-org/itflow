@@ -30,7 +30,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                 <div class="col-md-4">
                     <div class="input-group mb-3 mb-md-0">
-                        <input type="search" class="form-control" name="q" value="<?php if(isset($q)){ echo stripslashes(nullable_htmlentities($q)); } ?>" placeholder="Search License Templates">
+                        <input type="search" class="form-control" name="q" value="<?php if(isset($q)){ echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search License Templates">
                         <div class="input-group-append">
                             <button class="btn btn-dark"><i class="fa fa-search"></i></button>
                         </div>
@@ -70,12 +70,12 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                 while($row = mysqli_fetch_assoc($sql)){
                     $software_template_id = intval($row['software_template_id']);
-                    $software_template_name = nullable_htmlentities($row['software_template_name']);
-                    $software_template_version = nullable_htmlentities($row['software_template_version']);
-                    $software_template_description = nullable_htmlentities($row['software_template_description']);
-                    $software_template_type = nullable_htmlentities($row['software_template_type']);
-                    $software_template_license_type = nullable_htmlentities($row['software_template_license_type']);
-                    $software_template_notes = nullable_htmlentities($row['software_template_notes']);
+                    $software_template_name = escapeHtml($row['software_template_name']);
+                    $software_template_version = escapeHtml($row['software_template_version']);
+                    $software_template_description = escapeHtml($row['software_template_description']);
+                    $software_template_type = escapeHtml($row['software_template_type']);
+                    $software_template_license_type = escapeHtml($row['software_template_license_type']);
+                    $software_template_notes = escapeHtml($row['software_template_notes']);
 
                     ?>
                     <tr>

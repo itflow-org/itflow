@@ -8,8 +8,8 @@ DEFINE("WORDING_PAYMENT_FAILED", "<br><h2>There was an error verifying your paym
 $stripe_provider = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT * FROM payment_providers"));
 
 
-$stripe_publishable      = nullable_htmlentities($stripe_provider['payment_provider_public_key']);
-$stripe_secret           = nullable_htmlentities($stripe_provider['payment_provider_private_key']);
+$stripe_publishable      = escapeHtml($stripe_provider['payment_provider_public_key']);
+$stripe_secret           = escapeHtml($stripe_provider['payment_provider_private_key']);
 $stripe_account          = intval($stripe_provider['payment_provider_account']);
 $stripe_expense_vendor   = intval($stripe_provider['payment_provider_expense_vendor']);
 $stripe_expense_category = intval($stripe_provider['payment_provider_expense_category']);
@@ -44,22 +44,22 @@ if (isset($_GET['invoice_id'], $_GET['url_key']) && !isset($_GET['payment_intent
 
     $row = mysqli_fetch_assoc($sql);
     $invoice_id            = intval($row['invoice_id']);
-    $invoice_prefix        = nullable_htmlentities($row['invoice_prefix']);
+    $invoice_prefix        = escapeHtml($row['invoice_prefix']);
     $invoice_number        = intval($row['invoice_number']);
-    $invoice_status        = nullable_htmlentities($row['invoice_status']);
-    $invoice_date          = nullable_htmlentities($row['invoice_date']);
-    $invoice_due           = nullable_htmlentities($row['invoice_due']);
+    $invoice_status        = escapeHtml($row['invoice_status']);
+    $invoice_date          = escapeHtml($row['invoice_date']);
+    $invoice_due           = escapeHtml($row['invoice_due']);
     $invoice_discount      = floatval($row['invoice_discount_amount']);
     $invoice_amount        = floatval($row['invoice_amount']);
-    $invoice_currency_code = nullable_htmlentities($row['invoice_currency_code']);
+    $invoice_currency_code = escapeHtml($row['invoice_currency_code']);
     $client_id             = intval($row['client_id']);
-    $client_name           = nullable_htmlentities($row['client_name']);
+    $client_name           = escapeHtml($row['client_name']);
 
     // Company info for currency formatting, etc
     $sql_company = mysqli_query($mysqli, "SELECT * FROM companies WHERE company_id = 1");
     $company_row = mysqli_fetch_assoc($sql_company);
-    $company_locale = nullable_htmlentities($company_row['company_locale']);
-    $config_base_url = nullable_htmlentities($company_row['company_base_url'] ?? ''); // You might want to pull from settings if needed
+    $company_locale = escapeHtml($company_row['company_locale']);
+    $config_base_url = escapeHtml($company_row['company_base_url'] ?? ''); // You might want to pull from settings if needed
 
     // Add up all payments made to the invoice
     $sql_amount_paid = mysqli_query($mysqli, "SELECT SUM(payment_amount) AS amount_paid FROM payments WHERE payment_invoice_id = $invoice_id");
@@ -96,7 +96,7 @@ if (isset($_GET['invoice_id'], $_GET['url_key']) && !isset($_GET['payment_intent
                         <tbody>
                         <?php
                         while ($row = mysqli_fetch_assoc($sql_invoice_items)) {
-                            $item_name = nullable_htmlentities($row['item_name']);
+                            $item_name = escapeHtml($row['item_name']);
                             $item_quantity = floatval($row['item_quantity']);
                             $item_total = floatval($row['item_total']);
                         ?>

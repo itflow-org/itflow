@@ -781,34 +781,34 @@ if (isset($_GET['export_invoice_pdf'])) {
 
     $row = mysqli_fetch_assoc($sql);
     $invoice_id = intval($row['invoice_id']);
-    $invoice_prefix = nullable_htmlentities($row['invoice_prefix']);
+    $invoice_prefix = escapeHtml($row['invoice_prefix']);
     $invoice_number = intval($row['invoice_number']);
-    $invoice_scope = nullable_htmlentities($row['invoice_scope']);
-    $invoice_status = nullable_htmlentities($row['invoice_status']);
-    $invoice_date = nullable_htmlentities($row['invoice_date']);
-    $invoice_due = nullable_htmlentities($row['invoice_due']);
+    $invoice_scope = escapeHtml($row['invoice_scope']);
+    $invoice_status = escapeHtml($row['invoice_status']);
+    $invoice_date = escapeHtml($row['invoice_date']);
+    $invoice_due = escapeHtml($row['invoice_due']);
     $invoice_amount = floatval($row['invoice_amount']);
     $invoice_discount = floatval($row['invoice_discount_amount']);
-    $invoice_currency_code = nullable_htmlentities($row['invoice_currency_code']);
-    $invoice_note = nullable_htmlentities($row['invoice_note']);
-    $invoice_url_key = nullable_htmlentities($row['invoice_url_key']);
-    $invoice_created_at = nullable_htmlentities($row['invoice_created_at']);
+    $invoice_currency_code = escapeHtml($row['invoice_currency_code']);
+    $invoice_note = escapeHtml($row['invoice_note']);
+    $invoice_url_key = escapeHtml($row['invoice_url_key']);
+    $invoice_created_at = escapeHtml($row['invoice_created_at']);
     $category_id = intval($row['invoice_category_id']);
     $client_id = intval($row['client_id']);
-    $client_name = nullable_htmlentities($row['client_name']);
-    $location_address = nullable_htmlentities($row['location_address']);
-    $location_city = nullable_htmlentities($row['location_city']);
-    $location_state = nullable_htmlentities($row['location_state']);
-    $location_zip = nullable_htmlentities($row['location_zip']);
-    $location_country = nullable_htmlentities($row['location_country']);
-    $contact_email = nullable_htmlentities($row['contact_email']);
-    $contact_phone_country_code = nullable_htmlentities($row['contact_phone_country_code']);
-    $contact_phone = nullable_htmlentities(formatPhoneNumber($row['contact_phone'], $contact_phone_country_code));
-    $contact_extension = nullable_htmlentities($row['contact_extension']);
-    $contact_mobile_country_code = nullable_htmlentities($row['contact_mobile_country_code']);
-    $contact_mobile = nullable_htmlentities(formatPhoneNumber($row['contact_mobile'], $contact_mobile_country_code));
-    $client_website = nullable_htmlentities($row['client_website']);
-    $client_currency_code = nullable_htmlentities($row['client_currency_code']);
+    $client_name = escapeHtml($row['client_name']);
+    $location_address = escapeHtml($row['location_address']);
+    $location_city = escapeHtml($row['location_city']);
+    $location_state = escapeHtml($row['location_state']);
+    $location_zip = escapeHtml($row['location_zip']);
+    $location_country = escapeHtml($row['location_country']);
+    $contact_email = escapeHtml($row['contact_email']);
+    $contact_phone_country_code = escapeHtml($row['contact_phone_country_code']);
+    $contact_phone = escapeHtml(formatPhoneNumber($row['contact_phone'], $contact_phone_country_code));
+    $contact_extension = escapeHtml($row['contact_extension']);
+    $contact_mobile_country_code = escapeHtml($row['contact_mobile_country_code']);
+    $contact_mobile = escapeHtml(formatPhoneNumber($row['contact_mobile'], $contact_mobile_country_code));
+    $client_website = escapeHtml($row['client_website']);
+    $client_currency_code = escapeHtml($row['client_currency_code']);
     $client_net_terms = intval($row['client_net_terms']);
     if ($client_net_terms == 0) {
         $client_net_terms = $config_default_net_terms;
@@ -819,23 +819,23 @@ if (isset($_GET['export_invoice_pdf'])) {
     $sql = mysqli_query($mysqli, "SELECT * FROM companies WHERE company_id = 1");
     $row = mysqli_fetch_assoc($sql);
     $company_id = intval($row['company_id']);
-    $company_name = nullable_htmlentities($row['company_name']);
-    $company_country = nullable_htmlentities($row['company_country']);
-    $company_address = nullable_htmlentities($row['company_address']);
-    $company_city = nullable_htmlentities($row['company_city']);
-    $company_state = nullable_htmlentities($row['company_state']);
-    $company_zip = nullable_htmlentities($row['company_zip']);
-    $company_phone_country_code = nullable_htmlentities($row['company_phone_country_code']);
-    $company_phone = nullable_htmlentities(formatPhoneNumber($row['company_phone'], $company_phone_country_code));
-    $company_email = nullable_htmlentities($row['company_email']);
-    $company_website = nullable_htmlentities($row['company_website']);
-    $company_tax_id = nullable_htmlentities($row['company_tax_id']);
+    $company_name = escapeHtml($row['company_name']);
+    $company_country = escapeHtml($row['company_country']);
+    $company_address = escapeHtml($row['company_address']);
+    $company_city = escapeHtml($row['company_city']);
+    $company_state = escapeHtml($row['company_state']);
+    $company_zip = escapeHtml($row['company_zip']);
+    $company_phone_country_code = escapeHtml($row['company_phone_country_code']);
+    $company_phone = escapeHtml(formatPhoneNumber($row['company_phone'], $company_phone_country_code));
+    $company_email = escapeHtml($row['company_email']);
+    $company_website = escapeHtml($row['company_website']);
+    $company_tax_id = escapeHtml($row['company_tax_id']);
     if ($config_invoice_show_tax_id && !empty($company_tax_id)) {
         $company_tax_id_display = "Tax ID: $company_tax_id";
     } else {
         $company_tax_id_display = "";
     }
-    $company_logo = nullable_htmlentities($row['company_logo']);
+    $company_logo = escapeHtml($row['company_logo']);
 
     $sql_payments = mysqli_query($mysqli, "SELECT * FROM payments, accounts WHERE payment_account_id = account_id AND payment_invoice_id = $invoice_id ORDER BY payments.payment_id DESC");
 
@@ -1010,37 +1010,37 @@ if (isset($_GET['export_invoice_packing_slip'])) {
 
     $row = mysqli_fetch_assoc($sql);
     $invoice_id = intval($row['invoice_id']);
-    $invoice_prefix = nullable_htmlentities($row['invoice_prefix']);
+    $invoice_prefix = escapeHtml($row['invoice_prefix']);
     $invoice_number = intval($row['invoice_number']);
-    $invoice_date = nullable_htmlentities($row['invoice_date']);
+    $invoice_date = escapeHtml($row['invoice_date']);
     $client_id = intval($row['client_id']);
-    $client_name = nullable_htmlentities($row['client_name']);
-    $location_address = nullable_htmlentities($row['location_address']);
-    $location_city = nullable_htmlentities($row['location_city']);
-    $location_state = nullable_htmlentities($row['location_state']);
-    $location_zip = nullable_htmlentities($row['location_zip']);
-    $location_country = nullable_htmlentities($row['location_country']);
-    $contact_email = nullable_htmlentities($row['contact_email']);
-    $contact_phone_country_code = nullable_htmlentities($row['contact_phone_country_code']);
-    $contact_phone = nullable_htmlentities(formatPhoneNumber($row['contact_phone'], $contact_phone_country_code));
-    $contact_extension = nullable_htmlentities($row['contact_extension']);
+    $client_name = escapeHtml($row['client_name']);
+    $location_address = escapeHtml($row['location_address']);
+    $location_city = escapeHtml($row['location_city']);
+    $location_state = escapeHtml($row['location_state']);
+    $location_zip = escapeHtml($row['location_zip']);
+    $location_country = escapeHtml($row['location_country']);
+    $contact_email = escapeHtml($row['contact_email']);
+    $contact_phone_country_code = escapeHtml($row['contact_phone_country_code']);
+    $contact_phone = escapeHtml(formatPhoneNumber($row['contact_phone'], $contact_phone_country_code));
+    $contact_extension = escapeHtml($row['contact_extension']);
 
     enforceClientAccess();
 
     $sql = mysqli_query($mysqli, "SELECT * FROM companies WHERE company_id = 1");
     $row = mysqli_fetch_assoc($sql);
     $company_id = intval($row['company_id']);
-    $company_name = nullable_htmlentities($row['company_name']);
-    $company_country = nullable_htmlentities($row['company_country']);
-    $company_address = nullable_htmlentities($row['company_address']);
-    $company_city = nullable_htmlentities($row['company_city']);
-    $company_state = nullable_htmlentities($row['company_state']);
-    $company_zip = nullable_htmlentities($row['company_zip']);
-    $company_phone_country_code = nullable_htmlentities($row['company_phone_country_code']);
-    $company_phone = nullable_htmlentities(formatPhoneNumber($row['company_phone'], $company_phone_country_code));
-    $company_email = nullable_htmlentities($row['company_email']);
-    $company_website = nullable_htmlentities($row['company_website']);
-    $company_logo = nullable_htmlentities($row['company_logo']);
+    $company_name = escapeHtml($row['company_name']);
+    $company_country = escapeHtml($row['company_country']);
+    $company_address = escapeHtml($row['company_address']);
+    $company_city = escapeHtml($row['company_city']);
+    $company_state = escapeHtml($row['company_state']);
+    $company_zip = escapeHtml($row['company_zip']);
+    $company_phone_country_code = escapeHtml($row['company_phone_country_code']);
+    $company_phone = escapeHtml(formatPhoneNumber($row['company_phone'], $company_phone_country_code));
+    $company_email = escapeHtml($row['company_email']);
+    $company_website = escapeHtml($row['company_website']);
+    $company_logo = escapeHtml($row['company_logo']);
 
     require_once("../libs/TCPDF/tcpdf.php");
 

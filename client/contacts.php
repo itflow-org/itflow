@@ -42,8 +42,8 @@ $contacts_sql = mysqli_query($mysqli, "SELECT contact_id, contact_name, contact_
                 <?php
                 while ($row = mysqli_fetch_assoc($contacts_sql)) {
                     $contact_id = intval($row['contact_id']);
-                    $contact_name = nullable_htmlentities($row['contact_name']);
-                    $contact_email = nullable_htmlentities($row['contact_email']);
+                    $contact_name = escapeHtml($row['contact_name']);
+                    $contact_email = escapeHtml($row['contact_email']);
                     $contact_primary = intval($row['contact_primary']);
                     $contact_technical = intval($row['contact_technical']);
                     $contact_billing = intval($row['contact_billing']);

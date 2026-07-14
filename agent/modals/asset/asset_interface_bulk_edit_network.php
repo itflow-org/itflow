@@ -42,8 +42,8 @@ ob_start();
                     ");
                     while ($net_row = mysqli_fetch_assoc($sql_network_select)) {
                         $network_id_select   = intval($net_row['network_id']);
-                        $network_name_select = nullable_htmlentities($net_row['network_name']);
-                        $network_select = nullable_htmlentities($net_row['network']);
+                        $network_name_select = escapeHtml($net_row['network_name']);
+                        $network_select = escapeHtml($net_row['network']);
                         ?>
                         <option value="<?php echo $network_id_select; ?>"><?php echo "$network_name_select - $network_select"; ?></option>
                     <?php

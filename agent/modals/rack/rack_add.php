@@ -51,7 +51,7 @@ ob_start();
                                 ORDER BY category_order ASC, category_name ASC
                             ");
                             while ($row = mysqli_fetch_assoc($sql_rack_types_select)) {
-                                $rack_type_select = nullable_htmlentities($row['category_name']);
+                                $rack_type_select = escapeHtml($row['category_name']);
                                 ?>
                                 <option><?= $rack_type_select ?></option>
                             <?php } ?>
@@ -112,7 +112,7 @@ ob_start();
                             $sql = mysqli_query($mysqli, "SELECT * FROM locations WHERE location_archived_at IS NULL AND location_client_id = $client_id ORDER BY location_name ASC");
                             while ($row = mysqli_fetch_assoc($sql)) {
                                 $location_id = intval($row['location_id']);
-                                $location_name = nullable_htmlentities($row['location_name']);
+                                $location_name = escapeHtml($row['location_name']);
                                 ?>
                                 <option value="<?php echo $location_id; ?>"><?php echo $location_name; ?></option>
                             <?php } ?>

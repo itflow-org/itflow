@@ -1235,12 +1235,12 @@ if (isset($_POST["export_client_pdf"])) {
 
     $sql = mysqli_query($mysqli, "SELECT * FROM companies, settings WHERE companies.company_id = settings.company_id AND companies.company_id = 1");
     $row = mysqli_fetch_assoc($sql);
-    $company_name = nullable_htmlentities($row['company_name']);
-    $company_phone_country_code = nullable_htmlentities($row['company_phone_country_code']);
-    $company_phone = nullable_htmlentities(formatPhoneNumber($row['company_phone'], $company_phone_country_code));
-    $company_email = nullable_htmlentities($row['company_email']);
-    $company_website = nullable_htmlentities($row['company_website']);
-    $company_logo = nullable_htmlentities($row['company_logo']);
+    $company_name = escapeHtml($row['company_name']);
+    $company_phone_country_code = escapeHtml($row['company_phone_country_code']);
+    $company_phone = escapeHtml(formatPhoneNumber($row['company_phone'], $company_phone_country_code));
+    $company_email = escapeHtml($row['company_email']);
+    $company_website = escapeHtml($row['company_website']);
+    $company_logo = escapeHtml($row['company_logo']);
 
     $client_id = intval($_POST["client_id"]);
     $export_contacts = intval($_POST["export_contacts"]);
@@ -1275,19 +1275,19 @@ if (isset($_POST["export_client_pdf"])) {
     $row = mysqli_fetch_assoc($sql);
 
     // Immediately sanitize retrieved values
-    $client_name = nullable_htmlentities($row["client_name"]);
-    $location_address = nullable_htmlentities($row["location_address"]);
-    $location_city = nullable_htmlentities($row["location_city"]);
-    $location_state = nullable_htmlentities($row["location_state"]);
-    $location_zip = nullable_htmlentities($row["location_zip"]);
-    $contact_name = nullable_htmlentities($row["contact_name"]);
-    $contact_phone_country_code = nullable_htmlentities($row["contact_phone_country_code"]);
-    $contact_phone = nullable_htmlentities(formatPhoneNumber($row["contact_phone"], $contact_phone_country_code));
-    $contact_extension = nullable_htmlentities($row["contact_extension"]);
-    $contact_mobile_country_code = nullable_htmlentities($row["contact_mobile_country_code"]);
-    $contact_mobile = nullable_htmlentities(formatPhoneNumber($row["contact_mobile"], $contact_mobile_country_code));
-    $contact_email = nullable_htmlentities($row["contact_email"]);
-    $client_website = nullable_htmlentities($row["client_website"]);
+    $client_name = escapeHtml($row["client_name"]);
+    $location_address = escapeHtml($row["location_address"]);
+    $location_city = escapeHtml($row["location_city"]);
+    $location_state = escapeHtml($row["location_state"]);
+    $location_zip = escapeHtml($row["location_zip"]);
+    $contact_name = escapeHtml($row["contact_name"]);
+    $contact_phone_country_code = escapeHtml($row["contact_phone_country_code"]);
+    $contact_phone = escapeHtml(formatPhoneNumber($row["contact_phone"], $contact_phone_country_code));
+    $contact_extension = escapeHtml($row["contact_extension"]);
+    $contact_mobile_country_code = escapeHtml($row["contact_mobile_country_code"]);
+    $contact_mobile = escapeHtml(formatPhoneNumber($row["contact_mobile"], $contact_mobile_country_code));
+    $contact_email = escapeHtml($row["contact_email"]);
+    $client_website = escapeHtml($row["client_website"]);
 
     // Other queries remain unchanged
     $sql_contacts = mysqli_query($mysqli, "SELECT * FROM contacts WHERE contact_client_id = $client_id AND contact_archived_at IS NULL ORDER BY contact_name ASC");
@@ -1491,18 +1491,18 @@ if (isset($_POST["export_client_pdf"])) {
           </thead>
           <tbody>";
         while ($row = mysqli_fetch_assoc($sql_contacts)) {
-            $contact_name = nullable_htmlentities(getFallBack($row["contact_name"]));
-            $contact_title = nullable_htmlentities(getFallBack($row["contact_title"]));
-            $contact_department = nullable_htmlentities($row["contact_department"]);
-            $contact_email = nullable_htmlentities($row["contact_email"]);
-            $contact_phone_country_code = nullable_htmlentities($row["contact_phone_country_code"]);
-            $contact_phone = nullable_htmlentities(formatPhoneNumber($row["contact_phone"], $contact_phone_country_code));
-            $contact_extension = nullable_htmlentities($row["contact_extension"]);
+            $contact_name = escapeHtml(getFallBack($row["contact_name"]));
+            $contact_title = escapeHtml(getFallBack($row["contact_title"]));
+            $contact_department = escapeHtml($row["contact_department"]);
+            $contact_email = escapeHtml($row["contact_email"]);
+            $contact_phone_country_code = escapeHtml($row["contact_phone_country_code"]);
+            $contact_phone = escapeHtml(formatPhoneNumber($row["contact_phone"], $contact_phone_country_code));
+            $contact_extension = escapeHtml($row["contact_extension"]);
             if (!empty($contact_extension)) {
                 $contact_extension = "x$contact_extension";
             }
-            $contact_mobile_country_code = nullable_htmlentities($row["contact_mobile_country_code"]);
-            $contact_mobile = nullable_htmlentities(formatPhoneNumber($row["contact_mobile"], $contact_mobile_country_code));
+            $contact_mobile_country_code = escapeHtml($row["contact_mobile_country_code"]);
+            $contact_mobile = escapeHtml(formatPhoneNumber($row["contact_mobile"], $contact_mobile_country_code));
             $html .= "
             <tr>
               <td>$contact_name</td>
@@ -1533,13 +1533,13 @@ if (isset($_POST["export_client_pdf"])) {
           </thead>
           <tbody>";
         while ($row = mysqli_fetch_assoc($sql_locations)) {
-            $location_name = nullable_htmlentities($row["location_name"]);
-            $location_address = nullable_htmlentities($row["location_address"]);
-            $location_city = nullable_htmlentities($row["location_city"]);
-            $location_state = nullable_htmlentities($row["location_state"]);
-            $location_zip = nullable_htmlentities($row["location_zip"]);
-            $location_phone_country_code = nullable_htmlentities($row["location_phone_country_code"]);
-            $location_phone = nullable_htmlentities(formatPhoneNumber($row["location_phone"], $location_phone_country_code));
+            $location_name = escapeHtml($row["location_name"]);
+            $location_address = escapeHtml($row["location_address"]);
+            $location_city = escapeHtml($row["location_city"]);
+            $location_state = escapeHtml($row["location_state"]);
+            $location_zip = escapeHtml($row["location_zip"]);
+            $location_phone_country_code = escapeHtml($row["location_phone_country_code"]);
+            $location_phone = escapeHtml(formatPhoneNumber($row["location_phone"], $location_phone_country_code));
             $html .= "
             <tr>
               <td>$location_name</td>
@@ -1569,12 +1569,12 @@ if (isset($_POST["export_client_pdf"])) {
           </thead>
           <tbody>";
         while ($row = mysqli_fetch_assoc($sql_vendors)) {
-            $vendor_name = nullable_htmlentities($row["vendor_name"]);
-            $vendor_description = nullable_htmlentities($row["vendor_description"]);
-            $vendor_account_number = nullable_htmlentities($row["vendor_account_number"]);
-            $vendor_phone_country_code = nullable_htmlentities($row["vendor_phone_country_code"]);
-            $vendor_phone = nullable_htmlentities(formatPhoneNumber($row["vendor_phone"], $vendor_phone_country_code));
-            $vendor_website = nullable_htmlentities($row["vendor_website"]);
+            $vendor_name = escapeHtml($row["vendor_name"]);
+            $vendor_description = escapeHtml($row["vendor_description"]);
+            $vendor_account_number = escapeHtml($row["vendor_account_number"]);
+            $vendor_phone_country_code = escapeHtml($row["vendor_phone_country_code"]);
+            $vendor_phone = escapeHtml(formatPhoneNumber($row["vendor_phone"], $vendor_phone_country_code));
+            $vendor_website = escapeHtml($row["vendor_website"]);
             $html .= "
             <tr>
               <td>$vendor_name</td>
@@ -1607,12 +1607,12 @@ if (isset($_POST["export_client_pdf"])) {
           </thead>
           <tbody>";
         while ($row = mysqli_fetch_assoc($sql_credentials)) {
-            $credential_name = nullable_htmlentities($row["credential_name"]);
-            $credential_description = getFallback(nullable_htmlentities($row["credential_description"]));
-            $credential_username = nullable_htmlentities(decryptCredentialEntry($row["credential_username"]));
-            $credential_password = nullable_htmlentities(decryptCredentialEntry($row["credential_password"]));
-            $credential_totp_secret = getFallback(nullable_htmlentities($row['credential_otp_secret']));
-            $credential_uri = getFallback(nullable_htmlentities($row["credential_uri"]));
+            $credential_name = escapeHtml($row["credential_name"]);
+            $credential_description = getFallback(escapeHtml($row["credential_description"]));
+            $credential_username = escapeHtml(decryptCredentialEntry($row["credential_username"]));
+            $credential_password = escapeHtml(decryptCredentialEntry($row["credential_password"]));
+            $credential_totp_secret = getFallback(escapeHtml($row['credential_otp_secret']));
+            $credential_uri = getFallback(escapeHtml($row["credential_uri"]));
             $html .= "
             <tr>
               <td>$credential_name</td>
@@ -1657,17 +1657,17 @@ if (isset($_POST["export_client_pdf"])) {
           </thead>
           <tbody>";
         while ($row = mysqli_fetch_assoc($sql_asset_workstations)) {
-            $asset_name = nullable_htmlentities($row["asset_name"]);
-            $asset_type = nullable_htmlentities($row["asset_type"]);
-            $asset_make = nullable_htmlentities($row["asset_make"]);
-            $asset_model = nullable_htmlentities($row["asset_model"]);
-            $asset_serial = nullable_htmlentities($row["asset_serial"]);
-            $asset_os = nullable_htmlentities($row["asset_os"]);
-            $asset_purchase_date = nullable_htmlentities($row["asset_purchase_date"]);
-            $asset_warranty_expire = nullable_htmlentities($row["asset_warranty_expire"]);
-            $asset_install_date = nullable_htmlentities($row["asset_install_date"]);
-            $contact_name = nullable_htmlentities($row["contact_name"]);
-            $location_name = nullable_htmlentities($row["location_name"]);
+            $asset_name = escapeHtml($row["asset_name"]);
+            $asset_type = escapeHtml($row["asset_type"]);
+            $asset_make = escapeHtml($row["asset_make"]);
+            $asset_model = escapeHtml($row["asset_model"]);
+            $asset_serial = escapeHtml($row["asset_serial"]);
+            $asset_os = escapeHtml($row["asset_os"]);
+            $asset_purchase_date = escapeHtml($row["asset_purchase_date"]);
+            $asset_warranty_expire = escapeHtml($row["asset_warranty_expire"]);
+            $asset_install_date = escapeHtml($row["asset_install_date"]);
+            $contact_name = escapeHtml($row["contact_name"]);
+            $location_name = escapeHtml($row["location_name"]);
             $html .= "
             <tr style='page-break-inside: avoid;'>
               <td>$asset_name</td>
@@ -1708,16 +1708,16 @@ if (isset($_POST["export_client_pdf"])) {
           </thead>
           <tbody>";
         while ($row = mysqli_fetch_assoc($sql_asset_servers)) {
-            $asset_name = nullable_htmlentities($row["asset_name"]);
-            $asset_make = nullable_htmlentities($row["asset_make"]);
-            $asset_model = nullable_htmlentities($row["asset_model"]);
-            $asset_serial = nullable_htmlentities($row["asset_serial"]);
-            $asset_os = nullable_htmlentities($row["asset_os"]);
-            $asset_ip = nullable_htmlentities($row["interface_ip"]);
-            $asset_purchase_date = nullable_htmlentities($row["asset_purchase_date"]);
-            $asset_warranty_expire = nullable_htmlentities($row["asset_warranty_expire"]);
-            $asset_install_date = nullable_htmlentities($row["asset_install_date"]);
-            $location_name = nullable_htmlentities($row["location_name"]);
+            $asset_name = escapeHtml($row["asset_name"]);
+            $asset_make = escapeHtml($row["asset_make"]);
+            $asset_model = escapeHtml($row["asset_model"]);
+            $asset_serial = escapeHtml($row["asset_serial"]);
+            $asset_os = escapeHtml($row["asset_os"]);
+            $asset_ip = escapeHtml($row["interface_ip"]);
+            $asset_purchase_date = escapeHtml($row["asset_purchase_date"]);
+            $asset_warranty_expire = escapeHtml($row["asset_warranty_expire"]);
+            $asset_install_date = escapeHtml($row["asset_install_date"]);
+            $location_name = escapeHtml($row["location_name"]);
             $html .= "
             <tr style='page-break-inside: avoid;'>
               <td>$asset_name</td>
@@ -1752,10 +1752,10 @@ if (isset($_POST["export_client_pdf"])) {
           </thead>
           <tbody>";
         while ($row = mysqli_fetch_assoc($sql_asset_vms)) {
-            $asset_name = nullable_htmlentities($row["asset_name"]);
-            $asset_os = nullable_htmlentities($row["asset_os"]);
-            $asset_ip = nullable_htmlentities($row["interface_ip"]);
-            $asset_install_date = nullable_htmlentities($row["asset_install_date"]);
+            $asset_name = escapeHtml($row["asset_name"]);
+            $asset_os = escapeHtml($row["asset_os"]);
+            $asset_ip = escapeHtml($row["interface_ip"]);
+            $asset_install_date = escapeHtml($row["asset_install_date"]);
             $html .= "
             <tr style='page-break-inside: avoid;'>
               <td>$asset_name</td>
@@ -1790,16 +1790,16 @@ if (isset($_POST["export_client_pdf"])) {
           </thead>
           <tbody>";
         while ($row = mysqli_fetch_assoc($sql_asset_network)) {
-            $asset_name = nullable_htmlentities($row["asset_name"]);
-            $asset_type = nullable_htmlentities($row["asset_type"]);
-            $asset_make = nullable_htmlentities($row["asset_make"]);
-            $asset_model = nullable_htmlentities($row["asset_model"]);
-            $asset_serial = nullable_htmlentities($row["asset_serial"]);
-            $asset_ip = nullable_htmlentities($row["interface_ip"]);
-            $asset_purchase_date = nullable_htmlentities($row["asset_purchase_date"]);
-            $asset_warranty_expire = nullable_htmlentities($row["asset_warranty_expire"]);
-            $asset_install_date = nullable_htmlentities($row["asset_install_date"]);
-            $location_name = nullable_htmlentities($row["location_name"]);
+            $asset_name = escapeHtml($row["asset_name"]);
+            $asset_type = escapeHtml($row["asset_type"]);
+            $asset_make = escapeHtml($row["asset_make"]);
+            $asset_model = escapeHtml($row["asset_model"]);
+            $asset_serial = escapeHtml($row["asset_serial"]);
+            $asset_ip = escapeHtml($row["interface_ip"]);
+            $asset_purchase_date = escapeHtml($row["asset_purchase_date"]);
+            $asset_warranty_expire = escapeHtml($row["asset_warranty_expire"]);
+            $asset_install_date = escapeHtml($row["asset_install_date"]);
+            $location_name = escapeHtml($row["location_name"]);
             $html .= "
             <tr style='page-break-inside: avoid;'>
               <td>$asset_name</td>
@@ -1839,16 +1839,16 @@ if (isset($_POST["export_client_pdf"])) {
           </thead>
           <tbody>";
         while ($row = mysqli_fetch_assoc($sql_asset_other)) {
-            $asset_name = nullable_htmlentities($row["asset_name"]);
-            $asset_type = nullable_htmlentities($row["asset_type"]);
-            $asset_make = nullable_htmlentities($row["asset_make"]);
-            $asset_model = nullable_htmlentities($row["asset_model"]);
-            $asset_serial = nullable_htmlentities($row["asset_serial"]);
-            $asset_ip = nullable_htmlentities($row["interface_ip"]);
-            $asset_purchase_date = nullable_htmlentities($row["asset_purchase_date"]);
-            $asset_warranty_expire = nullable_htmlentities($row["asset_warranty_expire"]);
-            $asset_install_date = nullable_htmlentities($row["asset_install_date"]);
-            $location_name = nullable_htmlentities($row["location_name"]);
+            $asset_name = escapeHtml($row["asset_name"]);
+            $asset_type = escapeHtml($row["asset_type"]);
+            $asset_make = escapeHtml($row["asset_make"]);
+            $asset_model = escapeHtml($row["asset_model"]);
+            $asset_serial = escapeHtml($row["asset_serial"]);
+            $asset_ip = escapeHtml($row["interface_ip"]);
+            $asset_purchase_date = escapeHtml($row["asset_purchase_date"]);
+            $asset_warranty_expire = escapeHtml($row["asset_warranty_expire"]);
+            $asset_install_date = escapeHtml($row["asset_install_date"]);
+            $location_name = escapeHtml($row["location_name"]);
             $html .= "
             <tr style='page-break-inside: avoid;'>
               <td>$asset_name</td>
@@ -1886,13 +1886,13 @@ if (isset($_POST["export_client_pdf"])) {
           </thead>
           <tbody>";
         while ($row = mysqli_fetch_assoc($sql_software)) {
-            $software_name = nullable_htmlentities($row["software_name"]);
-            $software_type = nullable_htmlentities($row["software_type"]);
-            $software_license_type = nullable_htmlentities($row["software_license_type"]);
-            $software_key = nullable_htmlentities($row["software_key"]);
-            $software_purchase = nullable_htmlentities($row['software_purchase']);
-            $software_expire = nullable_htmlentities($row['software_expire']);
-            $software_notes = nullable_htmlentities($row["software_notes"]);
+            $software_name = escapeHtml($row["software_name"]);
+            $software_type = escapeHtml($row["software_type"]);
+            $software_license_type = escapeHtml($row["software_license_type"]);
+            $software_key = escapeHtml($row["software_key"]);
+            $software_purchase = escapeHtml($row['software_purchase']);
+            $software_expire = escapeHtml($row['software_expire']);
+            $software_notes = escapeHtml($row["software_notes"]);
             $html .= "
             <tr style='page-break-inside: avoid;'>
               <td>$software_name</td>
@@ -1923,8 +1923,8 @@ if (isset($_POST["export_client_pdf"])) {
           </thead>
           <tbody>";
         while ($row = mysqli_fetch_assoc($sql_user_licenses)) {
-            $contact_name = nullable_htmlentities($row["contact_name"]);
-            $software_name = nullable_htmlentities($row["software_name"]);
+            $contact_name = escapeHtml($row["contact_name"]);
+            $software_name = escapeHtml($row["software_name"]);
             $html .= "
             <tr style='page-break-inside: avoid;'>
               <td>$contact_name</td>
@@ -1950,8 +1950,8 @@ if (isset($_POST["export_client_pdf"])) {
           </thead>
           <tbody>";
         while ($row = mysqli_fetch_assoc($sql_asset_licenses)) {
-            $asset_name = nullable_htmlentities($row["asset_name"]);
-            $software_name = nullable_htmlentities($row["software_name"]);
+            $asset_name = escapeHtml($row["asset_name"]);
+            $software_name = escapeHtml($row["software_name"]);
             $html .= "
             <tr style='page-break-inside: avoid;'>
               <td>$asset_name</td>
@@ -1980,11 +1980,11 @@ if (isset($_POST["export_client_pdf"])) {
           </thead>
           <tbody>";
         while ($row = mysqli_fetch_assoc($sql_networks)) {
-            $network_name = nullable_htmlentities($row["network_name"]);
-            $network_vlan = nullable_htmlentities($row["network_vlan"]);
-            $network = nullable_htmlentities($row["network"]);
-            $network_gateway = nullable_htmlentities($row["network_gateway"]);
-            $network_dhcp_range = nullable_htmlentities($row["network_dhcp_range"]);
+            $network_name = escapeHtml($row["network_name"]);
+            $network_vlan = escapeHtml($row["network_vlan"]);
+            $network = escapeHtml($row["network"]);
+            $network_gateway = escapeHtml($row["network_gateway"]);
+            $network_dhcp_range = escapeHtml($row["network_dhcp_range"]);
             $html .= "
             <tr style='page-break-inside: avoid;'>
               <td>$network_name</td>
@@ -2013,8 +2013,8 @@ if (isset($_POST["export_client_pdf"])) {
           </thead>
           <tbody>";
         while ($row = mysqli_fetch_assoc($sql_domains)) {
-            $domain_name = nullable_htmlentities($row["domain_name"]);
-            $domain_expire = nullable_htmlentities($row["domain_expire"]);
+            $domain_name = escapeHtml($row["domain_name"]);
+            $domain_expire = escapeHtml($row["domain_expire"]);
             $html .= "
             <tr style='page-break-inside: avoid;'>
               <td>$domain_name</td>
@@ -2042,10 +2042,10 @@ if (isset($_POST["export_client_pdf"])) {
           </thead>
           <tbody>";
         while ($row = mysqli_fetch_assoc($sql_certficates)) {
-            $certificate_name = nullable_htmlentities($row["certificate_name"]);
-            $certificate_domain = nullable_htmlentities($row["certificate_domain"]);
-            $certificate_issued_by = nullable_htmlentities($row["certificate_issued_by"]);
-            $certificate_expire = nullable_htmlentities($row["certificate_expire"]);
+            $certificate_name = escapeHtml($row["certificate_name"]);
+            $certificate_domain = escapeHtml($row["certificate_domain"]);
+            $certificate_issued_by = escapeHtml($row["certificate_issued_by"]);
+            $certificate_expire = escapeHtml($row["certificate_expire"]);
             $html .= "
             <tr style='page-break-inside: avoid;'>
               <td>$certificate_name</td>

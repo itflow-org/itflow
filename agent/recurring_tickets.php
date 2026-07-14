@@ -105,7 +105,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                 <div class="col-md-4">
                     <div class="input-group mb-3 mb-md-0">
-                        <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(nullable_htmlentities($q)); } ?>" placeholder="Search Recurring Tickets">
+                        <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search Recurring Tickets">
                         <div class="input-group-append">
                             <button class="btn btn-dark"><i class="fa fa-search"></i></button>
                         </div>
@@ -120,7 +120,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             $sql_categories_filter = mysqli_query($mysqli, "SELECT category_id, category_name FROM categories WHERE category_type = 'Ticket' AND EXISTS (SELECT 1 FROM recurring_tickets WHERE recurring_ticket_category = category_id $client_query) ORDER BY category_name ASC");
                             while ($row = mysqli_fetch_assoc($sql_categories_filter)) {
                                 $category_id = intval($row['category_id']);
-                                $category_name = nullable_htmlentities($row['category_name']);
+                                $category_name = escapeHtml($row['category_name']);
                             ?>
                                 <option <?php if ($category_filter == $category_id) { echo "selected"; } ?> value="<?= $category_id ?>"><?= $category_name ?></option>
                             <?php
@@ -139,7 +139,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             $sql_assigned_agents_filter = mysqli_query($mysqli, "SELECT user_id, user_name FROM users WHERE user_type = 1 AND EXISTS (SELECT 1 FROM recurring_tickets WHERE recurring_ticket_assigned_to = user_id $client_query) ORDER BY user_name ASC");
                             while ($row = mysqli_fetch_assoc($sql_assigned_agents_filter)) {
                                 $user_id = intval($row['user_id']);
-                                $user_name = nullable_htmlentities($row['user_name']);
+                                $user_name = escapeHtml($row['user_name']);
                             ?>
                                 <option <?php if ($assigned_agent_filter == $user_id) { echo "selected"; } ?> value="<?= $user_id ?>"><?= $user_name ?></option>
                             <?php
@@ -281,19 +281,19 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         while ($row = mysqli_fetch_assoc($sql)) {
                             $recurring_ticket_id = intval($row['recurring_ticket_id']);
                             $recurring_ticket_client_id = intval($row['client_id']);
-                            $recurring_ticket_subject = nullable_htmlentities($row['recurring_ticket_subject']);
-                            $recurring_ticket_priority = nullable_htmlentities($row['recurring_ticket_priority']);
-                            $recurring_ticket_frequency = nullable_htmlentities($row['recurring_ticket_frequency']);
-                            $recurring_ticket_next_run = nullable_htmlentities($row['recurring_ticket_next_run']);
+                            $recurring_ticket_subject = escapeHtml($row['recurring_ticket_subject']);
+                            $recurring_ticket_priority = escapeHtml($row['recurring_ticket_priority']);
+                            $recurring_ticket_frequency = escapeHtml($row['recurring_ticket_frequency']);
+                            $recurring_ticket_next_run = escapeHtml($row['recurring_ticket_next_run']);
                             $recurring_ticket_billable = intval($row['recurring_ticket_billable']);
                             if ($recurring_ticket_billable) {
                                 $recurring_ticket_billable_display = "<i class='fas fa-fw fa-check text-success'></i>";
                             } else {
                                 $recurring_ticket_billable_display = "-";
                             }
-                            $recurring_ticket_category = getFallBack(nullable_htmlentities($row['category_name']));
-                            $recurring_ticket_client_name = nullable_htmlentities($row['client_name']);
-                            $assigned_to = getFallBack(nullable_htmlentities($row['user_name']));
+                            $recurring_ticket_category = getFallBack(escapeHtml($row['category_name']));
+                            $recurring_ticket_client_name = escapeHtml($row['client_name']);
+                            $assigned_to = getFallBack(escapeHtml($row['user_name']));
                         ?>
 
                             <tr>

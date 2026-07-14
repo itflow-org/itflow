@@ -10,7 +10,7 @@ $sql = mysqli_query($mysqli, "SELECT * FROM contacts
 ");
 
 $row = mysqli_fetch_assoc($sql);
-$contact_name = nullable_htmlentities($row['contact_name']);
+$contact_name = escapeHtml($row['contact_name']);
 $client_id = intval($row['contact_client_id']);
 
 ob_start();
@@ -46,7 +46,7 @@ ob_start();
                     ");
                     while ($row = mysqli_fetch_assoc($sql_assets_select)) {
                         $asset_id = intval($row['asset_id']);
-                        $asset_name = nullable_htmlentities($row['asset_name']);
+                        $asset_name = escapeHtml($row['asset_name']);
                         ?>
                         <option value="<?php echo $asset_id ?>"><?php echo $asset_name; ?></option>
                         <?php

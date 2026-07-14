@@ -10,9 +10,9 @@ $sql = mysqli_query($mysqli, "SELECT * FROM tasks
 );
 
 $row = mysqli_fetch_assoc($sql);
-$task_name = nullable_htmlentities($row['task_name']);
+$task_name = escapeHtml($row['task_name']);
 $task_completion_estimate = intval($row['task_completion_estimate']);
-$task_completed_at = nullable_htmlentities($row['task_completed_at']);
+$task_completed_at = escapeHtml($row['task_completed_at']);
 
 // Approvals
 $sql_task_approvals = mysqli_query($mysqli, "
@@ -76,12 +76,12 @@ ob_start();
                     <tbody>
                     <?php while ($row = mysqli_fetch_assoc($sql_task_approvals)) {
                         $approval_id = intval($row['approval_id']);
-                        $approval_scope = nullable_htmlentities($row['approval_scope']);
-                        $approval_type = nullable_htmlentities($row['approval_type']);
-                        $approval_user_name = nullable_htmlentities($row['user_name']);
-                        $approval_status = nullable_htmlentities($row['approval_status']);
+                        $approval_scope = escapeHtml($row['approval_scope']);
+                        $approval_type = escapeHtml($row['approval_type']);
+                        $approval_user_name = escapeHtml($row['user_name']);
+                        $approval_status = escapeHtml($row['approval_status']);
                         $approval_created_by = intval($row['approval_created_by']);
-                        $approval_approved_by = nullable_htmlentities($row['approval_approved_by']);
+                        $approval_approved_by = escapeHtml($row['approval_approved_by']);
                         ?>
                         <tr>
                             <td><?= ucfirst($approval_scope) ?></td>

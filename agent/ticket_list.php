@@ -76,20 +76,20 @@
 
                         while ($row = mysqli_fetch_assoc($sql)) {
                             $ticket_id = intval($row['ticket_id']);
-                            $ticket_prefix = nullable_htmlentities($row['ticket_prefix']);
+                            $ticket_prefix = escapeHtml($row['ticket_prefix']);
                             $ticket_number = intval($row['ticket_number']);
-                            $ticket_subject = nullable_htmlentities($row['ticket_subject']);
-                            $ticket_priority = nullable_htmlentities($row['ticket_priority']);
+                            $ticket_subject = escapeHtml($row['ticket_subject']);
+                            $ticket_priority = escapeHtml($row['ticket_priority']);
                             $ticket_status_id = intval($row['ticket_status_id']);
-                            $ticket_status_name = nullable_htmlentities($row['ticket_status_name']);
-                            $ticket_status_color = nullable_htmlentities($row['ticket_status_color']);
+                            $ticket_status_name = escapeHtml($row['ticket_status_name']);
+                            $ticket_status_color = escapeHtml($row['ticket_status_color']);
                             $ticket_billable = intval($row['ticket_billable']);
-                            $ticket_scheduled_for = nullable_htmlentities($row['ticket_schedule']);
-                            $ticket_created_at = nullable_htmlentities($row['ticket_created_at']);
+                            $ticket_scheduled_for = escapeHtml($row['ticket_schedule']);
+                            $ticket_created_at = escapeHtml($row['ticket_created_at']);
                             $ticket_created_at_time_ago = timeAgo($row['ticket_created_at']);
-                            $ticket_updated_at = nullable_htmlentities($row['ticket_updated_at']);
+                            $ticket_updated_at = escapeHtml($row['ticket_updated_at']);
                             $ticket_updated_at_time_ago = timeAgo($row['ticket_updated_at']);
-                            $ticket_closed_at = nullable_htmlentities($row['ticket_closed_at']);
+                            $ticket_closed_at = escapeHtml($row['ticket_closed_at']);
                             if (empty($ticket_updated_at)) {
                                 if (!empty($ticket_closed_at)) {
                                     $ticket_updated_at_display = "<p>Never</p>";
@@ -103,10 +103,10 @@
                             $project_id = intval($row['ticket_project_id']);
 
                             $client_id = intval($row['ticket_client_id']);
-                            $client_name = nullable_htmlentities($row['client_name']);
+                            $client_name = escapeHtml($row['client_name']);
                             $contact_id = intval($row['contact_id']);
-                            $contact_name = nullable_htmlentities($row['contact_name']);
-                            $contact_email = nullable_htmlentities($row['contact_email']);
+                            $contact_name = escapeHtml($row['contact_name']);
+                            $contact_email = escapeHtml($row['contact_email']);
                             if ($client_id) {
                                 $has_client = "&client_id=$client_id";
                             } else {
@@ -129,7 +129,7 @@
                                     $ticket_assigned_to_display = "<p class='text-muted'>Unassigned</p>";
                                 }
                             } else {
-                                $ticket_assigned_to_display = nullable_htmlentities($row['user_name']);
+                                $ticket_assigned_to_display = escapeHtml($row['user_name']);
                             }
 
                             if (empty($contact_name)) {
@@ -160,13 +160,13 @@
                             $row = mysqli_fetch_assoc($sql_ticket_reply);
 
                             if ($row) {
-                                $ticket_reply_type = nullable_htmlentities($row['ticket_reply_type']);
+                                $ticket_reply_type = escapeHtml($row['ticket_reply_type']);
                                 if ($ticket_reply_type == "Client") {
-                                    $ticket_reply_by_display = nullable_htmlentities($row['contact_name']);
+                                    $ticket_reply_by_display = escapeHtml($row['contact_name']);
                                 } else {
-                                    $ticket_reply_by_display = nullable_htmlentities($row['user_name']);
+                                    $ticket_reply_by_display = escapeHtml($row['user_name']);
                                 }
-                                $ticket_reply_created_at = nullable_htmlentities($row['ticket_reply_created_at']);
+                                $ticket_reply_created_at = escapeHtml($row['ticket_reply_created_at']);
                                 $ticket_reply_created_at_time_ago = timeAgo($ticket_reply_created_at);
                             }
 

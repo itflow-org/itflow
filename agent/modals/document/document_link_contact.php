@@ -10,7 +10,7 @@ $sql = mysqli_query($mysqli, "SELECT * FROM documents
 ");
 
 $row = mysqli_fetch_assoc($sql);
-$document_name = nullable_htmlentities($row['document_name']);
+$document_name = escapeHtml($row['document_name']);
 $client_id = intval($row['document_client_id']);
 
 enforceClientAccess();
@@ -51,7 +51,7 @@ ob_start();
                     ");
                     while ($row = mysqli_fetch_assoc($sql_contacts_select)) {
                         $contact_id = intval($row['contact_id']);
-                        $contact_name = nullable_htmlentities($row['contact_name']);
+                        $contact_name = escapeHtml($row['contact_name']);
 
                         ?>
                         <option value="<?= $contact_id ?>"><?= $contact_name ?></option>

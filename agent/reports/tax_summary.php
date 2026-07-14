@@ -9,7 +9,7 @@ $year = isset($_GET['year']) ? intval($_GET['year']) : date('Y');
 $view = isset($_GET['view']) ? $_GET['view'] : 'quarterly';
 
 $currency_row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT company_currency FROM companies WHERE company_id = 1"));
-$company_currency = nullable_htmlentities($currency_row['company_currency']);
+$company_currency = escapeHtml($currency_row['company_currency']);
 
 // GET unique years from expenses, payments and revenues
 $sql_all_years = mysqli_query($mysqli, "SELECT DISTINCT(YEAR(item_created_at)) AS all_years FROM invoice_items ORDER BY all_years DESC");
@@ -82,7 +82,7 @@ $sql_tax = mysqli_query($mysqli, "SELECT `tax_name` FROM `taxes`");
                         $tax_name = sanitizeInput($tax_name_raw);
 
                         echo "<tr>";
-                        echo "<td>" . nullable_htmlentities($tax_name_raw) . "</td>";
+                        echo "<td>" . escapeHtml($tax_name_raw) . "</td>";
 
                         if ($view == 'monthly') {
 

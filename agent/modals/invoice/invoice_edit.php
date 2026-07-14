@@ -7,16 +7,16 @@ $invoice_id = intval($_GET['id']);
 $sql = mysqli_query($mysqli, "SELECT * FROM invoices LEFT JOIN clients ON invoice_client_id = client_id WHERE invoice_id = $invoice_id LIMIT 1");
 
 $row = mysqli_fetch_assoc($sql);
-$invoice_prefix = nullable_htmlentities($row['invoice_prefix']);
+$invoice_prefix = escapeHtml($row['invoice_prefix']);
 $invoice_number = intval($row['invoice_number']);
-$invoice_scope = nullable_htmlentities($row['invoice_scope']);
-$invoice_date = nullable_htmlentities($row['invoice_date']);
-$invoice_due = nullable_htmlentities($row['invoice_due']);
+$invoice_scope = escapeHtml($row['invoice_scope']);
+$invoice_date = escapeHtml($row['invoice_date']);
+$invoice_due = escapeHtml($row['invoice_due']);
 $invoice_discount = floatval($row['invoice_discount_amount']);
-$invoice_created_at = nullable_htmlentities($row['invoice_created_at']);
+$invoice_created_at = escapeHtml($row['invoice_created_at']);
 $category_id = intval($row['invoice_category_id']);
 $client_id = intval($row['client_id']);
-$client_name = nullable_htmlentities($row['client_name']);
+$client_name = escapeHtml($row['client_name']);
 
 enforceClientAccess();
 
@@ -69,7 +69,7 @@ ob_start();
                     $sql_income_category = mysqli_query($mysqli, "SELECT * FROM categories WHERE category_type = 'Income' AND (category_archived_at > '$invoice_created_at' OR category_archived_at IS NULL) ORDER BY category_name ASC");
                     while ($row = mysqli_fetch_assoc($sql_income_category)) {
                         $category_id_select = intval($row['category_id']);
-                        $category_name_select = nullable_htmlentities($row['category_name']);
+                        $category_name_select = escapeHtml($row['category_name']);
                     ?>
                         <option <?php if ($category_id == $category_id_select) {
                                     echo "selected";

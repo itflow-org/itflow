@@ -21,7 +21,7 @@ enforceUserPermission('module_financial');
 // Payment Method Filter
 if (isset($_GET['method']) & !empty($_GET['method'])) {
     $payment_method_query = "AND (payment_method  = '" . sanitizeInput($_GET['method']) . "')";
-    $method_filter = nullable_htmlentities($_GET['method']);
+    $method_filter = escapeHtml($_GET['method']);
 } else {
     // Default - any
     $payment_method_query = '';
@@ -78,7 +78,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                 <div class="row">
                     <div class="col-sm-4">
                         <div class="input-group mb-3 mb-sm-0">
-                            <input type="search" class="form-control" name="q" value="<?php if (isset($q)) {echo stripslashes(nullable_htmlentities($q));} ?>" placeholder="Search Payments">
+                            <input type="search" class="form-control" name="q" value="<?php if (isset($q)) {echo stripslashes(escapeHtml($q));} ?>" placeholder="Search Payments">
                             <div class="input-group-append">
                                 <button class="btn btn-secondary" type="button" data-toggle="collapse" data-target="#advancedFilter"><i class="fas fa-filter"></i></button>
                                 <button class="btn btn-primary"><i class="fa fa-search"></i></button>
@@ -94,7 +94,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 $sql_accounts_filter = mysqli_query($mysqli, "SELECT account_id, account_name FROM accounts WHERE EXISTS (SELECT 1 FROM payments WHERE payment_account_id = account_id) ORDER BY account_name ASC");
                                 while ($row = mysqli_fetch_assoc($sql_accounts_filter)) {
                                     $account_id = intval($row['account_id']);
-                                    $account_name = nullable_htmlentities($row['account_name']);
+                                    $account_name = escapeHtml($row['account_name']);
                                 ?>
                                     <option <?php if ($account_filter == $account_id) { echo "selected"; } ?> value="<?php echo $account_id; ?>"><?php echo $account_name; ?></option>
                                 <?php
@@ -113,7 +113,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 <?php
                                 $sql_payment_methods_filter = mysqli_query($mysqli, "SELECT DISTINCT payment_method FROM payments WHERE payment_method != '' ORDER BY payment_method ASC");
                                 while ($row = mysqli_fetch_assoc($sql_payment_methods_filter)) {
-                                    $payment_method = nullable_htmlentities($row['payment_method']);
+                                    $payment_method = escapeHtml($row['payment_method']);
                                 ?>
                                     <option <?php if ($method_filter == $payment_method) { echo "selected"; } ?>><?php echo $payment_method; ?></option>
                                 <?php
@@ -130,9 +130,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             <div class="form-group">
                                 <label>Date range</label>
                                 <input type="text" id="dateFilter" class="form-control" autocomplete="off">
-                                <input type="hidden" name="canned_date" id="canned_date" value="<?php echo nullable_htmlentities($_GET['canned_date']) ?? ''; ?>">
-                                <input type="hidden" name="dtf" id="dtf" value="<?php echo nullable_htmlentities($dtf ?? ''); ?>">
-                                <input type="hidden" name="dtt" id="dtt" value="<?php echo nullable_htmlentities($dtt ?? ''); ?>">
+                                <input type="hidden" name="canned_date" id="canned_date" value="<?php echo escapeHtml($_GET['canned_date']) ?? ''; ?>">
+                                <input type="hidden" name="dtf" id="dtf" value="<?php echo escapeHtml($dtf ?? ''); ?>">
+                                <input type="hidden" name="dtt" id="dtt" value="<?php echo escapeHtml($dtt ?? ''); ?>">
                             </div>
                         </div>
                     </div>
@@ -198,27 +198,27 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                     while ($row = mysqli_fetch_assoc($sql)) {
                         $invoice_id = intval($row['invoice_id']);
-                        $invoice_prefix = nullable_htmlentities($row['invoice_prefix']);
+                        $invoice_prefix = escapeHtml($row['invoice_prefix']);
                         $invoice_number = intval($row['invoice_number']);
-                        $invoice_status = nullable_htmlentities($row['invoice_status']);
+                        $invoice_status = escapeHtml($row['invoice_status']);
                         $invoice_amount = floatval($row['invoice_amount']);
-                        $invoice_currency_code = nullable_htmlentities($row['invoice_currency_code']);
-                        $invoice_date = nullable_htmlentities($row['invoice_date']);
+                        $invoice_currency_code = escapeHtml($row['invoice_currency_code']);
+                        $invoice_date = escapeHtml($row['invoice_date']);
                         $payment_id = intval($row['payment_id']);
-                        $payment_date = nullable_htmlentities($row['payment_date']);
-                        $payment_method = nullable_htmlentities($row['payment_method']);
+                        $payment_date = escapeHtml($row['payment_date']);
+                        $payment_method = escapeHtml($row['payment_method']);
                         $payment_amount = floatval($row['payment_amount']);
-                        $payment_currency_code = nullable_htmlentities($row['payment_currency_code']);
-                        $payment_reference = nullable_htmlentities($row['payment_reference']);
+                        $payment_currency_code = escapeHtml($row['payment_currency_code']);
+                        $payment_reference = escapeHtml($row['payment_reference']);
                         if (empty($payment_reference)) {
                             $payment_reference_display = "-";
                         } else {
                             $payment_reference_display = $payment_reference;
                         }
                         $client_id = intval($row['client_id']);
-                        $client_name = nullable_htmlentities($row['client_name']);
-                        $account_name = nullable_htmlentities($row['account_name']);
-                        $account_archived_at = nullable_htmlentities($row['account_archived_at']);
+                        $client_name = escapeHtml($row['client_name']);
+                        $account_name = escapeHtml($row['account_name']);
+                        $account_archived_at = escapeHtml($row['account_archived_at']);
                         if (empty($account_archived_at)) {
                             $account_archived_display = "";
                         } else {

@@ -15,7 +15,7 @@ if ($client_id) {
 $sql = mysqli_query($mysqli, "SELECT * FROM projects WHERE project_id = $project_id LIMIT 1");
 
 $row = mysqli_fetch_assoc($sql);
-$project_name = nullable_htmlentities($row['project_name']);
+$project_name = escapeHtml($row['project_name']);
 
 // Generate the HTML form content using output buffering.
 ob_start();
@@ -44,10 +44,10 @@ ob_start();
                     $sql_tickets_select = mysqli_query($mysqli, "SELECT * FROM tickets LEFT JOIN clients on ticket_client_id = client_id WHERE ticket_project_id = 0 AND ticket_closed_at IS NULL $client_ticket_select_query");
                     while ($row = mysqli_fetch_assoc($sql_tickets_select)) {
                         $ticket_id_select = intval($row['ticket_id']);
-                        $ticket_prefix_select = nullable_htmlentities($row['ticket_prefix']);
+                        $ticket_prefix_select = escapeHtml($row['ticket_prefix']);
                         $ticket_number_select = intval($row['ticket_number']);
-                        $ticket_subject_select = nullable_htmlentities($row['ticket_subject']);
-                        $ticket_client_abbreviation_select = nullable_htmlentities($row['client_abbreviation'])
+                        $ticket_subject_select = escapeHtml($row['ticket_subject']);
+                        $ticket_client_abbreviation_select = escapeHtml($row['client_abbreviation'])
                         ?>
                         <option value="<?php echo $ticket_id_select; ?>"><?php echo "$ticket_prefix_select$ticket_number_select - $ticket_subject_select ($ticket_client_abbreviation_select)"; ?></option>
                         <?php

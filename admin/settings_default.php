@@ -37,12 +37,12 @@ $net_terms_array = array (
                     </div>
                     <select class="form-control select2" name="start_page" data-tags="true" required>
                         <?php if (!in_array($config_start_page, array_keys($start_page_select_array))) { ?>
-                            <option selected> <?php echo nullable_htmlentities($config_start_page); ?></option>
+                            <option selected> <?php echo escapeHtml($config_start_page); ?></option>
                         <?php } ?>
                         <?php foreach ($start_page_select_array as $start_page_value => $start_page_name) { ?>
                             <option <?php if ($start_page_value == $config_start_page) { echo "selected"; } ?>
-                                value="<?php echo nullable_htmlentities($start_page_value); ?>">
-                                <?php echo nullable_htmlentities($start_page_name); ?>
+                                value="<?php echo escapeHtml($start_page_value); ?>">
+                                <?php echo escapeHtml($start_page_name); ?>
                             </option>
                         <?php }?>
                     </select>
@@ -62,7 +62,7 @@ $net_terms_array = array (
                         $sql = mysqli_query($mysqli, "SELECT * FROM calendars ORDER BY calendar_name ASC");
                         while ($row = mysqli_fetch_assoc($sql)) {
                             $calendar_id = intval($row['calendar_id']);
-                            $calendar_name = nullable_htmlentities($row['calendar_name']); ?>
+                            $calendar_name = escapeHtml($row['calendar_name']); ?>
                             <option <?php if ($config_default_calendar == $calendar_id) {
                                         echo "selected";
                                     } ?> value="<?php echo $calendar_id; ?>"><?php echo $calendar_name; ?></option>
@@ -85,7 +85,7 @@ $net_terms_array = array (
                         $sql = mysqli_query($mysqli, "SELECT * FROM accounts WHERE account_archived_at IS NULL ORDER BY account_name ASC");
                         while ($row = mysqli_fetch_assoc($sql)) {
                             $account_id = intval($row['account_id']);
-                            $account_name = nullable_htmlentities($row['account_name']); ?>
+                            $account_name = escapeHtml($row['account_name']); ?>
                             <option <?php if ($config_default_transfer_from_account == $account_id) {
                                         echo "selected";
                                     } ?> value="<?php echo $account_id; ?>"><?php echo $account_name; ?></option>
@@ -108,7 +108,7 @@ $net_terms_array = array (
                         $sql = mysqli_query($mysqli, "SELECT * FROM accounts WHERE account_archived_at IS NULL ORDER BY account_name ASC");
                         while ($row = mysqli_fetch_assoc($sql)) {
                             $account_id = intval($row['account_id']);
-                            $account_name = nullable_htmlentities($row['account_name']); ?>
+                            $account_name = escapeHtml($row['account_name']); ?>
                             <option <?php if ($config_default_transfer_to_account == $account_id) {
                                         echo "selected";
                                     } ?> value="<?php echo $account_id; ?>"><?php echo $account_name; ?></option>
@@ -131,7 +131,7 @@ $net_terms_array = array (
                         $sql = mysqli_query($mysqli, "SELECT * FROM accounts WHERE account_archived_at IS NULL ORDER BY account_name ASC");
                         while ($row = mysqli_fetch_assoc($sql)) {
                             $account_id = intval($row['account_id']);
-                            $account_name = nullable_htmlentities($row['account_name']); ?>
+                            $account_name = escapeHtml($row['account_name']); ?>
                             <option <?php if ($config_default_payment_account == $account_id) {
                                         echo "selected";
                                     } ?> value="<?php echo $account_id; ?>"><?php echo $account_name; ?></option>
@@ -156,7 +156,7 @@ $net_terms_array = array (
                         $sql = mysqli_query($mysqli, "SELECT * FROM accounts WHERE account_archived_at IS NULL ORDER BY account_name ASC");
                         while ($row = mysqli_fetch_assoc($sql)) {
                             $account_id = intval($row['account_id']);
-                            $account_name = nullable_htmlentities($row['account_name']); ?>
+                            $account_name = escapeHtml($row['account_name']); ?>
                             <option <?php if ($config_default_expense_account == $account_id) {
                                         echo "selected";
                                     } ?> value="<?php echo $account_id; ?>"><?php echo $account_name; ?></option>
@@ -178,7 +178,7 @@ $net_terms_array = array (
 
                         $sql = mysqli_query($mysqli, "SELECT * FROM categories WHERE category_type = 'Payment Method' ORDER BY category_name ASC");
                         while ($row = mysqli_fetch_assoc($sql)) {
-                            $payment_method = nullable_htmlentities($row['category_name']); ?>
+                            $payment_method = escapeHtml($row['category_name']); ?>
                             <option <?php if ($config_default_payment_method == $payment_method) {
                                         echo "selected";
                                     } ?>><?php echo $payment_method; ?></option>
@@ -200,7 +200,7 @@ $net_terms_array = array (
 
                         $sql = mysqli_query($mysqli, "SELECT * FROM categories WHERE category_type = 'Payment Method' ORDER BY category_name ASC");
                         while ($row = mysqli_fetch_assoc($sql)) {
-                            $payment_method = nullable_htmlentities($row['category_name']); ?>
+                            $payment_method = escapeHtml($row['category_name']); ?>
                             <option <?php if ($config_default_expense_payment_method == $payment_method) {
                                         echo "selected";
                                     } ?>><?php echo $payment_method; ?></option>

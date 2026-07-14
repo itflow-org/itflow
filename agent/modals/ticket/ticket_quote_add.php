@@ -22,25 +22,25 @@ $ticket_sql = mysqli_query(
 $row = mysqli_fetch_assoc($ticket_sql);
 $client_id = intval($row['client_id']);
 $client_rate = floatval($row['client_rate']);
-$ticket_prefix = nullable_htmlentities($row['ticket_prefix']);
+$ticket_prefix = escapeHtml($row['ticket_prefix']);
 $ticket_number = intval($row['ticket_number']);
 $ticket_category = intval($row['ticket_category']);
-$ticket_category_display = nullable_htmlentities($row['category_name']);
-$ticket_subject = nullable_htmlentities($row['ticket_subject']);
-$ticket_priority = nullable_htmlentities($row['ticket_priority']);
+$ticket_category_display = escapeHtml($row['category_name']);
+$ticket_subject = escapeHtml($row['ticket_subject']);
+$ticket_priority = escapeHtml($row['ticket_priority']);
 $ticket_billable = intval($row['ticket_billable']);
 $ticket_onsite = intval($row['ticket_onsite']);
 
-$ticket_created_at = nullable_htmlentities($row['ticket_created_at']);
+$ticket_created_at = escapeHtml($row['ticket_created_at']);
 $ticket_created_by = intval($row['ticket_created_by']);
 $ticket_date = date('Y-m-d g:i A', strtotime($ticket_created_at));
-$ticket_first_response_at = nullable_htmlentities($row['ticket_first_response_at']);
+$ticket_first_response_at = escapeHtml($row['ticket_first_response_at']);
 if ($ticket_first_response_at) {
     $ticket_first_response_date_time = date('Y-m-d g:i A', strtotime($ticket_first_response_at));
 } else {
     $ticket_first_response_date_time = '';
 }
-$ticket_resolved_at = nullable_htmlentities($row['ticket_resolved_at']);
+$ticket_resolved_at = escapeHtml($row['ticket_resolved_at']);
 if ($ticket_resolved_at) {
     $ticket_resolved_date = date('Y-m-d g:i A', strtotime($ticket_resolved_at));
 } else {
@@ -49,17 +49,17 @@ if ($ticket_resolved_at) {
 
 $ticket_assigned_to = intval($row['ticket_assigned_to']);
 if ($ticket_assigned_to) {
-    $ticket_assigned_agent = nullable_htmlentities($row['user_name']);
+    $ticket_assigned_agent = escapeHtml($row['user_name']);
 } else {
     $ticket_assigned_agent = '';
 }
 
 $contact_id = intval($row['contact_id']);
-$contact_name = nullable_htmlentities($row['contact_name']);
+$contact_name = escapeHtml($row['contact_name']);
 
 $asset_id = intval($row['asset_id']);
-$asset_name = nullable_htmlentities($row['asset_name']);
-$asset_type = nullable_htmlentities($row['asset_type']);
+$asset_name = escapeHtml($row['asset_name']);
+$asset_type = escapeHtml($row['asset_type']);
 
 
 
@@ -108,7 +108,7 @@ ob_start();
                                 $sql = mysqli_query($mysqli, "SELECT * FROM categories WHERE category_type = 'Income' AND category_archived_at IS NULL ORDER BY category_name ASC");
                                 while ($row = mysqli_fetch_assoc($sql)) {
                                     $category_id = intval($row['category_id']);
-                                    $category_name = nullable_htmlentities($row['category_name']);
+                                    $category_name = escapeHtml($row['category_name']);
                                     ?>
                                     <option value="<?php echo $category_id; ?>"><?php echo $category_name; ?></option>
                                 <?php } ?>
@@ -214,7 +214,7 @@ ob_start();
                         $taxes_sql = mysqli_query($mysqli, "SELECT * FROM taxes WHERE tax_archived_at IS NULL ORDER BY tax_name ASC");
                         while ($row = mysqli_fetch_assoc($taxes_sql)) {
                             $tax_id_select = intval($row['tax_id']);
-                            $tax_name = nullable_htmlentities($row['tax_name']);
+                            $tax_name = escapeHtml($row['tax_name']);
                             $tax_percent = floatval($row['tax_percent']);
                             ?>
                             <option value="<?php echo $tax_id_select; ?>"><?php echo "$tax_name $tax_percent%"; ?></option>

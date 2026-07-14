@@ -16,17 +16,17 @@ $row = mysqli_fetch_assoc($sql);
 $client_id = intval($row['asset_client_id']);
 $asset_id = intval($row['interface_asset_id']);
 $network_id = intval($row['interface_network_id']);
-$asset_name = nullable_htmlentities($row['asset_name']);
+$asset_name = escapeHtml($row['asset_name']);
 $interface_id = intval($row['interface_id']);
-$interface_name = nullable_htmlentities($row['interface_name']);
-$interface_description = nullable_htmlentities($row['interface_description']);
-$interface_type = nullable_htmlentities($row['interface_type']);
-$interface_mac = nullable_htmlentities($row['interface_mac']);
-$interface_ip = nullable_htmlentities($row['interface_ip']);
-$interface_nat_ip = nullable_htmlentities($row['interface_nat_ip']);
-$interface_ipv6 = nullable_htmlentities($row['interface_ipv6']);
+$interface_name = escapeHtml($row['interface_name']);
+$interface_description = escapeHtml($row['interface_description']);
+$interface_type = escapeHtml($row['interface_type']);
+$interface_mac = escapeHtml($row['interface_mac']);
+$interface_ip = escapeHtml($row['interface_ip']);
+$interface_nat_ip = escapeHtml($row['interface_nat_ip']);
+$interface_ipv6 = escapeHtml($row['interface_ipv6']);
 $interface_primary = intval($row['interface_primary']);
-$interface_notes = nullable_htmlentities($row['interface_notes']);
+$interface_notes = escapeHtml($row['interface_notes']);
 
 enforceClientAccess();
 
@@ -140,7 +140,7 @@ ob_start();
                                 ORDER BY category_order ASC, category_name ASC
                             ");
                             while ($row = mysqli_fetch_assoc($sql_interface_types_select)) {
-                                $interface_type_select = nullable_htmlentities($row['category_name']);
+                                $interface_type_select = escapeHtml($row['category_name']);
                                 ?>
                                 <option <?php if($interface_type == $interface_type_select) { echo "selected"; } ?>>
                                     <?= $interface_type_select ?>
@@ -174,8 +174,8 @@ ob_start();
                             ");
                             while ($net_row = mysqli_fetch_assoc($sql_network_select)) {
                                 $network_id_select   = intval($net_row['network_id']);
-                                $network_name_select = nullable_htmlentities($net_row['network_name']);
-                                $network_select      = nullable_htmlentities($net_row['network']);
+                                $network_name_select = escapeHtml($net_row['network_name']);
+                                $network_select      = escapeHtml($net_row['network']);
 
                                 $selected = ($network_id == $network_id_select) ? 'selected' : '';
                                 echo "<option value='$network_id_select' $selected>$network_name_select - $network_select</option>";
@@ -303,8 +303,8 @@ ob_start();
                             ");
                             while ($row_if = mysqli_fetch_assoc($sql_interfaces_select)) {
                                 $iface_id_select = intval($row_if['interface_id']);
-                                $iface_name_select = nullable_htmlentities($row_if['interface_name']);
-                                $iface_asset_name_select = nullable_htmlentities($row_if['asset_name']);
+                                $iface_name_select = escapeHtml($row_if['interface_name']);
+                                $iface_asset_name_select = escapeHtml($row_if['asset_name']);
 
                                 $selected = ($linked_interface_id === $iface_id_select) ? 'selected' : '';
                                 echo "<option value='$iface_id_select' $selected>";

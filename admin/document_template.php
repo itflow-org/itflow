@@ -31,7 +31,7 @@
 
         <form autocomplete="off">
             <div class="input-group">
-                <input type="search" class="form-control " name="q" value="<?php if (isset($q)) { echo stripslashes(nullable_htmlentities($q)); } ?>" placeholder="Search templates">
+                <input type="search" class="form-control " name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search templates">
                 <div class="input-group-append">
                     <button class="btn btn-secondary"><i class="fa fa-search"></i></button>
                 </div>
@@ -68,12 +68,12 @@
 
                         while ($row = mysqli_fetch_assoc($sql)) {
                             $document_template_id = intval($row['document_template_id']);
-                            $document_template_name = nullable_htmlentities($row['document_template_name']);
-                            $document_template_description = nullable_htmlentities($row['document_template_description']);
-                            $document_template_content = nullable_htmlentities($row['document_template_content']);
-                            $document_template_created_by_name = nullable_htmlentities($row['user_name']);
-                            $document_template_created_at = nullable_htmlentities($row['document_template_created_at']);
-                            $document_template_updated_at = nullable_htmlentities(getFallback($row['document_template_updated_at']));
+                            $document_template_name = escapeHtml($row['document_template_name']);
+                            $document_template_description = escapeHtml($row['document_template_description']);
+                            $document_template_content = escapeHtml($row['document_template_content']);
+                            $document_template_created_by_name = escapeHtml($row['user_name']);
+                            $document_template_created_at = escapeHtml($row['document_template_created_at']);
+                            $document_template_updated_at = escapeHtml(getFallback($row['document_template_updated_at']));
 
                     ?>
 

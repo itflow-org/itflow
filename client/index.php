@@ -228,8 +228,8 @@ if ($session_contact_primary == 1 || $session_contact_is_technical_contact) {
 
                     while ($row = mysqli_fetch_assoc($sql_domains_expiring)) {
                         $domain_id = intval($row['domain_id']);
-                        $domain_name = nullable_htmlentities($row['domain_name']);
-                        $domain_expire = nullable_htmlentities($row['domain_expire']);
+                        $domain_name = escapeHtml($row['domain_name']);
+                        $domain_expire = escapeHtml($row['domain_expire']);
                         $domain_expire_human = timeAgo($row['domain_expire']);
 
                         ?>
@@ -266,8 +266,8 @@ if ($session_contact_primary == 1 || $session_contact_is_technical_contact) {
                 <?php
 
                 while ($row = mysqli_fetch_assoc($sql_assigned_assets)) {
-                    $asset_name = nullable_htmlentities($row['asset_name']);
-                    $asset_type = nullable_htmlentities($row['asset_type']);
+                    $asset_name = escapeHtml($row['asset_name']);
+                    $asset_type = escapeHtml($row['asset_type']);
                     $asset_uri_client = sanitize_url($row['asset_uri_client']);
 
 

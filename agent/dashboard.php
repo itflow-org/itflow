@@ -423,7 +423,7 @@ if ($user_config_dashboard_financial_enable == 1) {
                         <tbody>
                             <?php while ($row = mysqli_fetch_assoc($sql_accounts)) {
                                 $account_id = intval($row['account_id']);
-                                $account_name = nullable_htmlentities($row['account_name']);
+                                $account_name = escapeHtml($row['account_name']);
                                 $opening_balance = floatval($row['opening_balance']);
                             ?>
                                 <tr>
@@ -478,11 +478,11 @@ if ($user_config_dashboard_financial_enable == 1) {
                         </thead>
                         <tbody>
                             <?php while ($row = mysqli_fetch_assoc($sql_latest_invoice_payments)) {
-                                $payment_date = nullable_htmlentities($row['payment_date']);
+                                $payment_date = escapeHtml($row['payment_date']);
                                 $payment_amount = floatval($row['payment_amount']);
-                                $invoice_prefix = nullable_htmlentities($row['invoice_prefix']);
+                                $invoice_prefix = escapeHtml($row['invoice_prefix']);
                                 $invoice_number = intval($row['invoice_number']);
-                                $client_name = nullable_htmlentities($row['client_name']);
+                                $client_name = escapeHtml($row['client_name']);
                             ?>
                                 <tr>
                                     <td><?php echo $payment_date; ?></td>
@@ -519,10 +519,10 @@ if ($user_config_dashboard_financial_enable == 1) {
                         </thead>
                         <tbody>
                             <?php while ($row = mysqli_fetch_assoc($sql_latest_expenses)) {
-                                $expense_date = nullable_htmlentities($row['expense_date']);
+                                $expense_date = escapeHtml($row['expense_date']);
                                 $expense_amount = floatval($row['expense_amount']);
-                                $vendor_name = nullable_htmlentities($row['vendor_name']);
-                                $category_name = nullable_htmlentities($row['category_name']);
+                                $vendor_name = escapeHtml($row['vendor_name']);
+                                $category_name = escapeHtml($row['category_name']);
                             ?>
                                 <tr>
                                     <td><?php echo $expense_date; ?></td>
@@ -711,24 +711,24 @@ if ($user_config_dashboard_technical_enable == 1) {
                             <tbody>
                                 <?php while ($row = mysqli_fetch_assoc($sql_your_tickets)) {
                                     $ticket_id = intval($row['ticket_id']);
-                                    $ticket_prefix = nullable_htmlentities($row['ticket_prefix']);
+                                    $ticket_prefix = escapeHtml($row['ticket_prefix']);
                                     $ticket_number = intval($row['ticket_number']);
-                                    $ticket_subject = nullable_htmlentities($row['ticket_subject']);
-                                    $ticket_priority = nullable_htmlentities($row['ticket_priority']);
+                                    $ticket_subject = escapeHtml($row['ticket_subject']);
+                                    $ticket_priority = escapeHtml($row['ticket_priority']);
                                     $ticket_status_id = intval($row['ticket_status']);
-                                    $ticket_status_name = nullable_htmlentities($row['ticket_status_name']);
-                                    $ticket_status_color = nullable_htmlentities($row['ticket_status_color']);
-                                    $ticket_created_at = nullable_htmlentities($row['ticket_created_at']);
+                                    $ticket_status_name = escapeHtml($row['ticket_status_name']);
+                                    $ticket_status_color = escapeHtml($row['ticket_status_color']);
+                                    $ticket_created_at = escapeHtml($row['ticket_created_at']);
                                     $ticket_created_at_time_ago = timeAgo($row['ticket_created_at']);
-                                    $ticket_updated_at = nullable_htmlentities($row['ticket_updated_at']);
+                                    $ticket_updated_at = escapeHtml($row['ticket_updated_at']);
                                     $ticket_updated_at_time_ago = timeAgo($row['ticket_updated_at']);
 
                                     $ticket_updated_at_display = empty($ticket_updated_at) ? (empty($ticket_closed_at) ? "<p class='text-danger'>Never</p>" : "<p>Never</p>") : $ticket_updated_at_time_ago;
 
                                     $client_id = intval($row['ticket_client_id']);
-                                    $client_name = nullable_htmlentities($row['client_name']);
+                                    $client_name = escapeHtml($row['client_name']);
                                     $contact_id = intval($row['ticket_contact_id']);
-                                    $contact_name = nullable_htmlentities($row['contact_name']);
+                                    $contact_name = escapeHtml($row['contact_name']);
                                     if ($client_id) {
                                         $has_client = "&client_id=$client_id";
                                     } else {

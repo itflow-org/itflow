@@ -7,15 +7,15 @@ $trip_id = intval($_GET['id']);
 $sql = mysqli_query($mysqli, "SELECT * FROM trips WHERE trip_id = $trip_id LIMIT 1");
 
 $row = mysqli_fetch_assoc($sql);
-$trip_date = nullable_htmlentities($row['trip_date']);
-$trip_purpose = nullable_htmlentities($row['trip_purpose']);
-$trip_source = nullable_htmlentities($row['trip_source']);
-$trip_destination = nullable_htmlentities($row['trip_destination']);
+$trip_date = escapeHtml($row['trip_date']);
+$trip_purpose = escapeHtml($row['trip_purpose']);
+$trip_source = escapeHtml($row['trip_source']);
+$trip_destination = escapeHtml($row['trip_destination']);
 $trip_miles = number_format(floatval($row['trip_miles']),1);
 $trip_user_id = intval($row['trip_user_id']);
-$trip_created_at = nullable_htmlentities($row['trip_created_at']);
-$trip_archived_at = nullable_htmlentities($row['trip_archived_at']);
-$round_trip = nullable_htmlentities($row['round_trip']);
+$trip_created_at = escapeHtml($row['trip_created_at']);
+$trip_archived_at = escapeHtml($row['trip_archived_at']);
+$round_trip = escapeHtml($row['round_trip']);
 $client_id = intval($row['trip_client_id']);
 
 if ($client_id) {
@@ -87,11 +87,11 @@ ob_start();
 
                     $sql_locations_select = mysqli_query($mysqli, "SELECT * FROM locations WHERE location_archived_at IS NULL AND location_client_id = $client_id ORDER BY location_name ASC");
                     while ($row = mysqli_fetch_assoc($sql_locations_select)) {
-                        $location_name = nullable_htmlentities($row['location_name']);
-                        $location_address = nullable_htmlentities($row['location_address']);
-                        $location_city = nullable_htmlentities($row['location_city']);
-                        $location_state = nullable_htmlentities($row['location_state']);
-                        $location_zip = nullable_htmlentities($row['location_zip']);
+                        $location_name = escapeHtml($row['location_name']);
+                        $location_address = escapeHtml($row['location_address']);
+                        $location_city = escapeHtml($row['location_city']);
+                        $location_state = escapeHtml($row['location_state']);
+                        $location_zip = escapeHtml($row['location_zip']);
                         $location_full_address = "$location_address $location_city $location_state $location_zip";
 
                         ?>
@@ -125,7 +125,7 @@ ob_start();
                     );
                     while ($row = mysqli_fetch_assoc($sql_users)) {
                         $user_id_select = intval($row['user_id']);
-                        $user_name_select = nullable_htmlentities($row['user_name']);
+                        $user_name_select = escapeHtml($row['user_name']);
                         ?>
                         <option <?php if ($trip_user_id == $user_id_select) { echo "selected"; } ?> value="<?php echo $user_id_select; ?>"><?php echo $user_name_select; ?></option>
 
@@ -152,7 +152,7 @@ ob_start();
                         $sql_clients = mysqli_query($mysqli, "SELECT * FROM clients WHERE client_archived_at IS NULL $access_permission_query ORDER BY client_name ASC");
                         while ($row = mysqli_fetch_assoc($sql_clients)) {
                             $client_id_select = intval($row['client_id']);
-                            $client_name_select = nullable_htmlentities($row['client_name']);
+                            $client_name_select = escapeHtml($row['client_name']);
                             ?>
                             <option <?php if ($client_id == $client_id_select) { echo "selected"; } ?> value="<?php echo $client_id_select; ?>"><?php echo $client_name_select; ?></option>
 

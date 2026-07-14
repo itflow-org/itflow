@@ -11,7 +11,7 @@ $statuses = array();
 while ($row = mysqli_fetch_assoc($status_sql)) {
 
     $status_id = intval($row['ticket_status_id']);
-    $status_name = nullable_htmlentities($row['ticket_status_name']);
+    $status_name = escapeHtml($row['ticket_status_name']);
     $kanban_order = intval($row['ticket_status_order']);
 
     $statuses[$status_id] = array(
@@ -74,7 +74,7 @@ while ($row = mysqli_fetch_assoc($sql)) {
 
     foreach ($row as $key => $value) {
         if (is_string($value)) {
-            $row[$key] = nullable_htmlentities($value);
+            $row[$key] = escapeHtml($value);
         }
     }
 

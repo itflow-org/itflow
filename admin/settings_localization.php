@@ -5,8 +5,8 @@ require_once "includes/inc_all_admin.php";
 $sql = mysqli_query($mysqli,"SELECT * FROM companies, settings WHERE companies.company_id = settings.company_id AND companies.company_id = 1");
 
 $row = mysqli_fetch_assoc($sql);
-$company_locale = nullable_htmlentities($row['company_locale']);
-$company_currency = nullable_htmlentities($row['company_currency']);
+$company_locale = escapeHtml($row['company_locale']);
+$company_currency = escapeHtml($row['company_currency']);
 
 // Get a list of all available timezones
 $timezones = DateTimeZone::listIdentifiers();

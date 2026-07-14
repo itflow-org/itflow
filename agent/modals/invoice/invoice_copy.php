@@ -7,9 +7,9 @@ $invoice_id = intval($_GET['id']);
 $sql = mysqli_query($mysqli, "SELECT * FROM invoices LEFT JOIN clients ON invoice_client_id = client_id WHERE invoice_id = $invoice_id LIMIT 1");
 
 $row = mysqli_fetch_assoc($sql);
-$invoice_prefix = nullable_htmlentities($row['invoice_prefix']);
+$invoice_prefix = escapeHtml($row['invoice_prefix']);
 $invoice_number = intval($row['invoice_number']);
-$client_name = nullable_htmlentities($row['client_name']);
+$client_name = escapeHtml($row['client_name']);
 $client_id = intval($row['invoice_client_id']);
 
 enforceClientAccess();

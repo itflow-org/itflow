@@ -139,7 +139,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                 <div class="col-md-4">
                     <div class="input-group mb-3 mb-md-0">
-                        <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(nullable_htmlentities($q)); } ?>" placeholder="Search Credentials">
+                        <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search Credentials">
                         <div class="input-group-append">
                             <button class="btn btn-dark"><i class="fa fa-search"></i></button>
                         </div>
@@ -163,7 +163,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             ");
                             while ($row = mysqli_fetch_assoc($sql_tags_filter)) {
                                 $tag_id = intval($row['tag_id']);
-                                $tag_name = nullable_htmlentities($row['tag_name']); ?>
+                                $tag_name = escapeHtml($row['tag_name']); ?>
 
                                 <option value="<?php echo $tag_id ?>" <?php if (isset($_GET['tags']) && is_array($_GET['tags']) && in_array($tag_id, $_GET['tags'])) { echo 'selected'; } ?>> <?php echo $tag_name ?> </option>
 
@@ -182,7 +182,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             $sql_locations_filter = mysqli_query($mysqli, "SELECT * FROM locations WHERE location_client_id = $client_id AND location_archived_at IS NULL ORDER BY location_name ASC");
                             while ($row = mysqli_fetch_assoc($sql_locations_filter)) {
                                 $location_id = intval($row['location_id']);
-                                $location_name = nullable_htmlentities($row['location_name']);
+                                $location_name = escapeHtml($row['location_name']);
                             ?>
                                 <option <?php if ($location_filter == $location_id) { echo "selected"; } ?> value="<?php echo $location_id; ?>"><?php echo $location_name; ?></option>
                             <?php
@@ -209,7 +209,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             ");
                             while ($row = mysqli_fetch_assoc($sql_clients_filter)) {
                                 $client_id = intval($row['client_id']);
-                                $client_name = nullable_htmlentities($row['client_name']);
+                                $client_name = escapeHtml($row['client_name']);
                             ?>
                                 <option <?php if ($client == $client_id) { echo "selected"; } ?> value="<?php echo $client_id; ?>"><?php echo $client_name; ?></option>
                             <?php
@@ -314,10 +314,10 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                         while ($row = mysqli_fetch_assoc($sql)) {
                             $client_id = intval($row['client_id']);
-                            $client_name = nullable_htmlentities($row['client_name']);
+                            $client_name = escapeHtml($row['client_name']);
                             $credential_id = intval($row['c_credential_id']);
-                            $credential_name = nullable_htmlentities($row['credential_name']);
-                            $credential_description = nullable_htmlentities($row['credential_description']);
+                            $credential_name = escapeHtml($row['credential_name']);
+                            $credential_description = escapeHtml($row['credential_description']);
                             $credential_uri = sanitize_url($row['credential_uri']);
                             if (empty($credential_uri)) {
                                 $credential_uri_display = "-";
@@ -325,28 +325,28 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 $credential_uri_display = "<a href='$credential_uri'>" . truncate($credential_uri,40) . "</a><button class='btn btn-sm clipboardjs' type='button' title='$credential_uri' data-clipboard-text='$credential_uri'><i class='far fa-copy text-secondary'></i></button>";
                             }
                             $credential_uri_2 = sanitize_url($row['credential_uri_2']);
-                            $credential_username = nullable_htmlentities(decryptCredentialEntry($row['credential_username']));
+                            $credential_username = escapeHtml(decryptCredentialEntry($row['credential_username']));
                             if (empty($credential_username)) {
                                 $credential_username_display = "-";
                             } else {
                                 $credential_username_display = "$credential_username<button class='btn btn-sm clipboardjs' type='button' data-clipboard-text='$credential_username'><i class='far fa-copy text-secondary'></i></button>";
                             }
-                            $credential_password = nullable_htmlentities(decryptCredentialEntry($row['credential_password']));
-                            $credential_otp_secret = nullable_htmlentities($row['credential_otp_secret']);
+                            $credential_password = escapeHtml(decryptCredentialEntry($row['credential_password']));
+                            $credential_otp_secret = escapeHtml($row['credential_otp_secret']);
                             $credential_id_with_secret = '"' . $row['credential_id'] . '","' . $row['credential_otp_secret'] . '"';
                             if (empty($credential_otp_secret)) {
                                 $otp_display = "-";
                             } else {
                                 $otp_display = "<span onmouseenter='showOTPViaCredentialID($credential_id)'><i class='far fa-clock'></i> <span id='otp_$credential_id'><i>Hover..</i></span></span>";
                             }
-                            $credential_note = nullable_htmlentities($row['credential_note']);
-                            $credential_created_at = nullable_htmlentities($row['credential_created_at']);
-                            $credential_archived_at = nullable_htmlentities($row['credential_archived_at']);
+                            $credential_note = escapeHtml($row['credential_note']);
+                            $credential_created_at = escapeHtml($row['credential_created_at']);
+                            $credential_archived_at = escapeHtml($row['credential_archived_at']);
                             $credential_favorite = intval($row['credential_favorite']);
                             $credential_contact_id = intval($row['credential_contact_id']);
-                            $contact_name = nullable_htmlentities($row['contact_name']);
+                            $contact_name = escapeHtml($row['contact_name']);
                             $credential_asset_id = intval($row['credential_asset_id']);
-                            $asset_name = nullable_htmlentities($row['asset_name']);
+                            $asset_name = escapeHtml($row['asset_name']);
 
                             // Tags
                             $credential_tag_name_display_array = array();
@@ -355,12 +355,12 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             while ($row = mysqli_fetch_assoc($sql_credential_tags)) {
 
                                 $credential_tag_id = intval($row['tag_id']);
-                                $credential_tag_name = nullable_htmlentities($row['tag_name']);
-                                $credential_tag_color = nullable_htmlentities($row['tag_color']);
+                                $credential_tag_name = escapeHtml($row['tag_name']);
+                                $credential_tag_color = escapeHtml($row['tag_color']);
                                 if (empty($credential_tag_color)) {
                                     $credential_tag_color = "dark";
                                 }
-                                $credential_tag_icon = nullable_htmlentities($row['tag_icon']);
+                                $credential_tag_icon = escapeHtml($row['tag_icon']);
                                 if (empty($credential_tag_icon)) {
                                     $credential_tag_icon = "tag";
                                 }
@@ -403,16 +403,16 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             if (mysqli_num_rows($sql_shared) > 0) {
                                 $row = mysqli_fetch_assoc($sql_shared);
                                 $item_id = intval($row['item_id']);
-                                $item_active = nullable_htmlentities($row['item_active']);
-                                $item_key = nullable_htmlentities($row['item_key']);
-                                $item_type = nullable_htmlentities($row['item_type']);
+                                $item_active = escapeHtml($row['item_active']);
+                                $item_key = escapeHtml($row['item_key']);
+                                $item_type = escapeHtml($row['item_type']);
                                 $item_related_id = intval($row['item_related_id']);
-                                $item_note = nullable_htmlentities($row['item_note']);
-                                $item_recipient = nullable_htmlentities($row['item_recipient']);
-                                $item_views = nullable_htmlentities($row['item_views']);
-                                $item_view_limit = nullable_htmlentities($row['item_view_limit']);
-                                $item_created_at = nullable_htmlentities($row['item_created_at']);
-                                $item_expire_at = nullable_htmlentities($row['item_expire_at']);
+                                $item_note = escapeHtml($row['item_note']);
+                                $item_recipient = escapeHtml($row['item_recipient']);
+                                $item_views = escapeHtml($row['item_views']);
+                                $item_view_limit = escapeHtml($row['item_view_limit']);
+                                $item_created_at = escapeHtml($row['item_created_at']);
+                                $item_expire_at = escapeHtml($row['item_expire_at']);
                                 $item_expire_at_human = timeAgo($row['item_expire_at']);
                             }
 

@@ -88,8 +88,8 @@ ob_start();
                     $module_name_raw = $row_modules['module_name'];
                     $module_name_display = ucfirst(str_replace("module_", "", $module_name_raw));
 
-                    $module_name_display_safe = nullable_htmlentities($module_name_display);
-                    $module_description = nullable_htmlentities($row_modules['module_description']);
+                    $module_name_display_safe = escapeHtml($module_name_display);
+                    $module_description = escapeHtml($row_modules['module_description']);
 
                     // default for new role
                     $module_permission = 0;

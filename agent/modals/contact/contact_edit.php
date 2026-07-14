@@ -14,27 +14,27 @@ $sql = mysqli_query($mysqli, "SELECT * FROM contacts
 
 $row = mysqli_fetch_assoc($sql);
 $client_id = intval($row['contact_client_id']);
-$contact_name = nullable_htmlentities($row['contact_name']);
-$contact_title = nullable_htmlentities($row['contact_title']);
-$contact_department = nullable_htmlentities($row['contact_department']);
-$contact_extension = nullable_htmlentities($row['contact_extension']);
-$contact_phone_country_code = nullable_htmlentities($row['contact_phone_country_code']);
-$contact_phone = nullable_htmlentities(formatPhoneNumber($row['contact_phone'], $contact_phone_country_code));
-$contact_mobile_country_code = nullable_htmlentities($row['contact_mobile_country_code']);
-$contact_mobile = nullable_htmlentities(formatPhoneNumber($row['contact_mobile'], $contact_mobile_country_code));
-$contact_email = nullable_htmlentities($row['contact_email']);
-$contact_pin = nullable_htmlentities($row['contact_pin']);
-$contact_photo = nullable_htmlentities($row['contact_photo']);
+$contact_name = escapeHtml($row['contact_name']);
+$contact_title = escapeHtml($row['contact_title']);
+$contact_department = escapeHtml($row['contact_department']);
+$contact_extension = escapeHtml($row['contact_extension']);
+$contact_phone_country_code = escapeHtml($row['contact_phone_country_code']);
+$contact_phone = escapeHtml(formatPhoneNumber($row['contact_phone'], $contact_phone_country_code));
+$contact_mobile_country_code = escapeHtml($row['contact_mobile_country_code']);
+$contact_mobile = escapeHtml(formatPhoneNumber($row['contact_mobile'], $contact_mobile_country_code));
+$contact_email = escapeHtml($row['contact_email']);
+$contact_pin = escapeHtml($row['contact_pin']);
+$contact_photo = escapeHtml($row['contact_photo']);
 $contact_initials = initials($contact_name);
-$contact_notes = nullable_htmlentities($row['contact_notes']);
+$contact_notes = escapeHtml($row['contact_notes']);
 $contact_primary = intval($row['contact_primary']);
 $contact_important = intval($row['contact_important']);
 $contact_billing = intval($row['contact_billing']);
 $contact_technical = intval($row['contact_technical']);
-$contact_created_at = nullable_htmlentities($row['contact_created_at']);
-$contact_archived_at = nullable_htmlentities($row['contact_archived_at']);
+$contact_created_at = escapeHtml($row['contact_created_at']);
+$contact_archived_at = escapeHtml($row['contact_archived_at']);
 $contact_location_id = intval($row['contact_location_id']);
-$auth_method = nullable_htmlentities($row['user_auth_method']);
+$auth_method = escapeHtml($row['user_auth_method']);
 $contact_user_id = intval($row['contact_user_id']);
 
 // Tags
@@ -177,8 +177,8 @@ ob_start();
                             $sql_locations = mysqli_query($mysqli, "SELECT * FROM locations WHERE location_id = $contact_location_id OR location_archived_at IS NULL AND location_client_id = $client_id ORDER BY location_name ASC");
                             while ($row = mysqli_fetch_assoc($sql_locations)) {
                                 $location_id_select = intval($row['location_id']);
-                                $location_name_select = nullable_htmlentities($row['location_name']);
-                                $location_archived_at = nullable_htmlentities($row['location_archived_at']);
+                                $location_name_select = escapeHtml($row['location_name']);
+                                $location_archived_at = escapeHtml($row['location_archived_at']);
                                 if ($location_archived_at) {
                                     $location_name_select_display = "($location_name_select) - ARCHIVED";
                                 } else {
@@ -321,7 +321,7 @@ ob_start();
                             $sql_tags_select = mysqli_query($mysqli, "SELECT * FROM tags WHERE tag_type = 3 ORDER BY tag_name ASC");
                             while ($row = mysqli_fetch_assoc($sql_tags_select)) {
                                 $tag_id_select = intval($row['tag_id']);
-                                $tag_name_select = nullable_htmlentities($row['tag_name']);
+                                $tag_name_select = escapeHtml($row['tag_name']);
                                 ?>
                                 <option value="<?php echo $tag_id_select; ?>" <?php if (in_array($tag_id_select, $contact_tag_id_array)) { echo "selected"; } ?>><?php echo $tag_name_select; ?></option>
                             <?php } ?>

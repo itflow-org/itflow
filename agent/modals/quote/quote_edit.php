@@ -8,15 +8,15 @@ $sql = mysqli_query($mysqli, "SELECT * FROM quotes LEFT JOIN clients ON quote_cl
 
 $row = mysqli_fetch_assoc($sql);
 $quote_id = intval($row['quote_id']);
-$quote_prefix = nullable_htmlentities($row['quote_prefix']);
+$quote_prefix = escapeHtml($row['quote_prefix']);
 $quote_number = intval($row['quote_number']);
-$quote_scope = nullable_htmlentities($row['quote_scope']);
-$quote_date = nullable_htmlentities($row['quote_date']);
-$quote_expire = nullable_htmlentities($row['quote_expire']);
+$quote_scope = escapeHtml($row['quote_scope']);
+$quote_date = escapeHtml($row['quote_date']);
+$quote_expire = escapeHtml($row['quote_expire']);
 $quote_discount = floatval($row['quote_discount_amount']);
-$quote_created_at = nullable_htmlentities($row['quote_created_at']);
+$quote_created_at = escapeHtml($row['quote_created_at']);
 $quote_category_id = intval($row['quote_category_id']);
-$client_name = nullable_htmlentities($row['client_name']);
+$client_name = escapeHtml($row['client_name']);
 
 // Generate the HTML form content using output buffering.
 ob_start();
@@ -66,7 +66,7 @@ ob_start();
                     $sql = mysqli_query($mysqli, "SELECT * FROM categories WHERE category_type = 'Income' AND (category_archived_at > '$quote_created_at' OR category_archived_at IS NULL) ORDER BY category_name ASC");
                     while ($row = mysqli_fetch_assoc($sql)) {
                         $category_id = intval($row['category_id']);
-                        $category_name = nullable_htmlentities($row['category_name']);
+                        $category_name = escapeHtml($row['category_name']);
                         ?>
                         <option <?php if ($quote_category_id == $category_id) { echo "selected"; } ?> value="<?php echo $category_id; ?>"><?php echo $category_name; ?></option>
 

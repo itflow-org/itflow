@@ -42,7 +42,7 @@ ob_start();
 
                         while ($row = mysqli_fetch_assoc($clients_sql)) {
                             $client_id_select = intval($row["client_id"]);
-                            $client_name_select = nullable_htmlentities($row["client_name"]);
+                            $client_name_select = escapeHtml($row["client_name"]);
                         ?>
                         <option value='<?php echo $client_id_select; ?>'><?php echo $client_name_select; ?></option>
                         <?php

@@ -2,14 +2,14 @@
 
 require_once '../../../includes/modal_header.php';
 
-$category = nullable_htmlentities($_GET['category'] ?? '');
+$category = escapeHtml($_GET['category'] ?? '');
 
 $category_types_array = ['Expense', 'Income', 'Referral', 'Ticket'];
 
 ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fa fa-fw fa-list-ul mr-2"></i>New <strong><?= nullable_htmlentities(ucwords(str_replace('_', ' ', $category))); ?></strong> Category</h5>
+    <h5 class="modal-title"><i class="fa fa-fw fa-list-ul mr-2"></i>New <strong><?= escapeHtml(ucwords(str_replace('_', ' ', $category))); ?></strong> Category</h5>
     <button type="button" class="close text-white" data-dismiss="modal">
         <span>&times;</span>
     </button>

@@ -31,7 +31,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
         <form autocomplete="off">
             <div class="input-group">
-                <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(nullable_htmlentities($q)); } ?>" placeholder="Search templates">
+                <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search templates">
                 <div class="input-group-append">
                     <button class="btn btn-secondary"><i class="fa fa-search"></i></button>
                 </div>
@@ -61,28 +61,28 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     <?php
                         while ($row = mysqli_fetch_assoc($sql)) {
                             $id = intval($row['contract_template_id']);
-                            $name = nullable_htmlentities($row['contract_template_name']);
-                            $type = nullable_htmlentities($row['contract_template_type']);
-                            $freq = nullable_htmlentities($row['contract_template_update_frequency']);
-                            $sla_low_resp = nullable_htmlentities($row['sla_low_response_time']);
-                            $sla_med_resp = nullable_htmlentities($row['sla_medium_response_time']);
-                            $sla_high_resp = nullable_htmlentities($row['sla_high_response_time']);
-                            $sla_low_res = nullable_htmlentities($row['sla_low_resolution_time']);
-                            $sla_med_res = nullable_htmlentities($row['sla_medium_resolution_time']);
-                            $sla_high_res = nullable_htmlentities($row['sla_high_resolution_time']);
-                            $hourly_rate = nullable_htmlentities($row['contract_template_hourly_rate']);
-                            $after_hours = nullable_htmlentities($row['contract_template_after_hours_hourly_rate']);
-                            $support_hours = nullable_htmlentities($row['contract_template_support_hours']);
-                            $net_terms = nullable_htmlentities($row['contract_template_net_terms']);
-                            $created = nullable_htmlentities($row['contract_template_created_at']);
-                            $updated = nullable_htmlentities($row['contract_template_updated_at']);
+                            $name = escapeHtml($row['contract_template_name']);
+                            $type = escapeHtml($row['contract_template_type']);
+                            $freq = escapeHtml($row['contract_template_update_frequency']);
+                            $sla_low_resp = escapeHtml($row['sla_low_response_time']);
+                            $sla_med_resp = escapeHtml($row['sla_medium_response_time']);
+                            $sla_high_resp = escapeHtml($row['sla_high_response_time']);
+                            $sla_low_res = escapeHtml($row['sla_low_resolution_time']);
+                            $sla_med_res = escapeHtml($row['sla_medium_resolution_time']);
+                            $sla_high_res = escapeHtml($row['sla_high_resolution_time']);
+                            $hourly_rate = escapeHtml($row['contract_template_hourly_rate']);
+                            $after_hours = escapeHtml($row['contract_template_after_hours_hourly_rate']);
+                            $support_hours = escapeHtml($row['contract_template_support_hours']);
+                            $net_terms = escapeHtml($row['contract_template_net_terms']);
+                            $created = escapeHtml($row['contract_template_created_at']);
+                            $updated = escapeHtml($row['contract_template_updated_at']);
                     ?>
                     <tr>
                         <td>
                             <a class="text-bold" href="contract_template_details.php?contract_template_id=<?php echo $id; ?>">
                                 <i class="fas fa-fw fa-file-alt text-dark"></i> <?php echo $name; ?>
                             </a>
-                            <div class="mt-1 text-secondary"><?php echo nullable_htmlentities($row['contract_template_description']); ?></div>
+                            <div class="mt-1 text-secondary"><?php echo escapeHtml($row['contract_template_description']); ?></div>
                         </td>
                         <td><?php echo $type; ?></td>
                         <td><?php echo $freq; ?></td>

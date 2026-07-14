@@ -30,7 +30,7 @@ ob_start();
                     $sql_accounts_filter = mysqli_query($mysqli, "SELECT * FROM accounts WHERE account_archived_at IS NULL ORDER BY account_name ASC");
                     while ($row = mysqli_fetch_assoc($sql_accounts_filter)) {
                         $account_id = intval($row['account_id']);
-                        $account_name = nullable_htmlentities($row['account_name']);
+                        $account_name = escapeHtml($row['account_name']);
                     ?>
                         <option <?php if ($account_filter == $account_id) { echo "selected"; } ?> value="<?= $account_id ?>"><?= $account_name ?></option>
                     <?php
@@ -54,7 +54,7 @@ ob_start();
                     $sql_vendors_filter = mysqli_query($mysqli, "SELECT * FROM vendors WHERE vendor_client_id = 0 ORDER BY vendor_name ASC");
                     while ($row = mysqli_fetch_assoc($sql_vendors_filter)) {
                         $vendor_id = intval($row['vendor_id']);
-                        $vendor_name = nullable_htmlentities($row['vendor_name']);
+                        $vendor_name = escapeHtml($row['vendor_name']);
                     ?>
                         <option <?php if ($vendor_filter == $vendor_id) { echo "selected"; } ?> value="<?= $vendor_id ?>"><?= $vendor_name ?></option>
                     <?php
@@ -78,7 +78,7 @@ ob_start();
                     $sql_categories_filter = mysqli_query($mysqli, "SELECT * FROM categories WHERE category_type = 'Expense' ORDER BY category_name ASC");
                     while ($row = mysqli_fetch_assoc($sql_categories_filter)) {
                         $category_id = intval($row['category_id']);
-                        $category_name = nullable_htmlentities($row['category_name']);
+                        $category_name = escapeHtml($row['category_name']);
                     ?>
                         <option <?php if ($category_filter == $category_id) { echo "selected"; } ?> value="<?= $category_id ?>"><?= $category_name ?></option>
                     <?php

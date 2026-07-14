@@ -96,7 +96,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                     <div class="col-md-4">
                         <div class="input-group mb-3 mb-md-0">
-                            <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(nullable_htmlentities($q)); } ?>" placeholder="Search Licenses">
+                            <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search Licenses">
                             <div class="input-group-append">
                                 <button class="btn btn-dark"><i class="fa fa-search"></i></button>
                             </div>
@@ -122,7 +122,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 ");
                                 while ($row = mysqli_fetch_assoc($sql_clients_filter)) {
                                     $client_id = intval($row['client_id']);
-                                    $client_name = nullable_htmlentities($row['client_name']);
+                                    $client_name = escapeHtml($row['client_name']);
                                 ?>
                                     <option <?php if ($client == $client_id) { echo "selected"; } ?> value="<?php echo $client_id; ?>"><?php echo $client_name; ?></option>
                                 <?php
@@ -195,16 +195,16 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                     while ($row = mysqli_fetch_assoc($sql)) {
                         $client_id = intval($row['client_id']);
-                        $client_name = nullable_htmlentities($row['client_name']);
+                        $client_name = escapeHtml($row['client_name']);
                         $software_id = intval($row['software_id']);
-                        $software_name = nullable_htmlentities($row['software_name']);
-                        $software_description = nullable_htmlentities($row['software_description']);
-                        $software_version = nullable_htmlentities($row['software_version']);
-                        $software_type = nullable_htmlentities($row['software_type']);
-                        $software_license_type = getFallBack(nullable_htmlentities($row['software_license_type']));
-                        $software_seats = nullable_htmlentities($row['software_seats']);
-                        $software_expire = nullable_htmlentities($row['software_expire']);
-                        $vendor_name = nullable_htmlentities($row['vendor_name']);
+                        $software_name = escapeHtml($row['software_name']);
+                        $software_description = escapeHtml($row['software_description']);
+                        $software_version = escapeHtml($row['software_version']);
+                        $software_type = escapeHtml($row['software_type']);
+                        $software_license_type = getFallBack(escapeHtml($row['software_license_type']));
+                        $software_seats = escapeHtml($row['software_seats']);
+                        $software_expire = escapeHtml($row['software_expire']);
+                        $vendor_name = escapeHtml($row['vendor_name']);
                         $vendor_id = intval($row['vendor_id']);
                         if ($vendor_name) {
                             $vendor_display = "<a class='ajax-modal' href='#' data-modal-url='modals/vendor/vendor_details.php?id=$vendor_id'>$vendor_name</a>";
@@ -238,7 +238,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             $tr_class = '';
                         }
 
-                        $software_created_at = nullable_htmlentities($row['software_created_at']);
+                        $software_created_at = escapeHtml($row['software_created_at']);
 
                         $seat_count = 0;
 

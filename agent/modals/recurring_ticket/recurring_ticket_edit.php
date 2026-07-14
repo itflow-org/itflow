@@ -8,11 +8,11 @@ $sql = mysqli_query($mysqli, "SELECT * FROM recurring_tickets WHERE recurring_ti
 
 $row = mysqli_fetch_assoc($sql);
 $client_id = intval($row['recurring_ticket_client_id']);
-$recurring_ticket_subject = nullable_htmlentities($row['recurring_ticket_subject']);
-$recurring_ticket_details = nullable_htmlentities($row['recurring_ticket_details']);
-$recurring_ticket_priority = nullable_htmlentities($row['recurring_ticket_priority']);
-$recurring_ticket_frequency = nullable_htmlentities($row['recurring_ticket_frequency']);
-$recurring_ticket_next_run = nullable_htmlentities($row['recurring_ticket_next_run']);
+$recurring_ticket_subject = escapeHtml($row['recurring_ticket_subject']);
+$recurring_ticket_details = escapeHtml($row['recurring_ticket_details']);
+$recurring_ticket_priority = escapeHtml($row['recurring_ticket_priority']);
+$recurring_ticket_frequency = escapeHtml($row['recurring_ticket_frequency']);
+$recurring_ticket_next_run = escapeHtml($row['recurring_ticket_next_run']);
 $recurring_ticket_assigned_to = intval($row['recurring_ticket_assigned_to']);
 $recurring_ticket_contact_id = intval($row['recurring_ticket_contact_id']);
 $recurring_ticket_asset_id = intval($row['recurring_ticket_asset_id']);
@@ -111,7 +111,7 @@ ob_start();
                                     $sql_categories = mysqli_query($mysqli, "SELECT category_id, category_name FROM categories WHERE category_type = 'Ticket' AND category_archived_at IS NULL ORDER BY category_name ASC");
                                     while ($row = mysqli_fetch_assoc($sql_categories)) {
                                         $category_id = intval($row['category_id']);
-                                        $category_name = nullable_htmlentities($row['category_name']);
+                                        $category_name = escapeHtml($row['category_name']);
 
                                         ?>
                                         <option <?php if ($recurring_ticket_category == $category_id) {echo "selected";} ?> value="<?php echo $category_id; ?>"><?php echo $category_name; ?></option>
@@ -145,7 +145,7 @@ ob_start();
                             );
                             while ($row = mysqli_fetch_assoc($sql_users_select)) {
                                 $user_id_select = intval($row['user_id']);
-                                $user_name_select = nullable_htmlentities($row['user_name']);
+                                $user_name_select = escapeHtml($row['user_name']);
 
                                 ?>
                                 <option value="<?php echo $user_id_select; ?>" <?php if ($recurring_ticket_assigned_to == $user_id_select) { echo "selected"; } ?>><?php echo $user_name_select; ?></option>
@@ -179,7 +179,7 @@ ob_start();
                             $sql_client_contacts_select = mysqli_query($mysqli, "SELECT contact_id, contact_name, contact_title, contact_primary, contact_technical FROM contacts WHERE contact_client_id = $client_id AND contact_archived_at IS NULL ORDER BY contact_primary DESC, contact_technical DESC, contact_name ASC");
                             while ($row = mysqli_fetch_assoc($sql_client_contacts_select)) {
                                 $contact_id_select = intval($row['contact_id']);
-                                $contact_name_select = nullable_htmlentities($row['contact_name']);
+                                $contact_name_select = escapeHtml($row['contact_name']);
                                 $contact_primary_select = intval($row['contact_primary']);
                                 if($contact_primary_select == 1) {
                                     $contact_primary_display_select = " (Primary)";
@@ -192,7 +192,7 @@ ob_start();
                                 } else {
                                     $contact_technical_display_select = "";
                                 }
-                                $contact_title_select = nullable_htmlentities($row['contact_title']);
+                                $contact_title_select = escapeHtml($row['contact_title']);
                                 if(!empty($contact_title_select)) {
                                     $contact_title_display_select = " - $contact_title_select";
                                 } else {
@@ -255,8 +255,8 @@ ob_start();
                             $sql_assets = mysqli_query($mysqli, "SELECT asset_id, asset_name, contact_name FROM assets LEFT JOIN contacts ON contact_id = asset_contact_id WHERE asset_client_id = $client_id AND asset_archived_at IS NULL ORDER BY asset_name ASC");
                             while ($row = mysqli_fetch_assoc($sql_assets)) {
                                 $asset_id_select = intval($row['asset_id']);
-                                $asset_name_select = nullable_htmlentities($row['asset_name']);
-                                $asset_contact_name_select = nullable_htmlentities($row['contact_name']);
+                                $asset_name_select = escapeHtml($row['asset_name']);
+                                $asset_contact_name_select = escapeHtml($row['contact_name']);
                                 ?>
                                 <option <?php if ($recurring_ticket_asset_id == $asset_id_select) { echo "selected"; } ?> value="<?php echo $asset_id_select; ?>"><?php echo "$asset_name_select - $asset_contact_name_select"; ?></option>
 
@@ -280,8 +280,8 @@ ob_start();
                             $sql_assets = mysqli_query($mysqli, "SELECT asset_id, asset_name, contact_name FROM assets LEFT JOIN contacts ON contact_id = asset_contact_id WHERE asset_client_id = $client_id AND asset_id != $recurring_ticket_asset_id AND asset_archived_at IS NULL ORDER BY asset_name ASC");
                             while ($row = mysqli_fetch_assoc($sql_assets)) {
                                 $asset_id_select = intval($row['asset_id']);
-                                $asset_name_select = nullable_htmlentities($row['asset_name']);
-                                $asset_contact_name_select = nullable_htmlentities($row['contact_name']);
+                                $asset_name_select = escapeHtml($row['asset_name']);
+                                $asset_contact_name_select = escapeHtml($row['contact_name']);
                             ?>
                                 <option value="<?php echo $asset_id_select; ?>"
                                     <?php if (in_array($asset_id_select, $additional_assets_array)) { echo "selected"; } ?>

@@ -7,9 +7,9 @@ $sql = mysqli_query($mysqli, "SELECT * FROM files WHERE file_id = $file_id LIMIT
 
 $row = mysqli_fetch_assoc($sql);
 $client_id = intval($row['file_client_id']);
-$file_name = nullable_htmlentities($row['file_name']);
-$file_description = nullable_htmlentities($row['file_description']);
-$file_ext = nullable_htmlentities($row['file_description']);
+$file_name = escapeHtml($row['file_name']);
+$file_description = escapeHtml($row['file_description']);
+$file_ext = escapeHtml($row['file_description']);
 
 if ($file_ext == 'pdf') {
     $file_icon = "file-pdf";

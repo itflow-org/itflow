@@ -10,7 +10,7 @@ $sql = mysqli_query($mysqli, "SELECT * FROM assets
 ");
 
 $row = mysqli_fetch_assoc($sql);
-$asset_name = nullable_htmlentities($row['asset_name']);
+$asset_name = escapeHtml($row['asset_name']);
 $client_id = intval($row['asset_client_id']);
 
 // Generate the HTML form content using output buffering.
@@ -49,7 +49,7 @@ ob_start();
                     ");
                     while ($row = mysqli_fetch_assoc($sql_credentials_select)) {
                         $credential_id = intval($row['credential_id']);
-                        $credential_name = nullable_htmlentities($row['credential_name']);
+                        $credential_name = escapeHtml($row['credential_name']);
                         ?>
                         <option value="<?php echo $credential_id ?>"><?php echo $credential_name; ?></option>
                         <?php

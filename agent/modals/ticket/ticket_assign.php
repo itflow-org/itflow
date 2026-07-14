@@ -11,12 +11,12 @@ $sql = mysqli_query($mysqli, "SELECT * FROM tickets
 );
 
 $row = mysqli_fetch_assoc($sql);
-$ticket_prefix = nullable_htmlentities($row['ticket_prefix']);
+$ticket_prefix = escapeHtml($row['ticket_prefix']);
 $ticket_number = intval($row['ticket_number']);
 $ticket_assigned_to = intval($row['ticket_assigned_to']);
 $ticket_status = intval($row['ticket_status']);
-$ticket_closed_at = nullable_htmlentities($row['ticket_closed_at']);
-$client_name = nullable_htmlentities($row['client_name']);
+$ticket_closed_at = escapeHtml($row['ticket_closed_at']);
+$client_name = escapeHtml($row['client_name']);
 
 // Generate the HTML form content using output buffering.
 ob_start();
@@ -52,7 +52,7 @@ ob_start();
                     );
                     while ($row = mysqli_fetch_assoc($sql_users_select)) {
                         $user_id_select = intval($row['user_id']);
-                        $user_name_select = nullable_htmlentities($row['user_name']);
+                        $user_name_select = escapeHtml($row['user_name']);
 
                         ?>
                         <option value="<?php echo $user_id_select; ?>" <?php if ($user_id_select  == $ticket_assigned_to) { echo "selected"; } ?>><?php echo $user_name_select; ?></option>

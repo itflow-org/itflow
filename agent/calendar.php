@@ -41,8 +41,8 @@ if (isset($_GET['calendar_id'])) {
                 $sql = mysqli_query($mysqli, "SELECT * FROM calendars");
                 while ($row = mysqli_fetch_assoc($sql)) {
                     $calendar_id = intval($row['calendar_id']);
-                    $calendar_name = nullable_htmlentities($row['calendar_name']);
-                    $calendar_color = nullable_htmlentities($row['calendar_color']);
+                    $calendar_name = escapeHtml($row['calendar_name']);
+                    $calendar_color = escapeHtml($row['calendar_color']);
                 ?>
                 <div class="form-group d-flex align-items-center">
                     <i class="fas fa-fw fa-circle mr-2" style="color:<?= $calendar_color ?>;"></i><?= $calendar_name ?>
@@ -128,15 +128,15 @@ require_once "modals/calendar/calendar_event_add.php";
 $sql = mysqli_query($mysqli, "SELECT * FROM calendar_events LEFT JOIN calendars ON event_calendar_id = calendar_id $client_event_query");
 while ($row = mysqli_fetch_assoc($sql)) {
     $event_id = intval($row['event_id']);
-    $event_title = nullable_htmlentities($row['event_title']);
-    $event_description = nullable_htmlentities($row['event_description']);
-    $event_location = nullable_htmlentities($row['event_location']);
-    $event_start = nullable_htmlentities($row['event_start']);
-    $event_end = nullable_htmlentities($row['event_end']);
-    $event_repeat = nullable_htmlentities($row['event_repeat']);
+    $event_title = escapeHtml($row['event_title']);
+    $event_description = escapeHtml($row['event_description']);
+    $event_location = escapeHtml($row['event_location']);
+    $event_start = escapeHtml($row['event_start']);
+    $event_end = escapeHtml($row['event_end']);
+    $event_repeat = escapeHtml($row['event_repeat']);
     $calendar_id = intval($row['calendar_id']);
-    $calendar_name = nullable_htmlentities($row['calendar_name']);
-    $calendar_color = nullable_htmlentities($row['calendar_color']);
+    $calendar_name = escapeHtml($row['calendar_name']);
+    $calendar_color = escapeHtml($row['calendar_color']);
     $client_id = intval($row['event_client_id']);
 }
 

@@ -11,8 +11,8 @@ require_once 'libs/stripe-php/init.php';
 // Get Stripe vars
 $stripe_vars = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT config_stripe_enable, config_stripe_publishable, config_stripe_secret FROM settings WHERE company_id = 1"));
 $config_stripe_enable = intval($stripe_vars['config_stripe_enable']);
-$config_stripe_publishable = nullable_htmlentities($stripe_vars['config_stripe_publishable']);
-$config_stripe_secret = nullable_htmlentities($stripe_vars['config_stripe_secret']);
+$config_stripe_publishable = escapeHtml($stripe_vars['config_stripe_publishable']);
+$config_stripe_secret = escapeHtml($stripe_vars['config_stripe_secret']);
 
 // Get client's StripeID from database
 $stripe_client_details = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT * FROM client_stripe WHERE client_id = $client_id LIMIT 1"));
@@ -104,10 +104,10 @@ if (!$config_stripe_enable || !$config_stripe_publishable || !$config_stripe_sec
                     logApp("Stripe", "error", "Exception when fetching payment method info for $stripe_pm: $error");
                 }
 
-                $card_name = nullable_htmlentities($payment_method->billing_details->name);
-                $card_brand = nullable_htmlentities($payment_method->card->display_brand);
-                $card_last4 = nullable_htmlentities($payment_method->card->last4);
-                $card_expires = nullable_htmlentities($payment_method->card->exp_month) . "/" . nullable_htmlentities($payment_method->card->exp_year);
+                $card_name = escapeHtml($payment_method->billing_details->name);
+                $card_brand = escapeHtml($payment_method->card->display_brand);
+                $card_last4 = escapeHtml($payment_method->card->last4);
+                $card_expires = escapeHtml($payment_method->card->exp_month) . "/" . escapeHtml($payment_method->card->exp_year);
 
                 ?>
 

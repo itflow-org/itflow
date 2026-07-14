@@ -15,7 +15,7 @@ if ($client_id) {
 $sql = mysqli_query($mysqli, "SELECT * FROM projects WHERE project_id = $project_id LIMIT 1");
 
 $row = mysqli_fetch_assoc($sql);
-$project_name = nullable_htmlentities($row['project_name']);
+$project_name = escapeHtml($row['project_name']);
 
 ob_start();
 ?>

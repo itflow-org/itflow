@@ -33,7 +33,7 @@ if (isset($_GET['tags']) && is_array($_GET['tags']) && !empty($_GET['tags'])) {
 // Industry Filter
 if (isset($_GET['industry']) & !empty($_GET['industry'])) {
     $industry_query = "AND (clients.client_type  = '" . sanitizeInput($_GET['industry']) . "')";
-    $industry_filter = nullable_htmlentities($_GET['industry']);
+    $industry_filter = escapeHtml($_GET['industry']);
 } else {
     // Default - any
     $industry_query = '';
@@ -43,7 +43,7 @@ if (isset($_GET['industry']) & !empty($_GET['industry'])) {
 // Referral Filter
 if (isset($_GET['referral']) & !empty($_GET['referral'])) {
     $referral_query = "AND (clients.client_referral  = '" . sanitizeInput($_GET['referral']) . "')";
-    $referral_filter = nullable_htmlentities($_GET['referral']);
+    $referral_filter = escapeHtml($_GET['referral']);
 } else {
     // Default - any
     $referral_query = '';
@@ -114,7 +114,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                 <div class="col-md-5">
                     <div class="form-group">
                         <div class="input-group">
-                            <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(nullable_htmlentities($q)); } ?>" placeholder="Search <?php if($leads_filter == 0){ echo "clients"; } else { echo "leads"; } ?>" autofocus>
+                            <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search <?php if($leads_filter == 0){ echo "clients"; } else { echo "leads"; } ?>" autofocus>
                             <div class="input-group-append">
                                 <button class="btn btn-secondary" type="button" data-toggle="collapse" data-target="#advancedFilter"><i class="fas fa-filter"></i></button>
                                 <button class="btn btn-primary"><i class="fa fa-search"></i></button>
@@ -219,9 +219,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         <div class="form-group">
                             <label>Date range</label>
                             <input type="text" id="dateFilter" class="form-control" autocomplete="off">
-                            <input type="hidden" name="canned_date" id="canned_date" value="<?php echo nullable_htmlentities($_GET['canned_date']) ?? ''; ?>">
-                            <input type="hidden" name="dtf" id="dtf" value="<?php echo nullable_htmlentities($dtf ?? ''); ?>">
-                            <input type="hidden" name="dtt" id="dtt" value="<?php echo nullable_htmlentities($dtt ?? ''); ?>">
+                            <input type="hidden" name="canned_date" id="canned_date" value="<?php echo escapeHtml($_GET['canned_date']) ?? ''; ?>">
+                            <input type="hidden" name="dtf" id="dtf" value="<?php echo escapeHtml($dtf ?? ''); ?>">
+                            <input type="hidden" name="dtt" id="dtt" value="<?php echo escapeHtml($dtt ?? ''); ?>">
                         </div>
                     </div>
                     <div class="col-md-3">
@@ -239,7 +239,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 ");
                                 while ($row = mysqli_fetch_assoc($sql_tags_filter)) {
                                     $tag_id = intval($row['tag_id']);
-                                    $tag_name = nullable_htmlentities($row['tag_name']); ?>
+                                    $tag_name = escapeHtml($row['tag_name']); ?>
 
                                     <option value="<?php echo $tag_id ?>" <?php if (isset($_GET['tags']) && is_array($_GET['tags']) && in_array($tag_id, $_GET['tags'])) { echo 'selected'; } ?>> <?php echo $tag_name ?> </option>
 
@@ -256,7 +256,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 <?php
                                 $sql_industries_filter = mysqli_query($mysqli, "SELECT DISTINCT client_type FROM clients WHERE 1 = 1 AND client_$archive_query AND client_type != '' $leads_query ORDER BY client_type ASC");
                                 while ($row = mysqli_fetch_assoc($sql_industries_filter)) {
-                                    $industry_name = nullable_htmlentities($row['client_type']);
+                                    $industry_name = escapeHtml($row['client_type']);
                                 ?>
                                     <option <?php if ($industry_name == $industry_filter) { echo "selected"; } ?>><?php echo $industry_name; ?></option>
                                 <?php
@@ -275,7 +275,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 <?php
                                 $sql_referrals_filter = mysqli_query($mysqli, "SELECT DISTINCT client_referral FROM clients WHERE 1 = 1 AND client_$archive_query AND client_referral != '' $leads_query ORDER BY client_referral ASC");
                                 while ($row = mysqli_fetch_assoc($sql_referrals_filter)) {
-                                    $referral_name = nullable_htmlentities($row['client_referral']);
+                                    $referral_name = escapeHtml($row['client_referral']);
                                 ?>
                                     <option <?php if ($referral_name == $referral_filter) { echo "selected"; } ?>><?php echo $referral_name; ?></option>
                                 <?php
@@ -330,39 +330,39 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                 while ($row = mysqli_fetch_assoc($sql)) {
                     $client_id = intval($row['client_id']);
-                    $client_name = nullable_htmlentities($row['client_name']);
-                    $client_type = nullable_htmlentities($row['client_type']);
+                    $client_name = escapeHtml($row['client_name']);
+                    $client_type = escapeHtml($row['client_type']);
                     $location_id = intval($row['location_id']);
-                    $location_country = nullable_htmlentities($row['location_country']);
-                    $location_address = nullable_htmlentities($row['location_address']);
-                    $location_city = nullable_htmlentities($row['location_city']);
-                    $location_state = nullable_htmlentities($row['location_state']);
-                    $location_zip = nullable_htmlentities($row['location_zip']);
+                    $location_country = escapeHtml($row['location_country']);
+                    $location_address = escapeHtml($row['location_address']);
+                    $location_city = escapeHtml($row['location_city']);
+                    $location_state = escapeHtml($row['location_state']);
+                    $location_zip = escapeHtml($row['location_zip']);
                     if (empty($location_address) && empty($location_city) && empty($location_state) && empty($location_zip)) {
                         $location_address_display = "-";
                     } else {
                         $location_address_display = "<div class='media'><i class='fa fa-fw fa-map-marker-alt text-secondary mt-1 mr-2'></i><div class='media-body'>$location_address<div>$location_city $location_state $location_zip</div><div><small>$location_country</small></div></div></div>";
                     }
                     $contact_id = intval($row['contact_id']);
-                    $contact_name = nullable_htmlentities($row['contact_name']);
-                    $contact_title = nullable_htmlentities($row['contact_title']);
-                    $contact_phone_country_code = nullable_htmlentities($row['contact_phone_country_code']);
-                    $contact_phone = nullable_htmlentities(formatPhoneNumber($row['contact_phone'], $contact_phone_country_code));
-                    $contact_extension = nullable_htmlentities($row['contact_extension']);
-                    $contact_mobile_country_code = nullable_htmlentities($row['contact_mobile_country_code']);
-                    $contact_mobile = nullable_htmlentities(formatPhoneNumber($row['contact_mobile'], $contact_mobile_country_code));
-                    $contact_email = nullable_htmlentities($row['contact_email']);
-                    $client_website = nullable_htmlentities($row['client_website']);
+                    $contact_name = escapeHtml($row['contact_name']);
+                    $contact_title = escapeHtml($row['contact_title']);
+                    $contact_phone_country_code = escapeHtml($row['contact_phone_country_code']);
+                    $contact_phone = escapeHtml(formatPhoneNumber($row['contact_phone'], $contact_phone_country_code));
+                    $contact_extension = escapeHtml($row['contact_extension']);
+                    $contact_mobile_country_code = escapeHtml($row['contact_mobile_country_code']);
+                    $contact_mobile = escapeHtml(formatPhoneNumber($row['contact_mobile'], $contact_mobile_country_code));
+                    $contact_email = escapeHtml($row['contact_email']);
+                    $client_website = escapeHtml($row['client_website']);
                     $client_rate = floatval($row['client_rate']);
-                    $client_currency_code = nullable_htmlentities($row['client_currency_code']);
+                    $client_currency_code = escapeHtml($row['client_currency_code']);
                     $client_net_terms = intval($row['client_net_terms']);
-                    $client_tax_id_number = nullable_htmlentities($row['client_tax_id_number']);
-                    $client_referral = nullable_htmlentities($row['client_referral']);
-                    $client_abbreviation = nullable_htmlentities($row['client_abbreviation']);
-                    $client_notes = nullable_htmlentities($row['client_notes']);
+                    $client_tax_id_number = escapeHtml($row['client_tax_id_number']);
+                    $client_referral = escapeHtml($row['client_referral']);
+                    $client_abbreviation = escapeHtml($row['client_abbreviation']);
+                    $client_notes = escapeHtml($row['client_notes']);
                     $client_created_at = date('Y-m-d', strtotime($row['client_created_at']));
-                    $client_updated_at = nullable_htmlentities($row['client_updated_at']);
-                    $client_archived_at = nullable_htmlentities($row['client_archived_at']);
+                    $client_updated_at = escapeHtml($row['client_updated_at']);
+                    $client_archived_at = escapeHtml($row['client_archived_at']);
                     $client_is_lead = intval($row['client_lead']);
 
                     // Abbreviation
@@ -376,12 +376,12 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     $sql_client_tags = mysqli_query($mysqli, "SELECT * FROM client_tags LEFT JOIN tags ON client_tags.tag_id = tags.tag_id WHERE client_id = $client_id ORDER BY tag_name ASC");
                     while ($row = mysqli_fetch_assoc($sql_client_tags)) {
                         $client_tag_id = intval($row['tag_id']);
-                        $client_tag_name = nullable_htmlentities($row['tag_name']);
-                        $client_tag_color = nullable_htmlentities($row['tag_color']);
+                        $client_tag_name = escapeHtml($row['tag_name']);
+                        $client_tag_color = escapeHtml($row['tag_color']);
                         if (empty($client_tag_color)) {
                             $client_tag_color = "dark";
                         }
-                        $client_tag_icon = nullable_htmlentities($row['tag_icon']);
+                        $client_tag_icon = escapeHtml($row['tag_icon']);
                         if (empty($client_tag_icon)) {
                             $client_tag_icon = "tag";
                         }

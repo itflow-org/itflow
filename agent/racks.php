@@ -40,7 +40,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                 <div class="col-md-4">
                     <div class="input-group mb-3 mb-md-0">
-                        <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(nullable_htmlentities($q)); } ?>" placeholder="Search Racks">
+                        <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search Racks">
                         <div class="input-group-append">
                             <button class="btn btn-dark"><i class="fa fa-search"></i></button>
                         </div>
@@ -65,18 +65,18 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
             <?php
             while ($row = mysqli_fetch_assoc($sql)) {
                 $rack_id = intval($row['rack_id']);
-                $rack_name = nullable_htmlentities($row['rack_name']);
-                $rack_description = nullable_htmlentities($row['rack_description']);
-                $rack_model = nullable_htmlentities($row['rack_model']);
-                $rack_depth = nullable_htmlentities($row['rack_depth']);
-                $rack_type = nullable_htmlentities($row['rack_type']);
+                $rack_name = escapeHtml($row['rack_name']);
+                $rack_description = escapeHtml($row['rack_description']);
+                $rack_model = escapeHtml($row['rack_model']);
+                $rack_depth = escapeHtml($row['rack_depth']);
+                $rack_type = escapeHtml($row['rack_type']);
                 $rack_units = intval($row['rack_units']);
-                $rack_photo = nullable_htmlentities($row['rack_photo']);
-                $rack_physical_location = nullable_htmlentities($row['rack_physical_location']);
-                $rack_notes = nullable_htmlentities($row['rack_notes']);
-                $rack_location_id = nullable_htmlentities($row['rack_location_id']);
-                $rack_location_name = nullable_htmlentities($row['location_name']);
-                $rack_created_at = nullable_htmlentities($row['rack_created_at']);
+                $rack_photo = escapeHtml($row['rack_photo']);
+                $rack_physical_location = escapeHtml($row['rack_physical_location']);
+                $rack_notes = escapeHtml($row['rack_notes']);
+                $rack_location_id = escapeHtml($row['rack_location_id']);
+                $rack_location_name = escapeHtml($row['location_name']);
+                $rack_created_at = escapeHtml($row['rack_created_at']);
 
                 // Fetch rack units
                 $unit_sql = mysqli_query($mysqli, "SELECT * FROM rack_units LEFT JOIN assets ON unit_asset_id = asset_id WHERE unit_rack_id = $rack_id ORDER BY unit_start_number ASC");
@@ -204,12 +204,12 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                                 if ($i >= $start && $i <= $end) {
                                                     $unit_devices[] = [
                                                         'unit_id'          => (int) $unit_data['unit_id'],
-                                                        'unit_device'      => nullable_htmlentities($unit_data['unit_device']),
+                                                        'unit_device'      => escapeHtml($unit_data['unit_device']),
                                                         'unit_start_number'=> $start,
                                                         'unit_end_number'  => $end,
                                                         'asset_id'         => (int) $unit_data['asset_id'],
-                                                        'asset_name'       => nullable_htmlentities($unit_data['asset_name']),
-                                                        'asset_type'       => nullable_htmlentities($unit_data['asset_type']),
+                                                        'asset_name'       => escapeHtml($unit_data['asset_name']),
+                                                        'asset_type'       => escapeHtml($unit_data['asset_type']),
                                                         'icon'             => getAssetIcon($unit_data['asset_type'])
                                                     ];
                                                 }

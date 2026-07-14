@@ -8,9 +8,9 @@ $sql = mysqli_query($mysqli, "SELECT * FROM files WHERE file_id = $file_id LIMIT
 
 $row = mysqli_fetch_assoc($sql);
 $client_id = intval($row['file_client_id']);
-$file_folder_id = nullable_htmlentities($row['file_folder_id']);
-$file_name = nullable_htmlentities($row['file_name']);
-$file_ext = nullable_htmlentities($row['file_ext']);
+$file_folder_id = escapeHtml($row['file_folder_id']);
+$file_name = escapeHtml($row['file_name']);
+$file_ext = escapeHtml($row['file_ext']);
 if ($file_ext == 'pdf') {
     $file_icon = "file-pdf";
 } elseif ($file_ext == 'gz' || $file_ext == 'tar' || $file_ext == 'zip' || $file_ext == '7z' || $file_ext == 'rar') {
@@ -69,7 +69,7 @@ ob_start();
                     while ($row = mysqli_fetch_assoc($sql_all_folders)) {
                         $folders[$row['folder_id']] = array(
                             'folder_id' => intval($row['folder_id']),
-                            'folder_name' => nullable_htmlentities($row['folder_name']),
+                            'folder_name' => escapeHtml($row['folder_name']),
                             'parent_folder' => intval($row['parent_folder']),
                             'children' => array()
                         );

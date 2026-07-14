@@ -10,21 +10,21 @@ $sql = mysqli_query($mysqli, "SELECT * FROM credentials WHERE credential_id = $c
 
 $row = mysqli_fetch_assoc($sql);
 $client_id = intval($row['credential_client_id']);
-$credential_name = nullable_htmlentities($row['credential_name']);
-$credential_description = nullable_htmlentities($row['credential_description']);
-$credential_uri = nullable_htmlentities($row['credential_uri']);
-$credential_uri_2 = nullable_htmlentities($row['credential_uri_2']);
-$credential_username = nullable_htmlentities(decryptLoginEntry($row['credential_username']));
-$credential_password = nullable_htmlentities(decryptLoginEntry($row['credential_password']));
-$credential_otp_secret = nullable_htmlentities($row['credential_otp_secret']);
+$credential_name = escapeHtml($row['credential_name']);
+$credential_description = escapeHtml($row['credential_description']);
+$credential_uri = escapeHtml($row['credential_uri']);
+$credential_uri_2 = escapeHtml($row['credential_uri_2']);
+$credential_username = escapeHtml(decryptLoginEntry($row['credential_username']));
+$credential_password = escapeHtml(decryptLoginEntry($row['credential_password']));
+$credential_otp_secret = escapeHtml($row['credential_otp_secret']);
 $credential_id_with_secret = '"' . $row['credential_id'] . '","' . $row['credential_otp_secret'] . '"';
 if (empty($credential_otp_secret)) {
     $otp_display = "-";
 } else {
     $otp_display = "<span onmouseenter='showOTPViaCredentialID($credential_id)'><i class='far fa-clock'></i> <span id='otp_$credential_id'><i>Hover..</i></span></span>";
 }
-$credential_note = nullable_htmlentities($row['credential_note']);
-$credential_created_at = nullable_htmlentities($row['credential_created_at']);
+$credential_note = escapeHtml($row['credential_note']);
+$credential_created_at = escapeHtml($row['credential_created_at']);
 
 enforceClientAccess();
 

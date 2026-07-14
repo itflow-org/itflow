@@ -57,7 +57,7 @@ ob_start();
                                 $sql = mysqli_query($mysqli, "SELECT client_id, client_name FROM clients WHERE client_archived_at IS NULL $access_permission_query ORDER BY client_name ASC");
                                 while ($row = mysqli_fetch_assoc($sql)) {
                                     $client_id_select = intval($row['client_id']);
-                                    $client_name = nullable_htmlentities($row['client_name']); ?>
+                                    $client_name = escapeHtml($row['client_name']); ?>
                                     <option <?php if ($client_id == $client_id_select) { echo "selected"; } ?> value="<?php echo $client_id_select; ?>"><?php echo $client_name; ?></option>
 
                                 <?php } ?>
@@ -170,7 +170,7 @@ ob_start();
                             $sql = mysqli_query($mysqli, "SELECT * FROM contacts WHERE contact_client_id = $client_id ORDER BY contact_name ASC");
                             while ($row = mysqli_fetch_assoc($sql)) {
                                 $contact_id_select = intval($row['contact_id']);
-                                $contact_name = nullable_htmlentities($row['contact_name']);
+                                $contact_name = escapeHtml($row['contact_name']);
                                 ?>
                                 <option
                                     <?php if ($contact_id == $contact_id_select) { echo "selected"; } ?>
@@ -197,8 +197,8 @@ ob_start();
                             $sql = mysqli_query($mysqli, "SELECT * FROM assets LEFT JOIN locations on asset_location_id = location_id WHERE asset_client_id = $client_id AND asset_archived_at IS NULL ORDER BY asset_name ASC");
                             while ($row = mysqli_fetch_assoc($sql)) {
                                 $asset_id_select = intval($row['asset_id']);
-                                $asset_name = nullable_htmlentities($row['asset_name']);
-                                $asset_location = nullable_htmlentities($row['location_name']);
+                                $asset_name = escapeHtml($row['asset_name']);
+                                $asset_location = escapeHtml($row['location_name']);
 
                                 $asset_display_string = $asset_name;
                                 if (!empty($asset_location)) {
@@ -236,7 +236,7 @@ ob_start();
                             $sql_tags_select = mysqli_query($mysqli, "SELECT * FROM tags WHERE tag_type = 4 ORDER BY tag_name ASC");
                             while ($row = mysqli_fetch_assoc($sql_tags_select)) {
                                 $tag_id_select = intval($row['tag_id']);
-                                $tag_name_select = nullable_htmlentities($row['tag_name']);
+                                $tag_name_select = escapeHtml($row['tag_name']);
                                 ?>
                                 <option value="<?php echo $tag_id_select; ?>"><?php echo $tag_name_select; ?></option>
                             <?php } ?>
