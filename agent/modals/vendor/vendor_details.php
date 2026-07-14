@@ -7,21 +7,21 @@ $vendor_id = intval($_GET['id']);
 $sql = mysqli_query($mysqli, "SELECT * FROM vendors WHERE vendor_id = $vendor_id LIMIT 1");
 
 $row = mysqli_fetch_assoc($sql);
-$name = sanitizeInput($row['vendor_name']);
-$description = sanitizeInput($row['vendor_description']);
-$account_number = sanitizeInput($row['vendor_account_number']);
-$contact_name = sanitizeInput($row['vendor_contact_name']);
+$name = escapeSql($row['vendor_name']);
+$description = escapeSql($row['vendor_description']);
+$account_number = escapeSql($row['vendor_account_number']);
+$contact_name = escapeSql($row['vendor_contact_name']);
 $phone = preg_replace("/[^0-9]/", '',$row['vendor_phone']);
 $extension = preg_replace("/[^0-9]/", '',$row['vendor_extension']);
-$email = sanitizeInput($row['vendor_email']);
-$website = sanitizeInput($row['vendor_website']);
-$hours = sanitizeInput($row['vendor_hours']);
-$sla = sanitizeInput($row['vendor_sla']);
-$code = sanitizeInput($row['vendor_code']);
-$notes = sanitizeInput($row['vendor_notes']);
+$email = escapeSql($row['vendor_email']);
+$website = escapeSql($row['vendor_website']);
+$hours = escapeSql($row['vendor_hours']);
+$sla = escapeSql($row['vendor_sla']);
+$code = escapeSql($row['vendor_code']);
+$notes = escapeSql($row['vendor_notes']);
 
-// Generate the HTML form content using output buffering.
 ob_start();
+
 ?>
 
 <div class="modal-header bg-dark text-white">
@@ -29,7 +29,7 @@ ob_start();
         <i class="fas fa-fw fa-building fa-2x mr-3"></i>
         <div>
             <h5 class="modal-title mb-0"><?php echo $name; ?></h5>
-            <div class="text-muted"><?php echo getFallback($description); ?></div>
+            <div class="text-muted"><?= $description ?: '-'; ?></div>
         </div>
     </div>
     <button type="button" class="close text-white" data-dismiss="modal">
@@ -45,12 +45,12 @@ ob_start();
             <h6 class="text-secondary"><i class="fas fa-info-circle mr-2"></i>Vendor Details</h6>
             <div class="row">
                 <div class="col-sm-6">
-                    <div><strong>Account Number:</strong> <?php echo getFallback($account_number); ?></div>
-                    <div><strong>Hours:</strong> <?php echo getFallback($hours); ?></div>
-                    <div><strong>SLA:</strong> <?php echo getFallback($sla); ?></div>
+                    <div><strong>Account Number:</strong> <?= $account_number ?: '-'; ?></div>
+                    <div><strong>Hours:</strong> <?= $hours ?: '-'; ?></div>
+                    <div><strong>SLA:</strong> <?= $sla ?: '-'; ?></div>
                 </div>
                 <div class="col-sm-6">
-                    <div><strong>Code:</strong> <?php echo getFallback($code); ?></div>
+                    <div><strong>Code:</strong> <?= $code ?: '-'; ?></div>
                     <div><strong>Website:</strong> <?php echo !empty($website) ? '<a href="https://' . $website . '" target="_blank" class="text-primary">' . $website . '</a>' : '<span class="text-muted">Not Available</span>'; ?></div>
                 </div>
             </div>
@@ -63,8 +63,8 @@ ob_start();
             <h6 class="text-secondary"><i class="fas fa-user mr-2"></i>Contact Information</h6>
             <div class="row">
                 <div class="col-sm-6">
-                    <div><strong>Contact Name:</strong> <?php echo getFallback($contact_name); ?></div>
-                    <div><strong>Phone:</strong> <?php echo getFallback($phone); ?></div>
+                    <div><strong>Contact Name:</strong> <?= $contact_name ?: '-'; ?></div>
+                    <div><strong>Phone:</strong> <?= $phone ?: '-'; ?></div>
                 </div>
                 <div class="col-sm-6">
                     <div><strong>Email:</strong> <?php echo !empty($email) ? '<a href="mailto:' . $email . '" class="text-primary">' . $email . '</a>' : '<span class="text-muted">Not Available</span>'; ?></div>
@@ -78,7 +78,7 @@ ob_start();
         <div class="card-body">
             <h6 class="text-secondary"><i class="fas fa-sticky-note mr-2"></i>Notes</h6>
             <div>
-                <?php echo getFallback($notes); ?>
+                <?= $notes ?: '-'; ?>
             </div>
         </div>
     </div>

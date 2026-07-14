@@ -33,7 +33,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                 <div class="col-md-4">
                     <div class="input-group mb-3 mb-md-0">
-                        <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(nullable_htmlentities($q)); } ?>" placeholder="Search Vendors Templates">
+                        <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search Vendors Templates">
                         <div class="input-group-append">
                             <button class="btn btn-dark"><i class="fa fa-search"></i></button>
                         </div>
@@ -66,28 +66,28 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                 while ($row = mysqli_fetch_assoc($sql)) {
                     $vendor_template_id = intval($row['vendor_template_id']);
-                    $vendor_template_name = nullable_htmlentities($row['vendor_template_name']);
-                    $vendor_template_description = nullable_htmlentities($row['vendor_template_description']);
+                    $vendor_template_name = escapeHtml($row['vendor_template_name']);
+                    $vendor_template_description = escapeHtml($row['vendor_template_description']);
                     if (empty($vendor_template_description)) {
                         $vendor_template_description_display = "-";
                     } else {
                         $vendor_template_description_display = $vendor_template_description;
                     }
-                    $vendor_template_account_number = nullable_htmlentities($row['vendor_template_account_number']);
-                    $vendor_template_contact_name = nullable_htmlentities($row['vendor_template_contact_name']);
+                    $vendor_template_account_number = escapeHtml($row['vendor_template_account_number']);
+                    $vendor_template_contact_name = escapeHtml($row['vendor_template_contact_name']);
                     if (empty($vendor_template_contact_name)) {
                         $vendor_template_contact_name_display = "-";
                     } else {
                         $vendor_template_contact_name_display = $vendor_template_contact_name;
                     }
                     $vendor_template_phone = formatPhoneNumber($row['vendor_template_phone']);
-                    $vendor_template_extension = nullable_htmlentities($row['vendor_template_extension']);
-                    $vendor_template_email = nullable_htmlentities($row['vendor_template_email']);
-                    $vendor_template_website = nullable_htmlentities($row['vendor_template_website']);
-                    $vendor_template_hours = nullable_htmlentities($row['vendor_template_hours']);
-                    $vendor_template_sla = nullable_htmlentities($row['vendor_template_sla']);
-                    $vendor_template_code = nullable_htmlentities($row['vendor_template_code']);
-                    $vendor_template_notes = nullable_htmlentities($row['vendor_template_notes']);
+                    $vendor_template_extension = escapeHtml($row['vendor_template_extension']);
+                    $vendor_template_email = escapeHtml($row['vendor_template_email']);
+                    $vendor_template_website = escapeHtml($row['vendor_template_website']);
+                    $vendor_template_hours = escapeHtml($row['vendor_template_hours']);
+                    $vendor_template_sla = escapeHtml($row['vendor_template_sla']);
+                    $vendor_template_code = escapeHtml($row['vendor_template_code']);
+                    $vendor_template_notes = escapeHtml($row['vendor_template_notes']);
 
                     ?>
                     <tr>

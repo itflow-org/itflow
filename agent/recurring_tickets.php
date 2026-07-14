@@ -291,9 +291,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             } else {
                                 $recurring_ticket_billable_display = "-";
                             }
-                            $recurring_ticket_category = getFallBack(escapeHtml($row['category_name']));
+                            $recurring_ticket_category = escapeHtml($row['category_name']) ?: '-';
                             $recurring_ticket_client_name = escapeHtml($row['client_name']);
-                            $assigned_to = getFallBack(escapeHtml($row['user_name']));
+                            $assigned_to = escapeHtml($row['user_name']) ?: '-';
                         ?>
 
                             <tr>

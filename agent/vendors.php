@@ -68,7 +68,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                 <div class="col-md-4">
                     <div class="input-group mb-3 mb-md-0">
-                        <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(nullable_htmlentities($q)); } ?>" placeholder="Search Vendors">
+                        <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search Vendors">
                         <div class="input-group-append">
                             <button class="btn btn-dark"><i class="fa fa-search"></i></button>
                         </div>
@@ -151,43 +151,43 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                     while ($row = mysqli_fetch_assoc($sql)) {
                         $vendor_id = intval($row['vendor_id']);
-                        $vendor_name = nullable_htmlentities($row['vendor_name']);
-                        $vendor_description = nullable_htmlentities($row['vendor_description']);
+                        $vendor_name = escapeHtml($row['vendor_name']);
+                        $vendor_description = escapeHtml($row['vendor_description']);
                         if ($vendor_description) {
                             $vendor_description_display = $vendor_description;
                         } else {
                             $vendor_description_display = "-";
                         }
-                        $vendor_account_number = nullable_htmlentities($row['vendor_account_number']);
+                        $vendor_account_number = escapeHtml($row['vendor_account_number']);
                         if ($vendor_account_number) {
                             $vendor_account_number_display = "<div class='text-secondary'>Account #: <span class='text-monospace'>$vendor_account_number</span></div>";
                         } else {
                             $vendor_account_number_display = '';
                         }
-                        $vendor_contact_name = nullable_htmlentities($row['vendor_contact_name']);
+                        $vendor_contact_name = escapeHtml($row['vendor_contact_name']);
                         if ($vendor_contact_name) {
                             $vendor_contact_name_display = $vendor_contact_name;
                         } else {
                             $vendor_contact_name_display = "-";
                         }
-                        $vendor_phone_country_code = nullable_htmlentities($row['vendor_phone_country_code']);
-                        $vendor_phone = nullable_htmlentities(formatPhoneNumber($row['vendor_phone'], $vendor_phone_country_code));
-                        $vendor_extension = nullable_htmlentities($row['vendor_extension']);
-                        $vendor_email = nullable_htmlentities($row['vendor_email']);
-                        $vendor_website = nullable_htmlentities($row['vendor_website']);
+                        $vendor_phone_country_code = escapeHtml($row['vendor_phone_country_code']);
+                        $vendor_phone = escapeHtml(formatPhoneNumber($row['vendor_phone'], $vendor_phone_country_code));
+                        $vendor_extension = escapeHtml($row['vendor_extension']);
+                        $vendor_email = escapeHtml($row['vendor_email']);
+                        $vendor_website = escapeHtml($row['vendor_website']);
                         if ($vendor_website) {
                              $vendor_website_display = "<a href='https://$vendor_website' target='_blank'>$vendor_website <i class='fa fa-external-link-alt'></i></a><button type='button' class='btn btn-sm clipboardjs' data-clipboard-text='$vendor_website'><i class='far fa-copy text-secondary'></i></button>";
                         } else {
                             $vendor_website_display = "-";
                         }
-                        $vendor_hours = nullable_htmlentities($row['vendor_hours']);
-                        $vendor_sla = nullable_htmlentities($row['vendor_sla']);
-                        $vendor_code = nullable_htmlentities($row['vendor_code']);
-                        $vendor_notes = nullable_htmlentities($row['vendor_notes']);
-                        $vendor_created_at = nullable_htmlentities($row['vendor_created_at']);
-                        $vendor_archived_at = nullable_htmlentities($row['vendor_archived_at']);
+                        $vendor_hours = escapeHtml($row['vendor_hours']);
+                        $vendor_sla = escapeHtml($row['vendor_sla']);
+                        $vendor_code = escapeHtml($row['vendor_code']);
+                        $vendor_notes = escapeHtml($row['vendor_notes']);
+                        $vendor_created_at = escapeHtml($row['vendor_created_at']);
+                        $vendor_archived_at = escapeHtml($row['vendor_archived_at']);
                         $vendor_template_id = intval($row['vendor_template_id']);
-                        $vendor_template_name = nullable_htmlentities($row['vendor_template_name']);
+                        $vendor_template_name = escapeHtml($row['vendor_template_name']);
                         if ($vendor_template_id) {
                             $vendor_template_display = "<div class='text-secondary' title='Base Vendor Template'><i class='fas fa-puzzle-piece mr-1'></i>$vendor_template_name</div>";
                         } else {

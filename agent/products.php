@@ -237,7 +237,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             }
                             $product_qty = intval($row['product_qty']);
                             $product_code = escapeHtml($row['product_code']);
-                            $product_location = escapeHtml(getFallBack($row['product_location']));
+                            $product_location = escapeHtml($row['product_location']) ?: '-';
                             $product_price = floatval($row['product_price']);
                             $product_currency_code = escapeHtml($row['product_currency_code']);
                             $product_created_at = escapeHtml($row['product_created_at']);
@@ -245,7 +245,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             $category_id = intval($row['category_id']);
                             $category_name = escapeHtml($row['category_name']);
                             $product_tax_id = intval($row['product_tax_id']);
-                            $tax_name = escapeHtml(getFallBack($row['tax_name']));
+                            $tax_name = escapeHtml($row['tax_name']) ?: '-';
                             $tax_percent = floatval($row['tax_percent']);
 
 

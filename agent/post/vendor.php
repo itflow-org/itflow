@@ -30,28 +30,28 @@ if (isset($_POST['add_vendor_from_template'])) {
 
     $row = mysqli_fetch_assoc($sql_vendor_templates);
 
-    $name = sanitizeInput($row['vendor_template_name']);
-    $description = sanitizeInput($row['vendor_template_description']);
-    $account_number = sanitizeInput($row['vendor_template_account_number']);
-    $contact_name = sanitizeInput($row['vendor_template_contact_name']);
+    $name = escapeSql($row['vendor_template_name']);
+    $description = escapeSql($row['vendor_template_description']);
+    $account_number = escapeSql($row['vendor_template_account_number']);
+    $contact_name = escapeSql($row['vendor_template_contact_name']);
     $phone_country_code = preg_replace("/[^0-9]/", '',$row['vendor_template_phone_country_code']);
     $phone = preg_replace("/[^0-9]/", '',$row['vendor_template_phone']);
     $extension = preg_replace("/[^0-9]/", '',$row['vendor_template_extension']);
-    $email = sanitizeInput($row['vendor_template_email']);
-    $website = sanitizeInput($row['vendor_template_website']);
-    $hours = sanitizeInput($row['vendor_template_hours']);
-    $sla = sanitizeInput($row['vendor_template_sla']);
-    $code = sanitizeInput($row['vendor_template_code']);
-    $notes = sanitizeInput($row['vendor_template_notes']);
+    $email = escapeSql($row['vendor_template_email']);
+    $website = escapeSql($row['vendor_template_website']);
+    $hours = escapeSql($row['vendor_template_hours']);
+    $sla = escapeSql($row['vendor_template_sla']);
+    $code = escapeSql($row['vendor_template_code']);
+    $notes = escapeSql($row['vendor_template_notes']);
 
     // Vendor add query
     mysqli_query($mysqli,"INSERT INTO vendors SET vendor_name = '$name', vendor_description = '$description', vendor_contact_name = '$contact_name', vendor_phone_country_code = '$phone_country_code', vendor_phone = '$phone', vendor_extension = '$extension', vendor_email = '$email', vendor_website = '$website', vendor_hours = '$hours', vendor_sla = '$sla', vendor_code = '$code', vendor_account_number = '$account_number', vendor_notes = '$notes', vendor_client_id = $client_id, vendor_template_id = $vendor_template_id");
 
     $vendor_id = mysqli_insert_id($mysqli);
 
-    logAction("Vendor", "Create", "$session_name created vendor $name using a template", $client_id, $vendor_id);
+    logAudit("Vendor", "Create", "$session_name created vendor $name using a template", $client_id, $vendor_id);
 
-    flash_alert("Vendor <strong>$name</strong> created from template");
+    flashAlert("Vendor <strong>$name</strong> created from template");
 
     redirect();
 
@@ -79,9 +79,9 @@ if (isset($_POST['add_vendor'])) {
 
     $vendor_id = mysqli_insert_id($mysqli);
 
-    logAction("Vendor", "Create", "$session_name created vendor $name", $client_id, $vendor_id);
+    logAudit("Vendor", "Create", "$session_name created vendor $name", $client_id, $vendor_id);
 
-    flash_alert("Vendor <strong>$name</strong> created");
+    flashAlert("Vendor <strong>$name</strong> created");
 
     redirect();
 
@@ -109,9 +109,9 @@ if (isset($_POST['edit_vendor'])) {
 
     mysqli_query($mysqli,"UPDATE vendors SET vendor_name = '$name', vendor_description = '$description', vendor_contact_name = '$contact_name', vendor_phone_country_code = '$phone_country_code', vendor_phone = '$phone', vendor_extension = '$extension', vendor_email = '$email', vendor_website = '$website', vendor_hours = '$hours', vendor_sla = '$sla', vendor_code = '$code',vendor_account_number = '$account_number', vendor_notes = '$notes', vendor_template_id = $vendor_template_id WHERE vendor_id = $vendor_id");
 
-    logAction("Vendor", "Edit", "$session_name edited vendor $name", $client_id, $vendor_id);
+    logAudit("Vendor", "Edit", "$session_name edited vendor $name", $client_id, $vendor_id);
 
-    flash_alert("Vendor <strong>$name</strong> edited");
+    flashAlert("Vendor <strong>$name</strong> edited");
 
     redirect();
 
@@ -126,7 +126,7 @@ if (isset($_GET['archive_vendor'])) {
     //Get Vendor Name
     $sql = mysqli_query($mysqli,"SELECT * FROM vendors WHERE vendor_id = $vendor_id");
     $row = mysqli_fetch_assoc($sql);
-    $vendor_name = sanitizeInput($row['vendor_name']);
+    $vendor_name = escapeSql($row['vendor_name']);
     $client_id = intval($row['vendor_client_id']);
 
     // Permission check
@@ -139,9 +139,9 @@ if (isset($_GET['archive_vendor'])) {
 
     mysqli_query($mysqli,"UPDATE vendors SET vendor_archived_at = NOW() WHERE vendor_id = $vendor_id");
 
-    logAction("Vendor", "Archive", "$session_name archived vendor $vendor_name", $client_id, $vendor_id);
+    logAudit("Vendor", "Archive", "$session_name archived vendor $vendor_name", $client_id, $vendor_id);
 
-    flash_alert("Vendor <strong>$vendor_name</strong> archived", 'error');
+    flashAlert("Vendor <strong>$vendor_name</strong> archived", 'error');
 
     redirect();
 
@@ -156,7 +156,7 @@ if(isset($_GET['restore_vendor'])){
     // Get Name and Client ID for logging and alert message
     $sql = mysqli_query($mysqli,"SELECT vendor_name, vendor_client_id FROM vendors WHERE vendor_id = $vendor_id");
     $row = mysqli_fetch_assoc($sql);
-    $vendor_name = sanitizeInput($row['vendor_name']);
+    $vendor_name = escapeSql($row['vendor_name']);
     $client_id = intval($row['vendor_client_id']);
 
     // Permission check
@@ -169,9 +169,9 @@ if(isset($_GET['restore_vendor'])){
 
     mysqli_query($mysqli,"UPDATE vendors SET vendor_archived_at = NULL WHERE vendor_id = $vendor_id");
 
-    logAction("Vendor", "Restore", "$session_name restored vendor $vendor_name", $client_id, $vendor_id);
+    logAudit("Vendor", "Restore", "$session_name restored vendor $vendor_name", $client_id, $vendor_id);
 
-    flash_alert("Vendor <strong>$vendor_name</strong> restored");
+    flashAlert("Vendor <strong>$vendor_name</strong> restored");
 
     redirect();
 
@@ -186,7 +186,7 @@ if (isset($_GET['delete_vendor'])) {
     //Get Vendor Name
     $sql = mysqli_query($mysqli,"SELECT * FROM vendors WHERE vendor_id = $vendor_id");
     $row = mysqli_fetch_assoc($sql);
-    $vendor_name = sanitizeInput($row['vendor_name']);
+    $vendor_name = escapeSql($row['vendor_name']);
     $client_id = intval($row['vendor_client_id']);
     $vendor_template_id = intval($row['vendor_template_id']);
 
@@ -205,9 +205,9 @@ if (isset($_GET['delete_vendor'])) {
 
     mysqli_query($mysqli,"DELETE FROM vendors WHERE vendor_id = $vendor_id");
 
-    logAction("Vendor", "Delete", "$session_name deleted vendor $vendor_name", $client_id);
+    logAudit("Vendor", "Delete", "$session_name deleted vendor $vendor_name", $client_id);
 
-    flash_alert("Vendor <strong>$vendor_name</strong> deleted", 'error');
+    flashAlert("Vendor <strong>$vendor_name</strong> deleted", 'error');
 
     redirect();
 
@@ -230,7 +230,7 @@ if (isset($_POST['bulk_archive_vendors'])) {
             // Get Name and Client ID for logging and alert message
             $sql = mysqli_query($mysqli,"SELECT vendor_name, vendor_client_id FROM vendors WHERE vendor_id = $vendor_id");
             $row = mysqli_fetch_assoc($sql);
-            $vendor_name = sanitizeInput($row['vendor_name']);
+            $vendor_name = escapeSql($row['vendor_name']);
             $client_id = intval($row['vendor_client_id']);
 
             // Permission check
@@ -243,12 +243,12 @@ if (isset($_POST['bulk_archive_vendors'])) {
 
             mysqli_query($mysqli,"UPDATE vendors SET vendor_archived_at = NOW() WHERE vendor_id = $vendor_id");
 
-            logAction("Vendor", "Archive", "$session_name archived vendor $vendor_name", $client_id, $vendor_id);
+            logAudit("Vendor", "Archive", "$session_name archived vendor $vendor_name", $client_id, $vendor_id);
         }
 
-        logAction("Vendor", "Bulk Archive", "$session_name archived $count vendor(s)");
+        logAudit("Vendor", "Bulk Archive", "$session_name archived $count vendor(s)");
 
-        flash_alert("Archived <strong>$count</strong> vendor(s)", 'error');
+        flashAlert("Archived <strong>$count</strong> vendor(s)", 'error');
 
     }
 
@@ -273,7 +273,7 @@ if (isset($_POST['bulk_restore_vendors'])) {
             // Get Name and Client ID for logging and alert message
             $sql = mysqli_query($mysqli,"SELECT vendor_name, vendor_client_id FROM vendors WHERE vendor_id = $vendor_id");
             $row = mysqli_fetch_assoc($sql);
-            $vendor_name = sanitizeInput($row['vendor_name']);
+            $vendor_name = escapeSql($row['vendor_name']);
             $client_id = intval($row['vendor_client_id']);
 
             // Permission check
@@ -286,13 +286,13 @@ if (isset($_POST['bulk_restore_vendors'])) {
 
             mysqli_query($mysqli,"UPDATE vendors SET vendor_archived_at = NULL WHERE vendor_id = $vendor_id");
 
-            logAction("Vendor", "Restore", "$session_name restored vendor $vendor_name", $client_id, $vendor_id);
+            logAudit("Vendor", "Restore", "$session_name restored vendor $vendor_name", $client_id, $vendor_id);
 
         }
 
-        logAction("Vendor", "Bulk Restore", "$session_name restored $count vendor(s)");
+        logAudit("Vendor", "Bulk Restore", "$session_name restored $count vendor(s)");
 
-        flash_alert("Restored <strong>$count</strong> vendor(s)");
+        flashAlert("Restored <strong>$count</strong> vendor(s)");
 
     }
 
@@ -317,7 +317,7 @@ if (isset($_POST['bulk_delete_vendors'])) {
             // Get Name and Client ID for logging and alert message
             $sql = mysqli_query($mysqli,"SELECT vendor_name, vendor_client_id, vendor_template_id FROM vendors WHERE vendor_id = $vendor_id");
             $row = mysqli_fetch_assoc($sql);
-            $vendor_name = sanitizeInput($row['vendor_name']);
+            $vendor_name = escapeSql($row['vendor_name']);
             $client_id = intval($row['vendor_client_id']);
             $vendor_template_id = intval($row['vendor_template_id']);
 
@@ -336,13 +336,13 @@ if (isset($_POST['bulk_delete_vendors'])) {
 
             mysqli_query($mysqli, "DELETE FROM vendors WHERE vendor_id = $vendor_id AND vendor_client_id = $client_id");
 
-            logAction("Vendor", "Delete", "$session_name deleted vendor $vendor_name", $client_id);
+            logAudit("Vendor", "Delete", "$session_name deleted vendor $vendor_name", $client_id);
 
         }
 
-        logAction("Vendor", "Bulk Delete", "$session_name deleted $count vendor(s)");
+        logAudit("Vendor", "Bulk Delete", "$session_name deleted $count vendor(s)");
 
-        flash_alert("Deleted <strong>$count</strong> vendor(s)", 'error');
+        flashAlert("Deleted <strong>$count</strong> vendor(s)", 'error');
 
     }
 
@@ -376,7 +376,7 @@ if (isset($_POST['export_vendors_csv'])) {
         $delimiter = ",";
         $enclosure = '"';
         $escape    = '\\';   // backslash
-        $filename = sanitize_filename($file_name_prepend . "Vendors-" . date('Y-m-d_H-i-s') . ".csv");
+        $filename = sanitizeFilename($file_name_prepend . "Vendors-" . date('Y-m-d_H-i-s') . ".csv");
 
         //create a file pointer
         $f = fopen('php://memory', 'w');
@@ -402,7 +402,7 @@ if (isset($_POST['export_vendors_csv'])) {
         fpassthru($f);
     }
 
-    logAction("Vendor", "Export", "$session_name exported $count vendor(s) to a CSV file");
+    logAudit("Vendor", "Export", "$session_name exported $count vendor(s) to a CSV file");
 
     exit;
 

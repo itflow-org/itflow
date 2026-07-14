@@ -11,27 +11,27 @@ if (isset($_POST['add_vendor_template'])) {
 
     validateCSRFToken($_POST['csrf_token']);
 
-    $name = sanitizeInput($_POST['name']);
-    $description = sanitizeInput($_POST['description']);
-    $account_number = sanitizeInput($_POST['account_number']);
-    $contact_name = sanitizeInput($_POST['contact_name']);
+    $name = escapeSql($_POST['name']);
+    $description = escapeSql($_POST['description']);
+    $account_number = escapeSql($_POST['account_number']);
+    $contact_name = escapeSql($_POST['contact_name']);
     $phone_country_code = preg_replace("/[^0-9]/", '', $_POST['phone_country_code']);
     $phone = preg_replace("/[^0-9]/", '', $_POST['phone']);
     $extension = preg_replace("/[^0-9]/", '', $_POST['extension']);
-    $email = sanitizeInput($_POST['email']);
-    $website = preg_replace("(^https?://)", "", sanitizeInput($_POST['website']));
-    $hours = sanitizeInput($_POST['hours']);
-    $sla = sanitizeInput($_POST['sla']);
-    $code = sanitizeInput($_POST['code']);
-    $notes = sanitizeInput($_POST['notes']);
+    $email = escapeSql($_POST['email']);
+    $website = preg_replace("(^https?://)", "", escapeSql($_POST['website']));
+    $hours = escapeSql($_POST['hours']);
+    $sla = escapeSql($_POST['sla']);
+    $code = escapeSql($_POST['code']);
+    $notes = escapeSql($_POST['notes']);
 
     mysqli_query($mysqli,"INSERT INTO vendor_templates SET vendor_template_name = '$name', vendor_template_description = '$description', vendor_template_contact_name = '$contact_name', vendor_template_phone = '$phone', vendor_template_extension = '$extension', vendor_template_email = '$email', vendor_template_website = '$website', vendor_template_hours = '$hours', vendor_template_sla = '$sla', vendor_template_code = '$code', vendor_template_account_number = '$account_number', vendor_template_notes = '$notes'");
 
     $vendor_template_id = mysqli_insert_id($mysqli);
 
-    logAction("Vendor Template", "Create", "$session_name created vendor template $name", 0, $vendor_template_id);
+    logAudit("Vendor Template", "Create", "$session_name created vendor template $name", 0, $vendor_template_id);
 
-    flash_alert("Vendor template <strong>$name</strong> created");
+    flashAlert("Vendor template <strong>$name</strong> created");
 
     redirect();
 
@@ -42,19 +42,19 @@ if (isset($_POST['edit_vendor_template'])) {
     validateCSRFToken($_POST['csrf_token']);
 
     $vendor_template_id = intval($_POST['vendor_template_id']);
-    $name = sanitizeInput($_POST['name']);
-    $description = sanitizeInput($_POST['description']);
-    $account_number = sanitizeInput($_POST['account_number']);
-    $contact_name = sanitizeInput($_POST['contact_name']);
+    $name = escapeSql($_POST['name']);
+    $description = escapeSql($_POST['description']);
+    $account_number = escapeSql($_POST['account_number']);
+    $contact_name = escapeSql($_POST['contact_name']);
     $phone_country_code = preg_replace("/[^0-9]/", '', $_POST['phone_country_code']);
     $phone = preg_replace("/[^0-9]/", '', $_POST['phone']);
     $extension = preg_replace("/[^0-9]/", '', $_POST['extension']);
-    $email = sanitizeInput($_POST['email']);
-    $website = preg_replace("(^https?://)", "", sanitizeInput($_POST['website']));
-    $hours = sanitizeInput($_POST['hours']);
-    $sla = sanitizeInput($_POST['sla']);
-    $code = sanitizeInput($_POST['code']);
-    $notes = sanitizeInput($_POST['notes']);
+    $email = escapeSql($_POST['email']);
+    $website = preg_replace("(^https?://)", "", escapeSql($_POST['website']));
+    $hours = escapeSql($_POST['hours']);
+    $sla = escapeSql($_POST['sla']);
+    $code = escapeSql($_POST['code']);
+    $notes = escapeSql($_POST['notes']);
 
     if ($_POST['global_update_vendor_name'] == 1 ?? 0) {
         $sql_global_update_vendor_name = ", vendor_name = '$name'";
@@ -135,9 +135,9 @@ if (isset($_POST['edit_vendor_template'])) {
         mysqli_query($mysqli,"UPDATE vendors SET $sql WHERE vendor_template_id = $vendor_template_id");
     }
 
-    logAction("Vendor Template", "Edit", "$session_name edited vendor template $name", 0, $vendor_template_id);
+    logAudit("Vendor Template", "Edit", "$session_name edited vendor template $name", 0, $vendor_template_id);
 
-    flash_alert("Vendor template <strong>$name</strong> edited");
+    flashAlert("Vendor template <strong>$name</strong> edited");
 
     redirect();
 
@@ -149,16 +149,16 @@ if (isset($_GET['delete_vendor_template'])) {
 
     $vendor_template_id = intval($_GET['delete_vendor_template']);
 
-    $vendor_template_name = sanitizeInput(getFieldById('vendor_templates', $vendor_template_id, 'vendor_template_name'));
+    $vendor_template_name = escapeSql(getFieldById('vendor_templates', $vendor_template_id, 'vendor_template_name'));
 
     // If its a template reset all vendors based off this template to no template base
     mysqli_query($mysqli,"UPDATE vendors SET vendor_template_id = 0 WHERE vendor_template_id = $vendor_template_id");
 
     mysqli_query($mysqli,"DELETE FROM vendor_templates WHERE vendor_template_id = $vendor_template_id");
 
-    logAction("Vendor Template", "Delete", "$session_name deleted vendor template $vendor_template_name");
+    logAudit("Vendor Template", "Delete", "$session_name deleted vendor template $vendor_template_name");
 
-    flash_alert("Vendor Template <strong>$vendor_template_name</strong> deleted", 'error');
+    flashAlert("Vendor Template <strong>$vendor_template_name</strong> deleted", 'error');
 
     redirect();
 

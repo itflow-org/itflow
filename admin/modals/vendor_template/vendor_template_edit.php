@@ -6,19 +6,19 @@ $vendor_template_id = intval($_GET['id']);
 
 $sql = mysqli_query($mysqli, "SELECT * FROM vendor_templates WHERE vendor_template_id = $vendor_template_id LIMIT 1");
 $row = mysqli_fetch_assoc($sql);
-$vendor_name = nullable_htmlentities($row['vendor_template_name']);
-$vendor_description = nullable_htmlentities($row['vendor_template_description']);
-$vendor_account_number = nullable_htmlentities($row['vendor_template_account_number']);
-$vendor_contact_name = nullable_htmlentities($row['vendor_template_contact_name']);
+$vendor_name = escapeHtml($row['vendor_template_name']);
+$vendor_description = escapeHtml($row['vendor_template_description']);
+$vendor_account_number = escapeHtml($row['vendor_template_account_number']);
+$vendor_contact_name = escapeHtml($row['vendor_template_contact_name']);
 $vendor_phone_country_code = intval($row['vendor_template_phone_country_code']);
 $vendor_phone = formatPhoneNumber($row['vendor_template_phone'], $vendor_phone_country_code);
-$vendor_extension = nullable_htmlentities($row['vendor_template_extension']);
-$vendor_email = nullable_htmlentities($row['vendor_template_email']);
-$vendor_website = nullable_htmlentities($row['vendor_template_website']);
-$vendor_hours = nullable_htmlentities($row['vendor_template_hours']);
-$vendor_sla = nullable_htmlentities($row['vendor_template_sla']);
-$vendor_code = nullable_htmlentities($row['vendor_template_code']);
-$vendor_notes = nullable_htmlentities($row['vendor_template_notes']);
+$vendor_extension = escapeHtml($row['vendor_template_extension']);
+$vendor_email = escapeHtml($row['vendor_template_email']);
+$vendor_website = escapeHtml($row['vendor_template_website']);
+$vendor_hours = escapeHtml($row['vendor_template_hours']);
+$vendor_sla = escapeHtml($row['vendor_template_sla']);
+$vendor_code = escapeHtml($row['vendor_template_code']);
+$vendor_notes = escapeHtml($row['vendor_template_notes']);
 
 // Generate the HTML form content using output buffering.
 ob_start();

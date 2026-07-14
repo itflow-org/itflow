@@ -7,23 +7,23 @@ $vendor_id = intval($_GET['id']);
 $sql = mysqli_query($mysqli, "SELECT * FROM vendors WHERE vendor_id = $vendor_id LIMIT 1");
 
 $row = mysqli_fetch_assoc($sql);
-$vendor_name = nullable_htmlentities($row['vendor_name']);
-$vendor_description = nullable_htmlentities($row['vendor_description']);
-$vendor_account_number = nullable_htmlentities($row['vendor_account_number']);
-$vendor_contact_name = nullable_htmlentities($row['vendor_contact_name']);
-$vendor_phone_country_code = nullable_htmlentities($row['vendor_phone_country_code']);
-$vendor_phone = nullable_htmlentities(formatPhoneNumber($row['vendor_phone'], $vendor_phone_country_code));
-$vendor_extension = nullable_htmlentities($row['vendor_extension']);
-$vendor_email = nullable_htmlentities($row['vendor_email']);
-$vendor_website = nullable_htmlentities($row['vendor_website']);
-$vendor_hours = nullable_htmlentities($row['vendor_hours']);
-$vendor_sla = nullable_htmlentities($row['vendor_sla']);
-$vendor_code = nullable_htmlentities($row['vendor_code']);
-$vendor_notes = nullable_htmlentities($row['vendor_notes']);
+$vendor_name = escapeHtml($row['vendor_name']);
+$vendor_description = escapeHtml($row['vendor_description']);
+$vendor_account_number = escapeHtml($row['vendor_account_number']);
+$vendor_contact_name = escapeHtml($row['vendor_contact_name']);
+$vendor_phone_country_code = escapeHtml($row['vendor_phone_country_code']);
+$vendor_phone = escapeHtml(formatPhoneNumber($row['vendor_phone'], $vendor_phone_country_code));
+$vendor_extension = escapeHtml($row['vendor_extension']);
+$vendor_email = escapeHtml($row['vendor_email']);
+$vendor_website = escapeHtml($row['vendor_website']);
+$vendor_hours = escapeHtml($row['vendor_hours']);
+$vendor_sla = escapeHtml($row['vendor_sla']);
+$vendor_code = escapeHtml($row['vendor_code']);
+$vendor_notes = escapeHtml($row['vendor_notes']);
 $vendor_template_id = intval($row['vendor_template_id']);
 
-// Generate the HTML form content using output buffering.
 ob_start();
+
 ?>
 
 <div class="modal-header bg-dark">
@@ -108,7 +108,7 @@ ob_start();
                             $sql_vendor_templates = mysqli_query($mysqli, "SELECT * FROM vendor_templates WHERE vendor_template_archived_at IS NULL ORDER BY vendor_template_name ASC");
                             while ($row = mysqli_fetch_assoc($sql_vendor_templates)) {
                                 $vendor_template_id_select = $row['vendor_template_id'];
-                                $vendor_template_name_select = nullable_htmlentities($row['vendor_template_name']); ?>
+                                $vendor_template_name_select = escapeHtml($row['vendor_template_name']); ?>
                                 <option <?php if ($vendor_template_id == $vendor_template_id_select) { echo "selected"; } ?> value="<?php echo $vendor_template_id_select; ?>"><?php echo $vendor_template_name_select; ?></option>
 
                             <?php } ?>
