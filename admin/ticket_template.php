@@ -45,7 +45,7 @@ $sql_task_templates = mysqli_query($mysqli, "SELECT * FROM task_templates WHERE 
         <a href="users.php">Admin</a>
     </li>
     <li class="breadcrumb-item">
-        <a href="ticket_template.php">Ticket Templates</a>
+        <a href="ticket_templates.php">Ticket Templates</a>
     </li>
     <li class="breadcrumb-item active"><i class="fas fa-life-ring mr-2"></i><?php echo $ticket_template_name; ?></li>
 </ol>

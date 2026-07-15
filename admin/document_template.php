@@ -41,7 +41,7 @@ $document_template_updated_at = escapeHtml($row['document_template_updated_at'])
         <a href="users.php">Admin</a>
     </li>
     <li class="breadcrumb-item">
-        <a href="document_template.php">Document Templates</a>
+        <a href="document_templates.php">Document Templates</a>
     </li>
     <li class="breadcrumb-item active"><i class="fas fa-file-alt mr-2"></i><?php echo $document_template_name; ?></li>
 </ol>
