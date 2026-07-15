@@ -941,7 +941,6 @@ if (isset($_GET['asset_id'])) {
                                     $file_id = intval($row['file_id']);
                                     $file_name = escapeHtml($row['file_name']);
                                     $file_description = escapeHtml($row['file_description']);
-                                    $file_reference_name = escapeHtml($row['file_reference_name']);
                                     $file_ext = escapeHtml($row['file_ext']);
                                     if ($file_ext == 'pdf') {
                                         $file_icon = "file-pdf";
@@ -972,7 +971,7 @@ if (isset($_GET['asset_id'])) {
 
                                     ?>
                                     <tr>
-                                        <td><a class="text-dark" href="<?= "../uploads/clients/$client_id/$file_reference_name"; ?>" target="_blank" ><?= "$file_name<br><span class='text-secondary'>$file_description</span>"; ?></a></td>
+                                        <td><a class="text-dark" href="file.php?file_id=<?= $file_id; ?>&action=view" target="_blank" ><?= "$file_name<br><span class='text-secondary'>$file_description</span>"; ?></a></td>
                                         <td><?= $file_created_at; ?></td>
                                         <td class="text-center">
                                             <a href="post.php?unlink_asset_from_file&asset_id=<?= $asset_id; ?>&file_id=<?= $file_id; ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>" class="btn btn-secondary btn-sm" title="Unlink"><i class="fas fa-fw fa-unlink"></i></a>

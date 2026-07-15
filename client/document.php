@@ -76,13 +76,13 @@ if (mysqli_num_rows($sql_files) > 0) {
     $file_row = mysqli_fetch_assoc($sql_files);
     $file_id = intval($file_row['file_id']);
     $file_name = escapeHtml($file_row['file_name']);
-    $file_reference_name = escapeHtml($file_row['file_reference_name']);
     $file_ext = strtolower($file_row['file_ext']);
     $file_size = intval($file_row['file_size']);
     $file_mime_type = escapeHtml($file_row['file_mime_type']);
     $file_size_formatted = formatBytes($file_size);
 
-    $file_path = "../uploads/clients/$session_client_id/$file_reference_name";
+    $file_view_url = "file.php?file_id=$file_id&action=view";
+    $file_download_url = "file.php?file_id=$file_id";
 
     // For PDF files, display them inline
     if ($file_ext == 'pdf') {
@@ -97,17 +97,17 @@ if (mysqli_num_rows($sql_files) > 0) {
                         <?php } ?>
                     </div>
                     <div class="col-auto">
-                        <a href="<?php echo $file_path; ?>" target="_blank" class="btn btn-primary">
+                        <a href="<?php echo $file_view_url; ?>" target="_blank" class="btn btn-primary">
                             <i class="fas fa-external-link-alt mr-2"></i>Open in New Tab
                         </a>
-                        <a href="<?php echo $file_path; ?>" download="<?php echo $file_name; ?>" class="btn btn-secondary">
+                        <a href="<?php echo $file_download_url; ?>" class="btn btn-secondary">
                             <i class="fas fa-download mr-2"></i>Download
                         </a>
                     </div>
                 </div>
             </div>
             <div class="card-body p-0">
-                <embed src="<?php echo $file_path; ?>" type="application/pdf" width="100%" height="800px" />
+                <embed src="<?php echo $file_view_url; ?>" type="application/pdf" width="100%" height="800px" />
             </div>
         </div>
         <?php
@@ -125,17 +125,17 @@ if (mysqli_num_rows($sql_files) > 0) {
                         <?php } ?>
                     </div>
                     <div class="col-auto">
-                        <a href="<?php echo $file_path; ?>" target="_blank" class="btn btn-primary">
+                        <a href="<?php echo $file_view_url; ?>" target="_blank" class="btn btn-primary">
                             <i class="fas fa-external-link-alt mr-2"></i>View Full Size
                         </a>
-                        <a href="<?php echo $file_path; ?>" download="<?php echo $file_name; ?>" class="btn btn-secondary">
+                        <a href="<?php echo $file_download_url; ?>" class="btn btn-secondary">
                             <i class="fas fa-download mr-2"></i>Download
                         </a>
                     </div>
                 </div>
             </div>
             <div class="card-body text-center">
-                <img src="<?php echo $file_path; ?>" alt="<?php echo $file_name; ?>" class="img-fluid" style="max-height: 600px;">
+                <img src="<?php echo $file_view_url; ?>" alt="<?php echo $file_name; ?>" class="img-fluid" style="max-height: 600px;">
             </div>
         </div>
         <?php
@@ -154,10 +154,10 @@ if (mysqli_num_rows($sql_files) > 0) {
                         <?php } ?>
                     </div>
                     <div class="col-auto">
-                        <a href="<?php echo $file_path; ?>" target="_blank" class="btn btn-primary">
+                        <a href="<?php echo $file_download_url; ?>" class="btn btn-primary">
                             <i class="fas fa-external-link-alt mr-2"></i>Open File
                         </a>
-                        <a href="<?php echo $file_path; ?>" download="<?php echo $file_name; ?>" class="btn btn-secondary">
+                        <a href="<?php echo $file_download_url; ?>" class="btn btn-secondary">
                             <i class="fas fa-download mr-2"></i>Download
                         </a>
                     </div>

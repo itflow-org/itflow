@@ -1047,7 +1047,6 @@ if (isset($_GET['contact_id'])) {
                                 $file_description = escapeHtml($row['file_description']);
                                 $file_size = escapeHtml($row['file_size']);
                                 $file_size_KB = round($file_size / 1024);
-                                $file_reference_name = escapeHtml($row['file_reference_name']);
                                 $file_mime_type = escapeHtml($row['file_mime_type']);
                                 $file_created_at = escapeHtml($row['file_created_at']);
 
@@ -1057,7 +1056,7 @@ if (isset($_GET['contact_id'])) {
 
                                 <tr>
                                     <td>
-                                        <div><a href="../uploads/clients/<?php echo $client_id; ?>/<?php echo $file_reference_name; ?>"><?php echo $file_name; ?></a></div>
+                                        <div><a href="file.php?file_id=<?= $file_id; ?>&action=view" target="_blank"><?= $file_name; ?></a></div>
                                         <div class="text-secondary"><?php echo $file_description; ?></div>
                                     </td>
                                     <td><?php echo $file_mime_type; ?></td>

@@ -225,7 +225,7 @@ $page_title = $row['document_name'];
 
                 ?>
                 <div class="ml-2">
-                    <a href="files.php?client_id=<?= $client_id ?>&folder_id=<?= $folder_id ?>&q=<?= $file_name ?>" target="_blank"><?= $file_name ?></a>
+                    <a href="file.php?file_id=<?= $file_id ?>&action=view" target="_blank"><?= $file_name ?></a>
                     <a class="confirm-link" href="post.php?unlink_file_from_document&file_id=<?= $file_id ?>&document_id=<?= $document_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                         <i class="fas fa-fw fa-unlink text-secondary float-right" title="Unlink File"></i>
                     </a>

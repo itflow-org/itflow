@@ -220,8 +220,6 @@ if (isset($_GET['client_id'])) {
     $client_url = '';
 }
 
-enforceClientAccess();
-
 ob_start();
 
 ?>
@@ -863,7 +861,6 @@ ob_start();
                         $file_name = escapeHtml($row['file_name']);
                         $file_mime_type = escapeHtml($row['file_mime_type']);
                         $file_description = escapeHtml($row['file_description']);
-                        $file_reference_name = escapeHtml($row['file_reference_name']);
                         $file_ext = escapeHtml($row['file_ext']);
                         if ($file_ext == 'pdf') {
                             $file_icon = "file-pdf";
@@ -891,7 +888,11 @@ ob_start();
                         $file_created_at = escapeHtml($row['file_created_at']);
                         ?>
                         <tr>
-                            <td><a class="text-dark" href="<?php echo "../uploads/clients/$client_id/$file_reference_name"; ?>" target="_blank" ><?php echo "$file_name<br><span class='text-secondary'>$file_description</span>"; ?></a></td>
+                            <td>
+                                <a class="text-dark" href="file.php?file_id=<?=$file_id ?>&action=view" target="_blank" >
+                                    <?php echo "$file_name<br><span class='text-secondary'>$file_description</span>"; ?>
+                                </a>
+                            </td>
                             <td><?php echo $file_mime_type; ?></td>
                             <td><?php echo $file_created_at; ?></td>
                         </tr>
