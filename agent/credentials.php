@@ -373,7 +373,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             if ($credential_contact_id) {
                                 $credential_contact_display = "<a href='#' class='mr-2 mb-1 badge badge-pill badge-dark p-2 ajax-modal' title='$contact_name'
                                     data-modal-size='lg'
-                                    data-modal-url='modals/contact/contact_details.php?id=$credential_contact_id'>
+                                    data-modal-url='modals/contact/contact.php?id=$credential_contact_id'>
                                     <i class='fas fa-fw fa-user'></i></a>";
                             } else {
                                 $credential_contact_display = '';
@@ -382,7 +382,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             if ($credential_asset_id) {
                                 $credential_asset_display = "<a href='#' class='mr-2 mb-1 badge badge-pill badge-secondary p-2 ajax-modal' title='$asset_name' data-toggle=''
                                     data-modal-size='lg'
-                                    data-modal-url='modals/asset/asset_details.php?id=$credential_asset_id'>
+                                    data-modal-url='modals/asset/asset.php?id=$credential_asset_id'>
                                     <i class='fas fa-fw fa-desktop'></i></a>";
                             } else {
                                 $credential_asset_display = '';

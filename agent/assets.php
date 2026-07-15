@@ -589,7 +589,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         }
                         $contact_name = escapeHtml($row['contact_name']);
                         if ($contact_name) {
-                            $contact_name_display = "<a class='ajax-modal' href='#' data-modal-url='modals/contact/contact_details.php?id=$asset_contact_id' data-modal-size='lg'>$contact_name $contact_archive_display</a>";
+                            $contact_name_display = "<a class='ajax-modal' href='#' data-modal-url='modals/contact/contact.php?id=$asset_contact_id' data-modal-size='lg'>$contact_name $contact_archive_display</a>";
                         } else {
                             $contact_name_display = "-";
                         }
@@ -638,7 +638,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 </div>
                             </td>
                             <td>
-                                <a class="text-dark" href="asset_details.php?client_id=<?= $client_id ?>&asset_id=<?= $asset_id ?>">
+                                <a class="text-dark" href="asset.php?client_id=<?= $client_id ?>&asset_id=<?= $asset_id ?>">
                                     <div class="media">
                                         <i class="fa fa-fw fa-2x fa-<?= $device_icon ?> mr-3 mt-1"></i>
                                         <div class="media-body">

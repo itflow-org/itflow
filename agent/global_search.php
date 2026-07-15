@@ -241,7 +241,7 @@ if (isset($_GET['query'])) {
 
                                 ?>
                                 <tr>
-                                    <td><a href="contact_details.php?client_id=<?php echo $client_id; ?>&contact_id=<?php echo $contact_id; ?>"><?php echo $contact_name; ?></a>
+                                    <td><a href="contact.php?client_id=<?php echo $client_id; ?>&contact_id=<?php echo $contact_id; ?>"><?php echo $contact_name; ?></a>
                                         <br><small class="text-secondary"><?php echo $contact_title; ?></small>
                                     </td>
                                     <td><?php echo $contact_email; ?></td>
@@ -419,7 +419,7 @@ if (isset($_GET['query'])) {
 
                                 ?>
                                 <tr>
-                                    <td><a href="document_details.php?client_id=<?php echo $client_id ?>&document_id=<?php echo $document_id; ?>"><?php echo $document_name; ?></a></td>
+                                    <td><a href="document.php?client_id=<?php echo $client_id ?>&document_id=<?php echo $document_id; ?>"><?php echo $document_name; ?></a></td>
                                     <td>
                                         <a href="documents.php?client_id=<?php echo $client_id; ?>"><?php echo $client_name; ?></a>
                                     </td>
@@ -794,7 +794,7 @@ if (isset($_GET['query'])) {
                                 if (empty($contact_name)) {
                                     $contact_name_display = "-";
                                 }else{
-                                    $contact_name_display = "<a href='contact_details.php?client_id=$client_id&contact_id=$contact_id'>$contact_name</a>";
+                                    $contact_name_display = "<a href='contact.php?client_id=$client_id&contact_id=$contact_id'>$contact_name</a>";
                                 }
                                 $contact_archived_at = escapeHtml($row['contact_archived_at']);
                                 if (empty($contact_archived_at)) {
@@ -806,7 +806,7 @@ if (isset($_GET['query'])) {
                                 ?>
                                 <tr>
                                     <td>
-                                        <i class="fa fa-fw text-secondary fa-<?php echo $device_icon; ?> mr-2"></i><a href="asset_details.php?client_id=<?php echo $client_id; ?>&asset_id=<?php echo $asset_id; ?>"><?php echo $asset_name; ?></a>
+                                        <i class="fa fa-fw text-secondary fa-<?php echo $device_icon; ?> mr-2"></i><a href="asset.php?client_id=<?php echo $client_id; ?>&asset_id=<?php echo $asset_id; ?>"><?php echo $asset_name; ?></a>
                                         <?php if(!empty($asset_uri)){ ?>
                                             <a href="<?php echo $asset_uri; ?>" target="_blank"><i class="fas fa-fw fa-external-link-alt ml-2"></i></a>
                                         <?php } ?>

@@ -49,7 +49,7 @@ $num_software = $row['num'];
 
                 <?php  if (lookupUserPermission("module_support") >= 1) { ?>
                     <li class="nav-item">
-                        <a href="contacts.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "contacts.php" || basename($_SERVER["PHP_SELF"]) == "contact_details.php") { echo "active"; } ?>">
+                        <a href="contacts.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "contacts.php" || basename($_SERVER["PHP_SELF"]) == "contact.php") { echo "active"; } ?>">
                             <i class="nav-icon fas fa-address-book"></i>
                             <p>
                                 Contacts

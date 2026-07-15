@@ -134,7 +134,7 @@ if (isset($_POST['add_document_from_template'])) {
 
     flashAlert("Document <strong>$document_name</strong> created from template");
 
-    redirect("document_details.php?client_id=$client_id&document_id=$document_id");
+    redirect("document.php?client_id=$client_id&document_id=$document_id");
 }
 
 if (isset($_POST['edit_document'])) {
@@ -238,7 +238,7 @@ if (isset($_POST['edit_document'])) {
 
     flashAlert("Document <strong>$name</strong> edited, previous version kept");
 
-    redirect("document_details.php?client_id=$client_id&document_id=$document_id");
+    redirect("document.php?client_id=$client_id&document_id=$document_id");
 
 }
 
@@ -861,7 +861,7 @@ if (isset($_GET['delete_document'])) {
     // Determine redirect behavior
     // If there's a "from" parameter, we can use it to decide where to go
     if (isset($_GET['from']) && $_GET['from'] === 'document_details') {
-        // User deleted from document_details.php
+        // User deleted from document.php
         redirect("files.php?client_id=$client_id");
     } else {
         // Default behavior — redirect back to previous page

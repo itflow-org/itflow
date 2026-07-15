@@ -560,7 +560,7 @@ if (isset($_GET['asset_id'])) {
                                         if ($connected_asset_name) {
                                             $connected_to_display = "<a class='ajax-modal' href='#'
                                                 data-modal-size='lg'
-                                                data-modal-url='modals/asset/asset_details.php?id=$connected_asset_id'>
+                                                data-modal-url='modals/asset/asset.php?id=$connected_asset_id'>
                                                 <strong><i class='fa fa-fw text-dark fa-$connected_asset_icon mr-1'></i>$connected_asset_name</strong> - $connected_interface_name
                                             </a>";
                                         } else {
@@ -872,7 +872,7 @@ if (isset($_GET['asset_id'])) {
 
                                     <tr>
                                         <td>
-                                            <div><a href="document_details.php?client_id=<?= $client_id; ?>&document_id=<?= $document_id; ?>"><?= $document_name; ?></a></div>
+                                            <div><a href="document.php?client_id=<?= $client_id; ?>&document_id=<?= $document_id; ?>"><?= $document_name; ?></a></div>
                                             <div class="text-secondary"><?= $document_description; ?></div>
                                         </td>
                                         <td><?= $document_created_by ?></td>

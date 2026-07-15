@@ -207,7 +207,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         $vendor_name = escapeHtml($row['vendor_name']);
                         $vendor_id = intval($row['vendor_id']);
                         if ($vendor_name) {
-                            $vendor_display = "<a class='ajax-modal' href='#' data-modal-url='modals/vendor/vendor_details.php?id=$vendor_id'>$vendor_name</a>";
+                            $vendor_display = "<a class='ajax-modal' href='#' data-modal-url='modals/vendor/vendor.php?id=$vendor_id'>$vendor_name</a>";
                         } else {
                             $vendor_display = "<span class='text-muted'>N/A</span>";
                         }

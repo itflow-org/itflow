@@ -866,7 +866,7 @@ $num_root_items = intval($row_root_files['num']) + intval($row_root_docs['num'])
                                                 </div>
                                             </td>
                                             <td>
-                                                <a href="document_details.php?client_id=<?php echo $client_id; ?>&document_id=<?php echo $document_id; ?>">
+                                                <a href="document.php?client_id=<?php echo $client_id; ?>&document_id=<?php echo $document_id; ?>">
                                                     <div class="media">
                                                         <i class="fa fa-fw fa-2x fa-file-alt text-dark mr-3"></i>
                                                         <div class="media-body">

@@ -437,7 +437,7 @@ if (isset($_GET['contact_id'])) {
                                         <i class="fa fa-fw text-secondary fa-<?= $device_icon ?> mr-1"></i>
                                         <a class="text-secondary ajax-modal" href="#"
                                             data-modal-size="lg"
-                                            data-modal-url="modals/asset/asset_details.php?id=<?= $asset_id ?>">
+                                            data-modal-url="modals/asset/asset.php?id=<?= $asset_id ?>">
                                             <?= $asset_name ?>
                                             <?php if ($asset_favorite) { echo "<i class='fas fa-fw fa-star text-warning' title='Favorite'></i>"; } ?>
                                         </a>
@@ -989,7 +989,7 @@ if (isset($_GET['contact_id'])) {
 
                                 <tr>
                                     <td>
-                                        <div><a href="document_details.php?client_id=<?php echo $client_id; ?>&document_id=<?php echo $document_id; ?>"><?php echo $document_name; ?></a></div>
+                                        <div><a href="document.php?client_id=<?php echo $client_id; ?>&document_id=<?php echo $document_id; ?>"><?php echo $document_name; ?></a></div>
                                         <div class="text-secondary"><?php echo $document_description; ?></div>
                                     </td>
                                     <td><?php echo $document_created_by; ?></td>

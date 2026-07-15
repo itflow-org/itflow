@@ -218,12 +218,12 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                     <tr>
                         <td>
-                            <a class="text-dark" href="project_details.php?<?php echo $client_url; ?>project_id=<?php echo $project_id; ?>">
+                            <a class="text-dark" href="project.php?<?php echo $client_url; ?>project_id=<?php echo $project_id; ?>">
                                 <?php echo "$project_prefix$project_number"; ?>
                             </a>
                         </td>
                         <td>
-                            <a class="text-dark" href="project_details.php?project_id=<?php echo $project_id; ?>">
+                            <a class="text-dark" href="project.php?project_id=<?php echo $project_id; ?>">
                                 <div class="media">
                                     <i class="fa fa-fw fa-2x fa-project-diagram mr-3"></i>
                                     <div class="media-body">

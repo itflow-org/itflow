@@ -135,7 +135,7 @@
                             if (empty($contact_name)) {
                                 $contact_display = "-";
                             } else {
-                                $contact_display = "<div><a href='contact_details.php?client_id=$client_id&contact_id=$contact_id'>$contact_name</a></div>";
+                                $contact_display = "<div><a href='contact.php?client_id=$client_id&contact_id=$contact_id'>$contact_name</a></div>";
                             }
 
                             $ticket_invoice_id = intval($row['ticket_invoice_id']);

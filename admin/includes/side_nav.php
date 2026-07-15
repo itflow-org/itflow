@@ -138,7 +138,7 @@
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a href="/admin/document_template.php" class="nav-link <?php echo (in_array(basename($_SERVER['PHP_SELF']), ['document_template.php', 'document_template_details.php']) ? 'active' : ''); ?>">
+                        <a href="/admin/document_template.php" class="nav-link <?php echo (in_array(basename($_SERVER['PHP_SELF']), ['document_template.php', 'document_template.php']) ? 'active' : ''); ?>">
                             <i class="nav-icon fas fa-file-alt"></i>
                             <p>Document Templates</p>
                         </a>

@@ -259,7 +259,7 @@ $page_title = $row['document_name'];
                 <div class="ml-2">
                     <a class="ajax-modal" href="#"
                         data-modal-size="lg"
-                        data-modal-url="modals/contact/contact_details.php?id=<?= $contact_id ?>">
+                        data-modal-url="modals/contact/contact.php?id=<?= $contact_id ?>">
                         <?php echo $contact_name; ?></a>
                     <a class="confirm-link float-right" href="post.php?unlink_contact_from_document&contact_id=<?php echo $contact_id; ?>&document_id=<?php echo $document_id; ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                         <i class="fas fa-fw fa-unlink text-secondary" title="Unlink Contact"></i>
@@ -293,7 +293,7 @@ $page_title = $row['document_name'];
                 <div class="ml-2">
                     <a class="ajax-modal" href="#"
                         data-modal-size="lg"
-                        data-modal-url="modals/asset/asset_details.php?id=<?= $asset_id ?>">
+                        data-modal-url="modals/asset/asset.php?id=<?= $asset_id ?>">
                         <?php echo $asset_name; ?>
                     </a>
                     <a class="confirm-link float-right" href="post.php?unlink_asset_from_document&asset_id=<?php echo $asset_id; ?>&document_id=<?php echo $document_id; ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
@@ -359,7 +359,7 @@ $page_title = $row['document_name'];
 
                 ?>
                 <div class="ml-2">
-                    <a class="ajax-modal" href="#" data-modal-url="modals/vendor/vendor_details.php?id=<?= $vendor_id ?>">
+                    <a class="ajax-modal" href="#" data-modal-url="modals/vendor/vendor.php?id=<?= $vendor_id ?>">
                         <?php echo $vendor_name; ?>
                     </a>
                     <a class="confirm-link float-right" href="post.php?unlink_vendor_from_document&vendor_id=<?php echo $vendor_id; ?>&document_id=<?php echo $document_id; ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">

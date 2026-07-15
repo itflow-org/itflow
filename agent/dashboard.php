@@ -736,7 +736,7 @@ if ($user_config_dashboard_technical_enable == 1) {
                                     }
 
                                     $ticket_priority_color = $ticket_priority == "High" ? "danger" : ($ticket_priority == "Medium" ? "warning" : "info");
-                                    $contact_display = empty($contact_name) ? "-" : "<a href='contact_details.php?client_id=$client_id&contact_id=$contact_id'>$contact_name</a>";
+                                    $contact_display = empty($contact_name) ? "-" : "<a href='contact.php?client_id=$client_id&contact_id=$contact_id'>$contact_name</a>";
                                 ?>
                                     <tr class="<?php echo empty($ticket_updated_at) ? 'text-bold' : ''; ?>">
                                         <td>

@@ -409,7 +409,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('asset_id') AS num FROM assets WHERE asset_contact_id = $contact_id AND asset_archived_at IS NULL"));
                         $asset_count = $row['num'];
                         if ($asset_count) {
-                            $asset_count_display = "<a href='contact_details.php?client_id=$client_id&contact_id=$contact_id#assets' class='mr-2 mb-1 badge badge-pill badge-dark p-2' title='Assets ($asset_count)'><i class='fas fa-fw fa-desktop mr-2'></i>$asset_count</a>";
+                            $asset_count_display = "<a href='contact.php?client_id=$client_id&contact_id=$contact_id#assets' class='mr-2 mb-1 badge badge-pill badge-dark p-2' title='Assets ($asset_count)'><i class='fas fa-fw fa-desktop mr-2'></i>$asset_count</a>";
                         } else {
                             $asset_count_display = '';
                         }
@@ -418,7 +418,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('credential_id') AS num FROM credentials WHERE credential_contact_id = $contact_id AND credential_archived_at IS NULL"));
                         $credential_count = $row['num'];
                         if ($credential_count) {
-                            $credential_count_display = "<a href='contact_details.php?client_id=$client_id&contact_id=$contact_id#credentials' class='mr-2 mb-1 badge badge-pill badge-secondary p-2' title='Credentials ($credential_count)'><i class='fas fa-fw fa-key mr-2'></i>$credential_count</a>";
+                            $credential_count_display = "<a href='contact.php?client_id=$client_id&contact_id=$contact_id#credentials' class='mr-2 mb-1 badge badge-pill badge-secondary p-2' title='Credentials ($credential_count)'><i class='fas fa-fw fa-key mr-2'></i>$credential_count</a>";
                         } else {
                             $credential_count_display = '';
                         }
@@ -427,7 +427,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('software_id') AS num FROM software, software_contacts WHERE software.software_id = software_contacts.software_id AND software_contacts.contact_id = $contact_id AND software_archived_at IS NULL"));
                         $software_count = $row['num'];
                         if ($software_count) {
-                            $software_count_display = "<a href='contact_details.php?client_id=$client_id&contact_id=$contact_id#software' class='mr-2 mb-1 badge badge-pill badge-secondary p-2' title='Licenses ($software_count)'><i class='fas fa-fw fa-cube mr-2'></i>$software_count</a>";
+                            $software_count_display = "<a href='contact.php?client_id=$client_id&contact_id=$contact_id#software' class='mr-2 mb-1 badge badge-pill badge-secondary p-2' title='Licenses ($software_count)'><i class='fas fa-fw fa-cube mr-2'></i>$software_count</a>";
                         } else {
                             $software_count_display = '';
                         }
@@ -436,7 +436,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('ticket_id') AS num FROM tickets WHERE ticket_contact_id = $contact_id AND ticket_archived_at IS NULL"));
                         $ticket_count = $row['num'];
                         if ($ticket_count) {
-                            $ticket_count_display = "<a href='contact_details.php?client_id=$client_id&contact_id=$contact_id#tickets' class='mr-2 mb-1 badge badge-pill badge-secondary p-2' title='Tickets ($ticket_count)'><i class='fas fa-fw fa-life-ring mr-2'></i>$ticket_count</a>";
+                            $ticket_count_display = "<a href='contact.php?client_id=$client_id&contact_id=$contact_id#tickets' class='mr-2 mb-1 badge badge-pill badge-secondary p-2' title='Tickets ($ticket_count)'><i class='fas fa-fw fa-life-ring mr-2'></i>$ticket_count</a>";
                         } else {
                             $ticket_count_display = '';
                         }
@@ -471,7 +471,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 </div>
                             </td>
                             <td>
-                                <a class="text-dark" href="contact_details.php?client_id=<?php echo $client_id; ?>&contact_id=<?php echo $contact_id; ?>">
+                                <a class="text-dark" href="contact.php?client_id=<?php echo $client_id; ?>&contact_id=<?php echo $contact_id; ?>">
                                     <div class="media">
                                         <?php if ($contact_photo) { ?>
                                             <span class="fa-stack fa-2x mr-3 text-center">
@@ -514,7 +514,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                         <i class="fas fa-ellipsis-h"></i>
                                     </button>
                                     <div class="dropdown-menu">
-                                        <a class="dropdown-item" href="contact_details.php?<?= $client_url ?>contact_id=<?= $contact_id ?>">
+                                        <a class="dropdown-item" href="contact.php?<?= $client_url ?>contact_id=<?= $contact_id ?>">
                                             <i class="fas fa-fw fa-eye mr-2"></i>Details
                                         </a>
                                         <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/contact/contact_note_add.php?id=<?= $contact_id ?>">

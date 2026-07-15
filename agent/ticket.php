@@ -1099,7 +1099,7 @@ if (isset($_GET['ticket_id'])) {
                             <div>
                                 <i class="fa fa-fw fa-user text-secondary mr-2"></i><a href="#" class="ajax-modal"
                                    data-modal-size="lg"
-                                   data-modal-url="modals/contact/contact_details.php?id=<?= $contact_id ?>"><strong><?= $contact_name ?></strong>
+                                   data-modal-url="modals/contact/contact.php?id=<?= $contact_id ?>"><strong><?= $contact_name ?></strong>
                                 </a>
                             </div>
 
@@ -1187,7 +1187,7 @@ if (isset($_GET['ticket_id'])) {
                         <div class="card-body p-3">
                             <div>
                                 <a class="ajax-modal" href="#" data-modal-size="lg"
-                                    data-modal-url="modals/asset/asset_details.php?<?= $client_url ?>&id=<?= $asset_id ?>">
+                                    data-modal-url="modals/asset/asset.php?<?= $client_url ?>&id=<?= $asset_id ?>">
                                     <i class="fa fa-fw fa-<?php echo $asset_icon; ?> text-secondary mr-2"></i><strong><?php echo $asset_name; ?></strong>
                                 </a>
                             </div>
@@ -1200,7 +1200,7 @@ if (isset($_GET['ticket_id'])) {
                                 ?>
                                 <div class="mt-1">
                                     <a class="ajax-modal" href="#" data-modal-size="lg"
-                                        data-modal-url="modals/asset/asset_details.php?<?= $client_url ?>&id=<?= $additional_asset_id ?>">
+                                        data-modal-url="modals/asset/asset.php?<?= $client_url ?>&id=<?= $additional_asset_id ?>">
                                         <i class="fa fa-fw fa-<?php echo $additional_asset_icon; ?> text-secondary mr-2"></i><?php echo $additional_asset_name; ?>
                                     </a>
                                     <?php if (empty($ticket_closed_at)) { ?>
@@ -1288,7 +1288,7 @@ if (isset($_GET['ticket_id'])) {
                         </div>
                         <div class="card-body p-3">
                             <div>
-                                <i class="fa fa-fw fa-project-diagram text-secondary mr-2"></i><a href="project_details.php?project_id=<?php echo $project_id; ?>" target="_blank"><strong><?= $project_name ?><i class="fa fa-fw fa-external-link-alt ml-1"></i></strong>
+                                <i class="fa fa-fw fa-project-diagram text-secondary mr-2"></i><a href="project.php?project_id=<?php echo $project_id; ?>" target="_blank"><strong><?= $project_name ?><i class="fa fa-fw fa-external-link-alt ml-1"></i></strong>
                                 </a>
                             </div>
 
