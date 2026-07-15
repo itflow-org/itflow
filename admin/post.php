@@ -11,25 +11,17 @@ require_once "../includes/check_login.php";
 // Define a variable that we can use to only allow running post files via inclusion (prevents people/bots poking them)
 define('FROM_POST_HANDLER', true);
 
-// Determine which files we should load
-
-// Parse URL & get the path
-$path = parse_url($_SERVER['HTTP_REFERER'], PHP_URL_PATH);
-
-// Get the base name (the page name)
-$module = explode(".", basename($path))[0];
-
-// Strip off any _details bits
-$module = str_ireplace('_details', '', $module);
-
-// Dynamically load admin-related module POST logic
+// Dynamically load admin module POST logic
+//  Every handler self-gates on its own if(isset($_POST['action'])) check,
+//  so we load them all and let the matching one fire. The page filename is
+//  irrelevant to dispatch - matches how agent/post.php works.
+//  To add a new admin POST handler, drop a file in admin/post/.
 if (isset($session_is_admin) && $session_is_admin) {
-    // As (almost) every admin setting is only changed from 1 page, we can dynamically load the relevant logic inside this single admin check IF statement
-    //  To add a new admin POST request handler, add a file named after the admin page
-    //    e.g. changes made on the page http://itflow/admin_ticket_statues.php will load the page admin/post/admin_ticket_statues.php to handle the changes
-
-    include_once "post/$module.php";
-    
+    foreach (glob("post/*.php") as $admin_module) {
+        if (!preg_match('/_model\.php$/', basename($admin_module))) {
+            require_once $admin_module;
+        }
+    }
 }
 
 // Logout is the same for user and admin

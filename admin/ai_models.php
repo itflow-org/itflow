@@ -17,7 +17,7 @@ $num_rows = mysqli_num_rows($sql);
         <a href="/admin">Admin</a>
     </li>
     <li class="breadcrumb-item">
-        <a href="ai_provider.php">AI Providers</a>
+        <a href="ai_providers.php">AI Providers</a>
     </li>
     <li class="breadcrumb-item active">AI Models</li>
 </ol>

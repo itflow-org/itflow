@@ -85,7 +85,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                     <i class="fa fa-fw fa-2x fa-life-ring mr-3"></i>
                                     <div class="media-body">
                                         <div>
-                                            <a href="ticket_template_details.php?ticket_template_id=<?= $ticket_template_id ?>">
+                                            <a href="ticket_template.php?ticket_template_id=<?= $ticket_template_id ?>">
                                                 <?= $ticket_template_name ?>
                                             </a>
                                         </div>

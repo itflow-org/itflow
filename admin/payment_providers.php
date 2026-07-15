@@ -95,7 +95,7 @@ $num_rows = mysqli_num_rows($sql);
                         <td><?php echo $category; ?></td>
                         <td><?php echo $percent_fee; ?>% + <?php echo numfmt_format_currency($currency_format, $flat_fee, $session_company_currency); ?></td>
                         <td class="text-center">
-                            <a class="badge badge-dark badge-pill p-2" href="saved_payment_method.php"><?= $saved_payment_count ?></a>
+                            <a class="badge badge-dark badge-pill p-2" href="saved_payment_methods.php"><?= $saved_payment_count ?></a>
                         </td>
                         <td>
                             <div class="dropdown dropleft text-center">

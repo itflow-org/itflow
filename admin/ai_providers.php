@@ -68,7 +68,7 @@ $num_rows = mysqli_num_rows($sql);
                         <td><?php echo $url; ?></td>
                         <td><?php echo $key; ?></td>
                         <td class="text-center">
-                            <a class="badge badge-dark badge-pill p-2" href="ai_model.php"><?= $ai_model_count ?></a>
+                            <a class="badge badge-dark badge-pill p-2" href="ai_models.php"><?= $ai_model_count ?></a>
                         <td>
                             <div class="dropdown dropleft text-center">
                                 <button class="btn btn-secondary btn-sm" type="button" data-toggle="dropdown">

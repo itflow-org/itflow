@@ -38,7 +38,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
         <a href="/admin">Admin</a>
     </li>
     <li class="breadcrumb-item">
-        <a href="payment_provider.php">Payment Providers</a>
+        <a href="payment_providers.php">Payment Providers</a>
     </li>
     <li class="breadcrumb-item active">Saved Payment Methods (Stripe)</li>
 </ol>

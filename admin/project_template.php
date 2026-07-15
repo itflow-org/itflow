@@ -156,7 +156,7 @@ if (isset($_GET['project_template_id'])) {
                             <tr data-task-id="<?php echo $ticket_template_id; ?>">
                                 <td>
                                     <a href="#" class="drag-handle"><i class="fas fa-bars text-muted mr-2"></i></a>
-                                    <a href="ticket_template_details.php?ticket_template_id=<?php echo $ticket_template_id; ?>">
+                                    <a href="ticket_template.php?ticket_template_id=<?php echo $ticket_template_id; ?>">
                                         <?php echo $ticket_template_name; ?>
                                     </a>
                                 </td>

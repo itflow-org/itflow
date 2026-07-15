@@ -790,7 +790,7 @@ $sql_asset_retired = mysqli_query(
                 </table>
                 <?php if ($session_user_role == 3) { ?>
                 <div class="card-footer p-2">
-                    <a href="../admin/audit_log.php?client=<?php echo $client_id; ?>">See More...</a>
+                    <a href="../admin/audit_logs.php?client=<?php echo $client_id; ?>">See More...</a>
                 </div>
                 <?php } ?>
             </div>
