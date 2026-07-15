@@ -606,14 +606,14 @@ $num_root_items = intval($row_root_files['num']) + intval($row_root_docs['num'])
                             $files[] = [
                                 'id'      => $file_id,
                                 'name'    => $file_name,
-                                'preview' => "../uploads/clients/$client_id/$file_reference_name"
+                                'preview' => "file.php?file_id=$file_id&thumb=1"
                             ];
                             ?>
 
                             <div class="col-xl-2 col-lg-2 col-md-6 col-sm-6 mb-3 text-center">
 
                                 <a href="#" onclick="openModal(<?php echo count($files)-1; ?>)">
-                                    <img class="img-thumbnail" src="<?php echo "../uploads/clients/$client_id/$file_reference_name"; ?>" alt="<?php echo $file_reference_name ?>">
+                                    <img class="img-thumbnail" src="file.php?file_id=<?= $file_id ?>&thumb=1" alt="<?= $file_name ?>">
                                 </a>
 
                                 <div>
@@ -622,7 +622,7 @@ $num_root_items = intval($row_root_files['num']) + intval($row_root_docs['num'])
                                             <i class="fas fa-ellipsis-v"></i>
                                         </button>
                                         <div class="dropdown-menu">
-                                            <a class="dropdown-item" href="<?php echo "../uploads/clients/$client_id/$file_reference_name"; ?>" download="<?php echo $file_name; ?>">
+                                            <a class="dropdown-item" href="file.php?file_id=<?= $file_id; ?>">
                                                 <i class="fas fa-fw fa-cloud-download-alt mr-2"></i>Download
                                             </a>
                                             <a class="dropdown-item" href="#" data-toggle="modal" data-target="#shareModal" onclick="populateShareModal(<?php echo "$client_id, 'File', $file_id"; ?>)">
@@ -754,7 +754,7 @@ $num_root_items = intval($row_root_files['num']) + intval($row_root_docs['num'])
                                                 </div>
                                             </td>
                                             <td>
-                                                <a href="<?php echo "../uploads/clients/$client_id/$file_reference_name"; ?>" target="_blank">
+                                                <a href="file.php?file_id=<?= $file_id; ?>&action=view" target="_blank">
                                                     <div class="media">
                                                         <i class="fa fa-fw fa-2x fa-<?php echo $file_icon; ?> text-dark mr-3"></i>
                                                         <div class="media-body">
@@ -790,7 +790,7 @@ $num_root_items = intval($row_root_files['num']) + intval($row_root_docs['num'])
                                                         <i class="fas fa-ellipsis-h"></i>
                                                     </button>
                                                     <div class="dropdown-menu">
-                                                        <a class="dropdown-item" href="<?php echo "../uploads/clients/$client_id/$file_reference_name"; ?>" download="<?php echo $file_name; ?>">
+                                                        <a class="dropdown-item" href="file.php?file_id=<?= $file_id ?>">
                                                             <i class="fas fa-fw fa-cloud-download-alt mr-2"></i>Download
                                                         </a>
                                                         <a class="dropdown-item" href="#" data-toggle="modal" data-target="#shareModal" onclick="populateShareModal(<?php echo "$client_id, 'File', $file_id"; ?>)">
