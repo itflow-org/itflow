@@ -561,9 +561,10 @@ if (isset($_GET['ticket_id'])) {
 
                         <?php
                         while ($ticket_attachment = mysqli_fetch_assoc($sql_ticket_attachments)) {
+                            $ticket_attachment_id = intval($ticket_attachment['ticket_attachment_id']);
                             $name = escapeHtml($ticket_attachment['ticket_attachment_name']);
-                            $ref_name = escapeHtml($ticket_attachment['ticket_attachment_reference_name']);
-                            echo "<hr class=''><i class='fas fa-fw fa-paperclip text-secondary mr-1'></i>$name <a target='_blank' class='mr-1 ml-1' href='../uploads/tickets/$ticket_id/$ref_name'>[View]</a><a href='../uploads/tickets/$ticket_id/$ref_name' download='$name'>[Download]</a>";
+                            
+                            echo "<hr class=''><i class='fas fa-fw fa-paperclip text-secondary mr-1'></i>$name <a target='_blank' class='mr-1 ml-1' href='ticket_attachment.php?attachment_id=$ticket_attachment_id&action=view'>[View]</a><a href='ticket_attachment.php?attachment_id=$ticket_attachment_id'>[Download]</a>";
                         }
                         ?>
                     </div>
@@ -784,8 +785,9 @@ if (isset($_GET['ticket_id'])) {
                             <?php
                             while ($ticket_attachment = mysqli_fetch_assoc($sql_ticket_reply_attachments)) {
                                 $name = escapeHtml($ticket_attachment['ticket_attachment_name']);
-                                $ref_name = escapeHtml($ticket_attachment['ticket_attachment_reference_name']);
-                                echo "<hr><i class='fas fa-fw fa-paperclip text-secondary mr-1'></i>$name | <a href='../uploads/tickets/$ticket_id/$ref_name' download='$name'><i class='fas fa-fw fa-download mr-1'></i>Download</a> | <a target='_blank' href='../uploads/tickets/$ticket_id/$ref_name'><i class='fas fa-fw fa-external-link-alt mr-1'></i>View</a>";
+                                $ticket_attachment_id = intval($ticket_attachment['ticket_attachment_id']);
+
+                                echo "<hr><i class='fas fa-fw fa-paperclip text-secondary mr-1'></i>$name | <a href='ticket_attachment.php?attachment_id=$ticket_attachment_id'><i class='fas fa-fw fa-download mr-1'></i>Download</a> | <a target='_blank' href='ticket_attachment.php?attachment_id=$ticket_attachment_id&action=view'><i class='fas fa-fw fa-external-link-alt mr-1'></i>View</a>";
                             }
                             ?>
                         </div>
