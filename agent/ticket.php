@@ -559,14 +559,26 @@ if (isset($_GET['ticket_id'])) {
                     <div class="card-body p-3 prettyContent" id="ticketDetails">
                         <?php echo $ticket_details; ?>
 
+                        <table class="table-sm">
+
                         <?php
                         while ($ticket_attachment = mysqli_fetch_assoc($sql_ticket_attachments)) {
                             $ticket_attachment_id = intval($ticket_attachment['ticket_attachment_id']);
                             $name = escapeHtml($ticket_attachment['ticket_attachment_name']);
+
+                            ?>
+
+                            <tr>
+                                <td><i class='fas fa-fw fa-paperclip text-secondary mr-1'></i><?= $name ?></td>
+                                <td>
+                                    <a target='_blank' class='mr-1 ml-1' href='ticket_attachment.php?attachment_id=<?= $ticket_attachment_id; ?>&action=view'>[View]</a><a href='ticket_attachment.php?attachment_id=<?= $ticket_attachment_id; ?>'>[Download]</a>
+                                </td>
+                            </tr>
                             
-                            echo "<hr class=''><i class='fas fa-fw fa-paperclip text-secondary mr-1'></i>$name <a target='_blank' class='mr-1 ml-1' href='ticket_attachment.php?attachment_id=$ticket_attachment_id&action=view'>[View]</a><a href='ticket_attachment.php?attachment_id=$ticket_attachment_id'>[Download]</a>";
+                         <?php  
                         }
                         ?>
+                        </table>
                     </div>
 
                 </div>
@@ -782,14 +794,26 @@ if (isset($_GET['ticket_id'])) {
                         <div class="card-body prettyContent">
                             <?php echo $ticket_reply; ?>
 
+                            <table class="table-sm">
+
                             <?php
                             while ($ticket_attachment = mysqli_fetch_assoc($sql_ticket_reply_attachments)) {
-                                $name = escapeHtml($ticket_attachment['ticket_attachment_name']);
                                 $ticket_attachment_id = intval($ticket_attachment['ticket_attachment_id']);
+                                $name = escapeHtml($ticket_attachment['ticket_attachment_name']);
 
-                                echo "<hr><i class='fas fa-fw fa-paperclip text-secondary mr-1'></i>$name | <a href='ticket_attachment.php?attachment_id=$ticket_attachment_id'><i class='fas fa-fw fa-download mr-1'></i>Download</a> | <a target='_blank' href='ticket_attachment.php?attachment_id=$ticket_attachment_id&action=view'><i class='fas fa-fw fa-external-link-alt mr-1'></i>View</a>";
+                                ?>
+
+                                <tr>
+                                    <td><i class='fas fa-fw fa-paperclip text-secondary mr-1'></i><?= $name ?></td>
+                                    <td>
+                                        <a target='_blank' class='mr-1 ml-1' href='ticket_attachment.php?attachment_id=<?= $ticket_attachment_id; ?>&action=view'>[View]</a><a href='ticket_attachment.php?attachment_id=<?= $ticket_attachment_id; ?>'>[Download]</a>
+                                    </td>
+                                </tr>
+                                
+                             <?php  
                             }
                             ?>
+                            </table>
                         </div>
                     </div>
                     <!-- End ticket reply card -->
