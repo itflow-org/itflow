@@ -19,9 +19,9 @@ $num_rows = mysqli_num_rows($sql);
 
 <div class="card card-dark">
     <div class="card-header py-2">
-        <h3 class="card-title mt-2"><i class="fas fa-fw fa-balance-scale mr-2"></i>Taxes</h3>
+        <h3 class="card-title mt-2"><i class="fas fa-fw fa-balance-scale mr-2"></i>Tax Rates</h3>
         <div class="card-tools">
-            <button type="button" class="btn btn-primary ajax-modal" data-modal-url="modals/tax/tax_add.php"><i class="fas fa-plus mr-2"></i>New Tax</button>
+            <button type="button" class="btn btn-primary ajax-modal" data-modal-url="modals/tax/tax_add.php"><i class="fas fa-plus mr-2"></i>New Tax Rate</button>
         </div>
     </div>
     <div class="card-body">
