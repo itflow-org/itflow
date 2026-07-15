@@ -459,7 +459,6 @@ if (isset($_GET['query'])) {
                             while ($row = mysqli_fetch_assoc($sql_files)) {
                                 $file_id = intval($row['file_id']);
                                 $file_name = escapeHtml($row['file_name']);
-                                $file_reference_name = escapeHtml($row['file_reference_name']);
                                 $file_description = escapeHtml($row['file_description']);
                                 $folder_id = intval($row['folder_id']);
                                 $folder_name = escapeHtml($row['folder_name']);
@@ -468,7 +467,11 @@ if (isset($_GET['query'])) {
 
                                 ?>
                                 <tr>
-                                    <td><a href="../uploads/clients/<?php echo $client_id; ?>/<?php echo $file_reference_name; ?>" download="<?php echo $file_name; ?>"><?php echo "$folder_name/$file_name"; ?></a></td>
+                                    <td>
+                                        <a href="file.php?file_id=<?= $file_id ?>&action=view" target="_blank">
+                                            <?= "$folder_name/$file_name"; ?>
+                                        </a>
+                                    </td>
                                     <td><?php echo $file_description; ?></td>
                                     <td>
                                         <a href="files.php?client_id=<?php echo $client_id; ?>&folder_id=<?php echo $folder_id; ?>"><?php echo $client_name; ?></a>
