@@ -59,7 +59,7 @@
                     <li class="nav-item">
                         <a href="/admin/tax_rates.php" class="nav-link <?php echo (basename($_SERVER['PHP_SELF']) == 'tax_rates.php' ? 'active' : ''); ?>">
                             <i class="nav-icon fas fa-balance-scale"></i>
-                            <p>Taxes</p>
+                            <p>Tax Rates</p>
                         </a>
                     </li>
                     <li class="nav-item">
