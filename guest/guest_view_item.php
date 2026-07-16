@@ -234,9 +234,7 @@ if ($item_type == "Document") {
                     id: <?php echo $item_id; ?>,
                     key: "<?php echo $item_key; ?>"
                 },
-                function(data) {
-                    const response = JSON.parse(data);
-
+                function(response) {
                     if (response.token) {
                         document.getElementById("otp").innerText = response.token;
                         // Refresh exactly when this code rotates
