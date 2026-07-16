@@ -3,7 +3,8 @@
 
 // Used to automatically attempt to get SSL certificates as part of adding domains
 // The logic for the fetch (sync) button on the client_certificates page is in ajax.php, and allows ports other than 443
-function getSslCertificate($full_name) {
+function getSslCertificate($full_name)
+{
 
     // Parse host and port
     $name = parse_url("//$full_name", PHP_URL_HOST);
@@ -72,6 +73,42 @@ function rdapHttpGet($url, &$http_code = null) {
     curl_close($ch);
  
     return ($response === false) ? '' : $response;
+}
+
+function getRdapBaseUrl($tld) {
+    static $bootstrap = null;
+ 
+    if ($bootstrap === null) {
+        $cache_file = sys_get_temp_dir() . '/itflow_rdap_bootstrap.json';
+ 
+        if (is_readable($cache_file) && (time() - filemtime($cache_file)) < 604800) {
+            $bootstrap = json_decode(file_get_contents($cache_file), true);
+        }
+ 
+        if (empty($bootstrap['services'])) {
+            $raw = rdapHttpGet('https://data.iana.org/rdap/dns.json', $code);
+            if ($code === 200 && !empty($raw)) {
+                $decoded = json_decode($raw, true);
+                if (!empty($decoded['services'])) {
+                    $bootstrap = $decoded;
+                    @file_put_contents($cache_file, $raw);
+                }
+            }
+        }
+ 
+        if (empty($bootstrap['services'])) {
+            $bootstrap = array('services' => array()); // don't retry every call this run
+        }
+    }
+ 
+    foreach ($bootstrap['services'] as $service) {
+        // [0] = list of TLDs, [1] = list of base URLs
+        if (in_array($tld, $service[0])) {
+            return rtrim($service[1][0], '/') . '/';
+        }
+    }
+ 
+    return '';
 }
 
 function getDomainRdap($domain) {
