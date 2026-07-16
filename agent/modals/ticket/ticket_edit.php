@@ -2,6 +2,8 @@
 
 require_once '../../../includes/modal_header.php';
 
+enforceUserPermission('module_support', 2);
+
 // Ticket client access overide - This is the only way to show tickets without a client to agents with restricted client access
 $access_permission_query_overide = '';
 if ($client_access_string) {
@@ -32,6 +34,10 @@ $location_id = intval($row['ticket_location_id']);
 $vendor_id = intval($row['ticket_vendor_id']);
 $project_id = intval($row['ticket_project_id']);
 
+if ($client_id) {
+    enforceClientAccess();
+}
+
 // Additional Assets Selected
 $additional_assets_array = array();
 $sql_additional_assets = mysqli_query($mysqli, "SELECT asset_id FROM ticket_assets WHERE ticket_id = $ticket_id");
@@ -40,9 +46,10 @@ while ($row = mysqli_fetch_assoc($sql_additional_assets)) {
     $additional_assets_array[] = $additional_asset_id;
 }
 
-// Generate the HTML form content using output buffering.
 ob_start();
+
 ?>
+
 <div class="modal-header bg-dark">
     <h5 class="modal-title"><i class="fa fa-fw fa-life-ring mr-2"></i>Ticket: <strong><?= "$ticket_prefix$ticket_number" ?></strong> - <?= $client_name ?></h5>
     <button type="button" class="close text-white" data-dismiss="modal">

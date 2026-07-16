@@ -49,6 +49,8 @@ if (isset($_POST['client_set_notes'])) {
     $client_id = intval($_POST['client_id']);
     $notes = escapeSql($_POST['notes']);
 
+    enforceClientAccess();
+
     // Update notes
     mysqli_query($mysqli, "UPDATE clients SET client_notes = '$notes' WHERE client_id = $client_id");
 
@@ -74,6 +76,8 @@ if (isset($_POST['contact_set_notes'])) {
     $contact_name = escapeSql($row['contact_name']);
     $client_id = intval($row['contact_client_id']);
 
+    enforceClientAccess();
+
     // Update notes
     mysqli_query($mysqli, "UPDATE contacts SET contact_notes = '$notes' WHERE contact_id = $contact_id");
 
@@ -98,6 +102,8 @@ if (isset($_POST['asset_set_notes'])) {
     $row = mysqli_fetch_assoc($sql);
     $asset_name = escapeSql($row['asset_name']);
     $client_id = intval($row['asset_client_id']);
+
+    enforceClientAccess();
 
     // Update notes
     mysqli_query($mysqli, "UPDATE assets SET asset_notes = '$notes' WHERE asset_id = $asset_id");

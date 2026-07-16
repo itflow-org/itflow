@@ -1,5 +1,8 @@
 <?php
+
 require_once '../../../includes/modal_header.php';
+
+enforceUserPermission('module_support', 2);
 
 $ticket_id = intval($_GET['ticket_id']);
 
@@ -10,7 +13,10 @@ $ticket_prefix = escapeHtml($row['ticket_prefix']);
 $ticket_number = intval($row['ticket_number']);
 $client_id = intval($row['ticket_client_id']);
 
-// Generate the HTML form content using output buffering.
+if ($client_id) {
+    enforceClientAccess();
+}
+
 ob_start();
 
 ?>

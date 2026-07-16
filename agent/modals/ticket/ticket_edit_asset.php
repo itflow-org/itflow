@@ -2,16 +2,22 @@
 
 require_once '../../../includes/modal_header.php';
 
+enforceUserPermission('module_support', 2);
+
 $ticket_id = intval($_GET['id']);
 
 $sql = mysqli_query($mysqli, "SELECT * FROM tickets LEFT JOIN clients ON client_id = ticket_client_id WHERE ticket_id = $ticket_id LIMIT 1");
 
 $row = mysqli_fetch_assoc($sql);
-$client_id = intval($row['ticket_client_id']);
 $client_name = escapeHtml($row['client_name']);
 $ticket_prefix = escapeHtml($row['ticket_prefix']);
 $ticket_number = intval($row['ticket_number']);
 $asset_id = intval($row['ticket_asset_id']);
+$client_id = intval($row['ticket_client_id']);
+
+if ($client_id) {
+    enforceClientAccess();
+}
 
 // Additional Assets Selected
 $additional_assets_array = array();
@@ -21,8 +27,8 @@ while ($row = mysqli_fetch_assoc($sql_additional_assets)) {
     $additional_assets_array[] = $additional_asset_id;
 }
 
-// Generate the HTML form content using output buffering.
 ob_start();
+
 ?>
 
 <div class="modal-header bg-dark">

@@ -2,6 +2,8 @@
 
 require_once '../../../includes/modal_header.php';
 
+enforceUserPermission('module_support', 2);
+
 $ticket_id = intval($_GET['id']);
 
 $sql = mysqli_query($mysqli, "SELECT * FROM tickets
@@ -14,10 +16,11 @@ $row = mysqli_fetch_assoc($sql);
 $ticket_prefix = escapeHtml($row['ticket_prefix']);
 $ticket_number = intval($row['ticket_number']);
 $contact_id = intval($row['ticket_contact_id']);
-$client_id = intval($row['ticket_client_id']);
 $client_name = escapeHtml($row['client_name']);
+$client_id = intval($row['ticket_client_id']);
 
-// Generate the HTML form content using output buffering.
+enforceClientAccess();
+
 ob_start();
 
 ?>

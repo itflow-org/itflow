@@ -13,7 +13,8 @@ $row = mysqli_fetch_assoc($sql);
 $contact_name = escapeHtml($row['contact_name']);
 $client_id = intval($row['contact_client_id']);
 
-// Generate the HTML form content using output buffering.
+enforceClientAccess();
+
 ob_start();
 
 ?>
@@ -64,5 +65,5 @@ ob_start();
 </form>
 
 <?php
+
 require_once '../../../includes/modal_footer.php';
-?>

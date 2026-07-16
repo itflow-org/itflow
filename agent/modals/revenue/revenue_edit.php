@@ -2,6 +2,8 @@
 
 require_once '../../../includes/modal_header.php';
 
+enforceUserPermission('module_financial', 2);
+
 $revenue_id = intval($_GET['id']);
 
 $sql = mysqli_query($mysqli, "SELECT * FROM revenues WHERE revenue_id = $revenue_id LIMIT 1");
@@ -17,8 +19,8 @@ $revenue_created_at = escapeHtml($row['revenue_created_at']);
 $account_id = intval($row['revenue_account_id']);
 $category_id = intval($row['revenue_category_id']);
 
-// Generate the HTML form content using output buffering.
 ob_start();
+
 ?>
 
 <div class="modal-header bg-dark">

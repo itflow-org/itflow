@@ -2,6 +2,8 @@
 
 require_once '../../../includes/modal_header.php';
 
+enforceUserPermission('module_support', 2);
+
 $ticket_id = intval($_GET['id']);
 
 $sql = mysqli_query($mysqli, "SELECT * FROM tickets
@@ -14,10 +16,13 @@ $row = mysqli_fetch_assoc($sql);
 $ticket_prefix = escapeHtml($row['ticket_prefix']);
 $ticket_number = intval($row['ticket_number']);
 $ticket_priority = escapeHtml($row['ticket_priority']);
-$client_id = intval($row['ticket_client_id']);
 $client_name = escapeHtml($row['client_name']);
+$client_id = intval($row['ticket_client_id']);
 
-// Generate the HTML form content using output buffering.
+if ($client_id) {
+    enforceClientAccess();
+}
+
 ob_start();
 
 ?>
@@ -31,7 +36,6 @@ ob_start();
 <form action="post.php" method="post" autocomplete="off">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
     <input type="hidden" name="ticket_id" value="<?php echo $ticket_id; ?>">
-    <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
 
     <div class="modal-body">
 

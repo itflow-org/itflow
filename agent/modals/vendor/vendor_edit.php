@@ -21,6 +21,11 @@ $vendor_sla = escapeHtml($row['vendor_sla']);
 $vendor_code = escapeHtml($row['vendor_code']);
 $vendor_notes = escapeHtml($row['vendor_notes']);
 $vendor_template_id = intval($row['vendor_template_id']);
+$client_id = intval($row['vendor_client_id']);
+
+if ($client_id) {
+    enforceClientAccess();
+}
 
 ob_start();
 

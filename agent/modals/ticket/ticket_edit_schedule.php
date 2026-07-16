@@ -2,6 +2,8 @@
 
 require_once '../../../includes/modal_header.php';
 
+enforceUserPermission('module_support', 2);
+
 $ticket_id = intval($_GET['ticket_id']);
 
 $sql = mysqli_query($mysqli, "SELECT * FROM tickets
@@ -15,13 +17,17 @@ $ticket_prefix = escapeHtml($row['ticket_prefix']);
 $ticket_number = intval($row['ticket_number']);
 $ticket_scheduled_for = escapeHtml($row['ticket_schedule']);
 $ticket_onsite = intval($row['ticket_onsite']);
-$client_id = intval($row['ticket_client_id']);
 $client_name = escapeHtml($row['client_name']);
+$client_id = intval($row['ticket_client_id']);
 
-// Generate the HTML form content using output buffering.
+if ($client_id) {
+    enforceClientAccess();
+}
+
 ob_start();
 
 ?>
+
 <div class="modal-header bg-dark">
     <h5 class="modal-title">
         <i class="fa fa-fw fa-calendar-check mr-2"></i>Scheduling Ticket: <strong><?php echo "$ticket_prefix$ticket_number"; ?></strong>

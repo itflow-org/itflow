@@ -7,6 +7,8 @@ if (isset($_GET['client_id'])) {
     require_once "includes/inc_all.php";
 }
 
+enforceUserPermission('module_sales');
+
 if (isset($_GET['recurring_invoice_id'])) {
 
     $recurring_invoice_id = intval($_GET['recurring_invoice_id']);
@@ -111,6 +113,8 @@ if (isset($_GET['recurring_invoice_id'])) {
         }
         $json_products = json_encode($products);
     }
+
+    enforceClientAccess();
 
     ?>
 

@@ -7,6 +7,10 @@ $contact_id = intval($_GET['contact_id'] ?? 0);
 $asset_id = intval($_GET['asset_id'] ?? 0);
 $project_id = intval($_GET['project_id'] ?? 0);
 
+if ($client_id) {
+    enforceClientAccess();
+}
+
 ob_start();
 
 ?>

@@ -2,6 +2,8 @@
 
 require_once '../../../includes/modal_header.php';
 
+enforceUserPermission('module_financial', 2);
+
 $transfer_id = intval($_GET['id']);
 
 $sql = mysqli_query($mysqli, "SELECT transfer_created_at, expense_date AS transfer_date, expense_amount AS transfer_amount, expense_account_id AS transfer_account_from, revenue_account_id AS transfer_account_to, transfer_expense_id, transfer_revenue_id, transfer_id, transfer_method, transfer_notes FROM transfers, expenses, revenues
@@ -22,8 +24,8 @@ $transfer_created_at = escapeHtml($row['transfer_created_at']);
 $expense_id = intval($row['transfer_expense_id']);
 $revenue_id = intval($row['transfer_revenue_id']);
 
-// Generate the HTML form content using output buffering.
 ob_start();
+
 ?>
 
 <div class="modal-header bg-dark">

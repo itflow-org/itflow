@@ -18,9 +18,14 @@ $calendar_name = escapeHtml($row['calendar_name']);
 $calendar_color = escapeHtml($row['calendar_color']);
 $client_id = intval($row['event_client_id']);
 
-// Generate the HTML form content using output buffering.
+if ($client_id) {
+    enforceClientAccess();
+}
+
 ob_start();
+
 ?>
+
 <div class="modal-header bg-dark">
     <h5 class="modal-title"><i class="fa fa-fw fa-calendar-check mr-2" style="color:<?php echo $calendar_color; ?>"></i>Editing: <strong><?php echo $event_title; ?></strong></h5>
     <button type="button" class="close text-white" data-dismiss="modal">

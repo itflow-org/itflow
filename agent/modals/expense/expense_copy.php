@@ -2,6 +2,8 @@
 
 require_once '../../../includes/modal_header.php';
 
+enforceUserPermission('module_financial', 2);
+
 $expense_id = intval($_GET['id']);
 
 $sql = mysqli_query($mysqli, "SELECT * FROM expenses WHERE expense_id = $expense_id LIMIT 1");
@@ -17,10 +19,14 @@ $expense_created_at = escapeHtml($row['expense_created_at']);
 $expense_vendor_id = intval($row['expense_vendor_id']);
 $expense_category_id = intval($row['expense_category_id']);
 $expense_account_id = intval($row['expense_account_id']);
-$expense_client_id = intval($row['expense_client_id']);
+$client_id = intval($row['expense_client_id']);
 
-// Generate the HTML form content using output buffering.
+if ($client_id) {
+    enforceClientAccess();
+}
+
 ob_start();
+
 ?>
 
 <div class="modal-header bg-dark">
@@ -181,7 +187,7 @@ ob_start();
                                 $client_id_select = intval($row['client_id']);
                                 $client_name_select = escapeHtml($row['client_name']);
                                 ?>
-                                <option <?php if ($expense_client_id == $client_id_select) { echo "selected"; } ?> value="<?php echo $client_id_select; ?>"><?php echo $client_name_select; ?></option>
+                                <option <?php if ($client_id == $client_id_select) { echo "selected"; } ?> value="<?php echo $client_id_select; ?>"><?php echo $client_name_select; ?></option>
 
                                 <?php
                             }

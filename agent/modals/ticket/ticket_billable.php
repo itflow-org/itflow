@@ -10,8 +10,10 @@ $row = mysqli_fetch_assoc($sql);
 $ticket_prefix = escapeHtml($row['ticket_prefix']);
 $ticket_number = intval($row['ticket_number']);
 $ticket_billable = intval($row['ticket_billable']);
+$client_id = intval($row['ticket_client_id']);
 
-// Generate the HTML form content using output buffering.
+enforceClientAccess();
+
 ob_start();
 
 ?>

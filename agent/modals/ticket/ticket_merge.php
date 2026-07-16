@@ -2,6 +2,8 @@
 
 require_once '../../../includes/modal_header.php';
 
+enforceUserPermission('module_support', 2);
+
 $ticket_id = intval($_GET['ticket_id']);
 
 $sql = mysqli_query($mysqli, "SELECT * FROM tickets
@@ -16,7 +18,9 @@ $ticket_number = intval($row['ticket_number']);
 $client_name = escapeHtml($row['client_name']);
 $client_id = intval($row['ticket_client_id']);
 
-enforceClientAccess();
+if ($client_id) {
+    enforceClientAccess();
+}
 
 $sql_merge = mysqli_query($mysqli, "SELECT * FROM tickets
     LEFT JOIN ticket_statuses ON ticket_status = ticket_status_id

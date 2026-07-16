@@ -2,6 +2,8 @@
 
 require_once '../../../includes/modal_header.php';
 
+enforceUserPermission('module_support', 2);
+
 $ticket_id = intval($_GET['id']);
 
 $sql = mysqli_query($mysqli, "SELECT * FROM tickets
@@ -17,8 +19,12 @@ $ticket_assigned_to = intval($row['ticket_assigned_to']);
 $ticket_status = intval($row['ticket_status']);
 $ticket_closed_at = escapeHtml($row['ticket_closed_at']);
 $client_name = escapeHtml($row['client_name']);
+$client_id = intval($row['ticket_client_id']);
 
-// Generate the HTML form content using output buffering.
+if ($client_id) {
+    enforceClientAccess();
+}
+
 ob_start();
 
 ?>

@@ -19,6 +19,11 @@ $hours = escapeSql($row['vendor_hours']);
 $sla = escapeSql($row['vendor_sla']);
 $code = escapeSql($row['vendor_code']);
 $notes = escapeSql($row['vendor_notes']);
+$client_id = intval($row['vendor_client_id']);
+
+if ($client_id) {
+    enforceClientAccess();
+}
 
 ob_start();
 

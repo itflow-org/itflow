@@ -2,6 +2,8 @@
 
 require_once '../../../includes/modal_header.php';
 
+enforceUserPermission('module_sales', 2);
+
 $quote_id = intval($_GET['id']);
 
 $sql = mysqli_query($mysqli, "SELECT * FROM quotes LEFT JOIN clients ON quote_client_id = client_id WHERE quote_id = $quote_id LIMIT 1");
@@ -17,9 +19,12 @@ $quote_discount = floatval($row['quote_discount_amount']);
 $quote_created_at = escapeHtml($row['quote_created_at']);
 $quote_category_id = intval($row['quote_category_id']);
 $client_name = escapeHtml($row['client_name']);
+$client_id = intval($row['quote_client_id']);
 
-// Generate the HTML form content using output buffering.
+enforceClientAccess();
+
 ob_start();
+
 ?>
 
 <div class="modal-header bg-dark">

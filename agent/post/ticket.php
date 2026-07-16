@@ -322,7 +322,6 @@ if (isset($_POST['edit_ticket_priority'])) {
 
     $ticket_id = intval($_POST['ticket_id']);
     $priority = escapeSql($_POST['priority']);
-    $client_id = intval($_POST['client_id']);
 
     // Get ticket details before updating
     $sql = mysqli_query($mysqli, "SELECT

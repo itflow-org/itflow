@@ -61,7 +61,9 @@ $asset_id = intval($row['asset_id']);
 $asset_name = escapeHtml($row['asset_name']);
 $asset_type = escapeHtml($row['asset_type']);
 
-
+if ($client_id) {
+    enforceClientAccess();
+}
 
 ob_start();
 

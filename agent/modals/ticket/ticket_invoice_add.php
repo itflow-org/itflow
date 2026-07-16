@@ -71,6 +71,10 @@ $location_state = escapeHtml($row['location_state']);
 $location_zip = escapeHtml($row['location_zip']);
 $location_phone = formatPhoneNumber($row['location_phone']);
 
+if ($client_id) {
+    enforceClientAccess();
+}
+
 //Get Total Ticket Time
 $ticket_total_reply_time = mysqli_query($mysqli, "SELECT SEC_TO_TIME(SUM(TIME_TO_SEC(ticket_reply_time_worked))) AS ticket_total_reply_time FROM ticket_replies WHERE ticket_reply_archived_at IS NULL AND ticket_reply_ticket_id = $ticket_id");
 $row = mysqli_fetch_assoc($ticket_total_reply_time);

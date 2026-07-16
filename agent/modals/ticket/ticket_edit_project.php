@@ -2,23 +2,28 @@
 
 require_once '../../../includes/modal_header.php';
 
+enforceUserPermission('module_support', 2);
+
 $ticket_id = intval($_GET['id']);
 
 $sql = mysqli_query($mysqli, "SELECT * FROM tickets LEFT JOIN clients ON client_id = ticket_client_id WHERE ticket_id = $ticket_id LIMIT 1");
 
 $row = mysqli_fetch_assoc($sql);
-$client_id = intval($row['ticket_client_id']);
 $client_name = escapeHtml($row['client_name']);
 $ticket_prefix = escapeHtml($row['ticket_prefix']);
 $ticket_number = intval($row['ticket_number']);
 $ticket_project_id = intval($row['ticket_project_id']);
+$client_id = intval($row['ticket_client_id']);
 
+if ($client_id) {
+    enforceClientAccess();
+}
 
 // Select box arrays
 $sql_projects = mysqli_query($mysqli, "SELECT project_id, project_name FROM projects WHERE (project_client_id = $client_id OR project_client_id = 0) AND project_completed_at IS NULL AND project_archived_at IS NULL ORDER BY project_name ASC");
 
-// Generate the HTML form content using output buffering.
 ob_start();
+
 ?>
 
 <div class="modal-header bg-dark">

@@ -6,6 +6,10 @@ $client_id = intval($_GET['client_id'] ?? 0);
 $contact_id = intval($_GET['contact_id'] ?? 0);
 $project_id = intval($_GET['project_id'] ?? 0);
 
+if ($client_id) {
+    enforceClientAccess();
+}
+
 ob_start();
 
 ?>
