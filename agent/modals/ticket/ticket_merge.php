@@ -13,20 +13,24 @@ $sql = mysqli_query($mysqli, "SELECT * FROM tickets
 $row = mysqli_fetch_assoc($sql);
 $ticket_prefix = escapeHtml($row['ticket_prefix']);
 $ticket_number = intval($row['ticket_number']);
-$client_id = intval($row['ticket_client_id']);
 $client_name = escapeHtml($row['client_name']);
+$client_id = intval($row['ticket_client_id']);
+
+enforceClientAccess();
 
 $sql_merge = mysqli_query($mysqli, "SELECT * FROM tickets
     LEFT JOIN ticket_statuses ON ticket_status = ticket_status_id
     LEFT JOIN clients ON client_id = ticket_client_id
-    WHERE ticket_closed_at IS NULL AND ticket_id != $ticket_id
+    WHERE ticket_closed_at IS NULL
+    AND ticket_id != $ticket_id
+    $access_permission_query
     ORDER BY ticket_status ASC, ticket_id DESC"
 );
 
-// Generate the HTML form content using output buffering.
 ob_start();
 
 ?>
+
 <div class="modal-header bg-dark">
     <h5 class="modal-title"><i class="fa fa-fw fa-clone mr-2"></i>Merge & Close <?= "$ticket_prefix$ticket_number" ?> into another ticket</h5>
     <button type="button" class="close text-white" data-dismiss="modal">
