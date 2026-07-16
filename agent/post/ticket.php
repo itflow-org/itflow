@@ -1731,7 +1731,8 @@ if (isset($_POST['add_ticket_reply'])) {
     $ticket_id = intval($_POST['ticket_id']);
     $ticket_reply = $_POST['ticket_reply']; // Reply is SQL escaped below
     $ticket_status = intval($_POST['status']);
-    $client_id = intval($_POST['client_id']);
+    
+    $client_id = intval(getFieldById('tickets', $ticket_id, 'ticket_client_id'));
 
     // Don't Enforce Client Access if Ticket doesn't have an assigned client
     if ($client_id) {
@@ -1917,7 +1918,14 @@ if (isset($_POST['edit_ticket_reply'])) {
     $ticket_reply_type = escapeSql($_POST['ticket_reply_type']);
     $ticket_reply_time_worked = escapeSql($_POST['time']);
 
-    $client_id = intval($_POST['client_id']);
+    $sql = mysqli_query($mysqli, "SELECT ticket_client_id FROM ticket_replies
+        LEFT JOIN tickets ON ticket_id = ticket_reply_ticket_id
+        WHERE ticket_reply_id = $ticket_reply_id
+        LIMIT 1"
+    );
+
+    $row = mysqli_fetch_assoc($sql);
+    $client_id = intval($row['ticket_client_id']);
 
     // Don't Enforce Client Access if Ticket doesn't have an assigned client
     if ($client_id) {

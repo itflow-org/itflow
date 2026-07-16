@@ -59,7 +59,12 @@ if (isset($_POST['add_quote_copy'])) {
     $date = escapeSql($_POST['date']);
     $expire = escapeSql($_POST['expire']);
 
-    enforceClientAccess();
+    // Source: can you read the quote you're copying FROM?
+    $source_client_id = intval(getFieldById('quotes', $quote_id, 'quote_client_id'));
+    enforceClientAccess($source_client_id);
+
+    // Destination: can you write to the client you're copying INTO?
+    enforceClientAccess($client_id);
 
     $config_quote_prefix = escapeSql($config_quote_prefix);
 

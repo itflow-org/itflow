@@ -105,14 +105,15 @@ if (isset($_POST['edit_project'])) {
     $project_description = escapeSql($_POST['description']);
     $due_date = escapeSql($_POST['due_date']);
     $project_manager = intval($_POST['project_manager']);
-    $client_id = intval($_POST['client_id']);
+    
+    $client_id = intval(getFieldById('projects', $project_id, 'project_client_id'));
 
     // Don't Enforce Client Access if Project doesn't have an assigned client
     if ($client_id) {
         enforceClientAccess();
     }
 
-    mysqli_query($mysqli, "UPDATE projects SET project_name = '$project_name', project_description = '$project_description', project_due = '$due_date', project_manager = $project_manager, project_client_id = $client_id WHERE project_id = $project_id");
+    mysqli_query($mysqli, "UPDATE projects SET project_name = '$project_name', project_description = '$project_description', project_due = '$due_date', project_manager = $project_manager WHERE project_id = $project_id");
 
     logAudit("Project", "Edit", "$session_name edited project $project_name", $client_id, $project_id);
 

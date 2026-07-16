@@ -589,7 +589,6 @@ if (isset($_GET['ticket_id'])) {
                         <form action="post.php" method="post" autocomplete="off">
                             <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
                             <input type="hidden" name="ticket_id" id="ticket_id" value="<?php echo $ticket_id; ?>">
-                            <input type="hidden" name="client_id" id="client_id" value="<?php echo $client_id; ?>">
 
                             <div class="card card-body d-print-none p-3">
 
