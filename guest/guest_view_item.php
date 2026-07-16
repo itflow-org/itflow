@@ -188,19 +188,15 @@ if ($item_type == "Document") {
     $password_ciphertext = substr($row['item_encrypted_credential'], 16);
     $credential_password = escapeHtml(openssl_decrypt($password_ciphertext, 'aes-128-cbc', $encryption_key, 0, $password_iv));
 
-    $credential_otp = escapeHtml($credential_row['credential_otp_secret']);
-
-    $credential_otp_secret = escapeHtml($credential_row['credential_otp_secret']);
-    $credential_id_with_secret = '"' . $credential_row['credential_id'] . '","' . $credential_row['credential_otp_secret'] . '"';
+    // TOTP secret never leaves the server - the page polls guest_ajax.php for rotating codes
+    $credential_otp_secret = $credential_row['credential_otp_secret'];
     if (empty($credential_otp_secret)) {
         $otp_display = "-";
     } else {
-        $otp_display = "<span onmouseenter='showOTP($credential_id_with_secret)'><i class='far fa-clock'></i> <span id='otp_$credential_id'><i>Hover..</i></span></span>";
+        $otp_display = "<span id='otp'><i class='fas fa-spinner fa-spin'></i></span>";
     }
 
     $credential_notes = escapeHtml($credential_row['credential_note']);
-
-
 
     ?>
 
@@ -227,26 +223,35 @@ if ($item_type == "Document") {
 
     </table>
 
+    <?php if (!empty($credential_otp_secret)) { ?>
     <script>
-        function showOTP(id, secret) {
-            //Send a GET request to ajax.php as guest_ajax.php?get_totp_token=true&totp_secret=SECRET
+        function refreshOTP() {
+            // Send a GET request to guest_ajax.php as guest_ajax.php?get_share_totp_token=true&id=ID&key=KEY
             jQuery.get(
-                "/agent/ajax.php",
-                {get_totp_token: 'true', totp_secret: secret},
+                "guest_ajax.php",
+                {
+                    get_share_totp_token: 'true',
+                    id: <?php echo $item_id; ?>,
+                    key: "<?php echo $item_key; ?>"
+                },
                 function(data) {
-                    //If we get a response from post.php, parse it as JSON
-                    const token = JSON.parse(data);
+                    const response = JSON.parse(data);
 
-                    document.getElementById("otp_" + id).innerText = token
-
+                    if (response.token) {
+                        document.getElementById("otp").innerText = response.token;
+                        // Refresh exactly when this code rotates
+                        setTimeout(refreshOTP, response.expires_in * 1000);
+                    } else {
+                        // Share expired or revoked - stop rotating
+                        document.getElementById("otp").innerText = "-";
+                    }
                 }
             );
         }
 
-        function generatePassword() {
-            document.getElementById("password").value = "<?php echo randomString(); ?>"
-        }
+        refreshOTP();
     </script>
+    <?php } ?>
 
 
     <?php

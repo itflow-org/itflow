@@ -102,3 +102,46 @@ if (isset($_GET['stripe_create_pi'])) {
 
     exit;
 }
+
+/*
+ * Returns the current TOTP code for a shared credential
+ * Authenticated via the share ID + key, same as guest_view_item.php
+ */
+if (isset($_GET['get_share_totp_token'])) {
+
+    header('Content-Type: application/json');
+
+    $item_id = intval($_GET['id']);
+    $item_key = escapeSql($_GET['key']);
+
+    // Deliberately no item_view_limit check here - the page view already consumed a view,
+    //  and blocking token refreshes would break rotation for limit-1 shares.
+    //  Active + expiry checks still apply, so revoking the share stops codes immediately.
+    $sql = mysqli_query($mysqli, "SELECT item_related_id, item_client_id FROM shared_items WHERE item_id = $item_id AND item_key = '$item_key' AND item_type = 'Credential' AND item_active = 1 AND item_expire_at > NOW() LIMIT 1");
+
+    if (!$sql || mysqli_num_rows($sql) !== 1) {
+        exit(json_encode(['error' => 'invalid']));
+    }
+
+    $row = mysqli_fetch_assoc($sql);
+    $credential_id = intval($row['item_related_id']);
+    $client_id = intval($row['item_client_id']);
+
+    $credential_sql = mysqli_query($mysqli, "SELECT credential_otp_secret FROM credentials WHERE credential_id = $credential_id AND credential_client_id = $client_id LIMIT 1");
+
+    if (!$credential_sql || mysqli_num_rows($credential_sql) !== 1) {
+        exit(json_encode(['error' => 'invalid']));
+    }
+
+    $totp_secret = mysqli_fetch_assoc($credential_sql)['credential_otp_secret'];
+
+    if (empty($totp_secret)) {
+        exit(json_encode(['error' => 'invalid']));
+    }
+
+    echo json_encode([
+        'token' => TokenAuth6238::getTokenCode(strtoupper($totp_secret)),
+        'expires_in' => 30 - (time() % 30)
+    ]);
+    exit;
+}

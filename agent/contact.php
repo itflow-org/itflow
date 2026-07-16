@@ -553,7 +553,6 @@ if (isset($_GET['contact_id'])) {
                                     $credential_username_display = "$credential_username<button class='btn btn-sm clipboardjs' data-clipboard-text='$credential_username'><i class='far fa-copy text-secondary'></i></button>";
                                 }
                                 $credential_otp_secret = escapeHtml($row['credential_otp_secret']);
-                                $credential_id_with_secret = '"' . $row['credential_id'] . '","' . $row['credential_otp_secret'] . '"';
                                 if (empty($credential_otp_secret)) {
                                     $otp_display = "-";
                                 } else {
