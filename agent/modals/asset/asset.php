@@ -16,7 +16,11 @@ $sql = mysqli_query($mysqli, "SELECT * FROM assets
 ");
 
 $row = mysqli_fetch_assoc($sql);
+
 $client_id = intval($row['client_id']);
+
+enforceClientAccess();
+
 $client_name = escapeHtml($row['client_name']);
 $asset_id = intval($row['asset_id']);
 $asset_type = escapeHtml($row['asset_type']);
