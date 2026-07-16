@@ -8,7 +8,7 @@ That simplicity comes with a trade-off: **safety and correctness depend on follo
  
 ## Quick start (development)
  
-1. Clone the repo into a webroot served by Apache/PHP 8.x with the `mysqli` and `imap`-related extensions available.
+1. Clone the repo into a webroot served by Apache/PHP 8.x with the `mysqli`.
 2. Create a MySQL/MariaDB database and browse to `/setup/` — or import `db.sql` directly.
 3. Rename/skip setup as prompted; `config.php` is generated at the root (and is gitignored).
 There is no `composer install` or `npm install` step. All third-party libraries are vendored in `/libs/`. This is deliberate — ITFlow is distributed as "unzip and go" — so **never add a runtime Composer/npm dependency**. If a new library is truly needed, discuss it in an issue first; if accepted, it gets vendored into `/libs/`.
