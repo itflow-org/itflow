@@ -1,79 +1,9 @@
 <?php
 
-// DNS, SSL and domain expiration lookups (WHOIS/RDAP)
-// Split from the former monolithic functions.php
-
-
-// Get domain general info (whois + NS/A/MX records)
-function getDnsRecords($name)
-{
-    $records = array();
-
-    // Only run if we think the domain is valid
-    if (!filter_var($name, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME) || !checkdnsrr($name, 'SOA')) {
-        $records['a'] = '';
-        $records['ns'] = '';
-        $records['mx'] = '';
-        $records['whois'] = '';
-        return $records;
-    }
-
-    $domain = escapeshellarg(str_replace('www.', '', $name));
-
-    // Get A, NS, MX, TXT, and WHOIS records
-    $records['a'] = trim(strip_tags(shell_exec("dig +short $domain")));
-    $records['ns'] = trim(strip_tags(shell_exec("dig +short NS $domain")));
-    $records['mx'] = trim(strip_tags(shell_exec("dig +short MX $domain")));
-    $records['txt'] = trim(strip_tags(shell_exec("dig +short TXT $domain")));
-    $records['whois'] = substr(trim(strip_tags(shell_exec("whois -H $domain | head -30 | sed 's/   //g'"))), 0, 254);
-
-    // Sort A records (if multiple records exist)
-    if (!empty($records['a'])) {
-        $a_records = explode("\n", $records['a']);
-        array_walk($a_records, function(&$record) {
-            $record = trim($record);
-        });
-        sort($a_records);
-        $records['a'] = implode("\n", $a_records);
-    }
-
-    // Sort NS records (if multiple records exist)
-    if (!empty($records['ns'])) {
-        $ns_records = explode("\n", $records['ns']);
-        array_walk($ns_records, function(&$record) {
-            $record = trim($record);
-        });
-        sort($ns_records);
-        $records['ns'] = implode("\n", $ns_records);
-    }
-
-    // Sort MX records (if multiple records exist)
-    if (!empty($records['mx'])) {
-        $mx_records = explode("\n", $records['mx']);
-        array_walk($mx_records, function(&$record) {
-            $record = trim($record);
-        });
-        sort($mx_records);
-        $records['mx'] = implode("\n", $mx_records);
-    }
-
-    // Sort TXT records (if multiple records exist)
-    if (!empty($records['txt'])) {
-        $txt_records = explode("\n", $records['txt']);
-        array_walk($txt_records, function(&$record) {
-            $record = trim($record);
-        });
-        sort($txt_records);
-        $records['txt'] = implode("\n", $txt_records);
-    }
-
-    return $records;
-}
 
 // Used to automatically attempt to get SSL certificates as part of adding domains
 // The logic for the fetch (sync) button on the client_certificates page is in ajax.php, and allows ports other than 443
-function getSslCertificate($full_name)
-{
+function getSslCertificate($full_name) {
 
     // Parse host and port
     $name = parse_url("//$full_name", PHP_URL_HOST);
@@ -117,112 +47,386 @@ function getSslCertificate($full_name)
     return $certificate;
 }
 
-function getDomainExpirationDate($domain) {
-    // Execute the whois command
-    $result = shell_exec("whois " . escapeshellarg($domain));
-    if (!$result || !checkdnsrr($domain, 'SOA')) {
-        return null; // Return null if WHOIS query fails
+// ============================================================
+// RDAP + native-DNS domain lookups (no shell_exec)
+// Restored from commit d1e1609b; lost during the functions.php split.
+// ============================================================
+
+// --- RDAP helpers ---------------------------------------------------------
+
+function rdapHttpGet($url, &$http_code = null) {
+    $ch = curl_init($url);
+    curl_setopt_array($ch, array(
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_CONNECTTIMEOUT => 5,
+        CURLOPT_TIMEOUT        => 10,
+        CURLOPT_USERAGENT      => 'ITFlow-Domain-Check',
+        CURLOPT_PROTOCOLS      => CURLPROTO_HTTPS,
+        CURLOPT_FOLLOWLOCATION => true, // RDAP bootstrap/redirectors use 30x
+        CURLOPT_MAXREDIRS      => 5,
+        CURLOPT_HTTPHEADER     => array('Accept: application/rdap+json'),
+    ));
+ 
+    $response = curl_exec($ch);
+    $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+ 
+    return ($response === false) ? '' : $response;
+}
+
+function getDomainRdap($domain) {
+    static $cache = array();
+ 
+    if (array_key_exists($domain, $cache)) {
+        return $cache[$domain];
     }
+    $cache[$domain] = null;
+ 
+    $tld = substr(strrchr($domain, '.'), 1);
+    if (empty($tld)) {
+        return null;
+    }
+ 
+    // Primary: IANA bootstrap -> registry RDAP server directly
+    $base = getRdapBaseUrl($tld);
+    if (!empty($base)) {
+        $raw = rdapHttpGet($base . 'domain/' . rawurlencode($domain), $code);
+        if ($code === 200 && !empty($raw)) {
+            $decoded = json_decode($raw, true);
+            if (is_array($decoded)) {
+                $cache[$domain] = $decoded;
+                return $decoded;
+            }
+        }
+        if ($code === 404) {
+            return null; // Domain genuinely not found - don't bother the fallback
+        }
+    }
+ 
+    // Fallback: rdap.org redirector (covers gaps and bootstrap fetch failures)
+    $raw = rdapHttpGet('https://rdap.org/domain/' . rawurlencode($domain), $code);
+    if ($code === 200 && !empty($raw)) {
+        $decoded = json_decode($raw, true);
+        if (is_array($decoded)) {
+            $cache[$domain] = $decoded;
+        }
+    }
+ 
+    return $cache[$domain];
+}
 
-    $expireDate = '';
+function getRdapEventDate($rdap, $action) {
+    if (empty($rdap['events']) || !is_array($rdap['events'])) {
+        return '';
+    }
+    foreach ($rdap['events'] as $event) {
+        if (isset($event['eventAction'], $event['eventDate']) && $event['eventAction'] === $action) {
+            return $event['eventDate'];
+        }
+    }
+    return '';
+}
 
-    // Regular expressions to match different date formats
-    $patterns = [
-        '/Expiration Date: (.+)/',
-        '/Registry Expiry Date: (.+)/',
-        '/expires: (.+)/',
-        '/Expiry Date: (.+)/',
-        '/renewal date: (.+)/',
-        '/Expires On: (.+)/',
-        '/paid-till: (.+)/',
-        '/Expiration Time: (.+)/',
-        '/\[Expires on\]\s+(.+)/',
-        '/expire: (.+)/',
-        '/validity: (.+)/',
-        '/Expires on.*: (.+)/i',
-        '/Expiry on.*: (.+)/i',
-        '/renewal: (.+)/i',
-        '/Expir\w+ Date: (.+)/i',
-        '/Valid Until: (.+)/i',
-        '/Valid until: (.+)/i',
-        '/expire-date: (.+)/i',
-        '/Expiration Date: (.+)/i',
-        '/Registry Expiry Date: (.+)/i',
-        '/Expire Date: (.+)/i',
-        '/expiry: (.+)/i',
-        '/expires: (.+)/i',
-        '/Registry Expiry Date: (.+)/i',
-        '/Expiration Time: (.+)/i',
-        '/validity: (.+)/i',
-        '/expires: (.+)/i',
-        '/paid-till: (.+)/i',
-        '/Expire Date: (.+)/i',
-        '/Expiration Date: (.+)/i',
-        '/expire: (.+)/i',
-        '/expiry: (.+)/i',
-        '/renewal date: (.+)/i',
-        '/Expiration Date: (.+)/i',
-        '/Expiration Time: (.+)/i',
-        '/Expires: (.+)/i',
-    ];
+function getRdapRegistrar($rdap) {
+    if (empty($rdap['entities']) || !is_array($rdap['entities'])) {
+        return '';
+    }
+    foreach ($rdap['entities'] as $entity) {
+        if (empty($entity['roles']) || !in_array('registrar', $entity['roles'])) {
+            continue;
+        }
+        if (!empty($entity['vcardArray'][1]) && is_array($entity['vcardArray'][1])) {
+            foreach ($entity['vcardArray'][1] as $field) {
+                if (isset($field[0], $field[3]) && $field[0] === 'fn' && is_string($field[3])) {
+                    return $field[3];
+                }
+            }
+        }
+    }
+    return '';
+}
 
-    // Known date formats
-    $knownFormats = [
-        "d-M-Y",
-        "d-F-Y",
-        "d-m-Y",
-        "Y-m-d",
-        "d.m.Y",
-        "Y.m.d",
-        "Y/m/d",
-        "Y/m/d H:i:s",
-        "Ymd",
-        "Ymd H:i:s",
-        "d/m/Y",
-        "Y. m. d.",
-        "Y.m.d H:i:s",
-        "d-M-Y H:i:s",
-        "D M d H:i:s T Y",
-        "D M d Y",
-        "Y-m-d\TH:i:s",
-        "Y-m-d\TH:i:s\Z",
-        "Y-m-d H:i:s\Z",
-        "Y-m-d H:i:s",
-        "d M Y H:i:s",
-        "d/m/Y H:i:s",
-        "d/m/Y H:i:s T",
-        "B d Y",
-        "d.m.Y H:i:s",
-        "before M-Y",
-        "before Y-m-d",
-        "before Ymd",
-        "Y-m-d H:i:s (\T\Z\Z)",
-        "Y-M-d.",
-    ];
+function getRdapSummary($rdap) {
+    $lines = array();
+ 
+    $registrar = getRdapRegistrar($rdap);
+    if (!empty($registrar)) {
+        $lines[] = "Registrar: $registrar";
+    }
+ 
+    $registered = getRdapEventDate($rdap, 'registration');
+    if (!empty($registered)) {
+        $lines[] = 'Registered: ' . substr($registered, 0, 10);
+    }
+ 
+    $expires = getRdapEventDate($rdap, 'expiration');
+    if (!empty($expires)) {
+        $lines[] = 'Expires: ' . substr($expires, 0, 10);
+    }
+ 
+    if (!empty($rdap['status']) && is_array($rdap['status'])) {
+        $lines[] = 'Status: ' . implode(', ', array_slice($rdap['status'], 0, 3));
+    }
+ 
+    if (!empty($rdap['nameservers']) && is_array($rdap['nameservers'])) {
+        $ns = array();
+        foreach ($rdap['nameservers'] as $nameserver) {
+            if (!empty($nameserver['ldhName'])) {
+                $ns[] = strtolower($nameserver['ldhName']);
+            }
+        }
+        if (!empty($ns)) {
+            sort($ns);
+            $lines[] = 'Nameservers: ' . implode(', ', $ns);
+        }
+    }
+ 
+    return implode("\n", $lines);
+}
 
-    // Check each pattern to find a match
-    foreach ($patterns as $pattern) {
-        if (preg_match($pattern, $result, $matches)) {
-            $expireDate = trim($matches[1]);
+// --- Legacy whois fallback (port-43 socket, for TLDs without RDAP) --------
+
+function whoisSocketQuery($server, $query) {
+    $response = '';
+ 
+    $fp = @fsockopen($server, 43, $errno, $errstr, 5);
+    if (!$fp) {
+        return '';
+    }
+ 
+    stream_set_timeout($fp, 5);
+    fwrite($fp, $query . "\r\n");
+ 
+    while (!feof($fp)) {
+        $line = fgets($fp, 1024);
+        if ($line === false) {
+            break;
+        }
+        $response .= $line;
+ 
+        // Sanity cap - expiry/registrar fields always appear well before this
+        if (strlen($response) > 32768) {
             break;
         }
     }
+    fclose($fp);
+ 
+    return $response;
+}
 
-    if ($expireDate) {
-        // Try parsing with known formats
-        foreach ($knownFormats as $format) {
-            $parsedDate = DateTime::createFromFormat($format, $expireDate);
-            if ($parsedDate && $parsedDate->format($format) === $expireDate) {
-                return $parsedDate->format('Y-m-d');
+function getDomainWhois($domain) {
+    $tld = substr(strrchr($domain, '.'), 1);
+    if (empty($tld)) {
+        return '';
+    }
+ 
+    // Ask IANA which whois server handles this TLD
+    $server = '';
+    $iana_response = whoisSocketQuery('whois.iana.org', $tld);
+    if (preg_match('/^whois:\s*(\S+)/mi', $iana_response, $matches)) {
+        $server = $matches[1];
+    }
+    if (empty($server)) {
+        return '';
+    }
+ 
+    // Verisign registries match nameservers too unless you use exact-match syntax
+    $query = in_array($tld, array('com', 'net')) ? "=$domain" : $domain;
+ 
+    $result = whoisSocketQuery($server, $query);
+ 
+    // Thin registries (.com/.net) refer to the registrar's whois - follow it once
+    if (preg_match('/Registrar WHOIS Server:\s*(\S+)/i', $result, $matches)) {
+        $referral = rtrim(trim($matches[1]), '/');
+        $referral = preg_replace('#^r?whois://#i', '', $referral);
+        if (!empty($referral) && strcasecmp($referral, $server) !== 0) {
+            $referred_result = whoisSocketQuery($referral, $domain);
+            if (trim($referred_result) !== '') {
+                $result = $referred_result;
             }
         }
+    }
+ 
+    return $result;
+}
 
-        // If none of the formats matched, try to parse it directly
-        $parsedDate = date_create($expireDate);
-        if ($parsedDate) {
+// --- Public API (names match current callers) ----------------------------
+
+// getDnsRecords: native dns_get_record() for A/NS/MX/TXT + RDAP whois summary
+function getDnsRecords($name) {
+    $records = array(
+        'a' => '',
+        'ns' => '',
+        'mx' => '',
+        'txt' => '',
+        'whois' => '',
+        'expire' => ''
+    );
+ 
+    // Only run if we think the domain is valid
+    if (!filter_var($name, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME) || !checkdnsrr($name, 'SOA')) {
+        return $records;
+    }
+ 
+    // Anchored so we don't mangle domains that merely start with "www"
+    $domain = preg_replace('/^www\./i', '', strtolower(trim($name)));
+ 
+    // A records
+    $a = @dns_get_record($domain, DNS_A);
+    if (is_array($a) && !empty($a)) {
+        $a_records = array_column($a, 'ip');
+        sort($a_records);
+        $records['a'] = implode("\n", $a_records);
+    }
+ 
+    // NS records
+    $ns = @dns_get_record($domain, DNS_NS);
+    if (is_array($ns) && !empty($ns)) {
+        $ns_records = array_column($ns, 'target');
+        sort($ns_records);
+        $records['ns'] = implode("\n", $ns_records);
+    }
+ 
+    // MX records - mimic dig +short output format ("10 mail.example.com")
+    $mx = @dns_get_record($domain, DNS_MX);
+    if (is_array($mx) && !empty($mx)) {
+        $mx_records = array();
+        foreach ($mx as $record) {
+            $mx_records[] = $record['pri'] . ' ' . $record['target'];
+        }
+        sort($mx_records, SORT_NATURAL);
+        $records['mx'] = implode("\n", $mx_records);
+    }
+ 
+    // TXT records
+    $txt = @dns_get_record($domain, DNS_TXT);
+    if (is_array($txt) && !empty($txt)) {
+        $txt_records = array_column($txt, 'txt');
+        sort($txt_records);
+        $records['txt'] = implode("\n", $txt_records);
+    }
+ 
+    // Registration data - RDAP first, legacy whois only if the TLD has no RDAP
+    $rdap = getDomainRdap($domain);
+    if ($rdap !== null) {
+        $records['whois'] = substr(getRdapSummary($rdap), 0, 254);
+ 
+        $expires = getRdapEventDate($rdap, 'expiration');
+        if (!empty($expires)) {
+            $parsed = date_create($expires);
+            if ($parsed) {
+                $records['expire'] = $parsed->format('Y-m-d');
+            }
+        }
+    } else {
+        $whois_raw = getDomainWhois($domain);
+        if (!empty($whois_raw) && stripos($whois_raw, 'rate limit') === false) {
+            // Approximate the old `head -30 | sed 's/   //g'`
+            $lines = array_slice(explode("\n", $whois_raw), 0, 30);
+            $lines = array_map(function ($line) {
+                return preg_replace('/   +/', ' ', rtrim($line));
+            }, $lines);
+            $records['whois'] = substr(trim(strip_tags(implode("\n", $lines))), 0, 254);
+        }
+    }
+ 
+    return $records;
+}
+
+function getDomainExpirationDate($domain) {
+    if (!filter_var($domain, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME) || !checkdnsrr($domain, 'SOA')) {
+        return null;
+    }
+ 
+    $domain = preg_replace('/^www\./i', '', strtolower(trim($domain)));
+ 
+    // RDAP: expiration is a structured field - no regex, no date-format guessing
+    $rdap = getDomainRdap($domain);
+    if ($rdap !== null) {
+        $expires = getRdapEventDate($rdap, 'expiration');
+        if (!empty($expires)) {
+            $parsed = date_create($expires);
+            if ($parsed) {
+                return $parsed->format('Y-m-d');
+            }
+        }
+        return null; // RDAP answered but had no expiry (rare) - trust it, don't re-query
+    }
+ 
+    // Fallback for TLDs without RDAP: legacy whois parsing
+    $result = getDomainWhois($domain);
+    if (empty($result) || stripos($result, 'rate limit') !== false) {
+        return null;
+    }
+ 
+    // Every expiry label seen in the wild, longest/most-specific first
+    $labels = array(
+        'Registrar Registration Expiration Date',
+        'Registry Expiry Date',
+        'Expiration Date',
+        'Expiration Time',
+        '\[Expires on\]',
+        'Expires On',
+        'Expiry Date',
+        'Expire Date',
+        'expire-date',
+        'renewal date',
+        'Valid Until',
+        'paid-till',
+        'validity',
+        'renewal',
+        'Expires',
+        'expiry',
+        'expire',
+    );
+ 
+    if (!preg_match('/(?:' . implode('|', $labels) . ')\s*:?\s+(.+)/i', $result, $matches)) {
+        return null;
+    }
+    $expireDate = trim($matches[1]);
+ 
+    // Known date formats (roundtrip-checked to avoid d-m-Y vs Y-m-d ambiguity)
+    $knownFormats = array(
+        'Y-m-d',
+        'Y.m.d',
+        'Y/m/d',
+        'Ymd',
+        'Y. m. d.',
+        'Y-M-d.',
+        'd-M-Y',
+        'd-F-Y',
+        'd-m-Y',
+        'd.m.Y',
+        'd/m/Y',
+        'Y/m/d H:i:s',
+        'Ymd H:i:s',
+        'Y.m.d H:i:s',
+        'Y-m-d H:i:s',
+        'd-M-Y H:i:s',
+        'd.m.Y H:i:s',
+        'd/m/Y H:i:s',
+        'd M Y H:i:s',
+        'd/m/Y H:i:s T',
+        'D M d H:i:s T Y',
+        'D M d Y',
+    );
+ 
+    foreach ($knownFormats as $format) {
+        $parsedDate = DateTime::createFromFormat($format, $expireDate);
+        if ($parsedDate && $parsedDate->format($format) === $expireDate) {
             return $parsedDate->format('Y-m-d');
         }
     }
-
-    return null; // Return null if expiration date is not found
+ 
+    // Fallback - handles ISO 8601 (2026-07-05T04:00:00Z) and most everything else
+    $parsedDate = date_create($expireDate);
+    if ($parsedDate) {
+        $year = (int) $parsedDate->format('Y');
+        // Reject obviously bogus parses
+        if ($year >= 1995 && $year <= ((int) date('Y') + 100)) {
+            return $parsedDate->format('Y-m-d');
+        }
+    }
+ 
+    return null;
 }
