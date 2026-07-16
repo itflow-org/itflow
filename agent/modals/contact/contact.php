@@ -556,8 +556,6 @@ ob_start();
                                     $credential_username_display = "$credential_username <button type='button' class='btn btn-sm clipboardjs' data-clipboard-text='$credential_username'><i class='far fa-copy text-secondary'></i></button>";
                                 }
 
-                                $credential_password = escapeHtml(decryptCredentialEntry($row['credential_password']));
-
                                 $credential_otp_secret = escapeHtml($row['credential_otp_secret']);
                                 if (empty($credential_otp_secret)) {
                                     $otp_display = "-";
@@ -570,10 +568,10 @@ ob_start();
                                     <td><?= $credential_description ?></td>
                                     <td><?= $credential_username_display ?></td>
                                     <td>
-                                        <button class="btn p-0" type="button" data-toggle="popover" data-trigger="focus" data-placement="top" data-content="<?= $credential_password ?>">
-                                            <i class="fas fa-ellipsis-h text-secondary"></i><i class="fas fa-ellipsis-h text-secondary"></i>
+                                        <button class="btn p-0" type="button" onclick="showPasswordViaCredentialID(this, <?php echo $credential_id; ?>)">
+                                            <i class="fas fa-2x fa-ellipsis-h text-secondary"></i><i class="fas fa-2x fa-ellipsis-h text-secondary"></i>
                                         </button>
-                                        <button type="button" class="btn btn-sm clipboardjs" data-clipboard-text="<?= $credential_password ?>">
+                                        <button class="btn btn-sm" type="button" onclick="copyPasswordViaCredentialID(this, <?php echo $credential_id; ?>)">
                                             <i class="far fa-copy text-secondary"></i>
                                         </button>
                                     </td>
@@ -586,7 +584,9 @@ ob_start();
                             </tbody>
                         </table>
                     </div>
+                    <!-- Include scripts to fetch TOTP codes and passwords via the credential ID -->
                     <script src="js/credential_show_otp_via_id.js"></script>
+                    <script src="js/credential_show_password_via_id.js"></script>
                 </div>
                 <?php } ?>
 

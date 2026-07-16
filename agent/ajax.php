@@ -1050,3 +1050,28 @@ if (isset($_GET['get_internal_users'])) {
     echo json_encode($response);
     exit;
 }
+
+if (isset($_GET['get_credential_via_id'])) {
+    enforceUserPermission('module_credential');
+
+    $credential_id = intval($_GET['credential_id']);
+
+    $sql = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT credential_name, credential_username, credential_password, credential_client_id FROM credentials WHERE credential_id = $credential_id"));
+    $name = escapeSql($sql['credential_name']);
+    $client_id = intval($sql['credential_client_id']);
+
+    enforceClientAccess($client_id);
+
+    $response = array(
+        'username' => decryptCredentialEntry($sql['credential_username']),
+        'password' => decryptCredentialEntry($sql['credential_password'])
+    );
+    echo json_encode($response);
+
+    // Only log if this user hasn't viewed this credential recently (mirrors TOTP dedup)
+    $check_recent_view = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(log_id) AS recent_view FROM logs WHERE log_type = 'Credential' AND log_action = 'View' AND log_user_id = $session_user_id AND log_entity_id = $credential_id AND log_client_id = $client_id AND log_created_at > (NOW() - INTERVAL 5 MINUTE)"));
+
+    if (intval($check_recent_view['recent_view']) == 0) {
+        logAudit("Credential", "View", "$session_name viewed credential $name", $client_id, $credential_id);
+    }
+}

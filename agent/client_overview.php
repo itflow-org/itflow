@@ -256,7 +256,7 @@ $sql_asset_retired = mysqli_query(
                         <tr>
                             <td>
                                 <a href="#" class="ajax-modal"
-                                    data-modal-size="lg"
+                                    data-modal-size="xl"
                                     data-modal-url="modals/contact/contact.php?id=<?= $contact_id ?>">
                                     <div class="media">
                                         <?php if ($contact_photo) { ?>
@@ -378,7 +378,6 @@ $sql_asset_retired = mysqli_query(
                     } else {
                         $credential_username_display = "$credential_username<button class='btn btn-sm clipboardjs' type='button' data-clipboard-text='$credential_username'><i class='far fa-copy text-secondary'></i></button>";
                     }
-                    $credential_password = escapeHtml(decryptCredentialEntry($row['credential_password']));
                     $credential_otp_secret = escapeHtml($row['credential_otp_secret']);
                     $credential_id_with_secret = '"' . $row['credential_id'] . '","' . $row['credential_otp_secret'] . '"';
                     if (empty($credential_otp_secret)) {
@@ -397,7 +396,7 @@ $sql_asset_retired = mysqli_query(
                         </td>
                         <td><?= $credential_username_display ?></td>
                         <td class="text-nowrap">
-                            <button class="btn p-0" type="button" data-toggle="popover" data-trigger="focus" data-placement="top" data-content="<?php echo $credential_password; ?>"><i class="fas fa-2x fa-ellipsis-h text-secondary"></i><i class="fas fa-2x fa-ellipsis-h text-secondary"></i></button><button class="btn btn-sm clipboardjs" type="button" data-clipboard-text="<?php echo $credential_password; ?>"><i class="far fa-copy text-secondary"></i></button>
+                            <button class="btn p-0" type="button" onclick="showPasswordViaCredentialID(this, <?php echo $credential_id; ?>)"><i class="fas fa-2x fa-ellipsis-h text-secondary"></i><i class="fas fa-2x fa-ellipsis-h text-secondary"></i></button><button class="btn btn-sm" type="button" onclick="copyPasswordViaCredentialID(this, <?php echo $credential_id; ?>)"><i class="far fa-copy text-secondary"></i></button>
                             <div><?= $otp_display ?></div>
                         </td>
 
@@ -800,8 +799,9 @@ $sql_asset_retired = mysqli_query(
 
 </div>
 
-<!-- Include script to get TOTP code via the login ID -->
+<!-- Include scripts to fetch TOTP codes and passwords via the credential ID -->
 <script src="js/credential_show_otp_via_id.js"></script>
+<script src="js/credential_show_password_via_id.js"></script>
 
 <script>
     function updateClientNotes(client_id) {
