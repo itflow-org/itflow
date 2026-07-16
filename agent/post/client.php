@@ -1264,6 +1264,8 @@ if (isset($_POST["export_client_pdf"])) {
     $export_trips = intval($_POST["export_trips"]);
     $export_logs = intval($_POST["export_logs"]);
 
+    enforceClientAccess();
+
     logAudit("Client", "Export", "$session_name exported client data to a PDF file", $client_id, $client_id);
 
     // Get client record (joining primary contact and primary location)
