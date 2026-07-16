@@ -36,8 +36,10 @@ while ($row = mysqli_fetch_assoc($sql_credential_tags)) {
 
 enforceClientAccess();
 
-// Generate the HTML form content using output buffering.
+logAudit("Credential", "View", "$session_name viewed credential $credential_name (edit)", $client_id, $credential_id);
+
 ob_start();
+
 ?>
 
 <div class="modal-header bg-dark">
