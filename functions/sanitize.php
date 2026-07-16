@@ -106,43 +106,41 @@ function sanitizeFilename($filename, $strict = false) {
     return $filename;
 }
 
-// Pass $_FILE['file'] to check an uploaded file before saving it
-function checkFileUpload($file, $allowed_extensions)
-{
-    // Variables
-    $name = $file['name'];
-    $tmp = $file['tmp_name'];
-    $size = $file['size'];
-
-    $extarr = explode('.', $name);
-    $extension = strtolower(end($extarr));
-
-    // Check a file is actually attached/uploaded
-    if ($tmp === '') {
-        // No file uploaded
+// Validate a single $_FILES[...] entry before saving it.
+// Returns a safe, unguessable storage filename (random + original extension)
+// on success, or false on ANY failure. The client's own filename is never used
+// on disk, so path tricks and double extensions (evil.php.jpg) are irrelevant.
+function checkFileUpload($file, $allowed_extensions) {
+    // Must be a well-formed single-file upload (reject arrays / malformed entries)
+    if (!isset($file['tmp_name'], $file['error'], $file['size'], $file['name'])
+        || is_array($file['tmp_name'])) {
         return false;
     }
 
-    // Check the extension is allowed
-    if (!in_array($extension, $allowed_extensions)) {
-        // Extension not allowed
+    // Must be a successful upload
+    if ($file['error'] !== UPLOAD_ERR_OK) {
         return false;
     }
 
-    // Check the size is under 500 MB
-    $maxSizeBytes = 500 * 1024 * 1024; // 500 MB
-    if ($size > $maxSizeBytes) {
-        return "File size exceeds the limit.";
+    // Must be a genuine HTTP upload, not an arbitrary server path
+    if (!is_uploaded_file($file['tmp_name'])) {
+        return false;
     }
 
-    // Read the file content
-    $fileContent = file_get_contents($tmp);
+    // Reject empty files and enforce the 500 MB ceiling
+    $size = (int) $file['size'];
+    if ($size <= 0 || $size > 500 * 1024 * 1024) {
+        return false;
+    }
 
-    // Hash the file content using SHA-256
-    $hashedContent = hash('md5', $fileContent);
+    // Allow-list check against the FINAL extension only, case-insensitive
+    $extension = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+    if ($extension === '' || !in_array($extension, $allowed_extensions, true)) {
+        return false;
+    }
 
-    // Generate a secure filename using the hashed content
-    $secureFilename = $hashedContent . randomString(2) . '.' . $extension;
-
-    return $secureFilename;
+    // Unguessable storage name. We deliberately do NOT hash file contents:
+    // randomString(32) already guarantees uniqueness, and hashing would mean
+    // reading the whole file into memory (up to 500 MB) for no downstream use.
+    return randomString(32) . '.' . $extension;
 }
