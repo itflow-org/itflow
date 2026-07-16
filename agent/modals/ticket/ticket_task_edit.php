@@ -2,9 +2,11 @@
 
 require_once '../../../includes/modal_header.php';
 
+enforceUserPermission('module_support', 2);
+
 $task_id = intval($_GET['id']);
 
-$sql = mysqli_query($mysqli, "SELECT * FROM tasks
+$sql = mysqli_query($mysqli, "SELECT * FROM tasks LEFT JOIN tickets ON task_ticket_id = ticket_id
     WHERE task_id = $task_id
     LIMIT 1"
 );
@@ -13,6 +15,11 @@ $row = mysqli_fetch_assoc($sql);
 $task_name = escapeHtml($row['task_name']);
 $task_completion_estimate = intval($row['task_completion_estimate']);
 $task_completed_at = escapeHtml($row['task_completed_at']);
+$client_id = intval($row['ticket_client_id']);
+
+if ($client_id) {
+    enforceClientAccess();
+}
 
 // Approvals
 $sql_task_approvals = mysqli_query($mysqli, "
@@ -22,7 +29,6 @@ $sql_task_approvals = mysqli_query($mysqli, "
     ORDER BY approval_approved_by"
 );
 
-// Generate the HTML form content using output buffering.
 ob_start();
 
 ?>

@@ -13,6 +13,8 @@ $row = mysqli_fetch_assoc($sql);
 $contact_name = escapeHtml($row['contact_name']);
 $client_id = intval($row['contact_client_id']);
 
+enforceClientAccess();
+
 ob_start();
 
 ?>

@@ -1943,7 +1943,14 @@ if (isset($_POST['redact_ticket_reply'])) {
     $ticket_reply_id = intval($_POST['ticket_reply_id']);
     $ticket_reply = mysqli_real_escape_string($mysqli, $_POST['ticket_reply']);
 
-    $client_id = intval($_POST['client_id']);
+    $sql = mysqli_query($mysqli, "SELECT ticket_client_id FROM ticket_replies
+        LEFT JOIN tickets ON ticket_id = ticket_reply_ticket_id
+        WHERE ticket_reply_id = $ticket_reply_id
+        LIMIT 1"
+    );
+
+    $row = mysqli_fetch_assoc($sql);
+    $client_id = intval($row['ticket_client_id']);
 
     // Don't Enforce Client Access if Ticket doesn't have an assigned client
     if ($client_id) {

@@ -2,12 +2,19 @@
 
 require_once '../../../includes/modal_header.php';
 
+enforceUserPermission('module_support', 2);
+
 $ticket_id = intval($_GET['ticket_id']);
 $client_id = intval(getFieldById('tickets', $ticket_id, 'ticket_client_id'));
+
+if ($client_id) {
+    enforceClientAccess();
+}
 
 ob_start();
 
 ?>
+
 <div class="modal-header bg-dark">
     <h5 class="modal-title"><i class="fa fa-fw fa-eye mr-2"></i>Adding a ticket Watcher</h5>
     <button type="button" class="close text-white" data-dismiss="modal">
@@ -65,4 +72,5 @@ ob_start();
 </form>
 
 <?php
+
 require_once '../../../includes/modal_footer.php';

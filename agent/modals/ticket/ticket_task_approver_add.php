@@ -2,82 +2,89 @@
 
 require_once '../../../includes/modal_header.php';
 
+enforceUserPermission('module_support', 2);
+
 $task_id = intval($_GET['id']);
 
 $sql = mysqli_query($mysqli, "SELECT * FROM tasks
+    LEFT JOIN tickets ON task_ticket_id = ticket_id
     WHERE task_id = $task_id
     LIMIT 1"
 );
 
 $row = mysqli_fetch_assoc($sql);
 $task_name = escapeHtml($row['task_name']);
+$client_id = intval($row['ticket_client_id']);
 
-// Generate the HTML form content using output buffering.
+if ($client_id) {
+    enforceClientAccess();
+}
+
 ob_start();
 
 ?>
 
-    <div class="modal-header bg-dark">
-        <h5 class="modal-title"><i class="fa fa-fw fa-shield-alt mr-2"></i>New approver for task <?=$task_name?></h5>
-        <button type="button" class="close text-white" data-dismiss="modal">
-            <span>&times;</span>
-        </button>
+<div class="modal-header bg-dark">
+    <h5 class="modal-title"><i class="fa fa-fw fa-shield-alt mr-2"></i>New approver for task <?=$task_name?></h5>
+    <button type="button" class="close text-white" data-dismiss="modal">
+        <span>&times;</span>
+    </button>
+</div>
+<form action="post.php" method="post" autocomplete="off">
+    <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
+    <input type="hidden" name="task_id" value="<?php echo $task_id; ?>">
+
+    <div class="modal-body">
+
+        <div class="form-group">
+            <label>Approval scope <strong class="text-danger">*</strong></label>
+            <div class="input-group">
+                <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fa fa-fw fa-layer-group"></i></span>
+                </div>
+                <select class="form-control" name="approval_scope" id="approval_scope" required>
+                    <option value="">Select scope...</option>
+                    <option value="internal">Internal</option>
+                    <option value="client">Client</option>
+                </select>
+            </div>
+        </div>
+
+
+        <div class="form-group d-none" id="approval_type_wrapper">
+            <label>Who can approve? <strong class="text-danger">*</strong></label>
+            <div class="input-group">
+                <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fa fa-fw fa-user-check"></i></span>
+                </div>
+                <select class="form-control" name="approval_type" id="approval_type" required>
+                    <!-- JS -->
+                </select>
+            </div>
+        </div>
+
+
+        <div class="form-group d-none" id="specific_user_wrapper">
+            <label>Select specific internal approver <strong class="text-danger">*</strong></label>
+            <div class="input-group">
+                <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fa fa-fw fa-user-circle"></i></span>
+                </div>
+                <select class="form-control select2" name="approval_required_user_id" id="specific_user_select">
+                    <option value="">Select user...</option>
+                </select>
+            </div>
+        </div>
+
+
     </div>
-    <form action="post.php" method="post" autocomplete="off">
-        <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
-        <input type="hidden" name="task_id" value="<?php echo $task_id; ?>">
 
-        <div class="modal-body">
+    <div class="modal-footer">
+        <button type="submit" name="add_ticket_task_approver" class="btn btn-primary text-bold"><i class="fa fa-check mr-2"></i>Save</button>
+        <button type="button" class="btn btn-light" data-dismiss="modal"><i class="fa fa-times mr-2"></i>Cancel</button>
+    </div>
 
-            <div class="form-group">
-                <label>Approval scope <strong class="text-danger">*</strong></label>
-                <div class="input-group">
-                    <div class="input-group-prepend">
-                        <span class="input-group-text"><i class="fa fa-fw fa-layer-group"></i></span>
-                    </div>
-                    <select class="form-control" name="approval_scope" id="approval_scope" required>
-                        <option value="">Select scope...</option>
-                        <option value="internal">Internal</option>
-                        <option value="client">Client</option>
-                    </select>
-                </div>
-            </div>
-
-
-            <div class="form-group d-none" id="approval_type_wrapper">
-                <label>Who can approve? <strong class="text-danger">*</strong></label>
-                <div class="input-group">
-                    <div class="input-group-prepend">
-                        <span class="input-group-text"><i class="fa fa-fw fa-user-check"></i></span>
-                    </div>
-                    <select class="form-control" name="approval_type" id="approval_type" required>
-                        <!-- JS -->
-                    </select>
-                </div>
-            </div>
-
-
-            <div class="form-group d-none" id="specific_user_wrapper">
-                <label>Select specific internal approver <strong class="text-danger">*</strong></label>
-                <div class="input-group">
-                    <div class="input-group-prepend">
-                        <span class="input-group-text"><i class="fa fa-fw fa-user-circle"></i></span>
-                    </div>
-                    <select class="form-control select2" name="approval_required_user_id" id="specific_user_select">
-                        <option value="">Select user...</option>
-                    </select>
-                </div>
-            </div>
-
-
-        </div>
-
-        <div class="modal-footer">
-            <button type="submit" name="add_ticket_task_approver" class="btn btn-primary text-bold"><i class="fa fa-check mr-2"></i>Save</button>
-            <button type="button" class="btn btn-light" data-dismiss="modal"><i class="fa fa-times mr-2"></i>Cancel</button>
-        </div>
-
-    </form>
+</form>
 
 
 <!-- JS to make the correct boxes appear depending on if internal/client approval) -->
