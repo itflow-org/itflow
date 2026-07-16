@@ -11,7 +11,7 @@ That simplicity comes with a trade-off: **safety and correctness depend on follo
 1. Clone the repo into a webroot served by Apache/PHP 8.x with the `mysqli` and `imap`-related extensions available.
 2. Create a MySQL/MariaDB database and browse to `/setup/` — or import `db.sql` directly.
 3. Rename/skip setup as prompted; `config.php` is generated at the root (and is gitignored).
-There is no `composer install` or `npm install` step. All third-party libraries are vendored in `/plugins/`. This is deliberate — ITFlow is distributed as "unzip and go" — so **never add a runtime Composer/npm dependency**. If a new library is truly needed, discuss it in an issue first; if accepted, it gets vendored into `/plugins/`.
+There is no `composer install` or `npm install` step. All third-party libraries are vendored in `/libs/`. This is deliberate — ITFlow is distributed as "unzip and go" — so **never add a runtime Composer/npm dependency**. If a new library is truly needed, discuss it in an issue first; if accepted, it gets vendored into `/libs/`.
  
 ---
  
@@ -22,14 +22,15 @@ There is no `composer install` or `npm install` step. All third-party libraries 
 | `agent/` | The main technician-facing app. Most feature work happens here. |
 | `admin/` | Settings, configuration, roles, mail, migrations. Admin-only. |
 | `client/` | The logged-in client portal (contacts of a client). |
-| `guest/` | Unauthenticated flows via URL keys (view/pay invoice, view quote/ticket). |
+| `guest/` | Unauthenticated flows via URL keys (view/pay invoice, view quote/ticket, view shared credentials/files/documents). |
 | `api/v1/` | Key-authenticated JSON CRUD API, one directory per module. |
 | `cron/` | Scheduled jobs: `cron.php`, mail queue, ticket email parser, domain/cert refreshers. |
+| `functions.php` + `functions/` | Shared helper functions, split into topical files (`sanitize.php`, `auth.php`, `logging.php`, …) loaded by `functions.php`. New helpers go in the topical file that matches their concern. |
 | `includes/` (root) | **Shared** across portals: session/auth bootstrap, DB, layout partials. |
 | `post/` (root) | **Shared** POST handlers (logout, misc). |
 | `modals/` (root) | **Shared** modals used by both agent and admin. |
 | `js/`, `css/` (root) | Shared front-end assets (portals also have their own). |
-| `plugins/` | Vendored third-party libraries. Never edit these; update them wholesale. |
+| `libs/` | Vendored third-party libraries. Never edit these; update them wholesale. |
 | `setup/` | First-run installer. |
 | `scripts/` | Helper/utility scripts. |
  
@@ -37,13 +38,13 @@ Rule of thumb: **root-level `includes/`, `post/`, `modals/`, `js/`, `css/` are s
  
 ### `custom/` directories
  
-`agent/`, `admin/`, `client/`, `guest/`, and `cron/` each contain a `custom/` directory. These are hook points for site-specific code that survives updates. `customAction($trigger, $entity_id)` fires named triggers (e.g. `ticket_resolve`) into `custom/custom_action_handler.php` if one exists. Core code should **call** `customAction()` at meaningful events but never depend on anything inside `custom/`.
+`agent/`, `admin/`, `client/`, `guest/`, and `cron/` each contain a `custom/` directory. These are hook points for site-specific code that survives updates. `triggerCustomAction($trigger, $entity_id)` fires named triggers (e.g. `ticket_resolve`) into `custom/custom_action_handler.php` if one exists. Core code should **call** `triggerCustomAction()` at meaningful events but never depend on anything inside `custom/`.
  
 ---
  
 ## Request lifecycle (how a page works)
  
-**Read pages** (`agent/tickets.php`, etc.) start by requiring an `inc_all*.php` from the portal's `includes/`. That chain loads, in order: `config.php` → `functions.php` → `check_login.php` (auth) → header/nav/layout partials. It also establishes the implicit globals every page relies on: `$mysqli`, `$session_user_id`, `$session_name`, and — on client-scoped pages via `inc_all_client.php` — `$client_id` (already `intval()`'d).
+**Read pages** (`agent/tickets.php`, etc.) start by requiring an `inc_all*.php` from the portal's `includes/`. That chain loads, in order: `config.php` → `functions.php` (a loader that pulls in the topical helper files under `functions/` — security, sanitize, auth, logging, etc.) → `check_login.php` (auth) → header/nav/layout partials. It also establishes the implicit globals every page relies on: `$mysqli`, `$session_user_id`, `$session_name`, and — on client-scoped pages via `inc_all_client.php` — `$client_id` (already `intval()`'d).
  
 If your code "can't find" a variable, check which include chain the page uses before adding a query. The variable probably already exists.
  
@@ -83,8 +84,8 @@ ITFlow does not use prepared statements or an ORM; queries are built as strings.
 ### 1. Every value interpolated into SQL is cast or sanitized. No exceptions.
  
 - **Integers** (IDs, flags, counts): `intval($_POST['ticket_id'])`. Interpolate unquoted.
-- **Strings**: `sanitizeInput($_POST['subject'])`. This runs `strip_tags()`, `trim()`, and `mysqli_real_escape_string()`. Because it relies on SQL escaping, the value **must be placed inside quotes in the query** (`'$subject'`). An escaped string interpolated without quotes is still injectable.
-- **Values read back from the database** get the same treatment before reuse in another query (you will see `sanitizeInput($row['ticket_prefix'])` throughout — this is why).
+- **Strings**: `escapeSql($_POST['subject'])`. This normalizes encoding to UTF-8, then runs `strip_tags()`, `trim()`, and `mysqli_real_escape_string()`. Because it relies on SQL escaping, the value **must be placed inside quotes in the query** (`'$subject'`). An escaped string interpolated without quotes is still injectable.
+- **Values read back from the database** get the same treatment before reuse in another query (you will see `escapeSql($row['ticket_prefix'])` throughout — this is why).
 If you write a query and even one variable in it skipped these, that is a SQL injection. This is the single most common review rejection.
  
 ### 2. Every state-changing action validates CSRF.
@@ -101,7 +102,7 @@ After loading a record, call `enforceClientAccess()` (optionally with the record
  
 ### 5. Escape on output.
  
-Anything echoed into HTML goes through `nullable_htmlentities()`. `sanitizeInput()` on the way in is **not** output escaping — data can enter the DB through other paths (API, email parser, older versions). Rich-text fields (TinyMCE content) are the exception and have their own handling; follow the existing pattern for the specific field rather than inventing one.
+Anything echoed into HTML goes through `escapeHtml()`. `escapeSql()` on the way in is **not** output escaping — data can enter the DB through other paths (API, email parser, older versions). Rich-text fields (TinyMCE content) are the exception and have their own handling; follow the existing pattern for the specific field rather than inventing one.
  
 ### 6. No shell-outs. No `eval`.
  
@@ -122,7 +123,9 @@ Per [SECURITY.md](SECURITY.md) — never in a public issue.
 1. `db.sql` — so fresh installs get the new schema.
 2. `includes/database_version.php` — bump `LATEST_DATABASE_VERSION`.
 3. `admin/database_updates.php` — add an `if (CURRENT_DATABASE_VERSION == 'x.y.z')` block that applies the change and steps the version, so existing installs migrate. Migrations are sequential and rolling-release; never edit a historical block.
-**After acting, log and notify.** State changes call `logAction($type, $action, $description, $client_id, $entity_id)` for the audit trail. User-facing events may also call `appNotify()`. Fire `customAction()` where a site might reasonably want a hook. Then set `$_SESSION['alert_type']` / `$_SESSION['alert_message']` and redirect back (usually to `$_SERVER['HTTP_REFERER']` per existing patterns).
+**After acting, log and notify.** State changes call `logAudit($type, $action, $description, $client_id, $entity_id)` for the audit trail. User-facing events may also call `appNotify()`. Fire `triggerCustomAction()` where a site might reasonably want a hook. Then call `flashAlert($message, $type)` and `redirect()` (defaults to the referer) rather than setting session keys or `header()` manually.
+
+**Function names (post-rename).** Helpers were renamed for clarity in 2026; the old names **no longer exist** — code calling them fatals. If you're rebasing an old PR or following an old tutorial, translate: `sanitizeInput` → `escapeSql`, `nullable_htmlentities` → `escapeHtml`, `logAction` → `logAudit`, `flash_alert` → `flashAlert`, `customAction` → `triggerCustomAction`, `encryptLoginEntry`/`decryptLoginEntry` → `encryptCredentialEntry`/`decryptCredentialEntry`, `strtoAZaz09` → `toAlphanumeric`, `fetchUpdates` → `checkForUpdates`.
  
 **Bulk vs. single actions.** If you change the behavior of a single action (e.g. resolving a ticket), check whether a `bulk_*` counterpart exists and update it too. They are currently parallel implementations and drift between them is a known bug source.
  
