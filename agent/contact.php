@@ -1044,7 +1044,7 @@ if (isset($_GET['contact_id'])) {
                                 $file_name = escapeHtml($row['file_name']);
                                 $file_description = escapeHtml($row['file_description']);
                                 $file_size = escapeHtml($row['file_size']);
-                                $file_size_KB = round($file_size / 1024);
+                                $file_size_human = formatBytes($file_size);
                                 $file_mime_type = escapeHtml($row['file_mime_type']);
                                 $file_created_at = escapeHtml($row['file_created_at']);
 
@@ -1058,7 +1058,7 @@ if (isset($_GET['contact_id'])) {
                                         <div class="text-secondary"><?php echo $file_description; ?></div>
                                     </td>
                                     <td><?php echo $file_mime_type; ?></td>
-                                    <td><span class="text-monospace"><?php echo $file_size_KB; ?></span> KB</td>
+                                    <td class="text-monospace"><?= $file_size_human ?></td>
                                     <td><?php echo $file_created_at; ?></td>
                                     <td class="text-center">
                                         <a href="post.php?unlink_contact_from_file&contact_id=<?php echo $contact_id; ?>&file_id=<?php echo $file_id; ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>" class="btn btn-secondary btn-sm" title="Unlink"><i class="fas fa-fw fa-unlink"></i></a>

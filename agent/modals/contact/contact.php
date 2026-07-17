@@ -825,7 +825,7 @@ ob_start();
                                 $file_name = escapeHtml($row['file_name']);
                                 $file_description = escapeHtml($row['file_description']);
                                 $file_size = escapeHtml($row['file_size']);
-                                $file_size_KB = round($file_size / 1024);
+                                $file_size_human = formatBytes($file_size);
                                 $file_mime_type = escapeHtml($row['file_mime_type']);
                                 $file_created_at = escapeHtml($row['file_created_at']);
 
@@ -839,7 +839,7 @@ ob_start();
                                         <div class="text-secondary"><?= $file_description ?></div>
                                     </td>
                                     <td><?= $file_mime_type ?></td>
-                                    <td><?= $file_size_KB ?> KB</td>
+                                    <td class="text-monospace"><?= $file_size_human ?></td>
                                     <td><?= $file_created_at ?></td>
                                 </tr>
                                 <?php

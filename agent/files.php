@@ -598,7 +598,7 @@ $num_root_items = intval($row_root_files['num']) + intval($row_root_docs['num'])
                             $file_reference_name= escapeHtml($row['file_reference_name']);
                             $file_ext           = escapeHtml($row['file_ext']);
                             $file_size          = intval($row['file_size']);
-                            $file_size_KB       = number_format($file_size / 1024);
+                            $file_size_human    = formatBytes($file_size);
                             $file_mime_type     = escapeHtml($row['file_mime_type']);
                             $file_uploaded_by   = escapeHtml($row['user_name']);
                             $file_archived_at   = escapeHtml($row['file_archived_at']);
@@ -722,11 +722,11 @@ $num_root_items = intval($row_root_files['num']) + intval($row_root_docs['num'])
                                         $file_reference_name= $item['reference_name'];
                                         $file_icon          = $item['icon'];
                                         $file_size          = $item['size'];
-                                        $file_size_KB       = $file_size ? number_format($file_size / 1024) : 0;
+                                        $file_size_human    = formatBytes($file_size);
                                         $file_mime_type     = $item['mime'];
                                         $file_uploaded_by   = $item['created_by'];
                                         $file_created_at    = $item['created_at'];
-                                        $file_archived_at    = $item['archived_at'];
+                                        $file_archived_at   = $item['archived_at'];
 
                                         // Shared?
                                         $sql_shared = mysqli_query(
@@ -768,7 +768,7 @@ $num_root_items = intval($row_root_files['num']) + intval($row_root_docs['num'])
                                                 </a>
                                             </td>
                                             <td><?php echo $file_mime_type; ?></td>
-                                            <td><?php echo $file_size_KB; ?> KB</td>
+                                            <td><?php echo $file_size_human; ?></td>
                                             <td>
                                                 <?php echo $file_created_at; ?>
                                                 <div class="text-secondary mt-1"><?php echo $file_uploaded_by; ?></div>
