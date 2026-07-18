@@ -6,6 +6,7 @@ use Countable;
 use DirectoryTree\ImapEngine\Connection\Responses\Data\ListData;
 use DirectoryTree\ImapEngine\Connection\Tokens\Nil;
 use DirectoryTree\ImapEngine\Connection\Tokens\Token;
+use DirectoryTree\ImapEngine\Support\MimeParameterParser;
 use Illuminate\Contracts\Support\Arrayable;
 use IteratorAggregate;
 use JsonSerializable;
@@ -63,7 +64,7 @@ class BodyStructureCollection implements Arrayable, Countable, IteratorAggregate
         if ($subtypeIndex) {
             foreach (array_slice($tokens, $subtypeIndex + 1) as $token) {
                 if ($token instanceof ListData && ! static::isDispositionList($token)) {
-                    $parameters = $token->toKeyValuePairs();
+                    $parameters = MimeParameterParser::parse($token->toKeyValuePairs());
 
                     break;
                 }

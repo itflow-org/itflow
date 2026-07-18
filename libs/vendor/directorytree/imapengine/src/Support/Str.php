@@ -300,6 +300,10 @@ class Str
      */
     public static function decodeMimeHeader(string $value): string
     {
+        if (empty($value)) {
+            return $value;
+        }
+
         if (! str_contains($value, '=?')) {
             return $value;
         }

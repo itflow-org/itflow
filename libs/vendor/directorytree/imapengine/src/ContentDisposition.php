@@ -5,6 +5,7 @@ namespace DirectoryTree\ImapEngine;
 use DirectoryTree\ImapEngine\Connection\Responses\Data\ListData;
 use DirectoryTree\ImapEngine\Connection\Tokens\Token;
 use DirectoryTree\ImapEngine\Enums\ContentDispositionType;
+use DirectoryTree\ImapEngine\Support\MimeParameterParser;
 use Illuminate\Contracts\Support\Arrayable;
 use JsonSerializable;
 
@@ -44,7 +45,7 @@ class ContentDisposition implements Arrayable, JsonSerializable
             }
 
             $parameters = isset($innerTokens[1]) && $innerTokens[1] instanceof ListData
-                ? $innerTokens[1]->toKeyValuePairs()
+                ? MimeParameterParser::parse($innerTokens[1]->toKeyValuePairs())
                 : [];
 
             return new self($type, $parameters);
@@ -82,7 +83,7 @@ class ContentDisposition implements Arrayable, JsonSerializable
      */
     public function filename(): ?string
     {
-        return $this->parameters['filename'] ?? null;
+        return $this->parameter('filename');
     }
 
     /**

@@ -5,6 +5,8 @@ namespace DirectoryTree\ImapEngine;
 use DirectoryTree\ImapEngine\Connection\Responses\Data\ListData;
 use DirectoryTree\ImapEngine\Connection\Tokens\Nil;
 use DirectoryTree\ImapEngine\Connection\Tokens\Token;
+use DirectoryTree\ImapEngine\Support\MimeParameterParser;
+use DirectoryTree\ImapEngine\Support\Str;
 use Illuminate\Contracts\Support\Arrayable;
 use JsonSerializable;
 
@@ -45,9 +47,13 @@ class BodyStructurePart implements Arrayable, JsonSerializable
             partNumber: $partNumber,
             type: strtolower(static::tokenValueAt($tokens, 0) ?? 'text'),
             subtype: strtolower(static::tokenValueAt($tokens, 1) ?? 'plain'),
-            parameters: isset($tokens[2]) && $tokens[2] instanceof ListData ? $tokens[2]->toKeyValuePairs() : [],
+            parameters: isset($tokens[2]) && $tokens[2] instanceof ListData
+                ? MimeParameterParser::parse($tokens[2]->toKeyValuePairs())
+                : [],
             id: static::tokenValueAt($tokens, 3),
-            description: static::tokenValueAt($tokens, 4),
+            description: is_null($description = static::tokenValueAt($tokens, 4))
+                 ? null
+                 : Str::decodeMimeHeader($description),
             encoding: static::tokenValueAt($tokens, 5),
             size: static::tokenIntValueAt($tokens, 6),
             lines: static::tokenIntValueAt($tokens, 7),
@@ -62,7 +68,9 @@ class BodyStructurePart implements Arrayable, JsonSerializable
      */
     protected static function tokenValueAt(array $tokens, int $index): ?string
     {
-        $token = $tokens[$index] ?? null;
+        if (is_null($token = $tokens[$index] ?? null)) {
+            return null;
+        }
 
         if (! $token instanceof Token || $token instanceof Nil) {
             return null;
@@ -80,7 +88,7 @@ class BodyStructurePart implements Arrayable, JsonSerializable
     {
         $value = static::tokenValueAt($tokens, $index);
 
-        return $value === null ? null : (int) $value;
+        return is_null($value) ? null : (int) $value;
     }
 
     /**
@@ -184,7 +192,7 @@ class BodyStructurePart implements Arrayable, JsonSerializable
      */
     public function filename(): ?string
     {
-        return $this->disposition?->filename() ?? $this->parameters['name'] ?? null;
+        return $this->disposition?->filename() ?? $this->parameter('name');
     }
 
     /**
