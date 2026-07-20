@@ -33,6 +33,7 @@ if (isset($_GET['client_id'])) {
 
         $row = mysqli_fetch_assoc($sql);
         $client_name = escapeHtml($row['client_name']);
+        $client_name_truncated = escapeHtml(truncate($row['client_name'], 7));
         $client_is_lead = intval($row['client_lead']);
         $client_type = escapeHtml($row['client_type']);
         $client_website = escapeHtml($row['client_website']);
