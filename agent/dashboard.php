@@ -589,6 +589,15 @@ if ($user_config_dashboard_technical_enable == 1) {
     $sql_certs_expiring = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(certificate_id) AS expiring_certs FROM certificates WHERE certificate_expire IS NOT NULL AND certificate_expire > CURRENT_DATE AND certificate_expire < CURRENT_DATE + INTERVAL 30 DAY AND certificate_archived_at IS NULL"));
     $expiring_certificates = $sql_certs_expiring['expiring_certs'];
 
+    $sql_licenses_expiring = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(software_id) AS expiring_licenses FROM software WHERE software_expire IS NOT NULL AND software_expire > CURRENT_DATE AND software_expire < CURRENT_DATE + INTERVAL 30 DAY AND software_archived_at IS NULL"));
+    $expiring_licenses = $sql_licenses_expiring['expiring_licenses'];
+
+    $sql_licenses_expiring = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(software_id) AS expiring_licenses FROM software WHERE software_expire IS NOT NULL AND software_expire > CURRENT_DATE AND software_expire < CURRENT_DATE + INTERVAL 30 DAY AND software_archived_at IS NULL"));
+    $expiring_licenses = $sql_licenses_expiring['expiring_licenses'];
+
+    $sql_asset_warranty_expiring = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(asset_id) AS expiring_asset_warranties FROM assets WHERE asset_warranty_expire IS NOT NULL AND asset_warranty_expire > CURRENT_DATE AND asset_warranty_expire < CURRENT_DATE + INTERVAL 30 DAY AND asset_archived_at IS NULL"));
+    $expiring_asset_warranties = $sql_asset_warranty_expiring['expiring_asset_warranties'];
+
     $sql_your_tickets = mysqli_query($mysqli, "
         SELECT * FROM tickets
         LEFT JOIN ticket_statuses ON ticket_status = ticket_status_id
@@ -603,7 +612,7 @@ if ($user_config_dashboard_technical_enable == 1) {
 <div class="card card-body">
     <!-- Icon Cards-->
     <div class="row">
-        <div class="col-lg-4 col-6">
+        <div class="col-lg-3 col-6">
             <!-- small box -->
             <a class="small-box bg-secondary" href="clients.php?dtf=<?php echo $year; ?>-01-01&dtt=<?php echo $year; ?>-12-31">
                 <div class="inner">
@@ -617,7 +626,7 @@ if ($user_config_dashboard_technical_enable == 1) {
         </div>
         <!-- ./col -->
 
-        <div class="col-lg-4 col-6">
+        <div class="col-lg-3 col-6">
             <a class="small-box bg-success" href="contacts.php">
                 <div class="inner">
                     <h3><?php echo $contacts_added; ?></h3>
@@ -630,7 +639,7 @@ if ($user_config_dashboard_technical_enable == 1) {
         </div>
         <!-- ./col -->
 
-        <div class="col-lg-4 col-6">
+        <div class="col-lg-3 col-6">
             <a class="small-box bg-info" href="assets.php">
                 <div class="inner">
                     <h3><?php echo $assets_added; ?></h3>
@@ -643,7 +652,7 @@ if ($user_config_dashboard_technical_enable == 1) {
         </div>
         <!-- ./col -->
 
-        <div class="col-lg-4 col-6">
+        <div class="col-lg-3 col-6">
             <a class="small-box bg-danger" href="tickets.php">
                 <div class="inner">
                     <h3><?php echo $active_tickets; ?></h3>
@@ -656,7 +665,7 @@ if ($user_config_dashboard_technical_enable == 1) {
         </div>
         <!-- ./col -->
 
-        <div class="col-lg-4 col-6">
+        <div class="col-lg-3 col-6">
             <a class="small-box bg-warning" href="domains.php?sort=domain_expire&order=ASC">
                 <div class="inner">
                     <h3><?php echo $expiring_domains; ?></h3>
@@ -669,7 +678,7 @@ if ($user_config_dashboard_technical_enable == 1) {
         </div>
         <!-- ./col -->
 
-        <div class="col-lg-4 col-6">
+        <div class="col-lg-3 col-6">
             <a class="small-box bg-primary" href="certificates.php?sort=certificate_expire&order=ASC">
                 <div class="inner">
                     <h3><?php echo $expiring_certificates; ?></h3>
@@ -677,6 +686,32 @@ if ($user_config_dashboard_technical_enable == 1) {
                 </div>
                 <div class="icon">
                     <i class="fa fa-lock"></i>
+                </div>
+            </a>
+        </div>
+        <!-- ./col -->
+
+        <div class="col-lg-3 col-6">
+            <a class="small-box bg-purple" href="software.php?sort=software_expire&order=ASC">
+                <div class="inner">
+                    <h3><?= $expiring_licenses ?></h3>
+                    <p>Expiring Licenses<small>30 Day</small></p>
+                </div>
+                <div class="icon">
+                    <i class="fa fa-cube"></i>
+                </div>
+            </a>
+        </div>
+        <!-- ./col -->
+
+        <div class="col-lg-3 col-6">
+            <a class="small-box bg-olive" href="assets.php?sort=asset_warranty_expire&order=ASC&show_column[]=Warranty_Expire">
+                <div class="inner">
+                    <h3><?= $expiring_asset_warranties ?></h3>
+                    <p>Expiring Asset Warranties<small>30 Day</small></p>
+                </div>
+                <div class="icon">
+                    <i class="fa fa-desktop"></i>
                 </div>
             </a>
         </div>
