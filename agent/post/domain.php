@@ -156,6 +156,48 @@ if (isset($_POST['edit_domain'])) {
 
 }
 
+if (isset($_GET['refresh_domain'])) {
+
+    validateCSRFToken($_GET['csrf_token']);
+
+    enforceUserPermission('module_support', 2);
+
+    $domain_id = intval($_GET['refresh_domain']);
+
+    // Get Name and Client ID for logging and alert message
+    $sql = mysqli_query($mysqli,"SELECT domain_name, domain_client_id FROM domains WHERE domain_id = $domain_id");
+    $row = mysqli_fetch_assoc($sql);
+    $domain_name = escapeSql($row['domain_name']);
+    $client_id = intval($row['domain_client_id']);
+
+    enforceClientAccess();
+
+    // Lookup expiry date
+    $expire = getDomainExpirationDate($domain_name);
+    if (strtotime($expire)) {
+        $expire = "'" . $expire . "'";
+    } else {
+        $expire = 'NULL';
+    }
+
+    // NS, MX, A and WHOIS records/data
+    $records = getDnsRecords($domain_name);
+    $a = escapeSql($records['a']);
+    $ns = escapeSql($records['ns']);
+    $mx = escapeSql($records['mx']);
+    $txt = escapeSql($records['txt']);
+    $whois = escapeSql($records['whois']);
+
+    mysqli_query($mysqli,"UPDATE domains SET domain_expire = $expire, domain_ip = '$a', domain_name_servers = '$ns', domain_mail_servers = '$mx', domain_txt = '$txt', domain_raw_whois = '$whois' WHERE domain_id = $domain_id");
+
+    logAudit("Domain", "Refresh", "$session_name refreshed records for domain $domain_name", $client_id, $domain_id);
+
+    flashAlert("Refreshed records for <strong>$domain_name</strong>");
+
+    redirect();
+
+}
+
 if (isset($_GET['archive_domain'])) {
 
     validateCSRFToken($_GET['csrf_token']);
@@ -345,6 +387,67 @@ if (isset($_POST['bulk_delete_domains'])) {
         logAudit("Domain", "Bulk Delete", "$session_name deleted $count domain(s)", $client_id);
 
         flashAlert("Deleted <strong>$count</strong> domain(s)", 'error');
+
+    }
+
+    redirect();
+
+}
+
+if (isset($_POST['bulk_refresh_domains'])) {
+
+    validateCSRFToken($_POST['csrf_token']);
+
+    enforceUserPermission('module_support', 2);
+
+    if (isset($_POST['domain_ids'])) {
+
+        // WHOIS lookups are slow - don't time out mid-batch
+        set_time_limit(0);
+
+        // Get Selected Count
+        $count = count($_POST['domain_ids']);
+
+        // Cycle through array and refresh each record
+        foreach ($_POST['domain_ids'] as $domain_id) {
+
+            $domain_id = intval($domain_id);
+
+            // Get Name and Client ID for logging and alert message
+            $sql = mysqli_query($mysqli,"SELECT domain_name, domain_client_id FROM domains WHERE domain_id = $domain_id");
+            $row = mysqli_fetch_assoc($sql);
+            $domain_name = escapeSql($row['domain_name']);
+            $client_id = intval($row['domain_client_id']);
+
+            enforceClientAccess();
+
+            // Lookup expiry date
+            $expire = getDomainExpirationDate($domain_name);
+            if (strtotime($expire)) {
+                $expire = "'" . $expire . "'";
+            } else {
+                $expire = 'NULL';
+            }
+
+            // NS, MX, A and WHOIS records/data
+            $records = getDnsRecords($domain_name);
+            $a = escapeSql($records['a']);
+            $ns = escapeSql($records['ns']);
+            $mx = escapeSql($records['mx']);
+            $txt = escapeSql($records['txt']);
+            $whois = escapeSql($records['whois']);
+
+            mysqli_query($mysqli,"UPDATE domains SET domain_expire = $expire, domain_ip = '$a', domain_name_servers = '$ns', domain_mail_servers = '$mx', domain_txt = '$txt', domain_raw_whois = '$whois' WHERE domain_id = $domain_id");
+
+            logAudit("Domain", "Refresh", "$session_name refreshed records for domain $domain_name", $client_id, $domain_id);
+
+            // Be gentle on WHOIS servers
+            sleep(1);
+        }
+
+        logAudit("Domain", "Bulk Refresh", "$session_name refreshed records for $count domain(s)", $client_id);
+
+        flashAlert("Refreshed records for <strong>$count</strong> domain(s)");
 
     }
 

@@ -191,6 +191,11 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                     <i class="fas fa-fw fa-trash mr-2"></i>Delete
                                 </button>
                                 <?php } else { ?>
+                                <button class="dropdown-item"
+                                    type="submit" form="bulkActions" name="bulk_refresh_domains">
+                                    <i class="fas fa-fw fa-sync-alt mr-2"></i>Refresh Records
+                                </button>
+                                <div class="dropdown-divider"></div>
                                 <button class="dropdown-item text-danger confirm-link"
                                     type="submit" form="bulkActions" name="bulk_archive_domains">
                                     <i class="fas fa-fw fa-archive mr-2"></i>Archive
@@ -358,6 +363,10 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                             data-modal-size="lg"
                                             data-modal-url="modals/domain/domain_edit.php?<?= $client_url ?>&id=<?= $domain_id ?>">
                                             <i class="fas fa-fw fa-edit mr-2"></i>Edit
+                                        </a>
+                                        <div class="dropdown-divider"></div>
+                                        <a class="dropdown-item" href="post.php?refresh_domain=<?php echo $domain_id; ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
+                                            <i class="fas fa-fw fa-sync-alt mr-2"></i>Refresh Records
                                         </a>
                                         <?php if ($session_user_role == 3) { ?>
                                             <?php if ($domain_archived_at) { ?>
