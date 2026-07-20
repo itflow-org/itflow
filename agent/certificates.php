@@ -168,6 +168,11 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 <i class="fas fa-fw fa-layer-group mr-2"></i>Bulk Action (<span id="selectedCount">0</span>)
                             </button>
                             <div class="dropdown-menu">
+                                <button class="dropdown-item"
+                                        type="submit" form="bulkActions" name="bulk_refresh_certificates">
+                                    <i class="fas fa-fw fa-sync-alt mr-2"></i>Refresh Certificates
+                                </button>
+                                <div class="dropdown-divider"></div>
                                 <button class="dropdown-item text-danger text-bold"
                                         type="submit" form="bulkActions" name="bulk_delete_certificates">
                                     <i class="fas fa-fw fa-trash mr-2"></i>Delete
@@ -299,6 +304,10 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                         <a class="dropdown-item ajax-modal" href="#"
                                             data-modal-url="modals/certificate/certificate_edit.php?<?= $client_url ?>&id=<?= $certificate_id ?>">
                                             <i class="fas fa-fw fa-edit mr-2"></i>Edit
+                                        </a>
+                                        <div class="dropdown-divider"></div>
+                                         <a class="dropdown-item" href="post.php?refresh_certificate=<?php echo $certificate_id; ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
+                                            <i class="fas fa-fw fa-sync-alt mr-2"></i>Refresh Certificate
                                         </a>
                                         <?php if ($session_user_role == 3) { ?>
                                             <?php if ($certificate_archived_at) { ?>

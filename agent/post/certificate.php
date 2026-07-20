@@ -119,6 +119,46 @@ if (isset($_POST['edit_certificate'])) {
 
 }
 
+if (isset($_GET['refresh_certificate'])) {
+
+    validateCSRFToken($_GET['csrf_token']);
+
+    enforceUserPermission('module_support', 2);
+
+    $certificate_id = intval($_GET['refresh_certificate']);
+
+    // Get Name, Domain and Client ID for lookup, logging and alert message
+    $sql = mysqli_query($mysqli,"SELECT certificate_name, certificate_domain, certificate_client_id FROM certificates WHERE certificate_id = $certificate_id");
+    $row = mysqli_fetch_assoc($sql);
+    $certificate_name = escapeSql($row['certificate_name']);
+    $certificate_domain = escapeSql($row['certificate_domain']);
+    $client_id = intval($row['certificate_client_id']);
+
+    enforceClientAccess();
+
+    // Get fresh certificate from the live host
+    $certificate = getSslCertificate($certificate_domain);
+
+    if ($certificate_domain && $certificate['success']) {
+
+        $expire = escapeSql($certificate['expire']);
+        $issued_by = escapeSql($certificate['issued_by']);
+        $public_key = escapeSql($certificate['public_key']);
+
+        mysqli_query($mysqli,"UPDATE certificates SET certificate_issued_by = '$issued_by', certificate_expire = '$expire', certificate_public_key = '$public_key' WHERE certificate_id = $certificate_id");
+
+        logAudit("Certificate", "Refresh", "$session_name refreshed certificate $certificate_name", $client_id, $certificate_id);
+
+        flashAlert("Refreshed certificate <strong>$certificate_name</strong>");
+
+    } else {
+        flashAlert("Could not retrieve a certificate for <strong>$certificate_name</strong>", 'error');
+    }
+
+    redirect();
+
+}
+
 if (isset($_GET['archive_certificate'])) {
 
     validateCSRFToken($_GET['csrf_token']);
@@ -192,6 +232,67 @@ if (isset($_GET['delete_certificate'])) {
     logAudit("Certificate", "Delete", "$session_name deleted certificate $name", $client_id);
 
     flashAlert("Certificate <strong>$certificate_name</strong> deleted");
+
+    redirect();
+
+}
+
+if (isset($_POST['bulk_refresh_certificates'])) {
+
+    validateCSRFToken($_POST['csrf_token']);
+
+    enforceUserPermission('module_support', 2);
+
+    if (isset($_POST['certificate_ids'])) {
+
+        // TLS lookups on dead hosts wait out a 5 sec timeout each - don't time out mid-batch
+        set_time_limit(0);
+
+        // Get Selected Count
+        $count = count($_POST['certificate_ids']);
+        $refreshed_count = 0;
+
+        // Cycle through array and refresh each record
+        foreach ($_POST['certificate_ids'] as $certificate_id) {
+
+            $certificate_id = intval($certificate_id);
+
+            // Get Name, Domain and Client ID for lookup, logging and alert message
+            $sql = mysqli_query($mysqli,"SELECT certificate_name, certificate_domain, certificate_client_id FROM certificates WHERE certificate_id = $certificate_id");
+            $row = mysqli_fetch_assoc($sql);
+            $certificate_name = escapeSql($row['certificate_name']);
+            $certificate_domain = escapeSql($row['certificate_domain']);
+            $client_id = intval($row['certificate_client_id']);
+
+            enforceClientAccess();
+
+            // Skip certificates without a domain to query (eg manually pasted keys)
+            if (!$certificate_domain) {
+                continue;
+            }
+
+            // Get fresh certificate from the live host
+            $certificate = getSslCertificate($certificate_domain);
+
+            if ($certificate['success']) {
+
+                $expire = escapeSql($certificate['expire']);
+                $issued_by = escapeSql($certificate['issued_by']);
+                $public_key = escapeSql($certificate['public_key']);
+
+                mysqli_query($mysqli,"UPDATE certificates SET certificate_issued_by = '$issued_by', certificate_expire = '$expire', certificate_public_key = '$public_key' WHERE certificate_id = $certificate_id");
+
+                logAudit("Certificate", "Refresh", "$session_name refreshed certificate $certificate_name", $client_id, $certificate_id);
+
+                $refreshed_count++;
+            }
+        }
+
+        logAudit("Certificate", "Bulk Refresh", "$session_name refreshed $refreshed_count certificate(s)", $client_id);
+
+        flashAlert("Refreshed <strong>$refreshed_count</strong> of <strong>$count</strong> certificate(s)");
+
+    }
 
     redirect();
 
