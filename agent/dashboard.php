@@ -666,7 +666,7 @@ if ($user_config_dashboard_technical_enable == 1) {
         <!-- ./col -->
 
         <div class="col-lg-3 col-6">
-            <a class="small-box bg-warning" href="domains.php?sort=domain_expire&order=ASC">
+            <a class="small-box bg-warning" href="domains.php?expire_days=30&sort=domain_expire&order=ASC">
                 <div class="inner">
                     <h3><?php echo $expiring_domains; ?></h3>
                     <p>Expiring Domains <small>30 Day</small></p>
@@ -679,7 +679,7 @@ if ($user_config_dashboard_technical_enable == 1) {
         <!-- ./col -->
 
         <div class="col-lg-3 col-6">
-            <a class="small-box bg-primary" href="certificates.php?sort=certificate_expire&order=ASC">
+            <a class="small-box bg-primary" href="certificates.php?expire_days=30&sort=certificate_expire&order=ASC">
                 <div class="inner">
                     <h3><?php echo $expiring_certificates; ?></h3>
                     <p>Expiring Certificates<small>30 Day</small></p>
@@ -692,7 +692,7 @@ if ($user_config_dashboard_technical_enable == 1) {
         <!-- ./col -->
 
         <div class="col-lg-3 col-6">
-            <a class="small-box bg-purple" href="software.php?sort=software_expire&order=ASC">
+            <a class="small-box bg-purple" href="software.php?expire_days=30&sort=software_expire&order=ASC">
                 <div class="inner">
                     <h3><?= $expiring_licenses ?></h3>
                     <p>Expiring Licenses<small>30 Day</small></p>
@@ -705,7 +705,7 @@ if ($user_config_dashboard_technical_enable == 1) {
         <!-- ./col -->
 
         <div class="col-lg-3 col-6">
-            <a class="small-box bg-olive" href="assets.php?sort=asset_warranty_expire&order=ASC&show_column[]=Warranty_Expire">
+            <a class="small-box bg-olive" href="assets.php?expire_days=30&sort=asset_warranty_expire&order=ASC&show_column[]=Warranty_Expire">
                 <div class="inner">
                     <h3><?= $expiring_asset_warranties ?></h3>
                     <p>Expiring Asset Warranties<small>30 Day</small></p>

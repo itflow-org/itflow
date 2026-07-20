@@ -90,6 +90,21 @@ if (isset($_GET['tags']) && is_array($_GET['tags']) && !empty($_GET['tags'])) {
     $tag_query = '';
 }
 
+// Expiring In Filter
+if (isset($_GET['expire_days']) && !empty($_GET['expire_days'])) {
+    if ($_GET['expire_days'] == "expired") {
+        $expire_days = "expired";
+        $expire_query = "AND (asset_warranty_expire IS NOT NULL AND asset_warranty_expire != '0000-00-00' AND asset_warranty_expire < CURDATE())";
+    } else {
+        $expire_days = intval($_GET['expire_days']);
+        $expire_query = "AND (asset_warranty_expire IS NOT NULL AND asset_warranty_expire != '0000-00-00' AND asset_warranty_expire BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL $expire_days DAY))";
+    }
+} else {
+    // Default - any
+    $expire_days = '';
+    $expire_query = '';
+}
+
 //Get Asset Counts
 $row = mysqli_fetch_assoc(mysqli_query($mysqli, "
     SELECT
@@ -148,6 +163,7 @@ $sql = mysqli_query(
     AND ($type_query)
     $access_permission_query
     $location_query
+    $expire_query
     $client_query
     GROUP BY asset_id
     ORDER BY $sort $order LIMIT $record_from, $record_to"
@@ -226,7 +242,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
             <input type="hidden" name="type" value="<?php echo stripslashes(escapeHtml($_GET['type'])); ?>">
             <input type="hidden" name="archived" value="<?php echo $archived; ?>">
             <div class="row">
-                <div class="col-md-4">
+                <div class="col-md-3">
                     <div class="input-group mb-3 mb-md-0">
                         <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search <?php if (!empty($_GET['type'])) { echo ucwords(stripslashes(escapeHtml($_GET['type']))); } else { echo "Asset"; } ?>s">
                         <div class="input-group-append">
@@ -314,6 +330,19 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     </div>
                 </div>
                 <div class="col-md-2">
+                    <div class="input-group mb-3 mb-md-0">
+                        <select class="form-control select2" name="expire_days" onchange="this.form.submit()">
+                            <option value="" <?php if ($expire_days == "") { echo "selected"; } ?>>- Expiring In -</option>
+                            <option value="expired" <?php if ($expire_days === "expired") { echo "selected"; } ?>>Expired</option>
+                            <option value="7" <?php if ($expire_days === 7) { echo "selected"; } ?>>7 Days</option>
+                            <option value="30" <?php if ($expire_days === 30) { echo "selected"; } ?>>30 Days</option>
+                            <option value="45" <?php if ($expire_days === 45) { echo "selected"; } ?>>45 Days</option>
+                            <option value="60" <?php if ($expire_days === 60) { echo "selected"; } ?>>60 Days</option>
+                            <option value="90" <?php if ($expire_days === 90) { echo "selected"; } ?>>90 Days</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-2">
                     <div class="form-group">
                         <select onchange="this.form.submit()" class="form-control select2" name="show_column[]" data-placeholder="- Show Additional Columns -" multiple>
                             <option
@@ -331,7 +360,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         </select>
                     </div>
                 </div>
-                <div class="col-md-2">
+                <div class="col-md-1">
                     <div class="btn-group float-right">
                         <a href="?<?php echo $client_url; ?>&archived=<?php if($archived == 1){ echo 0; } else { echo 1; } ?>"
                             class="btn btn-<?php if($archived == 1){ echo "primary"; } else { echo "default"; } ?>">

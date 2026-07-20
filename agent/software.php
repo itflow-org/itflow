@@ -34,6 +34,21 @@ if (isset($_GET['client_id'])) {
 // Perms
 enforceUserPermission('module_support');
 
+// Expiring In Filter
+if (isset($_GET['expire_days']) && !empty($_GET['expire_days'])) {
+    if ($_GET['expire_days'] == "expired") {
+        $expire_days = "expired";
+        $expire_query = "AND (software_expire IS NOT NULL AND software_expire != '0000-00-00' AND software_expire < CURDATE())";
+    } else {
+        $expire_days = intval($_GET['expire_days']);
+        $expire_query = "AND (software_expire IS NOT NULL AND software_expire != '0000-00-00' AND software_expire BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL $expire_days DAY))";
+    }
+} else {
+    // Default - any
+    $expire_days = '';
+    $expire_query = '';
+}
+
 if (!$client_url) {
     // Client Filter
     if (isset($_GET['client']) & !empty($_GET['client'])) {
@@ -55,6 +70,7 @@ $sql = mysqli_query(
     AND $archive_query
     $access_permission_query
     $client_query
+    $expire_query
     ORDER BY $sort $order LIMIT $record_from, $record_to");
 
 $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
@@ -103,9 +119,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         </div>
                     </div>
 
-                    <?php if ($client_url) { ?>
-                    <div class="col-md-2"></div>
-                    <?php } else { ?>
+                    <?php if (!$client_url) { ?>
                     <div class="col-md-2">
                         <div class="input-group mb-3 mb-md-0">
                             <select class="form-control select2" name="client" onchange="this.form.submit()">
@@ -134,7 +148,25 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     </div>
                     <?php } ?>
 
-                    <div class="col-md-6">
+                    <div class="col-md-2">
+                        <div class="input-group mb-3 mb-md-0">
+                            <select class="form-control select2" name="expire_days" onchange="this.form.submit()">
+                                <option value="" <?php if ($expire_days == "") { echo "selected"; } ?>>- Expiring In -</option>
+                                <option value="expired" <?php if ($expire_days === "expired") { echo "selected"; } ?>>Expired</option>
+                                <option value="7" <?php if ($expire_days === 7) { echo "selected"; } ?>>7 Days</option>
+                                <option value="30" <?php if ($expire_days === 30) { echo "selected"; } ?>>30 Days</option>
+                                <option value="45" <?php if ($expire_days === 45) { echo "selected"; } ?>>45 Days</option>
+                                <option value="60" <?php if ($expire_days === 60) { echo "selected"; } ?>>60 Days</option>
+                                <option value="90" <?php if ($expire_days === 90) { echo "selected"; } ?>>90 Days</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <?php if ($client_url) { // filler ?>
+                    <div class="col-md-2"></div>
+                    <?php } ?>
+
+                    <div class="col-md-4">
                         <div class="float-right">
                             <a href="?<?php echo $client_url; ?>archived=<?php if($archived == 1){ echo 0; } else { echo 1; } ?>"
                                 class="btn btn-<?php if($archived == 1){ echo "primary"; } else { echo "default"; } ?>">
