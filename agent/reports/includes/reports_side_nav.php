@@ -15,44 +15,48 @@
 
             <ul class="nav nav-pills nav-sidebar flex-column mt-2" data-widget="treeview" data-accordion="false">
 
-                <li class="nav-header">FINANCIAL</li>
                 <?php if ($config_module_enable_accounting == 1 && lookupUserPermission("module_financial") >= 1) { ?>
+                    <li class="nav-header">INCOME</li>
                     <li class="nav-item">
                         <a href="/agent/reports/income_summary.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "income_summary.php") { echo "active"; } ?>">
-                            <i class="far fa-circle nav-icon"></i>
+                            <i class="fas fa-hand-holding-usd nav-icon"></i>
                             <p>Income</p>
                         </a>
                     </li>
                     <li class="nav-item">
                         <a href="/agent/reports/income_by_client.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "income_by_client.php") { echo "active"; } ?>">
                             <i class="far fa-user nav-icon"></i>
-                            <p>Income By Client</p>
+                            <p>Income by Client</p>
                         </a>
                     </li>
                     <li class="nav-item">
                         <a href="/agent/reports/recurring_by_client.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "recurring_by_client.php") { echo "active"; } ?>">
                             <i class="fa fa-sync nav-icon"></i>
-                            <p>Recurring Income By Client</p>
+                            <p>Recurring Income by Client</p>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a href="/agent/reports/clients_with_balance.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "clients_with_balance.php") { echo "active"; } ?>">
+                        <a href="/agent/reports/outstanding_balances.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "outstanding_balances.php") { echo "active"; } ?>">
                             <i class="fa fa-exclamation-triangle nav-icon"></i>
-                            <p>Clients with a Balance</p>
+                            <p>Outstanding Balances</p>
                         </a>
                     </li>
+
+                    <li class="nav-header">EXPENSES</li>
                     <li class="nav-item">
                         <a href="/agent/reports/expense_summary.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "expense_summary.php") { echo "active"; } ?>">
-                            <i class="far fa-credit-card nav-icon"></i>
+                            <i class="fas fa-shopping-cart nav-icon"></i>
                             <p>Expense</p>
                         </a>
                     </li>
                     <li class="nav-item">
                         <a href="/agent/reports/expense_by_vendor.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "expense_by_vendor.php") { echo "active"; } ?>">
                             <i class="far fa-building nav-icon"></i>
-                            <p>Expense By Vendor</p>
+                            <p>Expense by Vendor</p>
                         </a>
                     </li>
+
+                    <li class="nav-header">STATEMENTS</li>
                     <li class="nav-item">
                         <a href="/agent/reports/tax_summary.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "tax_summary.php") { echo "active"; } ?>">
                             <i class="fas fa-percent nav-icon"></i>
@@ -65,23 +69,37 @@
                             <p>Profit & Loss</p>
                         </a>
                     </li>
+                <?php } // End financial reports IF statement ?>
+
+                <?php if (($config_module_enable_accounting == 1 && lookupUserPermission("module_financial") >= 1) || ($config_module_enable_ticketing && lookupUserPermission("module_support") >= 1)) { ?>
+                    <li class="nav-header">TIME</li>
+                <?php } ?>
+                <?php if ($config_module_enable_accounting == 1 && lookupUserPermission("module_financial") >= 1) { ?>
                     <li class="nav-item">
                         <a href="/agent/reports/tickets_unbilled.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "tickets_unbilled.php") { echo "active"; } ?>">
-                            <i class="nav-icon fas fa-life-ring"></i>
+                            <i class="nav-icon fas fa-hourglass-half"></i>
                             <p>Unbilled Tickets</p>
                         </a>
                     </li>
                     <li class="nav-item">
                         <a href="/agent/reports/client_ticket_time_detail.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "client_ticket_time_detail.php") { echo "active"; } ?>">
-                            <i class="nav-icon fas fa-life-ring"></i>
-                            <p>Client Time Detail Audit</p>
+                            <i class="nav-icon fas fa-stopwatch"></i>
+                            <p>Time Detail by Client</p>
                         </a>
                     </li>
+                <?php } ?>
+                <?php if ($config_module_enable_ticketing && lookupUserPermission("module_support") >= 1) { ?>
+                    <li class="nav-item">
+                        <a href="/agent/reports/time_by_tech.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "time_by_tech.php") { echo "active"; } ?>">
+                            <i class="nav-icon fas fa-user-clock"></i>
+                            <p>Time by Technician</p>
+                        </a>
+                    </li>
+                <?php } ?>
 
-                <?php } // End financial reports IF statement ?>
-
-
-                <li class="nav-header">TECHNICAL</li>
+                <?php if (($config_module_enable_ticketing && lookupUserPermission("module_support") >= 1) || lookupUserPermission("module_credential") >= 1) { ?>
+                    <li class="nav-header">TECHNICAL</li>
+                <?php } ?>
                 <?php  if ($config_module_enable_ticketing && lookupUserPermission("module_support") >= 1) { ?>
                     <li class="nav-item">
                         <a href="/agent/reports/ticket_summary.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "ticket_summary.php") { echo "active"; } ?>">
@@ -96,19 +114,12 @@
                             <p>Tickets by Client</p>
                         </a>
                     </li>
-
-                    <li class="nav-item">
-                        <a href="/agent/reports/time_by_tech.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "time_by_tech.php") { echo "active"; } ?>">
-                            <i class="nav-icon fas fa-life-ring"></i>
-                            <p>Time by Technician</p>
-                        </a>
-                    </li>
                 <?php } ?>
                 <?php if (lookupUserPermission("module_credential") >= 1) { ?>
                     <li class="nav-item">
                         <a href="/agent/reports/credential_rotation.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "credential_rotation.php") { echo "active"; } ?>">
                             <i class="nav-icon fas fa-key"></i>
-                            <p>Credential rotation</p>
+                            <p>Credential Rotation</p>
                         </a>
                     </li>
                 <?php } ?>

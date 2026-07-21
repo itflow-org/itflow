@@ -41,8 +41,8 @@
                         <p>API Keys</p>
                     </a>
                 </li>
-                <li class="nav-header">TAGS & CATEGORIES</li>
 
+                <li class="nav-header">LISTS</li>
                 <li class="nav-item">
                     <a href="/admin/tags.php" class="nav-link <?php echo (basename($_SERVER['PHP_SELF']) == 'tags.php' ? 'active' : ''); ?>">
                         <i class="nav-icon fas fa-tags"></i>
@@ -68,22 +68,7 @@
                             <p>Payment Methods</p>
                         </a>
                     </li>
-                    <li class="nav-item">
-                        <a href="/admin/payment_providers.php"
-                           class="nav-link <?php echo (in_array(basename($_SERVER['PHP_SELF']), ['payment_providers.php', 'saved_payment_methods.php']) ? 'active' : ''); ?>">
-                            <i class="nav-icon far fa-credit-card"></i>
-                            <p>Payment Providers</p>
-                        </a>
-                    </li>
                 <?php } ?>
-                    <li class="nav-item">
-                        <a href="/admin/ai_providers.php"
-                        class="nav-link <?php echo (in_array(basename($_SERVER['PHP_SELF']), ['ai_providers.php', 'ai_models.php']) ? 'active' : ''); ?>">
-                            <i class="nav-icon fas fa-robot"></i>
-                            <p>AI Providers</p>
-                        </a>
-                    </li>
-
                 <?php if ($config_module_enable_ticketing) { ?>
                     <li class="nav-item">
                         <a href="/admin/ticket_statuses.php" class="nav-link <?php echo (basename($_SERVER['PHP_SELF']) == 'ticket_statuses.php' ? 'active' : ''); ?>">
@@ -92,6 +77,24 @@
                         </a>
                     </li>
                 <?php } ?>
+
+                <li class="nav-header">INTEGRATIONS</li>
+                <?php if ($config_module_enable_accounting) { ?>
+                    <li class="nav-item">
+                        <a href="/admin/payment_providers.php"
+                           class="nav-link <?php echo (in_array(basename($_SERVER['PHP_SELF']), ['payment_providers.php', 'saved_payment_methods.php']) ? 'active' : ''); ?>">
+                            <i class="nav-icon far fa-credit-card"></i>
+                            <p>Payment Providers</p>
+                        </a>
+                    </li>
+                <?php } ?>
+                <li class="nav-item">
+                    <a href="/admin/ai_providers.php"
+                    class="nav-link <?php echo (in_array(basename($_SERVER['PHP_SELF']), ['ai_providers.php', 'ai_models.php']) ? 'active' : ''); ?>">
+                        <i class="nav-icon fas fa-robot"></i>
+                        <p>AI Providers</p>
+                    </a>
+                </li>
                 <li class="nav-item">
                     <a href="/admin/custom_links.php" class="nav-link <?php echo (basename($_SERVER['PHP_SELF']) == 'custom_links.php' ? 'active' : ''); ?>">
                         <i class="nav-icon fas fa-external-link-alt"></i>
@@ -99,20 +102,10 @@
                     </a>
                 </li>
 
-                <?php if ($config_module_enable_itdoc) { ?>
+                <?php if ($config_module_enable_itdoc || $config_module_enable_ticketing) { ?>
                     <li class="nav-header">TEMPLATES</li>
-
-                    <!-- 2025-11-16 JQ - Hide Contracts not yet ready
-                    <li class="nav-item">
-                        <a href="/admin/contract_templates.php" class="nav-link <?php echo (basename($_SERVER['PHP_SELF']) == 'contract_templates.php' ? 'active' : ''); ?>">
-                            <i class="nav-icon fas fa-file-contract"></i>
-                            <p>
-                                <span href="#" class="fas fa-plus-circle right ajax-modal" data-modal-url="/admin/modals/contract_template/contract_template_add.php" data-modal-size="lg"></span>
-                                Contract Templates
-                            </p>
-                        </a>
-                    </li>
-                    -->
+                <?php } ?>
+                <?php if ($config_module_enable_ticketing) { ?>
                     <li class="nav-item">
                         <a href="/admin/project_templates.php" class="nav-link <?php echo (in_array(basename($_SERVER['PHP_SELF']), ['project_templates.php', 'project_template.php']) ? 'active' : ''); ?>">
                             <i class="nav-icon fas fa-project-diagram"></i>
@@ -125,6 +118,19 @@
                             <p>Ticket Templates</p>
                         </a>
                     </li>
+                <?php } ?>
+                <?php if ($config_module_enable_itdoc) { ?>
+                    <!-- 2025-11-16 JQ - Hide Contracts not yet ready
+                    <li class="nav-item">
+                        <a href="/admin/contract_templates.php" class="nav-link <?php echo (basename($_SERVER['PHP_SELF']) == 'contract_templates.php' ? 'active' : ''); ?>">
+                            <i class="nav-icon fas fa-file-contract"></i>
+                            <p>
+                                <span href="#" class="fas fa-plus-circle right ajax-modal" data-modal-url="/admin/modals/contract_template/contract_template_add.php" data-modal-size="lg"></span>
+                                Contract Templates
+                            </p>
+                        </a>
+                    </li>
+                    -->
                     <li class="nav-item">
                         <a href="/admin/vendor_templates.php" class="nav-link <?php echo (basename($_SERVER['PHP_SELF']) == 'vendor_templates.php' ? 'active' : ''); ?>">
                             <i class="nav-icon fas fa-building"></i>
@@ -133,7 +139,7 @@
                     </li>
                     <li class="nav-item">
                         <a href="/admin/software_templates.php" class="nav-link <?php echo (basename($_SERVER['PHP_SELF']) == 'software_templates.php' ? 'active' : ''); ?>">
-                            <i class="nav-icon fas fa-rocket"></i>
+                            <i class="nav-icon fas fa-box-open"></i>
                             <p>License Templates</p>
                         </a>
                     </li>
@@ -149,7 +155,7 @@
 
                 <li class="nav-item">
                     <a href="/admin/mail_queue.php" class="nav-link <?php echo (basename($_SERVER['PHP_SELF']) == 'mail_queue.php' ? 'active' : ''); ?>">
-                        <i class="nav-icon fas fa-mail-bulk"></i>
+                        <i class="nav-icon fas fa-inbox"></i>
                         <p>Mail Queue</p>
                     </a>
                 </li>
@@ -161,7 +167,7 @@
                 </li>
                 <li class="nav-item">
                     <a href="/admin/app_logs.php" class="nav-link <?php echo (basename($_SERVER['PHP_SELF']) == 'app_logs.php' ? 'active' : ''); ?>">
-                        <i class="nav-icon fas fa-history"></i>
+                        <i class="nav-icon fas fa-clipboard-list"></i>
                         <p>App Logs</p>
                     </a>
                 </li>
@@ -237,15 +243,15 @@
                         </li>
                         <?php if ($config_module_enable_accounting) { ?>
                             <li class="nav-item">
-                                <a href="/admin/settings_invoice.php" class="nav-link <?php echo (basename($_SERVER['PHP_SELF']) == 'settings_invoice.php' ? 'active' : ''); ?>">
-                                    <i class="nav-icon fas fa-file-invoice"></i>
-                                    <p>Invoice</p>
-                                </a>
-                            </li>
-                            <li class="nav-item">
                                 <a href="/admin/settings_quote.php" class="nav-link <?php echo (basename($_SERVER['PHP_SELF']) == 'settings_quote.php' ? 'active' : ''); ?>">
                                     <i class="nav-icon fas fa-comment-dollar"></i>
                                     <p>Quote</p>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="/admin/settings_invoice.php" class="nav-link <?php echo (basename($_SERVER['PHP_SELF']) == 'settings_invoice.php' ? 'active' : ''); ?>">
+                                    <i class="nav-icon fas fa-file-invoice"></i>
+                                    <p>Invoice</p>
                                 </a>
                             </li>
                         <?php } ?>
