@@ -35,7 +35,7 @@ $num_software = $row['num'];
 
     <a class="pb-1 mt-1 brand-link" href="clients.php">
         <p class="h6"><i class="nav-icon fas fa-arrow-left ml-3 mr-2"></i>
-            <span class="brand-text ">Back | <strong>Client Overview</strong>
+            <span class="brand-text ">Back | <strong>All Client Docs</strong>
         </p>
     </a>
 
@@ -72,6 +72,9 @@ $num_software = $row['num'];
                             </p>
                         </a>
                     </li>
+
+                    <li class="nav-header mt-3">INFRASTRUCTURE</li>
+
                     <li class="nav-item">
                         <a href="assets.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "assets.php") { echo "active"; } ?>">
                             <i class="nav-icon fas fa-desktop"></i>
@@ -84,30 +87,7 @@ $num_software = $row['num'];
                             </p>
                         </a>
                     </li>
-                    <li class="nav-item">
-                        <a href="software.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "software.php") { echo "active"; } ?>">
-                            <i class="nav-icon fas fa-cube"></i>
-                            <p>
-                                Licenses
-                                <?php
-                                if ($num_software > 0) { ?>
-                                    <span class="right badge text-light"><?php echo $num_software; ?></span>
-                                <?php } ?>
-                            </p>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="credentials.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "credentials.php") { echo "active"; } ?>">
-                            <i class="nav-icon fas fa-key"></i>
-                            <p>
-                                Credentials
-                                <?php
-                                if ($num_credentials > 0) { ?>
-                                    <span class="right badge text-light"><?php echo $num_credentials; ?></span>
-                                <?php } ?>
-                            </p>
-                        </a>
-                    </li>
+
                     <li class="nav-item">
                         <a href="networks.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "networks.php") { echo "active"; } ?>">
                             <i class="nav-icon fas fa-network-wired"></i>
@@ -120,6 +100,22 @@ $num_software = $row['num'];
                             </p>
                         </a>
                     </li>
+
+                    <li class="nav-header mt-3">WEB & SECURITY</li>
+
+                    <li class="nav-item">
+                        <a href="credentials.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "credentials.php") { echo "active"; } ?>">
+                            <i class="nav-icon fas fa-key"></i>
+                            <p>
+                                Credentials
+                                <?php
+                                if ($num_credentials > 0) { ?>
+                                    <span class="right badge text-light"><?php echo $num_credentials; ?></span>
+                                <?php } ?>
+                            </p>
+                        </a>
+                    </li>
+                    
                     <li class="nav-item">
                         <a href="certificates.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "certificates.php") { echo "active"; } ?>">
                             <i class="nav-icon fas fa-lock"></i>
@@ -144,6 +140,22 @@ $num_software = $row['num'];
                             </p>
                         </a>
                     </li>
+
+                    <li class="nav-header mt-3">DOCUMENTATION</li>
+
+                    <li class="nav-item">
+                        <a href="software.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "software.php") { echo "active"; } ?>">
+                            <i class="nav-icon fas fa-cube"></i>
+                            <p>
+                                Licenses
+                                <?php
+                                if ($num_software > 0) { ?>
+                                    <span class="right badge text-light"><?php echo $num_software; ?></span>
+                                <?php } ?>
+                            </p>
+                        </a>
+                    </li>
+
                     <li class="nav-item">
                         <a href="services.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "services.php") { echo "active"; } ?>">
                             <i class="nav-icon fas fa-stream"></i>
@@ -156,6 +168,7 @@ $num_software = $row['num'];
                             </p>
                         </a>
                     </li>
+
                 <?php } ?>
 
             </ul>

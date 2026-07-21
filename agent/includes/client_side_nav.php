@@ -51,6 +51,32 @@
                     </a>
                 </li>
 
+                <li class="nav-item">
+                    <a href="/agent/vendors.php?client_id=<?php echo $client_id; ?>" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "vendors.php") { echo "active"; } ?>">
+                        <i class="nav-icon fas fa-building"></i>
+                        <p>
+                            Vendors
+                            <?php
+                            if ($num_vendors > 0) { ?>
+                                <span class="right badge text-light"><?php echo $num_vendors; ?></span>
+                            <?php } ?>
+                        </p>
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a href="/agent/calendar.php?client_id=<?php echo $client_id; ?>" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "calendar.php") { echo "active"; } ?>">
+                        <i class="nav-icon fas fa-calendar-alt"></i>
+                        <p>
+                            Calendar
+                            <?php
+                            if ($num_calendar_events > 0) { ?>
+                                <span class="right badge text-light"><?php echo $num_calendar_events; ?></span>
+                            <?php } ?>
+                        </p>
+                    </a>
+                </li>
+
                 <?php if ($config_module_enable_ticketing == 1 && lookupUserPermission("module_support") >= 1) { ?>
                     <li class="nav-header mt-3">SUPPORT</li>
 
@@ -96,35 +122,9 @@
 
                 <?php } ?>
 
-                <li class="nav-item">
-                    <a href="/agent/vendors.php?client_id=<?php echo $client_id; ?>" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "vendors.php") { echo "active"; } ?>">
-                        <i class="nav-icon fas fa-building"></i>
-                        <p>
-                            Vendors
-                            <?php
-                            if ($num_vendors > 0) { ?>
-                                <span class="right badge text-light"><?php echo $num_vendors; ?></span>
-                            <?php } ?>
-                        </p>
-                    </a>
-                </li>
-
-                <li class="nav-item">
-                    <a href="/agent/calendar.php?client_id=<?php echo $client_id; ?>" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "calendar.php") { echo "active"; } ?>">
-                        <i class="nav-icon fas fa-calendar-alt"></i>
-                        <p>
-                            Calendar
-                            <?php
-                            if ($num_calendar_events > 0) { ?>
-                                <span class="right badge text-light"><?php echo $num_calendar_events; ?></span>
-                            <?php } ?>
-                        </p>
-                    </a>
-                </li>
-
                 <?php if ($config_module_enable_itdoc == 1) { ?>
 
-                    <li class="nav-header mt-3">DOCUMENTATION</li>
+                    <li class="nav-header mt-3">INFRASTRUCTURE</li>
 
                     <?php if (lookupUserPermission("module_support") >= 1) { ?>
                         <li class="nav-item">
@@ -139,34 +139,6 @@
                                 </p>
                             </a>
                         </li>
-
-                        <li class="nav-item">
-                            <a href="/agent/software.php?client_id=<?php echo $client_id; ?>" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "software.php") { echo "active"; } ?>">
-                                <i class="nav-icon fas fa-cube"></i>
-                                <p>
-                                    Licenses
-                                    <?php
-                                    if ($num_software > 0) { ?>
-                                        <span class="right badge <?php if ($num_software_expiring > 0) { ?> badge-warning text-dark <?php } ?> <?php if ($num_software_expired > 0) { ?> badge-danger <?php } ?> text-white"><?php echo $num_software; ?></span>
-                                    <?php } ?>
-                                </p>
-                            </a>
-                        </li>
-
-                        <?php if (lookupUserPermission("module_credential") >= 1) { ?>
-                            <li class="nav-item">
-                                <a href="/agent/credentials.php?client_id=<?php echo $client_id; ?>" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "credentials.php") { echo "active"; } ?>">
-                                    <i class="nav-icon fas fa-key"></i>
-                                    <p>
-                                        Credentials
-                                        <?php
-                                        if ($num_credentials > 0) { ?>
-                                            <span class="right badge text-light"><?php echo $num_credentials; ?></span>
-                                        <?php } ?>
-                                    </p>
-                                </a>
-                            </li>
-                        <?php } ?>
 
                         <li class="nav-item">
                             <a href="/agent/networks.php?client_id=<?php echo $client_id; ?>" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "networks.php") { echo "active"; } ?>">
@@ -194,6 +166,23 @@
                             </a>
                         </li>
 
+                        <li class="nav-header mt-3">WEB & SECURITY</li>
+
+                        <?php if (lookupUserPermission("module_credential") >= 1) { ?>
+                            <li class="nav-item">
+                                <a href="/agent/credentials.php?client_id=<?php echo $client_id; ?>" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "credentials.php") { echo "active"; } ?>">
+                                    <i class="nav-icon fas fa-key"></i>
+                                    <p>
+                                        Credentials
+                                        <?php
+                                        if ($num_credentials > 0) { ?>
+                                            <span class="right badge text-light"><?php echo $num_credentials; ?></span>
+                                        <?php } ?>
+                                    </p>
+                                </a>
+                            </li>
+                        <?php } ?>
+
                         <li class="nav-item">
                             <a href="/agent/certificates.php?client_id=<?php echo $client_id; ?>" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "certificates.php") { echo "active"; } ?>">
                                 <i class="nav-icon fas fa-lock"></i>
@@ -215,6 +204,21 @@
                                     <?php
                                     if ($num_domains > 0) { ?>
                                         <span class="right badge <?php if (isset($num_domains_expiring)) { ?> badge-warning text-dark<?php } ?> <?php if (isset($num_domains_expired)) { ?> badge-danger <?php } ?> text-white"><?php echo $num_domains; ?></span>
+                                    <?php } ?>
+                                </p>
+                            </a>
+                        </li>
+
+                        <li class="nav-header mt-3">DOCUMENTATION</li>
+
+                        <li class="nav-item">
+                            <a href="/agent/software.php?client_id=<?php echo $client_id; ?>" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "software.php") { echo "active"; } ?>">
+                                <i class="nav-icon fas fa-cube"></i>
+                                <p>
+                                    Licenses
+                                    <?php
+                                    if ($num_software > 0) { ?>
+                                        <span class="right badge <?php if ($num_software_expiring > 0) { ?> badge-warning text-dark <?php } ?> <?php if ($num_software_expired > 0) { ?> badge-danger <?php } ?> text-white"><?php echo $num_software; ?></span>
                                     <?php } ?>
                                 </p>
                             </a>
@@ -258,6 +262,19 @@
                     <?php if (lookupUserPermission("module_sales") >= 1) { ?>
 
                         <li class="nav-item">
+                            <a href="/agent/quotes.php?client_id=<?php echo $client_id; ?>" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "quotes.php" || basename($_SERVER["PHP_SELF"]) == "quote.php") { echo "active"; } ?>">
+                                <i class="nav-icon fas fa-comment-dollar"></i>
+                                <p>
+                                    Quotes
+                                    <?php
+                                    if ($num_quotes > 0) { ?>
+                                        <span class="right badge text-light"><?php echo $num_quotes; ?></span>
+                                    <?php } ?>
+                                </p>
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
                             <a href="/agent/invoices.php?client_id=<?php echo $client_id; ?>" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "invoices.php" || basename($_SERVER["PHP_SELF"]) == "invoice.php") { echo "active"; } ?>">
                                 <i class="nav-icon fas fa-file-invoice"></i>
                                 <p>
@@ -278,19 +295,6 @@
                                     <?php
                                     if ($num_recurring_invoices) { ?>
                                         <span class="right badge"><?php echo $num_recurring_invoices; ?></span>
-                                    <?php } ?>
-                                </p>
-                            </a>
-                        </li>
-
-                        <li class="nav-item">
-                            <a href="/agent/quotes.php?client_id=<?php echo $client_id; ?>" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "quotes.php" || basename($_SERVER["PHP_SELF"]) == "quote.php") { echo "active"; } ?>">
-                                <i class="nav-icon fas fa-comment-dollar"></i>
-                                <p>
-                                    Quotes
-                                    <?php
-                                    if ($num_quotes > 0) { ?>
-                                        <span class="right badge text-light"><?php echo $num_quotes; ?></span>
                                     <?php } ?>
                                 </p>
                             </a>
