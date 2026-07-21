@@ -30,7 +30,28 @@
                             </p>
                         </a>
                     </li>
+                    <li class="nav-item">
+                        <a href="/agent/contacts.php" class="nav-link">
+                            <i class="fas fa-layer-group nav-icon"></i>
+                            <p>All Client Docs</p>
+                            <i class="fas fa-angle-right nav-icon float-right"></i>
+                        </a>
+                    </li>
                 <?php } ?>
+
+                <li class="nav-item">
+                    <a href="/agent/vendors.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "vendors.php") { echo "active"; } ?>">
+                        <i class="nav-icon fas fa-building"></i>
+                        <p>Vendors</p>
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a href="/agent/calendar.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "calendar.php") { echo "active"; } ?>">
+                        <i class="nav-icon fas fa-calendar-alt"></i>
+                        <p>Calendar</p>
+                    </a>
+                </li>
 
                 <?php if (lookupUserPermission("module_support") >= 1) { ?>
                     <?php if ($config_module_enable_ticketing == 1) { ?>
@@ -71,12 +92,6 @@
                     <?php } ?>
                 <?php } ?>
 
-                <li class="nav-item">
-                    <a href="/agent/calendar.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "calendar.php") { echo "active"; } ?>">
-                        <i class="nav-icon fas fa-calendar-alt"></i>
-                        <p>Calendar</p>
-                    </a>
-                </li>
                 <?php if ($config_module_enable_accounting == 1 && lookupUserPermission("module_sales") >= 1) { ?>
                     <li class="nav-header mt-3">BILLING</li>
                     <li class="nav-item">
@@ -113,12 +128,6 @@
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a href="/agent/revenues.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "revenues.php") { echo "active"; } ?>">
-                            <i class="nav-icon fas fa-hand-holding-usd"></i>
-                            <p>Revenues</p>
-                        </a>
-                    </li>
-                    <li class="nav-item">
                         <a href="/agent/products.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "products.php") { echo "active"; } ?>">
                             <i class="nav-icon fas fa-box-open"></i>
                             <p>Products</p>
@@ -136,9 +145,9 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a href="/agent/vendors.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "vendors.php") { echo "active"; } ?>">
-                                <i class="nav-icon fas fa-building"></i>
-                                <p>Vendors</p>
+                            <a href="/agent/revenues.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "revenues.php") { echo "active"; } ?>">
+                                <i class="nav-icon fas fa-hand-holding-usd"></i>
+                                <p>Revenues</p>
                             </a>
                         </li>
                         <li class="nav-item">
@@ -159,9 +168,21 @@
                             </a>
                         </li>
                         <li class="nav-item">
+                            <a href="/agent/trips.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "trips.php") { echo "active"; } ?>">
+                                <i class="nav-icon fas fa-route"></i>
+                                <p>Trips</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
                             <a href="/agent/accounts.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "accounts.php") { echo "active"; } ?>">
                                 <i class="nav-icon fas fa-piggy-bank"></i>
                                 <p>Accounts</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="/agent/transactions.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "transactions.php") { echo "active"; } ?>">
+                                <i class="nav-icon fas fa-list-alt"></i>
+                                <p>Transactions</p>
                             </a>
                         </li>
                         <li class="nav-item">
@@ -171,26 +192,11 @@
                             </a>
                         </li>
                     <?php } ?>
-                    <li class="nav-item">
-                        <a href="/agent/trips.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "trips.php") { echo "active"; } ?>">
-                            <i class="nav-icon fas fa-route"></i>
-                            <p>Trips</p>
-                        </a>
-                    </li>
-                <?php } ?>
-
-                <?php if (lookupUserPermission("module_client") >= 1) { ?>
-                <li class="nav-item mt-3">
-                    <a href="/agent/contacts.php" class="nav-link">
-                        <i class="fas fa-users nav-icon"></i>
-                        <p>Client Overview</p>
-                        <i class="fas fa-angle-right nav-icon float-right"></i>
-                    </a>
-                </li>
                 <?php } ?>
 
                 <?php if (lookupUserPermission("module_reporting") >= 1) { ?>
-                    <li class="nav-item mt-3">
+                    <li class="nav-header mt-3">TOOLS</li>
+                    <li class="nav-item">
                         <a href="/agent/reports/" class="nav-link">
                             <i class="fas fa-chart-line nav-icon"></i>
                             <p>Reports</p>
