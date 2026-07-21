@@ -20,7 +20,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
     <div class="card card-dark">
         <div class="card-header py-3">
-            <h3 class="card-title"><i class="fas fa-fw fa-mail-bulk mr-2"></i>Email Queue</h3>
+            <h3 class="card-title"><i class="fas fa-fw fa-inbox mr-2"></i>Email Queue</h3>
         </div>
         <div class="card-body">
             <form class="mb-4" autocomplete="off">
