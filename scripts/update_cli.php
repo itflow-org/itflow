@@ -113,17 +113,22 @@ if (isset($options['update_db'])) {
     DEFINE("CURRENT_DATABASE_VERSION", $row['config_current_database_version']);
     $old_db_version = $row['config_current_database_version'];
 
-    // Now include the update logic
+    // Run the migrations - populates $database_updates_applied and $database_updates_error
     require_once "../admin/database_updates.php";
 
-    // After database_updates.php has done its job, fetch the updated current DB version again
-    $result = mysqli_query($mysqli, "SELECT config_current_database_version FROM settings LIMIT 1");
-    $row = mysqli_fetch_assoc($result);
-    $new_db_version = $row['config_current_database_version'];
+    foreach ($database_updates_applied as $applied_version) {
+        echo "Applied database update $applied_version\n";
+    }
 
-    if ($old_db_version !== $latest_db_version) {
-        echo "Database updated from version $old_db_version to $new_db_version.\n";
-        echo "The latest database version is $latest_db_version.\n";
+    if ($database_updates_error) {
+        $stopped_at_version = count($database_updates_applied) > 0 ? end($database_updates_applied) : $old_db_version;
+        fwrite(STDERR, "Error: database update failed at $database_updates_error\n");
+        fwrite(STDERR, "The database is at version $stopped_at_version - re-running will resume at the failed update.\n");
+        exit(1);
+    }
+
+    if (count($database_updates_applied) > 0) {
+        echo "Database updated from version $old_db_version to $latest_db_version.\n";
     } else {
         echo "Database is already at the latest version ($latest_db_version). No updates were applied.\n";
     }

@@ -5,35 +5,26 @@ namespace Stripe;
 /**
  * Class ErrorObject.
  *
- * @property string $charge For card errors, the ID of the failed charge.
- * @property string $code For some errors that could be handled
- *    programmatically, a short string indicating the error code reported.
- * @property string $decline_code For card errors resulting from a card issuer
- *    decline, a short string indicating the card issuer's reason for the
- *    decline if they provide one.
- * @property string $doc_url A URL to more information about the error code
- *    reported.
- * @property string $message A human-readable message providing more details
- *    about the error. For card errors, these messages can be shown to your
- *    users.
- * @property string $param If the error is parameter-specific, the parameter
- *    related to the error. For example, you can use this to display a message
- *    near the correct form field.
- * @property PaymentIntent $payment_intent The PaymentIntent object for errors
- *    returned on a request involving a PaymentIntent.
- * @property PaymentMethod $payment_method The PaymentMethod object for errors
- *    returned on a request involving a PaymentMethod.
- * @property string $payment_method_type If the error is specific to the type
- *    of payment method, the payment method type that had a problem. This
- *    field is only populated for invoice-related errors.
- * @property string $request_log_url A URL to the request log entry in your
- *    dashboard.
- * @property SetupIntent $setup_intent The SetupIntent object for errors
- *    returned on a request involving a SetupIntent.
- * @property StripeObject $source The source object for errors returned on a
- *    request involving a source.
- * @property string $type The type of error returned. One of `api_error`,
- *   `card_error`, `idempotency_error`, or `invalid_request_error`.
+ * // errorProperties: The beginning of the section generated from our OpenAPI spec
+ *
+ * @property null|string $advice_code For card errors resulting from a card issuer decline, a short string indicating [how to proceed with an error](https://docs.stripe.com/declines#retrying-issuer-declines) if they provide one.
+ * @property null|string $charge For card errors, the ID of the failed charge.
+ * @property null|string $code For some errors that could be handled programmatically, a short string indicating the [error code](https://docs.stripe.com/error-codes) reported.
+ * @property null|string $decline_code For card errors resulting from a card issuer decline, a short string indicating the [card issuer's reason for the decline](https://docs.stripe.com/declines#issuer-declines) if they provide one.
+ * @property null|string $doc_url A URL to more information about the [error code](https://docs.stripe.com/error-codes) reported.
+ * @property null|string $message A human-readable message providing more details about the error. For card errors, these messages can be shown to your users.
+ * @property null|string $network_advice_code For card errors resulting from a card issuer decline, a 2 digit code which indicates the advice given to merchant by the card network on how to proceed with an error.
+ * @property null|string $network_decline_code For payments declined by the network, an alphanumeric code which indicates the reason the payment failed.
+ * @property null|string $param If the error is parameter-specific, the parameter related to the error. For example, you can use this to display a message near the correct form field.
+ * @property null|PaymentIntent $payment_intent The PaymentIntent object for errors returned on a request involving a PaymentIntent.
+ * @property null|PaymentMethod $payment_method The PaymentMethod object for errors returned on a request involving a PaymentMethod.
+ * @property null|string $payment_method_type If the error is specific to the type of payment method, the payment method type that had a problem. This field is only populated for invoice-related errors.
+ * @property null|string $request_log_url A URL to the request log entry in your dashboard.
+ * @property null|SetupIntent $setup_intent The SetupIntent object for errors returned on a request involving a SetupIntent.
+ * @property null|PaymentSource $source The PaymentSource object for errors returned on a request involving a PaymentSource.
+ * @property string $type The type of error returned. One of `api_error`, `card_error`, `idempotency_error`, or `invalid_request_error`
+ * @property null|string $user_message The user message associated with the error.
+ * // errorProperties: The end of the section generated from our OpenAPI spec
  */
 class ErrorObject extends StripeObject
 {
@@ -42,7 +33,7 @@ class ErrorObject extends StripeObject
      *
      * @see https://stripe.com/docs/error-codes
      */
-    // The beginning of the section generated from our OpenAPI spec
+    // errorCodes: The beginning of the section generated from our OpenAPI spec
     const CODE_ACCOUNT_CLOSED = 'account_closed';
     const CODE_ACCOUNT_COUNTRY_INVALID_ADDRESS = 'account_country_invalid_address';
     const CODE_ACCOUNT_ERROR_COUNTRY_CHANGE_REQUIRES_ADDITIONAL_STEPS = 'account_error_country_change_requires_additional_steps';
@@ -51,11 +42,14 @@ class ErrorObject extends StripeObject
     const CODE_ACCOUNT_NUMBER_INVALID = 'account_number_invalid';
     const CODE_ACCOUNT_TOKEN_REQUIRED_FOR_V2_ACCOUNT = 'account_token_required_for_v2_account';
     const CODE_ACSS_DEBIT_SESSION_INCOMPLETE = 'acss_debit_session_incomplete';
+    const CODE_ACTION_BLOCKED = 'action_blocked';
     const CODE_ALIPAY_UPGRADE_REQUIRED = 'alipay_upgrade_required';
     const CODE_AMOUNT_TOO_LARGE = 'amount_too_large';
     const CODE_AMOUNT_TOO_SMALL = 'amount_too_small';
+    const CODE_ANOMALOUS_MONEY_MOVEMENT_REQUEST = 'anomalous_money_movement_request';
     const CODE_API_KEY_EXPIRED = 'api_key_expired';
     const CODE_APPLICATION_FEES_NOT_ALLOWED = 'application_fees_not_allowed';
+    const CODE_APPROVAL_REQUIRED = 'approval_required';
     const CODE_AUTHENTICATION_REQUIRED = 'authentication_required';
     const CODE_BALANCE_INSUFFICIENT = 'balance_insufficient';
     const CODE_BALANCE_INVALID_PARAMETER = 'balance_invalid_parameter';
@@ -92,6 +86,10 @@ class ErrorObject extends StripeObject
     const CODE_DEBIT_NOT_AUTHORIZED = 'debit_not_authorized';
     const CODE_EMAIL_INVALID = 'email_invalid';
     const CODE_EXPIRED_CARD = 'expired_card';
+    const CODE_FAILED_TAX_CALCULATION = 'failed_tax_calculation';
+    const CODE_FINANCIAL_ACCOUNT_BALANCE_DOES_NOT_SUPPORT_CURRENCY = 'financial_account_balance_does_not_support_currency';
+    const CODE_FINANCIAL_ACCOUNT_CAPABILITY_NOT_ENABLED = 'financial_account_capability_not_enabled';
+    const CODE_FINANCIAL_ACCOUNT_CAPABILITY_RESTRICTED = 'financial_account_capability_restricted';
     const CODE_FINANCIAL_CONNECTIONS_ACCOUNT_INACTIVE = 'financial_connections_account_inactive';
     const CODE_FINANCIAL_CONNECTIONS_ACCOUNT_PENDING_ACCOUNT_NUMBERS = 'financial_connections_account_pending_account_numbers';
     const CODE_FINANCIAL_CONNECTIONS_ACCOUNT_UNAVAILABLE_ACCOUNT_NUMBERS = 'financial_connections_account_unavailable_account_numbers';
@@ -165,6 +163,7 @@ class ErrorObject extends StripeObject
     const CODE_PAYMENT_METHOD_INVALID_PARAMETER = 'payment_method_invalid_parameter';
     const CODE_PAYMENT_METHOD_INVALID_PARAMETER_TESTMODE = 'payment_method_invalid_parameter_testmode';
     const CODE_PAYMENT_METHOD_MICRODEPOSIT_FAILED = 'payment_method_microdeposit_failed';
+    const CODE_PAYMENT_METHOD_MICRODEPOSIT_PROCESSING_ERROR = 'payment_method_microdeposit_processing_error';
     const CODE_PAYMENT_METHOD_MICRODEPOSIT_VERIFICATION_AMOUNTS_INVALID = 'payment_method_microdeposit_verification_amounts_invalid';
     const CODE_PAYMENT_METHOD_MICRODEPOSIT_VERIFICATION_AMOUNTS_MISMATCH = 'payment_method_microdeposit_verification_amounts_mismatch';
     const CODE_PAYMENT_METHOD_MICRODEPOSIT_VERIFICATION_ATTEMPTS_EXCEEDED = 'payment_method_microdeposit_verification_attempts_exceeded';
@@ -195,6 +194,7 @@ class ErrorObject extends StripeObject
     const CODE_ROUTING_NUMBER_INVALID = 'routing_number_invalid';
     const CODE_SECRET_KEY_REQUIRED = 'secret_key_required';
     const CODE_SEPA_UNSUPPORTED_ACCOUNT = 'sepa_unsupported_account';
+    const CODE_SERVICE_PERIOD_COUPON_WITH_METERED_TIERED_ITEM_UNSUPPORTED = 'service_period_coupon_with_metered_tiered_item_unsupported';
     const CODE_SETUP_ATTEMPT_FAILED = 'setup_attempt_failed';
     const CODE_SETUP_INTENT_AUTHENTICATION_FAILURE = 'setup_intent_authentication_failure';
     const CODE_SETUP_INTENT_INVALID_PARAMETER = 'setup_intent_invalid_parameter';
@@ -204,6 +204,7 @@ class ErrorObject extends StripeObject
     const CODE_SETUP_INTENT_UNEXPECTED_STATE = 'setup_intent_unexpected_state';
     const CODE_SHIPPING_ADDRESS_INVALID = 'shipping_address_invalid';
     const CODE_SHIPPING_CALCULATION_FAILED = 'shipping_calculation_failed';
+    const CODE_SIRET_INVALID = 'siret_invalid';
     const CODE_SKU_INACTIVE = 'sku_inactive';
     const CODE_STATE_UNSUPPORTED = 'state_unsupported';
     const CODE_STATUS_TRANSITION_INVALID = 'status_transition_invalid';
@@ -228,7 +229,7 @@ class ErrorObject extends StripeObject
     const CODE_TRANSFER_SOURCE_BALANCE_PARAMETERS_MISMATCH = 'transfer_source_balance_parameters_mismatch';
     const CODE_TRANSFERS_NOT_ALLOWED = 'transfers_not_allowed';
     const CODE_URL_INVALID = 'url_invalid';
-    // The end of the section generated from our OpenAPI spec
+    // errorCodes: The end of the section generated from our OpenAPI spec
 
     /**
      * Refreshes this object using the provided values.
@@ -244,17 +245,25 @@ class ErrorObject extends StripeObject
         // error objects when they have a null value. We manually set default
         // values here to facilitate generic error handling.
         $values = \array_merge([
+            // errorRefreshFrom: The beginning of the section generated from our OpenAPI spec
+            'advice_code' => null,
             'charge' => null,
             'code' => null,
             'decline_code' => null,
             'doc_url' => null,
             'message' => null,
+            'network_advice_code' => null,
+            'network_decline_code' => null,
             'param' => null,
             'payment_intent' => null,
             'payment_method' => null,
+            'payment_method_type' => null,
+            'request_log_url' => null,
             'setup_intent' => null,
             'source' => null,
             'type' => null,
+            'user_message' => null,
+            // errorRefreshFrom: The end of the section generated from our OpenAPI spec
         ], $values);
         parent::refreshFrom($values, $opts, $partial);
     }

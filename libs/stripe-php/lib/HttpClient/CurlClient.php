@@ -202,7 +202,13 @@ class CurlClient implements ClientInterface, StreamingClientInterface
      */
     private function constructUrlAndBody($method, $absUrl, $params, $hasFile, $apiMode)
     {
-        $params = Util\Util::objectsToIds($params);
+        // For V2 POST bodies, preserve null values so they serialize to JSON
+        // null (the V2 mechanism for clearing fields / metadata keys).
+        // For all other cases (V1, GET/DELETE query params), strip nulls as
+        // before — null values become empty strings in query params which
+        // causes server errors.
+        $serializeNull = ('post' === $method && 'v2' === $apiMode);
+        $params = Util\Util::objectsToIds($params, $serializeNull);
         if ('post' === $method) {
             $absUrl = Util\Util::utf8($absUrl);
             if ($hasFile) {
@@ -526,7 +532,7 @@ class CurlClient implements ClientInterface, StreamingClientInterface
 
             if ($shouldRetry) {
                 ++$numRetries;
-                $sleepSeconds = $this->sleepTime($numRetries, $lastRHeaders);
+                $sleepSeconds = $this->sleepTime($numRetries);
                 \usleep((int) ($sleepSeconds * 1000000));
             } else {
                 break;
@@ -586,7 +592,7 @@ class CurlClient implements ClientInterface, StreamingClientInterface
 
             if ($shouldRetry) {
                 ++$numRetries;
-                $sleepSeconds = $this->sleepTime($numRetries, $rheaders);
+                $sleepSeconds = $this->sleepTime($numRetries);
                 \usleep((int) ($sleepSeconds * 1000000));
             } else {
                 break;
@@ -713,11 +719,10 @@ class CurlClient implements ClientInterface, StreamingClientInterface
      * Provides the number of seconds to wait before retrying a request.
      *
      * @param int $numRetries
-     * @param array|Util\CaseInsensitiveArray $rheaders
      *
      * @return int
      */
-    private function sleepTime($numRetries, $rheaders)
+    private function sleepTime($numRetries)
     {
         // Apply exponential backoff with $initialNetworkRetryDelay on the
         // number of $numRetries so far as inputs. Do not allow the number to exceed
@@ -729,18 +734,8 @@ class CurlClient implements ClientInterface, StreamingClientInterface
 
         // Apply some jitter by randomizing the value in the range of
         // ($sleepSeconds / 2) to ($sleepSeconds).
-        $sleepSeconds *= 0.5 * (1 + $this->randomGenerator->randFloat());
-
         // But never sleep less than the base sleep seconds.
-        $sleepSeconds = \max(Stripe::getInitialNetworkRetryDelay(), $sleepSeconds);
-
-        // And never sleep less than the time the API asks us to wait, assuming it's a reasonable ask.
-        $retryAfter = isset($rheaders['retry-after']) ? (float) ($rheaders['retry-after']) : 0.0;
-        if (\floor($retryAfter) === $retryAfter && $retryAfter <= Stripe::getMaxRetryAfter()) {
-            $sleepSeconds = \max($sleepSeconds, $retryAfter);
-        }
-
-        return $sleepSeconds;
+        return \max(Stripe::getInitialNetworkRetryDelay(), $sleepSeconds * 0.5 * (1 + $this->randomGenerator->randFloat()));
     }
 
     /**

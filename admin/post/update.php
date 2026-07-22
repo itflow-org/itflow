@@ -287,12 +287,16 @@ if (isset($_GET['update_db'])) {
     // Get the current version
     require_once ('../includes/database_version.php');
 
-    // Perform upgrades, if required
+    // Perform upgrades, if required - populates $database_updates_applied and $database_updates_error
     require_once ('database_updates.php');
 
-    logAudit("Database", "Update", "$session_name updated the database structure");
-
-    flashAlert("Database structure update successful");
+    if ($database_updates_error) {
+        logAudit("Database", "Update", "$session_name ran a database update that failed at $database_updates_error");
+        flashAlert("Database update failed at $database_updates_error - the version was not advanced past the last successful update, so it is safe to retry", "error");
+    } else {
+        logAudit("Database", "Update", "$session_name updated the database structure");
+        flashAlert("Database structure update successful");
+    }
 
     sleep(1);
 

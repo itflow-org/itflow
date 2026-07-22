@@ -118,11 +118,14 @@ Per [SECURITY.md](SECURITY.md) — never in a public issue.
  
 **Database naming.** Every column is prefixed with its table's singular name: `tickets.ticket_id`, `tickets.ticket_subject`, `clients.client_name`. This makes JOIN results unambiguous and is why queries can `SELECT *` across joins safely. New tables must follow it.
  
-**Schema changes require three edits in one PR:**
- 
+**Schema changes require two edits in one PR:**
+
 1. `db.sql` — so fresh installs get the new schema.
-2. `includes/database_version.php` — bump `LATEST_DATABASE_VERSION`.
-3. `admin/database_updates.php` — add an `if (CURRENT_DATABASE_VERSION == 'x.y.z')` block that applies the change and steps the version, so existing installs migrate. Migrations are sequential and rolling-release; never edit a historical block.
+2. `admin/database_updates/<x.y.z>.php` — a new file named for the version it upgrades **to**, containing only the queries that apply the change. Migrations are sequential and rolling-release; never edit a historical file.
+
+That is the whole job. `LATEST_DATABASE_VERSION` is derived from the highest-numbered filename in `admin/database_updates/`, and the runner (`admin/database_updates.php`) steps `config_current_database_version` after each file succeeds — so there is no constant to bump and no version-bump query to write. Each migration file needs the standard `defined('FROM_DB_UPDATER') || die(...)` guard at the top; copy an existing file's header.
+
+A single update run applies every pending migration in order, stopping at the first failure with the version left at the last file that completed, so a re-run resumes at the one that broke.
 **After acting, log and notify.** State changes call `logAudit($type, $action, $description, $client_id, $entity_id)` for the audit trail. User-facing events may also call `appNotify()`. Fire `triggerCustomAction()` where a site might reasonably want a hook. Then call `flashAlert($message, $type)` and `redirect()` (defaults to the referer) rather than setting session keys or `header()` manually.
 
 **Function names (post-rename).** Helpers were renamed for clarity in 2026; the old names **no longer exist** — code calling them fatals. If you're rebasing an old PR or following an old tutorial, translate: `sanitizeInput` → `escapeSql`, `nullable_htmlentities` → `escapeHtml`, `logAction` → `logAudit`, `flash_alert` → `flashAlert`, `customAction` → `triggerCustomAction`, `encryptLoginEntry`/`decryptLoginEntry` → `encryptCredentialEntry`/`decryptCredentialEntry`, `strtoAZaz09` → `toAlphanumeric`, `fetchUpdates` → `checkForUpdates`.
