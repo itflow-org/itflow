@@ -1,9 +1,9 @@
 /*M!999999\- enable the sandbox mode */ 
--- MariaDB dump 10.19  Distrib 10.11.14-MariaDB, for debian-linux-gnu (x86_64)
+-- MariaDB dump 10.19  Distrib 10.11.18-MariaDB, for debian-linux-gnu (x86_64)
 --
 -- Host: localhost    Database: itflow_dev
 -- ------------------------------------------------------
--- Server version	10.11.14-MariaDB-0+deb12u2
+-- Server version	10.11.18-MariaDB-0+deb12u1
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -963,6 +963,132 @@ CREATE TABLE `custom_fields` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `custom_hosting_api_keys`
+--
+
+DROP TABLE IF EXISTS `custom_hosting_api_keys`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `custom_hosting_api_keys` (
+  `api_key_id` int(11) NOT NULL AUTO_INCREMENT,
+  `api_key_name` varchar(200) NOT NULL,
+  `api_key_url` varchar(250) NOT NULL,
+  `api_key_token_id` varchar(200) NOT NULL,
+  `api_key_token_secret` varchar(250) NOT NULL,
+  `api_key_created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`api_key_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `custom_hosting_networks`
+--
+
+DROP TABLE IF EXISTS `custom_hosting_networks`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `custom_hosting_networks` (
+  `network_id` int(11) NOT NULL AUTO_INCREMENT,
+  `network_name` varchar(200) NOT NULL,
+  `network` varchar(100) NOT NULL,
+  `network_mask` varchar(100) NOT NULL,
+  `gateway` varchar(100) NOT NULL,
+  `network_start` varchar(100) NOT NULL,
+  `network_end` varchar(100) NOT NULL,
+  PRIMARY KEY (`network_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `custom_hosting_plans`
+--
+
+DROP TABLE IF EXISTS `custom_hosting_plans`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `custom_hosting_plans` (
+  `plan_id` int(11) NOT NULL AUTO_INCREMENT,
+  `plan_name` varchar(250) NOT NULL,
+  `plan_description` text NOT NULL,
+  `plan_created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`plan_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `custom_hosting_regions`
+--
+
+DROP TABLE IF EXISTS `custom_hosting_regions`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `custom_hosting_regions` (
+  `region_id` int(11) NOT NULL AUTO_INCREMENT,
+  `region_name` varchar(200) NOT NULL,
+  `region_created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`region_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `custom_hosting_servers`
+--
+
+DROP TABLE IF EXISTS `custom_hosting_servers`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `custom_hosting_servers` (
+  `server_id` int(11) NOT NULL AUTO_INCREMENT,
+  `server_node` varchar(200) NOT NULL,
+  `server_storage` varchar(200) NOT NULL,
+  `server_created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `server_region_id` int(11) NOT NULL,
+  `server_api_key_id` varchar(200) NOT NULL,
+  PRIMARY KEY (`server_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `custom_hosting_vm_templates`
+--
+
+DROP TABLE IF EXISTS `custom_hosting_vm_templates`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `custom_hosting_vm_templates` (
+  `template_id` int(11) NOT NULL AUTO_INCREMENT,
+  `template_name` varchar(200) NOT NULL,
+  `vcpus` int(11) NOT NULL,
+  `memory` int(11) NOT NULL,
+  `disk` int(11) NOT NULL,
+  `template_created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `template_plan_id` int(11) NOT NULL,
+  PRIMARY KEY (`template_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `custom_hosting_vms`
+--
+
+DROP TABLE IF EXISTS `custom_hosting_vms`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `custom_hosting_vms` (
+  `vm_id` int(11) NOT NULL AUTO_INCREMENT,
+  `vm_hostname` varchar(200) NOT NULL,
+  `vm_ip` varchar(100) NOT NULL,
+  `vm_created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `vm_network_id` int(11) NOT NULL,
+  `vm_server_id` int(11) NOT NULL,
+  `vm_template_id` int(11) NOT NULL,
+  `vm_recurring_invoice_id` int(11) DEFAULT NULL,
+  `vm_client_id` int(11) NOT NULL,
+  PRIMARY KEY (`vm_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `custom_links`
 --
 
@@ -1508,8 +1634,6 @@ CREATE TABLE `payment_providers` (
   `payment_provider_account` int(11) NOT NULL,
   `payment_provider_expense_vendor` int(11) NOT NULL DEFAULT 0,
   `payment_provider_expense_category` int(11) NOT NULL DEFAULT 0,
-  `payment_provider_expense_percentage_fee` decimal(4,4) DEFAULT NULL,
-  `payment_provider_expense_flat_fee` decimal(15,2) DEFAULT NULL,
   `payment_provider_created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `payment_provider_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
   PRIMARY KEY (`payment_provider_id`)
@@ -2997,4 +3121,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2026-04-04 18:13:53
+-- Dump completed on 2026-07-22 17:26:08

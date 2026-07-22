@@ -54,9 +54,6 @@ $num_rows = mysqli_num_rows($sql);
                             Expense Category <?php if ($sort == 'category_name') { echo $order_icon; } ?>
                         </a>
                     </th>
-                    <th>
-                        <a class="text-dark">Expensed Fee</a>
-                    </th>
                     <th class="text-center">
                         <a class="text-dark">Saved Payment Methods</a>
                     </th>
@@ -72,10 +69,13 @@ $num_rows = mysqli_num_rows($sql);
                     $provider_description = escapeHtml($row['payment_provider_description']);
                     $account_name = escapeHtml($row['account_name']);
                     $threshold = floatval($row['payment_provider_threshold']);
+                    if (!$threshold) {
+                        $threshold = "Not Enforced";
+                    } else {
+                        $threshold = numfmt_format_currency($currency_format, $threshold, $session_company_currency);
+                    }
                     $vendor_name = escapeHtml($row['vendor_name'] ?? "Expense Disabled");
                     $category = escapeHtml($row['category_name']);
-                    $percent_fee = floatval($row['payment_provider_expense_percentage_fee']) * 100;
-                    $flat_fee = floatval($row['payment_provider_expense_flat_fee']);
 
                     $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('saved_payment_id') AS saved_payment_count FROM client_saved_payment_methods WHERE saved_payment_provider_id = $provider_id"));
                     $saved_payment_count = intval($row['saved_payment_count']);
@@ -90,10 +90,9 @@ $num_rows = mysqli_num_rows($sql);
                             <span class="text-secondary"><?php echo $provider_description; ?></span>
                         </td>
                         <td><?php echo $account_name; ?></td>
-                        <td><?php echo numfmt_format_currency($currency_format, $threshold, $session_company_currency); ?></td>
+                        <td><?= $threshold ?></td>
                         <td><?php echo $vendor_name; ?></td>
                         <td><?php echo $category; ?></td>
-                        <td><?php echo $percent_fee; ?>% + <?php echo numfmt_format_currency($currency_format, $flat_fee, $session_company_currency); ?></td>
                         <td class="text-center">
                             <a class="badge badge-dark badge-pill p-2" href="saved_payment_methods.php"><?= $saved_payment_count ?></a>
                         </td>

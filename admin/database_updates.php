@@ -4394,10 +4394,16 @@ if (LATEST_DATABASE_VERSION > CURRENT_DATABASE_VERSION) {
 
     }
 
-    // if (CURRENT_DATABASE_VERSION == '2.4.4') {
-    //     // Insert queries here required to update to DB version 2.4.5
-    //     // Then, update the database to the next sequential version
-    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '2.4.5'");
+    if (CURRENT_DATABASE_VERSION == '2.4.4') {
+        // Gateway fee expense now uses the actual fee from Stripe's balance transaction
+        mysqli_query($mysqli, "ALTER TABLE `payment_providers` DROP `payment_provider_expense_percentage_fee`, DROP `payment_provider_expense_flat_fee`");
+
+        mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '2.4.5'");
+    }
+
+    // if (CURRENT_DATABASE_VERSION == '2.4.5') {
+    //     // Insert queries here required to update to DB version 2.4.6
+    //     mysqli_query($mysqli, "UPDATE `settings` SET `config_current_database_version` = '2.4.6'");
     // }
 
 } else {

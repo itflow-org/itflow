@@ -16,11 +16,6 @@ ob_start();
 
     <div class="modal-body">
 
-        <div class="alert alert-info text-center">
-            <h6>Before Adding a Payment Provider!</h6>
-            We recommend you add an <strong>Account</strong> and <strong>Vendor</strong> based off the Provider name before continuing eg <strong>Stripe</strong>
-        </div>
-
         <ul class="nav nav-pills nav-justified mb-3">
             <li class="nav-item">
                 <a class="nav-link active" data-toggle="pill" href="#pills-details">Details</a>
@@ -90,6 +85,7 @@ ob_start();
                             ?>
                         </select>
                     </div>
+                    <small class="form-text text-muted">Should havea seperate account created off the payment provider's name e.g. Stripe</small>
                 </div>
 
                 <div class="form-group">
@@ -106,6 +102,10 @@ ob_start();
             </div>
 
             <div class="tab-pane fade" id="pills-expense">
+
+                <div class="alert alert-info text-center">
+                    Payment Processing Fee Expenses get reconciled nighly via the cron
+                </div>
 
                 <div class="form-group">
                     <div class="custom-control custom-switch">
@@ -136,6 +136,7 @@ ob_start();
                             ?>
                         </select>
                     </div>
+                    <small class="form-text text-muted">Payment Privider name e.g. Stripe</small>
                 </div>
 
                 <div class="form-group">
@@ -166,29 +167,8 @@ ob_start();
                             </button>
                         </div>
                     </div>
-                </div>
-
-                <div class="form-group">
-                    <label>Percentage Fee to expense</label>
-                    <div class="input-group">
-                        <div class="input-group-prepend">
-                            <span class="input-group-text"><i class="fa fa-fw fa-percent"></i></span>
-                        </div>
-                        <input type="text" class="form-control" inputmode="decimal" pattern="[0-9]*\.?[0-9]{0,2}" name="percentage_fee" placeholder="Enter Percentage">
-                    </div>
-                    <small class="form-text text-muted">See <a href="https://stripe.com/pricing" target="_blank">here <i class="fas fa-fw fa-external-link-alt"></i></a> for the latest Stripe Fees.</small>
-                </div>
-
-                <div class="form-group">
-                    <label>Flat Fee to expense</label>
-                    <div class="input-group">
-                        <div class="input-group-prepend">
-                            <span class="input-group-text"><i class="fa fa-fw fa-shopping-cart"></i></span>
-                        </div>
-                        <input type="text" class="form-control" inputmode="decimal" pattern="[0-9]*\.?[0-9]{0,3}" name="flat_fee" placeholder="0.030">
-                    </div>
-                    <small class="form-text text-muted">See <a href="https://stripe.com/pricing" target="_blank">here <i class="fas fa-fw fa-external-link-alt"></i></a> for the latest Stripe Fees.</small>
-                </div>
+                    <small class="form-text text-muted">Processing Fee, Credit Card Fee etc</small>
+                </div>        
 
             </div>
         </div>

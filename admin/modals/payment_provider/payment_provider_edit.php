@@ -14,12 +14,11 @@ $account_id = intval($row['payment_provider_account']);
 $threshold = floatval($row['payment_provider_threshold']);
 $vendor_id = intval($row['payment_provider_expense_vendor']);
 $category_id = intval($row['payment_provider_expense_category']);
-$percent_fee = floatval($row['payment_provider_expense_percentage_fee']) * 100;
-$flat_fee = floatval($row['payment_provider_expense_flat_fee']);
 
-// Generate the HTML form content using output buffering.
 ob_start();
+
 ?>
+
 <div class="modal-header bg-dark">
     <h5 class="modal-title"><i class="fa fa-fw fa-credit-card mr-2"></i>Editing: <strong><?= $provider_name ?></strong></h5>
     <button type="button" class="close text-white" data-dismiss="modal">
@@ -89,6 +88,7 @@ ob_start();
                             ?>
                         </select>
                     </div>
+                    <small class="form-text text-muted">Should havea seperate account created off the payment provider's name e.g. Stripe</small>
                 </div>
 
                 <div class="form-group">
@@ -105,6 +105,10 @@ ob_start();
             </div>
 
             <div class="tab-pane fade" id="pills-expense">
+
+                <div class="alert alert-info text-center">
+                    Payment Processing Fee Expenses get reconciled nighly via the cron
+                </div>
 
                 <div class="form-group">
                     <label>Payment Provider Vendor <strong class="text-danger">*</strong></label>
@@ -130,6 +134,7 @@ ob_start();
                             ?>
                         </select>
                     </div>
+                    <small class="form-text text-muted">Payment Privider name e.g. Stripe</small>
                 </div>
 
                 <div class="form-group">
@@ -160,28 +165,7 @@ ob_start();
                             </button>
                         </div>
                     </div>
-                </div>
-
-                <div class="form-group">
-                    <label>Percentage Fee to expense</label>
-                    <div class="input-group">
-                        <div class="input-group-prepend">
-                            <span class="input-group-text"><i class="fa fa-fw fa-percent"></i></span>
-                        </div>
-                        <input type="text" class="form-control" inputmode="decimal" pattern="[0-9]*\.?[0-9]{0,2}" name="percentage_fee" value="<?php echo $percent_fee; ?>" placeholder="Enter Percentage">
-                    </div>
-                    <small class="form-text text-muted">See <a href="https://stripe.com/pricing" target="_blank">here <i class="fas fa-fw fa-external-link-alt"></i></a> for the latest Stripe Fees.</small>
-                </div>
-
-                <div class="form-group">
-                    <label>Flat Fee to expense</label>
-                    <div class="input-group">
-                        <div class="input-group-prepend">
-                            <span class="input-group-text"><i class="fa fa-fw fa-shopping-cart"></i></span>
-                        </div>
-                        <input type="text" class="form-control" inputmode="decimal" pattern="[0-9]*\.?[0-9]{0,3}" name="flat_fee" value="<?php echo $flat_fee; ?>" placeholder="0.030">
-                    </div>
-                    <small class="form-text text-muted">See <a href="https://stripe.com/pricing" target="_blank">here <i class="fas fa-fw fa-external-link-alt"></i></a> for the latest Stripe Fees.</small>
+                    <small class="form-text text-muted">Processing Fee, Credit Card Fee etc</small>
                 </div>
             </div>
         </div>
