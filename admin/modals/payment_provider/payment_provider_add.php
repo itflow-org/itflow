@@ -85,7 +85,7 @@ ob_start();
                             ?>
                         </select>
                     </div>
-                    <small class="form-text text-muted">Should havea seperate account created off the payment provider's name e.g. Stripe</small>
+                    <small class="form-text text-muted">Should have a seperate account created off the payment provider's name e.g. Stripe</small>
                 </div>
 
                 <div class="form-group">
