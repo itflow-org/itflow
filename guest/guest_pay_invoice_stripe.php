@@ -13,9 +13,6 @@ $stripe_secret           = escapeHtml($stripe_provider['payment_provider_private
 $stripe_account          = intval($stripe_provider['payment_provider_account']);
 $stripe_expense_vendor   = intval($stripe_provider['payment_provider_expense_vendor']);
 $stripe_expense_category = intval($stripe_provider['payment_provider_expense_category']);
-$stripe_percentage_fee   = floatval($stripe_provider['payment_provider_expense_percentage_fee']);
-$stripe_flat_fee         = floatval($stripe_provider['payment_provider_expense_flat_fee']);
-
 
 // Show payment form
 if (isset($_GET['invoice_id'], $_GET['url_key']) && !isset($_GET['payment_intent'])) {
@@ -164,7 +161,10 @@ if (isset($_GET['invoice_id'], $_GET['url_key']) && !isset($_GET['payment_intent
     require_once '../libs/stripe-php/init.php';
     \Stripe\Stripe::setApiKey($stripe_secret);
 
-    $pi_obj = \Stripe\PaymentIntent::retrieve($pi_id);
+    $pi_obj = \Stripe\PaymentIntent::retrieve([
+        'id' => $pi_id,
+        'expand' => ['latest_charge.balance_transaction'],
+    ]);
 
     if ($pi_obj->client_secret !== $pi_cs) {
         error_log("Stripe payment error - Payment intent ID/Secret mismatch for $pi_id");
@@ -223,10 +223,16 @@ if (isset($_GET['invoice_id'], $_GET['url_key']) && !isset($_GET['payment_intent
     $amount_paid_previously = floatval(mysqli_fetch_assoc($sql_amount_paid_previously)['amount_paid']);
     $balance_to_pay = $invoice_amount - $amount_paid_previously;
 
-    // Stripe expense
+    // Stripe expense (actual fee from balance transaction)
     if ($stripe_expense_vendor > 0 && $stripe_expense_category > 0) {
-        $gateway_fee = round($balance_to_pay * $stripe_percentage_fee + $stripe_flat_fee, 2);
-        mysqli_query($mysqli, "INSERT INTO expenses SET expense_date = '$pi_date', expense_amount = $gateway_fee, expense_currency_code = '$invoice_currency_code', expense_account_id = $stripe_account, expense_vendor_id = $stripe_expense_vendor, expense_client_id = $client_id, expense_category_id = $stripe_expense_category, expense_description = 'Stripe Transaction for Invoice $invoice_prefix$invoice_number In the Amount of $balance_to_pay', expense_reference = 'Stripe - $pi_id'");
+        $stripe_fee = getStripeGatewayFee($pi_obj);
+        if ($stripe_fee) {
+            $gateway_fee = floatval($stripe_fee['fee']);
+            $gateway_fee_currency = escapeSql($stripe_fee['currency']);
+        mysqli_query($mysqli, "INSERT INTO expenses SET expense_date = '$pi_date', expense_amount = $gateway_fee, expense_currency_code = '$gateway_fee_currency', expense_account_id = $stripe_account, expense_vendor_id = $stripe_expense_vendor, expense_client_id = $client_id, expense_category_id = $stripe_expense_category, expense_description = 'Stripe fee for Invoice $invoice_prefix$invoice_number payment of $balance_to_pay', expense_reference = 'Stripe - $pi_id'");
+        } else {
+            error_log("Stripe payment warning - balance transaction unavailable for $pi_id, fee expense not recorded");
+        }
     }
 
     if (intval($balance_to_pay) !== intval($pi_amount_paid)) {

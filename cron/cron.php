@@ -820,8 +820,6 @@ while ($row = mysqli_fetch_assoc($sql_recurring_payments)) {
         $account_id = intval($saved_payment['payment_provider_account']);
         $expense_category_id = intval($saved_payment['payment_provider_expense_category']);
         $expense_vendor_id = intval($saved_payment['payment_provider_expense_vendor']);
-        $expense_percentage_fee = floatval($saved_payment['payment_provider_expense_percentage_fee']);
-        $expense_flat_fee = floatval($saved_payment['payment_provider_expense_flat_fee']);
         $saved_payment_description = escapeSql($saved_payment['saved_payment_description']);
         $stripe_payment_method_id = $saved_payment['saved_payment_provider_method'];
 
@@ -853,6 +851,7 @@ while ($row = mysqli_fetch_assoc($sql_recurring_payments)) {
                         'off_session' => true,
                         'confirm' => true,
                         'description' => $pi_description,
+                        'expand' => ['latest_charge.balance_transaction'],
                         'metadata' => [
                             'itflow_client_id' => $client_id,
                             'itflow_client_name' => $client_name,
@@ -885,10 +884,16 @@ while ($row = mysqli_fetch_assoc($sql_recurring_payments)) {
                     mysqli_query($mysqli, "INSERT INTO payments SET payment_date = '$pi_date', payment_amount = $pi_amount_paid, payment_currency_code = '$pi_currency', payment_account_id = $account_id, payment_method = 'Stripe', payment_reference = 'Stripe - $pi_id', payment_invoice_id = $invoice_id");
                     mysqli_query($mysqli, "INSERT INTO history SET history_status = 'Paid', history_description = 'Online Payment added (autopay)', history_invoice_id = $invoice_id");
 
-                    // EXPENSE: Stripe gateway fee as an expense (if configured)
+                    // EXPENSE: Actual Stripe gateway fee as an expense (if configured)
                     if ($expense_vendor_id > 0 && $expense_category_id > 0) {
-                        $gateway_fee = round($invoice_amount * $expense_percentage_fee + $expense_flat_fee, 2);
-                        mysqli_query($mysqli,"INSERT INTO expenses SET expense_date = '$pi_date', expense_amount = $gateway_fee, expense_currency_code = '$invoice_currency_code', expense_account_id = $account_id, expense_vendor_id = $expense_vendor_id, expense_client_id = $client_id, expense_category_id = $expense_category_id, expense_description = 'Stripe Transaction for Invoice $invoice_prefix$invoice_number In the Amount of $balance_to_pay', expense_reference = 'Stripe - $pi_id'");
+                        $stripe_fee = getStripeGatewayFee($payment_intent);
+                        if ($stripe_fee) {
+                            $gateway_fee = floatval($stripe_fee['fee']);
+                            $gateway_fee_currency = escapeSql($stripe_fee['currency']);
+                            mysqli_query($mysqli,"INSERT INTO expenses SET expense_date = '$pi_date', expense_amount = $gateway_fee, expense_currency_code = '$gateway_fee_currency', expense_account_id = $account_id, expense_vendor_id = $expense_vendor_id, expense_client_id = $client_id, expense_category_id = $expense_category_id, expense_description = 'Stripe fee for Invoice $invoice_prefix$invoice_number payment of $balance_to_pay', expense_reference = 'Stripe - $pi_id'");
+                        } else {
+                            logApp("Stripe", "warning", "Balance transaction unavailable for $pi_id - fee expense not recorded for invoice ID $invoice_id");
+                        }
                     }
 
                     // RECEIPT EMAIL

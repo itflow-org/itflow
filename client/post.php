@@ -550,8 +550,6 @@ if (isset($_GET['add_payment_by_provider'])) {
     $account_id = intval($row['payment_provider_account']);
     $expense_category_id = intval($row['payment_provider_expense_category']);
     $expense_vendor_id = intval($row['payment_provider_expense_vendor']);
-    $expense_percentage_fee = floatval($row['payment_provider_expense_percentage_fee']);
-    $expense_flat_fee = floatval($row['payment_provider_expense_flat_fee']);
     $payment_provider_client = escapeSql($row['payment_provider_client']);
     $saved_payment_method = escapeSql($row['saved_payment_provider_method']);
     $saved_payment_description = escapeSql($row['saved_payment_description']);
@@ -593,6 +591,7 @@ if (isset($_GET['add_payment_by_provider'])) {
             'off_session' => true,
             'confirm' => true,
             'description' => $pi_description,
+            'expand' => ['latest_charge.balance_transaction'],
             'metadata' => [
                 'itflow_client_id' => $client_id,
                 'itflow_client_name' => $client_name,
@@ -669,10 +668,16 @@ if (isset($_GET['add_payment_by_provider'])) {
             $extended_log_desc = '(DEV MODE)';
         }
 
-        // Create Stripe payment gateway fee as an expense (if configured)
+        // Create actual Stripe gateway fee as an expense (if configured)
         if ($expense_vendor_id > 0 && $expense_category_id > 0) {
-            $gateway_fee = round($invoice_amount * $expense_percentage_fee + $expense_flat_fee, 2);
-            mysqli_query($mysqli,"INSERT INTO expenses SET expense_date = '$pi_date', expense_amount = $gateway_fee, expense_currency_code = '$invoice_currency_code', expense_account_id = $account_id, expense_vendor_id = $expense_vendor_id, expense_client_id = $client_id, expense_category_id = $expense_category_id, expense_description = 'Stripe Transaction for Invoice $invoice_prefix$invoice_number In the Amount of $balance_to_pay', expense_reference = 'Stripe - $pi_id $extended_log_desc'");
+            $stripe_fee = getStripeGatewayFee($payment_intent);
+            if ($stripe_fee) {
+                $gateway_fee = floatval($stripe_fee['fee']);
+                $gateway_fee_currency = escapeSql($stripe_fee['currency']);
+                mysqli_query($mysqli,"INSERT INTO expenses SET expense_date = '$pi_date', expense_amount = $gateway_fee, expense_currency_code = '$gateway_fee_currency', expense_account_id = $account_id, expense_vendor_id = $expense_vendor_id, expense_client_id = $client_id, expense_category_id = $expense_category_id, expense_description = 'Stripe fee for Invoice $invoice_prefix$invoice_number payment of $balance_to_pay', expense_reference = 'Stripe - $pi_id $extended_log_desc'");
+            } else {
+                logApp("Stripe", "warning", "Balance transaction unavailable for $pi_id - fee expense not recorded for invoice ID $invoice_id");
+            }
         }
 
         // Notify/log
