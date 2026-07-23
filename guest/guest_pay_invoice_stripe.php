@@ -156,7 +156,7 @@ if (isset($_GET['invoice_id'], $_GET['url_key']) && !isset($_GET['payment_intent
     $pi_id = escapeSql($_GET['payment_intent']);
     $pi_cs = $_GET['payment_intent_client_secret'];
 
-    require_once '../libs/stripe-php/init.php';
+    require_once '../includes/stripe_init.php';
     \Stripe\Stripe::setApiKey($stripe_secret);
 
     $pi_obj = \Stripe\PaymentIntent::retrieve($pi_id);

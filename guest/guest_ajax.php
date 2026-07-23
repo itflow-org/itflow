@@ -69,7 +69,7 @@ if (isset($_GET['stripe_create_pi'])) {
     }
     $stripe_secret_key = $stripe_provider['payment_provider_private_key'];
 
-    require_once '../libs/stripe-php/init.php';
+    require_once '../includes/stripe_init.php';
 
     $pi_description = "ITFlow: $client_name payment of $invoice_currency_code $balance_to_pay for $invoice_prefix$invoice_number";
 

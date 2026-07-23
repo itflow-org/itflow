@@ -573,7 +573,7 @@ if (isset($_GET['add_payment_by_provider'])) {
     }
 
     // Initialize Stripe
-    require_once __DIR__ . '/../libs/stripe-php/init.php';
+    require_once __DIR__ . '/../includes/stripe_init.php';
     $stripe = new \Stripe\StripeClient($private_key);
 
     $balance_to_pay = round($invoice_amount, 2);
@@ -727,7 +727,7 @@ if (isset($_POST['create_stripe_customer'])) {
     if (!$existing_customer) {
         try {
             // Initialize Stripe
-            require_once '../libs/stripe-php/init.php';
+            require_once '../includes/stripe_init.php';
             $stripe = new \Stripe\StripeClient($stripe_secret_key);
 
             // Create new customer in Stripe
@@ -821,7 +821,7 @@ if (isset($_GET['create_stripe_checkout'])) {
     $return_url = "https://$config_base_url/client/post.php?stripe_save_card&session_id={CHECKOUT_SESSION_ID}";
 
     try {
-        require_once '../libs/stripe-php/init.php';
+        require_once '../includes/stripe_init.php';
         $stripe = new \Stripe\StripeClient($stripe_secret_key);
 
         // Create checkout session
@@ -895,7 +895,7 @@ if (isset($_GET['stripe_save_card'])) {
     $checkout_session_id = escapeSql($_GET['session_id']);
 
     try {
-        require_once '../libs/stripe-php/init.php';
+        require_once '../includes/stripe_init.php';
         $stripe = new \Stripe\StripeClient($stripe_secret_key);
 
         // Retrieve checkout session & setup intent
@@ -1031,7 +1031,7 @@ if (isset($_GET['delete_saved_payment'])) {
 
     try {
         // Initialize Stripe
-        require_once '../libs/stripe-php/init.php';
+        require_once '../includes/stripe_init.php';
         $stripe = new \Stripe\StripeClient($stripe_secret_key);
 
         // Detach the payment method from Stripe

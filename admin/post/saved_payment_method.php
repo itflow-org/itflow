@@ -42,7 +42,7 @@ if (isset($_GET['delete_saved_payment'])) {
 
         try {
             // Initialize stripe
-            require_once '../libs/stripe-php/init.php';
+            require_once '../includes/stripe_init.php';
             $stripe = new \Stripe\StripeClient($private_key);
 
             // Detach PM

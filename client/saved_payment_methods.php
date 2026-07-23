@@ -11,7 +11,7 @@ if ($session_contact_primary == 0 && !$session_contact_is_billing_contact) {
 }
 
 // Initialize Stripe
-require_once '../libs/stripe-php/init.php';
+require_once '../includes/stripe_init.php';
 
 // Get Stripe provider info
 $stripe_provider_query = mysqli_query($mysqli, "

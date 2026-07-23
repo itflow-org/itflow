@@ -834,7 +834,7 @@ while ($row = mysqli_fetch_assoc($sql_recurring_payments)) {
         // Stripe
         if ($provider_name === "Stripe") {
             if ($provider_private_key && $stripe_customer_id && $stripe_payment_method_id) {
-                require_once __DIR__ . '/../libs/stripe-php/init.php';
+                require_once __DIR__ . '/../includes/stripe_init.php';
                 $stripe = new \Stripe\StripeClient($provider_private_key);
 
                 $balance_to_pay = round($invoice_amount, 2);
@@ -970,7 +970,7 @@ if ($stripe_provider) {
 
         if ($sql_missing_fee && mysqli_num_rows($sql_missing_fee) > 0) {
 
-            require_once __DIR__ . '/../libs/stripe-php/init.php';
+            require_once __DIR__ . '/../includes/stripe_init.php';
             $stripe = new \Stripe\StripeClient($provider_private_key);
 
             while ($missing = mysqli_fetch_assoc($sql_missing_fee)) {

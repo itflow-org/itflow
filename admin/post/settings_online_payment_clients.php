@@ -16,7 +16,7 @@ if (isset($_GET['stripe_remove_pm'])) {
 
     try {
         // Initialize stripe
-        require_once '../libs/stripe-php/init.php';
+        require_once '../includes/stripe_init.php';
         $stripe = new \Stripe\StripeClient($config_stripe_secret);
 
         // Detach PM
