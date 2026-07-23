@@ -402,9 +402,3 @@ function secondsToTime($inputSeconds) {
 
     return implode(', ', $timeParts);
 }
-
-function formatAddress($address, $city, $state, $zip, $country = '', $separator = "\n") {
-    $cityLine = trim(implode(' ', array_filter([trim("$city,", ' ,') ? "$city," : '', $state, $zip])));
-    $cityLine = rtrim($cityLine, ',');
-    return implode($separator, array_filter([trim($address), $cityLine, trim($country)]));
-}
