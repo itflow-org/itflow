@@ -168,7 +168,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             <td>
                                 <a class="text-dark ajax-modal" href="#"
                                     data-modal-size="xl"
-                                    data-modal-url="modals/service/service_details.php?id=<?= $service_id ?>">
+                                    data-modal-url="modals/service/service.php?id=<?= $service_id ?>">
                                     <div class="media">
                                         <i class="fa fa-fw fa-2x fa-stream mr-3"></i>
                                         <div class="media-body">
