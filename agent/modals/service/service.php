@@ -273,13 +273,13 @@ ob_start();
                 mysqli_data_seek($sql_credentials, 0);
                 while ($row = mysqli_fetch_assoc($sql_credentials)) {
                     if (!empty($row['credential_uri'])) {
-                        $urls[] = sanitize_url($row['credential_uri']);
+                        $urls[] = escapeUrl($row['credential_uri']);
                     }
                 }
                 mysqli_data_seek($sql_assets, 0);
                 while ($row = mysqli_fetch_assoc($sql_assets)) {
                     if (!empty($row['asset_uri'])) {
-                        $urls[] = sanitize_url($row['asset_uri']);
+                        $urls[] = escapeUrl($row['asset_uri']);
                     }
                 }
                 $urls = array_unique($urls);

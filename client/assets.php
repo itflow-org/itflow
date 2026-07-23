@@ -55,7 +55,7 @@ $assets_sql = mysqli_query($mysqli, "SELECT * FROM assets LEFT JOIN contacts ON 
                     $asset_warranty_expire = escapeHtml($row['asset_warranty_expire'] ?? "-");
                     $assigned_to = escapeHtml($row['contact_name'] ?? "-");
                     $asset_status = escapeHtml($row['asset_status']);
-                    $asset_uri_client = sanitize_url($row['asset_uri_client']);
+                    $asset_uri_client = escapeUrl($row['asset_uri_client']);
 
                     ?>
 

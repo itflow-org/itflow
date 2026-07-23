@@ -60,7 +60,7 @@ while ($breadcrumb_folder_id > 0) {
 // ---------------------------------------------
 // Helper: unified folder tree (no folder_location)
 // ---------------------------------------------
-function is_ancestor_folder($folder_id, $current_folder_id, $client_id) {
+function isAncestorFolder($folder_id, $current_folder_id, $client_id) {
     global $mysqli;
 
     if ($current_folder_id == 0) {
@@ -73,13 +73,13 @@ function is_ancestor_folder($folder_id, $current_folder_id, $client_id) {
     $result = mysqli_query($mysqli, "SELECT parent_folder FROM folders WHERE folder_id = $current_folder_id AND folder_client_id = $client_id");
     if ($row = mysqli_fetch_assoc($result)) {
         $parent_folder_id = intval($row['parent_folder']);
-        return is_ancestor_folder($folder_id, $parent_folder_id, $client_id);
+        return isAncestorFolder($folder_id, $parent_folder_id, $client_id);
     } else {
         return false;
     }
 }
 
-function display_folders($parent_folder_id, $client_id, $indent = 0, $render_root = false) {
+function displayFolders($parent_folder_id, $client_id, $indent = 0, $render_root = false) {
     global $mysqli, $get_folder_id, $session_user_role, $archive_query, $archived, $num_root_items, $folders_expanded;
 
     // Always render root (only once)
@@ -141,7 +141,7 @@ function display_folders($parent_folder_id, $client_id, $indent = 0, $render_roo
         $subfolder_count  = intval(mysqli_fetch_assoc($subfolder_result)['count']);
 
         // Active or ancestor of active folder = on active path
-        $on_active_path = ($get_folder_id == $folder_id) || is_ancestor_folder($folder_id, $get_folder_id, $client_id);
+        $on_active_path = ($get_folder_id == $folder_id) || isAncestorFolder($folder_id, $get_folder_id, $client_id);
 
         // Option C: indent with padding (no AdminLTE sidebar CSS required)
         // Tune these numbers if you want tighter/looser indent
@@ -202,7 +202,7 @@ function display_folders($parent_folder_id, $client_id, $indent = 0, $render_roo
         // Collapsed by default: ONLY render children if folder is on active path
         if ($subfolder_count > 0 && ($folders_expanded || $on_active_path)) {
             echo '<ul class="nav nav-pills flex-column bg-light">';
-            display_folders($folder_id, $client_id, $indent + 1);
+            displayFolders($folder_id, $client_id, $indent + 1);
             echo '</ul>';
         }
 
@@ -489,7 +489,7 @@ $num_root_items = intval($row_root_files['num']) + intval($row_root_docs['num'])
 
                     <?php
                     // Start folder tree from root
-                    display_folders(0, $client_id);
+                    displayFolders(0, $client_id);
                     ?>
                 </ul>
             </div>

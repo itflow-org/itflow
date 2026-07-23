@@ -18,7 +18,7 @@ if (function_exists('ini_set')) {
 /**
  * Write a line to a file handle with newline.
  */
-function fwrite_ln($fh, string $s): void {
+function writeLine($fh, string $s): void {
     fwrite($fh, $s);
     fwrite($fh, PHP_EOL);
 }
@@ -31,7 +31,7 @@ function fwrite_ln($fh, string $s): void {
  *
  * NOTE: Routines/events are not dumped here. Add if needed.
  */
-function dump_database_streaming(mysqli $mysqli, string $sqlFile): void {
+function dumpDatabase(mysqli $mysqli, string $sqlFile): void {
     $fh = fopen($sqlFile, 'wb');
     if (!$fh) {
         http_response_code(500);
@@ -39,12 +39,12 @@ function dump_database_streaming(mysqli $mysqli, string $sqlFile): void {
     }
 
     // Preamble
-    fwrite_ln($fh, "-- UTF-8 + Foreign Key Safe Dump");
-    fwrite_ln($fh, "SET NAMES 'utf8mb4';");
-    fwrite_ln($fh, "SET FOREIGN_KEY_CHECKS = 0;");
-    fwrite_ln($fh, "SET UNIQUE_CHECKS = 0;");
-    fwrite_ln($fh, "SET AUTOCOMMIT = 0;");
-    fwrite_ln($fh, "");
+    writeLine($fh, "-- UTF-8 + Foreign Key Safe Dump");
+    writeLine($fh, "SET NAMES 'utf8mb4';");
+    writeLine($fh, "SET FOREIGN_KEY_CHECKS = 0;");
+    writeLine($fh, "SET UNIQUE_CHECKS = 0;");
+    writeLine($fh, "SET AUTOCOMMIT = 0;");
+    writeLine($fh, "");
 
     // Gather tables and views
     $tables = [];
@@ -80,12 +80,12 @@ function dump_database_streaming(mysqli $mysqli, string $sqlFile): void {
         $createSQL = array_values($createRow)[1] ?? '';
         $createRes->close();
 
-        fwrite_ln($fh, "-- ----------------------------");
-        fwrite_ln($fh, "-- Table structure for `{$table}`");
-        fwrite_ln($fh, "-- ----------------------------");
-        fwrite_ln($fh, "DROP TABLE IF EXISTS `{$table}`;");
-        fwrite_ln($fh, $createSQL . ";");
-        fwrite_ln($fh, "");
+        writeLine($fh, "-- ----------------------------");
+        writeLine($fh, "-- Table structure for `{$table}`");
+        writeLine($fh, "-- ----------------------------");
+        writeLine($fh, "DROP TABLE IF EXISTS `{$table}`;");
+        writeLine($fh, $createSQL . ";");
+        writeLine($fh, "");
 
         // Dump data in a streaming fashion
         $dataRes = $mysqli->query("SELECT * FROM `{$mysqli->real_escape_string($table)}`", MYSQLI_USE_RESULT);
@@ -93,7 +93,7 @@ function dump_database_streaming(mysqli $mysqli, string $sqlFile): void {
             $wroteHeader = false;
             while ($row = $dataRes->fetch_assoc()) {
                 if (!$wroteHeader) {
-                    fwrite_ln($fh, "-- Dumping data for table `{$table}`");
+                    writeLine($fh, "-- Dumping data for table `{$table}`");
                     $wroteHeader = true;
                 }
                 $cols = array_map(fn($c) => '`' . $mysqli->real_escape_string($c) . '`', array_keys($row));
@@ -103,10 +103,10 @@ function dump_database_streaming(mysqli $mysqli, string $sqlFile): void {
                     },
                     array_values($row)
                 );
-                fwrite_ln($fh, "INSERT INTO `{$table}` (" . implode(", ", $cols) . ") VALUES (" . implode(", ", $vals) . ");");
+                writeLine($fh, "INSERT INTO `{$table}` (" . implode(", ", $cols) . ") VALUES (" . implode(", ", $vals) . ");");
             }
             $dataRes->close();
-            if ($wroteHeader) fwrite_ln($fh, "");
+            if ($wroteHeader) writeLine($fh, "");
         }
     }
 
@@ -119,14 +119,14 @@ function dump_database_streaming(mysqli $mysqli, string $sqlFile): void {
             $createView = $row['Create View'] ?? '';
             $cRes->close();
 
-            fwrite_ln($fh, "-- ----------------------------");
-            fwrite_ln($fh, "-- View structure for `{$view}`");
-            fwrite_ln($fh, "-- ----------------------------");
-            fwrite_ln($fh, "DROP VIEW IF EXISTS `{$view}`;");
+            writeLine($fh, "-- ----------------------------");
+            writeLine($fh, "-- View structure for `{$view}`");
+            writeLine($fh, "-- ----------------------------");
+            writeLine($fh, "DROP VIEW IF EXISTS `{$view}`;");
             // Ensure statement ends with semicolon
             if (!str_ends_with($createView, ';')) $createView .= ';';
-            fwrite_ln($fh, $createView);
-            fwrite_ln($fh, "");
+            writeLine($fh, $createView);
+            writeLine($fh, "");
         }
     }
 
@@ -142,22 +142,22 @@ function dump_database_streaming(mysqli $mysqli, string $sqlFile): void {
                 $createTrig = $row['SQL Original Statement'] ?? ($row['Create Trigger'] ?? '');
                 $crt->close();
 
-                fwrite_ln($fh, "-- ----------------------------");
-                fwrite_ln($fh, "-- Trigger for `{$triggerName}`");
-                fwrite_ln($fh, "-- ----------------------------");
-                fwrite_ln($fh, "DROP TRIGGER IF EXISTS `{$triggerName}`;");
+                writeLine($fh, "-- ----------------------------");
+                writeLine($fh, "-- Trigger for `{$triggerName}`");
+                writeLine($fh, "-- ----------------------------");
+                writeLine($fh, "DROP TRIGGER IF EXISTS `{$triggerName}`;");
                 if (!str_ends_with($createTrig, ';')) $createTrig .= ';';
-                fwrite_ln($fh, $createTrig);
-                fwrite_ln($fh, "");
+                writeLine($fh, $createTrig);
+                writeLine($fh, "");
             }
         }
         $tRes->close();
     }
 
     // Postamble
-    fwrite_ln($fh, "SET FOREIGN_KEY_CHECKS = 1;");
-    fwrite_ln($fh, "SET UNIQUE_CHECKS = 1;");
-    fwrite_ln($fh, "COMMIT;");
+    writeLine($fh, "SET FOREIGN_KEY_CHECKS = 1;");
+    writeLine($fh, "SET UNIQUE_CHECKS = 1;");
+    writeLine($fh, "COMMIT;");
 
     fclose($fh);
 }
@@ -235,7 +235,7 @@ if (isset($_GET['download_backup'])) {
     }
 
     // === Generate SQL Dump (streaming) ===
-    dump_database_streaming($mysqli, $sqlFile);
+    dumpDatabase($mysqli, $sqlFile);
 
     // === Zip the uploads folder (strict) ===
     zipFolderStrict("../uploads", $uploadsZip);

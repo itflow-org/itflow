@@ -268,7 +268,7 @@ if ($session_contact_primary == 1 || $session_contact_is_technical_contact) {
                 while ($row = mysqli_fetch_assoc($sql_assigned_assets)) {
                     $asset_name = escapeHtml($row['asset_name']);
                     $asset_type = escapeHtml($row['asset_type']);
-                    $asset_uri_client = sanitize_url($row['asset_uri_client']);
+                    $asset_uri_client = escapeUrl($row['asset_uri_client']);
 
 
                     ?>

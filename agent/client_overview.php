@@ -365,13 +365,13 @@ $sql_asset_retired = mysqli_query(
                     $credential_id = intval($row['credential_id']);
                     $credential_name = escapeHtml($row['credential_name']);
                     $credential_description = escapeHtml($row['credential_description']);
-                    $credential_uri = sanitize_url($row['credential_uri']);
+                    $credential_uri = escapeUrl($row['credential_uri']);
                     if (empty($credential_uri)) {
                         $credential_uri_display = "-";
                     } else {
                         $credential_uri_display = "<a href='$credential_uri'>" . truncate($credential_uri,40) . "</a><button class='btn btn-sm clipboardjs' type='button' title='$credential_uri' data-clipboard-text='$credential_uri'><i class='far fa-copy text-secondary'></i></button>";
                     }
-                    $credential_uri_2 = sanitize_url($row['credential_uri_2']);
+                    $credential_uri_2 = escapeUrl($row['credential_uri_2']);
                     $credential_username = escapeHtml(decryptCredentialEntry($row['credential_username']));
                     if (empty($credential_username)) {
                         $credential_username_display = "-";

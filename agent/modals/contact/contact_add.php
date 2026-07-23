@@ -150,7 +150,7 @@ ob_start();
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-envelope"></i></span>
                         </div>
-                        <input type="email" class="form-control" name="email" id="contact_email" placeholder="Email Address" maxlength="200" onfocusout="contact_email_check()">
+                        <input type="email" class="form-control" name="email" id="contact_email" placeholder="Email Address" maxlength="200" onfocusout="checkContactEmail()">
                     </div>
                     <div class="mt-2">
                         <span class="text-info" id="contact_check_info"></span>
@@ -346,7 +346,7 @@ $(document).ready(function() {
 
 <script>
     // Checks contact emails
-    function contact_email_check() {
+    function checkContactEmail() {
         var email = document.getElementById("contact_email").value;
         //Send a GET request to ajax.php as ajax.php?contact_email_check=true&email=email
         jQuery.get(

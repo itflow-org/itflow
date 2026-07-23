@@ -40,9 +40,9 @@ if (isset($_GET['asset_id'])) {
         $asset_model = escapeHtml($row['asset_model']);
         $asset_serial = escapeHtml($row['asset_serial']);
         $asset_os = escapeHtml($row['asset_os']);
-        $asset_uri = sanitize_url($row['asset_uri']);
-        $asset_uri_2 = sanitize_url($row['asset_uri_2']);
-        $asset_uri_client = sanitize_url($row['asset_uri_client']);
+        $asset_uri = escapeUrl($row['asset_uri']);
+        $asset_uri_2 = escapeUrl($row['asset_uri_2']);
+        $asset_uri_client = escapeUrl($row['asset_uri_client']);
         $asset_status = escapeHtml($row['asset_status']);
         $asset_purchase_reference = escapeHtml($row['asset_purchase_reference']);
         $asset_purchase_date = escapeHtml($row['asset_purchase_date']);

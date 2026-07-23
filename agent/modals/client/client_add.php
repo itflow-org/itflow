@@ -66,7 +66,7 @@ ob_start();
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
                         </div>
-                        <input type="text" class="form-control" name="name" id="client_name" placeholder="Name or Company" maxlength="200" onfocusout="client_duplicate_check()" required autofocus>
+                        <input type="text" class="form-control" name="name" id="client_name" placeholder="Name or Company" maxlength="200" onfocusout="checkClientDuplicate()" required autofocus>
                         <div class="input-group-append">
                             <div class="input-group-text">
                                 <input type="checkbox" name="lead" value="1" <?php if($leads_filter == 1){ echo "checked"; } ?>>
@@ -393,7 +393,7 @@ ob_start();
 
 <script>
     // Checks for duplicate clients
-    function client_duplicate_check() {
+    function checkClientDuplicate() {
         var name = document.getElementById("client_name").value;
         //Send a GET request to ajax.php as ajax.php?client_duplicate_check=true&name=NAME
         jQuery.get(

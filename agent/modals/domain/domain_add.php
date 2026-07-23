@@ -67,7 +67,7 @@ ob_start();
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-globe"></i></span>
                         </div>
-                        <input type="text" class="form-control" name="name" id="domain_name" placeholder="example.com" maxlength="200" required autofocus onfocusout="domain_check()">
+                        <input type="text" class="form-control" name="name" id="domain_name" placeholder="example.com" maxlength="200" required autofocus onfocusout="checkApexDomain()">
                     </div>
                     <div class="mt-2">
                         <span class="text-info" id="domain_check_info"></span>
@@ -200,7 +200,7 @@ ob_start();
 
 <script>
     // Checks domains aren't sub-domains (99%)
-    function domain_check() {
+    function checkApexDomain() {
         var domain = document.getElementById("domain_name").value;
         //Send a GET request to ajax.php as ajax.php?apex_domain_check=true&domain=domain
         jQuery.get(

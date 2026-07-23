@@ -890,7 +890,7 @@ if (isset($_POST['add_telemetry'])) {
                     ];
 
                     // Check upload_max_filesize and post_max_size >= 500M
-                    function return_bytes($val) {
+                    function toBytes($val) {
                         $val = trim($val);
                         $unit = strtolower(substr($val, -1));
                         $num = (float)$val;
@@ -910,8 +910,8 @@ if (isset($_POST['add_telemetry'])) {
                     $upload_max_filesize = ini_get('upload_max_filesize');
                     $post_max_size = ini_get('post_max_size');
 
-                    $upload_passed = return_bytes($upload_max_filesize) >= $required_bytes;
-                    $post_passed = return_bytes($post_max_size) >= $required_bytes;
+                    $upload_passed = toBytes($upload_max_filesize) >= $required_bytes;
+                    $post_passed = toBytes($post_max_size) >= $required_bytes;
 
                     $phpConfig[] = [
                         'name' => 'upload_max_filesize >= 500M',

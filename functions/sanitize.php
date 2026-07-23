@@ -57,7 +57,7 @@ function toAlphanumeric($string)
     return preg_replace('/[^A-Za-z0-9_-]/', '', $string);
 }
 
-function sanitize_url($url) {
+function escapeUrl($url) {
     $allowed = ['http', 'https', 'file', 'ftp', 'ftps', 'sftp', 'dav', 'webdav', 'caldav', 'carddav',  'ssh', 'telnet', 'smb', 'rdp', 'vnc', 'rustdesk', 'anydesk', 'connectwise', 'splashtop', 'sip', 'sips', 'ldap', 'ldaps'];
     $parts = parse_url($url ?? '');
     if (isset($parts['scheme']) && !in_array(strtolower($parts['scheme']), $allowed)) {

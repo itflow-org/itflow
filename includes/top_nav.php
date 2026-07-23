@@ -36,7 +36,7 @@
 
         while ($row = mysqli_fetch_assoc($sql_custom_links)) {
             $custom_link_name = escapeHtml($row['custom_link_name']);
-            $custom_link_uri = sanitize_url($row['custom_link_uri']);
+            $custom_link_uri = escapeUrl($row['custom_link_uri']);
             $custom_link_icon = escapeHtml($row['custom_link_icon']);
             $custom_link_new_tab = intval($row['custom_link_new_tab']);
             if ($custom_link_new_tab == 1) {

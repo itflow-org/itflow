@@ -2,7 +2,7 @@
 require_once "includes/inc_all_admin.php";
 
 // ---- Tiny status dot for tab labels ----------------------------------------
-function mail_status_dot($on) {
+function renderMailStatusDot($on) {
     return $on
         ? '<i class="fas fa-circle text-success ml-2" style="font-size:.5rem;vertical-align:middle;" title="Configured"></i>'
         : '<i class="far fa-circle text-muted ml-2" style="font-size:.5rem;vertical-align:middle;" title="Not configured"></i>';
@@ -64,12 +64,12 @@ $imap_ready = $imap_standard_ready || $imap_oauth_ready;
         <ul class="nav nav-tabs" id="mailTabs" role="tablist">
             <li class="nav-item">
                 <a class="nav-link active" href="#tab-smtp" data-target="#tab-smtp">
-                    <i class="fas fa-fw fa-paper-plane mr-1"></i>Sending<?php echo mail_status_dot($smtp_on); ?>
+                    <i class="fas fa-fw fa-paper-plane mr-1"></i>Sending<?php echo renderMailStatusDot($smtp_on); ?>
                 </a>
             </li>
             <li class="nav-item">
                 <a class="nav-link" href="#tab-imap" data-target="#tab-imap">
-                    <i class="fas fa-fw fa-inbox mr-1"></i>Receiving<?php echo mail_status_dot($imap_on); ?>
+                    <i class="fas fa-fw fa-inbox mr-1"></i>Receiving<?php echo renderMailStatusDot($imap_on); ?>
                 </a>
             </li>
             <li class="nav-item" id="tabitem-oauth" style="<?php echo $oauth_needed ? '' : 'display:none;'; ?>">
