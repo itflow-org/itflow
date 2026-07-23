@@ -10,7 +10,7 @@ $sql = mysqli_query($mysqli, "SELECT * FROM documents
 ");
 
 $row = mysqli_fetch_assoc($sql);
-$document_name = nullable_htmlentities($row['document_name']);
+$document_name = escapeHtml($row['document_name']);
 $client_id = intval($row['document_client_id']);
 
 enforceClientAccess();
@@ -51,7 +51,7 @@ ob_start();
                     ");
                     while ($row = mysqli_fetch_assoc($sql_vendors_select)) {
                         $vendor_id = intval($row['vendor_id']);
-                        $vendor_name = nullable_htmlentities($row['vendor_name']);
+                        $vendor_name = escapeHtml($row['vendor_name']);
 
                         ?>
                         <option value="<?= $vendor_id ?>"><?= $vendor_name ?></option>
