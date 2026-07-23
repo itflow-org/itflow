@@ -223,7 +223,7 @@ ob_start();
                     while ($row = mysqli_fetch_assoc($sql_vendors)) {
                         $vendor_id = intval($row['vendor_id']);
                         $vendor_name = escapeHtml($row['vendor_name']);
-                        echo "<li><a class='ajax-modal' href='#' data-modal-size='lg' data-modal-url='modals/vendor/vendor_details.php?id=$vendor_id'>$vendor_name</a></li>";
+                        echo "<li><a class='ajax-modal' href='#' data-modal-size='lg' data-modal-url='modals/vendor/vendor.php?id=$vendor_id'>$vendor_name</a></li>";
                     }
                     echo "</ul>";
                 }
