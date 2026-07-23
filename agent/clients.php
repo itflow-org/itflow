@@ -338,10 +338,12 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     $location_city = escapeHtml($row['location_city']);
                     $location_state = escapeHtml($row['location_state']);
                     $location_zip = escapeHtml($row['location_zip']);
-                    if (empty($location_address) && empty($location_city) && empty($location_state) && empty($location_zip)) {
+                    $location_address_lines = formatAddress($location_address, $location_city, $location_state, $location_zip, '', '<br>');
+                    if ($location_address_lines === '') {
                         $location_address_display = "-";
                     } else {
-                        $location_address_display = "<div class='media'><i class='fa fa-fw fa-map-marker-alt text-secondary mt-1 mr-2'></i><div class='media-body'>$location_address<div>$location_city $location_state $location_zip</div><div><small>$location_country</small></div></div></div>";
+                        $location_country_line = $location_country ? "<div><small>$location_country</small></div>" : '';
+                        $location_address_display = "<div class='media'><i class='fa fa-fw fa-map-marker-alt text-secondary mt-1 mr-2'></i><div class='media-body'>$location_address_lines$location_country_line</div></div>";
                     }
                     $contact_id = intval($row['contact_id']);
                     $contact_name = escapeHtml($row['contact_name']);

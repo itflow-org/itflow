@@ -277,7 +277,7 @@ ob_start();
                                 <div class="font-weight-bold"><?= $location_name ?></div>
                                 <div class="text-muted">
                                     <?= $location_address ?><br>
-                                    <?= "$location_city $location_state $location_zip" ?><br>
+                                    <?= formatAddress('', $location_city, $location_state, $location_zip, '', ' ') ?><br>
                                     <?= $location_country ?>
                                 </div>
                             <?php } else { ?>

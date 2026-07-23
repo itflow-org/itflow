@@ -1462,11 +1462,12 @@ if (isset($_POST["export_client_pdf"])) {
     $html .= '<hr>';
 
     // Client header information (non-table)
+    $location_city_state_zip = formatAddress('', $location_city, $location_state, $location_zip, '', ' ');
     $html .= "
     <div class='client-header'>
       <h3>$client_name</h3>
       <p><strong>Address:</strong> $location_address</p>
-      <p><strong>City State Zip:</strong> $location_city $location_state $location_zip</p>
+      <p><strong>City State Zip:</strong> $location_city_state_zip</p>
       <p><strong>Phone:</strong> $contact_phone</p>
       <p><strong>Website:</strong> $client_website</p>
       <p><strong>Contact:</strong> $contact_name</p>
@@ -1542,10 +1543,11 @@ if (isset($_POST["export_client_pdf"])) {
             $location_zip = escapeHtml($row["location_zip"]);
             $location_phone_country_code = escapeHtml($row["location_phone_country_code"]);
             $location_phone = escapeHtml(formatPhoneNumber($row["location_phone"], $location_phone_country_code));
+            $location_full_address = formatAddress($location_address, $location_city, $location_state, $location_zip, '', ' ');
             $html .= "
             <tr>
               <td>$location_name</td>
-              <td>$location_address $location_city $location_state $location_zip</td>
+              <td>$location_full_address</td>
               <td>$location_phone</td>
             </tr>";
         }

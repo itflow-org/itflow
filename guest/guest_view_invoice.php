@@ -199,8 +199,7 @@ if ($balance > 0) {
             <div class="col-sm-6 <?php if (!file_exists("../uploads/settings/$company_logo")) { echo "col-sm-8"; } ?>">
                 <ul class="list-unstyled">
                     <li><h4><strong><?php echo $company_name; ?></strong></h4></li>
-                    <li><?php echo $company_address; ?></li>
-                    <li><?php echo "$company_city $company_state $company_zip, $company_country"; ?></li>
+                    <li><?php echo formatAddress($company_address, $company_city, $company_state, $company_zip, $company_country, '<br>'); ?></li>
                     <li><?php echo "$company_email | $company_phone"; ?></li>
                     <li><?php echo $company_website; ?></li>
                     <?php if ($company_tax_id_display) { ?>
@@ -236,8 +235,7 @@ if ($balance > 0) {
                 <h6><strong>Bill To:</strong></h6>
                 <ul class="list-unstyled mb-0">
                     <li><?php echo $client_name; ?></li>
-                    <li><?php echo $location_address; ?></li>
-                    <li><?php echo "$location_city $location_state $location_zip, $location_country"; ?></li>
+                    <li><?php echo formatAddress($location_address, $location_city, $location_state, $location_zip, $location_country, '<br>'); ?></li>
                     <li><?php echo "$contact_email | $contact_phone $contact_extension"; ?></li>
                 </ul>
             </div>

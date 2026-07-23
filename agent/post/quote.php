@@ -871,8 +871,8 @@ if (isset($_GET['export_quote_pdf'])) {
         <td width="50%" align="right" style="font-size:14pt; font-weight:bold;">' . $client_name . '</td>
     </tr>
     <tr>
-        <td style="font-size:10pt; line-height:1.4;">' . nl2br("$company_address\n$company_city $company_state $company_zip\n$company_country\n$company_phone\n$company_website") . '</td>
-        <td style="font-size:10pt; line-height:1.4;" align="right">' . nl2br("$location_address\n$location_city $location_state $location_zip\n$location_country\n$contact_email\n$contact_phone") . '</td>
+        <td style="font-size:10pt; line-height:1.4;">' . nl2br(formatAddress($company_address, $company_city, $company_state, $company_zip, $company_country) . "\n$company_phone\n$company_website") . '</td>
+        <td style="font-size:10pt; line-height:1.4;" align="right">' . nl2br(formatAddress($location_address, $location_city, $location_state, $location_zip, $location_country) . "\n$contact_email\n$contact_phone") . '</td>
     </tr>
     </table><br>';
 

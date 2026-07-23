@@ -349,7 +349,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                     </div>
                                 </a>
                             </td>
-                            <td><a href="//maps.<?php echo $session_map_source; ?>.com?q=<?php echo "$location_address $location_zip"; ?>" target="_blank"><?php echo $location_address; ?><br><?php echo "$location_city $location_state $location_zip<br><small>$location_country</small>"; ?></a></td>
+                            <td><a href="//maps.<?php echo $session_map_source; ?>.com?q=<?php echo "$location_address $location_zip"; ?>" target="_blank"><?php echo formatAddress($location_address, $location_city, $location_state, $location_zip, '', '<br>'); ?><?php echo $location_country ? "<br><small>$location_country</small>" : ''; ?></a></td>
                             <td>
                                 <?php echo $location_phone_display; ?>
                                 <?php echo $location_fax_display; ?>

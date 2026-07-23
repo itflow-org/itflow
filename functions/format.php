@@ -192,6 +192,26 @@ function formatPhoneNumber($phoneNumber, $country_code = '', $show_country_code 
 }
 
 
+function formatAddress($address, $city, $state, $zip, $country = '', $separator = "\n") {
+    $address = trim((string)$address);
+    $city    = trim((string)$city);
+    $state   = trim((string)$state);
+    $zip     = trim((string)$zip);
+    $country = trim((string)$country);
+
+    // "City, ST 15212" - the comma only appears when something follows the city
+    $region = trim(implode(' ', array_filter([$state, $zip], 'strlen')));
+    if ($city !== '' && $region !== '') {
+        $region = "$city, $region";
+    } elseif ($city !== '') {
+        $region = $city;
+    }
+
+    // Empty parts drop out entirely rather than leaving stray separators
+    return implode($separator, array_filter([$address, $region, $country], 'strlen'));
+}
+
+
 function timeAgo($datetime) {
     if (is_null($datetime)) {
         return "-";
@@ -381,4 +401,10 @@ function secondsToTime($inputSeconds) {
     }
 
     return implode(', ', $timeParts);
+}
+
+function formatAddress($address, $city, $state, $zip, $country = '', $separator = "\n") {
+    $cityLine = trim(implode(' ', array_filter([trim("$city,", ' ,') ? "$city," : '', $state, $zip])));
+    $cityLine = rtrim($cityLine, ',');
+    return implode($separator, array_filter([trim($address), $cityLine, trim($country)]));
 }

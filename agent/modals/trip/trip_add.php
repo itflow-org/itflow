@@ -102,7 +102,7 @@ ob_start();
                         $location_state = escapeHtml($row['location_state']);
                         $location_zip = escapeHtml($row['location_zip']);
                         ?>
-                        <option><?php echo "$location_address $location_city $location_state $location_zip"; ?></option>
+                        <option><?php echo formatAddress($location_address, $location_city, $location_state, $location_zip, '', ' '); ?></option>
                         <?php
                     }
                 } ?>
