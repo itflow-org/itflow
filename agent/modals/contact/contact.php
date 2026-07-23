@@ -491,7 +491,7 @@ ob_start();
                                     <th>
                                         <a href="#" class="ajax-modal"
                                            data-modal-size="lg"
-                                           data-modal-url="modals/asset/asset_details.php?id=<?= $asset_id ?>">
+                                           data-modal-url="modals/asset/asset.php?id=<?= $asset_id ?>">
                                                <i class="fa fa-fw text-secondary fa-<?= $device_icon ?> mr-2"></i><?= $asset_name ?>
                                             <?php if ($asset_favorite) { echo "<i class='fas fa-fw fa-star text-warning' title='Favorite'></i>"; } ?>
                                         </a>

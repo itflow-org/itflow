@@ -123,7 +123,7 @@ ob_start();
                         $asset_id = intval($row['asset_id']);
                         $asset_name = escapeHtml($row['asset_name']);
                         $ip = !empty($row['interface_ip']) ? '(' . escapeHtml($row['interface_ip']) . ')' : '';
-                        echo "<li><a class='ajax-modal' href='#' data-modal-size='lg' data-modal-url='modals/asset/asset_details.php?id=$asset_id'>$asset_name</a>$ip</li>";
+                        echo "<li><a class='ajax-modal' href='#' data-modal-size='lg' data-modal-url='modals/asset/asset.php?id=$asset_id'>$asset_name</a>$ip</li>";
                     }
                     echo "</ul>";
                 }
@@ -237,7 +237,7 @@ ob_start();
                     while ($row = mysqli_fetch_assoc($sql_contacts)) {
                         $contact_id = intval($row['contact_id']);
                         $contact_name = escapeHtml($row['contact_name']);
-                        echo "<li><a href='#' class='ajax-modal' data-modal-size='lg' data-modal-url='modals/contact/contact_details.php?id=$contact_id'>$contact_name</a></li>";
+                        echo "<li><a href='#' class='ajax-modal' data-modal-size='lg' data-modal-url='modals/contact/contact.php?id=$contact_id'>$contact_name</a></li>";
                     }
                     echo "</ul>";
                 }

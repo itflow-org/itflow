@@ -473,7 +473,7 @@ ob_start();
                             // Show either "-" or "AssetName - Port"
                             if ($connected_asset_name) {
                                 $connected_to_display = "<a class='ajax-modal' href='#' data-modal-size='lg'
-                                    data-modal-url='modals/asset/asset_details.php?id=$connected_asset_id'>
+                                    data-modal-url='modals/asset/asset.php?id=$connected_asset_id'>
                                     <strong><i class='fa fa-fw fa-$connected_asset_icon mr-1'></i>$connected_asset_name</strong> - $connected_interface_name
                                     </a>
                                 ";
