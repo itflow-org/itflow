@@ -3,9 +3,7 @@
 // App/UI helpers - icons, badges, lookups, mail queue, iCal, taxes, update check
 // Split from the former monolithic functions.php
 
-
-function getAssetIcon($asset_type)
-{
+function getAssetIcon($asset_type) {
     if ($asset_type == 'Laptop') {
         $device_icon = "laptop";
     } elseif ($asset_type == 'Desktop') {
@@ -39,8 +37,7 @@ function getAssetIcon($asset_type)
     return $device_icon;
 }
 
-function getInvoiceBadgeColor($invoice_status)
-{
+function getInvoiceBadgeColor($invoice_status) {
     if ($invoice_status == "Sent") {
         $invoice_badge_color = "warning text-white";
     } elseif ($invoice_status == "Viewed") {
@@ -217,8 +214,7 @@ function checkForUpdates() {
 
 }
 
-function getMonthlyTax($tax_name, $month, $year, $mysqli)
-{
+function getMonthlyTax($tax_name, $month, $year, $mysqli) {
     // SQL to calculate monthly tax
     $sql = "SELECT SUM(item_tax) AS monthly_tax FROM invoice_items
             LEFT JOIN invoices ON invoice_items.item_invoice_id = invoices.invoice_id
@@ -230,8 +226,7 @@ function getMonthlyTax($tax_name, $month, $year, $mysqli)
     return $row['monthly_tax'] ?? 0;
 }
 
-function getQuarterlyTax($tax_name, $quarter, $year, $mysqli)
-{
+function getQuarterlyTax($tax_name, $quarter, $year, $mysqli) {
     // Calculate start and end months for the quarter
     $start_month = ($quarter - 1) * 3 + 1;
     $end_month = $start_month + 2;
@@ -278,8 +273,7 @@ function addToMailQueue($data) {
     return true;
 }
 
-function createiCalStr($datetime, $title, $description, $location)
-{
+function createiCalStr($datetime, $title, $description, $location) {
     require_once "libs/zapcal/zapcallib.php";
 
     // Create the iCal object

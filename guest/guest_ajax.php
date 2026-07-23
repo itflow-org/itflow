@@ -95,8 +95,9 @@ if (isset($_GET['stripe_create_pi'])) {
 
         echo json_encode($output);
 
-    } catch (Exception $e) {
+    } catch (\Throwable $e) {
         http_response_code(500);
+        error_log("Stripe PI create failed (invoice $invoice_id): " . $e->getMessage());
         echo json_encode(['error' => $e->getMessage()]);
     }
 

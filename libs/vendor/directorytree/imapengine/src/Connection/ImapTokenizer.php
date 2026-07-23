@@ -387,6 +387,20 @@ class ImapTokenizer
             $this->advance();
         }
 
+        // If no value was read, we will throw an exception since
+        // an atom must contain at least one valid character.
+        if ($value === '') {
+            if ($char === null) {
+                throw new ImapStreamException('Unexpected end of stream while reading atom');
+            }
+
+            throw new ImapParserException(sprintf(
+                'Unexpected byte 0x%02X in response at buffer offset %d',
+                ord($char),
+                $this->position
+            ));
+        }
+
         if (strcasecmp($value, 'NIL') === 0) {
             return new Nil($value);
         }
@@ -437,7 +451,9 @@ class ImapTokenizer
         while ((strlen($this->buffer) - $this->position) < $length) {
             $data = $this->stream->fgets();
 
-            if ($data === false) {
+            // If the stream did not return any data, we will stop
+            // filling the buffer until another read is attempted.
+            if ($data === false || $data === '') {
                 return;
             }
 
