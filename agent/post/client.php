@@ -1494,8 +1494,8 @@ if (isset($_POST["export_client_pdf"])) {
           </thead>
           <tbody>";
         while ($row = mysqli_fetch_assoc($sql_contacts)) {
-            $contact_name = escapeHtml(getFallBack($row["contact_name"]));
-            $contact_title = escapeHtml(getFallBack($row["contact_title"]));
+            $contact_name = escapeHtml($row["contact_name"]) ?: '-';
+            $contact_title = escapeHtml($row["contact_title"]) ?: '-';
             $contact_department = escapeHtml($row["contact_department"]);
             $contact_email = escapeHtml($row["contact_email"]);
             $contact_phone_country_code = escapeHtml($row["contact_phone_country_code"]);
