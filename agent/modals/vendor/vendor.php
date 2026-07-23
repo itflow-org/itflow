@@ -7,18 +7,18 @@ $vendor_id = intval($_GET['id']);
 $sql = mysqli_query($mysqli, "SELECT * FROM vendors WHERE vendor_id = $vendor_id LIMIT 1");
 
 $row = mysqli_fetch_assoc($sql);
-$name = escapeSql($row['vendor_name']);
-$description = escapeSql($row['vendor_description']);
-$account_number = escapeSql($row['vendor_account_number']);
-$contact_name = escapeSql($row['vendor_contact_name']);
+$name = escapeHtml($row['vendor_name']);
+$description = escapeHtml($row['vendor_description']);
+$account_number = escapeHtml($row['vendor_account_number']);
+$contact_name = escapeHtml($row['vendor_contact_name']);
 $phone = preg_replace("/[^0-9]/", '',$row['vendor_phone']);
 $extension = preg_replace("/[^0-9]/", '',$row['vendor_extension']);
-$email = escapeSql($row['vendor_email']);
-$website = escapeSql($row['vendor_website']);
-$hours = escapeSql($row['vendor_hours']);
-$sla = escapeSql($row['vendor_sla']);
-$code = escapeSql($row['vendor_code']);
-$notes = escapeSql($row['vendor_notes']);
+$email = escapeHtml($row['vendor_email']);
+$website = escapeHtml($row['vendor_website']);
+$hours = escapeHtml($row['vendor_hours']);
+$sla = escapeHtml($row['vendor_sla']);
+$code = escapeHtml($row['vendor_code']);
+$notes = escapeHtml($row['vendor_notes']);
 $client_id = intval($row['vendor_client_id']);
 
 if ($client_id) {
