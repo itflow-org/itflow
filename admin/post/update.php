@@ -4,6 +4,8 @@ defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
 
 if (isset($_GET['update'])) {
 
+    validateCSRFToken($_GET['csrf_token']);
+
     enforceAdminPermission();
 
     //git fetch downloads the latest from remote without trying to merge or rebase anything. Then the git reset resets the master branch to what you just fetched. The --hard option changes all the files in your working tree to match the files in origin/master
@@ -283,6 +285,8 @@ if (isset($_GET['update'])) {
 }
 
 if (isset($_GET['update_db'])) {
+
+    validateCSRFToken($_GET['csrf_token']);
 
     // Get the current version
     require_once ('../includes/database_version.php');

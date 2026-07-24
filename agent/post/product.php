@@ -246,6 +246,8 @@ if (isset($_POST['bulk_delete_products'])) {
 
 if (isset($_POST['export_products_csv'])) {
 
+    validateCSRFToken($_POST['csrf_token']);
+
     //get records from database
     $sql = mysqli_query($mysqli,"SELECT * FROM products
       LEFT JOIN categories ON product_category_id = category_id
@@ -292,6 +294,8 @@ if (isset($_POST['export_products_csv'])) {
 }
 
 if (isset($_POST['add_product_stock'])) {
+
+    validateCSRFToken($_POST['csrf_token']);
 
     enforceUserPermission('module_sales', 2);
 

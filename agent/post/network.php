@@ -174,6 +174,8 @@ if (isset($_POST['bulk_delete_networks'])) {
 
 if (isset($_POST['export_networks_csv'])) {
 
+    validateCSRFToken($_POST['csrf_token']);
+
     enforceUserPermission('module_support');
 
     if ($_POST['client_id']) {

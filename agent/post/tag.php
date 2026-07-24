@@ -8,6 +8,8 @@ defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
 
 if (isset($_POST['add_tag'])) {
 
+    validateCSRFToken($_POST['csrf_token']);
+
     require_once 'tag_model.php';
 
     mysqli_query($mysqli,"INSERT INTO tags SET tag_name = '$name', tag_type = $type, tag_color = '$color', tag_icon = '$icon'");

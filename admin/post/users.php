@@ -293,6 +293,8 @@ if (isset($_POST['restore_user'])) {
 
 if (isset($_POST['export_users_csv'])) {
 
+    validateCSRFToken($_POST['csrf_token']);
+
     //get records from database
     $sql = mysqli_query($mysqli, "SELECT * FROM users LEFT JOIN user_roles ON user_role_id = role_id ORDER BY user_name ASC");
 
