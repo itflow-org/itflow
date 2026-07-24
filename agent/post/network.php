@@ -210,7 +210,7 @@ if (isset($_POST['export_networks_csv'])) {
         //output each row of the data, format line as csv and write to file pointer
         while ($row = $sql->fetch_assoc()) {
             $lineData = array($row['network_name'], $row['network_description'], $row['network_vlan'], $row['network'], $row['network_gateway'], $row['network_dhcp_range'], $row['network_primary_dns'], $row['network_secondary_dns']);
-            fputcsv($f, $lineData, $delimiter, $enclosure, $escape);
+            fputcsv($f, array_map('escapeCsvFormula', $lineData), $delimiter, $enclosure, $escape);
         }
 
         //move back to beginning of file

@@ -493,7 +493,7 @@ if (isset($_POST['export_domains_csv'])) {
         //output each row of the data, format line as csv and write to file pointer
         while($row = $sql->fetch_assoc()) {
             $lineData = array($row['domain_name'], $row['domain_description'], $row['domain_registrar'], $row['domain_webhost'], $row['domain_expire']);
-            fputcsv($f, $lineData, $delimiter, $enclosure, $escape);
+            fputcsv($f, array_map('escapeCsvFormula', $lineData), $delimiter, $enclosure, $escape);
         }
 
         //move back to beginning of file

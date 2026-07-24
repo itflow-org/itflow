@@ -290,7 +290,7 @@ if (isset($_POST['export_software_csv'])) {
             }
 
             $lineData = array($row['software_name'], $row['software_version'], $row['software_description'], $row['software_type'], $row['software_license_type'], $row['software_seats'], $row['software_key'], $assigned_to_assets, $assigned_to_contacts, $row['software_purchase'], $row['software_expire'], $row['software_notes']);
-            fputcsv($f, $lineData, $delimiter, $enclosure, $escape);
+            fputcsv($f, array_map('escapeCsvFormula', $lineData), $delimiter, $enclosure, $escape);
         }
 
         //move back to beginning of file

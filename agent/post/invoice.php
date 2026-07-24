@@ -698,7 +698,7 @@ if (isset($_POST['export_invoices_csv'])) {
         //output each row of the data, format line as csv and write to file pointer
         while($row = $sql->fetch_assoc()) {
             $lineData = array($row['invoice_prefix'] . $row['invoice_number'], $row['invoice_scope'], $row['invoice_amount'], $row['invoice_date'], $row['invoice_due'], $row['invoice_status'], $row['client_name']);
-            fputcsv($f, $lineData, $delimiter, $enclosure, $escape);
+            fputcsv($f, array_map('escapeCsvFormula', $lineData), $delimiter, $enclosure, $escape);
         }
 
         //move back to beginning of file

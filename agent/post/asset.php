@@ -1229,7 +1229,7 @@ if (isset($_POST['export_assets_csv'])) {
         //output each row of the data, format line as csv and write to file pointer
         while ($row = mysqli_fetch_assoc($sql)) {
             $lineData = array($row['asset_name'], $row['asset_description'], $row['asset_type'], $row['asset_make'], $row['asset_model'], $row['asset_serial'], $row['asset_os'], $row['asset_purchase_date'], $row['asset_warranty_expire'], $row['asset_install_date'], $row['contact_name'], $row['location_name'], $row['asset_physical_location'], $row['asset_notes']);
-            fputcsv($f, $lineData, $delimiter, $enclosure, $escape);
+            fputcsv($f, array_map('escapeCsvFormula', $lineData), $delimiter, $enclosure, $escape);
         }
 
         //move back to beginning of file
@@ -1871,7 +1871,7 @@ if (isset($_POST['export_client_asset_interfaces_csv'])) {
         //output each row of the data, format line as csv and write to file pointer
         while($row = mysqli_fetch_assoc($sql)) {
             $lineData = array($row['interface_name'], $row['interface_description'], $row['interface_type'], $row['interface_mac'], $row['interface_ip'], $row['interface_nat_ip'], $row['interface_ipv6'], $row['network_name']);
-            fputcsv($f, $lineData, $delimiter, $enclosure, $escape);
+            fputcsv($f, array_map('escapeCsvFormula', $lineData), $delimiter, $enclosure, $escape);
         }
 
         //move back to beginning of file

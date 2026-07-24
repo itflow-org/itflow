@@ -51,8 +51,7 @@ function cleanInput($input) {
     return $input;
 }
 
-function toAlphanumeric($string)
-{
+function toAlphanumeric($string) {
     // Gets rid of non-alphanumerics
     return preg_replace('/[^A-Za-z0-9_-]/', '', $string);
 }
@@ -143,4 +142,30 @@ function checkFileUpload($file, $allowed_extensions) {
     // randomString(32) already guarantees uniqueness, and hashing would mean
     // reading the whole file into memory (up to 500 MB) for no downstream use.
     return randomString(32) . '.' . $extension;
+}
+
+// Neutralize spreadsheet formula injection (CWE-1236) in a value bound for a
+// generated CSV export. This is NOT CSV-structure escaping — fputcsv already
+// quotes fields, doubles enclosures, and handles embedded newlines. Its only
+// job is to stop a spreadsheet app (Excel / LibreOffice Calc / Google Sheets)
+// from *evaluating* a syntactically valid cell as a formula on open. Prefixing
+// a single quote makes the app treat the cell as literal text.
+function escapeCsvFormula($value) {
+    if (!is_string($value) || $value === '') {
+        return $value;
+    }
+
+    // Leave genuine numbers untouched so real data (e.g. negative amounts like
+    // -42.50) isn't corrupted. An actual formula string is never is_numeric(),
+    // so nothing dangerous slips through this early return.
+    if (is_numeric($value)) {
+        return $value;
+    }
+
+    // Leading characters that trigger formula / legacy-DDE evaluation on open.
+    if (in_array($value[0], ['=', '+', '-', '@', "\t", "\r"], true)) {
+        return "'" . $value;
+    }
+
+    return $value;
 }

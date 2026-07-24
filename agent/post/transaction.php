@@ -193,7 +193,7 @@ if (isset($_POST['export_transactions_csv'])) {
             //output each row of the data, format line as csv and write to file pointer
             while ($row = mysqli_fetch_assoc($sql)) {
                 $lineData = array($row['transaction_date'], $row['transaction_type'], $row['transaction_description'], $row['transaction_other_account'], $row['transaction_reference'], $row['transaction_category'], $row['transaction_payment_method'], $row['transaction_amount'], $row['transaction_balance']);
-                fputcsv($f, $lineData, $delimiter, $enclosure, $escape);
+                fputcsv($f, array_map('escapeCsvFormula', $lineData), $delimiter, $enclosure, $escape);
             }
 
             //move back to beginning of file
