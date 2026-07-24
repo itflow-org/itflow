@@ -63,6 +63,7 @@ if (isset($_GET['client_id'])) {
         $location_state = escapeHtml($row['location_state']);
         $location_zip = escapeHtml($row['location_zip']);
         $location_country = escapeHtml($row['location_country']);
+        $location_full_address = formatAddress($location_address, $location_city, $location_state, $location_zip, $location_country, '<br>') ?: '-';
         $location_phone_country_code = escapeHtml($row['location_phone_country_code']);
         $location_phone = escapeHtml(formatPhoneNumber($row['location_phone'], $location_phone_country_code));
         $location_primary = intval($row['location_primary']);

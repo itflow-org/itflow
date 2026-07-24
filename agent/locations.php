@@ -264,11 +264,12 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         $location_id = intval($row['location_id']);
                         $location_name = escapeHtml($row['location_name']);
                         $location_description = escapeHtml($row['location_description']);
-                        $location_country = escapeHtml($row['location_country']);
                         $location_address = escapeHtml($row['location_address']);
                         $location_city = escapeHtml($row['location_city']);
                         $location_state = escapeHtml($row['location_state']);
                         $location_zip = escapeHtml($row['location_zip']);
+                        $location_country = escapeHtml($row['location_country']);
+                        $full_address = formatAddress($location_address, $location_city, $location_state, $location_zip, $location_country, '<br>') ?: '-';
                         $location_phone_country_code = escapeHtml($row['location_phone_country_code']);
                         $location_phone = escapeHtml(formatPhoneNumber($row['location_phone'], $location_phone_country_code));
                         if (empty($location_phone)) {
@@ -349,7 +350,11 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                     </div>
                                 </a>
                             </td>
-                            <td><a href="//maps.<?php echo $session_map_source; ?>.com?q=<?php echo "$location_address $location_zip"; ?>" target="_blank"><?php echo formatAddress($location_address, $location_city, $location_state, $location_zip, '', '<br>'); ?><?php echo $location_country ? "<br><small>$location_country</small>" : ''; ?></a></td>
+                            <td>
+                                <a href="//maps.<?= $session_map_source ?>.com?q=<?= "$location_address $location_zip" ?>"
+                                    target="_blank"><?= $full_address ?>
+                                </a>
+                            </td>
                             <td>
                                 <?php echo $location_phone_display; ?>
                                 <?php echo $location_fax_display; ?>

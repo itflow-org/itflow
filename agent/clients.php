@@ -333,18 +333,12 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     $client_name = escapeHtml($row['client_name']);
                     $client_type = escapeHtml($row['client_type']);
                     $location_id = intval($row['location_id']);
-                    $location_country = escapeHtml($row['location_country']);
                     $location_address = escapeHtml($row['location_address']);
                     $location_city = escapeHtml($row['location_city']);
                     $location_state = escapeHtml($row['location_state']);
                     $location_zip = escapeHtml($row['location_zip']);
-                    $location_address_lines = formatAddress($location_address, $location_city, $location_state, $location_zip, '', '<br>');
-                    if ($location_address_lines === '') {
-                        $location_address_display = "-";
-                    } else {
-                        $location_country_line = $location_country ? "<div><small>$location_country</small></div>" : '';
-                        $location_address_display = "<div class='media'><i class='fa fa-fw fa-map-marker-alt text-secondary mt-1 mr-2'></i><div class='media-body'>$location_address_lines$location_country_line</div></div>";
-                    }
+                    $location_country = escapeHtml($row['location_country']);
+                    $full_address = formatAddress($location_address, $location_city, $location_state, $location_zip, $location_country, '<br>') ?: '-';
                     $contact_id = intval($row['contact_id']);
                     $contact_name = escapeHtml($row['contact_name']);
                     $contact_title = escapeHtml($row['contact_title']);
@@ -501,7 +495,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 </div>
                             <?php } ?>
                         </td>
-                        <td><?php echo $location_address_display; ?></td>
+                        <td><?= $full_address ?></td>
                         <!-- Show Billing if perms & if accounting module is enabled -->
                         <?php if ((lookupUserPermission("module_financial") >= 1) && $config_module_enable_accounting == 1) { ?>
                             <td class="text-right">
