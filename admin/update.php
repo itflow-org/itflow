@@ -39,7 +39,7 @@ $git_log = shell_exec("git log $repo_branch..origin/$repo_branch --pretty=format
                     <p class="text-center font-weight-bold">Ignore this warning at your own risk.</p>
                 </div>
                 <br>
-                <a class="btn btn-dark btn-lg my-4" href="post.php?update_db"><i class="fas fa-fw fa-4x fa-download mb-1"></i><h5>Update Database</h5></a>
+                <a class="btn btn-dark btn-lg my-4" href="post.php?update_db<?= $_SESSION['csrf_token'] ?>"><i class="fas fa-fw fa-4x fa-download mb-1"></i><h5>Update Database</h5></a>
                 <br>
                 <small class="text-secondary">Current DB Version: <?php echo CURRENT_DATABASE_VERSION; ?></small>
                 <br>
