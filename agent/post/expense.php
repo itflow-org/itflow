@@ -8,7 +8,7 @@ defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
 
 if (isset($_POST['add_expense'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_financial', 2);
 
@@ -51,7 +51,7 @@ if (isset($_POST['add_expense'])) {
 
 if (isset($_POST['edit_expense'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_financial', 2);
 
@@ -98,7 +98,7 @@ if (isset($_POST['edit_expense'])) {
 
 if (isset($_GET['delete_expense'])) {
 
-    validateCSRFToken($_GET['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_financial', 3);
 
@@ -128,7 +128,7 @@ if (isset($_GET['delete_expense'])) {
 
 if (isset($_POST['bulk_edit_expense_category'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_financial', 2);
 
@@ -173,7 +173,7 @@ if (isset($_POST['bulk_edit_expense_category'])) {
 
 if (isset($_POST['bulk_edit_expense_account'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_financial', 2);
 
@@ -218,7 +218,7 @@ if (isset($_POST['bulk_edit_expense_account'])) {
 
 if (isset($_POST['bulk_edit_expense_client'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_financial', 2);
 
@@ -256,7 +256,7 @@ if (isset($_POST['bulk_edit_expense_client'])) {
 
 if (isset($_POST['bulk_delete_expenses'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_financial', 3);
 
@@ -300,7 +300,7 @@ if (isset($_POST['bulk_delete_expenses'])) {
 
 if (isset($_POST['export_expenses_csv'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_financial');
 

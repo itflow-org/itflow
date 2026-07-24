@@ -11,7 +11,7 @@ if (!defined('FROM_POST_HANDLER')) {
 
 if (isset($_POST['export_transactions_csv'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_financial');
 

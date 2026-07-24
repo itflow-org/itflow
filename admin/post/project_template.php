@@ -4,7 +4,7 @@ defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
 
 if (isset($_POST['add_project_template'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     $name = escapeSql($_POST['name']);
     $description = escapeSql($_POST['description']);
@@ -23,7 +23,7 @@ if (isset($_POST['add_project_template'])) {
 
 if (isset($_POST['edit_project_template'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     $project_template_id = intval($_POST['project_template_id']);
     $name = escapeSql($_POST['name']);
@@ -41,7 +41,7 @@ if (isset($_POST['edit_project_template'])) {
 
 if (isset($_POST['edit_ticket_template_order'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     $ticket_template_id = intval($_POST['ticket_template_id']);
     $project_template_id = intval($_POST['project_template_id']);
@@ -55,7 +55,7 @@ if (isset($_POST['edit_ticket_template_order'])) {
 
 if (isset($_POST['add_ticket_template_to_project_template'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     $project_template_id = intval($_POST['project_template_id']);
     $ticket_template_id = intval($_POST['ticket_template_id']);
@@ -73,7 +73,7 @@ if (isset($_POST['add_ticket_template_to_project_template'])) {
 
 if (isset($_POST['remove_ticket_template_from_project_template'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     $ticket_template_id = intval($_POST['ticket_template_id']);
     $project_template_id = intval($_POST['project_template_id']);
@@ -90,7 +90,7 @@ if (isset($_POST['remove_ticket_template_from_project_template'])) {
 
 if (isset($_GET['delete_project_template'])) {
 
-    validateCSRFToken($_GET['csrf_token']);
+    validateCSRFToken();
 
     $project_template_id = intval($_GET['delete_project_template']);
 

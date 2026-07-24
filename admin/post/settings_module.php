@@ -4,7 +4,7 @@ defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
 
 if (isset($_POST['edit_module_settings'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     $config_module_enable_itdoc = intval($_POST['config_module_enable_itdoc'] ?? 0);
     $config_module_enable_ticketing = intval($_POST['config_module_enable_ticketing'] ?? 0);

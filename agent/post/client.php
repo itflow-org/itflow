@@ -10,7 +10,7 @@ if (isset($_POST['add_client'])) {
 
     // JQ - Using Prepared MySQLi Statements here for show this is not our standard and is only used in the client add/edit POST.
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_client', 2);
 
@@ -254,7 +254,7 @@ if (isset($_POST['add_client'])) {
 
 if (isset($_POST['edit_client'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_client', 2);
 
@@ -332,7 +332,7 @@ if (isset($_POST['edit_client'])) {
 
 if (isset($_GET['archive_client'])) {
 
-    validateCSRFToken($_GET['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_client', 2);
 
@@ -362,7 +362,7 @@ if (isset($_GET['archive_client'])) {
 
 if (isset($_GET['restore_client'])) {
 
-    validateCSRFToken($_GET['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_client', 2);
 
@@ -383,7 +383,7 @@ if (isset($_GET['restore_client'])) {
 
 if (isset($_GET['delete_client'])) {
 
-    validateCSRFToken($_GET['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_client', 3);
 
@@ -485,7 +485,7 @@ if (isset($_GET['delete_client'])) {
 
 if (isset($_POST['export_clients_csv'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_client', 1);
 
@@ -537,7 +537,7 @@ if (isset($_POST['export_clients_csv'])) {
 
 if (isset($_POST["import_clients_csv"])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_client', 2);
     $error = false;
@@ -773,7 +773,7 @@ if (isset($_GET['download_clients_csv_template'])) {
 
 if (isset($_POST['bulk_add_client_ticket'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_support', 2);
 
@@ -885,7 +885,7 @@ if (isset($_POST['bulk_add_client_ticket'])) {
 
 if (isset($_POST['bulk_edit_client_industry'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_client', 2);
 
@@ -919,7 +919,7 @@ if (isset($_POST['bulk_edit_client_industry'])) {
 
 if (isset($_POST['bulk_edit_client_referral'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_client', 2);
 
@@ -953,7 +953,7 @@ if (isset($_POST['bulk_edit_client_referral'])) {
 
 if (isset($_POST['bulk_edit_client_hourly_rate'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_client', 2);
 
@@ -987,7 +987,7 @@ if (isset($_POST['bulk_edit_client_hourly_rate'])) {
 
 if (isset($_POST['bulk_edit_client_net_terms'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_client', 2);
 
@@ -1021,7 +1021,7 @@ if (isset($_POST['bulk_edit_client_net_terms'])) {
 
 if (isset($_POST['bulk_assign_client_tags'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_client', 2);
 
@@ -1066,7 +1066,7 @@ if (isset($_POST['bulk_assign_client_tags'])) {
 
 if (isset($_POST['bulk_send_client_email']) && isset($_POST['client_ids'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_client', 1);
 
@@ -1155,7 +1155,7 @@ if (isset($_POST['bulk_send_client_email']) && isset($_POST['client_ids'])) {
 
 if (isset($_POST['bulk_archive_clients'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_client', 2);
 
@@ -1191,7 +1191,7 @@ if (isset($_POST['bulk_archive_clients'])) {
 
 if (isset($_POST['bulk_unarchive_clients'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_client', 2);
 
@@ -1225,7 +1225,7 @@ if (isset($_POST['bulk_unarchive_clients'])) {
 
 if (isset($_POST["export_client_pdf"])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     // Enforce permissions
     enforceUserPermission("module_client", 3);

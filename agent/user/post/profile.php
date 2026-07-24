@@ -8,7 +8,7 @@ defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
 
 if (isset($_POST['edit_your_user_details'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     $name = escapeSql($_POST['name']);
     $email = escapeSql($_POST['email']);
@@ -94,7 +94,7 @@ if (isset($_POST['edit_your_user_details'])) {
 
 if (isset($_GET['clear_your_user_avatar'])) {
 
-    validateCSRFToken($_GET['csrf_token']);
+    validateCSRFToken();
 
     $user_avatar = escapeSql(getFieldById('users', $session_user_id, 'user_avatar'));
 
@@ -112,7 +112,7 @@ if (isset($_GET['clear_your_user_avatar'])) {
 
 if (isset($_POST['edit_your_user_password'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     $new_password = trim($_POST['new_password']);
 
@@ -163,7 +163,7 @@ if (isset($_POST['edit_your_user_password'])) {
 
 if (isset($_POST['edit_your_user_preferences'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     $calendar_first_day = intval($_POST['calendar_first_day']);
     $dark_mode = intval($_POST['dark_mode'] ?? 0);
@@ -200,7 +200,7 @@ if (isset($_POST['edit_your_user_preferences'])) {
 
 if (isset($_POST['enable_mfa'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     require_once "../../libs/totp/totp.php";
 
@@ -268,7 +268,7 @@ if (isset($_GET['disable_mfa'])){
         redirect();
     }
 
-    validateCSRFToken($_GET['csrf_token']);
+    validateCSRFToken();
 
     mysqli_query($mysqli,"UPDATE users SET user_token = '' WHERE user_id = $session_user_id");
 
@@ -308,7 +308,7 @@ if (isset($_GET['disable_mfa'])){
 
 if (isset($_POST['revoke_your_2fa_remember_tokens'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     // Delete tokens
     mysqli_query($mysqli, "DELETE FROM remember_tokens WHERE remember_token_user_id = $session_user_id");

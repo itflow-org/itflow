@@ -8,7 +8,7 @@ defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
 
 if (isset($_POST['add_revenue'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_sales', 2);
 
@@ -34,7 +34,7 @@ if (isset($_POST['add_revenue'])) {
 
 if (isset($_POST['edit_revenue'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_sales', 2);
 
@@ -59,7 +59,7 @@ if (isset($_POST['edit_revenue'])) {
 
 if (isset($_GET['delete_revenue'])) {
 
-    validateCSRFToken($_GET['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_sales', 3);
 

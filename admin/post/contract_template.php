@@ -8,7 +8,7 @@ defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
 
 if (isset($_POST['add_contract_template'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     // Sanitize text inputs
     $name = escapeSql($_POST['name']);
@@ -63,7 +63,7 @@ if (isset($_POST['add_contract_template'])) {
 
 if (isset($_POST['edit_contract_template'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     $contract_template_id = intval($_POST['contract_template_id']);
     $name            = escapeSql($_POST['name']);
@@ -112,7 +112,7 @@ if (isset($_POST['edit_contract_template'])) {
 
 if (isset($_GET['archive_contract_template'])) {
 
-    validateCSRFToken($_GET['csrf_token']);
+    validateCSRFToken();
 
     $contract_template_id = intval($_GET['archive_contract_template']);
 
@@ -131,7 +131,7 @@ if (isset($_GET['archive_contract_template'])) {
 
 if (isset($_GET['restore_contract_template'])) {
 
-    validateCSRFToken($_GET['csrf_token']);
+    validateCSRFToken();
 
     $contract_template_id = intval($_GET['restore_contract_template']);
 
@@ -150,7 +150,7 @@ if (isset($_GET['restore_contract_template'])) {
 
 if (isset($_GET['delete_contract_template'])) {
 
-    validateCSRFToken($_GET['csrf_token']);
+    validateCSRFToken();
     
     $contract_template_id = intval($_GET['delete_contract_template']);
 

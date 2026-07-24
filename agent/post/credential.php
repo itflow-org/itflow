@@ -8,7 +8,7 @@ defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
 
 if (isset($_POST['add_credential'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_credential', 2);
 
@@ -40,7 +40,7 @@ if (isset($_POST['add_credential'])) {
 
 if (isset($_POST['edit_credential'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_credential', 2);
 
@@ -85,7 +85,7 @@ if (isset($_POST['edit_credential'])) {
 
 if(isset($_GET['archive_credential'])){
 
-    validateCSRFToken($_GET['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_credential', 2);
 
@@ -111,7 +111,7 @@ if(isset($_GET['archive_credential'])){
 
 if(isset($_GET['restore_credential'])){
 
-    validateCSRFToken($_GET['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_credential', 2);
 
@@ -137,7 +137,7 @@ if(isset($_GET['restore_credential'])){
 
 if (isset($_GET['delete_credential'])) {
 
-    validateCSRFToken($_GET['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_credential', 3);
 
@@ -163,7 +163,7 @@ if (isset($_GET['delete_credential'])) {
 
 if (isset($_POST['bulk_assign_credential_tags'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_credential', 2);
 
@@ -217,7 +217,7 @@ if (isset($_POST['bulk_assign_credential_tags'])) {
 
 if (isset($_POST['bulk_favorite_credentials'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_support', 2);
 
@@ -255,7 +255,7 @@ if (isset($_POST['bulk_favorite_credentials'])) {
 
 if (isset($_POST['bulk_unfavorite_credentials'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_support', 2);
 
@@ -293,7 +293,7 @@ if (isset($_POST['bulk_unfavorite_credentials'])) {
 
 if (isset($_POST['bulk_archive_credentials'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_credential', 2);
 
@@ -332,7 +332,7 @@ if (isset($_POST['bulk_archive_credentials'])) {
 
 if (isset($_POST['bulk_restore_credentials'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_credential', 2);
 
@@ -372,7 +372,7 @@ if (isset($_POST['bulk_restore_credentials'])) {
 
 if (isset($_POST['bulk_delete_credentials'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_credential', 3);
 
@@ -412,7 +412,7 @@ if (isset($_POST['bulk_delete_credentials'])) {
 
 if (isset($_POST['export_credentials_csv'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_credential');
 
@@ -472,7 +472,7 @@ if (isset($_POST['export_credentials_csv'])) {
 
 if (isset($_POST["import_credentials_csv"])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_credential', 2);
 

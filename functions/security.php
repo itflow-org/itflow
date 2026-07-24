@@ -177,9 +177,11 @@ function apiEncryptCredentialEntry(#[\SensitiveParameter]$credential_cleartext, 
 
 // Cross-Site Request Forgery check for sensitive functions
 // Validates the CSRF token provided matches the one in the users session
-function validateCSRFToken($token)
-{
-    if (hash_equals($token, $_SESSION['csrf_token'])) {
+function validateCSRFToken(?string $token = null) {
+    // Read the token straight from the request when the caller doesn't pass one
+    $token ??= $_POST['csrf_token'] ?? $_GET['csrf_token'] ?? '';
+
+    if ($token !== '' && hash_equals($_SESSION['csrf_token'] ?? '', $token)) {
         return true;
     } else {
         $_SESSION['alert_type'] = "warning";

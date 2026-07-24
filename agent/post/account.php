@@ -8,7 +8,7 @@ defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
 
 if (isset($_POST['add_account'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_financial', 2);
 
@@ -29,7 +29,7 @@ if (isset($_POST['add_account'])) {
 
 if (isset($_POST['edit_account'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_financial', 2);
 
@@ -49,7 +49,7 @@ if (isset($_POST['edit_account'])) {
 
 if (isset($_GET['archive_account'])) {
 
-    validateCSRFToken($_GET['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_financial', 2);
 
@@ -70,7 +70,7 @@ if (isset($_GET['archive_account'])) {
 // Not used anywhere?
 if (isset($_GET['delete_account'])) {
 
-    validateCSRFToken($_GET['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_financial', 3);
 

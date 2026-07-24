@@ -8,7 +8,7 @@ defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
 
 if (isset($_POST['add_api_key'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     $name = escapeSql($_POST['name']);
     $expire = escapeSql($_POST['expire']);
@@ -33,7 +33,7 @@ if (isset($_POST['add_api_key'])) {
 
 if (isset($_GET['revoke_api_key'])) {
 
-    validateCSRFToken($_GET['csrf_token']);
+    validateCSRFToken();
 
     $api_key_id = intval($_GET['revoke_api_key']);
 
@@ -54,7 +54,7 @@ if (isset($_GET['revoke_api_key'])) {
 
 if (isset($_GET['delete_api_key'])) {
 
-    validateCSRFToken($_GET['csrf_token']);
+    validateCSRFToken();
 
     $api_key_id = intval($_GET['delete_api_key']);
 
@@ -75,7 +75,7 @@ if (isset($_GET['delete_api_key'])) {
 
 if (isset($_POST['bulk_delete_api_keys'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     if (isset($_POST['api_key_ids'])) {
 

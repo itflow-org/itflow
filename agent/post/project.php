@@ -8,7 +8,7 @@ defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
 
 if (isset($_POST['add_project'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_support', 2);
 
@@ -96,7 +96,7 @@ if (isset($_POST['add_project'])) {
 
 if (isset($_POST['edit_project'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_support', 2);
 
@@ -125,7 +125,7 @@ if (isset($_POST['edit_project'])) {
 
 if (isset($_GET['close_project'])) {
 
-    validateCSRFToken($_GET['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_support', 2);
 
@@ -154,7 +154,7 @@ if (isset($_GET['close_project'])) {
 
 if (isset($_GET['archive_project'])) {
 
-    validateCSRFToken($_GET['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_support', 2);
 
@@ -183,7 +183,7 @@ if (isset($_GET['archive_project'])) {
 
 if (isset($_GET['restore_project'])) {
 
-    validateCSRFToken($_GET['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_support', 2);
 
@@ -212,7 +212,7 @@ if (isset($_GET['restore_project'])) {
 
 if (isset($_GET['delete_project'])) {
 
-    validateCSRFToken($_GET['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_support', 3);
 
@@ -241,7 +241,7 @@ if (isset($_GET['delete_project'])) {
 
 if (isset($_POST['link_ticket_to_project'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_support', 2);
 
@@ -291,7 +291,7 @@ if (isset($_POST['link_ticket_to_project'])) {
 
 if (isset($_POST['link_closed_ticket_to_project'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_support', 2);
 

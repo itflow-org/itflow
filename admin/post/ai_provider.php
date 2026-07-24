@@ -8,7 +8,7 @@ defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
 
 if (isset($_POST['add_ai_provider'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     $provider = escapeSql($_POST['provider']);
     $url = escapeSql($_POST['url']);
@@ -29,7 +29,7 @@ if (isset($_POST['add_ai_provider'])) {
 
 if (isset($_POST['edit_ai_provider'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     $provider_id = intval($_POST['provider_id']);
     $provider = escapeSql($_POST['provider']);
@@ -48,7 +48,7 @@ if (isset($_POST['edit_ai_provider'])) {
 
 if (isset($_GET['delete_ai_provider'])) {
 
-    validateCSRFToken($_GET['csrf_token']);
+    validateCSRFToken();
     
     $provider_id = intval($_GET['delete_ai_provider']);
 

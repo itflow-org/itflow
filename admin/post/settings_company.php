@@ -4,7 +4,7 @@ defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
 
 if (isset($_POST['edit_company'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     $name = escapeSql($_POST['name']);
     $address = escapeSql($_POST['address']);
@@ -54,7 +54,7 @@ if (isset($_POST['edit_company'])) {
 
 if (isset($_GET['remove_company_logo'])) {
 
-    validateCSRFToken($_GET['csrf_token']);
+    validateCSRFToken();
 
     $sql = mysqli_query($mysqli,"SELECT company_logo FROM companies");
     $row = mysqli_fetch_assoc($sql);

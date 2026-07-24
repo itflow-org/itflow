@@ -8,7 +8,7 @@ defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
 
 if(isset($_POST['add_location'])){
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_client', 2);
 
@@ -66,7 +66,7 @@ if(isset($_POST['add_location'])){
 
 if(isset($_POST['edit_location'])){
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_client', 2);
 
@@ -133,7 +133,7 @@ if(isset($_POST['edit_location'])){
 
 if(isset($_GET['archive_location'])){
 
-    validateCSRFToken($_GET['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_client', 2);
 
@@ -159,7 +159,7 @@ if(isset($_GET['archive_location'])){
 
 if(isset($_GET['restore_location'])){
 
-    validateCSRFToken($_GET['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_client', 2);
 
@@ -185,7 +185,7 @@ if(isset($_GET['restore_location'])){
 
 if(isset($_GET['delete_location'])){
 
-    validateCSRFToken($_GET['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_client', 3);
 
@@ -211,7 +211,7 @@ if(isset($_GET['delete_location'])){
 
 if (isset($_POST['bulk_assign_location_tags'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_client', 2);
 
@@ -265,7 +265,7 @@ if (isset($_POST['bulk_assign_location_tags'])) {
 
 if (isset($_POST['bulk_archive_locations'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_client', 2);
 
@@ -310,7 +310,7 @@ if (isset($_POST['bulk_archive_locations'])) {
 
 if (isset($_POST['bulk_restore_locations'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_client', 2);
 
@@ -350,7 +350,7 @@ if (isset($_POST['bulk_restore_locations'])) {
 
 if (isset($_POST['bulk_delete_locations'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_client', 3);
 
@@ -390,7 +390,7 @@ if (isset($_POST['bulk_delete_locations'])) {
 
 if(isset($_POST['export_locations_csv'])){
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_client');
 
@@ -448,7 +448,7 @@ if(isset($_POST['export_locations_csv'])){
 
 if (isset($_POST["import_locations_csv"])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_client', 2);
 

@@ -8,7 +8,7 @@ defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
 
 if (isset($_POST['add_recurring_ticket'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_support', 2);
 
@@ -42,7 +42,7 @@ if (isset($_POST['add_recurring_ticket'])) {
 
 if (isset($_POST['edit_recurring_ticket'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_support', 2);
 
@@ -76,7 +76,7 @@ if (isset($_POST['edit_recurring_ticket'])) {
 
 if (isset($_POST['bulk_force_recurring_tickets'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_support', 2);
 
@@ -220,7 +220,7 @@ if (isset($_POST['bulk_force_recurring_tickets'])) {
 
 if (isset($_GET['force_recurring_ticket'])) {
 
-    validateCSRFToken($_GET['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_support', 2);
 
@@ -360,7 +360,7 @@ if (isset($_GET['force_recurring_ticket'])) {
 
 if (isset($_GET['delete_recurring_ticket'])) {
 
-    validateCSRFToken($_GET['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_support', 3);
 
@@ -388,7 +388,7 @@ if (isset($_GET['delete_recurring_ticket'])) {
 
 if (isset($_POST['bulk_delete_recurring_tickets'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_support', 3);
 
@@ -427,7 +427,7 @@ if (isset($_POST['bulk_delete_recurring_tickets'])) {
 
 if (isset($_POST['bulk_assign_recurring_ticket'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_support', 2);
 
@@ -519,7 +519,7 @@ if (isset($_POST['bulk_assign_recurring_ticket'])) {
 
 if (isset($_POST['bulk_edit_recurring_ticket_priority'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_support', 2);
 
@@ -562,7 +562,7 @@ if (isset($_POST['bulk_edit_recurring_ticket_priority'])) {
 
 if (isset($_POST['bulk_edit_recurring_ticket_category'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_support', 2);
 
@@ -604,7 +604,7 @@ if (isset($_POST['bulk_edit_recurring_ticket_category'])) {
 
 if (isset($_POST['bulk_edit_recurring_ticket_billable'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_support', 2);
     enforceUserPermission('module_sales', 2);
@@ -655,7 +655,7 @@ if (isset($_POST['bulk_edit_recurring_ticket_billable'])) {
 
 if (isset($_POST['bulk_edit_recurring_ticket_next_run_date'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_support', 2);
 

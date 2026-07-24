@@ -9,7 +9,7 @@ require_once '../agent/post/vendor.php';
 
 if (isset($_POST['add_vendor_template'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     $name = escapeSql($_POST['name']);
     $description = escapeSql($_POST['description']);
@@ -39,7 +39,7 @@ if (isset($_POST['add_vendor_template'])) {
 
 if (isset($_POST['edit_vendor_template'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     $vendor_template_id = intval($_POST['vendor_template_id']);
     $name = escapeSql($_POST['name']);
@@ -145,7 +145,7 @@ if (isset($_POST['edit_vendor_template'])) {
 
 if (isset($_GET['delete_vendor_template'])) {
 
-    validateCSRFToken($_GET['csrf_token']);
+    validateCSRFToken();
 
     $vendor_template_id = intval($_GET['delete_vendor_template']);
 

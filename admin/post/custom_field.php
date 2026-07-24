@@ -8,7 +8,7 @@ defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
 
 if(isset($_POST['create_custom_field'])){
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     require_once 'custom_field_model.php';
 
@@ -28,7 +28,7 @@ if(isset($_POST['create_custom_field'])){
 
 if(isset($_POST['edit_custom_field'])){
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     require_once 'custom_field_model.php';
 
@@ -46,7 +46,7 @@ if(isset($_POST['edit_custom_field'])){
 
 if(isset($_GET['delete_custom_field'])) {
 
-    validateCSRFToken($_GET['csrf_token']);
+    validateCSRFToken();
     
     $custom_field_id = intval($_GET['delete_custom_field']);
 

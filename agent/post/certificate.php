@@ -8,7 +8,7 @@ defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
 
 if (isset($_POST['add_certificate'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_support', 2);
 
@@ -48,7 +48,7 @@ if (isset($_POST['add_certificate'])) {
 
 if (isset($_POST['edit_certificate'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_support', 2);
 
@@ -121,7 +121,7 @@ if (isset($_POST['edit_certificate'])) {
 
 if (isset($_GET['refresh_certificate'])) {
 
-    validateCSRFToken($_GET['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_support', 2);
 
@@ -161,7 +161,7 @@ if (isset($_GET['refresh_certificate'])) {
 
 if (isset($_GET['archive_certificate'])) {
 
-    validateCSRFToken($_GET['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_support', 2);
 
@@ -187,7 +187,7 @@ if (isset($_GET['archive_certificate'])) {
 
 if (isset($_GET['restore_certificate'])) {
 
-    validateCSRFToken($_GET['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_support', 2);
 
@@ -213,7 +213,7 @@ if (isset($_GET['restore_certificate'])) {
 
 if (isset($_GET['delete_certificate'])) {
 
-    validateCSRFToken($_GET['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_support', 3);
 
@@ -239,7 +239,7 @@ if (isset($_GET['delete_certificate'])) {
 
 if (isset($_POST['bulk_refresh_certificates'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_support', 2);
 
@@ -300,7 +300,7 @@ if (isset($_POST['bulk_refresh_certificates'])) {
 
 if (isset($_POST['bulk_delete_certificates'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_support', 3);
 
@@ -340,7 +340,7 @@ if (isset($_POST['bulk_delete_certificates'])) {
 
 if (isset($_POST['export_certificates_csv'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_support');
 

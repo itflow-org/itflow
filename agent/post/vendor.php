@@ -10,7 +10,7 @@ defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
 
 if (isset($_POST['add_vendor_from_template'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     // GET POST Data
     $client_id = intval($_POST['client_id']); //Used if this vendor is under a contact otherwise its 0 for under company and or template
@@ -61,7 +61,7 @@ if (isset($_POST['add_vendor_from_template'])) {
 
 if (isset($_POST['add_vendor'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     require_once 'vendor_model.php';
 
@@ -89,7 +89,7 @@ if (isset($_POST['add_vendor'])) {
 
 if (isset($_POST['edit_vendor'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     require_once 'vendor_model.php';
 
@@ -119,7 +119,7 @@ if (isset($_POST['edit_vendor'])) {
 
 if (isset($_GET['archive_vendor'])) {
 
-    validateCSRFToken($_GET['csrf_token']);
+    validateCSRFToken();
 
     $vendor_id = intval($_GET['archive_vendor']);
 
@@ -149,7 +149,7 @@ if (isset($_GET['archive_vendor'])) {
 
 if(isset($_GET['restore_vendor'])){
 
-    validateCSRFToken($_GET['csrf_token']);
+    validateCSRFToken();
 
     $vendor_id = intval($_GET['restore_vendor']);
 
@@ -179,7 +179,7 @@ if(isset($_GET['restore_vendor'])){
 
 if (isset($_GET['delete_vendor'])) {
 
-    validateCSRFToken($_GET['csrf_token']);
+    validateCSRFToken();
 
     $vendor_id = intval($_GET['delete_vendor']);
 
@@ -215,7 +215,7 @@ if (isset($_GET['delete_vendor'])) {
 
 if (isset($_POST['bulk_archive_vendors'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     if (isset($_POST['vendor_ids'])) {
 
@@ -258,7 +258,7 @@ if (isset($_POST['bulk_archive_vendors'])) {
 
 if (isset($_POST['bulk_restore_vendors'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     if (isset($_POST['vendor_ids'])) {
 
@@ -302,7 +302,7 @@ if (isset($_POST['bulk_restore_vendors'])) {
 
 if (isset($_POST['bulk_delete_vendors'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     if (isset($_POST['vendor_ids'])) {
 
@@ -352,7 +352,7 @@ if (isset($_POST['bulk_delete_vendors'])) {
 
 if (isset($_POST['export_vendors_csv'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     if ($_POST['client_id']) {
         $client_id = intval($_POST['client_id']);

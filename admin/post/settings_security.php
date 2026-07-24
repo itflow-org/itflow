@@ -4,7 +4,7 @@ defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
 
 if (isset($_POST['edit_security_settings'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     $config_login_message = escapeSql($_POST['config_login_message']);
     $config_login_key_required = intval($_POST['config_login_key_required'] ?? 0);

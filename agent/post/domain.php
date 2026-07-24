@@ -8,7 +8,7 @@ defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
 
 if (isset($_POST['add_domain'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_support', 2);
 
@@ -66,7 +66,7 @@ if (isset($_POST['add_domain'])) {
 
 if (isset($_POST['edit_domain'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_support', 2);
 
@@ -158,7 +158,7 @@ if (isset($_POST['edit_domain'])) {
 
 if (isset($_GET['refresh_domain'])) {
 
-    validateCSRFToken($_GET['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_support', 2);
 
@@ -200,7 +200,7 @@ if (isset($_GET['refresh_domain'])) {
 
 if (isset($_GET['archive_domain'])) {
 
-    validateCSRFToken($_GET['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_support', 2);
 
@@ -226,7 +226,7 @@ if (isset($_GET['archive_domain'])) {
 
 if(isset($_GET['restore_domain'])){
 
-    validateCSRFToken($_GET['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_support', 2);
 
@@ -252,7 +252,7 @@ if(isset($_GET['restore_domain'])){
 
 if (isset($_GET['delete_domain'])) {
 
-    validateCSRFToken($_GET['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_support', 3);
 
@@ -278,7 +278,7 @@ if (isset($_GET['delete_domain'])) {
 
 if (isset($_POST['bulk_archive_domains'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_support', 3);
 
@@ -317,7 +317,7 @@ if (isset($_POST['bulk_archive_domains'])) {
 
 if (isset($_POST['bulk_restore_domains'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_support', 2);
 
@@ -357,7 +357,7 @@ if (isset($_POST['bulk_restore_domains'])) {
 
 if (isset($_POST['bulk_delete_domains'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_support', 3);
 
@@ -396,7 +396,7 @@ if (isset($_POST['bulk_delete_domains'])) {
 
 if (isset($_POST['bulk_refresh_domains'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_support', 2);
 
@@ -457,7 +457,7 @@ if (isset($_POST['bulk_refresh_domains'])) {
 
 if (isset($_POST['export_domains_csv'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_support');
 

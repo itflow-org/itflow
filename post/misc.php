@@ -20,7 +20,7 @@ if(isset($_POST['change_records_per_page'])){
 
 if (isset($_GET['dismiss_notification'])) {
 
-    validateCSRFToken($_GET['csrf_token']);
+    validateCSRFToken();
 
     $notification_id = intval($_GET['dismiss_notification']);
 
@@ -37,7 +37,7 @@ if (isset($_GET['dismiss_notification'])) {
 
 if (isset($_GET['dismiss_all_notifications'])) {
 
-    validateCSRFToken($_GET['csrf_token']);
+    validateCSRFToken();
 
     $sql = mysqli_query($mysqli,"SELECT * FROM notifications WHERE notification_user_id = $session_user_id AND notification_dismissed_at IS NULL");
 
@@ -63,7 +63,7 @@ if (isset($_GET['dismiss_all_notifications'])) {
 // Revoke sharing (sharing itself is done via ajax.php)
 if (isset($_GET['deactivate_shared_item'])) {
 
-    validateCSRFToken($_GET['csrf_token']);
+    validateCSRFToken();
 
     $item_id = intval($_GET['deactivate_shared_item']);
 

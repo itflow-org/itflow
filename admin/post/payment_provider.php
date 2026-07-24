@@ -8,7 +8,7 @@ defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
 
 if (isset($_POST['add_payment_provider'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     $provider = escapeSql($_POST['provider']);
     $public_key = escapeSql($_POST['public_key']);
@@ -39,7 +39,7 @@ if (isset($_POST['add_payment_provider'])) {
 
 if (isset($_POST['edit_payment_provider'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     $provider_id = intval($_POST['provider_id']);
     $description = escapeSql($_POST['description']);
@@ -62,7 +62,7 @@ if (isset($_POST['edit_payment_provider'])) {
 
 if (isset($_GET['delete_payment_provider'])) {
 
-    validateCSRFToken($_GET['csrf_token']);
+    validateCSRFToken();
 
     $provider_id = intval($_GET['delete_payment_provider']);
 

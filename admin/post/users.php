@@ -8,7 +8,7 @@ defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
 
 if (isset($_POST['add_user'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     require_once 'user_model.php';
 
@@ -100,7 +100,7 @@ if (isset($_POST['add_user'])) {
 
 if (isset($_POST['edit_user'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     require_once 'user_model.php';
 
@@ -180,7 +180,7 @@ if (isset($_POST['edit_user'])) {
 
 if (isset($_GET['activate_user'])) {
 
-    validateCSRFToken($_GET['csrf_token']);
+    validateCSRFToken();
 
     $user_id = intval($_GET['activate_user']);
 
@@ -198,7 +198,7 @@ if (isset($_GET['activate_user'])) {
 
 if (isset($_GET['disable_user'])) {
 
-    validateCSRFToken($_GET['csrf_token']);
+    validateCSRFToken();
 
     $user_id = intval($_GET['disable_user']);
 
@@ -220,7 +220,7 @@ if (isset($_GET['disable_user'])) {
 
 if (isset($_GET['revoke_remember_me'])) {
 
-    validateCSRFToken($_GET['csrf_token']);
+    validateCSRFToken();
 
     $user_id = intval($_GET['revoke_remember_me']);
 
@@ -238,7 +238,7 @@ if (isset($_GET['revoke_remember_me'])) {
 
 if (isset($_POST['archive_user'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     $user_id = intval($_POST['user_id']);
     $ticket_assign = intval($_POST['ticket_assign']);
@@ -263,7 +263,7 @@ if (isset($_POST['archive_user'])) {
 
 if (isset($_POST['restore_user'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     $user_id = intval($_POST['user_id']);
     $new_password = trim($_POST['new_password']);
@@ -293,7 +293,7 @@ if (isset($_POST['restore_user'])) {
 
 if (isset($_POST['export_users_csv'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     //get records from database
     $sql = mysqli_query($mysqli, "SELECT * FROM users LEFT JOIN user_roles ON user_role_id = role_id ORDER BY user_name ASC");
@@ -350,7 +350,7 @@ if (isset($_POST['ir_reset_user_password'])) {
 
     // Incident response: allow mass reset of agent passwords
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     // Confirm logged-in user password, for security
     $admin_password = $_POST['admin_password'];

@@ -4,7 +4,7 @@ defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
 
 if (isset($_POST['edit_invoice_settings'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     $config_invoice_prefix = escapeSql($_POST['config_invoice_prefix']);
     $config_invoice_next_number = intval($_POST['config_invoice_next_number']);

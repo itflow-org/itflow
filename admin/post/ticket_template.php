@@ -10,7 +10,7 @@ require_once '../agent/post/task.php';
 
 if (isset($_POST['add_ticket_template'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     $name = escapeSql($_POST['name']);
     $description = escapeSql($_POST['description']);
@@ -36,7 +36,7 @@ if (isset($_POST['add_ticket_template'])) {
 
 if (isset($_POST['edit_ticket_template'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     $ticket_template_id = intval($_POST['ticket_template_id']);
     $name = escapeSql($_POST['name']);
@@ -56,7 +56,7 @@ if (isset($_POST['edit_ticket_template'])) {
 
 if (isset($_GET['delete_ticket_template'])) {
 
-    validateCSRFToken($_GET['csrf_token']);
+    validateCSRFToken();
 
     $ticket_template_id = intval($_GET['delete_ticket_template']);
 
@@ -78,7 +78,7 @@ if (isset($_GET['delete_ticket_template'])) {
 
 if (isset($_POST['add_ticket_template_task'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     $ticket_template_id = intval($_POST['ticket_template_id']);
     $task_name = escapeSql($_POST['task_name']);
@@ -97,7 +97,7 @@ if (isset($_POST['add_ticket_template_task'])) {
 
 if (isset($_GET['delete_task_template'])) {
 
-    validateCSRFToken($_GET['csrf_token']);
+    validateCSRFToken();
 
     $task_template_id = intval($_GET['delete_task_template']);
 

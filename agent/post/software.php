@@ -8,7 +8,7 @@ defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
 
 if (isset($_POST['add_software_from_template'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_support', 2);
 
@@ -44,7 +44,7 @@ if (isset($_POST['add_software_from_template'])) {
 
 if (isset($_POST['add_software'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_support', 2);
 
@@ -107,7 +107,7 @@ if (isset($_POST['add_software'])) {
 
 if (isset($_POST['edit_software'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_support', 2);
 
@@ -171,7 +171,7 @@ if (isset($_POST['edit_software'])) {
 
 if (isset($_GET['archive_software'])) {
 
-    validateCSRFToken($_GET['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_support', 2);
 
@@ -201,7 +201,7 @@ if (isset($_GET['archive_software'])) {
 
 if (isset($_GET['delete_software'])) {
 
-    validateCSRFToken($_GET['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_support', 3);
 
@@ -227,7 +227,7 @@ if (isset($_GET['delete_software'])) {
 
 if (isset($_POST['export_software_csv'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_support');
 

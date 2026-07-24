@@ -8,7 +8,7 @@ defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
 
 if (isset($_POST['add_network'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_support', 2);
 
@@ -32,7 +32,7 @@ if (isset($_POST['add_network'])) {
 
 if (isset($_POST['edit_network'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_support', 2);
 
@@ -56,7 +56,7 @@ if (isset($_POST['edit_network'])) {
 
 if (isset($_GET['archive_network'])) {
 
-    validateCSRFToken($_GET['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_support', 2);
 
@@ -82,7 +82,7 @@ if (isset($_GET['archive_network'])) {
 
 if (isset($_GET['restore_network'])) {
 
-    validateCSRFToken($_GET['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_support', 2);
 
@@ -108,7 +108,7 @@ if (isset($_GET['restore_network'])) {
 
 if (isset($_GET['delete_network'])) {
 
-    validateCSRFToken($_GET['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_support', 3);
 
@@ -134,7 +134,7 @@ if (isset($_GET['delete_network'])) {
 
 if (isset($_POST['bulk_delete_networks'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_support', 3);
 
@@ -174,7 +174,7 @@ if (isset($_POST['bulk_delete_networks'])) {
 
 if (isset($_POST['export_networks_csv'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_support');
 
@@ -271,7 +271,7 @@ if (isset($_GET['download_networks_csv_template'])) {
 // ----------------------------------------------------------
 if (isset($_POST['import_networks_csv'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_support', 2);
 

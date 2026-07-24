@@ -8,7 +8,7 @@ defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
 
 if (isset($_POST['add_role'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     $name = escapeSql($_POST['role_name']);
     $description = escapeSql($_POST['role_description']);
@@ -42,7 +42,7 @@ if (isset($_POST['add_role'])) {
 
 if (isset($_POST['edit_role'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     $role_id = intval($_POST['role_id']);
     $name = escapeSql($_POST['role_name']);
@@ -75,7 +75,7 @@ if (isset($_POST['edit_role'])) {
 
 if (isset($_GET['archive_role'])) {
 
-    validateCSRFToken($_GET['csrf_token']);
+    validateCSRFToken();
 
     $role_id = intval($_GET['archive_role']);
 

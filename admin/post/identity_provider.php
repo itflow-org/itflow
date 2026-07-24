@@ -4,7 +4,7 @@ defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
 
 if (isset($_POST['edit_identity_provider'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     $azure_client_id = escapeSql($_POST['azure_client_id']);
     $azure_client_secret = escapeSql($_POST['azure_client_secret']);

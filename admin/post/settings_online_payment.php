@@ -4,7 +4,7 @@ defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
 
 if (isset($_POST['edit_online_payment_settings'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     $config_stripe_enable = intval($_POST['config_stripe_enable'] ?? 0);
     $config_stripe_publishable = escapeSql($_POST['config_stripe_publishable']);

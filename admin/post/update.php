@@ -4,7 +4,7 @@ defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
 
 if (isset($_GET['update'])) {
 
-    validateCSRFToken($_GET['csrf_token']);
+    validateCSRFToken();
 
     enforceAdminPermission();
 
@@ -286,7 +286,7 @@ if (isset($_GET['update'])) {
 
 if (isset($_GET['update_db'])) {
 
-    validateCSRFToken($_GET['csrf_token']);
+    validateCSRFToken();
 
     // Get the current version
     require_once ('../includes/database_version.php');

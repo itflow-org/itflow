@@ -8,7 +8,7 @@ if (!defined('MICROSOFT_OAUTH_BASE_URL')) {
 
 if (isset($_POST['oauth_connect_microsoft_mail'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     // Save the OAuth credential fields from this form so the auth flow uses the latest inputs
     $config_mail_oauth_client_id     = escapeSql($_POST['config_mail_oauth_client_id'] ?? '');
@@ -75,7 +75,7 @@ if (isset($_POST['oauth_connect_microsoft_mail'])) {
 
 if (isset($_POST['edit_mail_smtp_settings'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     $config_smtp_provider            = escapeSql($_POST['config_smtp_provider']);
     $config_smtp_host       = escapeSql($_POST['config_smtp_host'] ?? $config_smtp_host);
@@ -105,7 +105,7 @@ if (isset($_POST['edit_mail_smtp_settings'])) {
 
 if (isset($_POST['edit_mail_imap_settings'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     $config_imap_provider            = escapeSql($_POST['config_imap_provider']);
     $config_imap_host       = escapeSql($_POST['config_imap_host'] ?? $config_imap_host);
@@ -135,7 +135,7 @@ if (isset($_POST['edit_mail_imap_settings'])) {
 
 if (isset($_POST['edit_mail_oauth_settings'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     $config_mail_oauth_client_id     = escapeSql($_POST['config_mail_oauth_client_id'] ?? '');
     $config_mail_oauth_client_secret = escapeSql($_POST['config_mail_oauth_client_secret'] ?? '');
@@ -159,7 +159,7 @@ if (isset($_POST['edit_mail_oauth_settings'])) {
 
 if (isset($_POST['edit_mail_from_settings'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     $config_mail_from_email = escapeSql(filter_var($_POST['config_mail_from_email'], FILTER_VALIDATE_EMAIL));
     $config_mail_from_name = escapeSql(preg_replace('/[^a-zA-Z0-9\s]/', '', $_POST['config_mail_from_name']));
@@ -185,7 +185,7 @@ if (isset($_POST['edit_mail_from_settings'])) {
 
 if (isset($_POST['test_email_smtp'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     $test_email = intval($_POST['test_email']);
 
@@ -232,7 +232,7 @@ if (isset($_POST['test_email_smtp'])) {
 
 if (isset($_POST['test_email_imap'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     $provider = escapeSql($config_imap_provider ?? '');
 
@@ -497,7 +497,7 @@ if (isset($_POST['test_email_imap'])) {
 
 if (isset($_POST['test_oauth_token_refresh'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     $provider = escapeSql($_POST['oauth_provider'] ?? '');
 

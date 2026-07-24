@@ -8,7 +8,7 @@ defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
 
 if (isset($_POST['add_asset'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_support', 2);
 
@@ -80,7 +80,7 @@ if (isset($_POST['add_asset'])) {
 
 if (isset($_POST['edit_asset'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_support', 2);
 
@@ -149,7 +149,7 @@ if (isset($_POST['edit_asset'])) {
 
 if (isset($_GET['archive_asset'])) {
 
-    validateCSRFToken($_GET['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_support', 2);
 
@@ -178,7 +178,7 @@ if (isset($_GET['archive_asset'])) {
 
 if (isset($_GET['restore_asset'])) {
 
-    validateCSRFToken($_GET['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_support', 2);
 
@@ -207,7 +207,7 @@ if (isset($_GET['restore_asset'])) {
 
 if (isset($_GET['delete_asset'])) {
 
-    validateCSRFToken($_GET['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_support', 3);
 
@@ -233,7 +233,7 @@ if (isset($_GET['delete_asset'])) {
 
 if (isset($_POST['bulk_assign_asset_tags'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_client', 2);
 
@@ -281,7 +281,7 @@ if (isset($_POST['bulk_assign_asset_tags'])) {
 
 if (isset($_POST['bulk_assign_asset_location'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_support', 2);
 
@@ -329,7 +329,7 @@ if (isset($_POST['bulk_assign_asset_location'])) {
 
 if (isset($_POST['bulk_assign_asset_physical_location'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_support', 2);
 
@@ -369,7 +369,7 @@ if (isset($_POST['bulk_assign_asset_physical_location'])) {
 
 if (isset($_POST['bulk_transfer_client_asset'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_support', 2);
 
@@ -459,7 +459,7 @@ if (isset($_POST['bulk_transfer_client_asset'])) {
 
 if (isset($_POST['bulk_assign_asset_contact'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_support', 2);
 
@@ -504,7 +504,7 @@ if (isset($_POST['bulk_assign_asset_contact'])) {
 
 if (isset($_POST['bulk_edit_asset_status'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_support', 2);
 
@@ -545,7 +545,7 @@ if (isset($_POST['bulk_edit_asset_status'])) {
 
 if (isset($_POST['bulk_favorite_assets'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_support', 2);
 
@@ -583,7 +583,7 @@ if (isset($_POST['bulk_favorite_assets'])) {
 
 if (isset($_POST['bulk_unfavorite_assets'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_support', 2);
 
@@ -621,7 +621,7 @@ if (isset($_POST['bulk_unfavorite_assets'])) {
 
 if (isset($_POST['bulk_archive_assets'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_support', 2);
 
@@ -662,7 +662,7 @@ if (isset($_POST['bulk_archive_assets'])) {
 
 if (isset($_POST['bulk_restore_assets'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_support', 2);
 
@@ -704,7 +704,7 @@ if (isset($_POST['bulk_restore_assets'])) {
 
 if (isset($_POST['bulk_delete_assets'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_support', 3);
 
@@ -742,7 +742,7 @@ if (isset($_POST['bulk_delete_assets'])) {
 
 if (isset($_POST['link_software_to_asset'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_support', 2);
 
@@ -772,7 +772,7 @@ if (isset($_POST['link_software_to_asset'])) {
 
 if (isset($_GET['unlink_software_from_asset'])) {
 
-    validateCSRFToken($_GET['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_support', 2);
 
@@ -803,7 +803,7 @@ if (isset($_GET['unlink_software_from_asset'])) {
 // Right now 1 login and have many assets but not many to many
 if (isset($_POST['link_asset_to_credential'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_support', 2);
 
@@ -833,7 +833,7 @@ if (isset($_POST['link_asset_to_credential'])) {
 
 if (isset($_GET['unlink_credential_from_asset'])) {
 
-    validateCSRFToken($_GET['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_support', 2);
 
@@ -863,7 +863,7 @@ if (isset($_GET['unlink_credential_from_asset'])) {
 
 if (isset($_POST['link_service_to_asset'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_support', 2);
 
@@ -893,7 +893,7 @@ if (isset($_POST['link_service_to_asset'])) {
 
 if (isset($_GET['unlink_service_from_asset'])) {
 
-    validateCSRFToken($_GET['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_support', 2);
 
@@ -923,7 +923,7 @@ if (isset($_GET['unlink_service_from_asset'])) {
 
 if (isset($_POST['link_asset_to_file'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_support', 2);
 
@@ -954,7 +954,7 @@ if (isset($_POST['link_asset_to_file'])) {
 
 if (isset($_GET['unlink_asset_from_file'])) {
 
-    validateCSRFToken($_GET['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_support', 2);
 
@@ -987,7 +987,7 @@ if (isset($_GET['unlink_asset_from_file'])) {
 
 if (isset($_POST["import_assets_csv"])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_support', 2);
 
@@ -1190,7 +1190,7 @@ if (isset($_GET['download_assets_csv_template'])) {
 
 if (isset($_POST['export_assets_csv'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_support');
 
@@ -1253,7 +1253,7 @@ if (isset($_POST['add_asset_interface'])) {
 
     // 1) Permissions & CSRF
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_support', 2);
 
@@ -1328,7 +1328,7 @@ if (isset($_POST['add_asset_interface'])) {
 
 if (isset($_POST['add_asset_multiple_interfaces'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_support', 2);
 
@@ -1375,7 +1375,7 @@ if (isset($_POST['add_asset_multiple_interfaces'])) {
 
 if (isset($_POST['edit_asset_interface'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_support', 2);
 
@@ -1456,7 +1456,7 @@ if (isset($_POST['edit_asset_interface'])) {
 
 if (isset($_GET['delete_asset_interface'])) {
 
-    validateCSRFToken($_GET['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_support', 2);
 
@@ -1501,7 +1501,7 @@ if (isset($_GET['delete_asset_interface'])) {
 
 if (isset($_POST['bulk_edit_asset_interface_type'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_support', 2);
 
@@ -1547,7 +1547,7 @@ if (isset($_POST['bulk_edit_asset_interface_type'])) {
 
 if (isset($_POST['bulk_edit_asset_interface_network'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_support', 2);
 
@@ -1595,7 +1595,7 @@ if (isset($_POST['bulk_edit_asset_interface_network'])) {
 
 if (isset($_POST['bulk_edit_asset_interface_ip_dhcp'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_support', 2);
 
@@ -1639,7 +1639,7 @@ if (isset($_POST['bulk_edit_asset_interface_ip_dhcp'])) {
 
 if (isset($_POST['bulk_delete_asset_interfaces'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_support', 2);
 
@@ -1682,7 +1682,7 @@ if (isset($_POST['bulk_delete_asset_interfaces'])) {
 
 if (isset($_POST["import_client_asset_interfaces_csv"])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_support', 2);
 
@@ -1837,7 +1837,7 @@ if (isset($_GET['download_client_asset_interfaces_csv_template'])) {
 
 if (isset($_POST['export_client_asset_interfaces_csv'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_support');
 

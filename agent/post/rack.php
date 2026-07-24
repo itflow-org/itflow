@@ -8,7 +8,7 @@ defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
 
 if (isset($_POST['add_rack'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_support', 2);
 
@@ -55,7 +55,7 @@ if (isset($_POST['add_rack'])) {
 
 if (isset($_POST['edit_rack'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_support', 2);
 
@@ -102,7 +102,7 @@ if (isset($_POST['edit_rack'])) {
 
 if (isset($_GET['archive_rack'])) {
 
-    validateCSRFToken($_GET['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_support', 2);
 
@@ -128,7 +128,7 @@ if (isset($_GET['archive_rack'])) {
 
 if (isset($_GET['restore_rack'])) {
 
-    validateCSRFToken($_GET['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_support', 2);
 
@@ -154,7 +154,7 @@ if (isset($_GET['restore_rack'])) {
 
 if (isset($_GET['delete_rack'])) {
 
-    validateCSRFToken($_GET['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_support', 3);
 
@@ -186,7 +186,7 @@ if (isset($_GET['delete_rack'])) {
 
 if (isset($_POST['add_rack_unit'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_support', 2);
 
@@ -234,7 +234,7 @@ if (isset($_POST['add_rack_unit'])) {
 
 if (isset($_POST['edit_rack_unit'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_support', 2);
 
@@ -265,7 +265,7 @@ if (isset($_POST['edit_rack_unit'])) {
 
 if (isset($_GET['remove_rack_unit'])) {
 
-    validateCSRFToken($_GET['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_support', 2);
 

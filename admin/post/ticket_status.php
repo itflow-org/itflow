@@ -4,7 +4,7 @@ defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
 
 if (isset($_POST['add_ticket_status'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     $name = escapeSql($_POST['name']);
     $color = escapeSql($_POST['color']);
@@ -23,7 +23,7 @@ if (isset($_POST['add_ticket_status'])) {
 
 if (isset($_POST['edit_ticket_status'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     $ticket_status_id = intval($_POST['ticket_status_id']);
     $name = escapeSql($_POST['name']);
@@ -43,7 +43,7 @@ if (isset($_POST['edit_ticket_status'])) {
 
 if (isset($_GET['delete_ticket_status'])) {
 
-    validateCSRFToken($_GET['csrf_token']);
+    validateCSRFToken();
 
     $ticket_status_id = intval($_GET['delete_ticket_status']);
 

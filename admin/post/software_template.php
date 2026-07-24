@@ -6,7 +6,7 @@ defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
 
 if (isset($_POST['add_software_template'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     $name = escapeSql($_POST['name']);
     $version = escapeSql($_POST['version']);
@@ -29,7 +29,7 @@ if (isset($_POST['add_software_template'])) {
 
 if (isset($_POST['edit_software_template'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     $software_template_id = intval($_POST['software_template_id']);
     $name = escapeSql($_POST['name']);
@@ -51,7 +51,7 @@ if (isset($_POST['edit_software_template'])) {
 
 if (isset($_GET['delete_software_template'])) {
 
-    validateCSRFToken($_GET['csrf_token']);
+    validateCSRFToken();
 
     $software_template_id = intval($_GET['delete_software_template']);
 

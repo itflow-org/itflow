@@ -8,7 +8,7 @@ defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
 
 if (isset($_POST['upload_files'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_support', 2);
 
@@ -105,7 +105,7 @@ if (isset($_POST['upload_files'])) {
 
 if (isset($_POST['rename_file'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_support', 2);
 
@@ -134,7 +134,7 @@ if (isset($_POST['rename_file'])) {
 
 if (isset($_POST['move_file'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_support', 2);
 
@@ -164,7 +164,7 @@ if (isset($_POST['move_file'])) {
 
 if (isset($_GET['archive_file'])) {
 
-    validateCSRFToken($_GET['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_support', 2);
 
@@ -190,7 +190,7 @@ if (isset($_GET['archive_file'])) {
 
 if (isset($_GET['restore_file'])) {
 
-    validateCSRFToken($_GET['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_support', 2);
 
@@ -216,7 +216,7 @@ if (isset($_GET['restore_file'])) {
 
 if (isset($_POST['delete_file'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_support', 3);
 
@@ -253,7 +253,7 @@ if (isset($_POST['delete_file'])) {
 
 if (isset($_POST['bulk_archive_files'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_support', 2);
 
@@ -316,7 +316,7 @@ if (isset($_POST['bulk_archive_files'])) {
 
 if (isset($_POST['bulk_delete_files'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_support', 3);
 
@@ -397,7 +397,7 @@ if (isset($_POST['bulk_delete_files'])) {
 
 if (isset($_POST['bulk_restore_files'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_support', 2);
 
@@ -461,7 +461,7 @@ if (isset($_POST['bulk_restore_files'])) {
 // Unified bulk move for Files + Documents
 if (isset($_POST['bulk_move_files'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_support', 2);
 
@@ -578,7 +578,7 @@ if (isset($_POST['bulk_move_files'])) {
 
 if (isset($_POST['link_asset_to_file'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_support', 2);
 
@@ -609,7 +609,7 @@ if (isset($_POST['link_asset_to_file'])) {
 
 if (isset($_GET['unlink_asset_from_file'])) {
 
-    validateCSRFToken($_GET['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_support', 2);
 

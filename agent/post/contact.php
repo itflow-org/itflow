@@ -8,7 +8,7 @@ defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
 
 if (isset($_POST['add_contact'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_client', 2);
 
@@ -84,7 +84,7 @@ if (isset($_POST['add_contact'])) {
 
 if (isset($_POST['edit_contact'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_client', 2);
 
@@ -229,7 +229,7 @@ if (isset($_POST['edit_contact'])) {
 
 if (isset($_POST['add_contact_note'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_client', 2);
 
@@ -260,7 +260,7 @@ if (isset($_POST['add_contact_note'])) {
 
 if (isset($_GET['archive_contact_note'])) {
 
-    validateCSRFToken($_GET['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_client', 2);
 
@@ -288,7 +288,7 @@ if (isset($_GET['archive_contact_note'])) {
 
 if (isset($_GET['restore_contact_note'])) {
 
-    validateCSRFToken($_GET['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_client', 2);
 
@@ -316,7 +316,7 @@ if (isset($_GET['restore_contact_note'])) {
 
 if (isset($_GET['delete_contact_note'])) {
 
-    validateCSRFToken($_GET['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_client', 3);
 
@@ -344,7 +344,7 @@ if (isset($_GET['delete_contact_note'])) {
 
 if (isset($_POST['bulk_assign_contact_location'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_client', 2);
 
@@ -389,7 +389,7 @@ if (isset($_POST['bulk_assign_contact_location'])) {
 
 if (isset($_POST['bulk_edit_contact_phone'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_client', 2);
 
@@ -429,7 +429,7 @@ if (isset($_POST['bulk_edit_contact_phone'])) {
 
 if (isset($_POST['bulk_edit_contact_department'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_client', 2);
 
@@ -469,7 +469,7 @@ if (isset($_POST['bulk_edit_contact_department'])) {
 
 if (isset($_POST['bulk_edit_contact_role'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_client', 2);
 
@@ -513,7 +513,7 @@ if (isset($_POST['bulk_edit_contact_role'])) {
 
 if (isset($_POST['bulk_assign_contact_tags'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_client', 2);
 
@@ -566,7 +566,7 @@ if (isset($_POST['bulk_assign_contact_tags'])) {
 
 if (isset($_POST['send_bulk_mail_now'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_client');
 
@@ -617,7 +617,7 @@ if (isset($_POST['send_bulk_mail_now'])) {
 
 if (isset($_POST['bulk_archive_contacts'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_client', 2);
 
@@ -668,7 +668,7 @@ if (isset($_POST['bulk_archive_contacts'])) {
 
 if (isset($_POST['bulk_restore_contacts'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_client', 2);
 
@@ -713,7 +713,7 @@ if (isset($_POST['bulk_restore_contacts'])) {
 
 if (isset($_POST['bulk_delete_contacts'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_client', 3);
 
@@ -759,7 +759,7 @@ if (isset($_POST['bulk_delete_contacts'])) {
 
 if (isset($_GET['anonymize_contact'])) {
 
-    validateCSRFToken($_GET['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_client', 3);
 
@@ -867,7 +867,7 @@ if (isset($_GET['anonymize_contact'])) {
 
 if (isset($_GET['archive_contact'])) {
 
-    validateCSRFToken($_GET['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_client', 2);
 
@@ -899,7 +899,7 @@ if (isset($_GET['archive_contact'])) {
 
 if (isset($_GET['restore_contact'])) {
 
-    validateCSRFToken($_GET['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_client', 2);
 
@@ -931,7 +931,7 @@ if (isset($_GET['restore_contact'])) {
 
 if (isset($_GET['delete_contact'])) {
 
-    validateCSRFToken($_GET['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_client', 3);
 
@@ -963,7 +963,7 @@ if (isset($_GET['delete_contact'])) {
 
 if (isset($_POST['link_contact_to_asset'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_client', 2);
 
@@ -993,7 +993,7 @@ if (isset($_POST['link_contact_to_asset'])) {
 
 if (isset($_GET['unlink_asset_from_contact'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_client', 2);
 
@@ -1023,7 +1023,7 @@ if (isset($_GET['unlink_asset_from_contact'])) {
 
 if (isset($_POST['link_software_to_contact'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_client', 2);
 
@@ -1053,7 +1053,7 @@ if (isset($_POST['link_software_to_contact'])) {
 
 if (isset($_GET['unlink_software_from_contact'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_client', 2);
 
@@ -1083,7 +1083,7 @@ if (isset($_GET['unlink_software_from_contact'])) {
 
 if (isset($_POST['link_contact_to_credential'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_client', 2);
 
@@ -1113,7 +1113,7 @@ if (isset($_POST['link_contact_to_credential'])) {
 
 if (isset($_GET['unlink_credential_from_contact'])) {
 
-    validateCSRFToken($_GET['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_client', 2);
 
@@ -1143,7 +1143,7 @@ if (isset($_GET['unlink_credential_from_contact'])) {
 
 if (isset($_POST['link_service_to_contact'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_client', 2);
 
@@ -1173,7 +1173,7 @@ if (isset($_POST['link_service_to_contact'])) {
 
 if (isset($_GET['unlink_service_from_contact'])) {
 
-    validateCSRFToken($_GET['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_client', 2);
 
@@ -1203,7 +1203,7 @@ if (isset($_GET['unlink_service_from_contact'])) {
 
 if (isset($_POST['link_contact_to_file'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_client', 2);
 
@@ -1234,7 +1234,7 @@ if (isset($_POST['link_contact_to_file'])) {
 
 if (isset($_GET['unlink_contact_from_file'])) {
 
-    validateCSRFToken($_GET['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_client', 2);
 
@@ -1264,7 +1264,7 @@ if (isset($_GET['unlink_contact_from_file'])) {
 
 if (isset($_POST['export_contacts_csv'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_client');
 
@@ -1322,7 +1322,7 @@ if (isset($_POST['export_contacts_csv'])) {
 
 if (isset($_POST["import_contacts_csv"])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_client', 2);
 

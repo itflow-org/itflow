@@ -4,7 +4,7 @@ defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
 
 if (isset($_POST['edit_notification_settings'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     $config_enable_cron = intval($_POST['config_enable_cron'] ?? 0);
     $config_enable_alert_domain_expire = intval($_POST['config_enable_alert_domain_expire'] ?? 0);

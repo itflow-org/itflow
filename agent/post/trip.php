@@ -10,7 +10,7 @@ defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
 
 if (isset($_POST['add_trip'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     require_once 'trip_model.php';
 
@@ -34,7 +34,7 @@ if (isset($_POST['add_trip'])) {
 
 if (isset($_POST['edit_trip'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     require_once 'trip_model.php';
 
@@ -58,7 +58,7 @@ if (isset($_POST['edit_trip'])) {
 
 if (isset($_GET['delete_trip'])) {
 
-    validateCSRFToken($_GET['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_financial', 3);
 
@@ -86,7 +86,7 @@ if (isset($_GET['delete_trip'])) {
 
 if (isset($_POST['export_trips_csv'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_financial');
 

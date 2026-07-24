@@ -4,7 +4,7 @@ defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
 
 if (isset($_POST['edit_ticket_settings'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     $config_ticket_prefix = escapeSql($_POST['config_ticket_prefix']);
     $config_ticket_next_number = intval($_POST['config_ticket_next_number']);

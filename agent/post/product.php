@@ -8,7 +8,7 @@ defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
 
 if (isset($_POST['add_product'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_sales', 2);
 
@@ -29,7 +29,7 @@ if (isset($_POST['add_product'])) {
 
 if (isset($_POST['edit_product'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_sales', 2);
 
@@ -49,7 +49,7 @@ if (isset($_POST['edit_product'])) {
 
 if (isset($_GET['archive_product'])) {
 
-    validateCSRFToken($_GET['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_sales', 2);
 
@@ -69,7 +69,7 @@ if (isset($_GET['archive_product'])) {
 
 if (isset($_GET['restore_product'])) {
 
-    validateCSRFToken($_GET['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_sales', 2);
 
@@ -89,7 +89,7 @@ if (isset($_GET['restore_product'])) {
 
 if (isset($_GET['delete_product'])) {
 
-    validateCSRFToken($_GET['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_sales', 3);
 
@@ -110,7 +110,7 @@ if (isset($_GET['delete_product'])) {
 
 if (isset($_POST['bulk_edit_product_category'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_sales', 2);
 
@@ -148,7 +148,7 @@ if (isset($_POST['bulk_edit_product_category'])) {
 
 if (isset($_POST['bulk_archive_products'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_sales', 2);
 
@@ -180,7 +180,7 @@ if (isset($_POST['bulk_archive_products'])) {
 
 if (isset($_POST['bulk_restore_products'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_sales', 2);
 
@@ -213,7 +213,7 @@ if (isset($_POST['bulk_restore_products'])) {
 
 if (isset($_POST['bulk_delete_products'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_sales', 3);
 
@@ -246,7 +246,7 @@ if (isset($_POST['bulk_delete_products'])) {
 
 if (isset($_POST['export_products_csv'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     //get records from database
     $sql = mysqli_query($mysqli,"SELECT * FROM products
@@ -295,7 +295,7 @@ if (isset($_POST['export_products_csv'])) {
 
 if (isset($_POST['add_product_stock'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_sales', 2);
 

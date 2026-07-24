@@ -206,7 +206,7 @@ function zipFolderStrict(string $folderPath, string $zipFilePath): void {
 
 if (isset($_GET['download_backup'])) {
 
-    validateCSRFToken($_GET['csrf_token']);
+    validateCSRFToken();
 
     $timestamp   = date('YmdHis');
     $baseName    = "itflow_{$timestamp}";
@@ -302,7 +302,7 @@ if (isset($_GET['download_backup'])) {
 
 if (isset($_POST['backup_master_key'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     $password = $_POST['password'];
 

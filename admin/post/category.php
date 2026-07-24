@@ -8,7 +8,7 @@ defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
 
 if (isset($_POST['add_category'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     require_once 'category_model.php';
 
@@ -26,7 +26,7 @@ if (isset($_POST['add_category'])) {
 
 if (isset($_POST['edit_category'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     require_once 'category_model.php';
 
@@ -44,7 +44,7 @@ if (isset($_POST['edit_category'])) {
 
 if (isset($_GET['archive_category'])) {
 
-    validateCSRFToken($_GET['csrf_token']);
+    validateCSRFToken();
 
     $category_id = intval($_GET['archive_category']);
 
@@ -66,7 +66,7 @@ if (isset($_GET['archive_category'])) {
 
 if (isset($_GET['restore_category'])) {
 
-    validateCSRFToken($_GET['csrf_token']);
+    validateCSRFToken();
 
     $category_id = intval($_GET['restore_category']);
 
@@ -88,7 +88,7 @@ if (isset($_GET['restore_category'])) {
 
 if (isset($_GET['delete_category'])) {
 
-    validateCSRFToken($_GET['csrf_token']);
+    validateCSRFToken();
 
     $category_id = intval($_GET['delete_category']);
 

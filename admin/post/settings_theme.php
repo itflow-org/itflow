@@ -4,7 +4,7 @@ defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
 
 if (isset($_POST['edit_theme_settings'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     $theme = preg_replace("/[^0-9a-zA-Z-]/", "", escapeSql($_POST['edit_theme_settings']));
 
@@ -20,7 +20,7 @@ if (isset($_POST['edit_theme_settings'])) {
 
 if (isset($_POST['edit_favicon_settings'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     // Check to see if a file is attached
     if (isset($_FILES['file']['tmp_name'])) {
@@ -52,7 +52,7 @@ if (isset($_POST['edit_favicon_settings'])) {
 
 if (isset($_GET['reset_favicon'])) {
 
-    validateCSRFToken($_GET['csrf_token']);
+    validateCSRFToken();
 
     if (file_exists("../uploads/favicon.ico")) {
         unlink("../uploads/favicon.ico");

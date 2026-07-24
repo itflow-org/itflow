@@ -4,7 +4,7 @@ defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
 
 if (isset($_GET['stripe_remove_pm'])) {
 
-    validateCSRFToken($_GET['csrf_token']);
+    validateCSRFToken();
 
     if (!$config_stripe_enable) {
         flashAlert("Stripe not enabled", 'error');
@@ -49,7 +49,7 @@ if (isset($_GET['stripe_remove_pm'])) {
 
 if (isset($_GET['stripe_reset_customer'])) {
 
-    validateCSRFToken($_GET['csrf_token']);
+    validateCSRFToken();
 
     $client_id = intval($_GET['client_id']);
 

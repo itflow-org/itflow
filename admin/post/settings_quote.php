@@ -4,7 +4,7 @@ defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
 
 if (isset($_POST['edit_quote_settings'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     $config_quote_prefix = escapeSql($_POST['config_quote_prefix']);
     $config_quote_next_number = intval($_POST['config_quote_next_number']);

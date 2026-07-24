@@ -8,7 +8,7 @@ defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
 
 if (isset($_POST['add_invoice_recurring'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_sales', 2);
 
@@ -72,7 +72,7 @@ if (isset($_POST['add_invoice_recurring'])) {
 
 if (isset($_POST['add_recurring_invoice'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_sales', 2);
 
@@ -111,7 +111,7 @@ if (isset($_POST['add_recurring_invoice'])) {
 
 if (isset($_POST['edit_recurring_invoice'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_sales', 2);
 
@@ -155,7 +155,7 @@ if (isset($_POST['edit_recurring_invoice'])) {
 
 if (isset($_GET['delete_recurring_invoice'])) {
 
-    validateCSRFToken($_GET['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_sales', 3);
 
@@ -197,7 +197,7 @@ if (isset($_GET['delete_recurring_invoice'])) {
 
 if (isset($_POST['add_recurring_invoice_item'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_sales', 2);
 
@@ -257,7 +257,7 @@ if (isset($_POST['add_recurring_invoice_item'])) {
 
 if (isset($_POST['edit_recurring_invoice_item'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_sales', 2);
 
@@ -317,7 +317,7 @@ if (isset($_POST['edit_recurring_invoice_item'])) {
 
 if (isset($_POST['recurring_invoice_note'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_sales', 2);
 
@@ -345,7 +345,7 @@ if (isset($_POST['recurring_invoice_note'])) {
 
 if (isset($_GET['delete_recurring_invoice_item'])) {
 
-    validateCSRFToken($_GET['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_sales', 2);
 
@@ -383,7 +383,7 @@ if (isset($_GET['delete_recurring_invoice_item'])) {
 
 if (isset($_GET['force_recurring'])) {
 
-    validateCSRFToken($_GET['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_sales', 2);
 
@@ -550,7 +550,7 @@ if (isset($_GET['force_recurring'])) {
 
 if (isset($_POST['set_recurring_payment'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_sales', 2);
 
@@ -607,7 +607,7 @@ if (isset($_POST['set_recurring_payment'])) {
 
 if (isset($_POST['export_client_recurring_invoice_csv'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_sales');
 
@@ -661,7 +661,7 @@ if (isset($_POST['export_client_recurring_invoice_csv'])) {
 
 if (isset($_GET['recurring_invoice_email_notify'])) {
 
-    validateCSRFToken($_GET['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_sales', 2);
 
