@@ -67,8 +67,7 @@ function encryptUserSpecificKey($user_password) {
 
 // Given a ciphertext (incl. IV) and the user's (or API key) password, returns the site master key
 // Ran at login, to facilitate generateUserSessionKey
-function decryptUserSpecificKey($user_encryption_ciphertext, $user_password)
-{
+function decryptUserSpecificKey($user_encryption_ciphertext, $user_password) {
     //Get the IV, salt and ciphertext
     $salt = substr($user_encryption_ciphertext, 0, 16);
     $iv = substr($user_encryption_ciphertext, 16, 16);
@@ -89,8 +88,7 @@ Generates what is probably best described as a session key (ephemeral-ish)
 - Encryption key never hits the disk in cleartext
 
 */
-function generateUserSessionKey($site_encryption_master_key)
-{
+function generateUserSessionKey($site_encryption_master_key) {
     $user_encryption_session_key = randomString();
     $user_encryption_session_iv = randomString();
     $user_encryption_session_ciphertext = openssl_encrypt($site_encryption_master_key, 'aes-128-cbc', $user_encryption_session_key, 0, $user_encryption_session_iv);
@@ -111,8 +109,7 @@ function generateUserSessionKey($site_encryption_master_key)
 }
 
 // Decrypts an encrypted password (website/asset credentials), returns it as a string
-function decryptCredentialEntry($credential_password_ciphertext)
-{
+function decryptCredentialEntry($credential_password_ciphertext) {
 
     // Split the credential into IV and Ciphertext
     $credential_iv =  substr($credential_password_ciphertext, 0, 16);
@@ -131,8 +128,7 @@ function decryptCredentialEntry($credential_password_ciphertext)
 }
 
 // Encrypts a website/asset credential password
-function encryptCredentialEntry($credential_password_cleartext)
-{
+function encryptCredentialEntry($credential_password_cleartext) {
     $iv = randomString();
 
     // Get the user session info.
@@ -162,8 +158,7 @@ function apiDecryptCredentialEntry($credential_ciphertext, $api_key_decrypt_hash
     return openssl_decrypt($credential_ciphertext, 'aes-128-cbc', $site_encryption_master_key, 0, $credential_iv);
 }
 
-function apiEncryptCredentialEntry(#[\SensitiveParameter]$credential_cleartext, $api_key_decrypt_hash, #[\SensitiveParameter]$api_key_decrypt_password)
-{
+function apiEncryptCredentialEntry(#[\SensitiveParameter]$credential_cleartext, $api_key_decrypt_hash, #[\SensitiveParameter]$api_key_decrypt_password) {
     $iv = randomString();
 
     // Decrypt the api hash to get the master key
@@ -183,16 +178,29 @@ function validateCSRFToken(?string $token = null) {
 
     if ($token !== '' && hash_equals($_SESSION['csrf_token'] ?? '', $token)) {
         return true;
-    } else {
-        $_SESSION['alert_type'] = "warning";
-        $_SESSION['alert_message'] = "CSRF token verification failed. Try again, or log out to refresh your token.";
-        header("Location: index.php");
-        exit();
     }
+
+    // 403 rather than a redirect. A 302 to index.php means anything following
+    // redirects - browsers, curl -L, security scanners - records a final 200
+    // and reports the request as accepted.
+    if (!headers_sent()) {
+        http_response_code(403);
+        header("Content-Type: text/html; charset=UTF-8");
+        header("X-Content-Type-Options: nosniff");
+        header("Cache-Control: no-store");
+    }
+
+    echo '<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8">'
+        . '<title>403 Forbidden</title></head><body>'
+        . '<h1>403 Forbidden</h1>'
+        . '<p>CSRF token verification failed. Your session may have expired.</p>'
+        . '<p><a href="/">Return to ITFlow</a> and try again.</p>'
+        . '</body></html>';
+
+    exit();
 }
 
-function validateWhitelabelKey($key)
-{
+function validateWhitelabelKey($key) {
     $public_key = "-----BEGIN PUBLIC KEY-----
 MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAr0k+4ZJudkdGMCFLx5b9
 H/sOozvWphFJsjVIF0vPVx9J0bTdml65UdS+32JagIHfPtEUTohaMnI3IAxxCDzl
