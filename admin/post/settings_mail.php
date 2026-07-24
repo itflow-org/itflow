@@ -374,121 +374,35 @@ if (isset($_POST['test_email_imap'])) {
     }
 
     // Build remote socket (implicit SSL vs plain TCP)
-    $transport = 'tcp';
-    if ($encryption === 'ssl') {
-        $transport = 'ssl';
-    }
+    require_once $_SERVER['DOCUMENT_ROOT'] . '/libs/vendor/autoload.php'; // ImapEngine (composer)
 
-    $remote_socket = $transport . '://' . $host . ':' . $port;
-
-    // Stream context (you can tighten these if you want strict validation)
-    $context_options = [];
-    if (in_array($encryption, ['ssl', 'tls'], true)) {
-        $context_options['ssl'] = [
-            'verify_peer' => false,
-            'verify_peer_name' => false,
-            'allow_self_signed' => true,
-        ];
-    }
-
-    $context = stream_context_create($context_options);
+    // Map the stored encryption value to an ImapEngine transport (matches the cron sync)
+    $imap_transport = match ($encryption) {
+        'ssl'      => 'ssl',       // implicit TLS (993)
+        'tls'      => 'starttls',  // STARTTLS upgrade (143) - Webklex semantics
+        'starttls' => 'starttls',
+        default    => '',          // 'none' / plain TCP
+    };
 
     try {
-        $errno = 0;
-        $errstr = '';
+        // Same ImapEngine client the cron sync uses, so a passing test predicts a
+        // working sync. Typed errors instead of raw banners; host validated at save.
+        $mailbox = new \DirectoryTree\ImapEngine\Mailbox([
+            'host'           => $host,
+            'port'           => $port,
+            'encryption'     => $imap_transport,
+            'validate_cert'  => true,
+            'username'       => $username,
+            'password'       => $password,          // access token when OAuth
+            'authentication' => $is_oauth ? 'oauth' : 'plain',
+        ]);
 
-        // 10-second timeout, adjust as needed
-        $fp = @stream_socket_client(
-            $remote_socket,
-            $errno,
-            $errstr,
-            10,
-            STREAM_CLIENT_CONNECT,
-            $context
-        );
+        $mailbox->connect();
+        $mailbox->inbox(); // confirm auth + mailbox access, like the sync does
 
-        if (!$fp) {
-            throw new Exception("Could not connect to IMAP server: [$errno] $errstr");
-        }
-
-        stream_set_timeout($fp, 10);
-
-        // Read server greeting (IMAP servers send something like: * OK Dovecot ready)
-        $greeting = fgets($fp, 1024);
-        if ($greeting === false || strpos($greeting, '* OK') !== 0) {
-            fclose($fp);
-            throw new Exception("Invalid IMAP greeting: " . trim((string) $greeting));
-        }
-        // If you really want STARTTLS for "tls" (port 143), you can do it here
-        if ($encryption === 'tls' && stripos($greeting, 'STARTTLS') !== false) {
-            fwrite($fp, "A0001 STARTTLS\r\n");
-            $line = fgets($fp, 1024);
-            if ($line === false || stripos($line, 'A0001 OK') !== 0) {
-                fclose($fp);
-                throw new Exception("STARTTLS failed: " . trim((string) $line));
-            }
-
-            if (!stream_socket_enable_crypto($fp, true, STREAM_CRYPTO_METHOD_TLS_CLIENT)) {
-                fclose($fp);
-                throw new Exception("Unable to enable TLS encryption on IMAP connection.");
-            }
-        }
-
-        $tag = 'A0002';
-
-        if ($is_oauth) {
-            $oauth_b64 = base64_encode("user={$username}\x01auth=Bearer {$password}\x01\x01");
-            $auth_cmd = sprintf("%s AUTHENTICATE XOAUTH2 %s\r\n", $tag, $oauth_b64);
-            fwrite($fp, $auth_cmd);
-        } else {
-            $login_cmd = sprintf(
-                "%s LOGIN \"%s\" \"%s\"\r\n",
-                $tag,
-                addcslashes($username, "\\\""),
-                addcslashes($password, "\\\"")
-            );
-
-            fwrite($fp, $login_cmd);
-        }
-
-        $success = false;
-        $error_line = '';
-
-        while (!feof($fp)) {
-            $line = fgets($fp, 2048);
-            if ($line === false) {
-                break;
-            }
-
-            if (strpos($line, $tag . ' ') === 0) {
-                if (stripos($line, $tag . ' OK') === 0) {
-                    $success = true;
-                } else {
-                    $error_line = trim($line);
-                }
-                break;
-            }
-        }
-
-        // Always logout / close
-        fwrite($fp, "A0003 LOGOUT\r\n");
-        fclose($fp);
-
-        if ($success) {
-            if ($is_oauth) {
-                flashAlert("Connected successfully using OAuth");
-            } else {
-                flashAlert("Connected successfully");
-            }
-        } else {
-            if (!$error_line) {
-                $error_line = 'Unknown IMAP authentication error';
-            }
-            throw new Exception($error_line);
-        }
-
-    } catch (Exception $e) {
-        flashAlert("<strong>IMAP connection failed:</strong> " . htmlspecialchars($e->getMessage()), 'error');
+        flashAlert($is_oauth ? "Connected successfully using OAuth" : "Connected successfully");
+    } catch (\Throwable $e) {
+        flashAlert("<strong>IMAP connection failed.</strong> Check the host, port, encryption, and credentials.", 'error');
     }
 
     redirect();
