@@ -3,6 +3,7 @@
 if (!isset($_SESSION)) {
     // HTTP Only cookies
     ini_set("session.cookie_httponly", true);
+    ini_set("session.cookie_samesite", "Lax");
     
     if ($config_https_only) {
         // Tell client to only send cookie(s) over HTTPS

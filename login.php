@@ -15,6 +15,7 @@ require_once "libs/totp/totp.php";
 
 if (session_status() === PHP_SESSION_NONE) {
     ini_set("session.cookie_httponly", true);
+    ini_set("session.cookie_samesite", "Lax");
 
     if ($config_https_only || !isset($config_https_only)) {
         ini_set("session.cookie_secure", true);
