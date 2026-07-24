@@ -16,7 +16,6 @@ if (isset($_POST['add_api_key'])) {
     $secret = escapeSql($_POST['key']); // API Key
 
     // Credential decryption password
-    $password = password_hash(trim($_POST['password']), PASSWORD_DEFAULT);
     $apikey_specific_encryption_ciphertext = encryptUserSpecificKey(trim($_POST['password']));
 
     mysqli_query($mysqli,"INSERT INTO api_keys SET api_key_name = '$name', api_key_secret = '$secret', api_key_decrypt_hash = '$apikey_specific_encryption_ciphertext', api_key_expire = '$expire', api_key_client_id = $client_id");
