@@ -814,6 +814,17 @@ if (isset($_GET['create_stripe_checkout'])) {
     $client_currency_row = mysqli_fetch_assoc($client_currency_result);
     $client_currency = $client_currency_row['client_currency_code'] ?? 'usd';
 
+    // Client's existing Stripe customer (so the setup attaches to it and
+    // Checkout uses the customer's email instead of prompting for one)
+    $client_provider = mysqli_fetch_assoc(mysqli_query($mysqli, "
+        SELECT payment_provider_client
+        FROM client_payment_provider
+        WHERE client_id = $session_client_id
+        AND payment_provider_id = $stripe_provider_id
+        LIMIT 1
+    "));
+    $stripe_customer_id = $client_provider ? escapeSql($client_provider['payment_provider_client']) : null;
+
     // Return URL when checkout finishes
     $return_url = "https://$config_base_url/client/post.php?stripe_save_card&session_id={CHECKOUT_SESSION_ID}";
 
@@ -822,12 +833,16 @@ if (isset($_GET['create_stripe_checkout'])) {
         $stripe = new \Stripe\StripeClient($stripe_secret_key);
 
         // Create checkout session
-        $checkout_session = $stripe->checkout->sessions->create([
-            'currency' => $client_currency,
-            'mode' => 'setup',
-            'ui_mode' => 'embedded_page',
+        $session_params = [
+            'currency'   => $client_currency,
+            'mode'       => 'setup',
+            'ui_mode'    => 'embedded_page',
             'return_url' => $return_url,
-        ]);
+        ];
+        if ($stripe_customer_id) {
+            $session_params['customer'] = $stripe_customer_id;
+        }
+        $checkout_session = $stripe->checkout->sessions->create($session_params);
 
         echo json_encode(['clientSecret' => $checkout_session->client_secret]);
 
