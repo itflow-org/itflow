@@ -308,6 +308,8 @@ if (isset($_GET['get_client_contacts'])) {
 
     $client_id = intval($_GET['client_id']);
 
+    enforceClientAccess();
+
     $contact_sql = mysqli_query(
         $mysqli,
         "SELECT contact_id, contact_name, contact_primary, contact_important, contact_technical FROM contacts
@@ -331,6 +333,8 @@ if (isset($_GET['get_client_assets'])) {
     enforceUserPermission('module_client');
 
     $client_id = intval($_GET['client_id']);
+
+    enforceClientAccess();
 
     $asset_sql = mysqli_query(
         $mysqli,
@@ -357,6 +361,8 @@ if (isset($_GET['get_client_locations'])) {
 
     $client_id = intval($_GET['client_id']);
 
+    enforceClientAccess();
+
     $locations_sql = mysqli_query(
         $mysqli,
         "SELECT location_id, location_name FROM locations
@@ -380,6 +386,8 @@ if (isset($_GET['get_client_vendors'])) {
     enforceUserPermission('module_client');
 
     $client_id = intval($_GET['client_id']);
+
+    enforceClientAccess();
 
     $vendors_sql = mysqli_query(
         $mysqli,
@@ -1078,6 +1086,4 @@ if (isset($_GET['get_credential_via_id'])) {
     $check_recent_view = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(log_id) AS recent_view FROM logs WHERE log_type = 'Credential' AND log_action = 'View' AND log_user_id = $session_user_id AND log_entity_id = $credential_id AND log_client_id = $client_id AND log_created_at > (NOW() - INTERVAL 5 MINUTE)"));
 
     if (intval($check_recent_view['recent_view']) == 0) {
-        logAudit("Credential", "View", "$session_name viewed credential $name", $client_id, $credential_id);
-    }
-}
+        logAudit("Credential", "View", "$session_name viewed credential $name", $client_i
