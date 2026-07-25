@@ -825,7 +825,7 @@ if (isset($_GET['create_stripe_checkout'])) {
         $checkout_session = $stripe->checkout->sessions->create([
             'currency' => $client_currency,
             'mode' => 'setup',
-            'ui_mode' => 'embedded',
+            'ui_mode' => 'embedded_page',
             'return_url' => $return_url,
         ]);
 
