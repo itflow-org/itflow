@@ -2,6 +2,8 @@
 
 require_once '../../../includes/modal_header.php';
 
+enforceUserPermission('module_client', 2);
+
 $client_id = intval($_GET['id']);
 
 $sql = mysqli_query($mysqli, "SELECT * FROM clients WHERE client_id = $client_id $access_permission_query LIMIT 1");

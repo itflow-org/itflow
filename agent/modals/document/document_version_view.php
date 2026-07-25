@@ -2,6 +2,8 @@
 
 require_once '../../../includes/modal_header.php';
 
+enforceUserPermission('module_support');
+
 // Initialize the HTML Purifier to prevent XSS
 require_once "../../../libs/htmlpurifier/HTMLPurifier.standalone.php";
 

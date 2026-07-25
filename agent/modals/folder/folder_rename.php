@@ -2,6 +2,8 @@
 
 require_once '../../../includes/modal_header.php';
 
+enforceUserPermission('module_support', 2);
+
 $folder_id = intval($_GET['id']);
 
 $sql = mysqli_query($mysqli, "SELECT * FROM folders WHERE folder_id = $folder_id LIMIT 1");

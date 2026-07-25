@@ -2,6 +2,8 @@
 
 require_once '../../../includes/modal_header.php';
 
+enforceUserPermission('module_client', 2);
+
 $client_id = intval($_GET['client_id']);
 
 enforceClientAccess();

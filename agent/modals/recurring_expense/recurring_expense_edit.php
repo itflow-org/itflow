@@ -2,6 +2,8 @@
 
 require_once '../../../includes/modal_header.php';
 
+enforceUserPermission('module_financial', 2);
+
 $recurring_expense_id = intval($_GET['id']);
 
 $sql = mysqli_query($mysqli, "SELECT * FROM recurring_expenses WHERE recurring_expense_id = $recurring_expense_id LIMIT 1");

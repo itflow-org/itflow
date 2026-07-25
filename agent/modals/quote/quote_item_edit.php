@@ -2,6 +2,8 @@
 
 require_once '../../../includes/modal_header.php';
 
+enforceUserPermission('module_sales', 2);
+
 $item_id = intval($_GET['id']);
 
 $sql = mysqli_query($mysqli, "SELECT * FROM quote_items LEFT JOIN quotes ON quote_id = item_quote_id WHERE item_id = $item_id LIMIT 1");

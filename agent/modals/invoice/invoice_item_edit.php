@@ -2,6 +2,8 @@
 
 require_once '../../../includes/modal_header.php';
 
+enforceUserPermission('module_sales', 2);
+
 $item_id = intval($_GET['id']);
 
 $sql = mysqli_query($mysqli, "SELECT * FROM invoice_items LEFT JOIN invoices ON invoice_id = item_invoice_id WHERE item_id = $item_id LIMIT 1");

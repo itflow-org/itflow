@@ -2,6 +2,8 @@
 
 require_once '../../../includes/modal_header.php';
 
+enforceUserPermission('module_financial', 2);
+
 $account_id = intval($_GET['id']);
 
 $sql = mysqli_query($mysqli, "SELECT * FROM accounts WHERE account_id = $account_id LIMIT 1");

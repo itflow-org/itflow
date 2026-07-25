@@ -2,6 +2,8 @@
 
 require_once '../../../includes/modal_header.php';
 
+enforceUserPermission('module_financial', 2);
+
 $expense_id = intval($_GET['id']);
 
 $sql = mysqli_query($mysqli, "SELECT * FROM expenses

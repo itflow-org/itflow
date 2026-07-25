@@ -2,6 +2,8 @@
 
 require_once '../../../includes/modal_header.php';
 
+enforceUserPermission('module_sales', 2);
+
 $quote_id = intval($_GET['quote_id']);
 
 $sql = mysqli_query($mysqli, "SELECT * FROM quotes WHERE quote_id = $quote_id LIMIT 1");

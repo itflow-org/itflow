@@ -2,6 +2,8 @@
 
 require_once '../../../includes/modal_header.php';
 
+enforceUserPermission('module_sales', 2);
+
 $invoice_id = intval($_GET['id']);
 
 $sql = mysqli_query($mysqli, "SELECT invoice_prefix, invoice_number, invoice_client_id
