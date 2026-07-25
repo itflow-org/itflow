@@ -452,6 +452,11 @@ if (isset($_POST['edit_contact'])) {
     }
 
     $contact_id = intval($_POST['contact_id']);
+    // A contact cannot edit their own record - that would let them change their own roles
+    if ($contact_id === $session_contact_id) {
+        flashAlert("You cannot edit your own contact record", 'danger');
+        redirect('contacts.php');
+    }
     $contact_name = escapeSql($_POST['contact_name']);
     $contact_email = escapeSql($_POST['contact_email']);
     $contact_technical = intval($_POST['contact_technical'] ?? 0);
@@ -483,15 +488,15 @@ if (isset($_POST['edit_contact'])) {
     }
 
     // Update contact
-    mysqli_query($mysqli, "UPDATE contacts SET contact_name = '$contact_name', contact_email = '$contact_email', contact_billing = $contact_billing, contact_technical = $contact_technical, contact_user_id = $contact_user_id WHERE contact_id = $contact_id AND contact_client_id = $session_client_id AND contact_archived_at IS NULL AND contact_primary = 0");
+    mysqli_query($mysqli, "UPDATE contacts SET contact_name = '$contact_name', contact_email = '$contact_email', contact_billing = $contact_billing, contact_technical = $contact_technical, contact_user_id = $contact_user_id WHERE contact_id = $contact_id AND contact_client_id = $session_client_id AND contact_archived_at IS NULL AND contact_primary = 0 AND contact_id != $session_contact_id");
 
     logAudit("Contact", "Edit", "Client contact $session_contact_name edited contact $contact_name in the client portal", $session_client_id, $contact_id);
 
     flashAlert("Contact $contact_name updated");
 
-    redirect('contacts.php');
-
     triggerCustomAction('contact_update', $contact_id);
+
+    redirect('contacts.php');
 
 }
 
