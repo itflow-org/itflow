@@ -17,6 +17,7 @@ if (isset($_POST['add_task'])) {
 
     // Get Client ID from tickets using the ticket_id
     $client_id = intval(getFieldById('tickets', $ticket_id, 'ticket_client_id'));
+    enforceClientAccess();
 
     mysqli_query($mysqli, "INSERT INTO tasks SET task_name = '$task_name', task_ticket_id = $ticket_id");
 
@@ -45,6 +46,7 @@ if (isset($_POST['edit_ticket_task'])) {
     $sql = mysqli_query($mysqli, "SELECT * FROM tasks LEFT JOIN tickets ON ticket_id = task_ticket_id WHERE task_id = $task_id");
     $row = mysqli_fetch_assoc($sql);
     $client_id = intval($row['ticket_client_id']);
+    enforceClientAccess();
 
     mysqli_query($mysqli, "UPDATE tasks SET task_name = '$task_name', task_order = $task_order, task_completion_estimate = $task_completion_estimate WHERE task_id = $task_id");
 
@@ -89,6 +91,7 @@ if (isset($_GET['delete_task'])) {
     $sql = mysqli_query($mysqli, "SELECT * FROM tasks LEFT JOIN tickets ON ticket_id = task_ticket_id WHERE task_id = $task_id");
     $row = mysqli_fetch_assoc($sql);
     $client_id = intval($row['ticket_client_id']);
+    enforceClientAccess();
     $task_name = escapeSql($row['task_name']);
 
     mysqli_query($mysqli, "DELETE FROM tasks WHERE task_id = $task_id");
@@ -113,6 +116,7 @@ if (isset($_GET['complete_task'])) {
     $sql = mysqli_query($mysqli, "SELECT * FROM tasks LEFT JOIN tickets ON ticket_id = task_ticket_id WHERE task_id = $task_id");
     $row = mysqli_fetch_assoc($sql);
     $client_id = intval($row['ticket_client_id']);
+    enforceClientAccess();
     $task_name = escapeSql($row['task_name']);
     $task_completion_estimate = intval($row['task_completion_estimate']);
     $ticket_id = intval($row['ticket_id']);
@@ -147,6 +151,7 @@ if (isset($_GET['undo_complete_task'])) {
     $sql = mysqli_query($mysqli, "SELECT * FROM tasks LEFT JOIN tickets ON ticket_id = task_ticket_id WHERE task_id = $task_id");
     $row = mysqli_fetch_assoc($sql);
     $client_id = intval($row['ticket_client_id']);
+    enforceClientAccess();
     $task_name = escapeSql($row['task_name']);
     $ticket_id = intval($row['ticket_id']);
 
@@ -202,6 +207,7 @@ if (isset($_POST['add_ticket_task_approver'])) {
     $ticket_url_key = escapeSql($tt_row['ticket_url_key']);
     $ticket_contact_id = intval($tt_row['ticket_contact_id']);
     $client_id = intval($tt_row['ticket_client_id']);
+    enforceClientAccess();
 
     // --Notifications--
 
@@ -418,6 +424,7 @@ if (isset($_GET['complete_all_tasks'])) {
 
     // Get Client ID
     $client_id = intval(getFieldById('tickets', $ticket_id, 'ticket_client_id'));
+    enforceClientAccess();
 
     mysqli_query($mysqli, "UPDATE tasks SET task_completed_at = NOW(), task_completed_by = $session_user_id WHERE task_ticket_id = $ticket_id AND task_completed_at IS NULL");
 
@@ -444,6 +451,7 @@ if (isset($_GET['undo_complete_all_tasks'])) {
 
     // Get Client ID
     $client_id = intval(getFieldById('tickets', $ticket_id, 'ticket_client_id'));
+    enforceClientAccess();
 
     mysqli_query($mysqli, "UPDATE tasks SET task_completed_at = NULL, task_completed_by = NULL WHERE task_ticket_id = $ticket_id AND task_completed_at IS NOT NULL");
 
