@@ -5,14 +5,14 @@ require_once '../validate_api_key.php';
 require_once '../require_get_method.php';
 
 
-// Products aren't stored against client IDs, so we instead validate the API key is for All Clients
+// Products aren't client-scoped; access is gated by module_sales in enforce_api_rbac.php
 
-if (isset($_GET['product_id']) && $client_id == "%") {
+if (isset($_GET['product_id'])) {
     // product via ID (single)
     $id = intval($_GET['product_id']);
     $sql = mysqli_query($mysqli, "SELECT * FROM products WHERE product_id = '$id'");
 
-} elseif ($client_id == "%") {
+} else {
     // All products
     $sql = mysqli_query($mysqli, "SELECT * FROM products ORDER BY product_id LIMIT $limit OFFSET $offset");
 }
