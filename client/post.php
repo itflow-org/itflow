@@ -398,9 +398,7 @@ if (isset($_POST['add_contact'])) {
 
     validateCSRFToken();
 
-    if ($session_contact_primary == 0 && !$session_contact_is_technical_contact) {
-        redirect("post.php?logout");
-    }
+    enforceContactCan('contacts');
 
     $contact_name = escapeSql($_POST['contact_name']);
     $contact_email = escapeSql($_POST['contact_email']);
@@ -447,9 +445,7 @@ if (isset($_POST['edit_contact'])) {
 
     validateCSRFToken();
 
-    if ($session_contact_primary == 0 && !$session_contact_is_technical_contact) {
-        redirect("post.php?logout");
-    }
+    enforceContactCan('contacts');
 
     $contact_id = intval($_POST['contact_id']);
     // A contact cannot edit their own record - that would let them change their own roles
@@ -694,9 +690,7 @@ if (isset($_POST['create_stripe_customer'])) {
 
     validateCSRFToken();
 
-    if ($session_contact_primary == 0 && !$session_contact_is_billing_contact) {
-        redirect("post.php?logout");
-    }
+    enforceContactCan('accounting');
 
     // Get Stripe provider
     $stripe_provider_result = mysqli_query($mysqli, "
@@ -784,9 +778,7 @@ if (isset($_GET['create_stripe_checkout'])) {
 
     // This page is called by autopay_setup_stripe.js, returns a Checkout Session client_secret
 
-    if ($session_contact_primary == 0 && !$session_contact_is_billing_contact) {
-        redirect("post.php?logout");
-    }
+    enforceContactCan('accounting');
 
     // Fetch Stripe provider info
     $stripe_provider_result = mysqli_query($mysqli, "
@@ -854,9 +846,7 @@ if (isset($_GET['stripe_save_card'])) {
 
     // validateCSRFToken(); Broken with Stripe Save Card JQ 2026-5-4
 
-    if ($session_contact_primary == 0 && !$session_contact_is_billing_contact) {
-        redirect("post.php?logout");
-    }
+    enforceContactCan('accounting');
 
     // Get Stripe provider
     $stripe_provider_result = mysqli_query($mysqli, "
@@ -985,9 +975,7 @@ if (isset($_GET['delete_saved_payment'])) {
 
     validateCSRFToken();
 
-    if ($session_contact_primary == 0 && !$session_contact_is_billing_contact) {
-        redirect("post.php?logout");
-    }
+    enforceContactCan('accounting');
 
     $saved_payment_id = intval($_GET['delete_saved_payment']);
 
@@ -1144,9 +1132,7 @@ if (isset($_POST['client_add_document'])) {
     validateCSRFToken();
 
     // Permission check - only primary or technical contacts can create documents
-    if ($session_contact_primary == 0 && !$session_contact_is_technical_contact) {
-        redirect("post.php?logout");
-    }
+    enforceContactCan('itdoc');
 
     $document_name = escapeSql($_POST['document_name']);
     $document_description = escapeSql($_POST['document_description']);
@@ -1190,9 +1176,7 @@ if (isset($_POST['client_upload_document'])) {
     validateCSRFToken();
 
     // Permission check - only primary or technical contacts can upload documents
-    if ($session_contact_primary == 0 && !$session_contact_is_technical_contact) {
-        redirect("post.php?logout");
-    }
+    enforceContactCan('itdoc');
 
     $document_name = escapeSql($_POST['document_name']);
     $document_description = escapeSql($_POST['document_description']);

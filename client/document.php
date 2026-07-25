@@ -8,10 +8,7 @@ header("Content-Security-Policy: default-src 'self'; img-src 'self' data:");
 
 require_once "includes/inc_all.php";
 
-if ($session_contact_primary == 0 && !$session_contact_is_technical_contact) {
-    header("Location: post.php?logout");
-    exit();
-}
+enforceContactCan('itdoc');
 
 //Initialize the HTML Purifier to prevent XSS
 require_once "../libs/htmlpurifier/HTMLPurifier.standalone.php";

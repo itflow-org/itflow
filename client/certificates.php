@@ -8,10 +8,7 @@ header("Content-Security-Policy: default-src 'self'");
 
 require_once "includes/inc_all.php";
 
-if ($session_contact_primary == 0 && !$session_contact_is_technical_contact) {
-    header("Location: post.php?logout");
-    exit();
-}
+enforceContactCan('itdoc');
 
 $certificates_sql = mysqli_query($mysqli, "SELECT certificate_id, certificate_name, certificate_domain, certificate_issued_by, certificate_expire FROM certificates WHERE certificate_client_id = $session_client_id AND certificate_archived_at IS NULL ORDER BY certificate_expire ASC");
 ?>

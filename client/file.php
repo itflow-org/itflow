@@ -17,7 +17,7 @@ require_once 'functions.php';
 
 // Documents section is for primary / technical contacts only -
 // same gate as client/document.php
-if ($session_contact_primary == 0 && !$session_contact_is_technical_contact) {
+if (!contactCan('itdoc')) {
     http_response_code(404);
     exit("File not found");
 }

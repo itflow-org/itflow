@@ -7,8 +7,7 @@
 /*
  * Verifies a contact has access to a particular ticket ID, and that the ticket is in the correct state (open/closed) to perform an action
  */
-function verifyContactTicketAccess($requested_ticket_id, $expected_ticket_state)
-{
+function verifyContactTicketAccess($requested_ticket_id, $expected_ticket_state) {
 
     // Access the global variables
     global $mysqli, $session_contact_id, $session_contact_primary, $session_contact_is_technical_contact, $session_client_id;
@@ -36,6 +35,41 @@ function verifyContactTicketAccess($requested_ticket_id, $expected_ticket_state)
     // Client is NOT ticket owner or primary/tech contact
     return false;
 
+}
+
+/*
+ * Portal access control - single source of truth for what a logged-in contact can do.
+ * Primary contacts have full access; others are gated by their billing / technical flags.
+ * Capabilities are named by area so the rule for one can change without touching callers.
+ */
+function contactCan($capability) {
+    global $session_contact_primary, $session_contact_is_billing_contact, $session_contact_is_technical_contact;
+
+    // Primary contacts can do everything in the portal
+    if ($session_contact_primary == 1) {
+        return true;
+    }
+
+    switch ($capability) {
+        case 'accounting':   // invoices, quotes, recurring invoices, saved payment methods
+            return (bool) $session_contact_is_billing_contact;
+
+        case 'itdoc':        // assets, certificates, domains, documents, files
+        case 'contacts':     // view / manage contacts
+            return (bool) $session_contact_is_technical_contact;
+
+        default:             // unknown capability -> deny (fail closed)
+            return false;
+    }
+}
+
+/*
+ * Enforce a capability at the top of a page or handler - bounce the contact out if they lack it.
+ */
+function enforceContactCan($capability) {
+    if (!contactCan($capability)) {
+        redirect("post.php?logout");
+    }
 }
 
 /*

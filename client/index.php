@@ -175,7 +175,7 @@ $sql_assigned_assets = mysqli_query(
 </div>
 <?php
 // Billing Cards
-if ($session_contact_primary == 1 || $session_contact_is_billing_contact) { ?>
+if (contactCan('accounting')) { ?>
 
 <div class="row">
 
@@ -211,7 +211,7 @@ if ($session_contact_primary == 1 || $session_contact_is_billing_contact) { ?>
 
 <?php
 // Technical Cards
-if ($session_contact_primary == 1 || $session_contact_is_technical_contact) {
+if (contactCan('itdoc')) {
 ?>
 
 <div class="row">

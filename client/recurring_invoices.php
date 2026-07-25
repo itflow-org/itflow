@@ -9,10 +9,7 @@
 require_once "includes/inc_all.php";
 
 
-if ($session_contact_primary == 0 && !$session_contact_is_billing_contact) {
-    header("Location: post.php?logout");
-    exit();
-}
+enforceContactCan('accounting');
 
 $recurring_invoices_sql = mysqli_query($mysqli, "SELECT * FROM recurring_invoices
     LEFT JOIN recurring_payments ON recurring_payment_recurring_invoice_id = recurring_invoice_id
