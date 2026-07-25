@@ -18,16 +18,22 @@ $user_config_force_mfa = intval($row['user_config_force_mfa']);
 $user_role_id = intval($row['user_role_id']);
 $user_initials = escapeHtml(initials($user_name));
 
-// Get User Client Access Permissions
-$user_client_access_sql = mysqli_query($mysqli,"SELECT client_id FROM user_client_permissions WHERE user_id = $user_id");
-$client_access_array = [];
+// Get User Client Access Permissions (allow + deny)
+$user_client_access_sql = mysqli_query($mysqli,"SELECT client_id, permission_type FROM user_client_permissions WHERE user_id = $user_id");
+$client_allow_array = []; // allow
+$client_deny_array = [];   // deny
 while ($row = mysqli_fetch_assoc($user_client_access_sql)) {
-    $client_access_array[] = intval($row['client_id']);
+    if ($row['permission_type'] === 'deny') {
+        $client_deny_array[] = intval($row['client_id']);
+    } else {
+        $client_allow_array[] = intval($row['client_id']);
+    }
 }
 
-// Generate the HTML form content using output buffering.
 ob_start();
+
 ?>
+
 <div class="modal-header bg-dark">
     <h5 class="modal-title"><i class="fas fa-fw fa-user-edit mr-2"></i>Editing user:
         <strong><?php echo $user_name; ?></strong></h5>
@@ -161,37 +167,55 @@ ob_start();
             <div class="tab-pane fade" id="pills-user-access<?php echo $user_id; ?>">
 
                 <div class="alert alert-info">
-                    Check boxes to authorize user client access. No boxes grant full client access. Admin users are unaffected.
+                    <strong>Allow</strong> restricts the user to the selected clients (no Allow = full access). <strong>Deny</strong> blocks a client regardless of Allow. Admin users are unaffected.
                 </div>
 
-                <ul class="list-group">
-                    <li class="list-group-item bg-dark">
-                        <div class="form-check">
-                            <input type="checkbox" class="form-check-input" onclick="this.closest('.tab-pane').querySelectorAll('.client-checkbox').forEach(checkbox => checkbox.checked = this.checked);">
-                            <label class="form-check-label ml-3"><strong>Restrict Access to Clients</strong></label>
-                        </div>
-                    </li>
+                <div class="mb-2">
+                    <small class="text-muted mr-2">Set all:</small>
+                    <button type="button" class="btn btn-sm btn-outline-secondary" onclick="document.querySelectorAll('#accessTable<?php echo $user_id; ?> .perm-none').forEach(r => r.checked = true);">No Rule</button>
+                    <button type="button" class="btn btn-sm btn-outline-success" onclick="document.querySelectorAll('#accessTable<?php echo $user_id; ?> .perm-allow').forEach(r => r.checked = true);">Allow</button>
+                    <button type="button" class="btn btn-sm btn-outline-danger" onclick="document.querySelectorAll('#accessTable<?php echo $user_id; ?> .perm-deny').forEach(r => r.checked = true);">Deny</button>
+                </div>
 
-                    <?php
+                <div class="table-responsive">
+                    <table class="table table-sm table-hover mb-0" id="accessTable<?php echo $user_id; ?>">
+                        <thead>
+                            <tr>
+                                <th>Client</th>
+                                <th class="text-center" style="width: 90px;">No Rule</th>
+                                <th class="text-center text-success" style="width: 90px;">Allow</th>
+                                <th class="text-center text-danger" style="width: 90px;">Deny</th>
+                            </tr>
+                        </thead>
+                        <tbody>
 
-                    $sql_client_select = mysqli_query($mysqli, "SELECT * FROM clients WHERE client_archived_at IS NULL ORDER BY client_name ASC");
-                    while ($row = mysqli_fetch_assoc($sql_client_select)) {
-                        $client_id_select = intval($row['client_id']);
-                        $client_name_select = escapeHtml($row['client_name']);
+                        <?php
+                        $sql_client_select = mysqli_query($mysqli, "SELECT * FROM clients WHERE client_archived_at IS NULL ORDER BY client_name ASC");
+                        while ($row = mysqli_fetch_assoc($sql_client_select)) {
+                            $client_id_select = intval($row['client_id']);
+                            $client_name_select = escapeHtml($row['client_name']);
+                            $client_is_allow = in_array($client_id_select, $client_allow_array);
+                            $client_is_deny = in_array($client_id_select, $client_deny_array);
+                        ?>
 
-                    ?>
+                            <tr>
+                                <td class="align-middle"><?php echo $client_name_select; ?></td>
+                                <td class="text-center align-middle">
+                                    <input type="radio" class="perm-none" name="client_permission[<?php echo $client_id_select; ?>]" value="" <?php if (!$client_is_allow && !$client_is_deny) { echo "checked"; } ?>>
+                                </td>
+                                <td class="text-center align-middle">
+                                    <input type="radio" class="perm-allow" name="client_permission[<?php echo $client_id_select; ?>]" value="allow" <?php if ($client_is_allow) { echo "checked"; } ?>>
+                                </td>
+                                <td class="text-center align-middle">
+                                    <input type="radio" class="perm-deny" name="client_permission[<?php echo $client_id_select; ?>]" value="deny" <?php if ($client_is_deny) { echo "checked"; } ?>>
+                                </td>
+                            </tr>
 
-                    <li class="list-group-item">
-                        <div class="form-check">
-                            <input type="checkbox" class="form-check-input client-checkbox" name="clients[]" value="<?php echo $client_id_select; ?>" <?php if (in_array($client_id_select, $client_access_array)) { echo "checked"; } ?>>
-                            <label class="form-check-label ml-2"><?php echo $client_name_select; ?></label>
-                        </div>
-                    </li>
+                        <?php } ?>
 
-                    <?php } ?>
-
-                </ul>
-
+                        </tbody>
+                    </table>
+                </div>
             </div>
 
         </div>

@@ -2785,6 +2785,7 @@ DROP TABLE IF EXISTS `user_client_permissions`;
 CREATE TABLE `user_client_permissions` (
   `user_id` int(11) NOT NULL,
   `client_id` int(11) NOT NULL,
+  `permission_type` enum('allow','deny') NOT NULL DEFAULT 'allow',
   PRIMARY KEY (`user_id`,`client_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -2995,4 +2996,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2026-07-22 17:36:39
+-- Dump completed on 2026-07-25 13:20:49

@@ -19,11 +19,13 @@ if (isset($_POST['add_user'])) {
 
     $user_id = mysqli_insert_id($mysqli);
 
-    // Add Client Access Permissions if set
-    if (isset($_POST['clients'])) {
-        foreach($_POST['clients'] as $client_id) {
-            $client_id = intval($client_id);
-            mysqli_query($mysqli,"INSERT INTO user_client_permissions SET user_id = $user_id, client_id = $client_id");
+    // Add Client Access (allow / deny per client)
+    if (isset($_POST['client_permission'])) {
+        foreach ($_POST['client_permission'] as $perm_client_id => $perm_type) {
+            $perm_client_id = intval($perm_client_id);
+            if ($perm_type === 'allow' || $perm_type === 'deny') {
+                mysqli_query($mysqli, "INSERT INTO user_client_permissions SET user_id = $user_id, client_id = $perm_client_id, permission_type = '$perm_type'");
+            }
         }
     }
 
@@ -107,12 +109,14 @@ if (isset($_POST['edit_user'])) {
     $user_id = intval($_POST['user_id']);
     $new_password = trim($_POST['new_password']);
 
-    // Update Client Access
+    // Update Client Access (allow / deny per client)
     mysqli_query($mysqli,"DELETE FROM user_client_permissions WHERE user_id = $user_id");
-    if (isset($_POST['clients'])) {
-        foreach($_POST['clients'] as $client_id) {
-            $client_id = intval($client_id);
-            mysqli_query($mysqli,"INSERT INTO user_client_permissions SET user_id = $user_id, client_id = $client_id");
+    if (isset($_POST['client_permission'])) {
+        foreach ($_POST['client_permission'] as $perm_client_id => $perm_type) {
+            $perm_client_id = intval($perm_client_id);
+            if ($perm_type === 'allow' || $perm_type === 'deny') {
+                mysqli_query($mysqli, "INSERT INTO user_client_permissions SET user_id = $user_id, client_id = $perm_client_id, permission_type = '$perm_type'");
+            }
         }
     }
 

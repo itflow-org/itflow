@@ -115,35 +115,53 @@ ob_start();
             <div class="tab-pane fade" id="pills-user-access">
 
                 <div class="alert alert-info">
-                    Check boxes to authorize user client access. No boxes grant full client access. Admin users are unaffected.
+                    <strong>Allow</strong> restricts the user to the selected clients (no Allow = full access). <strong>Deny</strong> blocks a client regardless of Allow. Admin users are unaffected.
                 </div>
 
-                <ul class="list-group">
-                    <li class="list-group-item bg-dark">
-                        <div class="form-check">
-                            <input type="checkbox" class="form-check-input" onclick="this.closest('.tab-pane').querySelectorAll('.client-checkbox').forEach(checkbox => checkbox.checked = this.checked);">
-                            <label class="form-check-label ml-3"><strong>Restrict Access to Clients</strong></label>
-                        </div>
-                    </li>
+                <div class="mb-2">
+                    <small class="text-muted mr-2">Set all:</small>
+                    <button type="button" class="btn btn-sm btn-outline-secondary" onclick="document.querySelectorAll('#accessTable .perm-none').forEach(r => r.checked = true);">No Rule</button>
+                    <button type="button" class="btn btn-sm btn-outline-success" onclick="document.querySelectorAll('#accessTable .perm-allow').forEach(r => r.checked = true);">Allow</button>
+                    <button type="button" class="btn btn-sm btn-outline-danger" onclick="document.querySelectorAll('#accessTable .perm-deny').forEach(r => r.checked = true);">Deny</button>
+                </div>
 
-                    <?php
+                <div class="table-responsive">
+                    <table class="table table-sm table-hover mb-0" id="accessTable">
+                        <thead>
+                            <tr>
+                                <th>Client</th>
+                                <th class="text-center" style="width: 90px;">No Rule</th>
+                                <th class="text-center text-success" style="width: 90px;">Allow</th>
+                                <th class="text-center text-danger" style="width: 90px;">Deny</th>
+                            </tr>
+                        </thead>
+                        <tbody>
 
-                    $sql_client_select = mysqli_query($mysqli, "SELECT * FROM clients WHERE client_archived_at IS NULL ORDER BY client_name ASC");
-                    while ($row = mysqli_fetch_assoc($sql_client_select)) {
-                        $client_id = intval($row['client_id']);
-                        $client_name = escapeHtml($row['client_name']);
+                        <?php
+                        $sql_client_select = mysqli_query($mysqli, "SELECT * FROM clients WHERE client_archived_at IS NULL ORDER BY client_name ASC");
+                        while ($row = mysqli_fetch_assoc($sql_client_select)) {
+                            $client_id = intval($row['client_id']);
+                            $client_name = escapeHtml($row['client_name']);
+                        ?>
 
-                    ?>
-                    <li class="list-group-item">
-                        <div class="form-check">
-                            <input type="checkbox" class="form-check-input client-checkbox" name="clients[]" value="<?php echo $client_id; ?>">
-                            <label class="form-check-label ml-3"><?php echo $client_name; ?></label>
-                        </div>
-                    </li>
+                            <tr>
+                                <td class="align-middle"><?php echo $client_name; ?></td>
+                                <td class="text-center align-middle">
+                                    <input type="radio" class="perm-none" name="client_permission[<?php echo $client_id; ?>]" value="" checked>
+                                </td>
+                                <td class="text-center align-middle">
+                                    <input type="radio" class="perm-allow" name="client_permission[<?php echo $client_id; ?>]" value="allow">
+                                </td>
+                                <td class="text-center align-middle">
+                                    <input type="radio" class="perm-deny" name="client_permission[<?php echo $client_id; ?>]" value="deny">
+                                </td>
+                            </tr>
 
-                    <?php } ?>
+                        <?php } ?>
 
-                </ul>
+                        </tbody>
+                    </table>
+                </div>
 
             </div>
 

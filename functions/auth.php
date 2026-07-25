@@ -82,10 +82,25 @@ function enforceClientAccess($client_id = null) {
         redirect('clients.php');
     }
 
+    // Deny list wins: an explicit deny blocks access regardless of any allow rule
+    $deny_sql = "SELECT client_id
+                 FROM user_client_permissions
+                 WHERE user_id = $session_user_id
+                 AND client_id = $client_id
+                 AND permission_type = 'deny'
+                 LIMIT 1";
+    $deny_result = mysqli_query($mysqli, $deny_sql);
+    if ($deny_result && mysqli_num_rows($deny_result) > 0) {
+        logAudit('Client', 'Access', "$session_name was denied permission from accessing client", $client_id, $client_id);
+        flashAlert('Access Denied - You do not have permission to access that client!', 'error');
+        redirect('clients.php');
+    }
+
     // Check if this user has any client permissions set
     $permissions_sql = "SELECT client_id
                         FROM user_client_permissions
                         WHERE user_id = $session_user_id
+                        AND permission_type = 'allow'
                         LIMIT 1";
 
     $permissions_result = mysqli_query($mysqli, $permissions_sql);
@@ -100,6 +115,7 @@ function enforceClientAccess($client_id = null) {
                    FROM user_client_permissions
                    WHERE user_id = $session_user_id
                    AND client_id = $client_id
+                   AND permission_type = 'allow'
                    LIMIT 1";
 
     $access_result = mysqli_query($mysqli, $access_sql);
