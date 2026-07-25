@@ -8,8 +8,10 @@ require_once '../require_get_method.php';
 $sql = false;
 
 $api_key_decrypt_password = '';
-if (isset($_GET['api_key_decrypt_password'])) {
-    $api_key_decrypt_password = $_GET['api_key_decrypt_password']; // No sanitization
+if (isset($_POST['api_key_decrypt_password'])) {
+    // Read from the request body (parsed by validate_api_key.php), NOT the query string,
+    // so this decryption secret never lands in web-server access logs or browser history.
+    $api_key_decrypt_password = $_POST['api_key_decrypt_password'];
 }
 
 // Specific credential/login via ID (single)

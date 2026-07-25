@@ -6,6 +6,7 @@ $key = randomString(32);
 $decryptPW = randomString(32);
 
 ob_start();
+
 ?>
 
 <div class="modal-header bg-dark">
