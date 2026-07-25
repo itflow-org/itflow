@@ -33,7 +33,7 @@ if (isset($_GET['item_id'])) {
          FROM invoice_items ii
          INNER JOIN invoices i ON i.invoice_id = ii.item_invoice_id
          WHERE ii.item_id = '$item_id'
-           AND i.invoice_client_id LIKE '$client_id'
+           AND i.1=1 " . apiClientScopeSql('invoice_client_id') . "
          LIMIT 1"
     );
 } elseif (isset($_GET['invoice_id'])) {
@@ -44,7 +44,7 @@ if (isset($_GET['item_id'])) {
          FROM invoice_items ii
          INNER JOIN invoices i ON i.invoice_id = ii.item_invoice_id
          WHERE ii.item_invoice_id = '$invoice_id'
-           AND i.invoice_client_id LIKE '$client_id'
+           AND i.1=1 " . apiClientScopeSql('invoice_client_id') . "
          ORDER BY ii.item_order ASC, ii.item_id ASC
          LIMIT $limit OFFSET $offset"
     );

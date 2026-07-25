@@ -62,7 +62,7 @@ $sql = mysqli_query(
     WHERE tr.ticket_reply_time_worked IS NOT NULL
         AND tr.ticket_reply_time_worked != '00:00:00'
         AND $date_conditions
-        AND t.ticket_client_id LIKE '$client_id'
+        AND t.1=1 " . apiClientScopeSql('ticket_client_id') . "
         $technician_condition
     GROUP BY t.ticket_id, u.user_id
     ORDER BY c.client_name ASC, t.ticket_number ASC, u.user_name ASC

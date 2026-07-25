@@ -12,7 +12,7 @@ if (isset($_GET['quote_id'])) {
 
 } else {
     // All quotes (by client ID if given, or all in general if key permits)
-    $sql = mysqli_query($mysqli, "SELECT * FROM quotes WHERE quote_client_id LIKE '$client_id' ORDER BY quote_id LIMIT $limit OFFSET $offset");
+    $sql = mysqli_query($mysqli, "SELECT * FROM quotes WHERE 1=1 " . apiClientScopeSql('quote_client_id') . " ORDER BY quote_id LIMIT $limit OFFSET $offset");
 }
 
 // Output

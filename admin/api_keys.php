@@ -9,7 +9,7 @@ require_once "includes/inc_all_admin.php";
 $sql = mysqli_query(
     $mysqli,
     "SELECT SQL_CALC_FOUND_ROWS * FROM api_keys
-    LEFT JOIN clients on api_keys.api_key_client_id = clients.client_id
+    LEFT JOIN users on api_keys.api_key_user_id = users.user_id
     WHERE (api_key_name LIKE '%$q%')
     ORDER BY $sort $order LIMIT $record_from, $record_to"
 );
@@ -80,8 +80,8 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             </a>
                         </th>
                         <th>
-                            <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=api_key_client_id&order=<?php echo $disp; ?>">
-                                Client <?php if ($sort == 'api_key_client_id') { echo $order_icon; } ?>
+                            <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=api_key_user_id&order=<?php echo $disp; ?>">
+                                User <?php if ($sort == 'api_key_user_id') { echo $order_icon; } ?>
                             </a>
                         </th>
                         <th>
@@ -115,11 +115,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             $api_key_expire = $api_key_expire . " (Expired)";
                         }
 
-                        if ($row['api_key_client_id'] == 0) {
-                            $api_key_client = "<i>All Clients</i>";
-                        } else {
-                            $api_key_client = escapeHtml($row['client_name']);
-                        }
+                        $api_key_user = !empty($row['user_name']) ? escapeHtml($row['user_name']) : "<i>None</i>";
 
                         ?>
                         <tr>
@@ -129,7 +125,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 </div>
                             </td>
                             <td class="text-bold"><?php echo $api_key_name; ?></td>
-                            <td><?php echo $api_key_client; ?></td>
+                            <td><?php echo $api_key_user; ?></td>
                             <td><?php echo $api_key_secret; ?></td>
                             <td><?php echo $api_key_created_at; ?></td>
                             <td><?php echo $api_key_expire; ?></td>
@@ -139,6 +135,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                         <i class="fas fa-ellipsis-h"></i>
                                     </button>
                                     <div class="dropdown-menu">
+                                        <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/api/api_key_edit.php?id=<?php echo $api_key_id; ?>">
+                                            <i class="fas fa-fw fa-edit mr-2"></i>Edit
+                                        </a>
                                         <?php if ($api_key_expire > date("Y-m-d H:i:s")) { ?>
                                             <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?revoke_api_key=<?php echo $api_key_id; ?>&csrf_token=<?php echo $_SESSION['csrf_token'] ?>">
                                                 <i class="fas fa-fw fa-times mr-2"></i>Revoke

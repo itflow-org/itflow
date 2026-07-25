@@ -94,7 +94,7 @@ if (isset($api_key)) {
         $row = mysqli_fetch_assoc($sql);
         $api_key_name = htmlentities($row['api_key_name']);
         $api_key_decrypt_hash = $row['api_key_decrypt_hash']; // No sanitization
-        $client_id = intval($row['api_key_client_id']);
+        $api_key_user_id = intval($row['api_key_user_id']);
 
         // Set limit & offset for queries
         if (isset($_GET['limit'])) {
@@ -112,6 +112,9 @@ if (isset($api_key)) {
         } else {
             $offset = 0;
         }
+
+        // When the key is tied to a user, enforce that user's RBAC (module + operation + client scope)
+        require __DIR__ . '/enforce_api_rbac.php';
 
     }
 }

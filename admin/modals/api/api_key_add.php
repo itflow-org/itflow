@@ -55,22 +55,23 @@ ob_start();
                 </div>
 
                 <div class="form-group">
-                    <label>Client Access <strong class="text-danger">*</strong></label>
+                    <label>Run as User <strong class="text-danger">*</strong></label>
                     <div class="input-group">
                         <div class="input-group-prepend">
-                            <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
+                            <span class="input-group-text"><i class="fa fa-fw fa-user-shield"></i></span>
                         </div>
-                        <select class="form-control select2" name="client" required>
-                            <option value="0"> ALL CLIENTS </option>
+                        <select class="form-control select2" name="run_as_user" required>
+                            <option value="">- Select a user -</option>
                             <?php
-                            $sql = mysqli_query($mysqli, "SELECT client_id, client_name FROM clients WHERE client_archived_at IS NULL ORDER BY client_name ASC");
-                            while ($row = mysqli_fetch_assoc($sql)) {
-                                $client_id = intval($row['client_id']);
-                                $client_name = escapeHtml($row['client_name']); ?>
-                                <option value="<?php echo $client_id; ?>"><?php echo "$client_name  (Client ID: $client_id)"; ?></option>
+                            $sql_run_users = mysqli_query($mysqli, "SELECT user_id, user_name FROM users WHERE user_type = 1 AND user_status = 1 AND user_archived_at IS NULL ORDER BY user_name ASC");
+                            while ($run_user = mysqli_fetch_assoc($sql_run_users)) {
+                                $run_user_id = intval($run_user['user_id']);
+                                $run_user_name = escapeHtml($run_user['user_name']); ?>
+                                <option value="<?php echo $run_user_id; ?>"><?php echo $run_user_name; ?></option>
                             <?php } ?>
                         </select>
                     </div>
+                    <small class="form-text text-muted">The key inherits this user's module permissions and client access.</small>
                 </div>
             </div>
 

@@ -394,7 +394,6 @@ if (isset($_GET['delete_client'])) {
 
     // Delete Associations
     // Delete Client Data
-    mysqli_query($mysqli, "DELETE FROM api_keys WHERE api_key_client_id = $client_id");
     mysqli_query($mysqli, "DELETE FROM certificates WHERE certificate_client_id = $client_id");
     mysqli_query($mysqli, "DELETE FROM documents WHERE document_client_id = $client_id");
 
