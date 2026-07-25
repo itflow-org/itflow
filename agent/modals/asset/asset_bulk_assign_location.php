@@ -3,6 +3,8 @@
 require_once '../../../includes/modal_header.php';
 
 $client_id = intval($_GET['client_id']);
+
+enforceClientAccess();
 $asset_ids = array_map('intval', $_GET['asset_ids'] ?? []);
 
 $count = count($asset_ids);

@@ -3,6 +3,8 @@
 require_once '../../../includes/modal_header.php';
 
 $client_id = intval($_GET['client_id'] ?? 0);
+
+enforceClientAccess();
 $contact_id = intval($_GET['contact_id'] ?? 0);
 $asset_id = intval($_GET['asset_id'] ?? 0);
 intval($_GET['folder_id'] ?? 0);

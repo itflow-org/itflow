@@ -3,6 +3,8 @@
 require_once '../../../includes/modal_header.php';
 
 $client_id = intval($_GET['client_id']);
+
+enforceClientAccess();
 $contact_ids = array_map('intval', $_GET['contact_ids'] ?? []);
 
 $count = count($contact_ids);
