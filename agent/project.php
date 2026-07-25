@@ -21,8 +21,11 @@ if (isset($_GET['client_id'])) {
 enforceUserPermission('module_support');
 $project_permission_snippet = '';
 
-if (!empty($client_access_string)) {
-    $project_permission_snippet = "AND project_client_id IN ($client_access_string) OR project_client_id = 0";
+if ($client_access_string) {
+    $project_permission_snippet .= " AND (project_client_id IN ($client_access_string) OR project_client_id = 0)";
+}
+if ($client_deny_string) {
+    $project_permission_snippet .= " AND project_client_id NOT IN ($client_deny_string)";
 }
 
 if (isset($_GET['project_id'])) {

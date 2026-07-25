@@ -7,7 +7,10 @@ enforceUserPermission('module_support', 2);
 // Ticket client access overide - This is the only way to show tickets without a client to agents with restricted client access
 $access_permission_query_overide = '';
 if ($client_access_string) {
-    $access_permission_query_overide = "AND ticket_client_id IN (0,$client_access_string)";
+    $access_permission_query_overide .= " AND ticket_client_id IN (0,$client_access_string)";
+}
+if ($client_deny_string) {
+    $access_permission_query_overide .= " AND ticket_client_id NOT IN ($client_deny_string)";
 }
 
 $ticket_id = intval($_GET['id']);
