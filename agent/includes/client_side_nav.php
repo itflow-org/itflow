@@ -304,13 +304,13 @@
 
                     <?php if (lookupUserPermission("module_financial") >= 1) { ?>
                         <li class="nav-item">
-                            <a href="/agent/payments.php?client_id=<?php echo $client_id; ?>" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "payments.php") { echo "active"; } ?>">
-                                <i class="nav-icon fas fa-credit-card"></i>
+                            <a href="/agent/income.php?client_id=<?php echo $client_id; ?>" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "income.php") { echo "active"; } ?>">
+                                <i class="nav-icon fas fa-hand-holding-usd"></i>
                                 <p>
-                                    Payments
+                                    Income
                                     <?php
-                                    if ($num_payments > 0) { ?>
-                                        <span class="right badge text-light"><?php echo $num_payments; ?></span>
+                                    if ($num_income > 0) { ?>
+                                        <span class="right badge text-light"><?php echo $num_income; ?></span>
                                     <?php } ?>
                                 </p>
                             </a>

@@ -201,8 +201,11 @@ if (isset($_GET['client_id'])) {
         $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('recurring_invoice_id') AS num FROM recurring_invoices WHERE recurring_invoice_archived_at IS NULL AND recurring_invoice_client_id = $client_id"));
         $num_recurring_invoices = $row['num'];
 
-        $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('payment_id') AS num FROM payments, invoices WHERE payment_invoice_id = invoice_id AND invoice_client_id = $client_id"));
-        $num_payments = $row['num'];
+        $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT
+            (SELECT COUNT(payment_id) FROM payments, invoices WHERE payment_invoice_id = invoice_id AND payment_archived_at IS NULL AND invoice_client_id = $client_id)
+            + (SELECT COUNT(revenue_id) FROM revenues LEFT JOIN transfers ON transfer_revenue_id = revenue_id WHERE transfer_id IS NULL AND revenue_archived_at IS NULL AND revenue_client_id = $client_id)
+            AS num"));
+        $num_income = $row['num'];
 
         $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('file_id') AS num FROM files WHERE file_archived_at IS NULL AND file_client_id = $client_id"));
         $num_files = $row['num'];

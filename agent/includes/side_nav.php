@@ -139,15 +139,9 @@
                     <li class="nav-header mt-3">FINANCE</li>
                     <?php if (lookupUserPermission("module_financial") >= 1) { ?>
                         <li class="nav-item">
-                            <a href="/agent/payments.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "payments.php") { echo "active"; } ?>">
-                                <i class="nav-icon fas fa-credit-card"></i>
-                                <p>Payments</p>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="/agent/revenues.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "revenues.php") { echo "active"; } ?>">
+                            <a href="/agent/income.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "income.php") { echo "active"; } ?>">
                                 <i class="nav-icon fas fa-hand-holding-usd"></i>
-                                <p>Revenues</p>
+                                <p>Income</p>
                             </a>
                         </li>
                         <li class="nav-item">

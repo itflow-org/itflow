@@ -179,7 +179,7 @@ if ($user_config_dashboard_financial_enable == 1) {
     <div class="row">
         <div class="col-lg-4 col-md-6 col-sm-12">
             <!-- small box -->
-            <a class="small-box bg-primary" href="payments.php?dtf=<?php echo $year; ?>-01-01&dtt=<?php echo $year; ?>-12-31">
+            <a class="small-box bg-primary" href="income.php?dtf=<?php echo $year; ?>-01-01&dtt=<?php echo $year; ?>-12-31">
                 <div class="inner">
                     <h3><?php echo numfmt_format_currency($currency_format, $total_income, "$session_company_currency"); ?></h3>
                     <p>Income</p>
