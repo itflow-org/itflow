@@ -24,7 +24,7 @@ ob_start();
                     <div class="input-group-prepend">
                         <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
                     </div>
-                    <input type="date" class="form-control" name="date" max="2999-12-31" required>
+                    <input type="date" class="form-control" name="date" max="2999-12-31" value="<?= date("Y-m-d"); ?>" required>
                 </div>
             </div>
 
@@ -47,7 +47,7 @@ ob_start();
                         <span class="input-group-text"><i class="fa fa-fw fa-piggy-bank"></i></span>
                     </div>
                     <select class="form-control select2" name="account" required>
-                        <option value="">- Account -</option>
+                        <option value="">- Select an Account -</option>
                         <?php
 
                         $sql = mysqli_query($mysqli, "SELECT account_id, account_name, opening_balance FROM accounts WHERE account_archived_at IS NULL ORDER BY account_name ASC");
@@ -87,7 +87,7 @@ ob_start();
                         <span class="input-group-text"><i class="fa fa-fw fa-building"></i></span>
                     </div>
                     <select class="form-control select2" name="vendor" required>
-                        <option value="">- Vendor -</option>
+                        <option value="">- Select a Vendor -</option>
                         <?php
 
                         $sql = mysqli_query($mysqli, "SELECT vendor_id, vendor_name FROM vendors WHERE vendor_client_id = 0 AND vendor_archived_at IS NULL ORDER BY vendor_name ASC");
@@ -132,7 +132,7 @@ ob_start();
                         <span class="input-group-text"><i class="fa fa-fw fa-list"></i></span>
                     </div>
                     <select class="form-control select2" name="category" required>
-                        <option value="">- Category -</option>
+                        <option value="">- Select a Category -</option>
                         <?php
 
                         $sql = mysqli_query($mysqli, "SELECT category_id, category_name FROM categories WHERE category_type = 'Expense' AND category_archived_at IS NULL ORDER BY category_name ASC");
@@ -166,7 +166,7 @@ ob_start();
                             <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
                         </div>
                         <select class="form-control select2" name="client_id" required>
-                            <option value="0">- Client (Optional) -</option>
+                            <option value="0">- Select a Client (Optional) -</option>
                             <?php
 
                             $sql = mysqli_query($mysqli, "SELECT client_id, client_name FROM clients WHERE client_archived_at IS NULL $access_permission_query ORDER BY client_name ASC");
