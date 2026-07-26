@@ -4,7 +4,7 @@ require_once "../config.php";
 require_once "../functions.php";
 require_once "../includes/check_login.php";
 
-$settings_mail_path = '/admin/settings_mail.php';
+$settings_mail_path = '/admin/settings_mail.php?tab=oauth';
 
 if (!isset($session_is_admin) || !$session_is_admin) {
     flashAlert("Admin access required.", 'error');
