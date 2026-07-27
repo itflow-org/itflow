@@ -326,7 +326,12 @@ if (mysqli_num_rows($sql_queue) > 0) {
             continue;
         }
 
-        mysqli_query($mysqli, "UPDATE email_queue SET email_status = 1 WHERE email_id = $email_id");
+        // Claim the row - the conditional UPDATE is the lock. If another run already took
+        // this email, skip it rather than sending the client a second copy.
+        mysqli_query($mysqli, "UPDATE email_queue SET email_status = 1 WHERE email_id = $email_id AND email_status = 0");
+        if (mysqli_affected_rows($mysqli) !== 1) {
+            continue;
+        }
 
         // Basic recipient syntax check
         if (!filter_var($email_recipient, FILTER_VALIDATE_EMAIL)) {
@@ -412,7 +417,11 @@ if (mysqli_num_rows($sql_failed_queue) > 0) {
         $email_ics_str        = $rowf['email_cal_str'];
         $email_attempts       = (int)$rowf['email_attempts'] + 1;
 
-        mysqli_query($mysqli, "UPDATE email_queue SET email_status = 1 WHERE email_id = $email_id");
+        // Claim the row - same lock as the send path, from the failed state this time.
+        mysqli_query($mysqli, "UPDATE email_queue SET email_status = 1 WHERE email_id = $email_id AND email_status = 2");
+        if (mysqli_affected_rows($mysqli) !== 1) {
+            continue;
+        }
 
         if (!filter_var($email_recipient, FILTER_VALIDATE_EMAIL)) {
             mysqli_query($mysqli, "UPDATE email_queue SET email_status = 2, email_attempts = $email_attempts WHERE email_id = $email_id");
