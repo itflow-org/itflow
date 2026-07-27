@@ -215,7 +215,7 @@ if (isset($_POST['enable_mfa'])) {
     $token = $_SESSION['mfa_token'] ?? '';
 
     // Verify
-    if (TokenAuth6238::verify($token, $verify_code)) {
+    if (TokenAuth6238::verify($token, $verify_code, 1)) {
 
         // SUCCESS
         mysqli_query($mysqli,"UPDATE users SET user_token = '$token' WHERE user_id = $session_user_id");

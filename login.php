@@ -52,7 +52,7 @@ $row = mysqli_fetch_assoc(mysqli_query(
      FROM logs
      WHERE log_ip = '$session_ip'
        AND log_type = 'Login'
-       AND log_action = 'Failed'
+       AND log_action IN ('Failed', 'MFA Failed')
        AND log_created_at > (NOW() - INTERVAL 10 MINUTE)"
 ));
 $failed_login_count = intval($row['failed_login_count']);
@@ -337,6 +337,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['login']) || isset($_
                         $current_code = intval($_POST['current_code']);
                     }
 
+                    // Per-account limit on second factor attempts. The IP lockout at the
+                    // top of this file can be spread across hosts, and anything reaching
+                    // this point has already cleared the password, so the second factor
+                    // needs a limit tied to the account rather than the source address.
+                    // Only a request that passed the password check can add to this
+                    // counter, so it cannot be used to lock another user out.
+                    $mfa_locked = false;
+                    if (!empty($current_code)) {
+                        $row_mfa = mysqli_fetch_assoc(mysqli_query(
+                            $mysqli,
+                            "SELECT COUNT(log_id) AS failed_mfa_count
+                             FROM logs
+                             WHERE log_user_id = $user_id
+                               AND log_type = 'Login'
+                               AND log_action = 'MFA Failed'
+                               AND log_created_at > (NOW() - INTERVAL 10 MINUTE)"
+                        ));
+                        $mfa_locked = intval($row_mfa['failed_mfa_count']) >= 5;
+                    }
+
                     $mfa_is_complete = false;
                     $extended_log    = '';
 
@@ -362,7 +382,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['login']) || isset($_
                     }
 
                     // Validate MFA code
-                    if (!empty($current_code) && TokenAuth6238::verify($token, $current_code)) {
+                    if (!$mfa_locked && !empty($current_code) && TokenAuth6238::verify($token, $current_code, 1)) {
                         $mfa_is_complete = true;
                         $extended_log    = 'with MFA';
                     }
@@ -494,7 +514,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['login']) || isset($_
                             'agent_user_id'    => $user_id,
                             'agent_master_key' => $agent_master_key, // may be null
                             'token'            => $pending_mfa_token,
-                            'created'          => time()
+                            // Keep the original issue time on a retry so the pending
+                            // window actually expires, instead of being pushed forward
+                            // by every wrong code.
+                            'created'          => ($is_mfa_step && !empty($pending_mfa['created']))
+                                                    ? intval($pending_mfa['created'])
+                                                    : time()
                         ];
 
                         // Now that we've transferred what we need, it's safe to clear the dual-role pending session.
@@ -512,7 +537,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['login']) || isset($_
                                 </div>
                             </div>";
 
-                        if ($current_code !== 0) {
+                        if ($mfa_locked) {
+
+                            // No log row and no email while locked out. Both are
+                            // per-request writes the attacker controls, and logging here
+                            // would keep pushing the 10 minute window forward so the
+                            // lockout could never clear. The MFA Failed rows that
+                            // triggered it are already the audit trail.
+                            header("HTTP/1.1 429 Too Many Requests");
+
+                            $response = "
+                                  <div class='alert alert-danger'>
+                                    Too many incorrect 2FA codes. Please wait 10 minutes and sign in again.
+                                  </div>";
+
+                        } elseif ($current_code !== 0) {
 
                             // Option B: set session_user_id BEFORE logAudit()
                             $session_user_id = $user_id;
