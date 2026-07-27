@@ -8,18 +8,9 @@ if (php_sapi_name() !== 'cli') {
     die("This script must be run from the command line.\n");
 }
 
-// Only one run at a time. Autopay charges cards, so an overlapping run (the previous
-// run still going when the next one fires) could bill the same invoice twice. The lock
-// file is named per install so separate ITFlow instances on one host don't block each
-// other, and the handle is held for the life of the process, released when it exits.
-$cron_lock_file = sys_get_temp_dir() . '/itflow_cron_' . md5(__DIR__) . '.lock';
-$cron_lock_handle = fopen($cron_lock_file, 'c');
-if ($cron_lock_handle === false) {
-    die("Cannot open the cron lock file at $cron_lock_file - check permissions and open_basedir.\n");
-}
-if (!flock($cron_lock_handle, LOCK_EX | LOCK_NB)) {
-    die("Cron is already running - exiting.\n");
-}
+// Prevent overlapping runs of this script
+$cron_lock_script = __FILE__;
+require_once "../includes/cron_lock.php";
 
 require_once "../config.php";
 

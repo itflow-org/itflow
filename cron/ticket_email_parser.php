@@ -15,6 +15,10 @@ if (php_sapi_name() !== 'cli') {
     die("This script must be run from the command line.\n");
 }
 
+// Prevent overlapping runs of this script
+$cron_lock_script = __FILE__;
+require_once "../includes/cron_lock.php";
+
 // Autoload (Webklex & any composer deps)
 require_once "../libs/vendor/autoload.php";
 

@@ -7,6 +7,10 @@ if (php_sapi_name() !== 'cli') {
     die("This script must be run from the command line.\n");
 }
 
+// Prevent overlapping runs of this script
+$cron_lock_script = __FILE__;
+require_once "../includes/cron_lock.php";
+
 require_once "../config.php";
 require_once "../includes/inc_set_timezone.php";
 require_once "../functions.php";
@@ -80,25 +84,6 @@ if (empty($config_smtp_provider)) {
     logApp("Cron-Mail-Queue", "info", "SMTP sending skipped: provider not configured.");
     exit(0);
 }
-
-/** =======================================================================
- *  Lock file
- * ======================================================================= */
-$temp_dir = sys_get_temp_dir();
-$lock_file_path = "{$temp_dir}/itflow_mail_queue_{$installation_id}.lock";
-
-if (file_exists($lock_file_path)) {
-    $file_age = time() - filemtime($lock_file_path);
-    if ($file_age > 600) {
-        unlink($lock_file_path);
-        logApp("Cron-Mail-Queue", "warning", "Cron Mail Queue detected a lock file was present but was over 10 minutes old so it removed it.");
-    } else {
-        logApp("Cron-Mail-Queue", "info", "Cron Mail Queue attempted to execute but was already executing so instead it terminated.");
-        exit("Script is already running. Exiting.");
-    }
-}
-
-file_put_contents($lock_file_path, "Locked");
 
 /** =======================================================================
  *  Mail OAuth helpers + sender function
@@ -248,6 +233,9 @@ function sendQueueEmail(
     $mail->isSMTP();
     $mail->Host = $host;
     $mail->Port = $port;
+    // Bound the SMTP conversation. Without this an unresponsive mail server can
+    // hold the cron lock open indefinitely and stall the whole queue.
+    $mail->Timeout = 30;
 
     $enc = strtolower($encryption);
     if ($enc === '' || $enc === 'none') {
@@ -299,6 +287,26 @@ function sendQueueEmail(
 
     $mail->send();
     return true;
+}
+
+/** =======================================================================
+ *  RECOVER: status = 1 (Sending) left behind by a run that died
+ *
+ *  Nothing else in the codebase ever selects status 1, so without this a row
+ *  claimed by a run that was killed mid-send stays 'Sending' forever and is never
+ *  delivered. The cron lock above guarantees no other run of this script is in
+ *  progress, so any row still sitting at status 1 is by definition orphaned and
+ *  safe to reclaim. It is moved to failed rather than queued so it inherits the
+ *  retry pass's 30 minute backoff and attempt cap instead of retrying instantly.
+ *
+ *  This can re-send a message that did go out but died before being marked sent.
+ *  That trade is deliberate: a duplicate is recoverable, an invoice that silently
+ *  never arrives is not.
+ * ======================================================================= */
+mysqli_query($mysqli, "UPDATE email_queue SET email_status = 2, email_failed_at = NOW(), email_attempts = email_attempts + 1 WHERE email_status = 1");
+$orphaned_emails = mysqli_affected_rows($mysqli);
+if ($orphaned_emails > 0) {
+    logApp("Cron-Mail-Queue", "warning", "Recovered $orphaned_emails email(s) left in a sending state by a previous run - queued for retry.");
 }
 
 /** =======================================================================
@@ -464,8 +472,3 @@ if (mysqli_num_rows($sql_failed_queue) > 0) {
         }
     }
 }
-
-/** =======================================================================
- *  Unlock
- * ======================================================================= */
-unlink($lock_file_path);
