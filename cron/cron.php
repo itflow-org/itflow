@@ -8,6 +8,14 @@ if (php_sapi_name() !== 'cli') {
     die("This script must be run from the command line.\n");
 }
 
+// Only one run at a time. Autopay charges cards, so an overlapping run (the previous
+// run still going when the next one fires) could bill the same invoice twice. The
+// handle is held for the life of the process and released when it exits.
+$cron_lock_handle = fopen(sys_get_temp_dir() . '/itflow_cron.lock', 'c');
+if ($cron_lock_handle === false || !flock($cron_lock_handle, LOCK_EX | LOCK_NB)) {
+    die("Cron is already running - exiting.\n");
+}
+
 require_once "../config.php";
 
 // Set Timezone

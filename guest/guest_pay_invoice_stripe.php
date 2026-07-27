@@ -223,8 +223,15 @@ if (isset($_GET['invoice_id'], $_GET['url_key']) && !isset($_GET['payment_intent
         exit(WORDING_PAYMENT_FAILED);
     }
 
-    // Update Invoice Status
-    mysqli_query($mysqli, "UPDATE invoices SET invoice_status = 'Paid' WHERE invoice_id = $invoice_id");
+    // Claim the invoice - the conditional UPDATE is the lock, and the row lock it takes
+    // is what serialises concurrent requests carrying the same payment intent. A request
+    // that loses the race matches 0 rows and must not book the payment a second time.
+    mysqli_query($mysqli, "UPDATE invoices SET invoice_status = 'Paid' WHERE invoice_id = $invoice_id AND invoice_status NOT IN ('Draft', 'Paid', 'Cancelled')");
+    if (mysqli_affected_rows($mysqli) !== 1) {
+        error_log("Stripe payment - invoice $invoice_id was already settled by a concurrent request; skipping duplicate booking of $pi_id");
+        header('Location: //' . $config_base_url . '/guest/guest_view_invoice.php?invoice_id=' . $invoice_id . '&url_key=' . $invoice_url_key);
+        exit();
+    }
 
     // Add Payment to History
     mysqli_query($mysqli, "INSERT INTO payments SET payment_date = '$pi_date', payment_amount = $pi_amount_paid, payment_currency_code = '$pi_currency', payment_account_id = $stripe_account, payment_method = 'Stripe', payment_reference = 'Stripe - $pi_id', payment_invoice_id = $invoice_id");
