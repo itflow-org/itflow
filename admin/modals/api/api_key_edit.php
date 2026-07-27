@@ -1,6 +1,6 @@
 <?php
 
-require_once '../../../includes/modal_header.php';
+require_once '../../includes/modal_header.php';
 
 $api_key_id = intval($_GET['id']);
 

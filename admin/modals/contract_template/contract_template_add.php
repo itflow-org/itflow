@@ -1,5 +1,5 @@
 <?php
-require_once '../../../includes/modal_header.php';
+require_once '../../includes/modal_header.php';
 
 
 $contract_types_array = ['Fully Managed', 'Partialy Managed', 'Break/Fix'];

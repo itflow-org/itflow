@@ -1,10 +1,6 @@
 <?php
 
-require_once '../../../includes/modal_header.php';
-
-if (!isset($session_is_admin) || !$session_is_admin) {
-    exit(WORDING_ROLECHECK_FAILED . "<br>Tell your admin: Your role does not have admin access.");
-}
+require_once '../../includes/modal_header.php';
 
 $email_id = intval($_GET['id']);
 
