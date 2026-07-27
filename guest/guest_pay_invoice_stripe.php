@@ -218,7 +218,9 @@ if (isset($_GET['invoice_id'], $_GET['url_key']) && !isset($_GET['payment_intent
     $amount_paid_previously = floatval(mysqli_fetch_assoc($sql_amount_paid_previously)['amount_paid']);
     $balance_to_pay = $invoice_amount - $amount_paid_previously;
 
-    if (intval($balance_to_pay) !== intval($pi_amount_paid)) {
+    // Compare in whole cents - intval() truncates, which silently accepted an underpayment
+    // of up to 99c as payment in full while rejecting a 1c overpayment.
+    if ((int) round($balance_to_pay * 100) !== (int) round($pi_amount_paid * 100)) {
         error_log("Stripe payment error - Invoice balance does not match amount paid for $pi_id");
         exit(WORDING_PAYMENT_FAILED);
     }
