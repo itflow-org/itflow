@@ -13,7 +13,7 @@ if (isset($_POST['add_invoice_recurring'])) {
     enforceUserPermission('module_sales', 2);
 
     $invoice_id = intval($_POST['invoice_id']);
-    $recurring_invoice_frequency = ($_POST['frequency'] === 'year') ? 'year' : 'month';
+    $recurring_invoice_frequency = validateRecurringFrequency($_POST['frequency']);
 
     $sql = mysqli_query($mysqli,"SELECT * FROM invoices WHERE invoice_id = $invoice_id");
     $row = mysqli_fetch_assoc($sql);
@@ -77,7 +77,7 @@ if (isset($_POST['add_recurring_invoice'])) {
     enforceUserPermission('module_sales', 2);
 
     $client_id = intval($_POST['client_id']);
-    $frequency = escapeSql($_POST['frequency']);
+    $frequency = validateRecurringFrequency($_POST['frequency']);
     $start_date = escapeSql($_POST['start_date']);
     $category = intval($_POST['category']);
     $scope = escapeSql($_POST['scope']);
@@ -116,7 +116,7 @@ if (isset($_POST['edit_recurring_invoice'])) {
     enforceUserPermission('module_sales', 2);
 
     $recurring_invoice_id = intval($_POST['recurring_invoice_id']);
-    $frequency = escapeSql($_POST['frequency']);
+    $frequency = validateRecurringFrequency($_POST['frequency']);
     $next_date = escapeSql($_POST['next_date']);
     $category = intval($_POST['category']);
     $scope = escapeSql($_POST['scope']);
@@ -394,7 +394,7 @@ if (isset($_GET['force_recurring'])) {
     $row = mysqli_fetch_assoc($sql_recurring_invoices);
     $recurring_invoice_id = intval($row['recurring_invoice_id']);
     $recurring_invoice_scope = escapeSql($row['recurring_invoice_scope']);
-    $recurring_invoice_frequency = ($_POST['frequency'] === 'year') ? 'year' : 'month';
+    $recurring_invoice_frequency = validateRecurringFrequency($row['recurring_invoice_frequency']);
     $recurring_invoice_status = escapeSql($row['recurring_invoice_status']);
     $recurring_invoice_last_sent = escapeSql($row['recurring_invoice_last_sent']);
     $recurring_invoice_next_date = escapeSql($row['recurring_invoice_next_date']);
