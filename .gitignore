@@ -49,3 +49,5 @@ setup/custom/*
 api/v1/custom/*
 !api/v1/custom/readme.php
 .zed
+
+*.patch
