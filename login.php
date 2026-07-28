@@ -37,6 +37,22 @@ $session_user_agent = escapeSql($_SERVER['HTTP_USER_AGENT'] ?? '');
 // IMPORTANT (Option B support): ensure this exists in this scope so logAudit() can use it
 $session_user_id = intval($_SESSION['user_id'] ?? 0);
 
+// The count below and the logAudit() failure write that feeds it are far apart, with
+// password_verify() in between, so a burst of parallel attempts would all read the
+// same sub-threshold count and all pass. Serialize per IP for the whole request.
+// Only a POST can write a failure, so only a POST needs the lock. The connection is
+// non-persistent (includes/db.php), so it releases at the end of the request - after
+// the failure has been recorded. A timeout returns 0 and fails open rather than
+// locking anyone out.
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $login_lock_name = 'itflow_login_ip_' . md5($session_ip);
+    $login_lock = mysqli_fetch_row(mysqli_query($mysqli, "SELECT GET_LOCK('$login_lock_name', 10)"));
+
+    if (empty($login_lock[0])) {
+        error_log("ITFlow: timed out waiting on the login rate limit lock for $session_ip, proceeding unserialized");
+    }
+}
+
 $row = mysqli_fetch_assoc(mysqli_query(
     $mysqli,
     "SELECT COUNT(log_id) AS failed_login_count
@@ -336,6 +352,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['login']) || isset($_
                     // counter, so it cannot be used to lock another user out.
                     $mfa_locked = false;
                     if (!empty($current_code)) {
+
+                        // This counter needs its own lock. The IP lock above does not
+                        // serialize a burst spread across hosts, and a burst spread
+                        // across hosts is the exact case this per-account limit exists
+                        // for. Keyed on the account, released with the request.
+                        $mfa_lock_name = "itflow_login_mfa_$user_id";
+                        $mfa_lock = mysqli_fetch_row(mysqli_query($mysqli, "SELECT GET_LOCK('$mfa_lock_name', 10)"));
+
+                        if (empty($mfa_lock[0])) {
+                            error_log("ITFlow: timed out waiting on the MFA rate limit lock for user $user_id, proceeding unserialized");
+                        }
+
                         $row_mfa = mysqli_fetch_assoc(mysqli_query(
                             $mysqli,
                             "SELECT COUNT(log_id) AS failed_mfa_count
