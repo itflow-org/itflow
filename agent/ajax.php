@@ -1086,4 +1086,6 @@ if (isset($_GET['get_credential_via_id'])) {
     $check_recent_view = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(log_id) AS recent_view FROM logs WHERE log_type = 'Credential' AND log_action = 'View' AND log_user_id = $session_user_id AND log_entity_id = $credential_id AND log_client_id = $client_id AND log_created_at > (NOW() - INTERVAL 5 MINUTE)"));
 
     if (intval($check_recent_view['recent_view']) == 0) {
-        logAudit("Credential", "View", "$session_name viewed credential $name", $client_i
+        logAudit("Credential", "View", "$session_name viewed credential $name", $client_id, $credential_id);
+    }
+}
