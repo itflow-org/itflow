@@ -65,7 +65,9 @@ ob_start();
     </div>
     <hr class="my-2">
     <div class="prettyContent">
-        <?php echo $email_content; ?>
+        <?php if ($email_status == 3 && $email_content === '') { ?>
+            <em class="text-secondary">Message content was cleared on delivery.</em>
+        <?php } else { echo $email_content; } ?>
     </div>
 </div>
 

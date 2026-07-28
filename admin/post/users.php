@@ -70,8 +70,14 @@ if (isset($_POST['add_user'])) {
 
         $password = mysqli_real_escape_string($mysqli, $_POST['password']);
 
+        // Only hand out the login key when the gate is actually enabled - same test as post/logout.php
+        $login_url = "https://$config_base_url/login.php";
+        if ($config_login_key_required == 1) {
+            $login_url .= "?key=$config_login_key_secret";
+        }
+
         $subject = "Your new $company_name ITFlow account";
-        $body = "Hello $name,<br><br>An ITFlow account has been setup for you. Please change your password upon login. <br><br>Username: $email <br>Password: $password<br>Login URL: https://$config_base_url/login.php?key=$config_login_key_secret<br><br>--<br>$company_name - Support<br>$config_ticket_from_email";
+        $body = "Hello $name,<br><br>An ITFlow account has been setup for you. Please change your password upon login. <br><br>Username: $email <br>Password: $password<br>Login URL: $login_url<br><br>--<br>$company_name - Support<br>$config_ticket_from_email";
 
         $data = [
             [

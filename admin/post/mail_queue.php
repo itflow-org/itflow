@@ -8,6 +8,14 @@ if (isset($_GET['send_failed_mail'])) {
 
     $email_id = intval($_GET['send_failed_mail']);
 
+    // Delivered mail has had its body cleared on send, so resending would deliver an empty message
+    $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT email_status FROM email_queue WHERE email_id = $email_id LIMIT 1"));
+
+    if (!$row || intval($row['email_status']) === 3) {
+        flashAlert("That email has already been delivered and cannot be resent.", 'error');
+        redirect();
+    }
+
     mysqli_query($mysqli,"UPDATE email_queue SET email_status = 0, email_attempts = 3 WHERE email_id = $email_id");
 
     logAudit("Email", "Send", "$session_name attempted to force send email id: $email_id in the mail queue", 0, $email_id);
