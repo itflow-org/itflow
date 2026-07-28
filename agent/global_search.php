@@ -20,7 +20,15 @@ if (isset($_GET['query'])) {
 
     $ticket_num_query = str_replace("$config_ticket_prefix", "", "$query");
 
-    $sql_clients = mysqli_query($mysqli, "SELECT * FROM clients
+    // Every dedicated page gates on its module, so search must too - otherwise this
+    // page hands a role results it has no access to read anywhere else (see the
+    // credentials panel, which renders plaintext usernames and passwords)
+    $can_client     = lookupUserPermission('module_client')     >= 1;
+    $can_support    = lookupUserPermission('module_support')    >= 1;
+    $can_sales      = lookupUserPermission('module_sales')      >= 1;
+    $can_credential = lookupUserPermission('module_credential') >= 1;
+
+    $sql_clients = !$can_client ? false : mysqli_query($mysqli, "SELECT * FROM clients
         LEFT JOIN locations ON clients.client_id = locations.location_client_id AND location_primary = 1
         WHERE client_archived_at IS NULL
             AND (client_name LIKE '%$query%' OR client_abbreviation LIKE '%$query%')
@@ -28,7 +36,7 @@ if (isset($_GET['query'])) {
         ORDER BY client_id DESC LIMIT 5"
     );
 
-    $sql_contacts = mysqli_query($mysqli, "SELECT * FROM contacts
+    $sql_contacts = !$can_client ? false : mysqli_query($mysqli, "SELECT * FROM contacts
         LEFT JOIN clients ON client_id = contact_client_id
         WHERE contact_archived_at IS NULL
             AND (contact_name LIKE '%$query%'
@@ -40,7 +48,7 @@ if (isset($_GET['query'])) {
         ORDER BY contact_id DESC LIMIT 5"
     );
 
-    $sql_vendors = mysqli_query($mysqli, "SELECT * FROM vendors
+    $sql_vendors = !$can_client ? false : mysqli_query($mysqli, "SELECT * FROM vendors
         LEFT JOIN clients ON vendor_client_id = client_id
         WHERE vendor_archived_at IS NULL
             AND (vendor_name LIKE '%$query%' OR vendor_phone LIKE '%$phone_query%')
@@ -48,7 +56,7 @@ if (isset($_GET['query'])) {
         ORDER BY vendor_id DESC LIMIT 5"
     );
 
-    $sql_domains = mysqli_query($mysqli, "SELECT * FROM domains
+    $sql_domains = !$can_support ? false : mysqli_query($mysqli, "SELECT * FROM domains
         LEFT JOIN clients ON domain_client_id = client_id
         WHERE domain_archived_at IS NULL
             AND domain_name LIKE '%$query%'
@@ -56,13 +64,13 @@ if (isset($_GET['query'])) {
         ORDER BY domain_id DESC LIMIT 5"
     );
 
-    $sql_products = mysqli_query($mysqli, "SELECT * FROM products
+    $sql_products = !$can_sales ? false : mysqli_query($mysqli, "SELECT * FROM products
         WHERE product_archived_at IS NULL
             AND product_name LIKE '%$query%'
         ORDER BY product_id DESC LIMIT 5"
     );
 
-    $sql_documents = mysqli_query($mysqli, "SELECT * FROM documents
+    $sql_documents = !$can_support ? false : mysqli_query($mysqli, "SELECT * FROM documents
         LEFT JOIN clients on document_client_id = clients.client_id
         WHERE document_archived_at IS NULL
             AND MATCH(document_content_raw) AGAINST ('$query')
@@ -70,7 +78,7 @@ if (isset($_GET['query'])) {
         ORDER BY document_id DESC LIMIT 5"
     );
 
-    $sql_files = mysqli_query($mysqli, "SELECT * FROM files
+    $sql_files = !$can_support ? false : mysqli_query($mysqli, "SELECT * FROM files
         LEFT JOIN clients ON file_client_id = client_id
         LEFT JOIN folders ON folder_id = file_folder_id
         WHERE file_archived_at IS NULL
@@ -80,7 +88,7 @@ if (isset($_GET['query'])) {
         ORDER BY file_id DESC LIMIT 5"
     );
 
-    $sql_tickets = mysqli_query($mysqli, "SELECT * FROM tickets
+    $sql_tickets = !$can_support ? false : mysqli_query($mysqli, "SELECT * FROM tickets
         LEFT JOIN clients on tickets.ticket_client_id = clients.client_id
         LEFT JOIN ticket_statuses ON ticket_status = ticket_status_id
         WHERE ticket_archived_at IS NULL
@@ -92,7 +100,7 @@ if (isset($_GET['query'])) {
         ORDER BY ticket_id DESC LIMIT 5"
     );
 
-    $sql_recurring_tickets = mysqli_query($mysqli, "SELECT * FROM recurring_tickets
+    $sql_recurring_tickets = !$can_support ? false : mysqli_query($mysqli, "SELECT * FROM recurring_tickets
         LEFT JOIN clients ON recurring_ticket_client_id = client_id
         WHERE (recurring_ticket_subject LIKE '%$query%'
             OR recurring_ticket_details LIKE '%$query%')
@@ -100,7 +108,7 @@ if (isset($_GET['query'])) {
         ORDER BY recurring_ticket_id DESC LIMIT 5"
     );
 
-    $sql_credentials = mysqli_query($mysqli, "SELECT * FROM credentials
+    $sql_credentials = !$can_credential ? false : mysqli_query($mysqli, "SELECT * FROM credentials
         LEFT JOIN contacts ON credential_contact_id = contact_id
         LEFT JOIN clients ON credential_client_id = client_id
         WHERE credential_archived_at IS NULL
@@ -109,7 +117,7 @@ if (isset($_GET['query'])) {
         ORDER BY credential_id DESC LIMIT 5"
     );
 
-    $sql_quotes = mysqli_query($mysqli, "SELECT * FROM quotes
+    $sql_quotes = !$can_sales ? false : mysqli_query($mysqli, "SELECT * FROM quotes
         LEFT JOIN clients ON quote_client_id = client_id
         LEFT JOIN categories ON quote_category_id = category_id
         WHERE quote_archived_at IS NULL
@@ -118,7 +126,7 @@ if (isset($_GET['query'])) {
         ORDER BY quote_number DESC LIMIT 5"
     );
 
-    $sql_invoices = mysqli_query($mysqli, "SELECT * FROM invoices
+    $sql_invoices = !$can_sales ? false : mysqli_query($mysqli, "SELECT * FROM invoices
         LEFT JOIN clients ON invoice_client_id = client_id
         LEFT JOIN categories ON invoice_category_id = category_id
         WHERE invoice_archived_at IS NULL
@@ -127,7 +135,7 @@ if (isset($_GET['query'])) {
         ORDER BY invoice_number DESC LIMIT 5"
     );
 
-    $sql_assets = mysqli_query($mysqli,"SELECT * FROM assets
+    $sql_assets = !$can_support ? false : mysqli_query($mysqli,"SELECT * FROM assets
         LEFT JOIN contacts ON asset_contact_id = contact_id
         LEFT JOIN locations ON asset_location_id = location_id
         LEFT JOIN clients ON asset_client_id = client_id
@@ -138,7 +146,7 @@ if (isset($_GET['query'])) {
         ORDER BY asset_name DESC LIMIT 5"
     );
 
-    $sql_ticket_replies = mysqli_query($mysqli,"SELECT * FROM ticket_replies
+    $sql_ticket_replies = !$can_support ? false : mysqli_query($mysqli,"SELECT * FROM ticket_replies
         LEFT JOIN tickets ON ticket_reply_ticket_id = ticket_id
         LEFT JOIN clients ON ticket_client_id = client_id
         WHERE ticket_reply_archived_at IS NULL
@@ -159,7 +167,7 @@ if (isset($_GET['query'])) {
     <div class="card-body">
 
     <div class="row">
-        <?php if (mysqli_num_rows($sql_clients) > 0) { ?>
+        <?php if ($sql_clients && mysqli_num_rows($sql_clients) > 0) { ?>
 
             <!-- Clients-->
 
@@ -202,7 +210,7 @@ if (isset($_GET['query'])) {
 
         <?php } ?>
 
-        <?php if (mysqli_num_rows($sql_contacts) > 0) { ?>
+        <?php if ($sql_contacts && mysqli_num_rows($sql_contacts) > 0) { ?>
 
             <!-- Contacts-->
 
@@ -261,7 +269,7 @@ if (isset($_GET['query'])) {
 
         <?php } ?>
 
-        <?php if (mysqli_num_rows($sql_vendors) > 0) { ?>
+        <?php if ($sql_vendors && mysqli_num_rows($sql_vendors) > 0) { ?>
 
             <!-- Vendors -->
             <div class="col-sm-6">
@@ -309,7 +317,7 @@ if (isset($_GET['query'])) {
 
         <?php } ?>
 
-        <?php if (mysqli_num_rows($sql_domains) > 0) { ?>
+        <?php if ($sql_domains && mysqli_num_rows($sql_domains) > 0) { ?>
 
             <!-- Domains -->
             <div class="col-sm-6">
@@ -353,7 +361,7 @@ if (isset($_GET['query'])) {
 
         <?php } ?>
 
-        <?php if (mysqli_num_rows($sql_products) > 0) { ?>
+        <?php if ($sql_products && mysqli_num_rows($sql_products) > 0) { ?>
 
             <!-- Products -->
             <div class="col-sm-6">
@@ -392,7 +400,7 @@ if (isset($_GET['query'])) {
 
         <?php } ?>
 
-        <?php if (mysqli_num_rows($sql_documents) > 0) { ?>
+        <?php if ($sql_documents && mysqli_num_rows($sql_documents) > 0) { ?>
 
             <!-- Documents -->
             <div class="col-sm-6">
@@ -436,7 +444,7 @@ if (isset($_GET['query'])) {
 
         <?php } ?>
 
-        <?php if (mysqli_num_rows($sql_files) > 0) { ?>
+        <?php if ($sql_files && mysqli_num_rows($sql_files) > 0) { ?>
 
             <!-- Files -->
             <div class="col-sm-6">
@@ -489,7 +497,7 @@ if (isset($_GET['query'])) {
 
         <?php } ?>
 
-        <?php if (mysqli_num_rows($sql_tickets) > 0) { ?>
+        <?php if ($sql_tickets && mysqli_num_rows($sql_tickets) > 0) { ?>
 
             <!-- Tickets -->
             <div class="col-sm-6">
@@ -539,7 +547,7 @@ if (isset($_GET['query'])) {
         <?php } ?>
 
 
-        <?php if (mysqli_num_rows($sql_recurring_tickets) > 0) { ?>
+        <?php if ($sql_recurring_tickets && mysqli_num_rows($sql_recurring_tickets) > 0) { ?>
 
             <!-- Recurring Tickets -->
             <div class="col-sm-6">
@@ -588,7 +596,7 @@ if (isset($_GET['query'])) {
         <?php } ?>
 
 
-        <?php if (mysqli_num_rows($sql_credentials) > 0) { ?>
+        <?php if ($sql_credentials && mysqli_num_rows($sql_credentials) > 0) { ?>
 
             <!-- Credentials -->
             <div class="col-sm-6">
@@ -640,7 +648,7 @@ if (isset($_GET['query'])) {
 
         <?php } ?>
 
-        <?php if (mysqli_num_rows($sql_quotes) > 0) { ?>
+        <?php if ($sql_quotes && mysqli_num_rows($sql_quotes) > 0) { ?>
 
             <!-- Contacts-->
 
@@ -691,7 +699,7 @@ if (isset($_GET['query'])) {
 
         <?php } ?>
 
-        <?php if (mysqli_num_rows($sql_invoices) > 0) { ?>
+        <?php if ($sql_invoices && mysqli_num_rows($sql_invoices) > 0) { ?>
 
             <!-- Contacts-->
 
@@ -742,7 +750,7 @@ if (isset($_GET['query'])) {
 
         <?php } ?>
 
-        <?php if (mysqli_num_rows($sql_assets) > 0) { ?>
+        <?php if ($sql_assets && mysqli_num_rows($sql_assets) > 0) { ?>
 
             <!-- Contacts-->
 
@@ -831,7 +839,7 @@ if (isset($_GET['query'])) {
 
         <?php } ?>
 
-        <?php if (mysqli_num_rows($sql_ticket_replies) > 0) { ?>
+        <?php if ($sql_ticket_replies && mysqli_num_rows($sql_ticket_replies) > 0) { ?>
 
             <!-- Ticket Replies -->
 

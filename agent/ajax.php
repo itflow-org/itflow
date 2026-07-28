@@ -203,6 +203,11 @@ if (isset($_GET['share_generate_link'])) {
     }
 
     if ($item_type == "Credential") {
+
+        // Sharing a credential hands out the plaintext, so it needs the same
+        // module access as reading one anywhere else in the app
+        enforceUserPermission('module_credential');
+
         $credential = mysqli_query($mysqli, "SELECT credential_name, credential_username, credential_password FROM credentials WHERE credential_id = $item_id AND credential_client_id = $client_id LIMIT 1");
         $row = mysqli_fetch_assoc($credential);
 
