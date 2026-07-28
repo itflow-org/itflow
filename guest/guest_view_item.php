@@ -145,7 +145,7 @@ if ($item_type == "Document") {
 
     // Logging
     $name = mysqli_real_escape_string($mysqli, $doc_title);
-    logAudit("Share", "View", "Viewed shared $item_type $doc_title_escaped via link", $client_id);
+    logAudit("Share", "View", "Viewed shared $item_type $doc_title_escaped via link", $client_id, $item_id);
 
 
 } elseif ($item_type == "File") {
@@ -268,7 +268,7 @@ if ($item_type == "Document") {
 
     // Logging
     $name = escapeSql($credential_row['credential_name']);
-    logAudit("Share", "View", "Viewed shared $item_type $name via link", $client_id);
+    logAudit("Share", "View", "Viewed shared $item_type $name via link", $client_id, $item_id);
 
 }
 

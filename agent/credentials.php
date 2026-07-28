@@ -392,7 +392,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 "SELECT * FROM shared_items
                                 WHERE item_client_id = $client_id
                                 AND item_active = 1
-                                AND item_views != item_view_limit
+                                AND (COALESCE(item_view_limit, 0) = 0 OR item_views < item_view_limit)
                                 AND item_expire_at > NOW()
                                 AND item_type = 'Credential'
                                 AND item_related_id = $credential_id

@@ -734,7 +734,7 @@ $num_root_items = intval($row_root_files['num']) + intval($row_root_docs['num'])
                                             "SELECT * FROM shared_items
                                              WHERE item_client_id = $client_id
                                              AND item_active = 1
-                                             AND item_views != item_view_limit
+                                             AND (COALESCE(item_view_limit, 0) = 0 OR item_views < item_view_limit)
                                              AND item_expire_at > NOW()
                                              AND item_type = 'File'
                                              AND item_related_id = $file_id
@@ -846,7 +846,7 @@ $num_root_items = intval($row_root_files['num']) + intval($row_root_docs['num'])
                                             "SELECT * FROM shared_items
                                              WHERE item_client_id = $client_id
                                              AND item_active = 1
-                                             AND item_views != item_view_limit
+                                             AND (COALESCE(item_view_limit, 0) = 0 OR item_views < item_view_limit)
                                              AND item_expire_at > NOW()
                                              AND item_type = 'Document'
                                              AND item_related_id = $document_id

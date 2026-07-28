@@ -56,16 +56,21 @@ if (isset($_GET['id']) && isset($_GET['key'])) {
         exit("Item cannot be viewed at this time (No file, may have been deleted).");
     }
 
+    $file_name = escapeSql($file_row['file_name']);
+    $file_reference_name = escapeSql($file_row['file_reference_name']);
+    $client_id = intval($file_row['file_client_id']);
+    $file_path = "../uploads/clients/$client_id/$file_reference_name";
+
+    // Don't burn a view on a file that is missing from disk
+    if (!is_readable($file_path)) {
+        exit("Item cannot be viewed at this time (No file, may have been deleted).");
+    }
+
     // Claim the view before the file is served. The checks above stay as a
     // fast path for messaging - this UPDATE is what enforces the limit.
     if (!claimSharedItemView($item_id)) {
         exit("Item cannot be viewed at this time (view limit exceeded).");
     }
-
-    $file_name = escapeSql($file_row['file_name']);
-    $file_reference_name = escapeSql($file_row['file_reference_name']);
-    $client_id = intval($file_row['file_client_id']);
-    $file_path = "../uploads/clients/$client_id/$file_reference_name";
 
     // Display file as download
     $mime_type = mime_content_type($file_path);
@@ -74,6 +79,6 @@ if (isset($_GET['id']) && isset($_GET['key'])) {
     readfile($file_path);
 
     //Logging
-    logAudit("Share", "View", "Downloaded shared file $file_name via link", $client_id);
+    logAudit("Share", "View", "Downloaded shared file $file_name via link", $client_id, $item_id);
 
 }

@@ -32,7 +32,15 @@ if (isset($_GET['accept_quote'], $_GET['url_key'])) {
         $client_name = escapeSql($row['client_name']);
         $client_id = intval($row['client_id']);
 
-        mysqli_query($mysqli, "UPDATE quotes SET quote_status = 'Accepted' WHERE quote_id = $quote_id");
+        // Claim the response - only a quote still awaiting one can be accepted,
+        // and only the first request through wins
+        mysqli_query($mysqli, "UPDATE quotes SET quote_status = 'Accepted' WHERE quote_id = $quote_id AND quote_status IN ('Sent', 'Viewed')");
+
+        if (mysqli_affected_rows($mysqli) !== 1) {
+            flashAlert("This quote is no longer awaiting a response", 'error');
+            redirect();
+        }
+
         mysqli_query($mysqli, "INSERT INTO history SET history_status = 'Accepted', history_description = 'Client accepted Quote!', history_quote_id = $quote_id");
 
         // Notification
@@ -97,7 +105,15 @@ if (isset($_GET['decline_quote'], $_GET['url_key'])) {
         $client_name = escapeSql($row['client_name']);
         $client_id = intval($row['client_id']);
 
-        mysqli_query($mysqli, "UPDATE quotes SET quote_status = 'Declined' WHERE quote_id = $quote_id");
+        // Claim the response - only a quote still awaiting one can be declined,
+        // and only the first request through wins
+        mysqli_query($mysqli, "UPDATE quotes SET quote_status = 'Declined' WHERE quote_id = $quote_id AND quote_status IN ('Sent', 'Viewed')");
+
+        if (mysqli_affected_rows($mysqli) !== 1) {
+            flashAlert("This quote is no longer awaiting a response", 'error');
+            redirect();
+        }
+
         mysqli_query($mysqli, "INSERT INTO history SET history_status = 'Declined', history_description = 'Client declined Quote!', history_quote_id = $quote_id");
 
         // Notification
