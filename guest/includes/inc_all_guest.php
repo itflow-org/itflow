@@ -14,6 +14,10 @@ $user_agent = escapeSql($_SERVER['HTTP_USER_AGENT']);
 $os = escapeSql(getOS($user_agent));
 $browser = escapeSql(getWebBrowser($user_agent));
 
+// logAudit() reads these globals - without them guest audit rows have no IP
+$session_ip = $ip;
+$session_user_agent = $user_agent;
+
 // Get Company Name
 $sql = mysqli_query($mysqli, "SELECT company_name FROM companies WHERE company_id = 1");
 $row = mysqli_fetch_assoc($sql);

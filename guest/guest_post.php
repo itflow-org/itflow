@@ -13,6 +13,10 @@ session_start();
 
 require_once "../includes/inc_set_timezone.php"; // Must be included after session_start to work
 
+// logAudit() reads these globals - without them guest audit rows have no IP
+$session_ip = escapeSql(getIP());
+$session_user_agent = escapeSql($_SERVER['HTTP_USER_AGENT']);
+
 if (isset($_GET['accept_quote'], $_GET['url_key'])) {
 
     $quote_id = intval($_GET['accept_quote']);

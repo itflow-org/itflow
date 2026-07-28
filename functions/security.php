@@ -225,3 +225,24 @@ zgjRYR/zGN5l+az6RB3+0mJRdZdv/y2aRkBlwTxx2gOrPbQAco4a/IOmkE3EbHe7
 
     return false;
 }
+
+// Atomically claim one view against a shared item's view limit.
+// Returns true only if this request won the view; false means the share is
+// inactive, expired, or out of views. The UPDATE is the claim, so concurrent
+// requests cannot all pass - call this before any shared content is disclosed.
+function claimSharedItemView($item_id) {
+    global $mysqli;
+
+    $item_id = intval($item_id);
+
+    mysqli_query($mysqli, "UPDATE shared_items
+        SET item_views = item_views + 1
+        WHERE item_id = $item_id
+        AND item_active = 1
+        AND item_expire_at > NOW()
+        AND (COALESCE(item_view_limit, 0) = 0 OR item_views < item_view_limit)"
+    );
+
+    // -1 (query error) and 0 (limit reached / revoked / expired) both deny
+    return mysqli_affected_rows($mysqli) === 1;
+}

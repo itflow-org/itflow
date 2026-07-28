@@ -56,6 +56,12 @@ if (isset($_GET['id']) && isset($_GET['key'])) {
         exit("Item cannot be viewed at this time (No file, may have been deleted).");
     }
 
+    // Claim the view before the file is served. The checks above stay as a
+    // fast path for messaging - this UPDATE is what enforces the limit.
+    if (!claimSharedItemView($item_id)) {
+        exit("Item cannot be viewed at this time (view limit exceeded).");
+    }
+
     $file_name = escapeSql($file_row['file_name']);
     $file_reference_name = escapeSql($file_row['file_reference_name']);
     $client_id = intval($file_row['file_client_id']);
@@ -66,10 +72,6 @@ if (isset($_GET['id']) && isset($_GET['key'])) {
     header('Content-type: '.$mime_type);
     header('Content-Disposition: attachment; filename=' . $file_name);
     readfile($file_path);
-
-    // Update file view count
-    $new_item_views = $item_views + 1;
-    mysqli_query($mysqli, "UPDATE shared_items SET item_views = $new_item_views WHERE item_id = $item_id");
 
     //Logging
     logAudit("Share", "View", "Downloaded shared file $file_name via link", $client_id);
