@@ -1,0 +1,73 @@
+diff --git a/functions/security.php b/functions/security.php
+index ddab407..cda79fc 100644
+--- a/functions/security.php
++++ b/functions/security.php
+@@ -50,8 +50,8 @@ function encryptUserSpecificKey($user_password) {
+ 
+     // Get the session info.
+     $user_encryption_session_ciphertext = $_SESSION['user_encryption_session_ciphertext'];
+-    $user_encryption_session_iv = $_SESSION['user_encryption_session_iv'];
+-    $user_encryption_session_key = $_COOKIE['user_encryption_session_key'];
++    $user_encryption_session_iv = base64_decode($_SESSION['user_encryption_session_iv'] ?? '');
++    $user_encryption_session_key = base64_decode($_COOKIE['user_encryption_session_key'] ?? '');
+ 
+     // Decrypt the session key to get the master key
+     $site_encryption_master_key = openssl_decrypt($user_encryption_session_ciphertext, 'aes-128-cbc', $user_encryption_session_key, 0, $user_encryption_session_iv);
+@@ -89,21 +89,21 @@ Generates what is probably best described as a session key (ephemeral-ish)
+ 
+ */
+ function generateUserSessionKey($site_encryption_master_key) {
+-    $user_encryption_session_key = randomString();
+-    $user_encryption_session_iv = randomString();
++    $user_encryption_session_key = random_bytes(16);
++    $user_encryption_session_iv = random_bytes(16);
+     $user_encryption_session_ciphertext = openssl_encrypt($site_encryption_master_key, 'aes-128-cbc', $user_encryption_session_key, 0, $user_encryption_session_iv);
+ 
+     // Store ciphertext in the user's session
+     $_SESSION['user_encryption_session_ciphertext'] = $user_encryption_session_ciphertext;
+-    $_SESSION['user_encryption_session_iv'] = $user_encryption_session_iv;
++    $_SESSION['user_encryption_session_iv'] = base64_encode($user_encryption_session_iv);
+ 
+     // Give the user "their" key as a cookie
+     include 'config.php';
+ 
+     if ($config_https_only) {
+-        setcookie("user_encryption_session_key", "$user_encryption_session_key", ['path' => '/', 'secure' => true, 'httponly' => true, 'samesite' => 'None']);
++        setcookie("user_encryption_session_key", base64_encode($user_encryption_session_key), ['path' => '/', 'secure' => true, 'httponly' => true, 'samesite' => 'None']);
+     } else {
+-        setcookie("user_encryption_session_key", $user_encryption_session_key, 0, "/");
++        setcookie("user_encryption_session_key", base64_encode($user_encryption_session_key), 0, "/");
+         $_SESSION['alert_message'] = "Unencrypted connection flag set: Using non-secure cookies.";
+     }
+ }
+@@ -117,8 +117,8 @@ function decryptCredentialEntry($credential_password_ciphertext) {
+ 
+     // Get the user session info.
+     $user_encryption_session_ciphertext = $_SESSION['user_encryption_session_ciphertext'];
+-    $user_encryption_session_iv =  $_SESSION['user_encryption_session_iv'];
+-    $user_encryption_session_key = $_COOKIE['user_encryption_session_key'];
++    $user_encryption_session_iv =  base64_decode($_SESSION['user_encryption_session_iv'] ?? '');
++    $user_encryption_session_key = base64_decode($_COOKIE['user_encryption_session_key'] ?? '');
+ 
+     // Decrypt the session key to get the master key
+     $site_encryption_master_key = openssl_decrypt($user_encryption_session_ciphertext, 'aes-128-cbc', $user_encryption_session_key, 0, $user_encryption_session_iv);
+@@ -133,12 +133,17 @@ function encryptCredentialEntry($credential_password_cleartext) {
+ 
+     // Get the user session info.
+     $user_encryption_session_ciphertext = $_SESSION['user_encryption_session_ciphertext'];
+-    $user_encryption_session_iv =  $_SESSION['user_encryption_session_iv'];
+-    $user_encryption_session_key = $_COOKIE['user_encryption_session_key'];
++    $user_encryption_session_iv =  base64_decode($_SESSION['user_encryption_session_iv'] ?? '');
++    $user_encryption_session_key = base64_decode($_COOKIE['user_encryption_session_key'] ?? '');
+ 
+     //Decrypt the session key to get the master key
+     $site_encryption_master_key = openssl_decrypt($user_encryption_session_ciphertext, 'aes-128-cbc', $user_encryption_session_key, 0, $user_encryption_session_iv);
+ 
++    // Never write a credential under an empty key if the session didn't open
++    if (empty($site_encryption_master_key)) {
++        return false;
++    }
++
+     //Encrypt the website/asset credential using the master key
+     $ciphertext = openssl_encrypt($credential_password_cleartext, 'aes-128-cbc', $site_encryption_master_key, 0, $iv);
+ 
