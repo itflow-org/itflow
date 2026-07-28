@@ -391,9 +391,18 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             <td class="<?php echo $overdue_color; ?>"><?php echo $invoice_due; ?></td>
                             <td><?php echo $category_name; ?></td>
                             <td>
-                              <span class="p-2 badge badge-<?php echo $invoice_badge_color; ?>">
-                                  <?php echo $invoice_status; ?>
-                              </span>
+                              <?php if ($invoice_status == 'Paid' || $invoice_status == 'Partial') { ?>
+                                <a class="ajax-modal" href="#" title="View payments"
+                                    data-modal-url="modals/invoice/invoice_payments.php?invoice_id=<?php echo $invoice_id; ?>">
+                                  <span class="p-2 badge badge-<?php echo $invoice_badge_color; ?>">
+                                      <?php echo $invoice_status; ?>
+                                  </span>
+                                </a>
+                              <?php } else { ?>
+                                <span class="p-2 badge badge-<?php echo $invoice_badge_color; ?>">
+                                    <?php echo $invoice_status; ?>
+                                </span>
+                              <?php } ?>
                             </td>
                             <td><?= $recurring_invoice_display ?></td>
                             <td>
