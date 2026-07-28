@@ -22,16 +22,7 @@ if($config_client_portal_enable == 0) {
     exit();
 }
 
-if (!isset($_SESSION)) {
-    // HTTP Only cookies
-    ini_set("session.cookie_httponly", true);
-    ini_set("session.cookie_samesite", "Lax");
-    if ($config_https_only) {
-        // Tell client to only send cookie(s) over HTTPS
-        ini_set("session.cookie_secure", true);
-    }
-    session_start();
-}
+require_once __DIR__ . "/../includes/session_init.php";
 
 // Set Timezone after session
 require_once "../includes/inc_set_timezone.php";

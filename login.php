@@ -13,16 +13,7 @@ require_once "config.php";
 require_once "functions.php";
 require_once "libs/totp/totp.php";
 
-if (session_status() === PHP_SESSION_NONE) {
-    ini_set("session.cookie_httponly", true);
-    ini_set("session.cookie_samesite", "Lax");
-
-    if ($config_https_only || !isset($config_https_only)) {
-        ini_set("session.cookie_secure", true);
-    }
-
-    session_start();
-}
+require_once __DIR__ . "/includes/session_init.php";
 
 if (!isset($config_enable_setup) || $config_enable_setup == 1) {
     header("Location: /setup");
@@ -442,6 +433,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['login']) || isset($_
                         $session_user_id = $user_id;
                         logAudit("Login", "Success", "$user_name successfully logged in $extended_log", 0, $user_id);
 
+                        // New session ID for the authenticated session (CWE-384)
+                        session_regenerate_id(true);
+
                         $_SESSION['user_id']    = $user_id;
                         $_SESSION['csrf_token'] = randomString(32);
                         $_SESSION['logged']     = true;
@@ -607,6 +601,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['login']) || isset($_
 
                         if ($client_id && $contact_id && $user_auth_method === 'local') {
 
+                            // New session ID for the authenticated session (CWE-384)
+                            session_regenerate_id(true);
+
                             $_SESSION['client_logged_in'] = true;
                             $_SESSION['client_id']        = $client_id;
                             $_SESSION['user_id']          = $user_id;
@@ -692,6 +689,11 @@ $show_login_form = (!$show_role_choice && !$show_mfa_form);
 
             <?php if (!empty($config_login_message)){ ?>
                 <p class="login-box-msg px-0"><?php echo nl2br($config_login_message); ?></p>
+            <?php } ?>
+
+            <?php if (!empty($_SESSION['login_message'])) { ?>
+                <div class="alert alert-danger"><?php echo escapeHtml($_SESSION['login_message']); ?></div>
+                <?php unset($_SESSION['login_message']); ?>
             <?php } ?>
 
             <?php if (isset($response)) { ?>

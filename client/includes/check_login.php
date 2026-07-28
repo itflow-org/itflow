@@ -5,16 +5,7 @@
  * Checks if the client is logged in or not
  */
 
-if (!isset($_SESSION)) {
-    // HTTP Only cookies
-    ini_set("session.cookie_httponly", true);
-    ini_set("session.cookie_samesite", "Lax");
-    if ($config_https_only) {
-        // Tell client to only send cookie(s) over HTTPS
-        ini_set("session.cookie_secure", true);
-    }
-    session_start();
-}
+require_once __DIR__ . "/../../includes/session_init.php";
 
 if (!isset($_SESSION['client_logged_in']) || !$_SESSION['client_logged_in']) {
     redirect("/login.php");

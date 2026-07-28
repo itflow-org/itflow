@@ -4,12 +4,7 @@ require_once "../config.php";
 require_once "../functions.php";
 require_once "../includes/load_global_settings.php";
 
-ini_set("session.cookie_httponly", true);
-ini_set("session.cookie_samesite", "Lax");
-if ($config_https_only) {
-    ini_set("session.cookie_secure", true);
-}
-session_start();
+require_once __DIR__ . "/../includes/session_init.php";
 
 require_once "../includes/inc_set_timezone.php"; // Must be included after session_start to work
 
