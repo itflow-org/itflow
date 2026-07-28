@@ -90,11 +90,18 @@ If you write a query and even one variable in it skipped these, that is a SQL in
  
 ### 2. Every state-changing action validates CSRF.
  
-`validateCSRFToken($_POST['csrf_token'])` (or `$_GET['csrf_token']` for link-style actions) is the first line of every action block. Forms and action links must include the token; copy how existing modals do it.
+`validateCSRFToken()` is the first line of every action block. It takes no argument — it reads `csrf_token` from `$_POST`, then `$_GET`, itself, so the same call covers form posts and link-style actions. (The signature still accepts an explicit token for callers that need one, but no call site in the tree passes one; use the bare form.) Forms and action links must include the token; copy how existing modals do it.
  
 ### 3. Every action enforces permissions.
  
-`enforceUserPermission('module_x', level)` where level is `1` = read, `2` = write, `3` = full/delete. Current modules: `module_client`, `module_support`, `module_sales`, `module_financial`, `module_credential`, `module_reporting`. Read pages enforce level 1; create/edit enforce 2; destructive actions enforce 3. Admin pages have their own check via the admin include chain.
+`enforceUserPermission('module_x', level)` where level is `1` = read, `2` = write, `3` = full/delete. Current modules: `module_client`, `module_support`, `module_sales`, `module_financial`, `module_credential`, `module_reporting`. Read pages enforce level 1; create/edit enforce 2; destructive actions enforce 3. CSV/PDF exports are reads — gate them with the bare one-argument form, e.g. `enforceUserPermission('module_sales')`.
+
+Two portals are gated differently, which is why their handlers look like they are missing the call:
+
+- **Admin.** `admin/post.php` only loads anything in `admin/post/` when `$session_is_admin` is set, so admin handlers inherit the gate from the dispatcher and do not call `enforceUserPermission()` themselves.
+- **Client portal.** `client/post.php` is a single file of action blocks rather than a dispatcher, and gates on the contact's own capabilities with `enforceContactCan('accounting'|'contacts'|'itdoc')`.
+
+Everywhere else — anything under `agent/post/` — the call belongs in the block.
  
 ### 4. Client scoping is enforced, not assumed.
  
@@ -102,11 +109,27 @@ After loading a record, call `enforceClientAccess()` (optionally with the record
  
 ### 5. Escape on output.
  
-Anything echoed into HTML goes through `escapeHtml()`. `escapeSql()` on the way in is **not** output escaping — data can enter the DB through other paths (API, email parser, older versions). Rich-text fields (TinyMCE content) are the exception and have their own handling; follow the existing pattern for the specific field rather than inventing one.
+Anything rendered into HTML goes through `escapeHtml()`. `escapeSql()` on the way in is **not** output escaping — data can enter the DB through other paths (API, email parser, older versions).
+
+In practice the escaping happens **where the row is read, not where it is echoed**. A page or modal fetches its row and assigns each field through `escapeHtml()` once, then echoes the resulting variable raw:
+
+```php
+$row = mysqli_fetch_assoc($sql);
+$asset_id   = intval($row['asset_id']);          // ints: intval, not escapeHtml
+$asset_name = escapeHtml($row['asset_name']);
+...
+<strong><?php echo $asset_name; ?></strong>
+```
+
+Follow that pattern. Escaping at the echo instead would double-escape a value that is already safe, and mixing the two is how fields get missed. If you introduce a view variable that does not come from a row, escape it at assignment so the rule still holds at the top of the file.
+
+Rich-text fields (TinyMCE content) are the exception and have their own handling; follow the existing pattern for the specific field rather than inventing one.
  
 ### 6. No shell-outs. No `eval`.
  
-The project has deliberately eliminated `shell_exec`/`exec` in favor of native PHP (`dns_get_record()` instead of `dig`, RDAP instead of `whois`, etc.). PRs reintroducing shell execution will be declined.
+The project has deliberately moved off `shell_exec`/`exec` in favor of native PHP — `dns_get_record()` instead of `dig`, RDAP instead of `whois`, and so on. **Do not add new shell execution or `eval`.** PRs introducing either will be declined.
+
+A handful of legacy call sites survive, all of them wrapping `git` or `which` in the self-update and diagnostics paths: `admin/debug.php`, `admin/update.php`, `admin/post/update.php`, `admin/post/backup.php`, `cron/cron.php`, `functions/app.php`, `scripts/update_cli.php`, `setup/index.php`. They are on the list to be replaced with direct `.git` file reads; treat them as debt, not as precedent.
  
 ### 7. Report vulnerabilities privately.
  
@@ -116,7 +139,11 @@ Per [SECURITY.md](SECURITY.md) — never in a public issue.
  
 ## Conventions
  
-**Database naming.** Every column is prefixed with its table's singular name: `tickets.ticket_id`, `tickets.ticket_subject`, `clients.client_name`. This makes JOIN results unambiguous and is why queries can `SELECT *` across joins safely. New tables must follow it.
+**Database naming.** Every column is prefixed with the singular name of the entity it belongs to: `tickets.ticket_id`, `tickets.ticket_subject`, `clients.client_name`. This makes JOIN results unambiguous and is why queries can `SELECT *` across joins safely. New tables must follow it.
+
+The prefix is the entity name, which is usually but not always the singular of the table name. Where a table is named for its container rather than its row, the prefix follows the row: `calendar_events` → `event_*`, `asset_interfaces` → `interface_*`, `invoice_items` / `quote_items` → `item_*`, `rack_units` → `unit_*`, `user_roles` → `role_*`, `product_stock` → `stock_*`. Pick the prefix your columns will read best as and use it for every column in the table.
+
+Two standing exceptions: junction tables (`client_tags`, `service_assets`, …) carry the two parent FK names unprefixed, and `settings` / `user_settings` use `config_*` / `user_config_*`.
  
 **Schema changes require two edits in one PR:**
 
@@ -133,8 +160,12 @@ A single update run applies every pending migration in order, stopping at the fi
 **Bulk vs. single actions.** If you change the behavior of a single action (e.g. resolving a ticket), check whether a `bulk_*` counterpart exists and update it too. They are currently parallel implementations and drift between them is a known bug source.
  
 **UI.** Bootstrap 4 / AdminLTE, modals per-module under `<portal>/modals/<module>/`, DataTables for lists, monospace styling for technical data (IPs, serials, keys) and proportional for human text. Match the page you're standing in.
+
+**Modals post to the portal you are standing in, not the one they live in.** Modal forms use `action="post.php"`, which the browser resolves against the *page* URL, not the modal's own path. A modal under `admin/modals/` that an agent page opens by relative path therefore submits to `agent/post.php` and is handled by `agent/post/`, not `admin/post/`. If you reuse a modal across portals, every portal that can open it needs a handler that accepts the same field set — otherwise fields are silently dropped on one side.
  
 **Style.** Procedural PHP, 4-space indentation, LF line endings, code and comments in English. Match the surrounding code rather than importing a personal style. Don't reformat code you aren't changing — it buries the real diff.
+
+Line endings and indentation are enforced by `.gitattributes` and `.editorconfig` at the repo root, so an editor that respects EditorConfig needs no configuration. `.gitattributes` marks `libs/` as `-text`: vendored code is preserved byte-for-byte as shipped upstream and must never be normalized, or the next wholesale library update turns into an unreviewable diff.
  
 ---
  
