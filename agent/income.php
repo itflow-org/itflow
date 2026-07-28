@@ -146,13 +146,27 @@ $summary_total_income = floatval($row['total_income']);
     <div class="card card-dark">
         <div class="card-header py-2">
             <h3 class="card-title mt-2"><i class="fas fa-fw fa-hand-holding-usd mr-2"></i>Income</h3>
-            <?php if (lookupUserPermission("module_sales") >= 2) { ?>
             <div class="card-tools">
-                <button type="button" class="btn btn-primary ajax-modal" data-modal-url="modals/revenue/revenue_add.php" data-modal-size="lg">
-                    <i class="fas fa-plus mr-2"></i>New Revenue
-                </button>
+                <?php if (lookupUserPermission("module_sales") >= 2) { ?>
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-primary ajax-modal" data-modal-url="modals/revenue/revenue_add.php" data-modal-size="lg">
+                            <i class="fas fa-plus mr-2"></i>New Revenue
+                        </button>
+                        <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown"></button>
+                        <div class="dropdown-menu">
+                            <a class="dropdown-item text-dark ajax-modal" href="#"
+                                data-modal-url="modals/income/income_export.php?<?php echo $client_url; ?>type=<?php echo urlencode($type_filter); ?>&account=<?php echo $account_filter; ?>&method=<?php echo urlencode($_GET['method'] ?? ''); ?>&dtf=<?php echo $dtf; ?>&dtt=<?php echo $dtt; ?>&q=<?php echo urlencode($q ?? ''); ?>">
+                                <i class="fa fa-fw fa-download mr-2"></i>Export
+                            </a>
+                        </div>
+                    </div>
+                <?php } else { ?>
+                    <button type="button" class="btn btn-default ajax-modal"
+                        data-modal-url="modals/income/income_export.php?<?php echo $client_url; ?>type=<?php echo urlencode($type_filter); ?>&account=<?php echo $account_filter; ?>&method=<?php echo urlencode($_GET['method'] ?? ''); ?>&dtf=<?php echo $dtf; ?>&dtt=<?php echo $dtt; ?>&q=<?php echo urlencode($q ?? ''); ?>">
+                        <i class="fa fa-fw fa-download mr-2"></i>Export
+                    </button>
+                <?php } ?>
             </div>
-            <?php } ?>
         </div>
 
         <div class="card-body">
