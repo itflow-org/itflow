@@ -248,6 +248,8 @@ if (isset($_POST['export_products_csv'])) {
 
     validateCSRFToken();
 
+    enforceUserPermission('module_sales');
+
     //get records from database
     $sql = mysqli_query($mysqli,"SELECT * FROM products
       LEFT JOIN categories ON product_category_id = category_id
