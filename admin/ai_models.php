@@ -35,17 +35,17 @@ $num_rows = mysqli_num_rows($sql);
                 <thead class="text-dark <?php if ($num_rows == 0) { echo "d-none"; } ?>">
                 <tr>
                     <th>
-                        <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=ai_model_name&order=<?php echo $disp; ?>">
+                        <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=ai_model_name&order=<?= $disp ?>">
                             Model <?php if ($sort == 'ai_model_name') { echo $order_icon; } ?>
                         </a>
                     </th>
                     <th>
-                        <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=ai_provider_name&order=<?php echo $disp; ?>">
+                        <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=ai_provider_name&order=<?= $disp ?>">
                             Provider <?php if ($sort == 'ai_provider_name') { echo $order_icon; } ?>
                         </a>
                     </th>
                     <th>
-                        <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=ai_model_use_case&order=<?php echo $disp; ?>">
+                        <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=ai_model_use_case&order=<?= $disp ?>">
                             Use Case<?php if ($sort == 'ai_model_use_case') { echo $order_icon; } ?>
                         </a>
                     </th>
@@ -71,12 +71,12 @@ $num_rows = mysqli_num_rows($sql);
                         <td>
                             <a class="text-dark text-bold ajax-modal" href="#"
                                 data-modal-url="modals/ai/ai_model_edit.php?id=<?= $model_id ?>">
-                                <?php echo $model_name; ?>
+                                <?= $model_name ?>
                             </a>
                         </td>
-                        <td><?php echo $provider_name; ?></td>
-                        <td><?php echo $use_case; ?></td>
-                        <td><?php echo $prompt; ?></td>
+                        <td><?= $provider_name ?></td>
+                        <td><?= $use_case ?></td>
+                        <td><?= $prompt ?></td>
                         <td>
                             <div class="dropdown dropleft text-center">
                                 <button class="btn btn-secondary btn-sm" type="button" data-toggle="dropdown">
@@ -88,7 +88,7 @@ $num_rows = mysqli_num_rows($sql);
                                         <i class="fas fa-fw fa-edit mr-2"></i>Edit
                                     </a>
                                     <div class="dropdown-divider"></div>
-                                    <a class="dropdown-item text-danger confirm-link" href="post.php?delete_ai_model=<?php echo $model_id; ?>&csrf_token=<?php echo $_SESSION['csrf_token'] ?>">
+                                    <a class="dropdown-item text-danger confirm-link" href="post.php?delete_ai_model=<?= $model_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                                         <i class="fas fa-fw fa-trash mr-2"></i>Delete
                                     </a>
                                 </div>

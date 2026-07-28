@@ -36,22 +36,22 @@ ob_start();
 
 <div class="modal-header bg-dark">
     <h5 class="modal-title"><i class="fas fa-fw fa-user-edit mr-2"></i>Editing user:
-        <strong><?php echo $user_name; ?></strong></h5>
+        <strong><?= $user_name ?></strong></h5>
     <button type="button" class="close text-white" data-dismiss="modal">
         <span>&times;</span>
     </button>
 </div>
 <form action="post.php" method="post" enctype="multipart/form-data" autocomplete="off">
-    <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token'] ?>">
-    <input type="hidden" name="user_id" value="<?php echo $user_id; ?>">
+    <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
+    <input type="hidden" name="user_id" value="<?= $user_id ?>">
     <div class="modal-body">
 
         <ul class="nav nav-pills nav-justified mb-3">
             <li class="nav-item">
-                <a class="nav-link active" data-toggle="pill" href="#pills-user-details<?php echo $user_id; ?>">Details</a>
+                <a class="nav-link active" data-toggle="pill" href="#pills-user-details<?= $user_id ?>">Details</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" data-toggle="pill" href="#pills-user-access<?php echo $user_id; ?>">Restrict Access</a>
+                <a class="nav-link" data-toggle="pill" href="#pills-user-access<?= $user_id ?>">Restrict Access</a>
             </li>
         </ul>
 
@@ -59,15 +59,15 @@ ob_start();
 
         <div class="tab-content">
 
-            <div class="tab-pane fade show active" id="pills-user-details<?php echo $user_id; ?>">
+            <div class="tab-pane fade show active" id="pills-user-details<?= $user_id ?>">
 
                 <center class="mb-3">
                     <?php if (!empty($user_avatar)) { ?>
-                        <img class="img-fluid" src="<?php echo "../uploads/users/$user_id/$user_avatar"; ?>">
+                        <img class="img-fluid" src="<?= "../uploads/users/$user_id/$user_avatar" ?>">
                     <?php } else { ?>
                         <span class="fa-stack fa-4x">
                             <i class="fa fa-circle fa-stack-2x text-secondary"></i>
-                            <span class="fa fa-stack-1x text-white"><?php echo $user_initials; ?></span>
+                            <span class="fa fa-stack-1x text-white"><?= $user_initials ?></span>
                         </span>
                     <?php } ?>
                 </center>
@@ -79,7 +79,7 @@ ob_start();
                             <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
                         </div>
                         <input type="text" class="form-control" name="name" placeholder="Full Name" maxlength="200"
-                               value="<?php echo $user_name; ?>" required>
+                               value="<?= $user_name ?>" required>
                     </div>
                 </div>
 
@@ -90,7 +90,7 @@ ob_start();
                             <span class="input-group-text"><i class="fa fa-fw fa-envelope"></i></span>
                         </div>
                         <input type="email" class="form-control" name="email" placeholder="Email Address" maxlength="200"
-                               value="<?php echo $user_email; ?>" required>
+                               value="<?= $user_email ?>" required>
                     </div>
                 </div>
 
@@ -125,7 +125,7 @@ ob_start();
                                 $role_name = escapeHtml($row['role_name']);
 
                                 ?>
-                                <option <?php if ($role_id == $user_role_id) {echo "selected";} ?> value="<?php echo $role_id; ?>"><?php echo $role_name; ?></option>
+                                <option <?php if ($role_id == $user_role_id) {echo "selected";} ?> value="<?= $role_id ?>"><?= $role_name ?></option>
                             <?php } ?>
 
                         </select>
@@ -139,8 +139,8 @@ ob_start();
 
                 <div class="form-group">
                     <div class="custom-control custom-checkbox">
-                        <input class="custom-control-input" type="checkbox" id="forceMFACheckBox<?php echo $user_id; ?>" name="force_mfa" value="1" <?php if($user_config_force_mfa == 1){ echo "checked"; } ?>>
-                        <label for="forceMFACheckBox<?php echo $user_id; ?>" class="custom-control-label">
+                        <input class="custom-control-input" type="checkbox" id="forceMFACheckBox<?= $user_id ?>" name="force_mfa" value="1" <?php if($user_config_force_mfa == 1){ echo "checked"; } ?>>
+                        <label for="forceMFACheckBox<?= $user_id ?>" class="custom-control-label">
                             Force MFA
                         </label>
                     </div>
@@ -164,7 +164,7 @@ ob_start();
                 <?php } ?>
             </div>
 
-            <div class="tab-pane fade" id="pills-user-access<?php echo $user_id; ?>">
+            <div class="tab-pane fade" id="pills-user-access<?= $user_id ?>">
 
                 <div class="alert alert-info">
                     <strong>Allow</strong> restricts the user to the selected clients (no Allow = full access). <strong>Deny</strong> blocks a client regardless of Allow. Admin users are unaffected.
@@ -172,13 +172,13 @@ ob_start();
 
                 <div class="mb-2">
                     <small class="text-muted mr-2">Set all:</small>
-                    <button type="button" class="btn btn-sm btn-outline-secondary" onclick="document.querySelectorAll('#accessTable<?php echo $user_id; ?> .perm-none').forEach(r => r.checked = true);">No Rule</button>
-                    <button type="button" class="btn btn-sm btn-outline-success" onclick="document.querySelectorAll('#accessTable<?php echo $user_id; ?> .perm-allow').forEach(r => r.checked = true);">Allow</button>
-                    <button type="button" class="btn btn-sm btn-outline-danger" onclick="document.querySelectorAll('#accessTable<?php echo $user_id; ?> .perm-deny').forEach(r => r.checked = true);">Deny</button>
+                    <button type="button" class="btn btn-sm btn-outline-secondary" onclick="document.querySelectorAll('#accessTable<?= $user_id ?> .perm-none').forEach(r => r.checked = true);">No Rule</button>
+                    <button type="button" class="btn btn-sm btn-outline-success" onclick="document.querySelectorAll('#accessTable<?= $user_id ?> .perm-allow').forEach(r => r.checked = true);">Allow</button>
+                    <button type="button" class="btn btn-sm btn-outline-danger" onclick="document.querySelectorAll('#accessTable<?= $user_id ?> .perm-deny').forEach(r => r.checked = true);">Deny</button>
                 </div>
 
                 <div class="table-responsive">
-                    <table class="table table-sm table-hover mb-0" id="accessTable<?php echo $user_id; ?>">
+                    <table class="table table-sm table-hover mb-0" id="accessTable<?= $user_id ?>">
                         <thead>
                             <tr>
                                 <th>Client</th>
@@ -199,15 +199,15 @@ ob_start();
                         ?>
 
                             <tr>
-                                <td class="align-middle"><?php echo $client_name_select; ?></td>
+                                <td class="align-middle"><?= $client_name_select ?></td>
                                 <td class="text-center align-middle">
-                                    <input type="radio" class="perm-none" name="client_permission[<?php echo $client_id_select; ?>]" value="" <?php if (!$client_is_allow && !$client_is_deny) { echo "checked"; } ?>>
+                                    <input type="radio" class="perm-none" name="client_permission[<?= $client_id_select ?>]" value="" <?php if (!$client_is_allow && !$client_is_deny) { echo "checked"; } ?>>
                                 </td>
                                 <td class="text-center align-middle">
-                                    <input type="radio" class="perm-allow" name="client_permission[<?php echo $client_id_select; ?>]" value="allow" <?php if ($client_is_allow) { echo "checked"; } ?>>
+                                    <input type="radio" class="perm-allow" name="client_permission[<?= $client_id_select ?>]" value="allow" <?php if ($client_is_allow) { echo "checked"; } ?>>
                                 </td>
                                 <td class="text-center align-middle">
-                                    <input type="radio" class="perm-deny" name="client_permission[<?php echo $client_id_select; ?>]" value="deny" <?php if ($client_is_deny) { echo "checked"; } ?>>
+                                    <input type="radio" class="perm-deny" name="client_permission[<?= $client_id_select ?>]" value="deny" <?php if ($client_is_deny) { echo "checked"; } ?>>
                                 </td>
                             </tr>
 

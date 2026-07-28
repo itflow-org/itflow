@@ -25,7 +25,7 @@ $(function() {
     $.ajax({
         url: 'ajax.php?ai_ticket_summary',
         method: 'POST',
-        data: { ticket_id: <?php echo $ticket_id; ?> },
+        data: { ticket_id: <?= $ticket_id ?> },
         success: function(response) {
             $('#summaryContent').html(response);
         },

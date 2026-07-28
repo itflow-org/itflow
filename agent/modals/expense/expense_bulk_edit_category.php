@@ -42,7 +42,7 @@ ob_start();
                         $category_id = intval($row['category_id']);
                         $category_name = escapeHtml($row['category_name']);
                         ?>
-                        <option value="<?php echo $category_id; ?>"><?php echo $category_name; ?></option>
+                        <option value="<?= $category_id ?>"><?= $category_name ?></option>
 
                         <?php
                     }

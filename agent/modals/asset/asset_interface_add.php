@@ -16,8 +16,8 @@ ob_start();
 </div>
 
 <form action="post.php" method="post" autocomplete="off">
-    <input type="hidden" name="asset_id" value="<?php echo $asset_id; ?>">
-    <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token'] ?>">
+    <input type="hidden" name="asset_id" value="<?= $asset_id ?>">
+    <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
 
     <div class="modal-body">
 
@@ -117,8 +117,8 @@ ob_start();
                                 $network_name = escapeHtml($row['network_name']);
                                 $network = escapeHtml($row['network']);
                                 ?>
-                                <option value="<?php echo $network_id; ?>">
-                                    <?php echo "$network_name - $network"; ?>
+                                <option value="<?= $network_id ?>">
+                                    <?= "$network_name - $network" ?>
                                 </option>
                             <?php } ?>
                         </select>
@@ -208,8 +208,8 @@ ob_start();
                                 $interface_name_select = escapeHtml($row['interface_name']);
                                 $asset_name_select = escapeHtml($row['asset_name']);
                                 ?>
-                                <option value="<?php echo $interface_id_select; ?>">
-                                    <?php echo "$asset_name_select - $interface_name_select"; ?>
+                                <option value="<?= $interface_id_select ?>">
+                                    <?= "$asset_name_select - $interface_name_select" ?>
                                 </option>
                             <?php } ?>
                         </select>

@@ -8,7 +8,7 @@ require_once "includes/inc_all_admin.php";
     </div>
     <div class="card-body">
         <form action="post.php" method="post" autocomplete="off">
-            <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token'] ?>">
+            <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
 
             <div class="form-group">
                 <div class="custom-control custom-switch">
@@ -49,7 +49,7 @@ require_once "includes/inc_all_admin.php";
 
             <div class="form-group">
                 <label>White-label key</label>
-                <textarea class="form-control" name="config_whitelabel_key" rows="2" placeholder="Enter a key to enable white-labelling the client portal"><?php echo escapeHtml($config_whitelabel_key); ?></textarea>
+                <textarea class="form-control" name="config_whitelabel_key" rows="2" placeholder="Enter a key to enable white-labelling the client portal"><?= escapeHtml($config_whitelabel_key) ?></textarea>
             </div>
 
             <?php if ($config_whitelabel_enabled == 1 && validateWhitelabelKey($config_whitelabel_key)) {
@@ -61,8 +61,8 @@ require_once "includes/inc_all_admin.php";
                 <div class="form-group">
                     <p>White-labelling is active - thank you for your support! :)</p>
                     <ul>
-                        <li>Key: <?php echo $key_desc ?></li>
-                        <li>Org: <?php echo $key_org ?></li>
+                        <li>Key: <?= $key_desc ?></li>
+                        <li>Org: <?= $key_org ?></li>
                         <li>Expires: <?php echo $key_expires; if ($key_expires < date('Y-m-d H:i:s')) { echo " (expiring) "; } ?></li>
                     </ul>
 

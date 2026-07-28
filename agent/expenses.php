@@ -132,9 +132,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             <div class="form-group">
                                 <label>Date range</label>
                                 <input type="text" id="dateFilter" class="form-control" autocomplete="off">
-                                <input type="hidden" name="canned_date" id="canned_date" value="<?php echo escapeHtml($_GET['canned_date']) ?? ''; ?>">
-                                <input type="hidden" name="dtf" id="dtf" value="<?php echo escapeHtml($dtf ?? ''); ?>">
-                                <input type="hidden" name="dtt" id="dtt" value="<?php echo escapeHtml($dtt ?? ''); ?>">
+                                <input type="hidden" name="canned_date" id="canned_date" value="<?= escapeHtml($_GET['canned_date']) ?? '' ?>">
+                                <input type="hidden" name="dtf" id="dtf" value="<?= escapeHtml($dtf ?? '') ?>">
+                                <input type="hidden" name="dtt" id="dtt" value="<?= escapeHtml($dtt ?? '') ?>">
                             </div>
                         </div>
                         <div class="col-sm-2">
@@ -150,7 +150,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                         $vendor_id = intval($row['vendor_id']);
                                         $vendor_name = escapeHtml($row['vendor_name']);
                                     ?>
-                                        <option <?php if ($vendor_filter == $vendor_id) { echo "selected"; } ?> value="<?php echo $vendor_id; ?>"><?php echo $vendor_name; ?></option>
+                                        <option <?php if ($vendor_filter == $vendor_id) { echo "selected"; } ?> value="<?= $vendor_id ?>"><?= $vendor_name ?></option>
                                     <?php
                                     }
                                     ?>
@@ -170,7 +170,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                         $category_id = intval($row['category_id']);
                                         $category_name = escapeHtml($row['category_name']);
                                     ?>
-                                        <option <?php if ($category_filter == $category_id) { echo "selected"; } ?> value="<?php echo $category_id; ?>"><?php echo $category_name; ?></option>
+                                        <option <?php if ($category_filter == $category_id) { echo "selected"; } ?> value="<?= $category_id ?>"><?= $category_name ?></option>
                                     <?php
                                     }
                                     ?>
@@ -190,7 +190,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                         $account_id = intval($row['account_id']);
                                         $account_name = escapeHtml($row['account_name']);
                                     ?>
-                                        <option <?php if ($account_filter == $account_id) { echo "selected"; } ?> value="<?php echo $account_id; ?>"><?php echo $account_name; ?></option>
+                                        <option <?php if ($account_filter == $account_id) { echo "selected"; } ?> value="<?= $account_id ?>"><?= $account_name ?></option>
                                     <?php
                                     }
                                     ?>
@@ -213,36 +213,36 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             </div>
                         </td>
                         <th>
-                            <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=expense_date&order=<?php echo $disp; ?>">
+                            <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=expense_date&order=<?= $disp ?>">
                                 Date <?php if ($sort == 'expense_date') { echo $order_icon; } ?>
                             </a>
                         </th>
                         <th>
-                            <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=category_name&order=<?php echo $disp; ?>">
+                            <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=category_name&order=<?= $disp ?>">
                                 Category <?php if ($sort == 'category_name') { echo $order_icon; } ?>
                             </a>
                             /
-                            <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=expense_description&order=<?php echo $disp; ?>">
+                            <a class="text-secondary" href="?<?= $url_query_strings_sort ?>&sort=expense_description&order=<?= $disp ?>">
                                 Description <?php if ($sort == 'expense_description') { echo $order_icon; } ?>
                             </a>
                         </th>
                         <th>
-                            <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=vendor_name&order=<?php echo $disp; ?>">
+                            <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=vendor_name&order=<?= $disp ?>">
                                 Vendor <?php if ($sort == 'vendor_name') { echo $order_icon; } ?>
                             </a>
                         </th>
                         <th class="text-right">
-                            <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=expense_amount&order=<?php echo $disp; ?>">
+                            <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=expense_amount&order=<?= $disp ?>">
                                 Amount <?php if ($sort == 'expense_amount') { echo $order_icon; } ?>
                             </a>
                         </th>
                         <th>
-                            <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=account_name&order=<?php echo $disp; ?>">
+                            <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=account_name&order=<?= $disp ?>">
                                 Account <?php if ($sort == 'account_name') { echo $order_icon; } ?>
                             </a>
                         </th>
                         <th>
-                            <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=client_name&order=<?php echo $disp; ?>">
+                            <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=client_name&order=<?= $disp ?>">
                                 Client <?php if ($sort == 'client_name') { echo $order_icon; } ?>
                             </a>
                         </th>
@@ -292,21 +292,21 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 </div>
                             </td>
                             <td>
-                                <?php echo $receipt_attached; ?>
-                                <a class="text-dark ajax-modal" href="#" title="Created: <?php echo $expense_created_at; ?>"
+                                <?= $receipt_attached ?>
+                                <a class="text-dark ajax-modal" href="#" title="Created: <?= $expense_created_at ?>"
                                     data-modal-size="lg"
                                     data-modal-url="modals/expense/expense_edit.php?id=<?= $expense_id ?>">
-                                    <?php echo $expense_date; ?>
+                                    <?= $expense_date ?>
                                 </a>
                             </td>
                             <td>
-                                <?php echo $category_name; ?>
-                                <div class="text-secondary"><small><?php echo truncate($expense_description, 60); ?></small></div>
+                                <?= $category_name ?>
+                                <div class="text-secondary"><small><?= truncate($expense_description, 60) ?></small></div>
                             </td>
-                            <td><?php echo $vendor_name; ?></td>
-                            <td class="text-right text-monospace"><?php echo numfmt_format_currency($currency_format, $expense_amount, $expense_currency_code); ?></td>
-                            <td><?php echo $account_name; ?></td>
-                            <td><?php echo $client_name_display; ?></td>
+                            <td><?= $vendor_name ?></td>
+                            <td class="text-right text-monospace"><?= numfmt_format_currency($currency_format, $expense_amount, $expense_currency_code) ?></td>
+                            <td><?= $account_name ?></td>
+                            <td><?= $client_name_display ?></td>
                             <td>
                                 <div class="dropdown dropleft text-center">
                                     <button class="btn btn-secondary btn-sm" type="button" data-toggle="dropdown">
@@ -315,7 +315,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                     <div class="dropdown-menu">
                                         <?php
                                         if (!empty($expense_receipt)) { ?>
-                                            <a class="dropdown-item" href="<?php echo "../uploads/expenses/$expense_receipt"; ?>" download="<?php echo "$expense_date-$vendor_name-$category_name-$expense_id.pdf"; ?>">
+                                            <a class="dropdown-item" href="<?= "../uploads/expenses/$expense_receipt" ?>" download="<?= "$expense_date-$vendor_name-$category_name-$expense_id.pdf" ?>">
                                                 <i class="fas fa-fw fa-download mr-2"></i>Download
                                             </a>
                                             <div class="dropdown-divider"></div>

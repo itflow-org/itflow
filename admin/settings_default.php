@@ -27,7 +27,7 @@ $net_terms_array = array (
     </div>
     <div class="card-body">
         <form action="post.php" method="post" autocomplete="off">
-            <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token'] ?>">
+            <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
 
             <div class="form-group">
                 <label>Start Page</label>
@@ -37,12 +37,12 @@ $net_terms_array = array (
                     </div>
                     <select class="form-control select2" name="start_page" data-tags="true" required>
                         <?php if (!in_array($config_start_page, array_keys($start_page_select_array))) { ?>
-                            <option selected> <?php echo escapeHtml($config_start_page); ?></option>
+                            <option selected> <?= escapeHtml($config_start_page) ?></option>
                         <?php } ?>
                         <?php foreach ($start_page_select_array as $start_page_value => $start_page_name) { ?>
                             <option <?php if ($start_page_value == $config_start_page) { echo "selected"; } ?>
-                                value="<?php echo escapeHtml($start_page_value); ?>">
-                                <?php echo escapeHtml($start_page_name); ?>
+                                value="<?= escapeHtml($start_page_value) ?>">
+                                <?= escapeHtml($start_page_name) ?>
                             </option>
                         <?php }?>
                     </select>
@@ -65,7 +65,7 @@ $net_terms_array = array (
                             $calendar_name = escapeHtml($row['calendar_name']); ?>
                             <option <?php if ($config_default_calendar == $calendar_id) {
                                         echo "selected";
-                                    } ?> value="<?php echo $calendar_id; ?>"><?php echo $calendar_name; ?></option>
+                                    } ?> value="<?= $calendar_id ?>"><?= $calendar_name ?></option>
                         <?php } ?>
 
                     </select>
@@ -88,7 +88,7 @@ $net_terms_array = array (
                             $account_name = escapeHtml($row['account_name']); ?>
                             <option <?php if ($config_default_transfer_from_account == $account_id) {
                                         echo "selected";
-                                    } ?> value="<?php echo $account_id; ?>"><?php echo $account_name; ?></option>
+                                    } ?> value="<?= $account_id ?>"><?= $account_name ?></option>
                         <?php } ?>
 
                     </select>
@@ -111,7 +111,7 @@ $net_terms_array = array (
                             $account_name = escapeHtml($row['account_name']); ?>
                             <option <?php if ($config_default_transfer_to_account == $account_id) {
                                         echo "selected";
-                                    } ?> value="<?php echo $account_id; ?>"><?php echo $account_name; ?></option>
+                                    } ?> value="<?= $account_id ?>"><?= $account_name ?></option>
                         <?php } ?>
 
                     </select>
@@ -134,7 +134,7 @@ $net_terms_array = array (
                             $account_name = escapeHtml($row['account_name']); ?>
                             <option <?php if ($config_default_payment_account == $account_id) {
                                         echo "selected";
-                                    } ?> value="<?php echo $account_id; ?>"><?php echo $account_name; ?></option>
+                                    } ?> value="<?= $account_id ?>"><?= $account_name ?></option>
                         <?php
                         }
                         ?>
@@ -159,7 +159,7 @@ $net_terms_array = array (
                             $account_name = escapeHtml($row['account_name']); ?>
                             <option <?php if ($config_default_expense_account == $account_id) {
                                         echo "selected";
-                                    } ?> value="<?php echo $account_id; ?>"><?php echo $account_name; ?></option>
+                                    } ?> value="<?= $account_id ?>"><?= $account_name ?></option>
                         <?php } ?>
 
                     </select>
@@ -181,7 +181,7 @@ $net_terms_array = array (
                             $payment_method = escapeHtml($row['category_name']); ?>
                             <option <?php if ($config_default_payment_method == $payment_method) {
                                         echo "selected";
-                                    } ?>><?php echo $payment_method; ?></option>
+                                    } ?>><?= $payment_method ?></option>
                         <?php } ?>
 
                     </select>
@@ -203,7 +203,7 @@ $net_terms_array = array (
                             $payment_method = escapeHtml($row['category_name']); ?>
                             <option <?php if ($config_default_expense_payment_method == $payment_method) {
                                         echo "selected";
-                                    } ?>><?php echo $payment_method; ?></option>
+                                    } ?>><?= $payment_method ?></option>
                         <?php } ?>
 
                     </select>
@@ -220,7 +220,7 @@ $net_terms_array = array (
                         <?php foreach ($net_terms_array as $net_term_value => $net_term_name) { ?>
                             <option <?php if ($config_default_net_terms == $net_term_value) {
                                         echo "selected";
-                                    } ?> value="<?php echo $net_term_value; ?>"><?php echo $net_term_name; ?></option>
+                                    } ?> value="<?= $net_term_value ?>"><?= $net_term_name ?></option>
                         <?php } ?>
                     </select>
                 </div>
@@ -232,7 +232,7 @@ $net_terms_array = array (
                     <div class="input-group-prepend">
                         <span class="input-group-text"><i class="fa fa-fw fa-clock"></i></span>
                     </div>
-                    <input type="text" class="form-control" inputmode="decimal" pattern="[0-9]*\.?[0-9]{0,2}" name="hourly_rate" value="<?php echo number_format($config_default_hourly_rate, 2, '.', ''); ?>" placeholder="0.00" required>
+                    <input type="text" class="form-control" inputmode="decimal" pattern="[0-9]*\.?[0-9]{0,2}" name="hourly_rate" value="<?= number_format($config_default_hourly_rate, 2, '.', '') ?>" placeholder="0.00" required>
                 </div>
             </div>
 

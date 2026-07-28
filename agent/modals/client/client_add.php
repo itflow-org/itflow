@@ -53,7 +53,7 @@ ob_start();
 </ul>
 
 <form action="post.php" method="post" autocomplete="off">
-    <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token'] ?>">
+    <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
     <div class="modal-body">
 
         <div class="tab-content">
@@ -110,7 +110,7 @@ ob_start();
 
                             while ($row = mysqli_fetch_assoc($referral_sql)) {
                                 $referral = escapeHtml($row['category_name']); ?>
-                                <option><?php echo $referral; ?></option>
+                                <option><?= $referral ?></option>
                             <?php } ?>
 
                         </select>
@@ -146,7 +146,7 @@ ob_start();
                                 $tag_id_select = intval($row['tag_id']);
                                 $tag_name_select = escapeHtml($row['tag_name']);
                                 ?>
-                                <option value="<?php echo $tag_id_select; ?>"><?php echo $tag_name_select; ?></option>
+                                <option value="<?= $tag_id_select ?>"><?= $tag_name_select ?></option>
                             <?php } ?>
 
                         </select>
@@ -212,7 +212,7 @@ ob_start();
                         <select class="form-control select2" name="country">
                             <option value="">- Select Country -</option>
                             <?php foreach($countries_array as $country_name) { ?>
-                                <option <?php if ($session_company_country == $country_name) { echo "selected"; } ?> ><?php echo $country_name; ?></option>
+                                <option <?php if ($session_company_country == $country_name) { echo "selected"; } ?> ><?= $country_name ?></option>
                             <?php } ?>
                         </select>
                     </div>
@@ -335,7 +335,7 @@ ob_start();
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fa fa-fw fa-clock"></i></span>
                             </div>
-                            <input type="text" class="form-control" inputmode="decimal" pattern="[0-9]*\.?[0-9]{0,2}" name="rate" placeholder="0.00" value="<?php echo "$config_default_hourly_rate"; ?>">
+                            <input type="text" class="form-control" inputmode="decimal" pattern="[0-9]*\.?[0-9]{0,2}" name="rate" placeholder="0.00" value="<?= "$config_default_hourly_rate" ?>">
                         </div>
                     </div>
 
@@ -347,7 +347,7 @@ ob_start();
                             </div>
                             <select class="form-control select2" name="net_terms">
                                 <?php foreach($net_terms_array as $net_term_value => $net_term_name) { ?>
-                                    <option <?php if ($config_default_net_terms == $net_term_value) { echo "selected"; } ?> value="<?php echo $net_term_value; ?>"><?php echo $net_term_name; ?></option>
+                                    <option <?php if ($config_default_net_terms == $net_term_value) { echo "selected"; } ?> value="<?= $net_term_value ?>"><?= $net_term_name ?></option>
                                 <?php } ?>
                             </select>
                         </div>

@@ -46,8 +46,8 @@ $sql = mysqli_query($mysqli, "
 
 
                     <tr>
-                        <td><a href="../../agent/client_overview.php?client_id=<?php echo $client_id; ?>"><?php echo $client_name; ?></a></td>
-                        <td class="text-right"><?php echo numfmt_format_currency($currency_format, $recurring_monthly_total, $session_company_currency); ?></td>
+                        <td><a href="../../agent/client_overview.php?client_id=<?= $client_id ?>"><?= $client_name ?></a></td>
+                        <td class="text-right"><?= numfmt_format_currency($currency_format, $recurring_monthly_total, $session_company_currency) ?></td>
                     </tr>
                     <?php
                 }
@@ -55,7 +55,7 @@ $sql = mysqli_query($mysqli, "
                 ?>
                     <tr>
                         <th>Total Monthly Income</th>
-                        <th class="text-right"><?php echo numfmt_format_currency($currency_format, $recurring_total, $session_company_currency); ?></th>
+                        <th class="text-right"><?= numfmt_format_currency($currency_format, $recurring_total, $session_company_currency) ?></th>
                     </tr>
                 </tbody>
             </table>

@@ -59,9 +59,9 @@ $contacts_sql = mysqli_query($mysqli, "SELECT contact_id, contact_name, contact_
                     ?>
 
                     <tr>
-                        <td><a href="contact_edit.php?id=<?php echo $contact_id?>"><?php echo $contact_name ?></a></td>
-                        <td><?php echo $contact_email; ?></td>
-                        <td><?php echo $contact_roles_display ?></td>
+                        <td><a href="contact_edit.php?id=<?= $contact_id ?>"><?= $contact_name ?></a></td>
+                        <td><?= $contact_email ?></td>
+                        <td><?= $contact_roles_display ?></td>
                     </tr>
 
                 <?php } ?>

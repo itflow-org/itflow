@@ -83,7 +83,7 @@ ob_start();
                                 $location_id_select = intval($row['location_id']);
                                 $location_name = escapeHtml($row['location_name']);
                             ?>
-                            <option <?php if ($location_id == $location_id_select) { echo "selected"; } ?> value="<?php echo $location_id_select; ?>"><?php echo $location_name; ?></option>
+                            <option <?php if ($location_id == $location_id_select) { echo "selected"; } ?> value="<?= $location_id_select ?>"><?= $location_name ?></option>
 
                             <?php
                             }

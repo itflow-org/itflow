@@ -34,7 +34,7 @@ ob_start();
 </div>
 <form action="post.php" method="post" autocomplete="off">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
-    <input type="hidden" name="ticket_id" value="<?php echo $ticket_id; ?>">
+    <input type="hidden" name="ticket_id" value="<?= $ticket_id ?>">
     <div class="modal-body">
 
         <div class="form-group">

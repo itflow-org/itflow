@@ -689,7 +689,7 @@ $show_login_form = (!$show_role_choice && !$show_mfa_form);
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title><?php echo escapeHtml($company_name); ?> | Login</title>
+    <title><?= escapeHtml($company_name) ?> | Login</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="robots" content="noindex">
 
@@ -706,7 +706,7 @@ $show_login_form = (!$show_role_choice && !$show_mfa_form);
 <div class="login-box">
     <div class="login-logo">
         <?php if (!empty($company_logo)) { ?>
-            <img alt="<?=escapeHtml($company_name)?> logo" height="110" width="380" class="img-fluid" src="<?php echo "uploads/settings/$company_logo"; ?>">
+            <img alt="<?=escapeHtml($company_name)?> logo" height="110" width="380" class="img-fluid" src="<?= "uploads/settings/$company_logo" ?>">
         <?php } else { ?>
             <span class="text-primary text-bold"><i class="fas fa-paper-plane mr-2"></i>IT</span>Flow
         <?php } ?>
@@ -716,16 +716,16 @@ $show_login_form = (!$show_role_choice && !$show_mfa_form);
         <div class="card-body login-card-body">
 
             <?php if (!empty($config_login_message)){ ?>
-                <p class="login-box-msg px-0"><?php echo nl2br($config_login_message); ?></p>
+                <p class="login-box-msg px-0"><?= nl2br($config_login_message) ?></p>
             <?php } ?>
 
             <?php if (!empty($_SESSION['login_message'])) { ?>
-                <div class="alert alert-danger"><?php echo escapeHtml($_SESSION['login_message']); ?></div>
+                <div class="alert alert-danger"><?= escapeHtml($_SESSION['login_message']) ?></div>
                 <?php unset($_SESSION['login_message']); ?>
             <?php } ?>
 
             <?php if (isset($response)) { ?>
-                <p><?php echo $response; ?></p>
+                <p><?= $response ?></p>
             <?php } ?>
 
             <form method="post">
@@ -736,7 +736,7 @@ $show_login_form = (!$show_role_choice && !$show_mfa_form);
                         <input type="email" class="form-control"
                             placeholder="<?php if ($config_login_key_required) { if (!isset($_GET['key']) || $_GET['key'] !== $config_login_key_secret) { echo "Client "; } } echo "Email"; ?>"
                             name="email"
-                            value="<?php echo htmlspecialchars($email ?? '', ENT_QUOTES); ?>"
+                            value="<?= htmlspecialchars($email ?? '', ENT_QUOTES) ?>"
                             required autofocus
                         >
                         <div class="input-group-append">
@@ -761,7 +761,7 @@ $show_login_form = (!$show_role_choice && !$show_mfa_form);
                 <?php if ($show_role_choice): ?>
                     <!-- STEP 2: Role choice only -->
                     <input type="hidden" name="pending_login_token"
-                           value="<?php echo htmlspecialchars($_SESSION['pending_dual_login']['token'] ?? '', ENT_QUOTES); ?>">
+                           value="<?= htmlspecialchars($_SESSION['pending_dual_login']['token'] ?? '', ENT_QUOTES) ?>">
 
                     <div class="mb-2 text-center">
                         <button type="submit" class="btn btn-dark btn-block mb-2" name="role_choice" value="agent">
@@ -775,10 +775,10 @@ $show_login_form = (!$show_role_choice && !$show_mfa_form);
 
                 <?php if ($show_mfa_form): ?>
                     <!-- STEP 3: MFA only -->
-                    <?php echo $token_field; ?>
+                    <?= $token_field ?>
 
                     <input type="hidden" name="pending_mfa_token"
-                           value="<?php echo htmlspecialchars($_SESSION['pending_mfa_login']['token'] ?? '', ENT_QUOTES); ?>">
+                           value="<?= htmlspecialchars($_SESSION['pending_mfa_login']['token'] ?? '', ENT_QUOTES) ?>">
 
                     <div class="form-group mb-3">
                         <div class="custom-control custom-checkbox">

@@ -49,7 +49,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                 <thead class="text-dark <?php if($num_rows[0] == 0){ echo "d-none"; } ?>">
                 <tr>
                     <th>
-                        <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=project_template_name&order=<?php echo $disp; ?>">
+                        <a class="text-secondary" href="?<?= $url_query_strings_sort ?>&sort=project_template_name&order=<?= $disp ?>">
                             Template <?php if ($sort == 'project_template_name') { echo $order_icon; } ?>
                         </a>
                     </th>
@@ -101,8 +101,8 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 </div>
                             </a>
                         </td>
-                        <td><?php echo $ticket_template_count; ?></td>
-                        <td><?php echo $task_template_count; ?></td>
+                        <td><?= $ticket_template_count ?></td>
+                        <td><?= $task_template_count ?></td>
                         <td>
                             <div class="dropdown dropleft text-center">
                                 <button class="btn btn-secondary btn-sm" data-toggle="dropdown">
@@ -114,7 +114,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                     </a>
                                     <?php if($session_user_role == 3) { ?>
                                         <div class="dropdown-divider"></div>
-                                        <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_project_template=<?php echo $project_template_id; ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
+                                        <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_project_template=<?= $project_template_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                                             <i class="fas fa-fw fa-trash mr-2"></i>Delete
                                         </a>
                                     <?php } ?>

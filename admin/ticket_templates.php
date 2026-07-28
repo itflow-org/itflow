@@ -59,7 +59,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         </a>
                     </th>
                     <th>
-                        <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=task_count&order=<?php echo $disp; ?>">
+                        <a class="text-secondary" href="?<?= $url_query_strings_sort ?>&sort=task_count&order=<?= $disp ?>">
                             Tasks <?php if ($sort == 'task_count') { echo $order_icon; } ?>
                         </a>
                     </th>

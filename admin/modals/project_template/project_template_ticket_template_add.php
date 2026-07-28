@@ -16,7 +16,7 @@ ob_start();
 </div>
 <form action="post.php" method="post" autocomplete="off">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
-    <input type="hidden" name="project_template_id" value="<?php echo $project_template_id; ?>">
+    <input type="hidden" name="project_template_id" value="<?= $project_template_id ?>">
 
     <div class="modal-body">
 
@@ -42,7 +42,7 @@ ob_start();
                         $ticket_template_id_select = intval($row['ticket_template_id']);
                         $ticket_template_name_select = escapeHtml($row['ticket_template_name']);
                         ?>
-                        <option value="<?php echo $ticket_template_id_select; ?>"><?php echo $ticket_template_name_select; ?></option>
+                        <option value="<?= $ticket_template_id_select ?>"><?= $ticket_template_name_select ?></option>
                         <?php
                     }
 

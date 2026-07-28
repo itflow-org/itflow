@@ -25,17 +25,17 @@ $num_rows = mysqli_num_rows($sql);
                 <thead class="text-dark <?php if ($num_rows == 0) { echo "d-none"; } ?>">
                 <tr>
                     <th>
-                        <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=ai_provider_name&order=<?php echo $disp; ?>">
+                        <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=ai_provider_name&order=<?= $disp ?>">
                             Provider <?php if ($sort == 'ai_provider_name') { echo $order_icon; } ?>
                         </a>
                     </th>
                     <th>
-                        <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=ai_provider_api_url&order=<?php echo $disp; ?>">
+                        <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=ai_provider_api_url&order=<?= $disp ?>">
                             URL <?php if ($sort == 'ai_provider_api_url') { echo $order_icon; } ?>
                         </a>
                     </th>
                     <th>
-                        <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=ai_provider_api_key&order=<?php echo $disp; ?>">
+                        <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=ai_provider_api_key&order=<?= $disp ?>">
                             Key <?php if ($sort == 'ai_provider_api_key') { echo $order_icon; } ?>
                         </a>
                     </th>
@@ -62,11 +62,11 @@ $num_rows = mysqli_num_rows($sql);
                         <td>
                             <a class="text-dark text-bold ajax-modal" href="#"
                                 data-modal-url="modals/ai/ai_provider_edit.php?id=<?= $provider_id ?>">
-                                <?php echo $provider_name; ?>
+                                <?= $provider_name ?>
                             </a>
                         </td>
-                        <td><?php echo $url; ?></td>
-                        <td><?php echo $key; ?></td>
+                        <td><?= $url ?></td>
+                        <td><?= $key ?></td>
                         <td class="text-center">
                             <a class="badge badge-dark badge-pill p-2" href="ai_models.php"><?= $ai_model_count ?></a>
                         <td>
@@ -80,7 +80,7 @@ $num_rows = mysqli_num_rows($sql);
                                         <i class="fas fa-fw fa-edit mr-2"></i>Edit
                                     </a>
                                     <div class="dropdown-divider"></div>
-                                    <a class="dropdown-item text-danger confirm-link" href="post.php?delete_ai_provider=<?php echo $provider_id; ?>&csrf_token=<?php echo $_SESSION['csrf_token'] ?>">
+                                    <a class="dropdown-item text-danger confirm-link" href="post.php?delete_ai_provider=<?= $provider_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                                         <i class="fas fa-fw fa-trash mr-2"></i>Delete
                                     </a>
                                 </div>

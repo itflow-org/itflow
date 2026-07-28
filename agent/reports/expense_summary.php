@@ -37,7 +37,7 @@ $largest_expense_month = 0;
             <select onchange="this.form.submit()" class="form-control" name="year">
                 <?php while ($row = mysqli_fetch_assoc($sql_expense_years)) {
                     $expense_year = intval($row['expense_year']); ?>
-                    <option <?php if ($year == $expense_year) { ?> selected <?php } ?>><?php echo $expense_year; ?></option>
+                    <option <?php if ($year == $expense_year) { ?> selected <?php } ?>><?= $expense_year ?></option>
                 <?php } ?>
             </select>
         </form>
@@ -71,7 +71,7 @@ $largest_expense_month = 0;
                     $category_id = intval($row['category_id']);
                     $category_name = escapeHtml($row['category_name']); ?>
                     <tr>
-                        <td><?php echo $category_name; ?></td>
+                        <td><?= $category_name ?></td>
                         <?php
                         $total_expense_for_all_months = 0;
                         for ($month = 1; $month <= 12; $month++) {
@@ -81,14 +81,14 @@ $largest_expense_month = 0;
                             $total_expense_for_all_months += $expense_amount_for_month;
                             ?>
                             <td class="text-right">
-                                <a class="text-dark" href="expenses.php?q=<?php echo $category_name; ?>&dtf=<?php echo "$year-$month"; ?>-01&dtt=<?php echo "$year-$month"; ?>-31">
-                                    <?php echo numfmt_format_currency($currency_format, $expense_amount_for_month, $session_company_currency); ?>
+                                <a class="text-dark" href="expenses.php?q=<?= $category_name ?>&dtf=<?= "$year-$month" ?>-01&dtt=<?= "$year-$month" ?>-31">
+                                    <?= numfmt_format_currency($currency_format, $expense_amount_for_month, $session_company_currency) ?>
                                 </a>
                             </td>
                         <?php } ?>
                         <th class="text-right">
-                            <a class="text-dark" href="expenses.php?q=<?php echo $category_name; ?>&dtf=<?php echo $year; ?>-01-01&dtt=<?php echo $year; ?>-12-31">
-                                <?php echo numfmt_format_currency($currency_format, $total_expense_for_all_months, $session_company_currency); ?>
+                            <a class="text-dark" href="expenses.php?q=<?= $category_name ?>&dtf=<?= $year ?>-01-01&dtt=<?= $year ?>-12-31">
+                                <?= numfmt_format_currency($currency_format, $total_expense_for_all_months, $session_company_currency) ?>
                             </a>
                         </th>
                     </tr>
@@ -105,14 +105,14 @@ $largest_expense_month = 0;
                         $grand_total_all_months += $expense_total_amount_for_month;
                         ?>
                         <th class="text-right">
-                            <a class="text-dark" href="expenses.php?dtf=<?php echo "$year-$month"; ?>-01&dtt=<?php echo "$year-$month"; ?>-31">
-                                <?php echo numfmt_format_currency($currency_format, $expense_total_amount_for_month, $session_company_currency); ?>
+                            <a class="text-dark" href="expenses.php?dtf=<?= "$year-$month" ?>-01&dtt=<?= "$year-$month" ?>-31">
+                                <?= numfmt_format_currency($currency_format, $expense_total_amount_for_month, $session_company_currency) ?>
                             </a>
                         </th>
                     <?php } ?>
                     <th class="text-right">
-                        <a class="text-dark" href="expenses.php?dtf=<?php echo $year; ?>-01-01&dtt=<?php echo $year; ?>-12-31">
-                            <?php echo numfmt_format_currency($currency_format, $grand_total_all_months, $session_company_currency); ?>
+                        <a class="text-dark" href="expenses.php?dtf=<?= $year ?>-01-01&dtt=<?= $year ?>-12-31">
+                            <?= numfmt_format_currency($currency_format, $grand_total_all_months, $session_company_currency) ?>
                         </a>
                     </th>
                 </tr>

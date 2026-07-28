@@ -72,19 +72,19 @@ $ticket_details = $purifier->purify($task_row['ticket_details']);
     <div class="card mt-3">
         <div class="card-header bg-dark text-center">
             <h4 class="mt-1">
-                Task Approval for Ticket <?php echo $ticket_prefix, $ticket_number ?>
+                Task Approval for Ticket <?= $ticket_prefix, $ticket_number ?>
             </h4>
         </div>
 
         <div class="card-body prettyContent">
-            <h5><strong>Subject:</strong> <?php echo $ticket_subject ?></h5>
+            <h5><strong>Subject:</strong> <?= $ticket_subject ?></h5>
             <p>
-                <strong>State:</strong> <?php echo $ticket_status ?>
+                <strong>State:</strong> <?= $ticket_status ?>
                 <br>
-                <strong>Priority:</strong> <?php echo $ticket_priority ?>
+                <strong>Priority:</strong> <?= $ticket_priority ?>
                 <br>
             </p>
-            <?php echo $ticket_details ?>
+            <?= $ticket_details ?>
             <hr>
             <h5>Task Approval</h5>
             <p>
@@ -106,7 +106,7 @@ $ticket_details = $purifier->purify($task_row['ticket_details']);
     <hr>
 
     <div class="card-footer">
-        <?php echo "<i class='fas fa-phone fa-fw mr-2'></i>$company_phone | <i class='fas fa-globe fa-fw mr-2 ml-2'></i>$company_website"; ?>
+        <?= "<i class='fas fa-phone fa-fw mr-2'></i>$company_phone | <i class='fas fa-globe fa-fw mr-2 ml-2'></i>$company_website" ?>
     </div>
 
 <?php

@@ -40,8 +40,8 @@ ob_start();
 
 <div class="modal-header bg-dark">
     <h5 class="modal-title text-white">
-        <i class="fa fa-fw fa-credit-card mr-2"></i>Payments for <?php echo "$invoice_prefix$invoice_number"; ?>
-        <span class="p-2 ml-2 badge badge-<?php echo $invoice_badge_color; ?>"><?php echo $invoice_status; ?></span>
+        <i class="fa fa-fw fa-credit-card mr-2"></i>Payments for <?= "$invoice_prefix$invoice_number" ?>
+        <span class="p-2 ml-2 badge badge-<?= $invoice_badge_color ?>"><?= $invoice_status ?></span>
     </h5>
     <button type="button" class="close text-white" data-dismiss="modal">
         <span>&times;</span>
@@ -97,17 +97,17 @@ ob_start();
                             <?php if (lookupUserPermission("module_sales") >= 2) { ?>
                                 <a class="ajax-modal" href="#"
                                     data-modal-size = "lg"
-                                    data-modal-url = "modals/payment/payment_edit.php?id=<?php echo $payment_id; ?>">
-                                    <?php echo $payment_date; ?>
+                                    data-modal-url = "modals/payment/payment_edit.php?id=<?= $payment_id ?>">
+                                    <?= $payment_date ?>
                                 </a>
                             <?php } else { ?>
-                                <?php echo $payment_date; ?>
+                                <?= $payment_date ?>
                             <?php } ?>
                         </td>
-                        <td class="text-right text-monospace"><?php echo numfmt_format_currency($currency_format, $payment_amount, $payment_currency_code); ?></td>
-                        <td><?php echo $payment_method; ?></td>
-                        <td><?php echo $payment_reference_display; ?></td>
-                        <td><?php echo "$account_archived_display$account_name"; ?></td>
+                        <td class="text-right text-monospace"><?= numfmt_format_currency($currency_format, $payment_amount, $payment_currency_code) ?></td>
+                        <td><?= $payment_method ?></td>
+                        <td><?= $payment_reference_display ?></td>
+                        <td><?= "$account_archived_display$account_name" ?></td>
                     </tr>
 
                 <?php
@@ -129,15 +129,15 @@ ob_start();
             <table class="table table-sm table-borderless mb-0">
                 <tr>
                     <td>Invoice Total:</td>
-                    <td class="text-right text-monospace"><?php echo numfmt_format_currency($currency_format, $invoice_amount, $invoice_currency_code); ?></td>
+                    <td class="text-right text-monospace"><?= numfmt_format_currency($currency_format, $invoice_amount, $invoice_currency_code) ?></td>
                 </tr>
                 <tr>
                     <td>Amount Paid:</td>
-                    <td class="text-right text-monospace"><?php echo numfmt_format_currency($currency_format, $amount_paid, $invoice_currency_code); ?></td>
+                    <td class="text-right text-monospace"><?= numfmt_format_currency($currency_format, $amount_paid, $invoice_currency_code) ?></td>
                 </tr>
                 <tr class="text-bold">
                     <td>Balance:</td>
-                    <td class="text-right text-monospace"><?php echo numfmt_format_currency($currency_format, $balance, $invoice_currency_code); ?></td>
+                    <td class="text-right text-monospace"><?= numfmt_format_currency($currency_format, $balance, $invoice_currency_code) ?></td>
                 </tr>
             </table>
         </div>
@@ -145,7 +145,7 @@ ob_start();
 
 </div>
 <div class="modal-footer">
-    <a href="invoice.php?client_id=<?php echo $client_id; ?>&invoice_id=<?php echo $invoice_id; ?>" class="btn btn-primary text-bold">
+    <a href="invoice.php?client_id=<?= $client_id ?>&invoice_id=<?= $invoice_id ?>" class="btn btn-primary text-bold">
         <i class="fa fa-fw fa-file-invoice-dollar mr-2"></i>Open Invoice
     </a>
     <button type="button" class="btn btn-light" data-dismiss="modal"><i class="fa fa-times mr-2"></i>Close</button>

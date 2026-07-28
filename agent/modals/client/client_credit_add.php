@@ -2,13 +2,13 @@
     <div class="modal-dialog">
         <div class="modal-content border-dark">
             <div class="modal-header bg-dark">
-                <h5 class="modal-title"><i class="fa fa-fw fa-wallet mr-2"></i>Adding <strong>Credit</strong> (Credit Balance: <?php echo numfmt_format_currency($currency_format, $credit_balance, $client_currency_code); ?>)</h5>
+                <h5 class="modal-title"><i class="fa fa-fw fa-wallet mr-2"></i>Adding <strong>Credit</strong> (Credit Balance: <?= numfmt_format_currency($currency_format, $credit_balance, $client_currency_code) ?>)</h5>
                 <button type="button" class="close text-white" data-dismiss="modal">
                     <span>&times;</span>
                 </button>
             </div>
             <form action="post.php" method="post" autocomplete="off">
-                <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token'] ?>">
+                <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
                 <div class="modal-body">
 
                     <div class="form-group">
@@ -57,7 +57,7 @@
                     </div>
 
                     <?php if (isset($_GET['client_id'])) { ?>
-                        <input type="hidden" name="client" value="<?php echo $client_id; ?>">
+                        <input type="hidden" name="client" value="<?= $client_id ?>">
                     <?php } else { ?>
 
                         <div class="form-group">
@@ -75,7 +75,7 @@
                                         $client_id = intval($row['client_id']);
                                         $client_name = escapeHtml($row['client_name']);
                                         ?>
-                                        <option value="<?php echo $client_id; ?>"><?php echo $client_name; ?></option>
+                                        <option value="<?= $client_id ?>"><?= $client_name ?></option>
 
                                         <?php
                                     }

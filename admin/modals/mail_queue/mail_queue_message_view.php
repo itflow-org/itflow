@@ -40,7 +40,7 @@ if ($email_status == 0) {
 ob_start();
 ?>
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class='fas fa-fw fa-envelope-open mr-2'></i><strong><?php echo $email_subject; ?></strong></h5>
+    <h5 class="modal-title"><i class='fas fa-fw fa-envelope-open mr-2'></i><strong><?= $email_subject ?></strong></h5>
     <button type="button" class="close text-light" data-dismiss="modal">
         <span>&times;</span>
     </button>
@@ -51,7 +51,7 @@ ob_start();
             <span class="text-secondary">From:</span>
         </div>
         <div class="col-md-10">
-            <?php echo "<strong>$email_from_name</strong> ($email_from)"; ?>
+            <?= "<strong>$email_from_name</strong> ($email_from)" ?>
         </div>
     </div>
     <hr class="my-2">
@@ -60,7 +60,7 @@ ob_start();
             <span class="text-secondary">To:</span>
         </div>
         <div class="col-md-10">
-            <?php echo "<strong>$email_recipient_name</strong> ($email_recipient)"; ?>
+            <?= "<strong>$email_recipient_name</strong> ($email_recipient)" ?>
         </div>
     </div>
     <hr class="my-2">

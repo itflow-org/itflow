@@ -41,7 +41,7 @@ ob_start();
             <div class="tab-pane fade show active" id="pills-credential-details">
 
                 <?php if ($client_id) { ?>
-                    <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
+                    <input type="hidden" name="client_id" value="<?= $client_id ?>">
                 <?php } else { ?>
 
                     <div class="form-group">
@@ -58,7 +58,7 @@ ob_start();
                                 while ($row = mysqli_fetch_assoc($sql)) {
                                     $client_id_select = intval($row['client_id']);
                                     $client_name = escapeHtml($row['client_name']); ?>
-                                    <option <?php if ($client_id == $client_id_select) { echo "selected"; } ?> value="<?php echo $client_id_select; ?>"><?php echo $client_name; ?></option>
+                                    <option <?php if ($client_id == $client_id_select) { echo "selected"; } ?> value="<?= $client_id_select ?>"><?= $client_name ?></option>
 
                                 <?php } ?>
                             </select>
@@ -174,7 +174,7 @@ ob_start();
                                 ?>
                                 <option
                                     <?php if ($contact_id == $contact_id_select) { echo "selected"; } ?>
-                                    value="<?php echo $contact_id_select; ?>"><?php echo $contact_name; ?>
+                                    value="<?= $contact_id_select ?>"><?= $contact_name ?>
                                 </option>
 
                                 <?php
@@ -207,7 +207,7 @@ ob_start();
 
                                 ?>
                                 <option <?php if ($asset_id == $asset_id_select) { echo "selected"; } ?>
-                                    value="<?php echo $asset_id_select; ?>"><?php echo $asset_display_string; ?></option>
+                                    value="<?= $asset_id_select ?>"><?= $asset_display_string ?></option>
 
                                 <?php
                             }
@@ -238,7 +238,7 @@ ob_start();
                                 $tag_id_select = intval($row['tag_id']);
                                 $tag_name_select = escapeHtml($row['tag_name']);
                                 ?>
-                                <option value="<?php echo $tag_id_select; ?>"><?php echo $tag_name_select; ?></option>
+                                <option value="<?= $tag_id_select ?>"><?= $tag_name_select ?></option>
                             <?php } ?>
 
                         </select>

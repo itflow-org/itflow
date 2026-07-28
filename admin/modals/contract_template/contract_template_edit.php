@@ -52,8 +52,8 @@ ob_start();
 </ul>
 
 <form action="post.php" method="post" autocomplete="off">
-    <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token'] ?>">
-    <input type="hidden" name="contract_template_id" value="<?php echo $contract_template_id; ?>">
+    <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
+    <input type="hidden" name="contract_template_id" value="<?= $contract_template_id ?>">
 
     <div class="modal-body">
         <div class="tab-content" id="contractTemplateTabContent">

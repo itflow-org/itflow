@@ -55,7 +55,7 @@ $sql_vendor_expenses = mysqli_query($mysqli, "
                 while ($row = mysqli_fetch_assoc($sql_payment_years)) {
                     $payment_year = intval($row['payment_year']);
                     ?>
-                    <option <?php if ($year == $payment_year) { ?> selected <?php } ?> > <?php echo $payment_year; ?></option>
+                    <option <?php if ($year == $payment_year) { ?> selected <?php } ?> > <?= $payment_year ?></option>
 
                     <?php
                 }
@@ -80,8 +80,8 @@ $sql_vendor_expenses = mysqli_query($mysqli, "
                     $amount_paid = floatval($row['amount_paid']); ?>
 
                     <tr>
-                        <td><?php echo $vendor_name; ?></td>
-                        <td class="text-right"><?php echo numfmt_format_currency($currency_format, $amount_paid, $session_company_currency); ?></td>
+                        <td><?= $vendor_name ?></td>
+                        <td class="text-right"><?= numfmt_format_currency($currency_format, $amount_paid, $session_company_currency) ?></td>
                     </tr>
                     <?php
                 }

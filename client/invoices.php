@@ -73,14 +73,14 @@ $invoices_sql = mysqli_query($mysqli, "SELECT * FROM invoices WHERE invoice_clie
                 ?>
 
                 <tr>
-                    <td><a target="_blank" href="//<?php echo $config_base_url ?>/guest/guest_view_invoice.php?invoice_id=<?php echo "$invoice_id&url_key=$invoice_url_key"?>"> <?php echo "$invoice_prefix$invoice_number"; ?></a></td>
-                    <td><?php echo $invoice_scope_display; ?></td>
-                    <td><?php echo numfmt_format_currency($currency_format, $invoice_amount, $session_company_currency); ?></td>
-                    <td><?php echo $invoice_date; ?></td>
-                    <td class="<?php echo $overdue_color; ?>"><?php echo $invoice_due; ?></td>
+                    <td><a target="_blank" href="//<?= $config_base_url ?>/guest/guest_view_invoice.php?invoice_id=<?= "$invoice_id&url_key=$invoice_url_key" ?>"> <?= "$invoice_prefix$invoice_number" ?></a></td>
+                    <td><?= $invoice_scope_display ?></td>
+                    <td><?= numfmt_format_currency($currency_format, $invoice_amount, $session_company_currency) ?></td>
+                    <td><?= $invoice_date ?></td>
+                    <td class="<?= $overdue_color ?>"><?= $invoice_due ?></td>
                     <td>
-                        <span class="p-2 badge badge-<?php echo $invoice_badge_color; ?>">
-                            <?php echo $invoice_status; ?>
+                        <span class="p-2 badge badge-<?= $invoice_badge_color ?>">
+                            <?= $invoice_status ?>
                         </span>
                     </td>
                 </tr>

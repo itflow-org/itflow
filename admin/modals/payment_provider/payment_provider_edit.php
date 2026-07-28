@@ -97,7 +97,7 @@ ob_start();
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-shopping-cart"></i></span>
                         </div>
-                        <input type="text" class="form-control" inputmode="decimal" pattern="[0-9]*\.?[0-9]{0,2}" name="threshold" placeholder="1000.00" value="<?php echo $threshold; ?>">
+                        <input type="text" class="form-control" inputmode="decimal" pattern="[0-9]*\.?[0-9]{0,2}" name="threshold" placeholder="1000.00" value="<?= $threshold ?>">
                     </div>
                     <small class="form-text text-muted">Will not show as an option at Checkout if above this number</small>
                 </div>

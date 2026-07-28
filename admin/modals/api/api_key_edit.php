@@ -15,7 +15,7 @@ ob_start();
 
 <div class="modal-header bg-dark">
     <h5 class="modal-title"><i class="fas fa-fw fa-key mr-2"></i>Editing API Key:
-        <strong><?php echo $api_key_name; ?></strong></h5>
+        <strong><?= $api_key_name ?></strong></h5>
     <button type="button" class="close text-white" data-dismiss="modal">
         <span>&times;</span>
     </button>
@@ -23,8 +23,8 @@ ob_start();
 <form action="post.php" method="post" autocomplete="off">
     <div class="modal-body">
 
-        <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token'] ?>">
-        <input type="hidden" name="api_key_id" value="<?php echo $api_key_id; ?>">
+        <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
+        <input type="hidden" name="api_key_id" value="<?= $api_key_id ?>">
 
         <div class="form-group">
             <label>Name <strong class="text-danger">*</strong></label>
@@ -33,7 +33,7 @@ ob_start();
                     <span class="input-group-text"><i class="fa fa-fw fa-sticky-note"></i></span>
                 </div>
                 <input type="text" class="form-control" name="name" placeholder="Key Name" maxlength="255"
-                       value="<?php echo $api_key_name; ?>" required autofocus>
+                       value="<?= $api_key_name ?>" required autofocus>
             </div>
         </div>
 
@@ -43,8 +43,8 @@ ob_start();
                 <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
                 </div>
-                <input type="date" class="form-control" name="expire" min="<?php echo date('Y-m-d')?>" max="2999-12-31"
-                       value="<?php echo $api_key_expire; ?>" required>
+                <input type="date" class="form-control" name="expire" min="<?= date('Y-m-d') ?>" max="2999-12-31"
+                       value="<?= $api_key_expire ?>" required>
             </div>
         </div>
 
@@ -61,7 +61,7 @@ ob_start();
                     while ($run_user = mysqli_fetch_assoc($sql_run_users)) {
                         $run_user_id = intval($run_user['user_id']);
                         $run_user_name = escapeHtml($run_user['user_name']); ?>
-                        <option value="<?php echo $run_user_id; ?>" <?php if ($run_user_id == $api_key_user_id) { echo "selected"; } ?>><?php echo $run_user_name; ?></option>
+                        <option value="<?= $run_user_id ?>" <?php if ($run_user_id == $api_key_user_id) { echo "selected"; } ?>><?= $run_user_name ?></option>
                     <?php } ?>
                 </select>
             </div>

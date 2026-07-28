@@ -43,7 +43,7 @@ ob_start();
 ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class='fas fa-fw fa-key mr-2'></i>Editing credential: <strong><?php echo $credential_name; ?></strong></h5>
+    <h5 class="modal-title"><i class='fas fa-fw fa-key mr-2'></i>Editing credential: <strong><?= $credential_name ?></strong></h5>
     <button type="button" class="close text-white" data-dismiss="modal">
         <span>&times;</span>
     </button>
@@ -51,18 +51,18 @@ ob_start();
 
 <form action="post.php" method="post" autocomplete="off">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
-    <input type="hidden" name="credential_id" value="<?php echo $credential_id; ?>">
+    <input type="hidden" name="credential_id" value="<?= $credential_id ?>">
     <div class="modal-body">
 
         <ul class="nav nav-pills nav-justified mb-3">
             <li class="nav-item">
-                <a class="nav-link active" data-toggle="pill" href="#pills-credential-details<?php echo $credential_id; ?>">Details</a>
+                <a class="nav-link active" data-toggle="pill" href="#pills-credential-details<?= $credential_id ?>">Details</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" data-toggle="pill" href="#pills-credential-relation<?php echo $credential_id; ?>">Relation</a>
+                <a class="nav-link" data-toggle="pill" href="#pills-credential-relation<?= $credential_id ?>">Relation</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" data-toggle="pill" href="#pills-credential-notes<?php echo $credential_id; ?>">Notes</a>
+                <a class="nav-link" data-toggle="pill" href="#pills-credential-notes<?= $credential_id ?>">Notes</a>
             </li>
         </ul>
 
@@ -70,7 +70,7 @@ ob_start();
 
         <div class="tab-content" <?php if (lookupUserPermission('module_credential') <= 1) { echo 'inert'; } ?>>
 
-            <div class="tab-pane fade show active" id="pills-credential-details<?php echo $credential_id; ?>">
+            <div class="tab-pane fade show active" id="pills-credential-details<?= $credential_id ?>">
 
                 <div class="form-group">
                     <label>Name <strong class="text-danger">*</strong> / <span class="text-secondary">Important?</span></label>
@@ -78,7 +78,7 @@ ob_start();
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-key"></i></span>
                         </div>
-                        <input type="text" class="form-control" name="name" placeholder="Name of Credential" maxlength="200" value="<?php echo $credential_name; ?>" required>
+                        <input type="text" class="form-control" name="name" placeholder="Name of Credential" maxlength="200" value="<?= $credential_name ?>" required>
                         <div class="input-group-append">
                             <div class="input-group-text">
                                 <label class="star-toggle mb-0" title="Favorite">
@@ -99,7 +99,7 @@ ob_start();
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-align-left"></i></span>
                         </div>
-                        <input type="text" class="form-control" name="description" placeholder="Description" value="<?php echo $credential_description; ?>">
+                        <input type="text" class="form-control" name="description" placeholder="Description" value="<?= $credential_description ?>">
                     </div>
                 </div>
 
@@ -109,7 +109,7 @@ ob_start();
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
                         </div>
-                        <input type="text" class="form-control" name="username" placeholder="Username or ID" maxlength="350" value="<?php echo $credential_username; ?>">
+                        <input type="text" class="form-control" name="username" placeholder="Username or ID" maxlength="350" value="<?= $credential_username ?>">
                     </div>
                 </div>
 
@@ -119,12 +119,12 @@ ob_start();
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-lock"></i></span>
                         </div>
-                        <input type="password" class="form-control" data-toggle="password" name="password" placeholder="Password or Key" maxlength="350" value="<?php echo $credential_password; ?>" required autocomplete="new-password">
+                        <input type="password" class="form-control" data-toggle="password" name="password" placeholder="Password or Key" maxlength="350" value="<?= $credential_password ?>" required autocomplete="new-password">
                         <div class="input-group-append">
                             <span class="input-group-text"><i class="fa fa-fw fa-eye"></i></span>
                         </div>
                         <div class="input-group-append">
-                            <button class="btn btn-default clipboardjs" type="button" data-clipboard-text="<?php echo $credential_password; ?>"><i class="fa fa-fw fa-copy"></i></button>
+                            <button class="btn btn-default clipboardjs" type="button" data-clipboard-text="<?= $credential_password ?>"><i class="fa fa-fw fa-copy"></i></button>
                         </div>
                     </div>
                 </div>
@@ -135,7 +135,7 @@ ob_start();
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-key"></i></span>
                         </div>
-                        <input type="password" class="form-control" data-toggle="password" name="otp_secret" maxlength="200" value="<?php echo $credential_otp_secret; ?>" placeholder="Insert secret key">
+                        <input type="password" class="form-control" data-toggle="password" name="otp_secret" maxlength="200" value="<?= $credential_otp_secret ?>" placeholder="Insert secret key">
                         <div class="input-group-append">
                             <span class="input-group-text"><i class="fa fa-fw fa-eye"></i></span>
                         </div>
@@ -148,13 +148,13 @@ ob_start();
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-link"></i></span>
                         </div>
-                        <input type="text" class="form-control" name="uri" placeholder="ex. http://192.168.1.1" maxlength="500" value="<?php echo $credential_uri; ?>">
+                        <input type="text" class="form-control" name="uri" placeholder="ex. http://192.168.1.1" maxlength="500" value="<?= $credential_uri ?>">
                         <div class="input-group-append">
 
-                            <a href="<?php echo $credential_uri_link; ?>" target="_blank" class="input-group-text"><i class="fa fa-fw fa-link"></i></a>
+                            <a href="<?= $credential_uri_link ?>" target="_blank" class="input-group-text"><i class="fa fa-fw fa-link"></i></a>
                         </div>
                         <div class="input-group-append">
-                            <button class="input-group-text clipboardjs" type="button" data-clipboard-text="<?php echo $credential_uri; ?>"><i class="fa fa-fw fa-copy"></i></button>
+                            <button class="input-group-text clipboardjs" type="button" data-clipboard-text="<?= $credential_uri ?>"><i class="fa fa-fw fa-copy"></i></button>
                         </div>
                     </div>
                 </div>
@@ -165,19 +165,19 @@ ob_start();
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-link"></i></span>
                         </div>
-                        <input type="text" class="form-control" name="uri_2" placeholder="ex. https://server.company.com:5001" maxlength="500" value="<?php echo $credential_uri_2; ?>">
+                        <input type="text" class="form-control" name="uri_2" placeholder="ex. https://server.company.com:5001" maxlength="500" value="<?= $credential_uri_2 ?>">
                         <div class="input-group-append">
-                            <a href="<?php echo $credential_uri_2_link; ?>" target="_blank" class="input-group-text"><i class="fa fa-fw fa-link"></i></a>
+                            <a href="<?= $credential_uri_2_link ?>" target="_blank" class="input-group-text"><i class="fa fa-fw fa-link"></i></a>
                         </div>
                         <div class="input-group-append">
-                            <button class="input-group-text clipboardjs" type="button" data-clipboard-text="<?php echo $credential_uri_2; ?>"><i class="fa fa-fw fa-copy"></i></button>
+                            <button class="input-group-text clipboardjs" type="button" data-clipboard-text="<?= $credential_uri_2 ?>"><i class="fa fa-fw fa-copy"></i></button>
                         </div>
                     </div>
                 </div>
 
             </div>
 
-            <div class="tab-pane fade" id="pills-credential-relation<?php echo $credential_id; ?>">
+            <div class="tab-pane fade" id="pills-credential-relation<?= $credential_id ?>">
 
                 <div class="form-group">
                     <label>Contact</label>
@@ -194,7 +194,7 @@ ob_start();
                                 $contact_id_select = intval($row['contact_id']);
                                 $contact_name_select = escapeHtml($row['contact_name']);
                                 ?>
-                                <option <?php if ($credential_contact_id == $contact_id_select) { echo "selected"; } ?> value="<?php echo $contact_id_select; ?>"><?php echo $contact_name_select; ?></option>
+                                <option <?php if ($credential_contact_id == $contact_id_select) { echo "selected"; } ?> value="<?= $contact_id_select ?>"><?= $contact_name_select ?></option>
                             <?php } ?>
                         </select>
                     </div>
@@ -222,7 +222,7 @@ ob_start();
                                 }
 
                                 ?>
-                                <option <?php if ($credential_asset_id == $asset_id_select) { echo "selected"; } ?> value="<?php echo $asset_id_select; ?>"><?php echo $asset_select_display_string; ?></option>
+                                <option <?php if ($credential_asset_id == $asset_id_select) { echo "selected"; } ?> value="<?= $asset_id_select ?>"><?= $asset_select_display_string ?></option>
 
                             <?php } ?>
                         </select>
@@ -231,10 +231,10 @@ ob_start();
 
             </div>
 
-            <div class="tab-pane fade" id="pills-credential-notes<?php echo $credential_id; ?>">
+            <div class="tab-pane fade" id="pills-credential-notes<?= $credential_id ?>">
 
                 <div class="form-group">
-                    <textarea class="form-control" rows="12" placeholder="Enter some notes" name="note"><?php echo $credential_note; ?></textarea>
+                    <textarea class="form-control" rows="12" placeholder="Enter some notes" name="note"><?= $credential_note ?></textarea>
                 </div>
 
                 <div class="form-group">
@@ -251,7 +251,7 @@ ob_start();
                                 $tag_id_select = intval($row['tag_id']);
                                 $tag_name_select = escapeHtml($row['tag_name']);
                                 ?>
-                                <option value="<?php echo $tag_id_select; ?>" <?php if (in_array($tag_id_select, $credential_tag_id_array)) { echo "selected"; } ?>><?php echo $tag_name_select; ?></option>
+                                <option value="<?= $tag_id_select ?>" <?php if (in_array($tag_id_select, $credential_tag_id_array)) { echo "selected"; } ?>><?= $tag_name_select ?></option>
                             <?php } ?>
 
                         </select>

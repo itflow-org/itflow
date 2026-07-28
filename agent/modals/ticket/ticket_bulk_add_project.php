@@ -44,7 +44,7 @@ ob_start();
                         $project_name_select = escapeHtml($row['project_name']);
 
                         ?>
-                        <option value="<?php echo $project_id_select; ?>"><?php echo " $project_prefix_select$project_number_select - $project_name_select"; ?></option>
+                        <option value="<?= $project_id_select ?>"><?= " $project_prefix_select$project_number_select - $project_name_select" ?></option>
                     <?php } ?>
                 </select>
             </div>

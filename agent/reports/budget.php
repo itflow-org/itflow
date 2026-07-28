@@ -32,7 +32,7 @@ $monthlyTotals = array_fill(1, 12, 0);  // Initialize monthly totals for each mo
                 while ($row = mysqli_fetch_assoc($sql_expense_years)) {
                     $expense_year = $row['expense_year'];
                     ?>
-                    <option <?php if ($year == $expense_year) { ?> selected <?php } ?> > <?php echo $expense_year; ?></option>
+                    <option <?php if ($year == $expense_year) { ?> selected <?php } ?> > <?= $expense_year ?></option>
 
                 <?php } ?>
 

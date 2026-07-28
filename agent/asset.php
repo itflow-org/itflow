@@ -699,7 +699,7 @@ if (isset($_GET['asset_id'])) {
                                         <td><?= $credential_description; ?></td>
                                         <td><?= $credential_username_display; ?></td>
                                         <td>
-                                            <button class="btn p-0" type="button" onclick="showPasswordViaCredentialID(this, <?php echo $credential_id; ?>)"><i class="fas fa-2x fa-ellipsis-h text-secondary"></i><i class="fas fa-2x fa-ellipsis-h text-secondary"></i></button><button class="btn btn-sm" type="button" onclick="copyPasswordViaCredentialID(this, <?php echo $credential_id; ?>)"><i class="far fa-copy text-secondary"></i></button>
+                                            <button class="btn p-0" type="button" onclick="showPasswordViaCredentialID(this, <?= $credential_id ?>)"><i class="fas fa-2x fa-ellipsis-h text-secondary"></i><i class="fas fa-2x fa-ellipsis-h text-secondary"></i></button><button class="btn btn-sm" type="button" onclick="copyPasswordViaCredentialID(this, <?= $credential_id ?>)"><i class="far fa-copy text-secondary"></i></button>
                                         </td>
                                         <td><?= $otp_display; ?></td>
                                         <td><?= $credential_uri_display; ?></td>

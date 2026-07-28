@@ -30,27 +30,27 @@ $num_rows = mysqli_num_rows($sql);
                 <thead class="text-dark <?php if ($num_rows == 0) { echo "d-none"; } ?>">
                 <tr>
                     <th>
-                        <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=payment_provider_name&order=<?php echo $disp; ?>">
+                        <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=payment_provider_name&order=<?= $disp ?>">
                             Provider <?php if ($sort == 'payment_provider_name') { echo $order_icon; } ?>
                         </a>
                     </th>
                     <th>
-                        <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=account_name&order=<?php echo $disp; ?>">
+                        <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=account_name&order=<?= $disp ?>">
                             Expense / Income Account <?php if ($sort == 'account_name') { echo $order_icon; } ?>
                         </a>
                     </th>
                     <th>
-                        <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=payment_provider_threshold&order=<?php echo $disp; ?>">
+                        <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=payment_provider_threshold&order=<?= $disp ?>">
                             Threshold <?php if ($sort == 'payment_provider_threshold') { echo $order_icon; } ?>
                         </a>
                     </th>
                     <th>
-                        <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=vendor_name&order=<?php echo $disp; ?>">
+                        <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=vendor_name&order=<?= $disp ?>">
                             Expense Vendor <?php if ($sort == 'vendor_name') { echo $order_icon; } ?>
                         </a>
                     </th>
                     <th>
-                        <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=category_name&order=<?php echo $disp; ?>">
+                        <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=category_name&order=<?= $disp ?>">
                             Expense Category <?php if ($sort == 'category_name') { echo $order_icon; } ?>
                         </a>
                     </th>
@@ -85,14 +85,14 @@ $num_rows = mysqli_num_rows($sql);
                         <td>
                             <a class="text-dark text-bold ajax-modal" href="#"
                                 data-modal-url="modals/payment_provider/payment_provider_edit.php?id=<?= $provider_id ?>">
-                                <?php echo $provider_name; ?>
+                                <?= $provider_name ?>
                             </a>
-                            <span class="text-secondary"><?php echo $provider_description; ?></span>
+                            <span class="text-secondary"><?= $provider_description ?></span>
                         </td>
-                        <td><?php echo $account_name; ?></td>
+                        <td><?= $account_name ?></td>
                         <td><?= $threshold ?></td>
-                        <td><?php echo $vendor_name; ?></td>
-                        <td><?php echo $category; ?></td>
+                        <td><?= $vendor_name ?></td>
+                        <td><?= $category ?></td>
                         <td class="text-center">
                             <a class="badge badge-dark badge-pill p-2" href="saved_payment_methods.php"><?= $saved_payment_count ?></a>
                         </td>

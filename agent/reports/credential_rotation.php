@@ -56,10 +56,10 @@ $passwords_not_rotated_sql = mysqli_query($mysqli,
                         ?>
 
                         <tr>
-                            <td><?php echo $client_name; ?></td>
-                            <td class="text-right"><?php echo $credential_name; ?></td>
-                            <td class="text-right"><?php echo $credential_description; ?></td>
-                            <td class="text-right"><?php echo timeAgo($credential_password_changed) . " (" . $credential_password_changed . ")" ?></td>
+                            <td><?= $client_name ?></td>
+                            <td class="text-right"><?= $credential_name ?></td>
+                            <td class="text-right"><?= $credential_description ?></td>
+                            <td class="text-right"><?= timeAgo($credential_password_changed) . " (" . $credential_password_changed . ")" ?></td>
                         </tr>
 
                     <?php } ?>

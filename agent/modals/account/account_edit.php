@@ -17,14 +17,14 @@ ob_start();
 ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fa fa-fw fa-piggy-bank mr-2"></i>Editing account: <strong><?php echo $account_name; ?></strong></h5>
+    <h5 class="modal-title"><i class="fa fa-fw fa-piggy-bank mr-2"></i>Editing account: <strong><?= $account_name ?></strong></h5>
     <button type="button" class="close text-light" data-dismiss="modal">
         <span>&times;</span>
     </button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
-    <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token'] ?>">
-    <input type="hidden" name="account_id" value="<?php echo $account_id; ?>">
+    <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
+    <input type="hidden" name="account_id" value="<?= $account_id ?>">
 
     <div class="modal-body">
         <div class="form-group">
@@ -33,13 +33,13 @@ ob_start();
                 <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-piggy-bank"></i></span>
                 </div>
-                <input type="text" class="form-control" name="name" maxlength="200" value="<?php echo $account_name; ?>" required>
+                <input type="text" class="form-control" name="name" maxlength="200" value="<?= $account_name ?>" required>
             </div>
         </div>
 
         <div class="form-group">
             <label>Notes</label>
-            <textarea class="form-control" rows="5" placeholder="Enter some notes" name="notes"><?php echo $account_notes; ?></textarea>
+            <textarea class="form-control" rows="5" placeholder="Enter some notes" name="notes"><?= $account_notes ?></textarea>
         </div>
 
     </div>

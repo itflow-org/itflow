@@ -23,7 +23,7 @@ ob_start();
 </div>
 <form action="post.php" method="post" autocomplete="off">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
-    <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
+    <input type="hidden" name="client_id" value="<?= $client_id ?>">
     <div class="modal-body">
 
         <label>Template</label>
@@ -40,7 +40,7 @@ ob_start();
                         $document_template_id = intval($row['document_template_id']);
                         $document_template_name = escapeHtml($row['document_template_name']);
                     ?>
-                        <option value="<?php echo $document_template_id ?>"><?php echo $document_template_name; ?></option>
+                        <option value="<?= $document_template_id ?>"><?= $document_template_name ?></option>
                     <?php
                     }
                     ?>
@@ -82,7 +82,7 @@ ob_start();
                         $folder_id = intval($row['folder_id']);
                         $folder_name = escapeHtml($row['folder_name']);
                     ?>
-                        <option <?php if (isset($_GET['folder_id']) && $_GET['folder_id'] == $folder_id) echo "selected"; ?> value="<?php echo $folder_id ?>"><?php echo $folder_name; ?></option>
+                        <option <?php if (isset($_GET['folder_id']) && $_GET['folder_id'] == $folder_id) echo "selected"; ?> value="<?= $folder_id ?>"><?= $folder_name ?></option>
                     <?php
                     }
                     ?>

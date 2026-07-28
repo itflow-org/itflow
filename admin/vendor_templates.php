@@ -48,12 +48,12 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                 <thead class="text-dark <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
                 <tr>
                     <th>
-                        <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=vendor_template_name&order=<?php echo $disp; ?>">
+                        <a class="text-secondary" href="?<?= $url_query_strings_sort ?>&sort=vendor_template_name&order=<?= $disp ?>">
                             Vendor <?php if ($sort == 'vendor_template_name') { echo $order_icon; } ?>
                         </a>
                     </th>
                     <th>
-                        <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=vendor_template_description&order=<?php echo $disp; ?>">
+                        <a class="text-secondary" href="?<?= $url_query_strings_sort ?>&sort=vendor_template_description&order=<?= $disp ?>">
                             Description <?php if ($sort == 'vendor_template_description') { echo $order_icon; } ?>
                         </a>
                     </th>
@@ -94,23 +94,23 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         <th>
                             <a class="text-dark ajax-modal" href="#"
                                 data-modal-url="modals/vendor_template/vendor_template_edit.php?id=<?= $vendor_template_id ?>">
-                                <i class="fa fa-fw fa-building text-secondary mr-2"></i><?php echo $vendor_template_name; ?>
+                                <i class="fa fa-fw fa-building text-secondary mr-2"></i><?= $vendor_template_name ?>
                             </a>
                             <?php
                             if (!empty($vendor_template_account_number)) {
                                 ?>
                                 <br>
-                                <small class="text-secondary"><?php echo $vendor_template_account_number; ?></small>
+                                <small class="text-secondary"><?= $vendor_template_account_number ?></small>
                                 <?php
                             }
                             ?>
                         </th>
-                        <td><?php echo $vendor_template_description_display; ?></td>
+                        <td><?= $vendor_template_description_display ?></td>
                         <td>
                             <?php
                             if (!empty($vendor_template_contact_name)) {
                                 ?>
-                                <i class="fa fa-fw fa-user text-secondary mr-2 mb-2"></i><?php echo $vendor_template_contact_name_display; ?>
+                                <i class="fa fa-fw fa-user text-secondary mr-2 mb-2"></i><?= $vendor_template_contact_name_display ?>
                                 <br>
                                 <?php
                             } else {
@@ -118,12 +118,12 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             }
 
                             if (!empty($vendor_template_phone)) { ?>
-                                <i class="fa fa-fw fa-phone text-secondary mr-2 mb-2"></i><?php echo $vendor_template_phone; ?>
+                                <i class="fa fa-fw fa-phone text-secondary mr-2 mb-2"></i><?= $vendor_template_phone ?>
                                 <br>
                             <?php }
 
                             if (!empty($vendor_template_email)) { ?>
-                                <i class="fa fa-fw fa-envelope text-secondary mr-2 mb-2"></i><?php echo $vendor_template_email; ?>
+                                <i class="fa fa-fw fa-envelope text-secondary mr-2 mb-2"></i><?= $vendor_template_email ?>
                                 <br>
                             <?php } ?>
 

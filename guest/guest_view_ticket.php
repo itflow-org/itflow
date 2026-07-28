@@ -72,23 +72,23 @@ if ($ticket_row) {
     <div class="card mt-3">
         <div class="card-header bg-dark text-center">
             <h4 class="mt-1">
-                Ticket <?php echo $ticket_prefix, $ticket_number ?>
+                Ticket <?= $ticket_prefix, $ticket_number ?>
             </h4>
         </div>
 
         <div class="card-body prettyContent">
-            <h5><strong>Subject:</strong> <?php echo $ticket_subject ?></h5>
+            <h5><strong>Subject:</strong> <?= $ticket_subject ?></h5>
             <hr>
             <p>
-                <strong>State:</strong> <?php echo $ticket_status ?>
+                <strong>State:</strong> <?= $ticket_status ?>
                 <br>
-                <strong>Priority:</strong> <?php echo $ticket_priority ?>
+                <strong>Priority:</strong> <?= $ticket_priority ?>
                 <br>
                 <?php if (!empty($ticket_assigned_to) && empty($ticket_closed_at)) { ?>
-                    <strong>Assigned to: </strong> <?php echo $ticket_assigned_to ?>
+                    <strong>Assigned to: </strong> <?= $ticket_assigned_to ?>
                 <?php } ?>
             </p>
-            <?php echo $ticket_details ?>
+            <?= $ticket_details ?>
         </div>
     </div>
 
@@ -108,11 +108,11 @@ if ($ticket_row) {
         <div class="col-4">
             <div class="row">
                 <div class="col">
-                    <a href="guest_post.php?reopen_ticket&ticket_id=<?php echo $ticket_id; ?>&url_key=<?php echo $url_key ?>" class="btn btn-secondary btn-lg"><i class="fas fa-fw fa-redo text-white"></i> Reopen ticket</a>
+                    <a href="guest_post.php?reopen_ticket&ticket_id=<?= $ticket_id ?>&url_key=<?= $url_key ?>" class="btn btn-secondary btn-lg"><i class="fas fa-fw fa-redo text-white"></i> Reopen ticket</a>
                 </div>
 
                 <div class="col">
-                    <a href="guest_post.php?close_ticket=&ticket_id=<?php echo $ticket_id; ?>&url_key=<?php echo $url_key ?>" class="btn btn-success btn-lg"><i class="fas fa-fw fa-gavel text-white"></i> Close ticket</a>
+                    <a href="guest_post.php?close_ticket=&ticket_id=<?= $ticket_id ?>&url_key=<?= $url_key ?>" class="btn btn-success btn-lg"><i class="fas fa-fw fa-gavel text-white"></i> Close ticket</a>
                 </div>
             </div>
         </div>
@@ -125,11 +125,11 @@ if ($ticket_row) {
         <div class="col-4">
             <div class="row">
                 <div class="col">
-                    <a href="guest_post.php?add_ticket_feedback&ticket_id=<?php echo $ticket_id; ?>&url_key=<?php echo $url_key ?>&feedback=Good" class="btn btn-success btn-lg"><i class="fas fa-fw fa-smile text-white"></i> Good</a>
+                    <a href="guest_post.php?add_ticket_feedback&ticket_id=<?= $ticket_id ?>&url_key=<?= $url_key ?>&feedback=Good" class="btn btn-success btn-lg"><i class="fas fa-fw fa-smile text-white"></i> Good</a>
                 </div>
 
                 <div class="col">
-                    <a href="guest_post.php?add_ticket_feedback&ticket_id=<?php echo $ticket_id; ?>&url_key=<?php echo $url_key ?>&feedback=Bad" class="btn btn-danger btn-lg"><i class="fas fa-fw fa-frown text-white"></i> Bad</a>
+                    <a href="guest_post.php?add_ticket_feedback&ticket_id=<?= $ticket_id ?>&url_key=<?= $url_key ?>&feedback=Bad" class="btn btn-danger btn-lg"><i class="fas fa-fw fa-frown text-white"></i> Bad</a>
                 </div>
             </div>
         </div>
@@ -137,7 +137,7 @@ if ($ticket_row) {
 
     <?php } else { ?>
 
-        <h4>Rated <?php echo $ticket_feedback ?> -- Thanks for your feedback!</h4>
+        <h4>Rated <?= $ticket_feedback ?> -- Thanks for your feedback!</h4>
 
     <?php } ?>
 
@@ -178,29 +178,29 @@ if ($ticket_row) {
                         <?php
                         if (!empty($user_avatar)) {
                             ?>
-                            <img src="<?php echo $avatar_link ?>" alt="User Avatar" class="img-size-50 mr-3 img-circle">
+                            <img src="<?= $avatar_link ?>" alt="User Avatar" class="img-size-50 mr-3 img-circle">
                             <?php
                         } else {
                             ?>
                             <span class="fa-stack fa-2x">
                                     <i class="fa fa-circle fa-stack-2x text-secondary"></i>
-                                    <span class="fa fa-stack-1x text-white"><?php echo $user_initials; ?></span>
+                                    <span class="fa fa-stack-1x text-white"><?= $user_initials ?></span>
                                 </span>
                             <?php
                         }
                         ?>
 
                         <div class="media-body">
-                            <?php echo $ticket_reply_by_display; ?>
+                            <?= $ticket_reply_by_display ?>
                             <br>
-                            <small class="text-muted"><?php echo $ticket_reply_created_at; ?> <?php if (!empty($ticket_reply_updated_at)) { echo "(edited: $ticket_reply_updated_at)"; } ?></small>
+                            <small class="text-muted"><?= $ticket_reply_created_at ?> <?php if (!empty($ticket_reply_updated_at)) { echo "(edited: $ticket_reply_updated_at)"; } ?></small>
                         </div>
                     </div>
                 </h3>
             </div>
 
             <div class="card-body prettyContent">
-                <?php echo $ticket_reply; ?>
+                <?= $ticket_reply ?>
             </div>
         </div>
 
@@ -217,7 +217,7 @@ if ($ticket_row) {
     } ?>
 
 <div class="card-footer">
-    <?php echo "<i class='fas fa-phone fa-fw mr-2'></i>$company_phone | <i class='fas fa-globe fa-fw mr-2 ml-2'></i>$company_website"; ?>
+    <?= "<i class='fas fa-phone fa-fw mr-2'></i>$company_phone | <i class='fas fa-globe fa-fw mr-2 ml-2'></i>$company_website" ?>
 </div>
 
 <?php

@@ -61,7 +61,7 @@ ob_start();
                         $software_template_name = escapeHtml($row['software_template_name']);
 
                         ?>
-                        <option value="<?php echo $software_template_id ?>"><?php echo $software_template_name; ?></option>
+                        <option value="<?= $software_template_id ?>"><?= $software_template_name ?></option>
                     <?php } ?>
 
                 </select>

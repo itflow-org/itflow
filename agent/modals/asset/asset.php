@@ -306,10 +306,10 @@ ob_start();
                         <?php if ($asset_favorite) { ?><i class="fas fa-fw text-warning fa-star" title="Favorite"></i><?php } ?>
                     </h3>
                     <?php if ($asset_photo) { ?>
-                        <img class="img-fluid img-circle p-3" alt="asset_photo" src="<?php echo "../uploads/clients/$client_id/$asset_photo"; ?>">
+                        <img class="img-fluid img-circle p-3" alt="asset_photo" src="<?= "../uploads/clients/$client_id/$asset_photo" ?>">
                     <?php } ?>
                     <?php if ($asset_description) { ?>
-                        <div class="text-secondary"><?php echo $asset_description; ?></div>
+                        <div class="text-secondary"><?= $asset_description ?></div>
                     <?php } ?>
                 </div>
                 <div class="card-body">
@@ -319,25 +319,25 @@ ob_start();
                         </div>
                     <?php } ?>
                     <?php if ($asset_type) { ?>
-                        <div class="mt-1"><i class="fa fa-fw fa-tag text-secondary mr-2"></i><?php echo $asset_type; ?></div>
+                        <div class="mt-1"><i class="fa fa-fw fa-tag text-secondary mr-2"></i><?= $asset_type ?></div>
                     <?php }
                     if ($asset_make) { ?>
-                        <div class="mt-2"><i class="fa fa-fw fa-circle text-secondary mr-2"></i><?php echo "$asset_make $asset_model"; ?></div>
+                        <div class="mt-2"><i class="fa fa-fw fa-circle text-secondary mr-2"></i><?= "$asset_make $asset_model" ?></div>
                     <?php }
                     if ($asset_os) { ?>
-                        <div class="mt-2"><i class="fab fa-fw fa-windows text-secondary mr-2"></i><?php echo "$asset_os"; ?></div>
+                        <div class="mt-2"><i class="fab fa-fw fa-windows text-secondary mr-2"></i><?= "$asset_os" ?></div>
                     <?php }
                     if ($asset_serial) { ?>
-                        <div class="mt-2"><i class="fa fa-fw fa-barcode text-secondary mr-2"></i><span class="text-monospace"><?php echo $asset_serial; ?></span></div>
+                        <div class="mt-2"><i class="fa fa-fw fa-barcode text-secondary mr-2"></i><span class="text-monospace"><?= $asset_serial ?></span></div>
                     <?php }
                     if ($asset_purchase_date) { ?>
-                        <div class="mt-2"><i class="fa fa-fw fa-shopping-cart text-secondary mr-2"></i><?php echo date('Y-m-d', strtotime($asset_purchase_date)); ?></div>
+                        <div class="mt-2"><i class="fa fa-fw fa-shopping-cart text-secondary mr-2"></i><?= date('Y-m-d', strtotime($asset_purchase_date)) ?></div>
                     <?php }
                     if ($asset_install_date) { ?>
-                        <div class="mt-2"><i class="fa fa-fw fa-calendar-check text-secondary mr-2"></i><?php echo date('Y-m-d', strtotime($asset_install_date)); ?></div>
+                        <div class="mt-2"><i class="fa fa-fw fa-calendar-check text-secondary mr-2"></i><?= date('Y-m-d', strtotime($asset_install_date)) ?></div>
                     <?php }
                     if ($asset_warranty_expire) { ?>
-                        <div class="mt-2"><i class="fa fa-fw fa-exclamation-triangle text-secondary mr-2"></i><?php echo date('Y-m-d', strtotime($asset_warranty_expire)); ?></div>
+                        <div class="mt-2"><i class="fa fa-fw fa-exclamation-triangle text-secondary mr-2"></i><?= date('Y-m-d', strtotime($asset_warranty_expire)) ?></div>
                     <?php } ?>
                 </div>
             </div>
@@ -348,19 +348,19 @@ ob_start();
                 </div>
                 <div class="card-body">
                     <?php if ($asset_ip) { ?>
-                        <div><i class="fa fa-fw fa-globe text-secondary mr-2"></i><span class="text-monospace"><?php echo $asset_ip; ?></span></div>
+                        <div><i class="fa fa-fw fa-globe text-secondary mr-2"></i><span class="text-monospace"><?= $asset_ip ?></span></div>
                     <?php } ?>
                     <?php if ($asset_nat_ip) { ?>
-                        <div class="mt-2"><i class="fa fa-fw fa-random text-secondary mr-2"></i><span class="text-monospace"><?php echo $asset_nat_ip; ?></span></div>
+                        <div class="mt-2"><i class="fa fa-fw fa-random text-secondary mr-2"></i><span class="text-monospace"><?= $asset_nat_ip ?></span></div>
                     <?php }
                     if ($asset_mac) { ?>
-                        <div class="mt-2"><i class="fa fa-fw fa-ethernet text-secondary mr-2"></i><span class="text-monospace"><?php echo $asset_mac; ?></span></div>
+                        <div class="mt-2"><i class="fa fa-fw fa-ethernet text-secondary mr-2"></i><span class="text-monospace"><?= $asset_mac ?></span></div>
                     <?php }
                     if ($asset_uri) { ?>
-                        <div class="mt-2"><i class="fa fa-fw fa-link text-secondary mr-2"></i><a href="<?php echo $asset_uri; ?>" target="_blank" title="<?php echo $asset_uri; ?>"><?php echo truncate($asset_uri, 20); ?></a></div>
+                        <div class="mt-2"><i class="fa fa-fw fa-link text-secondary mr-2"></i><a href="<?= $asset_uri ?>" target="_blank" title="<?= $asset_uri ?>"><?= truncate($asset_uri, 20) ?></a></div>
                     <?php }
                     if ($asset_uri_2) { ?>
-                        <div class="mt-2"><i class="fa fa-fw fa-link text-secondary mr-2"></i><a href="<?php echo $asset_uri_2; ?>" target="_blank" title="<?php echo $asset_uri_2; ?>"><?php echo truncate($asset_uri_2, 20); ?></a></div>
+                        <div class="mt-2"><i class="fa fa-fw fa-link text-secondary mr-2"></i><a href="<?= $asset_uri_2 ?>" target="_blank" title="<?= $asset_uri_2 ?>"><?= truncate($asset_uri_2, 20) ?></a></div>
                     <?php } ?>
                     <?php
                     if ($asset_uri_client) { ?>
@@ -376,13 +376,13 @@ ob_start();
                 </div>
                 <div class="card-body">
                     <?php if ($location_name) { ?>
-                        <div><i class="fa fa-fw fa-map-marker-alt text-secondary mr-2"></i><?php echo $location_name_display; ?></div>
+                        <div><i class="fa fa-fw fa-map-marker-alt text-secondary mr-2"></i><?= $location_name_display ?></div>
                     <?php }
                     if ($contact_name) { ?>
-                        <div class="mt-2"><i class="fa fa-fw fa-user text-secondary mr-2"></i><?php echo $contact_name_display; ?></div>
+                        <div class="mt-2"><i class="fa fa-fw fa-user text-secondary mr-2"></i><?= $contact_name_display ?></div>
                     <?php }
                     if ($contact_email) { ?>
-                        <div class="mt-2"><i class="fa fa-fw fa-envelope text-secondary mr-2"></i><a href='mailto:<?php echo $contact_email; ?>'><?php echo $contact_email; ?></a><button class='btn btn-sm clipboardjs' data-clipboard-text='<?php echo $contact_email; ?>'><i class='far fa-copy text-secondary'></i></button></div>
+                        <div class="mt-2"><i class="fa fa-fw fa-envelope text-secondary mr-2"></i><a href='mailto:<?= $contact_email ?>'><?= $contact_email ?></a><button class='btn btn-sm clipboardjs' data-clipboard-text='<?= $contact_email ?>'><i class='far fa-copy text-secondary'></i></button></div>
                     <?php }
                     if ($contact_phone) { ?>
                         <div class="mt-2"><i class="fa fa-fw fa-phone text-secondary mr-2"></i><?= $contact_phone ?></div>
@@ -401,7 +401,7 @@ ob_start();
                 <div class="card-header">
                     <h5 class="card-title">Additional Notes</h5>
                 </div>
-                <textarea class="form-control" rows=6 id="assetNotes" placeholder="Enter quick notes here" onblur="updateAssetNotes(<?php echo $asset_id ?>)"><?php echo $asset_notes ?></textarea>
+                <textarea class="form-control" rows=6 id="assetNotes" placeholder="Enter quick notes here" onblur="updateAssetNotes(<?= $asset_id ?>)"><?= $asset_notes ?></textarea>
             </div>
 
         </div>
@@ -484,16 +484,16 @@ ob_start();
                         <tr>
                             <td>
                                 <i class="fa fa-fw fa-ethernet text-secondary mr-1"></i>
-                                <?php echo $interface_name; ?> <?php if($interface_primary) { echo "<small class='text-primary'>(Primary)</small>"; } ?>
+                                <?= $interface_name ?> <?php if($interface_primary) { echo "<small class='text-primary'>(Primary)</small>"; } ?>
                             </td>
-                            <td><?php echo $interface_type_display; ?></td>
-                            <td><?php echo $network_name_display; ?></td>
+                            <td><?= $interface_type_display ?></td>
+                            <td><?= $network_name_display ?></td>
                             <td class="text-monospace">
-                                <?php echo $interface_ip_display; ?>
+                                <?= $interface_ip_display ?>
                                 <div><small class="text-secondary"><?= $interface_ipv6 ?></div>
                             </td>
-                            <td class="text-monospace"><?php echo $interface_mac_display; ?></td>
-                            <td><?php echo $connected_to_display; ?></td>
+                            <td class="text-monospace"><?= $interface_mac_display ?></td>
+                            <td><?= $connected_to_display ?></td>
                         </tr>
                     <?php } ?>
                     </tbody>
@@ -571,14 +571,14 @@ ob_start();
                         <tr>
                             <td>
                                 <i class="fa fa-fw fa-key text-secondary"></i>
-                                <?php echo $credential_name; ?>
+                                <?= $credential_name ?>
                             </td>
-                            <td><?php echo $credential_username_display; ?></td>
+                            <td><?= $credential_username_display ?></td>
                             <td>
-                                <button class="btn p-0" type="button" onclick="showPasswordViaCredentialID(this, <?php echo $credential_id; ?>)"><i class="fas fa-2x fa-ellipsis-h text-secondary"></i><i class="fas fa-2x fa-ellipsis-h text-secondary"></i></button><button class="btn btn-sm" type="button" onclick="copyPasswordViaCredentialID(this, <?php echo $credential_id; ?>)"><i class="far fa-copy text-secondary"></i></button>
+                                <button class="btn p-0" type="button" onclick="showPasswordViaCredentialID(this, <?= $credential_id ?>)"><i class="fas fa-2x fa-ellipsis-h text-secondary"></i><i class="fas fa-2x fa-ellipsis-h text-secondary"></i></button><button class="btn btn-sm" type="button" onclick="copyPasswordViaCredentialID(this, <?= $credential_id ?>)"><i class="far fa-copy text-secondary"></i></button>
                             </td>
-                            <td><?php echo $otp_display; ?></td>
-                            <td><?php echo $credential_uri_display; ?></td>
+                            <td><?= $otp_display ?></td>
+                            <td><?= $credential_uri_display ?></td>
                         </tr>
 
                         <?php
@@ -659,17 +659,17 @@ ob_start();
 
                         <tr>
                             <td>
-                                <a href="ticket.php?client_id=<?php echo $client_id; ?>&ticket_id=<?php echo $ticket_id; ?>">
-                                    <?php echo "$ticket_prefix$ticket_number"; ?>
+                                <a href="ticket.php?client_id=<?= $client_id ?>&ticket_id=<?= $ticket_id ?>">
+                                    <?= "$ticket_prefix$ticket_number" ?>
                                 </a>
                             </td>
-                            <td><a href="ticket.php?client_id=<?php echo $client_id; ?>&ticket_id=<?php echo $ticket_id; ?>"><?php echo $ticket_subject; ?></a></td>
-                            <td><?php echo $ticket_priority_display; ?></td>
+                            <td><a href="ticket.php?client_id=<?= $client_id ?>&ticket_id=<?= $ticket_id ?>"><?= $ticket_subject ?></a></td>
+                            <td><?= $ticket_priority_display ?></td>
                             <td>
-                                <span class='badge badge-pill text-light p-2' style="background-color: <?php echo $ticket_status_color; ?>"><?php echo $ticket_status_name; ?></span>
+                                <span class='badge badge-pill text-light p-2' style="background-color: <?= $ticket_status_color ?>"><?= $ticket_status_name ?></span>
                             </td>
-                            <td><?php echo $ticket_assigned_to_display; ?></td>
-                            <td><?php echo $ticket_updated_at_display; ?></td>
+                            <td><?= $ticket_assigned_to_display ?></td>
+                            <td><?= $ticket_updated_at_display ?></td>
                         </tr>
 
                         <?php
@@ -709,10 +709,10 @@ ob_start();
                     ?>
 
                         <tr>
-                            <td class="text-bold"><?php echo $recurring_ticket_subject ?></td>
-                            <td><?php echo $recurring_ticket_priority ?></td>
-                            <td><?php echo $recurring_ticket_frequency ?></td>
-                            <td><?php echo $recurring_ticket_next_run ?></td>
+                            <td class="text-bold"><?= $recurring_ticket_subject ?></td>
+                            <td><?= $recurring_ticket_priority ?></td>
+                            <td><?= $recurring_ticket_frequency ?></td>
+                            <td><?= $recurring_ticket_next_run ?></td>
                         </tr>
 
                     <?php } ?>
@@ -772,10 +772,10 @@ ob_start();
 
                         ?>
                         <tr>
-                            <td><?php echo "$software_name<br><span class='text-secondary'>$software_version</span>"; ?></td>
-                            <td><?php echo $software_type; ?></td>
-                            <td class="text-monospace"><?php echo $software_key; ?></td>
-                            <td class="text-monospace"><?php echo "$seat_count / $software_seats"; ?></td>
+                            <td><?= "$software_name<br><span class='text-secondary'>$software_version</span>" ?></td>
+                            <td><?= $software_type ?></td>
+                            <td class="text-monospace"><?= $software_key ?></td>
+                            <td class="text-monospace"><?= "$seat_count / $software_seats" ?></td>
                         </tr>
 
                         <?php
@@ -823,13 +823,13 @@ ob_start();
                                 <a class="ajax-modal" href="#"
                                     data-modal-size="lg"
                                     data-modal-url="modals/document/document_view.php?id=<?= $document_id ?>">
-                                    <?php echo $document_name; ?>
+                                    <?= $document_name ?>
                                 </a>
-                                <div class="text-secondary"><?php echo $document_description; ?></div>
+                                <div class="text-secondary"><?= $document_description ?></div>
                             </td>
-                            <td><?php echo $document_created_by; ?></td>
-                            <td><?php echo $document_created_at; ?></td>
-                            <td><?php echo $document_updated_at; ?></td>
+                            <td><?= $document_created_by ?></td>
+                            <td><?= $document_created_at ?></td>
+                            <td><?= $document_updated_at ?></td>
                         </tr>
 
                         <?php
@@ -892,11 +892,11 @@ ob_start();
                         <tr>
                             <td>
                                 <a class="text-dark" href="file.php?file_id=<?=$file_id ?>&action=view" target="_blank" >
-                                    <?php echo "$file_name<br><span class='text-secondary'>$file_description</span>"; ?>
+                                    <?= "$file_name<br><span class='text-secondary'>$file_description</span>" ?>
                                 </a>
                             </td>
-                            <td><?php echo $file_mime_type; ?></td>
-                            <td><?php echo $file_created_at; ?></td>
+                            <td><?= $file_mime_type ?></td>
+                            <td><?= $file_created_at ?></td>
                         </tr>
 
                         <?php
@@ -916,7 +916,7 @@ ob_start();
 </div>
 
 <div class="modal-footer">
-    <a href="asset_details.php?client_id=<?php echo $client_id; ?>&asset_id=<?php echo $asset_id; ?>"
+    <a href="asset_details.php?client_id=<?= $client_id ?>&asset_id=<?= $asset_id ?>"
         class="btn btn-primary text-bold"><span class="text-white"><i class="fas fa-info-circle mr-2"></i>More Details</span>
     </a>
     <a href="#" class="btn btn-secondary ajax-modal" data-modal-url="modals/asset/asset_edit.php?id=<?= $asset_id ?>">

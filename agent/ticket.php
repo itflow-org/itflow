@@ -343,10 +343,10 @@ if (isset($_GET['ticket_id'])) {
             </li>
             <?php if ($client_url) { ?>
             <li class="breadcrumb-item">
-                <a href="tickets.php?client_id=<?php echo $client_id; ?>"><?= $client_name ?> Tickets</a>
+                <a href="tickets.php?client_id=<?= $client_id ?>"><?= $client_name ?> Tickets</a>
             </li>
             <?php } ?>
-            <li class="breadcrumb-item active"><?php echo "$ticket_prefix$ticket_number";?></li>
+            <li class="breadcrumb-item active"><?= "$ticket_prefix$ticket_number" ?></li>
         </ol>
 
         <div class="card">
@@ -389,13 +389,13 @@ if (isset($_GET['ticket_id'])) {
                                 <?php } ?>
 
                                 <?php if (empty($ticket_resolved_at) && $task_count == $completed_task_count) { ?>
-                                    <a href="post.php?resolve_ticket=<?php echo $ticket_id; ?>&csrf_token=<?php echo $_SESSION['csrf_token'] ?>" class="btn btn-dark btn-sm confirm-link ml-3" id="ticket_close">
+                                    <a href="post.php?resolve_ticket=<?= $ticket_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>" class="btn btn-dark btn-sm confirm-link ml-3" id="ticket_close">
                                         <i class="fas fa-fw fa-check mr-2"></i>Resolve
                                     </a>
                                 <?php } ?>
 
                                 <?php if (!empty($ticket_resolved_at) && $task_count == $completed_task_count) { ?>
-                                    <a href="post.php?close_ticket=<?php echo $ticket_id; ?>&csrf_token=<?php echo $_SESSION['csrf_token'] ?>" class="btn btn-dark btn-sm confirm-link ml-3" id="ticket_close">
+                                    <a href="post.php?close_ticket=<?= $ticket_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>" class="btn btn-dark btn-sm confirm-link ml-3" id="ticket_close">
                                         <i class="fas fa-fw fa-gavel mr-2"></i>Close
                                     </a>
                                 <?php } ?>
@@ -433,7 +433,7 @@ if (isset($_GET['ticket_id'])) {
                                         </a>
                                         <?php if (lookupUserPermission("module_support") == 3) { ?>
                                             <div class="dropdown-divider"></div>
-                                            <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_ticket=<?php echo $ticket_id; ?>&csrf_token=<?php echo $_SESSION['csrf_token'] ?>">
+                                            <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_ticket=<?= $ticket_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                                                 <i class="fas fa-fw fa-trash mr-2"></i>Delete
                                             </a>
                                         <?php } ?>
@@ -467,7 +467,7 @@ if (isset($_GET['ticket_id'])) {
                     </div>
                 <?php } else { ?>
                     <div class="mt-1">
-                        <i class="fas fa-fw fa-user-check mr-2 text-secondary"></i>Agent: <?php echo $ticket_assigned_to_display; ?>
+                        <i class="fas fa-fw fa-user-check mr-2 text-secondary"></i>Agent: <?= $ticket_assigned_to_display ?>
                     </div>
                 <?php } ?>
                 <!-- End ticket assign -->
@@ -501,13 +501,13 @@ if (isset($_GET['ticket_id'])) {
 
                     <?php if ($quote_id) { ?>
                         <div class="mt-1">
-                            <i class="fa fa-fw fa-comment-dollar text-secondary mr-2"></i>Quoted: <a href="quote.php?quote_id=<?php echo $quote_id ?>"><?php echo "$quote_prefix$quote_number"; ?></a>
+                            <i class="fa fa-fw fa-comment-dollar text-secondary mr-2"></i>Quoted: <a href="quote.php?quote_id=<?= $quote_id ?>"><?= "$quote_prefix$quote_number" ?></a>
                         </div>
                     <?php } ?>
 
                     <?php if ($invoice_id) { ?>
                         <div class="mt-1">
-                            <i class="fa fa-fw fa-dollar-sign text-secondary mr-2"></i>Invoiced: <a href="invoice.php?invoice_id=<?php echo $invoice_id ?>"><?php echo "$invoice_prefix$invoice_number"; ?></a>
+                            <i class="fa fa-fw fa-dollar-sign text-secondary mr-2"></i>Invoiced: <a href="invoice.php?invoice_id=<?= $invoice_id ?>"><?= "$invoice_prefix$invoice_number" ?></a>
                         </div>
                     <?php } else { ?>
                         <div class="mt-1">
@@ -534,7 +534,7 @@ if (isset($_GET['ticket_id'])) {
                 <?php if ($task_count) { ?>
                     <div><strong>Tasks</strong> <?= "$completed_task_count/$task_count ($tasks_completed_percent%)" ?></div>
                     <div class="progress" style="height: 20px;">
-                        <div class="progress-bar" style="width: <?php echo $tasks_completed_percent; ?>%;"></div>
+                        <div class="progress-bar" style="width: <?= $tasks_completed_percent ?>%;"></div>
                     </div>
                 <?php } ?>
             </div>
@@ -557,7 +557,7 @@ if (isset($_GET['ticket_id'])) {
                     </div>
 
                     <div class="card-body p-3 prettyContent" id="ticketDetails">
-                        <?php echo $ticket_details; ?>
+                        <?= $ticket_details ?>
 
                         <table class="table-sm">
 
@@ -588,7 +588,7 @@ if (isset($_GET['ticket_id'])) {
 
                         <form action="post.php" method="post" autocomplete="off">
                             <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
-                            <input type="hidden" name="ticket_id" id="ticket_id" value="<?php echo $ticket_id; ?>">
+                            <input type="hidden" name="ticket_id" id="ticket_id" value="<?= $ticket_id ?>">
 
                             <div class="card card-body d-print-none p-3">
 
@@ -634,7 +634,7 @@ if (isset($_GET['ticket_id'])) {
                                                     $ticket_status_id_select = intval($row['ticket_status_id']);
                                                     $ticket_status_name_select = escapeHtml($row['ticket_status_name']); ?>
 
-                                                    <option value="<?php echo $ticket_status_id_select ?>" <?php if ($ticket_status == $ticket_status_id_select) { echo 'selected'; } ?>> <?php echo $ticket_status_name_select ?> </option>
+                                                    <option value="<?= $ticket_status_id_select ?>" <?php if ($ticket_status == $ticket_status_id_select) { echo 'selected'; } ?>> <?= $ticket_status_name_select ?> </option>
 
                                                 <?php } ?>
                                             </select>
@@ -722,16 +722,16 @@ if (isset($_GET['ticket_id'])) {
                                 <!-- Left side content -->
                                 <div class="d-flex align-items-center">
                                     <?php if (!empty($user_avatar)) { ?>
-                                        <img src="<?php echo $avatar_link; ?>" alt="User Avatar" class="img-size-50 mr-3 img-circle">
+                                        <img src="<?= $avatar_link ?>" alt="User Avatar" class="img-size-50 mr-3 img-circle">
                                     <?php } else { ?>
                                         <span class="fa-stack fa-2x">
                                             <i class="fa fa-circle fa-stack-2x text-secondary"></i>
-                                            <span class="fa fa-stack-1x text-white"><?php echo $user_initials; ?></span>
+                                            <span class="fa fa-stack-1x text-white"><?= $user_initials ?></span>
                                         </span>
                                     <?php } ?>
 
                                     <div class="ml-2">
-                                        <h3 class="card-title"><?php echo $ticket_reply_by_display; ?></h3>
+                                        <h3 class="card-title"><?= $ticket_reply_by_display ?></h3>
                                         <div>
                                             <?php if ($ticket_reply_type !== "Client" && $ticket_reply_time_worked !== "00:00:00") { ?>
                                                 <div>
@@ -791,7 +791,7 @@ if (isset($_GET['ticket_id'])) {
                         </div>
 
                         <div class="card-body prettyContent">
-                            <?php echo $ticket_reply; ?>
+                            <?= $ticket_reply ?>
 
                             <table class="table-sm">
 
@@ -921,7 +921,7 @@ if (isset($_GET['ticket_id'])) {
 
                             <?php if ($ticket_feedback) { ?>
                                 <div class="mt-2">
-                                    <i class="fa fa-fw fa-comment-dots text-secondary mr-1"></i><strong>Feedback: </strong><?php echo $ticket_feedback; ?>
+                                    <i class="fa fa-fw fa-comment-dots text-secondary mr-1"></i><strong>Feedback: </strong><?= $ticket_feedback ?>
                                 </div>
                             <?php } ?>
 
@@ -965,7 +965,7 @@ if (isset($_GET['ticket_id'])) {
                             <?php if (empty($ticket_resolved_at) && lookupUserPermission("module_support") >= 2) { ?>
                                 <form action="post.php" method="post" autocomplete="off">
                                     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
-                                    <input type="hidden" name="ticket_id" value="<?php echo $ticket_id; ?>">
+                                    <input type="hidden" name="ticket_id" value="<?= $ticket_id ?>">
                                     <div class="form-group px-2 pt-3">
                                         <div class="input-group input-group-sm">
                                             <input type="text" class="form-control" name="name" placeholder="Create Task" required maxlength="255">
@@ -1085,7 +1085,7 @@ if (isset($_GET['ticket_id'])) {
                                                                     </a>
                                                                 <?php } ?>
                                                                 <div class="dropdown-divider"></div>
-                                                                <a class="dropdown-item text-danger confirm-link" href="post.php?delete_task=<?php echo $task_id; ?>&csrf_token=<?php echo $_SESSION['csrf_token'] ?>">
+                                                                <a class="dropdown-item text-danger confirm-link" href="post.php?delete_task=<?= $task_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                                                                     <i class="fas fa-fw fa-trash-alt mr-2"></i>Delete
                                                                 </a>
                                                             </div>
@@ -1132,25 +1132,25 @@ if (isset($_GET['ticket_id'])) {
 
                             if (!empty($location_name)) { ?>
                                 <div class="mt-2">
-                                    <i class="fa fa-fw fa-map-marker-alt text-secondary mr-2"></i><?php echo $location_name; ?>
+                                    <i class="fa fa-fw fa-map-marker-alt text-secondary mr-2"></i><?= $location_name ?>
                                 </div>
                             <?php }
 
                             if (!empty($contact_email)) { ?>
                                 <div class="mt-2">
-                                    <i class="fa fa-fw fa-envelope text-secondary mr-2"></i><a href="mailto:<?php echo $contact_email; ?>"><?php echo $contact_email; ?></a>
+                                    <i class="fa fa-fw fa-envelope text-secondary mr-2"></i><a href="mailto:<?= $contact_email ?>"><?= $contact_email ?></a>
                                 </div>
                             <?php }
 
                             if (!empty($contact_phone)) { ?>
                                 <div class="mt-2">
-                                    <i class="fa fa-fw fa-phone text-secondary mr-2"></i><a href="tel:<?php echo $contact_phone; ?>"><?php echo $contact_phone; ?></a>
+                                    <i class="fa fa-fw fa-phone text-secondary mr-2"></i><a href="tel:<?= $contact_phone ?>"><?= $contact_phone ?></a>
                                 </div>
                             <?php }
 
                             if (!empty($contact_mobile)) { ?>
                                 <div class="mt-2">
-                                    <i class="fa fa-fw fa-mobile-alt text-secondary mr-2"></i><a href="tel:<?php echo $contact_mobile; ?>"><?php echo $contact_mobile; ?></a>
+                                    <i class="fa fa-fw fa-mobile-alt text-secondary mr-2"></i><a href="tel:<?= $contact_mobile ?>"><?= $contact_mobile ?></a>
                                 </div>
                             <?php } ?>
 
@@ -1182,7 +1182,7 @@ if (isset($_GET['ticket_id'])) {
                                 $ticket_watcher_email = escapeHtml($row['watcher_email']);
                                 ?>
                                 <div class='mt-1'>
-                                    <i class="fa fa-fw fa-envelope text-secondary mr-2"></i><?php echo $ticket_watcher_email; ?>
+                                    <i class="fa fa-fw fa-envelope text-secondary mr-2"></i><?= $ticket_watcher_email ?>
                                     <?php if (empty($ticket_closed_at)) { ?>
                                         <a class="confirm-link float-right" href="post.php?delete_ticket_watcher=<?= $watcher_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                                             <i class="fas fa-fw fa-times text-secondary"></i>
@@ -1213,7 +1213,7 @@ if (isset($_GET['ticket_id'])) {
                             <div>
                                 <a class="ajax-modal" href="#" data-modal-size="lg"
                                     data-modal-url="modals/asset/asset.php?<?= $client_url ?>&id=<?= $asset_id ?>">
-                                    <i class="fa fa-fw fa-<?php echo $asset_icon; ?> text-secondary mr-2"></i><strong><?php echo $asset_name; ?></strong>
+                                    <i class="fa fa-fw fa-<?= $asset_icon ?> text-secondary mr-2"></i><strong><?= $asset_name ?></strong>
                                 </a>
                             </div>
                             <?php
@@ -1226,7 +1226,7 @@ if (isset($_GET['ticket_id'])) {
                                 <div class="mt-1">
                                     <a class="ajax-modal" href="#" data-modal-size="lg"
                                         data-modal-url="modals/asset/asset.php?<?= $client_url ?>&id=<?= $additional_asset_id ?>">
-                                        <i class="fa fa-fw fa-<?php echo $additional_asset_icon; ?> text-secondary mr-2"></i><?php echo $additional_asset_name; ?>
+                                        <i class="fa fa-fw fa-<?= $additional_asset_icon ?> text-secondary mr-2"></i><?= $additional_asset_name ?>
                                     </a>
                                     <?php if (empty($ticket_closed_at)) { ?>
                                         <a class="confirm-link float-right" href="post.php?delete_ticket_additional_asset=<?= $additional_asset_id; ?>&ticket_id=<?= $ticket_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>" title="Remove asset from ticket">
@@ -1259,37 +1259,37 @@ if (isset($_GET['ticket_id'])) {
                         <div class="card-body p-3">
 
                             <div>
-                                <i class="fa fa-fw fa-building text-secondary mr-2"></i><strong><?php echo $vendor_name; ?></strong>
+                                <i class="fa fa-fw fa-building text-secondary mr-2"></i><strong><?= $vendor_name ?></strong>
                             </div>
                             <?php
 
                             if (!empty($vendor_contact_name)) { ?>
                                 <div class="mt-1">
-                                    <i class="fa fa-fw fa-user text-secondary mr-2"></i><?php echo $vendor_contact_name; ?>
+                                    <i class="fa fa-fw fa-user text-secondary mr-2"></i><?= $vendor_contact_name ?>
                                 </div>
                             <?php }
 
                             if (!empty($ticket_vendor_ticket_number)) { ?>
                                 <div class="mt-1">
-                                    <i class="fa fa-fw fa-tag text-secondary mr-2"></i><?php echo $ticket_vendor_ticket_number; ?>
+                                    <i class="fa fa-fw fa-tag text-secondary mr-2"></i><?= $ticket_vendor_ticket_number ?>
                                 </div>
                             <?php }
 
                             if (!empty($vendor_email)) { ?>
                                 <div class="mt-1">
-                                    <i class="fa fa-fw fa-envelope text-secondary mr-2"></i><a href="mailto:<?php echo $vendor_email; ?>"><?php echo $vendor_email; ?></a>
+                                    <i class="fa fa-fw fa-envelope text-secondary mr-2"></i><a href="mailto:<?= $vendor_email ?>"><?= $vendor_email ?></a>
                                 </div>
                             <?php }
 
                             if (!empty($vendor_phone)) { ?>
                                 <div class="mt-1">
-                                    <i class="fa fa-fw fa-phone text-secondary mr-2"></i><?php echo $vendor_phone; ?>
+                                    <i class="fa fa-fw fa-phone text-secondary mr-2"></i><?= $vendor_phone ?>
                                 </div>
                             <?php }
 
                             if (!empty($vendor_website)) { ?>
                                 <div class="mt-1">
-                                    <i class="fa fa-fw fa-globe text-secondary mr-2"></i><?php echo $vendor_website; ?>
+                                    <i class="fa fa-fw fa-globe text-secondary mr-2"></i><?= $vendor_website ?>
                                 </div>
                             <?php } ?>
 
@@ -1313,7 +1313,7 @@ if (isset($_GET['ticket_id'])) {
                         </div>
                         <div class="card-body p-3">
                             <div>
-                                <i class="fa fa-fw fa-project-diagram text-secondary mr-2"></i><a href="project.php?project_id=<?php echo $project_id; ?>" target="_blank"><strong><?= $project_name ?><i class="fa fa-fw fa-external-link-alt ml-1"></i></strong>
+                                <i class="fa fa-fw fa-project-diagram text-secondary mr-2"></i><a href="project.php?project_id=<?= $project_id ?>" target="_blank"><strong><?= $project_name ?><i class="fa fa-fw fa-external-link-alt ml-1"></i></strong>
                                 </a>
                             </div>
 
@@ -1344,7 +1344,7 @@ require_once "../includes/footer.php";
 <?php if (empty($ticket_closed_at)) { ?>
     <!-- create js variable related to ticket timer setting -->
     <script type="text/javascript">
-        var ticketAutoStart = <?php echo json_encode($config_ticket_timer_autostart); ?>;
+        var ticketAutoStart = <?= json_encode($config_ticket_timer_autostart) ?>;
     </script>
 
     <!-- Ticket Time Tracking JS -->
@@ -1371,7 +1371,7 @@ new Sortable(document.querySelector('table#tasks tbody'), {
         $.post('ajax.php', {
             update_ticket_tasks_order: true,
             csrf_token: '<?= $_SESSION['csrf_token'] ?>',
-            ticket_id: <?php echo $ticket_id; ?>,
+            ticket_id: <?= $ticket_id ?>,
             positions: positions
         });
     }

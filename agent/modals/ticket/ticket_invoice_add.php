@@ -95,7 +95,7 @@ ob_start();
 </div>
 <form action="post.php" method="post" autocomplete="off">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
-    <input type="hidden" name="ticket_id" value="<?php echo $ticket_id; ?>">
+    <input type="hidden" name="ticket_id" value="<?= $ticket_id ?>">
     <div class="modal-body">
         <?php if ($ticket_quote_id > 0) { ?>
             <div class="alert alert-warning" role="alert">
@@ -146,7 +146,7 @@ ob_start();
                                     $invoice_due = escapeHtml($row['invoice_due']);
                                     $invoice_amount = floatval($row['invoice_amount']);
                                     ?>
-                                    <option value="<?php echo $invoice_id; ?>"><?php echo "$invoice_prefix$invoice_number | $invoice_scope"; ?></option>
+                                    <option value="<?= $invoice_id ?>"><?= "$invoice_prefix$invoice_number | $invoice_scope" ?></option>
                                 <?php } ?>
 
                             </select>
@@ -167,7 +167,7 @@ ob_start();
                                 <div class="input-group-prepend">
                                     <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
                                 </div>
-                                <input type="date" class="form-control" name="date" max="2999-12-31" value="<?php echo date("Y-m-d"); ?>">
+                                <input type="date" class="form-control" name="date" max="2999-12-31" value="<?= date("Y-m-d") ?>">
                             </div>
                         </div>
 
@@ -188,7 +188,7 @@ ob_start();
                                         $category_id = intval($row['category_id']);
                                         $category_name = escapeHtml($row['category_name']);
                                         ?>
-                                        <option value="<?php echo $category_id; ?>"><?php echo $category_name; ?></option>
+                                        <option value="<?= $category_id ?>"><?= $category_name ?></option>
 
                                         <?php
                                     }
@@ -276,7 +276,7 @@ ob_start();
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-balance-scale"></i></span>
                         </div>
-                        <input type="text" class="form-control" inputmode="decimal" pattern="-?[0-9]*\.?[0-9]{0,2}" name="qty" value="<?php echo roundToNearest15Min($ticket_total_reply_time); ?>" required>
+                        <input type="text" class="form-control" inputmode="decimal" pattern="-?[0-9]*\.?[0-9]{0,2}" name="qty" value="<?= roundToNearest15Min($ticket_total_reply_time) ?>" required>
                     </div>
                     <small class="form-text text-muted">
                         Based off Ticket time spent <strong><?= $ticket_total_reply_time ?></strong> in 15 Min Increments rounded up.
@@ -293,7 +293,7 @@ ob_start();
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-dollar-sign"></i></span>
                         </div>
-                        <input type="text" class="form-control" inputmode="decimal" pattern="-?[0-9]*\.?[0-9]{0,2}" name="price" value="<?php echo number_format($client_rate, 2, '.', ''); ?>" required>
+                        <input type="text" class="form-control" inputmode="decimal" pattern="-?[0-9]*\.?[0-9]{0,2}" name="price" value="<?= number_format($client_rate, 2, '.', '') ?>" required>
                     </div>
                     <small class="form-text text-muted">
                         Based off Hourly Client rate of <strong><?= numfmt_format_currency($currency_format, $client_rate, $session_company_currency); ?></strong>
@@ -320,7 +320,7 @@ ob_start();
                         $tax_name = escapeHtml($row['tax_name']);
                         $tax_percent = floatval($row['tax_percent']);
                         ?>
-                        <option value="<?php echo $tax_id_select; ?>"><?php echo "$tax_name $tax_percent%"; ?></option>
+                        <option value="<?= $tax_id_select ?>"><?= "$tax_name $tax_percent%" ?></option>
                     <?php } ?>
                 </select>
 

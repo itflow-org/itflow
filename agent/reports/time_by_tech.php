@@ -45,14 +45,14 @@ $sql_users = mysqli_query($mysqli, "
                     <?php
                     while ($row = mysqli_fetch_assoc($sql_ticket_years)) {
                         $ticket_year = intval($row['ticket_year']); ?>
-                        <option <?php if ($year == $ticket_year) { ?> selected <?php } ?> > <?php echo $ticket_year; ?></option>
+                        <option <?php if ($year == $ticket_year) { ?> selected <?php } ?> > <?= $ticket_year ?></option>
                     <?php } ?>
                 </select>
             </form>
 
             <div class="card card-dark mb-3">
                 <div class="card-header">
-                    <h3 class="card-title"><i class="fas fa-fw fa-chart-area mr-2"></i>Yearly (<?php echo $year; ?>)</h3>
+                    <h3 class="card-title"><i class="fas fa-fw fa-chart-area mr-2"></i>Yearly (<?= $year ?>)</h3>
                 </div>
                 <div class="card-body">
                     <div class="table-responsive-sm">
@@ -115,10 +115,10 @@ $sql_users = mysqli_query($mysqli, "
                                 ?>
 
                                 <tr>
-                                    <td><?php echo $user_name; ?></td>
-                                    <td class="text-right"><?php echo $ticket_raised_count; ?></td>
-                                    <td class="text-right"><?php echo $tickets_touched; ?></td>
-                                    <td class="text-right"><?php echo $ticket_total_time_worked; ?></td>
+                                    <td><?= $user_name ?></td>
+                                    <td class="text-right"><?= $ticket_raised_count ?></td>
+                                    <td class="text-right"><?= $tickets_touched ?></td>
+                                    <td class="text-right"><?= $ticket_total_time_worked ?></td>
                                 </tr>
 
                                 <?php

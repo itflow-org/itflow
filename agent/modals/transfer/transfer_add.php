@@ -24,7 +24,7 @@ ob_start();
                     <div class="input-group-prepend">
                         <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
                     </div>
-                    <input type="date" class="form-control" name="date" max="2999-12-31" value="<?php echo date("Y-m-d"); ?>" required>
+                    <input type="date" class="form-control" name="date" max="2999-12-31" value="<?= date("Y-m-d") ?>" required>
                 </div>
             </div>
 
@@ -71,7 +71,7 @@ ob_start();
                         $balance = $opening_balance + $total_payments + $total_revenues - $total_expenses;
 
                         ?>
-                        <option <?php if ($config_default_transfer_from_account == $account_id) { echo "selected"; } ?> value="<?php echo $account_id; ?>"><?php echo $account_name; ?> [$<?php echo number_format($balance, 2); ?>]</option>
+                        <option <?php if ($config_default_transfer_from_account == $account_id) { echo "selected"; } ?> value="<?= $account_id ?>"><?= $account_name ?> [$<?= number_format($balance, 2) ?>]</option>
 
                     <?php } ?>
 
@@ -109,7 +109,7 @@ ob_start();
                         $balance = $opening_balance + $total_payments + $total_revenues - $total_expenses;
 
                         ?>
-                        <option <?php if ($config_default_transfer_to_account == $account_id) { echo "selected"; } ?> value="<?php echo $account_id; ?>"><?php echo $account_name; ?> [$<?php echo number_format($balance, 2); ?>]</option>
+                        <option <?php if ($config_default_transfer_to_account == $account_id) { echo "selected"; } ?> value="<?= $account_id ?>"><?= $account_name ?> [$<?= number_format($balance, 2) ?>]</option>
 
                     <?php } ?>
                 </select>
@@ -138,7 +138,7 @@ ob_start();
                         $payment_amount = floatval($row['payment_amount']);
 
                         ?>
-                        <option><?php echo "$client_name - $payment_method $payment_reference - " . numfmt_format_currency($currency_format, $payment_amount, $session_company_currency); ?></option>
+                        <option><?= "$client_name - $payment_method $payment_reference - " . numfmt_format_currency($currency_format, $payment_amount, $session_company_currency) ?></option>
 
                     <?php } ?>
 
@@ -163,7 +163,7 @@ ob_start();
                     while ($row = mysqli_fetch_assoc($sql)) {
                         $payment_method_name = escapeHtml($row['payment_method_name']);
                     ?>
-                        <option><?php echo $payment_method_name; ?></option>
+                        <option><?= $payment_method_name ?></option>
 
                     <?php
                     }

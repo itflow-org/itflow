@@ -96,9 +96,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
     <div class="card-body">
         <form autocomplete="off">
             <?php if ($client_url) { ?>
-            <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
+            <input type="hidden" name="client_id" value="<?= $client_id ?>">
             <?php } ?>
-            <input type="hidden" name="archived" value="<?php echo $archived; ?>">
+            <input type="hidden" name="archived" value="<?= $archived ?>">
             <div class="row">
 
                 <div class="col-md-4">
@@ -129,7 +129,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 $client_id = intval($row['client_id']);
                                 $client_name = escapeHtml($row['client_name']);
                             ?>
-                                <option <?php if ($client == $client_id) { echo "selected"; } ?> value="<?php echo $client_id; ?>"><?php echo $client_name; ?></option>
+                                <option <?php if ($client == $client_id) { echo "selected"; } ?> value="<?= $client_id ?>"><?= $client_name ?></option>
                             <?php
                             }
                             ?>
@@ -159,7 +159,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                 <div class="col-md-4">
                     <div class="btn-group float-right">
-                        <a href="?<?php echo $client_url; ?>archived=<?php if($archived == 1){ echo 0; } else { echo 1; } ?>"
+                        <a href="?<?= $client_url ?>archived=<?php if($archived == 1){ echo 0; } else { echo 1; } ?>"
                             class="btn btn-<?php if($archived == 1){ echo "primary"; } else { echo "default"; } ?>">
                             <i class="fa fa-fw fa-archive mr-2"></i>Archived
                         </a>
@@ -188,7 +188,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
         <div class="table-responsive">
 
             <form id="bulkActions" action="post.php" method="post">
-                <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token'] ?>">
+                <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
 
                 <table class="table table-striped table-borderless table-hover">
                     <thead class="text-dark <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
@@ -199,28 +199,28 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             </div>
                         </td>
                         <th>
-                            <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=certificate_name&order=<?php echo $disp; ?>">
+                            <a class="text-secondary" href="?<?= $url_query_strings_sort ?>&sort=certificate_name&order=<?= $disp ?>">
                                 Name <?php if ($sort == 'certificate_name') { echo $order_icon; } ?>
                             </a>
                         </th>
                         <th>
-                            <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=certificate_domain&order=<?php echo $disp; ?>">
+                            <a class="text-secondary" href="?<?= $url_query_strings_sort ?>&sort=certificate_domain&order=<?= $disp ?>">
                                 Domain <?php if ($sort == 'certificate_domain') { echo $order_icon; } ?>
                             </a>
                         </th>
                         <th>
-                            <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=certificate_issued_by&order=<?php echo $disp; ?>">
+                            <a class="text-secondary" href="?<?= $url_query_strings_sort ?>&sort=certificate_issued_by&order=<?= $disp ?>">
                                 Issued By <?php if ($sort == 'certificate_issued_by') { echo $order_icon; } ?>
                             </a>
                         </th>
                         <th>
-                            <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=certificate_expire&order=<?php echo $disp; ?>">
+                            <a class="text-secondary" href="?<?= $url_query_strings_sort ?>&sort=certificate_expire&order=<?= $disp ?>">
                                 Expire <?php if ($sort == 'certificate_expire') { echo $order_icon; } ?>
                             </a>
                         </th>
                         <?php if (!$client_url) { ?>
                         <th>
-                            <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=client_name&order=<?php echo $disp; ?>">
+                            <a class="text-secondary" href="?<?= $url_query_strings_sort ?>&sort=client_name&order=<?= $disp ?>">
                                 Client <?php if ($sort == 'client_name') { echo $order_icon; } ?>
                             </a>
                         </th>
@@ -263,11 +263,11 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         }
 
                         ?>
-                        <tr class="<?php echo $tr_class; ?>">
+                        <tr class="<?= $tr_class ?>">
                             <td class="checkbox-column">
                                 <div class="form-check">
-                                    <input class="form-check-input bulk-select" type="checkbox" name="certificate_ids[]" value="<?php echo $certificate_id ?>">
-                                    <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
+                                    <input class="form-check-input bulk-select" type="checkbox" name="certificate_ids[]" value="<?= $certificate_id ?>">
+                                    <input type="hidden" name="client_id" value="<?= $client_id ?>">
                                 </div>
                             </td>
                             <td>
@@ -276,24 +276,24 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                     <div class="media">
                                         <i class="fa fa-fw fa-2x fa-lock mr-3"></i>
                                         <div class="media-body">
-                                            <div><?php echo $certificate_name; ?></div>
-                                            <div><small class="text-secondary"><?php echo $certificate_description; ?></small></div>
+                                            <div><?= $certificate_name ?></div>
+                                            <div><small class="text-secondary"><?= $certificate_description ?></small></div>
                                         </div>
                                     </div>
                                 </a>
                             </td>
-                            <td><?php echo $certificate_domain; ?></td>
+                            <td><?= $certificate_domain ?></td>
 
-                            <td><?php echo $certificate_issued_by; ?></td>
+                            <td><?= $certificate_issued_by ?></td>
 
                             <td>
-                                <div><?php echo $certificate_expire ?: '-'; ?></div>
+                                <div><?= $certificate_expire ?: '-' ?></div>
                                 <?php if (!empty($certificate_expire)) { ?>
-                                    <div><small><?php echo $certificate_expire_ago; ?></small></div>
+                                    <div><small><?= $certificate_expire_ago ?></small></div>
                                 <?php } ?>
                             </td>
                             <?php if (!$client_url) { ?>
-                            <td><a href="certificates.php?client_id=<?php echo $client_id; ?>"><?php echo $client_name; ?></a></td>
+                            <td><a href="certificates.php?client_id=<?= $client_id ?>"><?= $client_name ?></a></td>
                             <?php } ?>
                             <td>
                                 <div class="dropdown dropleft text-center">
@@ -306,22 +306,22 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                             <i class="fas fa-fw fa-edit mr-2"></i>Edit
                                         </a>
                                         <div class="dropdown-divider"></div>
-                                         <a class="dropdown-item" href="post.php?refresh_certificate=<?php echo $certificate_id; ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
+                                         <a class="dropdown-item" href="post.php?refresh_certificate=<?= $certificate_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                                             <i class="fas fa-fw fa-sync-alt mr-2"></i>Refresh Certificate
                                         </a>
                                         <?php if ($session_user_role == 3) { ?>
                                             <?php if ($certificate_archived_at) { ?>
                                             <div class="dropdown-divider"></div>
-                                            <a class="dropdown-item text-info confirm-link" href="post.php?restore_certificate=<?php echo $certificate_id; ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
+                                            <a class="dropdown-item text-info confirm-link" href="post.php?restore_certificate=<?= $certificate_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                                                 <i class="fas fa-fw fa-redo mr-2"></i>Restore
                                             </a>
                                             <div class="dropdown-divider"></div>
-                                            <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_certificate=<?php echo $certificate_id; ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
+                                            <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_certificate=<?= $certificate_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                                                 <i class="fas fa-fw fa-trash mr-2"></i>Delete
                                             </a>
                                             <?php } else { ?>
                                             <div class="dropdown-divider"></div>
-                                            <a class="dropdown-item text-danger confirm-link" href="post.php?archive_certificate=<?php echo $certificate_id; ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
+                                            <a class="dropdown-item text-danger confirm-link" href="post.php?archive_certificate=<?= $certificate_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                                                 <i class="fas fa-fw fa-archive mr-2"></i>Archive
                                             </a>
                                             <?php } ?>

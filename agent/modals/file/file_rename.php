@@ -43,14 +43,14 @@ ob_start();
 
 ?>
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fa fa-fw fa-<?php echo $file_icon; ?> mr-2"></i>Renaming file: <strong><?php echo $file_name; ?></strong></h5>
+    <h5 class="modal-title"><i class="fa fa-fw fa-<?= $file_icon ?> mr-2"></i>Renaming file: <strong><?= $file_name ?></strong></h5>
     <button type="button" class="close text-white" data-dismiss="modal">
         <span>&times;</span>
     </button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
-    <input type="hidden" name="file_id" value="<?php echo $file_id; ?>">
+    <input type="hidden" name="file_id" value="<?= $file_id ?>">
     <div class="modal-body">
 
         <div class="form-group">
@@ -59,7 +59,7 @@ ob_start();
                 <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-folder"></i></span>
                 </div>
-                <input type="text" class="form-control" name="file_name" placeholder="File Name" maxlength="200" value="<?php echo $file_name; ?>" required>
+                <input type="text" class="form-control" name="file_name" placeholder="File Name" maxlength="200" value="<?= $file_name ?>" required>
             </div>
         </div>
 
@@ -69,7 +69,7 @@ ob_start();
                 <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-folder"></i></span>
                 </div>
-                <input type="text" class="form-control" name="file_description" placeholder="Description" maxlength="250" value="<?php echo $file_description; ?>">
+                <input type="text" class="form-control" name="file_description" placeholder="Description" maxlength="250" value="<?= $file_description ?>">
             </div>
         </div>
 

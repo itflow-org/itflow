@@ -77,7 +77,7 @@ if (isset($_GET['invoice_id'], $_GET['url_key']) && !isset($_GET['payment_intent
         <div class="col-sm">
             <div class="card">
                 <div class="card-header">
-                    <h3 class="card-title">Payment for Invoice: <strong><?php echo "$invoice_prefix$invoice_number"; ?></strong></h3>
+                    <h3 class="card-title">Payment for Invoice: <strong><?= "$invoice_prefix$invoice_number" ?></strong></h3>
                 </div>
                 <div class="table-responsive">
                     <table class="table">
@@ -96,16 +96,16 @@ if (isset($_GET['invoice_id'], $_GET['url_key']) && !isset($_GET['payment_intent
                             $item_total = floatval($row['item_total']);
                         ?>
                             <tr>
-                                <td><?php echo $item_name; ?></td>
-                                <td class="text-center"><?php echo $item_quantity; ?></td>
-                                <td class="text-right"><?php echo numfmt_format_currency($currency_format, $item_total, $invoice_currency_code); ?></td>
+                                <td><?= $item_name ?></td>
+                                <td class="text-center"><?= $item_quantity ?></td>
+                                <td class="text-right"><?= numfmt_format_currency($currency_format, $item_total, $invoice_currency_code) ?></td>
                             </tr>
                         <?php } ?>
                         <?php if ($invoice_discount > 0) { ?>
                             <tr class="text-right">
                                 <td colspan="2">Discount</td>
                                 <td>
-                                    <?php echo numfmt_format_currency($currency_format, $invoice_discount, $invoice_currency_code); ?>
+                                    <?= numfmt_format_currency($currency_format, $invoice_discount, $invoice_currency_code) ?>
                                 </td>
                             </tr>
                         <?php } ?>
@@ -113,7 +113,7 @@ if (isset($_GET['invoice_id'], $_GET['url_key']) && !isset($_GET['payment_intent
                             <tr class="text-right">
                                 <td colspan="2">Paid</td>
                                 <td>
-                                    <?php echo numfmt_format_currency($currency_format, $amount_paid, $invoice_currency_code); ?>
+                                    <?= numfmt_format_currency($currency_format, $amount_paid, $invoice_currency_code) ?>
                                 </td>
                             </tr>
                         <?php } ?>
@@ -126,13 +126,13 @@ if (isset($_GET['invoice_id'], $_GET['url_key']) && !isset($_GET['payment_intent
         <div class="col-sm offset-sm-1">
             <div class="card">
                 <div class="card-header">
-                    <h3 class="card-title">Payment Total: <strong><?php echo numfmt_format_currency($currency_format, $balance_to_pay, $invoice_currency_code); ?></strong></h3>
+                    <h3 class="card-title">Payment Total: <strong><?= numfmt_format_currency($currency_format, $balance_to_pay, $invoice_currency_code) ?></strong></h3>
                 </div>
                 <div class="card-body">
                     <form id="payment-form">
-                        <input type="hidden" id="stripe_publishable_key" value="<?php echo $stripe_publishable ?>">
-                        <input type="hidden" id="invoice_id" value="<?php echo $invoice_id ?>">
-                        <input type="hidden" id="url_key" value="<?php echo $invoice_url_key ?>">
+                        <input type="hidden" id="stripe_publishable_key" value="<?= $stripe_publishable ?>">
+                        <input type="hidden" id="invoice_id" value="<?= $invoice_id ?>">
+                        <input type="hidden" id="url_key" value="<?= $invoice_url_key ?>">
                         <div id="payment-element"></div>
                         <br>
                         <button type="submit" id="submit" class="btn btn-primary btn-lg btn-block text-bold" hidden="hidden">

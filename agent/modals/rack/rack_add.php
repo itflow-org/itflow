@@ -16,7 +16,7 @@ ob_start();
 
 <form action="post.php" method="post" enctype="multipart/form-data" autocomplete="off">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
-    <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
+    <input type="hidden" name="client_id" value="<?= $client_id ?>">
 
     <div class="modal-body">
 
@@ -114,7 +114,7 @@ ob_start();
                                 $location_id = intval($row['location_id']);
                                 $location_name = escapeHtml($row['location_name']);
                                 ?>
-                                <option value="<?php echo $location_id; ?>"><?php echo $location_name; ?></option>
+                                <option value="<?= $location_id ?>"><?= $location_name ?></option>
                             <?php } ?>
 
                         </select>

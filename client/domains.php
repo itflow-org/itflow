@@ -35,8 +35,8 @@ $domains_sql = mysqli_query($mysqli, "SELECT domain_id, domain_name, domain_expi
                     ?>
 
                     <tr>
-                        <td><?php echo $domain_name; ?></td>
-                        <td><?php echo $domain_expire; ?></td>
+                        <td><?= $domain_name ?></td>
+                        <td><?= $domain_expire ?></td>
                     </tr>
 
                 <?php } ?>

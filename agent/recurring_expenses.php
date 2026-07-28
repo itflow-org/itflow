@@ -55,9 +55,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             <div class="form-group">
                                 <label>Date range</label>
                                 <input type="text" id="dateFilter" class="form-control" autocomplete="off">
-                                <input type="hidden" name="canned_date" id="canned_date" value="<?php echo escapeHtml($_GET['canned_date']) ?? ''; ?>">
-                                <input type="hidden" name="dtf" id="dtf" value="<?php echo escapeHtml($dtf ?? ''); ?>">
-                                <input type="hidden" name="dtt" id="dtt" value="<?php echo escapeHtml($dtt ?? ''); ?>">
+                                <input type="hidden" name="canned_date" id="canned_date" value="<?= escapeHtml($_GET['canned_date']) ?? '' ?>">
+                                <input type="hidden" name="dtf" id="dtf" value="<?= escapeHtml($dtf ?? '') ?>">
+                                <input type="hidden" name="dtt" id="dtt" value="<?= escapeHtml($dtt ?? '') ?>">
                             </div>
                         </div>
                     </div>
@@ -69,46 +69,46 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     <thead class="text-dark <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
                     <tr>
                         <th>
-                            <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=recurring_expense_next_date&order=<?php echo $disp; ?>">
+                            <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=recurring_expense_next_date&order=<?= $disp ?>">
                                 Next Date <?php if ($sort == 'recurring_expense_next_date') { echo $order_icon; } ?>
                             </a>
                         </th>
                         <th>
-                            <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=category_name&order=<?php echo $disp; ?>">
+                            <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=category_name&order=<?= $disp ?>">
                                 Category <?php if ($sort == 'category_name') { echo $order_icon; } ?>
                             </a>
                             /
-                            <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=recurring_expense_description&order=<?php echo $disp; ?>">
+                            <a class="text-secondary" href="?<?= $url_query_strings_sort ?>&sort=recurring_expense_description&order=<?= $disp ?>">
                                 Description <?php if ($sort == 'recurring_expense_description') { echo $order_icon; } ?>
                             </a>
                         </th>
                         <th>
-                            <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=vendor_name&order=<?php echo $disp; ?>">
+                            <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=vendor_name&order=<?= $disp ?>">
                                 Vendor <?php if ($sort == 'vendor_name') { echo $order_icon; } ?>
                             </a>
                         </th>
                         <th class="text-right">
-                            <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=recurring_expense_amount&order=<?php echo $disp; ?>">
+                            <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=recurring_expense_amount&order=<?= $disp ?>">
                                 Amount <?php if ($sort == 'recurring_expense_amount') { echo $order_icon; } ?>
                             </a>
                         </th>
                         <th>
-                            <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=recurring_expense_frequency&order=<?php echo $disp; ?>">
+                            <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=recurring_expense_frequency&order=<?= $disp ?>">
                                 Frequency <?php if ($sort == 'recurring_expense_frequency') { echo $order_icon; } ?>
                             </a>
                         </th>
                         <th>
-                            <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=recurring_expense_last_sent&order=<?php echo $disp; ?>">
+                            <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=recurring_expense_last_sent&order=<?= $disp ?>">
                                 Last Billed <?php if ($sort == 'recurring_expense_last_sent') { echo $order_icon; } ?>
                             </a>
                         </th>
                         <th>
-                            <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=account_name&order=<?php echo $disp; ?>">
+                            <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=account_name&order=<?= $disp ?>">
                                 Account  <?php if ($sort == 'account_name') { echo $order_icon; } ?>
                             </a>
                         </th>
                         <th>
-                            <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=client_name&order=<?php echo $disp; ?>">
+                            <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=client_name&order=<?= $disp ?>">
                                 Client  <?php if ($sort == 'client_name') { echo $order_icon; } ?>
                             </a>
                         </th>
@@ -164,19 +164,19 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 <a class="text-dark ajax-modal" href="#"
                                     data-modal-size = "lg"
                                     data-modal-url = "modals/recurring_expense/recurring_expense_edit.php?id=<?= $recurring_expense_id ?>">
-                                    <?php echo $recurring_expense_next_date; ?>
+                                    <?= $recurring_expense_next_date ?>
                                 </a>
                             </td>
                             <td>
-                                <?php echo $category_name; ?>
-                                <div class="text-secondary"><small><?php echo truncate($recurring_expense_description, 60); ?></small></div>
+                                <?= $category_name ?>
+                                <div class="text-secondary"><small><?= truncate($recurring_expense_description, 60) ?></small></div>
                             </td>
-                            <td><?php echo $vendor_name; ?></td>
-                            <td class="text-right text-monospace"><?php echo numfmt_format_currency($currency_format, $recurring_expense_amount, $recurring_expense_currency_code); ?></td>
-                            <td><?php echo $recurring_expense_frequency_display; ?></td>
-                            <td><?php echo $recurring_expense_last_sent_display; ?></td>
-                            <td><?php echo $account_name; ?></td>
-                            <td><?php echo $client_name_display; ?></td>
+                            <td><?= $vendor_name ?></td>
+                            <td class="text-right text-monospace"><?= numfmt_format_currency($currency_format, $recurring_expense_amount, $recurring_expense_currency_code) ?></td>
+                            <td><?= $recurring_expense_frequency_display ?></td>
+                            <td><?= $recurring_expense_last_sent_display ?></td>
+                            <td><?= $account_name ?></td>
+                            <td><?= $client_name_display ?></td>
                             <td>
                                 <div class="dropdown dropleft text-center">
                                     <button class="btn btn-secondary btn-sm" type="button" data-toggle="dropdown">

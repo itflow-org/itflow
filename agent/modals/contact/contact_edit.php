@@ -52,29 +52,29 @@ ob_start();
 ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class='fas fa-user-edit mr-2'></i>Editing Contact: <strong><?php echo $contact_name; ?></strong></h5>
+    <h5 class="modal-title"><i class='fas fa-user-edit mr-2'></i>Editing Contact: <strong><?= $contact_name ?></strong></h5>
     <button type="button" class="close text-white" data-dismiss="modal">
         <span>&times;</span>
     </button>
 </div>
 <form action="post.php" method="post" enctype="multipart/form-data" autocomplete="off">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
-    <input type="hidden" name="contact_id" value="<?php echo $contact_id; ?>">
+    <input type="hidden" name="contact_id" value="<?= $contact_id ?>">
 
     <div class="modal-body">
 
         <ul class="nav nav-pills nav-justified mb-3">
             <li class="nav-item">
-                <a class="nav-link active" data-toggle="pill" href="#pills-details<?php echo $contact_id; ?>"><i class="fa fa-fw fa-id-badge mr-2"></i>Details</a>
+                <a class="nav-link active" data-toggle="pill" href="#pills-details<?= $contact_id ?>"><i class="fa fa-fw fa-id-badge mr-2"></i>Details</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" data-toggle="pill" href="#pills-photo<?php echo $contact_id; ?>"><i class="fa fa-fw fa-image mr-2"></i>Photo</a>
+                <a class="nav-link" data-toggle="pill" href="#pills-photo<?= $contact_id ?>"><i class="fa fa-fw fa-image mr-2"></i>Photo</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" data-toggle="pill" href="#pills-access<?php echo $contact_id; ?>"><i class="fa fa-fw fa-lock mr-2"></i>Access</a>
+                <a class="nav-link" data-toggle="pill" href="#pills-access<?= $contact_id ?>"><i class="fa fa-fw fa-lock mr-2"></i>Access</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" data-toggle="pill" href="#pills-notes<?php echo $contact_id; ?>"><i class="fa fa-fw fa-edit mr-2"></i>Notes</a>
+                <a class="nav-link" data-toggle="pill" href="#pills-notes<?= $contact_id ?>"><i class="fa fa-fw fa-edit mr-2"></i>Notes</a>
             </li>
         </ul>
 
@@ -82,7 +82,7 @@ ob_start();
 
         <div class="tab-content">
 
-            <div class="tab-pane fade show active" id="pills-details<?php echo $contact_id; ?>">
+            <div class="tab-pane fade show active" id="pills-details<?= $contact_id ?>">
 
                 <div class="form-group">
                     <label>Name <strong class="text-danger">*</strong> / <span class="text-secondary">Primary Contact</span></label>
@@ -90,7 +90,7 @@ ob_start();
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
                         </div>
-                        <input type="text" class="form-control" name="name" placeholder="Full Name" maxlength="200" value="<?php echo $contact_name; ?>" required>
+                        <input type="text" class="form-control" name="name" placeholder="Full Name" maxlength="200" value="<?= $contact_name ?>" required>
                         <div class="input-group-append">
                             <div class="input-group-text">
                                 <input type="checkbox" name="contact_primary" value="1" <?php if ($contact_primary == 1) { echo "checked"; } ?>>
@@ -105,7 +105,7 @@ ob_start();
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-id-badge"></i></span>
                         </div>
-                        <input type="text" class="form-control" name="title" placeholder="Title" maxlength="200" value="<?php echo $contact_title; ?>">
+                        <input type="text" class="form-control" name="title" placeholder="Title" maxlength="200" value="<?= $contact_title ?>">
                     </div>
                 </div>
 
@@ -115,7 +115,7 @@ ob_start();
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-users"></i></span>
                         </div>
-                        <input type="text" class="form-control" name="department" placeholder="Department or group" maxlength="200" value="<?php echo $contact_department; ?>">
+                        <input type="text" class="form-control" name="department" placeholder="Department or group" maxlength="200" value="<?= $contact_department ?>">
                     </div>
                 </div>
 
@@ -127,14 +127,14 @@ ob_start();
                                 <div class="input-group-prepend">
                                     <span class="input-group-text"><i class="fa fa-fw fa-phone"></i></span>
                                 </div>
-                                <input type="tel" class="form-control col-2" name="phone_country_code" value="<?php echo "$contact_phone_country_code"; ?>" placeholder="+" maxlength="4">
-                                <input type="tel" class="form-control" name="phone" value="<?php echo $contact_phone; ?>" placeholder="Phone Number" maxlength="200">
+                                <input type="tel" class="form-control col-2" name="phone_country_code" value="<?= "$contact_phone_country_code" ?>" placeholder="+" maxlength="4">
+                                <input type="tel" class="form-control" name="phone" value="<?= $contact_phone ?>" placeholder="Phone Number" maxlength="200">
                             </div>
                         </div>
                     </div>
                     <div class="col-3">
                         <div class="form-group">
-                            <input type="text" class="form-control" name="extension" value="<?php echo $contact_extension; ?>" placeholder="ext." maxlength="200">
+                            <input type="text" class="form-control" name="extension" value="<?= $contact_extension ?>" placeholder="ext." maxlength="200">
                         </div>
                     </div>
                 </div>
@@ -147,8 +147,8 @@ ob_start();
                                 <div class="input-group-prepend">
                                     <span class="input-group-text"><i class="fa fa-fw fa-mobile-alt"></i></span>
                                 </div>
-                                <input type="tel" class="form-control col-2" name="mobile_country_code" value="<?php echo "$contact_mobile_country_code"; ?>" placeholder="+" maxlength="4">
-                                <input type="tel" class="form-control" name="mobile" value="<?php echo $contact_mobile; ?>" placeholder="Phone Number">
+                                <input type="tel" class="form-control col-2" name="mobile_country_code" value="<?= "$contact_mobile_country_code" ?>" placeholder="+" maxlength="4">
+                                <input type="tel" class="form-control" name="mobile" value="<?= $contact_mobile ?>" placeholder="Phone Number">
                             </div>
                         </div>
                     </div>
@@ -160,7 +160,7 @@ ob_start();
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-envelope"></i></span>
                         </div>
-                        <input type="email" class="form-control" name="email" placeholder="Email Address" maxlength="200" value="<?php echo $contact_email; ?>">
+                        <input type="email" class="form-control" name="email" placeholder="Email Address" maxlength="200" value="<?= $contact_email ?>">
                     </div>
                 </div>
 
@@ -187,7 +187,7 @@ ob_start();
                             ?>
                                 <option <?php if ($contact_location_id == $location_id_select) {
                                             echo "selected";
-                                        } ?> value="<?php echo $location_id_select; ?>"><?php echo $location_name_select_display; ?></option>
+                                        } ?> value="<?= $location_id_select ?>"><?= $location_name_select_display ?></option>
                             <?php } ?>
 
                         </select>
@@ -196,7 +196,7 @@ ob_start();
 
             </div>
 
-            <div class="tab-pane fade" id="pills-access<?php echo $contact_id; ?>">
+            <div class="tab-pane fade" id="pills-access<?= $contact_id ?>">
 
                 <div class="form-group">
                     <label>Pin</label>
@@ -204,7 +204,7 @@ ob_start();
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-key"></i></span>
                         </div>
-                        <input type="text" class="form-control" name="pin" placeholder="Security code or pin" maxlength="255" value="<?php echo $contact_pin; ?>">
+                        <input type="text" class="form-control" name="pin" placeholder="Security code or pin" maxlength="255" value="<?= $contact_pin ?>">
                     </div>
                 </div>
 
@@ -256,8 +256,8 @@ ob_start();
                     <div class="col-md-4">
                         <div class="form-group">
                             <div class="custom-control custom-checkbox">
-                                <input type="checkbox" class="custom-control-input" id="contactImportantCheckbox<?php echo $contact_id; ?>" name="contact_important" value="1" <?php if ($contact_important == 1) { echo "checked"; } ?>>
-                                <label class="custom-control-label" for="contactImportantCheckbox<?php echo $contact_id; ?>">Important</label>
+                                <input type="checkbox" class="custom-control-input" id="contactImportantCheckbox<?= $contact_id ?>" name="contact_important" value="1" <?php if ($contact_important == 1) { echo "checked"; } ?>>
+                                <label class="custom-control-label" for="contactImportantCheckbox<?= $contact_id ?>">Important</label>
                                 <p class="text-secondary"><small>Pin Top</small></p>
                             </div>
                         </div>
@@ -265,8 +265,8 @@ ob_start();
                     <div class="col-md-4">
                         <div class="form-group">
                             <div class="custom-control custom-checkbox">
-                                <input type="checkbox" class="custom-control-input" id="contactBillingCheckbox<?php echo $contact_id; ?>" name="contact_billing" value="1" <?php if ($contact_billing == 1) { echo "checked"; } ?>>
-                                <label class="custom-control-label" for="contactBillingCheckbox<?php echo $contact_id; ?>">Billing</label>
+                                <input type="checkbox" class="custom-control-input" id="contactBillingCheckbox<?= $contact_id ?>" name="contact_billing" value="1" <?php if ($contact_billing == 1) { echo "checked"; } ?>>
+                                <label class="custom-control-label" for="contactBillingCheckbox<?= $contact_id ?>">Billing</label>
                                 <p class="text-secondary"><small>Receives Invoices</small></p>
                             </div>
                         </div>
@@ -274,8 +274,8 @@ ob_start();
                     <div class="col-md-4">
                         <div class="form-group">
                             <div class="custom-control custom-checkbox">
-                                <input type="checkbox" class="custom-control-input" id="contactTechnicalCheckbox<?php echo $contact_id; ?>" name="contact_technical" value="1" <?php if ($contact_technical == 1) { echo "checked"; } ?>>
-                                <label class="custom-control-label" for="contactTechnicalCheckbox<?php echo $contact_id; ?>">Technical</label>
+                                <input type="checkbox" class="custom-control-input" id="contactTechnicalCheckbox<?= $contact_id ?>" name="contact_technical" value="1" <?php if ($contact_technical == 1) { echo "checked"; } ?>>
+                                <label class="custom-control-label" for="contactTechnicalCheckbox<?= $contact_id ?>">Technical</label>
                             </div>
                         </div>
                     </div>
@@ -284,15 +284,15 @@ ob_start();
 
             </div>
 
-            <div class="tab-pane fade" id="pills-photo<?php echo $contact_id; ?>">
+            <div class="tab-pane fade" id="pills-photo<?= $contact_id ?>">
 
                 <div class="mb-3 text-center">
                     <?php if ($contact_photo) { ?>
-                        <img class="img-fluid" alt="contact_photo" src="<?php echo "../uploads/clients/$client_id/$contact_photo"; ?>">
+                        <img class="img-fluid" alt="contact_photo" src="<?= "../uploads/clients/$client_id/$contact_photo" ?>">
                     <?php } else { ?>
                         <span class="fa-stack fa-4x">
                             <i class="fa fa-circle fa-stack-2x text-secondary"></i>
-                            <span class="fa fa-stack-1x text-white"><?php echo $contact_initials; ?></span>
+                            <span class="fa fa-stack-1x text-white"><?= $contact_initials ?></span>
                         </span>
                     <?php } ?>
                 </div>
@@ -303,10 +303,10 @@ ob_start();
 
             </div>
 
-            <div class="tab-pane fade" id="pills-notes<?php echo $contact_id; ?>">
+            <div class="tab-pane fade" id="pills-notes<?= $contact_id ?>">
 
                 <div class="form-group">
-                    <textarea class="form-control" rows="8" name="notes" placeholder="Notes, eg Personal tidbits to spark convo, temperment, etc"><?php echo $contact_notes; ?></textarea>
+                    <textarea class="form-control" rows="8" name="notes" placeholder="Notes, eg Personal tidbits to spark convo, temperment, etc"><?= $contact_notes ?></textarea>
                 </div>
 
                 <div class="form-group">
@@ -323,7 +323,7 @@ ob_start();
                                 $tag_id_select = intval($row['tag_id']);
                                 $tag_name_select = escapeHtml($row['tag_name']);
                                 ?>
-                                <option value="<?php echo $tag_id_select; ?>" <?php if (in_array($tag_id_select, $contact_tag_id_array)) { echo "selected"; } ?>><?php echo $tag_name_select; ?></option>
+                                <option value="<?= $tag_id_select ?>" <?php if (in_array($tag_id_select, $contact_tag_id_array)) { echo "selected"; } ?>><?= $tag_name_select ?></option>
                             <?php } ?>
 
                         </select>

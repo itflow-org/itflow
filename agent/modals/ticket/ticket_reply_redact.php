@@ -32,12 +32,12 @@ ob_start();
 </div>
 <form action="post.php" method="post" autocomplete="off">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
-    <input type="hidden" name="ticket_reply_id" value="<?php echo $ticket_reply_id; ?>">
+    <input type="hidden" name="ticket_reply_id" value="<?= $ticket_reply_id ?>">
 
     <div class="modal-body">
 
         <div class="form-group">
-            <textarea class="form-control tinymceRedact" name="ticket_reply"><?php echo $ticket_reply; ?></textarea>
+            <textarea class="form-control tinymceRedact" name="ticket_reply"><?= $ticket_reply ?></textarea>
         </div>
 
     </div>

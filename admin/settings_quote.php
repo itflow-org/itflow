@@ -8,7 +8,7 @@ require_once "includes/inc_all_admin.php";
         </div>
         <div class="card-body">
             <form action="post.php" method="post" autocomplete="off">
-                <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token'] ?>">
+                <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
 
                 <div class="form-group">
                     <label>Quote Prefix</label>
@@ -16,7 +16,7 @@ require_once "includes/inc_all_admin.php";
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-barcode"></i></span>
                         </div>
-                        <input type="text" class="form-control" name="config_quote_prefix" placeholder="Quote Prefix" value="<?php echo escapeHtml($config_quote_prefix); ?>" required>
+                        <input type="text" class="form-control" name="config_quote_prefix" placeholder="Quote Prefix" value="<?= escapeHtml($config_quote_prefix) ?>" required>
                     </div>
                 </div>
 
@@ -26,13 +26,13 @@ require_once "includes/inc_all_admin.php";
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-barcode"></i></span>
                         </div>
-                        <input type="number" min="0" class="form-control" name="config_quote_next_number" placeholder="Next Quote Number" value="<?php echo intval($config_quote_next_number); ?>" required>
+                        <input type="number" min="0" class="form-control" name="config_quote_next_number" placeholder="Next Quote Number" value="<?= intval($config_quote_next_number) ?>" required>
                     </div>
                 </div>
 
                 <div class="form-group">
                     <label>Quote Footer</label>
-                    <textarea class="form-control" rows="4" name="config_quote_footer"><?php echo escapeHtml($config_quote_footer); ?></textarea>
+                    <textarea class="form-control" rows="4" name="config_quote_footer"><?= escapeHtml($config_quote_footer) ?></textarea>
                 </div>
 
                 <div class="form-group">
@@ -41,7 +41,7 @@ require_once "includes/inc_all_admin.php";
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-bell"></i></span>
                         </div>
-                        <input type="email" class="form-control" name="config_quote_notification_email" placeholder="Address to notify for quote accept/declines, leave blank for none" value="<?php echo escapeHtml($config_quote_notification_email); ?>">
+                        <input type="email" class="form-control" name="config_quote_notification_email" placeholder="Address to notify for quote accept/declines, leave blank for none" value="<?= escapeHtml($config_quote_notification_email) ?>">
                     </div>
                 </div>
 

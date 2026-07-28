@@ -15,7 +15,7 @@ $category_types_array = ['Expense', 'Income', 'Referral', 'Ticket'];
     </button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
-    <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token'] ?>">
+    <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
 
     <div class="modal-body">
 

@@ -71,9 +71,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             <div class="form-group">
                                 <label>Date range</label>
                                 <input type="text" id="dateFilter" class="form-control" autocomplete="off">
-                                <input type="hidden" name="canned_date" id="canned_date" value="<?php echo escapeHtml($_GET['canned_date']) ?? ''; ?>">
-                                <input type="hidden" name="dtf" id="dtf" value="<?php echo escapeHtml($dtf ?? ''); ?>">
-                                <input type="hidden" name="dtt" id="dtt" value="<?php echo escapeHtml($dtt ?? ''); ?>">
+                                <input type="hidden" name="canned_date" id="canned_date" value="<?= escapeHtml($_GET['canned_date']) ?? '' ?>">
+                                <input type="hidden" name="dtf" id="dtf" value="<?= escapeHtml($dtf ?? '') ?>">
+                                <input type="hidden" name="dtt" id="dtt" value="<?= escapeHtml($dtt ?? '') ?>">
                             </div>
                         </div>
                         <div class="col-sm-2">
@@ -88,7 +88,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                         $account_id = intval($row['account_id']);
                                         $account_name = escapeHtml($row['account_name']);
                                     ?>
-                                        <option <?php if ($account_from_filter == $account_id) { echo "selected"; } ?> value="<?php echo $account_id; ?>"><?php echo $account_name; ?></option>
+                                        <option <?php if ($account_from_filter == $account_id) { echo "selected"; } ?> value="<?= $account_id ?>"><?= $account_name ?></option>
                                     <?php
                                     }
                                     ?>
@@ -108,7 +108,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                         $account_id = intval($row['account_id']);
                                         $account_name = escapeHtml($row['account_name']);
                                     ?>
-                                        <option <?php if ($account_to_filter == $account_id) { echo "selected"; } ?> value="<?php echo $account_id; ?>"><?php echo $account_name; ?></option>
+                                        <option <?php if ($account_to_filter == $account_id) { echo "selected"; } ?> value="<?= $account_id ?>"><?= $account_name ?></option>
                                     <?php
                                     }
                                     ?>
@@ -125,32 +125,32 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     <thead class="text-dark <?php if ($num_rows[0] == 0) { echo "d-none"; } ?> text-nowrap">
                     <tr>
                         <th>
-                            <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=transfer_date&order=<?php echo $disp; ?>">
+                            <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=transfer_date&order=<?= $disp ?>">
                                 Date <?php if ($sort == 'transfer_date') { echo $order_icon; } ?>
                             </a>
                         </th>
                         <th>
-                            <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=transfer_account_from&order=<?php echo $disp; ?>">
+                            <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=transfer_account_from&order=<?= $disp ?>">
                                 From Account <?php if ($sort == 'transfer_account_from') { echo $order_icon; } ?>
                             </a>
                         </th>
                         <th>
-                            <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=transfer_account_to&order=<?php echo $disp; ?>">
+                            <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=transfer_account_to&order=<?= $disp ?>">
                                 To Account <?php if ($sort == 'transfer_account_to') { echo $order_icon; } ?>
                             </a>
                         </th>
                         <th>
-                            <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=transfer_method&order=<?php echo $disp; ?>">
+                            <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=transfer_method&order=<?= $disp ?>">
                                 Method <?php if ($sort == 'transfer_method') { echo $order_icon; } ?>
                             </a>
                         </th>
                         <th>
-                            <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=transfer_notes&order=<?php echo $disp; ?>">
+                            <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=transfer_notes&order=<?= $disp ?>">
                                 Notes <?php if ($sort == 'transfer_notes') { echo $order_icon; } ?>
                             </a>
                         </th>
                         <th class="text-right">
-                            <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=transfer_amount&order=<?php echo $disp; ?>">
+                            <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=transfer_amount&order=<?= $disp ?>">
                                 Amount <?php if ($sort == 'transfer_amount') { echo $order_icon; } ?>
                             </a>
                         </th>
@@ -207,14 +207,14 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             <td>
                                 <a class="text-dark ajax-modal" href="#"
                                     data-modal-url = "modals/transfer/transfer_edit.php?id=<?= $transfer_id ?>">
-                                    <?php echo $transfer_date; ?>
+                                    <?= $transfer_date ?>
                                 </a>
                             </td>
-                            <td><?php echo "$account_from_archived_display$account_name_from"; ?></td>
-                            <td><?php echo "$account_to_archived_display$account_name_to"; ?></td>
-                            <td><?php echo $transfer_method_display; ?></td>
-                            <td><?php echo $transfer_notes_display; ?></td>
-                            <td class="text-right text-monospace"><?php echo numfmt_format_currency($currency_format, $transfer_amount, $session_company_currency); ?></td>
+                            <td><?= "$account_from_archived_display$account_name_from" ?></td>
+                            <td><?= "$account_to_archived_display$account_name_to" ?></td>
+                            <td><?= $transfer_method_display ?></td>
+                            <td><?= $transfer_notes_display ?></td>
+                            <td class="text-right text-monospace"><?= numfmt_format_currency($currency_format, $transfer_amount, $session_company_currency) ?></td>
                             <td>
                                 <div class="dropdown dropleft text-center">
                                     <button class="btn btn-secondary btn-sm" type="button" data-toggle="dropdown">

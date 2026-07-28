@@ -24,7 +24,7 @@ ob_start();
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
 
     <?php if (isset($_GET['project_id'])) { ?>
-    <input type="hidden" name="project_id" value="<?php echo intval($_GET['project_id']); ?>">
+    <input type="hidden" name="project_id" value="<?= intval($_GET['project_id']) ?>">
     <?php } ?>
 
     <div class="modal-body">
@@ -68,7 +68,7 @@ ob_start();
                                 while ($row = mysqli_fetch_assoc($sql)) {
                                     $client_id_select = intval($row['client_id']);
                                     $client_name = escapeHtml($row['client_name']); ?>
-                                    <option value="<?php echo $client_id_select; ?>"><?php echo $client_name; ?></option>
+                                    <option value="<?= $client_id_select ?>"><?= $client_name ?></option>
 
                                 <?php } ?>
                             </select>
@@ -112,10 +112,10 @@ ob_start();
                                     $ticket_template_details_select = escapeHtml($row['ticket_template_details']);
                                     $task_count = intval($row['task_count']);
                                 ?>
-                                    <option value="<?php echo $ticket_template_id_select; ?>"
-                                            data-subject="<?php echo $ticket_template_subject_select; ?>"
-                                            data-details="<?php echo $ticket_template_details_select; ?>">
-                                        <?php echo $ticket_template_name_select; ?> (<?php echo $task_count; ?> tasks)
+                                    <option value="<?= $ticket_template_id_select ?>"
+                                            data-subject="<?= $ticket_template_subject_select ?>"
+                                            data-details="<?= $ticket_template_details_select ?>">
+                                        <?= $ticket_template_name_select ?> (<?= $task_count ?> tasks)
                                     </option>
                                 <?php } ?>
                         </select>
@@ -170,7 +170,7 @@ ob_start();
                                         $category_name = escapeHtml($row['category_name']);
 
                                         ?>
-                                        <option value="<?php echo $category_id; ?>"><?php echo $category_name; ?></option>
+                                        <option value="<?= $category_id ?>"><?= $category_name ?></option>
                                     <?php } ?>
 
                                 </select>
@@ -209,7 +209,7 @@ ob_start();
                                     while ($row = mysqli_fetch_assoc($sql)) {
                                         $user_id = intval($row['user_id']);
                                         $user_name = escapeHtml($row['user_name']); ?>
-                                        <option <?php if ($session_user_id == $user_id) { echo "selected"; } ?> value="<?php echo $user_id; ?>"><?php echo $user_name; ?></option>
+                                        <option <?php if ($session_user_id == $user_id) { echo "selected"; } ?> value="<?= $user_id ?>"><?= $user_name ?></option>
                                     <?php } ?>
                                 </select>
                             </div>
@@ -243,7 +243,7 @@ ob_start();
 
                 <div class="tab-pane fade" id="pills-ticket-contacts">
 
-                    <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
+                    <input type="hidden" name="client_id" value="<?= $client_id ?>">
 
                     <div class="form-group">
                         <label>Contact</label>
@@ -278,7 +278,7 @@ ob_start();
                                     }
 
                                     ?>
-                                    <option value="<?php echo $contact_id_select; ?>"
+                                    <option value="<?= $contact_id_select ?>"
                                         <?php
                                         if ($contact_id == $contact_id_select) {
                                             echo "selected";
@@ -287,7 +287,7 @@ ob_start();
                                         }
                                         ?>
                                         >
-                                        <?php echo "$contact_name_select$contact_title_display$contact_primary_display$contact_technical_display"; ?>
+                                        <?= "$contact_name_select$contact_title_display$contact_primary_display$contact_technical_display" ?>
                                     </option>
 
                                 <?php } ?>
@@ -308,7 +308,7 @@ ob_start();
                                 while ($row = mysqli_fetch_assoc($sql)) {
                                     $contact_email = escapeHtml($row['contact_email']);
                                     ?>
-                                    <option><?php echo $contact_email; ?></option>
+                                    <option><?= $contact_email ?></option>
 
                                 <?php } ?>
                             </select>
@@ -335,9 +335,9 @@ ob_start();
                                     $asset_name_select = escapeHtml($row['asset_name']);
                                     $asset_contact_name_select = escapeHtml($row['contact_name']);
                                 ?>
-                                    <option value="<?php echo $asset_id_select; ?>"
+                                    <option value="<?= $asset_id_select ?>"
                                         <?php if ($asset_id == $asset_id_select) { echo "selected"; }?>
-                                        ><?php echo "$asset_name_select - $asset_contact_name_select"; ?></option>
+                                        ><?= "$asset_name_select - $asset_contact_name_select" ?></option>
 
                                 <?php } ?>
                             </select>
@@ -360,8 +360,8 @@ ob_start();
                                     $asset_name_select = escapeHtml($row['asset_name']);
                                     $asset_contact_name_select = escapeHtml($row['contact_name']);
                                 ?>
-                                    <option value="<?php echo $asset_id_select; ?>">
-                                        <?php echo "$asset_name_select - $asset_contact_name_select"; ?>
+                                    <option value="<?= $asset_id_select ?>">
+                                        <?= "$asset_name_select - $asset_contact_name_select" ?>
                                     </option>
 
                                 <?php } ?>
@@ -384,7 +384,7 @@ ob_start();
                                     $location_id_select = intval($row['location_id']);
                                     $location_name_select = escapeHtml($row['location_name']);
                                 ?>
-                                    <option value="<?php echo $location_id_select; ?>"><?php echo $location_name_select; ?></option>
+                                    <option value="<?= $location_id_select ?>"><?= $location_name_select ?></option>
 
                                 <?php } ?>
                             </select>
@@ -409,7 +409,7 @@ ob_start();
                                         while ($row = mysqli_fetch_assoc($sql_vendors)) {
                                             $vendor_id_select = intval($row['vendor_id']);
                                             $vendor_name_select = escapeHtml($row['vendor_name']); ?>
-                                            <option value="<?php echo $vendor_id_select; ?>"><?php echo $vendor_name_select; ?></option>
+                                            <option value="<?= $vendor_id_select ?>"><?= $vendor_name_select ?></option>
 
                                         <?php } ?>
                                     </select>
@@ -448,7 +448,7 @@ ob_start();
                                 while ($row = mysqli_fetch_assoc($sql_projects)) {
                                     $project_id_select = intval($row['project_id']);
                                     $project_name_select = escapeHtml($row['project_name']); ?>
-                                    <option <?php if ($project_id == $project_id_select) { echo "selected"; } ?> value="<?php echo $project_id_select; ?>"><?php echo $project_name_select; ?></option>
+                                    <option <?php if ($project_id == $project_id_select) { echo "selected"; } ?> value="<?= $project_id_select ?>"><?= $project_name_select ?></option>
 
                                 <?php } ?>
                             </select>

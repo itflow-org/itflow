@@ -27,7 +27,7 @@ ob_start();
 ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fa fa-fw fa-calendar-check mr-2" style="color:<?php echo $calendar_color; ?>"></i>Editing: <strong><?php echo $event_title; ?></strong></h5>
+    <h5 class="modal-title"><i class="fa fa-fw fa-calendar-check mr-2" style="color:<?= $calendar_color ?>"></i>Editing: <strong><?= $event_title ?></strong></h5>
     <button type="button" class="close text-white" data-dismiss="modal">
         <span>&times;</span>
     </button>
@@ -35,19 +35,19 @@ ob_start();
 
 <form action="post.php" method="post" autocomplete="off">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
-    <input type="hidden" name="event_id" value="<?php echo $event_id; ?>">
+    <input type="hidden" name="event_id" value="<?= $event_id ?>">
 
     <div class="modal-body">
 
         <ul class="nav nav-pills nav-justified mb-3">
             <li class="nav-item">
-                <a class="nav-link active" data-toggle="pill" href="#pills-event<?php echo $event_id; ?>"><i class="fa fa-fw fa-calendar-check mr-2"></i>Event</a>
+                <a class="nav-link active" data-toggle="pill" href="#pills-event<?= $event_id ?>"><i class="fa fa-fw fa-calendar-check mr-2"></i>Event</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" data-toggle="pill" href="#pills-details<?php echo $event_id; ?>"><i class="fa fa-fw fa-info-circle mr-2"></i>Details</a>
+                <a class="nav-link" data-toggle="pill" href="#pills-details<?= $event_id ?>"><i class="fa fa-fw fa-info-circle mr-2"></i>Details</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" data-toggle="pill" href="#pills-attendees<?php echo $event_id; ?>"><i class="fa fa-fw fa-users mr-2"></i>Attendees</a>
+                <a class="nav-link" data-toggle="pill" href="#pills-attendees<?= $event_id ?>"><i class="fa fa-fw fa-users mr-2"></i>Attendees</a>
             </li>
         </ul>
 
@@ -55,7 +55,7 @@ ob_start();
 
         <div class="tab-content">
 
-            <div class="tab-pane fade show active" id="pills-event<?php echo $event_id; ?>">
+            <div class="tab-pane fade show active" id="pills-event<?= $event_id ?>">
 
                 <div class="form-group">
                     <label>Calendar <strong class="text-danger">*</strong></label>
@@ -72,7 +72,7 @@ ob_start();
                                 $calendar_name_select = escapeHtml($row['calendar_name']);
                                 $calendar_color_select = escapeHtml($row['calendar_color']);
                                 ?>
-                                <option data-content="<i class='fa fa-circle mr-2' style='color:<?php echo $calendar_color_select; ?>;'></i> <?php echo $calendar_name_select; ?>"<?php if ($calendar_id == $calendar_id_select) { echo "selected"; } ?> value="<?php echo $calendar_id_select; ?>"><?php echo $calendar_name_select; ?></option>
+                                <option data-content="<i class='fa fa-circle mr-2' style='color:<?= $calendar_color_select ?>;'></i> <?= $calendar_name_select ?>"<?php if ($calendar_id == $calendar_id_select) { echo "selected"; } ?> value="<?= $calendar_id_select ?>"><?= $calendar_name_select ?></option>
 
                             <?php } ?>
                         </select>
@@ -85,7 +85,7 @@ ob_start();
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-calendar-day"></i></span>
                         </div>
-                        <input type="text" class="form-control" name="title" maxlength="200" value="<?php echo $event_title; ?>" placeholder="Title of the event" required>
+                        <input type="text" class="form-control" name="title" maxlength="200" value="<?= $event_title ?>" placeholder="Title of the event" required>
                     </div>
                 </div>
 
@@ -95,7 +95,7 @@ ob_start();
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-calendar-check"></i></span>
                         </div>
-                        <input type="datetime-local" class="form-control" name="start" value="<?php echo date('Y-m-d\TH:i:s', strtotime($event_start)); ?>" required>
+                        <input type="datetime-local" class="form-control" name="start" value="<?= date('Y-m-d\TH:i:s', strtotime($event_start)) ?>" required>
                     </div>
                 </div>
 
@@ -104,7 +104,7 @@ ob_start();
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-calendar-day"></i></span>
                         </div>
-                        <input type="datetime-local" class="form-control" name="end" value="<?php echo date('Y-m-d\TH:i:s', strtotime($event_end)); ?>"required>
+                        <input type="datetime-local" class="form-control" name="end" value="<?= date('Y-m-d\TH:i:s', strtotime($event_end)) ?>"required>
                     </div>
                 </div>
 
@@ -126,29 +126,29 @@ ob_start();
 
             </div>
 
-            <div class="tab-pane fade" id="pills-details<?php echo $event_id; ?>">
+            <div class="tab-pane fade" id="pills-details<?= $event_id ?>">
                 <div class="form-group">
                     <label>Location</label>
                     <div class="input-group">
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-map-marker-alt"></i></span>
                         </div>
-                        <input type="text" class="form-control" name="location" value="<?php echo $event_location; ?>" placeholder="Location of the event">
+                        <input type="text" class="form-control" name="location" value="<?= $event_location ?>" placeholder="Location of the event">
                     </div>
                 </div>
 
                 <div class="form-group">
                     <label>Description</label>
-                    <textarea class="form-control" rows="8" name="description" placeholder="Enter a description"><?php echo $event_description; ?></textarea>
+                    <textarea class="form-control" rows="8" name="description" placeholder="Enter a description"><?= $event_description ?></textarea>
                 </div>
 
 
             </div>
 
-            <div class="tab-pane fade" id="pills-attendees<?php echo $event_id; ?>">
+            <div class="tab-pane fade" id="pills-attendees<?= $event_id ?>">
 
                 <?php if (isset($_GET['client_id'])) { ?>
-                    <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
+                    <input type="hidden" name="client_id" value="<?= $client_id ?>">
                 <?php } else { ?>
 
                     <div class="form-group">
@@ -167,7 +167,7 @@ ob_start();
                                     $client_name_select = escapeHtml($row['client_name']);
                                     $contact_email_select = escapeHtml($row['contact_email']);
                                     ?>
-                                    <option <?php if ($client_id == $client_id_select) { echo "selected"; } ?> value="<?php echo $client_id_select; ?>"><?php echo $client_name_select; ?></option>
+                                    <option <?php if ($client_id == $client_id_select) { echo "selected"; } ?> value="<?= $client_id_select ?>"><?= $client_name_select ?></option>
 
                                 <?php } ?>
 
@@ -179,8 +179,8 @@ ob_start();
 
                 <?php if (!empty($config_smtp_host)) { ?>
                     <div class="custom-control custom-checkbox">
-                        <input type="checkbox" class="custom-control-input" id="customControlAutosizing<?php echo $event_id; ?>" name="email_event" value="1" >
-                        <label class="custom-control-label" for="customControlAutosizing<?php echo $event_id; ?>">Email Event</label>
+                        <input type="checkbox" class="custom-control-input" id="customControlAutosizing<?= $event_id ?>" name="email_event" value="1" >
+                        <label class="custom-control-label" for="customControlAutosizing<?= $event_id ?>">Email Event</label>
                     </div>
                 <?php } ?>
 

@@ -64,7 +64,7 @@ ob_start();
                     while ($row = mysqli_fetch_assoc($sql_project_templates)) {
                         $project_template_id_select = intval($row['project_template_id']);
                         $project_template_name_select = escapeHtml($row['project_template_name']); ?>
-                        <option value="<?php echo $project_template_id_select; ?>"><?php echo $project_template_name_select; ?></option>
+                        <option value="<?= $project_template_id_select ?>"><?= $project_template_name_select ?></option>
 
                     <?php } ?>
                 </select>

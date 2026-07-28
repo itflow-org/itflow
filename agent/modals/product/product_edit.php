@@ -24,14 +24,14 @@ ob_start();
 ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fas fa-fw fa-box-open mr-2"></i>Editing <?= ucwords($product_type) ?>: <strong><?php echo $product_name; ?></strong></h5>
+    <h5 class="modal-title"><i class="fas fa-fw fa-box-open mr-2"></i>Editing <?= ucwords($product_type) ?>: <strong><?= $product_name ?></strong></h5>
     <button type="button" class="close text-white" data-dismiss="modal">
         <span>&times;</span>
     </button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
-    <input type="hidden" name="product_id" value="<?php echo $product_id; ?>">
+    <input type="hidden" name="product_id" value="<?= $product_id ?>">
     <div class="modal-body">
 
         <div class="form-group">
@@ -40,7 +40,7 @@ ob_start();
                 <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fas fa-fw fa-box"></i></span>
                 </div>
-                <input type="text" class="form-control" name="name" maxlength="200" value="<?php echo $product_name; ?>" required>
+                <input type="text" class="form-control" name="name" maxlength="200" value="<?= $product_name ?>" required>
             </div>
         </div>
 
@@ -58,7 +58,7 @@ ob_start();
                         $category_id_select = intval($row['category_id']);
                         $category_name_select = escapeHtml($row['category_name']);
                         ?>
-                        <option <?php if ($category_id == $category_id_select) { echo "selected"; } ?> value="<?php echo $category_id_select; ?>"><?php echo $category_name_select; ?></option>
+                        <option <?php if ($category_id == $category_id_select) { echo "selected"; } ?> value="<?= $category_id_select ?>"><?= $category_name_select ?></option>
                         <?php
                     }
 
@@ -81,7 +81,7 @@ ob_start();
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-dollar-sign"></i></span>
                         </div>
-                        <input type="text" inputmode="decimal" pattern="[0-9]*\.?[0-9]{0,2}" class="form-control" name="price" value="<?php echo number_format($product_price, 2, '.', ''); ?>" placeholder="0.00" required>
+                        <input type="text" inputmode="decimal" pattern="[0-9]*\.?[0-9]{0,2}" class="form-control" name="price" value="<?= number_format($product_price, 2, '.', '') ?>" placeholder="0.00" required>
                     </div>
                 </div>
             </div>
@@ -102,7 +102,7 @@ ob_start();
                                 $tax_name = escapeHtml($row['tax_name']);
                                 $tax_percent = floatval($row['tax_percent']);
                                 ?>
-                                <option <?php if ($tax_id_select == $product_tax_id) { echo "selected"; } ?> value="<?php echo $tax_id_select; ?>"><?php echo "$tax_name $tax_percent%"; ?></option>
+                                <option <?php if ($tax_id_select == $product_tax_id) { echo "selected"; } ?> value="<?= $tax_id_select ?>"><?= "$tax_name $tax_percent%" ?></option>
 
                                 <?php
                             }
@@ -127,7 +127,7 @@ ob_start();
 
         <div class="form-group">
             <label>Description</label>
-            <textarea class="form-control" rows="4" name="description"><?php echo $product_description; ?></textarea>
+            <textarea class="form-control" rows="4" name="description"><?= $product_description ?></textarea>
         </div>
 
         <div class="form-group">

@@ -55,7 +55,7 @@ ob_start();
             <div class="tab-pane fade show active" id="pills-details">
 
                 <?php if ($client_id) { ?>
-                    <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
+                    <input type="hidden" name="client_id" value="<?= $client_id ?>">
                 <?php } else { ?>
 
                     <div class="form-group">
@@ -72,7 +72,7 @@ ob_start();
                                 while ($row = mysqli_fetch_assoc($sql)) {
                                     $client_id_select = intval($row['client_id']);
                                     $client_name = escapeHtml($row['client_name']); ?>
-                                    <option <?php if ($client_id == $client_id_select) { echo "selected"; } ?> value="<?php echo $client_id_select; ?>"><?php echo $client_name; ?></option>
+                                    <option <?php if ($client_id == $client_id_select) { echo "selected"; } ?> value="<?= $client_id_select ?>"><?= $client_name ?></option>
 
                                 <?php } ?>
                             </select>
@@ -141,7 +141,7 @@ ob_start();
                                 $vendor_id = intval($row['vendor_id']);
                                 $vendor_name = escapeHtml($row['vendor_name']);
                                 ?>
-                                <option value="<?php echo $vendor_id; ?>"><?php echo $vendor_name; ?></option>
+                                <option value="<?= $vendor_id ?>"><?= $vendor_name ?></option>
                             <?php } ?>
                         </select>
                     </div>
@@ -171,7 +171,7 @@ ob_start();
                         <select class="form-control select2" name="license_type">
                             <option value="">- Select a License Type -</option>
                             <?php foreach ($license_types_array as $license_type) { ?>
-                                <option><?php echo $license_type; ?></option>
+                                <option><?= $license_type ?></option>
                             <?php } ?>
                         </select>
                     </div>
@@ -261,8 +261,8 @@ ob_start();
                         ?>
                         <li class="list-group-item">
                             <div class="form-check">
-                                <input type="checkbox" class="form-check-input asset-checkbox" name="assets[]" value="<?php echo $asset_id_select; ?>">
-                                <label class="form-check-label ml-2"><?php echo "$asset_archived_display$asset_name_select - $contact_name_select"; ?></label>
+                                <input type="checkbox" class="form-check-input asset-checkbox" name="assets[]" value="<?= $asset_id_select ?>">
+                                <label class="form-check-label ml-2"><?= "$asset_archived_display$asset_name_select - $contact_name_select" ?></label>
                             </div>
                         </li>
 
@@ -294,8 +294,8 @@ ob_start();
                         ?>
                         <li class="list-group-item">
                             <div class="form-check">
-                                <input type="checkbox" class="form-check-input user-checkbox" name="contacts[]" value="<?php echo $contact_id_select; ?>">
-                                <label class="form-check-label ml-2"><?php echo "$contact_name_select - $contact_email_select"; ?></label>
+                                <input type="checkbox" class="form-check-input user-checkbox" name="contacts[]" value="<?= $contact_id_select ?>">
+                                <label class="form-check-label ml-2"><?= "$contact_name_select - $contact_email_select" ?></label>
                             </div>
                         </li>
 

@@ -43,7 +43,7 @@ ob_start();
                         $location_id = intval($row['location_id']);
                         $location_name = escapeHtml($row['location_name']);
                     ?>
-                        <option value="<?php echo $location_id; ?>"><?php echo $location_name; ?></option>
+                        <option value="<?= $location_id ?>"><?= $location_name ?></option>
                     <?php } ?>
 
                 </select>

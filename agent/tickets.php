@@ -220,7 +220,7 @@ $sql_categories_filter = mysqli_query(
                                     $category_id = intval($row['category_id']);
                                     $category_name = escapeHtml($row['category_name']);
                                 ?>
-                                    <option <?php if ($category_filter == $category_id) { echo "selected"; } ?> value="<?php echo $category_id; ?>"><?php echo $category_name; ?></option>
+                                    <option <?php if ($category_filter == $category_id) { echo "selected"; } ?> value="<?= $category_id ?>"><?= $category_name ?></option>
                                 <?php
                                 }
                                 ?>
@@ -249,14 +249,14 @@ $sql_categories_filter = mysqli_query(
                                     <span class="d-none d-xl-inline ml-2">My Tickets</span>
                                 </button>
                                 <div class="dropdown-menu">
-                                    <a class="dropdown-item" href="?<?php echo $client_url; ?>status=Open&assigned=<?php echo $session_user_id ?>">Active tickets (<?php echo $user_active_assigned_tickets ?>)</a>
+                                    <a class="dropdown-item" href="?<?= $client_url ?>status=Open&assigned=<?= $session_user_id ?>">Active tickets (<?= $user_active_assigned_tickets ?>)</a>
                                     <div class="dropdown-divider"></div>
-                                    <a class="dropdown-item " href="?<?php echo $client_url; ?>status=Closed&assigned=<?php echo $session_user_id ?>">Closed tickets</a>
+                                    <a class="dropdown-item " href="?<?= $client_url ?>status=Closed&assigned=<?= $session_user_id ?>">Closed tickets</a>
                                 </div>
                             </div>
-                            <a href="?<?php echo $client_url; ?>assigned=unassigned" class="btn btn-outline-danger">
+                            <a href="?<?= $client_url ?>assigned=unassigned" class="btn btn-outline-danger">
                                 <i class="fa fa-fw fa-exclamation-triangle"></i>
-                                <span class="d-none d-xl-inline ml-2">Unassigned</span> | <strong> <?php echo $total_tickets_unassigned; ?></strong>
+                                <span class="d-none d-xl-inline ml-2">Unassigned</span> | <strong> <?= $total_tickets_unassigned ?></strong>
                             </a>
 
                             <?php if (lookupUserPermission("module_support") >= 2) { ?>
@@ -339,9 +339,9 @@ $sql_categories_filter = mysqli_query(
                             <div class="form-group">
                                 <label>Date range</label>
                                 <input type="text" id="dateFilter" class="form-control" autocomplete="off">
-                                <input type="hidden" name="canned_date" id="canned_date" value="<?php echo escapeHtml($_GET['canned_date']) ?? ''; ?>">
-                                <input type="hidden" name="dtf" id="dtf" value="<?php echo escapeHtml($dtf ?? ''); ?>">
-                                <input type="hidden" name="dtt" id="dtt" value="<?php echo escapeHtml($dtt ?? ''); ?>">
+                                <input type="hidden" name="canned_date" id="canned_date" value="<?= escapeHtml($_GET['canned_date']) ?? '' ?>">
+                                <input type="hidden" name="dtf" id="dtf" value="<?= escapeHtml($dtf ?? '') ?>">
+                                <input type="hidden" name="dtt" id="dtt" value="<?= escapeHtml($dtt ?? '') ?>">
                             </div>
                         </div>
                         <div class="col-md-3">
@@ -354,7 +354,7 @@ $sql_categories_filter = mysqli_query(
                                             $ticket_status_id = intval($row['ticket_status_id']);
                                             $ticket_status_name = escapeHtml($row['ticket_status_name']); ?>
 
-                                            <option value="<?php echo $ticket_status_id ?>" <?php if (isset($_GET['status']) && is_array($_GET['status']) && in_array($ticket_status_id, $_GET['status'])) { echo 'selected'; } ?>> <?php echo $ticket_status_name ?> </option>
+                                            <option value="<?= $ticket_status_id ?>" <?php if (isset($_GET['status']) && is_array($_GET['status']) && in_array($ticket_status_id, $_GET['status'])) { echo 'selected'; } ?>> <?= $ticket_status_name ?> </option>
 
                                         <?php } ?>
                                 </select>
@@ -373,7 +373,7 @@ $sql_categories_filter = mysqli_query(
                                         $user_id = intval($row['user_id']);
                                         $user_name = escapeHtml($row['user_name']);
                                         ?>
-                                        <option <?php if ($ticket_assigned_filter_id == $user_id) { echo "selected"; } ?> value="<?php echo $user_id; ?>"><?php echo $user_name; ?></option>
+                                        <option <?php if ($ticket_assigned_filter_id == $user_id) { echo "selected"; } ?> value="<?= $user_id ?>"><?= $user_name ?></option>
                                         <?php
                                     }
                                     ?>
@@ -395,7 +395,7 @@ $sql_categories_filter = mysqli_query(
                                         $project_number = intval($row['project_number']);
                                         $project_name = escapeHtml($row['project_name']);
                                         ?>
-                                        <option <?php if ($ticket_project_filter_id == $project_id) { echo "selected"; } ?> value="<?php echo $project_id; ?>"><?php echo $project_prefix . $project_number . " - " . $project_name; ?></option>
+                                        <option <?php if ($ticket_project_filter_id == $project_id) { echo "selected"; } ?> value="<?= $project_id ?>"><?= $project_prefix . $project_number . " - " . $project_name ?></option>
                                         <?php
                                     }
                                     ?>

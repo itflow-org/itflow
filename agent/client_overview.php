@@ -217,7 +217,7 @@ $sql_asset_retired = mysqli_query(
                 <h5 class="card-title"><i class="fa fa-fw fa-edit mr-2"></i>Quick Notes</h5>
             </div>
             <div class="card-body p-1">
-                <textarea class="form-control" rows=8 id="clientNotes" placeholder="Enter quick notes here" onblur="updateClientNotes(<?php echo $client_id ?>)"><?php echo $client_notes ?></textarea>
+                <textarea class="form-control" rows=8 id="clientNotes" placeholder="Enter quick notes here" onblur="updateClientNotes(<?= $client_id ?>)"><?= $client_notes ?></textarea>
             </div>
         </div>
     </div>
@@ -261,23 +261,23 @@ $sql_asset_retired = mysqli_query(
                                     <div class="media">
                                         <?php if ($contact_photo) { ?>
                                             <span class="fa-stack fa-2x mr-2 text-center">
-                                                <img class="img-size-50 img-circle" src="<?php echo "../uploads/clients/$client_id/$contact_photo"; ?>">
+                                                <img class="img-size-50 img-circle" src="<?= "../uploads/clients/$client_id/$contact_photo" ?>">
                                             </span>
                                         <?php } else { ?>
                                             <span class="fa-stack fa-2x mr-2">
                                                 <i class="fa fa-circle fa-stack-2x text-secondary"></i>
-                                                <span class="fa fa-stack-1x text-white"><?php echo $contact_initials; ?></span>
+                                                <span class="fa fa-stack-1x text-white"><?= $contact_initials ?></span>
                                             </span>
                                         <?php } ?>
 
                                         <div class="media-body">
-                                            <div class="text-bold"><?php echo $contact_name; ?></div>
-                                            <small class="text-secondary"><?php echo $contact_title; ?></small>
-                                            <div><?php echo $contact_primary_display; ?></div>
+                                            <div class="text-bold"><?= $contact_name ?></div>
+                                            <small class="text-secondary"><?= $contact_title ?></small>
+                                            <div><?= $contact_primary_display ?></div>
                                             <?php
                                             if (!empty($contact_tags_display)) { ?>
                                                 <div class="mt-1">
-                                                    <?php echo $contact_tags_display; ?>
+                                                    <?= $contact_tags_display ?>
                                                 </div>
                                             <?php } ?>
                                         </div>
@@ -287,11 +287,11 @@ $sql_asset_retired = mysqli_query(
                             </td>
                             <td>
                                 <?php if (!empty($contact_phone)) { ?>
-                                    <?php echo "<i class='fa fa-fw fa-phone text-secondary'></i> $contact_phone $contact_extension"; ?>
+                                    <?= "<i class='fa fa-fw fa-phone text-secondary'></i> $contact_phone $contact_extension" ?>
                                 <?php } ?>
                                 <?php if (!empty($contact_mobile)) { ?>
                                     <br>
-                                    <div class="text-secondary"><i class='fa fa-fw fa-mobile-alt text-secondary'></i> <?php echo "$contact_mobile"; ?></div>
+                                    <div class="text-secondary"><i class='fa fa-fw fa-mobile-alt text-secondary'></i> <?= "$contact_mobile" ?></div>
                                 <?php } ?>
                             </td>
                         </tr>
@@ -395,7 +395,7 @@ $sql_asset_retired = mysqli_query(
                         </td>
                         <td><?= $credential_username_display ?></td>
                         <td class="text-nowrap">
-                            <button class="btn p-0" type="button" onclick="showPasswordViaCredentialID(this, <?php echo $credential_id; ?>)"><i class="fas fa-2x fa-ellipsis-h text-secondary"></i><i class="fas fa-2x fa-ellipsis-h text-secondary"></i></button><button class="btn btn-sm" type="button" onclick="copyPasswordViaCredentialID(this, <?php echo $credential_id; ?>)"><i class="far fa-copy text-secondary"></i></button>
+                            <button class="btn p-0" type="button" onclick="showPasswordViaCredentialID(this, <?= $credential_id ?>)"><i class="fas fa-2x fa-ellipsis-h text-secondary"></i><i class="fas fa-2x fa-ellipsis-h text-secondary"></i></button><button class="btn btn-sm" type="button" onclick="copyPasswordViaCredentialID(this, <?= $credential_id ?>)"><i class="far fa-copy text-secondary"></i></button>
                             <div><?= $otp_display ?></div>
                         </td>
 
@@ -456,16 +456,16 @@ $sql_asset_retired = mysqli_query(
                             }
                             ?>
                             <tr>
-                                <td title="<?php echo $item_type; ?>">
-                                    <i class="<?php echo $item_icon; ?> mr-2 text-secondary"></i><?php echo $item_name; ?>
+                                <td title="<?= $item_type ?>">
+                                    <i class="<?= $item_icon ?> mr-2 text-secondary"></i><?= $item_name ?>
                                 </td>
                                 <td>
-                                    <div>Views: <?php echo $item_views ?></div>
-                                    <div class="text-secondary"><?php echo $item_recipient; ?></div>
+                                    <div>Views: <?= $item_views ?></div>
+                                    <div class="text-secondary"><?= $item_recipient ?></div>
                                 </td>
-                                <td title="Expires at <?php echo $item_expire_at; ?>">Expires <?php echo $item_expire_at_human ?></td>
+                                <td title="Expires at <?= $item_expire_at ?>">Expires <?= $item_expire_at_human ?></td>
                                 <td title="Deactivate Link">
-                                    <a class="text-danger confirm-link" href="post.php?deactivate_shared_item=<?php echo $item_id; ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
+                                    <a class="text-danger confirm-link" href="post.php?deactivate_shared_item=<?= $item_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                                         <i class="fas fa-fw fa-calendar-times mr-2"></i>
                                     </a>
                                 </td>
@@ -509,8 +509,8 @@ $sql_asset_retired = mysqli_query(
                         ?>
                         <p class="mb-1">
                             <i class="fa fa-fw fa-globe text-secondary mr-1"></i>
-                            <a href="domains.php?client_id=<?php echo $client_id; ?>&q=<?php echo $domain_name; ?>">Domain: <?php echo $domain_name; ?></a>
-                            <span>-- <?php echo $domain_expire; ?> (<?php echo $domain_expire_human; ?>)</span>
+                            <a href="domains.php?client_id=<?= $client_id ?>&q=<?= $domain_name ?>">Domain: <?= $domain_name ?></a>
+                            <span>-- <?= $domain_expire ?> (<?= $domain_expire_human ?>)</span>
                         </p>
                         <?php
                     }
@@ -527,8 +527,8 @@ $sql_asset_retired = mysqli_query(
                         ?>
                         <p class="mb-1">
                             <i class="fa fa-fw fa-lock text-secondary mr-1"></i>
-                            <a href="certificates.php?client_id=<?php echo $client_id; ?>&q=<?php echo $certificate_name; ?>">Certificate: <?php echo $certificate_name; ?></a>
-                            <span>-- <?php echo $certificate_expire; ?> (<?php echo $certificate_expire_human; ?>)</span>
+                            <a href="certificates.php?client_id=<?= $client_id ?>&q=<?= $certificate_name ?>">Certificate: <?= $certificate_name ?></a>
+                            <span>-- <?= $certificate_expire ?> (<?= $certificate_expire_human ?>)</span>
                         </p>
                         <?php
                     }
@@ -545,8 +545,8 @@ $sql_asset_retired = mysqli_query(
                         ?>
                         <p class="mb-1">
                             <i class="fa fa-fw fa-laptop text-secondary mr-1"></i>
-                            <a href="asset.php?client_id=<?php echo $client_id; ?>&asset_id=<?php echo $asset_id; ?>">Asset Warranty: <?php echo $asset_name; ?></a>
-                            <span>-- <?php echo $asset_warranty_expire; ?> (<?php echo $asset_warranty_expire_human; ?>)</span>
+                            <a href="asset.php?client_id=<?= $client_id ?>&asset_id=<?= $asset_id ?>">Asset Warranty: <?= $asset_name ?></a>
+                            <span>-- <?= $asset_warranty_expire ?> (<?= $asset_warranty_expire_human ?>)</span>
                         </p>
 
 
@@ -565,8 +565,8 @@ $sql_asset_retired = mysqli_query(
                         ?>
                         <p class="mb-1">
                             <i class="fa fa-fw fa-laptop text-secondary mr-1"></i>
-                            <a href="asset.php?client_id=<?php echo $client_id; ?>&asset_id=<?php echo $asset_id; ?>">Asset Retire: <?php echo $asset_name; ?></a>
-                            <span>-- <?php echo $asset_install_date; ?> (<?php echo $asset_install_date_human; ?>)</span>
+                            <a href="asset.php?client_id=<?= $client_id ?>&asset_id=<?= $asset_id ?>">Asset Retire: <?= $asset_name ?></a>
+                            <span>-- <?= $asset_install_date ?> (<?= $asset_install_date_human ?>)</span>
                         </p>
 
                         <?php
@@ -584,8 +584,8 @@ $sql_asset_retired = mysqli_query(
                         ?>
                         <p class="mb-1">
                             <i class="fa fa-fw fa-cube text-secondary mr-1"></i>
-                            <a href="software.php?client_id=<?php echo $client_id; ?>&q=<?php echo $software_name; ?>">License: <?php echo $software_name; ?></a>
-                            <span>-- <?php echo $software_expire; ?> (<?php echo $software_expire_human; ?>)</span>
+                            <a href="software.php?client_id=<?= $client_id ?>&q=<?= $software_name ?>">License: <?= $software_name ?></a>
+                            <span>-- <?= $software_expire ?> (<?= $software_expire_human ?>)</span>
                         </p>
 
                         <?php
@@ -627,8 +627,8 @@ $sql_asset_retired = mysqli_query(
                         ?>
                         <p class="mb-1">
                             <i class="fa fa-fw fa-globe text-secondary mr-1"></i>
-                            <a href="domains.php?client_id=<?php echo $client_id; ?>&q=<?php echo $domain_name; ?>">Domain: <?php echo $domain_name; ?></a>
-                            <span>-- <?php echo $domain_expire; ?> (<?php echo $domain_expire_human; ?>)</span>
+                            <a href="domains.php?client_id=<?= $client_id ?>&q=<?= $domain_name ?>">Domain: <?= $domain_name ?></a>
+                            <span>-- <?= $domain_expire ?> (<?= $domain_expire_human ?>)</span>
                         </p>
                         <?php
                     }
@@ -645,8 +645,8 @@ $sql_asset_retired = mysqli_query(
                         ?>
                         <p class="mb-1">
                             <i class="fa fa-fw fa-lock text-secondary mr-1"></i>
-                            <a href="certificates.php?client_id=<?php echo $client_id; ?>&q=<?php echo $certificate_name; ?>">Certificate: <?php echo $certificate_name; ?></a>
-                            <span>-- <?php echo $certificate_expire; ?> (<?php echo $certificate_expire_human; ?>)</span>
+                            <a href="certificates.php?client_id=<?= $client_id ?>&q=<?= $certificate_name ?>">Certificate: <?= $certificate_name ?></a>
+                            <span>-- <?= $certificate_expire ?> (<?= $certificate_expire_human ?>)</span>
                         </p>
                         <?php
                     }
@@ -663,8 +663,8 @@ $sql_asset_retired = mysqli_query(
                         ?>
                         <p class="mb-1">
                             <i class="fa fa-fw fa-laptop text-secondary mr-1"></i>Asset Warranty:
-                            <a href="asset.php?client_id=<?php echo $client_id; ?>&asset_id=<?php echo $asset_id; ?>"><?php echo $asset_name; ?></a>
-                            <span>-- <?php echo $asset_warranty_expire; ?> (<?php echo $asset_warranty_expire_human; ?>)</span>
+                            <a href="asset.php?client_id=<?= $client_id ?>&asset_id=<?= $asset_id ?>"><?= $asset_name ?></a>
+                            <span>-- <?= $asset_warranty_expire ?> (<?= $asset_warranty_expire_human ?>)</span>
                         </p>
 
 
@@ -683,8 +683,8 @@ $sql_asset_retired = mysqli_query(
                         ?>
                         <p class="mb-1">
                             <i class="fa fa-fw fa-laptop text-secondary mr-1"></i>
-                            <a href="asset.php?client_id=<?php echo $client_id; ?>&asset_id=<?php echo $asset_id; ?>">Asset Retire: <?php echo $asset_name; ?></a>
-                            <span>-- <?php echo $asset_install_date; ?> (<?php echo $asset_install_date_human; ?>)</span>
+                            <a href="asset.php?client_id=<?= $client_id ?>&asset_id=<?= $asset_id ?>">Asset Retire: <?= $asset_name ?></a>
+                            <span>-- <?= $asset_install_date ?> (<?= $asset_install_date_human ?>)</span>
                         </p>
 
                         <?php
@@ -702,8 +702,8 @@ $sql_asset_retired = mysqli_query(
                         ?>
                         <p class="mb-1">
                             <i class="fa fa-fw fa-cube text-secondary mr-1"></i>
-                            <a href="software.php?client_id=<?php echo $client_id; ?>&q=<?php echo $software_name; ?>">Software: <?php echo $software_name; ?></a>
-                            <span>-- <?php echo $software_expire; ?> (<?php echo $software_expire_human; ?>)</span>
+                            <a href="software.php?client_id=<?= $client_id ?>&q=<?= $software_name ?>">Software: <?= $software_name ?></a>
+                            <span>-- <?= $software_expire ?> (<?= $software_expire_human ?>)</span>
                         </p>
 
                         <?php
@@ -740,9 +740,9 @@ $sql_asset_retired = mysqli_query(
 
                         ?>
                         <tr>
-                            <td><a href="ticket.php?client_id=<?php echo $client_id; ?>&ticket_id=<?php echo $ticket_id?>"><?php echo "$ticket_prefix$ticket_number"; ?></a></td>
-                            <td><?php echo $ticket_subject; ?></td>
-                            <td><?php echo $ticket_created_at_human; ?> <small class="text-muted"><?php echo $ticket_created_at; ?></small></td>
+                            <td><a href="ticket.php?client_id=<?= $client_id ?>&ticket_id=<?= $ticket_id ?>"><?= "$ticket_prefix$ticket_number" ?></a></td>
+                            <td><?= $ticket_subject ?></td>
+                            <td><?= $ticket_created_at_human ?> <small class="text-muted"><?= $ticket_created_at ?></small></td>
                         </tr>
 
                         <?php
@@ -776,8 +776,8 @@ $sql_asset_retired = mysqli_query(
 
                         ?>
                         <tr>
-                            <td class="text-nowrap text-secondary"><?php echo $log_created_at_time_ago; ?></td>
-                            <td><?php echo $log_description; ?></td>
+                            <td class="text-nowrap text-secondary"><?= $log_created_at_time_ago ?></td>
+                            <td><?= $log_description ?></td>
                         </tr>
 
                         <?php
@@ -788,7 +788,7 @@ $sql_asset_retired = mysqli_query(
                 </table>
                 <?php if ($session_user_role == 3) { ?>
                 <div class="card-footer p-2">
-                    <a href="../admin/audit_logs.php?client=<?php echo $client_id; ?>">See More...</a>
+                    <a href="../admin/audit_logs.php?client=<?= $client_id ?>">See More...</a>
                 </div>
                 <?php } ?>
             </div>

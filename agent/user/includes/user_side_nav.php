@@ -1,7 +1,7 @@
 <!-- Main Sidebar Container -->
-<aside class="main-sidebar sidebar-dark-<?php echo escapeHtml($config_theme); ?> d-print-none">
+<aside class="main-sidebar sidebar-dark-<?= escapeHtml($config_theme) ?> d-print-none">
 
-    <a class="brand-link pb-1 mt-1" href="/agent/<?php echo $config_start_page ?>">
+    <a class="brand-link pb-1 mt-1" href="/agent/<?= $config_start_page ?>">
         <p class="h5">
             <i class="nav-icon fas fa-arrow-left ml-3 mr-2"></i> 
             <span class="brand-text">

@@ -96,8 +96,8 @@ ob_start();
 
                     ?>
                         <option <?php if ($payment_account_id == $account_id) { echo "selected"; } ?>
-                            value="<?php echo $account_id; ?>">
-                            <?php echo $account_name; ?> [$<?php echo number_format($account_balance, 2); ?>]
+                            value="<?= $account_id ?>">
+                            <?= $account_name ?> [$<?= number_format($account_balance, 2) ?>]
                         </option>
 
                     <?php

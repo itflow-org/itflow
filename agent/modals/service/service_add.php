@@ -44,7 +44,7 @@ ob_start();
             <div class="tab-pane fade show active" id="pills-overview">
 
                 <?php if ($client_id) { ?>
-                    <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
+                    <input type="hidden" name="client_id" value="<?= $client_id ?>">
                 <?php } else { ?>
 
                     <div class="form-group">
@@ -61,7 +61,7 @@ ob_start();
                                 while ($row = mysqli_fetch_assoc($sql)) {
                                     $client_id = intval($row['client_id']);
                                     $client_name = escapeHtml($row['client_name']); ?>
-                                    <option <?php if ($client_id == isset($_GET['client'])) { echo "selected"; } ?> value="<?php echo $client_id; ?>"><?php echo $client_name; ?></option>
+                                    <option <?php if ($client_id == isset($_GET['client'])) { echo "selected"; } ?> value="<?= $client_id ?>"><?= $client_name ?></option>
 
                                 <?php } ?>
                             </select>

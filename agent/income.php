@@ -155,14 +155,14 @@ $summary_total_income = floatval($row['total_income']);
                         <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown"></button>
                         <div class="dropdown-menu">
                             <a class="dropdown-item text-dark ajax-modal" href="#"
-                                data-modal-url="modals/income/income_export.php?<?php echo $client_url; ?>type=<?php echo urlencode($type_filter); ?>&account=<?php echo $account_filter; ?>&method=<?php echo urlencode($_GET['method'] ?? ''); ?>&dtf=<?php echo $dtf; ?>&dtt=<?php echo $dtt; ?>&q=<?php echo urlencode($q ?? ''); ?>">
+                                data-modal-url="modals/income/income_export.php?<?= $client_url ?>type=<?= urlencode($type_filter) ?>&account=<?= $account_filter ?>&method=<?= urlencode($_GET['method'] ?? '') ?>&dtf=<?= $dtf ?>&dtt=<?= $dtt ?>&q=<?= urlencode($q ?? '') ?>">
                                 <i class="fa fa-fw fa-download mr-2"></i>Export
                             </a>
                         </div>
                     </div>
                 <?php } else { ?>
                     <button type="button" class="btn btn-default ajax-modal"
-                        data-modal-url="modals/income/income_export.php?<?php echo $client_url; ?>type=<?php echo urlencode($type_filter); ?>&account=<?php echo $account_filter; ?>&method=<?php echo urlencode($_GET['method'] ?? ''); ?>&dtf=<?php echo $dtf; ?>&dtt=<?php echo $dtt; ?>&q=<?php echo urlencode($q ?? ''); ?>">
+                        data-modal-url="modals/income/income_export.php?<?= $client_url ?>type=<?= urlencode($type_filter) ?>&account=<?= $account_filter ?>&method=<?= urlencode($_GET['method'] ?? '') ?>&dtf=<?= $dtf ?>&dtt=<?= $dtt ?>&q=<?= urlencode($q ?? '') ?>">
                         <i class="fa fa-fw fa-download mr-2"></i>Export
                     </button>
                 <?php } ?>
@@ -172,7 +172,7 @@ $summary_total_income = floatval($row['total_income']);
         <div class="card-body">
             <form class="mb-4" autocomplete="off">
                 <?php if ($client_url) { ?>
-                    <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
+                    <input type="hidden" name="client_id" value="<?= $client_id ?>">
                 <?php } ?>
                 <div class="row">
                     <div class="col-sm-4">
@@ -189,7 +189,7 @@ $summary_total_income = floatval($row['total_income']);
                             <select class="form-control select2" name="type" onchange="this.form.submit()">
                                 <option value="">- All Types -</option>
                                 <?php foreach ($income_types_array as $income_type_option) { ?>
-                                    <option <?php if ($type_filter == $income_type_option) { echo "selected"; } ?>><?php echo $income_type_option; ?></option>
+                                    <option <?php if ($type_filter == $income_type_option) { echo "selected"; } ?>><?= $income_type_option ?></option>
                                 <?php } ?>
                             </select>
                         </div>
@@ -208,7 +208,7 @@ $summary_total_income = floatval($row['total_income']);
                                     $filter_account_id = intval($row['account_id']);
                                     $filter_account_name = escapeHtml($row['account_name']);
                                 ?>
-                                    <option <?php if ($account_filter == $filter_account_id) { echo "selected"; } ?> value="<?php echo $filter_account_id; ?>"><?php echo $filter_account_name; ?></option>
+                                    <option <?php if ($account_filter == $filter_account_id) { echo "selected"; } ?> value="<?= $filter_account_id ?>"><?= $filter_account_name ?></option>
                                 <?php
                                 }
                                 ?>
@@ -229,7 +229,7 @@ $summary_total_income = floatval($row['total_income']);
                                 while ($row = mysqli_fetch_assoc($sql_payment_methods_filter)) {
                                     $filter_method = escapeHtml($row['method']);
                                 ?>
-                                    <option <?php if ($method_filter == $filter_method) { echo "selected"; } ?>><?php echo $filter_method; ?></option>
+                                    <option <?php if ($method_filter == $filter_method) { echo "selected"; } ?>><?= $filter_method ?></option>
                                 <?php
                                 }
                                 ?>
@@ -244,9 +244,9 @@ $summary_total_income = floatval($row['total_income']);
                             <div class="form-group">
                                 <label>Date range</label>
                                 <input type="text" id="dateFilter" class="form-control" autocomplete="off">
-                                <input type="hidden" name="canned_date" id="canned_date" value="<?php echo escapeHtml($_GET['canned_date']) ?? ''; ?>">
-                                <input type="hidden" name="dtf" id="dtf" value="<?php echo escapeHtml($dtf ?? ''); ?>">
-                                <input type="hidden" name="dtt" id="dtt" value="<?php echo escapeHtml($dtt ?? ''); ?>">
+                                <input type="hidden" name="canned_date" id="canned_date" value="<?= escapeHtml($_GET['canned_date']) ?? '' ?>">
+                                <input type="hidden" name="dtf" id="dtf" value="<?= escapeHtml($dtf ?? '') ?>">
+                                <input type="hidden" name="dtt" id="dtt" value="<?= escapeHtml($dtt ?? '') ?>">
                             </div>
                         </div>
                     </div>
@@ -259,7 +259,7 @@ $summary_total_income = floatval($row['total_income']);
                     <!-- small box -->
                     <div class="small-box bg-primary">
                         <div class="inner">
-                            <h3><?php echo numfmt_format_currency($currency_format, $summary_total_payments, $session_company_currency); ?></h3>
+                            <h3><?= numfmt_format_currency($currency_format, $summary_total_payments, $session_company_currency) ?></h3>
                             <p>Invoice Payments</p>
                         </div>
                         <div class="icon">
@@ -273,7 +273,7 @@ $summary_total_income = floatval($row['total_income']);
                     <!-- small box -->
                     <div class="small-box bg-info">
                         <div class="inner">
-                            <h3><?php echo numfmt_format_currency($currency_format, $summary_total_revenues, $session_company_currency); ?></h3>
+                            <h3><?= numfmt_format_currency($currency_format, $summary_total_revenues, $session_company_currency) ?></h3>
                             <p>Other Revenue</p>
                         </div>
                         <div class="icon">
@@ -287,7 +287,7 @@ $summary_total_income = floatval($row['total_income']);
                     <!-- small box -->
                     <div class="small-box bg-success">
                         <div class="inner">
-                            <h3><?php echo numfmt_format_currency($currency_format, $summary_total_income, $session_company_currency); ?></h3>
+                            <h3><?= numfmt_format_currency($currency_format, $summary_total_income, $session_company_currency) ?></h3>
                             <p>Total Income</p>
                         </div>
                         <div class="icon">
@@ -303,44 +303,44 @@ $summary_total_income = floatval($row['total_income']);
                     <thead class="text-dark <?php if ($num_rows[0] == 0) { echo "d-none"; } ?> text-nowrap">
                     <tr>
                         <th>
-                            <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=income_date&order=<?php echo $disp; ?>">
+                            <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=income_date&order=<?= $disp ?>">
                                 Date <?php if ($sort == 'income_date') { echo $order_icon; } ?>
                             </a>
                         </th>
                         <th>
-                            <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=income_type&order=<?php echo $disp; ?>">
+                            <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=income_type&order=<?= $disp ?>">
                                 Type <?php if ($sort == 'income_type') { echo $order_icon; } ?>
                             </a>
                         </th>
                         <th>
-                            <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=income_source&order=<?php echo $disp; ?>">
+                            <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=income_source&order=<?= $disp ?>">
                                 Source <?php if ($sort == 'income_source') { echo $order_icon; } ?>
                             </a>
                         </th>
                         <?php if (!$client_url) { ?>
                         <th>
-                            <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=income_client&order=<?php echo $disp; ?>">
+                            <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=income_client&order=<?= $disp ?>">
                                 Client <?php if ($sort == 'income_client') { echo $order_icon; } ?>
                             </a>
                         </th>
                         <?php } ?>
                         <th class="text-right">
-                            <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=income_amount&order=<?php echo $disp; ?>">
+                            <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=income_amount&order=<?= $disp ?>">
                                 Amount <?php if ($sort == 'income_amount') { echo $order_icon; } ?>
                             </a>
                         </th>
                         <th>
-                            <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=income_method&order=<?php echo $disp; ?>">
+                            <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=income_method&order=<?= $disp ?>">
                                 Method <?php if ($sort == 'income_method') { echo $order_icon; } ?>
                             </a>
                         </th>
                         <th>
-                            <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=income_reference&order=<?php echo $disp; ?>">
+                            <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=income_reference&order=<?= $disp ?>">
                                 Reference <?php if ($sort == 'income_reference') { echo $order_icon; } ?>
                             </a>
                         </th>
                         <th>
-                            <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=income_account&order=<?php echo $disp; ?>">
+                            <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=income_account&order=<?= $disp ?>">
                                 Account <?php if ($sort == 'income_account') { echo $order_icon; } ?>
                             </a>
                         </th>
@@ -392,33 +392,33 @@ $summary_total_income = floatval($row['total_income']);
                             <td>
                                 <a class="ajax-modal" href="#"
                                     data-modal-size = "lg"
-                                    data-modal-url = "<?php echo $income_edit_modal; ?>">
-                                    <?php echo $income_date; ?>
+                                    data-modal-url = "<?= $income_edit_modal ?>">
+                                    <?= $income_date ?>
                                 </a>
                             </td>
-                            <td><span class="badge <?php echo $income_type_badge; ?>"><?php echo $income_type; ?></span></td>
+                            <td><span class="badge <?= $income_type_badge ?>"><?= $income_type ?></span></td>
                             <td>
                                 <?php if ($income_type == 'Payment' && $income_invoice_id) { ?>
-                                    <a href="invoice.php?<?php echo $client_url; ?>invoice_id=<?php echo $income_invoice_id; ?>">
-                                        <?php echo $income_source; ?>
+                                    <a href="invoice.php?<?= $client_url ?>invoice_id=<?= $income_invoice_id ?>">
+                                        <?= $income_source ?>
                                     </a>
                                 <?php } else { ?>
-                                    <?php echo $income_source; ?>
+                                    <?= $income_source ?>
                                 <?php } ?>
                             </td>
                             <?php if (!$client_url) { ?>
                             <td>
                                 <?php if ($income_client_id) { ?>
-                                    <a href="income.php?client_id=<?php echo $income_client_id; ?>"><?php echo $income_client; ?></a>
+                                    <a href="income.php?client_id=<?= $income_client_id ?>"><?= $income_client ?></a>
                                 <?php } else { ?>
                                     -
                                 <?php } ?>
                             </td>
                             <?php } ?>
-                            <td class="text-right text-monospace"><?php echo numfmt_format_currency($currency_format, $income_amount, $income_currency_code); ?></td>
-                            <td><?php echo $income_method; ?></td>
-                            <td><?php echo $income_reference_display; ?></td>
-                            <td><?php echo "$income_account_archived_display$income_account"; ?></td>
+                            <td class="text-right text-monospace"><?= numfmt_format_currency($currency_format, $income_amount, $income_currency_code) ?></td>
+                            <td><?= $income_method ?></td>
+                            <td><?= $income_reference_display ?></td>
+                            <td><?= "$income_account_archived_display$income_account" ?></td>
                             <td>
                                 <?php if (lookupUserPermission("module_sales") >= 3) { ?>
                                     <div class="dropdown dropleft text-center">
@@ -428,11 +428,11 @@ $summary_total_income = floatval($row['total_income']);
                                         <div class="dropdown-menu">
                                             <a class="dropdown-item ajax-modal" href="#"
                                                 data-modal-size = "lg"
-                                                data-modal-url = "<?php echo $income_edit_modal; ?>">
+                                                data-modal-url = "<?= $income_edit_modal ?>">
                                                 <i class="fas fa-fw fa-edit mr-2"></i>Edit
                                             </a>
                                             <div class="dropdown-divider"></div>
-                                            <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?<?php echo $income_delete_action; ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
+                                            <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?<?= $income_delete_action ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                                                 <i class="fas fa-fw fa-trash mr-2"></i>Delete
                                             </a>
                                         </div>

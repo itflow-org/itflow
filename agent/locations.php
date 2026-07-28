@@ -102,9 +102,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
     <div class="card-body">
         <form autocomplete="off">
             <?php if ($client_url) { ?>
-            <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
+            <input type="hidden" name="client_id" value="<?= $client_id ?>">
             <?php } ?>
-            <input type="hidden" name="archived" value="<?php echo $archived; ?>">
+            <input type="hidden" name="archived" value="<?= $archived ?>">
             <div class="row">
 
                 <div class="col-md-4">
@@ -134,7 +134,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 $tag_id = intval($row['tag_id']);
                                 $tag_name = escapeHtml($row['tag_name']); ?>
 
-                                <option value="<?php echo $tag_id ?>" <?php if (isset($_GET['tags']) && is_array($_GET['tags']) && in_array($tag_id, $_GET['tags'])) { echo 'selected'; } ?>> <?php echo $tag_name ?> </option>
+                                <option value="<?= $tag_id ?>" <?php if (isset($_GET['tags']) && is_array($_GET['tags']) && in_array($tag_id, $_GET['tags'])) { echo 'selected'; } ?>> <?= $tag_name ?> </option>
 
                             <?php } ?>
                         </select>
@@ -161,7 +161,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 $client_id = intval($row['client_id']);
                                 $client_name = escapeHtml($row['client_name']);
                             ?>
-                                <option <?php if ($client == $client_id) { echo "selected"; } ?> value="<?php echo $client_id; ?>"><?php echo $client_name; ?></option>
+                                <option <?php if ($client == $client_id) { echo "selected"; } ?> value="<?= $client_id ?>"><?= $client_name ?></option>
                             <?php
                             }
                             ?>
@@ -173,7 +173,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                 <div class="col-md-3">
                     <div class="btn-group float-right">
-                        <a href="?<?php echo $client_url; ?>archived=<?php if($archived == 1){ echo 0; } else { echo 1; } ?>"
+                        <a href="?<?= $client_url ?>archived=<?php if($archived == 1){ echo 0; } else { echo 1; } ?>"
                             class="btn btn-<?php if($archived == 1){ echo "primary"; } else { echo "default"; } ?>">
                             <i class="fa fa-fw fa-archive mr-2"></i>Archived
                         </a>
@@ -214,7 +214,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
         </form>
         <hr>
         <form id="bulkActions" action="post.php" method="post" enctype="multipart/form-data">
-            <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token'] ?>">
+            <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
 
             <div class="table-responsive">
                 <table class="table table-striped table-borderless table-hover">
@@ -226,28 +226,28 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             </div>
                         </td>
                         <th>
-                            <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=location_name&order=<?php echo $disp; ?>">
+                            <a class="text-secondary" href="?<?= $url_query_strings_sort ?>&sort=location_name&order=<?= $disp ?>">
                                 Name <?php if ($sort == 'location_name') { echo $order_icon; } ?>
                             </a>
                         </th>
                         <th>
-                            <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=location_address&order=<?php echo $disp; ?>">
+                            <a class="text-secondary" href="?<?= $url_query_strings_sort ?>&sort=location_address&order=<?= $disp ?>">
                                 Address <?php if ($sort == 'location_address') { echo $order_icon; } ?>
                             </a>
                         </th>
                         <th>
-                            <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=location_phone&order=<?php echo $disp; ?>">
+                            <a class="text-secondary" href="?<?= $url_query_strings_sort ?>&sort=location_phone&order=<?= $disp ?>">
                                 Phone <?php if ($sort == 'location_phone') { echo $order_icon; } ?>
                             </a>
                         </th>
                         <th>
-                            <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=location_hours&order=<?php echo $disp; ?>">
+                            <a class="text-secondary" href="?<?= $url_query_strings_sort ?>&sort=location_hours&order=<?= $disp ?>">
                                 Hours <?php if ($sort == 'location_hours') { echo $order_icon; } ?>
                             </a>
                         </th>
                         <?php if (!$client_url) { ?>
                         <th>
-                            <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=client_name&order=<?php echo $disp; ?>">
+                            <a class="text-secondary" href="?<?= $url_query_strings_sort ?>&sort=client_name&order=<?= $disp ?>">
                                 Client <?php if ($sort == 'client_name') { echo $order_icon; } ?>
                             </a>
                         </th>
@@ -329,7 +329,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         <tr>
                             <td class="bg-light checkbox-column">
                                 <div class="form-check">
-                                    <input class="form-check-input bulk-select" type="checkbox" name="location_ids[]" value="<?php echo $location_id ?>">
+                                    <input class="form-check-input bulk-select" type="checkbox" name="location_ids[]" value="<?= $location_id ?>">
                                 </div>
                             </td>
                             <td>
@@ -337,13 +337,13 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                     <div class="media">
                                         <i class="fa fa-fw fa-2x fa-map-marker-alt mr-2"></i>
                                         <div class="media-body">
-                                            <div <?php if($location_primary) { echo "class='text-bold'"; } ?>><?php echo $location_name; ?></div>
-                                            <div><small class="text-secondary"><?php echo $location_description; ?></small></div>
-                                            <div><?php echo $location_primary_display; ?></div>
+                                            <div <?php if($location_primary) { echo "class='text-bold'"; } ?>><?= $location_name ?></div>
+                                            <div><small class="text-secondary"><?= $location_description ?></small></div>
+                                            <div><?= $location_primary_display ?></div>
                                              <?php
                                             if (!empty($location_tags_display)) { ?>
                                                 <div class="mt-1">
-                                                    <?php echo $location_tags_display; ?>
+                                                    <?= $location_tags_display ?>
                                                 </div>
                                             <?php } ?>
                                         </div>
@@ -356,12 +356,12 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 </a>
                             </td>
                             <td>
-                                <?php echo $location_phone_display; ?>
-                                <?php echo $location_fax_display; ?>
+                                <?= $location_phone_display ?>
+                                <?= $location_fax_display ?>
                             </td>
-                            <td><?php echo $location_hours_display; ?></td>
+                            <td><?= $location_hours_display ?></td>
                             <?php if (!$client_url) { ?>
-                            <td><a href="locations.php?client_id=<?php echo $client_id; ?>"><?php echo $client_name; ?></a></td>
+                            <td><a href="locations.php?client_id=<?= $client_id ?>"><?= $client_name ?></a></td>
                             <?php } ?>
                             <td>
                                 <div class="dropdown dropleft text-center">

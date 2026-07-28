@@ -191,7 +191,7 @@ while ($row = mysqli_fetch_assoc($sql)) {
             var $link = $('<a>', {
                 href: '#',
                 'class': 'ajax-modal',
-                'data-modal-url': 'modals/calendar/calendar_event_edit.php?<?php echo $client_url; ?>&id=' + eventId
+                'data-modal-url': 'modals/calendar/calendar_event_edit.php?<?= $client_url ?>&id=' + eventId
             });
 
             $('body').append($link); // Append to the body
@@ -378,7 +378,7 @@ while ($row = mysqli_fetch_assoc($sql)) {
         $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT user_config_calendar_first_day FROM user_settings WHERE user_id = $session_user_id"));
         $user_config_calendar_first_day = intval($row['user_config_calendar_first_day']);
         ?>
-        firstDay: <?php echo $user_config_calendar_first_day ?>,
+        firstDay: <?= $user_config_calendar_first_day ?>,
         });
 
         calendar.render();

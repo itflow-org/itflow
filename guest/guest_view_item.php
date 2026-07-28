@@ -89,7 +89,7 @@ appNotify("Share Viewed", "$item_type_sql_escaped has been viewed by $item_recip
 
 <?php
     if (!empty($company_logo)) { ?>
-            <img alt="<?=escapeHtml($company_name)?> logo" height="40" width="80" class="img-fluid" src="<?php echo "../uploads/settings/$company_logo"; ?>">
+            <img alt="<?=escapeHtml($company_name)?> logo" height="40" width="80" class="img-fluid" src="<?= "../uploads/settings/$company_logo" ?>">
         <?php
         } else {
             echo "<h3>$company_name</h3>";
@@ -99,15 +99,15 @@ appNotify("Share Viewed", "$item_type_sql_escaped has been viewed by $item_recip
 <div class="card mt-2">
     <div class="card-header bg-dark">
         <div class="card-title">
-            <h6><small>Secure link intended for:</small><br><strong><?php echo $item_recipient ?></strong></h6>
+            <h6><small>Secure link intended for:</small><br><strong><?= $item_recipient ?></strong></h6>
         </div>
 
         <div class="card-tools">
             <div>
-                <?php echo "Viewed: <strong>$item_views</strong> Times"; ?>
+                <?= "Viewed: <strong>$item_views</strong> Times" ?>
             </div>
             <div>
-                <?php echo "Expires: <strong>$item_expire</strong>"; ?>
+                <?= "Expires: <strong>$item_expire</strong>" ?>
             </div>
         </div>
     </div>
@@ -212,24 +212,24 @@ if ($item_type == "Document") {
 
     ?>
 
-    <h5><?php echo $credential_name; ?></h5>
+    <h5><?= $credential_name ?></h5>
     <table class="table col-md-3">
         <tr>
             <th>URL</th>
-            <td><?php echo $credential_uri; ?></td>
+            <td><?= $credential_uri ?></td>
         </tr>
         <tr>
             <th>Username</th>
-            <td><?php echo $credential_username ?></td>
+            <td><?= $credential_username ?></td>
         </tr>
         <tr>
             <th>Password</th>
-            <td><?php echo $credential_password ?></td>
+            <td><?= $credential_password ?></td>
         </tr>
         <?php if(!empty($credential_otp_secret)){ ?>
         <tr>
             <th>2FA (TOTP)</th>
-            <td><?php echo $otp_display ?></td>
+            <td><?= $otp_display ?></td>
         </tr>
         <?php } ?>
 
@@ -243,8 +243,8 @@ if ($item_type == "Document") {
                 "guest_ajax.php",
                 {
                     get_share_totp_token: 'true',
-                    id: <?php echo $item_id; ?>,
-                    key: "<?php echo $item_key; ?>"
+                    id: <?= $item_id ?>,
+                    key: "<?= $item_key ?>"
                 },
                 function(response) {
                     if (response.token) {
@@ -281,7 +281,7 @@ if ($item_type == "Document") {
 
 </div>
 <div class="card-footer">
-<?php echo "<i class='fas fa-phone fa-fw mr-2'></i>$company_phone | <i class='fas fa-globe fa-fw mr-2 ml-2'></i>$company_website"; ?>
+<?= "<i class='fas fa-phone fa-fw mr-2'></i>$company_phone | <i class='fas fa-globe fa-fw mr-2 ml-2'></i>$company_website" ?>
 </div>
 
 <?php

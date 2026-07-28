@@ -186,7 +186,7 @@ if (contactCan('accounting')) { ?>
                 <h3 class="card-title text-bold text-dark">Account Balance</h3>
             </div>
             <div class="card-body">
-                <div class="h4 text-danger"><b><?php echo numfmt_format_currency($currency_format, $balance, $session_company_currency); ?></b></div>
+                <div class="h4 text-danger"><b><?= numfmt_format_currency($currency_format, $balance, $session_company_currency) ?></b></div>
             </div>
         </a>
     </div>
@@ -199,7 +199,7 @@ if (contactCan('accounting')) { ?>
                 <h3 class="card-title">Recurring Monthly</h3>
             </div>
             <div class="card-body">
-                <div class="h4"><b><?php echo numfmt_format_currency($currency_format, $recurring_monthly_total, $session_company_currency); ?></b></div>
+                <div class="h4"><b><?= numfmt_format_currency($currency_format, $recurring_monthly_total, $session_company_currency) ?></b></div>
             </div>
         </a>
     </div>
@@ -234,9 +234,9 @@ if (contactCan('itdoc')) {
 
                         ?>
                         <p>
-                            <strong><?php echo $domain_name; ?></strong>
+                            <strong><?= $domain_name ?></strong>
                             <br>
-                            <small class="text-secondary"><?php echo $domain_expire; ?> (<?php echo $domain_expire_human; ?>)</small>
+                            <small class="text-secondary"><?= $domain_expire ?> (<?= $domain_expire_human ?>)</small>
                         </p>
                         <?php
                     }
@@ -273,8 +273,8 @@ if (contactCan('itdoc')) {
 
                     ?>
                     <tr>
-                        <td><i class=" text-secondary mr-2"></i><?php if ($asset_uri_client) { ?><a href="<?= $asset_uri_client ?>" target="_blank"><i class='fas fa-external-link-alt mr-2'></i></a><?php } ?><?php echo $asset_name; ?></td>
-                        <td class="text-secondary">(<?php echo $asset_type; ?>)</td>
+                        <td><i class=" text-secondary mr-2"></i><?php if ($asset_uri_client) { ?><a href="<?= $asset_uri_client ?>" target="_blank"><i class='fas fa-external-link-alt mr-2'></i></a><?php } ?><?= $asset_name ?></td>
+                        <td class="text-secondary">(<?= $asset_type ?>)</td>
                     </tr>
                     <?php
                 }

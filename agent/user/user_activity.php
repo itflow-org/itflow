@@ -33,17 +33,17 @@ $sql_recent_logs = mysqli_query($mysqli, "SELECT * FROM logs
             ?>
 
             <tr>
-                <td><i class="fa fa-fw fa-clock text-secondary mr-2"></i><?php echo $log_created_at; ?></td>
-                <td><?php echo $log_user_os; ?></td>
-                <td><?php echo $log_user_browser; ?></td>
-                <td><i class='fa fa-fw fa-globe text-secondary'></i> <?php echo $log_ip; ?></td>
+                <td><i class="fa fa-fw fa-clock text-secondary mr-2"></i><?= $log_created_at ?></td>
+                <td><?= $log_user_os ?></td>
+                <td><?= $log_user_browser ?></td>
+                <td><i class='fa fa-fw fa-globe text-secondary'></i> <?= $log_ip ?></td>
             </tr>
         <?php } ?>
         </tbody>
     </table>
     <?php if (isset($session_is_admin) && $session_is_admin === true) { ?>
         <div class="card-footer">
-            <a href="../../admin/audit_logs.php?q=<?php echo "$session_name successfully logged in"; ?>">See More...</a>
+            <a href="../../admin/audit_logs.php?q=<?= "$session_name successfully logged in" ?>">See More...</a>
         </div>
     <?php } ?>
 </div>
@@ -78,9 +78,9 @@ $sql_recent_logs = mysqli_query($mysqli, "SELECT * FROM logs
             ?>
 
             <tr>
-                <td><i class="fa fa-fw fa-clock text-secondary mr-2"></i><?php echo $log_created_at; ?></td>
-                <td><strong><i class="fa fa-fw text-secondary fa-<?php echo $log_icon; ?>"></i> <?php echo $log_type; ?></strong></td>
-                <td><span class="text-secondary"><?php echo $log_description; ?></span></td>
+                <td><i class="fa fa-fw fa-clock text-secondary mr-2"></i><?= $log_created_at ?></td>
+                <td><strong><i class="fa fa-fw text-secondary fa-<?= $log_icon ?>"></i> <?= $log_type ?></strong></td>
+                <td><span class="text-secondary"><?= $log_description ?></span></td>
 
             </tr>
             <?php
@@ -90,7 +90,7 @@ $sql_recent_logs = mysqli_query($mysqli, "SELECT * FROM logs
     </table>
     <?php if (isset($session_is_admin) && $session_is_admin === true) { ?>
         <div class="card-footer">
-            <a href="../../admin/audit_logs.php?q=<?php echo escapeHtml($session_name); ?>">See More...</a>
+            <a href="../../admin/audit_logs.php?q=<?= escapeHtml($session_name) ?>">See More...</a>
         </div>
     <?php } ?>
 </div>

@@ -52,26 +52,26 @@ ob_start();
 ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class='fa fa-fw fa-ethernet mr-2'></i>Editing Interface: <?php echo $asset_name; ?> - <strong><?php echo $interface_name; ?></strong></h5>
+    <h5 class="modal-title"><i class='fa fa-fw fa-ethernet mr-2'></i>Editing Interface: <?= $asset_name ?> - <strong><?= $interface_name ?></strong></h5>
     <button type="button" class="close text-white" data-dismiss="modal">
         <span>&times;</span>
     </button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
-    <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
-    <input type="hidden" name="interface_id" value="<?php echo $interface_id; ?>">
+    <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
+    <input type="hidden" name="interface_id" value="<?= $interface_id ?>">
 
     <div class="modal-body" <?php if (lookupUserPermission('module_support') <= 1) { echo 'inert'; } ?>>
 
         <ul class="nav nav-pills nav-justified mb-3">
             <li class="nav-item">
-                <a class="nav-link active" data-toggle="pill" href="#pills-interface-details<?php echo $interface_id; ?>">Details</a>
+                <a class="nav-link active" data-toggle="pill" href="#pills-interface-details<?= $interface_id ?>">Details</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" data-toggle="pill" href="#pills-interface-network<?php echo $interface_id; ?>">Network</a>
+                <a class="nav-link" data-toggle="pill" href="#pills-interface-network<?= $interface_id ?>">Network</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" data-toggle="pill" href="#pills-interface-notes<?php echo $interface_id; ?>">Notes</a>
+                <a class="nav-link" data-toggle="pill" href="#pills-interface-notes<?= $interface_id ?>">Notes</a>
             </li>
         </ul>
 
@@ -79,7 +79,7 @@ ob_start();
 
         <div class="tab-content">
 
-            <div class="tab-pane fade show active" id="pills-interface-details<?php echo $interface_id; ?>">
+            <div class="tab-pane fade show active" id="pills-interface-details<?= $interface_id ?>">
 
                 <!-- Interface Name -->
                 <div class="form-group">
@@ -94,7 +94,7 @@ ob_start();
                             name="name"
                             placeholder="Interface name or port number"
                             maxlength="200"
-                            value="<?php echo $interface_name; ?>"
+                            value="<?= $interface_name ?>"
                             required
                         >
                         <div class="input-group-append">
@@ -118,7 +118,7 @@ ob_start();
                             name="description"
                             placeholder="Short Description"
                             maxlength="200"
-                            value="<?php echo $interface_description; ?>"
+                            value="<?= $interface_description ?>"
                         >
                     </div>
                 </div>
@@ -153,7 +153,7 @@ ob_start();
             </div> <!-- End Details -->
 
             <!-- Network Section -->
-            <div class="tab-pane fade" id="pills-interface-network<?php echo $interface_id; ?>">
+            <div class="tab-pane fade" id="pills-interface-network<?= $interface_id ?>">
 
                 <!-- Network -->
                 <div class="form-group">
@@ -198,7 +198,7 @@ ob_start();
                             name="ip"
                             placeholder="e.g. 192.168.1.10"
                             maxlength="200"
-                            value="<?php echo $interface_ip; ?>"
+                            value="<?= $interface_ip ?>"
                             data-inputmask="'alias': 'ip'"
                             data-mask
                         >
@@ -229,7 +229,7 @@ ob_start();
                             name="mac"
                             placeholder="e.g. 00:1A:2B:3C:4D:5E"
                             maxlength="200"
-                            value="<?php echo $interface_mac; ?>"
+                            value="<?= $interface_mac ?>"
                             data-inputmask="'alias': 'mac'"
                             data-mask
                         >
@@ -249,7 +249,7 @@ ob_start();
                             name="ipv6"
                             placeholder="e.g. 2001:db8::1"
                             maxlength="200"
-                            value="<?php echo $interface_ipv6; ?>"
+                            value="<?= $interface_ipv6 ?>"
                         >
                     </div>
                 </div>
@@ -267,7 +267,7 @@ ob_start();
                             name="nat_ip"
                             placeholder="e.g. 203.0.113.10 or 10.0.0.5"
                             maxlength="200"
-                            value="<?php echo $interface_nat_ip; ?>"
+                            value="<?= $interface_nat_ip ?>"
                             data-inputmask="'alias': 'ip'"
                             data-mask
                         >
@@ -319,10 +319,10 @@ ob_start();
             </div> <!-- End Network Section -->
 
             <!-- Notes Section -->
-            <div class="tab-pane fade" id="pills-interface-notes<?php echo $interface_id; ?>">
+            <div class="tab-pane fade" id="pills-interface-notes<?= $interface_id ?>">
                 <!-- Notes -->
                 <div class="form-group">
-                    <textarea class="form-control" rows="8" placeholder="Enter some notes" name="notes"><?php echo $interface_notes; ?></textarea>
+                    <textarea class="form-control" rows="8" placeholder="Enter some notes" name="notes"><?= $interface_notes ?></textarea>
                 </div>
             </div>
             <!-- End Notes Section -->

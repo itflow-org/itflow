@@ -71,7 +71,7 @@ if (!$config_stripe_enable || !$config_stripe_publishable || !$config_stripe_sec
                 Please add the payment details you would like to save.<br>
                 By adding payment details here, you grant consent for future automatic payments of invoices.<br><br>
 
-                <input type="hidden" id="stripe_publishable_key" value="<?php echo $config_stripe_publishable ?>">
+                <input type="hidden" id="stripe_publishable_key" value="<?= $config_stripe_publishable ?>">
                 <script src="https://js.stripe.com/v3/"></script>
                 <script src="js/autopay_setup_stripe.js"></script>
                 <div id="checkout">
@@ -111,11 +111,11 @@ if (!$config_stripe_enable || !$config_stripe_publishable || !$config_stripe_sec
 
                 ?>
 
-                <ul><li><?php echo "$card_name - $card_brand card ending in $card_last4, expires $card_expires"; ?></li></ul>
+                <ul><li><?= "$card_name - $card_brand card ending in $card_last4, expires $card_expires" ?></li></ul>
 
                 <hr>
                 <b>Actions</b><br>
-                - <a href="post.php?stripe_remove_pm&pm=<?php echo $stripe_pm; ?>">Remove saved payment method</a>
+                - <a href="post.php?stripe_remove_pm&pm=<?= $stripe_pm ?>">Remove saved payment method</a>
 
             <?php } ?>
 

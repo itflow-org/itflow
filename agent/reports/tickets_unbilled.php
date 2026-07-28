@@ -32,7 +32,7 @@ $rows = 0;
                     <?php
                     while ($row = mysqli_fetch_assoc($sql_ticket_years)) {
                         $ticket_year = intval($row['ticket_year']); ?>
-                        <option <?php if ($year == $ticket_year) { ?> selected <?php } ?> > <?php echo $ticket_year; ?></option>
+                        <option <?php if ($year == $ticket_year) { ?> selected <?php } ?> > <?= $ticket_year ?></option>
                     <?php } ?>
                 </select>
             </form>
@@ -114,11 +114,11 @@ $rows = 0;
 
                             <tr>
                                 <td>
-                                    <a href="../../agent/tickets.php?client_id=<?php echo $client_id; ?>&billable=1&unbilled"><?php echo $client_name; ?></a>
+                                    <a href="../../agent/tickets.php?client_id=<?= $client_id ?>&billable=1&unbilled"><?= $client_name ?></a>
                                 </td>
-                                <td class="text-right"><?php echo $ticket_raised_count; ?></td>
-                                <td class="text-right"><?php echo $ticket_closed_count; ?></td>
-                                <td class="text-right"><?php echo $ticket_unbilled_count; ?></td>
+                                <td class="text-right"><?= $ticket_raised_count ?></td>
+                                <td class="text-right"><?= $ticket_closed_count ?></td>
+                                <td class="text-right"><?= $ticket_unbilled_count ?></td>
                             </tr>
                             <?php
                         }

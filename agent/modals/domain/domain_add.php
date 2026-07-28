@@ -35,7 +35,7 @@ ob_start();
             <div class="tab-pane fade show active" id="pills-details">
 
                 <?php if ($client_id) { ?>
-                    <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
+                    <input type="hidden" name="client_id" value="<?= $client_id ?>">
                 <?php } else { ?>
 
                     <div class="form-group">
@@ -52,7 +52,7 @@ ob_start();
                                 while ($row = mysqli_fetch_assoc($sql)) {
                                     $client_id_select = intval($row['client_id']);
                                     $client_name = escapeHtml($row['client_name']); ?>
-                                    <option <?php if ($client_id == $client_id_select) { echo "selected"; } ?> value="<?php echo $client_id_select; ?>"><?php echo $client_name; ?></option>
+                                    <option <?php if ($client_id == $client_id_select) { echo "selected"; } ?> value="<?= $client_id_select ?>"><?= $client_name ?></option>
 
                                 <?php } ?>
                             </select>
@@ -100,7 +100,7 @@ ob_start();
                                 $vendor_id = intval($row['vendor_id']);
                                 $vendor_name = escapeHtml($row['vendor_name']);
                                 ?>
-                                <option value="<?php echo $vendor_id; ?>"><?php echo $vendor_name; ?></option>
+                                <option value="<?= $vendor_id ?>"><?= $vendor_name ?></option>
                             <?php } ?>
                         </select>
                     </div>
@@ -121,7 +121,7 @@ ob_start();
                                 $vendor_id = intval($row['vendor_id']);
                                 $vendor_name = escapeHtml($row['vendor_name']);
                                 ?>
-                                <option value="<?php echo $vendor_id; ?>"><?php echo $vendor_name; ?></option>
+                                <option value="<?= $vendor_id ?>"><?= $vendor_name ?></option>
                             <?php } ?>
                         </select>
                     </div>
@@ -142,7 +142,7 @@ ob_start();
                                 $vendor_id = intval($row['vendor_id']);
                                 $vendor_name = escapeHtml($row['vendor_name']);
                                 ?>
-                                <option value="<?php echo $vendor_id; ?>"><?php echo $vendor_name; ?></option>
+                                <option value="<?= $vendor_id ?>"><?= $vendor_name ?></option>
                             <?php } ?>
                         </select>
                     </div>
@@ -163,7 +163,7 @@ ob_start();
                                 $vendor_id = intval($row['vendor_id']);
                                 $vendor_name = escapeHtml($row['vendor_name']);
                                 ?>
-                                <option value="<?php echo $vendor_id; ?>"><?php echo $vendor_name; ?></option>
+                                <option value="<?= $vendor_id ?>"><?= $vendor_name ?></option>
                             <?php } ?>
                         </select>
                     </div>

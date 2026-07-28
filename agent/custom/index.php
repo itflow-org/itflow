@@ -12,7 +12,7 @@
     <h1>Blank Page</h1>
     <hr>
     <p>This is a great starting point for new custom pages.</p>
-    <h1><?php echo $session_user_role; ?></h1>
+    <h1><?= $session_user_role ?></h1>
 
 <?php
 
@@ -53,7 +53,7 @@ echo getUserAgent();
         <dd><time datetime="2024-04-11T18:08:55+00:00" title="2024-04-11 14:08" data-datetime="calendar">Today at 14:08</time></dd>
     </dl>
 
-    <?php echo randomString(100); ?>
+    <?= randomString(100) ?>
     <br>
     <textarea class="tinymceTest"></textarea>
 

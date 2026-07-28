@@ -8,7 +8,7 @@ require_once "includes/inc_all_admin.php";
         </div>
         <div class="card-body">
             <form action="post.php" method="post" autocomplete="off">
-                <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token'] ?>">
+                <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
 
                 <div class="form-group">
                     <label>Ticket Prefix</label>
@@ -16,7 +16,7 @@ require_once "includes/inc_all_admin.php";
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-life-ring"></i></span>
                         </div>
-                        <input type="text" class="form-control" name="config_ticket_prefix" placeholder="Ticket Prefix" value="<?php echo escapeHtml($config_ticket_prefix); ?>" pattern="^[A-Za-z-]+$" title="Only letters and hyphens are allowed" required>
+                        <input type="text" class="form-control" name="config_ticket_prefix" placeholder="Ticket Prefix" value="<?= escapeHtml($config_ticket_prefix) ?>" pattern="^[A-Za-z-]+$" title="Only letters and hyphens are allowed" required>
                     </div>
                 </div>
 
@@ -26,7 +26,7 @@ require_once "includes/inc_all_admin.php";
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-barcode"></i></span>
                         </div>
-                        <input type="number" min="<?php echo intval($config_ticket_next_number); ?>" class="form-control" name="config_ticket_next_number" placeholder="Next Ticket Number" value="<?php echo intval($config_ticket_next_number); ?>" required>
+                        <input type="number" min="<?= intval($config_ticket_next_number) ?>" class="form-control" name="config_ticket_next_number" placeholder="Next Ticket Number" value="<?= intval($config_ticket_next_number) ?>" required>
                     </div>
                 </div>
 
@@ -66,7 +66,7 @@ require_once "includes/inc_all_admin.php";
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-clock"></i></span>
                         </div>
-                        <input type="number" min="24" class="form-control" name="config_ticket_autoclose_hours" placeholder="Delay in hours before a resolved ticket is fully closed" value="<?php echo intval($config_ticket_autoclose_hours); ?>">
+                        <input type="number" min="24" class="form-control" name="config_ticket_autoclose_hours" placeholder="Delay in hours before a resolved ticket is fully closed" value="<?= intval($config_ticket_autoclose_hours) ?>">
                     </div>
                 </div>
 
@@ -76,7 +76,7 @@ require_once "includes/inc_all_admin.php";
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-bell"></i></span>
                         </div>
-                        <input type="email" class="form-control" name="config_ticket_new_ticket_notification_email" placeholder="Address to notify for new tickets, leave blank for none" value="<?php echo escapeHtml($config_ticket_new_ticket_notification_email); ?>">
+                        <input type="email" class="form-control" name="config_ticket_new_ticket_notification_email" placeholder="Address to notify for new tickets, leave blank for none" value="<?= escapeHtml($config_ticket_new_ticket_notification_email) ?>">
                     </div>
                 </div>
                 

@@ -167,7 +167,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title><?php echo escapeHtml($company_name_display); ?> | Password Reset</title>
+    <title><?= escapeHtml($company_name_display) ?> | Password Reset</title>
 
     <!-- Tell the browser to be responsive to screen width -->
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -191,7 +191,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
 
 <body class="hold-transition login-page">
 <div class="login-box">
-    <div class="login-logo"><b><?php echo escapeHtml($company_name_display); ?></b> <br>Password Reset</h2></div>
+    <div class="login-logo"><b><?= escapeHtml($company_name_display) ?></b> <br>Password Reset</h2></div>
     <div class="card">
         <div class="card-body login-card-body">
 
@@ -222,9 +222,9 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
                             </div>
                         </div>
 
-                        <input type="hidden" name="token" value="<?php echo $token; ?>">
-                        <input type="hidden" name="email" value="<?php echo $email; ?>">
-                        <input type="hidden" name="client" value="<?php echo $client; ?>">
+                        <input type="hidden" name="token" value="<?= $token ?>">
+                        <input type="hidden" name="email" value="<?= $email ?>">
+                        <input type="hidden" name="client" value="<?= $client ?>">
 
                         <button type="submit" class="btn btn-success btn-block mb-3" name="password_reset_set_password">Reset password</button>
 

@@ -57,7 +57,7 @@ ob_start();
                         $folder_name = escapeHtml($row['folder_name']);
 
                         ?>
-                        <option value="<?php echo $file_id ?>"><?php echo "$folder_name/$file_name"; ?></option>
+                        <option value="<?= $file_id ?>"><?= "$folder_name/$file_name" ?></option>
                         <?php
                     }
                     ?>

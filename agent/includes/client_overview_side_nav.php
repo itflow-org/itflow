@@ -55,7 +55,7 @@ $num_software = $row['num'];
                                 Contacts
                                 <?php
                                 if ($num_contacts > 0) { ?>
-                                    <span class="right badge text-light"><?php echo $num_contacts; ?></span>
+                                    <span class="right badge text-light"><?= $num_contacts ?></span>
                                 <?php } ?>
                             </p>
                         </a>
@@ -67,7 +67,7 @@ $num_software = $row['num'];
                                 Locations
                                 <?php
                                 if ($num_locations > 0) { ?>
-                                    <span class="right badge text-light"><?php echo $num_locations; ?></span>
+                                    <span class="right badge text-light"><?= $num_locations ?></span>
                                 <?php } ?>
                             </p>
                         </a>
@@ -82,7 +82,7 @@ $num_software = $row['num'];
                                 Assets
                                 <?php
                                 if ($num_assets > 0) { ?>
-                                    <span class="right badge text-light"><?php echo $num_assets; ?></span>
+                                    <span class="right badge text-light"><?= $num_assets ?></span>
                                 <?php } ?>
                             </p>
                         </a>
@@ -95,7 +95,7 @@ $num_software = $row['num'];
                                 Networks
                                 <?php
                                 if ($num_networks > 0) { ?>
-                                    <span class="right badge text-light"><?php echo $num_networks; ?></span>
+                                    <span class="right badge text-light"><?= $num_networks ?></span>
                                 <?php } ?>
                             </p>
                         </a>
@@ -110,7 +110,7 @@ $num_software = $row['num'];
                                 Credentials
                                 <?php
                                 if ($num_credentials > 0) { ?>
-                                    <span class="right badge text-light"><?php echo $num_credentials; ?></span>
+                                    <span class="right badge text-light"><?= $num_credentials ?></span>
                                 <?php } ?>
                             </p>
                         </a>
@@ -123,7 +123,7 @@ $num_software = $row['num'];
                                 Certificates
                                 <?php
                                 if ($num_certificates > 0) { ?>
-                                    <span class="right badge text-light"><?php echo $num_certificates; ?></span>
+                                    <span class="right badge text-light"><?= $num_certificates ?></span>
                                 <?php } ?>
                             </p>
                         </a>
@@ -135,7 +135,7 @@ $num_software = $row['num'];
                                 Domains
                                 <?php
                                 if ($num_domains > 0) { ?>
-                                    <span class="right badge text-light"><?php echo $num_domains; ?></span>
+                                    <span class="right badge text-light"><?= $num_domains ?></span>
                                 <?php } ?>
                             </p>
                         </a>
@@ -150,7 +150,7 @@ $num_software = $row['num'];
                                 Licenses
                                 <?php
                                 if ($num_software > 0) { ?>
-                                    <span class="right badge text-light"><?php echo $num_software; ?></span>
+                                    <span class="right badge text-light"><?= $num_software ?></span>
                                 <?php } ?>
                             </p>
                         </a>
@@ -163,7 +163,7 @@ $num_software = $row['num'];
                                 Services
                                 <?php
                                 if ($num_services > 0) { ?>
-                                    <span class="right badge text-light"><?php echo $num_services; ?></span>
+                                    <span class="right badge text-light"><?= $num_services ?></span>
                                 <?php } ?>
                             </p>
                         </a>

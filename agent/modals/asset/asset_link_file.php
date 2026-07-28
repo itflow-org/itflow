@@ -22,14 +22,14 @@ ob_start();
 ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fa fa-fw fa-paperclip mr-2"></i>Link File to <strong><?php echo $asset_name; ?></strong></h5>
+    <h5 class="modal-title"><i class="fa fa-fw fa-paperclip mr-2"></i>Link File to <strong><?= $asset_name ?></strong></h5>
     <button type="button" class="close text-white" data-dismiss="modal">
         <span>&times;</span>
     </button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
-    <input type="hidden" name="asset_id" value="<?php echo $asset_id; ?>">
+    <input type="hidden" name="asset_id" value="<?= $asset_id ?>">
     <div class="modal-body">
 
         <div class="form-group">
@@ -58,7 +58,7 @@ ob_start();
                         $file_name = escapeHtml($row['file_name']);
                         $folder_name = escapeHtml($row['folder_name']);
                         ?>
-                        <option value="<?php echo $file_id ?>"><?php echo "$folder_name/$file_name"; ?></option>
+                        <option value="<?= $file_id ?>"><?= "$folder_name/$file_name" ?></option>
                         <?php
                     }
                     ?>

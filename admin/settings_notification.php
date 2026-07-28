@@ -10,7 +10,7 @@ require_once "includes/inc_all_admin.php";
         </div>
         <div class="card-body">
             <form action="post.php" method="post" autocomplete="off">
-                <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token'] ?>">
+                <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
 
                 <div class="form-group">
                     <div class="custom-control custom-switch">

@@ -19,7 +19,7 @@ ob_start();
     <div class="modal-body">
 
         <?php if ($client_id) { ?>
-            <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
+            <input type="hidden" name="client_id" value="<?= $client_id ?>">
         <?php } else { ?>
 
             <div class="form-group">
@@ -37,7 +37,7 @@ ob_start();
                             $client_id = intval($row['client_id']);
                             $client_name = escapeHtml($row['client_name']);
                         ?>
-                            <option value="<?php echo $client_id; ?>"><?php echo "$client_name"; ?></option>
+                            <option value="<?= $client_id ?>"><?= "$client_name" ?></option>
 
                         <?php
                         }
@@ -64,7 +64,7 @@ ob_start();
                 <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
                 </div>
-                <input type="date" class="form-control" name="start_date" max="2999-12-31" value="<?php echo date("Y-m-d"); ?>" required>
+                <input type="date" class="form-control" name="start_date" max="2999-12-31" value="<?= date("Y-m-d") ?>" required>
             </div>
         </div>
 
@@ -97,7 +97,7 @@ ob_start();
                         $category_id = intval($row['category_id']);
                         $category_name = escapeHtml($row['category_name']);
                     ?>
-                        <option value="<?php echo $category_id; ?>"><?php echo $category_name; ?></option>
+                        <option value="<?= $category_id ?>"><?= $category_name ?></option>
 
                     <?php
                     }

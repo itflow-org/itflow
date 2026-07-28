@@ -44,14 +44,14 @@ ob_start();
 ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fa fa-fw fa-<?php echo $file_icon; ?> mr-2"></i>Moving File: <strong><?php echo $file_name; ?></strong></h5>
+    <h5 class="modal-title"><i class="fa fa-fw fa-<?= $file_icon ?> mr-2"></i>Moving File: <strong><?= $file_name ?></strong></h5>
     <button type="button" class="close text-white" data-dismiss="modal">
         <span>&times;</span>
     </button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
-    <input type="hidden" name="file_id" value="<?php echo $file_id; ?>">
+    <input type="hidden" name="file_id" value="<?= $file_id ?>">
     <div class="modal-body">
 
         <div class="form-group">

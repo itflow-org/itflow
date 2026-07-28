@@ -23,10 +23,10 @@ ob_start();
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
     <!-- Hidden/System fields -->
     <?php if ($client_id) { ?>
-        <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
+        <input type="hidden" name="client_id" value="<?= $client_id ?>">
     <?php } ?>
     <?php if ($project_id) { ?>
-        <input type="hidden" name="project_id" value="<?php echo $project_id; ?>">
+        <input type="hidden" name="project_id" value="<?= $project_id ?>">
     <?php } ?>
     <input type="hidden" name="billable" value="0">
 
@@ -50,7 +50,7 @@ ob_start();
 
                 <!-- Ticket client/contact -->
                 <?php if ($contact_id) { ?>
-                    <input type="hidden" name="contact_id" value="<?php echo $contact_id; ?>">
+                    <input type="hidden" name="contact_id" value="<?= $contact_id ?>">
                 <?php } else { ?>
 
                     <div class="row">
@@ -70,7 +70,7 @@ ob_start();
                                             $client_id_select = intval($row['client_id']);
                                             $client_name = escapeHtml($row['client_name']); ?>
 
-                                            <option value="<?php echo $client_id_select; ?>" <?php if ($client_id == $client_id_select) {echo "selected"; } ?>><?php echo $client_name; ?></option>
+                                            <option value="<?= $client_id_select ?>" <?php if ($client_id == $client_id_select) {echo "selected"; } ?>><?= $client_name ?></option>
 
                                         <?php } ?>
                                     </select>
@@ -124,10 +124,10 @@ ob_start();
                                 $ticket_template_details_select = escapeHtml($row['ticket_template_details']);
                                 $task_count = intval($row['task_count']);
                                 ?>
-                                <option value="<?php echo $ticket_template_id_select; ?>"
-                                        data-subject="<?php echo $ticket_template_subject_select; ?>"
-                                        data-details="<?php echo $ticket_template_details_select; ?>">
-                                    <?php echo $ticket_template_name_select; ?> (<?php echo $task_count; ?> tasks)
+                                <option value="<?= $ticket_template_id_select ?>"
+                                        data-subject="<?= $ticket_template_subject_select ?>"
+                                        data-details="<?= $ticket_template_details_select ?>">
+                                    <?= $ticket_template_name_select ?> (<?= $task_count ?> tasks)
                                 </option>
                             <?php } ?>
                         </select>
@@ -181,7 +181,7 @@ ob_start();
                                         $category_id = intval($row['category_id']);
                                         $category_name = escapeHtml($row['category_name']);
                                         ?>
-                                        <option value="<?php echo $category_id; ?>"><?php echo $category_name; ?></option>
+                                        <option value="<?= $category_id ?>"><?= $category_name ?></option>
                                     <?php } ?>
 
                                 </select>
@@ -215,7 +215,7 @@ ob_start();
                             while ($row = mysqli_fetch_assoc($sql)) {
                                 $user_id = intval($row['user_id']);
                                 $user_name = escapeHtml($row['user_name']); ?>
-                                <option value="<?php echo $user_id; ?>"><?php echo $user_name; ?></option>
+                                <option value="<?= $user_id ?>"><?= $user_name ?></option>
                             <?php } ?>
                         </select>
                     </div>

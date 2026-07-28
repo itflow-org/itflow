@@ -28,14 +28,14 @@ ob_start();
 ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fa fa-fw fa-wallet mr-2"></i><?php echo "$invoice_prefix$invoice_number"; ?>: Apply Credit (Balance: <?php echo numfmt_format_currency($currency_format, $credit_balance, $session_company_currency); ?>)</h5>
+    <h5 class="modal-title"><i class="fa fa-fw fa-wallet mr-2"></i><?= "$invoice_prefix$invoice_number" ?>: Apply Credit (Balance: <?= numfmt_format_currency($currency_format, $credit_balance, $session_company_currency) ?>)</h5>
     <button type="button" class="close text-white" data-dismiss="modal">
         <span>&times;</span>
     </button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
-    <input type="hidden" name="invoice_id" value="<?php echo $invoice_id; ?>">
+    <input type="hidden" name="invoice_id" value="<?= $invoice_id ?>">
     <div class="modal-body">
 
         <div class="form-group">
@@ -44,7 +44,7 @@ ob_start();
                 <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-wallet"></i></span>
                 </div>
-                <input type="text" class="form-control" inputmode="decimal" pattern="[0-9]*\.?[0-9]{0,2}" name="amount_credit_applied" value="<?php echo number_format($credit_balance, 2, '.', ''); ?>" placeholder="0.00" required>
+                <input type="text" class="form-control" inputmode="decimal" pattern="[0-9]*\.?[0-9]{0,2}" name="amount_credit_applied" value="<?= number_format($credit_balance, 2, '.', '') ?>" placeholder="0.00" required>
             </div>
         </div>
 

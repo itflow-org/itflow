@@ -30,7 +30,7 @@ ob_start();
 
 <div class="modal-header bg-dark">
     <h5 class="modal-title">
-        <i class="fa fa-fw fa-calendar-check mr-2"></i>Scheduling Ticket: <strong><?php echo "$ticket_prefix$ticket_number"; ?></strong>
+        <i class="fa fa-fw fa-calendar-check mr-2"></i>Scheduling Ticket: <strong><?= "$ticket_prefix$ticket_number" ?></strong>
     </h5>
     <button type="button" class="close text-white" data-dismiss="modal">
         <span>&times;</span>
@@ -39,7 +39,7 @@ ob_start();
 <form action="post.php" method="post" autocomplete="off">
     <div class="modal-body">
         <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
-        <input type="hidden" name="ticket_id" value="<?php echo $ticket_id; ?>">
+        <input type="hidden" name="ticket_id" value="<?= $ticket_id ?>">
 
         <div class="form-group">
             <label>Date / Time</label>
@@ -47,7 +47,7 @@ ob_start();
                 <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-calendar-day"></i></span>
                 </div>
-                <input type="datetime-local" class="form-control" name="scheduled_date_time" placeholder="Scheduled Date & Time" min="<?php echo date('Y-m-d\TH:i'); ?>" <?php if ($ticket_scheduled_for) { echo "value='$ticket_scheduled_for'"; } ?>>
+                <input type="datetime-local" class="form-control" name="scheduled_date_time" placeholder="Scheduled Date & Time" min="<?= date('Y-m-d\TH:i') ?>" <?php if ($ticket_scheduled_for) { echo "value='$ticket_scheduled_for'"; } ?>>
             </div>
         </div>
 

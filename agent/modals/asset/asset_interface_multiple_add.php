@@ -2,15 +2,15 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header bg-dark">
-                <h5 class="modal-title"><i class="fa fa-fw fa-ethernet mr-2"></i>Creating Multiple Interfaces: <strong><?php echo $asset_name; ?></strong></h5>
+                <h5 class="modal-title"><i class="fa fa-fw fa-ethernet mr-2"></i>Creating Multiple Interfaces: <strong><?= $asset_name ?></strong></h5>
                 <button type="button" class="close text-white" data-dismiss="modal">
                     <span>&times;</span>
                 </button>
             </div>
 
             <form action="post.php" method="post" autocomplete="off">
-                <input type="hidden" name="asset_id" value="<?php echo $asset_id; ?>">
-                <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token'] ?>">
+                <input type="hidden" name="asset_id" value="<?= $asset_id ?>">
+                <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
 
                 <div class="modal-body">
 
@@ -88,8 +88,8 @@
                                     $network_name = escapeHtml($row['network_name']);
                                     $network = escapeHtml($row['network']);
                                     ?>
-                                    <option value="<?php echo $network_id; ?>">
-                                        <?php echo "$network_name - $network"; ?>
+                                    <option value="<?= $network_id ?>">
+                                        <?= "$network_name - $network" ?>
                                     </option>
                                 <?php } ?>
                             </select>

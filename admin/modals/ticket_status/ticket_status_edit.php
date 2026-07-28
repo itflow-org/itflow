@@ -16,14 +16,14 @@ ob_start();
 ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fas fa-fw fa-info-circle mr-2"></i>Editing Ticket Status: <strong><?php echo $ticket_status_name; ?></strong></h5>
+    <h5 class="modal-title"><i class="fas fa-fw fa-info-circle mr-2"></i>Editing Ticket Status: <strong><?= $ticket_status_name ?></strong></h5>
     <button type="button" class="close text-white" data-dismiss="modal">
         <span>&times;</span>
     </button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
-    <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token'] ?>">
-    <input type="hidden" name="ticket_status_id" value="<?php echo $ticket_status_id; ?>">
+    <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
+    <input type="hidden" name="ticket_status_id" value="<?= $ticket_status_id ?>">
 
     <div class="modal-body">
 
@@ -33,7 +33,7 @@ ob_start();
                 <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
                 </div>
-                <input type="text" class="form-control" name="name" maxlength="200" value="<?php echo $ticket_status_name; ?>" required <?php if ($ticket_status_id <= 5) { echo "readonly"; } ?>>
+                <input type="text" class="form-control" name="name" maxlength="200" value="<?= $ticket_status_name ?>" required <?php if ($ticket_status_id <= 5) { echo "readonly"; } ?>>
             </div>
         </div>
 
@@ -43,7 +43,7 @@ ob_start();
                 <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-paint-brush"></i></span>
                 </div>
-                <input type="color" class="form-control col-3" name="color" value="<?php echo $ticket_status_color; ?>" required>
+                <input type="color" class="form-control col-3" name="color" value="<?= $ticket_status_color ?>" required>
             </div>
         </div>
 
@@ -53,7 +53,7 @@ ob_start();
                 <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-sort-numeric-down"></i></span>
                 </div>
-                <input type="number" class="form-control" name="order" placeholder="Leave blank for no order" value="<?php echo $ticket_status_order; ?>">
+                <input type="number" class="form-control" name="order" placeholder="Leave blank for no order" value="<?= $ticket_status_order ?>">
             </div>
         </div>
 

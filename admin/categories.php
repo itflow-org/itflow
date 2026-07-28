@@ -43,7 +43,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
     </div>
     <div class="card-body">
         <form autocomplete="off">
-            <input type="hidden" name="category" value="<?php echo escapeHtml($category); ?>">
+            <input type="hidden" name="category" value="<?= escapeHtml($category) ?>">
             <div class="row">
                 <div class="col-sm-4 mb-2">
                     <div class="input-group">
@@ -113,7 +113,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                            } else {
                                echo 'btn-default';
                            } ?>">Contact Note Type</a>
-                        <a href="?<?php echo $url_query_strings_sort ?>&archived=1"
+                        <a href="?<?= $url_query_strings_sort ?>&archived=1"
                             class="btn <?php if (isset($_GET['archived'])) {
                                 echo 'btn-primary';
                             } else {
@@ -130,7 +130,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                 <thead class="text-dark <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
                     <tr>
                         <th>
-                            <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=category_name&order=<?php echo $disp; ?>">
+                            <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=category_name&order=<?= $disp ?>">
                                 Name <?php if ($sort == 'category_name') { echo $order_icon; } ?>
                             </a>
                         </th>
@@ -152,11 +152,11 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             <td>
                                 <a class="text-dark ajax-modal" href="#"
                                     data-modal-url="modals/category/category_edit.php?id=<?= $category_id ?>">
-                                    <?php echo $category_name; ?>
+                                    <?= $category_name ?>
                                     <div><small class="text-secondary"><?= $category_description ?></small></div>
                                 </a>
                             </td>
-                            <td><i class="fa fa-3x fa-circle" style="color:<?php echo $category_color; ?>;"></i></td>
+                            <td><i class="fa fa-3x fa-circle" style="color:<?= $category_color ?>;"></i></td>
                             <td>
                                 <div class="dropdown dropleft text-center">
                                     <button class="btn btn-secondary btn-sm" type="button" data-toggle="dropdown">
@@ -167,11 +167,11 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                         if ($archived) {
                                             ?>
                                             <a class="dropdown-item text-info confirm-link"
-                                                href="post.php?restore_category=<?php echo $category_id; ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
+                                                href="post.php?restore_category=<?= $category_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                                                 <i class="fas fa-fw fa-redo mr-2"></i>Restore
                                             </a>
                                             <a class="dropdown-item text-danger confirm-link"
-                                                href="post.php?delete_category=<?php echo $category_id; ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
+                                                href="post.php?delete_category=<?= $category_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                                                 <i class="fas fa-fw fa-trash mr-2"></i>Delete
                                             </a>
                                             <?php
@@ -182,7 +182,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                                 <i class="fas fa-fw fa-edit mr-2"></i>Edit
                                             </a>
                                             <a class="dropdown-item text-danger confirm-link"
-                                                href="post.php?archive_category=<?php echo $category_id; ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
+                                                href="post.php?archive_category=<?= $category_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                                                 <i class="fas fa-fw fa-archive mr-2"></i>Archive
                                             </a>
                                             <?php

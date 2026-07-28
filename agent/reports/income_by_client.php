@@ -37,7 +37,7 @@ $sql_payment_years = mysqli_query($mysqli, "SELECT DISTINCT YEAR(payment_date) A
                 while ($row = mysqli_fetch_assoc($sql_payment_years)) {
                     $payment_year = intval($row['payment_year']);
                     ?>
-                    <option <?php if ($year == $payment_year) { ?> selected <?php } ?> > <?php echo $payment_year; ?></option>
+                    <option <?php if ($year == $payment_year) { ?> selected <?php } ?> > <?= $payment_year ?></option>
 
                 <?php } ?>
 
@@ -77,8 +77,8 @@ $sql_payment_years = mysqli_query($mysqli, "SELECT DISTINCT YEAR(payment_date) A
                     ?>
 
                     <tr>
-                        <td><a href="../../agent/client_overview.php?client_id=<?php echo $client_id; ?>"><?php echo $client_name; ?></a></td>
-                        <td class="text-right"><?php echo numfmt_format_currency($currency_format, $amount_paid, $session_company_currency); ?></td>
+                        <td><a href="../../agent/client_overview.php?client_id=<?= $client_id ?>"><?= $client_name ?></a></td>
+                        <td class="text-right"><?= numfmt_format_currency($currency_format, $amount_paid, $session_company_currency) ?></td>
                     </tr>
                     <?php
                 }

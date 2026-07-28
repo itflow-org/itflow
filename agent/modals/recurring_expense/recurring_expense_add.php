@@ -113,7 +113,7 @@ ob_start();
                             $balance = $opening_balance + $total_payments + $total_revenues - $total_expenses;
 
                             ?>
-                            <option <?php if ($config_default_expense_account == $account_id) { echo "selected"; } ?> value="<?php echo $account_id; ?>"><div class="float-left"><?php echo $account_name; ?></div><div class="float-right"> [$<?php echo number_format($balance, 2); ?>]</div></option>
+                            <option <?php if ($config_default_expense_account == $account_id) { echo "selected"; } ?> value="<?= $account_id ?>"><div class="float-left"><?= $account_name ?></div><div class="float-right"> [$<?= number_format($balance, 2) ?>]</div></option>
 
                             <?php
                         }
@@ -137,7 +137,7 @@ ob_start();
                             $vendor_id = intval($row['vendor_id']);
                             $vendor_name = escapeHtml($row['vendor_name']);
                             ?>
-                            <option value="<?php echo $vendor_id; ?>"><?php echo $vendor_name; ?></option>
+                            <option value="<?= $vendor_id ?>"><?= $vendor_name ?></option>
 
                             <?php
                         }
@@ -182,7 +182,7 @@ ob_start();
                             $category_id = intval($row['category_id']);
                             $category_name = escapeHtml($row['category_name']);
                             ?>
-                            <option value="<?php echo $category_id; ?>"><?php echo $category_name; ?></option>
+                            <option value="<?= $category_id ?>"><?= $category_name ?></option>
 
                             <?php
                         }
@@ -200,7 +200,7 @@ ob_start();
             </div>
 
             <?php if ($client_id) { ?>
-                <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
+                <input type="hidden" name="client_id" value="<?= $client_id ?>">
             <?php } else { ?>
 
                 <div class="form-group col-md">
@@ -218,7 +218,7 @@ ob_start();
                                 $client_id_select = intval($row['client_id']);
                                 $client_name = escapeHtml($row['client_name']);
                                 ?>
-                                <option value="<?php echo $client_id_select; ?>"><?php echo $client_name; ?></option>
+                                <option value="<?= $client_id_select ?>"><?= $client_name ?></option>
 
                                 <?php
                             }

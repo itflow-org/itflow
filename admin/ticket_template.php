@@ -47,7 +47,7 @@ $sql_task_templates = mysqli_query($mysqli, "SELECT * FROM task_templates WHERE 
     <li class="breadcrumb-item">
         <a href="ticket_templates.php">Ticket Templates</a>
     </li>
-    <li class="breadcrumb-item active"><i class="fas fa-life-ring mr-2"></i><?php echo $ticket_template_name; ?></li>
+    <li class="breadcrumb-item active"><i class="fas fa-life-ring mr-2"></i><?= $ticket_template_name ?></li>
 </ol>
 
 <div class="row">
@@ -55,7 +55,7 @@ $sql_task_templates = mysqli_query($mysqli, "SELECT * FROM task_templates WHERE 
 
         <div class="card card-dark">
             <div class="card-header">
-                <h3 class="card-title mt-1"><?php echo $ticket_template_name; ?></h3>
+                <h3 class="card-title mt-1"><?= $ticket_template_name ?></h3>
                 <div class="card-tools">
                     <button type="button" class="btn btn-tool btn-sm" data-toggle="modal" data-target="#editTicketTemplateModal">
                         <i class="fas fa-edit"></i>
@@ -63,7 +63,7 @@ $sql_task_templates = mysqli_query($mysqli, "SELECT * FROM task_templates WHERE 
                 </div>
             </div>
             <div class="card-body prettyContent">
-                <?php echo $ticket_template_details; ?>
+                <?= $ticket_template_details ?>
             </div>
         </div>
 
@@ -78,7 +78,7 @@ $sql_task_templates = mysqli_query($mysqli, "SELECT * FROM task_templates WHERE 
             <div class="card-body">
                 <form action="post.php" method="post" autocomplete="off">
                     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
-                    <input type="hidden" name="ticket_template_id" value="<?php echo $ticket_template_id; ?>">
+                    <input type="hidden" name="ticket_template_id" value="<?= $ticket_template_id ?>">
                     <div class="form-group">
                         <div class="input-group input-group-sm">
                             <input type="text" class="form-control" name="task_name" placeholder="Create a task" required maxlength="200">
@@ -96,10 +96,10 @@ $sql_task_templates = mysqli_query($mysqli, "SELECT * FROM task_templates WHERE 
                         $task_completion_estimate = intval($row['task_template_completion_estimate']);
                         //$task_description = escapeHtml($row['task_template_description']);
                         ?>
-                        <tr data-task-id="<?php echo $task_id; ?>">
+                        <tr data-task-id="<?= $task_id ?>">
                             <td>
                                 <a href="#" class="drag-handle"><i class="fas fa-bars text-muted mr-2"></i></a>
-                                <span class="text-dark"><?php echo $task_name; ?></span>
+                                <span class="text-dark"><?= $task_name ?></span>
                             </td>
                             <td class="text-right">
                                 <div class="float-right">
@@ -113,7 +113,7 @@ $sql_task_templates = mysqli_query($mysqli, "SELECT * FROM task_templates WHERE 
                                                 <i class="fas fa-fw fa-edit mr-2"></i>Edit
                                             </a>
                                             <div class="dropdown-divider"></div>
-                                            <a class="dropdown-item text-danger confirm-link" href="post.php?delete_task_template=<?php echo $task_id; ?>&csrf_token=<?php echo $_SESSION['csrf_token'] ?>">
+                                            <a class="dropdown-item text-danger confirm-link" href="post.php?delete_task_template=<?= $task_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                                                 <i class="fas fa-fw fa-trash-alt mr-2"></i>Delete
                                             </a>
                                         </div>
@@ -149,7 +149,7 @@ new Sortable(document.querySelector('table#tasks tbody'), {
         $.post('/agent/ajax.php', {
             update_task_templates_order: true,
             csrf_token: '<?= $_SESSION['csrf_token'] ?>',
-            ticket_template_id: <?php echo $ticket_template_id; ?>,
+            ticket_template_id: <?= $ticket_template_id ?>,
             positions: positions
         });
     }

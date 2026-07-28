@@ -47,17 +47,17 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                 <thead class="text-dark <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
                 <tr>
                     <th>
-                        <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=ticket_status_name&order=<?php echo $disp; ?>">
+                        <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=ticket_status_name&order=<?= $disp ?>">
                             Name <?php if ($sort == 'ticket_status_name') { echo $order_icon; } ?>
                         </a>
                     </th>
                     <th>
-                        <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=ticket_status_color&order=<?php echo $disp; ?>">
+                        <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=ticket_status_color&order=<?= $disp ?>">
                             Color <?php if ($sort == 'ticket_status_color') { echo $order_icon; } ?>
                         </a>
                     </th>
                     <th>
-                        <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=ticket_status_active&order=<?php echo $disp; ?>">
+                        <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=ticket_status_active&order=<?= $disp ?>">
                             Status <?php if ($sort == 'ticket_status_active') { echo $order_icon; } ?>
                         </a>
                     </th>
@@ -86,12 +86,12 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 class="ajax-modal" data-modal-url="modals/ticket_status/ticket_status_edit.php?id=<?= $ticket_status_id ?>"
                                 <?php } ?>
                                 >
-                                <?php echo $ticket_status_name; ?>
+                                <?= $ticket_status_name ?>
                             </a>
                         </td>
                         <td>
-                            <span class='badge badge-pill text-light p-2' style="background-color: <?php echo $ticket_status_color; ?>"><?php echo $ticket_status_name; ?></span>
-                        <td><?php echo $ticket_status_display; ?></td>
+                            <span class='badge badge-pill text-light p-2' style="background-color: <?= $ticket_status_color ?>"><?= $ticket_status_name ?></span>
+                        <td><?= $ticket_status_display ?></td>
                         <td>
                             <div class="dropdown dropleft text-center">
                                 <button class="btn btn-secondary btn-sm" type="button" data-toggle="dropdown">
@@ -103,7 +103,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                     </a>
                                     <?php if (!$ticket_status_active) { ?>
                                         <div class="dropdown-divider"></div>
-                                        <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_ticket_status=<?php echo $ticket_status_id; ?>&csrf_token=<?php echo $_SESSION['csrf_token']; ?>">
+                                        <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_ticket_status=<?= $ticket_status_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                                             <i class="fas fa-fw fa-trash mr-2"></i>Delete
                                         </a>
                                     <?php } ?>

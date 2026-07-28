@@ -19,13 +19,13 @@ ob_start();
 ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fa fa-fw fa-credit-card mr-2"></i><?php echo "$invoice_prefix$invoice_number"; ?>: Make Payment</h5>
+    <h5 class="modal-title"><i class="fa fa-fw fa-credit-card mr-2"></i><?= "$invoice_prefix$invoice_number" ?>: Make Payment</h5>
     <button type="button" class="close text-white" data-dismiss="modal">
         <span>&times;</span>
     </button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
-    <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token'] ?>">
+    <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
     <input type="hidden" name="invoice_id" value="<?= $invoice_id ?>">
     <div class="modal-body">
 

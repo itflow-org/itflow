@@ -69,7 +69,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 while ($row = mysqli_fetch_assoc($sql_types_filter)) {
                                     $log_type = escapeHtml($row['app_log_type']);
                                 ?>
-                                    <option <?php if ($type_filter == $log_type) { echo "selected"; } ?>><?php echo $log_type; ?></option>
+                                    <option <?php if ($type_filter == $log_type) { echo "selected"; } ?>><?= $log_type ?></option>
                                 <?php
                                 }
                                 ?>
@@ -88,7 +88,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 while ($row = mysqli_fetch_assoc($sql_categories_filter)) {
                                     $log_category = escapeHtml($row['app_log_category']);
                                 ?>
-                                    <option <?php if ($category_filter == $log_category) { echo "selected"; } ?>><?php echo $log_category; ?></option>
+                                    <option <?php if ($category_filter == $log_category) { echo "selected"; } ?>><?= $log_category ?></option>
                                 <?php
                                 }
                                 ?>
@@ -103,9 +103,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             <div class="form-group">
                                 <label>Date range</label>
                                 <input type="text" id="dateFilter" class="form-control" autocomplete="off">
-                                <input type="hidden" name="canned_date" id="canned_date" value="<?php echo escapeHtml($_GET['canned_date']) ?? ''; ?>">
-                                <input type="hidden" name="dtf" id="dtf" value="<?php echo escapeHtml($dtf ?? ''); ?>">
-                                <input type="hidden" name="dtt" id="dtt" value="<?php echo escapeHtml($dtt ?? ''); ?>">
+                                <input type="hidden" name="canned_date" id="canned_date" value="<?= escapeHtml($_GET['canned_date']) ?? '' ?>">
+                                <input type="hidden" name="dtf" id="dtf" value="<?= escapeHtml($dtf ?? '') ?>">
+                                <input type="hidden" name="dtt" id="dtt" value="<?= escapeHtml($dtt ?? '') ?>">
                             </div>
                         </div>
                     </div>
@@ -117,22 +117,22 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     <thead class="text-dark <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
                     <tr>
                         <th>
-                            <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=app_log_created_at&order=<?php echo $disp; ?>">
+                            <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=app_log_created_at&order=<?= $disp ?>">
                                 Timestamp <?php if ($sort == 'app_log_created_at') { echo $order_icon; } ?>
                             </a>
                         </th>
                         <th>
-                            <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=app_log_type&order=<?php echo $disp; ?>">
+                            <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=app_log_type&order=<?= $disp ?>">
                                 Type <?php if ($sort == 'app_log_type') { echo $order_icon; } ?>
                             </a>
                         </th>
                         <th>
-                            <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=app_log_category&order=<?php echo $disp; ?>">
+                            <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=app_log_category&order=<?= $disp ?>">
                                 Category <?php if ($sort == 'app_log_category') { echo $order_icon; } ?>
                             </a>
                         </th>
                         <th>
-                            <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=app_log_details&order=<?php echo $disp; ?>">
+                            <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=app_log_details&order=<?= $disp ?>">
                                 Details <?php if ($sort == 'app_log_details') { echo $order_icon; } ?>
                             </a>
                         </th>
@@ -151,10 +151,10 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         ?>
 
                         <tr>
-                            <td class="text-monospace"><?php echo $log_created_at; ?></td>
-                            <td><?php echo $log_type; ?></td>
-                            <td><?php echo $log_category; ?></td>
-                            <td><?php echo $log_details; ?></td>
+                            <td class="text-monospace"><?= $log_created_at ?></td>
+                            <td><?= $log_type ?></td>
+                            <td><?= $log_category ?></td>
+                            <td><?= $log_details ?></td>
                         </tr>
 
                         <?php

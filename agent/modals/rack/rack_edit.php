@@ -29,7 +29,7 @@ ob_start();
 ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fa fa-fw fa-server mr-2"></i>Editing rack: <strong><?php echo $rack_name; ?></strong></h5>
+    <h5 class="modal-title"><i class="fa fa-fw fa-server mr-2"></i>Editing rack: <strong><?= $rack_name ?></strong></h5>
     <button type="button" class="close text-white" data-dismiss="modal">
         <span>&times;</span>
     </button>
@@ -37,16 +37,16 @@ ob_start();
 
 <form action="post.php" method="post" enctype="multipart/form-data" autocomplete="off">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
-    <input type="hidden" name="rack_id" value="<?php echo $rack_id; ?>">
+    <input type="hidden" name="rack_id" value="<?= $rack_id ?>">
 
     <div class="modal-body">
 
         <ul class="nav nav-pills nav-justified mb-3">
             <li class="nav-item">
-                <a class="nav-link active" data-toggle="pill" href="#pills-rack-details<?php echo $rack_id; ?>">Details</a>
+                <a class="nav-link active" data-toggle="pill" href="#pills-rack-details<?= $rack_id ?>">Details</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" data-toggle="pill" href="#pills-rack-notes<?php echo $rack_id; ?>">Notes</a>
+                <a class="nav-link" data-toggle="pill" href="#pills-rack-notes<?= $rack_id ?>">Notes</a>
             </li>
         </ul>
 
@@ -54,7 +54,7 @@ ob_start();
 
         <div class="tab-content" <?php if (lookupUserPermission('module_support') <= 1) { echo 'inert'; } ?>>
 
-            <div class="tab-pane fade show active" id="pills-rack-details<?php echo $rack_id; ?>">
+            <div class="tab-pane fade show active" id="pills-rack-details<?= $rack_id ?>">
 
                 <div class="form-group">
                     <label>Type <strong class="text-danger">*</strong></label>
@@ -88,7 +88,7 @@ ob_start();
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-server"></i></span>
                         </div>
-                        <input type="text" class="form-control" name="name" placeholder="Rack name" maxlength="200" value="<?php echo $rack_name; ?>" required autofocus>
+                        <input type="text" class="form-control" name="name" placeholder="Rack name" maxlength="200" value="<?= $rack_name ?>" required autofocus>
                     </div>
                 </div>
 
@@ -98,7 +98,7 @@ ob_start();
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-sort-numeric-up-alt"></i></span>
                         </div>
-                        <input type="number" class="form-control" name="units" placeholder="Number of Units" min="1" max="70" value="<?php echo $rack_units; ?>" required>
+                        <input type="number" class="form-control" name="units" placeholder="Number of Units" min="1" max="70" value="<?= $rack_units ?>" required>
                     </div>
                 </div>
 
@@ -108,7 +108,7 @@ ob_start();
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
                         </div>
-                        <input type="text" class="form-control" name="make" placeholder="ex StarTech 12U Open Frame" maxlength="200" value="<?php echo $rack_model; ?>">
+                        <input type="text" class="form-control" name="make" placeholder="ex StarTech 12U Open Frame" maxlength="200" value="<?= $rack_model ?>">
                     </div>
                 </div>
 
@@ -118,7 +118,7 @@ ob_start();
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-ruler"></i></span>
                         </div>
-                        <input type="text" class="form-control" name="depth" placeholder="Rack Depth eg 800 mm or 31.5 Inches" maxlength="50" value="<?php echo $rack_depth; ?>">
+                        <input type="text" class="form-control" name="depth" placeholder="Rack Depth eg 800 mm or 31.5 Inches" maxlength="50" value="<?= $rack_depth ?>">
                     </div>
                 </div>
 
@@ -137,7 +137,7 @@ ob_start();
                                 $location_id_select = intval($row['location_id']);
                                 $location_name_select = escapeHtml($row['location_name']);
                                 ?>
-                                <option <?php if ($rack_location_id == $location_id_select) { echo "selected"; } ?> value="<?php echo $location_id_select; ?>"><?php echo $location_name_select; ?></option>
+                                <option <?php if ($rack_location_id == $location_id_select) { echo "selected"; } ?> value="<?= $location_id_select ?>"><?= $location_name_select ?></option>
                             <?php } ?>
 
                         </select>
@@ -150,7 +150,7 @@ ob_start();
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-map-marker-alt"></i></span>
                         </div>
-                        <input type="text" class="form-control" name="physical_location" placeholder="Physical location eg. Floor 2, Closet B" maxlength="200" value="<?php echo $rack_physical_location; ?>">
+                        <input type="text" class="form-control" name="physical_location" placeholder="Physical location eg. Floor 2, Closet B" maxlength="200" value="<?= $rack_physical_location ?>">
                     </div>
                 </div>
 
@@ -160,16 +160,16 @@ ob_start();
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-align-left"></i></span>
                         </div>
-                        <input type="text" class="form-control" name="description" placeholder="Description of the rack" value="<?php echo $rack_description; ?>">
+                        <input type="text" class="form-control" name="description" placeholder="Description of the rack" value="<?= $rack_description ?>">
                     </div>
                 </div>
 
             </div>
 
-            <div class="tab-pane fade" id="pills-rack-notes<?php echo $rack_id; ?>">
+            <div class="tab-pane fade" id="pills-rack-notes<?= $rack_id ?>">
 
                 <?php if ($rack_photo) { ?>
-                    <img class="img-fluid p-3" alt="rack_photo" src="<?php echo "uploads/clients/$client_id/$rack_photo"; ?>">
+                    <img class="img-fluid p-3" alt="rack_photo" src="<?= "uploads/clients/$client_id/$rack_photo" ?>">
                 <?php } ?>
 
                 <div class="form-group">
@@ -178,7 +178,7 @@ ob_start();
                 </div>
 
                 <div class="form-group">
-                    <textarea class="form-control" rows="8" placeholder="Enter some notes" name="notes"><?php echo $rack_notes; ?></textarea>
+                    <textarea class="form-control" rows="8" placeholder="Enter some notes" name="notes"><?= $rack_notes ?></textarea>
                 </div>
 
             </div>

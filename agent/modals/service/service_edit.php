@@ -90,7 +90,7 @@ ob_start();
 ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title text-white"><i class="fa fa-fw fa-stream mr-2"></i>Editing service: <strong><?php echo $service_name; ?></strong></h5>
+    <h5 class="modal-title text-white"><i class="fa fa-fw fa-stream mr-2"></i>Editing service: <strong><?= $service_name ?></strong></h5>
     <button type="button" class="close text-white" data-dismiss="modal">
         <span aria-hidden="true">&times;</span>
     </button>
@@ -98,19 +98,19 @@ ob_start();
 
 <form action="post.php" method="post" autocomplete="off">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
-    <input type="hidden" name="service_id" value="<?php echo $service_id ?>">
+    <input type="hidden" name="service_id" value="<?= $service_id ?>">
 
     <div class="modal-body">
 
         <ul class="nav nav-pills nav-justified mb-3">
             <li class="nav-item">
-                <a class="nav-link active" data-toggle="pill" href="#pills-overview<?php echo $service_id ?>">Overview</a>
+                <a class="nav-link active" data-toggle="pill" href="#pills-overview<?= $service_id ?>">Overview</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" data-toggle="pill" href="#pills-general<?php echo $service_id ?>">General</a>
+                <a class="nav-link" data-toggle="pill" href="#pills-general<?= $service_id ?>">General</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" data-toggle="pill" href="#pills-assets<?php echo $service_id ?>">Assets</a>
+                <a class="nav-link" data-toggle="pill" href="#pills-assets<?= $service_id ?>">Assets</a>
             </li>
         </ul>
 
@@ -118,7 +118,7 @@ ob_start();
 
         <div class="tab-content" <?php if (lookupUserPermission('module_support') <= 1) { echo 'inert'; } ?>>
 
-            <div class="tab-pane fade show active" id="pills-overview<?php echo $service_id ?>">
+            <div class="tab-pane fade show active" id="pills-overview<?= $service_id ?>">
 
                 <div class="form-group">
                     <label>Name <strong class="text-danger">*</strong></label>
@@ -126,7 +126,7 @@ ob_start();
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-stream"></i></span>
                         </div>
-                        <input type="text" class="form-control" name="name" placeholder="Name of Service" maxlength="200" value="<?php echo $service_name ?>" required>
+                        <input type="text" class="form-control" name="name" placeholder="Name of Service" maxlength="200" value="<?= $service_name ?>" required>
                     </div>
                 </div>
 
@@ -136,7 +136,7 @@ ob_start();
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-align-left"></i></span>
                         </div>
-                        <input type="text" class="form-control" name="description" placeholder="Description of Service" maxlength="200" value="<?php echo $service_description ?>" required>
+                        <input type="text" class="form-control" name="description" placeholder="Description of Service" maxlength="200" value="<?= $service_description ?>" required>
                     </div>
                 </div>
 
@@ -147,7 +147,7 @@ ob_start();
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-info"></i></span>
                         </div>
-                        <input type="text" class="form-control" name="category" placeholder="Category" maxlength="20" value="<?php echo $service_category ?>">
+                        <input type="text" class="form-control" name="category" placeholder="Category" maxlength="20" value="<?= $service_category ?>">
                     </div>
                 </div>
 
@@ -171,17 +171,17 @@ ob_start();
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-hdd"></i></span>
                         </div>
-                        <input type="text" class="form-control" name="backup" placeholder="Backup strategy" maxlength="200" value="<?php echo $service_backup ?>">
+                        <input type="text" class="form-control" name="backup" placeholder="Backup strategy" maxlength="200" value="<?= $service_backup ?>">
                     </div>
                 </div>
 
                 <div class="form-group">
                     <label>Notes</label>
-                    <textarea class="form-control" rows="3" placeholder="Enter some notes" name="note"><?php echo $service_notes ?></textarea>
+                    <textarea class="form-control" rows="3" placeholder="Enter some notes" name="note"><?= $service_notes ?></textarea>
                 </div>
             </div>
 
-            <div class="tab-pane fade" id="pills-general<?php echo $service_id ?>">
+            <div class="tab-pane fade" id="pills-general<?= $service_id ?>">
 
                 <div class="form-group">
                     <label for="contacts">Contacts</label>
@@ -260,7 +260,7 @@ ob_start();
             </div>
 
 
-            <div class="tab-pane fade" id="pills-assets<?php echo $service_id ?>">
+            <div class="tab-pane fade" id="pills-assets<?= $service_id ?>">
 
                 <div class="form-group">
                     <label for="assets">Assets</label>

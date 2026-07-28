@@ -48,7 +48,7 @@ ob_start();
 ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class='fa fa-fw fa-user-edit mr-2'></i>Editing Client: <strong><?php echo $client_name; ?></strong></h5>
+    <h5 class="modal-title"><i class='fa fa-fw fa-user-edit mr-2'></i>Editing Client: <strong><?= $client_name ?></strong></h5>
     <button type="button" class="close text-white" data-dismiss="modal">
         <span>&times;</span>
     </button>
@@ -60,15 +60,15 @@ ob_start();
 
     <ul class="modal-header nav nav-pills nav-justified mb-3">
         <li class="nav-item">
-            <a class="nav-link active" data-toggle="pill" href="#pills-client-details<?php echo $client_id; ?>">Details</a>
+            <a class="nav-link active" data-toggle="pill" href="#pills-client-details<?= $client_id ?>">Details</a>
         </li>
         <?php if ($config_module_enable_accounting) { ?>
             <li class="nav-item">
-                <a class="nav-link" data-toggle="pill" href="#pills-client-billing<?php echo $client_id; ?>">Billing</a>
+                <a class="nav-link" data-toggle="pill" href="#pills-client-billing<?= $client_id ?>">Billing</a>
             </li>
         <?php } ?>
         <li class="nav-item">
-            <a class="nav-link" data-toggle="pill" href="#pills-client-notes<?php echo $client_id; ?>">Notes</a>
+            <a class="nav-link" data-toggle="pill" href="#pills-client-notes<?= $client_id ?>">Notes</a>
         </li>
     </ul>
 
@@ -76,7 +76,7 @@ ob_start();
 
         <div class="tab-content">
 
-            <div class="tab-pane fade show active" id="pills-client-details<?php echo $client_id; ?>">
+            <div class="tab-pane fade show active" id="pills-client-details<?= $client_id ?>">
 
                 <div class="form-group">
                     <label>Name <strong class="text-danger">*</strong> / <span class="text-secondary">Is Lead</span></label>
@@ -85,7 +85,7 @@ ob_start();
                             <span class="input-group-text"><i class="fa fa-fw fa-id-badge"></i></span>
                         </div>
                         <input type="text" class="form-control" name="name" placeholder="Name or Company" maxlength="200"
-                               value="<?php echo $client_name; ?>" required>
+                               value="<?= $client_name ?>" required>
                         <div class="input-group-append">
                             <div class="input-group-text">
                                 <input type="checkbox" name="lead" value="1" <?php if($client_is_lead == 1){ echo "checked"; } ?>>
@@ -100,7 +100,7 @@ ob_start();
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-id-badge"></i></span>
                         </div>
-                        <input type="text" class="form-control" name="abbreviation" placeholder="Shortned name for client - Max chars 6" value="<?php echo $client_abbreviation; ?>" maxlength="6" oninput="this.value = this.value.toUpperCase()">
+                        <input type="text" class="form-control" name="abbreviation" placeholder="Shortned name for client - Max chars 6" value="<?= $client_abbreviation ?>" maxlength="6" oninput="this.value = this.value.toUpperCase()">
                     </div>
                 </div>
 
@@ -111,7 +111,7 @@ ob_start();
                             <span class="input-group-text"><i class="fa fa-fw fa-briefcase"></i></span>
                         </div>
                         <input type="text" class="form-control" name="type" placeholder="Industry"
-                               value="<?php echo $client_type; ?>">
+                               value="<?= $client_type ?>">
                     </div>
                 </div>
 
@@ -132,7 +132,7 @@ ob_start();
                                 <option <?php if ($client_referral == $referral) {
                                     echo "selected";
                                 } ?>>
-                                    <?php echo $referral; ?>
+                                    <?= $referral ?>
                                 </option>
 
                                 <?php
@@ -155,7 +155,7 @@ ob_start();
                             <span class="input-group-text"><i class="fa fa-fw fa-globe"></i></span>
                         </div>
                         <input type="text" class="form-control" name="website" placeholder="ex. google.com" maxlength="200"
-                               value="<?php echo $client_website; ?>">
+                               value="<?= $client_website ?>">
                     </div>
                 </div>
 
@@ -173,7 +173,7 @@ ob_start();
                                 $tag_id_select = intval($row['tag_id']);
                                 $tag_name_select = escapeHtml($row['tag_name']);
                                 ?>
-                                <option value="<?php echo $tag_id_select; ?>" <?php if (in_array($tag_id_select, $client_tag_id_array)) { echo "selected"; } ?>><?php echo $tag_name_select; ?></option>
+                                <option value="<?= $tag_id_select ?>" <?php if (in_array($tag_id_select, $client_tag_id_array)) { echo "selected"; } ?>><?= $tag_name_select ?></option>
                             <?php } ?>
 
                         </select>
@@ -190,7 +190,7 @@ ob_start();
 
             <?php if ($config_module_enable_accounting) { ?>
 
-                <div class="tab-pane fade" id="pills-client-billing<?php echo $client_id; ?>">
+                <div class="tab-pane fade" id="pills-client-billing<?= $client_id ?>">
 
                     <div class="form-group">
                         <label>Hourly Rate</label>
@@ -200,7 +200,7 @@ ob_start();
                             </div>
                             <input type="text" class="form-control" inputmode="decimal"
                                    pattern="[0-9]*\.?[0-9]{0,2}" name="rate" placeholder="0.00"
-                                   value="<?php echo number_format($client_rate, 2, '.', ''); ?>">
+                                   value="<?= number_format($client_rate, 2, '.', '') ?>">
                         </div>
                     </div>
 
@@ -215,8 +215,8 @@ ob_start();
                                 <?php foreach ($net_terms_array as $net_term_value => $net_term_name) { ?>
                                     <option <?php if ($net_term_value == $client_net_terms) {
                                         echo "selected";
-                                    } ?> value="<?php echo $net_term_value; ?>">
-                                        <?php echo $net_term_name; ?>
+                                    } ?> value="<?= $net_term_value ?>">
+                                        <?= $net_term_name ?>
                                     </option>
                                 <?php } ?>
                             </select>
@@ -230,7 +230,7 @@ ob_start();
                                 <span class="input-group-text"><i class="fa fa-fw fa-balance-scale"></i></span>
                             </div>
                             <input type="text" class="form-control" name="tax_id_number" maxlength="255"
-                                   placeholder="Tax ID Number" value="<?php echo $client_tax_id_number; ?>">
+                                   placeholder="Tax ID Number" value="<?= $client_tax_id_number ?>">
                         </div>
                     </div>
 
@@ -238,10 +238,10 @@ ob_start();
 
             <?php } ?>
 
-            <div class="tab-pane fade" id="pills-client-notes<?php echo $client_id; ?>">
+            <div class="tab-pane fade" id="pills-client-notes<?= $client_id ?>">
 
                 <div class="form-group">
-                    <textarea class="form-control" rows="10" placeholder="Enter some notes" name="notes"><?php echo $client_notes; ?></textarea>
+                    <textarea class="form-control" rows="10" placeholder="Enter some notes" name="notes"><?= $client_notes ?></textarea>
                 </div>
 
             </div>

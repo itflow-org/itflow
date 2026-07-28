@@ -44,17 +44,17 @@
                 <thead class="text-dark <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
                     <tr>
                         <th>
-                            <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=document_template_name&order=<?php echo $disp; ?>">
+                            <a class="text-secondary" href="?<?= $url_query_strings_sort ?>&sort=document_template_name&order=<?= $disp ?>">
                                 Template Name <?php if ($sort == 'document_template_name') { echo $order_icon; } ?>
                             </a>
                         </th>
                         <th>
-                            <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=document_template_created_at&order=<?php echo $disp; ?>">
+                            <a class="text-secondary" href="?<?= $url_query_strings_sort ?>&sort=document_template_created_at&order=<?= $disp ?>">
                                 Created <?php if ($sort == 'document_template_created_at') { echo $order_icon; } ?>
                             </a>
                         </th>
                         <th>
-                            <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=document_template_updated_at&order=<?php echo $disp; ?>">
+                            <a class="text-secondary" href="?<?= $url_query_strings_sort ?>&sort=document_template_updated_at&order=<?= $disp ?>">
                                 Updated <?php if ($sort == 'document_template_updated_at') { echo $order_icon; } ?>
                             </a>
                         </th>
@@ -92,10 +92,10 @@
                             </a>
                         </td>
                         <td>
-                            <?php echo $document_template_created_at; ?>
-                            <div class="text-secondary"><?php echo $document_template_created_by_name; ?></div>
+                            <?= $document_template_created_at ?>
+                            <div class="text-secondary"><?= $document_template_created_by_name ?></div>
                         </td>
-                        <td><?php echo $document_template_updated_at; ?></td>
+                        <td><?= $document_template_updated_at ?></td>
                         <td>
                             <div class="dropdown dropleft text-center">
                                 <button class="btn btn-secondary btn-sm" type="button" data-toggle="dropdown">
@@ -112,7 +112,7 @@
                                         <i class="fas fa-fw fa-edit mr-2"></i>Edit
                                     </a>
                                     <div class="dropdown-divider"></div>
-                                    <a class="dropdown-item text-danger text-bold" href="post.php?delete_document_template=<?php echo $document_template_id; ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
+                                    <a class="dropdown-item text-danger text-bold" href="post.php?delete_document_template=<?= $document_template_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                                         <i class="fas fa-fw fa-trash mr-2"></i>Delete
                                     </a>
                                 </div>

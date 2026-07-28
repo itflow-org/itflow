@@ -8,8 +8,8 @@
                 </button>
             </div>
             <form action="post.php" method="post" autocomplete="off">
-                <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token'] ?>">
-                <input type="hidden" name="asset_id" value="<?php echo $asset_id; ?>">
+                <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
+                <input type="hidden" name="asset_id" value="<?= $asset_id ?>">
 
                 <div class="modal-body">
 

@@ -25,7 +25,7 @@ ob_start();
 </div>
 <form action="post.php" method="post" autocomplete="off">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
-    <input type="hidden" name="task_template_id" value="<?php echo $task_template_id; ?>">
+    <input type="hidden" name="task_template_id" value="<?= $task_template_id ?>">
 
     <div class="modal-body">
 
@@ -35,7 +35,7 @@ ob_start();
                 <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
                 </div>
-                <input type="text" class="form-control" name="name" placeholder="Name the task" maxlength="255" value="<?php echo $task_template_name; ?>" required autofocus>
+                <input type="text" class="form-control" name="name" placeholder="Name the task" maxlength="255" value="<?= $task_template_name ?>" required autofocus>
             </div>
         </div>
 
@@ -45,7 +45,7 @@ ob_start();
                 <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-clock"></i></span>
                 </div>
-                <input type="number" class="form-control" name="completion_estimate" placeholder="Estimated time to complete task in mins" value="<?php echo $task_template_completion_estimate; ?>">
+                <input type="number" class="form-control" name="completion_estimate" placeholder="Estimated time to complete task in mins" value="<?= $task_template_completion_estimate ?>">
             </div>
         </div>
 

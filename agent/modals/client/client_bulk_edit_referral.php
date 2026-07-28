@@ -34,7 +34,7 @@ ob_start();
                     $referral_sql = mysqli_query($mysqli, "SELECT * FROM categories WHERE category_type = 'Referral' AND category_archived_at IS NULL ORDER BY category_name ASC");
                     while ($row = mysqli_fetch_assoc($referral_sql)) {
                         $referral = escapeHtml($row['category_name']); ?>
-                        <option><?php echo $referral; ?></option>
+                        <option><?= $referral ?></option>
                     <?php } ?>
 
                 </select>

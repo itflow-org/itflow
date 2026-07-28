@@ -45,7 +45,7 @@ ob_start();
                         $network_name_select = escapeHtml($net_row['network_name']);
                         $network_select = escapeHtml($net_row['network']);
                         ?>
-                        <option value="<?php echo $network_id_select; ?>"><?php echo "$network_name_select - $network_select"; ?></option>
+                        <option value="<?= $network_id_select ?>"><?= "$network_name_select - $network_select" ?></option>
                     <?php
                     }
                     ?>

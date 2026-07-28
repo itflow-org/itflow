@@ -43,7 +43,7 @@ ob_start();
 </div>
 <form action="post.php" method="post" autocomplete="off">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
-    <input type="hidden" name="recurring_expense_id" value="<?php echo $recurring_expense_id; ?>">
+    <input type="hidden" name="recurring_expense_id" value="<?= $recurring_expense_id ?>">
 
     <div class="modal-body">
 
@@ -92,7 +92,7 @@ ob_start();
                     <div class="input-group-prepend">
                         <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
                     </div>
-                    <input type="text" class="form-control" inputmode="numeric" pattern="(1[0-9]|2[0-8]|[1-9])" name="day" placeholder="Enter a day (1-28)" value="<?php echo $recurring_expense_day; ?>" required>
+                    <input type="text" class="form-control" inputmode="numeric" pattern="(1[0-9]|2[0-8]|[1-9])" name="day" placeholder="Enter a day (1-28)" value="<?= $recurring_expense_day ?>" required>
                 </div>
             </div>
 
@@ -105,7 +105,7 @@ ob_start();
                     <div class="input-group-prepend">
                         <span class="input-group-text"><i class="fa fa-fw fa-dollar-sign"></i></span>
                     </div>
-                    <input type="text" class="form-control" inputmode="decimal" pattern="-?[0-9]*\.?[0-9]{0,2}" name="amount" value="<?php echo number_format($recurring_expense_amount, 2, '.', ''); ?>" required>
+                    <input type="text" class="form-control" inputmode="decimal" pattern="-?[0-9]*\.?[0-9]{0,2}" name="amount" value="<?= number_format($recurring_expense_amount, 2, '.', '') ?>" required>
                 </div>
             </div>
         </div>
@@ -147,7 +147,7 @@ ob_start();
                             $balance = $opening_balance + $total_payments + $total_revenues - $total_expenses;
 
                             ?>
-                            <option <?php if ($recurring_expense_account_id == $account_id_select) { ?> selected <?php } ?> value="<?php echo $account_id_select; ?>"><?php echo "$account_archived_display$account_name_select"; ?> [$<?php echo number_format($balance, 2); ?>]</option>
+                            <option <?php if ($recurring_expense_account_id == $account_id_select) { ?> selected <?php } ?> value="<?= $account_id_select ?>"><?= "$account_archived_display$account_name_select" ?> [$<?= number_format($balance, 2) ?>]</option>
                             <?php
                         }
 
@@ -170,7 +170,7 @@ ob_start();
                             $vendor_id_select = intval($row['vendor_id']);
                             $vendor_name_select = escapeHtml($row['vendor_name']);
                             ?>
-                            <option <?php if ($recurring_expense_vendor_id == $vendor_id_select) { ?> selected <?php } ?> value="<?php echo $vendor_id_select; ?>"><?php echo $vendor_name_select; ?></option>
+                            <option <?php if ($recurring_expense_vendor_id == $vendor_id_select) { ?> selected <?php } ?> value="<?= $vendor_id_select ?>"><?= $vendor_name_select ?></option>
                             <?php
                         }
 
@@ -186,7 +186,7 @@ ob_start();
 
         <div class="form-group">
             <label>Description <strong class="text-danger">*</strong></label>
-            <textarea class="form-control" rows="6" name="description" placeholder="Enter a description" required><?php echo $recurring_expense_description; ?></textarea>
+            <textarea class="form-control" rows="6" name="description" placeholder="Enter a description" required><?= $recurring_expense_description ?></textarea>
         </div>
 
         <div class="form-group">
@@ -195,7 +195,7 @@ ob_start();
                 <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-file-alt"></i></span>
                 </div>
-                <input type="text" class="form-control" name="reference" placeholder="Enter a reference" maxlength="200" value="<?php echo $recurring_expense_reference; ?>">
+                <input type="text" class="form-control" name="reference" placeholder="Enter a reference" maxlength="200" value="<?= $recurring_expense_reference ?>">
             </div>
         </div>
 
@@ -215,7 +215,7 @@ ob_start();
                             $category_id_select = intval($row['category_id']);
                             $category_name_select = escapeHtml($row['category_name']);
                             ?>
-                            <option <?php if ($recurring_expense_category_id == $category_id_select) { ?> selected <?php } ?> value="<?php echo $category_id_select; ?>"><?php echo $category_name_select; ?></option>
+                            <option <?php if ($recurring_expense_category_id == $category_id_select) { ?> selected <?php } ?> value="<?= $category_id_select ?>"><?= $category_name_select ?></option>
                             <?php
                         }
 
@@ -231,7 +231,7 @@ ob_start();
             </div>
 
             <?php if (isset($_GET['client_id'])) { ?>
-                <input type="hidden" name="client" value="<?php echo $client_id; ?>">
+                <input type="hidden" name="client" value="<?= $client_id ?>">
             <?php } else { ?>
 
                 <div class="form-group col-md">
@@ -249,7 +249,7 @@ ob_start();
                                 $client_id_select = intval($row['client_id']);
                                 $client_name_select = escapeHtml($row['client_name']);
                                 ?>
-                                <option <?php if ($client_id == $client_id_select) { echo "selected"; } ?> value="<?php echo $client_id_select; ?>"><?php echo $client_name_select; ?></option>
+                                <option <?php if ($client_id == $client_id_select) { echo "selected"; } ?> value="<?= $client_id_select ?>"><?= $client_name_select ?></option>
 
                                 <?php
                             }

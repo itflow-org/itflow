@@ -123,7 +123,7 @@ $result = $stmt->get_result();
     <div class="card-header bg-dark py-2">
         <h3 class="card-title mt-2">
             <i class="fas fa-fw fa-life-ring mr-2"></i>
-            Client Time Detail Audit Report (<?php echo escapeHtml($from); ?> to <?php echo escapeHtml($to); ?>)
+            Client Time Detail Audit Report (<?= escapeHtml($from) ?> to <?= escapeHtml($to) ?>)
             <?php if ($billable_only) { ?>
                 <span class="badge badge-success ml-2">Billable Only</span>
             <?php } ?>
@@ -141,20 +141,20 @@ $result = $stmt->get_result();
             <div class="row">
                 <div class="col-md-3 mb-2">
                     <label class="mb-1">From</label>
-                    <input type="date" class="form-control" name="from" value="<?php echo escapeHtml($from); ?>">
+                    <input type="date" class="form-control" name="from" value="<?= escapeHtml($from) ?>">
                 </div>
 
                 <div class="col-md-3 mb-2">
                     <label class="mb-1">To</label>
-                    <input type="date" class="form-control" name="to" value="<?php echo escapeHtml($to); ?>">
+                    <input type="date" class="form-control" name="to" value="<?= escapeHtml($to) ?>">
                 </div>
 
                 <div class="col-md-3 mb-2">
                     <label class="mb-1">Billing time increment</label>
                     <select class="form-control" name="billing_increment">
-                        <option value="0.1"  <?php echo ($billing_increment_key === '0.1')  ? 'selected' : ''; ?>>0.1 hour (6 minutes)</option>
-                        <option value="0.25" <?php echo ($billing_increment_key === '0.25') ? 'selected' : ''; ?>>0.25 hour (15 minutes)</option>
-                        <option value="0.5"  <?php echo ($billing_increment_key === '0.5')  ? 'selected' : ''; ?>>0.5 hour (30 minutes)</option>
+                        <option value="0.1"  <?= ($billing_increment_key === '0.1')  ? 'selected' : '' ?>>0.1 hour (6 minutes)</option>
+                        <option value="0.25" <?= ($billing_increment_key === '0.25') ? 'selected' : '' ?>>0.25 hour (15 minutes)</option>
+                        <option value="0.5"  <?= ($billing_increment_key === '0.5')  ? 'selected' : '' ?>>0.5 hour (30 minutes)</option>
                     </select>
                 </div>
 
@@ -202,9 +202,9 @@ $result = $stmt->get_result();
                 $ticket_billed = secondsToDecimalHours($ticket_billable_seconds);
                 ?>
                 <tr class="font-weight-bold">
-                    <td class="text-right pr-3">Ticket Total for <?php echo $ticket_label_html; ?></td>
-                    <td class="text-right"><?php echo formatDuration(secondsToHmsString($ticket_seconds)); ?></td>
-                    <td class="text-right"><?php echo number_format($ticket_billed, 2); ?></td>
+                    <td class="text-right pr-3">Ticket Total for <?= $ticket_label_html ?></td>
+                    <td class="text-right"><?= formatDuration(secondsToHmsString($ticket_seconds)) ?></td>
+                    <td class="text-right"><?= number_format($ticket_billed, 2) ?></td>
                 </tr>
                 <?php
                 return $ticket_billed;
@@ -275,10 +275,10 @@ $result = $stmt->get_result();
                     ?>
                     <tr class="font-weight-bold">
                         <td class="text-right">
-                            Total for <?php echo $current_client_name; ?> (<?php echo $client_ticket_count; ?> tickets)
+                            Total for <?= $current_client_name ?> (<?= $client_ticket_count ?> tickets)
                         </td>
-                        <td class="text-right"><?php echo formatDuration(secondsToHmsString($client_time_seconds)); ?></td>
-                        <td class="text-right"><?php echo number_format(secondsToDecimalHours($client_billable_seconds), 2); ?></td>
+                        <td class="text-right"><?= formatDuration(secondsToHmsString($client_time_seconds)) ?></td>
+                        <td class="text-right"><?= number_format(secondsToDecimalHours($client_billable_seconds), 2) ?></td>
                     </tr>
                     <tr><td colspan="3"></td></tr>
                     <?php
@@ -295,7 +295,7 @@ $result = $stmt->get_result();
                     $current_client_name = $client_name_html;
                     ?>
                     <tr class="table-active">
-                        <td colspan="3" class="font-weight-bold"><?php echo $client_name_html; ?></td>
+                        <td colspan="3" class="font-weight-bold"><?= $client_name_html ?></td>
                     </tr>
                     <?php
                 }
@@ -328,7 +328,7 @@ $result = $stmt->get_result();
 
                     ?>
                     <tr>
-                        <td class="font-weight-bold"><?php echo $ticket_label_html; ?></td>
+                        <td class="font-weight-bold"><?= $ticket_label_html ?></td>
                         <td class="text-right text-muted"></td>
                         <td class="text-right text-muted"></td>
                     </tr>
@@ -340,13 +340,13 @@ $result = $stmt->get_result();
                 <tr>
                     <td class="pl-4 text-muted">
                         <i class="far fa-clock mr-1"></i>
-                        <?php echo escapeHtml(date('Y-m-d g:i A', strtotime($reply_created_at))); ?>
+                        <?= escapeHtml(date('Y-m-d g:i A', strtotime($reply_created_at))) ?>
                         <div class="mt-1 text-body" style="white-space: normal;">
-                            <?php echo $reply_content_html; ?>
+                            <?= $reply_content_html ?>
                         </div>
                     </td>
-                    <td class="text-right"><?php echo formatDuration($reply_hms); ?></td>
-                    <td class="text-right"><?php echo number_format(secondsToDecimalHours($reply_billable_seconds), 2); ?></td>
+                    <td class="text-right"><?= formatDuration($reply_hms) ?></td>
+                    <td class="text-right"><?= number_format(secondsToDecimalHours($reply_billable_seconds), 2) ?></td>
                 </tr>
                 <?php
 
@@ -380,10 +380,10 @@ $result = $stmt->get_result();
                 ?>
                 <tr class="font-weight-bold">
                     <td class="text-right">
-                        Total for <?php echo $current_client_name; ?> (<?php echo $client_ticket_count; ?> tickets)
+                        Total for <?= $current_client_name ?> (<?= $client_ticket_count ?> tickets)
                     </td>
-                    <td class="text-right"><?php echo formatDuration(secondsToHmsString($client_time_seconds)); ?></td>
-                    <td class="text-right"><?php echo number_format(secondsToDecimalHours($client_billable_seconds), 2); ?></td>
+                    <td class="text-right"><?= formatDuration(secondsToHmsString($client_time_seconds)) ?></td>
+                    <td class="text-right"><?= number_format(secondsToDecimalHours($client_billable_seconds), 2) ?></td>
                 </tr>
 
                 <tr><td colspan="3"></td></tr>
@@ -391,10 +391,10 @@ $result = $stmt->get_result();
                 <!-- Grand totals -->
                 <tr class="font-weight-bold">
                     <td class="text-right">
-                        Grand Total (<?php echo $grand_ticket_count; ?> tickets)
+                        Grand Total (<?= $grand_ticket_count ?> tickets)
                     </td>
-                    <td class="text-right"><?php echo formatDuration(secondsToHmsString($grand_time_seconds)); ?></td>
-                    <td class="text-right"><?php echo number_format(secondsToDecimalHours($grand_billable_seconds), 2); ?></td>
+                    <td class="text-right"><?= formatDuration(secondsToHmsString($grand_time_seconds)) ?></td>
+                    <td class="text-right"><?= number_format(secondsToDecimalHours($grand_billable_seconds), 2) ?></td>
                 </tr>
                 <?php
             }
@@ -404,7 +404,7 @@ $result = $stmt->get_result();
 
         <small class="text-muted p-2">
             This report shows only ticket replies with time worked within the selected date range.
-            “Billable (hrs)” is calculated by rounding each reply up to the nearest <?php echo (int)$billing_increment_minutes; ?> minutes (<?php echo escapeHtml($billing_increment_key); ?> hours),
+            “Billable (hrs)” is calculated by rounding each reply up to the nearest <?= (int)$billing_increment_minutes ?> minutes (<?= escapeHtml($billing_increment_key) ?> hours),
             then summing those rounded values for ticket/client/grand totals.
             <br>
             Reply content is displayed under each reply timestamp.

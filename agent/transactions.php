@@ -222,7 +222,7 @@ if ($account_filter) {
             <h3 class="card-title mt-2"><i class="fas fa-fw fa-list-alt mr-2"></i>Transactions</h3>
             <?php if ($account_filter) { ?>
             <div class="card-tools">
-                <button type="button" class="btn btn-primary ajax-modal" data-modal-url="modals/transaction/transaction_export.php?account=<?php echo $account_filter; ?>&type=<?php echo urlencode($type_filter); ?>&category=<?php echo $category_filter; ?>&client=<?php echo $client_filter; ?>&payment_method=<?php echo urlencode($payment_method_filter); ?>&amount_min=<?php echo $amount_min_filter; ?>&amount_max=<?php echo $amount_max_filter; ?>&dtf=<?php echo $dtf; ?>&dtt=<?php echo $dtt; ?>&q=<?php echo urlencode($q ?? ''); ?>"><i class="fa fa-download mr-2"></i>Export</button>
+                <button type="button" class="btn btn-primary ajax-modal" data-modal-url="modals/transaction/transaction_export.php?account=<?= $account_filter ?>&type=<?= urlencode($type_filter) ?>&category=<?= $category_filter ?>&client=<?= $client_filter ?>&payment_method=<?= urlencode($payment_method_filter) ?>&amount_min=<?= $amount_min_filter ?>&amount_max=<?= $amount_max_filter ?>&dtf=<?= $dtf ?>&dtt=<?= $dtt ?>&q=<?= urlencode($q ?? '') ?>"><i class="fa fa-download mr-2"></i>Export</button>
             </div>
             <?php } ?>
         </div>
@@ -263,7 +263,7 @@ if ($account_filter) {
                                     $account_name = escapeHtml($row['account_name']);
                                     $account_balance_display = numfmt_format_currency($currency_format, floatval($row['account_balance']), $row['account_currency_code']);
                                 ?>
-                                    <option <?php if ($account_filter == $account_id) { echo "selected"; } ?> value="<?php echo $account_id; ?>"><?php echo "$account_name ($account_balance_display)"; ?></option>
+                                    <option <?php if ($account_filter == $account_id) { echo "selected"; } ?> value="<?= $account_id ?>"><?= "$account_name ($account_balance_display)" ?></option>
                                 <?php
                                 }
                                 ?>
@@ -278,7 +278,7 @@ if ($account_filter) {
                                 <option value="">- All Types -</option>
 
                                 <?php foreach ($transaction_types_array as $transaction_type_option) { ?>
-                                    <option <?php if ($type_filter == $transaction_type_option) { echo "selected"; } ?> value="<?php echo $transaction_type_option; ?>"><?php echo $transaction_type_option; ?></option>
+                                    <option <?php if ($type_filter == $transaction_type_option) { echo "selected"; } ?> value="<?= $transaction_type_option ?>"><?= $transaction_type_option ?></option>
                                 <?php } ?>
 
                             </select>
@@ -296,7 +296,7 @@ if ($account_filter) {
                                     $category_id = intval($row['category_id']);
                                     $category_name = escapeHtml($row['category_name']);
                                 ?>
-                                    <option <?php if ($category_filter == $category_id) { echo "selected"; } ?> value="<?php echo $category_id; ?>"><?php echo $category_name; ?></option>
+                                    <option <?php if ($category_filter == $category_id) { echo "selected"; } ?> value="<?= $category_id ?>"><?= $category_name ?></option>
                                 <?php
                                 }
                                 ?>
@@ -318,7 +318,7 @@ if ($account_filter) {
                                     $client_id = intval($row['client_id']);
                                     $client_name = escapeHtml($row['client_name']);
                                 ?>
-                                    <option <?php if ($client_filter == $client_id) { echo "selected"; } ?> value="<?php echo $client_id; ?>"><?php echo $client_name; ?></option>
+                                    <option <?php if ($client_filter == $client_id) { echo "selected"; } ?> value="<?= $client_id ?>"><?= $client_name ?></option>
                                 <?php
                                 }
                                 ?>
@@ -337,7 +337,7 @@ if ($account_filter) {
                                 while ($row = mysqli_fetch_assoc($sql_payment_methods_filter)) {
                                     $payment_method_name = escapeHtml($row['payment_method_name']);
                                 ?>
-                                    <option <?php if ($payment_method_filter == $payment_method_name) { echo "selected"; } ?> value="<?php echo $payment_method_name; ?>"><?php echo $payment_method_name; ?></option>
+                                    <option <?php if ($payment_method_filter == $payment_method_name) { echo "selected"; } ?> value="<?= $payment_method_name ?>"><?= $payment_method_name ?></option>
                                 <?php
                                 }
                                 ?>
@@ -349,8 +349,8 @@ if ($account_filter) {
                         <div class="form-group mb-md-0">
                             <label>Amount Range</label>
                             <div class="input-group">
-                                <input type="number" step="0.01" min="0" class="form-control" name="amount_min" value="<?php echo $amount_min_filter; ?>" placeholder="Min" onchange="this.form.submit()">
-                                <input type="number" step="0.01" min="0" class="form-control" name="amount_max" value="<?php echo $amount_max_filter; ?>" placeholder="Max" onchange="this.form.submit()">
+                                <input type="number" step="0.01" min="0" class="form-control" name="amount_min" value="<?= $amount_min_filter ?>" placeholder="Min" onchange="this.form.submit()">
+                                <input type="number" step="0.01" min="0" class="form-control" name="amount_max" value="<?= $amount_max_filter ?>" placeholder="Max" onchange="this.form.submit()">
                             </div>
                         </div>
                     </div>
@@ -358,9 +358,9 @@ if ($account_filter) {
                         <div class="form-group mb-md-0">
                             <label>Date Range</label>
                             <input type="text" id="dateFilter" class="form-control" autocomplete="off">
-                            <input type="hidden" name="canned_date" id="canned_date" value="<?php echo escapeHtml($_GET['canned_date']) ?? ''; ?>">
-                            <input type="hidden" name="dtf" id="dtf" value="<?php echo escapeHtml($dtf ?? ''); ?>">
-                            <input type="hidden" name="dtt" id="dtt" value="<?php echo escapeHtml($dtt ?? ''); ?>">
+                            <input type="hidden" name="canned_date" id="canned_date" value="<?= escapeHtml($_GET['canned_date']) ?? '' ?>">
+                            <input type="hidden" name="dtf" id="dtf" value="<?= escapeHtml($dtf ?? '') ?>">
+                            <input type="hidden" name="dtt" id="dtt" value="<?= escapeHtml($dtt ?? '') ?>">
                         </div>
                     </div>
                 </div>
@@ -374,7 +374,7 @@ if ($account_filter) {
                     <!-- small box -->
                     <div class="small-box bg-success">
                         <div class="inner">
-                            <h3><?php echo numfmt_format_currency($currency_format, $summary_total_in, $account_currency_code); ?></h3>
+                            <h3><?= numfmt_format_currency($currency_format, $summary_total_in, $account_currency_code) ?></h3>
                             <p>Money In</p>
                         </div>
                         <div class="icon">
@@ -388,7 +388,7 @@ if ($account_filter) {
                     <!-- small box -->
                     <div class="small-box bg-danger">
                         <div class="inner">
-                            <h3><?php echo numfmt_format_currency($currency_format, $summary_total_out, $account_currency_code); ?></h3>
+                            <h3><?= numfmt_format_currency($currency_format, $summary_total_out, $account_currency_code) ?></h3>
                             <p>Money Out</p>
                         </div>
                         <div class="icon">
@@ -402,7 +402,7 @@ if ($account_filter) {
                     <!-- small box -->
                     <div class="small-box <?php if ($summary_total_net < 0) { echo "bg-danger"; } else { echo "bg-primary"; } ?>">
                         <div class="inner">
-                            <h3><?php echo numfmt_format_currency($currency_format, $summary_total_net, $account_currency_code); ?></h3>
+                            <h3><?= numfmt_format_currency($currency_format, $summary_total_net, $account_currency_code) ?></h3>
                             <p>Net</p>
                         </div>
                         <div class="icon">
@@ -418,26 +418,26 @@ if ($account_filter) {
                     <thead class="text-dark <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
                     <tr>
                         <th>
-                            <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=transaction_date&order=<?php echo $disp; ?>">
+                            <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=transaction_date&order=<?= $disp ?>">
                                 Date <?php if ($sort == 'transaction_date') { echo $order_icon; } ?>
                             </a>
                         </th>
                         <th>
-                            <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=transaction_type&order=<?php echo $disp; ?>">
+                            <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=transaction_type&order=<?= $disp ?>">
                                 Type <?php if ($sort == 'transaction_type') { echo $order_icon; } ?>
                             </a>
                         </th>
                         <th>
-                            <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=transaction_category&order=<?php echo $disp; ?>">
+                            <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=transaction_category&order=<?= $disp ?>">
                                 Category <?php if ($sort == 'transaction_category') { echo $order_icon; } ?>
                             </a>
                             /
-                            <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=transaction_description&order=<?php echo $disp; ?>">
+                            <a class="text-secondary" href="?<?= $url_query_strings_sort ?>&sort=transaction_description&order=<?= $disp ?>">
                                 Description <?php if ($sort == 'transaction_description') { echo $order_icon; } ?>
                             </a>
                         </th>
                         <th class="text-right">
-                            <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=transaction_amount&order=<?php echo $disp; ?>">
+                            <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=transaction_amount&order=<?= $disp ?>">
                                 Amount <?php if ($sort == 'transaction_amount') { echo $order_icon; } ?>
                             </a>
                         </th>
@@ -510,25 +510,25 @@ if ($account_filter) {
                         <tr>
                             <td>
                                 <?php if ($transaction_type == 'Payment') { ?>
-                                    <a class="text-bold" href="invoice.php?invoice_id=<?php echo $transaction_invoice_id; ?>">
-                                        <?php echo $transaction_date; ?>
+                                    <a class="text-bold" href="invoice.php?invoice_id=<?= $transaction_invoice_id ?>">
+                                        <?= $transaction_date ?>
                                     </a>
                                 <?php } else { ?>
                                     <a class="text-bold ajax-modal" href="#"
                                         data-modal-size="lg"
-                                        data-modal-url="<?php echo $transaction_modal_url; ?>">
-                                        <?php echo $transaction_date; ?>
+                                        data-modal-url="<?= $transaction_modal_url ?>">
+                                        <?= $transaction_date ?>
                                     </a>
                                 <?php } ?>
                             </td>
-                            <td><span class="badge badge-<?php echo $transaction_badge_color; ?>"><?php echo $transaction_type; ?></span></td>
+                            <td><span class="badge badge-<?= $transaction_badge_color ?>"><?= $transaction_type ?></span></td>
                             <td>
-                                <?php echo $transaction_category_display; ?>
-                                <div class="text-secondary"><small><?php echo truncate($transaction_description, 60); ?></small></div>
+                                <?= $transaction_category_display ?>
+                                <div class="text-secondary"><small><?= truncate($transaction_description, 60) ?></small></div>
                             </td>
-                            <td class="text-right text-monospace <?php echo $transaction_amount_color; ?>"><?php echo numfmt_format_currency($currency_format, $transaction_amount, $transaction_currency_code); ?></td>
+                            <td class="text-right text-monospace <?= $transaction_amount_color ?>"><?= numfmt_format_currency($currency_format, $transaction_amount, $transaction_currency_code) ?></td>
                             <?php if ($balance_visible) { ?>
-                            <td class="text-right text-monospace <?php echo $transaction_balance_color; ?>"><?php echo numfmt_format_currency($currency_format, $transaction_balance, $transaction_currency_code); ?></td>
+                            <td class="text-right text-monospace <?= $transaction_balance_color ?>"><?= numfmt_format_currency($currency_format, $transaction_balance, $transaction_currency_code) ?></td>
                             <?php } ?>
                         </tr>
 

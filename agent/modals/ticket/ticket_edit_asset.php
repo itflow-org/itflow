@@ -32,14 +32,14 @@ ob_start();
 ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fa fa-fw fa-desktop mr-2"></i>Editing ticket Asset: <strong><?php echo "$ticket_prefix$ticket_number"; ?></strong> - <?php echo $client_name; ?></h5>
+    <h5 class="modal-title"><i class="fa fa-fw fa-desktop mr-2"></i>Editing ticket Asset: <strong><?= "$ticket_prefix$ticket_number" ?></strong> - <?= $client_name ?></h5>
     <button type="button" class="close text-white" data-dismiss="modal">
         <span>&times;</span>
     </button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
-    <input type="hidden" name="ticket_id" value="<?php echo $ticket_id; ?>">
+    <input type="hidden" name="ticket_id" value="<?= $ticket_id ?>">
     <div class="modal-body">
 
         <div class="form-group">
@@ -58,7 +58,7 @@ ob_start();
                         $asset_name_select = escapeHtml($row['asset_name']);
                         $asset_contact_name_select = escapeHtml($row['contact_name']);
                         ?>
-                        <option <?php if ($asset_id == $asset_id_select) { echo "selected"; } ?> value="<?php echo $asset_id_select; ?>"><?php echo "$asset_name_select - $asset_contact_name_select"; ?></option>
+                        <option <?php if ($asset_id == $asset_id_select) { echo "selected"; } ?> value="<?= $asset_id_select ?>"><?= "$asset_name_select - $asset_contact_name_select" ?></option>
 
                         <?php
                     }
@@ -83,9 +83,9 @@ ob_start();
                         $asset_name_select = escapeHtml($row['asset_name']);
                         $asset_contact_name_select = escapeHtml($row['contact_name']);
                     ?>
-                        <option value="<?php echo $asset_id_select; ?>"
+                        <option value="<?= $asset_id_select ?>"
                             <?php if (in_array($asset_id_select, $additional_assets_array)) { echo "selected"; } ?>
-                            ><?php echo "$asset_name_select - $asset_contact_name_select"; ?></option>
+                            ><?= "$asset_name_select - $asset_contact_name_select" ?></option>
 
                     <?php } ?>
                 </select>

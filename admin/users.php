@@ -75,22 +75,22 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                 <thead class="text-dark <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
                 <tr>
                     <th class="text-center">
-                        <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=user_name&order=<?php echo $disp; ?>">
+                        <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=user_name&order=<?= $disp ?>">
                             Name <?php if ($sort == 'user_name') { echo $order_icon; } ?>
                         </a>
                     </th>
                     <th>
-                        <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=user_email&order=<?php echo $disp; ?>">
+                        <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=user_email&order=<?= $disp ?>">
                             Email <?php if ($sort == 'user_email') { echo $order_icon; } ?>
                         </a>
                     </th>
                     <th>
-                        <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=role_name&order=<?php echo $disp; ?>">
+                        <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=role_name&order=<?= $disp ?>">
                             Role <?php if ($sort == 'role_name') { echo $order_icon; } ?>
                         </a>
                     </th>
                     <th>
-                        <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=user_status&order=<?php echo $disp; ?>">
+                        <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=user_status&order=<?= $disp ?>">
                             Status <?php if ($sort == 'user_status') { echo $order_icon; } ?>
                         </a>
                     </th>
@@ -170,23 +170,23 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 <?php } ?>
                                 >
                                 <?php if (!empty($user_avatar)) { ?>
-                                    <img class="img-size-50 img-circle" src="<?php echo "../uploads/users/$user_id/$user_avatar"; ?>">
+                                    <img class="img-size-50 img-circle" src="<?= "../uploads/users/$user_id/$user_avatar" ?>">
                                 <?php } else { ?>
                                     <span class="fa-stack fa-2x">
                                         <i class="fa fa-circle fa-stack-2x text-secondary"></i>
-                                        <span class="fa fa-stack-1x text-white"><?php echo $user_initials; ?></span>
+                                        <span class="fa fa-stack-1x text-white"><?= $user_initials ?></span>
                                     </span>
                                     <br>
                                 <?php } ?>
 
-                                <div class="text-secondary"><?php echo $user_name; ?></div>
+                                <div class="text-secondary"><?= $user_name ?></div>
                             </a>
                         </td>
-                        <td><a href="mailto:<?php echo $user_email; ?>"><?php echo $user_email; ?></a></td>
-                        <td><?php echo $user_role_display; ?></td>
-                        <td><?php echo $user_status_display; ?></td>
-                        <td class="text-center"><?php echo $mfa_status_display; ?></td>
-                        <td><?php echo $last_login; ?></td>
+                        <td><a href="mailto:<?= $user_email ?>"><?= $user_email ?></a></td>
+                        <td><?= $user_role_display ?></td>
+                        <td><?= $user_status_display ?></td>
+                        <td class="text-center"><?= $mfa_status_display ?></td>
+                        <td><?= $last_login ?></td>
                         <td>
                             <?php if ($user_id !== $session_user_id) {   // Prevent modifying self ?>
                             <div class="dropdown dropleft text-center">
@@ -199,15 +199,15 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                         <i class="fas fa-fw fa-user-edit mr-2"></i>Edit
                                     </a>
                                     <?php if ($remember_token_count > 0) { ?>
-                                    <a class="dropdown-item" href="post.php?revoke_remember_me=<?php echo $user_id; ?>&csrf_token=<?php echo $_SESSION['csrf_token'] ?>"><i class="fas fa-fw fa-ban mr-2"></i>Revoke <?php echo $remember_token_count; ?> Remember Tokens
+                                    <a class="dropdown-item" href="post.php?revoke_remember_me=<?= $user_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"><i class="fas fa-fw fa-ban mr-2"></i>Revoke <?= $remember_token_count ?> Remember Tokens
                                     </a>
                                     <?php } ?>
                                     <?php if ($user_status == 0) { ?>
-                                        <a class="dropdown-item text-success" href="post.php?activate_user=<?php echo $user_id; ?>&csrf_token=<?php echo $_SESSION['csrf_token'] ?>">
+                                        <a class="dropdown-item text-success" href="post.php?activate_user=<?= $user_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                                             <i class="fas fa-fw fa-user-check mr-2"></i>Activate
                                         </a>
                                     <?php }elseif ($user_status == 1) { ?>
-                                        <a class="dropdown-item text-danger" href="post.php?disable_user=<?php echo $user_id; ?>&csrf_token=<?php echo $_SESSION['csrf_token'] ?>">
+                                        <a class="dropdown-item text-danger" href="post.php?disable_user=<?= $user_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                                             <i class="fas fa-fw fa-user-slash mr-2"></i>Disable
                                         </a>
                                     <?php } ?>

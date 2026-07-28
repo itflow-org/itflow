@@ -30,7 +30,7 @@ ob_start();
 ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class='fa fa-fw fa-user-check mr-2'></i>Assigning Ticket: <strong><?php echo "$ticket_prefix$ticket_number"; ?></strong> - <?php echo $client_name; ?></h5>
+    <h5 class="modal-title"><i class='fa fa-fw fa-user-check mr-2'></i>Assigning Ticket: <strong><?= "$ticket_prefix$ticket_number" ?></strong> - <?= $client_name ?></h5>
     <button type="button" class="close text-white" data-dismiss="modal">
         <span>&times;</span>
     </button>
@@ -38,8 +38,8 @@ ob_start();
 
 <form action="post.php" method="post" autocomplete="off">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
-    <input type="hidden" name="ticket_id" value="<?php echo $ticket_id; ?>">
-    <input type="hidden" name="ticket_status" value="<?php echo $ticket_status; ?>">
+    <input type="hidden" name="ticket_id" value="<?= $ticket_id ?>">
+    <input type="hidden" name="ticket_status" value="<?= $ticket_status ?>">
     <div class="modal-body">
 
         <div class="form-group">
@@ -61,7 +61,7 @@ ob_start();
                         $user_name_select = escapeHtml($row['user_name']);
 
                         ?>
-                        <option value="<?php echo $user_id_select; ?>" <?php if ($user_id_select  == $ticket_assigned_to) { echo "selected"; } ?>><?php echo $user_name_select; ?></option>
+                        <option value="<?= $user_id_select ?>" <?php if ($user_id_select  == $ticket_assigned_to) { echo "selected"; } ?>><?= $user_name_select ?></option>
                     <?php } ?>
                 </select>
             </div>

@@ -28,14 +28,14 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
     <div class="card card-dark">
         <div class="card-header py-2">
-            <h3 class="card-title mt-2"><i class="fa fa-fw fa-th-list mr-2"></i><?php echo escapeHtml($table); ?> Fields</h3>
+            <h3 class="card-title mt-2"><i class="fa fa-fw fa-th-list mr-2"></i><?= escapeHtml($table) ?> Fields</h3>
             <div class="card-tools">
                 <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#createCustomFieldModal"><i class="fas fa-plus mr-2"></i>Create</button>
             </div>
         </div>
         <div class="card-body">
             <form autocomplete="off">
-                <input type="hidden" name="table" value="<?php echo escapeHtml($table); ?>">
+                <input type="hidden" name="table" value="<?= escapeHtml($table) ?>">
                 <div class="row">
                     <div class="col-sm-4 mb-2">
                         <div class="input-group">
@@ -58,8 +58,8 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                 <table class="table table-striped table-borderless table-hover">
                     <thead class="text-dark <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
                     <tr>
-                        <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=custom_field_label&order=<?php echo $disp; ?>">Label</a></th>
-                        <th><a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=custom_field_type&order=<?php echo $disp; ?>">Type</a></th>
+                        <th><a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=custom_field_label&order=<?= $disp ?>">Label</a></th>
+                        <th><a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=custom_field_type&order=<?= $disp ?>">Type</a></th>
                         <th class="text-center">Action</th>
                     </tr>
                     </thead>
@@ -75,15 +75,15 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                         ?>
                         <tr>
-                            <td><a class="text-dark" href="#" data-toggle="modal" data-target="#editCustomFieldModal<?php echo $custom_field_id; ?>"><?php echo $custom_field_label; ?></a></td>
-                            <td><?php echo $custom_field_type; ?></td>
+                            <td><a class="text-dark" href="#" data-toggle="modal" data-target="#editCustomFieldModal<?= $custom_field_id ?>"><?= $custom_field_label ?></a></td>
+                            <td><?= $custom_field_type ?></td>
                             <td>
                                 <div class="dropdown dropleft text-center">
                                     <button class="btn btn-secondary btn-sm" type="button" data-toggle="dropdown">
                                         <i class="fas fa-ellipsis-h"></i>
                                     </button>
                                     <div class="dropdown-menu">
-                                        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editCustomFieldModal<?php echo $custom_field_id; ?>">
+                                        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editCustomFieldModal<?= $custom_field_id ?>">
                                             <i class="fas fa-fw fa-edit mr-2"></i>Edit
                                         </a>
                                         <div class="dropdown-divider"></div>

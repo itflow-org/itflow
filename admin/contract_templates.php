@@ -79,21 +79,21 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     ?>
                     <tr>
                         <td>
-                            <a class="text-bold" href="contract_template_details.php?contract_template_id=<?php echo $id; ?>">
-                                <i class="fas fa-fw fa-file-alt text-dark"></i> <?php echo $name; ?>
+                            <a class="text-bold" href="contract_template_details.php?contract_template_id=<?= $id ?>">
+                                <i class="fas fa-fw fa-file-alt text-dark"></i> <?= $name ?>
                             </a>
-                            <div class="mt-1 text-secondary"><?php echo escapeHtml($row['contract_template_description']); ?></div>
+                            <div class="mt-1 text-secondary"><?= escapeHtml($row['contract_template_description']) ?></div>
                         </td>
-                        <td><?php echo $type; ?></td>
-                        <td><?php echo $freq; ?></td>
-                        <td><?php echo "$sla_low_resp / $sla_med_resp / $sla_high_resp"; ?></td>
-                        <td><?php echo "$sla_low_res / $sla_med_res / $sla_high_res"; ?></td>
-                        <td><?php echo $hourly_rate; ?></td>
-                        <td><?php echo $after_hours; ?></td>
-                        <td><?php echo $support_hours; ?></td>
-                        <td><?php echo $net_terms; ?></td>
-                        <td><?php echo $created; ?></td>
-                        <td><?php echo $updated; ?></td>
+                        <td><?= $type ?></td>
+                        <td><?= $freq ?></td>
+                        <td><?= "$sla_low_resp / $sla_med_resp / $sla_high_resp" ?></td>
+                        <td><?= "$sla_low_res / $sla_med_res / $sla_high_res" ?></td>
+                        <td><?= $hourly_rate ?></td>
+                        <td><?= $after_hours ?></td>
+                        <td><?= $support_hours ?></td>
+                        <td><?= $net_terms ?></td>
+                        <td><?= $created ?></td>
+                        <td><?= $updated ?></td>
                         <td>
                             <div class="dropdown dropleft text-center">
                                 <button class="btn btn-secondary btn-sm" type="button" data-toggle="dropdown">

@@ -20,14 +20,14 @@ ob_start();
 ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fa fa-fw fa-cube mr-2"></i>License Software to <strong><?php echo $contact_name; ?></strong></h5>
+    <h5 class="modal-title"><i class="fa fa-fw fa-cube mr-2"></i>License Software to <strong><?= $contact_name ?></strong></h5>
     <button type="button" class="close text-white" data-dismiss="modal">
         <span>&times;</span>
     </button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
-    <input type="hidden" name="contact_id" value="<?php echo $contact_id; ?>">
+    <input type="hidden" name="contact_id" value="<?= $contact_id ?>">
     <div class="modal-body">
 
         <div class="form-group">
@@ -54,7 +54,7 @@ ob_start();
                         $software_id = intval($row['software_id']);
                         $software_name = escapeHtml($row['software_name']);
                         ?>
-                        <option value="<?php echo $software_id ?>"><?php echo $software_name; ?></option>
+                        <option value="<?= $software_id ?>"><?= $software_name ?></option>
                         <?php
                     }
                     ?>

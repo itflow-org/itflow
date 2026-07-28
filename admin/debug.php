@@ -523,19 +523,19 @@ $mysqli->close();
             <table class="table table-bordered mb-3">
                 <tr>
                     <th>ITFlow release version</th>
-                    <th><?php echo APP_VERSION; ?></th>
+                    <th><?= APP_VERSION ?></th>
                 </tr>
                 <tr>
                     <td>Current DB Version</td>
-                    <td><?php echo CURRENT_DATABASE_VERSION; ?></td>
+                    <td><?= CURRENT_DATABASE_VERSION ?></td>
                 </tr>
                 <tr>
                     <td>Current Code Commit</td>
-                    <td><?php echo $commitHash; ?></td>
+                    <td><?= $commitHash ?></td>
                 </tr>
                 <tr>
                     <td>Current Branch</td>
-                    <td><?php echo $gitBranch; ?></td>
+                    <td><?= $gitBranch ?></td>
                 </tr>
             </table>
         </div>

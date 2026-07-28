@@ -31,7 +31,7 @@ ob_start();
 </div>
 <form action="post.php" method="post" autocomplete="off">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
-    <input type="hidden" name="revenue_id" value="<?php echo $revenue_id; ?>">
+    <input type="hidden" name="revenue_id" value="<?= $revenue_id ?>">
     <div class="modal-body">
 
         <div class="form-row">
@@ -42,7 +42,7 @@ ob_start();
                     <div class="input-group-prepend">
                         <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
                     </div>
-                    <input type="date" class="form-control" name="date" max="2999-12-31" value="<?php echo $revenue_date; ?>" required>
+                    <input type="date" class="form-control" name="date" max="2999-12-31" value="<?= $revenue_date ?>" required>
                 </div>
             </div>
 
@@ -52,7 +52,7 @@ ob_start();
                     <div class="input-group-prepend">
                         <span class="input-group-text"><i class="fa fa-fw fa-dollar-sign"></i></span>
                     </div>
-                    <input type="text" class="form-control" inputmode="decimal" pattern="[0-9]*\.?[0-9]{0,2}" name="amount" value="<?php echo number_format($revenue_amount, 2, '.', ''); ?>" placeholder="0.00" required>
+                    <input type="text" class="form-control" inputmode="decimal" pattern="[0-9]*\.?[0-9]{0,2}" name="amount" value="<?= number_format($revenue_amount, 2, '.', '') ?>" placeholder="0.00" required>
                 </div>
             </div>
 
@@ -97,7 +97,7 @@ ob_start();
                             $balance = $opening_balance + $total_payments + $total_revenues - $total_expenses;
 
                             ?>
-                            <option <?php if ($account_id == $account_id_select) { echo "selected"; } ?> value="<?php echo $account_id_select; ?>"><?php echo $account_archived_display; ?> <?php echo $account_name_select; ?> [ <?php echo numfmt_format_currency($currency_format, $balance, $account_currency_code_select); ?> ]</option>
+                            <option <?php if ($account_id == $account_id_select) { echo "selected"; } ?> value="<?= $account_id_select ?>"><?= $account_archived_display ?> <?= $account_name_select ?> [ <?= numfmt_format_currency($currency_format, $balance, $account_currency_code_select) ?> ]</option>
 
                             <?php
                         }
@@ -121,7 +121,7 @@ ob_start();
                             $category_id_select = intval($row['category_id']);
                             $category_name = escapeHtml($row['category_name']);
                             ?>
-                            <option <?php if ($category_id_select == $category_id) { echo "selected"; } ?> value="<?php echo $category_id_select; ?>"><?php echo $category_name; ?></option>
+                            <option <?php if ($category_id_select == $category_id) { echo "selected"; } ?> value="<?= $category_id_select ?>"><?= $category_name ?></option>
 
                             <?php
                         }
@@ -140,7 +140,7 @@ ob_start();
 
         <div class="form-group">
             <label>Description</label>
-            <textarea class="form-control" rows="8" name="description"><?php echo $revenue_description; ?></textarea>
+            <textarea class="form-control" rows="8" name="description"><?= $revenue_description ?></textarea>
         </div>
 
         <div class="form-row">
@@ -159,7 +159,7 @@ ob_start();
                         while ($row = mysqli_fetch_assoc($sql_categories)) {
                             $payment_method_name_select = escapeHtml($row['payment_method_name']);
                             ?>
-                            <option <?php if ($revenue_payment_method == $payment_method_name_select) { echo "selected"; } ?>><?php echo "$payment_method_name_select"; ?></option>
+                            <option <?php if ($revenue_payment_method == $payment_method_name_select) { echo "selected"; } ?>><?= "$payment_method_name_select" ?></option>
 
                             <?php
                         }
@@ -174,7 +174,7 @@ ob_start();
                     <div class="input-group-prepend">
                         <span class="input-group-text"><i class="fa fa-fw fa-file-alt"></i></span>
                     </div>
-                    <input type="text" class="form-control" name="reference" placeholder="Check #, trans #, etc" maxlength="200" value="<?php echo $revenue_reference; ?>">
+                    <input type="text" class="form-control" name="reference" placeholder="Check #, trans #, etc" maxlength="200" value="<?= $revenue_reference ?>">
                 </div>
             </div>
 

@@ -119,7 +119,7 @@ if ($quote_status == "Draft" || $quote_status == "Sent" || $quote_status == "Vie
 
         <div class="float-right">
             <a class="btn btn-primary" href="#" onclick="window.print();"><i class="fas fa-fw fa-print mr-2"></i>Print</a>
-            <a class="btn btn-primary" href="guest_post.php?export_quote_pdf=<?php echo $quote_id; ?>&url_key=<?php echo $url_key; ?>">
+            <a class="btn btn-primary" href="guest_post.php?export_quote_pdf=<?= $quote_id ?>&url_key=<?= $url_key ?>">
                 <i class="fa fa-fw fa-download mr-2"></i>Download
             </a>
         </div>
@@ -129,35 +129,35 @@ if ($quote_status == "Draft" || $quote_status == "Sent" || $quote_status == "Vie
         <div class="row mb-3">
             <?php if (file_exists("../uploads/settings/$company_logo")) { ?>
             <div class="col-sm-2">
-                <img class="img-fluid" src="<?php echo "/uploads/settings/$company_logo"; ?>" alt="Company logo">
+                <img class="img-fluid" src="<?= "/uploads/settings/$company_logo" ?>" alt="Company logo">
             </div>
             <?php } ?>
             <div class="col-sm-6 <?php if (!file_exists("../uploads/settings/$company_logo")) { echo "col-sm-8"; } ?>">
                 <ul class="list-unstyled">
-                    <li><h4><strong><?php echo $company_name; ?></strong></h4></li>
-                    <li><?php echo formatAddress($company_address, $company_city, $company_state, $company_zip, $company_country, '<br>'); ?></li>
-                    <li><?php echo "$company_email | $company_phone"; ?></li>
-                    <li><?php echo $company_website; ?></li>
+                    <li><h4><strong><?= $company_name ?></strong></h4></li>
+                    <li><?= formatAddress($company_address, $company_city, $company_state, $company_zip, $company_country, '<br>') ?></li>
+                    <li><?= "$company_email | $company_phone" ?></li>
+                    <li><?= $company_website ?></li>
                 </ul>
             </div>
 
             <div class="col-sm-4">
                 <h3 class="text-right"><strong>QUOTE</strong></h3>
-                <h5 class="badge badge-<?php echo $quote_badge_color; ?> p-2 float-right">
-                    <?php echo "$quote_status"; ?>
+                <h5 class="badge badge-<?= $quote_badge_color ?> p-2 float-right">
+                    <?= "$quote_status" ?>
                 </h5>
                 <table class="table table-sm table-borderless">
                     <tr>
                         <th>Quote #:</th>
-                        <td class="text-right"><?php echo "$quote_prefix$quote_number"; ?></td>
+                        <td class="text-right"><?= "$quote_prefix$quote_number" ?></td>
                     </tr>
                     <tr>
                         <th>Date:</th>
-                        <td class="text-right"><?php echo $quote_date; ?></td>
+                        <td class="text-right"><?= $quote_date ?></td>
                     </tr>
                     <tr>
                         <th>Expires:</th>
-                        <td class="text-right"><?php echo $quote_expire; ?></td>
+                        <td class="text-right"><?= $quote_expire ?></td>
                     </tr>
                 </table>
             </div>
@@ -167,9 +167,9 @@ if ($quote_status == "Draft" || $quote_status == "Sent" || $quote_status == "Vie
             <div class="col">
                 <h6><strong>To:</strong></h6>
                 <ul class="list-unstyled mb-0">
-                    <li><?php echo $client_name; ?></li>
-                    <li><?php echo formatAddress($location_address, $location_city, $location_state, $location_zip, $location_country, '<br>'); ?></li>
-                    <li><?php echo "$contact_email | $contact_phone $contact_extension"; ?></li>
+                    <li><?= $client_name ?></li>
+                    <li><?= formatAddress($location_address, $location_city, $location_state, $location_zip, $location_country, '<br>') ?></li>
+                    <li><?= "$contact_email | $contact_phone $contact_extension" ?></li>
                 </ul>
             </div>
         </div>
@@ -210,12 +210,12 @@ if ($quote_status == "Draft" || $quote_status == "Sent" || $quote_status == "Vie
                                 ?>
 
                                 <tr>
-                                    <td><?php echo $item_name; ?></td>
-                                    <td><?php echo nl2br($item_description); ?></td>
-                                    <td class="text-center"><?php echo $item_quantity; ?></td>
-                                    <td class="text-right"><?php echo numfmt_format_currency($currency_format, $item_price, $quote_currency_code); ?></td>
-                                    <td class="text-right"><?php echo numfmt_format_currency($currency_format, $item_tax, $quote_currency_code); ?></td>
-                                    <td class="text-right"><?php echo numfmt_format_currency($currency_format, $item_total, $quote_currency_code); ?></td>
+                                    <td><?= $item_name ?></td>
+                                    <td><?= nl2br($item_description) ?></td>
+                                    <td class="text-center"><?= $item_quantity ?></td>
+                                    <td class="text-right"><?= numfmt_format_currency($currency_format, $item_price, $quote_currency_code) ?></td>
+                                    <td class="text-right"><?= numfmt_format_currency($currency_format, $item_tax, $quote_currency_code) ?></td>
+                                    <td class="text-right"><?= numfmt_format_currency($currency_format, $item_total, $quote_currency_code) ?></td>
                                 </tr>
 
                                 <?php
@@ -236,7 +236,7 @@ if ($quote_status == "Draft" || $quote_status == "Sent" || $quote_status == "Vie
                 <?php if (!empty($quote_note)) { ?>
                     <div class="card">
                         <div class="card-body">
-                            <?php echo nl2br($quote_note); ?>
+                            <?= nl2br($quote_note) ?>
                         </div>
                     </div>
                 <?php } ?>
@@ -247,23 +247,23 @@ if ($quote_status == "Draft" || $quote_status == "Sent" || $quote_status == "Vie
                     <tbody>
                     <tr>
                         <td>Subtotal:</td>
-                        <td class="text-right"><?php echo numfmt_format_currency($currency_format, $sub_total, $quote_currency_code); ?></td>
+                        <td class="text-right"><?= numfmt_format_currency($currency_format, $sub_total, $quote_currency_code) ?></td>
                     </tr>
                     <?php if ($quote_discount > 0) { ?>
                         <tr>
                             <td>Discount:</td>
-                            <td class="text-right"><?php echo numfmt_format_currency($currency_format, -$quote_discount, $quote_currency_code); ?></td>
+                            <td class="text-right"><?= numfmt_format_currency($currency_format, -$quote_discount, $quote_currency_code) ?></td>
                         </tr>
                     <?php } ?>
                     <?php if ($total_tax > 0) { ?>
                         <tr>
                             <td>Tax:</td>
-                            <td class="text-right"><?php echo numfmt_format_currency($currency_format, $total_tax, $quote_currency_code); ?></td>
+                            <td class="text-right"><?= numfmt_format_currency($currency_format, $total_tax, $quote_currency_code) ?></td>
                         </tr>
                     <?php } ?>
                     <tr class="border-top h5 text-bold">
                         <td><strong>Total:</strong></td>
-                        <td class="text-right"><strong><?php echo numfmt_format_currency($currency_format, $quote_amount, $quote_currency_code); ?></strong></td>
+                        <td class="text-right"><strong><?= numfmt_format_currency($currency_format, $quote_amount, $quote_currency_code) ?></strong></td>
                     </tr>
                     </tbody>
                 </table>
@@ -272,14 +272,14 @@ if ($quote_status == "Draft" || $quote_status == "Sent" || $quote_status == "Vie
 
         <hr class="mt-5">
 
-        <div class="text-center"><?php echo nl2br($config_quote_footer); ?></div>
+        <div class="text-center"><?= nl2br($config_quote_footer) ?></div>
         <div class="">
             <?php
                 if ($quote_status == "Sent" || $quote_status == "Viewed" && strtotime($quote_expire) > strtotime("now")) { ?>
-                    <a class="btn btn-success confirm-link" href="guest_post.php?accept_quote=<?php echo $quote_id; ?>&url_key=<?php echo $url_key; ?>">
+                    <a class="btn btn-success confirm-link" href="guest_post.php?accept_quote=<?= $quote_id ?>&url_key=<?= $url_key ?>">
                         <i class="fas fa-fw fa-thumbs-up mr-2"></i>Accept
                     </a>
-                    <a class="btn btn-danger confirm-link" href="guest_post.php?decline_quote=<?php echo $quote_id; ?>&url_key=<?php echo $url_key; ?>">
+                    <a class="btn btn-danger confirm-link" href="guest_post.php?decline_quote=<?= $quote_id ?>&url_key=<?= $url_key ?>">
                         <i class="fas fa-fw fa-thumbs-down mr-2"></i>Decline
                     </a>
                 <?php } ?>

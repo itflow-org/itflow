@@ -57,7 +57,7 @@ ob_start();
                     <div class="input-group-prepend">
                         <span class="input-group-text"><i class="fa fa-fw fa-dollar-sign"></i></span>
                     </div>
-                    <input type="text" class="form-control" inputmode="decimal" pattern="[0-9]*\.?[0-9]{0,2}" name="amount" value="<?php echo number_format($expense_amount, 2, '.', ''); ?>" placeholder="0.00" required>
+                    <input type="text" class="form-control" inputmode="decimal" pattern="[0-9]*\.?[0-9]{0,2}" name="amount" value="<?= number_format($expense_amount, 2, '.', '') ?>" placeholder="0.00" required>
                 </div>
             </div>
 
@@ -94,7 +94,7 @@ ob_start();
 
                             $balance = $opening_balance + $total_payments + $total_revenues - $total_expenses;
                             ?>
-                            <option <?php if ($expense_account_id == $account_id_select) { echo "selected"; } ?> value="<?php echo $account_id_select; ?>"><?php echo $account_name_select; ?> [$<?php echo number_format($balance, 2); ?>]</option>
+                            <option <?php if ($expense_account_id == $account_id_select) { echo "selected"; } ?> value="<?= $account_id_select ?>"><?= $account_name_select ?> [$<?= number_format($balance, 2) ?>]</option>
                             <?php
                         }
 
@@ -117,7 +117,7 @@ ob_start();
                             $vendor_id_select = intval($row['vendor_id']);
                             $vendor_name_select = escapeHtml($row['vendor_name']);
                             ?>
-                            <option <?php if ($expense_vendor_id == $vendor_id_select) { ?> selected <?php } ?> value="<?php echo $vendor_id_select; ?>"><?php echo $vendor_name_select; ?></option>
+                            <option <?php if ($expense_vendor_id == $vendor_id_select) { ?> selected <?php } ?> value="<?= $vendor_id_select ?>"><?= $vendor_name_select ?></option>
                             <?php
                         }
 
@@ -130,7 +130,7 @@ ob_start();
 
         <div class="form-group">
             <label>Description <strong class="text-danger">*</strong></label>
-            <textarea class="form-control" rows="6" name="description" placeholder="Enter a description" required><?php echo $expense_description; ?></textarea>
+            <textarea class="form-control" rows="6" name="description" placeholder="Enter a description" required><?= $expense_description ?></textarea>
         </div>
 
         <div class="form-group">
@@ -139,7 +139,7 @@ ob_start();
                 <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-file-alt"></i></span>
                 </div>
-                <input type="text" class="form-control" name="reference" placeholder="Enter a reference" maxlength="200" value="<?php echo $expense_reference; ?>">
+                <input type="text" class="form-control" name="reference" placeholder="Enter a reference" maxlength="200" value="<?= $expense_reference ?>">
             </div>
         </div>
 
@@ -159,7 +159,7 @@ ob_start();
                             $category_id_select = intval($row['category_id']);
                             $category_name_select = escapeHtml($row['category_name']);
                             ?>
-                            <option <?php if ($expense_category_id == $category_id_select) { ?> selected <?php } ?> value="<?php echo $category_id_select; ?>"><?php echo $category_name_select; ?></option>
+                            <option <?php if ($expense_category_id == $category_id_select) { ?> selected <?php } ?> value="<?= $category_id_select ?>"><?= $category_name_select ?></option>
                             <?php
                         }
 
@@ -169,7 +169,7 @@ ob_start();
             </div>
 
             <?php if (isset($_GET['client_id'])) { ?>
-                <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
+                <input type="hidden" name="client_id" value="<?= $client_id ?>">
             <?php } else { ?>
 
                 <div class="form-group col-md">
@@ -187,7 +187,7 @@ ob_start();
                                 $client_id_select = intval($row['client_id']);
                                 $client_name_select = escapeHtml($row['client_name']);
                                 ?>
-                                <option <?php if ($client_id == $client_id_select) { echo "selected"; } ?> value="<?php echo $client_id_select; ?>"><?php echo $client_name_select; ?></option>
+                                <option <?php if ($client_id == $client_id_select) { echo "selected"; } ?> value="<?= $client_id_select ?>"><?= $client_name_select ?></option>
 
                                 <?php
                             }

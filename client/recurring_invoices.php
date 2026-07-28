@@ -68,10 +68,10 @@ $payment_provider_threshold = floatval($row['payment_provider_threshold']);
                 ?>
 
                 <tr>
-                    <td><?php echo $recurring_invoice_scope_display; ?></td>
-                    <td><?php echo numfmt_format_currency($currency_format, $recurring_invoice_amount, $session_company_currency); ?></td>
-                    <td><?php echo $recurring_invoice_next_date; ?></td>
-                    <td><?php echo ucwords($recurring_invoice_frequency); ?>ly</td>
+                    <td><?= $recurring_invoice_scope_display ?></td>
+                    <td><?= numfmt_format_currency($currency_format, $recurring_invoice_amount, $session_company_currency) ?></td>
+                    <td><?= $recurring_invoice_next_date ?></td>
+                    <td><?= ucwords($recurring_invoice_frequency) ?>ly</td>
                     <?php if ($payment_provider_id) { ?>
                     <td>
                         <?php $sql = mysqli_query($mysqli, "SELECT * FROM client_saved_payment_methods WHERE saved_payment_client_id = $session_client_id");
@@ -79,7 +79,7 @@ $payment_provider_threshold = floatval($row['payment_provider_threshold']);
                             <form class="form" action="post.php" method="post">
                                 <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
                                 <input type="hidden" name="set_recurring_payment" value="1">
-                                <input type="hidden" name="recurring_invoice_id" value="<?php echo $recurring_invoice_id; ?>">
+                                <input type="hidden" name="recurring_invoice_id" value="<?= $recurring_invoice_id ?>">
                                 <select class="form-control select2" name="saved_payment_id" onchange="this.form.submit()">
                                     <option value="0">Disabled</option>
                                     <?php
@@ -88,7 +88,7 @@ $payment_provider_threshold = floatval($row['payment_provider_threshold']);
                                             $saved_payment_description = escapeHtml($row['saved_payment_description']);
 
                                         ?>
-                                        <option <?php if ($recurring_payment_saved_payment_id == $saved_payment_id) { echo "selected"; } ?> value="<?php echo $saved_payment_id; ?>"><?php echo $saved_payment_description; ?></option>
+                                        <option <?php if ($recurring_payment_saved_payment_id == $saved_payment_id) { echo "selected"; } ?> value="<?= $saved_payment_id ?>"><?= $saved_payment_description ?></option>
                                     <?php } ?>
                                 </select>
                             </form>

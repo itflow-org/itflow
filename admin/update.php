@@ -24,7 +24,7 @@ $git_log = shell_exec("git log $repo_branch..origin/$repo_branch --pretty=format
                 <div class="alert alert-danger">
                     <strong>WARNING: Could not find execute 'git fetch'.</strong>
                     <br><br>
-                    <i>Error details:- <?php echo shell_exec("git fetch 2>&1"); ?></i>
+                    <i>Error details:- <?= shell_exec("git fetch 2>&1") ?></i>
                     <br>
                     <br>Things to check: Is Git installed? Is the Git origin/remote correct? Are web server file permissions too strict?
                     <br>Seek support on the <a href="https://forum.itflow.org">Forum</a> if required - include relevant PHP error logs & ITFlow debug output
@@ -41,9 +41,9 @@ $git_log = shell_exec("git log $repo_branch..origin/$repo_branch --pretty=format
                 <br>
                 <a class="btn btn-dark btn-lg my-4" href="post.php?update_db&csrf_token=<?= $_SESSION['csrf_token'] ?>"><i class="fas fa-fw fa-4x fa-download mb-1"></i><h5>Update Database</h5></a>
                 <br>
-                <small class="text-secondary">Current DB Version: <?php echo CURRENT_DATABASE_VERSION; ?></small>
+                <small class="text-secondary">Current DB Version: <?= CURRENT_DATABASE_VERSION ?></small>
                 <br>
-                <small class="text-secondary">Latest DB Version: <?php echo LATEST_DATABASE_VERSION; ?></small>
+                <small class="text-secondary">Latest DB Version: <?= LATEST_DATABASE_VERSION ?></small>
                 <br>
                 <hr>
 
@@ -60,9 +60,9 @@ $git_log = shell_exec("git log $repo_branch..origin/$repo_branch --pretty=format
                     <a class="btn btn-danger btn-lg confirm-link" href="post.php?update&force_update=1&csrf_token=<?= $_SESSION['csrf_token'] ?>"><i class="fas fa-fw fa-4x fa-hammer mb-1"></i><h5>FORCE Update App</h5></a>
 
                 <?php } else { ?>
-                    <p><strong>Application Release Version:<br><strong class="text-dark"><?php echo APP_VERSION; ?></strong></p>
-                    <p class="text-secondary">Database Version:<br><strong class="text-dark"><?php echo CURRENT_DATABASE_VERSION; ?></strong></p>
-                    <p class="text-secondary">Code Commit:<br><strong class="text-dark"><?php echo $current_version; ?></strong></p>
+                    <p><strong>Application Release Version:<br><strong class="text-dark"><?= APP_VERSION ?></strong></p>
+                    <p class="text-secondary">Database Version:<br><strong class="text-dark"><?= CURRENT_DATABASE_VERSION ?></strong></p>
+                    <p class="text-secondary">Code Commit:<br><strong class="text-dark"><?= $current_version ?></strong></p>
                     <p class="text-muted">You are up to date!<br>Everything is going to be alright</p>
                     <i class="far fa-3x text-dark fa-smile-wink"></i><br>
 

@@ -35,7 +35,7 @@ ob_start();
     <div class="d-flex align-items-center">
         <i class="fas fa-fw fa-building fa-2x mr-3"></i>
         <div>
-            <h5 class="modal-title mb-0"><?php echo $name; ?></h5>
+            <h5 class="modal-title mb-0"><?= $name ?></h5>
             <div class="text-muted"><?= $description ?: '-'; ?></div>
         </div>
     </div>
@@ -58,7 +58,7 @@ ob_start();
                 </div>
                 <div class="col-sm-6">
                     <div><strong>Code:</strong> <?= $code ?: '-'; ?></div>
-                    <div><strong>Website:</strong> <?php echo !empty($website) ? '<a href="https://' . $website . '" target="_blank" class="text-primary">' . $website . '</a>' : '<span class="text-muted">Not Available</span>'; ?></div>
+                    <div><strong>Website:</strong> <?= !empty($website) ? '<a href="https://' . $website . '" target="_blank" class="text-primary">' . $website . '</a>' : '<span class="text-muted">Not Available</span>' ?></div>
                 </div>
             </div>
         </div>
@@ -74,7 +74,7 @@ ob_start();
                     <div><strong>Phone:</strong> <?= $phone ?: '-'; ?></div>
                 </div>
                 <div class="col-sm-6">
-                    <div><strong>Email:</strong> <?php echo !empty($email) ? '<a href="mailto:' . $email . '" class="text-primary">' . $email . '</a>' : '<span class="text-muted">Not Available</span>'; ?></div>
+                    <div><strong>Email:</strong> <?= !empty($email) ? '<a href="mailto:' . $email . '" class="text-primary">' . $email . '</a>' : '<span class="text-muted">Not Available</span>' ?></div>
                 </div>
             </div>
         </div>

@@ -35,7 +35,7 @@ $sql_clients = mysqli_query($mysqli, "SELECT client_id, client_name FROM clients
                     <?php
                     while ($row = mysqli_fetch_assoc($sql_ticket_years)) {
                         $ticket_year = intval($row['ticket_year']); ?>
-                        <option <?php if ($year == $ticket_year) { ?> selected <?php } ?> > <?php echo $ticket_year; ?></option>
+                        <option <?php if ($year == $ticket_year) { ?> selected <?php } ?> > <?= $ticket_year ?></option>
                     <?php } ?>
                 </select>
                 <select onchange="this.form.submit()" class="form-control" name="month">
@@ -56,7 +56,7 @@ $sql_clients = mysqli_query($mysqli, "SELECT client_id, client_name FROM clients
 
             <div class="card card-dark mb-3">
                 <div class="card-header">
-                    <h3 class="card-title"><i class="fas fa-fw fa-chart-area mr-2"></i>Yearly (<?php echo $year; ?>)</h3>
+                    <h3 class="card-title"><i class="fas fa-fw fa-chart-area mr-2"></i>Yearly (<?= $year ?>)</h3>
                 </div>
                 <div class="card-body">
                     <div class="table-responsive-sm">
@@ -153,15 +153,15 @@ $sql_clients = mysqli_query($mysqli, "SELECT client_id, client_name FROM clients
                                     ?>
 
                                     <tr>
-                                        <td><?php echo $client_name; ?></td>
-                                        <td class="text-right"><?php echo $ticket_raised_count; ?></td>
-                                        <td class="text-right"><?php echo $low_ticket_count; ?></td>
-                                        <td class="text-right"><?php echo $med_ticket_count; ?></td>
-                                        <td class="text-right"><?php echo $high_ticket_count; ?></td>
-                                        <td class="text-right"><?php echo $ticket_resolved_count; ?></td>
-                                        <td class="text-right"><?php echo $ticket_total_time_worked; ?></td>
-                                        <td class="text-right"><?php echo $avg_time_to_respond; ?></td>
-                                        <td class="text-right"><?php echo $avg_time_to_resolve; ?></td>
+                                        <td><?= $client_name ?></td>
+                                        <td class="text-right"><?= $ticket_raised_count ?></td>
+                                        <td class="text-right"><?= $low_ticket_count ?></td>
+                                        <td class="text-right"><?= $med_ticket_count ?></td>
+                                        <td class="text-right"><?= $high_ticket_count ?></td>
+                                        <td class="text-right"><?= $ticket_resolved_count ?></td>
+                                        <td class="text-right"><?= $ticket_total_time_worked ?></td>
+                                        <td class="text-right"><?= $avg_time_to_respond ?></td>
+                                        <td class="text-right"><?= $avg_time_to_resolve ?></td>
                                     </tr>
                                     <?php
                                 }
@@ -177,7 +177,7 @@ $sql_clients = mysqli_query($mysqli, "SELECT client_id, client_name FROM clients
 
             <div class="card card-dark mb-3">
                 <div class="card-header">
-                    <h3 class="card-title"><i class="fas fa-fw fa-chart-area mr-2"></i>Monthly (<?php echo date("F", mktime(1, 1, 1, $month, 1)) . ' ' . $year; ?>)</h3>
+                    <h3 class="card-title"><i class="fas fa-fw fa-chart-area mr-2"></i>Monthly (<?= date("F", mktime(1, 1, 1, $month, 1)) . ' ' . $year ?>)</h3>
                 </div>
                 <div class="card-body">
                     <div class="table-responsive-sm">
@@ -274,15 +274,15 @@ $sql_clients = mysqli_query($mysqli, "SELECT client_id, client_name FROM clients
                                     ?>
 
                                     <tr>
-                                        <td><?php echo $client_name; ?></td>
-                                        <td class="text-right"><?php echo $ticket_raised_count; ?></td>
-                                        <td class="text-right"><?php echo $low_ticket_count; ?></td>
-                                        <td class="text-right"><?php echo $med_ticket_count; ?></td>
-                                        <td class="text-right"><?php echo $high_ticket_count; ?></td>
-                                        <td class="text-right"><?php echo $ticket_resolved_count; ?></td>
-                                        <td class="text-right"><?php echo $ticket_total_time_worked; ?></td>
-                                        <td class="text-right"><?php echo $avg_time_to_respond; ?></td>
-                                        <td class="text-right"><?php echo $avg_time_to_resolve; ?></td>
+                                        <td><?= $client_name ?></td>
+                                        <td class="text-right"><?= $ticket_raised_count ?></td>
+                                        <td class="text-right"><?= $low_ticket_count ?></td>
+                                        <td class="text-right"><?= $med_ticket_count ?></td>
+                                        <td class="text-right"><?= $high_ticket_count ?></td>
+                                        <td class="text-right"><?= $ticket_resolved_count ?></td>
+                                        <td class="text-right"><?= $ticket_total_time_worked ?></td>
+                                        <td class="text-right"><?= $avg_time_to_respond ?></td>
+                                        <td class="text-right"><?= $avg_time_to_resolve ?></td>
                                     </tr>
                                     <?php
                                 }

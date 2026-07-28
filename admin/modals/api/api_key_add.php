@@ -31,9 +31,9 @@ ob_start();
         <div class="tab-content">
 
             <div class="tab-pane fade show active" id="pills-api-details">
-                <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token'] ?>">
-                <input type="hidden" name="key" value="<?php echo $key ?>">
-                <input type="hidden" name="password" value="<?php echo $decryptPW ?>">
+                <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
+                <input type="hidden" name="key" value="<?= $key ?>">
+                <input type="hidden" name="password" value="<?= $decryptPW ?>">
 
                 <div class="form-group">
                     <label>Name <strong class="text-danger">*</strong></label>
@@ -51,7 +51,7 @@ ob_start();
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
                         </div>
-                        <input type="date" class="form-control" name="expire" min="<?php echo date('Y-m-d')?>" max="2999-12-31" required>
+                        <input type="date" class="form-control" name="expire" min="<?= date('Y-m-d') ?>" max="2999-12-31" required>
                     </div>
                 </div>
 
@@ -68,7 +68,7 @@ ob_start();
                             while ($run_user = mysqli_fetch_assoc($sql_run_users)) {
                                 $run_user_id = intval($run_user['user_id']);
                                 $run_user_name = escapeHtml($run_user['user_name']); ?>
-                                <option value="<?php echo $run_user_id; ?>"><?php echo $run_user_name; ?></option>
+                                <option value="<?= $run_user_id ?>"><?= $run_user_name ?></option>
                             <?php } ?>
                         </select>
                     </div>
@@ -83,9 +83,9 @@ ob_start();
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-key"></i></span>
                         </div>
-                        <input type="text" class="form-control" value="<?php echo $key ?>" required disabled>
+                        <input type="text" class="form-control" value="<?= $key ?>" required disabled>
                         <div class="input-group-append">
-                            <button class="btn btn-default clipboardjs" type="button" data-clipboard-text="<?php echo $key; ?>"><i class="fa fa-fw fa-copy"></i></button>
+                            <button class="btn btn-default clipboardjs" type="button" data-clipboard-text="<?= $key ?>"><i class="fa fa-fw fa-copy"></i></button>
                         </div>
                     </div>
                 </div>
@@ -96,9 +96,9 @@ ob_start();
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-unlock-alt"></i></span>
                         </div>
-                        <input type="text" class="form-control" value="<?php echo $decryptPW ?>" required disabled>
+                        <input type="text" class="form-control" value="<?= $decryptPW ?>" required disabled>
                         <div class="input-group-append">
-                            <button class="btn btn-default clipboardjs" type="button" data-clipboard-text="<?php echo $decryptPW; ?>"><i class="fa fa-fw fa-copy"></i></button>
+                            <button class="btn btn-default clipboardjs" type="button" data-clipboard-text="<?= $decryptPW ?>"><i class="fa fa-fw fa-copy"></i></button>
                         </div>
                     </div>
                 </div>

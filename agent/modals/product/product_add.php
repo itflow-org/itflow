@@ -72,7 +72,7 @@ ob_start();
                         $category_id = intval($row['category_id']);
                         $category_name = escapeHtml($row['category_name']);
                         ?>
-                        <option value="<?php echo $category_id; ?>"><?php echo $category_name; ?></option>
+                        <option value="<?= $category_id ?>"><?= $category_name ?></option>
 
                         <?php
                     }
@@ -117,7 +117,7 @@ ob_start();
                                 $tax_name = escapeHtml($row['tax_name']);
                                 $tax_percent = floatval($row['tax_percent']);
                                 ?>
-                                <option value="<?php echo $tax_id; ?>"><?php echo "$tax_name $tax_percent%"; ?></option>
+                                <option value="<?= $tax_id ?>"><?= "$tax_name $tax_percent%" ?></option>
 
                                 <?php
                             }

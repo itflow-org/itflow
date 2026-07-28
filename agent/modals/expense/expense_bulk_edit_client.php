@@ -41,7 +41,7 @@ ob_start();
                         $client_id = intval($row['client_id']);
                         $client_name = escapeHtml($row['client_name']);
                         ?>
-                        <option value="<?php echo $client_id; ?>"><?php echo $client_name; ?></option>
+                        <option value="<?= $client_id ?>"><?= $client_name ?></option>
 
                         <?php
                     }

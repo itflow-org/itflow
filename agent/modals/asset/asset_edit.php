@@ -114,7 +114,7 @@ ob_start();
                         </div>
                         <select class="form-control select2" name="type" required>
                             <?php foreach($asset_types_array as $asset_type_select => $asset_icon_select) { ?>
-                                <option <?php if ($asset_type_select == $asset_type) { echo "selected"; } ?>><?php echo $asset_type_select; ?></option>
+                                <option <?php if ($asset_type_select == $asset_type) { echo "selected"; } ?>><?= $asset_type_select ?></option>
                             <?php } ?>
                         </select>
                     </div>
@@ -321,7 +321,7 @@ ob_start();
                                 }
 
                                 ?>
-                                <option <?php if ($asset_network_id == $network_id_select) { echo "selected"; } ?> value="<?php echo $network_id_select; ?>"><?php echo $network_name_select_display; ?></option>
+                                <option <?php if ($asset_network_id == $network_id_select) { echo "selected"; } ?> value="<?= $network_id_select ?>"><?= $network_name_select_display ?></option>
 
                             <?php } ?>
                         </select>
@@ -334,7 +334,7 @@ ob_start();
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-ethernet"></i></span>
                         </div>
-                        <input type="text" class="form-control text-monospace" name="ip" value="<?php echo $asset_ip; ?>" placeholder="192.168.10.250" data-inputmask="'alias': 'ip'" maxlength="200" data-mask>
+                        <input type="text" class="form-control text-monospace" name="ip" value="<?= $asset_ip ?>" placeholder="192.168.10.250" data-inputmask="'alias': 'ip'" maxlength="200" data-mask>
                         <div class="input-group-append">
                             <div class="input-group-text">
                                 <input type="checkbox" name="dhcp" value="1" <?php if($asset_ip == 'DHCP'){ echo "checked"; } ?>>
@@ -511,7 +511,7 @@ ob_start();
                                 $tag_id_select = intval($row['tag_id']);
                                 $tag_name_select = escapeHtml($row['tag_name']);
                                 ?>
-                                <option value="<?= $tag_id_select ?>" <?php if (in_array($tag_id_select, $asset_tag_id_array)) { echo "selected"; } ?>><?php echo $tag_name_select; ?></option>
+                                <option value="<?= $tag_id_select ?>" <?php if (in_array($tag_id_select, $asset_tag_id_array)) { echo "selected"; } ?>><?= $tag_name_select ?></option>
                             <?php } ?>
 
                         </select>

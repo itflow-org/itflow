@@ -55,9 +55,9 @@ $balance = $invoice_amounts - $amount_paid;
     </div>
     <div class="col-5">
         <?php if ($payment_provider_active && $bulk_payment_enabled) { // Currently not implmented fully ?>
-        <button type="button" class="btn btn-outline-success dropdown-toggle float-right" data-toggle="dropdown"><i class="fa fa-fw fa-credit-card mr-2"></i>Pay Balance <strong>(<?php echo numfmt_format_currency($currency_format, $balance, $session_company_currency); ?>)</strong></button>
+        <button type="button" class="btn btn-outline-success dropdown-toggle float-right" data-toggle="dropdown"><i class="fa fa-fw fa-credit-card mr-2"></i>Pay Balance <strong>(<?= numfmt_format_currency($currency_format, $balance, $session_company_currency) ?>)</strong></button>
         <div class="dropdown-menu">
-            <a class="dropdown-item" href="//<?php echo $config_base_url ?>/guest/guest_pay_invoice_stripe.php?invoice_id=<?php echo "$invoice_id&url_key=$invoice_url_key"; ?>">Enter Card Manually</a>
+            <a class="dropdown-item" href="//<?= $config_base_url ?>/guest/guest_pay_invoice_stripe.php?invoice_id=<?= "$invoice_id&url_key=$invoice_url_key" ?>">Enter Card Manually</a>
             <?php
             if (mysqli_num_rows($sql_saved_payment_methods) > 0) { ?>
                 <h6 class="dropdown-header text-left">Pay with a Saved Card</h6>
@@ -68,7 +68,7 @@ $balance = $invoice_amounts - $amount_paid;
                 $payment_provider_name = escapeHtml($row['payment_provider_name']);
                 ?>
 
-                <a class="dropdown-item confirm-link" href="post.php?add_payment_by_provider=<?php echo $saved_payment_provider_id; ?>&invoice_id=<?php echo $invoice_id; ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"><?php echo "$payment_provider_name | $saved_payment_description"; ?></a>
+                <a class="dropdown-item confirm-link" href="post.php?add_payment_by_provider=<?= $saved_payment_provider_id ?>&invoice_id=<?= $invoice_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"><?= "$payment_provider_name | $saved_payment_description" ?></a>
             <?php }
             } ?>
         </div>
@@ -133,11 +133,11 @@ $balance = $invoice_amounts - $amount_paid;
                 ?>
 
                 <tr>
-                    <td><a target="_blank" href="//<?php echo $config_base_url ?>/guest/guest_view_invoice.php?invoice_id=<?php echo "$invoice_id&url_key=$invoice_url_key"?>"> <?php echo "$invoice_prefix$invoice_number"; ?></a></td>
-                    <td><?php echo $invoice_scope_display; ?></td>
-                    <td><?php echo numfmt_format_currency($currency_format, $invoice_amount, $session_company_currency); ?></td>
-                    <td><?php echo $invoice_date; ?></td>
-                    <td class="<?php echo $overdue_color; ?>"><?php echo $invoice_due; ?></td>
+                    <td><a target="_blank" href="//<?= $config_base_url ?>/guest/guest_view_invoice.php?invoice_id=<?= "$invoice_id&url_key=$invoice_url_key" ?>"> <?= "$invoice_prefix$invoice_number" ?></a></td>
+                    <td><?= $invoice_scope_display ?></td>
+                    <td><?= numfmt_format_currency($currency_format, $invoice_amount, $session_company_currency) ?></td>
+                    <td><?= $invoice_date ?></td>
+                    <td class="<?= $overdue_color ?>"><?= $invoice_due ?></td>
                     <td>
                         <?php
                         if ($invoice_status !== "Paid" &&
@@ -151,7 +151,7 @@ $balance = $invoice_amounts - $amount_paid;
                         ){ ?>
                         <button type="button" class="btn btn-sm btn-outline-success dropdown-toggle" data-toggle="dropdown"><i class="fa fa-fw fa-credit-card mr-2"></i>Pay</button>
                         <div class="dropdown-menu">
-                            <a class="dropdown-item" href="//<?php echo $config_base_url ?>/guest/guest_pay_invoice_stripe.php?invoice_id=<?php echo "$invoice_id&url_key=$invoice_url_key"; ?>">Enter Card Manually</a>
+                            <a class="dropdown-item" href="//<?= $config_base_url ?>/guest/guest_pay_invoice_stripe.php?invoice_id=<?= "$invoice_id&url_key=$invoice_url_key" ?>">Enter Card Manually</a>
 
                             <?php
                             // Saved Payment Methods
@@ -183,7 +183,7 @@ $balance = $invoice_amounts - $amount_paid;
 
                                 <a class="dropdown-item confirm-link"
                                     href="post.php?add_payment_by_provider=<?= $saved_payment_id ?>&invoice_id=<?= $invoice_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
-                                    <i class="<?php echo $payment_icon; ?> text-secondary mr-2"></i><?= $saved_payment_description ?>
+                                    <i class="<?= $payment_icon ?> text-secondary mr-2"></i><?= $saved_payment_description ?>
                                 </a>
                             <?php }
                             } ?>

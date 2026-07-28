@@ -17,7 +17,7 @@ ob_start();
 ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fa fa-fw fa-server mr-2"></i>Adding Device to Rack <strong><?php echo $rack_name; ?></strong></h5>
+    <h5 class="modal-title"><i class="fa fa-fw fa-server mr-2"></i>Adding Device to Rack <strong><?= $rack_name ?></strong></h5>
     <button type="button" class="close text-white" data-dismiss="modal">
         <span>&times;</span>
     </button>
@@ -25,7 +25,7 @@ ob_start();
 
 <form action="post.php" method="post" enctype="multipart/form-data" autocomplete="off">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
-    <input type="hidden" name="rack_id" value="<?php echo $rack_id; ?>">
+    <input type="hidden" name="rack_id" value="<?= $rack_id ?>">
 
     <div class="modal-body">
 
@@ -63,7 +63,7 @@ ob_start();
                         $asset_id = intval($row['asset_id']);
                         $asset_name = escapeHtml($row['asset_name']);
                         ?>
-                        <option value="<?php echo $asset_id; ?>"><?php echo $asset_name; ?></option>
+                        <option value="<?= $asset_id ?>"><?= $asset_name ?></option>
                     <?php } ?>
 
                 </select>
@@ -76,8 +76,8 @@ ob_start();
                 <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-sort-numeric-up-alt"></i></span>
                 </div>
-                <input type="number" class="form-control" name="unit_start" placeholder="Unit Start" min="1" max="<?php echo $rack_units; ?>" required>
-                <input type="number" class="form-control" name="unit_end" placeholder="Unit End" min="1" max="<?php echo $rack_units; ?>" required>
+                <input type="number" class="form-control" name="unit_start" placeholder="Unit Start" min="1" max="<?= $rack_units ?>" required>
+                <input type="number" class="form-control" name="unit_end" placeholder="Unit End" min="1" max="<?= $rack_units ?>" required>
             </div>
         </div>
 

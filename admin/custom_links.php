@@ -47,22 +47,22 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     <thead class="text-dark <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
                     <tr>
                         <th>
-                            <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=custom_link_name&order=<?php echo $disp; ?>">
+                            <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=custom_link_name&order=<?= $disp ?>">
                                 Name <?php if ($sort == 'custom_link_name') { echo $order_icon; } ?>
                             </a>
                         </th>
                         <th>
-                            <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=custom_link_order&order=<?php echo $disp; ?>">
+                            <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=custom_link_order&order=<?= $disp ?>">
                                 Order <?php if ($sort == 'custom_link_order') { echo $order_icon; } ?>
                             </a>
                         </th>
                         <th>
-                            <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=custom_link_uri&order=<?php echo $disp; ?>">
+                            <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=custom_link_uri&order=<?= $disp ?>">
                                 URI / <span class="text-secondary">New Tab</span> <?php if ($sort == 'custom_link_uri') { echo $order_icon; } ?>
                             </a>
                         </th>
                         <th>
-                            <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=custom_link_location&order=<?php echo $disp; ?>">
+                            <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=custom_link_location&order=<?= $disp ?>">
                                 Location <?php if ($sort == 'custom_link_location') { echo $order_icon; } ?>
                             </a>
                         </th>
@@ -107,12 +107,12 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             <td>
                                 <a class="ajax-modal" href="#"
                                     data-modal-url="modals/custom_link/custom_link_edit.php?id=<?= $custom_link_id ?>">
-                                    <i class="fa fa-fw fa-<?php echo $custom_link_icon; ?> mr-2"></i><?php echo $custom_link_name;?>
+                                    <i class="fa fa-fw fa-<?= $custom_link_icon ?> mr-2"></i><?= $custom_link_name ?>
                                 </a>
                             </td>
-                            <td><?php echo $custom_link_order_display; ?></td>
-                            <td><?php echo "$custom_link_uri $custom_link_new_tab_display"; ?></td>
-                            <td><?php echo $custom_link_location_display; ?></td>
+                            <td><?= $custom_link_order_display ?></td>
+                            <td><?= "$custom_link_uri $custom_link_new_tab_display" ?></td>
+                            <td><?= $custom_link_location_display ?></td>
                             <td>
                                 <div class="dropdown dropleft text-center">
                                     <button class="btn btn-secondary btn-sm" type="button" data-toggle="dropdown">
@@ -123,7 +123,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                             <i class="fas fa-fw fa-edit mr-2"></i>Edit
                                         </a>
                                         <div class="dropdown-divider"></div>
-                                        <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_custom_link=<?php echo $custom_link_id; ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
+                                        <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_custom_link=<?= $custom_link_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                                             <i class="fas fa-fw fa-trash mr-2"></i>Delete
                                         </a>
                                     </div>

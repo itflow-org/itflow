@@ -30,8 +30,8 @@ ob_start();
     </button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
-    <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token'] ?>">
-    <input type="hidden" name="type" value="<?php echo $type; ?>">
+    <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
+    <input type="hidden" name="type" value="<?= $type ?>">
 
     <div class="modal-body">
         <div class="form-group">

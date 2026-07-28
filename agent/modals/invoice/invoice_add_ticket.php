@@ -41,12 +41,12 @@
                             ?>
                             <tr>
                                 <td>
-                                    <a href="ticket.php?ticket_id=<?php echo $ticket_id; ?>">
-                                        <span class="badge badge-pill <?php echo $ticket_status_class?> p-3"><?php echo "$ticket_prefix$ticket_number"; ?></span>
+                                    <a href="ticket.php?ticket_id=<?= $ticket_id ?>">
+                                        <span class="badge badge-pill <?= $ticket_status_class ?> p-3"><?= "$ticket_prefix$ticket_number" ?></span>
                                     </a>
                                 </td>
-                                <td><?php echo $ticket_subject ?></td>
-                                <td><a href='ticket.php?ticket_id=<?php echo $ticket_id?>&invoice_id=<?php echo $invoice_id?>#addInvoiceFromTicketModal'>
+                                <td><?= $ticket_subject ?></td>
+                                <td><a href='ticket.php?ticket_id=<?= $ticket_id ?>&invoice_id=<?= $invoice_id ?>#addInvoiceFromTicketModal'>
                                     <i class="fas fa-fw fa-plus-circle"></i></td>
                             </tr>
                         <?php } ?>

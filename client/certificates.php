@@ -39,10 +39,10 @@ $certificates_sql = mysqli_query($mysqli, "SELECT certificate_id, certificate_na
                     ?>
 
                     <tr>
-                        <td><?php echo $certificate_name; ?></td>
-                        <td><?php echo $certificate_domain; ?></td>
-                        <td><?php echo $certificate_issued_by; ?></td>
-                        <td><?php echo $certificate_expire; ?></td>
+                        <td><?= $certificate_name ?></td>
+                        <td><?= $certificate_domain ?></td>
+                        <td><?= $certificate_issued_by ?></td>
+                        <td><?= $certificate_expire ?></td>
                     </tr>
 
                 <?php } ?>

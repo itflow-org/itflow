@@ -196,8 +196,8 @@ if (isset($_GET['query'])) {
 
                                 ?>
                                 <tr>
-                                    <td><a href="client_overview.php?client_id=<?php echo $client_id; ?>"><?php echo $client_name; ?></a></td>
-                                    <td><?php echo $location_phone; ?></td>
+                                    <td><a href="client_overview.php?client_id=<?= $client_id ?>"><?= $client_name ?></a></td>
+                                    <td><?= $location_phone ?></td>
                                 </tr>
 
                             <?php } ?>
@@ -249,13 +249,13 @@ if (isset($_GET['query'])) {
 
                                 ?>
                                 <tr>
-                                    <td><a href="contact.php?client_id=<?php echo $client_id; ?>&contact_id=<?php echo $contact_id; ?>"><?php echo $contact_name; ?></a>
-                                        <br><small class="text-secondary"><?php echo $contact_title; ?></small>
+                                    <td><a href="contact.php?client_id=<?= $client_id ?>&contact_id=<?= $contact_id ?>"><?= $contact_name ?></a>
+                                        <br><small class="text-secondary"><?= $contact_title ?></small>
                                     </td>
-                                    <td><?php echo $contact_email; ?></td>
-                                    <td><?php echo "$contact_phone $contact_extension"; ?></td>
-                                    <td><?php echo $contact_mobile; ?></td>
-                                    <td><a href="client_overview.php?client_id=<?php echo $client_id; ?>"><?php echo $client_name; ?></a></td>
+                                    <td><?= $contact_email ?></td>
+                                    <td><?= "$contact_phone $contact_extension" ?></td>
+                                    <td><?= $contact_mobile ?></td>
+                                    <td><a href="client_overview.php?client_id=<?= $client_id ?>"><?= $client_name ?></a></td>
                                 </tr>
 
                             <?php } ?>
@@ -300,10 +300,10 @@ if (isset($_GET['query'])) {
 
                                 ?>
                                 <tr>
-                                    <td><a href="vendors.php?q=<?php echo $q ?>"><?php echo $vendor_name; ?></a></td>
-                                    <td><?php echo $vendor_description; ?></td>
-                                    <td><?php echo $vendor_phone; ?></td>
-                                    <td><a href="vendors.php?client_id=<?php echo $client_id; ?>"><?php echo $client_name; ?></a></td>
+                                    <td><a href="vendors.php?q=<?= $q ?>"><?= $vendor_name ?></a></td>
+                                    <td><?= $vendor_description ?></td>
+                                    <td><?= $vendor_phone ?></td>
+                                    <td><a href="vendors.php?client_id=<?= $client_id ?>"><?= $client_name ?></a></td>
                                 </tr>
 
                             <?php } ?>
@@ -346,9 +346,9 @@ if (isset($_GET['query'])) {
 
                                 ?>
                                 <tr>
-                                    <td><a href="domains.php?client_id=<?php echo $client_id; ?>&domain_id=<?php echo $domain_id; ?>"><?php echo $domain_name; ?></a>
-                                    <td><?php echo $domain_expiry; ?></td>
-                                    <td><a href="client_overview.php?client_id=<?php echo $client_id; ?>"><?php echo $client_name; ?></a></td>
+                                    <td><a href="domains.php?client_id=<?= $client_id ?>&domain_id=<?= $domain_id ?>"><?= $domain_name ?></a>
+                                    <td><?= $domain_expiry ?></td>
+                                    <td><a href="client_overview.php?client_id=<?= $client_id ?>"><?= $client_name ?></a></td>
                                 </tr>
 
                             <?php } ?>
@@ -385,8 +385,8 @@ if (isset($_GET['query'])) {
                                 $product_description = escapeHtml($row['product_description']);
                                 ?>
                                 <tr>
-                                    <td><a href="products.php?q=<?php echo $q ?>"><?php echo $product_name; ?></a></td>
-                                    <td><?php echo $product_description; ?></td>
+                                    <td><a href="products.php?q=<?= $q ?>"><?= $product_name ?></a></td>
+                                    <td><?= $product_description ?></td>
                                 </tr>
 
                             <?php } ?>
@@ -427,9 +427,9 @@ if (isset($_GET['query'])) {
 
                                 ?>
                                 <tr>
-                                    <td><a href="document.php?client_id=<?php echo $client_id ?>&document_id=<?php echo $document_id; ?>"><?php echo $document_name; ?></a></td>
+                                    <td><a href="document.php?client_id=<?= $client_id ?>&document_id=<?= $document_id ?>"><?= $document_name ?></a></td>
                                     <td>
-                                        <a href="documents.php?client_id=<?php echo $client_id; ?>"><?php echo $client_name; ?></a>
+                                        <a href="documents.php?client_id=<?= $client_id ?>"><?= $client_name ?></a>
                                     </td>
                                 </tr>
 
@@ -480,9 +480,9 @@ if (isset($_GET['query'])) {
                                             <?= "$folder_name/$file_name"; ?>
                                         </a>
                                     </td>
-                                    <td><?php echo $file_description; ?></td>
+                                    <td><?= $file_description ?></td>
                                     <td>
-                                        <a href="files.php?client_id=<?php echo $client_id; ?>&folder_id=<?php echo $folder_id; ?>"><?php echo $client_name; ?></a>
+                                        <a href="files.php?client_id=<?= $client_id ?>&folder_id=<?= $folder_id ?>"><?= $client_name ?></a>
                                     </td>
                                 </tr>
 
@@ -578,10 +578,10 @@ if (isset($_GET['query'])) {
 
                                 ?>
                                 <tr>
-                                    <td><a href="recurring_tickets.php"><?php echo $recurring_ticket_subject; ?></a></td>
-                                    <td><?php echo $recurring_ticket_frequency; ?></td>
-                                    <td><?php echo $recurring_ticket_next_run; ?></td>
-                                    <td><a href="recurring_tickets.php?client_id=<?php echo $client_id ?>"><?php echo $client_name; ?></a></td>
+                                    <td><a href="recurring_tickets.php"><?= $recurring_ticket_subject ?></a></td>
+                                    <td><?= $recurring_ticket_frequency ?></td>
+                                    <td><?= $recurring_ticket_next_run ?></td>
+                                    <td><a href="recurring_tickets.php?client_id=<?= $client_id ?>"><?= $client_name ?></a></td>
                                 </tr>
 
                             <?php } ?>
@@ -629,12 +629,12 @@ if (isset($_GET['query'])) {
 
                                 ?>
                                 <tr>
-                                    <td><a href="credentials.php?client_id=<?php echo $credential_client_id ?>&q=<?php echo $q ?>"><?php echo $credential_name; ?></a></td>
-                                    <td><?php echo $credential_description; ?></td>
-                                    <td><?php echo $credential_username; ?></td>
-                                    <td><a tabindex="0" class="btn btn-sm" data-toggle="popover" data-trigger="focus" data-placement="left" data-content="<?php echo $credential_password; ?>"><i class="far fa-eye text-secondary"></i></a><button class="btn btn-sm clipboardjs" data-clipboard-text="<?php echo $credential_password; ?>"><i class="far fa-copy text-secondary"></i></button>
+                                    <td><a href="credentials.php?client_id=<?= $credential_client_id ?>&q=<?= $q ?>"><?= $credential_name ?></a></td>
+                                    <td><?= $credential_description ?></td>
+                                    <td><?= $credential_username ?></td>
+                                    <td><a tabindex="0" class="btn btn-sm" data-toggle="popover" data-trigger="focus" data-placement="left" data-content="<?= $credential_password ?>"><i class="far fa-eye text-secondary"></i></a><button class="btn btn-sm clipboardjs" data-clipboard-text="<?= $credential_password ?>"><i class="far fa-copy text-secondary"></i></button>
                                     </td>
-                                    <td><a href="credentials.php?client_id=<?php echo $client_id; ?>"><?php echo $client_name; ?></a></td>
+                                    <td><a href="credentials.php?client_id=<?= $client_id ?>"><?= $client_name ?></a></td>
                                 </tr>
 
                             <?php } ?>
@@ -682,10 +682,10 @@ if (isset($_GET['query'])) {
 
                                 ?>
                                 <tr>
-                                    <td><a href="quote.php?client_id=<?= $client_id ?>&quote_id=<?php echo $quote_id; ?>"><?php echo "$quote_prefix$quote_number"; ?></a></td>
-                                    <td><?php echo $quote_status; ?></td>
-                                    <td><?php echo numfmt_format_currency($currency_format, $quote_amount, $quote_currency_code); ?></td>
-                                    <td><a href="client_overview.php?client_id=<?php echo $client_id; ?>"><?php echo $client_name; ?></a></td>
+                                    <td><a href="quote.php?client_id=<?= $client_id ?>&quote_id=<?= $quote_id ?>"><?= "$quote_prefix$quote_number" ?></a></td>
+                                    <td><?= $quote_status ?></td>
+                                    <td><?= numfmt_format_currency($currency_format, $quote_amount, $quote_currency_code) ?></td>
+                                    <td><a href="client_overview.php?client_id=<?= $client_id ?>"><?= $client_name ?></a></td>
                                 </tr>
 
                             <?php } ?>
@@ -733,10 +733,10 @@ if (isset($_GET['query'])) {
 
                                 ?>
                                 <tr>
-                                    <td><a href="invoice.php?client_id=<?= $client_id ?>&invoice_id=<?php echo $invoice_id; ?>"><?php echo "$invoice_prefix$invoice_number"; ?></a></td>
-                                    <td><?php echo $invoice_status; ?></td>
-                                    <td><?php echo numfmt_format_currency($currency_format, $invoice_amount, $invoice_currency_code); ?></td>
-                                    <td><a href="client_overview.php?client_id=<?php echo $client_id; ?>"><?php echo $client_name; ?></a></td>
+                                    <td><a href="invoice.php?client_id=<?= $client_id ?>&invoice_id=<?= $invoice_id ?>"><?= "$invoice_prefix$invoice_number" ?></a></td>
+                                    <td><?= $invoice_status ?></td>
+                                    <td><?= numfmt_format_currency($currency_format, $invoice_amount, $invoice_currency_code) ?></td>
+                                    <td><a href="client_overview.php?client_id=<?= $client_id ?>"><?= $client_name ?></a></td>
                                 </tr>
 
                             <?php } ?>
@@ -817,15 +817,15 @@ if (isset($_GET['query'])) {
                                 ?>
                                 <tr>
                                     <td>
-                                        <i class="fa fa-fw text-secondary fa-<?php echo $device_icon; ?> mr-2"></i><a href="asset.php?client_id=<?php echo $client_id; ?>&asset_id=<?php echo $asset_id; ?>"><?php echo $asset_name; ?></a>
+                                        <i class="fa fa-fw text-secondary fa-<?= $device_icon ?> mr-2"></i><a href="asset.php?client_id=<?= $client_id ?>&asset_id=<?= $asset_id ?>"><?= $asset_name ?></a>
                                         <?php if(!empty($asset_uri)){ ?>
-                                            <a href="<?php echo $asset_uri; ?>" target="_blank"><i class="fas fa-fw fa-external-link-alt ml-2"></i></a>
+                                            <a href="<?= $asset_uri ?>" target="_blank"><i class="fas fa-fw fa-external-link-alt ml-2"></i></a>
                                         <?php } ?>
                                     </td>
-                                    <td><?php echo $asset_type; ?></td>
-                                    <td><?php echo $asset_serial_display; ?></td>
-                                    <td><a href="assets.php?client_id=<?php echo $client_id; ?>"><?php echo $client_name; ?></a></td>
-                                    <td><?php echo $contact_name_display; ?></td>
+                                    <td><?= $asset_type ?></td>
+                                    <td><?= $asset_serial_display ?></td>
+                                    <td><a href="assets.php?client_id=<?= $client_id ?>"><?= $client_name ?></a></td>
+                                    <td><?= $contact_name_display ?></td>
                                 </tr>
 
                             <?php } ?>
@@ -875,7 +875,7 @@ if (isset($_GET['query'])) {
                             <div class="card card-outline">
                                 <div class="card-header">
                                     <h3 class="card-title">
-                                        <?php echo "$client_name - $ticket_prefix$ticket_number - $ticket_subject"; ?>
+                                        <?= "$client_name - $ticket_prefix$ticket_number - $ticket_subject" ?>
                                     </h3>
                                     <div class="card-tools">
                                         <a href="ticket.php?client_id=<?= $client_id ?>&ticket_id=<?= $ticket_id ?>" target="_blank">Open <i class="fa fa-fw fa-external-link-alt"></i></a>
@@ -892,7 +892,7 @@ if (isset($_GET['query'])) {
                         <div class="media">
                             <i class="fas fa-fw fa-reply mr-3"></i>
                             <div class="media-body">
-                                <?php echo $ticket_reply; ?>
+                                <?= $ticket_reply ?>
                             </div>
                         </div>
                         <hr>

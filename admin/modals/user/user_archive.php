@@ -27,24 +27,24 @@ ob_start();
 ?>
 <div class="modal-header bg-dark">
     <h5 class="modal-title"><i class="fas fa-fw fa-user-slash mr-2"></i>Archiving user:
-        <strong><?php echo $user_name; ?></strong></h5>
+        <strong><?= $user_name ?></strong></h5>
     <button type="button" class="close text-white" data-dismiss="modal">
         <span>&times;</span>
     </button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
-    <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token'] ?>">
-    <input type="hidden" name="user_id" value="<?php echo $user_id; ?>">
+    <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
+    <input type="hidden" name="user_id" value="<?= $user_id ?>">
     <div class="modal-body">
 
 
         <center class="mb-3">
             <?php if (!empty($user_avatar)) { ?>
-                <img class="img-fluid" src="<?php echo "../uploads/users/$user_id/$user_avatar"; ?>">
+                <img class="img-fluid" src="<?= "../uploads/users/$user_id/$user_avatar" ?>">
             <?php } else { ?>
                 <span class="fa-stack fa-4x">
                     <i class="fa fa-circle fa-stack-2x text-secondary"></i>
-                    <span class="fa fa-stack-1x text-white"><?php echo $user_initials; ?></span>
+                    <span class="fa fa-stack-1x text-white"><?= $user_initials ?></span>
                 </span>
             <?php } ?>
         </center>

@@ -18,7 +18,7 @@ ob_start();
 <form action="post.php" method="post" autocomplete="off">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
     <?php if (isset($client_id)) { ?>
-           <input type="hidden" name="client_id" value="<?php echo $client_id; ?>>">
+           <input type="hidden" name="client_id" value="<?= $client_id ?>>">
     <?php } ?>
     <input type="hidden" name="billable" value="0">
 
@@ -41,8 +41,8 @@ ob_start();
             <div class="tab-pane fade show active" id="pills-add-details">
 
                 <?php if ($contact_id) { ?>
-                <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
-                <input type="hidden" name="contact_id" value="<?php echo $contact_id; ?>">
+                <input type="hidden" name="client_id" value="<?= $client_id ?>">
+                <input type="hidden" name="contact_id" value="<?= $contact_id ?>">
                 <?php } else { ?>
                 <div class="row">
                     <div class="col">
@@ -61,7 +61,7 @@ ob_start();
                                         $client_id_select = intval($row['client_id']);
                                         $client_name = escapeHtml($row['client_name']); ?>
 
-                                        <option value="<?php echo $client_id_select; ?>" <?php if ($client_id == $client_id_select) {echo "selected"; } ?>><?php echo $client_name; ?></option>
+                                        <option value="<?= $client_id_select ?>" <?php if ($client_id == $client_id_select) {echo "selected"; } ?>><?= $client_name ?></option>
 
                                     <?php } ?>
                                 </select>
@@ -132,7 +132,7 @@ ob_start();
                                         $category_name = escapeHtml($row['category_name']);
 
                                         ?>
-                                        <option value="<?php echo $category_id; ?>"><?php echo $category_name; ?></option>
+                                        <option value="<?= $category_id ?>"><?= $category_name ?></option>
                                     <?php } ?>
 
                                 </select>
@@ -166,7 +166,7 @@ ob_start();
                             while ($row = mysqli_fetch_assoc($sql)) {
                                 $user_id = intval($row['user_id']);
                                 $user_name = escapeHtml($row['user_name']); ?>
-                                <option value="<?php echo $user_id; ?>"><?php echo $user_name; ?></option>
+                                <option value="<?= $user_id ?>"><?= $user_name ?></option>
                             <?php } ?>
                         </select>
                     </div>
@@ -214,7 +214,7 @@ ob_start();
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-calendar-day"></i></span>
                         </div>
-                        <input class="form-control" type="date" name="start_date" min="<?php echo date("Y-m-d"); ?>" max="2999-12-31" required>
+                        <input class="form-control" type="date" name="start_date" min="<?= date("Y-m-d") ?>" max="2999-12-31" required>
                     </div>
                 </div>
 

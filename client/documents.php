@@ -52,7 +52,7 @@ $documents_sql = mysqli_query($mysqli, "SELECT document_id, document_name, docum
 
                 <tr>
                     <td>
-                        <a href="document.php?id=<?php echo $document_id?>">
+                        <a href="document.php?id=<?= $document_id ?>">
                             <i class="fas fa-file-alt mr-2"></i>
                             <?php
                             if (!empty($folder_name)) {
@@ -62,9 +62,9 @@ $documents_sql = mysqli_query($mysqli, "SELECT document_id, document_name, docum
                             ?>
                         </a>
                     </td>
-                    <td><?php echo date('M j, Y', strtotime($document_created_at)); ?></td>
+                    <td><?= date('M j, Y', strtotime($document_created_at)) ?></td>
                     <td class="text-center">
-                        <a href="document.php?id=<?php echo $document_id?>" class="btn btn-sm btn-outline-primary">
+                        <a href="document.php?id=<?= $document_id ?>" class="btn btn-sm btn-outline-primary">
                             <i class="fas fa-eye"></i>
                         </a>
                     </td>

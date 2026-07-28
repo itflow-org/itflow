@@ -16,7 +16,7 @@ ob_start();
 ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class='fa fa-fw fa-sticky-note mr-2'></i>Creating note: <strong><?php echo $contact_name; ?></strong></h5>
+    <h5 class="modal-title"><i class='fa fa-fw fa-sticky-note mr-2'></i>Creating note: <strong><?= $contact_name ?></strong></h5>
     <button type="button" class="close text-white" data-dismiss="modal">
         <span>&times;</span>
     </button>
@@ -24,7 +24,7 @@ ob_start();
 
 <form action="post.php" method="post" autocomplete="off">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
-    <input type="hidden" name="contact_id" value="<?php echo $contact_id; ?>">
+    <input type="hidden" name="contact_id" value="<?= $contact_id ?>">
 
     <div class="modal-body">
 

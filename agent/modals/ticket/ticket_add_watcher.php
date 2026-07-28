@@ -23,7 +23,7 @@ ob_start();
 </div>
 <form action="post.php" method="post" autocomplete="off">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
-    <input type="hidden" name="ticket_id" value="<?php echo $ticket_id; ?>">
+    <input type="hidden" name="ticket_id" value="<?= $ticket_id ?>">
     <div class="modal-body">
 
         <div class="form-group">
@@ -42,7 +42,7 @@ ob_start();
                         $contact_name_select = escapeHtml($row['contact_name']);
                         $contact_email_select = escapeHtml($row['contact_email']);
                         ?>
-                        <option value="<?php echo $contact_email_select; ?>"><?php echo "$contact_name_select - $contact_email_select"; ?></option>
+                        <option value="<?= $contact_email_select ?>"><?= "$contact_name_select - $contact_email_select" ?></option>
 
                         <?php
                     }

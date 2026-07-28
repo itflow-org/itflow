@@ -19,14 +19,14 @@ ob_start();
 ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fa fa-fw fa-file-alt mr-2"></i>Renaming document: <strong><?php echo $document_name; ?></strong></h5>
+    <h5 class="modal-title"><i class="fa fa-fw fa-file-alt mr-2"></i>Renaming document: <strong><?= $document_name ?></strong></h5>
     <button type="button" class="close text-white" data-dismiss="modal">
         <span>&times;</span>
     </button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
-    <input type="hidden" name="document_id" value="<?php echo $document_id; ?>">
+    <input type="hidden" name="document_id" value="<?= $document_id ?>">
     <div class="modal-body">
 
         <div class="form-group">
@@ -35,7 +35,7 @@ ob_start();
                 <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-file-alt"></i></span>
                 </div>
-                <input class="form-control" type="text" name="name" maxlength="200" value="<?php echo $document_name; ?>" required>
+                <input class="form-control" type="text" name="name" maxlength="200" value="<?= $document_name ?>" required>
             </div>
         </div>
 

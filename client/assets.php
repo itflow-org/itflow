@@ -58,20 +58,20 @@ $assets_sql = mysqli_query($mysqli, "SELECT * FROM assets LEFT JOIN contacts ON 
 
                     <tr>
                         <td>
-                            <a href="#"><?php echo $asset_name ?></a>
+                            <a href="#"><?= $asset_name ?></a>
                             <br>
-                            <small class="text-secondary"><?php echo $asset_description; ?></small>
+                            <small class="text-secondary"><?= $asset_description ?></small>
                         </td>
-                        <td><?php echo $asset_type; ?></td>
-                        <td><?php echo "$asset_make<br><span class='text-secondary'>$asset_model</span>"; ?></td>
-                        <td><?php echo $asset_serial; ?></td>
-                        <td><?php echo $assigned_to; ?></td>
-                        <td><?php echo $asset_purchase_date; ?></td>
-                        <td><?php echo $asset_warranty_expire; ?></td>
-                        <td><?php echo $asset_status; ?></td>
+                        <td><?= $asset_type ?></td>
+                        <td><?= "$asset_make<br><span class='text-secondary'>$asset_model</span>" ?></td>
+                        <td><?= $asset_serial ?></td>
+                        <td><?= $assigned_to ?></td>
+                        <td><?= $asset_purchase_date ?></td>
+                        <td><?= $asset_warranty_expire ?></td>
+                        <td><?= $asset_status ?></td>
                         <td>
                             <?php if ($asset_uri_client) { ?>
-                            <i class="fa fa-fw fa-link text-secondary mr-1"></i><a href="<?php echo $asset_uri_client; ?>" target="_blank" title="<?php echo $asset_uri_client; ?>"><?php echo truncate($asset_uri_client, 40); ?></a>
+                            <i class="fa fa-fw fa-link text-secondary mr-1"></i><a href="<?= $asset_uri_client ?>" target="_blank" title="<?= $asset_uri_client ?>"><?= truncate($asset_uri_client, 40) ?></a>
                             <?php } else { ?>
                             -
                         <?php } ?>

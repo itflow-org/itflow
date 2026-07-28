@@ -26,14 +26,14 @@ ob_start();
 ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fa fa-fw fa-user mr-2"></i>Changing contact: <strong><?php echo "$ticket_prefix$ticket_number"; ?></strong> - <?php echo $client_name; ?></h5>
+    <h5 class="modal-title"><i class="fa fa-fw fa-user mr-2"></i>Changing contact: <strong><?= "$ticket_prefix$ticket_number" ?></strong> - <?= $client_name ?></h5>
     <button type="button" class="close text-white" data-dismiss="modal">
         <span>&times;</span>
     </button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
-    <input type="hidden" name="ticket_id" value="<?php echo $ticket_id; ?>">
+    <input type="hidden" name="ticket_id" value="<?= $ticket_id ?>">
     <div class="modal-body">
 
         <div class="form-group">
@@ -70,10 +70,10 @@ ob_start();
 
                         ?>
                         <option
-                            value="<?php echo $contact_id_select; ?>"
+                            value="<?= $contact_id_select ?>"
                             <?php if ($contact_id_select  == $contact_id) { echo "selected"; } ?>
                             >
-                            <?php echo "$contact_name_select$contact_title_display_select$contact_primary_display_select$contact_technical_display_select"; ?>
+                            <?= "$contact_name_select$contact_title_display_select$contact_primary_display_select$contact_technical_display_select" ?>
                         </option>
                     <?php } ?>
                 </select>

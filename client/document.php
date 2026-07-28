@@ -88,23 +88,23 @@ if (mysqli_num_rows($sql_files) > 0) {
             <div class="card-header">
                 <div class="row align-items-center">
                     <div class="col">
-                        <h3 class="mb-0"><i class="fas fa-file-pdf text-danger mr-2"></i><?php echo $document_name; ?></h3>
+                        <h3 class="mb-0"><i class="fas fa-file-pdf text-danger mr-2"></i><?= $document_name ?></h3>
                         <?php if (!empty($document_description)) { ?>
-                            <small class="text-muted"><?php echo $document_description; ?></small>
+                            <small class="text-muted"><?= $document_description ?></small>
                         <?php } ?>
                     </div>
                     <div class="col-auto">
-                        <a href="<?php echo $file_view_url; ?>" target="_blank" class="btn btn-primary">
+                        <a href="<?= $file_view_url ?>" target="_blank" class="btn btn-primary">
                             <i class="fas fa-external-link-alt mr-2"></i>Open in New Tab
                         </a>
-                        <a href="<?php echo $file_download_url; ?>" class="btn btn-secondary">
+                        <a href="<?= $file_download_url ?>" class="btn btn-secondary">
                             <i class="fas fa-download mr-2"></i>Download
                         </a>
                     </div>
                 </div>
             </div>
             <div class="card-body p-0">
-                <embed src="<?php echo $file_view_url; ?>" type="application/pdf" width="100%" height="800px" />
+                <embed src="<?= $file_view_url ?>" type="application/pdf" width="100%" height="800px" />
             </div>
         </div>
         <?php
@@ -116,23 +116,23 @@ if (mysqli_num_rows($sql_files) > 0) {
             <div class="card-header">
                 <div class="row align-items-center">
                     <div class="col">
-                        <h3 class="mb-0"><i class="fas fa-image text-primary mr-2"></i><?php echo $document_name; ?></h3>
+                        <h3 class="mb-0"><i class="fas fa-image text-primary mr-2"></i><?= $document_name ?></h3>
                         <?php if (!empty($document_description)) { ?>
-                            <small class="text-muted"><?php echo $document_description; ?></small>
+                            <small class="text-muted"><?= $document_description ?></small>
                         <?php } ?>
                     </div>
                     <div class="col-auto">
-                        <a href="<?php echo $file_view_url; ?>" target="_blank" class="btn btn-primary">
+                        <a href="<?= $file_view_url ?>" target="_blank" class="btn btn-primary">
                             <i class="fas fa-external-link-alt mr-2"></i>View Full Size
                         </a>
-                        <a href="<?php echo $file_download_url; ?>" class="btn btn-secondary">
+                        <a href="<?= $file_download_url ?>" class="btn btn-secondary">
                             <i class="fas fa-download mr-2"></i>Download
                         </a>
                     </div>
                 </div>
             </div>
             <div class="card-body text-center">
-                <img src="<?php echo $file_view_url; ?>" alt="<?php echo $file_name; ?>" class="img-fluid" style="max-height: 600px;">
+                <img src="<?= $file_view_url ?>" alt="<?= $file_name ?>" class="img-fluid" style="max-height: 600px;">
             </div>
         </div>
         <?php
@@ -145,16 +145,16 @@ if (mysqli_num_rows($sql_files) > 0) {
             <div class="card-header">
                 <div class="row align-items-center">
                     <div class="col">
-                        <h3 class="mb-0"><i class="fas fa-<?php echo $file_icon; ?> mr-2"></i><?php echo $document_name; ?></h3>
+                        <h3 class="mb-0"><i class="fas fa-<?= $file_icon ?> mr-2"></i><?= $document_name ?></h3>
                         <?php if (!empty($document_description)) { ?>
-                            <small class="text-muted"><?php echo $document_description; ?></small>
+                            <small class="text-muted"><?= $document_description ?></small>
                         <?php } ?>
                     </div>
                     <div class="col-auto">
-                        <a href="<?php echo $file_download_url; ?>" class="btn btn-primary">
+                        <a href="<?= $file_download_url ?>" class="btn btn-primary">
                             <i class="fas fa-external-link-alt mr-2"></i>Open File
                         </a>
-                        <a href="<?php echo $file_download_url; ?>" class="btn btn-secondary">
+                        <a href="<?= $file_download_url ?>" class="btn btn-secondary">
                             <i class="fas fa-download mr-2"></i>Download
                         </a>
                     </div>
@@ -163,17 +163,17 @@ if (mysqli_num_rows($sql_files) > 0) {
             <div class="card-body">
                 <div class="row align-items-center">
                     <div class="col-auto">
-                        <i class="fas fa-<?php echo $file_icon; ?> fa-3x text-secondary"></i>
+                        <i class="fas fa-<?= $file_icon ?> fa-3x text-secondary"></i>
                     </div>
                     <div class="col">
-                        <h5><?php echo $file_name; ?></h5>
+                        <h5><?= $file_name ?></h5>
                         <p class="text-muted mb-2">
-                            <strong>Type:</strong> <?php echo strtoupper($file_ext); ?> File<br>
-                            <strong>Size:</strong> <?php echo $file_size_formatted; ?>
+                            <strong>Type:</strong> <?= strtoupper($file_ext) ?> File<br>
+                            <strong>Size:</strong> <?= $file_size_formatted ?>
                         </p>
                         <?php if (!empty($document_content) && $document_content != "<p>Uploaded file: <strong>$file_name</strong></p><p>$document_description</p>") { ?>
                             <div class="mt-3">
-                                <?php echo $document_content; ?>
+                                <?= $document_content ?>
                             </div>
                         <?php } ?>
                     </div>
@@ -188,8 +188,8 @@ if (mysqli_num_rows($sql_files) > 0) {
     ?>
     <div class="card">
         <div class="card-body prettyContent">
-            <h3><?php echo $document_name; ?></h3>
-            <?php echo $document_content; ?>
+            <h3><?= $document_name ?></h3>
+            <?= $document_content ?>
         </div>
     </div>
     <?php

@@ -78,7 +78,7 @@ ob_start();
 
     <form action="post.php" method="post" autocomplete="off">
         <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
-        <input type="hidden" name="ticket_id" value="<?php echo $ticket_id; ?>">
+        <input type="hidden" name="ticket_id" value="<?= $ticket_id ?>">
 
         <div class="modal-body">
 
@@ -112,7 +112,7 @@ ob_start();
                                     $category_id = intval($row['category_id']);
                                     $category_name = escapeHtml($row['category_name']);
                                     ?>
-                                    <option value="<?php echo $category_id; ?>"><?php echo $category_name; ?></option>
+                                    <option value="<?= $category_id ?>"><?= $category_name ?></option>
                                 <?php } ?>
                             </select>
 
@@ -136,7 +136,7 @@ ob_start();
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
                             </div>
-                            <input type="date" class="form-control" name="date" max="2999-12-31" value="<?php echo date("Y-m-d"); ?>">
+                            <input type="date" class="form-control" name="date" max="2999-12-31" value="<?= date("Y-m-d") ?>">
                         </div>
                     </div>
                 </div>
@@ -148,7 +148,7 @@ ob_start();
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
                             </div>
-                            <input type="date" class="form-control" name="expire" min="<?php echo date("Y-m-d"); ?>" max="2999-12-31" value="<?php echo date("Y-m-d", strtotime("+30 days")); ?>" required>
+                            <input type="date" class="form-control" name="expire" min="<?= date("Y-m-d") ?>" max="2999-12-31" value="<?= date("Y-m-d", strtotime("+30 days")) ?>" required>
                         </div>
                     </div>
                 </div>
@@ -170,7 +170,7 @@ ob_start();
             <div class="form-group">
                 <label>Item Description</label>
                 <div class="input-group">
-                    <textarea class="form-control" rows="10" name="item_description"><?php echo trim($description); ?></textarea>
+                    <textarea class="form-control" rows="10" name="item_description"><?= trim($description) ?></textarea>
                 </div>
             </div>
 
@@ -194,7 +194,7 @@ ob_start();
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fa fa-fw fa-dollar-sign"></i></span>
                             </div>
-                            <input type="text" class="form-control" inputmode="decimal" pattern="-?[0-9]*\.?[0-9]{0,2}" name="price" value="<?php echo number_format($client_rate, 2, '.', ''); ?>" required>
+                            <input type="text" class="form-control" inputmode="decimal" pattern="-?[0-9]*\.?[0-9]{0,2}" name="price" value="<?= number_format($client_rate, 2, '.', '') ?>" required>
                         </div>
                         <small class="form-text text-muted">
                             Hourly Client rate is <strong><?= numfmt_format_currency($currency_format, $client_rate, $session_company_currency); ?></strong>
@@ -219,7 +219,7 @@ ob_start();
                             $tax_name = escapeHtml($row['tax_name']);
                             $tax_percent = floatval($row['tax_percent']);
                             ?>
-                            <option value="<?php echo $tax_id_select; ?>"><?php echo "$tax_name $tax_percent%"; ?></option>
+                            <option value="<?= $tax_id_select ?>"><?= "$tax_name $tax_percent%" ?></option>
                         <?php } ?>
                     </select>
                 </div>

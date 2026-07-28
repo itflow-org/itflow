@@ -108,8 +108,8 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
     </div>
     <div class="card-header pb-2 pt-3">
         <form autocomplete="off">
-            <input type="hidden" name="leads" value="<?php echo $leads_filter; ?>">
-            <input type="hidden" name="archived" value="<?php echo $archived; ?>">
+            <input type="hidden" name="leads" value="<?= $leads_filter ?>">
+            <input type="hidden" name="archived" value="<?= $archived ?>">
             <div class="row">
                 <div class="col-md-5">
                     <div class="form-group">
@@ -130,7 +130,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         </div>
 
                         <div class="btn-group">
-                            <a href="?<?php echo $url_query_strings_sort ?>&archived=<?php if($archived == 1){ echo 0; } else { echo 1; } ?>"
+                            <a href="?<?= $url_query_strings_sort ?>&archived=<?php if($archived == 1){ echo 0; } else { echo 1; } ?>"
                                 class="btn btn-<?php if ($archived == 1) { echo "primary"; } else { echo "default"; } ?>">
                                 <i class="fa fa-fw fa-archive mr-2"></i>Archived
                             </a>
@@ -219,9 +219,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         <div class="form-group">
                             <label>Date range</label>
                             <input type="text" id="dateFilter" class="form-control" autocomplete="off">
-                            <input type="hidden" name="canned_date" id="canned_date" value="<?php echo escapeHtml($_GET['canned_date']) ?? ''; ?>">
-                            <input type="hidden" name="dtf" id="dtf" value="<?php echo escapeHtml($dtf ?? ''); ?>">
-                            <input type="hidden" name="dtt" id="dtt" value="<?php echo escapeHtml($dtt ?? ''); ?>">
+                            <input type="hidden" name="canned_date" id="canned_date" value="<?= escapeHtml($_GET['canned_date']) ?? '' ?>">
+                            <input type="hidden" name="dtf" id="dtf" value="<?= escapeHtml($dtf ?? '') ?>">
+                            <input type="hidden" name="dtt" id="dtt" value="<?= escapeHtml($dtt ?? '') ?>">
                         </div>
                     </div>
                     <div class="col-md-3">
@@ -241,7 +241,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                     $tag_id = intval($row['tag_id']);
                                     $tag_name = escapeHtml($row['tag_name']); ?>
 
-                                    <option value="<?php echo $tag_id ?>" <?php if (isset($_GET['tags']) && is_array($_GET['tags']) && in_array($tag_id, $_GET['tags'])) { echo 'selected'; } ?>> <?php echo $tag_name ?> </option>
+                                    <option value="<?= $tag_id ?>" <?php if (isset($_GET['tags']) && is_array($_GET['tags']) && in_array($tag_id, $_GET['tags'])) { echo 'selected'; } ?>> <?= $tag_name ?> </option>
 
                                 <?php } ?>
                             </select>
@@ -258,7 +258,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 while ($row = mysqli_fetch_assoc($sql_industries_filter)) {
                                     $industry_name = escapeHtml($row['client_type']);
                                 ?>
-                                    <option <?php if ($industry_name == $industry_filter) { echo "selected"; } ?>><?php echo $industry_name; ?></option>
+                                    <option <?php if ($industry_name == $industry_filter) { echo "selected"; } ?>><?= $industry_name ?></option>
                                 <?php
                                 }
                                 ?>
@@ -277,7 +277,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 while ($row = mysqli_fetch_assoc($sql_referrals_filter)) {
                                     $referral_name = escapeHtml($row['client_referral']);
                                 ?>
-                                    <option <?php if ($referral_name == $referral_filter) { echo "selected"; } ?>><?php echo $referral_name; ?></option>
+                                    <option <?php if ($referral_name == $referral_filter) { echo "selected"; } ?>><?= $referral_name ?></option>
                                 <?php
                                 }
                                 ?>
@@ -291,7 +291,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
     </div>
 
     <form id="bulkActions" action="post.php" method="post">
-        <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token'] ?>">
+        <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
         <div class="table-responsive">
             <table class="table table-hover mb-0">
                 <thead class="<?php if ($num_rows[0] == 0) { echo "d-none"; } ?> bg-light">
@@ -302,18 +302,18 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         </div>
                     </td>
                     <th>
-                        <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=client_name&order=<?php echo $disp; ?>">
+                        <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=client_name&order=<?= $disp ?>">
                             Client Name <?php if ($sort == 'client_name') { echo $order_icon; } ?>
                         </a>
                     </th>
                     <th>
-                        <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=contact_name&order=<?php echo $disp; ?>">
+                        <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=contact_name&order=<?= $disp ?>">
                             Primary Contact
                             <?php if ($sort == 'contact_name') { echo $order_icon; } ?>
                         </a>
                     </th>
                     <th>
-                        <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=location_city&order=<?php echo $disp; ?>">
+                        <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=location_city&order=<?= $disp ?>">
                             Primary Location <?php if ($sort == 'location_city') { echo $order_icon; } ?>
                         </a>
                     </th>
@@ -433,7 +433,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     <tr>
                         <td class="checkbox-column bg-light">
                             <div class="form-check">
-                                <input class="form-check-input bulk-select" type="checkbox" name="client_ids[]" value="<?php echo $client_id ?>">
+                                <input class="form-check-input bulk-select" type="checkbox" name="client_ids[]" value="<?= $client_id ?>">
                             </div>
                         </td>
                         <td>
@@ -479,19 +479,19 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                             if (!empty($contact_phone)) { ?>
                                 <div class="mt-1">
-                                    <i class="fa fa-fw fa-phone text-secondary mr-2 mb-2"></i><?php echo $contact_phone; ?> <?php if (!empty($contact_extension)) { echo "x$contact_extension"; } ?>
+                                    <i class="fa fa-fw fa-phone text-secondary mr-2 mb-2"></i><?= $contact_phone ?> <?php if (!empty($contact_extension)) { echo "x$contact_extension"; } ?>
                                 </div>
                             <?php }
 
                             if (!empty($contact_mobile)) { ?>
                                 <div class="mt-1">
-                                    <i class="fa fa-fw fa-mobile-alt text-secondary mr-2"></i><?php echo $contact_mobile; ?>
+                                    <i class="fa fa-fw fa-mobile-alt text-secondary mr-2"></i><?= $contact_mobile ?>
                                 </div>
                             <?php }
 
                             if (!empty($contact_email)) { ?>
                                 <div class="mt-1">
-                                    <i class="fa fa-fw fa-envelope text-secondary mr-2"></i><a href="mailto:<?php echo $contact_email; ?>"><?php echo $contact_email; ?></a><button class='btn btn-sm clipboardjs' type="button" data-clipboard-text='<?php echo $contact_email; ?>'><i class='far fa-copy text-secondary'></i></button>
+                                    <i class="fa fa-fw fa-envelope text-secondary mr-2"></i><a href="mailto:<?= $contact_email ?>"><?= $contact_email ?></a><button class='btn btn-sm clipboardjs' type="button" data-clipboard-text='<?= $contact_email ?>'><i class='far fa-copy text-secondary'></i></button>
                                 </div>
                             <?php } ?>
                         </td>
@@ -501,25 +501,25 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             <td class="text-right">
                                 <div class="d-flex justify-content-between">
                                     <span class="text-secondary">Balance</span>
-                                    <span class="<?php echo $balance_text_color; ?>"><?php echo numfmt_format_currency($currency_format, $balance, $session_company_currency); ?></span>
+                                    <span class="<?= $balance_text_color ?>"><?= numfmt_format_currency($currency_format, $balance, $session_company_currency) ?></span>
                                 </div>
                                 <div class="d-flex justify-content-between">
                                     <span class="text-secondary">Paid</span>
-                                    <?php echo numfmt_format_currency($currency_format, $amount_paid, $session_company_currency); ?>
+                                    <?= numfmt_format_currency($currency_format, $amount_paid, $session_company_currency) ?>
                                 </div>
                                 <?php if ($credit_balance > 0) { ?>
                                 <div class="d-flex justify-content-between">
                                     <span class="text-secondary">Credit</span>
-                                    <span class="text-success"><?php echo numfmt_format_currency($currency_format, $credit_balance, $session_company_currency); ?>
+                                    <span class="text-success"><?= numfmt_format_currency($currency_format, $credit_balance, $session_company_currency) ?>
                                 </div>
                                 <?php } ?>
                                 <div class="d-flex justify-content-between">
                                     <span class="text-secondary">Monthly</span>
-                                    <?php echo numfmt_format_currency($currency_format, $recurring_monthly, $session_company_currency); ?>
+                                    <?= numfmt_format_currency($currency_format, $recurring_monthly, $session_company_currency) ?>
                                 </div>
                                 <div class="d-flex justify-content-between">
                                     <span class="text-secondary">Hourly Rate</span>
-                                    <?php echo numfmt_format_currency($currency_format, $client_rate, $session_company_currency); ?>
+                                    <?= numfmt_format_currency($currency_format, $client_rate, $session_company_currency) ?>
                                 </div>
                             </td>
                         <?php } ?>
@@ -538,12 +538,12 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                                         <?php if ($client_archived_at) { ?>
                                         <div class="dropdown-divider"></div>
-                                        <a class="dropdown-item text-info confirm-link" href="post.php?restore_client=<?php echo $client_id; ?>&csrf_token=<?php echo $_SESSION['csrf_token'] ?>">
+                                        <a class="dropdown-item text-info confirm-link" href="post.php?restore_client=<?= $client_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                                             <i class="fas fa-fw fa-redo mr-2"></i>Restore
                                         </a>
                                         <?php } else { ?>
                                         <div class="dropdown-divider"></div>
-                                        <a class="dropdown-item text-danger confirm-link" href="post.php?archive_client=<?php echo $client_id; ?>&csrf_token=<?php echo $_SESSION['csrf_token'] ?>">
+                                        <a class="dropdown-item text-danger confirm-link" href="post.php?archive_client=<?= $client_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                                             <i class="fas fa-fw fa-archive mr-2"></i>Archive
                                         </a>
                                         <?php } ?>

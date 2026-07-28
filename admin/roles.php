@@ -48,13 +48,13 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     <thead class="text-dark <?php if ($num_rows[0] == 0) { echo "d-none"; } ?> text-nowrap">
                     <tr>
                         <th>
-                            <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=role_name&order=<?php echo $disp; ?>">
+                            <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=role_name&order=<?= $disp ?>">
                                 Role <?php if ($sort == 'role_name') { echo $order_icon; } ?>
                             </a>
                         </th>
                         <th>Members</th>
                         <th>
-                            <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=role_is_admin&order=<?php echo $disp; ?>">
+                            <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=role_is_admin&order=<?= $disp ?>">
                                 Admin <?php if ($sort == 'role_is_admin') { echo $order_icon; } ?>
                             </a>
                         </th>
@@ -104,8 +104,8 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                     </div>
                                 </a>
                             </td>
-                            <td><?php echo $user_names_string; ?></td>
-                            <td><?php echo $role_admin ? 'Yes' : 'No' ; ?></td>
+                            <td><?= $user_names_string ?></td>
+                            <td><?= $role_admin ? 'Yes' : 'No' ?></td>
                             <td>
                                 <?php if ($role_id !== 3) { ?>
                                     <div class="dropdown dropleft text-center">
@@ -121,7 +121,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                                             <?php if (empty($role_archived_at) && $role_user_count == 0) { ?>
                                                 <div class="dropdown-divider"></div>
-                                                <a class="dropdown-item text-danger confirm-link" href="post.php?archive_role=<?php echo $role_id; ?>&csrf_token=<?php echo $_SESSION['csrf_token'] ?>">
+                                                <a class="dropdown-item text-danger confirm-link" href="post.php?archive_role=<?= $role_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                                                     <i class="fas fa-fw fa-archive mr-2"></i>Archive
                                                 </a>
                                             <?php } ?>

@@ -3,14 +3,14 @@
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header bg-dark">
-                <h5 class="modal-title"><i class="fa fa-fw fa-life-ring mr-2"></i>Editing Ticket Template: <?php echo $ticket_template_name; ?></h5>
+                <h5 class="modal-title"><i class="fa fa-fw fa-life-ring mr-2"></i>Editing Ticket Template: <?= $ticket_template_name ?></h5>
                 <button type="button" class="close text-white" data-dismiss="modal">
                     <span>&times;</span>
                 </button>
             </div>
             <form action="post.php" method="post" autocomplete="off">
                 <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
-                <input type="hidden" name="ticket_template_id" value="<?php echo $ticket_template_id; ?>">
+                <input type="hidden" name="ticket_template_id" value="<?= $ticket_template_id ?>">
 
                 <div class="modal-body">
 
@@ -20,7 +20,7 @@
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fa fa-fw fa-life-ring"></i></span>
                             </div>
-                            <input type="text" class="form-control" name="name" maxlength="200" value="<?php echo $ticket_template_name; ?>" placeholder="Template name" required autofocus>
+                            <input type="text" class="form-control" name="name" maxlength="200" value="<?= $ticket_template_name ?>" placeholder="Template name" required autofocus>
                         </div>
                     </div>
 
@@ -30,12 +30,12 @@
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fa fa-fw fa-angle-right"></i></span>
                             </div>
-                            <input type="text" class="form-control" name="subject" maxlength="500" value="<?php echo $ticket_template_subject; ?>" placeholder="Subject">
+                            <input type="text" class="form-control" name="subject" maxlength="500" value="<?= $ticket_template_subject ?>" placeholder="Subject">
                         </div>
                     </div>
 
                     <div class="form-group">
-                        <textarea class="form-control tinymceTicket" name="details"><?php echo $ticket_template_details; ?></textarea>
+                        <textarea class="form-control tinymceTicket" name="details"><?= $ticket_template_details ?></textarea>
                     </div>
 
                     <div class="form-group">
@@ -44,7 +44,7 @@
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fa fa-fw fa-angle-right"></i></span>
                             </div>
-                            <input type="text" class="form-control" name="description" value="<?php echo $ticket_template_description; ?>" placeholder="Short description">
+                            <input type="text" class="form-control" name="description" value="<?= $ticket_template_description ?>" placeholder="Short description">
                         </div>
                     </div>
 

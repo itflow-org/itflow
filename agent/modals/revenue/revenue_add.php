@@ -23,7 +23,7 @@ ob_start();
                     <div class="input-group-prepend">
                         <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
                     </div>
-                    <input type="date" class="form-control" name="date" max="2999-12-31" value="<?php echo date("Y-m-d"); ?>" required>
+                    <input type="date" class="form-control" name="date" max="2999-12-31" value="<?= date("Y-m-d") ?>" required>
                 </div>
             </div>
 
@@ -73,7 +73,7 @@ ob_start();
                             $balance = $opening_balance + $total_payments + $total_revenues - $total_expenses;
 
                             ?>
-                            <option <?php if ($config_default_payment_account == $account_id) { echo "selected"; } ?> value="<?php echo $account_id; ?>"><?php echo $account_name; ?> [ <?php echo numfmt_format_currency($currency_format, $balance, $account_currency_code); ?> ]</option>
+                            <option <?php if ($config_default_payment_account == $account_id) { echo "selected"; } ?> value="<?= $account_id ?>"><?= $account_name ?> [ <?= numfmt_format_currency($currency_format, $balance, $account_currency_code) ?> ]</option>
 
                             <?php
                         }
@@ -97,7 +97,7 @@ ob_start();
                             $category_id = intval($row['category_id']);
                             $category_name = escapeHtml($row['category_name']);
                             ?>
-                            <option value="<?php echo $category_id; ?>"><?php echo $category_name; ?></option>
+                            <option value="<?= $category_id ?>"><?= $category_name ?></option>
 
                             <?php
                         }
@@ -135,7 +135,7 @@ ob_start();
                         while ($row = mysqli_fetch_assoc($sql)) {
                             $payment_method_name = escapeHtml($row['payment_method_name']);
                             ?>
-                            <option><?php echo $payment_method_name; ?></option>
+                            <option><?= $payment_method_name ?></option>
 
                             <?php
                         }

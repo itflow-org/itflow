@@ -70,7 +70,7 @@ $sql_assets = mysqli_query($mysqli, "SELECT asset_id, asset_name, asset_type FRO
                                 $category_name = escapeHtml($row['category_name']);
 
                                 ?>
-                                <option value="<?php echo $category_id; ?>"><?php echo $category_name; ?></option>
+                                <option value="<?= $category_id ?>"><?= $category_name ?></option>
                             <?php } ?>
 
                         </select>
@@ -95,7 +95,7 @@ $sql_assets = mysqli_query($mysqli, "SELECT asset_id, asset_name, asset_type FRO
                                 $asset_name = escapeSql($row['asset_name']);
                                 $asset_type = escapeSql($row['asset_type']);
                                 ?>
-                                <option value="<?php echo $asset_id ?>"><?php echo "$asset_name ($asset_type)"; ?></option>
+                                <option value="<?= $asset_id ?>"><?= "$asset_name ($asset_type)" ?></option>
                                 <?php
                             }
                             ?>

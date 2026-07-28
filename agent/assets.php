@@ -177,27 +177,27 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
     <div class="btn-toolbar">
         <div class="btn-group btn-block">
             <?php if($all_count) { ?>
-            <a href="?<?php echo $url_query_strings_sort; ?>&type=" class="btn <?php if ($_GET['type'] == 'all' || empty($_GET['type'])) { echo 'btn-primary'; } else { echo 'btn-default'; } ?>">All Assets<span class="right badge badge-light ml-2"><?php echo $all_count; ?></span></a>
+            <a href="?<?= $url_query_strings_sort ?>&type=" class="btn <?php if ($_GET['type'] == 'all' || empty($_GET['type'])) { echo 'btn-primary'; } else { echo 'btn-default'; } ?>">All Assets<span class="right badge badge-light ml-2"><?= $all_count ?></span></a>
             <?php } ?>
             <?php
             if ($workstation_count > 0) { ?>
-                <a href="?<?php echo $url_query_strings_sort; ?>&type=workstation" class="btn <?php if ($_GET['type'] == 'workstation') { echo 'btn-primary'; } else { echo 'btn-default'; } ?>"><i class="fa fa-fw fa-desktop mr-2"></i>Workstations<span class="right badge badge-light ml-2"><?php echo $workstation_count; ?></span></a>
+                <a href="?<?= $url_query_strings_sort ?>&type=workstation" class="btn <?php if ($_GET['type'] == 'workstation') { echo 'btn-primary'; } else { echo 'btn-default'; } ?>"><i class="fa fa-fw fa-desktop mr-2"></i>Workstations<span class="right badge badge-light ml-2"><?= $workstation_count ?></span></a>
                 <?php
             }
             if ($server_count > 0) { ?>
-                <a href="?<?php echo $url_query_strings_sort; ?>&type=server" class="btn <?php if ($_GET['type'] == 'server') { echo 'btn-primary'; } else { echo 'btn-default'; } ?>"><i class="fa fa-fw fa-server mr-2"></i>Servers<span class="right badge badge-light ml-2"><?php echo $server_count; ?></span></a>
+                <a href="?<?= $url_query_strings_sort ?>&type=server" class="btn <?php if ($_GET['type'] == 'server') { echo 'btn-primary'; } else { echo 'btn-default'; } ?>"><i class="fa fa-fw fa-server mr-2"></i>Servers<span class="right badge badge-light ml-2"><?= $server_count ?></span></a>
                 <?php
             }
             if ($virtual_count > 0) { ?>
-                <a href="?<?php echo $url_query_strings_sort; ?>&type=virtual" class="btn <?php if ($_GET['type'] == 'virtual') { echo 'btn-primary'; } else { echo 'btn-default'; } ?>"><i class="fa fa-fw fa-cloud mr-2"></i>Virtual<span class="right badge badge-light ml-2"><?php echo $virtual_count; ?></span></a>
+                <a href="?<?= $url_query_strings_sort ?>&type=virtual" class="btn <?php if ($_GET['type'] == 'virtual') { echo 'btn-primary'; } else { echo 'btn-default'; } ?>"><i class="fa fa-fw fa-cloud mr-2"></i>Virtual<span class="right badge badge-light ml-2"><?= $virtual_count ?></span></a>
                 <?php
             }
             if ($network_count > 0) { ?>
-                <a href="?<?php echo $url_query_strings_sort; ?>&type=network" class="btn <?php if ($_GET['type'] == 'network') { echo 'btn-primary'; } else { echo 'btn-default'; } ?>"><i class="fa fa-fw fa-network-wired mr-2"></i>Network<span class="right badge badge-light ml-2"><?php echo $network_count; ?></span></a>
+                <a href="?<?= $url_query_strings_sort ?>&type=network" class="btn <?php if ($_GET['type'] == 'network') { echo 'btn-primary'; } else { echo 'btn-default'; } ?>"><i class="fa fa-fw fa-network-wired mr-2"></i>Network<span class="right badge badge-light ml-2"><?= $network_count ?></span></a>
                 <?php
             }
             if ($other_count > 0) { ?>
-                <a href="?<?php echo $url_query_strings_sort; ?>&type=other" class="btn <?php if ($_GET['type'] == 'other') { echo 'btn-primary'; } else { echo 'btn-default'; } ?>"><i class="fa fa-fw fa-tag mr-2"></i>Other<span class="right badge badge-light ml-2"><?php echo $other_count; ?></span></a>
+                <a href="?<?= $url_query_strings_sort ?>&type=other" class="btn <?php if ($_GET['type'] == 'other') { echo 'btn-primary'; } else { echo 'btn-default'; } ?>"><i class="fa fa-fw fa-tag mr-2"></i>Other<span class="right badge badge-light ml-2"><?= $other_count ?></span></a>
                 <?php
             } ?>
         </div>
@@ -237,10 +237,10 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
     <div class="card-body">
         <form autocomplete="off">
             <?php if ($client_url) { ?>
-            <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
+            <input type="hidden" name="client_id" value="<?= $client_id ?>">
             <?php } ?>
-            <input type="hidden" name="type" value="<?php echo stripslashes(escapeHtml($_GET['type'])); ?>">
-            <input type="hidden" name="archived" value="<?php echo $archived; ?>">
+            <input type="hidden" name="type" value="<?= stripslashes(escapeHtml($_GET['type'])) ?>">
+            <input type="hidden" name="archived" value="<?= $archived ?>">
             <div class="row">
                 <div class="col-md-3">
                     <div class="input-group mb-3 mb-md-0">
@@ -268,7 +268,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 $location_id = intval($row['location_id']);
                                 $location_name = escapeHtml($row['location_name']);
                             ?>
-                                <option <?php if ($location_filter == $location_id) { echo "selected"; } ?> value="<?php echo $location_id; ?>"><?php echo $location_name; ?></option>
+                                <option <?php if ($location_filter == $location_id) { echo "selected"; } ?> value="<?= $location_id ?>"><?= $location_name ?></option>
                             <?php
                             }
                             ?>
@@ -295,7 +295,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 $client_id = intval($row['client_id']);
                                 $client_name = escapeHtml($row['client_name']);
                             ?>
-                                <option <?php if ($client == $client_id) { echo "selected"; } ?> value="<?php echo $client_id; ?>"><?php echo $client_name; ?></option>
+                                <option <?php if ($client == $client_id) { echo "selected"; } ?> value="<?= $client_id ?>"><?= $client_name ?></option>
                             <?php
                             }
                             ?>
@@ -323,7 +323,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 $tag_id = intval($row['tag_id']);
                                 $tag_name = escapeHtml($row['tag_name']); ?>
 
-                                <option value="<?php echo $tag_id ?>" <?php if (isset($_GET['tags']) && in_array($tag_id, $_GET['tags'])) { echo 'selected'; } ?>> <?php echo $tag_name ?> </option>
+                                <option value="<?= $tag_id ?>" <?php if (isset($_GET['tags']) && in_array($tag_id, $_GET['tags'])) { echo 'selected'; } ?>> <?= $tag_name ?> </option>
 
                             <?php } ?>
                         </select>
@@ -362,7 +362,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                 </div>
                 <div class="col-md-1">
                     <div class="btn-group float-right">
-                        <a href="?<?php echo $client_url; ?>&archived=<?php if($archived == 1){ echo 0; } else { echo 1; } ?>"
+                        <a href="?<?= $client_url ?>&archived=<?php if($archived == 1){ echo 0; } else { echo 1; } ?>"
                             class="btn btn-<?php if($archived == 1){ echo "primary"; } else { echo "default"; } ?>">
                             <i class="fa fa-fw fa-archive mr-2"></i>Archived
                         </a>
@@ -452,7 +452,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
         </form>
         <hr>
         <form id="bulkActions" action="post.php" method="post" enctype="multipart/form-data">
-            <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token'] ?>">
+            <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
 
             <div class="table-responsive">
                 <table class="table border table-hover">
@@ -464,75 +464,75 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             </div>
                         </td>
                         <th>
-                            <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=asset_name&order=<?php echo $disp; ?>">
+                            <a class="text-secondary" href="?<?= $url_query_strings_sort ?>&sort=asset_name&order=<?= $disp ?>">
                                 Name <?php if ($sort == 'asset_name') { echo $order_icon; } ?>
                             </a>
                         </th>
                             <th>
-                                <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=asset_type&order=<?php echo $disp; ?>">
+                                <a class="text-secondary" href="?<?= $url_query_strings_sort ?>&sort=asset_type&order=<?= $disp ?>">
                                     Type <?php if ($sort == 'asset_type') { echo $order_icon; } ?>
                                 </a>
                             </th>
                         <?php if ($_GET['type'] !== 'virtual') { ?>
                             <th>
-                                <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=asset_make&order=<?php echo $disp; ?>">
+                                <a class="text-secondary" href="?<?= $url_query_strings_sort ?>&sort=asset_make&order=<?= $disp ?>">
                                     Model <?php if ($sort == 'asset_make') { echo $order_icon; } ?>
                                 </a>
                             </th>
                         <?php } ?>
                             <th>
-                                <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=interface_ip&order=<?php echo $disp; ?>">
+                                <a class="text-secondary" href="?<?= $url_query_strings_sort ?>&sort=interface_ip&order=<?= $disp ?>">
                                     IP <?php if ($sort == 'interface_ip') { echo $order_icon; } ?>
                                 </a>
                             </th>
                         <?php if (isset($_GET['show_column']) && is_array($_GET['show_column']) && in_array('Mac_Address', $_GET['show_column'])) { ?>
                             <th>
-                                <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=interface_mac&order=<?php echo $disp; ?>">
+                                <a class="text-secondary" href="?<?= $url_query_strings_sort ?>&sort=interface_mac&order=<?= $disp ?>">
                                     MAC Address <?php if ($sort == 'interface_mac') { echo $order_icon; } ?>
                                 </a>
                             </th>
                         <?php } ?>
                         <?php if (isset($_GET['show_column']) && is_array($_GET['show_column']) && in_array('Purchase_Date', $_GET['show_column'])) { ?>
                             <th>
-                                <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=asset_purchase_date&order=<?php echo $disp; ?>">
+                                <a class="text-secondary" href="?<?= $url_query_strings_sort ?>&sort=asset_purchase_date&order=<?= $disp ?>">
                                     Purchase Date <?php if ($sort == 'asset_purchase_date') { echo $order_icon; } ?>
                                 </a>
                             </th>
                         <?php } ?>
                         <?php if (isset($_GET['show_column']) && is_array($_GET['show_column']) && in_array('Install_Date', $_GET['show_column'])) { ?>
                             <th>
-                                <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=asset_install_date&order=<?php echo $disp; ?>">
+                                <a class="text-secondary" href="?<?= $url_query_strings_sort ?>&sort=asset_install_date&order=<?= $disp ?>">
                                     Install Date <?php if ($sort == 'asset_install_date') { echo $order_icon; } ?>
                                 </a>
                             </th>
                         <?php } ?>
                         <?php if (isset($_GET['show_column']) && is_array($_GET['show_column']) && in_array('Warranty_Expire', $_GET['show_column'])) { ?>
                             <th>
-                                <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=asset_warranty_expire&order=<?php echo $disp; ?>">
+                                <a class="text-secondary" href="?<?= $url_query_strings_sort ?>&sort=asset_warranty_expire&order=<?= $disp ?>">
                                     Warranty Expire <?php if ($sort == 'asset_warranty_expire') { echo $order_icon; } ?>
                                 </a>
                             </th>
                         <?php } ?>
                         <?php if ($_GET['type'] !== 'network' && $_GET['type'] !== 'server' && $_GET['type'] !== 'other') { ?>
                             <th>
-                                <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=contact_name&order=<?php echo $disp; ?>">
+                                <a class="text-secondary" href="?<?= $url_query_strings_sort ?>&sort=contact_name&order=<?= $disp ?>">
                                     Assigned To <?php if ($sort == 'contact_name') { echo $order_icon; } ?>
                                 </a>
                             </th>
                         <?php } ?>
                         <th>
-                            <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=location_name&order=<?php echo $disp; ?>">
+                            <a class="text-secondary" href="?<?= $url_query_strings_sort ?>&sort=location_name&order=<?= $disp ?>">
                                 Location <?php if ($sort == 'location_name') { echo $order_icon; } ?>
                             </a>
                         </th>
                         <th>
-                            <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=asset_status&order=<?php echo $disp; ?>">
+                            <a class="text-secondary" href="?<?= $url_query_strings_sort ?>&sort=asset_status&order=<?= $disp ?>">
                                 Status <?php if ($sort == 'asset_status') { echo $order_icon; } ?>
                             </a>
                         </th>
                         <?php if (!$client_url) { ?>
                         <th>
-                            <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=client_name&order=<?php echo $disp; ?>">
+                            <a class="text-secondary" href="?<?= $url_query_strings_sort ?>&sort=client_name&order=<?= $disp ?>">
                                 Client <?php if ($sort == 'client_name') { echo $order_icon; } ?>
                             </a>
                         </th>
@@ -692,20 +692,20 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                         </button>
                                         <div class="dropdown-menu">
                                             <?php if ($asset_uri) { ?>
-                                            <a href="<?php echo $asset_uri; ?>" alt="<?php echo $asset_uri; ?>" target="_blank" class="dropdown-item" >
-                                                <i class="fa fa-fw fa-external-link-alt mr-2"></i><?php echo truncate($asset_uri,40); ?>
+                                            <a href="<?= $asset_uri ?>" alt="<?= $asset_uri ?>" target="_blank" class="dropdown-item" >
+                                                <i class="fa fa-fw fa-external-link-alt mr-2"></i><?= truncate($asset_uri,40) ?>
                                             </a>
                                             <?php } ?>
                                             <?php if ($asset_uri_2) { ?>
                                             <div class="dropdown-divider"></div>
-                                            <a href="<?php echo $asset_uri_2; ?>" target="_blank" class="dropdown-item" >
-                                                <i class="fa fa-fw fa-external-link-alt mr-2"></i><?php echo truncate($asset_uri_2,40); ?>
+                                            <a href="<?= $asset_uri_2 ?>" target="_blank" class="dropdown-item" >
+                                                <i class="fa fa-fw fa-external-link-alt mr-2"></i><?= truncate($asset_uri_2,40) ?>
                                             </a>
                                             <?php } ?>
                                             <?php if ($asset_uri_client) { ?>
                                             <div class="dropdown-divider"></div>
-                                            <a href="<?php echo $asset_uri_client; ?>" target="_blank" class="dropdown-item" >
-                                                <i class="fa fa-fw fa-external-link-alt mr-2"></i>Client URI: <?php echo truncate($asset_uri_client,40); ?>
+                                            <a href="<?= $asset_uri_client ?>" target="_blank" class="dropdown-item" >
+                                                <i class="fa fa-fw fa-external-link-alt mr-2"></i>Client URI: <?= truncate($asset_uri_client,40) ?>
                                             </a>
                                             <?php } ?>
                                         </div>
@@ -717,36 +717,36 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                             <?php if ($_GET['type'] !== 'virtual') { ?>
                                 <td>
-                                    <div><?php echo "$asset_make $asset_model"; ?></div>
-                                    <div><small class="text-secondary"><?php echo $asset_serial_display; ?></small></div>
+                                    <div><?= "$asset_make $asset_model" ?></div>
+                                    <div><small class="text-secondary"><?= $asset_serial_display ?></small></div>
                                 </td>
                             <?php } ?>
                                 <td class="text-monospace">
-                                    <?php echo $asset_ip; ?>
-                                    <div class="text-secondary"><small><?php echo $asset_ipv6; ?></small></div>
+                                    <?= $asset_ip ?>
+                                    <div class="text-secondary"><small><?= $asset_ipv6 ?></small></div>
                                 </td>
                             <?php if (isset($_GET['show_column']) && is_array($_GET['show_column']) && in_array('Mac_Address', $_GET['show_column'])) { ?>
-                                <td class="text-monospace"><?php echo $asset_mac; ?></td>
+                                <td class="text-monospace"><?= $asset_mac ?></td>
                             <?php } ?>
                             <?php if (isset($_GET['show_column']) && is_array($_GET['show_column']) && in_array('Purchase_Date', $_GET['show_column'])) { ?>
-                                <td><?php echo $asset_purchase_date_display; ?></td>
+                                <td><?= $asset_purchase_date_display ?></td>
                             <?php } ?>
                             <?php if (isset($_GET['show_column']) && is_array($_GET['show_column']) && in_array('Install_Date', $_GET['show_column'])) { ?>
-                                <td><?php echo $asset_install_date_display; ?></td>
+                                <td><?= $asset_install_date_display ?></td>
                             <?php } ?>
                             <?php if (isset($_GET['show_column']) && is_array($_GET['show_column']) && in_array('Warranty_Expire', $_GET['show_column'])) { ?>
-                                <td><?php echo $asset_warranty_expire_display; ?></td>
+                                <td><?= $asset_warranty_expire_display ?></td>
                             <?php } ?>
                             <?php if ($_GET['type'] !== 'network' && $_GET['type'] !== 'other' && $_GET['type'] !== 'server') { ?>
-                                <td><?php echo $contact_name_display; ?></td>
+                                <td><?= $contact_name_display ?></td>
                             <?php } ?>
                             <td>
-                                <div><?php echo $location_name_display; ?></div>
-                                <div><small><?php echo $asset_physical_location_display; ?></small></div>
+                                <div><?= $location_name_display ?></div>
+                                <div><small><?= $asset_physical_location_display ?></small></div>
                             </td>
-                            <td><span class="badge badge-pill badge-secondary p-2"><?php echo $asset_status; ?></span></td>
+                            <td><span class="badge badge-pill badge-secondary p-2"><?= $asset_status ?></span></td>
                             <?php if (!$client_url) { ?>
-                            <td><a href="assets.php?client_id=<?php echo $client_id; ?>"><?php echo $client_name; ?></a></td>
+                            <td><a href="assets.php?client_id=<?= $client_id ?>"><?= $client_name ?></a></td>
                             <?php } ?>
                             <td class="text-center">
                                 <div class="btn-group">
@@ -761,14 +761,14 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                             </a>
                                             <?php if ($session_user_role > 2) { ?>
                                                 <?php if ($asset_archived_at) { ?>
-                                                <a class="dropdown-item text-info" href="post.php?restore_asset=<?php echo $asset_id; ?>&csrf_token=<?php echo $_SESSION['csrf_token'] ?>">
+                                                <a class="dropdown-item text-info" href="post.php?restore_asset=<?= $asset_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                                                     <i class="fas fa-fw fa-redo mr-2"></i>Restore
                                                 </a>
-                                                <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_asset=<?php echo $asset_id; ?>&csrf_token=<?php echo $_SESSION['csrf_token'] ?>">
+                                                <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_asset=<?= $asset_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                                                     <i class="fas fa-fw fa-trash mr-2"></i>Delete
                                                 </a>
                                                 <?php } else { ?>
-                                                <a class="dropdown-item text-danger confirm-link" href="post.php?archive_asset=<?php echo $asset_id; ?>&csrf_token=<?php echo $_SESSION['csrf_token'] ?>">
+                                                <a class="dropdown-item text-danger confirm-link" href="post.php?archive_asset=<?= $asset_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                                                     <i class="fas fa-fw fa-archive mr-2"></i>Archive
                                                 </a>
                                                 <?php } ?>

@@ -230,7 +230,7 @@ if (isset($_GET['project_id'])) {
                         <?php } ?>
                         <?php if (!empty($project_archived_at) && lookupUserPermission("module_support" >= 3)) { ?>
                             <div class="dropdown-divider"></div>
-                            <a class="dropdown-item text-danger confirm-link" href="post.php?delete_project=<?php echo $project_id; ?>&csrf_token=<?php echo $_SESSION['csrf_token'] ?>">
+                            <a class="dropdown-item text-danger confirm-link" href="post.php?delete_project=<?= $project_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                                 <i class="fas fa-fw fa-trash mr-2"></i>Delete
                             </a>
                         <?php } ?>
@@ -244,17 +244,17 @@ if (isset($_GET['project_id'])) {
 <div class="card-group mb-3">
     <div class="card card-body">
         <h5 class="mb-0"><?= $project_name ?></h5>
-        <div><small class="text-secondary"><?php echo $project_description; ?></small></div>
+        <div><small class="text-secondary"><?= $project_description ?></small></div>
     </div>
     <div class="card card-body">
-        <div><?php echo $client_name_display; ?></div>
-        <div><?php echo $project_manager_display; ?></div>
-        <div class='text-secondary'><i class='fa fa-fw fa-clock mr-2'></i><?php echo $project_due; ?></div>
-        <div><?php echo $project_completed_date_display; ?></div>
+        <div><?= $client_name_display ?></div>
+        <div><?= $project_manager_display ?></div>
+        <div class='text-secondary'><i class='fa fa-fw fa-clock mr-2'></i><?= $project_due ?></div>
+        <div><?= $project_completed_date_display ?></div>
         <!-- Time tracking -->
         <?php if ($ticket_total_reply_time) { ?>
             <div>
-                <i class="far fa-fw fa-clock text-secondary mr-2"></i>Total time worked: <?php echo $ticket_total_reply_time; ?>
+                <i class="far fa-fw fa-clock text-secondary mr-2"></i>Total time worked: <?= $ticket_total_reply_time ?>
             </div>
         <?php } ?>
     </div>
@@ -263,18 +263,18 @@ if (isset($_GET['project_id'])) {
         <?php if ($ticket_count) { ?>
             <div class="progress" style="height: 20px;">
                 <i class="fa fas fa-fw fa-life-ring mr-2"></i>
-                <div class="progress-bar bg-primary" style="width: <?php echo $tickets_closed_percent; ?>%;"><?php echo $closed_ticket_count; ?> / <?php echo $ticket_count; ?></div>
+                <div class="progress-bar bg-primary" style="width: <?= $tickets_closed_percent ?>%;"><?= $closed_ticket_count ?> / <?= $ticket_count ?></div>
             </div>
         <?php } ?>
         <?php if ($task_count) { ?>
             <div class="progress mt-2" style="height: 20px;">
                 <i class="fa fas fa-fw fa-tasks mr-2"></i>
-                <div class="progress-bar bg-secondary" style="width: <?php echo $tasks_completed_percent; ?>%;"><?php echo $completed_task_count; ?> / <?php echo $task_count; ?></div>
+                <div class="progress-bar bg-secondary" style="width: <?= $tasks_completed_percent ?>%;"><?= $completed_task_count ?> / <?= $task_count ?></div>
             </div>
         <?php } ?>
         <?php if ($ticket_collaborators) { ?>
             <div class=mt-1>
-                <i class="fas fa-fw fa-users mr-2 text-secondary"></i><?php echo $ticket_collaborators; ?>
+                <i class="fas fa-fw fa-users mr-2 text-secondary"></i><?= $ticket_collaborators ?>
             </div>
         <?php } ?>
     </div>
@@ -343,7 +343,7 @@ if (isset($_GET['project_id'])) {
 
                 <div class="card-body p-0">
                     <form id="bulkActions" action="post.php" method="post">
-                        <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token'] ?>">
+                        <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
                         <div class="table-responsive">
                             <table class="table table-border table-hover">
                                 <thead class="thead-light">
@@ -354,32 +354,32 @@ if (isset($_GET['project_id'])) {
                                         </div>
                                     </td>
                                     <th>
-                                        <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=ticket_number&order=<?php echo $disp; ?>">
+                                        <a class="text-secondary" href="?<?= $url_query_strings_sort ?>&sort=ticket_number&order=<?= $disp ?>">
                                             Ticket <?php if ($sort == 'ticket_number') { echo $order_icon; } ?>
                                         </a>
                                     </th>
                                     <th>
-                                        <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=ticket_priority&order=<?php echo $disp; ?>">
+                                        <a class="text-secondary" href="?<?= $url_query_strings_sort ?>&sort=ticket_priority&order=<?= $disp ?>">
                                             Priority <?php if ($sort == 'ticket_priority') { echo $order_icon; } ?>
                                         </a>
                                     </th>
                                     <th>
-                                        <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=ticket_status&order=<?php echo $disp; ?>">
+                                        <a class="text-secondary" href="?<?= $url_query_strings_sort ?>&sort=ticket_status&order=<?= $disp ?>">
                                             Status <?php if ($sort == 'ticket_status') { echo $order_icon; } ?>
                                         </a>
                                     </th>
                                     <th>
-                                        <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=user_name&order=<?php echo $disp; ?>">
+                                        <a class="text-secondary" href="?<?= $url_query_strings_sort ?>&sort=user_name&order=<?= $disp ?>">
                                             Assigned <?php if ($sort == 'user_name') { echo $order_icon; } ?>
                                         </a>
                                     </th>
                                     <th>
-                                        <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=ticket_updated_at&order=<?php echo $disp; ?>">
+                                        <a class="text-secondary" href="?<?= $url_query_strings_sort ?>&sort=ticket_updated_at&order=<?= $disp ?>">
                                             Last Response <?php if ($sort == 'ticket_updated_at') { echo $order_icon; } ?>
                                         </a>
                                     </th>
                                     <th>
-                                        <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=client_name&order=<?php echo $disp; ?>">
+                                        <a class="text-secondary" href="?<?= $url_query_strings_sort ?>&sort=client_name&order=<?= $disp ?>">
                                             Client <?php if ($sort == 'client_name') { echo $order_icon; } ?>
                                         </a>
                                     </th>
@@ -467,34 +467,34 @@ if (isset($_GET['project_id'])) {
                                             <!-- Ticket Bulk Select (for open tickets) -->
                                             <?php if (empty($ticket_closed_at)) { ?>
                                             <div class="form-check">
-                                                <input class="form-check-input bulk-select" type="checkbox" name="ticket_ids[]" value="<?php echo $ticket_id ?>">
+                                                <input class="form-check-input bulk-select" type="checkbox" name="ticket_ids[]" value="<?= $ticket_id ?>">
                                             </div>
                                             <?php } ?>
                                         </td>
                                         <!-- Ticket Number / Subject -->
                                         <td>
-                                            <a href="ticket.php?ticket_id=<?php echo $ticket_id; ?>">
-                                                <span class="badge badge-pill badge-secondary p-3 mr-2"><?php echo "$ticket_prefix$ticket_number"; ?></span>
-                                                <?php echo $ticket_subject; ?>
+                                            <a href="ticket.php?ticket_id=<?= $ticket_id ?>">
+                                                <span class="badge badge-pill badge-secondary p-3 mr-2"><?= "$ticket_prefix$ticket_number" ?></span>
+                                                <?= $ticket_subject ?>
                                             </a>
                                         </td>
                                         <!-- Ticket Priority -->
-                                        <td><?php echo $ticket_priority_display; ?></a></td>
+                                        <td><?= $ticket_priority_display ?></a></td>
 
                                         <!-- Ticket Status -->
                                         <td>
-                                            <span class='badge badge-pill text-light p-2' style="background-color: <?php echo $ticket_status_color; ?>"><?php echo $ticket_status_name; ?></span>
+                                            <span class='badge badge-pill text-light p-2' style="background-color: <?= $ticket_status_color ?>"><?= $ticket_status_name ?></span>
                                         </td>
 
                                         <!-- Ticket Assigned agent -->
-                                        <td><?php echo $ticket_assigned_to_display; ?></td>
+                                        <td><?= $ticket_assigned_to_display ?></td>
 
                                         <!-- Ticket Last Response -->
                                         <td>
-                                            <div><?php echo $ticket_updated_at_display; ?></div>
-                                            <div><?php echo $ticket_reply_by_display; ?></div>
+                                            <div><?= $ticket_updated_at_display ?></div>
+                                            <div><?= $ticket_reply_by_display ?></div>
                                         </td>
-                                        <td><?php echo $client_name; ?></td>
+                                        <td><?= $client_name ?></td>
                                     </tr>
 
                                 <?php } ?>
@@ -533,7 +533,7 @@ if (isset($_GET['project_id'])) {
                                             <i class="far fa-square text-secondary mr-2"></i>
                                         </a>
                                     <?php } ?>
-                                    <?php echo $task_name; ?>
+                                    <?= $task_name ?>
                                 </td>
                             </tr>
                         <?php } ?>

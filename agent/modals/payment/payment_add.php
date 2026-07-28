@@ -39,16 +39,16 @@ ob_start();
 ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fa fa-fw fa-credit-card mr-2"></i><?php echo "$invoice_prefix$invoice_number"; ?>: Make Payment</h5>
+    <h5 class="modal-title"><i class="fa fa-fw fa-credit-card mr-2"></i><?= "$invoice_prefix$invoice_number" ?>: Make Payment</h5>
     <button type="button" class="close text-white" data-dismiss="modal">
         <span>&times;</span>
     </button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
-    <input type="hidden" name="invoice_id" value="<?php echo $invoice_id; ?>">
-    <input type="hidden" name="balance" value="<?php echo $balance; ?>">
-    <input type="hidden" name="currency_code" value="<?php echo $client_currency_code; ?>">
+    <input type="hidden" name="invoice_id" value="<?= $invoice_id ?>">
+    <input type="hidden" name="balance" value="<?= $balance ?>">
+    <input type="hidden" name="currency_code" value="<?= $client_currency_code ?>">
     <div class="modal-body">
 
         <div class="form-row">
@@ -60,7 +60,7 @@ ob_start();
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
                         </div>
-                        <input type="date" class="form-control" name="date" max="2999-12-31" value="<?php echo date("Y-m-d"); ?>" required>
+                        <input type="date" class="form-control" name="date" max="2999-12-31" value="<?= date("Y-m-d") ?>" required>
                     </div>
                 </div>
 
@@ -74,7 +74,7 @@ ob_start();
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-dollar-sign"></i></span>
                         </div>
-                        <input type="text" class="form-control" inputmode="decimal" pattern="[0-9]*\.?[0-9]{0,2}" name="amount" value="<?php echo number_format($balance, 2, '.', ''); ?>" placeholder="0.00" required>
+                        <input type="text" class="form-control" inputmode="decimal" pattern="[0-9]*\.?[0-9]{0,2}" name="amount" value="<?= number_format($balance, 2, '.', '') ?>" placeholder="0.00" required>
                     </div>
                 </div>
 
@@ -115,8 +115,8 @@ ob_start();
 
                     ?>
                         <option <?php if ($config_default_payment_account == $account_id) { echo "selected"; } ?>
-                            value="<?php echo $account_id; ?>">
-                            <?php echo $account_name; ?> [<?php echo numfmt_format_currency($currency_format, $account_balance, $account_currency);  ?>]
+                            value="<?= $account_id ?>">
+                            <?= $account_name ?> [<?= numfmt_format_currency($currency_format, $account_balance, $account_currency) ?>]
                         </option>
 
                     <?php
@@ -140,7 +140,7 @@ ob_start();
                     while ($row = mysqli_fetch_assoc($sql)) {
                         $payment_method_name = escapeHtml($row['payment_method_name']);
                     ?>
-                        <option <?php if ($config_default_payment_method == $payment_method_name) { echo "selected"; } ?>><?php echo $payment_method_name; ?></option>
+                        <option <?php if ($config_default_payment_method == $payment_method_name) { echo "selected"; } ?>><?= $payment_method_name ?></option>
 
                     <?php
                     }
@@ -165,7 +165,7 @@ ob_start();
                 <label>Email Receipt</label>
                 <div class="custom-control custom-checkbox">
                     <input type="checkbox" class="custom-control-input" id="customControlAutosizing" name="email_receipt" value="1" checked>
-                    <label class="custom-control-label" for="customControlAutosizing"><?php echo $contact_email; ?></label>
+                    <label class="custom-control-label" for="customControlAutosizing"><?= $contact_email ?></label>
                 </div>
             </div>
 

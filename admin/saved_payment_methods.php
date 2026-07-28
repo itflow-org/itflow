@@ -68,33 +68,33 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                 <thead class="text-dark <?php if ($num_rows == 0) { echo "d-none"; } ?>">
                 <tr>
                     <th>
-                        <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=client_name&order=<?php echo $disp; ?>">
+                        <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=client_name&order=<?= $disp ?>">
                             Client <?php if ($sort == 'client_name') { echo $order_icon; } ?>
                         </a>
                     </th>
                     <th>
-                        <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=payment_provider_name&order=<?php echo $disp; ?>">
+                        <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=payment_provider_name&order=<?= $disp ?>">
                             Provider <?php if ($sort == 'payment_provider_name') { echo $order_icon; } ?>
                         </a>
                     </th>
                     <th>
-                        <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=saved_payment_description&order=<?php echo $disp; ?>">
+                        <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=saved_payment_description&order=<?= $disp ?>">
                             Description <?php if ($sort == 'saved_payment_description') { echo $order_icon; } ?>
                         </a>
                     </th>
                     <th>
-                        <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=payment_provider_client&order=<?php echo $disp; ?>">
+                        <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=payment_provider_client&order=<?= $disp ?>">
                             Provider Client ID <?php if ($sort == 'payment_provider_client') { echo $order_icon; } ?>
                         </a>
                     </th>
 
                     <th>
-                        <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=saved_payment_provider_method&order=<?php echo $disp; ?>">
+                        <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=saved_payment_provider_method&order=<?= $disp ?>">
                             Provider Payment Method ID <?php if ($sort == 'saved_payment_provider_method') { echo $order_icon; } ?>
                         </a>
                     </th>
                     <th>
-                        <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=saved_payment_created_at&order=<?php echo $disp; ?>">
+                        <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=saved_payment_created_at&order=<?= $disp ?>">
                             Created <?php if ($sort == 'saved_payment_created_at') { echo $order_icon; } ?>
                         </a>
                     </th>
@@ -127,12 +127,12 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             <br>
                             <small class="text-secondary">ID: <?= $provider_id ?></small>
                         </td>
-                        <td><?php echo $saved_payment_description; ?></td>
-                        <td><?php echo $provider_client; ?></td>
-                        <td><?php echo $provider_payment_method; ?></td>
-                        <td><?php echo $saved_payment_created_at; ?></td>
+                        <td><?= $saved_payment_description ?></td>
+                        <td><?= $provider_client ?></td>
+                        <td><?= $provider_payment_method ?></td>
+                        <td><?= $saved_payment_created_at ?></td>
                         <td>
-                            <a class="btn btn-outline-danger confirm-link" href="post.php?delete_saved_payment=<?php echo $saved_payment_id; ?>&csrf_token=<?php echo $_SESSION['csrf_token'] ?>">
+                            <a class="btn btn-outline-danger confirm-link" href="post.php?delete_saved_payment=<?= $saved_payment_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                                 <i class="fas fa-fw fa-trash mr-2"></i>Delete
                             </a>
                         </td>

@@ -67,7 +67,7 @@ ob_start();
                                 $category_name = escapeHtml($row['category_name']);
 
                                 ?>
-                                <option value="<?php echo $category_id; ?>"><?php echo $category_name; ?></option>
+                                <option value="<?= $category_id ?>"><?= $category_name ?></option>
                             <?php } ?>
 
                         </select>
@@ -98,7 +98,7 @@ ob_start();
                             while ($row = mysqli_fetch_assoc($sql)) {
                                 $user_id = intval($row['user_id']);
                                 $user_name = escapeHtml($row['user_name']); ?>
-                                <option value="<?php echo $user_id; ?>"><?php echo $user_name; ?></option>
+                                <option value="<?= $user_id ?>"><?= $user_name ?></option>
                             <?php } ?>
                         </select>
                     </div>
@@ -121,7 +121,7 @@ ob_start();
                             while ($row = mysqli_fetch_assoc($sql_projects)) {
                                 $project_id_select = intval($row['project_id']);
                                 $project_name_select = escapeHtml($row['project_name']); ?>
-                                <option value="<?php echo $project_id_select; ?>"><?php echo $project_name_select; ?></option>
+                                <option value="<?= $project_id_select ?>"><?= $project_name_select ?></option>
 
                             <?php } ?>
                         </select>

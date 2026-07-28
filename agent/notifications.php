@@ -70,13 +70,13 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     <div class="col-md-2">
                         <div class="form-group">
                             <label>Date From</label>
-                            <input type="date" class="form-control" name="dtf" max="2999-12-31" value="<?php echo escapeHtml($dtf); ?>">
+                            <input type="date" class="form-control" name="dtf" max="2999-12-31" value="<?= escapeHtml($dtf) ?>">
                         </div>
                     </div>
                     <div class="col-md-2">
                         <div class="form-group">
                             <label>Date To</label>
-                            <input type="date" class="form-control" name="dtt" max="2999-12-31" value="<?php echo escapeHtml($dtt); ?>">
+                            <input type="date" class="form-control" name="dtt" max="2999-12-31" value="<?= escapeHtml($dtt) ?>">
                         </div>
                     </div>
                 </div>
@@ -87,23 +87,23 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                 <thead class="<?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
                 <tr>
                     <th>
-                        <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=notification_timestamp&order=<?php echo $disp; ?>">
+                        <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=notification_timestamp&order=<?= $disp ?>">
                             Timestamp <?php if ($sort == 'notification_timestamp') { echo $order_icon; } ?>
                         </a>
                     </th>
                     <th>
-                        <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=notification_type&order=<?php echo $disp; ?>">
+                        <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=notification_type&order=<?= $disp ?>">
                             Type <?php if ($sort == 'notification_type') { echo $order_icon; } ?>
                         </a>
                     </th>
                     <th>
-                        <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=notification&order=<?php echo $disp; ?>">
+                        <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=notification&order=<?= $disp ?>">
                             Notification <?php if ($sort == 'notification') { echo $order_icon; } ?>
                         </a>
                     </th>
                     <?php if($dismissed_filter) { ?>
                     <th>
-                        <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=notification_dismissed_at&order=<?php echo $disp; ?>">
+                        <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=notification_dismissed_at&order=<?= $disp ?>">
                             Dismissed At <?php if ($sort == 'notification_dismissed_at') { echo $order_icon; } ?>
                         </a>
                     </th>
@@ -111,7 +111,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     <?php if(!$dismissed_filter) { ?>
                     <th class="text-center p-0">
                         <?php if (mysqli_num_rows($sql) > 0) { ?>
-                        <a href="post.php?dismiss_all_notifications&csrf_token=<?php echo $_SESSION["csrf_token"]; ?>"
+                        <a href="post.php?dismiss_all_notifications&csrf_token=<?= $_SESSION["csrf_token"] ?>"
                             class="btn btn-sm btn-dark mb-2" title="Dismiss All">
                             <i class="fas fa-fw fa-check-double"></i>
                         </a>
@@ -134,11 +134,11 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                 ?>
                 <tr>
-                    <td class="text-monospace"><?php echo $notification_timestamp; ?></td>
-                    <td><?php echo $notification_type; ?></td>
-                    <td><?php echo $notification; ?></td>
+                    <td class="text-monospace"><?= $notification_timestamp ?></td>
+                    <td><?= $notification_type ?></td>
+                    <td><?= $notification ?></td>
                     <?php if($dismissed_filter) { ?>
-                    <td class="text-monospace"><?php echo $notification_dismissed_at; ?></td>
+                    <td class="text-monospace"><?= $notification_dismissed_at ?></td>
                     <?php } ?>
                     <?php if(!$dismissed_filter) { ?>
                     <td class="text-center"><a class="btn btn-secondary btn-sm" href="post.php?dismiss_notification=<?= $notification_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>" title="Dismiss"><i class="fas fa-check"></i></a></td>

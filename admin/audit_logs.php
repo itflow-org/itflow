@@ -92,7 +92,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                     $client_id = intval($row['client_id']);
                                     $client_name = escapeHtml($row['client_name']);
                                 ?>
-                                    <option <?php if ($client_filter == $client_id) { echo "selected"; } ?> value="<?php echo $client_id; ?>"><?php echo $client_name; ?></option>
+                                    <option <?php if ($client_filter == $client_id) { echo "selected"; } ?> value="<?= $client_id ?>"><?= $client_name ?></option>
                                 <?php
                                 }
                                 ?>
@@ -112,7 +112,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                     $user_id = intval($row['user_id']);
                                     $user_name = escapeHtml($row['user_name']);
                                 ?>
-                                    <option <?php if ($user_filter == $user_id) { echo "selected"; } ?> value="<?php echo $user_id; ?>"><?php echo $user_name; ?></option>
+                                    <option <?php if ($user_filter == $user_id) { echo "selected"; } ?> value="<?= $user_id ?>"><?= $user_name ?></option>
                                 <?php
                                 }
                                 ?>
@@ -131,7 +131,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 while ($row = mysqli_fetch_assoc($sql_types_filter)) {
                                     $log_type = escapeHtml($row['log_type']);
                                 ?>
-                                    <option <?php if ($type_filter == $log_type) { echo "selected"; } ?>><?php echo $log_type; ?></option>
+                                    <option <?php if ($type_filter == $log_type) { echo "selected"; } ?>><?= $log_type ?></option>
                                 <?php
                                 }
                                 ?>
@@ -150,7 +150,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 while ($row = mysqli_fetch_assoc($sql_actions_filter)) {
                                     $log_action = escapeHtml($row['log_action']);
                                 ?>
-                                    <option <?php if ($action_filter == $log_action) { echo "selected"; } ?>><?php echo $log_action; ?></option>
+                                    <option <?php if ($action_filter == $log_action) { echo "selected"; } ?>><?= $log_action ?></option>
                                 <?php
                                 }
                                 ?>
@@ -165,9 +165,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             <div class="form-group">
                                 <label>Date range</label>
                                 <input type="text" id="dateFilter" class="form-control" autocomplete="off">
-                                <input type="hidden" name="canned_date" id="canned_date" value="<?php echo escapeHtml($_GET['canned_date']) ?? ''; ?>">
-                                <input type="hidden" name="dtf" id="dtf" value="<?php echo escapeHtml($dtf ?? ''); ?>">
-                                <input type="hidden" name="dtt" id="dtt" value="<?php echo escapeHtml($dtt ?? ''); ?>">
+                                <input type="hidden" name="canned_date" id="canned_date" value="<?= escapeHtml($_GET['canned_date']) ?? '' ?>">
+                                <input type="hidden" name="dtf" id="dtf" value="<?= escapeHtml($dtf ?? '') ?>">
+                                <input type="hidden" name="dtt" id="dtt" value="<?= escapeHtml($dtt ?? '') ?>">
                             </div>
                         </div>
                     </div>
@@ -179,44 +179,44 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     <thead class="text-dark <?php if ($num_rows[0] == 0) { echo "d-none"; } ?> text-nowrap">
                     <tr>
                         <th>
-                            <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=log_created_at&order=<?php echo $disp; ?>">
+                            <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=log_created_at&order=<?= $disp ?>">
                                 Timestamp <?php if ($sort == 'log_created_at') { echo $order_icon; } ?>
                             </a>
                         </th>
                         <th>
-                            <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=user_name&order=<?php echo $disp; ?>">
+                            <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=user_name&order=<?= $disp ?>">
                                 User <?php if ($sort == 'user_name') { echo $order_icon; } ?>
                             </a>
                         </th>
                         <?php if (empty($client)) { ?>
                             <th>
-                                <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=client_name&order=<?php echo $disp; ?>">
+                                <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=client_name&order=<?= $disp ?>">
                                     Client <?php if ($sort == 'client_name') { echo $order_icon; } ?>
                                 </a>
                             </th>
                         <?php } ?>
                         <th>
-                            <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=log_type&order=<?php echo $disp; ?>">
+                            <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=log_type&order=<?= $disp ?>">
                                 Type <?php if ($sort == 'log_type') { echo $order_icon; } ?>
                             </a>
                         </th>
                         <th>
-                            <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=log_action&order=<?php echo $disp; ?>">
+                            <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=log_action&order=<?= $disp ?>">
                                 Action <?php if ($sort == 'log_action') { echo $order_icon; } ?>
                             </a>
                         </th>
                         <th>
-                            <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=log_description&order=<?php echo $disp; ?>">
+                            <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=log_description&order=<?= $disp ?>">
                                 Description <?php if ($sort == 'log_description') { echo $order_icon; } ?>
                             </a>
                         </th>
                         <th>
-                            <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=log_ip&order=<?php echo $disp; ?>">
+                            <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=log_ip&order=<?= $disp ?>">
                                 IP Address <?php if ($sort == 'log_ip') { echo $order_icon; } ?>
                             </a>
                         </th>
                         <th>
-                            <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=log_user_agent&order=<?php echo $disp; ?>">
+                            <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=log_user_agent&order=<?= $disp ?>">
                                 User Agent <?php if ($sort == 'log_user_agent') { echo $order_icon; } ?>
                             </a>
                         </th>
@@ -254,16 +254,16 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         ?>
 
                         <tr>
-                            <td class="text-monospace"><?php echo $log_created_at; ?></td>
-                            <td><?php echo $user_name_display; ?></td>
+                            <td class="text-monospace"><?= $log_created_at ?></td>
+                            <td><?= $user_name_display ?></td>
                             <?php if(empty($client)) { ?>
-                            <td><?php echo $client_name_display; ?></td>
+                            <td><?= $client_name_display ?></td>
                             <?php } ?>
-                            <td><?php echo $log_type; ?></td>
-                            <td><?php echo $log_action; ?></td>
-                            <td><?php echo $log_description; ?></td>
-                            <td class="text-monospace"><?php echo $log_ip; ?></td>
-                            <td><?php echo "$log_user_os<div class='text-secondary'>$log_user_browser</div>"; ?></td>
+                            <td><?= $log_type ?></td>
+                            <td><?= $log_action ?></td>
+                            <td><?= $log_description ?></td>
+                            <td class="text-monospace"><?= $log_ip ?></td>
+                            <td><?= "$log_user_os<div class='text-secondary'>$log_user_browser</div>" ?></td>
                         </tr>
 
                         <?php

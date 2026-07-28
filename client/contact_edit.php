@@ -55,7 +55,7 @@ if ($row) {
     <div class="col-md-6">
         <form action="post.php" method="post">
             <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
-            <input type="hidden" name="contact_id" value="<?php echo $contact_id; ?>">
+            <input type="hidden" name="contact_id" value="<?= $contact_id ?>">
 
             <div class="form-group">
                 <label>Name <strong class="text-danger">*</strong></label>
@@ -63,7 +63,7 @@ if ($row) {
                     <div class="input-group-prepend">
                         <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
                     </div>
-                    <input type="text" class="form-control" name="contact_name" value="<?php echo escapeHtml($contact_name) ?>" required maxlength="200">
+                    <input type="text" class="form-control" name="contact_name" value="<?= escapeHtml($contact_name) ?>" required maxlength="200">
                 </div>
             </div>
 
@@ -73,7 +73,7 @@ if ($row) {
                     <div class="input-group-prepend">
                         <span class="input-group-text"><i class="fa fa-fw fa-envelope"></i></span>
                     </div>
-                    <input type="email" class="form-control" name="contact_email" value="<?php echo escapeHtml($contact_email) ?>" required maxlength="200">
+                    <input type="email" class="form-control" name="contact_email" value="<?= escapeHtml($contact_email) ?>" required maxlength="200">
                 </div>
             </div>
 

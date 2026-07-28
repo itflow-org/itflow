@@ -90,7 +90,7 @@ ob_start();
                 <select class="form-control select2" name="license_type">
                     <option value="">- Select a License Type -</option>
                     <?php foreach($license_types_array as $license_type) { ?>
-                        <option><?php echo $license_type; ?></option>
+                        <option><?= $license_type ?></option>
                     <?php } ?>
                 </select>
             </div>

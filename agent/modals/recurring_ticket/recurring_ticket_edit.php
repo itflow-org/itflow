@@ -38,15 +38,15 @@ ob_start();
 ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fas fa-fw fa-calendar-check mr-2"></i>Editing Recurring Ticket: <strong><?php echo $recurring_ticket_subject; ?></strong></h5>
+    <h5 class="modal-title"><i class="fas fa-fw fa-calendar-check mr-2"></i>Editing Recurring Ticket: <strong><?= $recurring_ticket_subject ?></strong></h5>
     <button type="button" class="close text-white" data-dismiss="modal">
         <span>&times;</span>
     </button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
-    <input type="hidden" name="recurring_ticket_id" value="<?php echo $recurring_ticket_id; ?>">
-    <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
+    <input type="hidden" name="recurring_ticket_id" value="<?= $recurring_ticket_id ?>">
+    <input type="hidden" name="client_id" value="<?= $client_id ?>">
 
     <div class="modal-body">
 
@@ -75,12 +75,12 @@ ob_start();
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
                         </div>
-                        <input type="text" class="form-control" name="subject" placeholder="Subject" maxlength="500" value="<?php echo $recurring_ticket_subject; ?>" required >
+                        <input type="text" class="form-control" name="subject" placeholder="Subject" maxlength="500" value="<?= $recurring_ticket_subject ?>" required >
                     </div>
                 </div>
 
                 <div class="form-group">
-                    <textarea class="form-control tinymce" name="details"><?php echo $recurring_ticket_details; ?></textarea>
+                    <textarea class="form-control tinymce" name="details"><?= $recurring_ticket_details ?></textarea>
                 </div>
 
                 <div class="row">
@@ -116,7 +116,7 @@ ob_start();
                                         $category_name = escapeHtml($row['category_name']);
 
                                         ?>
-                                        <option <?php if ($recurring_ticket_category == $category_id) {echo "selected";} ?> value="<?php echo $category_id; ?>"><?php echo $category_name; ?></option>
+                                        <option <?php if ($recurring_ticket_category == $category_id) {echo "selected";} ?> value="<?= $category_id ?>"><?= $category_name ?></option>
                                     <?php } ?>
 
                                 </select>
@@ -150,7 +150,7 @@ ob_start();
                                 $user_name_select = escapeHtml($row['user_name']);
 
                                 ?>
-                                <option value="<?php echo $user_id_select; ?>" <?php if ($recurring_ticket_assigned_to == $user_id_select) { echo "selected"; } ?>><?php echo $user_name_select; ?></option>
+                                <option value="<?= $user_id_select ?>" <?php if ($recurring_ticket_assigned_to == $user_id_select) { echo "selected"; } ?>><?= $user_name_select ?></option>
                             <?php } ?>
                         </select>
                     </div>
@@ -202,7 +202,7 @@ ob_start();
                                 }
 
                                 ?>
-                                <option value="<?php echo $contact_id_select; ?>" <?php if ($contact_id_select  == $recurring_ticket_contact_id) { echo "selected"; } ?>><?php echo "$contact_name_select$contact_title_display_select$contact_primary_display_select$contact_technical_display_select"; ?></option>
+                                <option value="<?= $contact_id_select ?>" <?php if ($contact_id_select  == $recurring_ticket_contact_id) { echo "selected"; } ?>><?= "$contact_name_select$contact_title_display_select$contact_primary_display_select$contact_technical_display_select" ?></option>
                             <?php } ?>
                         </select>
                     </div>
@@ -236,7 +236,7 @@ ob_start();
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-calendar-day"></i></span>
                         </div>
-                        <input class="form-control" type="date" name="next_date" max="2999-12-31" value="<?php echo $recurring_ticket_next_run; ?>">
+                        <input class="form-control" type="date" name="next_date" max="2999-12-31" value="<?= $recurring_ticket_next_run ?>">
                     </div>
                 </div>
 
@@ -260,7 +260,7 @@ ob_start();
                                 $asset_name_select = escapeHtml($row['asset_name']);
                                 $asset_contact_name_select = escapeHtml($row['contact_name']);
                                 ?>
-                                <option <?php if ($recurring_ticket_asset_id == $asset_id_select) { echo "selected"; } ?> value="<?php echo $asset_id_select; ?>"><?php echo "$asset_name_select - $asset_contact_name_select"; ?></option>
+                                <option <?php if ($recurring_ticket_asset_id == $asset_id_select) { echo "selected"; } ?> value="<?= $asset_id_select ?>"><?= "$asset_name_select - $asset_contact_name_select" ?></option>
 
                                 <?php
                             }
@@ -285,9 +285,9 @@ ob_start();
                                 $asset_name_select = escapeHtml($row['asset_name']);
                                 $asset_contact_name_select = escapeHtml($row['contact_name']);
                             ?>
-                                <option value="<?php echo $asset_id_select; ?>"
+                                <option value="<?= $asset_id_select ?>"
                                     <?php if (in_array($asset_id_select, $additional_assets_array)) { echo "selected"; } ?>
-                                    ><?php echo "$asset_name_select - $asset_contact_name_select"; ?></option>
+                                    ><?= "$asset_name_select - $asset_contact_name_select" ?></option>
 
                             <?php } ?>
                         </select>

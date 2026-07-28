@@ -34,8 +34,8 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
     </div>
     <div class="card-body">
         <form autocomplete="off">
-            <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
-            <input type="hidden" name="archived" value="<?php echo $archived; ?>">
+            <input type="hidden" name="client_id" value="<?= $client_id ?>">
+            <input type="hidden" name="archived" value="<?= $archived ?>">
             <div class="row">
 
                 <div class="col-md-4">
@@ -49,7 +49,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                 <div class="col-md-8">
                     <div class="float-right">
-                        <a href="?client_id=<?php echo $client_id; ?>&archived=<?php if($archived == 1){ echo 0; } else { echo 1; } ?>"
+                        <a href="?client_id=<?= $client_id ?>&archived=<?php if($archived == 1){ echo 0; } else { echo 1; } ?>"
                             class="btn btn-<?php if($archived == 1){ echo "primary"; } else { echo "default"; } ?>">
                             <i class="fa fa-fw fa-archive mr-2"></i>Archived
                         </a>
@@ -90,7 +90,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                     <div class="card card-dark">
                         <div class="card-header">
-                            <h3 class="card-title"><i class="fas fa-fw fa-server mr-2"></i><?php echo "$rack_name - $rack_units"; ?>U</h3>
+                            <h3 class="card-title"><i class="fas fa-fw fa-server mr-2"></i><?= "$rack_name - $rack_units" ?>U</h3>
 
                             <div class="card-tools">
                                 <div class="dropdown dropleft">
@@ -109,11 +109,11 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                         </a>
                                         <?php if ($session_user_role == 3) { ?>
                                             <div class="dropdown-divider"></div>
-                                            <a class="dropdown-item text-danger confirm-link" href="post.php?archive_rack=<?php echo $rack_id; ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
+                                            <a class="dropdown-item text-danger confirm-link" href="post.php?archive_rack=<?= $rack_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                                                 <i class="fas fa-fw fa-archive mr-2"></i>Archive
                                             </a>
                                             <div class="dropdown-divider"></div>
-                                            <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_rack=<?php echo $rack_id; ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
+                                            <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_rack=<?= $rack_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                                                 <i class="fas fa-fw fa-trash mr-2"></i>Delete
                                             </a>
                                         <?php } ?>
@@ -125,7 +125,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             <div class="row">
                                 <div class="col-md-6">
                                     <?php if ($rack_photo) { ?>
-                                        <img class="img-thumbnail mb-3" alt="rack_photo" src="<?php echo "../uploads/clients/$client_id/$rack_photo"; ?>">
+                                        <img class="img-thumbnail mb-3" alt="rack_photo" src="<?= "../uploads/clients/$client_id/$rack_photo" ?>">
                                     <?php } ?>
                                     <table class="table table-sm table-borderless border">
                                         <tbody>
@@ -134,37 +134,37 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                                     <th colspan="2">Description</th>
                                                 </tr>
                                                 <tr>
-                                                    <td colspan="2"><?php echo $rack_description; ?></td>
+                                                    <td colspan="2"><?= $rack_description ?></td>
                                                 </tr>
                                             <?php } ?>
                                             <?php if ($rack_type) { ?>
                                                 <tr>
                                                     <th>Type</th>
-                                                    <td><?php echo $rack_type; ?></td>
+                                                    <td><?= $rack_type ?></td>
                                                 </tr>
                                             <?php } ?>
                                             <?php if ($rack_model) { ?>
                                                 <tr>
                                                     <th>Model</th>
-                                                    <td><?php echo $rack_model; ?></td>
+                                                    <td><?= $rack_model ?></td>
                                                 </tr>
                                             <?php } ?>
                                             <?php if ($rack_depth) { ?>
                                                 <tr>
                                                     <th>Depth</th>
-                                                    <td><?php echo $rack_depth; ?></td>
+                                                    <td><?= $rack_depth ?></td>
                                                 </tr>
                                             <?php } ?>
                                             <?php if ($rack_location_name) { ?>
                                                 <tr>
                                                     <th>Location</th>
-                                                    <td><?php echo $rack_location_name; ?></td>
+                                                    <td><?= $rack_location_name ?></td>
                                                 </tr>
                                             <?php } ?>
                                             <?php if ($rack_physical_location) { ?>
                                                 <tr>
                                                     <th>Physical Location</th>
-                                                    <td><?php echo $rack_physical_location; ?></td>
+                                                    <td><?= $rack_physical_location ?></td>
                                                 </tr>
                                             <?php } ?>
                                             <?php if ($rack_notes) { ?>
@@ -172,7 +172,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                                     <th colspan="2">Notes</th>
                                                 </tr>
                                                 <tr>
-                                                    <td><?php echo $rack_notes; ?></td>
+                                                    <td><?= $rack_notes ?></td>
                                                 </tr>
                                             <?php } ?>
                                         </tbody>
@@ -219,7 +219,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                             <tr>
                                                 <!-- Always print the left-hand U #, for reference -->
                                                 <td class="px-0 text-center bg-light border">
-                                                    <?php echo sprintf('%02d', $i); ?>
+                                                    <?= sprintf('%02d', $i) ?>
                                                 </td>
 
                                                 <?php
@@ -244,17 +244,17 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                                                         // Print the device cell and action cell with rowSpan
                                                         ?>
-                                                        <td class="text-center align-middle" rowspan="<?php echo $span; ?>">
+                                                        <td class="text-center align-middle" rowspan="<?= $span ?>">
                                                             <!-- DEVICE INFO HERE -->
                                                             <?php
                                                             echo $d['unit_device'];
                                                             if (!empty($d['asset_name'])) {
                                                                 $icon = $d['icon']; // already from getAssetIcon
                                                                 ?>
-                                                                <i class="fa fa-<?php echo $icon; ?>"></i>
-                                                                <a href="asset.php?client_id=<?php echo $client_id; ?>&asset_id=<?php echo $d['asset_id']; ?>"
+                                                                <i class="fa fa-<?= $icon ?>"></i>
+                                                                <a href="asset.php?client_id=<?= $client_id ?>&asset_id=<?= $d['asset_id'] ?>"
                                                                    target="_blank">
-                                                                   <?php echo $d['asset_name']; ?>
+                                                                   <?= $d['asset_name'] ?>
                                                                    <i class="fas fa-external-link-alt ml-1"></i>
                                                                 </a>
                                                                 <?php
@@ -262,7 +262,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                                             ?>
                                                         </td>
 
-                                                        <td class="px-0 text-right align-middle" rowspan="<?php echo $span; ?>">
+                                                        <td class="px-0 text-right align-middle" rowspan="<?= $span ?>">
                                                             <!-- ACTION ICON / DROPDOWN -->
                                                             <div class="dropdown dropleft">
                                                                 <button class="btn btn-tool" type="button" data-toggle="dropdown">
@@ -270,7 +270,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                                                 </button>
                                                                 <div class="dropdown-menu">
                                                                     <a class="dropdown-item text-danger text-bold confirm-link"
-                                                                       href="post.php?remove_rack_unit=<?php echo $d['unit_id']; ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
+                                                                       href="post.php?remove_rack_unit=<?= $d['unit_id'] ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                                                                        <i class="fas fa-fw fa-minus mr-2"></i>Remove
                                                                     </a>
                                                                 </div>
@@ -289,7 +289,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                                     ?>
                                                     <td class="text-center">
                                                         <?php foreach ($unit_devices as $d) { ?>
-                                                            <?php echo $d['unit_device']; ?><br>
+                                                            <?= $d['unit_device'] ?><br>
                                                             <?php // Could also show asset_name, etc. ?>
                                                         <?php } ?>
                                                     </td>
@@ -302,7 +302,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                                             <div class="dropdown-menu">
                                                                 <?php foreach ($unit_devices as $d) { ?>
                                                                     <a class="dropdown-item text-danger text-bold confirm-link"
-                                                                       href="post.php?remove_rack_unit=<?php echo $d['unit_id']; ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
+                                                                       href="post.php?remove_rack_unit=<?= $d['unit_id'] ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                                                                        <i class="fas fa-fw fa-minus mr-2"></i>Remove
                                                                     </a>
                                                                 <?php } ?>

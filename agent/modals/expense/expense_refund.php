@@ -38,9 +38,9 @@ ob_start();
 
 <form action="post.php" method="post" autocomplete="off">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
-    <input type="hidden" name="account" value="<?php echo $expense_account_id; ?>">
-    <input type="hidden" name="vendor" value="<?php echo $expense_vendor_id; ?>">
-    <input type="hidden" name="category" value="<?php echo $expense_category_id; ?>">
+    <input type="hidden" name="account" value="<?= $expense_account_id ?>">
+    <input type="hidden" name="vendor" value="<?= $expense_vendor_id ?>">
+    <input type="hidden" name="category" value="<?= $expense_category_id ?>">
 
     <div class="modal-body">
 
@@ -62,14 +62,14 @@ ob_start();
                     <div class="input-group-prepend">
                         <span class="input-group-text"><i class="fa fa-fw fa-dollar-sign"></i></span>
                     </div>
-                    <input type="text" class="form-control" inputmode="decimal" pattern="-?[0-9]*\.?[0-9]{0,2}" name="amount" value="-<?php echo number_format($expense_amount, 2, '.', ''); ?>" placeholder="-0.00" required>
+                    <input type="text" class="form-control" inputmode="decimal" pattern="-?[0-9]*\.?[0-9]{0,2}" name="amount" value="-<?= number_format($expense_amount, 2, '.', '') ?>" placeholder="-0.00" required>
                 </div>
             </div>
         </div>
 
         <div class="form-group">
             <label>Description</label>
-            <textarea class="form-control" rows="6" name="description" placeholder="Enter a description" required>Refund: <?php echo $expense_description; ?></textarea>
+            <textarea class="form-control" rows="6" name="description" placeholder="Enter a description" required>Refund: <?= $expense_description ?></textarea>
         </div>
 
         <div class="form-group">
@@ -78,7 +78,7 @@ ob_start();
                 <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-file-alt"></i></span>
                 </div>
-                <input type="text" class="form-control" name="reference" placeholder="Enter a reference" maxlength="200" value="<?php echo $expense_reference; ?>">
+                <input type="text" class="form-control" name="reference" placeholder="Enter a reference" maxlength="200" value="<?= $expense_reference ?>">
             </div>
         </div>
 

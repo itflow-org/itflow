@@ -28,14 +28,14 @@ ob_start();
 ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title text-white"><i class="fas fa-fw fa-comment-dollar mr-2"></i>Editing quote: <span class="text-bold"><?php echo "$quote_prefix$quote_number"; ?></span> - <span class="text"><?php echo $client_name; ?></span></h5>
+    <h5 class="modal-title text-white"><i class="fas fa-fw fa-comment-dollar mr-2"></i>Editing quote: <span class="text-bold"><?= "$quote_prefix$quote_number" ?></span> - <span class="text"><?= $client_name ?></span></h5>
     <button type="button" class="close text-white" data-dismiss="modal">
         <span>&times;</span>
     </button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
-    <input type="hidden" name="quote_id" value="<?php echo $quote_id; ?>">
+    <input type="hidden" name="quote_id" value="<?= $quote_id ?>">
 
     <div class="modal-body">
 
@@ -45,7 +45,7 @@ ob_start();
                 <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
                 </div>
-                <input type="date" class="form-control" name="date" max="2999-12-31" value="<?php echo $quote_date; ?>" required>
+                <input type="date" class="form-control" name="date" max="2999-12-31" value="<?= $quote_date ?>" required>
             </div>
         </div>
 
@@ -55,7 +55,7 @@ ob_start();
                 <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
                 </div>
-                <input type="date" class="form-control" name="expire" max="2999-12-31" value="<?php echo $quote_expire; ?>" required>
+                <input type="date" class="form-control" name="expire" max="2999-12-31" value="<?= $quote_expire ?>" required>
             </div>
         </div>
 
@@ -73,7 +73,7 @@ ob_start();
                         $category_id = intval($row['category_id']);
                         $category_name = escapeHtml($row['category_name']);
                         ?>
-                        <option <?php if ($quote_category_id == $category_id) { echo "selected"; } ?> value="<?php echo $category_id; ?>"><?php echo $category_name; ?></option>
+                        <option <?php if ($quote_category_id == $category_id) { echo "selected"; } ?> value="<?= $category_id ?>"><?= $category_name ?></option>
 
                     <?php } ?>
 
@@ -94,7 +94,7 @@ ob_start();
                 <div class='input-group-prepend'>
                     <span class='input-group-text'><i class='fa fa-fw fa-dollar-sign'></i></span>
                 </div>
-                <input type='text' class='form-control' inputmode="decimal" pattern="-?[0-9]*\.?[0-9]{0,2}" name='quote_discount' placeholder='0.00' value="<?php echo number_format($quote_discount, 2, '.', ''); ?>">
+                <input type='text' class='form-control' inputmode="decimal" pattern="-?[0-9]*\.?[0-9]{0,2}" name='quote_discount' placeholder='0.00' value="<?= number_format($quote_discount, 2, '.', '') ?>">
             </div>
         </div>
 
@@ -104,7 +104,7 @@ ob_start();
                 <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-comment"></i></span>
                 </div>
-                <input type="text" class="form-control" name="scope" placeholder="Quick description" value="<?php echo $quote_scope; ?>" maxlength="255">
+                <input type="text" class="form-control" name="scope" placeholder="Quick description" value="<?= $quote_scope ?>" maxlength="255">
             </div>
         </div>
 

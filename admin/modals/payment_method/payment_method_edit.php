@@ -15,13 +15,13 @@ $payment_method_description = escapeHtml($row['payment_method_description']);
 ob_start();
 ?>
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fa fa-fw fa-credit-card mr-2"></i>Editing: <strong><?php echo $payment_method_name; ?></strong></h5>
+    <h5 class="modal-title"><i class="fa fa-fw fa-credit-card mr-2"></i>Editing: <strong><?= $payment_method_name ?></strong></h5>
     <button type="button" class="close text-white" data-dismiss="modal">
         <span>&times;</span>
     </button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
-    <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token'] ?>">
+    <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
     <input type="hidden" name="payment_method_id" value="<?= $payment_method_id ?>">
     <div class="modal-body">
 
@@ -31,12 +31,12 @@ ob_start();
                 <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-credit-card"></i></span>
                 </div>
-                <input type="text" class="form-control" name="name" value="<?php echo $payment_method_name; ?>" placeholder="Payment method name" maxlength="200" required autofocus>
+                <input type="text" class="form-control" name="name" value="<?= $payment_method_name ?>" placeholder="Payment method name" maxlength="200" required autofocus>
             </div>
         </div>
 
         <div class="form-group">
-            <textarea class="form-control" rows="3" name="description" placeholder="Enter a description..."><?php echo $payment_method_description; ?></textarea>
+            <textarea class="form-control" rows="3" name="description" placeholder="Enter a description..."><?= $payment_method_description ?></textarea>
         </div>
 
     </div>

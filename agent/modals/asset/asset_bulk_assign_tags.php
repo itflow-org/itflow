@@ -42,7 +42,7 @@ ob_start();
                         $tag_id_select = intval($row['tag_id']);
                         $tag_name_select = escapeHtml($row['tag_name']);
                         ?>
-                        <option value="<?php echo $tag_id_select; ?>"><?php echo $tag_name_select; ?></option>
+                        <option value="<?= $tag_id_select ?>"><?= $tag_name_select ?></option>
                     <?php } ?>
 
                 </select>

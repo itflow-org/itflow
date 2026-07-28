@@ -28,14 +28,14 @@ ob_start();
 ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fa fa-fw fa-thermometer-half mr-2"></i>Editing priority: <strong><?php echo "$ticket_prefix$ticket_number"; ?></strong></h5>
+    <h5 class="modal-title"><i class="fa fa-fw fa-thermometer-half mr-2"></i>Editing priority: <strong><?= "$ticket_prefix$ticket_number" ?></strong></h5>
     <button type="button" class="close text-white" data-dismiss="modal">
         <span>&times;</span>
     </button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
-    <input type="hidden" name="ticket_id" value="<?php echo $ticket_id; ?>">
+    <input type="hidden" name="ticket_id" value="<?= $ticket_id ?>">
 
     <div class="modal-body">
 

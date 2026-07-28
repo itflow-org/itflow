@@ -1,7 +1,7 @@
 <!-- Main Sidebar Container -->
 <aside class="main-sidebar sidebar-dark-primary d-print-none">
 
-    <a class="pb-1 mt-1 brand-link" href="/agent/<?php echo $config_start_page ?>">
+    <a class="pb-1 mt-1 brand-link" href="/agent/<?= $config_start_page ?>">
         <p class="h5"><i class="nav-icon fas fa-arrow-left ml-3 mr-2"></i>
             <span class="brand-text ">Back | <strong>Reports</strong>
         </p>
@@ -144,9 +144,9 @@
                     ?>
 
                 <li class="nav-item">
-                    <a href="<?php echo $custom_link_uri; ?>" <?php echo $target; ?> class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == basename($custom_link_uri)) { echo "active"; } ?>">
-                        <i class="fas fa-<?php echo $custom_link_icon; ?> nav-icon"></i>
-                        <p><?php echo $custom_link_name; ?></p>
+                    <a href="<?= $custom_link_uri ?>" <?= $target ?> class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == basename($custom_link_uri)) { echo "active"; } ?>">
+                        <i class="fas fa-<?= $custom_link_icon ?> nav-icon"></i>
+                        <p><?= $custom_link_name ?></p>
                         <i class="fas fa-angle-right nav-icon float-right"></i>
                     </a>
                 </li>

@@ -59,7 +59,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
             <form autocomplete="off">
                 <?php if ($client_url) { ?>
-                <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
+                <input type="hidden" name="client_id" value="<?= $client_id ?>">
                 <?php } ?>
                 <div class="row">
                     <div class="col-md-4">
@@ -92,7 +92,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                     $client_id = intval($row['client_id']);
                                     $client_name = escapeHtml($row['client_name']);
                                 ?>
-                                    <option <?php if ($client == $client_id) { echo "selected"; } ?> value="<?php echo $client_id; ?>"><?php echo $client_name; ?></option>
+                                    <option <?php if ($client == $client_id) { echo "selected"; } ?> value="<?= $client_id ?>"><?= $client_name ?></option>
                                 <?php
                                 }
                                 ?>
@@ -115,28 +115,28 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     <thead class="<?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
                     <tr>
                         <th>
-                            <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=service_name&order=<?php echo $disp; ?>">
+                            <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=service_name&order=<?= $disp ?>">
                                 Name <?php if ($sort == 'service_name') { echo $order_icon; } ?>
                             </a>
                         </th>
                         <th>
-                            <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=service_category&order=<?php echo $disp; ?>">
+                            <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=service_category&order=<?= $disp ?>">
                                 Category <?php if ($sort == 'service_category') { echo $order_icon; } ?>
                             </a>
                         </th>
                         <th>
-                            <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=service_importance&order=<?php echo $disp; ?>">
+                            <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=service_importance&order=<?= $disp ?>">
                                 Importance <?php if ($sort == 'service_importance') { echo $order_icon; } ?>
                             </a>
                         </th>
                         <th>
-                            <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=service_updated_at&order=<?php echo $disp; ?>">
+                            <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=service_updated_at&order=<?= $disp ?>">
                                 Updated <?php if ($sort == 'service_updated_at') { echo $order_icon; } ?>
                             </a>
                         </th>
                         <?php if (!$client_url) { ?>
                         <th>
-                            <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=client_name&order=<?php echo $disp; ?>">
+                            <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=client_name&order=<?= $disp ?>">
                                 Client <?php if ($sort == 'client_name') { echo $order_icon; } ?>
                             </a>
                         </th>
@@ -172,18 +172,18 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                     <div class="media">
                                         <i class="fa fa-fw fa-2x fa-stream mr-3"></i>
                                         <div class="media-body">
-                                            <div><?php echo $service_name; ?></div>
-                                            <div><small class="text-secondary"><?php echo $service_description; ?></small></div>
+                                            <div><?= $service_name ?></div>
+                                            <div><small class="text-secondary"><?= $service_description ?></small></div>
                                         </div>
                                     </div>
                                 </a>
 
                             </td>
-                            <td><?php echo $service_category ?></td>
-                            <td><?php echo $service_importance ?></td>
-                            <td><?php echo $service_updated_at ?></td>
+                            <td><?= $service_category ?></td>
+                            <td><?= $service_importance ?></td>
+                            <td><?= $service_updated_at ?></td>
                             <?php if (!$client_url) { ?>
-                            <td><a href="services.php?client_id=<?php echo $client_id; ?>"><?php echo $client_name; ?></a></td>
+                            <td><a href="services.php?client_id=<?= $client_id ?>"><?= $client_name ?></a></td>
                             <?php } ?>
 
                             <!-- Action -->
@@ -199,7 +199,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                         </a>
                                         <?php if (lookupUserPermission("module_support") >= 3) { ?>
                                             <div class="dropdown-divider"></div>
-                                            <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_service=<?php echo $service_id; ?>&csrf_token=<?php echo $_SESSION['csrf_token']; ?>">
+                                            <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_service=<?= $service_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                                                 <i class="fas fa-fw fa-trash mr-2"></i>Delete
                                             </a>
                                         <?php } ?>

@@ -30,7 +30,7 @@ $data = "otpauth://totp/ITFlow:$session_email?secret=$token";
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="robots" content="noindex">
 
-    <title>MFA Enforcement | <?php echo $session_company_name; ?></title>
+    <title>MFA Enforcement | <?= $session_company_name ?></title>
 
     <!--
     Favicon
@@ -57,7 +57,7 @@ $data = "otpauth://totp/ITFlow:$session_email?secret=$token";
     <div class="login-box">
         <div class="login-logo">
             <?php if (!empty($company_logo)) { ?>
-                <img alt="<?= escapeHtml($company_name)?> logo" height="110" width="380" class="img-fluid" src="<?php echo "../../uploads/settings/$company_logo"; ?>">
+                <img alt="<?= escapeHtml($company_name)?> logo" height="110" width="380" class="img-fluid" src="<?= "../../uploads/settings/$company_logo" ?>">
             <?php } else { ?>
                 <span class="text-primary text-bold"><i class="fas fa-paper-plane mr-2"></i>IT</span>Flow
             <?php } ?>
@@ -70,13 +70,13 @@ $data = "otpauth://totp/ITFlow:$session_email?secret=$token";
                 <p class="login-box-msg">Multi-Factor Authentication Enforced</p>
 
                 <form action="post.php" method="post" autocomplete="off">
-                    <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token'] ?>">
+                    <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
 
-                    <img src='../../libs/barcode/barcode.php?f=png&s=qr&d=<?php echo $data; ?>' data-toggle="tooltip" title="Scan QR code into your MFA App">
+                    <img src='../../libs/barcode/barcode.php?f=png&s=qr&d=<?= $data ?>' data-toggle="tooltip" title="Scan QR code into your MFA App">
 
                     <p>
-                        <small data-toggle="tooltip" title="Can't Scan? Copy and paste this code into your app"><?php echo $token; ?></small>
-                        <button type="button" class='btn btn-sm clipboardjs' data-clipboard-text='<?php echo $token; ?>'><i class='far fa-copy text-secondary'></i></button>
+                        <small data-toggle="tooltip" title="Can't Scan? Copy and paste this code into your app"><?= $token ?></small>
+                        <button type="button" class='btn btn-sm clipboardjs' data-clipboard-text='<?= $token ?>'><i class='far fa-copy text-secondary'></i></button>
                     </p>
 
                     <div class="input-group mb-3">

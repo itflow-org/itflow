@@ -203,11 +203,11 @@ if (isset($_GET['invoice_id'])) {
             <a href="invoices.php">All Invoices</a>
         </li>
         <li class="breadcrumb-item">
-            <a href="invoices.php?client_id=<?php echo $client_id; ?>"><?php echo $client_name; ?> Invoices</a>
+            <a href="invoices.php?client_id=<?= $client_id ?>"><?= $client_name ?> Invoices</a>
         </li>
-        <li class="breadcrumb-item active"><?php echo "$invoice_prefix$invoice_number"; ?></li>
+        <li class="breadcrumb-item active"><?= "$invoice_prefix$invoice_number" ?></li>
         <?php if (isset($invoice_overdue)) { ?>
-            <span class="p-2 ml-2 badge badge-danger"><?php echo $invoice_overdue; ?></span>
+            <span class="p-2 ml-2 badge badge-danger"><?= $invoice_overdue ?></span>
         <?php } ?>
     </ol>
 
@@ -296,7 +296,7 @@ if (isset($_GET['invoice_id'])) {
                                         <i class="fa fa-fw fa-paper-plane text-secondary mr-2"></i>Send Email
                                     </a>
                                 <?php } ?>
-                                <a class="dropdown-item clipboardjs" href="#" data-clipboard-text="https://<?= $config_base_url ?>/guest/guest_view_invoice.php?invoice_id=<?php echo "$invoice_id&url_key=$invoice_url_key"; ?>">
+                                <a class="dropdown-item clipboardjs" href="#" data-clipboard-text="https://<?= $config_base_url ?>/guest/guest_view_invoice.php?invoice_id=<?= "$invoice_id&url_key=$invoice_url_key" ?>">
                                     <i class="fa fa-fw fa-copy text-secondary mr-2"></i>Copy Guest URL
                                 </a>
                                 <?php if ($invoice_status !== 'Cancelled' && $invoice_status !== 'Paid' && $invoice_status !== 'Non-Billable') { ?>
@@ -323,38 +323,38 @@ if (isset($_GET['invoice_id'])) {
             <div class="row mb-3">
                 <?php if (file_exists("../uploads/settings/$company_logo")) { ?>
                 <div class="col-sm-2">
-                    <img class="img-fluid" src="<?php echo "../uploads/settings/$company_logo"; ?>" alt="Company logo">
+                    <img class="img-fluid" src="<?= "../uploads/settings/$company_logo" ?>" alt="Company logo">
                 </div>
                 <?php } ?>
                 <div class="col-sm-6 <?php if (!file_exists("../uploads/settings/$company_logo")) { echo "col-sm-8"; } ?>">
                     <ul class="list-unstyled">
-                        <li><h4><strong><?php echo $company_name; ?></strong></h4></li>
-                        <li><?php echo formatAddress($company_address, $company_city, $company_state, $company_zip, $company_country, '<br>'); ?></li>
-                        <li><?php echo "$company_email | $company_phone"; ?></li>
-                        <li><?php echo $company_website; ?></li>
+                        <li><h4><strong><?= $company_name ?></strong></h4></li>
+                        <li><?= formatAddress($company_address, $company_city, $company_state, $company_zip, $company_country, '<br>') ?></li>
+                        <li><?= "$company_email | $company_phone" ?></li>
+                        <li><?= $company_website ?></li>
                         <?php if ($company_tax_id_display) { ?>
-                        <li><?php echo $company_tax_id_display; ?></li>
+                        <li><?= $company_tax_id_display ?></li>
                         <?php } ?>
                     </ul>
                 </div>
 
                 <div class="col-sm-4">
                     <h3 class="text-right"><strong>INVOICE</strong></h3>
-                    <h5 class="badge badge-<?php echo $invoice_badge_color; ?> p-2 float-right">
-                        <?php echo "$invoice_status"; ?>
+                    <h5 class="badge badge-<?= $invoice_badge_color ?> p-2 float-right">
+                        <?= "$invoice_status" ?>
                     </h5>
                     <table class="table table-sm table-borderless">
                         <tr>
                             <th>Invoice #:</th>
-                            <td class="text-right"><?php echo "$invoice_prefix$invoice_number"; ?></td>
+                            <td class="text-right"><?= "$invoice_prefix$invoice_number" ?></td>
                         </tr>
                         <tr>
                             <th>Date:</th>
-                            <td class="text-right"><?php echo $invoice_date; ?></td>
+                            <td class="text-right"><?= $invoice_date ?></td>
                         </tr>
                         <tr>
                             <th>Due:</th>
-                            <td class="text-right"><?php echo $invoice_due; ?></td>
+                            <td class="text-right"><?= $invoice_due ?></td>
                         </tr>
                     </table>
                 </div>
@@ -364,9 +364,9 @@ if (isset($_GET['invoice_id'])) {
                 <div class="col">
                     <h6><strong>Bill To:</strong></h6>
                     <ul class="list-unstyled mb-0">
-                        <li><?php echo $client_name; ?></li>
-                        <li><?php echo formatAddress($location_address, $location_city, $location_state, $location_zip, $location_country, '<br>'); ?></li>
-                        <li><?php echo "$contact_email | $contact_phone $contact_extension"; ?></li>
+                        <li><?= $client_name ?></li>
+                        <li><?= formatAddress($location_address, $location_city, $location_state, $location_zip, $location_country, '<br>') ?></li>
+                        <li><?= "$contact_email | $contact_phone $contact_extension" ?></li>
                     </ul>
                 </div>
             </div>
@@ -409,7 +409,7 @@ if (isset($_GET['invoice_id'])) {
                                     $total_tax = $item_tax + $total_tax;
                                     $sub_total = $item_price * $item_quantity + $sub_total;
                                     ?>
-                                    <tr data-item-id="<?php echo $item_id; ?>">
+                                    <tr data-item-id="<?= $item_id ?>">
                                         <td class="d-print-none">
                                             <?php if ($invoice_status !== "Paid" && $invoice_status !== "Cancelled") { ?>
 
@@ -435,12 +435,12 @@ if (isset($_GET['invoice_id'])) {
 
                                             <?php } ?>
                                         </td>
-                                        <td><?php echo $item_name; ?></td>
-                                        <td><?php echo nl2br($item_description); ?></td>
-                                        <td class="text-center"><?php echo number_format($item_quantity, 2); ?></td>
-                                        <td class="text-right"><?php echo numfmt_format_currency($currency_format, $item_price, $invoice_currency_code); ?></td>
-                                        <td class="text-right"><?php echo numfmt_format_currency($currency_format, $item_tax, $invoice_currency_code); ?></td>
-                                        <td class="text-right"><?php echo numfmt_format_currency($currency_format, $item_total, $invoice_currency_code); ?></td>
+                                        <td><?= $item_name ?></td>
+                                        <td><?= nl2br($item_description) ?></td>
+                                        <td class="text-center"><?= number_format($item_quantity, 2) ?></td>
+                                        <td class="text-right"><?= numfmt_format_currency($currency_format, $item_price, $invoice_currency_code) ?></td>
+                                        <td class="text-right"><?= numfmt_format_currency($currency_format, $item_tax, $invoice_currency_code) ?></td>
+                                        <td class="text-right"><?= numfmt_format_currency($currency_format, $item_total, $invoice_currency_code) ?></td>
                                     </tr>
                                     <?php
                                 }
@@ -450,7 +450,7 @@ if (isset($_GET['invoice_id'])) {
                                         <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
                                         <input type="hidden" name="invoice_id" value="<?= $invoice_id ?>">
                                         <input type="hidden" id="product_id" name="product_id" value="<?= $item_product_id ?? 0 ?>">
-                                        <input type="hidden" name="item_order" value="<?php echo mysqli_num_rows($sql_invoice_items) + 1; ?>">
+                                        <input type="hidden" name="item_order" value="<?= mysqli_num_rows($sql_invoice_items) + 1 ?>">
                                         <td></td>
                                         <td>
                                             <input type="text" class="form-control" id="name" name="name" placeholder="Item" required>
@@ -462,7 +462,7 @@ if (isset($_GET['invoice_id'])) {
                                             <input type="text" inputmode="decimal" pattern="[0-9]*\.?[0-9]{0,2}" class="form-control" style="text-align: center;" id="qty" name="qty" placeholder="Qty">
                                         </td>
                                         <td>
-                                            <input type="text" class="form-control" inputmode="decimal" pattern="-?[0-9]*\.?[0-9]{0,2}" style="text-align: right;" id="price" name="price" placeholder="Price (<?php echo $invoice_currency_code; ?>)">
+                                            <input type="text" class="form-control" inputmode="decimal" pattern="-?[0-9]*\.?[0-9]{0,2}" style="text-align: right;" id="price" name="price" placeholder="Price (<?= $invoice_currency_code ?>)">
                                         </td>
                                         <td>
                                             <select class="form-control select2" name="tax_id" id="tax" required>
@@ -474,7 +474,7 @@ if (isset($_GET['invoice_id'])) {
                                                     $tax_name = escapeHtml($row['tax_name']);
                                                     $tax_percent = floatval($row['tax_percent']);
                                                     ?>
-                                                    <option value="<?php echo $tax_id; ?>"><?php echo "$tax_name $tax_percent%"; ?></option>
+                                                    <option value="<?= $tax_id ?>"><?= "$tax_name $tax_percent%" ?></option>
                                                     <?php
                                                 }
                                                 ?>
@@ -505,7 +505,7 @@ if (isset($_GET['invoice_id'])) {
                             </div>
                         </div>
                         <div class="card-body">
-                            <?php echo nl2br($invoice_note); ?>
+                            <?= nl2br($invoice_note) ?>
                         </div>
                     </div>
                 </div>
@@ -515,14 +515,14 @@ if (isset($_GET['invoice_id'])) {
 
                         <tr>
                             <td>Subtotal:</td>
-                            <td class="text-right"><?php echo numfmt_format_currency($currency_format, $sub_total, $invoice_currency_code); ?></td>
+                            <td class="text-right"><?= numfmt_format_currency($currency_format, $sub_total, $invoice_currency_code) ?></td>
                         </tr>
                         <?php
                         if ($invoice_discount > 0) {
                             ?>
                             <tr>
                                 <td>Discount:</td>
-                                <td class="text-right">-<?php echo numfmt_format_currency($currency_format, $invoice_discount, $invoice_currency_code); ?></td>
+                                <td class="text-right">-<?= numfmt_format_currency($currency_format, $invoice_discount, $invoice_currency_code) ?></td>
                             </tr>
                         <?php
                         }
@@ -532,7 +532,7 @@ if (isset($_GET['invoice_id'])) {
                             ?>
                             <tr>
                                 <td>Credit:</td>
-                                <td class="text-right">-<?php echo numfmt_format_currency($currency_format, $invoice_credit, $invoice_currency_code); ?></td>
+                                <td class="text-right">-<?= numfmt_format_currency($currency_format, $invoice_credit, $invoice_currency_code) ?></td>
                             </tr>
                         <?php
                         }
@@ -540,31 +540,31 @@ if (isset($_GET['invoice_id'])) {
                         <?php if ($total_tax > 0) { ?>
                             <tr>
                                 <td>Tax:</td>
-                                <td class="text-right"><?php echo numfmt_format_currency($currency_format, $total_tax, $invoice_currency_code); ?></td>
+                                <td class="text-right"><?= numfmt_format_currency($currency_format, $total_tax, $invoice_currency_code) ?></td>
                             </tr>
                         <?php } ?>
                         <tr>
                             <td>Total:</td>
-                            <td class="text-right"><?php echo numfmt_format_currency($currency_format, $invoice_amount, $invoice_currency_code); ?></td>
+                            <td class="text-right"><?= numfmt_format_currency($currency_format, $invoice_amount, $invoice_currency_code) ?></td>
                         </tr>
                         <?php
                         if ($amount_paid > 0) { ?>
                             <tr>
                                 <td><div class="text-success">Paid:</div></td>
-                                <td class="text-right text-success"><?php echo numfmt_format_currency($currency_format, $amount_paid, $invoice_currency_code); ?></td>
+                                <td class="text-right text-success"><?= numfmt_format_currency($currency_format, $amount_paid, $invoice_currency_code) ?></td>
                             </tr>
                         <?php } ?>
 
                         <tr class="h5 text-bold">
                             <td>Balance:</td>
-                            <td class="text-right"><?php echo numfmt_format_currency($currency_format, $balance, $invoice_currency_code); ?></td>
+                            <td class="text-right"><?= numfmt_format_currency($currency_format, $balance, $invoice_currency_code) ?></td>
                         </tr>
                         </tbody>
                     </table>
                 </div>
             </div>
             <hr class="d-none d-print-block mt-5">
-            <div class="d-none d-print-block text-center text-secondary"><?php echo nl2br(escapeHtml($config_invoice_footer)); ?></div>
+            <div class="d-none d-print-block text-center text-secondary"><?= nl2br(escapeHtml($config_invoice_footer)) ?></div>
         </div>
     </div>
     <div class="row d-print-none mb-3">
@@ -600,9 +600,9 @@ if (isset($_GET['invoice_id'])) {
 
                             ?>
                             <tr>
-                                <td><?php echo $history_created_at; ?></td>
-                                <td><?php echo $history_status; ?></td>
-                                <td><?php echo $history_description; ?></td>
+                                <td><?= $history_created_at ?></td>
+                                <td><?= $history_status ?></td>
+                                <td><?= $history_description ?></td>
                             </tr>
                             <?php
                         }
@@ -651,10 +651,10 @@ if (isset($_GET['invoice_id'])) {
 
                                 ?>
                                 <tr>
-                                    <td><?php echo $payment_date; ?></td>
-                                    <td class="text-right"><?php echo numfmt_format_currency($currency_format, $payment_amount, $payment_currency_code); ?></td>
-                                    <td><?php echo $payment_reference; ?></td>
-                                    <td><?php echo $account_name; ?></td>
+                                    <td><?= $payment_date ?></td>
+                                    <td class="text-right"><?= numfmt_format_currency($currency_format, $payment_amount, $payment_currency_code) ?></td>
+                                    <td><?= $payment_reference ?></td>
+                                    <td><?= $account_name ?></td>
                                     <td class="text-center"><a class="btn btn-light text-danger confirm-link" href="post.php?delete_payment=<?= $payment_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"><i class="fa fa-times"></i></a></td>
                                 </tr>
                                 <?php
@@ -678,7 +678,7 @@ if (isset($_GET['invoice_id'])) {
                         <?php } ?>
 
 
-                        <a class="btn btn-tool" href="tickets.php?client_id=<?php echo $client_id; ?>">
+                        <a class="btn btn-tool" href="tickets.php?client_id=<?= $client_id ?>">
                             <i class="fas fa-external-link-alt"></i>
                         </a>
                         <button type="button" class="btn btn-tool" data-card-widget="collapse">
@@ -713,9 +713,9 @@ if (isset($_GET['invoice_id'])) {
 
                                 ?>
                                 <tr>
-                                    <td><?php echo $ticket_created_at; ?></td>
-                                    <td><?php echo $ticket_subject; ?></td>
-                                    <td class="text-right"><?php echo $ticket_total_time_worked; ?></td>
+                                    <td><?= $ticket_created_at ?></td>
+                                    <td><?= $ticket_subject ?></td>
+                                    <td class="text-right"><?= $ticket_total_time_worked ?></td>
                                 </tr>
                                 <?php
                             }
@@ -743,7 +743,7 @@ require_once "../includes/footer.php";
 
 $(function() {
 
-    var availableProducts = <?php echo $json_products ?? '[]'?>;
+    var availableProducts = <?= $json_products ?? '[]' ?>;
 
     $("#name").autocomplete({
         minLength: 1,
@@ -816,7 +816,7 @@ new Sortable(document.querySelector('table#items tbody'), {
         $.post('ajax.php', {
             update_invoice_items_order: true,
             csrf_token: '<?= $_SESSION['csrf_token'] ?>',
-            invoice_id: <?php echo $invoice_id; ?>,
+            invoice_id: <?= $invoice_id ?>,
             positions: positions
         });
     }

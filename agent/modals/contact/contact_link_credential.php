@@ -20,14 +20,14 @@ ob_start();
 ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fa fa-fw fa-key mr-2"></i>Link Credential to <strong><?php echo $contact_name; ?></strong></h5>
+    <h5 class="modal-title"><i class="fa fa-fw fa-key mr-2"></i>Link Credential to <strong><?= $contact_name ?></strong></h5>
     <button type="button" class="close text-white" data-dismiss="modal">
         <span>&times;</span>
     </button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
-    <input type="hidden" name="contact_id" value="<?php echo $contact_id; ?>">
+    <input type="hidden" name="contact_id" value="<?= $contact_id ?>">
     <div class="modal-body">
 
         <div class="form-group">
@@ -50,7 +50,7 @@ ob_start();
                         $credential_id = intval($row['credential_id']);
                         $credential_name = escapeHtml($row['credential_name']);
                         ?>
-                        <option value="<?php echo $credential_id ?>"><?php echo $credential_name; ?></option>
+                        <option value="<?= $credential_id ?>"><?= $credential_name ?></option>
                         <?php
                     }
                     ?>

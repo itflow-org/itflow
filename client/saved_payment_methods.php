@@ -121,7 +121,7 @@ if (!$stripe_public_key || !$stripe_secret_key) {
         <div class="col-md-6">
             <b>Add a new payment method</b><br><br>
 
-            <input type="hidden" id="stripe_publishable_key" value="<?php echo $stripe_public_key ?>">
+            <input type="hidden" id="stripe_publishable_key" value="<?= $stripe_public_key ?>">
             <script src="https://js.stripe.com/v3/"></script>
             <script src="../js/autopay_setup_stripe.js"></script>
             <div id="checkout">

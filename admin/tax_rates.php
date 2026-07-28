@@ -30,12 +30,12 @@ $num_rows = mysqli_num_rows($sql);
                 <thead class="text-dark <?php if ($num_rows == 0) { echo "d-none"; } ?>">
                 <tr>
                     <th>
-                        <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=tax_name&order=<?php echo $disp; ?>">
+                        <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=tax_name&order=<?= $disp ?>">
                             Name <?php if ($sort == 'tax_name') { echo $order_icon; } ?>
                         </a>
                     </th>
                     <th>
-                        <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=tax_percent&order=<?php echo $disp; ?>">
+                        <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=tax_percent&order=<?= $disp ?>">
                             Percent <?php if ($sort == 'tax_percent') { echo $order_icon; } ?>
                         </a>
                     </th>
@@ -55,10 +55,10 @@ $num_rows = mysqli_num_rows($sql);
                         <td>
                             <a class="text-dark text-bold ajax-modal" href="#"
                                 data-modal-url="modals/tax/tax_edit.php?id=<?= $tax_id ?>">
-                                <?php echo $tax_name; ?>
+                                <?= $tax_name ?>
                             </a>
                         </td>
-                        <td><?php echo "$tax_percent%"; ?></td>
+                        <td><?= "$tax_percent%" ?></td>
                         <td>
                             <div class="dropdown dropleft text-center">
                                 <button class="btn btn-secondary btn-sm" type="button" data-toggle="dropdown">
@@ -70,7 +70,7 @@ $num_rows = mysqli_num_rows($sql);
                                         <i class="fas fa-fw fa-edit mr-2"></i>Edit
                                     </a>
                                     <div class="dropdown-divider"></div>
-                                    <a class="dropdown-item text-danger confirm-link" href="post.php?archive_tax=<?php echo $tax_id; ?>&csrf_token=<?php echo $_SESSION['csrf_token'] ?>">
+                                    <a class="dropdown-item text-danger confirm-link" href="post.php?archive_tax=<?= $tax_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                                         <i class="fas fa-fw fa-archive mr-2"></i>Archive
                                     </a>
                                 </div>

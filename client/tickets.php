@@ -68,12 +68,12 @@ $total_tickets = intval($row['total_tickets']);
 
                 <tr>
                     <td>
-                        <a href="ticket.php?id=<?php echo $ticket_id; ?>"><?php echo "$ticket_prefix$ticket_number"; ?></a>
+                        <a href="ticket.php?id=<?= $ticket_id ?>"><?= "$ticket_prefix$ticket_number" ?></a>
                     </td>
                     <td>
-                        <a href="ticket.php?id=<?php echo $ticket_id; ?>"><?php echo $ticket_subject; ?></a>
+                        <a href="ticket.php?id=<?= $ticket_id ?>"><?= $ticket_subject ?></a>
                     </td>
-                    <td><?php echo $ticket_status; ?></td>
+                    <td><?= $ticket_status ?></td>
                 </tr>
             <?php
             }
@@ -89,11 +89,11 @@ $total_tickets = intval($row['total_tickets']);
 
         <hr>
 
-        <a href="?status=Open" class="btn btn-danger btn-block p-3 mb-3 text-left">My Open tickets | <strong><?php echo $total_tickets_open ?></strong></a>
+        <a href="?status=Open" class="btn btn-danger btn-block p-3 mb-3 text-left">My Open tickets | <strong><?= $total_tickets_open ?></strong></a>
 
-        <a href="?status=Closed" class="btn btn-success btn-block p-3 mb-3 text-left">Closed tickets | <strong><?php echo $total_tickets_closed ?></strong></a>
+        <a href="?status=Closed" class="btn btn-success btn-block p-3 mb-3 text-left">Closed tickets | <strong><?= $total_tickets_closed ?></strong></a>
 
-        <a href="?status=%" class="btn btn-secondary btn-block p-3 mb-3 text-left">All my tickets | <strong><?php echo $total_tickets ?></strong></a>
+        <a href="?status=%" class="btn btn-secondary btn-block p-3 mb-3 text-left">All my tickets | <strong><?= $total_tickets ?></strong></a>
         <?php
         if ($session_contact_primary == 1 || $session_contact_is_technical_contact) {
         ?>

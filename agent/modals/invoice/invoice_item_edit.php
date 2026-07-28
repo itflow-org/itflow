@@ -24,15 +24,15 @@ ob_start();
 ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fas fa-fw fa-edit mr-2"></i>Editing Line Item: <strong><?php echo $item_name; ?></strong></h5>
+    <h5 class="modal-title"><i class="fas fa-fw fa-edit mr-2"></i>Editing Line Item: <strong><?= $item_name ?></strong></h5>
     <button type="button" class="close text-white" data-dismiss="modal">
         <span>&times;</span>
     </button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
-    <input type="hidden" name="item_id" value="<?php echo $item_id; ?>">
-    <input type="hidden" name="product_id" value="<?php echo $product_id; ?>">
+    <input type="hidden" name="item_id" value="<?= $item_id ?>">
+    <input type="hidden" name="product_id" value="<?= $product_id ?>">
 
     <div class="modal-body">
         <div class="form-group">
@@ -41,7 +41,7 @@ ob_start();
                 <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-box"></i></span>
                 </div>
-                <input type="text" class="form-control" name="name" maxlength="200" value="<?php echo $item_name; ?>" placeholder="Enter item name" required>
+                <input type="text" class="form-control" name="name" maxlength="200" value="<?= $item_name ?>" placeholder="Enter item name" required>
             </div>
         </div>
 
@@ -53,7 +53,7 @@ ob_start();
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-balance-scale"></i></span>
                         </div>
-                        <input type="text" class="form-control" inputmode="decimal" pattern="[0-9]*\.?[0-9]{0,2}" name="qty" value="<?php echo number_format($item_quantity, 2); ?>" placeholder="0.00" required>
+                        <input type="text" class="form-control" inputmode="decimal" pattern="[0-9]*\.?[0-9]{0,2}" name="qty" value="<?= number_format($item_quantity, 2) ?>" placeholder="0.00" required>
                     </div>
                 </div>
             </div>
@@ -65,7 +65,7 @@ ob_start();
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-dollar-sign"></i></span>
                         </div>
-                        <input type="text" class="form-control" inputmode="decimal" pattern="-?[0-9]*\.?[0-9]{0,2}" name="price" value="<?php echo number_format($item_price, 2, '.', ''); ?>" placeholder="0.00" required>
+                        <input type="text" class="form-control" inputmode="decimal" pattern="-?[0-9]*\.?[0-9]{0,2}" name="price" value="<?= number_format($item_price, 2, '.', '') ?>" placeholder="0.00" required>
                     </div>
                 </div>
             </div>
@@ -74,7 +74,7 @@ ob_start();
         <div class="form-group">
             <label>Description</label>
             <div class="input-group">
-                <textarea class="form-control" rows="5" name="description" placeholder="Enter a description"><?php echo $item_description; ?></textarea>
+                <textarea class="form-control" rows="5" name="description" placeholder="Enter a description"><?= $item_description ?></textarea>
             </div>
         </div>
 
@@ -93,7 +93,7 @@ ob_start();
                             $tax_name = escapeHtml($row['tax_name']);
                             $tax_percent = floatval($row['tax_percent']);
                     ?>
-                        <option <?php if ($tax_id_select == $tax_id) { echo "selected"; } ?> value="<?php echo $tax_id_select; ?>"><?php echo "$tax_name $tax_percent%"; ?></option>
+                        <option <?php if ($tax_id_select == $tax_id) { echo "selected"; } ?> value="<?= $tax_id_select ?>"><?= "$tax_name $tax_percent%" ?></option>
                     <?php
                         }
                     ?>

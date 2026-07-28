@@ -19,7 +19,7 @@ ob_start();
     <div class="modal-body">
 
         <?php if ($client_id) { ?>
-            <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
+            <input type="hidden" name="client_id" value="<?= $client_id ?>">
         <?php }else{ ?>
 
             <div class="form-group">
@@ -37,7 +37,7 @@ ob_start();
                             $client_id_select = intval($row['client_id']);
                             $client_name = escapeHtml($row['client_name']);
                             ?>
-                            <option value="<?php echo $client_id_select; ?>"><?php echo $client_name; ?></option>
+                            <option value="<?= $client_id_select ?>"><?= $client_name ?></option>
 
                             <?php
                         }
@@ -55,7 +55,7 @@ ob_start();
                     <div class="input-group-prepend">
                         <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
                     </div>
-                    <input type="date" class="form-control" name="date" max="2999-12-31" value="<?php echo date("Y-m-d"); ?>" required>
+                    <input type="date" class="form-control" name="date" max="2999-12-31" value="<?= date("Y-m-d") ?>" required>
                 </div>
             </div>
 
@@ -102,7 +102,7 @@ ob_start();
                         $location_state = escapeHtml($row['location_state']);
                         $location_zip = escapeHtml($row['location_zip']);
                         ?>
-                        <option><?php echo formatAddress($location_address, $location_city, $location_state, $location_zip, '', ' '); ?></option>
+                        <option><?= formatAddress($location_address, $location_city, $location_state, $location_zip, '', ' ') ?></option>
                         <?php
                     }
                 } ?>
@@ -132,7 +132,7 @@ ob_start();
                         $user_id = intval($row['user_id']);
                         $user_name = escapeHtml($row['user_name']);
                         ?>
-                        <option <?php if ($session_user_id == $user_id) { echo "selected"; } ?> value="<?php echo $user_id; ?>"><?php echo $user_name; ?></option>
+                        <option <?php if ($session_user_id == $user_id) { echo "selected"; } ?> value="<?= $user_id ?>"><?= $user_name ?></option>
 
                         <?php
                     }

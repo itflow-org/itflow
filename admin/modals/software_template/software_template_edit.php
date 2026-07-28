@@ -28,14 +28,14 @@ ob_start();
 ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fa fa-fw fa-cube mr-2"></i>Editing template: <strong><?php echo $software_name; ?></strong></h5>
+    <h5 class="modal-title"><i class="fa fa-fw fa-cube mr-2"></i>Editing template: <strong><?= $software_name ?></strong></h5>
     <button type="button" class="close text-white" data-dismiss="modal">
         <span>&times;</span>
     </button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
-    <input type="hidden" name="software_template_id" value="<?php echo $software_template_id; ?>">
+    <input type="hidden" name="software_template_id" value="<?= $software_template_id ?>">
 
     <div class="modal-body">
 
@@ -45,7 +45,7 @@ ob_start();
                 <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-cube"></i></span>
                 </div>
-                <input type="text" class="form-control" name="name" placeholder="Software name" maxlength="200" value="<?php echo $software_name; ?>" required>
+                <input type="text" class="form-control" name="name" placeholder="Software name" maxlength="200" value="<?= $software_name ?>" required>
             </div>
         </div>
 
@@ -55,7 +55,7 @@ ob_start();
                 <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-cube"></i></span>
                 </div>
-                <input type="text" class="form-control" name="version" placeholder="Software version" maxlength="200" value="<?php echo $software_version; ?>">
+                <input type="text" class="form-control" name="version" placeholder="Software version" maxlength="200" value="<?= $software_version ?>">
             </div>
         </div>
 
@@ -65,7 +65,7 @@ ob_start();
                 <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-angle-right"></i></span>
                 </div>
-                <input type="text" class="form-control" name="description" placeholder="Short description" value="<?php echo $software_description; ?>">
+                <input type="text" class="form-control" name="description" placeholder="Short description" value="<?= $software_description ?>">
             </div>
         </div>
 
@@ -104,13 +104,13 @@ ob_start();
                 <select class="form-control select2" name="license_type">
                     <option value="">- Select a License Type -</option>
                     <?php foreach($license_types_array as $license_type_select) { ?>
-                        <option <?php if($license_type_select == $software_license_type){ echo "selected"; } ?>><?php echo $license_type_select; ?></option>
+                        <option <?php if($license_type_select == $software_license_type){ echo "selected"; } ?>><?= $license_type_select ?></option>
                     <?php } ?>
                 </select>
             </div>
         </div>
 
-        <textarea class="form-control" rows="8" placeholder="Enter some notes" name="notes"><?php echo $software_notes; ?></textarea>
+        <textarea class="form-control" rows="8" placeholder="Enter some notes" name="notes"><?= $software_notes ?></textarea>
 
     </div>
     <div class="modal-footer">

@@ -842,7 +842,7 @@ if (isset($_POST['add_telemetry'])) {
                 if (!empty($_SESSION['alert_message'])) {
                     ?>
                     <div class="alert alert-info" id="alert">
-                        <?php echo escapeHtml($_SESSION['alert_message']); ?>
+                        <?= escapeHtml($_SESSION['alert_message']) ?>
                         <button class='close' data-dismiss='alert'>&times;</button>
                     </div>
                     <?php
@@ -1396,7 +1396,7 @@ if (isset($_POST['add_telemetry'])) {
                                         <select class="form-control select2" name="country" required>
                                             <option value="">- Country -</option>
                                             <?php foreach($countries_array as $country_name) { ?>
-                                                <option><?php echo $country_name; ?></option>
+                                                <option><?= $country_name ?></option>
                                             <?php } ?>
                                         </select>
                                     </div>
@@ -1470,7 +1470,7 @@ if (isset($_POST['add_telemetry'])) {
                                         <select class="form-control select2" name="locale" required>
                                             <option value="">- Select a Language -</option>
                                             <?php foreach($locales_array as $locale_code => $locale_name) { ?>
-                                                <option value="<?php echo $locale_code; ?>"><?php echo $locale_name; ?></option>
+                                                <option value="<?= $locale_code ?>"><?= $locale_name ?></option>
                                             <?php } ?>
                                         </select>
                                     </div>
@@ -1485,7 +1485,7 @@ if (isset($_POST['add_telemetry'])) {
                                         <select class="form-control select2" name="currency_code" required>
                                             <option value="">- Select a Currency -</option>
                                             <?php foreach($currencies_array as $currency_code => $currency_name) { ?>
-                                                <option value="<?php echo $currency_code; ?>"><?php echo "$currency_code - $currency_name"; ?></option>
+                                                <option value="<?= $currency_code ?>"><?= "$currency_code - $currency_name" ?></option>
                                             <?php } ?>
                                         </select>
                                     </div>
@@ -1500,7 +1500,7 @@ if (isset($_POST['add_telemetry'])) {
                                         <select class="form-control select2" name="timezone" required>
                                             <option value="">- Select a Timezone -</option>
                                             <?php foreach ($timezones as $tz) { ?>
-                                                <option value="<?php echo $tz; ?>"><?php echo $tz; ?></option>
+                                                <option value="<?= $tz ?>"><?= $tz ?></option>
                                             <?php } ?>
                                         </select>
                                     </div>
@@ -1575,7 +1575,7 @@ if (isset($_POST['add_telemetry'])) {
                             <ul>
                                 <li>Please take a look over the install <a href="https://docs.itflow.org/installation">docs</a>, if you haven't already</li>
                                 <li>Don't hesitate to reach out on the <a href="https://forum.itflow.org/t/support" target="_blank">forums</a> if you need any assistance</li>
-                                <li><i>Apache/PHP Error log: <?php echo $errorLog ?></i></li>
+                                <li><i>Apache/PHP Error log: <?= $errorLog ?></i></li>
                             </ul>
                             <br><p>A database must be created before proceeding - click on the button below to get started.</p>
                             <br><hr>

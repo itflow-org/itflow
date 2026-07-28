@@ -12,7 +12,7 @@ ob_start();
     </button>
 </div>
 <form action="post.php" method="post" enctype="multipart/form-data" autocomplete="off">
-    <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token'] ?>">
+    <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
     <div class="modal-body">
 
         <ul class="nav nav-pills nav-justified mb-3">
@@ -81,7 +81,7 @@ ob_start();
                                     $role_name = escapeHtml($row['role_name']);
 
                                 ?>
-                                <option value="<?php echo $role_id; ?>"><?php echo $role_name; ?></option>
+                                <option value="<?= $role_id ?>"><?= $role_name ?></option>
                             <?php } ?>
                         </select>
                     </div>
@@ -145,15 +145,15 @@ ob_start();
                         ?>
 
                             <tr>
-                                <td class="align-middle"><?php echo $client_name; ?></td>
+                                <td class="align-middle"><?= $client_name ?></td>
                                 <td class="text-center align-middle">
-                                    <input type="radio" class="perm-none" name="client_permission[<?php echo $client_id; ?>]" value="" checked>
+                                    <input type="radio" class="perm-none" name="client_permission[<?= $client_id ?>]" value="" checked>
                                 </td>
                                 <td class="text-center align-middle">
-                                    <input type="radio" class="perm-allow" name="client_permission[<?php echo $client_id; ?>]" value="allow">
+                                    <input type="radio" class="perm-allow" name="client_permission[<?= $client_id ?>]" value="allow">
                                 </td>
                                 <td class="text-center align-middle">
-                                    <input type="radio" class="perm-deny" name="client_permission[<?php echo $client_id; ?>]" value="deny">
+                                    <input type="radio" class="perm-deny" name="client_permission[<?= $client_id ?>]" value="deny">
                                 </td>
                             </tr>
 

@@ -60,31 +60,31 @@ ob_start();
 ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fa fa-fw fa-cube mr-2"></i>Editing license: <strong><?php echo $software_name; ?></strong></h5>
+    <h5 class="modal-title"><i class="fa fa-fw fa-cube mr-2"></i>Editing license: <strong><?= $software_name ?></strong></h5>
     <button type="button" class="close text-white" data-dismiss="modal">
         <span>&times;</span>
     </button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
-    <input type="hidden" name="software_id" value="<?php echo $software_id; ?>">
+    <input type="hidden" name="software_id" value="<?= $software_id ?>">
     <div class="modal-body">
 
         <ul class="nav nav-pills nav-justified mb-3">
             <li class="nav-item">
-                <a class="nav-link active" data-toggle="pill" href="#pills-details<?php echo $software_id; ?>">Details</a>
+                <a class="nav-link active" data-toggle="pill" href="#pills-details<?= $software_id ?>">Details</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" data-toggle="pill" href="#pills-license<?php echo $software_id; ?>">License</a>
+                <a class="nav-link" data-toggle="pill" href="#pills-license<?= $software_id ?>">License</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" data-toggle="pill" href="#pills-device-licenses<?php echo $software_id; ?>">Devices</a>
+                <a class="nav-link" data-toggle="pill" href="#pills-device-licenses<?= $software_id ?>">Devices</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" data-toggle="pill" href="#pills-user-licenses<?php echo $software_id; ?>">Users</a>
+                <a class="nav-link" data-toggle="pill" href="#pills-user-licenses<?= $software_id ?>">Users</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" data-toggle="pill" href="#pills-notes<?php echo $software_id; ?>">Notes</a>
+                <a class="nav-link" data-toggle="pill" href="#pills-notes<?= $software_id ?>">Notes</a>
             </li>
         </ul>
 
@@ -92,7 +92,7 @@ ob_start();
 
         <div class="tab-content" <?php if (lookupUserPermission('module_support') <= 1) { echo 'inert'; } ?>>
 
-            <div class="tab-pane fade show active" id="pills-details<?php echo $software_id; ?>">
+            <div class="tab-pane fade show active" id="pills-details<?= $software_id ?>">
 
                 <div class="form-group">
                     <label>Type <strong class="text-danger">*</strong></label>
@@ -126,7 +126,7 @@ ob_start();
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-cube"></i></span>
                         </div>
-                        <input type="text" class="form-control" name="name" placeholder="Software name" maxlength="200" value="<?php echo $software_name; ?>" required>
+                        <input type="text" class="form-control" name="name" placeholder="Software name" maxlength="200" value="<?= $software_name ?>" required>
                     </div>
                 </div>
 
@@ -136,7 +136,7 @@ ob_start();
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-cube"></i></span>
                         </div>
-                        <input type="text" class="form-control" name="version" placeholder="Software version" maxlength="200" value="<?php echo $software_version; ?>">
+                        <input type="text" class="form-control" name="version" placeholder="Software version" maxlength="200" value="<?= $software_version ?>">
                     </div>
                 </div>
 
@@ -154,7 +154,7 @@ ob_start();
                                     $vendor_id = $row['vendor_id'];
                                     $vendor_name = $row['vendor_name'];
                                 ?>
-                                <option <?php if ($software_vendor_id == $vendor_id) { echo "selected"; } ?> value="<?php echo $vendor_id; ?>"><?php echo $vendor_name; ?></option>
+                                <option <?php if ($software_vendor_id == $vendor_id) { echo "selected"; } ?> value="<?= $vendor_id ?>"><?= $vendor_name ?></option>
                             <?php
                             }
                             ?>
@@ -168,13 +168,13 @@ ob_start();
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-align-left"></i></span>
                         </div>
-                        <input type="text" class="form-control" name="description" placeholder="Short description" value="<?php echo $software_description; ?>">
+                        <input type="text" class="form-control" name="description" placeholder="Short description" value="<?= $software_description ?>">
                     </div>
                 </div>
 
             </div>
 
-             <div class="tab-pane fade" id="pills-license<?php echo $software_id; ?>">
+             <div class="tab-pane fade" id="pills-license<?= $software_id ?>">
 
                 <div class="form-group">
                     <label>License Type</label>
@@ -185,7 +185,7 @@ ob_start();
                         <select class="form-control select2" name="license_type">
                             <option value="">- Select a License Type -</option>
                             <?php foreach($license_types_array as $license_type_select) { ?>
-                                <option <?php if ($license_type_select == $software_license_type) { echo "selected"; } ?>><?php echo $license_type_select; ?></option>
+                                <option <?php if ($license_type_select == $software_license_type) { echo "selected"; } ?>><?= $license_type_select ?></option>
                             <?php } ?>
                         </select>
                     </div>
@@ -197,7 +197,7 @@ ob_start();
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-cube"></i></span>
                         </div>
-                        <input type="text" class="form-control" inputmode="numeric" pattern="[0-9]*" name="seats" placeholder="Number of seats" value="<?php echo $software_seats; ?>">
+                        <input type="text" class="form-control" inputmode="numeric" pattern="[0-9]*" name="seats" placeholder="Number of seats" value="<?= $software_seats ?>">
                     </div>
                 </div>
 
@@ -207,7 +207,7 @@ ob_start();
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-key"></i></span>
                         </div>
-                        <input type="text" class="form-control" name="key" placeholder="License key" maxlength="200" value="<?php echo $software_key; ?>">
+                        <input type="text" class="form-control" name="key" placeholder="License key" maxlength="200" value="<?= $software_key ?>">
                     </div>
                 </div>
 
@@ -217,7 +217,7 @@ ob_start();
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-shopping-cart"></i></span>
                         </div>
-                        <input type="text" class="form-control" name="purchase_reference" placeholder="eg. Invoice, PO Number" value="<?php echo $software_purchase_reference; ?>">
+                        <input type="text" class="form-control" name="purchase_reference" placeholder="eg. Invoice, PO Number" value="<?= $software_purchase_reference ?>">
                     </div>
                 </div>
 
@@ -227,7 +227,7 @@ ob_start();
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-calendar-check"></i></span>
                         </div>
-                        <input type="date" class="form-control" name="purchase" max="2999-12-31" value="<?php echo $software_purchase; ?>">
+                        <input type="date" class="form-control" name="purchase" max="2999-12-31" value="<?= $software_purchase ?>">
                     </div>
                 </div>
 
@@ -237,13 +237,13 @@ ob_start();
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-calendar-times"></i></span>
                         </div>
-                        <input type="date" class="form-control" name="expire" max="2999-12-31" value="<?php echo $software_expire; ?>">
+                        <input type="date" class="form-control" name="expire" max="2999-12-31" value="<?= $software_expire ?>">
                     </div>
                 </div>
 
             </div>
 
-            <div class="tab-pane fade" id="pills-device-licenses<?php echo $software_id; ?>">
+            <div class="tab-pane fade" id="pills-device-licenses<?= $software_id ?>">
 
                 <ul class="list-group">
 
@@ -275,8 +275,8 @@ ob_start();
                         ?>
                         <li class="list-group-item">
                             <div class="form-check">
-                                <input type="checkbox" class="form-check-input asset-checkbox" name="assets[]" value="<?php echo $asset_id_select; ?>" <?php if (in_array($asset_id_select, $asset_licenses_array)) { echo "checked"; } ?>>
-                                <label class="form-check-label ml-2"><?php echo "$asset_archived_display$asset_name_select - $contact_name_select"; ?></label>
+                                <input type="checkbox" class="form-check-input asset-checkbox" name="assets[]" value="<?= $asset_id_select ?>" <?php if (in_array($asset_id_select, $asset_licenses_array)) { echo "checked"; } ?>>
+                                <label class="form-check-label ml-2"><?= "$asset_archived_display$asset_name_select - $contact_name_select" ?></label>
                             </div>
                         </li>
 
@@ -286,7 +286,7 @@ ob_start();
 
             </div>
 
-            <div class="tab-pane fade" id="pills-user-licenses<?php echo $software_id; ?>">
+            <div class="tab-pane fade" id="pills-user-licenses<?= $software_id ?>">
 
                 <ul class="list-group">
 
@@ -314,8 +314,8 @@ ob_start();
                         ?>
                         <li class="list-group-item">
                             <div class="form-check">
-                                <input type="checkbox" class="form-check-input user-checkbox" name="contacts[]" value="<?php echo $contact_id_select; ?>" <?php if (in_array("$contact_id_select", $contact_licenses_array)) { echo "checked"; } ?>>
-                                <label class="form-check-label ml-2"><?php echo "$contact_archived_display$contact_name_select - $contact_email_select"; ?></label>
+                                <input type="checkbox" class="form-check-input user-checkbox" name="contacts[]" value="<?= $contact_id_select ?>" <?php if (in_array("$contact_id_select", $contact_licenses_array)) { echo "checked"; } ?>>
+                                <label class="form-check-label ml-2"><?= "$contact_archived_display$contact_name_select - $contact_email_select" ?></label>
                             </div>
                         </li>
 
@@ -325,9 +325,9 @@ ob_start();
 
             </div>
 
-            <div class="tab-pane fade" id="pills-notes<?php echo $software_id; ?>">
+            <div class="tab-pane fade" id="pills-notes<?= $software_id ?>">
 
-                <textarea class="form-control" rows="12" placeholder="Enter some notes" name="notes"><?php echo $software_notes; ?></textarea>
+                <textarea class="form-control" rows="12" placeholder="Enter some notes" name="notes"><?= $software_notes ?></textarea>
 
             </div>
 

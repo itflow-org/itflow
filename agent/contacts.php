@@ -115,9 +115,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
     <div class="card-body">
         <form autocomplete="off">
             <?php if ($client_url) { ?>
-            <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
+            <input type="hidden" name="client_id" value="<?= $client_id ?>">
             <?php } ?>
-            <input type="hidden" name="archived" value="<?php echo $archived; ?>">
+            <input type="hidden" name="archived" value="<?= $archived ?>">
             <div class="row">
 
                 <div class="col-md-4">
@@ -148,7 +148,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 $tag_id = intval($row['tag_id']);
                                 $tag_name = escapeHtml($row['tag_name']); ?>
 
-                                <option value="<?php echo $tag_id ?>" <?php if (isset($_GET['tags']) && in_array($tag_id, $_GET['tags'])) { echo 'selected'; } ?>> <?php echo $tag_name ?> </option>
+                                <option value="<?= $tag_id ?>" <?php if (isset($_GET['tags']) && in_array($tag_id, $_GET['tags'])) { echo 'selected'; } ?>> <?= $tag_name ?> </option>
 
                             <?php } ?>
                         </select>
@@ -173,7 +173,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 $location_id = intval($row['location_id']);
                                 $location_name = escapeHtml($row['location_name']);
                             ?>
-                                <option <?php if ($location_filter == $location_id) { echo "selected"; } ?> value="<?php echo $location_id; ?>"><?php echo $location_name; ?></option>
+                                <option <?php if ($location_filter == $location_id) { echo "selected"; } ?> value="<?= $location_id ?>"><?= $location_name ?></option>
                             <?php
                             }
                             ?>
@@ -200,7 +200,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 $client_id = intval($row['client_id']);
                                 $client_name = escapeHtml($row['client_name']);
                             ?>
-                                <option <?php if ($client == $client_id) { echo "selected"; } ?> value="<?php echo $client_id; ?>"><?php echo $client_name; ?></option>
+                                <option <?php if ($client == $client_id) { echo "selected"; } ?> value="<?= $client_id ?>"><?= $client_name ?></option>
                             <?php
                             }
                             ?>
@@ -212,7 +212,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                 <div class="col-md-3">
                     <div class="btn-group float-right">
-                        <a href="?<?php echo $client_url; ?>archived=<?php if($archived == 1){ echo 0; } else { echo 1; } ?>"
+                        <a href="?<?= $client_url ?>archived=<?php if($archived == 1){ echo 0; } else { echo 1; } ?>"
                             class="btn btn-<?php if($archived == 1){ echo "primary"; } else { echo "default"; } ?>">
                             <i class="fa fa-fw fa-archive mr-2"></i>Archived
                         </a>
@@ -286,7 +286,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
         </form>
         <hr>
         <form id="bulkActions" action="post.php" method="post" enctype="multipart/form-data">
-            <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token'] ?>">
+            <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
 
             <div class="table-responsive">
                 <table class="table border">
@@ -298,25 +298,25 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             </div>
                         </td>
                         <th>
-                            <a class="text-secondary ml-3" href="?<?php echo $url_query_strings_sort; ?>&sort=contact_name&order=<?php echo $disp; ?>">
+                            <a class="text-secondary ml-3" href="?<?= $url_query_strings_sort ?>&sort=contact_name&order=<?= $disp ?>">
                                 Name <?php if ($sort == 'contact_name') { echo $order_icon; } ?>
                             </a>
                         </th>
                         <th>
-                            <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=contact_department&order=<?php echo $disp; ?>">
+                            <a class="text-secondary" href="?<?= $url_query_strings_sort ?>&sort=contact_department&order=<?= $disp ?>">
                                 Department <?php if ($sort == 'contact_department') { echo $order_icon; } ?>
                             </a>
                         </th>
                         <th>Contact</th>
                         <th>
-                            <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=location_name&order=<?php echo $disp; ?>">
+                            <a class="text-secondary" href="?<?= $url_query_strings_sort ?>&sort=location_name&order=<?= $disp ?>">
                                 Location <?php if ($sort == 'location_name') { echo $order_icon; } ?>
                             </a>
                         </th>
                         <th></th>
                         <?php if (!$client_url) { ?>
                         <th>
-                            <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=client_name&order=<?php echo $disp; ?>">
+                            <a class="text-secondary" href="?<?= $url_query_strings_sort ?>&sort=client_name&order=<?= $disp ?>">
                                 Client <?php if ($sort == 'client_name') { echo $order_icon; } ?>
                             </a>
                         </th>
@@ -467,31 +467,31 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         <tr>
                             <td class="bg-light checkbox-column">
                                 <div class="form-check">
-                                    <input class="form-check-input bulk-select" type="checkbox" name="contact_ids[]" value="<?php echo $contact_id ?>">
+                                    <input class="form-check-input bulk-select" type="checkbox" name="contact_ids[]" value="<?= $contact_id ?>">
                                 </div>
                             </td>
                             <td>
-                                <a class="text-dark" href="contact.php?client_id=<?php echo $client_id; ?>&contact_id=<?php echo $contact_id; ?>">
+                                <a class="text-dark" href="contact.php?client_id=<?= $client_id ?>&contact_id=<?= $contact_id ?>">
                                     <div class="media">
                                         <?php if ($contact_photo) { ?>
                                             <span class="fa-stack fa-2x mr-3 text-center">
-                                                <img class="img-size-50 img-circle" src="<?php echo "../uploads/clients/$client_id/$contact_photo"; ?>">
+                                                <img class="img-size-50 img-circle" src="<?= "../uploads/clients/$client_id/$contact_photo" ?>">
                                             </span>
                                         <?php } else { ?>
                                             <span class="fa-stack fa-2x mr-3">
                                                 <i class="fa fa-circle fa-stack-2x text-secondary"></i>
-                                                <span class="fa fa-stack-1x text-white"><?php echo $contact_initials; ?></span>
+                                                <span class="fa fa-stack-1x text-white"><?= $contact_initials ?></span>
                                             </span>
                                         <?php } ?>
 
                                         <div class="media-body">
-                                            <div class="<?php if($contact_important) { echo "text-bold"; } ?>"><?php echo $contact_name; ?> <?php echo $user_exists_display; ?></div>
-                                            <?php echo $contact_title_display; ?>
-                                            <div><?php echo $contact_primary_display; ?></div>
+                                            <div class="<?php if($contact_important) { echo "text-bold"; } ?>"><?= $contact_name ?> <?= $user_exists_display ?></div>
+                                            <?= $contact_title_display ?>
+                                            <div><?= $contact_primary_display ?></div>
                                             <?php
                                             if (!empty($contact_tags_display)) { ?>
                                                 <div class="mt-1">
-                                                    <?php echo $contact_tags_display; ?>
+                                                    <?= $contact_tags_display ?>
                                                 </div>
                                             <?php } ?>
                                         </div>
@@ -499,14 +499,14 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 </a>
 
                             </td>
-                            <td><?php echo $contact_department; ?></td>
-                            <td><?php echo $contact_info_display; ?></td>
-                            <td><?php echo $location_name_display; ?></td>
+                            <td><?= $contact_department ?></td>
+                            <td><?= $contact_info_display ?></td>
+                            <td><?= $location_name_display ?></td>
                             <td>
-                                <?php echo "$asset_count_display$credential_count_display$software_count_display$ticket_count_display"; ?>
+                                <?= "$asset_count_display$credential_count_display$software_count_display$ticket_count_display" ?>
                             </td>
                             <?php if (!$client_url) { ?>
-                            <td><a href="contacts.php?client_id=<?php echo $client_id; ?>"><?php echo $client_name; ?></a></td>
+                            <td><a href="contacts.php?client_id=<?= $client_id ?>"><?= $client_name ?></a></td>
                             <?php } ?>
                             <td>
                                 <div class="dropdown dropleft text-center">

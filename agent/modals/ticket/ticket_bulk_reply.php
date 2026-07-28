@@ -36,7 +36,7 @@ ob_start();
                     $ticket_status_id_select = intval($row['ticket_status_id']);
                     $ticket_status_name_select = escapeHtml($row['ticket_status_name']); ?>
 
-                    <option value="<?php echo $ticket_status_id_select ?>"> <?php echo $ticket_status_name_select ?> </option>
+                    <option value="<?= $ticket_status_id_select ?>"> <?= $ticket_status_name_select ?> </option>
 
                 <?php } ?>
             </select>

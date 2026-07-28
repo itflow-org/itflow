@@ -25,17 +25,17 @@ $num_rows = mysqli_num_rows($sql);
                 <thead class="text-dark <?php if ($num_rows == 0) { echo "d-none"; } ?>">
                 <tr>
                     <th>
-                        <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=payment_method_name&order=<?php echo $disp; ?>">
+                        <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=payment_method_name&order=<?= $disp ?>">
                             Method <?php if ($sort == 'payment_method_name') { echo $order_icon; } ?>
                         </a>
                     </th>
                     <th>
-                        <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=payment_method_description&order=<?php echo $disp; ?>">
+                        <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=payment_method_description&order=<?= $disp ?>">
                             Description <?php if ($sort == 'payment_method_description') { echo $order_icon; } ?>
                         </a>
                     </th>
                     <th>
-                        <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=payment_method_created_at&order=<?php echo $disp; ?>">
+                        <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=payment_method_created_at&order=<?= $disp ?>">
                             Created at <?php if ($sort == 'payment_method_created_at') { echo $order_icon; } ?>
                         </a>
                     </th>
@@ -56,11 +56,11 @@ $num_rows = mysqli_num_rows($sql);
                         <td>
                             <a class="text-dark text-bold ajax-modal" href="#"
                                 data-modal-url="modals/payment_method/payment_method_edit.php?id=<?= $payment_method_id ?>">
-                                <?php echo $payment_method_name; ?>
+                                <?= $payment_method_name ?>
                             </a>
                         </td>
-                        <td><?php echo $payment_method_description; ?></td>
-                        <td><?php echo $payment_method_created_at; ?></td>
+                        <td><?= $payment_method_description ?></td>
+                        <td><?= $payment_method_created_at ?></td>
                         <td>
                             <div class="dropdown dropleft text-center">
                                 <button class="btn btn-secondary btn-sm" type="button" data-toggle="dropdown">
@@ -72,7 +72,7 @@ $num_rows = mysqli_num_rows($sql);
                                         <i class="fas fa-fw fa-edit mr-2"></i>Edit
                                     </a>
                                     <div class="dropdown-divider"></div>
-                                    <a class="dropdown-item text-danger confirm-link" href="post.php?delete_payment_method=<?php echo $payment_method_id; ?>&csrf_token=<?php echo $_SESSION['csrf_token'] ?>">
+                                    <a class="dropdown-item text-danger confirm-link" href="post.php?delete_payment_method=<?= $payment_method_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                                         <i class="fas fa-fw fa-trash mr-2"></i>Delete
                                     </a>
                                 </div>

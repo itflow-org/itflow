@@ -48,17 +48,17 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                 <thead class="text-dark <?php if($num_rows[0] == 0){ echo "d-none"; } ?>">
                 <tr>
                     <th>
-                        <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=software_template_name&order=<?php echo $disp; ?>">
+                        <a class="text-secondary" href="?<?= $url_query_strings_sort ?>&sort=software_template_name&order=<?= $disp ?>">
                             Template <?php if ($sort == 'software_template_name') { echo $order_icon; } ?>
                         </a>
                     </th>
                     <th>
-                        <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=software_template_type&order=<?php echo $disp; ?>">
+                        <a class="text-secondary" href="?<?= $url_query_strings_sort ?>&sort=software_template_type&order=<?= $disp ?>">
                             Type <?php if ($sort == 'software_template_type') { echo $order_icon; } ?>
                         </a>
                     </th>
                     <th>
-                        <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=software_template_license_type&order=<?php echo $disp; ?>">
+                        <a class="text-secondary" href="?<?= $url_query_strings_sort ?>&sort=software_template_license_type&order=<?= $disp ?>">
                             License Type <?php if ($sort == 'software_template_license_type') { echo $order_icon; } ?>
                         </a>
                     </th>
@@ -84,14 +84,14 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 <div class="media">
                                     <i class="fa fa-fw fa-2x fa-cube mr-3"></i>
                                     <div class="media-body">
-                                        <div><?php echo "$software_template_name <span>$software_template_version</span>"; ?></div>
-                                        <div><small class="text-secondary"><?php echo $software_template_description; ?></small></div>
+                                        <div><?= "$software_template_name <span>$software_template_version</span>" ?></div>
+                                        <div><small class="text-secondary"><?= $software_template_description ?></small></div>
                                     </div>
                                 </div>
                             </a>
                         </td>
-                        <td><?php echo $software_template_type; ?></td>
-                        <td><?php echo $software_template_license_type; ?></td>
+                        <td><?= $software_template_type ?></td>
+                        <td><?= $software_template_license_type ?></td>
                         <td>
                             <div class="dropdown dropleft text-center">
                                 <button class="btn btn-secondary btn-sm" data-toggle="dropdown">
@@ -103,7 +103,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                     </a>
                                     <?php if($session_user_role == 3) { ?>
                                         <div class="dropdown-divider"></div>
-                                        <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_software_template=<?php echo $software_template_id; ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
+                                        <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_software_template=<?= $software_template_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                                             <i class="fas fa-fw fa-trash mr-2"></i>Delete
                                         </a>
                                     <?php } ?>

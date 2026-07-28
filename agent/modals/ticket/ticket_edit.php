@@ -91,12 +91,12 @@ ob_start();
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
                         </div>
-                        <input type="text" class="form-control" name="subject" maxlength="500" value="<?php echo $ticket_subject; ?>" placeholder="Subject" required>
+                        <input type="text" class="form-control" name="subject" maxlength="500" value="<?= $ticket_subject ?>" placeholder="Subject" required>
                     </div>
                 </div>
 
                 <div class="form-group">
-                    <textarea class="form-control tinymceTicket" rows="8" name="details"><?php echo $ticket_details; ?></textarea>
+                    <textarea class="form-control tinymceTicket" rows="8" name="details"><?= $ticket_details ?></textarea>
                 </div>
 
                 <div class="row">
@@ -132,7 +132,7 @@ ob_start();
                                         $category_name = escapeHtml($row['category_name']);
 
                                         ?>
-                                        <option <?php if ($ticket_category == $category_id) {echo "selected";} ?> value="<?php echo $category_id; ?>"><?php echo $category_name; ?></option>
+                                        <option <?php if ($ticket_category == $category_id) {echo "selected";} ?> value="<?= $category_id ?>"><?= $category_name ?></option>
                                     <?php } ?>
 
                                 </select>
@@ -171,7 +171,7 @@ ob_start();
                                     while ($row = mysqli_fetch_assoc($sql)) {
                                         $user_id = intval($row['user_id']);
                                         $user_name = escapeHtml($row['user_name']); ?>
-                                        <option <?php if ($ticket_assigned_to === $user_id) { echo "selected"; } ?> value="<?php echo $user_id; ?>"><?php echo $user_name; ?></option>
+                                        <option <?php if ($ticket_assigned_to === $user_id) { echo "selected"; } ?> value="<?= $user_id ?>"><?= $user_name ?></option>
                                     <?php } ?>
                                 </select>
                             </div>
@@ -184,7 +184,7 @@ ob_start();
                                 <div class="input-group-prepend">
                                     <span class="input-group-text"><i class="fa fa-fw fa-calendar-check"></i></span>
                                 </div>
-                                <input type="datetime-local" class="form-control" name="due" value="<?php echo $ticket_due_at; ?>">
+                                <input type="datetime-local" class="form-control" name="due" value="<?= $ticket_due_at ?>">
                             </div>
                         </div>
                     </div>
@@ -193,8 +193,8 @@ ob_start();
                 <?php if ($config_module_enable_accounting && lookupUserPermission("module_sales") >= 2) { ?>
                 <div class="form-group">
                     <div class="custom-control custom-switch">
-                        <input type="checkbox" class="custom-control-input" name="billable" <?php if ($ticket_billable == 1) { echo "checked"; } ?> value="1" id="billableSwitch<?php echo $ticket_id; ?>">
-                        <label class="custom-control-label" for="billableSwitch<?php echo $ticket_id; ?>">Mark Billable</label>
+                        <input type="checkbox" class="custom-control-input" name="billable" <?php if ($ticket_billable == 1) { echo "checked"; } ?> value="1" id="billableSwitch<?= $ticket_id ?>">
+                        <label class="custom-control-label" for="billableSwitch<?= $ticket_id ?>">Mark Billable</label>
                     </div>
                 </div>
                 <?php } ?>
@@ -238,7 +238,7 @@ ob_start();
                                 }
 
                                 ?>
-                                <option value="<?php echo $contact_id_select; ?>" <?php if ($contact_id_select  == $contact_id) { echo "selected"; } ?>><?php echo "$contact_name_select$contact_title_display_select$contact_primary_display_select$contact_technical_display_select"; ?></option>
+                                <option value="<?= $contact_id_select ?>" <?php if ($contact_id_select  == $contact_id) { echo "selected"; } ?>><?= "$contact_name_select$contact_title_display_select$contact_primary_display_select$contact_technical_display_select" ?></option>
                             <?php } ?>
                         </select>
                     </div>
@@ -275,7 +275,7 @@ ob_start();
                                 $asset_name_select = escapeHtml($row['asset_name']);
                                 $asset_contact_name_select = escapeHtml($row['contact_name']);
                                 ?>
-                                <option <?php if ($asset_id == $asset_id_select) { echo "selected"; } ?> value="<?php echo $asset_id_select; ?>"><?php echo "$asset_name_select - $asset_contact_name_select"; ?></option>
+                                <option <?php if ($asset_id == $asset_id_select) { echo "selected"; } ?> value="<?= $asset_id_select ?>"><?= "$asset_name_select - $asset_contact_name_select" ?></option>
 
                                 <?php
                             }
@@ -300,9 +300,9 @@ ob_start();
                                 $asset_name_select = escapeHtml($row['asset_name']);
                                 $asset_contact_name_select = escapeHtml($row['contact_name']);
                             ?>
-                                <option value="<?php echo $asset_id_select; ?>"
+                                <option value="<?= $asset_id_select ?>"
                                     <?php if (in_array($asset_id_select, $additional_assets_array)) { echo "selected"; } ?>
-                                    ><?php echo "$asset_name_select - $asset_contact_name_select"; ?></option>
+                                    ><?= "$asset_name_select - $asset_contact_name_select" ?></option>
 
                             <?php } ?>
                         </select>
@@ -324,7 +324,7 @@ ob_start();
                                 $location_id_select = intval($row['location_id']);
                                 $location_name_select = escapeHtml($row['location_name']);
                                 ?>
-                                <option <?php if ($location_id == $location_id_select) { echo "selected"; } ?> value="<?php echo $location_id_select; ?>"><?php echo $location_name_select; ?></option>
+                                <option <?php if ($location_id == $location_id_select) { echo "selected"; } ?> value="<?= $location_id_select ?>"><?= $location_name_select ?></option>
 
                                 <?php
                             }
@@ -352,7 +352,7 @@ ob_start();
                                         $vendor_id_select = intval($row['vendor_id']);
                                         $vendor_name_select = escapeHtml($row['vendor_name']);
                                         ?>
-                                        <option <?php if ($vendor_id == $vendor_id_select) { echo "selected"; } ?> value="<?php echo $vendor_id_select; ?>"><?php echo $vendor_name_select; ?></option>
+                                        <option <?php if ($vendor_id == $vendor_id_select) { echo "selected"; } ?> value="<?= $vendor_id_select ?>"><?= $vendor_name_select ?></option>
 
                                         <?php
                                     }
@@ -371,7 +371,7 @@ ob_start();
                                 <div class="input-group-prepend">
                                     <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
                                 </div>
-                                <input type="text" class="form-control" name="vendor_ticket_number" placeholder="Vendor ticket number" value="<?php echo $ticket_vendor_ticket_number; ?>">
+                                <input type="text" class="form-control" name="vendor_ticket_number" placeholder="Vendor ticket number" value="<?= $ticket_vendor_ticket_number ?>">
                             </div>
                         </div>
 

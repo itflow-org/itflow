@@ -15,7 +15,7 @@ ob_start();
         </div>
         <h6 class="mb-4 text-secondary"><b>All ITFlow agent passwords will be reset and shown to you </b><i>(except yours - change yours first!)</i>.<br/><br/>You should communicate temporary passwords to agents out of band (e.g. via a phone call) and require they are changed ASAP.</h6>
         <form action="post.php" method="POST">
-            <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token'] ?>">
+            <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
             <div class="row col-7 offset-4">
                 <div class="input-group">
                     <div class="input-group-prepend">

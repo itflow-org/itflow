@@ -8,7 +8,7 @@ require_once "includes/inc_all_admin.php";
         </div>
         <div class="card-body">
             <form action="post.php" method="post" autocomplete="off">
-                <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token'] ?>">
+                <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
 
                 <h4>Project</h4>
 
@@ -18,7 +18,7 @@ require_once "includes/inc_all_admin.php";
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-barcode"></i></span>
                         </div>
-                        <input type="text" class="form-control" name="config_project_prefix" placeholder="Project Prefix" value="<?php echo escapeHtml($config_project_prefix); ?>" required>
+                        <input type="text" class="form-control" name="config_project_prefix" placeholder="Project Prefix" value="<?= escapeHtml($config_project_prefix) ?>" required>
                     </div>
                 </div>
 
@@ -28,7 +28,7 @@ require_once "includes/inc_all_admin.php";
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-barcode"></i></span>
                         </div>
-                        <input type="number" min="0" class="form-control" name="config_project_next_number" placeholder="Next Project Number" value="<?php echo intval($config_project_next_number); ?>" required>
+                        <input type="number" min="0" class="form-control" name="config_project_next_number" placeholder="Next Project Number" value="<?= intval($config_project_next_number) ?>" required>
                     </div>
                 </div>
 

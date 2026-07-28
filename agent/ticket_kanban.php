@@ -91,10 +91,10 @@ $kanban = array_values($statuses);
 
     <?php foreach ($kanban as $column) { ?>
 
-        <div class="kanban-column card card-dark" data-status-id="<?php echo $column['id']; ?>">
-            <h6 class="panel-title"><?php echo $column['name']; ?></h6>
+        <div class="kanban-column card card-dark" data-status-id="<?= $column['id'] ?>">
+            <h6 class="panel-title"><?= $column['name'] ?></h6>
 
-            <div class="kanban-status" data-column-name="<?php echo $column['name']; ?>" data-status-id="<?php echo $column['id']; ?>">
+            <div class="kanban-status" data-column-name="<?= $column['name'] ?>" data-status-id="<?= $column['id'] ?>">
 
                 <?php foreach ($column['tickets'] as $item) {
 
@@ -108,16 +108,16 @@ $kanban = array_values($statuses);
                     ?>
 
                     <div class="task grab-cursor"
-                         data-ticket-id="<?php echo $item['ticket_id']; ?>"
-                         data-ticket-status-id="<?php echo $item['ticket_status_id']; ?>"
-                         ondblclick="window.location.href='ticket.php?ticket_id=<?php echo $item['ticket_id']; ?>'">
+                         data-ticket-id="<?= $item['ticket_id'] ?>"
+                         data-ticket-status-id="<?= $item['ticket_status_id'] ?>"
+                         ondblclick="window.location.href='ticket.php?ticket_id=<?= $item['ticket_id'] ?>'">
 
-                <span class="badge badge-<?php echo $ticket_priority_color; ?>">
-                    <?php echo $item['ticket_priority']; ?>
+                <span class="badge badge-<?= $ticket_priority_color ?>">
+                    <?= $item['ticket_priority'] ?>
                 </span>
 
                         <span class="badge badge-secondary">
-                    <?php echo $item['category_name']; ?>
+                    <?= $item['category_name'] ?>
                 </span>
 
                         <div class="btn btn-light drag-handle-class" style="display:none;">
@@ -143,16 +143,16 @@ $kanban = array_values($statuses);
                         <br>
 
                         <?php if ($item['asset_name'] != "") { ?>
-                            <i class="fa fa-fw fa-desktop text-secondary mr-2"></i><?php echo $item['asset_name']; ?><br>
+                            <i class="fa fa-fw fa-desktop text-secondary mr-2"></i><?= $item['asset_name'] ?><br>
                         <?php } ?>
 
-                        <i class="fa fa-fw fa-life-ring text-secondary mr-2"></i><?php echo $item['ticket_subject']; ?><br>
+                        <i class="fa fa-fw fa-life-ring text-secondary mr-2"></i><?= $item['ticket_subject'] ?><br>
 
-                        <i class="fas fa-fw fa-user mr-2 text-secondary"></i><?php echo $item['user_name']; ?><br>
+                        <i class="fas fa-fw fa-user mr-2 text-secondary"></i><?= $item['user_name'] ?><br>
 
                         <?php if ($item['ticket_schedule'] != "") { ?>
                             <i class="fa fa-fw fa-calendar-check text-secondary mr-2"></i>
-                            <span class="badge badge-warning"><?php echo $item['ticket_schedule']; ?></span>
+                            <span class="badge badge-warning"><?= $item['ticket_schedule'] ?></span>
                         <?php } ?>
 
                     </div>

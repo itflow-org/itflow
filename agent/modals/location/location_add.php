@@ -42,7 +42,7 @@ ob_start();
             <div class="tab-pane fade show active" id="pills-details">
 
                 <?php if ($client_id) { ?>
-                    <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
+                    <input type="hidden" name="client_id" value="<?= $client_id ?>">
                 <?php } else { ?>
 
                     <div class="form-group">
@@ -151,7 +151,7 @@ ob_start();
                         <select class="form-control select2" name="country">
                             <option value="">- Country -</option>
                             <?php foreach($countries_array as $country_name) { ?>
-                                <option <?php if ($session_company_country == $country_name) { echo "selected"; } ?> ><?php echo $country_name; ?></option>
+                                <option <?php if ($session_company_country == $country_name) { echo "selected"; } ?> ><?= $country_name ?></option>
                             <?php } ?>
                         </select>
                     </div>
@@ -176,7 +176,7 @@ ob_start();
                                 $contact_id = $row['contact_id'];
                                 $contact_name = escapeHtml($row['contact_name']);
                                 ?>
-                                <option value="<?php echo $contact_id; ?>"><?php echo $contact_name; ?></option>
+                                <option value="<?= $contact_id ?>"><?= $contact_name ?></option>
                             <?php } ?>
 
                         </select>
@@ -251,7 +251,7 @@ ob_start();
                                 $tag_id_select = intval($row['tag_id']);
                                 $tag_name_select = escapeHtml($row['tag_name']);
                                 ?>
-                                <option value="<?php echo $tag_id_select; ?>"><?php echo $tag_name_select; ?></option>
+                                <option value="<?= $tag_id_select ?>"><?= $tag_name_select ?></option>
                             <?php } ?>
 
                         </select>

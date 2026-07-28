@@ -109,9 +109,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
     <div class="card-body">
         <form autocomplete="off">
             <?php if ($client_url) { ?>
-            <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
+            <input type="hidden" name="client_id" value="<?= $client_id ?>">
             <?php } ?>
-            <input type="hidden" name="archived" value="<?php echo $archived; ?>">
+            <input type="hidden" name="archived" value="<?= $archived ?>">
             <div class="row">
                 <div class="col-md-4">
                     <div class="input-group mb-3 mb-md-0">
@@ -141,7 +141,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 $client_id = intval($row['client_id']);
                                 $client_name = escapeHtml($row['client_name']);
                             ?>
-                                <option <?php if ($client == $client_id) { echo "selected"; } ?> value="<?php echo $client_id; ?>"><?php echo $client_name; ?></option>
+                                <option <?php if ($client == $client_id) { echo "selected"; } ?> value="<?= $client_id ?>"><?= $client_name ?></option>
                             <?php
                             }
                             ?>
@@ -171,7 +171,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                 <div class="col-md-4">
                     <div class="btn-group float-right">
-                        <a href="?<?php echo $client_url; ?>archived=<?php if($archived == 1){ echo 0; } else { echo 1; } ?>"
+                        <a href="?<?= $client_url ?>archived=<?php if($archived == 1){ echo 0; } else { echo 1; } ?>"
                             class="btn btn-<?php if($archived == 1){ echo "primary"; } else { echo "default"; } ?>">
                             <i class="fa fa-fw fa-archive mr-2"></i>Archived
                         </a>
@@ -212,9 +212,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
         <div class="table-responsive">
 
             <form id="bulkActions" action="post.php" method="post">
-                <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token'] ?>">
+                <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
                 <?php if ($client_url) { ?>
-                <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
+                <input type="hidden" name="client_id" value="<?= $client_id ?>">
                 <?php } ?>
                 <table class="table table-striped table-borderless table-hover">
                     <thead class="text-dark <?php if ($num_rows[0] == 0) { echo "d-none"; } ?> text-nowrap">
@@ -225,38 +225,38 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             </div>
                         </td>
                         <th>
-                            <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=domain_name&order=<?php echo $disp; ?>">
+                            <a class="text-secondary" href="?<?= $url_query_strings_sort ?>&sort=domain_name&order=<?= $disp ?>">
                                 Domain <?php if ($sort == 'domain_name') { echo $order_icon; } ?>
                             </a>
                         </th>
                         <th>
-                            <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=registrar_name&order=<?php echo $disp; ?>">
+                            <a class="text-secondary" href="?<?= $url_query_strings_sort ?>&sort=registrar_name&order=<?= $disp ?>">
                                 Registrar <?php if ($sort == 'registrar_name') { echo $order_icon; } ?>
                             </a>
                         </th>
                         <th>
-                            <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=webhost_name&order=<?php echo $disp; ?>">
+                            <a class="text-secondary" href="?<?= $url_query_strings_sort ?>&sort=webhost_name&order=<?= $disp ?>">
                                 Web Host <?php if ($sort == 'webhost_name') { echo $order_icon; } ?>
                             </a>
                         </th>
                         <th>
-                            <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=dnshost_name&order=<?php echo $disp; ?>">
+                            <a class="text-secondary" href="?<?= $url_query_strings_sort ?>&sort=dnshost_name&order=<?= $disp ?>">
                                 DNS Host <?php if ($sort == 'dnshost_name') { echo $order_icon; } ?>
                             </a>
                         </th>
                         <th>
-                            <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=mailhost_name&order=<?php echo $disp; ?>">
+                            <a class="text-secondary" href="?<?= $url_query_strings_sort ?>&sort=mailhost_name&order=<?= $disp ?>">
                                 Mail Host <?php if ($sort == 'mailhost_name') { echo $order_icon; } ?>
                             </a>
                         </th>
                         <th>
-                            <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=domain_expire&order=<?php echo $disp; ?>">
+                            <a class="text-secondary" href="?<?= $url_query_strings_sort ?>&sort=domain_expire&order=<?= $disp ?>">
                                 Expires <?php if ($sort == 'domain_expire') { echo $order_icon; } ?>
                             </a>
                         </th>
                         <?php if (!$client_url) { ?>
                         <th>
-                            <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=client_name&order=<?php echo $disp; ?>">
+                            <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=client_name&order=<?= $disp ?>">
                                 Client <?php if ($sort == 'client_name') { echo $order_icon; } ?>
                             </a>
                         </th>
@@ -321,10 +321,10 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             </a>" : "-";
 
                         ?>
-                        <tr class="<?php echo $tr_class; ?>">
+                        <tr class="<?= $tr_class ?>">
                             <td class="checkbox-column">
                                 <div class="form-check">
-                                    <input class="form-check-input bulk-select" type="checkbox" name="domain_ids[]" value="<?php echo $domain_id ?>">
+                                    <input class="form-check-input bulk-select" type="checkbox" name="domain_ids[]" value="<?= $domain_id ?>">
                                 </div>
                             </td>
                             <td class="">
@@ -334,24 +334,24 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                     <div class="media">
                                         <i class="fa fa-fw fa-2x fa-globe mr-3"></i>
                                         <div class="media-body">
-                                            <div><?php echo $domain_name; ?></div>
-                                            <div><small class="text-secondary"><?php echo $domain_description; ?></small></div>
+                                            <div><?= $domain_name ?></div>
+                                            <div><small class="text-secondary"><?= $domain_description ?></small></div>
                                         </div>
                                     </div>
                                 </a>
                             </td>
-                            <td><?php echo $domain_registrar_name_display; ?></td>
-                            <td><?php echo $domain_webhost_name_display; ?></td>
-                            <td><?php echo $domain_dnshost_name_display; ?></td>
-                            <td><?php echo $domain_mailhost_name_display; ?></td>
+                            <td><?= $domain_registrar_name_display ?></td>
+                            <td><?= $domain_webhost_name_display ?></td>
+                            <td><?= $domain_dnshost_name_display ?></td>
+                            <td><?= $domain_mailhost_name_display ?></td>
                             <td>
-                                <div><?php echo $domain_expire ?: '-'; ?></div>
+                                <div><?= $domain_expire ?: '-' ?></div>
                                 <?php if (!empty($domain_expire)) { ?>
-                                    <div><small><?php echo $domain_expire_ago; ?></small></div>
+                                    <div><small><?= $domain_expire_ago ?></small></div>
                                 <?php } ?>
                             </td>
                             <?php if (!$client_url) { ?>
-                            <td><a href="domains.php?client_id=<?php echo $client_id; ?>"><?php echo $client_name; ?></a></td>
+                            <td><a href="domains.php?client_id=<?= $client_id ?>"><?= $client_name ?></a></td>
                             <?php } ?>
                             <td>
                                 <div class="dropdown dropleft text-center">
@@ -365,22 +365,22 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                             <i class="fas fa-fw fa-edit mr-2"></i>Edit
                                         </a>
                                         <div class="dropdown-divider"></div>
-                                        <a class="dropdown-item" href="post.php?refresh_domain=<?php echo $domain_id; ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
+                                        <a class="dropdown-item" href="post.php?refresh_domain=<?= $domain_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                                             <i class="fas fa-fw fa-sync-alt mr-2"></i>Refresh Records
                                         </a>
                                         <?php if ($session_user_role == 3) { ?>
                                             <?php if ($domain_archived_at) { ?>
                                             <div class="dropdown-divider"></div>
-                                            <a class="dropdown-item text-info confirm-link" href="post.php?restore_domain=<?php echo $domain_id; ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
+                                            <a class="dropdown-item text-info confirm-link" href="post.php?restore_domain=<?= $domain_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                                                 <i class="fas fa-fw fa-redo mr-2"></i>Restore
                                             </a>
                                             <div class="dropdown-divider"></div>
-                                            <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_domain=<?php echo $domain_id; ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
+                                            <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_domain=<?= $domain_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                                                 <i class="fas fa-fw fa-trash mr-2"></i>Delete
                                             </a>
                                             <?php } else { ?>
                                             <div class="dropdown-divider"></div>
-                                            <a class="dropdown-item text-danger confirm-link" href="post.php?archive_domain=<?php echo $domain_id; ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
+                                            <a class="dropdown-item text-danger confirm-link" href="post.php?archive_domain=<?= $domain_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                                                 <i class="fas fa-fw fa-archive mr-2"></i>Archive
                                             </a>
                                             <?php } ?>

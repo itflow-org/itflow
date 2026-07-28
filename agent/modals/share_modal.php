@@ -34,7 +34,7 @@
                                         $contact_name_select = escapeHtml($row['contact_name']);
                                         $contact_email_select = escapeHtml($row['contact_email']);
                                         ?>
-                                        <option value="<?php echo $contact_email_select; ?>"><?php echo "$contact_name_select - $contact_email_select"; ?></option>
+                                        <option value="<?= $contact_email_select ?>"><?= "$contact_name_select - $contact_email_select" ?></option>
 
                                         <?php
                                     }

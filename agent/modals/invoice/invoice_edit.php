@@ -27,14 +27,14 @@ ob_start();
 ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fas fa-fw fa-file-invoice mr-2"></i>Editing invoice: <strong><?php echo "$invoice_prefix$invoice_number"; ?></strong> - <?php echo $client_name; ?></h5>
+    <h5 class="modal-title"><i class="fas fa-fw fa-file-invoice mr-2"></i>Editing invoice: <strong><?= "$invoice_prefix$invoice_number" ?></strong> - <?= $client_name ?></h5>
     <button type="button" class="close text-white" data-dismiss="modal">
         <span>&times;</span>
     </button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
-    <input type="hidden" name="invoice_id" value="<?php echo $invoice_id; ?>">
+    <input type="hidden" name="invoice_id" value="<?= $invoice_id ?>">
 
     <div class="modal-body" <?php if (lookupUserPermission('module_sales') <= 1) { echo 'inert'; } ?>>
 
@@ -44,7 +44,7 @@ ob_start();
                 <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
                 </div>
-                <input type="date" class="form-control" name="date" max="2999-12-31" value="<?php echo $invoice_date; ?>" required>
+                <input type="date" class="form-control" name="date" max="2999-12-31" value="<?= $invoice_date ?>" required>
             </div>
         </div>
 
@@ -54,7 +54,7 @@ ob_start();
                 <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-calendar-alt"></i></span>
                 </div>
-                <input type="date" class="form-control" name="due" max="2999-12-31" value="<?php echo $invoice_due; ?>" required>
+                <input type="date" class="form-control" name="due" max="2999-12-31" value="<?= $invoice_due ?>" required>
             </div>
         </div>
 
@@ -75,7 +75,7 @@ ob_start();
                     ?>
                         <option <?php if ($category_id == $category_id_select) {
                                     echo "selected";
-                                } ?> value="<?php echo $category_id_select; ?>"><?php echo $category_name_select; ?></option>
+                                } ?> value="<?= $category_id_select ?>"><?= $category_name_select ?></option>
 
                     <?php
                     }
@@ -96,7 +96,7 @@ ob_start();
                 <div class='input-group-prepend'>
                     <span class='input-group-text'><i class='fa fa-fw fa-dollar-sign'></i></span>
                 </div>
-                <input type='text' class='form-control' inputmode="decimal" pattern="-?[0-9]*\.?[0-9]{0,2}" name='invoice_discount' placeholder='0.00' value="<?php echo number_format($invoice_discount, 2, '.', ''); ?>">
+                <input type='text' class='form-control' inputmode="decimal" pattern="-?[0-9]*\.?[0-9]{0,2}" name='invoice_discount' placeholder='0.00' value="<?= number_format($invoice_discount, 2, '.', '') ?>">
             </div>
         </div>
 
@@ -106,7 +106,7 @@ ob_start();
                 <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-comment"></i></span>
                 </div>
-                <input type="text" class="form-control" name="scope" placeholder="Quick description" maxlength="255" value="<?php echo $invoice_scope; ?>">
+                <input type="text" class="form-control" name="scope" placeholder="Quick description" maxlength="255" value="<?= $invoice_scope ?>">
             </div>
         </div>
 

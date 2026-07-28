@@ -1,15 +1,15 @@
-<div class="modal" id="archiveContactModal<?php echo $contact_id; ?>" tabindex="-1">
+<div class="modal" id="archiveContactModal<?= $contact_id ?>" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header bg-dark">
-                <h5 class="modal-title"><i class="fa fa-fw fa-archive mr-2"></i>Archiving contact: <strong><?php echo $contact_name; ?></strong></h5>
+                <h5 class="modal-title"><i class="fa fa-fw fa-archive mr-2"></i>Archiving contact: <strong><?= $contact_name ?></strong></h5>
                 <button type="button" class="close text-white" data-dismiss="modal">
                     <span>&times;</span>
                 </button>
             </div>
             <form action="post.php" method="post" autocomplete="off">
                 <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
-                <input type="hidden" name="contact_id" value="<?php echo $contact_id; ?>">
+                <input type="hidden" name="contact_id" value="<?= $contact_id ?>">
                 <div class="modal-body">
 
                     <div class="alert alert-warning">
@@ -20,29 +20,29 @@
 
                     <div class="form-group">
                         <div class="custom-control custom-checkbox">
-                            <input type="checkbox" class="custom-control-input" id="unassignAssetsCheckbox<?php echo $contact_id; ?>" name="unassign_assets" value="1">
-                            <label class="custom-control-label" for="unassignAssetsCheckbox<?php echo $contact_id; ?>">Assets</label>
+                            <input type="checkbox" class="custom-control-input" id="unassignAssetsCheckbox<?= $contact_id ?>" name="unassign_assets" value="1">
+                            <label class="custom-control-label" for="unassignAssetsCheckbox<?= $contact_id ?>">Assets</label>
                         </div>
                     </div>
 
                     <div class="form-group">
                         <div class="custom-control custom-checkbox">
-                            <input type="checkbox" class="custom-control-input" id="unassignLicensesCheckbox<?php echo $contact_id; ?>" name="unassign_licenses" value="1">
-                            <label class="custom-control-label" for="unassignLicensesCheckbox<?php echo $contact_id; ?>">Licenses</label>
+                            <input type="checkbox" class="custom-control-input" id="unassignLicensesCheckbox<?= $contact_id ?>" name="unassign_licenses" value="1">
+                            <label class="custom-control-label" for="unassignLicensesCheckbox<?= $contact_id ?>">Licenses</label>
                         </div>
                     </div>
 
                     <div class="form-group">
                         <div class="custom-control custom-checkbox">
-                            <input type="checkbox" class="custom-control-input" id="unassignDocumentsCheckbox<?php echo $contact_id; ?>" name="unassign_documents" value="1">
-                            <label class="custom-control-label" for="unassignDocumentsCheckbox<?php echo $contact_id; ?>">Documents</label>
+                            <input type="checkbox" class="custom-control-input" id="unassignDocumentsCheckbox<?= $contact_id ?>" name="unassign_documents" value="1">
+                            <label class="custom-control-label" for="unassignDocumentsCheckbox<?= $contact_id ?>">Documents</label>
                         </div>
                     </div>
 
                     <div class="form-group">
                         <div class="custom-control custom-checkbox">
-                            <input type="checkbox" class="custom-control-input" id="anonymizeCheckbox<?php echo $contact_id; ?>" name="anonymize_contact" value="1">
-                            <label class="custom-control-label" for="anonymizeCheckbox<?php echo $contact_id; ?>">Anonymize Contact</label>
+                            <input type="checkbox" class="custom-control-input" id="anonymizeCheckbox<?= $contact_id ?>" name="anonymize_contact" value="1">
+                            <label class="custom-control-label" for="anonymizeCheckbox<?= $contact_id ?>">Anonymize Contact</label>
                         </div>
                     </div>
 

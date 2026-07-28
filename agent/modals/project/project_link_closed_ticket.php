@@ -23,14 +23,14 @@ ob_start();
 ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fas fa-fw fa-life-ring mr-2"></i>Link closed ticket to project: <strong><?php echo $project_name; ?></strong></h5>
+    <h5 class="modal-title"><i class="fas fa-fw fa-life-ring mr-2"></i>Link closed ticket to project: <strong><?= $project_name ?></strong></h5>
     <button type="button" class="close text-white" data-dismiss="modal">
         <span>&times;</span>
     </button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
-    <input type="hidden" name="project_id" value="<?php echo $project_id; ?>">
+    <input type="hidden" name="project_id" value="<?= $project_id ?>">
     <div class="modal-body">
 
         <div class="form-group">

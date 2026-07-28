@@ -13,7 +13,7 @@ ob_start();
     </button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
-    <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token'] ?>">
+    <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
 
     <div class="modal-body">
 
@@ -32,7 +32,7 @@ ob_start();
                             $ai_provider_name = escapeHtml($row['ai_provider_name']);
 
                         ?>
-                        <option value="<?php echo $ai_provider_id; ?>"><?php echo $ai_provider_name; ?></option>
+                        <option value="<?= $ai_provider_id ?>"><?= $ai_provider_name ?></option>
                     <?php } ?>
                 </select>
             </div>

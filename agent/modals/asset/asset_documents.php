@@ -1,8 +1,8 @@
-<div class="modal" id="assetDocumentsModal<?php echo $asset_id; ?>" tabindex="-1">
+<div class="modal" id="assetDocumentsModal<?= $asset_id ?>" tabindex="-1">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header bg-dark">
-                <h5 class="modal-title"><i class="fa fa-fw fa-<?php echo $device_icon; ?> mr-2"></i><?php echo $asset_name; ?> Documents</h5>
+                <h5 class="modal-title"><i class="fa fa-fw fa-<?= $device_icon ?> mr-2"></i><?= $asset_name ?> Documents</h5>
                 <button type="button" class="close text-white" data-dismiss="modal">
                     <span>&times;</span>
                 </button>
@@ -16,7 +16,7 @@
                     ?>
                     <p>
                         <i class="fas fa-fw fa-document text-secondary"></i>
-                        <?php echo $related_document_name; ?> <a href="client_documents.php?q=<?php echo $related_document_name; ?>"><?php echo $related_document_name; ?></a>
+                        <?= $related_document_name ?> <a href="client_documents.php?q=<?= $related_document_name ?>"><?= $related_document_name ?></a>
                     </p>
                 <?php } ?>
             </div>

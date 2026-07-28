@@ -43,13 +43,13 @@ $document_template_updated_at = escapeHtml($row['document_template_updated_at'])
     <li class="breadcrumb-item">
         <a href="document_templates.php">Document Templates</a>
     </li>
-    <li class="breadcrumb-item active"><i class="fas fa-file-alt mr-2"></i><?php echo $document_template_name; ?></li>
+    <li class="breadcrumb-item active"><i class="fas fa-file-alt mr-2"></i><?= $document_template_name ?></li>
 </ol>
 
 <div class="card card-dark">
     <div class="card-header">
 
-        <h3 class="card-title mt-1"><i class="fa fa-fw fa-file-alt mr-2"></i><?php echo $document_template_name; ?></h3>
+        <h3 class="card-title mt-1"><i class="fa fa-fw fa-file-alt mr-2"></i><?= $document_template_name ?></h3>
 
         <div class="card-tools">
             <button type="button" class="btn btn-tool ajax-modal"
@@ -60,7 +60,7 @@ $document_template_updated_at = escapeHtml($row['document_template_updated_at'])
         </div>
     </div>
     <div class="card-body prettyContent">
-        <?php echo $document_template_content; ?>
+        <?= $document_template_content ?>
     </div>
 </div>
 

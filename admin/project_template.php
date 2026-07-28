@@ -63,8 +63,8 @@ if (isset($_GET['project_template_id'])) {
             <div class="media">
                 <i class="fa fa-fw fa-2x fa-project-diagram text-secondary mr-3"></i>
                 <div class="media-body">
-                    <h3 class="mb-0"><?php echo $project_template_name; ?><span class='badge badge-pill badge-info ml-2'>Template</span></h3>
-                    <div><small class="text-secondary"><?php echo $project_template_description; ?></small></div>
+                    <h3 class="mb-0"><?= $project_template_name ?><span class='badge badge-pill badge-info ml-2'>Template</span></h3>
+                    <div><small class="text-secondary"><?= $project_template_description ?></small></div>
                 </div>
             </div>
         </div>
@@ -74,7 +74,7 @@ if (isset($_GET['project_template_id'])) {
                 <i class="fa fa-fw fa-2x fa-life-ring text-secondary mr-3"></i>
                 <div class="media-body">
                     <div>Ticket Templates</div>
-                    <h3 class="mb-0"><?php echo $ticket_template_count; ?></h3>
+                    <h3 class="mb-0"><?= $ticket_template_count ?></h3>
                 </div>
             </div>
         </div>
@@ -84,7 +84,7 @@ if (isset($_GET['project_template_id'])) {
                 <i class="fa fa-fw fa-2x fa-tasks text-secondary mr-3"></i>
                 <div class="media-body">
                     <div>Task Templates</div>
-                    <h3 class="mb-0"><?php echo $task_template_count; ?></h3>
+                    <h3 class="mb-0"><?= $task_template_count ?></h3>
                 </div>
             </div>
         </div>
@@ -104,13 +104,13 @@ if (isset($_GET['project_template_id'])) {
                         </a>
                         <?php if ($session_user_role == 3) { ?>
                             <div class="dropdown-divider"></div>
-                            <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?archive_project_template=<?php echo $project_template_id; ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
+                            <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?archive_project_template=<?= $project_template_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                                 <i class="fas fa-fw fa-archive mr-2"></i>Archive (not yet implemented)
                             </a>
                         <?php } ?>
                         <?php if ($session_user_role == 3) { ?>
                             <div class="dropdown-divider"></div>
-                            <a class="dropdown-item text-danger confirm-link" href="post.php?delete_project_template=<?php echo $project_template_id; ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
+                            <a class="dropdown-item text-danger confirm-link" href="post.php?delete_project_template=<?= $project_template_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                                 <i class="fas fa-fw fa-trash mr-2"></i>Delete
                             </a>
                         <?php } ?>
@@ -153,20 +153,20 @@ if (isset($_GET['project_template_id'])) {
 
                             ?>
 
-                            <tr data-task-id="<?php echo $ticket_template_id; ?>">
+                            <tr data-task-id="<?= $ticket_template_id ?>">
                                 <td>
                                     <a href="#" class="drag-handle"><i class="fas fa-bars text-muted mr-2"></i></a>
-                                    <a href="ticket_template.php?ticket_template_id=<?php echo $ticket_template_id; ?>">
-                                        <?php echo $ticket_template_name; ?>
+                                    <a href="ticket_template.php?ticket_template_id=<?= $ticket_template_id ?>">
+                                        <?= $ticket_template_name ?>
                                     </a>
                                 </td>
-                                <td><?php echo $ticket_template_description; ?></td>
-                                <td><?php echo $ticket_template_subject; ?></td>
+                                <td><?= $ticket_template_description ?></td>
+                                <td><?= $ticket_template_subject ?></td>
                                 <td>
                                     <form action="post.php" method="post" autocomplete="off">
                                         <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
-                                        <input type="hidden" name="project_template_id" value="<?php echo $project_template_id; ?>">
-                                        <input type="hidden" name="ticket_template_id" value="<?php echo $ticket_template_id; ?>">
+                                        <input type="hidden" name="project_template_id" value="<?= $project_template_id ?>">
+                                        <input type="hidden" name="ticket_template_id" value="<?= $ticket_template_id ?>">
                                         <button type="submit" class="btn btn-default btn-sm confirm-link"
                                             name="remove_ticket_template_from_project_template">
                                             <i class="fa fa-fw fa-times"></i>
@@ -199,7 +199,7 @@ if (isset($_GET['project_template_id'])) {
                     <tr>
                         <td>
                             <i class="far fa-fw fa-check-square text-primary mr-3"></i>
-                            <?php echo $task_template_name; ?>
+                            <?= $task_template_name ?>
                         </td>
                     </tr>
                 <?php } ?>
@@ -227,7 +227,7 @@ new Sortable(document.querySelector('table#ticket_templates tbody'), {
         $.post('/agent/ajax.php', {
             update_project_template_ticket_order: true,
             csrf_token: '<?= $_SESSION['csrf_token'] ?>',
-            project_template_id: <?php echo $project_template_id; ?>,
+            project_template_id: <?= $project_template_id ?>,
             positions: positions
         });
     }

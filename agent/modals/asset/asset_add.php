@@ -397,7 +397,7 @@ ob_start();
                                 $vendor_id = intval($row['vendor_id']);
                                 $vendor_name = escapeHtml($row['vendor_name']);
                                 ?>
-                                <option value="<?php echo $vendor_id; ?>"><?php echo $vendor_name; ?></option>
+                                <option value="<?= $vendor_id ?>"><?= $vendor_name ?></option>
 
                             <?php } ?>
                         </select>
@@ -528,7 +528,7 @@ ob_start();
 <script src="/libs/jquery-ui/jquery-ui.min.js"></script>
 <script>
     $(function() {
-        var operatingSystems = <?php echo $json_os; ?>;
+        var operatingSystems = <?= $json_os ?>;
         $("#os").autocomplete({
             source: operatingSystems,  // Should be an array of objects with 'label' and 'value'
             select: function(event, ui) {

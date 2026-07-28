@@ -28,13 +28,13 @@ ob_start();
 ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title text-white"><i class="fa fa-fw fa-file-alt mr-2"></i><?php echo $document_version_name; ?></h5>
+    <h5 class="modal-title text-white"><i class="fa fa-fw fa-file-alt mr-2"></i><?= $document_version_name ?></h5>
     <button type="button" class="close text-white" data-dismiss="modal">
         <span>&times;</span>
     </button>
 </div>
 <div class="modal-body prettyContent">
-    <?php echo $document_version_content; ?>
+    <?= $document_version_content ?>
 </div>
 
 <script src="../js/pretty_content.js"></script>

@@ -1,7 +1,7 @@
 <div class="card card-dark">
     <div class="card-body">
         <form id="bulkActions" action="post.php" method="post">
-                <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token'] ?>">
+                <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
 
                 <div class="table-responsive">
                     <table class="table table-striped table-borderless table-hover">
@@ -16,23 +16,23 @@
                             </td>
 
                             <th>
-                                <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=ticket_number&order=<?php echo $disp; ?>">
+                                <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=ticket_number&order=<?= $disp ?>">
                                     Ticket <?php if ($sort == 'ticket_number') { echo $order_icon; } ?>
                                 </a>
                             </th>
                             <th>
-                                <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=ticket_subject&order=<?php echo $disp; ?>">
+                                <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=ticket_subject&order=<?= $disp ?>">
                                     Subject <?php if ($sort == 'ticket_subject') { echo $order_icon; } ?>
                                 </a>
                             </th>
 
                             <th>
                                 <?php if (!$client_url) { ?>
-                                <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=client_name&order=<?php echo $disp; ?>">
+                                <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=client_name&order=<?= $disp ?>">
                                     Client <?php if ($sort == 'client_name') { echo $order_icon; } ?> /
                                 </a>
                                 <?php } ?>
-                                <a class="text-secondary <?php if ($client_url) { echo "text-dark"; } ?>" href="?<?php echo $url_query_strings_sort; ?>&sort=contact_name&order=<?php echo $disp; ?>">
+                                <a class="text-secondary <?php if ($client_url) { echo "text-dark"; } ?>" href="?<?= $url_query_strings_sort ?>&sort=contact_name&order=<?= $disp ?>">
                                     Contact <?php if ($sort == 'contact_name') { echo $order_icon; } ?>
                                 </a>
                             </th>
@@ -45,27 +45,27 @@
                             <?php } ?>
 
                             <th>
-                                <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=ticket_priority&order=<?php echo $disp; ?>">
+                                <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=ticket_priority&order=<?= $disp ?>">
                                     Priority <?php if ($sort == 'ticket_priority') { echo $order_icon; } ?>
                                 </a>
                             </th>
                             <th>
-                                <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=ticket_status&order=<?php echo $disp; ?>">
+                                <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=ticket_status&order=<?= $disp ?>">
                                     Status <?php if ($sort == 'ticket_status') { echo $order_icon; } ?>
                                 </a>
                             </th>
                             <th>
-                                <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=user_name&order=<?php echo $disp; ?>">
+                                <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=user_name&order=<?= $disp ?>">
                                     Assigned <?php if ($sort == 'user_name') { echo $order_icon; } ?>
                                 </a>
                             </th>
                             <th>
-                                <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=ticket_updated_at&order=<?php echo $disp; ?>">
+                                <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=ticket_updated_at&order=<?= $disp ?>">
                                     Last Response <?php if ($sort == 'ticket_updated_at') { echo $order_icon; } ?>
                                 </a>
                             </th>
                             <th>
-                                <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=ticket_created_at&order=<?php echo $disp; ?>">
+                                <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=ticket_created_at&order=<?= $disp ?>">
                                     Created <?php if ($sort == 'ticket_created_at') { echo $order_icon; } ?>
                                 </a>
                             </th>
@@ -198,7 +198,7 @@
                                     <!-- Ticket Bulk Select (for open tickets) -->
                                     <?php if (empty($ticket_closed_at)) { ?>
                                     <div class="form-check">
-                                        <input class="form-check-input bulk-select" type="checkbox" name="ticket_ids[]" value="<?php echo $ticket_id ?>">
+                                        <input class="form-check-input bulk-select" type="checkbox" name="ticket_ids[]" value="<?= $ticket_id ?>">
                                     </div>
                                     <?php } ?>
                                 </td>
@@ -206,7 +206,7 @@
                                 <!-- Ticket Number -->
                                 <td>
                                     <a href="ticket.php?ticket_id=<?= "$ticket_id$has_client" ?>">
-                                        <span class="badge badge-pill badge-dark p-2"><?php echo "$ticket_prefix$ticket_number"; ?></span>
+                                        <span class="badge badge-pill badge-dark p-2"><?= "$ticket_prefix$ticket_number" ?></span>
                                     </a>
                                 </td>
 
@@ -216,12 +216,12 @@
 
                                     <?php if($task_count && $completed_task_count > 0) { ?>
                                     <div class="progress mt-1" style="height: 15px;">
-                                        <div class="progress-bar" style="width: <?php echo $tasks_completed_percent; ?>%;"><?php echo $completed_task_count.' / '.$task_count; ?></div>
+                                        <div class="progress-bar" style="width: <?= $tasks_completed_percent ?>%;"><?= $completed_task_count.' / '.$task_count ?></div>
                                     </div>
                                     <?php } ?>
                                     <?php if($task_count && $completed_task_count == 0) { ?>
                                     <div class="mt-1" style="height: 15px; background-color:#e9ecef;">
-                                        <p class="text-center" ><?php echo $completed_task_count.' / '.$task_count; ?></p>
+                                        <p class="text-center" ><?= $completed_task_count.' / '.$task_count ?></p>
                                     </div>
                                     <?php } ?>
                                 </td>
@@ -229,18 +229,18 @@
                                 <!-- Ticket Contact -->
                                 <td>
                                     <?php if (!$client_url) { ?>
-                                    <a href="tickets.php?client_id=<?php echo $client_id; ?>"><strong><?php echo $client_name; ?></strong></a>
+                                    <a href="tickets.php?client_id=<?= $client_id ?>"><strong><?= $client_name ?></strong></a>
                                     <?php } ?>
-                                    <div><?php echo $contact_display; ?></div>
+                                    <div><?= $contact_display ?></div>
                                 </td>
 
                                 <!-- Ticket Billable (if accounting enabled -->
                                 <?php if ($config_module_enable_accounting && lookupUserPermission("module_sales") >= 2) { ?>
                                     <td class="text-center">
                                         <?php if ($ticket_invoice_id) { ?>
-                                        <a href="invoice.php?client_id=<?php echo $client_id; ?>&invoice_id=<?php echo $ticket_invoice_id; ?>"><span class='badge badge-pill badge-success p-2'>Invoiced</span></a>
+                                        <a href="invoice.php?client_id=<?= $client_id ?>&invoice_id=<?= $ticket_invoice_id ?>"><span class='badge badge-pill badge-success p-2'>Invoiced</span></a>
                                         <?php } else if ($ticket_quote_id) { ?>
-                                            <a href="quote.php?client_id=<?php echo $client_id; ?>&quote_id=<?php echo $ticket_quote_id; ?>"><span class='badge badge-pill badge-primary p-2'>Quoted</span></a>
+                                            <a href="quote.php?client_id=<?= $client_id ?>&quote_id=<?= $ticket_quote_id ?>"><span class='badge badge-pill badge-primary p-2'>Quoted</span></a>
                                         <?php } else { ?>
                                         <a href="#"
                                             class="ajax-modal"
@@ -265,15 +265,15 @@
                                         data-modal-url = "modals/ticket/ticket_priority.php?id=<?= $ticket_id ?>"
                                         <?php } ?>
                                         >
-                                        <span class='p-2 badge badge-pill badge-<?php echo $ticket_priority_color; ?>'>
-                                            <?php echo $ticket_priority; ?>
+                                        <span class='p-2 badge badge-pill badge-<?= $ticket_priority_color ?>'>
+                                            <?= $ticket_priority ?>
                                         </span>
                                     </a>
                                 </td>
 
                                 <!-- Ticket Status -->
                                 <td>
-                                    <span class='badge badge-pill text-light p-2' style="background-color: <?php echo $ticket_status_color; ?>"><?php echo $ticket_status_name; ?></span>
+                                    <span class='badge badge-pill text-light p-2' style="background-color: <?= $ticket_status_color ?>"><?= $ticket_status_name ?></span>
                                     <?php if (isset ($ticket_scheduled_for)) { echo "<div class='mt-1'> <small class='text-secondary'> $ticket_scheduled_for </small></div>"; } ?>
                                 </td>
 
@@ -285,23 +285,23 @@
                                         data-modal-url="modals/ticket/ticket_assign.php?id=<?= $ticket_id ?>"
                                         <?php } ?>
                                         >
-                                        <?php echo $ticket_assigned_to_display; ?>
+                                        <?= $ticket_assigned_to_display ?>
                                     </a>
                                 </td>
 
                                 <!-- Ticket Last Response -->
                                 <td>
-                                    <div title="<?php echo $ticket_reply_created_at; ?>">
-                                        <?php echo $ticket_reply_created_at_time_ago; ?>
+                                    <div title="<?= $ticket_reply_created_at ?>">
+                                        <?= $ticket_reply_created_at_time_ago ?>
                                     </div>
-                                    <div class="text-secondary"><?php echo $ticket_reply_by_display; ?></div>
+                                    <div class="text-secondary"><?= $ticket_reply_by_display ?></div>
                                 </td>
 
                                 <!-- Ticket Created At -->
                                 <td>
-                                    <?php echo $ticket_created_at_time_ago; ?>
+                                    <?= $ticket_created_at_time_ago ?>
                                     <br>
-                                    <small class="text-secondary"><?php echo date("$config_date_format $config_time_format", strtotime($ticket_created_at)); ?></small>
+                                    <small class="text-secondary"><?= date("$config_date_format $config_time_format", strtotime($ticket_created_at)) ?></small>
                                 </td>
 
                             </tr>
