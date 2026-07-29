@@ -27,18 +27,31 @@ $sql_ticket_years = mysqli_query($mysqli, "SELECT DISTINCT YEAR(ticket_created_a
 
 $sql_clients = mysqli_query($mysqli, "SELECT client_id, client_name FROM clients WHERE client_archived_at IS NULL ORDER BY client_name ASC");
 
-function slaPercentDisplay($percent)
-{
-    if (is_null($percent)) {
-        return "<span class='text-secondary'>-</span>";
+
+// Clock time spent on resolved tickets, gathered for every client at once
+// rather than per ticket. Tickets with no interval rows - response-only plans,
+// or anything resolved before SLA pausing existed - fall back to the business
+// time that elapsed between being raised and resolved.
+$resolve_totals = [];
+$sql_resolve_times = mysqli_query($mysqli, "SELECT ticket_client_id, ticket_id, ticket_created_at, ticket_resolved_at, SUM(sla_history_minutes) AS logged_minutes
+    FROM tickets
+    LEFT JOIN sla_history ON sla_history_ticket_id = ticket_id
+    WHERE ticket_sla_id > 0
+    AND ticket_resolved_at IS NOT NULL
+    AND $period_query
+    GROUP BY ticket_id, ticket_client_id, ticket_created_at, ticket_resolved_at"
+);
+while ($resolve_row = mysqli_fetch_assoc($sql_resolve_times)) {
+    $resolve_client_id = intval($resolve_row['ticket_client_id']);
+    $resolve_minutes = is_null($resolve_row['logged_minutes'])
+        ? businessMinutesBetween($resolve_row['ticket_created_at'], $resolve_row['ticket_resolved_at'])
+        : intval($resolve_row['logged_minutes']);
+
+    if (!isset($resolve_totals[$resolve_client_id])) {
+        $resolve_totals[$resolve_client_id] = ['minutes' => 0, 'count' => 0];
     }
-    if ($percent >= 95) {
-        return "<span class='text-success text-bold'>$percent%</span>";
-    }
-    if ($percent >= 80) {
-        return "<span class='text-warning text-bold'>$percent%</span>";
-    }
-    return "<span class='text-danger text-bold'>$percent%</span>";
+    $resolve_totals[$resolve_client_id]['minutes'] += $resolve_minutes;
+    $resolve_totals[$resolve_client_id]['count']++;
 }
 
 ?>
@@ -125,18 +138,11 @@ function slaPercentDisplay($percent)
 
                                 $avg_time_to_respond = is_null($stats['avg_response_seconds']) ? '-' : secondsToTime($stats['avg_response_seconds']);
 
-                                // Resolution time is measured in clock time actually spent -
-                                // paused spells are excluded, which is what the SLA judged on
+                                // Clock time actually spent - paused spells excluded, which is
+                                // what the SLA itself judged on
                                 $avg_time_to_resolve = '-';
-                                $resolved_minutes_total = 0;
-                                $resolved_count = 0;
-                                $sql_resolved = mysqli_query($mysqli, "SELECT ticket_id FROM tickets WHERE ticket_sla_id > 0 AND ticket_client_id = $client_id AND ticket_resolved_at IS NOT NULL AND $period_query");
-                                while ($resolved_row = mysqli_fetch_assoc($sql_resolved)) {
-                                    $resolved_minutes_total += getTicketSlaConsumedMinutes($resolved_row['ticket_id']);
-                                    $resolved_count++;
-                                }
-                                if ($resolved_count > 0) {
-                                    $avg_time_to_resolve = secondsToTime(($resolved_minutes_total / $resolved_count) * 60);
+                                if (!empty($resolve_totals[$client_id]['count'])) {
+                                    $avg_time_to_resolve = secondsToTime(($resolve_totals[$client_id]['minutes'] / $resolve_totals[$client_id]['count']) * 60);
                                 }
                                 ?>
                                 <tr>

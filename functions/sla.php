@@ -17,11 +17,18 @@
  */
 
 // Business hours + SLA settings, fetched once per request
-function getSlaSettings()
+function getSlaSettings($refresh = false)
 {
     global $mysqli;
 
     static $sla_settings = null;
+
+    // Callers that have just written to the settings row pass true - otherwise
+    // they would restamp tickets using the business hours this request started
+    // with rather than the ones just saved
+    if ($refresh) {
+        $sla_settings = null;
+    }
 
     if (!is_null($sla_settings)) {
         return $sla_settings;
@@ -166,21 +173,39 @@ function businessMinutesBetween($start_datetime, $end_datetime)
 }
 
 // Business minutes already spent on a ticket's resolution clock, including the
-// interval currently running
+// interval currently running.
+//
+// Tickets with no clock history at all fall back to the business time elapsed
+// since they were raised. Only tickets carrying a resolution target get
+// intervals, so this covers response-only plans, and tickets that were already
+// resolved when SLA pausing was introduced. Without the fallback both report
+// zero time spent, which reads as instant resolution.
 function getTicketSlaConsumedMinutes($ticket_id)
 {
     global $mysqli;
 
     $ticket_id = intval($ticket_id);
     $consumed = 0;
+    $has_history = false;
 
     $sql = mysqli_query($mysqli, "SELECT sla_history_started_at, sla_history_ended_at, sla_history_minutes FROM sla_history WHERE sla_history_ticket_id = $ticket_id");
     while ($row = mysqli_fetch_assoc($sql)) {
+        $has_history = true;
         if (!is_null($row['sla_history_ended_at'])) {
             $consumed += intval($row['sla_history_minutes']);
         } else {
             $consumed += businessMinutesBetween($row['sla_history_started_at'], date('Y-m-d H:i:s'));
         }
+    }
+
+    if (!$has_history) {
+        $ticket_sql = mysqli_query($mysqli, "SELECT ticket_created_at, ticket_resolved_at, ticket_closed_at FROM tickets WHERE ticket_id = $ticket_id LIMIT 1");
+        if (!$ticket_sql || !mysqli_num_rows($ticket_sql)) {
+            return 0;
+        }
+        $ticket = mysqli_fetch_assoc($ticket_sql);
+        $ended_at = $ticket['ticket_resolved_at'] ?: ($ticket['ticket_closed_at'] ?: date('Y-m-d H:i:s'));
+        return businessMinutesBetween($ticket['ticket_created_at'], $ended_at);
     }
 
     return $consumed;
@@ -197,6 +222,22 @@ function getTicketSlaPausedCount($ticket_id)
     $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(sla_history_id) AS paused_count FROM sla_history WHERE sla_history_ticket_id = $ticket_id AND sla_history_ended_at IS NOT NULL"));
 
     return intval($row['paused_count']);
+}
+
+// Colour an SLA compliance percentage for the reports. Null means nothing has
+// been judged yet, which is not the same as zero.
+function slaPercentDisplay($percent)
+{
+    if (is_null($percent)) {
+        return "<span class='text-secondary'>-</span>";
+    }
+    if ($percent >= 95) {
+        return "<span class='text-success text-bold'>$percent%</span>";
+    }
+    if ($percent >= 80) {
+        return "<span class='text-warning text-bold'>$percent%</span>";
+    }
+    return "<span class='text-danger text-bold'>$percent%</span>";
 }
 
 // Reconcile a ticket's resolution clock with its current status. Safe to call

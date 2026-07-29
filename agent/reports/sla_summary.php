@@ -50,20 +50,6 @@ function getSlaCompliance($where)
     return $compliance;
 }
 
-// Colour the headline figures the way the ticket list colours rows
-function slaPercentDisplay($percent)
-{
-    if (is_null($percent)) {
-        return "<span class='text-secondary'>-</span>";
-    }
-    if ($percent >= 95) {
-        return "<span class='text-success text-bold'>$percent%</span>";
-    }
-    if ($percent >= 80) {
-        return "<span class='text-warning text-bold'>$percent%</span>";
-    }
-    return "<span class='text-danger text-bold'>$percent%</span>";
-}
 
 $overall = getSlaCompliance("AND YEAR(ticket_created_at) = $year");
 

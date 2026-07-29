@@ -109,6 +109,9 @@ if (isset($_POST['edit_sla_settings'])) {
 
     mysqli_query($mysqli, "UPDATE settings SET config_business_days = '$business_days', config_business_hours_start = '$business_hours_start', config_business_hours_end = '$business_hours_end', config_sla_warning_percent = $warning_percent, config_sla_notification_email = '$notification_email' WHERE company_id = 1");
 
+    // Drop the cached copy so the restamp below uses the hours just saved
+    getSlaSettings(true);
+
     // Business hours feed the due date math - re-stamp open SLA tickets
     $restamped = 0;
     $sql_tickets = mysqli_query($mysqli, "SELECT ticket_id, ticket_sla_id FROM tickets WHERE ticket_sla_id > 0 AND ticket_closed_at IS NULL AND ticket_archived_at IS NULL");
