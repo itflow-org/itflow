@@ -87,17 +87,22 @@ function refreshDropdown(dropdown) {
     }
 }
 
-// Re-applies the value the modal was opened with (e.g. ticket_add_v2.php?project_id=4),
+// Re-applies the value the modal was opened with (e.g. ticket_add.php?project_id=4),
 // which can only be selected once the options it refers to exist
 function applyPreselection(dropdown) {
 
-    // '0' is the "none selected" value every one of these dropdowns uses, and is
-    // truthy as a string - so it has to be excluded explicitly
-    if (!dropdown || !dropdown.dataset.selected || dropdown.dataset.selected === '0') {
+    if (!hasPreselection(dropdown)) {
         return;
     }
 
     dropdown.value = dropdown.dataset.selected;
+}
+
+// True when the modal was opened with a specific value for this dropdown.
+// '0' is the "none selected" value every one of these dropdowns uses, and is
+// truthy as a string - so it has to be excluded explicitly.
+function hasPreselection(dropdown) {
+    return Boolean(dropdown && dropdown.dataset.selected && dropdown.dataset.selected !== '0');
 }
 
 // Adds an optgroup to a dropdown and returns it, so options can be appended into it
@@ -144,10 +149,11 @@ function buildAssetLabel(asset) {
     return label;
 }
 
-// Populate client contacts
+// Populate client contacts - one request feeds both the contact picker and the
+// watchers list, as both are built from the same set of people
 function populateContactsDropdown(client_id) {
 
-    if (!document.getElementById("contactSelect")) {
+    if (!document.getElementById("contactSelect") && !document.getElementById("watchersSelect")) {
         return;
     }
 
@@ -164,22 +170,46 @@ function populateContactsDropdown(client_id) {
             const contacts = response.contacts || [];
 
             // Contacts dropdown
-            const contactSelectDropdown = resetDropdown("contactSelect", '- Contact -', '0');
+            const contactSelectDropdown = resetDropdown("contactSelect", '- No One -', '0');
+
+            // Watchers is a tags field - any address can be typed in, these are just the handy ones
+            const watchersDropdown = resetDropdown("watchersSelect", null, null);
 
             // Populate dropdown
             contacts.forEach(contact => {
                 var appendText = "";
-                if (contact.contact_primary == "1") {
-                    appendText = " (Primary)";
-                } else if (contact.contact_technical == "1") {
-                    appendText = " (Technical)";
+                if (contact.contact_title) {
+                    appendText = " - " + contact.contact_title;
                 }
-                contactSelectDropdown[contactSelectDropdown.length] = new Option(contact.contact_name + appendText, contact.contact_id);
+                if (contact.contact_primary == "1") {
+                    appendText = appendText + " (Primary)";
+                } else if (contact.contact_technical == "1") {
+                    appendText = appendText + " (Technical)";
+                }
+
+                if (contactSelectDropdown) {
+                    contactSelectDropdown[contactSelectDropdown.length] = new Option(contact.contact_name + appendText, contact.contact_id);
+                }
+
+                if (watchersDropdown && contact.contact_email) {
+                    watchersDropdown[watchersDropdown.length] = new Option(contact.contact_email, contact.contact_email);
+                }
             });
+
+            // Default to the client's primary contact unless the modal was opened for a
+            // specific one. Contacts arrive primary-first.
+            if (contactSelectDropdown && !hasPreselection(contactSelectDropdown)) {
+                const primaryContact = contacts.find(contact => contact.contact_primary == "1");
+
+                if (primaryContact) {
+                    contactSelectDropdown.value = primaryContact.contact_id;
+                }
+            }
 
             applyPreselection(contactSelectDropdown);
 
             refreshDropdown(contactSelectDropdown);
+            refreshDropdown(watchersDropdown);
 
         }
     );
