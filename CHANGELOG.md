@@ -77,7 +77,8 @@ This file documents all notable changes made to ITFlow.
 - **Ticket templates on recurring tickets.** A recurring ticket can now be assigned a ticket
   template. Picking one fills in the subject and details, and the template's task list is stamped
   onto every ticket the schedule raises - from the nightly cron run and from a forced run alike.
-  Clearing the template leaves the recurring ticket's own subject and details untouched.
+  Clearing the template leaves the recurring ticket's own subject and details untouched. The
+  recurring ticket list shows which schedules carry a template and how many tasks it adds.
 - Added **ticket reply API endpoints** for creating and reading replies.
 - Payments and Revenues have been combined into a single **Income** page, keeping all income in
   one place, with CSV export. Revenue not tied to an invoice can still be added there; payments
