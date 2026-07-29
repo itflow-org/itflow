@@ -324,6 +324,9 @@ if (isset($_GET['get_client_contacts'])) {
         ORDER BY contact_primary DESC, contact_technical DESC, contact_important DESC, contact_name"
     );
 
+    // Always return the key, so a client with none gives [] rather than null
+    $response['contacts'] = [];
+
     while ($row = mysqli_fetch_assoc($contact_sql)) {
         $response['contacts'][] = $row;
     }
@@ -343,13 +346,16 @@ if (isset($_GET['get_client_assets'])) {
 
     $asset_sql = mysqli_query(
         $mysqli,
-        "SELECT asset_id, asset_name, contact_name FROM assets
+        "SELECT asset_id, asset_name, asset_type, asset_make, asset_model, contact_name FROM assets
         LEFT JOIN clients on asset_client_id = client_id
         LEFT JOIN contacts ON contact_id = asset_contact_id
         WHERE assets.asset_archived_at IS NULL AND asset_client_id = $client_id
         $access_permission_query
-        ORDER BY asset_favorite DESC, asset_name"
+        ORDER BY asset_type ASC, asset_favorite DESC, asset_name"
     );
+
+    // Always return the key, so a client with no assets gives [] rather than null
+    $response['assets'] = [];
 
     while ($row = mysqli_fetch_assoc($asset_sql)) {
         $response['assets'][] = $row;
@@ -377,6 +383,9 @@ if (isset($_GET['get_client_locations'])) {
         ORDER BY location_primary DESC, location_name ASC"
     );
 
+    // Always return the key, so a client with none gives [] rather than null
+    $response['locations'] = [];
+
     while ($row = mysqli_fetch_assoc($locations_sql)) {
         $response['locations'][] = $row;
     }
@@ -403,8 +412,40 @@ if (isset($_GET['get_client_vendors'])) {
         ORDER BY vendor_name ASC"
     );
 
+    // Always return the key, so a client with none gives [] rather than null
+    $response['vendors'] = [];
+
     while ($row = mysqli_fetch_assoc($vendors_sql)) {
         $response['vendors'][] = $row;
+    }
+
+    echo json_encode($response);
+}
+
+/*
+ * Returns open projects for a specified client
+ */
+if (isset($_GET['get_client_projects'])) {
+    enforceUserPermission('module_client');
+
+    $client_id = intval($_GET['client_id']);
+
+    enforceClientAccess();
+
+    $projects_sql = mysqli_query(
+        $mysqli,
+        "SELECT project_id, project_name FROM projects
+        LEFT JOIN clients on project_client_id = client_id
+        WHERE projects.project_archived_at IS NULL AND projects.project_completed_at IS NULL AND project_client_id = $client_id
+        $access_permission_query
+        ORDER BY project_name ASC"
+    );
+
+    // Always return the key, so a client with none gives [] rather than null
+    $response['projects'] = [];
+
+    while ($row = mysqli_fetch_assoc($projects_sql)) {
+        $response['projects'][] = $row;
     }
 
     echo json_encode($response);

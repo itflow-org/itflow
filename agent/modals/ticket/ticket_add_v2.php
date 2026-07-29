@@ -23,10 +23,7 @@ ob_start();
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
     <!-- Hidden/System fields -->
     <?php if ($client_id) { ?>
-        <input type="hidden" name="client_id" value="<?= $client_id ?>">
-    <?php } ?>
-    <?php if ($project_id) { ?>
-        <input type="hidden" name="project_id" value="<?= $project_id ?>">
+        <input type="hidden" name="client_id" id="clientIdHidden" value="<?= $client_id ?>">
     <?php } ?>
     <input type="hidden" name="billable" value="0">
 
@@ -234,7 +231,17 @@ ob_start();
             </div>
 
             <div class="tab-pane fade" id="pills-add-relationships">
-                To-do: project, etc.
+
+                <div class="form-group">
+                    <label>Project</label>
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text"><i class="fa fa-fw fa-project-diagram"></i></span>
+                        </div>
+                        <select class="form-control select2" name="project_id" id="projectSelect" data-selected="<?= $project_id ?>">
+                        </select>
+                    </div>
+                </div>
 
                 <div class="form-group">
                     <label>Asset</label>
@@ -243,6 +250,17 @@ ob_start();
                             <span class="input-group-text"><i class="fa fa-fw fa-desktop"></i></span>
                         </div>
                         <select class="form-control select2" name="asset_id" id="assetSelect">
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Additional Assets</label>
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text"><i class="fa fa-fw fa-desktop"></i></span>
+                        </div>
+                        <select class="form-control select2" name="additional_assets[]" id="additionalAssetsSelect" data-placeholder="- Select Additional Assets -" multiple>
                         </select>
                     </div>
                 </div>

@@ -17,8 +17,8 @@ ob_start();
 </div>
 <form action="post.php" method="post" autocomplete="off">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
-    <?php if (isset($client_id)) { ?>
-           <input type="hidden" name="client_id" value="<?= $client_id ?>>">
+    <?php if ($client_id) { ?>
+        <input type="hidden" name="client_id" id="clientIdHidden" value="<?= $client_id ?>">
     <?php } ?>
     <input type="hidden" name="billable" value="0">
 
@@ -41,7 +41,6 @@ ob_start();
             <div class="tab-pane fade show active" id="pills-add-details">
 
                 <?php if ($contact_id) { ?>
-                <input type="hidden" name="client_id" value="<?= $client_id ?>">
                 <input type="hidden" name="contact_id" value="<?= $contact_id ?>">
                 <?php } else { ?>
                 <div class="row">
@@ -264,113 +263,30 @@ ob_start();
 
             <div class="tab-pane fade" id="pills-add-assets">
 
-                <?php if ($client_id) { ?>
-
-                    <div class="form-group">
-                        <label>Asset</label>
-                        <div class="input-group">
-                            <div class="input-group-prepend">
-                                <span class="input-group-text"><i class="fa fa-fw fa-desktop"></i></span>
-                            </div>
-                            <select class="form-control select2" name="asset_id">
-                                <option value="0">- None -</option>
-
-                                <?php
-                                // Query assets ordered by type, then name
-                                $sql_assets = mysqli_query($mysqli, "
-                                    SELECT asset_id, asset_name, asset_type, asset_make, asset_model, contact_name
-                                    FROM assets
-                                    LEFT JOIN contacts ON contact_id = asset_contact_id
-                                    WHERE asset_client_id = $client_id
-                                      AND asset_archived_at IS NULL
-                                    ORDER BY asset_type ASC, asset_name ASC
-                                ");
-
-                                $current_type = null; // Track which optgroup we're in
-
-                                while ($row = mysqli_fetch_assoc($sql_assets)) {
-                                    $asset_id_select = intval($row['asset_id']);
-                                    $asset_name_select = escapeHtml($row['asset_name']);
-                                    $asset_type_select = escapeHtml($row['asset_type']);
-                                    $asset_make_select = escapeHtml($row['asset_make']);
-                                    $asset_model_select = escapeHtml($row['asset_model']);
-                                    $contact_name_select = escapeHtml($row['contact_name']);
-
-                                    // Start new optgroup if type changes
-                                    if ($asset_type_select !== $current_type) {
-                                        if ($current_type !== null) echo "</optgroup>";
-                                        echo "<optgroup label=\"" . ($asset_type_select ?: 'Uncategorized') . "\">";
-                                        $current_type = $asset_type_select;
-                                    }
-
-                                    // Build full display
-                                    $full_name = $asset_name_select . ($asset_make_select ? " - $asset_make_select" . ($asset_model_select ? " $asset_model_select" : '') : '')
-                                                 . ($contact_name_select ? " - ($contact_name_select)" : '');
-                                    ?>
-
-                                    <option <?php if ($asset_id == $asset_id_select) { echo "selected"; } ?> value="<?= $asset_id_select ?>"><?= $full_name ?></option>
-
-                                <?php }
-
-                                if ($current_type_select !== null) echo "</optgroup>";
-                                ?>
-                            </select>
+                <div class="form-group">
+                    <label>Asset</label>
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text"><i class="fa fa-fw fa-desktop"></i></span>
                         </div>
+                        <select class="form-control select2" name="asset_id" id="assetSelect" data-selected="<?= $asset_id ?>">
+                        </select>
                     </div>
+                </div>
 
-                    <div class="form-group">
-                        <label>Additional Assets</label>
-                        <div class="input-group">
-                            <div class="input-group-prepend">
-                                <span class="input-group-text"><i class="fa fa-fw fa-desktop"></i></span>
-                            </div>
-                            <select class="form-control select2" name="additional_assets[]" data-tags="true" data-placeholder="- Select Additional Assets -" multiple>
-                                <option value=""></option>
-
-                                <?php
-                                // Query assets ordered by type then name
-                                $sql_assets = mysqli_query($mysqli, "
-                                    SELECT asset_id, asset_name, asset_type, asset_make, asset_model, contact_name
-                                    FROM assets
-                                    LEFT JOIN contacts ON contact_id = asset_contact_id
-                                    WHERE asset_client_id = $client_id
-                                      AND asset_archived_at IS NULL
-                                    ORDER BY asset_type ASC, asset_name ASC
-                                ");
-
-                                $current_type = null;
-
-                                while ($row = mysqli_fetch_assoc($sql_assets)) {
-                                    $asset_id_select = intval($row['asset_id']);
-                                    $asset_name_select = escapeHtml($row['asset_name']);
-                                    $asset_type_select = escapeHtml($row['asset_type']);
-                                    $asset_make_select = escapeHtml($row['asset_make']);
-                                    $asset_model_select = escapeHtml($row['asset_model']);
-                                    $contact_name_select = escapeHtml($row['contact_name']);
-
-                                    // Start new optgroup if type changes
-                                    if ($asset_type_select !== $current_type) {
-                                        if ($current_type !== null) echo "</optgroup>";
-                                        echo "<optgroup label=\"" . ($asset_type_select ?: 'Uncategorized') . "\">";
-                                        $current_type = $asset_type_select;
-                                    }
-
-                                    // Build full display
-                                    $full_name = $asset_name_select . ($asset_make_select ? " - $asset_make_select" . ($asset_model_select ? " $asset_model_select" : '') : '')
-                                                 . ($contact_name_select ? " - ($contact_name_select)" : '');
-                                    ?>
-
-                                    <option value="<?= $asset_id_select ?>"><?= $full_name ?></option>
-
-                                <?php }
-
-                                if ($current_type !== null) echo "</optgroup>";
-                                ?>
-                            </select>
+                <div class="form-group">
+                    <label>Additional Assets</label>
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text"><i class="fa fa-fw fa-desktop"></i></span>
                         </div>
+                        <select class="form-control select2" name="additional_assets[]" id="additionalAssetsSelect" data-placeholder="- Select Additional Assets -" multiple>
+                        </select>
                     </div>
+                </div>
 
-
+                <?php if (!$client_id) { ?>
+                <small class="form-text text-muted">Select a client on the Details tab to load its assets.</small>
                 <?php } ?>
 
             </div>
