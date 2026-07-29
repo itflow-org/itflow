@@ -2213,6 +2213,11 @@ CREATE TABLE `settings` (
   `config_theme` varchar(200) DEFAULT 'blue',
   `config_telemetry` tinyint(1) DEFAULT 0,
   `config_timezone` varchar(200) NOT NULL DEFAULT 'America/New_York',
+  `config_business_days` varchar(20) NOT NULL DEFAULT '1,2,3,4,5',
+  `config_business_hours_start` time NOT NULL DEFAULT '09:00:00',
+  `config_business_hours_end` time NOT NULL DEFAULT '17:00:00',
+  `config_sla_warning_percent` tinyint(3) NOT NULL DEFAULT 75,
+  `config_sla_notification_email` varchar(200) DEFAULT NULL,
   `config_destructive_deletes_enable` tinyint(1) NOT NULL DEFAULT 0,
   `config_whitelabel_enabled` int(11) NOT NULL DEFAULT 0,
   `config_whitelabel_key` text DEFAULT NULL,
@@ -2246,6 +2251,42 @@ CREATE TABLE `shared_items` (
   `item_expire_at` datetime DEFAULT NULL,
   `item_client_id` int(11) NOT NULL,
   PRIMARY KEY (`item_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `sla_assignments`
+--
+
+DROP TABLE IF EXISTS `sla_assignments`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `sla_assignments` (
+  `sla_assignment_id` int(11) NOT NULL AUTO_INCREMENT,
+  `sla_assignment_client_id` int(11) NOT NULL DEFAULT 0,
+  `sla_assignment_priority` varchar(200) NOT NULL,
+  `sla_assignment_sla_id` int(11) NOT NULL DEFAULT 0,
+  PRIMARY KEY (`sla_assignment_id`),
+  UNIQUE KEY `sla_assignment_client_priority` (`sla_assignment_client_id`,`sla_assignment_priority`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `slas`
+--
+
+DROP TABLE IF EXISTS `slas`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `slas` (
+  `sla_id` int(11) NOT NULL AUTO_INCREMENT,
+  `sla_name` varchar(200) NOT NULL,
+  `sla_description` varchar(500) DEFAULT NULL,
+  `sla_response_minutes` int(11) NOT NULL,
+  `sla_resolution_minutes` int(11) DEFAULT NULL,
+  `sla_created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `sla_archived_at` datetime DEFAULT NULL,
+  PRIMARY KEY (`sla_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -2700,6 +2741,7 @@ CREATE TABLE `tickets` (
   `ticket_details` longtext NOT NULL,
   `ticket_priority` varchar(200) DEFAULT NULL,
   `ticket_status` int(11) NOT NULL,
+  `ticket_sla_id` int(11) NOT NULL DEFAULT 0,
   `ticket_billable` tinyint(1) NOT NULL DEFAULT 0,
   `ticket_schedule` datetime DEFAULT NULL,
   `ticket_onsite` tinyint(1) NOT NULL DEFAULT 0,
@@ -2712,6 +2754,12 @@ CREATE TABLE `tickets` (
   `ticket_resolved_at` datetime DEFAULT NULL,
   `ticket_archived_at` datetime DEFAULT NULL,
   `ticket_first_response_at` datetime DEFAULT NULL,
+  `ticket_response_due_at` datetime DEFAULT NULL,
+  `ticket_resolution_due_at` datetime DEFAULT NULL,
+  `ticket_response_sla_met` tinyint(1) DEFAULT NULL,
+  `ticket_resolution_sla_met` tinyint(1) DEFAULT NULL,
+  `ticket_response_sla_alert_stage` tinyint(1) NOT NULL DEFAULT 0,
+  `ticket_resolution_sla_alert_stage` tinyint(1) NOT NULL DEFAULT 0,
   `ticket_closed_at` datetime DEFAULT NULL,
   `ticket_created_by` int(11) NOT NULL,
   `ticket_assigned_to` int(11) NOT NULL DEFAULT 0,
@@ -2726,7 +2774,9 @@ CREATE TABLE `tickets` (
   `ticket_project_id` int(11) NOT NULL DEFAULT 0,
   `ticket_recurring_ticket_id` int(11) DEFAULT 0,
   `ticket_order` int(11) NOT NULL DEFAULT 0,
-  PRIMARY KEY (`ticket_id`)
+  PRIMARY KEY (`ticket_id`),
+  KEY `ticket_response_due_at` (`ticket_response_due_at`),
+  KEY `ticket_resolution_due_at` (`ticket_resolution_due_at`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 

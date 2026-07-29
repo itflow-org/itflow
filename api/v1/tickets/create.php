@@ -50,6 +50,7 @@ if (!empty($subject)) {
     // Check insert & get insert ID
     if ($insert_sql) {
         $insert_id = mysqli_insert_id($mysqli);
+        applyTicketSla($insert_id);
 
         // Logging
         logAudit("Ticket", "Create", "Created ticket $config_ticket_prefix$ticket_number $subject via API ($api_key_name)", $client_id, $insert_id);

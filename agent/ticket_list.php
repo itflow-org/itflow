@@ -90,6 +90,8 @@
                             $ticket_updated_at = escapeHtml($row['ticket_updated_at']);
                             $ticket_updated_at_time_ago = timeAgo($row['ticket_updated_at']);
                             $ticket_closed_at = escapeHtml($row['ticket_closed_at']);
+                            // SLA alert stages are maintained by cron/ticket_sla.php (1 = warned, 2 = breached)
+                            $ticket_sla_alert_stage = max(intval($row['ticket_response_sla_alert_stage']), intval($row['ticket_resolution_sla_alert_stage']));
                             if (empty($ticket_updated_at)) {
                                 if (!empty($ticket_closed_at)) {
                                     $ticket_updated_at_display = "<p>Never</p>";
@@ -192,7 +194,7 @@
 
                             ?>
 
-                            <tr class="<?php if(empty($ticket_closed_at) && empty($ticket_updated_at)) { echo "text-bold"; }?> <?php if (empty($ticket_closed_at) && $ticket_reply_type == "Client") { echo "table-warning"; } ?>">
+                            <tr class="<?php if(empty($ticket_closed_at) && empty($ticket_updated_at)) { echo "text-bold"; }?> <?php if (empty($ticket_closed_at) && $ticket_sla_alert_stage == 2) { echo "table-danger"; } elseif (empty($ticket_closed_at) && ($ticket_reply_type == "Client" || $ticket_sla_alert_stage == 1)) { echo "table-warning"; } ?>">
 
                                 <td class="checkbox-column">
                                     <!-- Ticket Bulk Select (for open tickets) -->

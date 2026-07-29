@@ -25,11 +25,12 @@ if (!empty($ticket_id)) {
 
     // Mark FR (if not)
     if (empty($ticket_first_response_at)) {
-        mysqli_query($mysqli, "UPDATE tickets SET ticket_first_response_at = NOW() WHERE ticket_id = $ticket_id AND ticket_client_id = $client_id LIMIT 1");
+        setTicketFirstResponse($ticket_id);
     }
 
     // Resolve
     $update_sql = mysqli_query($mysqli, "UPDATE tickets SET ticket_status = 4, ticket_resolved_at = NOW() WHERE ticket_id = $ticket_id AND ticket_client_id = $client_id LIMIT 1");
+    setTicketResolutionSlaMet($ticket_id);
 
     // Check insert & get insert ID
     if ($update_sql) {

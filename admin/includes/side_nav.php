@@ -77,6 +77,14 @@
                         </a>
                     </li>
                 <?php } ?>
+                <?php if ($config_module_enable_ticketing) { ?>
+                    <li class="nav-item">
+                        <a href="/admin/sla.php" class="nav-link <?= (basename($_SERVER['PHP_SELF']) == 'sla.php' ? 'active' : '') ?>">
+                            <i class="nav-icon fas fa-stopwatch"></i>
+                            <p>SLAs</p>
+                        </a>
+                    </li>
+                <?php } ?>
 
                 <li class="nav-header">INTEGRATIONS</li>
                 <?php if ($config_module_enable_accounting) { ?>

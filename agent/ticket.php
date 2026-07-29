@@ -110,6 +110,18 @@ if (isset($_GET['ticket_id'])) {
         $ticket_updated_at = escapeHtml($row['ticket_updated_at']);
         $ticket_updated_at_ago = timeAgo($row['ticket_updated_at']);
         $ticket_first_response_at = escapeHtml($row['ticket_first_response_at']);
+        $ticket_sla_id = intval($row['ticket_sla_id']);
+        $ticket_response_due_at = escapeHtml($row['ticket_response_due_at']);
+        $ticket_resolution_due_at = escapeHtml($row['ticket_resolution_due_at']);
+        $ticket_response_sla_met = $row['ticket_response_sla_met'];
+        $ticket_resolution_sla_met = $row['ticket_resolution_sla_met'];
+        $ticket_sla_name = "None";
+        if ($ticket_sla_id) {
+            $sla_name_sql = mysqli_query($mysqli, "SELECT sla_name FROM slas WHERE sla_id = $ticket_sla_id");
+            if (mysqli_num_rows($sla_name_sql)) {
+                $ticket_sla_name = escapeHtml(mysqli_fetch_assoc($sla_name_sql)['sla_name']);
+            }
+        }
         $ticket_resolved_at = escapeHtml($row['ticket_resolved_at']);
         $ticket_resolved_at_ago = timeAgo($row['ticket_resolved_at']);
         $ticket_resolved_date = date('Y-m-d', strtotime($ticket_resolved_at));
@@ -486,6 +498,16 @@ if (isset($_GET['ticket_id'])) {
                     >
                         <?= $ticket_priority_display ?>
                     </a>
+                </div>
+
+                <div class="mt-1">
+                    <i class="fa fa-fw fa-stopwatch text-secondary mr-2"></i>SLA:
+                    <a href="#" title="SLA"
+                        <?php if (lookupUserPermission("module_support") >= 2 && empty($ticket_closed_at)) { ?>
+                            class="ajax-modal"
+                            data-modal-url="modals/ticket/ticket_sla.php?id=<?= $ticket_id ?>"
+                        <?php } ?>
+                    ><?= $ticket_sla_name ?></a>
                 </div>
 
                 <!-- Ticket scheduling -->
@@ -875,6 +897,20 @@ if (isset($_GET['ticket_id'])) {
                         <?php if ($ticket_first_response_at) { ?>
                             <div class="mt-2">
                                 <i class="fas fa-fw fa-reply-all text-secondary mr-1"></i><strong class="mr-1">1st  resp:</strong><?= date('M d • g:i A', strtotime($ticket_first_response_at)) ?>
+                            </div>
+                        <?php } ?>
+
+                        <!-- SLA targets (stamped at creation by applyTicketSla) -->
+                        <?php if ($ticket_sla_id && $ticket_response_due_at) { ?>
+                            <div class="mt-2">
+                                <i class="fas fa-fw fa-stopwatch text-secondary mr-1"></i><strong class="mr-1">Respond by:</strong><?= date('M d • g:i A', strtotime($ticket_response_due_at)) ?>
+                                <?php if (!is_null($ticket_response_sla_met)) { echo $ticket_response_sla_met ? "<i class='fas fa-fw fa-check text-success ml-1' title='Response SLA met'></i>" : "<i class='fas fa-fw fa-exclamation-triangle text-danger ml-1' title='Response SLA missed'></i>"; } ?>
+                            </div>
+                        <?php } ?>
+                        <?php if ($ticket_sla_id && $ticket_resolution_due_at) { ?>
+                            <div class="mt-2">
+                                <i class="fas fa-fw fa-flag-checkered text-secondary mr-1"></i><strong class="mr-1">Resolve by:</strong><?= date('M d • g:i A', strtotime($ticket_resolution_due_at)) ?>
+                                <?php if (!is_null($ticket_resolution_sla_met)) { echo $ticket_resolution_sla_met ? "<i class='fas fa-fw fa-check text-success ml-1' title='Resolution SLA met'></i>" : "<i class='fas fa-fw fa-exclamation-triangle text-danger ml-1' title='Resolution SLA missed'></i>"; } ?>
                             </div>
                         <?php } ?>
 
