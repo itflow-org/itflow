@@ -124,6 +124,7 @@ $resource_module = [
     'networks'      => 'module_support',
     'software'      => 'module_support',
     'tickets'       => 'module_support',
+    'ticket_replies' => 'module_support',
     'technicians'   => 'module_support',
     'clients'       => 'module_client',
     'contacts'      => 'module_client',
