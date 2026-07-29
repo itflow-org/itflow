@@ -508,6 +508,9 @@ if (isset($_POST['update_kanban_ticket'])) {
             } elseif ($status === $statuses['Resolved']) {
                 // If the ticket was moved to a resolved status, we need to update ticket_resolved_at
                 mysqli_query($mysqli, "UPDATE tickets SET ticket_order = $kanban, ticket_status = $status, ticket_resolved_at = NOW() WHERE ticket_id = $ticket_id");
+                // An agent resolving the ticket counts as a response, same as
+                // resolving from the ticket itself does
+                setTicketFirstResponse($ticket_id);
                 setTicketResolutionSlaMet($ticket_id);
                 syncTicketSlaClock($ticket_id);
                 triggerCustomAction('ticket_update', $ticket_id);
