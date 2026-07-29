@@ -205,200 +205,6 @@ if (isset($_POST['edit_payment'])) {
 
 }
 
-if (isset($_POST['refund_payment'])) {
-
-    validateCSRFToken();
-
-    enforceUserPermission('module_sales', 3);
-    enforceUserPermission('module_financial', 3);
-
-    $payment_id = intval($_POST['payment_id']);
-    $date = escapeSql($_POST['date']);
-    $amount = floatval($_POST['amount']);
-    $account = intval($_POST['account']);
-    $reference = escapeSql($_POST['reference']);
-    $refund_stripe = intval($_POST['refund_stripe'] ?? 0);
-    $email_receipt = intval($_POST['email_receipt'] ?? 0);
-    $idempotency_key = preg_replace('/[^a-f0-9]/', '', $_POST['idempotency_key'] ?? '');
-
-    // Payment, invoice and client in one read - payments has no client column, so the
-    // client always comes from the invoice
-    $sql = mysqli_query($mysqli, "SELECT * FROM payments
-        LEFT JOIN invoices ON payment_invoice_id = invoice_id
-        LEFT JOIN clients ON invoice_client_id = client_id
-        LEFT JOIN contacts ON client_id = contact_client_id AND contact_primary = 1
-        WHERE payment_id = $payment_id
-        LIMIT 1"
-    );
-    $row = mysqli_fetch_assoc($sql);
-
-    if (!$row) {
-        flashAlert("Payment not found", 'error');
-        redirect();
-    }
-
-    $payment_amount = floatval($row['payment_amount']);
-    $payment_currency_code = escapeSql($row['payment_currency_code']);
-    $payment_method = escapeSql($row['payment_method']);
-    $payment_refund_of_id = $row['payment_refund_of_id'];
-    $original_reference = $row['payment_reference'];
-    $invoice_id = intval($row['invoice_id']);
-    $invoice_prefix = escapeSql($row['invoice_prefix']);
-    $invoice_number = intval($row['invoice_number']);
-    $invoice_url_key = escapeSql($row['invoice_url_key']);
-    $client_id = intval($row['client_id']);
-    $client_name = escapeSql($row['client_name']);
-    $contact_name = escapeSql($row['contact_name']);
-    $contact_email = escapeSql($row['contact_email']);
-
-    enforceClientAccess();
-
-    // Sanity checks - a refund row is not itself refundable
-    if (!is_null($payment_refund_of_id) || $payment_amount <= 0) {
-        flashAlert("That entry is a refund and cannot be refunded", 'error');
-        redirect();
-    }
-
-    $refundable_amount = round($payment_amount - getPaymentRefundedTotal($payment_id), 2);
-
-    // Compare in whole cents so a partial refund cannot be rounded past the cap
-    $amount_cents = (int) round($amount * 100);
-    $refundable_cents = (int) round($refundable_amount * 100);
-
-    if ($amount_cents <= 0) {
-        flashAlert("Refund amount must be greater than zero", 'error');
-        redirect();
-    } elseif ($amount_cents > $refundable_cents) {
-        flashAlert("Refund can not be more than the " . numfmt_format_currency($currency_format, $refundable_amount, $payment_currency_code) . " remaining on this payment", 'error');
-        redirect();
-    }
-
-    $amount = round($amount, 2);
-    $stripe_pi_id = getStripePaymentIntentId($original_reference);
-    $refund_reference = $reference;
-    $stripe_refunded = false;
-
-    // Refund through Stripe when the payment came in through Stripe and the agent asked for it
-    if ($refund_stripe && $stripe_pi_id) {
-
-        $stripe_provider = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT * FROM payment_providers WHERE payment_provider_name = 'Stripe' LIMIT 1"));
-        $provider_private_key = $stripe_provider['payment_provider_private_key'] ?? '';
-
-        if (empty($provider_private_key)) {
-            flashAlert("Stripe is not configured - refund not issued", 'error');
-            redirect();
-        }
-
-        require_once __DIR__ . '/../../includes/stripe_init.php';
-        $stripe = new \Stripe\StripeClient($provider_private_key);
-
-        try {
-            // The idempotency key is minted once per rendered modal, so a double submit
-            // of the same form returns the original refund instead of sending the money twice
-            $stripe_refund = $stripe->refunds->create(
-                [
-                    'payment_intent' => $stripe_pi_id,
-                    'amount' => intval(round($amount * 100)), // Stripe expects cents
-                    'metadata' => [
-                        'itflow_client_id' => $client_id,
-                        'itflow_invoice_id' => $invoice_id,
-                        'itflow_invoice_number' => $invoice_prefix . $invoice_number,
-                        'itflow_payment_id' => $payment_id,
-                    ]
-                ],
-                $idempotency_key ? ['idempotency_key' => "itflow_refund_$idempotency_key"] : []
-            );
-        } catch (Exception $e) {
-            $error = $e->getMessage();
-            error_log("Stripe refund error - payment ID $payment_id / $stripe_pi_id on invoice $invoice_prefix$invoice_number: $error");
-            logApp("Stripe", "error", "Refund failed for payment ID $payment_id ($stripe_pi_id): $error");
-            flashAlert("Stripe refund failed: " . escapeHtml($error) . " - nothing was recorded", 'error');
-            redirect();
-        }
-
-        if ($stripe_refund->status === 'failed' || $stripe_refund->status === 'canceled') {
-            logApp("Stripe", "error", "Refund for payment ID $payment_id ($stripe_pi_id) came back as {$stripe_refund->status}");
-            flashAlert("Stripe reported the refund as {$stripe_refund->status} - nothing was recorded", 'error');
-            redirect();
-        }
-
-        $stripe_refund_id = escapeSql($stripe_refund->id);
-        $refund_reference = "Stripe Refund - $stripe_refund_id";
-        $stripe_refunded = true;
-
-        // An idempotent replay hands back the same refund object - do not book it twice
-        $sql_existing = mysqli_query($mysqli, "SELECT payment_id FROM payments WHERE payment_reference = '$refund_reference' LIMIT 1");
-        if (mysqli_num_rows($sql_existing) > 0) {
-            flashAlert("That refund has already been recorded", 'error');
-            redirect();
-        }
-
-    }
-
-    // Refunds are stored as a negative payment - every SUM(payment_amount) in the app
-    // then reports the right invoice balance and account balance with no other changes
-    $refund_amount_signed = -1 * $amount;
-
-    mysqli_query($mysqli, "INSERT INTO payments SET
-        payment_date = '$date',
-        payment_amount = $refund_amount_signed,
-        payment_currency_code = '$payment_currency_code',
-        payment_account_id = $account,
-        payment_method = '$payment_method',
-        payment_reference = '$refund_reference',
-        payment_invoice_id = $invoice_id,
-        payment_refund_of_id = $payment_id"
-    );
-
-    $invoice_status = updateInvoiceStatusFromPayments($invoice_id);
-
-    $refund_type = ($amount_cents === $refundable_cents && $refundable_cents === (int) round($payment_amount * 100)) ? 'Refund' : 'Partial refund';
-    $refund_channel = $stripe_refunded ? ' via Stripe' : '';
-
-    mysqli_query($mysqli, "INSERT INTO history SET history_status = '$invoice_status', history_description = '$refund_type issued$refund_channel', history_invoice_id = $invoice_id");
-
-    logAudit("Invoice", "Refund", "$refund_type of " . numfmt_format_currency($currency_format, $amount, $payment_currency_code) . " issued$refund_channel against payment ID $payment_id on invoice $invoice_prefix$invoice_number", $client_id, $invoice_id);
-
-    // Email the client a refund notification
-    if ($email_receipt == 1 && !empty($config_smtp_provider) && !empty($contact_email)) {
-
-        $sql = mysqli_query($mysqli, "SELECT * FROM companies WHERE company_id = 1");
-        $row = mysqli_fetch_assoc($sql);
-        $company_name = escapeSql($row['company_name']);
-        $company_phone = escapeSql(formatPhoneNumber($row['company_phone'], $row['company_phone_country_code']));
-
-        $config_invoice_from_name = escapeSql($config_invoice_from_name);
-        $config_invoice_from_email = escapeSql($config_invoice_from_email);
-
-        $subject = "Refund Issued - Invoice $invoice_prefix$invoice_number";
-        $body = "Hello $contact_name,<br><br>A refund of " . numfmt_format_currency($currency_format, $amount, $payment_currency_code) . " has been issued against invoice <a href=\\'https://$config_base_url/guest/guest_view_invoice.php?invoice_id=$invoice_id&url_key=$invoice_url_key\\'>$invoice_prefix$invoice_number</a>.<br><br>Refund Amount: " . numfmt_format_currency($currency_format, $amount, $payment_currency_code) . "<br>Original Payment Method: $payment_method<br><br>Card refunds usually appear on your statement within 5-10 business days.<br><br><br>--<br>$company_name - Billing Department<br>$config_invoice_from_email<br>$company_phone";
-
-        $email_data = [
-            [
-                'from' => $config_invoice_from_email,
-                'from_name' => $config_invoice_from_name,
-                'recipient' => $contact_email,
-                'recipient_name' => $contact_name,
-                'subject' => $subject,
-                'body' => $body
-            ]
-        ];
-
-        addToMailQueue($email_data);
-
-        $email_id = mysqli_insert_id($mysqli);
-
-        mysqli_query($mysqli, "INSERT INTO history SET history_status = '$invoice_status', history_description = 'Refund notification sent to mail queue ID: $email_id!', history_invoice_id = $invoice_id");
-        logAudit("Invoice", "Refund", "Refund notification for invoice $invoice_prefix$invoice_number queued to $contact_email Email ID: $email_id", $client_id, $invoice_id);
-
-    }
-
-    flashAlert("$refund_type of <strong>" . numfmt_format_currency($currency_format, $amount, $payment_currency_code) . "</strong> issued$refund_channel");
-
-    redirect();
-
-}
-
 /*
 Apply Credit Not ready for use 2025-08-27 - JQ
 
@@ -852,34 +658,24 @@ if (isset($_GET['delete_payment'])) {
     );
     $row = mysqli_fetch_assoc($sql);
     $invoice_id = intval($row['payment_invoice_id']);
-    $payment_is_refund = !is_null($row['payment_refund_of_id']);
     $invoice_prefix = escapeSql($row['invoice_prefix']);
     $invoice_number = intval($row['invoice_number']);
     $client_id = intval($row['invoice_client_id']);
 
     enforceClientAccess();
 
-    // Deleting a payment that has been refunded would leave the refund rows dangling
-    if (!$payment_is_refund && getPaymentRefundedTotal($payment_id) > 0) {
-        flashAlert("This payment has been refunded - delete the refund first", 'error');
-        redirect();
-    }
-
     mysqli_query($mysqli,"DELETE FROM payments WHERE payment_id = $payment_id");
 
     // Recalculate from what is left rather than from the pre-delete total
     $invoice_status = updateInvoiceStatusFromPayments($invoice_id);
 
-    $deleted_description = $payment_is_refund ? 'Refund deleted' : 'Payment deleted';
+    mysqli_query($mysqli,"INSERT INTO history SET history_status = '$invoice_status', history_description = 'Payment deleted', history_invoice_id = $invoice_id");
 
-    mysqli_query($mysqli,"INSERT INTO history SET history_status = '$invoice_status', history_description = '$deleted_description', history_invoice_id = $invoice_id");
+    logAudit("Invoice", "Edit", "$session_name deleted Payment on Invoice $invoice_prefix$invoice_number", $client_id, $invoice_id);
 
-    logAudit("Invoice", "Edit", "$session_name deleted $deleted_description on Invoice $invoice_prefix$invoice_number", $client_id, $invoice_id);
-
-    if (!$payment_is_refund && $config_stripe_enable) {
-        flashAlert("Payment deleted - deleting a payment does not refund it. Use Refund to send the money back through Stripe", 'error');
-    } else {
-        flashAlert("$deleted_description", 'error');
+    flashAlert("Payment deleted", 'error');
+    if ($config_stripe_enable) {
+       flashAlert("Payment deleted - Stripe payments must be manually refunded in Stripe", 'error');
     }
 
     redirect();
