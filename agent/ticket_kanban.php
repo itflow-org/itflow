@@ -108,9 +108,22 @@ $kanban = array_values($statuses);
                     } else {
                         $ticket_priority_color = "info";
                     }
+
+                    // SLA state, same stages the ticket list colours on. A paused
+                    // ticket drops its at-risk flag but keeps a recorded breach.
+                    $ticket_sla_alert_stage = max(intval($item['ticket_response_sla_alert_stage']), intval($item['ticket_resolution_sla_alert_stage']));
+                    if (intval($item['ticket_status_pauses_sla']) && $ticket_sla_alert_stage < 2) {
+                        $ticket_sla_alert_stage = 0;
+                    }
+                    $ticket_sla_class = '';
+                    if ($ticket_sla_alert_stage == 2) {
+                        $ticket_sla_class = ' border-danger';
+                    } elseif ($ticket_sla_alert_stage == 1) {
+                        $ticket_sla_class = ' border-warning';
+                    }
                     ?>
 
-                    <div class="task grab-cursor"
+                    <div class="task grab-cursor<?= $ticket_sla_class ?>"
                          data-ticket-id="<?= $item['ticket_id'] ?>"
                          data-ticket-status-id="<?= $item['ticket_status_id'] ?>"
                          ondblclick="window.location.href='ticket.php?ticket_id=<?= $item['ticket_id'] ?>'">
@@ -118,6 +131,12 @@ $kanban = array_values($statuses);
                 <span class="badge badge-<?= $ticket_priority_color ?>">
                     <?= $item['ticket_priority'] ?>
                 </span>
+
+                <?php if ($ticket_sla_alert_stage == 2) { ?>
+                    <span class="badge badge-danger" title="SLA breached"><i class="fas fa-fw fa-stopwatch"></i></span>
+                <?php } elseif ($ticket_sla_alert_stage == 1) { ?>
+                    <span class="badge badge-warning" title="SLA at risk"><i class="fas fa-fw fa-stopwatch"></i></span>
+                <?php } ?>
 
                         <span class="badge badge-secondary">
                     <?= $item['category_name'] ?>

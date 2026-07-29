@@ -68,6 +68,7 @@ $sql_clients = mysqli_query($mysqli, "SELECT client_id, client_name FROM clients
                                 <th class="text-right">Priority: Low</th>
                                 <th class="text-right">Priority: Med</th>
                                 <th class="text-right">Priority: High</th>
+                                <th class="text-right">Priority: Urgent</th>
                                 <th class="text-right">Resolved</th>
                                 <th class="text-right">Total Time worked <i>(H:M:S)</i></th>
                                 <th class="text-right">Avg time to respond</th>
@@ -104,6 +105,11 @@ $sql_clients = mysqli_query($mysqli, "SELECT client_id, client_name FROM clients
                                 $sql_high_ticket_count = mysqli_query($mysqli, "SELECT COUNT(ticket_id) AS high_ticket_count FROM tickets WHERE YEAR(ticket_created_at) = $year AND ticket_client_id = $client_id AND ticket_priority = 'High'");
                                 $row = mysqli_fetch_assoc($sql_high_ticket_count);
                                 $high_ticket_count = intval($row['high_ticket_count']);
+
+                                // Breakdown tickets for each priority - Urgent
+                                $sql_urgent_ticket_count = mysqli_query($mysqli, "SELECT COUNT(ticket_id) AS urgent_ticket_count FROM tickets WHERE YEAR(ticket_created_at) = $year AND ticket_client_id = $client_id AND ticket_priority = 'Urgent'");
+                                $row = mysqli_fetch_assoc($sql_urgent_ticket_count);
+                                $urgent_ticket_count = intval($row['urgent_ticket_count']);
 
                                 // Used to calculate average time to respond to tickets that were raised in period specified
                                 $sql_tickets_respond = mysqli_query($mysqli, "SELECT ticket_created_at, ticket_first_response_at FROM tickets WHERE YEAR(ticket_created_at) = $year AND ticket_client_id = $client_id");
@@ -158,6 +164,7 @@ $sql_clients = mysqli_query($mysqli, "SELECT client_id, client_name FROM clients
                                         <td class="text-right"><?= $low_ticket_count ?></td>
                                         <td class="text-right"><?= $med_ticket_count ?></td>
                                         <td class="text-right"><?= $high_ticket_count ?></td>
+                                        <td class="text-right"><?= $urgent_ticket_count ?></td>
                                         <td class="text-right"><?= $ticket_resolved_count ?></td>
                                         <td class="text-right"><?= $ticket_total_time_worked ?></td>
                                         <td class="text-right"><?= $avg_time_to_respond ?></td>
@@ -189,6 +196,7 @@ $sql_clients = mysqli_query($mysqli, "SELECT client_id, client_name FROM clients
                                 <th class="text-right">Priority: Low</th>
                                 <th class="text-right">Priority: Med</th>
                                 <th class="text-right">Priority: High</th>
+                                <th class="text-right">Priority: Urgent</th>
                                 <th class="text-right">Resolved</th>
                                 <th class="text-right">Total Time worked <i>(H:M:S)</i></th>
                                 <th class="text-right">Avg time to respond</th>
@@ -226,6 +234,11 @@ $sql_clients = mysqli_query($mysqli, "SELECT client_id, client_name FROM clients
                                 $sql_high_ticket_count = mysqli_query($mysqli, "SELECT COUNT(ticket_id) AS high_ticket_count FROM tickets WHERE YEAR(ticket_created_at) = $year AND MONTH(ticket_created_at) = $month AND ticket_client_id = $client_id AND ticket_priority = 'High'");
                                 $row = mysqli_fetch_assoc($sql_high_ticket_count);
                                 $high_ticket_count = intval($row['high_ticket_count']);
+
+                                // Breakdown tickets for each priority - Urgent
+                                $sql_urgent_ticket_count = mysqli_query($mysqli, "SELECT COUNT(ticket_id) AS urgent_ticket_count FROM tickets WHERE YEAR(ticket_created_at) = $year AND MONTH(ticket_created_at) = $month AND ticket_client_id = $client_id AND ticket_priority = 'Urgent'");
+                                $row = mysqli_fetch_assoc($sql_urgent_ticket_count);
+                                $urgent_ticket_count = intval($row['urgent_ticket_count']);
 
                                 // Used to calculate average time to respond to tickets that were raised in period specified
                                 $sql_tickets_respond = mysqli_query($mysqli, "SELECT ticket_created_at, ticket_first_response_at FROM tickets WHERE YEAR(ticket_created_at) = $year AND MONTH(ticket_created_at) = $month AND ticket_client_id = $client_id");
@@ -279,6 +292,7 @@ $sql_clients = mysqli_query($mysqli, "SELECT client_id, client_name FROM clients
                                         <td class="text-right"><?= $low_ticket_count ?></td>
                                         <td class="text-right"><?= $med_ticket_count ?></td>
                                         <td class="text-right"><?= $high_ticket_count ?></td>
+                                        <td class="text-right"><?= $urgent_ticket_count ?></td>
                                         <td class="text-right"><?= $ticket_resolved_count ?></td>
                                         <td class="text-right"><?= $ticket_total_time_worked ?></td>
                                         <td class="text-right"><?= $avg_time_to_respond ?></td>

@@ -10,6 +10,7 @@ $ticket_status_name = escapeHtml($row['ticket_status_name']);
 $ticket_status_color = escapeHtml($row['ticket_status_color']);
 $ticket_status_order = intval($row['ticket_status_order']);
 $ticket_status_active = intval($row['ticket_status_active']);
+$ticket_status_pauses_sla = intval($row['ticket_status_pauses_sla']);
 
 // Generate the HTML form content using output buffering.
 ob_start();
@@ -68,6 +69,20 @@ ob_start();
                     <option <?php if ($ticket_status_active == 0) { echo "selected"; } ?> value="0" <?php if ($ticket_status_id <= 5) { echo "disabled"; } ?>>Inactive</option>
                 </select>
             </div>
+        </div>
+
+        <div class="form-group">
+            <label>SLA</label>
+            <div class="input-group">
+                <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fa fa-fw fa-stopwatch"></i></span>
+                </div>
+                <select class="form-control select2" name="pauses_sla">
+                    <option <?php if ($ticket_status_pauses_sla == 0) { echo "selected "; } ?>value="0">Resolution clock keeps running</option>
+                    <option <?php if ($ticket_status_pauses_sla == 1) { echo "selected "; } ?>value="1">Pause the resolution clock</option>
+                </select>
+            </div>
+            <small class="text-muted">Tickets sitting in a paused status never warn or breach on resolution. Time already spent is kept and the deadline moves out when the ticket comes back.</small>
         </div>
 
     </div>

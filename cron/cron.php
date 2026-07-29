@@ -484,6 +484,7 @@ while ($row = mysqli_fetch_assoc($sql_resolved_tickets_to_close)) {
     $client_id = intval($row['ticket_client_id']);
 
     mysqli_query($mysqli,"UPDATE tickets SET ticket_status = 5, ticket_closed_at = NOW(), ticket_closed_by = $ticket_assigned_to WHERE ticket_id = $ticket_id");
+    syncTicketSlaClock($ticket_id);
 
     //Logging
     logAudit("Ticket", "Closed", "$ticket_prefix$ticket_number auto closed", $client_id, $ticket_id);

@@ -114,6 +114,160 @@ function addBusinessMinutes($start_datetime, $minutes)
     return $cursor->format('Y-m-d H:i:s');
 }
 
+// Business minutes elapsed between two datetimes - the inverse of
+// addBusinessMinutes, used to measure how much of a resolution budget an
+// interval actually consumed.
+function businessMinutesBetween($start_datetime, $end_datetime)
+{
+    $start = new DateTime($start_datetime);
+    $end = new DateTime($end_datetime);
+
+    if ($end <= $start) {
+        return 0;
+    }
+
+    $sla_settings = getSlaSettings();
+    $business_days = $sla_settings['business_days'];
+    $day_start = $sla_settings['business_hours_start'];
+    $day_end = $sla_settings['business_hours_end'];
+
+    if (empty($business_days) || empty($day_start) || empty($day_end) || $day_start >= $day_end) {
+        return intval(floor(($end->getTimestamp() - $start->getTimestamp()) / 60));
+    }
+
+    $seconds = 0;
+    $cursor = clone $start;
+
+    // Sum the overlap between the interval and each day's business window
+    for ($i = 0; $i < 731; $i++) {
+
+        if ($cursor > $end) {
+            break;
+        }
+
+        if (in_array(intval($cursor->format('N')), $business_days)) {
+
+            $window_start = new DateTime($cursor->format('Y-m-d') . " $day_start");
+            $window_end = new DateTime($cursor->format('Y-m-d') . " $day_end");
+
+            $from = $cursor > $window_start ? $cursor : $window_start;
+            $to = $end < $window_end ? $end : $window_end;
+
+            if ($to > $from) {
+                $seconds += $to->getTimestamp() - $from->getTimestamp();
+            }
+        }
+
+        $cursor = new DateTime($cursor->format('Y-m-d') . ' 00:00:00');
+        $cursor->modify('+1 day');
+    }
+
+    return intval(floor($seconds / 60));
+}
+
+// Business minutes already spent on a ticket's resolution clock, including the
+// interval currently running
+function getTicketSlaConsumedMinutes($ticket_id)
+{
+    global $mysqli;
+
+    $ticket_id = intval($ticket_id);
+    $consumed = 0;
+
+    $sql = mysqli_query($mysqli, "SELECT sla_history_started_at, sla_history_ended_at, sla_history_minutes FROM sla_history WHERE sla_history_ticket_id = $ticket_id");
+    while ($row = mysqli_fetch_assoc($sql)) {
+        if (!is_null($row['sla_history_ended_at'])) {
+            $consumed += intval($row['sla_history_minutes']);
+        } else {
+            $consumed += businessMinutesBetween($row['sla_history_started_at'], date('Y-m-d H:i:s'));
+        }
+    }
+
+    return $consumed;
+}
+
+// How many times a ticket's clock has been stopped. Zero means it has run
+// continuously since creation, so its deadline is still simply creation plus
+// the budget - the same answer pausing-free installs have always had.
+function getTicketSlaPausedCount($ticket_id)
+{
+    global $mysqli;
+
+    $ticket_id = intval($ticket_id);
+    $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(sla_history_id) AS paused_count FROM sla_history WHERE sla_history_ticket_id = $ticket_id AND sla_history_ended_at IS NOT NULL"));
+
+    return intval($row['paused_count']);
+}
+
+// Reconcile a ticket's resolution clock with its current status. Safe to call
+// after any status change (and after applyTicketSla) - it opens an interval
+// when the clock should be running, closes it when it should not, and on
+// resume re-bases the resolution deadline on the remaining budget. The response
+// clock is deliberately never paused: a ticket cannot wait on a client before
+// anyone has replied to it.
+function syncTicketSlaClock($ticket_id)
+{
+    global $mysqli;
+
+    $ticket_id = intval($ticket_id);
+
+    $sql = mysqli_query($mysqli, "SELECT ticket_sla_id, ticket_created_at, ticket_resolved_at, ticket_closed_at, ticket_archived_at, ticket_resolution_sla_alert_stage, sla_resolution_minutes, ticket_status_pauses_sla
+        FROM tickets
+        LEFT JOIN slas ON ticket_sla_id = sla_id
+        LEFT JOIN ticket_statuses ON ticket_status = ticket_status_id
+        WHERE ticket_id = $ticket_id
+        LIMIT 1"
+    );
+    if (!$sql || !mysqli_num_rows($sql)) {
+        return;
+    }
+    $row = mysqli_fetch_assoc($sql);
+
+    $open_sql = mysqli_query($mysqli, "SELECT sla_history_id, sla_history_started_at FROM sla_history WHERE sla_history_ticket_id = $ticket_id AND sla_history_ended_at IS NULL ORDER BY sla_history_id DESC LIMIT 1");
+    $open_interval = mysqli_num_rows($open_sql) ? mysqli_fetch_assoc($open_sql) : null;
+
+    // Only tickets carrying a resolution target have a clock to track
+    $resolution_minutes = intval($row['sla_resolution_minutes']);
+    $tracked = intval($row['ticket_sla_id']) > 0 && $resolution_minutes > 0;
+
+    $should_run = $tracked
+        && empty($row['ticket_resolved_at'])
+        && empty($row['ticket_closed_at'])
+        && empty($row['ticket_archived_at'])
+        && intval($row['ticket_status_pauses_sla']) == 0;
+
+    if ($should_run && is_null($open_interval)) {
+
+        // Prior intervals mean this is a resume, so the deadline moves out by
+        // whatever budget is left rather than staying where it was
+        $had_history = getTicketSlaPausedCount($ticket_id) > 0;
+        $consumed = $had_history ? getTicketSlaConsumedMinutes($ticket_id) : 0;
+
+        // The very first interval is anchored to the ticket's creation time, not
+        // to now - otherwise a backdated ticket would start life with its whole
+        // budget intact and re-stamping it would keep handing that budget back
+        $interval_start = $had_history ? date('Y-m-d H:i:s') : escapeSql($row['ticket_created_at']);
+        mysqli_query($mysqli, "INSERT INTO sla_history SET sla_history_started_at = '$interval_start', sla_history_ticket_id = $ticket_id");
+
+        if ($had_history) {
+            $remaining = $resolution_minutes - $consumed;
+            if ($remaining < 0) {
+                $remaining = 0;
+            }
+            $resolution_due_at = addBusinessMinutes(date('Y-m-d H:i:s'), $remaining);
+            // A ticket that already breached stays breached
+            $alert_stage = intval($row['ticket_resolution_sla_alert_stage']) == 2 ? 2 : 0;
+            mysqli_query($mysqli, "UPDATE tickets SET ticket_resolution_due_at = '$resolution_due_at', ticket_resolution_sla_alert_stage = $alert_stage WHERE ticket_id = $ticket_id");
+        }
+
+    } elseif (!$should_run && !is_null($open_interval)) {
+
+        $interval_id = intval($open_interval['sla_history_id']);
+        $minutes = businessMinutesBetween($open_interval['sla_history_started_at'], date('Y-m-d H:i:s'));
+        mysqli_query($mysqli, "UPDATE sla_history SET sla_history_ended_at = NOW(), sla_history_minutes = $minutes WHERE sla_history_id = $interval_id");
+    }
+}
+
 // Resolve which SLA (if any) applies to a client + priority combination.
 // Returns an sla_id, or 0 when no SLA applies.
 function getTicketSlaId($client_id, $priority)
@@ -180,6 +334,7 @@ function applyTicketSla($ticket_id, $forced_sla_id = null)
     // No SLA applies - clear any previous targets
     if ($sla_id == 0) {
         mysqli_query($mysqli, "UPDATE tickets SET ticket_sla_id = 0, ticket_response_due_at = NULL, ticket_resolution_due_at = NULL, ticket_response_sla_met = NULL, ticket_resolution_sla_met = NULL, ticket_response_sla_alert_stage = 0, ticket_resolution_sla_alert_stage = 0 WHERE ticket_id = $ticket_id");
+        syncTicketSlaClock($ticket_id);
         return;
     }
 
@@ -196,7 +351,19 @@ function applyTicketSla($ticket_id, $forced_sla_id = null)
     $resolution_due_at = null;
     $resolution_due_at_set = "NULL";
     if (intval($sla['sla_resolution_minutes']) > 0) {
-        $resolution_due_at = addBusinessMinutes($created_at, $sla['sla_resolution_minutes']);
+        // Once a ticket has been paused the budget is measured from what was
+        // actually consumed, so paused time is not silently handed back. A
+        // ticket that has only ever run keeps its original creation-anchored
+        // deadline, including when that deadline is already in the past.
+        if (getTicketSlaPausedCount($ticket_id) > 0) {
+            $remaining = intval($sla['sla_resolution_minutes']) - getTicketSlaConsumedMinutes($ticket_id);
+            if ($remaining < 0) {
+                $remaining = 0;
+            }
+            $resolution_due_at = addBusinessMinutes(date('Y-m-d H:i:s'), $remaining);
+        } else {
+            $resolution_due_at = addBusinessMinutes($created_at, $sla['sla_resolution_minutes']);
+        }
         $resolution_due_at_set = "'$resolution_due_at'";
     }
 
@@ -213,6 +380,8 @@ function applyTicketSla($ticket_id, $forced_sla_id = null)
     }
 
     mysqli_query($mysqli, "UPDATE tickets SET ticket_sla_id = $sla_id, ticket_response_due_at = '$response_due_at', ticket_resolution_due_at = $resolution_due_at_set, ticket_response_sla_met = $response_met_set, ticket_resolution_sla_met = $resolution_met_set, ticket_response_sla_alert_stage = 0, ticket_resolution_sla_alert_stage = 0 WHERE ticket_id = $ticket_id");
+
+    syncTicketSlaClock($ticket_id);
 }
 
 // Record the ticket's first response (if not already recorded) and judge the
@@ -266,10 +435,13 @@ function setTicketResolutionSlaMet($ticket_id)
     $resolution_met = $ended_at <= strtotime($row['ticket_resolution_due_at']) ? 1 : 0;
 
     mysqli_query($mysqli, "UPDATE tickets SET ticket_resolution_sla_met = $resolution_met WHERE ticket_id = $ticket_id");
+
+    syncTicketSlaClock($ticket_id);
 }
 
-// A reopened ticket goes back on the resolution clock (original due date - no
-// pause/extend logic yet, that arrives with SLA pausing)
+// A reopened ticket goes back on the resolution clock. syncTicketSlaClock
+// reopens an interval and re-bases the deadline on the budget that is left, so
+// a ticket that was resolved with time to spare gets that remainder back.
 function resetTicketResolutionSla($ticket_id)
 {
     global $mysqli;
@@ -277,4 +449,6 @@ function resetTicketResolutionSla($ticket_id)
     $ticket_id = intval($ticket_id);
 
     mysqli_query($mysqli, "UPDATE tickets SET ticket_resolution_sla_met = NULL, ticket_resolution_sla_alert_stage = 0 WHERE ticket_id = $ticket_id");
+
+    syncTicketSlaClock($ticket_id);
 }

@@ -92,6 +92,11 @@
                             $ticket_closed_at = escapeHtml($row['ticket_closed_at']);
                             // SLA alert stages are maintained by cron/ticket_sla.php (1 = warned, 2 = breached)
                             $ticket_sla_alert_stage = max(intval($row['ticket_response_sla_alert_stage']), intval($row['ticket_resolution_sla_alert_stage']));
+                            // A paused ticket isn't running down its clock, so drop the
+                            // at-risk warning - a breach already recorded still stands
+                            if (intval($row['ticket_status_pauses_sla']) && $ticket_sla_alert_stage < 2) {
+                                $ticket_sla_alert_stage = 0;
+                            }
                             if (empty($ticket_updated_at)) {
                                 if (!empty($ticket_closed_at)) {
                                     $ticket_updated_at_display = "<p>Never</p>";

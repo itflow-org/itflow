@@ -61,6 +61,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             Status <?php if ($sort == 'ticket_status_active') { echo $order_icon; } ?>
                         </a>
                     </th>
+                    <th>SLA</th>
                     <th class="text-center">Action</th>
                 </tr>
                 </thead>
@@ -72,6 +73,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     $ticket_status_name = escapeHtml($row['ticket_status_name']);
                     $ticket_status_color = escapeHtml($row['ticket_status_color']);
                     $ticket_status_active = intval($row['ticket_status_active']);
+                    $ticket_status_pauses_sla = intval($row['ticket_status_pauses_sla']);
                     if ($ticket_status_active) {
                         $ticket_status_display = "<div class='text-success text-bold'>Active</div>";
                     } else {
@@ -92,6 +94,13 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         <td>
                             <span class='badge badge-pill text-light p-2' style="background-color: <?= $ticket_status_color ?>"><?= $ticket_status_name ?></span>
                         <td><?= $ticket_status_display ?></td>
+                        <td>
+                            <?php if ($ticket_status_pauses_sla) { ?>
+                                <span class="text-warning"><i class="fas fa-fw fa-pause-circle mr-1"></i>Paused</span>
+                            <?php } else { ?>
+                                <span class="text-secondary">Running</span>
+                            <?php } ?>
+                        </td>
                         <td>
                             <div class="dropdown dropleft text-center">
                                 <button class="btn btn-secondary btn-sm" type="button" data-toggle="dropdown">

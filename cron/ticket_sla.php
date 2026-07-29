@@ -28,6 +28,10 @@ require_once "../functions.php";
  * they make every notification fire exactly once. Tickets without an SLA
  * (ticket_sla_id = 0) are never selected, so with no SLAs assigned this cron
  * is a no-op.
+ *
+ * Tickets sitting in a status flagged as pausing the SLA are skipped on the
+ * resolution track: their clock is not running, so they can neither warn nor
+ * breach until someone moves them back to a running status.
  */
 
 $sla_settings = getSlaSettings();
@@ -135,7 +139,9 @@ $sql_resolution = mysqli_query($mysqli, "SELECT ticket_id, ticket_prefix, ticket
     FROM tickets
     LEFT JOIN slas ON ticket_sla_id = sla_id
     LEFT JOIN users ON ticket_assigned_to = user_id
+    LEFT JOIN ticket_statuses ON ticket_status = ticket_status_id
     WHERE ticket_sla_id > 0
+    AND COALESCE(ticket_status_pauses_sla, 0) = 0
     AND ticket_resolution_due_at IS NOT NULL
     AND ticket_resolved_at IS NULL
     AND ticket_closed_at IS NULL
@@ -154,8 +160,9 @@ while ($ticket = mysqli_fetch_assoc($sql_resolution)) {
         sendSlaAlert($ticket, "Resolution SLA breached", "The resolution SLA on this ticket was missed (due {$ticket['ticket_resolution_due_at']}).");
 
     } elseif ($stage < 1 && $warning_percent) {
-        $warn_at = strtotime(addBusinessMinutes($ticket['ticket_created_at'], floor(intval($ticket['sla_resolution_minutes']) * $warning_percent / 100)));
-        if ($now >= $warn_at) {
+        // Measured against consumed clock time, so paused spells don't warn early
+        $warn_after_minutes = floor(intval($ticket['sla_resolution_minutes']) * $warning_percent / 100);
+        if (getTicketSlaConsumedMinutes($ticket_id) >= $warn_after_minutes) {
             mysqli_query($mysqli, "UPDATE tickets SET ticket_resolution_sla_alert_stage = 1 WHERE ticket_id = $ticket_id");
             sendSlaAlert($ticket, "Resolution SLA at risk", "This ticket is approaching its resolution SLA (due {$ticket['ticket_resolution_due_at']}).");
         }

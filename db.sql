@@ -2272,6 +2272,21 @@ CREATE TABLE `sla_assignments` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `sla_history`
+--
+
+DROP TABLE IF EXISTS `sla_history`;
+CREATE TABLE `sla_history` (
+  `sla_history_id` int(11) NOT NULL AUTO_INCREMENT,
+  `sla_history_started_at` datetime NOT NULL,
+  `sla_history_ended_at` datetime DEFAULT NULL,
+  `sla_history_minutes` int(11) DEFAULT NULL,
+  `sla_history_ticket_id` int(11) NOT NULL,
+  PRIMARY KEY (`sla_history_id`),
+  KEY `sla_history_ticket_id` (`sla_history_ticket_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
 -- Table structure for table `slas`
 --
 
@@ -2667,6 +2682,7 @@ CREATE TABLE `ticket_statuses` (
   `ticket_status_name` varchar(200) NOT NULL,
   `ticket_status_color` varchar(200) NOT NULL,
   `ticket_status_active` tinyint(1) NOT NULL DEFAULT 1,
+  `ticket_status_pauses_sla` tinyint(1) NOT NULL DEFAULT 0,
   `ticket_status_order` int(11) NOT NULL DEFAULT 0,
   PRIMARY KEY (`ticket_status_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;

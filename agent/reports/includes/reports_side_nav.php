@@ -114,6 +114,20 @@
                             <p>Tickets by Client</p>
                         </a>
                     </li>
+
+                    <li class="nav-item">
+                        <a href="/agent/reports/sla_summary.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "sla_summary.php") { echo "active"; } ?>">
+                            <i class="nav-icon fas fa-stopwatch"></i>
+                            <p>SLA Summary</p>
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a href="/agent/reports/sla_by_client.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "sla_by_client.php") { echo "active"; } ?>">
+                            <i class="nav-icon fas fa-stopwatch"></i>
+                            <p>SLA by Client</p>
+                        </a>
+                    </li>
                 <?php } ?>
                 <?php if (lookupUserPermission("module_credential") >= 1) { ?>
                     <li class="nav-item">

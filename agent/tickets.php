@@ -69,6 +69,24 @@ if (isset($_GET['category']) & !empty($_GET['category'])) {
 // Default - any
 $ticket_assigned_query = '';
 $ticket_assigned_filter_id = '';
+// SLA state filter - breached / at risk / met / no SLA
+$ticket_sla_query = '';
+$ticket_sla_filter = '';
+if (isset($_GET['sla']) && !empty($_GET['sla'])) {
+    $ticket_sla_filter = $_GET['sla'];
+    if ($ticket_sla_filter == 'breached') {
+        $ticket_sla_query = 'AND ticket_sla_id > 0 AND (ticket_response_sla_alert_stage = 2 OR ticket_resolution_sla_alert_stage = 2 OR ticket_response_sla_met = 0 OR ticket_resolution_sla_met = 0)';
+    } elseif ($ticket_sla_filter == 'at_risk') {
+        $ticket_sla_query = 'AND ticket_sla_id > 0 AND COALESCE(ticket_status_pauses_sla, 0) = 0 AND (ticket_response_sla_alert_stage = 1 OR ticket_resolution_sla_alert_stage = 1)';
+    } elseif ($ticket_sla_filter == 'paused') {
+        $ticket_sla_query = 'AND ticket_sla_id > 0 AND ticket_status_pauses_sla = 1';
+    } elseif ($ticket_sla_filter == 'met') {
+        $ticket_sla_query = 'AND ticket_sla_id > 0 AND ticket_response_sla_met = 1 AND (ticket_resolution_sla_met = 1 OR ticket_resolution_due_at IS NULL)';
+    } elseif ($ticket_sla_filter == 'none') {
+        $ticket_sla_query = 'AND ticket_sla_id = 0';
+    }
+}
+
 if (isset($_GET['assigned']) & !empty($_GET['assigned'])) {
     if ($_GET['assigned'] == 'unassigned') {
         $ticket_assigned_query = 'AND ticket_assigned_to = 0';
@@ -109,6 +127,7 @@ $query =
     $category_query
     AND DATE(ticket_created_at) BETWEEN '$dtf' AND '$dtt'
     AND (CONCAT(ticket_prefix,ticket_number) LIKE '%$q%' OR client_name LIKE '%$q%' OR ticket_subject LIKE '%$q%' OR ticket_status_name LIKE '%$q%' OR ticket_priority LIKE '%$q%' OR user_name LIKE '%$q%' OR contact_name LIKE '%$q%' OR asset_name LIKE '%$q%' OR vendor_name LIKE '%$q%' OR ticket_vendor_ticket_number LIKE '%q%')
+    $ticket_sla_query
     $ticket_billable_snippet
     $ticket_project_snippet
     $access_permission_query_overide
@@ -210,6 +229,24 @@ $sql_categories_filter = mysqli_query(
                             </div>
                         </div>
                     </div>
+
+                    <?php
+                    // Only offer the SLA filter once SLAs are actually in use
+                    $sla_filter_in_use = mysqli_fetch_row(mysqli_query($mysqli, "SELECT COUNT(sla_id) FROM slas WHERE sla_archived_at IS NULL"))[0] > 0;
+                    if ($sla_filter_in_use) { ?>
+                        <div class="col-sm-3">
+                            <div class="form-group">
+                                <select class="form-control select2" name="sla" onchange="this.form.submit()">
+                                    <option value="">- All SLA States -</option>
+                                    <option <?php if ($ticket_sla_filter == 'breached') { echo "selected"; } ?> value="breached">SLA breached</option>
+                                    <option <?php if ($ticket_sla_filter == 'at_risk') { echo "selected"; } ?> value="at_risk">SLA at risk</option>
+                                    <option <?php if ($ticket_sla_filter == 'paused') { echo "selected"; } ?> value="paused">SLA paused</option>
+                                    <option <?php if ($ticket_sla_filter == 'met') { echo "selected"; } ?> value="met">SLA met</option>
+                                    <option <?php if ($ticket_sla_filter == 'none') { echo "selected"; } ?> value="none">No SLA</option>
+                                </select>
+                            </div>
+                        </div>
+                    <?php } ?>
 
                     <div class="col-sm-3">
                         <div class="form-group">

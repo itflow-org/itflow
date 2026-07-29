@@ -117,6 +117,7 @@ if (isset($_GET['ticket_id'])) {
         $ticket_resolution_due_at = escapeHtml($row['ticket_resolution_due_at']);
         $ticket_response_sla_met = $row['ticket_response_sla_met'];
         $ticket_resolution_sla_met = $row['ticket_resolution_sla_met'];
+        $ticket_sla_paused = intval($row['ticket_status_pauses_sla']);
         $ticket_sla_name = "None";
         if ($ticket_sla_id) {
             $sla_name_sql = mysqli_query($mysqli, "SELECT sla_name FROM slas WHERE sla_id = $ticket_sla_id");
@@ -911,7 +912,11 @@ if (isset($_GET['ticket_id'])) {
                         <?php } ?>
                         <?php if ($ticket_sla_id && $ticket_resolution_due_at) { ?>
                             <div class="mt-2">
-                                <i class="fas fa-fw fa-flag-checkered text-secondary mr-1"></i><strong class="mr-1">Resolve by:</strong><?= date('M d • g:i A', strtotime($ticket_resolution_due_at)) ?>
+                                <i class="fas fa-fw fa-flag-checkered text-secondary mr-1"></i><strong class="mr-1">Resolve by:</strong><?php if ($ticket_sla_paused && empty($ticket_resolved_at) && empty($ticket_closed_at)) { ?>
+                                    <span class="text-warning"><i class="fas fa-fw fa-pause-circle mr-1"></i>Paused</span>
+                                <?php } else { ?>
+                                    <?= date('M d • g:i A', strtotime($ticket_resolution_due_at)) ?>
+                                <?php } ?>
                                 <?php if (!is_null($ticket_resolution_sla_met)) { echo $ticket_resolution_sla_met ? "<i class='fas fa-fw fa-check text-success ml-1' title='Resolution SLA met'></i>" : "<i class='fas fa-fw fa-exclamation-triangle text-danger ml-1' title='Resolution SLA missed'></i>"; } ?>
                             </div>
                         <?php } ?>

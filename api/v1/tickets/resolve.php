@@ -30,6 +30,7 @@ if (!empty($ticket_id)) {
 
     // Resolve
     $update_sql = mysqli_query($mysqli, "UPDATE tickets SET ticket_status = 4, ticket_resolved_at = NOW() WHERE ticket_id = $ticket_id AND ticket_client_id = $client_id LIMIT 1");
+    syncTicketSlaClock($ticket_id);
     setTicketResolutionSlaMet($ticket_id);
 
     // Check insert & get insert ID
