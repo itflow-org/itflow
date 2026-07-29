@@ -139,6 +139,13 @@ $sql_related_notes = mysqli_query($mysqli, "SELECT * FROM contact_notes
 ");
 $note_count = mysqli_num_rows($sql_related_notes);
 
+// Note type icons, read from the categories list
+$note_type_icons = array();
+$sql_note_type_icons = mysqli_query($mysqli, "SELECT category_name, category_icon FROM categories WHERE category_type = 'contact_note_type'");
+while ($row = mysqli_fetch_assoc($sql_note_type_icons)) {
+    $note_type_icons[escapeHtml($row['category_name'])] = escapeHtml($row['category_icon']);
+}
+
 // Linked Services
 $sql_linked_services = mysqli_query($mysqli, "SELECT * FROM service_contacts, services
     WHERE service_contacts.contact_id = $contact_id
@@ -873,7 +880,7 @@ ob_start();
                                 $note_by = escapeHtml($row['user_name']);
                                 $contact_note_created_at = escapeHtml($row['contact_note_created_at']);
 
-                                $note_type_icon = isset($note_types_array[$contact_note_type]) ? $note_types_array[$contact_note_type] : 'fa-fw fa-sticky-note';
+                                $note_type_icon = !empty($note_type_icons[$contact_note_type]) ? $note_type_icons[$contact_note_type] : 'fa-sticky-note';
                                 ?>
                                 <tr>
                                     <td><i class="fa fa-fw <?= $note_type_icon ?> mr-2"></i><?= $contact_note_type ?></td>
@@ -898,7 +905,7 @@ ob_start();
 </div>
 
 <div class="modal-footer">
-    <a href="contact_details.php?client_id=<?= $client_id ?>&contact_id=<?= $contact_id ?>" class="btn btn-outline-primary">
+    <a href="contact.php?client_id=<?= $client_id ?>&contact_id=<?= $contact_id ?>" class="btn btn-outline-primary">
         <i class="fas fa-info-circle mr-2"></i>Open Full Contact
     </a>
     <a href="#" class="btn btn-secondary ajax-modal"

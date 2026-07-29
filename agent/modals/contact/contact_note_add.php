@@ -2,9 +2,11 @@
 
 require_once '../../../includes/modal_header.php';
 
+enforceUserPermission('module_client', 2);
+
 $contact_id = intval($_GET['id']);
 
-$sql = mysqli_query($mysqli, "SELECT contact_name FROM contacts WHERE contact_id = $contact_id LIMIT 1");
+$sql = mysqli_query($mysqli, "SELECT contact_name, contact_client_id FROM contacts WHERE contact_id = $contact_id LIMIT 1");
 $row = mysqli_fetch_assoc($sql);
 $contact_name = escapeHtml($row['contact_name']);
 $client_id = intval($row['contact_client_id']);

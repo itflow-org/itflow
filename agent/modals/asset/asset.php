@@ -982,7 +982,7 @@ ob_start();
 </div>
 
 <div class="modal-footer">
-    <a href="asset_details.php?client_id=<?= $client_id ?>&asset_id=<?= $asset_id ?>"
+    <a href="asset.php?client_id=<?= $client_id ?>&asset_id=<?= $asset_id ?>"
         class="btn btn-primary text-bold"><span class="text-white"><i class="fas fa-info-circle mr-2"></i>More Details</span>
     </a>
     <a href="#" class="btn btn-secondary ajax-modal" data-modal-url="modals/asset/asset_edit.php?id=<?= $asset_id ?>">

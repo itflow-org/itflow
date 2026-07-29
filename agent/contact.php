@@ -142,6 +142,14 @@ if (isset($_GET['contact_id'])) {
     $sql_related_notes = mysqli_query($mysqli, "SELECT * FROM contact_notes LEFT JOIN users ON contact_note_created_by = user_id WHERE contact_note_contact_id = $contact_id AND contact_note_archived_at IS NULL ORDER BY contact_note_created_at DESC");
     $note_count = mysqli_num_rows($sql_related_notes);
 
+    // Note type icons, read from the categories list so the seeded icons
+    // stay the single source of truth
+    $note_type_icons = array();
+    $sql_note_type_icons = mysqli_query($mysqli, "SELECT category_name, category_icon FROM categories WHERE category_type = 'contact_note_type'");
+    while ($row = mysqli_fetch_assoc($sql_note_type_icons)) {
+        $note_type_icons[escapeHtml($row['category_name'])] = escapeHtml($row['category_icon']);
+    }
+
      // Linked Services
     $sql_linked_services = mysqli_query($mysqli, "SELECT * FROM service_contacts, services
         WHERE service_contacts.contact_id = $contact_id
@@ -1104,14 +1112,6 @@ if (isset($_GET['contact_id'])) {
                             <tbody>
                             <?php
 
-                            $note_types_array = array (
-                                'Call'=>'fa-phone-alt',
-                                'Email'=>'fa-envelope',
-                                'Meeting'=>'fa-handshake',
-                                'In Person'=>'fa-people-arrows',
-                                'Note'=>'fa-sticky-note'
-                            );
-
                             while ($row = mysqli_fetch_assoc($sql_related_notes)) {
                                 $contact_note_id = intval($row['contact_note_id']);
                                 $contact_note_type = escapeHtml($row['contact_note_type']);
@@ -1120,7 +1120,7 @@ if (isset($_GET['contact_id'])) {
                                 $contact_note_created_at = escapeHtml($row['contact_note_created_at']);
 
                                 // Get the corresponding icon for the note type
-                                $note_type_icon = isset($note_types_array[$contact_note_type]) ? $note_types_array[$contact_note_type] : 'fa-fw fa-sticky-note'; // default icon if not found
+                                $note_type_icon = !empty($note_type_icons[$contact_note_type]) ? $note_type_icons[$contact_note_type] : 'fa-sticky-note';
 
                                 ?>
 
