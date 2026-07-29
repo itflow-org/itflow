@@ -79,8 +79,15 @@ if (isset($_POST['add_ticket'])) {
     $ticket_id = mysqli_insert_id($mysqli);
     applyTicketSla($ticket_id);
 
-    // Add Tasks from Template if Template was selected
-    addTasksFromTicketTemplate($ticket_id, $ticket_template_id);
+    // Tasks come from the editable rows in the modal, which the template pre-fills.
+    // Fall back to copying the template directly for a form without that section.
+    if (isset($_POST['tasks_submitted'])) {
+        foreach (parseSubmittedTasks() as $task) {
+            mysqli_query($mysqli, "INSERT INTO tasks SET task_name = '{$task['name']}', task_order = {$task['order']}, task_completion_estimate = {$task['estimate']}, task_ticket_id = $ticket_id");
+        }
+    } else {
+        addTasksFromTicketTemplate($ticket_id, $ticket_template_id);
+    }
 
     // Add Watchers
     if (isset($_POST['watchers'])) {

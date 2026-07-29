@@ -114,6 +114,78 @@ function addTasksFromTicketTemplate($ticket_id, $ticket_template_id) {
 }
 
 /**
+ * Copies a recurring ticket's task list onto a ticket it has just raised.
+ *
+ * Recurring tickets own their tasks (see recurring_ticket_tasks) rather than
+ * reading the linked ticket template at run time, so that a schedule's task
+ * list can be edited without touching the template or any other schedule.
+ *
+ * @param int $ticket_id           The ticket to attach the tasks to.
+ * @param int $recurring_ticket_id The schedule to copy tasks from. 0 = no-op.
+ *
+ * @return void
+ */
+function addTasksFromRecurringTicket($ticket_id, $recurring_ticket_id) {
+
+    global $mysqli;
+
+    $ticket_id = intval($ticket_id);
+    $recurring_ticket_id = intval($recurring_ticket_id);
+
+    if (!$ticket_id || !$recurring_ticket_id) {
+        return;
+    }
+
+    mysqli_query($mysqli, "INSERT INTO tasks (task_name, task_order, task_completion_estimate, task_ticket_id)
+        SELECT recurring_ticket_task_name, recurring_ticket_task_order, recurring_ticket_task_completion_estimate, $ticket_id
+        FROM recurring_ticket_tasks
+        WHERE recurring_ticket_task_recurring_ticket_id = $recurring_ticket_id
+        ORDER BY recurring_ticket_task_order ASC");
+
+}
+
+/**
+ * Reads the editable task rows posted by the ticket and recurring ticket modals.
+ *
+ * The rows submit as parallel tasks[] and task_estimates[] arrays, aligned by
+ * their order in the form. Rows left blank are dropped, and the order is taken
+ * from the surviving rows rather than the raw array index.
+ *
+ * Names come back already escaped for SQL, as every caller inserts them.
+ *
+ * @return array List of ['name' => string, 'order' => int, 'estimate' => int]
+ */
+function parseSubmittedTasks() {
+
+    $tasks = [];
+
+    if (empty($_POST['tasks']) || !is_array($_POST['tasks'])) {
+        return $tasks;
+    }
+
+    $estimates = $_POST['task_estimates'] ?? [];
+    $task_order = 0;
+
+    foreach ($_POST['tasks'] as $index => $task_name) {
+        $task_name = trim($task_name);
+
+        if ($task_name === '') {
+            continue;
+        }
+
+        $tasks[] = [
+            'name' => escapeSql($task_name),
+            'order' => $task_order,
+            'estimate' => intval($estimates[$index] ?? 0)
+        ];
+
+        $task_order++;
+    }
+
+    return $tasks;
+}
+
+/**
  * Retrieves a specified field's value from a table based on the record's id.
  * It validates the table and field names, automatically determines the primary key (or uses the first column as fallback),
  * and returns the field value with an appropriate escaping method.

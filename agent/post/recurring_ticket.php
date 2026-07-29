@@ -32,6 +32,11 @@ if (isset($_POST['add_recurring_ticket'])) {
         }
     }
 
+    // Add Tasks - stamped onto every ticket this schedule raises
+    foreach (parseSubmittedTasks() as $task) {
+        mysqli_query($mysqli, "INSERT INTO recurring_ticket_tasks SET recurring_ticket_task_name = '{$task['name']}', recurring_ticket_task_order = {$task['order']}, recurring_ticket_task_completion_estimate = {$task['estimate']}, recurring_ticket_task_recurring_ticket_id = $recurring_ticket_id");
+    }
+
     logAudit("Recurring Ticket", "Create", "$session_name created recurring ticket for $subject - $frequency", $client_id, $recurring_ticket_id);
 
     flashAlert("Recurring ticket <strong>$subject - $frequency</strong> created");
@@ -63,6 +68,15 @@ if (isset($_POST['edit_recurring_ticket'])) {
         foreach ($_POST['additional_assets'] as $additional_asset) {
             $additional_asset_id = intval($additional_asset);
             mysqli_query($mysqli, "INSERT INTO recurring_ticket_assets SET recurring_ticket_id = $recurring_ticket_id, asset_id = $additional_asset_id");
+        }
+    }
+
+    // Replace Tasks with whatever the modal submitted
+    if (isset($_POST['tasks_submitted'])) {
+        mysqli_query($mysqli, "DELETE FROM recurring_ticket_tasks WHERE recurring_ticket_task_recurring_ticket_id = $recurring_ticket_id");
+
+        foreach (parseSubmittedTasks() as $task) {
+            mysqli_query($mysqli, "INSERT INTO recurring_ticket_tasks SET recurring_ticket_task_name = '{$task['name']}', recurring_ticket_task_order = {$task['order']}, recurring_ticket_task_completion_estimate = {$task['estimate']}, recurring_ticket_task_recurring_ticket_id = $recurring_ticket_id");
         }
     }
 
@@ -102,7 +116,6 @@ if (isset($_POST['bulk_force_recurring_tickets'])) {
                 $client_id = intval($row['recurring_ticket_client_id']);
                 $asset_id = intval($row['recurring_ticket_asset_id']);
                 $category = intval($row['recurring_ticket_category']);
-                $ticket_template_id = intval($row['recurring_ticket_ticket_template_id']);
                 $url_key = randomString(32);
 
                 enforceClientAccess();
@@ -140,8 +153,8 @@ if (isset($_POST['bulk_force_recurring_tickets'])) {
                 FROM recurring_ticket_assets
                 WHERE recurring_ticket_id = $recurring_ticket_id");
 
-                // Copy Tasks from the linked ticket template, if one is set
-                addTasksFromTicketTemplate($id, $ticket_template_id);
+                // Copy Tasks from the schedule's own task list
+                addTasksFromRecurringTicket($id, $recurring_ticket_id);
 
                 // Notifications
 
@@ -247,7 +260,6 @@ if (isset($_GET['force_recurring_ticket'])) {
         $client_id = intval($row['recurring_ticket_client_id']);
         $asset_id = intval($row['recurring_ticket_asset_id']);
         $category = intval($row['recurring_ticket_category']);
-        $ticket_template_id = intval($row['recurring_ticket_ticket_template_id']);
         $url_key = randomString(32);
 
         enforceClientAccess();
@@ -285,8 +297,8 @@ if (isset($_GET['force_recurring_ticket'])) {
         FROM recurring_ticket_assets
         WHERE recurring_ticket_id = $recurring_ticket_id");
 
-        // Copy Tasks from the linked ticket template, if one is set
-        addTasksFromTicketTemplate($id, $ticket_template_id);
+        // Copy Tasks from the schedule's own task list
+        addTasksFromRecurringTicket($id, $recurring_ticket_id);
 
         // Notifications
 

@@ -55,7 +55,7 @@ if (isset($_GET['billable']) && $_GET['billable'] == 1) {
 $sql = mysqli_query(
     $mysqli,
     "SELECT SQL_CALC_FOUND_ROWS *,
-        (SELECT COUNT(task_template_id) FROM task_templates WHERE task_template_ticket_template_id = recurring_ticket_ticket_template_id) AS template_task_count
+        (SELECT COUNT(recurring_ticket_task_id) FROM recurring_ticket_tasks WHERE recurring_ticket_task_recurring_ticket_id = recurring_ticket_id) AS recurring_ticket_task_count
     FROM recurring_tickets
     LEFT JOIN clients ON recurring_ticket_client_id = client_id
     LEFT JOIN categories ON category_id = recurring_ticket_category
@@ -299,7 +299,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             $recurring_ticket_client_name = escapeHtml($row['client_name']);
                             $assigned_to = escapeHtml($row['user_name']) ?: '-';
                             $recurring_ticket_template_name = escapeHtml($row['ticket_template_name']);
-                            $recurring_ticket_template_task_count = intval($row['template_task_count']);
+                            $recurring_ticket_task_count = intval($row['recurring_ticket_task_count']);
                         ?>
 
                             <tr>
@@ -315,12 +315,12 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                         data-modal-url="modals/recurring_ticket/recurring_ticket_edit.php?id=<?= $recurring_ticket_id ?>">
                                         <?= $recurring_ticket_subject ?>
                                     </a>
-                                    <?php if ($recurring_ticket_template_name) { ?>
+                                    <?php if ($recurring_ticket_task_count) { ?>
                                         <span class="badge badge-secondary"
                                               data-toggle="tooltip"
                                               data-placement="top"
-                                              title="Template: <?= $recurring_ticket_template_name ?> - adds <?= $recurring_ticket_template_task_count ?> task<?php if ($recurring_ticket_template_task_count != 1) { echo "s"; } ?> to each ticket raised">
-                                            <i class="fa fa-fw fa-cube"></i><?= $recurring_ticket_template_task_count ?>
+                                              title="Adds <?= $recurring_ticket_task_count ?> task<?php if ($recurring_ticket_task_count != 1) { echo "s"; } ?> to each ticket raised<?php if ($recurring_ticket_template_name) { ?>, from template: <?= $recurring_ticket_template_name ?><?php } ?>">
+                                            <i class="fa fa-fw fa-tasks"></i><?= $recurring_ticket_task_count ?>
                                         </span>
                                     <?php } ?>
                                 </td>

@@ -1914,6 +1914,25 @@ CREATE TABLE `recurring_ticket_assets` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `recurring_ticket_tasks`
+--
+
+DROP TABLE IF EXISTS `recurring_ticket_tasks`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `recurring_ticket_tasks` (
+  `recurring_ticket_task_id` int(11) NOT NULL AUTO_INCREMENT,
+  `recurring_ticket_task_name` varchar(255) NOT NULL,
+  `recurring_ticket_task_order` int(11) NOT NULL DEFAULT 0,
+  `recurring_ticket_task_completion_estimate` int(11) NOT NULL DEFAULT 0,
+  `recurring_ticket_task_recurring_ticket_id` int(11) NOT NULL,
+  PRIMARY KEY (`recurring_ticket_task_id`),
+  KEY `recurring_ticket_task_recurring_ticket_id` (`recurring_ticket_task_recurring_ticket_id`),
+  CONSTRAINT `recurring_ticket_tasks_ibfk_1` FOREIGN KEY (`recurring_ticket_task_recurring_ticket_id`) REFERENCES `recurring_tickets` (`recurring_ticket_id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `recurring_tickets`
 --
 
@@ -3067,4 +3086,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2026-07-29 16:11:10
+-- Dump completed on 2026-07-29 17:47:46
