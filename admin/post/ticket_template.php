@@ -68,6 +68,10 @@ if (isset($_GET['delete_ticket_template'])) {
     mysqli_query($mysqli, "DELETE FROM task_templates WHERE task_template_ticket_template_id = $ticket_template_id");
     mysqli_query($mysqli, "DELETE FROM project_template_ticket_templates WHERE ticket_template_id = $ticket_template_id");
 
+    // Unlink from recurring tickets rather than deleting them - the schedule is still
+    // wanted, it just stops contributing tasks to the tickets it raises
+    mysqli_query($mysqli, "UPDATE recurring_tickets SET recurring_ticket_ticket_template_id = 0 WHERE recurring_ticket_ticket_template_id = $ticket_template_id");
+
     logAudit("Ticket Template", "Delete", "$session_name deleted ticket template $ticket_template_name");
 
     flashAlert("Ticket Template <strong>$ticket_template_name</strong> and its associated tasks deleted", 'error');
