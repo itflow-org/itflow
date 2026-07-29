@@ -649,13 +649,25 @@ if (isset($_GET['invoice_id'])) {
                                 $payment_reference = escapeHtml($row['payment_reference']);
                                 $account_name = escapeHtml($row['account_name']);
 
+                                // Refunds are negative rows linked back to the payment they reverse
+                                $payment_is_refund = !is_null($row['payment_refund_of_id']);
+                                $payment_refundable = $payment_is_refund ? 0.00 : round($payment_amount - getPaymentRefundedTotal($payment_id), 2);
+
                                 ?>
                                 <tr>
                                     <td><?= $payment_date ?></td>
-                                    <td class="text-right"><?= numfmt_format_currency($currency_format, $payment_amount, $payment_currency_code) ?></td>
-                                    <td><?= $payment_reference ?></td>
+                                    <td class="text-right <?php if ($payment_is_refund) { echo "text-danger"; } ?>"><?= numfmt_format_currency($currency_format, $payment_amount, $payment_currency_code) ?></td>
+                                    <td>
+                                        <?php if ($payment_is_refund) { ?><span class="badge badge-danger mr-1">Refund</span><?php } ?>
+                                        <?= $payment_reference ?>
+                                    </td>
                                     <td><?= $account_name ?></td>
-                                    <td class="text-center"><a class="btn btn-light text-danger confirm-link" href="post.php?delete_payment=<?= $payment_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"><i class="fa fa-times"></i></a></td>
+                                    <td class="text-center text-nowrap">
+                                        <?php if ($payment_refundable > 0) { ?>
+                                            <button type="button" class="btn btn-light text-warning ajax-modal" data-modal-url="modals/payment/payment_refund.php?id=<?= $payment_id ?>" title="Refund"><i class="fa fa-undo"></i></button>
+                                        <?php } ?>
+                                        <a class="btn btn-light text-danger confirm-link" href="post.php?delete_payment=<?= $payment_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>" title="Delete"><i class="fa fa-times"></i></a>
+                                    </td>
                                 </tr>
                                 <?php
                             }
