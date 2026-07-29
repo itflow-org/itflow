@@ -33,6 +33,12 @@ This file documents all notable changes made to ITFlow.
 > Run `--update_db` after **every** ITFlow update from now on, not just this one — any release may
 > contain database changes.
 >
+> On an install with a lot of ticket history the database update can take **a minute or more** —
+> one step generates a guest URL key for every ticket that is missing one, row by row. Let it run
+> to completion. If it is interrupted it resumes cleanly on the next run, but this is another
+> reason not to attempt the update through the web interface, which is bound by PHP's execution
+> time limit.
+>
 > **Back up your database before upgrading.**
  
 - **A new cron job is required if you intend to use ticket SLAs.** `cron/ticket_sla.php` moves
@@ -79,6 +85,17 @@ This file documents all notable changes made to ITFlow.
   onto every ticket the schedule raises - from the nightly cron run and from a forced run alike.
   Clearing the template leaves the recurring ticket's own subject and details untouched. The
   recurring ticket list shows which schedules carry a template and how many tasks it adds.
+- **Recurring tickets now own their task list.** A linked ticket template fills the list in when
+  it is picked, but the list can then be edited per schedule, and it is those edits the run reads.
+  Existing schedules are backfilled from their template by the database update, so every recurring
+  ticket keeps raising exactly the tasks it raises today.
+- **Agents can attach files to tickets from within the app**, both when raising a ticket and on a
+  reply. Attachments are emailed to the contact through the mail queue. A 10 MB ceiling applies to
+  each message as a whole; anything that does not fit stays on the ticket for the recipient to
+  download instead.
+- Tasks can now be added and edited inline in the add-ticket and add-recurring-ticket modals.
+- The older add-ticket modal has been retired — there is now a single add-ticket modal.
+- Watchers have moved into the assignment section of the add-ticket modal.
 - Added **ticket reply API endpoints** for creating and reading replies.
 - Payments and Revenues have been combined into a single **Income** page, keeping all income in
   one place, with CSV export. Revenue not tied to an invoice can still be added there; payments
@@ -164,6 +181,10 @@ This file documents all notable changes made to ITFlow.
   and the confirmation message, reading an unrelated record's id in place of the name.
 - Bulk-creating tickets from a template against multiple assets only added the template's tasks to
   the first ticket, and dropped each task's completion estimate.
+- Deleting a ticket template now unlinks it from any recurring ticket that referenced it, instead
+  of leaving the schedule pointing at a template that no longer exists.
+- Fixed the asset section in the recurring ticket modal when opened outside a client, and project
+  selection when raising a ticket.
 - Tickets raised by the nightly recurring schedule were created without a guest URL key, so the
   "View ticket" link in reply and task-approval emails for those tickets could not be opened.
   Cron now generates a key like every other path that raises a ticket, and existing tickets

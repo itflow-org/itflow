@@ -203,11 +203,6 @@ ob_start();
                 </div>
                 <?php } ?>
 
-                <div class="form-group">
-                    <label><i class="fa fa-fw fa-paperclip mr-1"></i>Attachments</label>
-                    <input type="file" class="form-control-file" name="attachments[]" multiple accept=".jpg, .jpeg, .gif, .png, .webp, .pdf, .txt, .md, .doc, .docx, .odt, .csv, .xls, .xlsx, .ods, .pptx, .odp, .zip, .tar, .gz, .xml, .msg, .json, .wav, .mp3, .ogg, .mov, .mp4, .av1, .ovpn">
-                </div>
-
             </div>
 
             <div class="tab-pane fade" id="pills-add-tasks">
@@ -300,6 +295,11 @@ ob_start();
                         <select class="form-control select2" name="watchers[]" id="watchersSelect" data-tags="true" data-placeholder="Enter or select email address" multiple>
                         </select>
                     </div>
+                </div>
+
+                <div class="form-group">
+                    <label><i class="fa fa-fw fa-paperclip mr-1"></i>Attachments</label>
+                    <input type="file" class="form-control-file" name="attachments[]" multiple accept=".jpg, .jpeg, .gif, .png, .webp, .pdf, .txt, .md, .doc, .docx, .odt, .csv, .xls, .xlsx, .ods, .pptx, .odp, .zip, .tar, .gz, .xml, .msg, .json, .wav, .mp3, .ogg, .mov, .mp4, .av1, .ovpn">
                 </div>
 
             </div>

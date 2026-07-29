@@ -315,12 +315,14 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                         data-modal-url="modals/recurring_ticket/recurring_ticket_edit.php?id=<?= $recurring_ticket_id ?>">
                                         <?= $recurring_ticket_subject ?>
                                     </a>
+                                    <?php if ($recurring_ticket_template_name) { ?>
+                                        <span title="Template: <?= $recurring_ticket_template_name ?>"
+                                            <i class='fas fa-puzzle-piece text-secondary ml-1'></i>
+                                        </span>
+                                    <?php } ?>
                                     <?php if ($recurring_ticket_task_count) { ?>
-                                        <span class="badge badge-secondary"
-                                              data-toggle="tooltip"
-                                              data-placement="top"
-                                              title="Adds <?= $recurring_ticket_task_count ?> task<?php if ($recurring_ticket_task_count != 1) { echo "s"; } ?> to each ticket raised<?php if ($recurring_ticket_template_name) { ?>, from template: <?= $recurring_ticket_template_name ?><?php } ?>">
-                                            <i class="fa fa-fw fa-tasks"></i><?= $recurring_ticket_task_count ?>
+                                        <span title="Adds <?= $recurring_ticket_task_count ?> Tasks">
+                                            <i class="fas fa-fw fa-tasks mr-1"></i><?= $recurring_ticket_task_count ?>
                                         </span>
                                     <?php } ?>
                                 </td>
