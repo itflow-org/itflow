@@ -159,6 +159,8 @@ This file documents all notable changes made to ITFlow.
 - Certificates can now be searched by description.
 - Fixed cents calculation rounding.
 - Fixed guest view credential TOTP display, and removed the legacy OTP code path.
+- Deleting a ticket template task or a payment provider recorded the wrong name in the audit log
+  and the confirmation message, reading an unrelated record's id in place of the name.
 - Bulk-creating tickets from a template against multiple assets only added the template's tasks to
   the first ticket, and dropped each task's completion estimate.
 - Tickets raised by the nightly recurring schedule were created without a guest URL key, so the

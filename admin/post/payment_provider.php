@@ -71,7 +71,7 @@ if (isset($_GET['delete_payment_provider'])) {
     // Delete all Saved Cards related
     // Delete Client Payment Provider Releation
 
-    $provider_name = escapeSql(getFieldById('payment_providers', $provider_id, 'provider_name'));
+    $provider_name = escapeSql(getFieldById('payment_providers', $provider_id, 'payment_provider_name'));
 
     // Delete provider
     mysqli_query($mysqli,"DELETE FROM payment_providers WHERE payment_provider_id = $provider_id");

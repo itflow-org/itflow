@@ -101,7 +101,7 @@ if (isset($_GET['delete_task_template'])) {
 
     $task_template_id = intval($_GET['delete_task_template']);
 
-    $task_template_name = escapeSql(getFieldById('tags', $task_template_id, 'task_template_name'));
+    $task_template_name = escapeSql(getFieldById('task_templates', $task_template_id, 'task_template_name'));
 
     mysqli_query($mysqli, "DELETE FROM task_templates WHERE task_template_id = $task_template_id");
 
