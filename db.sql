@@ -2276,6 +2276,8 @@ CREATE TABLE `sla_assignments` (
 --
 
 DROP TABLE IF EXISTS `sla_history`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `sla_history` (
   `sla_history_id` int(11) NOT NULL AUTO_INCREMENT,
   `sla_history_started_at` datetime NOT NULL,
@@ -2285,6 +2287,7 @@ CREATE TABLE `sla_history` (
   PRIMARY KEY (`sla_history_id`),
   KEY `sla_history_ticket_id` (`sla_history_ticket_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Table structure for table `slas`
@@ -3063,4 +3066,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2026-07-29  0:02:52
+-- Dump completed on 2026-07-29 13:03:52
