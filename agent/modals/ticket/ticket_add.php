@@ -229,17 +229,6 @@ ob_start();
                     </div>
                 </div>
 
-                <div class="form-group">
-                    <label>Watchers</label>
-                    <div class="input-group">
-                        <div class="input-group-prepend">
-                            <span class="input-group-text"><i class="fa fa-fw fa-envelope"></i></span>
-                        </div>
-                        <select class="form-control select2" name="watchers[]" id="watchersSelect" data-tags="true" data-placeholder="Enter or select email address" multiple>
-                        </select>
-                    </div>
-                </div>
-
                 <?php if ($config_module_enable_accounting) { ?>
                 <div class="form-group">
                     <div class="custom-control custom-switch">
@@ -324,6 +313,17 @@ ob_start();
                         </div>
                     </div>
 
+                </div>
+
+                <div class="form-group">
+                    <label>Watchers</label>
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text"><i class="fa fa-fw fa-envelope"></i></span>
+                        </div>
+                        <select class="form-control select2" name="watchers[]" id="watchersSelect" data-tags="true" data-placeholder="Enter or select email address" multiple>
+                        </select>
+                    </div>
                 </div>
 
             </div>
