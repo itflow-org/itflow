@@ -159,6 +159,34 @@ ob_start();
                     </div>
                 </div>
 
+                <?php
+                // Ticket SLA assignments - only offered when active SLAs exist
+                $sla_options = [];
+                $sla_options_sql = mysqli_query($mysqli, "SELECT sla_id, sla_name FROM slas WHERE sla_archived_at IS NULL ORDER BY sla_name ASC");
+                while ($sla_option_row = mysqli_fetch_assoc($sla_options_sql)) {
+                    $sla_options[intval($sla_option_row['sla_id'])] = $sla_option_row['sla_name'];
+                }
+                if ($config_module_enable_ticketing && !empty($sla_options)) { ?>
+                    <div class="form-group">
+                        <label>Ticket SLAs</label>
+                        <div class="form-row">
+                            <?php foreach (['Low', 'Medium', 'High'] as $sla_priority) { ?>
+                                <div class="col-4">
+                                    <small class="text-secondary"><?= $sla_priority ?></small>
+                                    <select class="form-control" name="client_sla_<?= strtolower($sla_priority) ?>">
+                                        <option value="default">Default</option>
+                                        <option value="0">None</option>
+                                        <?php foreach ($sla_options as $sla_option_id => $sla_option_name) { ?>
+                                            <option value="<?= $sla_option_id ?>"><?= escapeHtml($sla_option_name) ?></option>
+                                        <?php } ?>
+                                    </select>
+                                </div>
+                            <?php } ?>
+                        </div>
+                        <small class="text-muted">Default follows the global SLA assignment for each priority.</small>
+                    </div>
+                <?php } ?>
+
             </div>
 
             <div class="tab-pane fade" id="pills-location">

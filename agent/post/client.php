@@ -244,6 +244,17 @@ if (isset($_POST['add_client'])) {
         }
     }
 
+    // Ticket SLA assignments (fields only rendered when active SLAs exist)
+    if (isset($_POST['client_sla_low'])) {
+        foreach (['Low', 'Medium', 'High'] as $sla_priority) {
+            $sla_value = strval($_POST['client_sla_' . strtolower($sla_priority)] ?? 'default');
+            if ($sla_value !== 'default') {
+                $client_sla_id = intval($sla_value);
+                mysqli_query($mysqli, "INSERT INTO sla_assignments SET sla_assignment_client_id = $client_id, sla_assignment_priority = '$sla_priority', sla_assignment_sla_id = $client_sla_id");
+            }
+        }
+    }
+
     logAudit("Client", "Create", "$session_name created client $name$extended_log_description", $client_id, $client_id);
 
     flashAlert("Client <strong>$name</strong> created");
@@ -319,6 +330,41 @@ if (isset($_POST['edit_client'])) {
             $tag = intval($tag);
             mysqli_stmt_bind_param($query, "ii", $client_id, $tag);
             mysqli_stmt_execute($query);
+        }
+    }
+
+    // Ticket SLA assignments (fields only rendered when active SLAs exist)
+    if (isset($_POST['client_sla_low'])) {
+
+        // Compare with current state so an unrelated client edit doesn't
+        // restamp tickets (restamping clobbers manual per-ticket SLA pins)
+        $current_sla_assignments = [];
+        $sql_current_slas = mysqli_query($mysqli, "SELECT sla_assignment_priority, sla_assignment_sla_id FROM sla_assignments WHERE sla_assignment_client_id = $client_id");
+        while ($current_sla_row = mysqli_fetch_assoc($sql_current_slas)) {
+            $current_sla_assignments[$current_sla_row['sla_assignment_priority']] = strval(intval($current_sla_row['sla_assignment_sla_id']));
+        }
+
+        $sla_assignments_changed = false;
+        foreach (['Low', 'Medium', 'High'] as $sla_priority) {
+            $sla_value = strval($_POST['client_sla_' . strtolower($sla_priority)] ?? 'default');
+            $sla_current = $current_sla_assignments[$sla_priority] ?? 'default';
+            if ($sla_value === $sla_current) {
+                continue;
+            }
+            $sla_assignments_changed = true;
+            mysqli_query($mysqli, "DELETE FROM sla_assignments WHERE sla_assignment_client_id = $client_id AND sla_assignment_priority = '$sla_priority'");
+            if ($sla_value !== 'default') {
+                $client_sla_id = intval($sla_value);
+                mysqli_query($mysqli, "INSERT INTO sla_assignments SET sla_assignment_client_id = $client_id, sla_assignment_priority = '$sla_priority', sla_assignment_sla_id = $client_sla_id");
+            }
+        }
+
+        if ($sla_assignments_changed) {
+            // Re-resolve this client's open tickets against the new assignments
+            $sql_sla_tickets = mysqli_query($mysqli, "SELECT ticket_id FROM tickets WHERE ticket_client_id = $client_id AND ticket_closed_at IS NULL AND ticket_archived_at IS NULL");
+            while ($sla_ticket_row = mysqli_fetch_assoc($sql_sla_tickets)) {
+                applyTicketSla($sla_ticket_row['ticket_id']);
+            }
         }
     }
 
