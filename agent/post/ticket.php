@@ -90,7 +90,7 @@ if (isset($_POST['add_ticket'])) {
     }
 
     // Store any attached files against the ticket itself
-    saveTicketAttachments($ticket_id, null);
+    $emailable_attachments = filterEmailableAttachments(saveTicketAttachments($ticket_id, null));
 
     // Add Watchers
     if (isset($_POST['watchers'])) {
@@ -157,7 +157,8 @@ if (isset($_POST['add_ticket'])) {
                 'recipient' => $contact_email,
                 'recipient_name' => $contact_name,
                 'subject' => $subject,
-                'body' => $body
+                'body' => $body,
+                'attachments' => $emailable_attachments['send']
             ];
         }
 
@@ -174,7 +175,8 @@ if (isset($_POST['add_ticket'])) {
                 'recipient' => $watcher_email,
                 'recipient_name' => $watcher_email,
                 'subject' => $subject,
-                'body' => $body
+                'body' => $body,
+                'attachments' => $emailable_attachments['send']
             ];
         }
         addToMailQueue($data);
@@ -189,6 +191,15 @@ if (isset($_POST['add_ticket'])) {
     logAudit("Ticket", "Create", "$session_name created ticket $config_ticket_prefix$ticket_number - $ticket_subject", $client_id, $ticket_id);
 
     flashAlert("Ticket <strong>$config_ticket_prefix$ticket_number</strong> created");
+
+    // Tell the agent about anything too large for the mail queue to carry
+    if (!empty($emailable_attachments['skipped'])) {
+        $skipped_names = [];
+        foreach ($emailable_attachments['skipped'] as $skipped_attachment) {
+            $skipped_names[] = escapeHtml($skipped_attachment['name']);
+        }
+        flashAlert("Stored on the ticket but too large to email: <strong>" . implode(', ', $skipped_names) . "</strong>", 'error');
+    }
 
     redirect("ticket.php?client_id=$client_id&ticket_id=$ticket_id");
 
@@ -1840,6 +1851,11 @@ if (isset($_POST['add_ticket_reply'])) {
 
         $ticket_reply_id = mysqli_insert_id($mysqli);
 
+        // Store any attached files against this reply before the email is built, so
+        // a public reply can carry them
+        $reply_attachments = saveTicketAttachments($ticket_id, $ticket_reply_id);
+        $emailable_attachments = filterEmailableAttachments($reply_attachments);
+
         // Get Ticket Details
         $ticket_sql = mysqli_query($mysqli, "SELECT contact_name, contact_email, ticket_prefix, ticket_number, ticket_subject, ticket_status, ticket_status_name, ticket_url_key, ticket_first_response_at, ticket_created_by, ticket_assigned_to, ticket_client_id
         FROM tickets
@@ -1907,7 +1923,8 @@ if (isset($_POST['add_ticket_reply'])) {
                     'recipient' => $contact_email,
                     'recipient_name' => $contact_name,
                     'subject' => $subject,
-                    'body' => $body
+                    'body' => $body,
+                    'attachments' => $emailable_attachments['send']
                 ];
             }
 
@@ -1924,7 +1941,8 @@ if (isset($_POST['add_ticket_reply'])) {
                     'recipient' => $watcher_email,
                     'recipient_name' => $watcher_email,
                     'subject' => $subject,
-                    'body' => $body
+                    'body' => $body,
+                    'attachments' => $emailable_attachments['send']
                 ];
             }
             addToMailQueue($data);
@@ -1960,9 +1978,22 @@ if (isset($_POST['add_ticket_reply'])) {
         flashAlert("Ticket updated");
     }
 
-    // Store any attached files. They hang off the reply when there is one, and off
-    // the ticket itself when a file was uploaded without any accompanying text.
-    saveTicketAttachments($ticket_id, $ticket_reply_id ?: null);
+    // A file uploaded without any accompanying text has no reply to hang off, so it
+    // attaches to the ticket itself. With reply text the files were already stored
+    // above, before the email was composed.
+    if (empty($ticket_reply_id)) {
+        $emailable_attachments = filterEmailableAttachments(saveTicketAttachments($ticket_id, null));
+    }
+
+    // Tell the agent about anything too large for the mail queue to carry, rather
+    // than letting them assume the recipient got it
+    if (!empty($emailable_attachments['skipped'])) {
+        $skipped_names = [];
+        foreach ($emailable_attachments['skipped'] as $skipped_attachment) {
+            $skipped_names[] = escapeHtml($skipped_attachment['name']);
+        }
+        flashAlert("Stored on the ticket but too large to email: <strong>" . implode(', ', $skipped_names) . "</strong>", 'error');
+    }
 
     logAudit("Ticket", "Reply", "$session_name replied to ticket $ticket_prefix$ticket_number - $ticket_subject and was a $ticket_reply_type reply", $client_id, $ticket_id);
 

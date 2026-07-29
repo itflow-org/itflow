@@ -181,8 +181,10 @@ function cleanupUnusedImages(string $html, string $folderFsPath, string $folderW
  * Pass $reply_id to attach to a specific reply, or null to attach to the ticket
  * itself - the ticket page reads reply_id IS NULL as "belongs to the ticket".
  *
- * Returns the number of files stored. Anything the extension allow-list or
- * checkFileUpload() rejects is skipped silently, as it always has been.
+ * Returns a list of what was stored - ['name' => original name, 'path' => path
+ * relative to the app root, 'size' => bytes] - so a caller can pass the same
+ * files to the mail queue. Anything the extension allow-list or checkFileUpload()
+ * rejects is skipped silently, as it always has been.
  */
 function saveTicketAttachments($ticket_id, $reply_id = null, $field_name = 'attachments') {
 
@@ -190,8 +192,10 @@ function saveTicketAttachments($ticket_id, $reply_id = null, $field_name = 'atta
 
     $ticket_id = intval($ticket_id);
 
+    $stored_attachments = [];
+
     if (!$ticket_id || empty($_FILES[$field_name]) || !isset($_FILES[$field_name]['name'])) {
-        return 0;
+        return $stored_attachments;
     }
 
     $allowed_extensions = array(
@@ -203,7 +207,7 @@ function saveTicketAttachments($ticket_id, $reply_id = null, $field_name = 'atta
     // A single-file input posts scalars, a multiple one posts arrays - normalize
     $names = $_FILES[$field_name]['name'];
     if (!is_array($names)) {
-        return 0;
+        return $stored_attachments;
     }
 
     mkdirMissing('../uploads/tickets/');
@@ -215,8 +219,6 @@ function saveTicketAttachments($ticket_id, $reply_id = null, $field_name = 'atta
     } else {
         $reply_id_sql = intval($reply_id);
     }
-
-    $files_stored = 0;
 
     for ($i = 0; $i < count($names); $i++) {
 
@@ -244,8 +246,43 @@ function saveTicketAttachments($ticket_id, $reply_id = null, $field_name = 'atta
 
         mysqli_query($mysqli, "INSERT INTO ticket_attachments SET ticket_attachment_name = '$attachment_name', ticket_attachment_reference_name = '$attachment_reference_name', ticket_attachment_reply_id = $reply_id_sql, ticket_attachment_ticket_id = $ticket_id");
 
-        $files_stored++;
+        // Path is relative to the app root, not the caller, so the mail cron can
+        // resolve it from its own directory
+        $stored_attachments[] = [
+            'name' => $single_file['name'],
+            'path' => "uploads/tickets/$ticket_id/$attachment_reference_name",
+            'size' => (int) $single_file['size']
+        ];
     }
 
-    return $files_stored;
+    return $stored_attachments;
+}
+
+/*
+ * Splits a stored attachment list into what the mail queue will carry and what it
+ * will not, against MAX_EMAIL_ATTACHMENT_BYTES applied to the message as a whole.
+ *
+ * Oversized files stay on the ticket - the recipient can still download them from
+ * the portal - and the caller is expected to say so rather than leaving the agent
+ * to assume everything went out.
+ *
+ * Returns ['send' => [...], 'skipped' => [...]] in the input order.
+ */
+function filterEmailableAttachments($attachments) {
+
+    $result = ['send' => [], 'skipped' => []];
+    $running_total = 0;
+
+    foreach ($attachments as $attachment) {
+        $size = intval($attachment['size'] ?? 0);
+
+        if ($size > 0 && $running_total + $size <= MAX_EMAIL_ATTACHMENT_BYTES) {
+            $running_total += $size;
+            $result['send'][] = $attachment;
+        } else {
+            $result['skipped'][] = $attachment;
+        }
+    }
+
+    return $result;
 }

@@ -373,6 +373,26 @@ function addToMailQueue($data) {
             $cal_str = mysqli_escape_string($mysqli, $email['cal_str']);
         }
 
+        // Attachments travel as a manifest of app-root-relative paths rather than
+        // file contents, so the queue table stays small. cron/mail_queue.php
+        // re-checks each path is inside uploads/ before attaching it.
+        $attachments = '';
+        if (!empty($email['attachments']) && is_array($email['attachments'])) {
+            $attachment_manifest = [];
+            foreach ($email['attachments'] as $attachment) {
+                if (empty($attachment['path']) || empty($attachment['name'])) {
+                    continue;
+                }
+                $attachment_manifest[] = [
+                    'path' => strval($attachment['path']),
+                    'name' => strval($attachment['name'])
+                ];
+            }
+            if ($attachment_manifest) {
+                $attachments = mysqli_escape_string($mysqli, json_encode($attachment_manifest));
+            }
+        }
+
         // Check if 'email_queued_at' is set and not empty
         if (isset($email['queued_at']) && !empty($email['queued_at'])) {
             $queued_at = "'" . escapeSql($email['queued_at']) . "'";
@@ -381,7 +401,7 @@ function addToMailQueue($data) {
             $queued_at = 'CURRENT_TIMESTAMP()';
         }
 
-        mysqli_query($mysqli, "INSERT INTO email_queue SET email_recipient = '$recipient', email_recipient_name = '$recipient_name', email_from = '$from', email_from_name = '$from_name', email_subject = '$subject', email_content = '$body', email_queued_at = $queued_at, email_cal_str = '$cal_str'");
+        mysqli_query($mysqli, "INSERT INTO email_queue SET email_recipient = '$recipient', email_recipient_name = '$recipient_name', email_from = '$from', email_from_name = '$from_name', email_subject = '$subject', email_content = '$body', email_queued_at = $queued_at, email_cal_str = '$cal_str', email_attachments = '$attachments'");
     }
 
     return true;

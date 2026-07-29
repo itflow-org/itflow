@@ -207,6 +207,7 @@ function sendQueueEmail(
     string $subject,
     string $html_body,
     string $ics_str,
+    string $attachments_json,
     string $oauth_client_id,
     string $oauth_client_secret,
     string $oauth_tenant_id,
@@ -285,6 +286,33 @@ function sendQueueEmail(
         $mail->addStringAttachment($ics_str, 'Scheduled_ticket.ics', 'base64', 'text/calendar');
     }
 
+    // File attachments arrive as a manifest of app-root-relative paths. Each one is
+    // resolved and confirmed to still be inside uploads/ before it is attached - the
+    // same guard the ticket attachment download endpoints apply - and a file that
+    // has been deleted since the message was queued is simply skipped.
+    if (!empty($attachments_json)) {
+
+        $attachment_manifest = json_decode($attachments_json, true);
+        $uploads_base = realpath(__DIR__ . '/../uploads');
+
+        if (is_array($attachment_manifest) && $uploads_base !== false) {
+            foreach ($attachment_manifest as $attachment) {
+
+                if (empty($attachment['path']) || empty($attachment['name'])) {
+                    continue;
+                }
+
+                $attachment_path = realpath(__DIR__ . '/../' . $attachment['path']);
+
+                if ($attachment_path === false || strpos($attachment_path, $uploads_base) !== 0) {
+                    continue;
+                }
+
+                $mail->addAttachment($attachment_path, basename($attachment['name']));
+            }
+        }
+    }
+
     $mail->send();
     return true;
 }
@@ -324,6 +352,7 @@ if (mysqli_num_rows($sql_queue) > 0) {
         $email_subject        = $rowq['email_subject'];
         $email_content        = $rowq['email_content'];
         $email_ics_str        = $rowq['email_cal_str'];
+        $email_attachments    = $rowq['email_attachments'];
 
         // Check sender
         if (!filter_var($email_from, FILTER_VALIDATE_EMAIL)) {
@@ -377,6 +406,7 @@ if (mysqli_num_rows($sql_queue) > 0) {
                 (string)$email_subject,
                 (string)$email_content,
                 (string)$email_ics_str,
+                (string)$email_attachments,
                 (string)$config_mail_oauth_client_id,
                 (string)$config_mail_oauth_client_secret,
                 (string)$config_mail_oauth_tenant_id,
@@ -386,7 +416,7 @@ if (mysqli_num_rows($sql_queue) > 0) {
             );
 
             // Scrub the body on delivery - it can carry share decryption keys and temporary passwords
-            mysqli_query($mysqli, "UPDATE email_queue SET email_status = 3, email_sent_at = NOW(), email_attempts = 1, email_content = '', email_cal_str = '' WHERE email_id = $email_id");
+            mysqli_query($mysqli, "UPDATE email_queue SET email_status = 3, email_sent_at = NOW(), email_attempts = 1, email_content = '', email_cal_str = '', email_attachments = '' WHERE email_id = $email_id");
 
         } catch (Exception $e) {
             mysqli_query($mysqli, "UPDATE email_queue SET email_status = 2, email_failed_at = NOW(), email_attempts = 1 WHERE email_id = $email_id");
@@ -424,6 +454,7 @@ if (mysqli_num_rows($sql_failed_queue) > 0) {
         $email_subject        = $rowf['email_subject'];
         $email_content        = $rowf['email_content'];
         $email_ics_str        = $rowf['email_cal_str'];
+        $email_attachments    = $rowf['email_attachments'];
         $email_attempts       = (int)$rowf['email_attempts'] + 1;
 
         // Claim the row - same lock as the send path, from the failed state this time.
@@ -452,6 +483,7 @@ if (mysqli_num_rows($sql_failed_queue) > 0) {
                 (string)$email_subject,
                 (string)$email_content,
                 (string)$email_ics_str,
+                (string)$email_attachments,
                 (string)$config_mail_oauth_client_id,
                 (string)$config_mail_oauth_client_secret,
                 (string)$config_mail_oauth_tenant_id,
@@ -461,7 +493,7 @@ if (mysqli_num_rows($sql_failed_queue) > 0) {
             );
 
             // Scrub the body on delivery - it can carry share decryption keys and temporary passwords
-            mysqli_query($mysqli, "UPDATE email_queue SET email_status = 3, email_sent_at = NOW(), email_attempts = $email_attempts, email_content = '', email_cal_str = '' WHERE email_id = $email_id");
+            mysqli_query($mysqli, "UPDATE email_queue SET email_status = 3, email_sent_at = NOW(), email_attempts = $email_attempts, email_content = '', email_cal_str = '', email_attachments = '' WHERE email_id = $email_id");
 
         } catch (Exception $e) {
             mysqli_query($mysqli, "UPDATE email_queue SET email_status = 2, email_failed_at = NOW(), email_attempts = $email_attempts WHERE email_id = $email_id");
