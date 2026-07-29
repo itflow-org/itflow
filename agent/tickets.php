@@ -117,6 +117,7 @@ $query =
         CASE
             WHEN '$sort' = 'ticket_priority' THEN
                 CASE ticket_priority
+                    WHEN 'Urgent' THEN 0
                     WHEN 'High' THEN 1
                     WHEN 'Medium' THEN 2
                     WHEN 'Low' THEN 3

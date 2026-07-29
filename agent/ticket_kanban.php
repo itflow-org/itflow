@@ -24,6 +24,7 @@ while ($row = mysqli_fetch_assoc($status_sql)) {
 
 $ordering_snippet = "ORDER BY
     CASE
+        WHEN ticket_priority = 'Urgent' THEN 0
         WHEN ticket_priority = 'High' THEN 1
         WHEN ticket_priority = 'Medium' THEN 2
         WHEN ticket_priority = 'Low' THEN 3
@@ -98,7 +99,9 @@ $kanban = array_values($statuses);
 
                 <?php foreach ($column['tickets'] as $item) {
 
-                    if ($item['ticket_priority'] == "High") {
+                    if ($item['ticket_priority'] == "Urgent") {
+                        $ticket_priority_color = "dark";
+                    } elseif ($item['ticket_priority'] == "High") {
                         $ticket_priority_color = "danger";
                     } elseif ($item['ticket_priority'] == "Medium") {
                         $ticket_priority_color = "warning";

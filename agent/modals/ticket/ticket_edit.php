@@ -111,6 +111,7 @@ ob_start();
                                     <option <?php if ($ticket_priority == 'Low') { echo "selected"; } ?> >Low</option>
                                     <option <?php if ($ticket_priority == 'Medium') { echo "selected"; } ?> >Medium</option>
                                     <option <?php if ($ticket_priority == 'High') { echo "selected"; } ?> >High</option>
+                                    <option <?php if ($ticket_priority == 'Urgent') { echo "selected"; } ?> >Urgent</option>
                                 </select>
                             </div>
                         </div>

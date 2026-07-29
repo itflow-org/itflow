@@ -246,7 +246,7 @@ if (isset($_POST['add_client'])) {
 
     // Ticket SLA assignments (fields only rendered when active SLAs exist)
     if (isset($_POST['client_sla_low'])) {
-        foreach (['Low', 'Medium', 'High'] as $sla_priority) {
+        foreach (['Low', 'Medium', 'High', 'Urgent'] as $sla_priority) {
             $sla_value = strval($_POST['client_sla_' . strtolower($sla_priority)] ?? 'default');
             if ($sla_value !== 'default') {
                 $client_sla_id = intval($sla_value);
@@ -345,7 +345,7 @@ if (isset($_POST['edit_client'])) {
         }
 
         $sla_assignments_changed = false;
-        foreach (['Low', 'Medium', 'High'] as $sla_priority) {
+        foreach (['Low', 'Medium', 'High', 'Urgent'] as $sla_priority) {
             $sla_value = strval($_POST['client_sla_' . strtolower($sla_priority)] ?? 'default');
             $sla_current = $current_sla_assignments[$sla_priority] ?? 'default';
             if ($sla_value === $sla_current) {

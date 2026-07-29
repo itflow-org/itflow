@@ -68,6 +68,7 @@ $sql = mysqli_query(
         CASE
             WHEN '$sort' = 'recurring_ticket_priority' THEN
                 CASE recurring_ticket_priority
+                    WHEN 'Urgent' THEN 0
                     WHEN 'High' THEN 1
                     WHEN 'Medium' THEN 2
                     WHEN 'Low' THEN 3

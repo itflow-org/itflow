@@ -21,36 +21,13 @@ while ($active_sla_row = mysqli_fetch_assoc($sql_active_slas)) {
     $active_slas[intval($active_sla_row['sla_id'])] = $active_sla_row['sla_name'];
 }
 
-// Assignments, keyed for easy lookup: [client_id][priority] = sla_id
+// Global default assignments: [priority] = sla_id (per-client overrides live on the client edit modal)
 $assignments = [];
-$assignment_client_names = [];
-$sql_assignments = mysqli_query($mysqli, "SELECT sla_assignment_client_id, sla_assignment_priority, sla_assignment_sla_id, client_name FROM sla_assignments
-    LEFT JOIN clients ON sla_assignment_client_id = client_id
-    ORDER BY client_name ASC"
-);
+$sql_assignments = mysqli_query($mysqli, "SELECT sla_assignment_priority, sla_assignment_sla_id FROM sla_assignments WHERE sla_assignment_client_id = 0");
 while ($assignment_row = mysqli_fetch_assoc($sql_assignments)) {
-    $assignment_client_id = intval($assignment_row['sla_assignment_client_id']);
-    $assignments[$assignment_client_id][$assignment_row['sla_assignment_priority']] = intval($assignment_row['sla_assignment_sla_id']);
-    if ($assignment_client_id) {
-        $assignment_client_names[$assignment_client_id] = $assignment_row['client_name'];
-    }
+    $assignments[0][$assignment_row['sla_assignment_priority']] = intval($assignment_row['sla_assignment_sla_id']);
 }
 
-// Wording for an assignment cell: mapped plan, explicit none, or global default
-function slaAssignmentWording($assignments, $active_slas, $client_id, $priority)
-{
-    if (!isset($assignments[$client_id][$priority])) {
-        return "<span class='text-secondary'>Default</span>";
-    }
-    $sla_id = $assignments[$client_id][$priority];
-    if ($sla_id == 0) {
-        return "<span class='text-secondary'>None</span>";
-    }
-    if (isset($active_slas[$sla_id])) {
-        return escapeHtml($active_slas[$sla_id]);
-    }
-    return "<span class='text-secondary'>None (archived)</span>";
-}
 
 ?>
 
@@ -138,9 +115,6 @@ function slaAssignmentWording($assignments, $active_slas, $client_id, $priority)
 <div class="card card-dark">
     <div class="card-header py-2">
         <h3 class="card-title mt-2"><i class="fas fa-fw fa-random mr-2"></i>SLA Assignments</h3>
-        <div class="card-tools">
-            <button type="button" class="btn btn-primary ajax-modal" data-modal-url="modals/sla/sla_assignment_client.php"><i class="fas fa-plus mr-2"></i>Client Override</button>
-        </div>
     </div>
 
     <div class="card-body">
@@ -150,7 +124,7 @@ function slaAssignmentWording($assignments, $active_slas, $client_id, $priority)
 
             <strong>Default (all clients)</strong>
             <div class="form-row mt-2">
-                <?php foreach (['Low', 'Medium', 'High'] as $priority) {
+                <?php foreach (['Low', 'Medium', 'High', 'Urgent'] as $priority) {
                     $selected_sla_id = $assignments[0][$priority] ?? 0;
                     ?>
                     <div class="form-group col-md-3">
@@ -163,61 +137,11 @@ function slaAssignmentWording($assignments, $active_slas, $client_id, $priority)
                         </select>
                     </div>
                 <?php } ?>
-                <div class="form-group col-md-3 d-flex align-items-end">
-                    <button type="submit" name="save_sla_assignments" class="btn btn-primary"><i class="fas fa-check mr-2"></i>Save Defaults</button>
-                </div>
             </div>
+            <button type="submit" name="save_sla_assignments" class="btn btn-primary"><i class="fas fa-check mr-2"></i>Save Defaults</button>
         </form>
 
-        <hr>
-
-        <strong>Client overrides</strong>
-        <div class="table-responsive-sm mt-2">
-            <table class="table table-striped table-borderless table-hover">
-                <thead class="text-dark <?php if (empty($assignment_client_names)) { echo "d-none"; } ?>">
-                <tr>
-                    <th>Client</th>
-                    <th>Low</th>
-                    <th>Medium</th>
-                    <th>High</th>
-                    <th class="text-center">Action</th>
-                </tr>
-                </thead>
-                <tbody>
-                <?php if (empty($assignment_client_names)) { ?>
-                    <tr><td colspan="5" class="text-secondary">No client overrides - everyone follows the defaults above.</td></tr>
-                <?php } ?>
-                <?php foreach ($assignment_client_names as $override_client_id => $override_client_name) { ?>
-                    <tr>
-                        <td>
-                            <a href="#" class="ajax-modal" data-modal-url="modals/sla/sla_assignment_client.php?client_id=<?= $override_client_id ?>">
-                                <?= escapeHtml($override_client_name) ?>
-                            </a>
-                        </td>
-                        <td><?= slaAssignmentWording($assignments, $active_slas, $override_client_id, 'Low') ?></td>
-                        <td><?= slaAssignmentWording($assignments, $active_slas, $override_client_id, 'Medium') ?></td>
-                        <td><?= slaAssignmentWording($assignments, $active_slas, $override_client_id, 'High') ?></td>
-                        <td>
-                            <div class="dropdown dropleft text-center">
-                                <button class="btn btn-secondary btn-sm" type="button" data-toggle="dropdown">
-                                    <i class="fas fa-ellipsis-h"></i>
-                                </button>
-                                <div class="dropdown-menu">
-                                    <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/sla/sla_assignment_client.php?client_id=<?= $override_client_id ?>">
-                                        <i class="fas fa-fw fa-edit mr-2"></i>Edit
-                                    </a>
-                                    <div class="dropdown-divider"></div>
-                                    <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_client_sla_assignments=<?= $override_client_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
-                                        <i class="fas fa-fw fa-trash mr-2"></i>Remove
-                                    </a>
-                                </div>
-                            </div>
-                        </td>
-                    </tr>
-                <?php } ?>
-                </tbody>
-            </table>
-        </div>
+        <small class="text-muted d-block mt-2">Per-client overrides are set on each client (edit client, Notes tab).</small>
     </div>
 </div>
 

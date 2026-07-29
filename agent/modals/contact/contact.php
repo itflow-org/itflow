@@ -629,7 +629,9 @@ ob_start();
                                     $ticket_updated_at_display = $ticket_updated_at;
                                 }
 
-                                if ($ticket_priority == "High") {
+                                if ($ticket_priority == "Urgent") {
+                                    $ticket_priority_display = "<span class='p-2 badge badge-dark'>$ticket_priority</span>";
+                                } elseif ($ticket_priority == "High") {
                                     $ticket_priority_display = "<span class='p-2 badge badge-danger'>$ticket_priority</span>";
                                 } elseif ($ticket_priority == "Medium") {
                                     $ticket_priority_display = "<span class='p-2 badge badge-warning'>$ticket_priority</span>";

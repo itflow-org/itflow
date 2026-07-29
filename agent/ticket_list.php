@@ -115,7 +115,9 @@
                                 $has_client = "";
                             }
 
-                            if ($ticket_priority == "High") {
+                            if ($ticket_priority == "Urgent") {
+                                $ticket_priority_color = "dark";
+                            } elseif ($ticket_priority == "High") {
                                 $ticket_priority_color = "danger";
                             } elseif ($ticket_priority == "Medium") {
                                 $ticket_priority_color = "warning";

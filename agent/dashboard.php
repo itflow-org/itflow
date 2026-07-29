@@ -770,7 +770,7 @@ if ($user_config_dashboard_technical_enable == 1) {
                                         $has_client = "";
                                     }
 
-                                    $ticket_priority_color = $ticket_priority == "High" ? "danger" : ($ticket_priority == "Medium" ? "warning" : "info");
+                                    $ticket_priority_color = $ticket_priority == "Urgent" ? "dark" : ($ticket_priority == "High" ? "danger" : ($ticket_priority == "Medium" ? "warning" : "info"));
                                     $contact_display = empty($contact_name) ? "-" : "<a href='contact.php?client_id=$client_id&contact_id=$contact_id'>$contact_name</a>";
                                 ?>
                                     <tr class="<?= empty($ticket_updated_at) ? 'text-bold' : '' ?>">

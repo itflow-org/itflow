@@ -131,7 +131,7 @@ if (isset($_POST['save_sla_assignments'])) {
 
     // Global defaults - one select per priority; 0 means no SLA, which for the
     // global row is simply no assignment
-    foreach (['Low', 'Medium', 'High'] as $priority) {
+    foreach (['Low', 'Medium', 'High', 'Urgent'] as $priority) {
 
         $field = 'global_sla_' . strtolower($priority);
         $sla_id = intval($_POST[$field] ?? 0);
@@ -153,64 +153,6 @@ if (isset($_POST['save_sla_assignments'])) {
     logAudit("SLA", "Edit", "$session_name updated default SLA assignments");
 
     flashAlert("Default SLA assignments saved - $restamped open ticket(s) re-evaluated");
-
-    redirect();
-
-}
-
-if (isset($_POST['save_client_sla_assignment'])) {
-
-    validateCSRFToken();
-
-    $client_id = intval($_POST['client_id']);
-
-    // Per-priority values: 'default' = follow the global default (no row),
-    // '0' = explicitly no SLA for this client, otherwise an sla_id
-    foreach (['Low', 'Medium', 'High'] as $priority) {
-
-        $field = 'client_sla_' . strtolower($priority);
-        $value = $_POST[$field] ?? 'default';
-
-        mysqli_query($mysqli, "DELETE FROM sla_assignments WHERE sla_assignment_client_id = $client_id AND sla_assignment_priority = '$priority'");
-        if ($value !== 'default') {
-            $sla_id = intval($value);
-            mysqli_query($mysqli, "INSERT INTO sla_assignments SET sla_assignment_client_id = $client_id, sla_assignment_priority = '$priority', sla_assignment_sla_id = $sla_id");
-        }
-    }
-
-    // Re-resolve this client's open tickets
-    $restamped = 0;
-    $sql_tickets = mysqli_query($mysqli, "SELECT ticket_id FROM tickets WHERE ticket_client_id = $client_id AND ticket_closed_at IS NULL AND ticket_archived_at IS NULL");
-    while ($ticket_row = mysqli_fetch_assoc($sql_tickets)) {
-        applyTicketSla($ticket_row['ticket_id']);
-        $restamped++;
-    }
-
-    logAudit("SLA", "Edit", "$session_name updated SLA assignments for client ID $client_id");
-
-    flashAlert("Client SLA assignments saved - $restamped open ticket(s) re-evaluated");
-
-    redirect();
-
-}
-
-if (isset($_GET['delete_client_sla_assignments'])) {
-
-    validateCSRFToken();
-
-    $client_id = intval($_GET['delete_client_sla_assignments']);
-
-    mysqli_query($mysqli, "DELETE FROM sla_assignments WHERE sla_assignment_client_id = $client_id");
-
-    // Back on the global defaults - re-resolve this client's open tickets
-    $sql_tickets = mysqli_query($mysqli, "SELECT ticket_id FROM tickets WHERE ticket_client_id = $client_id AND ticket_closed_at IS NULL AND ticket_archived_at IS NULL");
-    while ($ticket_row = mysqli_fetch_assoc($sql_tickets)) {
-        applyTicketSla($ticket_row['ticket_id']);
-    }
-
-    logAudit("SLA", "Delete", "$session_name removed SLA overrides for client ID $client_id");
-
-    flashAlert("Client SLA overrides removed");
 
     redirect();
 

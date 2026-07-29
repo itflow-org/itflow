@@ -49,6 +49,7 @@ $sql_assets = mysqli_query($mysqli, "SELECT asset_id, asset_name, asset_type FRO
                                 <option>Low</option>
                                 <option>Medium</option>
                                 <option>High</option>
+                                <option>Urgent</option>
                             </select>
                         </div>
                     </div>

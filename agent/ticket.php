@@ -86,7 +86,9 @@ if (isset($_GET['ticket_id'])) {
         }
 
         //Set Ticket Badge Color based of priority
-        if ($ticket_priority == "High") {
+        if ($ticket_priority == "Urgent") {
+            $ticket_priority_display = "<span class='p-2 badge badge-pill badge-dark'>$ticket_priority</span>";
+        } elseif ($ticket_priority == "High") {
             $ticket_priority_display = "<span class='p-2 badge badge-pill badge-danger'>$ticket_priority</span>";
         } elseif ($ticket_priority == "Medium") {
             $ticket_priority_display = "<span class='p-2 badge badge-pill badge-warning'>$ticket_priority</span>";
