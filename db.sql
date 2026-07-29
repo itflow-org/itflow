@@ -1937,6 +1937,7 @@ CREATE TABLE `recurring_tickets` (
   `recurring_ticket_client_id` int(11) NOT NULL DEFAULT 0,
   `recurring_ticket_contact_id` int(11) NOT NULL DEFAULT 0,
   `recurring_ticket_asset_id` int(11) NOT NULL DEFAULT 0,
+  `recurring_ticket_ticket_template_id` int(11) NOT NULL DEFAULT 0,
   PRIMARY KEY (`recurring_ticket_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -3066,4 +3067,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2026-07-29 14:15:02
+-- Dump completed on 2026-07-29 15:54:34

@@ -20,7 +20,7 @@ if (isset($_POST['add_recurring_ticket'])) {
 
     $start_date = escapeSql($_POST['start_date']);
 
-    mysqli_query($mysqli, "INSERT INTO recurring_tickets SET recurring_ticket_subject = '$subject', recurring_ticket_details = '$details', recurring_ticket_priority = '$priority', recurring_ticket_frequency = '$frequency', recurring_ticket_billable = $billable, recurring_ticket_start_date = '$start_date', recurring_ticket_next_run = '$start_date', recurring_ticket_assigned_to = $assigned_to, recurring_ticket_created_by = $session_user_id, recurring_ticket_client_id = $client_id, recurring_ticket_contact_id = $contact_id, recurring_ticket_asset_id = $asset_id, recurring_ticket_category = $category_id");
+    mysqli_query($mysqli, "INSERT INTO recurring_tickets SET recurring_ticket_subject = '$subject', recurring_ticket_details = '$details', recurring_ticket_priority = '$priority', recurring_ticket_frequency = '$frequency', recurring_ticket_billable = $billable, recurring_ticket_start_date = '$start_date', recurring_ticket_next_run = '$start_date', recurring_ticket_assigned_to = $assigned_to, recurring_ticket_created_by = $session_user_id, recurring_ticket_client_id = $client_id, recurring_ticket_contact_id = $contact_id, recurring_ticket_asset_id = $asset_id, recurring_ticket_category = $category_id, recurring_ticket_ticket_template_id = $ticket_template_id");
 
     $recurring_ticket_id = mysqli_insert_id($mysqli);
 
@@ -55,7 +55,7 @@ if (isset($_POST['edit_recurring_ticket'])) {
 
     enforceClientAccess();
 
-    mysqli_query($mysqli, "UPDATE recurring_tickets SET recurring_ticket_subject = '$subject', recurring_ticket_details = '$details', recurring_ticket_priority = '$priority', recurring_ticket_frequency = '$frequency', recurring_ticket_billable = $billable, recurring_ticket_next_run = '$next_run_date', recurring_ticket_assigned_to = $assigned_to, recurring_ticket_asset_id = $asset_id, recurring_ticket_contact_id = $contact_id, recurring_ticket_category = $category_id WHERE recurring_ticket_id = $recurring_ticket_id");
+    mysqli_query($mysqli, "UPDATE recurring_tickets SET recurring_ticket_subject = '$subject', recurring_ticket_details = '$details', recurring_ticket_priority = '$priority', recurring_ticket_frequency = '$frequency', recurring_ticket_billable = $billable, recurring_ticket_next_run = '$next_run_date', recurring_ticket_assigned_to = $assigned_to, recurring_ticket_asset_id = $asset_id, recurring_ticket_contact_id = $contact_id, recurring_ticket_category = $category_id, recurring_ticket_ticket_template_id = $ticket_template_id WHERE recurring_ticket_id = $recurring_ticket_id");
 
     // Add Additional Assets
     if (isset($_POST['additional_assets'])) {
@@ -102,6 +102,7 @@ if (isset($_POST['bulk_force_recurring_tickets'])) {
                 $client_id = intval($row['recurring_ticket_client_id']);
                 $asset_id = intval($row['recurring_ticket_asset_id']);
                 $category = intval($row['recurring_ticket_category']);
+                $ticket_template_id = intval($row['recurring_ticket_ticket_template_id']);
                 $url_key = randomString(32);
 
                 enforceClientAccess();
@@ -138,6 +139,9 @@ if (isset($_POST['bulk_force_recurring_tickets'])) {
                 SELECT $id, asset_id
                 FROM recurring_ticket_assets
                 WHERE recurring_ticket_id = $recurring_ticket_id");
+
+                // Copy Tasks from the linked ticket template, if one is set
+                addTasksFromTicketTemplate($id, $ticket_template_id);
 
                 // Notifications
 
@@ -243,6 +247,7 @@ if (isset($_GET['force_recurring_ticket'])) {
         $client_id = intval($row['recurring_ticket_client_id']);
         $asset_id = intval($row['recurring_ticket_asset_id']);
         $category = intval($row['recurring_ticket_category']);
+        $ticket_template_id = intval($row['recurring_ticket_ticket_template_id']);
         $url_key = randomString(32);
 
         enforceClientAccess();
@@ -279,6 +284,9 @@ if (isset($_GET['force_recurring_ticket'])) {
         SELECT $id, asset_id
         FROM recurring_ticket_assets
         WHERE recurring_ticket_id = $recurring_ticket_id");
+
+        // Copy Tasks from the linked ticket template, if one is set
+        addTasksFromTicketTemplate($id, $ticket_template_id);
 
         // Notifications
 

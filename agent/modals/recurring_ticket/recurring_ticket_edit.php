@@ -20,6 +20,7 @@ $recurring_ticket_contact_id = intval($row['recurring_ticket_contact_id']);
 $recurring_ticket_asset_id = intval($row['recurring_ticket_asset_id']);
 $recurring_ticket_category = intval($row['recurring_ticket_category']);
 $recurring_ticket_billable = intval($row['recurring_ticket_billable']);
+$recurring_ticket_ticket_template_id = intval($row['recurring_ticket_ticket_template_id']);
 
 // Additional Assets Selected
 $additional_assets_array = array();
@@ -70,17 +71,59 @@ ob_start();
             <div class="tab-pane fade show active" id="pills-edit-details">
 
                 <div class="form-group">
+                    <label>Template</label>
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text"><i class="fa fa-fw fa-cube"></i></span>
+                        </div>
+                        <select class="form-control select2" id="ticket_template_select" name="ticket_template_id">
+                            <option value="0">- No Template -</option>
+                            <?php
+                            $sql_ticket_templates = mysqli_query($mysqli, "
+                                    SELECT tt.ticket_template_id,
+                                           tt.ticket_template_name,
+                                           tt.ticket_template_subject,
+                                           tt.ticket_template_details,
+                                           COUNT(ttt.task_template_id) as task_count
+                                    FROM ticket_templates tt
+                                    LEFT JOIN task_templates ttt
+                                        ON tt.ticket_template_id = ttt.task_template_ticket_template_id
+                                    WHERE (tt.ticket_template_archived_at IS NULL OR tt.ticket_template_id = $recurring_ticket_ticket_template_id)
+                                    GROUP BY tt.ticket_template_id
+                                    ORDER BY tt.ticket_template_name ASC
+                                ");
+
+                            while ($row = mysqli_fetch_assoc($sql_ticket_templates)) {
+                                $ticket_template_id_select = intval($row['ticket_template_id']);
+                                $ticket_template_name_select = escapeHtml($row['ticket_template_name']);
+                                $ticket_template_subject_select = escapeHtml($row['ticket_template_subject']);
+                                $ticket_template_details_select = escapeHtml($row['ticket_template_details']);
+                                $task_count = intval($row['task_count']);
+                                ?>
+                                <option value="<?= $ticket_template_id_select ?>"
+                                        data-subject="<?= $ticket_template_subject_select ?>"
+                                        data-details="<?= $ticket_template_details_select ?>"
+                                        <?php if ($recurring_ticket_ticket_template_id == $ticket_template_id_select) { echo "selected"; } ?>>
+                                    <?= $ticket_template_name_select ?> (<?= $task_count ?> tasks)
+                                </option>
+                            <?php } ?>
+                        </select>
+                    </div>
+                    <small class="form-text text-muted">The template's tasks are added to every ticket this schedule raises. Changing it rewrites the subject and details below.</small>
+                </div>
+
+                <div class="form-group">
                     <label>Subject <strong class="text-danger">*</strong></label>
                     <div class="input-group">
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
                         </div>
-                        <input type="text" class="form-control" name="subject" placeholder="Subject" maxlength="500" value="<?= $recurring_ticket_subject ?>" required >
+                        <input type="text" class="form-control" id="subjectInput" name="subject" placeholder="Subject" maxlength="500" value="<?= $recurring_ticket_subject ?>" required >
                     </div>
                 </div>
 
                 <div class="form-group">
-                    <textarea class="form-control tinymce" name="details"><?= $recurring_ticket_details ?></textarea>
+                    <textarea class="form-control tinymce" id="detailsInput" name="details"><?= $recurring_ticket_details ?></textarea>
                 </div>
 
                 <div class="row">
@@ -305,6 +348,35 @@ ob_start();
         <button type="button" class="btn btn-light" data-dismiss="modal"><i class="fas fa-times mr-2"></i>Cancel</button>
     </div>
 </form>
+
+<!-- Ticket Templates -->
+<script>
+$(document).on('change', '#ticket_template_select', function () {
+    const $opt = $(this).find(':selected');
+
+    // Selecting "- No Template -" only unlinks the template - it must not wipe
+    // whatever subject/details the user has already written
+    if (!parseInt($opt.val(), 10)) {
+        return;
+    }
+
+    const templateSubject = $opt.data('subject') || '';
+    const templateDetails = $opt.data('details') || '';
+
+    $('#subjectInput').val(templateSubject);
+
+    if (window.tinymce) {
+        const editor = tinymce.get('detailsInput');
+        if (editor) {
+            editor.setContent(templateDetails);
+        } else {
+            $('#detailsInput').val(templateDetails);
+        }
+    } else {
+        $('#detailsInput').val(templateDetails);
+    }
+});
+</script>
 
 <?php
 

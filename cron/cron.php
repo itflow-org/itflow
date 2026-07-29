@@ -317,6 +317,7 @@ if (mysqli_num_rows($sql_recurring_tickets) > 0) {
         $contact_id = intval($row['recurring_ticket_contact_id']);
         $asset_id = intval($row['recurring_ticket_asset_id']);
         $category = intval($row['recurring_ticket_category']);
+        $ticket_template_id = intval($row['recurring_ticket_ticket_template_id']);
 
         $ticket_status = 1; // Default
         if ($assigned_id > 0) {
@@ -350,6 +351,9 @@ if (mysqli_num_rows($sql_recurring_tickets) > 0) {
         SELECT $id, asset_id
         FROM recurring_ticket_assets
         WHERE recurring_ticket_id = $recurring_ticket_id");
+
+        // Copy Tasks from the linked ticket template, if one is set
+        addTasksFromTicketTemplate($id, $ticket_template_id);
 
         // Logging
         logAudit("Ticket", "Create", "Cron created recurring scheduled $frequency ticket - $subject", $client_id, $id);

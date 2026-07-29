@@ -80,20 +80,7 @@ if (isset($_POST['add_ticket'])) {
     applyTicketSla($ticket_id);
 
     // Add Tasks from Template if Template was selected
-    if($ticket_template_id) {
-        // Get Associated Tasks from the ticket template
-        $sql_task_templates = mysqli_query($mysqli, "SELECT * FROM task_templates WHERE task_template_ticket_template_id = $ticket_template_id");
-
-        if (mysqli_num_rows($sql_task_templates) > 0) {
-            while ($row = mysqli_fetch_assoc($sql_task_templates)) {
-                $task_order = intval($row['task_template_order']);
-                $task_name = escapeSql($row['task_template_name']);
-                $task_completion_estimate = intval($row['task_template_completion_estimate']);
-
-                mysqli_query($mysqli,"INSERT INTO tasks SET task_name = '$task_name', task_order = $task_order, task_completion_estimate = $task_completion_estimate, task_ticket_id = $ticket_id");
-            }
-        }
-    }
+    addTasksFromTicketTemplate($ticket_id, $ticket_template_id);
 
     // Add Watchers
     if (isset($_POST['watchers'])) {
@@ -1705,10 +1692,6 @@ if (isset($_POST['bulk_add_asset_ticket'])) {
             $subject = escapeSql($row['ticket_template_subject']);
         }
         $details = mysqli_escape_string($mysqli, $row['ticket_template_details']);
-
-        // Get Associated Tasks from the ticket template
-        $sql_task_templates = mysqli_query($mysqli, "SELECT * FROM task_templates WHERE task_template_ticket_template_id = $ticket_template_id");
-
     }
 
     // Create ticket for each selected asset
@@ -1770,16 +1753,7 @@ if (isset($_POST['bulk_add_asset_ticket'])) {
             }
 
             // Add Tasks from Template if Template was selected
-            if($ticket_template_id) {
-                if (mysqli_num_rows($sql_task_templates) > 0) {
-                    while ($row = mysqli_fetch_assoc($sql_task_templates)) {
-                        $task_order = intval($row['task_template_order']);
-                        $task_name = escapeSql($row['task_template_name']);
-
-                        mysqli_query($mysqli,"INSERT INTO tasks SET task_name = '$task_name', task_order = $task_order, task_ticket_id = $ticket_id");
-                    }
-                }
-            }
+            addTasksFromTicketTemplate($ticket_id, $ticket_template_id);
 
             // Custom action/notif handler
             triggerCustomAction('ticket_create', $ticket_id);

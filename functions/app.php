@@ -72,6 +72,48 @@ function getTicketStatusName($ticket_status) {
 }
 
 /**
+ * Copies a ticket template's tasks onto a ticket.
+ *
+ * Called anywhere a ticket is raised from a template - the ticket add modals,
+ * the bulk asset add, and every recurring ticket run (cron, force, bulk force).
+ * Tasks are a snapshot: editing the template later does not touch tickets that
+ * have already been raised from it.
+ *
+ * @param int $ticket_id          The ticket to attach the tasks to.
+ * @param int $ticket_template_id The template to copy tasks from. 0 = no-op.
+ *
+ * @return int The number of tasks created.
+ */
+function addTasksFromTicketTemplate($ticket_id, $ticket_template_id) {
+
+    global $mysqli;
+
+    $ticket_id = intval($ticket_id);
+    $ticket_template_id = intval($ticket_template_id);
+
+    if (!$ticket_id || !$ticket_template_id) {
+        return 0;
+    }
+
+    $sql_task_templates = mysqli_query($mysqli, "SELECT * FROM task_templates WHERE task_template_ticket_template_id = $ticket_template_id ORDER BY task_template_order ASC");
+
+    $tasks_added = 0;
+
+    while ($row = mysqli_fetch_assoc($sql_task_templates)) {
+        $task_order = intval($row['task_template_order']);
+        $task_name = escapeSql($row['task_template_name']);
+        $task_completion_estimate = intval($row['task_template_completion_estimate']);
+
+        mysqli_query($mysqli, "INSERT INTO tasks SET task_name = '$task_name', task_order = $task_order, task_completion_estimate = $task_completion_estimate, task_ticket_id = $ticket_id");
+
+        $tasks_added++;
+    }
+
+    return $tasks_added;
+
+}
+
+/**
  * Retrieves a specified field's value from a table based on the record's id.
  * It validates the table and field names, automatically determines the primary key (or uses the first column as fallback),
  * and returns the field value with an appropriate escaping method.

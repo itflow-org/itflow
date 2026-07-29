@@ -10,3 +10,4 @@ $asset_id = intval($_POST['asset_id'] ?? 0);
 $contact_id = intval($_POST['contact_id'] ?? 0);
 $assigned_to = intval($_POST['assigned_to'] ?? 0);
 $category_id = intval($_POST['category_id'] ?? 0);
+$ticket_template_id = intval($_POST['ticket_template_id'] ?? 0);
