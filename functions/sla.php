@@ -462,13 +462,22 @@ function setTicketResolutionSlaMet($ticket_id)
 
     $ticket_id = intval($ticket_id);
 
-    $sql = mysqli_query($mysqli, "SELECT ticket_resolution_due_at, ticket_resolved_at FROM tickets WHERE ticket_id = $ticket_id LIMIT 1");
+    $sql = mysqli_query($mysqli, "SELECT ticket_resolution_due_at, ticket_resolved_at, ticket_resolution_sla_met FROM tickets WHERE ticket_id = $ticket_id LIMIT 1");
     if (!$sql || !mysqli_num_rows($sql)) {
         return;
     }
     $row = mysqli_fetch_assoc($sql);
 
     if (empty($row['ticket_resolution_due_at'])) {
+        return;
+    }
+
+    // A recorded miss is final at judge time. Reopening an exhausted ticket
+    // re-bases its deadline to the present, so without this a resolve in the
+    // same clock second would grade against that deadline and flip the miss
+    // to a met. Only an explicit re-stamp (applyTicketSla) may re-judge.
+    if (!is_null($row['ticket_resolution_sla_met']) && intval($row['ticket_resolution_sla_met']) === 0) {
+        syncTicketSlaClock($ticket_id);
         return;
     }
 
@@ -483,11 +492,30 @@ function setTicketResolutionSlaMet($ticket_id)
 // A reopened ticket goes back on the resolution clock. syncTicketSlaClock
 // reopens an interval and re-bases the deadline on the budget that is left, so
 // a ticket that was resolved with time to spare gets that remainder back.
+//
+// A missed verdict survives the reopen when the budget is already spent.
+// Without this, re-basing would hand an exhausted ticket a zero-length fresh
+// window, and resolving it again straight away would overwrite the recorded
+// miss with a met - reopen must never be a way to launder a breach.
 function resetTicketResolutionSla($ticket_id)
 {
     global $mysqli;
 
     $ticket_id = intval($ticket_id);
+
+    $sql = mysqli_query($mysqli, "SELECT ticket_resolution_sla_met, sla_resolution_minutes FROM tickets LEFT JOIN slas ON ticket_sla_id = sla_id WHERE ticket_id = $ticket_id LIMIT 1");
+    if ($sql && mysqli_num_rows($sql)) {
+        $row = mysqli_fetch_assoc($sql);
+        $resolution_minutes = intval($row['sla_resolution_minutes']);
+        $was_missed = !is_null($row['ticket_resolution_sla_met']) && intval($row['ticket_resolution_sla_met']) === 0;
+
+        if ($was_missed && $resolution_minutes > 0 && getTicketSlaConsumedMinutes($ticket_id) >= $resolution_minutes) {
+            // Budget gone: keep the miss and the breach stage (so the cron does
+            // not re-alert), just restart the clock for the time-spent record
+            syncTicketSlaClock($ticket_id);
+            return;
+        }
+    }
 
     mysqli_query($mysqli, "UPDATE tickets SET ticket_resolution_sla_met = NULL, ticket_resolution_sla_alert_stage = 0 WHERE ticket_id = $ticket_id");
 
