@@ -262,6 +262,23 @@ if (isset($_GET['asset_id'])) {
 
         $linked_services = array();
 
+        // Notes - 1 to many relationship
+        $sql_related_notes = mysqli_query($mysqli, "SELECT * FROM asset_notes
+            LEFT JOIN users ON asset_note_created_by = user_id
+            WHERE asset_note_asset_id = $asset_id
+            AND asset_note_archived_at IS NULL
+            ORDER BY asset_note_created_at DESC"
+        );
+        $note_count = mysqli_num_rows($sql_related_notes);
+
+        // Note type icons, read from the categories list so the seeded icons
+        // stay the single source of truth
+        $note_type_icons = array();
+        $sql_note_type_icons = mysqli_query($mysqli, "SELECT category_name, category_icon FROM categories WHERE category_type = 'asset_note_type'");
+        while ($row = mysqli_fetch_assoc($sql_note_type_icons)) {
+            $note_type_icons[escapeHtml($row['category_name'])] = escapeHtml($row['category_icon']);
+        }
+
         ?>
 
         <div class="row">
@@ -415,6 +432,11 @@ if (isset($_GET['asset_id'])) {
                             <div class="dropdown-divider"></div>
                             <a class="dropdown-item text-dark ajax-modal" href="#" data-modal-url="modals/file/file_upload.php?<?= $client_url ?>&asset_id=<?= $asset_id ?>">
                                 <i class="fa fa-fw fa-upload mr-2"></i>Upload file(s)
+                            </a>
+                            <div class="dropdown-divider"></div>
+                            <a class="dropdown-item text-dark ajax-modal" href="#"
+                                data-modal-url="modals/asset/asset_note_add.php?id=<?= $asset_id ?>">
+                                <i class="fas fa-fw fa-sticky-note mr-2"></i>New Note
                             </a>
                         </div>
                     </div>
@@ -1198,6 +1220,80 @@ if (isset($_GET['asset_id'])) {
                                         <td><?= $service_importance; ?></td>
                                         <td class="text-center">
                                             <a href="post.php?unlink_service_from_asset&asset_id=<?= $asset_id; ?>&service_id=<?= $service_id; ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>" class="btn btn-secondary btn-sm" title="Unlink"><i class="fas fa-fw fa-unlink"></i></a>
+                                        </td>
+                                    </tr>
+
+                                    <?php
+
+                                }
+
+                                ?>
+
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card card-dark <?php if ($note_count == 0) { echo "d-none"; } ?>">
+                    <div class="card-header py-2">
+                        <h3 class="card-title mt-2"><i class="fa fa-fw fa-sticky-note mr-2"></i>Notes</h3>
+                        <div class="card-tools">
+                            <button type="button" class="btn btn-primary ajax-modal"
+                                data-modal-url="modals/asset/asset_note_add.php?id=<?= $asset_id ?>">
+                                <i class="fas fa-plus mr-2"></i>New Note
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive-sm">
+                            <table class="table table-striped table-borderless table-hover dataTables" style="width:100%">
+                                <thead class="text-dark">
+                                <tr>
+                                    <th>Type</th>
+                                    <th>Note</th>
+                                    <th>By</th>
+                                    <th>Created</th>
+                                    <th class="text-center">Action</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <?php
+
+                                while ($row = mysqli_fetch_assoc($sql_related_notes)) {
+                                    $asset_note_id = intval($row['asset_note_id']);
+                                    $asset_note_type = escapeHtml($row['asset_note_type']);
+                                    $asset_note = nl2br(escapeHtml($row['asset_note']));
+                                    $note_by = escapeHtml($row['user_name']);
+                                    $asset_note_created_at = escapeHtml($row['asset_note_created_at']);
+
+                                    // Get the corresponding icon for the note type
+                                    $note_type_icon = !empty($note_type_icons[$asset_note_type]) ? $note_type_icons[$asset_note_type] : 'fa-sticky-note';
+
+                                    ?>
+
+                                    <tr>
+                                        <td><i class="fa fa-fw <?= $note_type_icon ?> mr-2"></i><?= $asset_note_type ?></td>
+                                        <td><?= $asset_note ?></td>
+                                        <td><?= $note_by ?></td>
+                                        <td><?= $asset_note_created_at ?></td>
+                                        <td>
+                                            <div class="dropdown dropleft text-center">
+                                                <button class="btn btn-secondary btn-sm" type="button" data-toggle="dropdown">
+                                                    <i class="fas fa-ellipsis-h"></i>
+                                                </button>
+                                                <div class="dropdown-menu">
+                                                    <a class="dropdown-item text-danger" href="post.php?archive_asset_note=<?= $asset_note_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
+                                                        <i class="fas fa-fw fa-archive mr-2"></i>Archive
+                                                    </a>
+                                                    <?php if (lookupUserPermission("module_support") >= 3) { ?>
+                                                        <div class="dropdown-divider"></div>
+                                                        <a class="dropdown-item text-danger text-bold" href="post.php?delete_asset_note=<?= $asset_note_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
+                                                            <i class="fas fa-fw fa-trash mr-2"></i>Delete
+                                                        </a>
+                                                    <?php } ?>
+                                                </div>
+                                            </div>
                                         </td>
                                     </tr>
 

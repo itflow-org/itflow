@@ -113,6 +113,12 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                            } else {
                                echo 'btn-default';
                            } ?>">Contact Note Type</a>
+                        <a href="?category=asset_note_type"
+                           class="btn <?php if ($category == 'asset_note_type') {
+                               echo 'btn-primary';
+                           } else {
+                               echo 'btn-default';
+                           } ?>">Asset Note Type</a>
                         <a href="?<?= $url_query_strings_sort ?>&archived=1"
                             class="btn <?php if (isset($_GET['archived'])) {
                                 echo 'btn-primary';

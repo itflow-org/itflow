@@ -218,6 +218,22 @@ $sql_related_software = mysqli_query(
 
 $software_count = mysqli_num_rows($sql_related_software);
 
+// Related Notes
+$sql_related_notes = mysqli_query($mysqli, "SELECT * FROM asset_notes
+    LEFT JOIN users ON asset_note_created_by = user_id
+    WHERE asset_note_asset_id = $asset_id
+    AND asset_note_archived_at IS NULL
+    ORDER BY asset_note_created_at DESC"
+);
+$note_count = mysqli_num_rows($sql_related_notes);
+
+// Note type icons, read from the categories list
+$note_type_icons = array();
+$sql_note_type_icons = mysqli_query($mysqli, "SELECT category_name, category_icon FROM categories WHERE category_type = 'asset_note_type'");
+while ($row = mysqli_fetch_assoc($sql_note_type_icons)) {
+    $note_type_icons[escapeHtml($row['category_name'])] = escapeHtml($row['category_icon']);
+}
+
 if (isset($_GET['client_id'])) {
     $client_url = "client_id=$client_id&";
 } else {
@@ -291,6 +307,13 @@ ob_start();
         <li class="nav-item">
             <a class="nav-link" data-toggle="pill" href="#pills-asset-files">
                 <i class="fas fa-fw fa-briefcase mr-2"></i>Files (<?= $file_count ?>)</a>
+        </li>
+        <?php } ?>
+        <?php if ($note_count) { ?>
+        <li class="nav-item">
+            <a class="nav-link" data-toggle="pill" href="#pills-asset-notes">
+                <i class="fas fa-fw fa-sticky-note mr-2"></i>Notes (<?= $note_count ?>)
+            </a>
         </li>
         <?php } ?>
     </ul>
@@ -901,6 +924,47 @@ ob_start();
                             <td><?= $file_created_at ?></td>
                         </tr>
 
+                        <?php
+
+                    }
+
+                    ?>
+
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <?php } ?>
+
+        <?php if ($note_count) { ?>
+        <div class="tab-pane fade" id="pills-asset-notes">
+            <div class="table-responsive-sm">
+                <table class="table table-sm table-striped table-borderless table-hover">
+                    <thead class="text-dark">
+                    <tr>
+                        <th>Type</th>
+                        <th>Note</th>
+                        <th>By</th>
+                        <th>Created</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <?php
+
+                    while ($row = mysqli_fetch_assoc($sql_related_notes)) {
+                        $asset_note_type = escapeHtml($row['asset_note_type']);
+                        $asset_note = nl2br(escapeHtml($row['asset_note']));
+                        $note_by = escapeHtml($row['user_name']);
+                        $asset_note_created_at = escapeHtml($row['asset_note_created_at']);
+
+                        $note_type_icon = !empty($note_type_icons[$asset_note_type]) ? $note_type_icons[$asset_note_type] : 'fa-sticky-note';
+                        ?>
+                        <tr>
+                            <td><i class="fa fa-fw <?= $note_type_icon ?> mr-2"></i><?= $asset_note_type ?></td>
+                            <td><?= $asset_note ?></td>
+                            <td><?= $note_by ?></td>
+                            <td><?= $asset_note_created_at ?></td>
+                        </tr>
                         <?php
 
                     }

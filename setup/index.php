@@ -608,6 +608,14 @@ if (isset($_POST['add_company_settings'])) {
     mysqli_query($mysqli, "INSERT INTO categories SET category_name = 'In Person', category_description = 'In person visit or on-site interaction', category_icon = 'fa-people-arrows', category_type = 'contact_note_type', category_order = 4"); // 4
     mysqli_query($mysqli, "INSERT INTO categories SET category_name = 'Note', category_description = 'General note or internal comment', category_icon = 'fa-sticky-note', category_type = 'contact_note_type', category_order = 5"); // 5
 
+    // Asset note types
+    mysqli_query($mysqli, "INSERT INTO categories SET category_name = 'Maintenance', category_description = 'Routine or scheduled maintenance performed on the asset', category_icon = 'fa-tools', category_type = 'asset_note_type', category_order = 1"); // 1
+    mysqli_query($mysqli, "INSERT INTO categories SET category_name = 'Repair', category_description = 'Repair work or hardware replacement', category_icon = 'fa-wrench', category_type = 'asset_note_type', category_order = 2"); // 2
+    mysqli_query($mysqli, "INSERT INTO categories SET category_name = 'Configuration', category_description = 'Configuration or settings change made to the asset', category_icon = 'fa-sliders-h', category_type = 'asset_note_type', category_order = 3"); // 3
+    mysqli_query($mysqli, "INSERT INTO categories SET category_name = 'Upgrade', category_description = 'Hardware or software upgrade', category_icon = 'fa-arrow-circle-up', category_type = 'asset_note_type', category_order = 4"); // 4
+    mysqli_query($mysqli, "INSERT INTO categories SET category_name = 'Inspection', category_description = 'Physical inspection or audit of the asset', category_icon = 'fa-clipboard-check', category_type = 'asset_note_type', category_order = 5"); // 5
+    mysqli_query($mysqli, "INSERT INTO categories SET category_name = 'Note', category_description = 'General note or internal comment', category_icon = 'fa-sticky-note', category_type = 'asset_note_type', category_order = 6"); // 6
+
     // Rack Types
     mysqli_query($mysqli, "INSERT INTO categories SET category_name = '2-Post Open Frame', category_description = 'Two-post open frame rack for patch panels and lightweight equipment', category_type = 'rack_type', category_order = 1"); // 1
     mysqli_query($mysqli, "INSERT INTO categories SET category_name = '4-Post Open Frame', category_description = 'Four-post open frame rack for servers and heavier equipment', category_type = 'rack_type', category_order = 2"); // 2

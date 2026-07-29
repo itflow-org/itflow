@@ -231,6 +231,121 @@ if (isset($_GET['delete_asset'])) {
 
 }
 
+if (isset($_POST['add_asset_note'])) {
+
+    validateCSRFToken();
+
+    enforceUserPermission('module_support', 2);
+
+    $asset_id = intval($_POST['asset_id']);
+    $type = escapeSql($_POST['type']);
+    $note = escapeSql($_POST['note']);
+
+    // Get Asset details for logging and alerting
+    $sql = mysqli_query($mysqli,"SELECT asset_name, asset_client_id FROM assets WHERE asset_id = $asset_id");
+    $row = mysqli_fetch_assoc($sql);
+    $asset_name = escapeSql($row['asset_name']);
+    $client_id = intval($row['asset_client_id']);
+
+    enforceClientAccess();
+
+    mysqli_query($mysqli, "INSERT INTO asset_notes SET asset_note_type = '$type', asset_note = '$note', asset_note_created_by = $session_user_id, asset_note_asset_id = $asset_id");
+
+    $asset_note_id = mysqli_insert_id($mysqli);
+
+    //Logging
+    logAudit("Asset", "Edit", "$session_name created a $type note for asset $asset_name", $client_id, $asset_id);
+
+    $_SESSION['alert_message'] = "Note <strong>$type</strong> created for <strong>$asset_name</strong>";
+
+    redirect();
+
+}
+
+if (isset($_GET['archive_asset_note'])) {
+
+    validateCSRFToken();
+
+    enforceUserPermission('module_support', 2);
+
+    $asset_note_id = intval($_GET['archive_asset_note']);
+
+    // Get Asset Name and Client ID for logging and alert message
+    $sql = mysqli_query($mysqli,"SELECT asset_note_type, asset_id, asset_name, asset_client_id FROM asset_notes LEFT JOIN assets ON asset_id = asset_note_asset_id WHERE asset_note_id = $asset_note_id");
+    $row = mysqli_fetch_assoc($sql);
+    $asset_note_type = escapeSql($row['asset_note_type']);
+    $asset_name = escapeSql($row['asset_name']);
+    $client_id = intval($row['asset_client_id']);
+    $asset_id = intval($row['asset_id']);
+
+    enforceClientAccess();
+
+    mysqli_query($mysqli,"UPDATE asset_notes SET asset_note_archived_at = NOW() WHERE asset_note_id = $asset_note_id");
+
+    logAudit("Asset", "Edit", "$session_name archived note $asset_note_type for $asset_name", $client_id, $asset_id);
+
+    flashAlert("Note <strong>$asset_note_type</strong> archived", 'error');
+
+    redirect();
+
+}
+
+if (isset($_GET['restore_asset_note'])) {
+
+    validateCSRFToken();
+
+    enforceUserPermission('module_support', 2);
+
+    $asset_note_id = intval($_GET['restore_asset_note']);
+
+    // Get Asset Name and Client ID for logging and alert message
+    $sql = mysqli_query($mysqli,"SELECT asset_note_type, asset_id, asset_name, asset_client_id FROM asset_notes LEFT JOIN assets ON asset_id = asset_note_asset_id WHERE asset_note_id = $asset_note_id");
+    $row = mysqli_fetch_assoc($sql);
+    $asset_note_type = escapeSql($row['asset_note_type']);
+    $asset_name = escapeSql($row['asset_name']);
+    $client_id = intval($row['asset_client_id']);
+    $asset_id = intval($row['asset_id']);
+
+    enforceClientAccess();
+
+    mysqli_query($mysqli,"UPDATE asset_notes SET asset_note_archived_at = NULL WHERE asset_note_id = $asset_note_id");
+
+    logAudit("Asset", "Edit", "$session_name restored note $asset_note_type for $asset_name", $client_id, $asset_id);
+
+    flashAlert("Note <strong>$asset_note_type</strong> restored");
+
+    redirect();
+
+}
+
+if (isset($_GET['delete_asset_note'])) {
+
+    validateCSRFToken();
+
+    enforceUserPermission('module_support', 3);
+
+    $asset_note_id = intval($_GET['delete_asset_note']);
+
+    // Get Asset Name and Client ID for logging and alert message
+    $sql = mysqli_query($mysqli,"SELECT asset_note_type, asset_id, asset_name, asset_client_id FROM asset_notes LEFT JOIN assets ON asset_id = asset_note_asset_id WHERE asset_note_id = $asset_note_id");
+    $row = mysqli_fetch_assoc($sql);
+    $asset_note_type = escapeSql($row['asset_note_type']);
+    $asset_name = escapeSql($row['asset_name']);
+    $client_id = intval($row['asset_client_id']);
+    $asset_id = intval($row['asset_id']);
+
+    enforceClientAccess();
+
+    mysqli_query($mysqli,"DELETE FROM asset_notes WHERE asset_note_id = $asset_note_id");
+
+    logAudit("Asset", "Edit", "$session_name deleted $asset_note_type note for $asset_name", $client_id, $asset_id);
+
+    flashAlert("Note <strong>$asset_note_type</strong> deleted.", 'error');
+
+    redirect();
+
+}
+
 if (isset($_POST['bulk_assign_asset_tags'])) {
 
     validateCSRFToken();
