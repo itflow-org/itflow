@@ -2,6 +2,176 @@
 
 This file documents all notable changes made to ITFlow.
 
+# Changelog
+ 
+This file documents all notable changes made to ITFlow.
+ 
+## [26.08]
+ 
+### Breaking Changes and Notes
+ 
+> **Important:** The database update for this release **must** be run from the command line.
+>
+> This release changes the database structure. After the files are updated the application will
+> be **broken until the database update is run** — pages that rely on the new columns will error
+> out, and that includes the admin area, so the in-app updater cannot be relied on to finish the
+> job. Update the files first, then immediately run the database update:
+>
+> ```bash
+> php /path/to/itflow/scripts/update_cli.php --update
+> php /path/to/itflow/scripts/update_cli.php --update_db
+> ```
+>
+> The script must be run by the user that owns the ITFlow files (commonly the web server user).
+> If it refuses to start, it will tell you which user to use:
+>
+> ```bash
+> sudo -u www-data php /path/to/itflow/scripts/update_cli.php --update_db
+> ```
+>
+> A single `--update_db` run now applies **every** pending database version in order, so it no
+> longer needs to be repeated until it comes back clean. It reports each version as it is applied.
+> If a step fails it stops there and leaves the recorded version at the last successful update, so
+> it is safe to correct the problem and run it again.
+>
+> Run `--update_db` after **every** ITFlow update from now on, not just this one — any release may
+> contain database changes.
+>
+> **Back up your database before upgrading.**
+ 
+- **A new cron job is required if you intend to use ticket SLAs.** `cron/ticket_sla.php` moves
+  tickets through their SLA warning and breach stages and sends the notifications. Without it,
+  SLA targets are still calculated and displayed but warnings and breaches will never fire. Add
+  it alongside the existing every-minute jobs:
+```
+  * * * * * php /path/to/itflow/cron/ticket_sla.php
+```
+ 
+  If you do not use SLAs the job is a no-op and can be skipped.
+- **All existing API keys are deleted by this update and must be recreated.** API keys are now
+  owned by a user and inherit that user's role, module, and client permissions rather than
+  carrying their own client scope. Existing keys predate this and cannot be safely mapped to a
+  user, so they are removed during the database update. Any integration or script authenticating
+  against the ITFlow API will stop working until a new key is issued to an appropriate user.
+- API credential decrypt passwords are now read from the request body instead of the query string.
+  Any caller passing that value in the URL must be updated.
+- Client access permissions now support **deny** rules in addition to allow. This requires the
+  database update before the permissions UI will load.
+- Business hours are new in this release and default to Monday–Friday, 09:00–17:00 in your
+  configured timezone. SLA response and resolution targets are measured against them, so set them
+  under Settings before assigning SLAs.
+- The `plugins` directory has been renamed to `libs`. Anything referencing `plugins/` directly —
+  custom scripts, reverse proxy rules, or web server config — should be updated.
+- Several pages were renamed to drop the `_details` suffix and to use consistent singular and
+  plural filenames. Bookmarks or external links pointing at the old filenames will 404.
+### Major Changes
+ 
+- **Ticket SLAs (optional).** SLAs define a response target and an optional resolution target,
+  and are assigned per client and priority, with a global default and an explicit "no SLA"
+  override available for any combination. Targets are measured against your configured business
+  days and hours. Tickets show their remaining time and turn yellow at a configurable warning
+  threshold and red on breach, on both the ticket list and the kanban board, and tickets can be
+  filtered by SLA state. Nominated ticket statuses can **pause** the resolution clock — useful for
+  "waiting on customer" — with the remaining budget preserved and the due date recomputed on
+  resume. Two new reports, **SLA Summary** and **SLA by Client**, cover attainment. SLAs are
+  entirely opt-in: with no assignments defined, nothing in the application behaves differently.
+- Added an **Urgent** ticket priority.
+- **Multiple notes per asset**, mirroring the existing contact notes, with categorized note types
+  (Maintenance, Repair, Configuration, Upgrade, Inspection, Note).
+- Added **ticket reply API endpoints** for creating and reading replies.
+- Payments and Revenues have been combined into a single **Income** page, keeping all income in
+  one place, with CSV export. Revenue not tied to an invoice can still be added there; payments
+  continue to be added from invoices. The standalone Payments and Revenues pages have been
+  removed.
+- New **Transactions** page providing a per-account ledger of transfers, revenues, payments, and
+  expenses, with filtering by type, category, client, payment method, amount range, and date, a
+  running balance, summary cards, account balances in the account picker, and CSV export.
+- Added **user-based RBAC for API keys** — keys now run as a user and inherit that user's
+  permissions.
+- Added **deny rules to client access permissions**, so access can now be granted broadly and
+  revoked for specific clients.
+- New **secure file download handler** for files and ticket attachments, with client and contact
+  permission isolation on the client portal.
+- Added a **payments view** to the invoice list — clicking the Paid or Partial status badge opens
+  a read-only breakdown of the payments recorded against that invoice.
+- Database updates have been **split into per-version files** under `admin/database_updates/`.
+  The latest version is derived from the directory listing, and a single run applies all pending
+  updates. Migration history before 2.0.0 has been pruned.
+- `functions.php` has been split into topical files under `functions/`, with `functions.php`
+  acting as the loader. Unused legacy functions were removed.
+- PHP functions were renamed to camelCase throughout for consistency, including
+  `nullable_htmlentities` to `escapeHtml`, `sanitizeInput` to `escapeSql`, `logAction` to
+  `logAudit`, and `key32gen` to `generateTotpSecret`.
+- Stripe gateway fees are now taken from the actual Stripe balance transaction rather than a
+  static percentage and flat fee configured in ITFlow, with a nightly reconciliation pass in cron
+  to backfill fees that were not available at payment time. The static fee fields have been
+  removed from the payment provider settings.
+- The main, client, admin, and reports side navigation menus have all been reorganized.
+- Mail settings tabs are now URL-addressable and stay on the active tab after saving.
+- Added expiring asset warranties and licenses to the dashboard, along with an "Expiring in"
+  filter for assets, licenses, domains, and certificates.
+- Added bulk and single refresh actions for domains and certificates.
+- Removed the legacy vendor contacts feature.
+- `dig` and `whois` binaries are no longer required — domain lookups now use native DNS and RDAP.
+### Security
+ 
+- Rate limited 2FA code attempts and narrowed the TOTP acceptance window.
+- Rotate the session ID on login to prevent session fixation, and fixed client portal Entra SSO.
+- Stopped parallel login attempts from bypassing the login rate limits.
+- Fixed a SQL injection in the recurring invoice frequency handling reached via cron.
+- Admin UI modals are now gated to admins — previously any logged-in user could open them
+  directly and read stored payment provider and AI provider API keys. **If you are updating from
+  an earlier version, rotate those keys**, as there is no record of who may have viewed them.
+- Credential module access is now required to view or share credentials, and password reveals are
+  written to the audit log.
+- Swept module and client permission enforcement across modals and AJAX endpoints to match the
+  POST handlers, closing a number of cases where a user restricted to certain clients could read
+  another client's records by ID.
+- The product CSV export now requires sales module read access.
+- Neutralized CSV formula injection in generated exports.
+- Fixed weak random number generation in TOTP secret generation.
+- Shared item views are now claimed atomically so the view limit cannot be exceeded by
+  simultaneous requests, and guest audit IPs are logged.
+- Hardened CSRF handling and session cookies, and set `SameSite=Lax` on the session cookie.
+- Hardened file upload handling to use random storage names.
+- Prevented client portal contacts from editing their own contact record.
+- Empty directories under `uploads` are no longer indexable.
+### Fixed
+ 
+- Deleting a payment now correctly recalculates and sets the invoice status.
+- Fixed contact notes, and several broken modal links in contacts, assets, and file linking.
+- Fixed adding saved payment methods and cards on the client portal following a Stripe API change.
+- Fixed sending invoices and quotes over OAUTH2, which was reading the SMTP host instead of the
+  SMTP provider.
+- Mail parser: correctly determine whether the ITFlow folder belongs under the `INBOX` namespace
+  or the root directory, fixing folder creation on cPanel Dovecot Maildir++ configurations.
+- Fixed possible duplicate emails caused by a race condition in the mail queue.
+- Added a shared lock guard across all five cron entry points, scoped per script and per install,
+  replacing the mail queue's non-atomic lock file. Rows left in a sending state by a run that died
+  are now recovered.
+- Prevented duplicate Stripe payment bookings and overlapping cron runs.
+- Mail bodies are cleared after successful delivery.
+- Fixed client name truncation in the side navigation being applied after escaping.
+- Side navigation counts are now only shown to users with permission to see them.
+- Invoice statistics now only reflect clients the user has permission to see.
+- The agent category handler no longer drops the category description.
+- Allowed negative amounts when adding an expense, and the current date is now prefilled.
+- Certificates can now be searched by description.
+- Fixed cents calculation rounding.
+- Fixed guest view credential TOTP display, and removed the legacy OTP code path.
+### Developer Updates
+ 
+- Line endings normalized to LF across the codebase, with `.gitattributes` and `.editorconfig`
+  added. Vendored code under `libs/` is marked so it stays byte-identical to upstream.
+- Converted to the short echo tag `<?=` throughout.
+- `CONTRIBUTING.md` added and expanded, covering the security rules, style conventions, database
+  column prefix convention, and migration pairing.
+### Library Updates
+ 
+- Bump ImapEngine from 1.25.0 to 1.25.3.
+- Bump TinyMCE from 8.6.0 to 8.7.0.
+
+
 ## [26.07.1]
 
 ### Bug fixes
