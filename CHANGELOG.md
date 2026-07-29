@@ -2,10 +2,6 @@
 
 This file documents all notable changes made to ITFlow.
 
-# Changelog
- 
-This file documents all notable changes made to ITFlow.
- 
 ## [26.08]
  
 ### Breaking Changes and Notes
@@ -78,6 +74,10 @@ This file documents all notable changes made to ITFlow.
 - Added an **Urgent** ticket priority.
 - **Multiple notes per asset**, mirroring the existing contact notes, with categorized note types
   (Maintenance, Repair, Configuration, Upgrade, Inspection, Note).
+- **Ticket templates on recurring tickets.** A recurring ticket can now be assigned a ticket
+  template. Picking one fills in the subject and details, and the template's task list is stamped
+  onto every ticket the schedule raises - from the nightly cron run and from a forced run alike.
+  Clearing the template leaves the recurring ticket's own subject and details untouched.
 - Added **ticket reply API endpoints** for creating and reading replies.
 - Payments and Revenues have been combined into a single **Income** page, keeping all income in
   one place, with CSV export. Revenue not tied to an invoice can still be added there; payments
@@ -159,6 +159,12 @@ This file documents all notable changes made to ITFlow.
 - Certificates can now be searched by description.
 - Fixed cents calculation rounding.
 - Fixed guest view credential TOTP display, and removed the legacy OTP code path.
+- Bulk-creating tickets from a template against multiple assets only added the template's tasks to
+  the first ticket, and dropped each task's completion estimate.
+- Tickets raised by the nightly recurring schedule were created without a guest URL key, so the
+  "View ticket" link in reply and task-approval emails for those tickets could not be opened.
+  Cron now generates a key like every other path that raises a ticket, and existing tickets
+  missing one are backfilled by the database update.
 ### Developer Updates
  
 - Line endings normalized to LF across the codebase, with `.gitattributes` and `.editorconfig`
