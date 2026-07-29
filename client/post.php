@@ -142,42 +142,8 @@ if (isset($_POST['add_ticket_comment'])) {
 
         }
 
-        // Store any attached any files
-        if (!empty($_FILES)) {
-
-            // Define & create directories, as required
-            mkdirMissing('../uploads/tickets/');
-            $upload_file_dir = "../uploads/tickets/" . $ticket_id . "/";
-            mkdirMissing($upload_file_dir);
-
-            for ($i = 0; $i < count($_FILES['file']['name']); $i++) {
-                // Extract file details for this iteration
-                $single_file = [
-                    'name' => $_FILES['file']['name'][$i],
-                    'type' => $_FILES['file']['type'][$i],
-                    'tmp_name' => $_FILES['file']['tmp_name'][$i],
-                    'error' => $_FILES['file']['error'][$i],
-                    'size' => $_FILES['file']['size'][$i]
-                ];
-
-                if ($ticket_attachment_ref_name = checkFileUpload($single_file, array('jpg', 'jpeg', 'gif', 'png', 'webp', 'pdf', 'txt', 'md', 'doc', 'docx', 'odt', 'csv', 'xls', 'xlsx', 'ods', 'pptx', 'odp', 'zip', 'tar', 'gz', 'xml', 'msg', 'json', 'wav', 'mp3', 'ogg', 'mov', 'mp4', 'av1', 'ovpn'))) {
-
-                    $file_tmp_path = $_FILES['file']['tmp_name'][$i];
-
-                    $file_name = escapeSql($_FILES['file']['name'][$i]);
-                    $extarr = explode('.', $_FILES['file']['name'][$i]);
-                    $file_extension = escapeSql(strtolower(end($extarr)));
-
-                    // Define destination file path
-                    $dest_path = $upload_file_dir . $ticket_attachment_ref_name;
-
-                    move_uploaded_file($file_tmp_path, $dest_path);
-
-                    mysqli_query($mysqli, "INSERT INTO ticket_attachments SET ticket_attachment_name = '$file_name', ticket_attachment_reference_name = '$ticket_attachment_ref_name', ticket_attachment_reply_id = $ticket_reply_id, ticket_attachment_ticket_id = $ticket_id");
-                }
-
-            }
-        }
+        // Store any attached files against this reply
+        saveTicketAttachments($ticket_id, $ticket_reply_id, 'file');
 
         // Custom action/notif handler
         triggerCustomAction('ticket_reply_client', $ticket_id);

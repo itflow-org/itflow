@@ -166,3 +166,86 @@ function cleanupUnusedImages(string $html, string $folderFsPath, string $folderW
         }
     }
 }
+
+/*
+ * Ticket attachment uploads
+ *
+ * Shared by the agent ticket page, the new ticket modal and the client portal
+ * reply form, so the allowed extension list has one definition rather than one
+ * per caller.
+ *
+ * Files land in uploads/tickets/<ticket id>/ under an unguessable reference name
+ * and are only ever served back through the ticket_attachment.php endpoints,
+ * which re-check permissions and force a safe Content-Type.
+ *
+ * Pass $reply_id to attach to a specific reply, or null to attach to the ticket
+ * itself - the ticket page reads reply_id IS NULL as "belongs to the ticket".
+ *
+ * Returns the number of files stored. Anything the extension allow-list or
+ * checkFileUpload() rejects is skipped silently, as it always has been.
+ */
+function saveTicketAttachments($ticket_id, $reply_id = null, $field_name = 'attachments') {
+
+    global $mysqli;
+
+    $ticket_id = intval($ticket_id);
+
+    if (!$ticket_id || empty($_FILES[$field_name]) || !isset($_FILES[$field_name]['name'])) {
+        return 0;
+    }
+
+    $allowed_extensions = array(
+        'jpg', 'jpeg', 'gif', 'png', 'webp', 'pdf', 'txt', 'md', 'doc', 'docx',
+        'odt', 'csv', 'xls', 'xlsx', 'ods', 'pptx', 'odp', 'zip', 'tar', 'gz',
+        'xml', 'msg', 'json', 'wav', 'mp3', 'ogg', 'mov', 'mp4', 'av1', 'ovpn'
+    );
+
+    // A single-file input posts scalars, a multiple one posts arrays - normalize
+    $names = $_FILES[$field_name]['name'];
+    if (!is_array($names)) {
+        return 0;
+    }
+
+    mkdirMissing('../uploads/tickets/');
+    $upload_file_dir = "../uploads/tickets/" . $ticket_id . "/";
+    mkdirMissing($upload_file_dir);
+
+    if ($reply_id === null) {
+        $reply_id_sql = 'NULL';
+    } else {
+        $reply_id_sql = intval($reply_id);
+    }
+
+    $files_stored = 0;
+
+    for ($i = 0; $i < count($names); $i++) {
+
+        $single_file = [
+            'name' => $_FILES[$field_name]['name'][$i],
+            'type' => $_FILES[$field_name]['type'][$i],
+            'tmp_name' => $_FILES[$field_name]['tmp_name'][$i],
+            'error' => $_FILES[$field_name]['error'][$i],
+            'size' => $_FILES[$field_name]['size'][$i]
+        ];
+
+        $attachment_reference_name = checkFileUpload($single_file, $allowed_extensions);
+
+        if (!$attachment_reference_name) {
+            continue;
+        }
+
+        $destination_path = $upload_file_dir . $attachment_reference_name;
+
+        if (!move_uploaded_file($single_file['tmp_name'], $destination_path)) {
+            continue;
+        }
+
+        $attachment_name = escapeSql($single_file['name']);
+
+        mysqli_query($mysqli, "INSERT INTO ticket_attachments SET ticket_attachment_name = '$attachment_name', ticket_attachment_reference_name = '$attachment_reference_name', ticket_attachment_reply_id = $reply_id_sql, ticket_attachment_ticket_id = $ticket_id");
+
+        $files_stored++;
+    }
+
+    return $files_stored;
+}

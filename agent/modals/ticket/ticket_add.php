@@ -20,7 +20,7 @@ ob_start();
         <span>&times;</span>
     </button>
 </div>
-<form action="post.php" method="post" autocomplete="off">
+<form action="post.php" method="post" enctype="multipart/form-data" autocomplete="off">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
     <!-- Hidden/System fields -->
     <?php if ($client_id) { ?>
@@ -202,6 +202,11 @@ ob_start();
                     </div>
                 </div>
                 <?php } ?>
+
+                <div class="form-group">
+                    <label><i class="fa fa-fw fa-paperclip mr-1"></i>Attachments</label>
+                    <input type="file" class="form-control-file" name="attachments[]" multiple accept=".jpg, .jpeg, .gif, .png, .webp, .pdf, .txt, .md, .doc, .docx, .odt, .csv, .xls, .xlsx, .ods, .pptx, .odp, .zip, .tar, .gz, .xml, .msg, .json, .wav, .mp3, .ogg, .mov, .mp4, .av1, .ovpn">
+                </div>
 
             </div>
 

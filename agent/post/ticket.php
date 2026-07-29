@@ -89,6 +89,9 @@ if (isset($_POST['add_ticket'])) {
         addTasksFromTicketTemplate($ticket_id, $ticket_template_id);
     }
 
+    // Store any attached files against the ticket itself
+    saveTicketAttachments($ticket_id, null);
+
     // Add Watchers
     if (isset($_POST['watchers'])) {
         foreach ($_POST['watchers'] as $watcher) {
@@ -1957,7 +1960,57 @@ if (isset($_POST['add_ticket_reply'])) {
         flashAlert("Ticket updated");
     }
 
+    // Store any attached files. They hang off the reply when there is one, and off
+    // the ticket itself when a file was uploaded without any accompanying text.
+    saveTicketAttachments($ticket_id, $ticket_reply_id ?: null);
+
     logAudit("Ticket", "Reply", "$session_name replied to ticket $ticket_prefix$ticket_number - $ticket_subject and was a $ticket_reply_type reply", $client_id, $ticket_id);
+
+    redirect();
+
+}
+
+if (isset($_GET['delete_ticket_attachment'])) {
+
+    validateCSRFToken();
+
+    enforceUserPermission('module_support', 3);
+
+    $attachment_id = intval($_GET['delete_ticket_attachment']);
+
+    $sql = mysqli_query($mysqli, "SELECT ticket_attachment_name, ticket_attachment_reference_name, ticket_attachment_ticket_id FROM ticket_attachments WHERE ticket_attachment_id = $attachment_id LIMIT 1");
+
+    if (mysqli_num_rows($sql) !== 1) {
+        flashAlert("Attachment not found", 'error');
+        redirect();
+    }
+
+    $row = mysqli_fetch_assoc($sql);
+    $attachment_name = escapeSql($row['ticket_attachment_name']);
+    $attachment_reference_name = $row['ticket_attachment_reference_name'];
+    $ticket_id = intval($row['ticket_attachment_ticket_id']);
+
+    $client_id = intval(getFieldById('tickets', $ticket_id, 'ticket_client_id'));
+
+    // Don't Enforce Client Access if Ticket doesn't have an assigned client
+    if ($client_id) {
+        enforceClientAccess();
+    }
+
+    // Resolve the path and confirm it is still inside uploads before unlinking,
+    // the same guard the download endpoint applies
+    $uploads_base = realpath(__DIR__ . "/../../uploads");
+    $file_path = realpath(__DIR__ . "/../../uploads/tickets/$ticket_id/$attachment_reference_name");
+
+    if ($file_path !== false && $uploads_base !== false && strpos($file_path, $uploads_base) === 0) {
+        unlink($file_path);
+    }
+
+    mysqli_query($mysqli, "DELETE FROM ticket_attachments WHERE ticket_attachment_id = $attachment_id");
+
+    logAudit("Ticket", "Delete", "$session_name deleted ticket attachment $attachment_name", $client_id, $ticket_id);
+
+    flashAlert("Attachment <strong>$attachment_name</strong> deleted", 'error');
 
     redirect();
 

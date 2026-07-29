@@ -596,7 +596,7 @@ if (isset($_GET['ticket_id'])) {
                             <tr>
                                 <td><i class='fas fa-fw fa-paperclip text-secondary mr-1'></i><?= $name ?></td>
                                 <td>
-                                    <a target='_blank' class='mr-1 ml-1' href='ticket_attachment.php?attachment_id=<?= $ticket_attachment_id; ?>&action=view'>[View]</a><a href='ticket_attachment.php?attachment_id=<?= $ticket_attachment_id; ?>'>[Download]</a>
+                                    <a target='_blank' class='mr-1 ml-1' href='ticket_attachment.php?attachment_id=<?= $ticket_attachment_id; ?>&action=view'>[View]</a><a href='ticket_attachment.php?attachment_id=<?= $ticket_attachment_id; ?>'>[Download]</a><?php if (lookupUserPermission("module_support") >= 3) { ?><a class='confirm-link ml-1 text-danger' href='post.php?delete_ticket_attachment=<?= $ticket_attachment_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>'>[Delete]</a><?php } ?>
                                 </td>
                             </tr>
                             
@@ -611,7 +611,7 @@ if (isset($_GET['ticket_id'])) {
                 <!-- Only show ticket reply modal if status is not closed -->
                 <?php if (lookupUserPermission("module_support") >= 2 && empty($ticket_resolved_at) && empty($ticket_closed_at)) { ?>
 
-                        <form action="post.php" method="post" autocomplete="off">
+                        <form action="post.php" method="post" enctype="multipart/form-data" autocomplete="off">
                             <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
                             <input type="hidden" name="ticket_id" id="ticket_id" value="<?= $ticket_id ?>">
 
@@ -640,6 +640,12 @@ if (isset($_GET['ticket_id'])) {
                                     class="form-control tinymceTicket" name="ticket_reply"
                                     placeholder="Type a response">
                                 </textarea>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="text-muted small mb-1"><i class="fa fa-fw fa-paperclip mr-1"></i>Attachments</label>
+                                <input type="file" class="form-control-file" name="attachments[]" multiple accept=".jpg, .jpeg, .gif, .png, .webp, .pdf, .txt, .md, .doc, .docx, .odt, .csv, .xls, .xlsx, .ods, .pptx, .odp, .zip, .tar, .gz, .xml, .msg, .json, .wav, .mp3, .ogg, .mov, .mp4, .av1, .ovpn">
+                                <small class="form-text text-muted">Stored against this reply, or against the ticket itself if you submit without any text. Attachments are not included in the emailed copy of a public reply.</small>
                             </div>
 
                             <div class="form-row">
@@ -830,7 +836,7 @@ if (isset($_GET['ticket_id'])) {
                                 <tr>
                                     <td><i class='fas fa-fw fa-paperclip text-secondary mr-1'></i><?= $name ?></td>
                                     <td>
-                                        <a target='_blank' class='mr-1 ml-1' href='ticket_attachment.php?attachment_id=<?= $ticket_attachment_id; ?>&action=view'>[View]</a><a href='ticket_attachment.php?attachment_id=<?= $ticket_attachment_id; ?>'>[Download]</a>
+                                        <a target='_blank' class='mr-1 ml-1' href='ticket_attachment.php?attachment_id=<?= $ticket_attachment_id; ?>&action=view'>[View]</a><a href='ticket_attachment.php?attachment_id=<?= $ticket_attachment_id; ?>'>[Download]</a><?php if (lookupUserPermission("module_support") >= 3) { ?><a class='confirm-link ml-1 text-danger' href='post.php?delete_ticket_attachment=<?= $ticket_attachment_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>'>[Delete]</a><?php } ?>
                                     </td>
                                 </tr>
                                 
