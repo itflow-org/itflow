@@ -6,279 +6,126 @@ This file documents all notable changes made to ITFlow.
  
 ### Upgrading to 26.08
  
-> **Read this before updating — done out of order, this update can break your entire instance.**
-> The database structure changes, every existing API key is deleted, and the whole cron setup is
-> replaced. Follow the steps below in order.
-
-1. **Back everything up.** Take a full VM backup or snapshot, and dump the database as well:
+> **Read this before you start.** Done out of order this update will break your instance. The database structure changes, every API key is deleted, and the whole cron setup is replaced.
+ 
+1. **Back everything up.** Snapshot the VM and dump the database:
 ```bash
 mysqldump itflow > itflow-pre-26.08.sql
 ```
-
-2. **Delete every ITFlow entry from your crontab** (or remove `/etc/cron.d/itflow`). The old
-   per-minute jobs must not keep firing against a half-updated install. The new entry is added
-   back in step 5.
-
-3. **Update the files** through the web updater as usual (or from the shell:
-   `php /path/to/itflow/scripts/update_cli.php --update`).
-
-4. **You will get an error 500 — this is expected.** The updated code needs the updated database,
-   and the database update no longer runs through the web interface. Go to the shell and run it
-   as the user that owns the ITFlow files (the script tells you which user if you get it wrong):
+ 
+2. **Remove every ITFlow line from your crontab** (or delete `/etc/cron.d/itflow`). The old per-minute jobs must not keep firing against a half-updated install. You put the new one in at step 5.
+3. **Update the files** from Settings > Update as usual, or from the shell with `php /path/to/itflow/scripts/update_cli.php --update`.
+4. **You will get a 500 error. That is expected.** The new code needs the new database, and just this once the database update has to be run from the command line. Run it as the user that owns the ITFlow files — the script tells you which user if you get it wrong:
 ```bash
 sudo -u www-data php /path/to/itflow/scripts/update_cli.php --update_db
 ```
-   It applies every pending database version in order and reports each one. On installs with a
-   lot of ticket history it can take a minute or more — let it finish. If a step fails it stops
-   there without advancing the recorded version, so it is safe to fix the problem and run it
-   again. The 500s stop as soon as it completes.
-
-5. **Create the new single cron entry.** One line now runs everything, and schedules are managed
-   in ITFlow under Settings > Cron from here on:
+It applies every pending version in order and reports each one as it goes. On an install with a lot of ticket history it can take a minute or more, so let it finish. If a step fails it stops there without advancing the recorded version, so you can fix the problem and run it again. The 500s stop as soon as it completes.
+ 
+5. **Add the new cron entry.** One line runs everything now, and the schedules are managed in ITFlow under Settings > Cron:
 ```
 * * * * * www-data php /path/to/itflow/cron/cron.php >/dev/null
 ```
-   Drop the `www-data` column if this goes in a user crontab instead of `/etc/cron.d`.
-
-6. **Recreate your API keys.** Every existing key is deleted by this update (see the note below).
-   Issue new keys and update every integration and script that talks to the ITFlow API.
-
-7. **Verify.** Sign in and open Settings > Cron — the green "Cron last checked in" banner should
-   appear within a couple of minutes, and every job should show a schedule and start picking up
-   runs.
-
-From this release on, run `--update_db` after **every** ITFlow update, not just this one — any
-release may contain database changes.
+Drop the `www-data` column if this goes in a user crontab rather than `/etc/cron.d`.
+ 
+6. **Recreate your API keys.** Every existing key is deleted by this update. Issue new ones and update anything that talks to the ITFlow API.
+7. **Check it took.** Open Settings > Cron — the green "Cron last checked in" banner should appear within a couple of minutes and every job should pick up a schedule.
+Only this release needs the command line for the database update. Normal updates go back to running from Settings > Update as usual.
  
 ### Breaking Changes and Notes
  
-- **The crontab collapses to a single entry.** `cron/cron.php` is now a dispatcher: it runs every
-  minute and decides which of the scripts in `cron/` are due. Everything the old `cron.php` did
-  nightly has moved to `cron/nightly_tasks.php`, which the dispatcher runs at 03:00. Replace every
-  ITFlow line in your crontab with this one:
-```
-  * * * * * php /path/to/itflow/cron/cron.php >/dev/null
-```
-
-  An existing crontab keeps working as it is — the per-minute scripts still run and still lock
-  correctly, and `cron.php` still runs the nightly work at whatever time you call it — but jobs
-  added in this and future releases only run if the dispatcher is scheduled.
-- **Ticket SLAs need no cron entry of their own.** `cron/ticket_sla.php` moves tickets through
-  their SLA warning and breach stages and sends the notifications. It is in the dispatcher's job
-  list and runs every minute once the entry above is in place. Without it, SLA targets are still
-  calculated and displayed but warnings and breaches will never fire. If you do not use SLAs the
-  job is a no-op.
-- **All existing API keys are deleted by this update and must be recreated.** API keys are now
-  owned by a user and inherit that user's role, module, and client permissions rather than
-  carrying their own client scope. Existing keys predate this and cannot be safely mapped to a
-  user, so they are removed during the database update. Any integration or script authenticating
-  against the ITFlow API will stop working until a new key is issued to an appropriate user.
-- API credential decrypt passwords are now read from the request body instead of the query string.
-  Any caller passing that value in the URL must be updated.
-- Client access permissions now support **deny** rules in addition to allow. This requires the
-  database update before the permissions UI will load.
-- Business hours are new in this release and default to Monday–Friday, 09:00–17:00 in your
-  configured timezone. SLA response and resolution targets are measured against them, so set them
-  under Settings before assigning SLAs.
-- The `plugins` directory has been renamed to `libs`. Anything referencing `plugins/` directly —
-  custom scripts, reverse proxy rules, or web server config — should be updated.
-- Several pages were renamed to drop the `_details` suffix and to use consistent singular and
-  plural filenames. Bookmarks or external links pointing at the old filenames will 404.
-### Major Changes
-
-- **One cron entry instead of five, and a page to manage it.** `cron/cron.php` is now a dispatcher
-  that runs every minute and decides which jobs are due, so scheduling lives in ITFlow rather than
-  in the crontab and new jobs arrive with an update instead of an install note. Jobs are tracked in
-  a new `cron_jobs` table, which means a job whose slot was missed runs at the next opportunity
-  rather than waiting a day, and each job is locked for its own run so a slow mailbox or a long
-  nightly run no longer delays anything else. The nightly work itself moved to
-  `cron/nightly_tasks.php`.
-- **Settings > Cron.** A new admin page lists every job with its schedule, when it last ran, how
-  long it took, how it ended, and when it is next due. Each job can be turned off, given a
-  different frequency or time of day, and run on demand — Run Now hands the job to the next
-  dispatch rather than running it in the browser, so it starts within a minute and still runs on
-  the command line. The last error a job hit is kept until it is dismissed, rather than
-  disappearing behind the next success, and the page says plainly when the crontab entry itself is
-  missing — the dispatcher records a heartbeat every minute whether or not any job was due.
-- **The nightly run is safe to repeat.** Late fees and overdue invoice reminders now apply at
-  most once per invoice per day, and a card that declined an autopay charge is not retried
-  until the next day — so a Run Now after the scheduled pass, or a misconfigured schedule, no
-  longer stacks fees or re-emails clients. Nightly Tasks itself only accepts the daily
-  schedule in Settings > Cron.
-
-- **Ticket SLAs (optional).** SLAs define a response target and an optional resolution target,
-  and are assigned per client and priority, with a global default and an explicit "no SLA"
-  override available for any combination. Targets are measured against your configured business
-  days and hours. Tickets show their remaining time and turn yellow at a configurable warning
-  threshold and red on breach, on both the ticket list and the kanban board, and tickets can be
-  filtered by SLA state. Nominated ticket statuses can **pause** the resolution clock — useful for
-  "waiting on customer" — with the remaining budget preserved and the due date recomputed on
-  resume. Two new reports, **SLA Summary** and **SLA by Client**, cover attainment. SLAs are
-  entirely opt-in: with no assignments defined, nothing in the application behaves differently.
-- Added an **Urgent** ticket priority.
-- **Multiple notes per asset**, mirroring the existing contact notes, with categorized note types
-  (Maintenance, Repair, Configuration, Upgrade, Inspection, Note).
-- Fixed the last day of a multi-day all-day event not being drawn on the calendar or published
-  to subscribed feeds. `event_end` holds the last day the event covers, which is what the event
-  modal asks for, but both FullCalendar and iCalendar treat an all-day end as exclusive.
-- Selecting a day in month view creates an all-day event; selecting a time range in a week or
-  day view fills the time fields in and clears All day. Unchecking All day after a month-view
-  click reveals the time fields with the dates left in place, so a timed event can still be
-  created from month view. The end date follows the start date, and the end time defaults to an
-  hour after the start, in both cases leaving a longer span alone if one is already set.
-- **Clicking empty space on the calendar creates an event there.** Clicking a day or a time
-  slot - or dragging across several - opens the New Event modal with the start and end already
-  filled in from the selection, and the All day switch set to match. Dragging out a range in a
-  week or day view carries the length of the selection through, and the automatic
-  end-time-follows-start behaviour no longer overwrites a range that was dragged out or
-  lengthened by hand.
-- Repeating events are now marked on the calendar with a repeat icon and a hover note saying
-  how often they recur, and the edit modal states that saving or deleting affects every
-  occurrence. The delete action on a repeating event reads **Delete series** and now asks for
-  confirmation first &mdash; as does every other `confirm-link` inside an ajax modal, which
-  previously did nothing because the handler was bound only to links present at page load.
-- **Repeating calendar events now work.** The Repeat field on the add and edit event modals
-  was present but disabled, and the stored value was never rendered. It is now selectable
-  (daily, weekly, monthly, yearly) and occurrences are drawn on the calendar. Monthly and
-  yearly series skip dates that do not exist in a given period rather than sliding into the
-  next month, so an event on the 31st appears only in months that have one, and a 29 February
-  event only in leap years. Recurrence is series-wide: editing any occurrence edits the whole
-  series, and individual occurrences cannot yet be moved or cancelled. Subscribed calendar
-  feeds publish the recurrence rule and let the subscribing client expand it.
-- **Calendar events can be marked all day, and the date and time are now separate fields.**
-  Previously `calendar_events` had no all-day column and the calendar inferred it from a start
-  time of midnight, which made a genuine midnight appointment indistinguishable from an all-day
-  event. The add and edit event modals now carry an **All day** switch above four fields - date
-  from, date to, time from, time to - and the two time fields are hidden while All day is on.
-  All day is selected by default on a new event. Existing events are backfilled by the database
-  update using the old rule, so nothing in an existing calendar changes appearance.
-- **Calendars can be published as a read-only subscription feed.** Any calendar can be shared as
-  an iCalendar (ICS) link from its menu on the Calendar page and subscribed to in Google Calendar,
-  Nextcloud, Apple Calendar, Thunderbird, or anything else that accepts a feed URL. The link
-  carries a secret key and requires no login, so it can be added to a phone or handed to a
-  colleague without an ITFlow account. It can be regenerated or revoked at any time, and a shared
-  calendar is marked with an icon in the calendar list. A **busy only** option publishes time
-  blocks without titles, descriptions, or locations. Feeds are read-only: events added or edited
-  in the subscribing client never reach ITFlow. Refresh timing belongs to the client — Google
-  refreshes on its own schedule, often 12-24 hours, and cannot be forced, while Nextcloud defaults
-  to once a week unless `calendarSubscriptionRefreshRate` is lowered, and will refuse a feed URL
-  that resolves to a private IP address.
-- **Ticket templates on recurring tickets.** A recurring ticket can now be assigned a ticket
-  template. Picking one fills in the subject and details, and the template's task list is stamped
-  onto every ticket the schedule raises - from the nightly cron run and from a forced run alike.
-  Clearing the template leaves the recurring ticket's own subject and details untouched. The
-  recurring ticket list shows which schedules carry a template and how many tasks it adds.
-- **Recurring tickets now own their task list.** A linked ticket template fills the list in when
-  it is picked, but the list can then be edited per schedule, and it is those edits the run reads.
-  Existing schedules are backfilled from their template by the database update, so every recurring
-  ticket keeps raising exactly the tasks it raises today.
-- **Agents can attach files to tickets from within the app**, both when raising a ticket and on a
-  reply. Attachments are emailed to the contact through the mail queue. A 10 MB ceiling applies to
-  each message as a whole; anything that does not fit stays on the ticket for the recipient to
-  download instead.
-- Tasks can now be added and edited inline in the add-ticket and add-recurring-ticket modals.
-- The older add-ticket modal has been retired — there is now a single add-ticket modal.
-- Watchers have moved into the assignment section of the add-ticket modal.
-- Added **ticket reply API endpoints** for creating and reading replies.
-- Payments and Revenues have been combined into a single **Income** page, keeping all income in
-  one place, with CSV export. Revenue not tied to an invoice can still be added there; payments
-  continue to be added from invoices. The standalone Payments and Revenues pages have been
-  removed.
-- New **Transactions** page providing a per-account ledger of transfers, revenues, payments, and
-  expenses, with filtering by type, category, client, payment method, amount range, and date, a
-  running balance, summary cards, account balances in the account picker, and CSV export.
-- Added **user-based RBAC for API keys** — keys now run as a user and inherit that user's
-  permissions.
-- Added **deny rules to client access permissions**, so access can now be granted broadly and
-  revoked for specific clients.
-- New **secure file download handler** for files and ticket attachments, with client and contact
-  permission isolation on the client portal.
-- Added a **payments view** to the invoice list — clicking the Paid or Partial status badge opens
-  a read-only breakdown of the payments recorded against that invoice.
-- Database updates have been **split into per-version files** under `admin/database_updates/`.
-  The latest version is derived from the directory listing, and a single run applies all pending
-  updates. Migration history before 2.0.0 has been pruned.
-- `functions.php` has been split into topical files under `functions/`, with `functions.php`
-  acting as the loader. Unused legacy functions were removed.
-- PHP functions were renamed to camelCase throughout for consistency, including
-  `nullable_htmlentities` to `escapeHtml`, `sanitizeInput` to `escapeSql`, `logAction` to
-  `logAudit`, and `key32gen` to `generateTotpSecret`.
-- Stripe gateway fees are now taken from the actual Stripe balance transaction rather than a
-  static percentage and flat fee configured in ITFlow, with a nightly reconciliation pass in cron
-  to backfill fees that were not available at payment time. The static fee fields have been
-  removed from the payment provider settings.
-- The main, client, admin, and reports side navigation menus have all been reorganized.
-- Mail settings tabs are now URL-addressable and stay on the active tab after saving.
-- Added expiring asset warranties and licenses to the dashboard, along with an "Expiring in"
-  filter for assets, licenses, domains, and certificates.
+- Cron: the crontab collapses to a single entry. `cron/cron.php` is now a dispatcher that runs every minute and works out which jobs in `cron/` are due, and the old nightly work has moved to `cron/nightly_tasks.php` which it runs at 03:00.
+- Cron: an existing crontab keeps working — the per-minute scripts still run and still lock correctly, and a single daily `cron.php` entry still runs the daily jobs — but any job added in this or a future release only runs once the dispatcher is scheduled.
+- Cron: ticket SLAs need no entry of their own. `cron/ticket_sla.php` is in the dispatcher's job list and runs every minute once the new entry is in place. Without it SLA targets are still worked out and displayed, but warnings and breaches never fire.
+- API: every existing key is deleted by this update and must be recreated. Keys are now owned by a user and inherit that user's role, module and client permissions instead of carrying their own client scope, and existing keys cannot be safely mapped to a user.
+- API: credential decrypt passwords are now read from the request body instead of the query string. Any caller passing that value in the URL needs updating.
+- Client access permissions now support deny rules as well as allow, and the permissions UI will not load until the database update has run.
+- Business hours are new and default to Monday to Friday, 09:00 to 17:00 in your configured timezone. SLA targets are measured against them, so set them before assigning SLAs.
+- The `plugins` directory is now `libs`. Anything pointing at `plugins/` directly — custom scripts, reverse proxy rules, web server config — needs updating.
+- Several pages dropped the `_details` suffix and moved to consistent singular and plural filenames, so old bookmarks and external links will 404.
+### New Features & Updates
+ 
+- Cron: one entry instead of five, and a page to manage it. Jobs are tracked in a new `cron_jobs` table, so a job whose slot was missed runs at the next opportunity rather than waiting a day, and each job locks for its own run so a slow mailbox or a long nightly pass no longer holds anything else up.
+- Cron: new Settings > Cron page listing every job with its schedule, last run, duration, outcome and next due time. Jobs can be disabled, rescheduled, or run on demand — Run Now hands the job to the next dispatch so it starts within a minute and still runs on the command line. The last error is kept until dismissed rather than vanishing behind the next success, and the page says plainly when the crontab entry itself is missing.
+- Cron: the nightly run is safe to repeat. Late fees, overdue invoice reminders and autopay retries now apply at most once per invoice per day, so a Run Now after the scheduled pass no longer stacks fees or re-emails clients. Nightly Tasks only accepts the daily schedule.
+- Ticket SLAs, optional throughout. An SLA sets a response target and an optional resolution target, assigned per client and priority with a global default and an explicit "no SLA" override. Targets are measured against your business hours. Tickets show time remaining and turn yellow at a configurable warning threshold and red on breach, on both the ticket list and the kanban board, and can be filtered by SLA state. Nominated statuses pause the resolution clock for "waiting on customer", preserving the remaining budget. Two new reports, SLA Summary and SLA by Client. With no assignments defined nothing behaves any differently.
+- Ticket: added an Urgent priority.
+- Ticket: agents can attach files to tickets from inside the app, both when raising a ticket and on a reply, and attachments are emailed to the contact through the mail queue. A 10 MB ceiling applies per message; anything that does not fit stays on the ticket to download.
+- Ticket: tasks can be added and edited inline in the add ticket and add recurring ticket modals.
+- Ticket: the older add ticket modal has been retired, there is one add ticket modal now.
+- Ticket: watchers and attachments have moved into the assignment section of the add ticket modal.
+- Ticket: recurring tickets can be assigned a ticket template. Picking one fills in the subject and details and stamps the template's task list onto every ticket the schedule raises, from the nightly run and a forced run alike. The recurring ticket list shows which schedules carry a template and how many tasks it adds.
+- Ticket: recurring tickets now own their task list. The template fills it in when picked but it can then be edited per schedule, and it is those edits the run reads. Existing schedules are backfilled from their template by the database update.
+- API: added ticket reply endpoints for creating and reading replies.
+- Calendar: calendars can be published as a read-only iCalendar (ICS) subscription feed and read by Google Calendar, Nextcloud, Apple Calendar, Thunderbird or anything else that takes a feed URL. The link carries a secret key and needs no login, can be regenerated or revoked at any time, and a busy only option publishes time blocks without titles, descriptions or locations. Refresh timing belongs to the subscribing client — Google refreshes on its own schedule and cannot be forced, and Nextcloud defaults to weekly and refuses feed URLs resolving to private IPs.
+- Calendar: events can be marked all day, and the date and time are now separate fields. Previously all day was inferred from a midnight start, which made a genuine midnight appointment indistinguishable from an all-day event. Existing events are backfilled by the database update using the old rule, so nothing changes appearance.
+- Calendar: repeating events now work. The Repeat field was present but disabled and the stored value was never drawn. It is now selectable daily, weekly, monthly or yearly, and monthly and yearly series skip dates that do not exist in a period rather than sliding into the next month. Recurrence is series-wide — editing any occurrence edits the whole series, and individual occurrences cannot yet be moved or cancelled. Repeating events are marked with an icon and a hover note, and the delete action reads Delete series and asks for confirmation.
+- Calendar: clicking empty space creates an event there. Clicking a day or a time slot, or dragging across several, opens the New Event modal with the start and end already filled in and the All day switch set to match. A range dragged out or lengthened by hand is no longer overwritten by the end-time-follows-start behaviour.
+- Exports: every export modal now has a Filter tab and a Selectable Columns tab with sensible defaults, and can export to PDF as well as CSV.
+- Combined Payments and Revenues into a single Income page with CSV export. Revenue not tied to an invoice is still added there and payments are still added from invoices. The standalone Payments and Revenues pages are gone.
+- New Transactions page — a per-account ledger of transfers, revenues, payments and expenses with filtering by type, category, client, payment method, amount range and date, a running balance, summary cards, account balances in the account picker, and CSV export.
+- Added user based RBAC for API keys, so a key runs as a user and inherits that user's permissions.
+- Added deny rules to client access permissions, so access can be granted broadly and revoked for specific clients.
+- New secure file download handler for files and ticket attachments, with client and contact permission isolation on the client portal.
+- Invoices: clicking the Paid or Partial status badge opens a read-only breakdown of the payments recorded against that invoice.
+- Assets: multiple notes per asset, same as contact notes, with categorized note types (Maintenance, Repair, Configuration, Upgrade, Inspection, Note).
+- Dashboard: added expiring asset warranties and licenses, along with an "Expiring in" filter for assets, licenses, domains and certificates.
 - Added bulk and single refresh actions for domains and certificates.
+- Stripe gateway fees now come from the actual Stripe balance transaction rather than a static percentage and flat fee configured in ITFlow, with a nightly pass to backfill fees that were not available at payment time. The static fee fields are gone from payment provider settings.
+- Database updates are now split into per-version files under `admin/database_updates/`, the latest version is derived from the directory listing, and one run applies everything pending. Migration history before 2.0.0 has been pruned.
+- Reorganized the main, client, admin and reports side navigation menus.
+- Mail settings tabs are now URL addressable and stay on the active tab after saving.
 - Removed the legacy vendor contacts feature.
-- `dig` and `whois` binaries are no longer required — domain lookups now use native DNS and RDAP.
+- `dig` and `whois` are no longer required, domain lookups use native DNS and RDAP.
 ### Security
  
 - Rate limited 2FA code attempts and narrowed the TOTP acceptance window.
 - Rotate the session ID on login to prevent session fixation, and fixed client portal Entra SSO.
 - Stopped parallel login attempts from bypassing the login rate limits.
 - Fixed a SQL injection in the recurring invoice frequency handling reached via cron.
-- Admin UI modals are now gated to admins — previously any logged-in user could open them
-  directly and read stored payment provider and AI provider API keys. **If you are updating from
-  an earlier version, rotate those keys**, as there is no record of who may have viewed them.
-- Credential module access is now required to view or share credentials, and password reveals are
-  written to the audit log.
-- Swept module and client permission enforcement across modals and AJAX endpoints to match the
-  POST handlers, closing a number of cases where a user restricted to certain clients could read
-  another client's records by ID.
-- The product CSV export now requires sales module read access.
+- Admin UI modals are now gated to admins. Previously any logged-in user could open them directly and read stored payment provider and AI provider API keys — rotate those keys when you update, as there is no record of who may have viewed them.
+- Credential module access is now required to view or share credentials, and password reveals are written to the audit log.
+- Swept module and client permission enforcement across modals and ajax endpoints to match the post handlers, closing a number of cases where a user restricted to certain clients could read another client's records by ID.
+- Products: the CSV export now requires sales module read access.
 - Neutralized CSV formula injection in generated exports.
 - Fixed weak random number generation in TOTP secret generation.
-- Shared item views are now claimed atomically so the view limit cannot be exceeded by
-  simultaneous requests, and guest audit IPs are logged.
+- Shared item views are now claimed atomically so the view limit cannot be exceeded by simultaneous requests, and guest audit IPs are logged.
 - Hardened CSRF handling and session cookies, and set `SameSite=Lax` on the session cookie.
 - Hardened file upload handling to use random storage names.
-- Prevented client portal contacts from editing their own contact record.
+- Client Portal: contacts can no longer edit their own contact record.
 - Empty directories under `uploads` are no longer indexable.
-### Fixed
+### Bug Fixes
  
 - Deleting a payment now correctly recalculates and sets the invoice status.
-- Fixed contact notes, and several broken modal links in contacts, assets, and file linking.
-- Fixed adding saved payment methods and cards on the client portal following a Stripe API change.
-- Fixed sending invoices and quotes over OAUTH2, which was reading the SMTP host instead of the
-  SMTP provider.
-- Mail parser: correctly determine whether the ITFlow folder belongs under the `INBOX` namespace
-  or the root directory, fixing folder creation on cPanel Dovecot Maildir++ configurations.
+- Fixed contact notes, and several broken modal links in contacts, assets and file linking.
+- Client Portal: fixed adding saved payment methods and cards following a Stripe API change.
+- Fixed sending invoices and quotes over OAUTH2, which was reading the SMTP host instead of the SMTP provider.
+- Mail Parser: correctly work out whether the ITFlow folder belongs under the `INBOX` namespace or the root directory, fixing folder creation on cPanel Dovecot Maildir++ setups.
 - Fixed possible duplicate emails caused by a race condition in the mail queue.
-- Added a shared lock guard across all five cron entry points, scoped per script and per install,
-  replacing the mail queue's non-atomic lock file. Rows left in a sending state by a run that died
-  are now recovered.
+- Added a shared lock guard across every cron entry point, scoped per script and per install, replacing the mail queue's non-atomic lock file. Rows left in a sending state by a run that died are now recovered.
 - Prevented duplicate Stripe payment bookings and overlapping cron runs.
 - Mail bodies are cleared after successful delivery.
 - Fixed client name truncation in the side navigation being applied after escaping.
-- Side navigation counts are now only shown to users with permission to see them.
+- Side navigation counts are only shown to users with permission to see them.
 - Invoice statistics now only reflect clients the user has permission to see.
 - The agent category handler no longer drops the category description.
-- Allowed negative amounts when adding an expense, and the current date is now prefilled.
+- Expenses: allowed negative amounts, and the current date is now prefilled.
 - Certificates can now be searched by description.
 - Fixed cents calculation rounding.
 - Fixed guest view credential TOTP display, and removed the legacy OTP code path.
-- Deleting a ticket template task or a payment provider recorded the wrong name in the audit log
-  and the confirmation message, reading an unrelated record's id in place of the name.
-- Bulk-creating tickets from a template against multiple assets only added the template's tasks to
-  the first ticket, and dropped each task's completion estimate.
-- Deleting a ticket template now unlinks it from any recurring ticket that referenced it, instead
-  of leaving the schedule pointing at a template that no longer exists.
-- Fixed the asset section in the recurring ticket modal when opened outside a client, and project
-  selection when raising a ticket.
-- Tickets raised by the nightly recurring schedule were created without a guest URL key, so the
-  "View ticket" link in reply and task-approval emails for those tickets could not be opened.
-  Cron now generates a key like every other path that raises a ticket, and existing tickets
-  missing one are backfilled by the database update.
+- Deleting a ticket template task or a payment provider recorded the wrong name in the audit log and the confirmation message, reading an unrelated record's id in place of the name.
+- Bulk-creating tickets from a template against multiple assets only added the template's tasks to the first ticket, and dropped each task's completion estimate.
+- Deleting a ticket template now unlinks it from any recurring ticket that referenced it, instead of leaving the schedule pointing at a template that no longer exists.
+- Fixed the asset section in the recurring ticket modal when opened outside a client, and project selection when raising a ticket.
+- Tickets raised by the nightly recurring schedule were created without a guest URL key, so the "View ticket" link in reply and task approval emails could not be opened. Cron now generates a key like every other path that raises a ticket, and existing tickets missing one are backfilled by the database update.
+- Calendar: fixed the last day of a multi-day all-day event not being drawn or published to subscribed feeds. `event_end` holds the last day the event covers, which is what the event modal asks for, but FullCalendar and iCalendar both treat an all-day end as exclusive.
+- Fixed `confirm-link` doing nothing inside an ajax modal, where the handler was only bound to links present at page load.
 ### Developer Updates
  
-- Line endings normalized to LF across the codebase, with `.gitattributes` and `.editorconfig`
-  added. Vendored code under `libs/` is marked so it stays byte-identical to upstream.
+- Line endings normalized to LF across the codebase, with `.gitattributes` and `.editorconfig` added. Vendored code under `libs/` is marked so it stays byte identical to upstream.
 - Converted to the short echo tag `<?=` throughout.
-- `CONTRIBUTING.md` added and expanded, covering the security rules, style conventions, database
-  column prefix convention, and migration pairing.
+- `functions.php` is now a loader, with helpers split into topical files under `functions/`. Unused legacy functions removed.
+- PHP functions renamed to camelCase throughout, including `nullable_htmlentities` to `escapeHtml`, `sanitizeInput` to `escapeSql`, `logAction` to `logAudit`, and `key32gen` to `generateTotpSecret`.
+- `CONTRIBUTING.md` added and expanded, covering the security rules, style conventions, database column prefix convention and migration pairing.
 ### Library Updates
  
 - Bump ImapEngine from 1.25.0 to 1.25.3.
