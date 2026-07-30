@@ -96,9 +96,16 @@ function cronJobClaim($mysqli, array $job): bool
     if (!empty($row['cron_job_enabled'])) {
 
         if ($row['cron_job_schedule'] === 'Daily') {
-            // Due once today's scheduled time has passed, unless we have already run since it
+            // Due once the most recent scheduled time has passed, unless we already ran since
+            // it. Before today's time, that most recent occurrence was yesterday's - without
+            // this, a dispatcher only invoked before the scheduled time (the old single
+            // "0 2 * * * cron.php" crontab line against a 03:00 job) would never find the job
+            // due and it would silently never run again.
             $threshold = date('Y-m-d') . ' ' . substr((string)$row['cron_job_daily_at'], 0, 5) . ':00';
-            $scheduled = ($now >= $threshold);
+            if ($now < $threshold) {
+                $threshold = date('Y-m-d', strtotime('-1 day')) . ' ' . substr((string)$row['cron_job_daily_at'], 0, 5) . ':00';
+            }
+            $scheduled = true;
         } else {
             // Interval jobs get 30 seconds of slack. cron fires on the minute but a run can
             // start a second or two late, and an exact n-minute comparison would then find the

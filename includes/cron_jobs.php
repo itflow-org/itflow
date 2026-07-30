@@ -131,13 +131,18 @@ function cronJobNextRun(array $row): ?string
     $last_run = $row['cron_job_last_run_at'];
 
     if ($row['cron_job_schedule'] === 'Daily') {
-        $today = date('Y-m-d') . ' ' . substr((string)$row['cron_job_daily_at'], 0, 5) . ':00';
-
-        if ($last_run === null || $last_run < $today) {
-            return $today <= date('Y-m-d H:i:s') ? date('Y-m-d H:i:s') : $today;
+        // The most recent scheduled occurrence: today's, or yesterday's if today's has not
+        // arrived yet - matching how the dispatcher decides due-ness
+        $occurrence = date('Y-m-d') . ' ' . substr((string)$row['cron_job_daily_at'], 0, 5) . ':00';
+        if ($occurrence > date('Y-m-d H:i:s')) {
+            $occurrence = date('Y-m-d', strtotime('-1 day')) . ' ' . substr((string)$row['cron_job_daily_at'], 0, 5) . ':00';
         }
 
-        return date('Y-m-d H:i:s', strtotime($today) + 86400);
+        if ($last_run === null || $last_run < $occurrence) {
+            return date('Y-m-d H:i:s');
+        }
+
+        return date('Y-m-d H:i:s', strtotime($occurrence) + 86400);
     }
 
     if ($last_run === null) {
