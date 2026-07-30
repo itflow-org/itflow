@@ -301,57 +301,68 @@ if (isset($_POST['restore_user'])) {
 
 }
 
-if (isset($_POST['export_users_csv'])) {
+if (isset($_POST['export_users'])) {
 
     validateCSRFToken();
 
-    //get records from database
-    $sql = mysqli_query($mysqli, "SELECT * FROM users LEFT JOIN user_roles ON user_role_id = role_id ORDER BY user_name ASC");
+    enforceAdminPermission();
 
-    $count = mysqli_num_rows($sql);
+    $format = resolveExportFormat($_POST['export_users']);
 
-    if ($count > 0) {
-        $delimiter = ",";
-        $enclosure = '"';
-        $escape    = '\\';   // backslash
-        $filename = "Users-" . date('Y-m-d') . ".csv";
+    // Filters inherited from the users page - mirrors admin/users.php
+    $filter_summary = [];
 
-        //create a file pointer
-        $f = fopen('php://memory', 'w');
+    // Archived Filter
+    if (isset($_POST['archived']) && $_POST['archived'] == 1) {
+        $archive_query = "user_archived_at IS NOT NULL";
+        $filter_summary['Archived'] = 'Archived only';
+    } else {
+        $archive_query = "user_archived_at IS NULL";
+    }
 
-        //set column headers
-        $fields = array('Name', 'Email', 'Role', 'Status', 'Creation Date');
-        fputcsv($f, $fields, $delimiter, $enclosure, $escape);
+    // Search Filter
+    $q = escapeSql($_POST['q'] ?? '');
+    if (!empty($q)) {
+        $filter_summary['Search'] = $_POST['q'];
+    }
 
-        //output each row of the data, format line as csv and write to file pointer
-        while($row = $sql->fetch_assoc()) {
+    $sql = mysqli_query(
+        $mysqli,
+        "SELECT * FROM users
+        LEFT JOIN user_roles ON user_role_id = role_id
+        WHERE (user_name LIKE '%$q%' OR user_email LIKE '%$q%')
+        AND user_type = 1
+        AND $archive_query
+        ORDER BY user_name ASC"
+    );
+
+    $num_rows = mysqli_num_rows($sql);
+
+    if ($num_rows > 0) {
+
+        guardExportPdfRowCount($format, $num_rows);
+
+        $export = beginExport('users', $format, "$session_company_name-Users", 'Users', summarizeExportFilters($filter_summary));
+
+        while ($row = mysqli_fetch_assoc($sql)) {
 
             $user_status = intval($row['user_status']);
             if ($user_status == 2) {
-                $user_status_display = "Invited";
+                $row['user_status_display'] = "Invited";
             } elseif ($user_status == 1) {
-                $user_status_display = "Active";
-            } else{
-                $user_status_display = "Disabled";
+                $row['user_status_display'] = "Active";
+            } else {
+                $row['user_status_display'] = "Disabled";
             }
 
-            $lineData = array($row['user_name'], $row['user_email'], $row['role_name'], $user_status_display, $row['user_created_at']);
-            fputcsv($f, array_map('escapeCsvFormula', $lineData), $delimiter, $enclosure, $escape);
+            addExportRow($export, $row);
         }
 
-        //move back to beginning of file
-        fseek($f, 0);
-
-        //set headers to download file rather than displayed
-        header('Content-Type: text/csv');
-        header('Content-Disposition: attachment; filename="' . $filename . '";');
-
-        //output all remaining data on a file pointer
-        fpassthru($f);
-
-        // Logging
-        logAudit("User", "Export", "$session_name exported $count user(s) to a CSV file");
+        finishExport($export);
     }
+
+    logAudit("User", "Export", "$session_name exported $num_rows user(s) to a " . strtoupper($format) . " file");
+
     exit;
 
 }

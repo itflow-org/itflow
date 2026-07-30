@@ -338,59 +338,98 @@ if (isset($_POST['bulk_delete_certificates'])) {
 
 }
 
-if (isset($_POST['export_certificates_csv'])) {
+if (isset($_POST['export_certificates'])) {
 
     validateCSRFToken();
 
+    // Exports are reads - see CONTRIBUTING.md
     enforceUserPermission('module_support');
 
-    if ($_POST['client_id']) {
+    $format = resolveExportFormat($_POST['export_certificates']);
+
+    // Filters inherited from the certificates page - mirrors agent/certificates.php
+    $filter_summary = [];
+
+    // Archived Filter
+    $archived = (isset($_POST['archived']) && $_POST['archived'] == 1);
+    if ($archived) {
+        $filter_summary['Archived'] = 'Archived only';
+    }
+
+    if (!empty($_POST['client_id'])) {
         $client_id = intval($_POST['client_id']);
         $client_query = "AND certificate_client_id = $client_id";
         $client_name = getFieldById('clients', $client_id, 'client_name');
         $file_name_prepend = "$client_name-";
+        $filter_summary['Client'] = $client_name;
+
         enforceClientAccess();
+
+        $archive_query = $archived ? "certificate_archived_at IS NOT NULL" : "certificate_archived_at IS NULL";
     } else {
         $client_query = '';
-        $client_id = 0;
+        $client_id = 0; // for Logging
         $file_name_prepend = "$session_company_name-";
+
+        // Client Filter
+        if (!empty($_POST['client'])) {
+            $filter_client_id = intval($_POST['client']);
+            $client_query = "AND (certificate_client_id = $filter_client_id)";
+            $filter_summary['Client'] = getFieldById('clients', $filter_client_id, 'client_name');
+        }
+
+        $archive_query = $archived ? "(client_archived_at IS NOT NULL OR certificate_archived_at IS NOT NULL)" : "(client_archived_at IS NULL AND certificate_archived_at IS NULL)";
     }
 
-    $sql = mysqli_query($mysqli,"SELECT * FROM certificates LEFT JOIN clients ON client_id = certificate_client_id WHERE certificate_archived_at IS NULL $client_query $access_permission_query ORDER BY certificate_name ASC");
+    // Expiring In Filter
+    if (!empty($_POST['expire_days'])) {
+        if ($_POST['expire_days'] == "expired") {
+            $expire_query = "AND (certificate_expire IS NOT NULL AND certificate_expire != '0000-00-00' AND certificate_expire < CURDATE())";
+            $filter_summary['Expiry'] = 'Expired';
+        } else {
+            $expire_days = intval($_POST['expire_days']);
+            $expire_query = "AND (certificate_expire IS NOT NULL AND certificate_expire != '0000-00-00' AND certificate_expire BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL $expire_days DAY))";
+            $filter_summary['Expiry'] = "Expiring within $expire_days days";
+        }
+    } else {
+        // Default - any
+        $expire_query = '';
+    }
+
+    // Search Filter
+    $q = escapeSql($_POST['q'] ?? '');
+    if (!empty($q)) {
+        $filter_summary['Search'] = $_POST['q'];
+    }
+
+    $sql = mysqli_query(
+        $mysqli,
+        "SELECT * FROM certificates
+        LEFT JOIN clients ON client_id = certificate_client_id
+        WHERE $archive_query
+        AND (certificate_name LIKE '%$q%' OR certificate_domain LIKE '%$q%' OR certificate_description LIKE '%$q%' OR certificate_issued_by LIKE '%$q%' OR client_name LIKE '%$q%')
+        $access_permission_query
+        $client_query
+        $expire_query
+        ORDER BY certificate_name ASC"
+    );
 
     $num_rows = mysqli_num_rows($sql);
 
     if ($num_rows > 0) {
-        $delimiter = ",";
-        $enclosure = '"';
-        $escape    = '\\';   // backslash
-        $filename = sanitizeFilename($file_name_prepend . "Certificates-" . date('Y-m-d_H-i-s') . ".csv");
 
-        //create a file pointer
-        $f = fopen('php://memory', 'w');
+        guardExportPdfRowCount($format, $num_rows);
 
-        //set column headers
-        $fields = array('Name', 'Description', 'Domain', 'Issuer', 'Expiration Date');
-        fputcsv($f, $fields, $delimiter, $enclosure, $escape);
+        $export = beginExport('certificates', $format, $file_name_prepend . 'Certificates', 'Certificates', summarizeExportFilters($filter_summary));
 
-        //output each row of the data, format line as csv and write to file pointer
-        while($row = $sql->fetch_assoc()) {
-            $lineData = array($row['certificate_name'], $row['certificate_description'], $row['certificate_domain'], $row['certificate_issued_by'], $row['certificate_expire']);
-            fputcsv($f, array_map('escapeCsvFormula', $lineData), $delimiter, $enclosure, $escape);
+        while ($row = mysqli_fetch_assoc($sql)) {
+            addExportRow($export, $row);
         }
 
-        //move back to beginning of file
-        fseek($f, 0);
-
-        //set headers to download file rather than displayed
-        header('Content-Type: text/csv');
-        header('Content-Disposition: attachment; filename="' . $filename . '";');
-
-        //output all remaining data on a file pointer
-        fpassthru($f);
+        finishExport($export);
     }
 
-    logAudit("Certificate", "Export", "$session_name exported $num_rows certificate(s) to a CSV file", $client_id);
+    logAudit("Certificate", "Export", "$session_name exported $num_rows certificate(s) to a " . strtoupper($format) . " file", $client_id);
 
     exit;
 

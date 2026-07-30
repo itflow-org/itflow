@@ -225,86 +225,118 @@ if (isset($_GET['delete_software'])) {
 
 }
 
-if (isset($_POST['export_software_csv'])) {
+if (isset($_POST['export_software'])) {
 
     validateCSRFToken();
 
+    // Exports are reads - see CONTRIBUTING.md
     enforceUserPermission('module_support');
 
-    if ($_POST['client_id']) {
-        $client_id = intval($_POST['client_id']);
-        $client_query = "WHERE software_client_id = $client_id";
-        $client_name = getFieldById('clients', $client_id, 'client_name');
-        $file_name_prepend = "$client_name-";
-    } else {
-        $client_query = '';
-        $client_id = 0; //Logging
-        $file_name_prepend = "$session_company_name-";
+    $format = resolveExportFormat($_POST['export_software']);
+
+    // Filters inherited from the software page - mirrors agent/software.php
+    $filter_summary = [];
+
+    // Archived Filter
+    $archived = (isset($_POST['archived']) && $_POST['archived'] == 1);
+    if ($archived) {
+        $filter_summary['Archived'] = 'Archived only';
     }
 
-    $sql = mysqli_query($mysqli,"SELECT * FROM software LEFT JOIN client ON client_id = software_client_id WHERE software_archived_at IS NULL $client_query $access_permission_query ORDER BY software_name ASC");
+    if (!empty($_POST['client_id'])) {
+        $client_id = intval($_POST['client_id']);
+        $client_query = "AND software_client_id = $client_id";
+        $client_name = getFieldById('clients', $client_id, 'client_name');
+        $file_name_prepend = "$client_name-";
+        $filter_summary['Client'] = $client_name;
+
+        enforceClientAccess();
+
+        $archive_query = $archived ? "software_archived_at IS NOT NULL" : "software_archived_at IS NULL";
+    } else {
+        $client_query = '';
+        $client_id = 0; // for Logging
+        $file_name_prepend = "$session_company_name-";
+
+        // Client Filter
+        if (!empty($_POST['client'])) {
+            $filter_client_id = intval($_POST['client']);
+            $client_query = "AND (software_client_id = $filter_client_id)";
+            $filter_summary['Client'] = getFieldById('clients', $filter_client_id, 'client_name');
+        }
+
+        $archive_query = $archived ? "(client_archived_at IS NOT NULL OR software_archived_at IS NOT NULL)" : "(client_archived_at IS NULL AND software_archived_at IS NULL)";
+    }
+
+    // Expiring In Filter
+    if (!empty($_POST['expire_days'])) {
+        if ($_POST['expire_days'] == "expired") {
+            $expire_query = "AND (software_expire IS NOT NULL AND software_expire != '0000-00-00' AND software_expire < CURDATE())";
+            $filter_summary['Expiry'] = 'Expired';
+        } else {
+            $expire_days = intval($_POST['expire_days']);
+            $expire_query = "AND (software_expire IS NOT NULL AND software_expire != '0000-00-00' AND software_expire BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL $expire_days DAY))";
+            $filter_summary['Expiry'] = "Expiring within $expire_days days";
+        }
+    } else {
+        // Default - any
+        $expire_query = '';
+    }
+
+    // Search Filter
+    $q = escapeSql($_POST['q'] ?? '');
+    if (!empty($q)) {
+        $filter_summary['Search'] = $_POST['q'];
+    }
+
+    $sql = mysqli_query(
+        $mysqli,
+        "SELECT * FROM software
+        LEFT JOIN clients ON client_id = software_client_id
+        LEFT JOIN vendors ON vendor_id = software_vendor_id
+        WHERE (software_name LIKE '%$q%' OR software_type LIKE '%$q%' OR software_key LIKE '%$q%' OR client_name LIKE '%$q%')
+        AND $archive_query
+        $access_permission_query
+        $client_query
+        $expire_query
+        ORDER BY software_name ASC"
+    );
 
     $num_rows = mysqli_num_rows($sql);
 
     if ($num_rows > 0) {
-        $delimiter = ",";
-        $enclosure = '"';
-        $escape    = '\\';   // backslash
-        $filename = sanitizeFilename($file_name_prepend . "Software-" . date('Y-m-d_H-i-s') . ".csv");
 
-        //create a file pointer
-        $f = fopen('php://memory', 'w');
+        guardExportPdfRowCount($format, $num_rows);
 
-        //set column headers
-        $fields = array('Name', 'Version', 'Description', 'Type', 'License Type', 'Seats', 'Key', 'Assets', 'Contacts', 'Purchased', 'Expires', 'Notes');
-        fputcsv($f, $fields, $delimiter, $enclosure, $escape);
+        $export = beginExport('software', $format, $file_name_prepend . 'Software', 'Software', summarizeExportFilters($filter_summary));
 
-        //output each row of the data, format line as csv and write to file pointer
-        while($row = $sql->fetch_assoc()) {
-
-            // Generate asset & user license list for this software
-
-            // Asset licenses
-            $assigned_to_assets = '';
-            $asset_licenses_sql = mysqli_query($mysqli,"SELECT software_assets.asset_id, assets.asset_name
-                FROM software_assets
-                LEFT JOIN assets
-                    ON software_assets.asset_id = assets.asset_id
-                WHERE software_id = $row[software_id]"
-            );
-            while($asset_row = mysqli_fetch_assoc($asset_licenses_sql)) {
-                $assigned_to_assets .= $asset_row['asset_name'] . ", ";
+        while ($row = mysqli_fetch_assoc($sql)) {
+            // Asset and contact licence lists, only when those columns are wanted
+            if (isset($export['columns']['assigned_to_assets'])) {
+                $software_id = intval($row['software_id']);
+                $assigned_to_assets = [];
+                $asset_licenses_sql = mysqli_query($mysqli, "SELECT asset_name FROM software_assets LEFT JOIN assets ON software_assets.asset_id = assets.asset_id WHERE software_id = $software_id");
+                while ($asset_row = mysqli_fetch_assoc($asset_licenses_sql)) {
+                    $assigned_to_assets[] = $asset_row['asset_name'];
+                }
+                $row['assigned_to_assets'] = implode(', ', $assigned_to_assets);
             }
-
-            // Contact Licenses
-            $assigned_to_contacts = '';
-            $contact_licenses_sql = mysqli_query($mysqli,"SELECT software_contacts.contact_id, contacts.contact_name
-                FROM software_contacts
-                LEFT JOIN contacts
-                  ON software_contacts.contact_id = contacts.contact_id
-                WHERE software_id = $row[software_id]"
-            );
-
-            while($contact_row = mysqli_fetch_assoc($contact_licenses_sql)) {
-                $assigned_to_contacts .= $contact_row['contact_name'] . ", ";
+            if (isset($export['columns']['assigned_to_contacts'])) {
+                $software_id = intval($row['software_id']);
+                $assigned_to_contacts = [];
+                $contact_licenses_sql = mysqli_query($mysqli, "SELECT contact_name FROM software_contacts LEFT JOIN contacts ON software_contacts.contact_id = contacts.contact_id WHERE software_id = $software_id");
+                while ($contact_row = mysqli_fetch_assoc($contact_licenses_sql)) {
+                    $assigned_to_contacts[] = $contact_row['contact_name'];
+                }
+                $row['assigned_to_contacts'] = implode(', ', $assigned_to_contacts);
             }
-
-            $lineData = array($row['software_name'], $row['software_version'], $row['software_description'], $row['software_type'], $row['software_license_type'], $row['software_seats'], $row['software_key'], $assigned_to_assets, $assigned_to_contacts, $row['software_purchase'], $row['software_expire'], $row['software_notes']);
-            fputcsv($f, array_map('escapeCsvFormula', $lineData), $delimiter, $enclosure, $escape);
+            addExportRow($export, $row);
         }
 
-        //move back to beginning of file
-        fseek($f, 0);
-
-        //set headers to download file rather than displayed
-        header('Content-Type: text/csv');
-        header('Content-Disposition: attachment; filename="' . $filename . '";');
-
-        //output all remaining data on a file pointer
-        fpassthru($f);
+        finishExport($export);
     }
 
-    logAudit("Software", "Export", "$session_name exported $num_rows software(s) $software_name to a CSV file", $client_id);
+    logAudit("Software", "Export", "$session_name exported $num_rows software(s) to a " . strtoupper($format) . " file", $client_id);
 
     exit;
 

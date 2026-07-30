@@ -9,11 +9,16 @@ if (!defined('FROM_POST_HANDLER')) {
     exit;
 }
 
-if (isset($_POST['export_transactions_csv'])) {
+if (isset($_POST['export_transactions'])) {
 
     validateCSRFToken();
 
     enforceUserPermission('module_financial');
+
+    $format = resolveExportFormat($_POST['export_transactions']);
+
+    // Human-readable filter list for the PDF header
+    $filter_summary = [];
 
     $date_from = escapeSql($_POST['date_from']);
     $date_to = escapeSql($_POST['date_to']);
@@ -24,6 +29,7 @@ if (isset($_POST['export_transactions_csv'])) {
     $transaction_types_array = ['Revenue', 'Payment', 'Expense', 'Transfer In', 'Transfer Out'];
     if (!empty($_POST['type']) && in_array($_POST['type'], $transaction_types_array)) {
         $type_query = "AND (transaction_type = '" . escapeSql($_POST['type']) . "')";
+        $filter_summary['Type'] = $_POST['type'];
     } else {
         // Default - any
         $type_query = '';
@@ -32,6 +38,8 @@ if (isset($_POST['export_transactions_csv'])) {
     // Category Filter
     if ($category) {
         $category_query = "AND (transaction_category_id = $category)";
+        $category_row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT category_name FROM categories WHERE category_id = $category"));
+        $filter_summary['Category'] = $category_row['category_name'] ?? '';
     } else {
         // Default - any
         $category_query = '';
@@ -41,6 +49,8 @@ if (isset($_POST['export_transactions_csv'])) {
     $client = intval($_POST['client']);
     if ($client) {
         $client_query = "AND (transaction_client_id = $client)";
+        $client_row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT client_name FROM clients WHERE client_id = $client"));
+        $filter_summary['Client'] = $client_row['client_name'] ?? '';
     } else {
         // Default - any
         $client_query = '';
@@ -49,6 +59,7 @@ if (isset($_POST['export_transactions_csv'])) {
     // Payment Method Filter
     if (!empty($_POST['payment_method'])) {
         $payment_method_query = "AND (transaction_payment_method = '" . escapeSql($_POST['payment_method']) . "')";
+        $filter_summary['Payment Method'] = $_POST['payment_method'];
     } else {
         // Default - any
         $payment_method_query = '';
@@ -57,12 +68,14 @@ if (isset($_POST['export_transactions_csv'])) {
     // Amount Range Filter - matched on absolute value so direction doesn't matter
     if (isset($_POST['amount_min']) && $_POST['amount_min'] != '') {
         $amount_min_query = 'AND (ABS(transaction_amount) >= ' . floatval($_POST['amount_min']) . ')';
+        $filter_summary['Amount from'] = floatval($_POST['amount_min']);
     } else {
         // Default - any
         $amount_min_query = '';
     }
     if (isset($_POST['amount_max']) && $_POST['amount_max'] != '') {
         $amount_max_query = 'AND (ABS(transaction_amount) <= ' . floatval($_POST['amount_max']) . ')';
+        $filter_summary['Amount to'] = floatval($_POST['amount_max']);
     } else {
         // Default - any
         $amount_max_query = '';
@@ -71,6 +84,7 @@ if (isset($_POST['export_transactions_csv'])) {
     // Search Filter - mirrors the transactions page search box
     $q = escapeSql($_POST['q']);
     if (!empty($q)) {
+        $filter_summary['Search'] = $_POST['q'];
         $search_query = "AND (transaction_description LIKE '%$q%' OR transaction_category LIKE '%$q%' OR transaction_reference LIKE '%$q%' OR transaction_other_account LIKE '%$q%' OR transaction_amount LIKE '%$q%')";
     } else {
         // Default - any
@@ -80,6 +94,7 @@ if (isset($_POST['export_transactions_csv'])) {
     // Date Filter
     if (!empty($date_from) && !empty($date_to)) {
         $date_query = "AND DATE(transaction_date) BETWEEN '$date_from' AND '$date_to'";
+        $filter_summary['Date'] = "$date_from to $date_to";
     } else {
         $date_query = '';
     }
@@ -178,36 +193,19 @@ if (isset($_POST['export_transactions_csv'])) {
 
         $num_rows = mysqli_num_rows($sql);
         if ($num_rows > 0) {
-            $delimiter = ",";
-            $enclosure = '"';
-            $escape    = '\\';   // backslash
-            $filename = sanitizeFilename("$session_company_name-$account_name-Transactions-" . date('Y-m-d_H-i-s') . ".csv");
 
-            //create a file pointer
-            $f = fopen('php://memory', 'w');
+            guardExportPdfRowCount($format, $num_rows);
 
-            //set column headers
-            $fields = array('Date', 'Type', 'Description', 'Transfer Account', 'Reference', 'Category', 'Payment Method', 'Amount', 'Balance');
-            fputcsv($f, $fields, $delimiter, $enclosure, $escape);
+            $export = beginExport('transactions', $format, "$session_company_name-$account_name-Transactions", "$account_name - Transactions", summarizeExportFilters($filter_summary));
 
-            //output each row of the data, format line as csv and write to file pointer
             while ($row = mysqli_fetch_assoc($sql)) {
-                $lineData = array($row['transaction_date'], $row['transaction_type'], $row['transaction_description'], $row['transaction_other_account'], $row['transaction_reference'], $row['transaction_category'], $row['transaction_payment_method'], $row['transaction_amount'], $row['transaction_balance']);
-                fputcsv($f, array_map('escapeCsvFormula', $lineData), $delimiter, $enclosure, $escape);
+                addExportRow($export, $row);
             }
 
-            //move back to beginning of file
-            fseek($f, 0);
-
-            //set headers to download file rather than displayed
-            header('Content-Type: text/csv');
-            header('Content-Disposition: attachment; filename="' . $filename . '";');
-
-            //output all remaining data on a file pointer
-            fpassthru($f);
+            finishExport($export);
         }
 
-        logAudit("Transaction", "Export", "$session_name exported $num_rows transaction(s) to CSV file");
+        logAudit("Transaction", "Export", "$session_name exported $num_rows transaction(s) to a " . strtoupper($format) . " file");
 
     }
 

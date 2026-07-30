@@ -455,59 +455,103 @@ if (isset($_POST['bulk_refresh_domains'])) {
 
 }
 
-if (isset($_POST['export_domains_csv'])) {
+if (isset($_POST['export_domains'])) {
 
     validateCSRFToken();
 
+    // Exports are reads - see CONTRIBUTING.md
     enforceUserPermission('module_support');
 
-    if ($_POST['client_id']) {
+    $format = resolveExportFormat($_POST['export_domains']);
+
+    // Filters inherited from the domains page - mirrors agent/domains.php
+    $filter_summary = [];
+
+    // Archived Filter
+    $archived = (isset($_POST['archived']) && $_POST['archived'] == 1);
+    if ($archived) {
+        $filter_summary['Archived'] = 'Archived only';
+    }
+
+    if (!empty($_POST['client_id'])) {
         $client_id = intval($_POST['client_id']);
         $client_query = "AND domain_client_id = $client_id";
         $client_name = getFieldById('clients', $client_id, 'client_name');
         $file_name_prepend = "$client_name-";
+        $filter_summary['Client'] = $client_name;
+
         enforceClientAccess();
+
+        $archive_query = $archived ? "domain_archived_at IS NOT NULL" : "domain_archived_at IS NULL";
     } else {
         $client_query = '';
-        $client_id = 0;
+        $client_id = 0; // for Logging
         $file_name_prepend = "$session_company_name-";
+
+        // Client Filter
+        if (!empty($_POST['client'])) {
+            $filter_client_id = intval($_POST['client']);
+            $client_query = "AND (domain_client_id = $filter_client_id)";
+            $filter_summary['Client'] = getFieldById('clients', $filter_client_id, 'client_name');
+        }
+
+        $archive_query = $archived ? "(client_archived_at IS NOT NULL OR domain_archived_at IS NOT NULL)" : "(client_archived_at IS NULL AND domain_archived_at IS NULL)";
     }
 
-    $sql = mysqli_query($mysqli,"SELECT * FROM domains LEFT JOIN clients ON client_id = domain_client_id WHERE domain_archived_at IS NULL $client_query $access_permission_query ORDER BY domain_name ASC");
+    // Expiring In Filter
+    if (!empty($_POST['expire_days'])) {
+        if ($_POST['expire_days'] == "expired") {
+            $expire_query = "AND (domain_expire IS NOT NULL AND domain_expire != '0000-00-00' AND domain_expire < CURDATE())";
+            $filter_summary['Expiry'] = 'Expired';
+        } else {
+            $expire_days = intval($_POST['expire_days']);
+            $expire_query = "AND (domain_expire IS NOT NULL AND domain_expire != '0000-00-00' AND domain_expire BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL $expire_days DAY))";
+            $filter_summary['Expiry'] = "Expiring within $expire_days days";
+        }
+    } else {
+        // Default - any
+        $expire_query = '';
+    }
+
+    // Search Filter
+    $q = escapeSql($_POST['q'] ?? '');
+    if (!empty($q)) {
+        $filter_summary['Search'] = $_POST['q'];
+    }
+
+    $sql = mysqli_query(
+        $mysqli,
+        "SELECT domains.*, clients.*,
+        registrar.vendor_name AS domain_registrar_name,
+        webhost.vendor_name AS domain_webhost_name
+        FROM domains
+        LEFT JOIN clients ON client_id = domain_client_id
+        LEFT JOIN vendors AS registrar ON domains.domain_registrar = registrar.vendor_id
+        LEFT JOIN vendors AS webhost ON domains.domain_webhost = webhost.vendor_id
+        WHERE (domains.domain_name LIKE '%$q%' OR domains.domain_description LIKE '%$q%' OR registrar.vendor_name LIKE '%$q%' OR webhost.vendor_name LIKE '%$q%' OR client_name LIKE '%$q%')
+        AND $archive_query
+        $access_permission_query
+        $client_query
+        $expire_query
+        ORDER BY domains.domain_name ASC"
+    );
 
     $num_rows = mysqli_num_rows($sql);
 
     if ($num_rows > 0) {
-        $delimiter = ",";
-        $enclosure = '"';
-        $escape    = '\\';   // backslash
-        $filename = sanitizeFilename($file_name_prepend . "Domains-" . date('Y-m-d_H-i-s') . ".csv");
 
-        //create a file pointer
-        $f = fopen('php://memory', 'w');
+        guardExportPdfRowCount($format, $num_rows);
 
-        //set column headers
-        $fields = array('Domain', 'Description', 'Registrar', 'Web Host', 'Expiration Date');
-        fputcsv($f, $fields, $delimiter, $enclosure, $escape);
+        $export = beginExport('domains', $format, $file_name_prepend . 'Domains', 'Domains', summarizeExportFilters($filter_summary));
 
-        //output each row of the data, format line as csv and write to file pointer
-        while($row = $sql->fetch_assoc()) {
-            $lineData = array($row['domain_name'], $row['domain_description'], $row['domain_registrar'], $row['domain_webhost'], $row['domain_expire']);
-            fputcsv($f, array_map('escapeCsvFormula', $lineData), $delimiter, $enclosure, $escape);
+        while ($row = mysqli_fetch_assoc($sql)) {
+            addExportRow($export, $row);
         }
 
-        //move back to beginning of file
-        fseek($f, 0);
-
-        //set headers to download file rather than displayed
-        header('Content-Type: text/csv');
-        header('Content-Disposition: attachment; filename="' . $filename . '";');
-
-        //output all remaining data on a file pointer
-        fpassthru($f);
+        finishExport($export);
     }
 
-    logAudit("Domain", "Export", "$session_name exported $num_rows domain(s)", $client_id);
+    logAudit("Domain", "Export", "$session_name exported $num_rows domain(s) to a " . strtoupper($format) . " file", $client_id);
 
     exit;
 

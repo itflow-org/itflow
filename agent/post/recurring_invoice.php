@@ -605,55 +605,89 @@ if (isset($_POST['set_recurring_payment'])) {
 
 }
 
-if (isset($_POST['export_client_recurring_invoice_csv'])) {
+if (isset($_POST['export_recurring_invoices'])) {
 
     validateCSRFToken();
 
+    // Exports are reads - see CONTRIBUTING.md
     enforceUserPermission('module_sales');
 
-    $client_id = intval($_POST['client_id']);
+    $format = resolveExportFormat($_POST['export_recurring_invoices']);
 
-    enforceClientAccess();
+    // Filters inherited from the recurring invoices page - mirrors agent/recurring_invoices.php
+    $filter_summary = [];
 
-    //get records from database
-    $sql = mysqli_query($mysqli,"SELECT client_name FROM clients WHERE client_id = $client_id");
-    $row = mysqli_fetch_assoc($sql);
+    if (!empty($_POST['client_id'])) {
+        $client_id = intval($_POST['client_id']);
+        $client_query = "AND recurring_invoice_client_id = $client_id";
+        $client_name = getFieldById('clients', $client_id, 'client_name');
+        $file_name_prepend = "$client_name-";
+        $filter_summary['Client'] = $client_name;
 
-    $client_name = $row['client_name'];
+        enforceClientAccess();
+    } else {
+        $client_query = '';
+        $client_id = 0; // for Logging
+        $file_name_prepend = "$session_company_name-";
+    }
 
-    $sql = mysqli_query($mysqli,"SELECT * FROM recurring_invoices WHERE recurring_invoice_client_id = $client_id ORDER BY recurring_invoice_number ASC");
+    // Status Filter
+    if (isset($_POST['status']) && $_POST['status'] === 'inactive') {
+        $status_query = "AND recurring_invoice_status = 0";
+        $filter_summary['Status'] = 'Inactive';
+    } elseif (isset($_POST['status']) && $_POST['status'] === 'active') {
+        $status_query = "AND recurring_invoice_status = 1";
+        $filter_summary['Status'] = 'Active';
+    } else {
+        // Default - any
+        $status_query = '';
+    }
+
+    // Date Filter
+    $dtf = escapeSql(!empty($_POST['dtf']) ? $_POST['dtf'] : '1970-01-01');
+    $dtt = escapeSql(!empty($_POST['dtt']) ? $_POST['dtt'] : '2099-12-31');
+    $date_range = formatExportDateRange($dtf, $dtt);
+    if ($date_range) {
+        $filter_summary['Created'] = $date_range;
+    }
+
+    // Search Filter
+    $q = escapeSql($_POST['q'] ?? '');
+    if (!empty($q)) {
+        $filter_summary['Search'] = $_POST['q'];
+    }
+
+    $sql = mysqli_query(
+        $mysqli,
+        "SELECT * FROM recurring_invoices
+        LEFT JOIN clients ON recurring_invoice_client_id = client_id
+        LEFT JOIN categories ON recurring_invoice_category_id = category_id
+        WHERE (CONCAT(recurring_invoice_prefix,recurring_invoice_number) LIKE '%$q%' OR recurring_invoice_frequency LIKE '%$q%' OR recurring_invoice_scope LIKE '%$q%' OR client_name LIKE '%$q%' OR category_name LIKE '%$q%')
+        AND DATE(recurring_invoice_created_at) BETWEEN '$dtf' AND '$dtt'
+        $status_query
+        $client_query
+        $access_permission_query
+        ORDER BY recurring_invoice_number ASC"
+    );
 
     $num_rows = mysqli_num_rows($sql);
 
     if ($num_rows > 0) {
-        $delimiter = ",";
-        $filename = $client_name . "-Recurring Invoices-" . date('Y-m-d') . ".csv";
 
-        //create a file pointer
-        $f = fopen('php://memory', 'w');
+        guardExportPdfRowCount($format, $num_rows);
 
-        //set column headers
-        $fields = array('Recurring Number', 'Scope', 'Amount', 'Frequency', 'Date Created');
-        fputcsv($f, $fields, $delimiter);
+        $export = beginExport('recurring_invoices', $format, $file_name_prepend . 'RecurringInvoices', 'Recurring Invoices', summarizeExportFilters($filter_summary));
 
-        //output each row of the data, format line as csv and write to file pointer
-        while($row = $sql->fetch_assoc()) {
-            $lineData = array($row['recurring_invoice_prefix'] . $row['recurring_invoice_number'], $row['recurring_invoice_scope'], $row['recurring_invoice_amount'], ucwords($row['recurring_invoice_frequency'] . "ly"), $row['recurring_invoice_created_at']);
-            fputcsv($f, array_map('escapeCsvFormula', $lineData), $delimiter);
+        while ($row = mysqli_fetch_assoc($sql)) {
+            $row['recurring_invoice_number_display'] = $row['recurring_invoice_prefix'] . $row['recurring_invoice_number'];
+            $row['recurring_invoice_frequency_display'] = ucwords($row['recurring_invoice_frequency'] . 'ly');
+            addExportRow($export, $row);
         }
 
-        //move back to beginning of file
-        fseek($f, 0);
-
-        //set headers to download file rather than displayed
-        header('Content-Type: text/csv');
-        header('Content-Disposition: attachment; filename="' . $filename . '";');
-
-        //output all remaining data on a file pointer
-        fpassthru($f);
+        finishExport($export);
     }
 
-    logAudit("Recurring Invoice", "Export", "$session_name exported $num_rows recurring invoices to CSV file");
+    logAudit("Recurring Invoice", "Export", "$session_name exported $num_rows recurring invoice(s) to a " . strtoupper($format) . " file", $client_id);
 
     exit;
 

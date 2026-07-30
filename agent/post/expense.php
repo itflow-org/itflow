@@ -298,96 +298,98 @@ if (isset($_POST['bulk_delete_expenses'])) {
 
 }
 
-if (isset($_POST['export_expenses_csv'])) {
+if (isset($_POST['export_expenses'])) {
 
     validateCSRFToken();
 
+    // Exports are reads - see CONTRIBUTING.md
     enforceUserPermission('module_financial');
 
-    $date_from = escapeSql($_POST['date_from']);
-    $date_to = escapeSql($_POST['date_to']);
-    $account = intval($_POST['account']);
-    $vendor = intval($_POST['vendor']);
-    $category = intval($_POST['category']);
+    $format = resolveExportFormat($_POST['export_expenses']);
 
-    if (!empty($date_from) && !empty($date_to)) {
-        $date_query = "AND DATE(expense_date) BETWEEN '$date_from' AND '$date_to'";
-        $file_name_date = "$date_from-to-$date_to";
-    }else{
-        $date_query = "";
-        $file_name_date = date('Y-m-d');
-    }
+    // Filters inherited from the expenses page - mirrors agent/expenses.php
+    $filter_summary = [];
 
-    // Vendor Filter
-    if ($account) {
-        $account_query = "AND expense_account_id = $account";
+    $client_id = 0; // for Logging
+    $file_name_prepend = "$session_company_name-";
+
+    // Account Filter
+    if (!empty($_POST['account'])) {
+        $filter_account_id = intval($_POST['account']);
+        $account_query = "AND (expense_account_id = $filter_account_id)";
+        $filter_summary['Account'] = getFieldById('accounts', $filter_account_id, 'account_name');
     } else {
+        // Default - any
         $account_query = '';
     }
 
     // Vendor Filter
-    if ($vendor) {
-        $vendor_query = "AND expense_vendor_id = $vendor";
+    if (!empty($_POST['vendor'])) {
+        $filter_vendor_id = intval($_POST['vendor']);
+        $vendor_query = "AND (vendor_id = $filter_vendor_id)";
+        $filter_summary['Vendor'] = getFieldById('vendors', $filter_vendor_id, 'vendor_name');
     } else {
         // Default - any
         $vendor_query = '';
     }
 
     // Category Filter
-    if ($category) {
-        $category_query = "AND expense_category_id = $category";
+    if (!empty($_POST['category'])) {
+        $filter_category_id = intval($_POST['category']);
+        $category_query = "AND (category_id = $filter_category_id)";
+        $filter_summary['Category'] = getFieldById('categories', $filter_category_id, 'category_name');
     } else {
         // Default - any
         $category_query = '';
     }
 
-    //get records from database
-    $sql = mysqli_query($mysqli,"SELECT * FROM expenses
-      LEFT JOIN categories ON expense_category_id = category_id
-      LEFT JOIN vendors ON expense_vendor_id = vendor_id
-      LEFT JOIN accounts ON expense_account_id = account_id
-      LEFT JOIN clients ON expense_client_id = client_id
-      WHERE expense_vendor_id > 0
-      $date_query
-      $account_query
-      $vendor_query
-      $category_query
-      $access_permission_query
-      ORDER BY expense_date DESC
-    ");
-
-    $num_rows = mysqli_num_rows($sql);
-    if ($num_rows > 0) {
-        $delimiter = ",";
-        $enclosure = '"';
-        $escape    = '\\';   // backslash
-        $filename = sanitizeFilename("$session_company_name-Expenses-" . date('Y-m-d_H-i-s') . ".csv");
-
-        //create a file pointer
-        $f = fopen('php://memory', 'w');
-
-        //set column headers
-        $fields = array('Date', 'Amount', 'Vendor', 'Description', 'Category', 'Account');
-        fputcsv($f, $fields, $delimiter, $enclosure, $escape);
-
-        //output each row of the data, format line as csv and write to file pointer
-        while($row = mysqli_fetch_assoc($sql)) {
-            $lineData = array($row['expense_date'], $row['expense_amount'], $row['vendor_name'], $row['expense_description'], $row['category_name'], $row['account_name']);
-            fputcsv($f, array_map('escapeCsvFormula', $lineData), $delimiter, $enclosure, $escape);
-        }
-
-        //move back to beginning of file
-        fseek($f, 0);
-
-        //set headers to download file rather than displayed
-        header('Content-Type: text/csv');
-        header('Content-Disposition: attachment; filename="' . $filename . '";');
-
-        //output all remaining data on a file pointer
-        fpassthru($f);
+    // Date Filter
+    $dtf = escapeSql(!empty($_POST['dtf']) ? $_POST['dtf'] : '1970-01-01');
+    $dtt = escapeSql(!empty($_POST['dtt']) ? $_POST['dtt'] : '2099-12-31');
+    $date_range = formatExportDateRange($dtf, $dtt);
+    if ($date_range) {
+        $filter_summary['Dated'] = $date_range;
     }
 
-    logAudit("Expense", "Export", "$session_name exported $num_rows expense(s) to CSV file");
+    // Search Filter
+    $q = escapeSql($_POST['q'] ?? '');
+    if (!empty($q)) {
+        $filter_summary['Search'] = $_POST['q'];
+    }
+
+    $sql = mysqli_query(
+        $mysqli,
+        "SELECT * FROM expenses
+        LEFT JOIN categories ON expense_category_id = category_id
+        LEFT JOIN vendors ON expense_vendor_id = vendor_id
+        LEFT JOIN accounts ON expense_account_id = account_id
+        LEFT JOIN clients ON expense_client_id = client_id
+        WHERE expense_vendor_id > 0
+        AND DATE(expense_date) BETWEEN '$dtf' AND '$dtt'
+        $vendor_query
+        $category_query
+        AND (vendor_name LIKE '%$q%' OR client_name LIKE '%$q%' OR category_name LIKE '%$q%' OR account_name LIKE '%$q%' OR expense_description LIKE '%$q%' OR expense_amount LIKE '%$q%')
+        $account_query
+        $access_permission_query
+        ORDER BY expense_date ASC"
+    );
+
+    $num_rows = mysqli_num_rows($sql);
+
+    if ($num_rows > 0) {
+
+        guardExportPdfRowCount($format, $num_rows);
+
+        $export = beginExport('expenses', $format, $file_name_prepend . 'Expenses', 'Expenses', summarizeExportFilters($filter_summary));
+
+        while ($row = mysqli_fetch_assoc($sql)) {
+            addExportRow($export, $row);
+        }
+
+        finishExport($export);
+    }
+
+    logAudit("Expense", "Export", "$session_name exported $num_rows expense(s) to a " . strtoupper($format) . " file", $client_id);
 
     exit;
 

@@ -172,59 +172,94 @@ if (isset($_POST['bulk_delete_networks'])) {
 
 }
 
-if (isset($_POST['export_networks_csv'])) {
+if (isset($_POST['export_networks'])) {
 
     validateCSRFToken();
 
+    // Exports are reads - see CONTRIBUTING.md
     enforceUserPermission('module_support');
 
-    if ($_POST['client_id']) {
+    $format = resolveExportFormat($_POST['export_networks']);
+
+    // Filters inherited from the networks page - mirrors agent/networks.php
+    $filter_summary = [];
+
+    // Archived Filter
+    $archived = (isset($_POST['archived']) && $_POST['archived'] == 1);
+    if ($archived) {
+        $filter_summary['Archived'] = 'Archived only';
+    }
+
+    if (!empty($_POST['client_id'])) {
         $client_id = intval($_POST['client_id']);
         $client_query = "AND network_client_id = $client_id";
         $client_name = getFieldById('clients', $client_id, 'client_name');
         $file_name_prepend = "$client_name-";
+        $filter_summary['Client'] = $client_name;
+
         enforceClientAccess();
+
+        $archive_query = $archived ? "network_archived_at IS NOT NULL" : "network_archived_at IS NULL";
     } else {
         $client_query = '';
-        $client_id = 0;
+        $client_id = 0; // for Logging
         $file_name_prepend = "$session_company_name-";
+
+        // Client Filter
+        if (!empty($_POST['client'])) {
+            $filter_client_id = intval($_POST['client']);
+            $client_query = "AND (network_client_id = $filter_client_id)";
+            $filter_summary['Client'] = getFieldById('clients', $filter_client_id, 'client_name');
+        }
+
+        $archive_query = $archived ? "(client_archived_at IS NOT NULL OR network_archived_at IS NOT NULL)" : "(client_archived_at IS NULL AND network_archived_at IS NULL)";
     }
 
-    $sql = mysqli_query($mysqli,"SELECT * FROM networks LEFT JOIN clients ON client_id = network_client_id WHERE network_archived_at IS NULL $client_query $access_permission_query ORDER BY network_name ASC");
+    // Location Filter
+    if (!empty($_POST['location'])) {
+        $filter_location_id = intval($_POST['location']);
+        $location_query = "AND (network_location_id = $filter_location_id)";
+        $filter_summary['Location'] = getFieldById('locations', $filter_location_id, 'location_name');
+    } else {
+        // Default - any
+        $location_query = '';
+    }
+
+    // Search Filter
+    $q = escapeSql($_POST['q'] ?? '');
+    if (!empty($q)) {
+        $filter_summary['Search'] = $_POST['q'];
+    }
+
+    $sql = mysqli_query(
+        $mysqli,
+        "SELECT * FROM networks
+        LEFT JOIN clients ON client_id = network_client_id
+        LEFT JOIN locations ON location_id = network_location_id
+        WHERE $archive_query
+        AND (network_name LIKE '%$q%' OR network_description LIKE '%$q%' OR network_vlan LIKE '%$q%' OR network LIKE '%$q%' OR network_gateway LIKE '%$q%' OR network_primary_dns LIKE '%$q%' OR network_secondary_dns LIKE '%$q%' OR client_name LIKE '%$q%')
+        $access_permission_query
+        $location_query
+        $client_query
+        ORDER BY network_name ASC"
+    );
 
     $num_rows = mysqli_num_rows($sql);
 
     if ($num_rows > 0) {
-        $delimiter = ",";
-        $enclosure = '"';
-        $escape    = '\\';   // backslash
-        $filename = sanitizeFilename($file_name_prepend . "Networks-" . date('Y-m-d_H-i-s') . ".csv");
 
-        //create a file pointer
-        $f = fopen('php://memory', 'w');
+        guardExportPdfRowCount($format, $num_rows);
 
-        //set column headers
-        $fields = array('Name', 'Description', 'VLAN', 'Network (CIDR)', 'Gateway', 'IP Range', 'Primary DNS', 'Secondary DNS');
-        fputcsv($f, $fields, $delimiter, $enclosure, $escape);
+        $export = beginExport('networks', $format, $file_name_prepend . 'Networks', 'Networks', summarizeExportFilters($filter_summary));
 
-        //output each row of the data, format line as csv and write to file pointer
-        while ($row = $sql->fetch_assoc()) {
-            $lineData = array($row['network_name'], $row['network_description'], $row['network_vlan'], $row['network'], $row['network_gateway'], $row['network_dhcp_range'], $row['network_primary_dns'], $row['network_secondary_dns']);
-            fputcsv($f, array_map('escapeCsvFormula', $lineData), $delimiter, $enclosure, $escape);
+        while ($row = mysqli_fetch_assoc($sql)) {
+            addExportRow($export, $row);
         }
 
-        //move back to beginning of file
-        fseek($f, 0);
-
-        //set headers to download file rather than displayed
-        header('Content-Type: text/csv');
-        header('Content-Disposition: attachment; filename="' . $filename . '";');
-
-        //output all remaining data on a file pointer
-        fpassthru($f);
+        finishExport($export);
     }
 
-    logAudit("Network", "Export", "$session_name deleted $num_rows network(s) to a CSV file", $client_id);
+    logAudit("Network", "Export", "$session_name exported $num_rows network(s) to a " . strtoupper($format) . " file", $client_id);
 
     exit;
 
@@ -232,7 +267,7 @@ if (isset($_POST['export_networks_csv'])) {
 
 // ============================================================
 // Add these two blocks to agent/post/network.php
-// Place them alongside the existing export_networks_csv block.
+// Place them alongside the existing export_networks block.
 // ============================================================
 
 // ----------------------------------------------------------

@@ -350,59 +350,74 @@ if (isset($_POST['bulk_delete_vendors'])) {
 
 }
 
-if (isset($_POST['export_vendors_csv'])) {
+if (isset($_POST['export_vendors'])) {
 
     validateCSRFToken();
 
-    if ($_POST['client_id']) {
+    // Exports are reads - see CONTRIBUTING.md
+    enforceUserPermission('module_client');
+
+    $format = resolveExportFormat($_POST['export_vendors']);
+
+    // Filters inherited from the vendors page - mirrors agent/vendors.php
+    $filter_summary = [];
+
+    // Archived Filter
+    $archived = (isset($_POST['archived']) && $_POST['archived'] == 1);
+    if ($archived) {
+        $filter_summary['Archived'] = 'Archived only';
+    }
+
+    if (!empty($_POST['client_id'])) {
         $client_id = intval($_POST['client_id']);
-        $client_query = "WHERE vendor_client_id = $client_id";
+        $client_query = "AND vendor_client_id = $client_id";
         $client_name = getFieldById('clients', $client_id, 'client_name');
         $file_name_prepend = "$client_name-";
-        enforceUserPermission('module_client');
+        $filter_summary['Client'] = $client_name;
+
         enforceClientAccess();
     } else {
-        $client_query = "WHERE vendor_client_id = 0";
-        $client_name = '';
+        // Global vendors only, same as the vendors page
+        $client_query = "AND vendor_client_id = 0";
+        $client_id = 0; // for Logging
         $file_name_prepend = "$session_company_name-";
-        enforceUserPermission('module_financial');
     }
 
-    $sql = mysqli_query($mysqli,"SELECT * FROM vendors LEFT JOIN clients ON client_id = vendor_client_id $client_query ORDER BY vendor_name ASC");
+    $archive_query = $archived ? "vendor_archived_at IS NOT NULL" : "vendor_archived_at IS NULL";
 
-    $count = mysqli_num_rows($sql);
+    // Search Filter
+    $q = escapeSql($_POST['q'] ?? '');
+    if (!empty($q)) {
+        $filter_summary['Search'] = $_POST['q'];
+    }
 
-    if ($count > 0) {
-        $delimiter = ",";
-        $enclosure = '"';
-        $escape    = '\\';   // backslash
-        $filename = sanitizeFilename($file_name_prepend . "Vendors-" . date('Y-m-d_H-i-s') . ".csv");
+    $sql = mysqli_query(
+        $mysqli,
+        "SELECT * FROM vendors
+        LEFT JOIN clients ON client_id = vendor_client_id
+        WHERE $archive_query
+        AND (vendor_name LIKE '%$q%' OR vendor_description LIKE '%$q%' OR vendor_account_number LIKE '%$q%' OR vendor_website LIKE '%$q%' OR vendor_contact_name LIKE '%$q%' OR vendor_email LIKE '%$q%' OR vendor_phone LIKE '%$q%')
+        $client_query
+        $access_permission_query
+        ORDER BY vendor_name ASC"
+    );
 
-        //create a file pointer
-        $f = fopen('php://memory', 'w');
+    $num_rows = mysqli_num_rows($sql);
 
-        //set column headers
-        $fields = array('Name', 'Description', 'Contact Name', 'Phone', 'Website', 'Account Number', 'Notes');
-        fputcsv($f, $fields, $delimiter, $enclosure, $escape);
+    if ($num_rows > 0) {
 
-        //output each row of the data, format line as csv and write to file pointer
-        while($row = $sql->fetch_assoc()) {
-            $lineData = array($row['vendor_name'], $row['vendor_description'], $row['vendor_contact_name'], $row['vendor_phone'], $row['vendor_website'], $row['vendor_account_number'], $row['vendor_notes']);
-            fputcsv($f, array_map('escapeCsvFormula', $lineData), $delimiter, $enclosure, $escape);
+        guardExportPdfRowCount($format, $num_rows);
+
+        $export = beginExport('vendors', $format, $file_name_prepend . 'Vendors', 'Vendors', summarizeExportFilters($filter_summary));
+
+        while ($row = mysqli_fetch_assoc($sql)) {
+            addExportRow($export, $row);
         }
 
-        //move back to beginning of file
-        fseek($f, 0);
-
-        //set headers to download file rather than displayed
-        header('Content-Type: text/csv');
-        header('Content-Disposition: attachment; filename="' . $filename . '";');
-
-        //output all remaining data on a file pointer
-        fpassthru($f);
+        finishExport($export);
     }
 
-    logAudit("Vendor", "Export", "$session_name exported $count vendor(s) to a CSV file");
+    logAudit("Vendor", "Export", "$session_name exported $num_rows vendor(s) to a " . strtoupper($format) . " file", $client_id);
 
     exit;
 

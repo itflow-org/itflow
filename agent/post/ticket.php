@@ -2695,59 +2695,193 @@ if (isset($_POST['add_quote_from_ticket'])) {
 
 }
 
-if (isset($_POST['export_tickets_csv'])) {
+if (isset($_POST['export_tickets'])) {
 
     validateCSRFToken();
 
-    enforceUserPermission('module_support', 2);
+    // Exports are reads - see CONTRIBUTING.md
+    enforceUserPermission('module_support');
 
-    if ($_POST['client_id']) {
+    $format = resolveExportFormat($_POST['export_tickets']);
+
+    // Filters inherited from the tickets page - mirrors agent/tickets.php
+    $filter_summary = [];
+
+    if (!empty($_POST['client_id'])) {
         $client_id = intval($_POST['client_id']);
-        $client_query = "WHERE ticket_client_id = $client_id";
+        $client_query = "AND ticket_client_id = $client_id";
         $client_name = getFieldById('clients', $client_id, 'client_name');
         $file_name_prepend = "$client_name-";
+        $filter_summary['Client'] = $client_name;
+
+        enforceClientAccess();
     } else {
         $client_query = '';
-        $client_name = '';
+        $client_id = 0; // for Logging
         $file_name_prepend = "$session_company_name-";
+
+        // Client Filter - the global ticket list can be narrowed to one client
+        if (!empty($_POST['client'])) {
+            $filter_client_id = intval($_POST['client']);
+            $client_query = "AND ticket_client_id = $filter_client_id";
+            $filter_summary['Client'] = getFieldById('clients', $filter_client_id, 'client_name');
+        }
     }
 
+    // Status Filter - a set of status IDs, or the Open / Closed shorthand
+    if (isset($_POST['status']) && is_array($_POST['status']) && !empty($_POST['status'])) {
+        $status_ids = implode(",", array_map('intval', $_POST['status']));
+        $ticket_status_snippet = "ticket_status IN ($status_ids)";
+
+        $status_names = [];
+        $sql_statuses = mysqli_query($mysqli, "SELECT ticket_status_name FROM ticket_statuses WHERE ticket_status_id IN ($status_ids) ORDER BY ticket_status_name ASC");
+        while ($status_row = mysqli_fetch_assoc($sql_statuses)) {
+            $status_names[] = $status_row['ticket_status_name'];
+        }
+        $filter_summary['Status'] = implode(', ', $status_names);
+    } elseif (!empty($_POST['resolution']) && $_POST['resolution'] == 'Closed') {
+        $ticket_status_snippet = "ticket_resolved_at IS NOT NULL";
+        $filter_summary['Status'] = 'Closed';
+    } else {
+        // Default - open tickets
+        $ticket_status_snippet = "ticket_resolved_at IS NULL";
+        $filter_summary['Status'] = 'Open';
+    }
+
+    // Billable / unbilled Filter - overrides the status snippet, same as the page
+    if (isset($_POST['billable']) && $_POST['billable'] == 1 && isset($_POST['unbilled'])) {
+        $ticket_billable_snippet = "AND ticket_billable = 1 AND ticket_invoice_id = 0";
+        $ticket_status_snippet = '1 = 1';
+        $filter_summary['Billable'] = 'Billable, not yet invoiced';
+    } else {
+        $ticket_billable_snippet = '';
+    }
+
+    // Category Filter
+    if (!empty($_POST['category'])) {
+        $filter_category_id = intval($_POST['category']);
+        $category_query = "AND (ticket_category = $filter_category_id)";
+        $filter_summary['Category'] = getFieldById('categories', $filter_category_id, 'category_name');
+    } else {
+        // Default - any
+        $category_query = '';
+    }
+
+    // Assignment Filter
+    if (!empty($_POST['assigned'])) {
+        if ($_POST['assigned'] == 'unassigned') {
+            $ticket_assigned_query = 'AND ticket_assigned_to = 0';
+            $filter_summary['Assigned'] = 'Unassigned';
+        } else {
+            $filter_user_id = intval($_POST['assigned']);
+            $ticket_assigned_query = "AND ticket_assigned_to = $filter_user_id";
+            $filter_summary['Assigned'] = getFieldById('users', $filter_user_id, 'user_name');
+        }
+    } else {
+        // Default - any
+        $ticket_assigned_query = '';
+    }
+
+    // SLA State Filter
+    $ticket_sla_query = '';
+    if (!empty($_POST['sla'])) {
+        $sla_filter = $_POST['sla'];
+        if ($sla_filter == 'breached') {
+            $ticket_sla_query = 'AND ticket_sla_id > 0 AND (ticket_response_sla_alert_stage = 2 OR ticket_resolution_sla_alert_stage = 2 OR ticket_response_sla_met = 0 OR ticket_resolution_sla_met = 0)';
+            $filter_summary['SLA'] = 'SLA breached';
+        } elseif ($sla_filter == 'at_risk') {
+            $ticket_sla_query = 'AND ticket_sla_id > 0 AND COALESCE(ticket_status_pauses_sla, 0) = 0 AND (ticket_response_sla_alert_stage = 1 OR ticket_resolution_sla_alert_stage = 1)';
+            $filter_summary['SLA'] = 'SLA at risk';
+        } elseif ($sla_filter == 'paused') {
+            $ticket_sla_query = 'AND ticket_sla_id > 0 AND ticket_status_pauses_sla = 1';
+            $filter_summary['SLA'] = 'SLA paused';
+        } elseif ($sla_filter == 'met') {
+            $ticket_sla_query = 'AND ticket_sla_id > 0 AND ticket_response_sla_met = 1 AND (ticket_resolution_sla_met = 1 OR ticket_resolution_due_at IS NULL)';
+            $filter_summary['SLA'] = 'SLA met';
+        } elseif ($sla_filter == 'none') {
+            $ticket_sla_query = 'AND ticket_sla_id = 0';
+            $filter_summary['SLA'] = 'No SLA';
+        }
+    }
+
+    // Project Filter
+    if (!empty($_POST['project']) && $_POST['project'] > '0') {
+        $filter_project_id = intval($_POST['project']);
+        $ticket_project_snippet = "AND ticket_project_id = $filter_project_id";
+        $filter_summary['Project'] = getFieldById('projects', $filter_project_id, 'project_name');
+    } else {
+        // Default - any, including tickets without a project
+        $ticket_project_snippet = '';
+    }
+
+    // Client access override - the only way tickets without a client reach agents
+    // with restricted client access
+    $access_permission_query_overide = '';
+    if ($client_access_string) {
+        $access_permission_query_overide = "AND ticket_client_id IN (0,$client_access_string)";
+    }
+
+    // Date Filter
+    $dtf = escapeSql(!empty($_POST['dtf']) ? $_POST['dtf'] : '1970-01-01');
+    $dtt = escapeSql(!empty($_POST['dtt']) ? $_POST['dtt'] : '2099-12-31');
+    $date_range = formatExportDateRange($dtf, $dtt);
+    if ($date_range) {
+        $filter_summary['Opened'] = $date_range;
+    }
+
+    // Search Filter
+    $q = escapeSql($_POST['q'] ?? '');
+    if (!empty($q)) {
+        $filter_summary['Search'] = $_POST['q'];
+    }
+
+    // Get records from database - same shape as the tickets page list query
     $sql = mysqli_query(
         $mysqli,
         "SELECT * FROM tickets
+        LEFT JOIN clients ON ticket_client_id = client_id
+        LEFT JOIN contacts ON ticket_contact_id = contact_id
+        LEFT JOIN users ON ticket_assigned_to = user_id
+        LEFT JOIN assets ON ticket_asset_id = asset_id
+        LEFT JOIN locations ON ticket_location_id = location_id
+        LEFT JOIN vendors ON ticket_vendor_id = vendor_id
         LEFT JOIN ticket_statuses ON ticket_status = ticket_status_id
-        $client_query ORDER BY ticket_number ASC"
+        LEFT JOIN categories ON ticket_category = category_id
+        WHERE $ticket_status_snippet
+        $ticket_assigned_query
+        $category_query
+        AND DATE(ticket_created_at) BETWEEN '$dtf' AND '$dtt'
+        AND (CONCAT(ticket_prefix,ticket_number) LIKE '%$q%' OR client_name LIKE '%$q%' OR ticket_subject LIKE '%$q%' OR ticket_status_name LIKE '%$q%' OR ticket_priority LIKE '%$q%' OR user_name LIKE '%$q%' OR contact_name LIKE '%$q%' OR asset_name LIKE '%$q%' OR vendor_name LIKE '%$q%')
+        $ticket_sla_query
+        $ticket_billable_snippet
+        $ticket_project_snippet
+        $access_permission_query_overide
+        $client_query
+        ORDER BY ticket_number ASC"
     );
 
-    if ($sql->num_rows > 0) {
-        $delimiter = ",";
-        $enclosure = '"';
-        $escape    = '\\';   // backslash
-        $filename = sanitizeFilename($file_name_prepend . "Tickets-" . date('Y-m-d_H-i-s') . ".csv");
+    $num_rows = mysqli_num_rows($sql);
 
-        //create a file pointer
-        $f = fopen('php://memory', 'w');
+    if ($num_rows > 0) {
 
-        //set column headers
-        $fields = array('Ticket Number', 'Priority', 'Status', 'Subject', 'Date Opened', 'Date Resolved', 'Date Closed');
-        fputcsv($f, $fields, $delimiter, $enclosure, $escape);
+        guardExportPdfRowCount($format, $num_rows);
 
-        //output each row of the data, format line as csv and write to file pointer
-        while ($row = $sql->fetch_assoc()) {
-            $lineData = array($config_ticket_prefix . $row['ticket_number'], $row['ticket_priority'], $row['ticket_status_name'], $row['ticket_subject'], $row['ticket_created_at'], $row['ticket_resolved_at'], $row['ticket_closed_at']);
-            fputcsv($f, array_map('escapeCsvFormula', $lineData), $delimiter, $enclosure, $escape);
+        $export = beginExport('tickets', $format, $file_name_prepend . 'Tickets', 'Tickets', summarizeExportFilters($filter_summary));
+
+        while ($row = mysqli_fetch_assoc($sql)) {
+            // Per-ticket prefix where the row carries one, config default otherwise
+            $row['ticket_number_display'] = ($row['ticket_prefix'] ?: $config_ticket_prefix) . $row['ticket_number'];
+            $row['ticket_category_name'] = $row['category_name'];
+            $row['ticket_assigned_to'] = $row['user_name'];
+            $row['ticket_billable'] = $row['ticket_billable'] ? 'Yes' : 'No';
+            addExportRow($export, $row);
         }
 
-        //move back to beginning of file
-        fseek($f, 0);
-
-        //set headers to download file rather than displayed
-        header('Content-Type: text/csv');
-        header('Content-Disposition: attachment; filename="' . $filename . '";');
-
-        //output all remaining data on a file pointer
-        fpassthru($f);
+        finishExport($export);
     }
+
+    logAudit("Ticket", "Export", "$session_name exported $num_rows ticket(s) to a " . strtoupper($format) . " file", $client_id);
+
     exit;
 
 }

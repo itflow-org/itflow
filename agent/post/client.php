@@ -528,51 +528,125 @@ if (isset($_GET['delete_client'])) {
 
 }
 
-if (isset($_POST['export_clients_csv'])) {
+if (isset($_POST['export_clients'])) {
 
     validateCSRFToken();
 
-    enforceUserPermission('module_client', 1);
+    enforceUserPermission('module_client');
 
-    //get records from database
-    $sql = mysqli_query($mysqli, "SELECT * FROM clients
+    $format = resolveExportFormat($_POST['export_clients']);
+
+    // Filters inherited from the clients page - mirrors agent/clients.php
+    $filter_summary = [];
+
+    // Leads Filter
+    if (isset($_POST['leads']) && $_POST['leads'] == 1) {
+        $leads_query = "AND client_lead = 1";
+        $filter_summary['Showing'] = 'Leads';
+        $export_label = 'Leads';
+    } else {
+        $leads_query = "AND client_lead = 0";
+        $export_label = 'Clients';
+    }
+
+    // Tags Filter
+    if (isset($_POST['tags']) && is_array($_POST['tags']) && !empty($_POST['tags'])) {
+        $tag_filter = implode(",", array_map('intval', $_POST['tags']));
+        $tag_query = "AND tags.tag_id IN ($tag_filter)";
+
+        $tag_names = [];
+        $sql_tags = mysqli_query($mysqli, "SELECT tag_name FROM tags WHERE tag_id IN ($tag_filter) ORDER BY tag_name ASC");
+        while ($tag_row = mysqli_fetch_assoc($sql_tags)) {
+            $tag_names[] = $tag_row['tag_name'];
+        }
+        $filter_summary['Tags'] = implode(', ', $tag_names);
+    } else {
+        // Default - any
+        $tag_query = '';
+    }
+
+    // Industry Filter
+    if (!empty($_POST['industry'])) {
+        $industry_query = "AND (clients.client_type = '" . escapeSql($_POST['industry']) . "')";
+        $filter_summary['Industry'] = $_POST['industry'];
+    } else {
+        // Default - any
+        $industry_query = '';
+    }
+
+    // Referral Filter
+    if (!empty($_POST['referral'])) {
+        $referral_query = "AND (clients.client_referral = '" . escapeSql($_POST['referral']) . "')";
+        $filter_summary['Referral'] = $_POST['referral'];
+    } else {
+        // Default - any
+        $referral_query = '';
+    }
+
+    // Archived Filter
+    if (isset($_POST['archived']) && $_POST['archived'] == 1) {
+        $archive_query = "client_archived_at IS NOT NULL";
+        $filter_summary['Archived'] = 'Archived only';
+    } else {
+        $archive_query = "client_archived_at IS NULL";
+    }
+
+    // Date Filter - all-time sentinels from filter_header.php are left in place,
+    // they match everything anyway
+    $dtf = escapeSql(!empty($_POST['dtf']) ? $_POST['dtf'] : '1970-01-01');
+    $dtt = escapeSql(!empty($_POST['dtt']) ? $_POST['dtt'] : '2099-12-31');
+    $date_range = formatExportDateRange($dtf, $dtt);
+    if ($date_range) {
+        $filter_summary['Created'] = $date_range;
+    }
+
+    // Search Filter
+    $q = escapeSql($_POST['q'] ?? '');
+    $phone_query = preg_replace('/\D/', '', $q);
+    if (!empty($q)) {
+        $filter_summary['Search'] = $_POST['q'];
+    }
+
+    // Get records from database - same shape as the clients page list query
+    $sql = mysqli_query(
+        $mysqli,
+        "SELECT clients.*, contacts.*, locations.*
+        FROM clients
         LEFT JOIN contacts ON clients.client_id = contacts.contact_client_id AND contact_primary = 1
         LEFT JOIN locations ON clients.client_id = locations.location_client_id AND location_primary = 1
-        ORDER BY client_name ASC
-    ");
+        LEFT JOIN client_tags ON client_tags.client_id = clients.client_id
+        LEFT JOIN tags ON tags.tag_id = client_tags.tag_id
+        WHERE (client_name LIKE '%$q%' OR client_abbreviation LIKE '%$q%' OR client_type LIKE '%$q%' OR client_referral LIKE '%$q%'
+               OR contact_email LIKE '%$q%' OR contact_name LIKE '%$q%' OR contact_phone LIKE '%$phone_query%'
+               OR contact_mobile LIKE '%$phone_query%' OR location_address LIKE '%$q%'
+               OR location_city LIKE '%$q%' OR location_state LIKE '%$q%' OR location_zip LIKE '%$q%' OR location_country LIKE '%$q%'
+               OR tag_name LIKE '%$q%' OR client_tax_id_number LIKE '%$q%')
+          AND $archive_query
+          AND DATE(client_created_at) BETWEEN '$dtf' AND '$dtt'
+          $leads_query
+          $access_permission_query
+          $tag_query
+          $industry_query
+          $referral_query
+        GROUP BY client_id
+        ORDER BY client_name ASC"
+    );
 
     $num_rows = mysqli_num_rows($sql);
 
     if ($num_rows > 0) {
-        $delimiter = ",";
-        $enclosure = '"';
-        $escape    = '\\';   // backslash
-        $filename = sanitizeFilename($session_company_name . "-Clients-" . date('Y-m-d_H-i-s') . ".csv");
 
-        //create a file pointer
-        $f = fopen('php://memory', 'w');
+        guardExportPdfRowCount($format, $num_rows);
 
-        //set column headers
-        $fields = array('Client Name', 'Industry', 'Referral', 'Website', 'Primary Location Name', 'Location Phone', 'Location Address', 'City', 'State', 'Postal Code', 'Country', 'Primary Contact Name', 'Title', 'Contact Phone', 'Extension', 'Contact Mobile', 'Contact Email', 'Hourly Rate', 'Currency', 'Payment Terms', 'Tax ID', 'Abbreviation');
-        fputcsv($f, $fields, $delimiter, $enclosure, $escape);
+        $export = beginExport('clients', $format, "$session_company_name-$export_label", $export_label, summarizeExportFilters($filter_summary));
 
-        //output each row of the data, format line as csv and write to file pointer
-        while($row = $sql->fetch_assoc()) {
-            $lineData = array($row['client_name'], $row['client_type'], $row['client_referral'], $row['client_website'], $row['location_name'], formatPhoneNumber($row['location_phone']), $row['location_address'], $row['location_city'], $row['location_state'], $row['location_zip'], $row['location_country'], $row['contact_name'], $row['contact_title'], formatPhoneNumber($row['contact_phone']), $row['contact_extension'], formatPhoneNumber($row['contact_mobile']), $row['contact_email'], $row['client_rate'], $row['client_currency_code'], $row['client_net_terms'], $row['client_tax_id_number'], $row['client_abbreviation']);
-            fputcsv($f, array_map('escapeCsvFormula', $lineData), $delimiter, $enclosure, $escape);
+        while ($row = mysqli_fetch_assoc($sql)) {
+            addExportRow($export, $row);
         }
 
-        //move back to beginning of file
-        fseek($f, 0);
+        finishExport($export);
 
-        //set headers to download file rather than displayed
-        header('Content-Type: text/csv');
-        header('Content-Disposition: attachment; filename="' . $filename . '";');
-
-        //output all remaining data on a file pointer
-        fpassthru($f);
-
-        logAudit("Client", "Export", "$session_name exported $num_rows client(s) to a CSV file");
+        logAudit("Client", "Export", "$session_name exported $num_rows client(s) to a " . strtoupper($format) . " file");
 
     }
 

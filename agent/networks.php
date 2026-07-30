@@ -83,7 +83,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     <div class="dropdown-menu">
                         <?php if ($num_rows[0] > 0) { ?>
                         <a class="dropdown-item text-dark ajax-modal" href="#"
-                            data-modal-url="modals/network/network_export.php?<?= $client_url ?>">
+                            data-modal-url="<?= buildExportModalUrl('modals/network/network_export.php', ['client_id', 'client', 'location', 'archived', 'q']) ?>">
                             <i class="fa fa-fw fa-download mr-2"></i>Export
                         </a>
                         <?php } ?>

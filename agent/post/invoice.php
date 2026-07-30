@@ -650,69 +650,117 @@ if (isset($_GET['email_invoice'])) {
 
 }
 
-if (isset($_POST['export_invoices_csv'])) {
+if (isset($_POST['export_invoices'])) {
 
     validateCSRFToken();
 
     enforceUserPermission('module_sales');
 
-    if ($_POST['client_id']) {
+    $format = resolveExportFormat($_POST['export_invoices']);
+
+    // Filters inherited from the invoices page - mirrors agent/invoices.php
+    $filter_summary = [];
+
+    if (!empty($_POST['client_id'])) {
         $client_id = intval($_POST['client_id']);
-        $client_query = "1=1 AND invoice_client_id = $client_id";
+        $client_query = "AND invoice_client_id = $client_id";
         $client_name = getFieldById('clients', $client_id, 'client_name');
         $file_name_prepend = "$client_name-";
+        $filter_summary['Client'] = $client_name;
+
         enforceClientAccess();
     } else {
-        $client_query = '1=1 ';
-        $client_name = '';
+        $client_query = '';
+        $client_id = 0; // for Logging
         $file_name_prepend = "$session_company_name-";
     }
 
-    $date_from = escapeSql($_POST['date_from']);
-    $date_to = escapeSql($_POST['date_to']);
-    if (!empty($date_from) && !empty($date_to)) {
-        $date_query = "DATE(invoice_date) BETWEEN '$date_from' AND '$date_to'";
-        $file_name_date = "$date_from-to-$date_to";
-    }else{
-        $date_query = "";
-        $file_name_date = date('Y-m-d_H-i-s');
+    // Status Filter
+    $overdue_query = '';
+    if (!empty($_POST['status']) && $_POST['status'] == 'Draft') {
+        $status_query = "invoice_status = 'Draft'";
+        $filter_summary['Status'] = 'Draft';
+    } elseif (!empty($_POST['status']) && $_POST['status'] == 'Unpaid') {
+        $status_query = "invoice_status = 'Sent' OR invoice_status = 'Viewed' OR invoice_status = 'Partial'";
+        $filter_summary['Status'] = 'Unpaid';
+    } elseif (!empty($_POST['status']) && $_POST['status'] == 'Overdue') {
+        $status_query = "invoice_status = 'Sent' OR invoice_status = 'Viewed' OR invoice_status = 'Partial'";
+        $overdue_query = "AND (invoice_due < CURDATE())";
+        $filter_summary['Status'] = 'Overdue';
+    } else {
+        // Default - any
+        $status_query = "invoice_status LIKE '%'";
     }
 
-    $sql = mysqli_query($mysqli,"SELECT * FROM invoices LEFT JOIN clients ON invoice_client_id = client_id WHERE $date_query AND $client_query $access_permission_query ORDER BY invoice_number ASC");
+    // Category Filter
+    if (!empty($_POST['category'])) {
+        $filter_category_id = intval($_POST['category']);
+        $category_query = "AND (category_id = $filter_category_id)";
+        $filter_summary['Category'] = getFieldById('categories', $filter_category_id, 'category_name');
+    } else {
+        // Default - any
+        $category_query = '';
+    }
+
+    // Date Filter - drives the file name too, when a real range is in play
+    $dtf = escapeSql(!empty($_POST['dtf']) ? $_POST['dtf'] : '1970-01-01');
+    $dtt = escapeSql(!empty($_POST['dtt']) ? $_POST['dtt'] : '2099-12-31');
+    $date_range = formatExportDateRange($dtf, $dtt);
+    if ($date_range) {
+        $filter_summary['Issued'] = $date_range;
+        $file_name_append = "-$dtf-to-$dtt";
+    } else {
+        $file_name_append = '';
+    }
+
+    // Search Filter
+    $q = escapeSql($_POST['q'] ?? '');
+    if (!empty($q)) {
+        $filter_summary['Search'] = $_POST['q'];
+    }
+
+    // Get records from database - same shape as the invoices page list query
+    $sql = mysqli_query(
+        $mysqli,
+        "SELECT * FROM invoices
+        LEFT JOIN clients ON invoice_client_id = client_id
+        LEFT JOIN categories ON invoice_category_id = category_id
+        WHERE ($status_query)
+        $overdue_query
+        $category_query
+        AND DATE(invoice_date) BETWEEN '$dtf' AND '$dtt'
+        AND (CONCAT(invoice_prefix,invoice_number) LIKE '%$q%' OR invoice_scope LIKE '%$q%' OR client_name LIKE '%$q%' OR invoice_status LIKE '%$q%' OR invoice_amount LIKE '%$q%' OR category_name LIKE '%$q%')
+        $access_permission_query
+        $client_query
+        ORDER BY invoice_number ASC"
+    );
 
     $num_rows = mysqli_num_rows($sql);
 
     if ($num_rows > 0) {
-        $delimiter = ",";
-        $enclosure = '"';
-        $escape    = '\\';   // backslash
-        $filename = sanitizeFilename($file_name_prepend . "Invoices-$file_name_date.csv");
 
-        //create a file pointer
-        $f = fopen('php://memory', 'w');
+        guardExportPdfRowCount($format, $num_rows);
 
-        //set column headers
-        $fields = array('Invoice Number', 'Scope', 'Amount', 'Issued Date', 'Due Date', 'Status');
-        fputcsv($f, $fields, $delimiter, $enclosure, $escape);
+        $export = beginExport('invoices', $format, $file_name_prepend . 'Invoices' . $file_name_append, 'Invoices', summarizeExportFilters($filter_summary));
 
-        //output each row of the data, format line as csv and write to file pointer
-        while($row = $sql->fetch_assoc()) {
-            $lineData = array($row['invoice_prefix'] . $row['invoice_number'], $row['invoice_scope'], $row['invoice_amount'], $row['invoice_date'], $row['invoice_due'], $row['invoice_status'], $row['client_name']);
-            fputcsv($f, array_map('escapeCsvFormula', $lineData), $delimiter, $enclosure, $escape);
+        while ($row = mysqli_fetch_assoc($sql)) {
+            $row['invoice_number_display'] = $row['invoice_prefix'] . $row['invoice_number'];
+
+            // Paid / balance are opt-in columns - only pay for the lookup if asked
+            if (isset($export['columns']['amount_paid']) || isset($export['columns']['invoice_balance'])) {
+                $invoice_id = intval($row['invoice_id']);
+                $payment_row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT SUM(payment_amount) AS amount_paid FROM payments WHERE payment_invoice_id = $invoice_id AND payment_archived_at IS NULL"));
+                $row['amount_paid'] = floatval($payment_row['amount_paid']);
+                $row['invoice_balance'] = floatval($row['invoice_amount']) - $row['amount_paid'];
+            }
+
+            addExportRow($export, $row);
         }
 
-        //move back to beginning of file
-        fseek($f, 0);
-
-        //set headers to download file rather than displayed
-        header('Content-Type: text/csv');
-        header('Content-Disposition: attachment; filename="' . $filename . '";');
-
-        //output all remaining data on a file pointer
-        fpassthru($f);
+        finishExport($export);
     }
 
-    logAudit("Invoice", "Export", "$session_name exported $num_rows invoices to CSV file");
+    logAudit("Invoice", "Export", "$session_name exported $num_rows invoice(s) to a " . strtoupper($format) . " file", $client_id);
 
     exit;
 

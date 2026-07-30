@@ -98,7 +98,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         </a>
                         <div class="dropdown-divider"></div>
                         <a class="dropdown-item text-dark ajax-modal" href="#"
-                            data-modal-url="modals/client/client_export.php">
+                            data-modal-url="<?= buildExportModalUrl('modals/client/client_export.php', ['leads', 'tags', 'industry', 'referral', 'q', 'archived'], ['dtf' => $dtf, 'dtt' => $dtt]) ?>">
                             <i class="fa fa-fw fa-download mr-2"></i>Export
                         </a>
                     </div>

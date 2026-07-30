@@ -50,7 +50,18 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
         <h3 class="card-title mt-2"><i class="fa fa-redo-alt mr-2"></i>Recurring Invoices</h3>
         <?php if (lookupUserPermission("module_sales") >= 2) { ?>
         <div class="card-tools">
-            <button type="button" class="btn btn-primary ajax-modal" data-modal-url="modals/recurring_invoice/recurring_invoice_add.php?<?= $client_url ?>"><i class="fas fa-plus"></i><span class="d-none d-lg-inline ml-2">New Recurring Invoice</span></button>
+            <div class="btn-group">
+                <button type="button" class="btn btn-primary ajax-modal" data-modal-url="modals/recurring_invoice/recurring_invoice_add.php?<?= $client_url ?>"><i class="fas fa-plus"></i><span class="d-none d-lg-inline ml-2">New Recurring Invoice</span></button>
+                <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown"></button>
+                <div class="dropdown-menu">
+                    <?php if ($num_rows[0] > 0) { ?>
+                        <a class="dropdown-item text-dark ajax-modal" href="#"
+                            data-modal-url="<?= buildExportModalUrl('modals/recurring_invoice/recurring_invoice_export.php', ['client_id', 'status', 'q'], ['dtf' => $dtf, 'dtt' => $dtt]) ?>">
+                            <i class="fa fa-fw fa-download mr-2"></i>Export
+                        </a>
+                    <?php } ?>
+                </div>
+            </div>
         </div>
         <?php } ?>
     </div>

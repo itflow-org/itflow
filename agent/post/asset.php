@@ -1303,62 +1303,155 @@ if (isset($_GET['download_assets_csv_template'])) {
 
 }
 
-if (isset($_POST['export_assets_csv'])) {
+if (isset($_POST['export_assets'])) {
 
     validateCSRFToken();
 
     enforceUserPermission('module_support');
 
-    if ($_POST['client_id']) {
+    $format = resolveExportFormat($_POST['export_assets']);
+
+    // Filters inherited from the assets page - mirrors agent/assets.php
+    $filter_summary = [];
+
+    if (!empty($_POST['client_id'])) {
         $client_id = intval($_POST['client_id']);
         $client_query = "AND asset_client_id = $client_id";
 
-        $client_row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT client_name FROM clients WHERE client_id = $client_id"));
+        $client_row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT client_name FROM clients WHERE client_id = $client_id"));
         $client_name = $client_row['client_name'];
         $file_name_prepend = "$client_name-";
+        $filter_summary['Client'] = $client_name;
 
         enforceClientAccess();
     } else {
         $client_query = '';
         $client_id = 0; // for Logging
         $file_name_prepend = "$session_company_name-";
+
+        // Client Filter
+        if (!empty($_POST['client'])) {
+            $filter_client_id = intval($_POST['client']);
+            $client_query = "AND (asset_client_id = $filter_client_id)";
+            $client_row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT client_name FROM clients WHERE client_id = $filter_client_id"));
+            $filter_summary['Client'] = $client_row['client_name'] ?? '';
+        }
     }
 
-    // Get records from database
-    $sql = mysqli_query($mysqli,"SELECT * FROM assets LEFT JOIN contacts ON asset_contact_id = contact_id LEFT JOIN locations ON asset_location_id = location_id LEFT JOIN asset_interfaces ON interface_asset_id = asset_id AND interface_primary = 1 LEFT JOIN clients ON asset_client_id = client_id WHERE asset_archived_at IS NULL $client_query $access_permission_query ORDER BY asset_name ASC");
+    // Archived Filter
+    if (isset($_POST['archived']) && $_POST['archived'] == 1) {
+        $archive_query = $client_id ? "asset_archived_at IS NOT NULL" : "(client_archived_at IS NOT NULL OR asset_archived_at IS NOT NULL)";
+        $filter_summary['Archived'] = 'Archived only';
+    } else {
+        $archive_query = $client_id ? "asset_archived_at IS NULL" : "(client_archived_at IS NULL AND asset_archived_at IS NULL)";
+    }
+
+    // Type Filter
+    $type = $_POST['type'] ?? '';
+    if ($type == 'workstation') {
+        $type_query = "asset_type = 'desktop' OR asset_type = 'laptop'";
+    } elseif ($type == 'server') {
+        $type_query = "asset_type = 'server'";
+    } elseif ($type == 'virtual') {
+        $type_query = "asset_type = 'Virtual Machine'";
+    } elseif ($type == 'network') {
+        $type_query = "asset_type = 'Firewall/Router' OR asset_type = 'Switch' OR asset_type = 'Access Point'";
+    } elseif ($type == 'other') {
+        $type_query = "asset_type NOT LIKE 'laptop' AND asset_type NOT LIKE 'desktop' AND asset_type NOT LIKE 'server' AND asset_type NOT LIKE 'virtual machine' AND asset_type NOT LIKE 'firewall/router' AND asset_type NOT LIKE 'switch' AND asset_type NOT LIKE 'access point'";
+    } else {
+        // Default - any
+        $type = '';
+        $type_query = "asset_type LIKE '%'";
+    }
+    if ($type) {
+        $filter_summary['Type'] = ucwords($type);
+    }
+
+    // Location Filter
+    if (!empty($_POST['location'])) {
+        $filter_location_id = intval($_POST['location']);
+        $location_query = "AND (asset_location_id = $filter_location_id)";
+        $location_row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT location_name FROM locations WHERE location_id = $filter_location_id"));
+        $filter_summary['Location'] = $location_row['location_name'] ?? '';
+    } else {
+        // Default - any
+        $location_query = '';
+    }
+
+    // Tags Filter
+    if (isset($_POST['tags']) && is_array($_POST['tags']) && !empty($_POST['tags'])) {
+        $tag_filter = implode(",", array_map('intval', $_POST['tags']));
+        $tag_query = "AND tag_id IN ($tag_filter)";
+
+        $tag_names = [];
+        $sql_tags = mysqli_query($mysqli, "SELECT tag_name FROM tags WHERE tag_id IN ($tag_filter) ORDER BY tag_name ASC");
+        while ($tag_row = mysqli_fetch_assoc($sql_tags)) {
+            $tag_names[] = $tag_row['tag_name'];
+        }
+        $filter_summary['Tags'] = implode(', ', $tag_names);
+    } else {
+        // Default - any
+        $tag_query = '';
+    }
+
+    // Expiring In Filter
+    if (!empty($_POST['expire_days'])) {
+        if ($_POST['expire_days'] == "expired") {
+            $expire_query = "AND (asset_warranty_expire IS NOT NULL AND asset_warranty_expire != '0000-00-00' AND asset_warranty_expire < CURDATE())";
+            $filter_summary['Warranty'] = 'Expired';
+        } else {
+            $expire_days = intval($_POST['expire_days']);
+            $expire_query = "AND (asset_warranty_expire IS NOT NULL AND asset_warranty_expire != '0000-00-00' AND asset_warranty_expire BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL $expire_days DAY))";
+            $filter_summary['Warranty'] = "Expiring within $expire_days days";
+        }
+    } else {
+        // Default - any
+        $expire_query = '';
+    }
+
+    // Search Filter
+    $q = escapeSql($_POST['q'] ?? '');
+    if (!empty($q)) {
+        $filter_summary['Search'] = $_POST['q'];
+    }
+
+    // Get records from database - same shape as the assets page list query
+    $sql = mysqli_query(
+        $mysqli,
+        "SELECT * FROM assets
+        LEFT JOIN clients ON asset_client_id = client_id
+        LEFT JOIN contacts ON asset_contact_id = contact_id
+        LEFT JOIN locations ON asset_location_id = location_id
+        LEFT JOIN asset_interfaces ON interface_asset_id = asset_id AND interface_primary = 1
+        LEFT JOIN asset_tags ON asset_tag_asset_id = asset_id
+        LEFT JOIN tags ON tag_id = asset_tag_tag_id
+        WHERE $archive_query
+        $tag_query
+        AND (asset_name LIKE '%$q%' OR asset_description LIKE '%$q%' OR asset_type LIKE '%$q%' OR interface_ip LIKE '%$q%' OR interface_ipv6 LIKE '%$q%' OR interface_mac LIKE '%$q%' OR asset_make LIKE '%$q%' OR asset_model LIKE '%$q%' OR asset_serial LIKE '%$q%' OR asset_os LIKE '%$q%' OR contact_name LIKE '%$q%' OR location_name LIKE '%$q%' OR client_name LIKE '%$q%' OR tag_name LIKE '%$q%')
+        AND ($type_query)
+        $access_permission_query
+        $location_query
+        $expire_query
+        $client_query
+        GROUP BY asset_id
+        ORDER BY asset_name ASC"
+    );
     $num_rows = mysqli_num_rows($sql);
 
     if ($num_rows > 0) {
-        $delimiter = ",";
-        $enclosure = '"';
-        $escape    = '\\';   // backslash
-        $filename = sanitizeFilename($file_name_prepend . "Assets-" . date('Y-m-d_H-i-s') . ".csv");
 
-        //create a file pointer
-        $f = fopen('php://memory', 'w');
+        guardExportPdfRowCount($format, $num_rows);
 
-        //set column headers
-        $fields = array('Name', 'Description', 'Type', 'Make', 'Model', 'Serial Number', 'Operating System', 'Purchase Date', 'Warranty Expire', 'Install Date', 'Assigned To', 'Location', 'Physical Location', 'Notes');
-        fputcsv($f, $fields, $delimiter, $enclosure, $escape);
+        $export = beginExport('assets', $format, $file_name_prepend . 'Assets', 'Assets', summarizeExportFilters($filter_summary));
 
-        //output each row of the data, format line as csv and write to file pointer
         while ($row = mysqli_fetch_assoc($sql)) {
-            $lineData = array($row['asset_name'], $row['asset_description'], $row['asset_type'], $row['asset_make'], $row['asset_model'], $row['asset_serial'], $row['asset_os'], $row['asset_purchase_date'], $row['asset_warranty_expire'], $row['asset_install_date'], $row['contact_name'], $row['location_name'], $row['asset_physical_location'], $row['asset_notes']);
-            fputcsv($f, array_map('escapeCsvFormula', $lineData), $delimiter, $enclosure, $escape);
+            addExportRow($export, $row);
         }
 
-        //move back to beginning of file
-        fseek($f, 0);
-
-        //set headers to download file rather than displayed
-        header('Content-Type: text/csv');
-        header('Content-Disposition: attachment; filename="' . $filename . '";');
-
-        //output all remaining data on a file pointer
-        fpassthru($f);
+        finishExport($export);
     }
 
-    logAudit("Asset", "Export", "$session_name exported $num_rows asset(s) to a CSV file", $client_id);
+    logAudit("Asset", "Export", "$session_name exported $num_rows asset(s) to a " . strtoupper($format) . " file", $client_id);
 
     exit;
 
@@ -1950,11 +2043,13 @@ if (isset($_GET['download_client_asset_interfaces_csv_template'])) {
 
 }
 
-if (isset($_POST['export_client_asset_interfaces_csv'])) {
+if (isset($_POST['export_asset_interfaces'])) {
 
     validateCSRFToken();
 
     enforceUserPermission('module_support');
+
+    $format = resolveExportFormat($_POST['export_asset_interfaces']);
 
     $asset_id = intval($_POST['asset_id']);
 
@@ -1962,45 +2057,36 @@ if (isset($_POST['export_client_asset_interfaces_csv'])) {
 
     enforceClientAccess();
 
-    //get records from database
-    $sql = mysqli_query($mysqli,"SELECT * FROM asset_interfaces LEFT JOIN assets ON asset_id = interface_asset_id LEFT JOIN networks ON interface_network_id = network_id LEFT JOIN clients ON asset_client_id = client_id WHERE asset_id = $asset_id AND interface_archived_at IS NULL ORDER BY interface_name ASC");
-    $row = mysqli_fetch_assoc($sql);
+    $asset_name = getFieldById('assets', $asset_id, 'asset_name');
+
+    // Get records from database - scoped to the one asset, so no page filters apply
+    $sql = mysqli_query(
+        $mysqli,
+        "SELECT * FROM asset_interfaces
+        LEFT JOIN assets ON asset_id = interface_asset_id
+        LEFT JOIN networks ON interface_network_id = network_id
+        LEFT JOIN clients ON asset_client_id = client_id
+        WHERE asset_id = $asset_id
+        AND interface_archived_at IS NULL
+        ORDER BY interface_name ASC"
+    );
 
     $num_rows = mysqli_num_rows($sql);
 
     if ($num_rows > 0) {
-        mysqli_data_seek($sql, 0); // <— rewind to the start
 
-        $delimiter = ",";
-        $enclosure = '"';
-        $escape    = '\\';   // backslash
-        $filename = toAlphanumeric($asset_name) . "-Interfaces-" . date('Y-m-d') . ".csv";
+        guardExportPdfRowCount($format, $num_rows);
 
-        //create a file pointer
-        $f = fopen('php://memory', 'w');
+        $export = beginExport('asset_interfaces', $format, toAlphanumeric($asset_name) . '-Interfaces', "$asset_name - Interfaces", '');
 
-        //set column headers
-        $fields = array('Name', 'Description', 'Type', 'MAC', 'IP', 'NAT IP', 'IPv6', 'Network');
-        fputcsv($f, $fields, $delimiter, $enclosure, $escape);
-
-        //output each row of the data, format line as csv and write to file pointer
-        while($row = mysqli_fetch_assoc($sql)) {
-            $lineData = array($row['interface_name'], $row['interface_description'], $row['interface_type'], $row['interface_mac'], $row['interface_ip'], $row['interface_nat_ip'], $row['interface_ipv6'], $row['network_name']);
-            fputcsv($f, array_map('escapeCsvFormula', $lineData), $delimiter, $enclosure, $escape);
+        while ($row = mysqli_fetch_assoc($sql)) {
+            addExportRow($export, $row);
         }
 
-        //move back to beginning of file
-        fseek($f, 0);
-
-        //set headers to download file rather than displayed
-        header('Content-Type: text/csv');
-        header('Content-Disposition: attachment; filename="' . $filename . '";');
-
-        //output all remaining data on a file pointer
-        fpassthru($f);
+        finishExport($export);
     }
 
-    logAudit("Asset Interface", "Export", "$session_name exported $num_rows interfaces(s) to a CSV file", $client_id);
+    logAudit("Asset Interface", "Export", "$session_name exported $num_rows interface(s) to a " . strtoupper($format) . " file", $client_id);
 
     exit;
 

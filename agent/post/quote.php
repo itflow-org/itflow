@@ -685,62 +685,75 @@ if (isset($_GET['mark_quote_invoiced'])) {
 
 }
 
-if(isset($_POST['export_quotes_csv'])){
+if (isset($_POST['export_quotes'])) {
 
     validateCSRFToken();
 
+    // Exports are reads - see CONTRIBUTING.md
     enforceUserPermission('module_sales');
 
-    if ($_POST['client_id']) {
+    $format = resolveExportFormat($_POST['export_quotes']);
+
+    // Filters inherited from the quotes page - mirrors agent/quotes.php
+    $filter_summary = [];
+
+    if (!empty($_POST['client_id'])) {
         $client_id = intval($_POST['client_id']);
-        $client_query = "WHERE quote_client_id = $client_id";
-        // Get Client Name for logging
+        $client_query = "AND quote_client_id = $client_id";
         $client_name = getFieldById('clients', $client_id, 'client_name');
         $file_name_prepend = "$client_name-";
+        $filter_summary['Client'] = $client_name;
+
         enforceClientAccess();
     } else {
-        $client_query = 'WHERE 1=1';
-        $client_name = '';
-        $file_name_prepend = "$session_company_name";
+        $client_query = '';
+        $client_id = 0; // for Logging
+        $file_name_prepend = "$session_company_name-";
     }
 
-    $sql = mysqli_query($mysqli,"SELECT * FROM quotes LEFT JOIN clients ON client_id = quote_client_id $client_query $access_permission_query ORDER BY quote_number ASC");
+    // Date Filter
+    $dtf = escapeSql(!empty($_POST['dtf']) ? $_POST['dtf'] : '1970-01-01');
+    $dtt = escapeSql(!empty($_POST['dtt']) ? $_POST['dtt'] : '2099-12-31');
+    $date_range = formatExportDateRange($dtf, $dtt);
+    if ($date_range) {
+        $filter_summary['Dated'] = $date_range;
+    }
+
+    // Search Filter
+    $q = escapeSql($_POST['q'] ?? '');
+    if (!empty($q)) {
+        $filter_summary['Search'] = $_POST['q'];
+    }
+
+    $sql = mysqli_query(
+        $mysqli,
+        "SELECT * FROM quotes
+        LEFT JOIN clients ON quote_client_id = client_id
+        LEFT JOIN categories ON quote_category_id = category_id
+        WHERE (CONCAT(quote_prefix,quote_number) LIKE '%$q%' OR quote_scope LIKE '%$q%' OR category_name LIKE '%$q%' OR quote_status LIKE '%$q%' OR quote_amount LIKE '%$q%' OR client_name LIKE '%$q%')
+        AND DATE(quote_date) BETWEEN '$dtf' AND '$dtt'
+        $access_permission_query
+        $client_query
+        ORDER BY quote_number ASC"
+    );
 
     $num_rows = mysqli_num_rows($sql);
 
-    if($num_rows > 0){
-        $delimiter = ",";
-        $enclosure = '"';
-        $escape    = '\\';   // backslash
-        $filename = sanitizeFilename($file_name_prepend . "Quotes-" . date('Y-m-d_H-i-s') . ".csv");
+    if ($num_rows > 0) {
 
-        //create a file pointer
-        $f = fopen('php://memory', 'w');
+        guardExportPdfRowCount($format, $num_rows);
 
-        //set column headers
-        $fields = array('Quote Number', 'Scope', 'Amount', 'Date', 'Status');
-        fputcsv($f, $fields, $delimiter, $enclosure, $escape);
+        $export = beginExport('quotes', $format, $file_name_prepend . 'Quotes', 'Quotes', summarizeExportFilters($filter_summary));
 
-        //output each row of the data, format line as csv and write to file pointer
-        while($row = $sql->fetch_assoc()){
-            $lineData = array($row['quote_prefix'] . $row['quote_number'], $row['quote_scope'], $row['quote_amount'], $row['quote_date'], $row['quote_status']);
-            fputcsv($f, array_map('escapeCsvFormula', $lineData), $delimiter, $enclosure, $escape);
+        while ($row = mysqli_fetch_assoc($sql)) {
+            $row['quote_number_display'] = $row['quote_prefix'] . $row['quote_number'];
+            addExportRow($export, $row);
         }
 
-        //move back to beginning of file
-        fseek($f, 0);
-
-        //set headers to download file rather than displayed
-        header('Content-Type: text/csv');
-        header('Content-Disposition: attachment; filename="' . $filename . '";');
-
-        //output all remaining data on a file pointer
-        fpassthru($f);
+        finishExport($export);
     }
 
-    logAudit("Quote", "Export", "$session_name exported $num_rows quote(s) to a CSV file");
-
-    flashAlert("Exported <strong>$num_rows</strong> quote(s)");
+    logAudit("Quote", "Export", "$session_name exported $num_rows quote(s) to a " . strtoupper($format) . " file", $client_id);
 
     exit;
 

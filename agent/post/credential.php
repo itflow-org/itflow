@@ -410,61 +410,107 @@ if (isset($_POST['bulk_delete_credentials'])) {
 
 }
 
-if (isset($_POST['export_credentials_csv'])) {
+if (isset($_POST['export_credentials'])) {
 
     validateCSRFToken();
 
+    // Exports are reads - see CONTRIBUTING.md
     enforceUserPermission('module_credential');
 
-    if ($_POST['client_id']) {
+    $format = resolveExportFormat($_POST['export_credentials']);
+
+    // Filters inherited from the credentials page - mirrors agent/credentials.php
+    $filter_summary = [];
+
+    // Archived Filter
+    $archived = (isset($_POST['archived']) && $_POST['archived'] == 1);
+    if ($archived) {
+        $filter_summary['Archived'] = 'Archived only';
+    }
+
+    if (!empty($_POST['client_id'])) {
         $client_id = intval($_POST['client_id']);
         $client_query = "AND credential_client_id = $client_id";
         $client_name = getFieldById('clients', $client_id, 'client_name');
         $file_name_prepend = "$client_name-";
+        $filter_summary['Client'] = $client_name;
+
         enforceClientAccess();
+
+        $archive_query = $archived ? "credential_archived_at IS NOT NULL" : "credential_archived_at IS NULL";
     } else {
         $client_query = '';
-        $client_id = 0;
+        $client_id = 0; // for Logging
         $file_name_prepend = "$session_company_name-";
+
+        // Client Filter
+        if (!empty($_POST['client'])) {
+            $filter_client_id = intval($_POST['client']);
+            $client_query = "AND (credential_client_id = $filter_client_id)";
+            $filter_summary['Client'] = getFieldById('clients', $filter_client_id, 'client_name');
+        }
+
+        $archive_query = $archived ? "(client_archived_at IS NOT NULL OR credential_archived_at IS NOT NULL)" : "(client_archived_at IS NULL AND credential_archived_at IS NULL)";
     }
 
-    //get records from database
-    $sql = mysqli_query($mysqli,"SELECT * FROM credentials LEFT JOIN clients ON client_id = credential_client_id WHERE credential_archived_at IS NULL $client_query $access_permission_query ORDER BY credential_name ASC");
+    // Tags Filter
+    if (isset($_POST['tags']) && is_array($_POST['tags']) && !empty($_POST['tags'])) {
+        $tag_filter = implode(",", array_map('intval', $_POST['tags']));
+        $tag_query = "AND tags.tag_id IN ($tag_filter)";
+
+        $tag_names = [];
+        $sql_tags = mysqli_query($mysqli, "SELECT tag_name FROM tags WHERE tag_id IN ($tag_filter) ORDER BY tag_name ASC");
+        while ($tag_row = mysqli_fetch_assoc($sql_tags)) {
+            $tag_names[] = $tag_row['tag_name'];
+        }
+        $filter_summary['Tags'] = implode(', ', $tag_names);
+    } else {
+        // Default - any
+        $tag_query = '';
+    }
+
+    // Search Filter
+    $q = escapeSql($_POST['q'] ?? '');
+    if (!empty($q)) {
+        $filter_summary['Search'] = $_POST['q'];
+    }
+
+    $sql = mysqli_query(
+        $mysqli,
+        "SELECT c.*, clients.*, contacts.*, assets.*
+        FROM credentials c
+        LEFT JOIN credential_tags ON credential_tags.credential_id = c.credential_id
+        LEFT JOIN tags ON tags.tag_id = credential_tags.tag_id
+        LEFT JOIN clients ON client_id = credential_client_id
+        LEFT JOIN contacts ON contact_id = credential_contact_id
+        LEFT JOIN assets ON asset_id = credential_asset_id
+        WHERE $archive_query
+        $tag_query
+        AND (c.credential_name LIKE '%$q%' OR c.credential_description LIKE '%$q%' OR c.credential_uri LIKE '%$q%' OR tag_name LIKE '%$q%' OR client_name LIKE '%$q%')
+        $access_permission_query
+        $client_query
+        GROUP BY c.credential_id
+        ORDER BY c.credential_name ASC"
+    );
+
     $num_rows = mysqli_num_rows($sql);
 
     if ($num_rows > 0) {
-        $delimiter = ",";
-        $enclosure = '"';
-        $escape    = '\\';   // backslash
-        $filename = sanitizeFilename($file_name_prepend . "Credentials-" . date('Y-m-d_H-i-s') . ".csv");
 
-        //create a file pointer
-        $f = fopen('php://memory', 'w');
+        guardExportPdfRowCount($format, $num_rows);
 
-        //set column headers
-        $fields = array('Name', 'Description', 'Username', 'Password', 'TOTP', 'URI');
-        fputcsv($f, $fields, $delimiter, $enclosure, $escape);
+        $export = beginExport('credentials', $format, $file_name_prepend . 'Credentials', 'Credentials', summarizeExportFilters($filter_summary));
 
-        //output each row of the data, format line as csv and write to file pointer
-        while($row = mysqli_fetch_assoc($sql)){
-            $credential_username = decryptCredentialEntry($row['credential_username']);
-            $credential_password = decryptCredentialEntry($row['credential_password']);
-            $lineData = array($row['credential_name'], $row['credential_description'], $credential_username, $credential_password, $row['credential_otp_secret'], $row['credential_uri']);
-            fputcsv($f, array_map('escapeCsvFormula', $lineData), $delimiter, $enclosure, $escape);
+        while ($row = mysqli_fetch_assoc($sql)) {
+            $row['credential_username'] = decryptCredentialEntry($row['credential_username']);
+            $row['credential_password'] = decryptCredentialEntry($row['credential_password']);
+            addExportRow($export, $row);
         }
 
-        //move back to beginning of file
-        fseek($f, 0);
-
-        //set headers to download file rather than displayed
-        header('Content-Type: text/csv');
-        header('Content-Disposition: attachment; filename="' . $filename . '";');
-
-        //output all remaining data on a file pointer
-        fpassthru($f);
+        finishExport($export);
     }
 
-    logAudit("Credential", "Export", "$session_name exported $num_rows credential(s) to a CSV file", $client_id);
+    logAudit("Credential", "Export", "$session_name exported $num_rows credential(s) to a " . strtoupper($format) . " file", $client_id);
 
     exit;
 

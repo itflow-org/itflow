@@ -1262,59 +1262,116 @@ if (isset($_GET['unlink_contact_from_file'])) {
 
 }
 
-if (isset($_POST['export_contacts_csv'])) {
+if (isset($_POST['export_contacts'])) {
 
     validateCSRFToken();
 
+    // Exports are reads - see CONTRIBUTING.md
     enforceUserPermission('module_client');
 
-    if ($_POST['client_id']) {
+    $format = resolveExportFormat($_POST['export_contacts']);
+
+    // Filters inherited from the contacts page - mirrors agent/contacts.php
+    $filter_summary = [];
+
+    // Archived Filter
+    $archived = (isset($_POST['archived']) && $_POST['archived'] == 1);
+    if ($archived) {
+        $filter_summary['Archived'] = 'Archived only';
+    }
+
+    if (!empty($_POST['client_id'])) {
         $client_id = intval($_POST['client_id']);
         $client_query = "AND contact_client_id = $client_id";
         $client_name = getFieldById('clients', $client_id, 'client_name');
         $file_name_prepend = "$client_name-";
+        $filter_summary['Client'] = $client_name;
+
+        enforceClientAccess();
+
+        $archive_query = $archived ? "contact_archived_at IS NOT NULL" : "contact_archived_at IS NULL";
     } else {
         $client_query = '';
-        $client_id = 0; //Logging;
+        $client_id = 0; // for Logging
         $file_name_prepend = "$session_company_name-";
+
+        // Client Filter
+        if (!empty($_POST['client'])) {
+            $filter_client_id = intval($_POST['client']);
+            $client_query = "AND (contact_client_id = $filter_client_id)";
+            $filter_summary['Client'] = getFieldById('clients', $filter_client_id, 'client_name');
+        }
+
+        $archive_query = $archived ? "(client_archived_at IS NOT NULL OR contact_archived_at IS NOT NULL)" : "(client_archived_at IS NULL AND contact_archived_at IS NULL)";
     }
 
-    //Contacts
-    $sql = mysqli_query($mysqli,"SELECT * FROM contacts LEFT JOIN locations ON location_id = contact_location_id LEFT JOIN clients ON client_id = contact_client_id WHERE contact_archived_at IS NULL AND client_archived_at IS NULL $client_query $access_permission_query ORDER BY contact_name ASC");
+    // Tags Filter
+    if (isset($_POST['tags']) && is_array($_POST['tags']) && !empty($_POST['tags'])) {
+        $tag_filter = implode(",", array_map('intval', $_POST['tags']));
+        $tag_query = "AND tags.tag_id IN ($tag_filter)";
+
+        $tag_names = [];
+        $sql_tags = mysqli_query($mysqli, "SELECT tag_name FROM tags WHERE tag_id IN ($tag_filter) ORDER BY tag_name ASC");
+        while ($tag_row = mysqli_fetch_assoc($sql_tags)) {
+            $tag_names[] = $tag_row['tag_name'];
+        }
+        $filter_summary['Tags'] = implode(', ', $tag_names);
+    } else {
+        // Default - any
+        $tag_query = '';
+    }
+
+    // Location Filter
+    if (!empty($_POST['location'])) {
+        $filter_location_id = intval($_POST['location']);
+        $location_query = "AND (contact_location_id = $filter_location_id)";
+        $filter_summary['Location'] = getFieldById('locations', $filter_location_id, 'location_name');
+    } else {
+        // Default - any
+        $location_query = '';
+    }
+
+    // Search Filter
+    $q = escapeSql($_POST['q'] ?? '');
+    if (!empty($q)) {
+        $filter_summary['Search'] = $_POST['q'];
+    }
+
+    $sql = mysqli_query(
+        $mysqli,
+        "SELECT contacts.*, clients.*, locations.*, users.*
+        FROM contacts
+        LEFT JOIN clients ON client_id = contact_client_id
+        LEFT JOIN locations ON location_id = contact_location_id
+        LEFT JOIN users ON user_id = contact_user_id
+        LEFT JOIN contact_tags ON contact_tags.contact_id = contacts.contact_id
+        LEFT JOIN tags ON tags.tag_id = contact_tags.tag_id
+        WHERE $archive_query
+        $tag_query
+        AND (contact_name LIKE '%$q%' OR contact_title LIKE '%$q%' OR location_name LIKE '%$q%' OR contact_email LIKE '%$q%' OR contact_department LIKE '%$q%' OR contact_phone LIKE '%$q%' OR contact_mobile LIKE '%$q%' OR client_name LIKE '%$q%' OR tag_name LIKE '%$q%')
+        $access_permission_query
+        $client_query
+        $location_query
+        GROUP BY contact_id
+        ORDER BY contact_name ASC"
+    );
+
     $num_rows = mysqli_num_rows($sql);
 
     if ($num_rows > 0) {
-        $delimiter = ",";
-        $enclosure = '"';
-        $escape    = '\\';   // backslash
-        $filename = sanitizeFilename($file_name_prepend . "Contacts-" . date('Y-m-d_H-i-s') . ".csv");
 
-        //create a file pointer
-        $f = fopen('php://memory', 'w');
+        guardExportPdfRowCount($format, $num_rows);
 
-        //set column headers
-        $fields = array('Name', 'Title', 'Department', 'Email', 'Phone', 'Ext', 'Mobile', 'Location');
-        fputcsv($f, $fields, $delimiter, $enclosure, $escape);
+        $export = beginExport('contacts', $format, $file_name_prepend . 'Contacts', 'Contacts', summarizeExportFilters($filter_summary));
 
-        //output each row of the data, format line as csv and write to file pointer
-        while($row = $sql->fetch_assoc()) {
-            $lineData = array($row['contact_name'], $row['contact_title'], $row['contact_department'], $row['contact_email'], formatPhoneNumber($row['contact_phone']), $row['contact_extension'], formatPhoneNumber($row['contact_mobile']), $row['location_name']);
-            fputcsv($f, array_map('escapeCsvFormula', $lineData), $delimiter, $enclosure, $escape);
+        while ($row = mysqli_fetch_assoc($sql)) {
+            addExportRow($export, $row);
         }
 
-        //move back to beginning of file
-        fseek($f, 0);
-
-        //set headers to download file rather than displayed
-        header('Content-Type: text/csv');
-        header('Content-Disposition: attachment; filename="' . $filename . '";');
-
-        //output all remaining data on a file pointer
-        fpassthru($f);
-
+        finishExport($export);
     }
 
-    logAudit("Contact", "Export", "$session_name exported $num_rows contact(s) to a CSV file", $client_id);
+    logAudit("Contact", "Export", "$session_name exported $num_rows contact(s) to a " . strtoupper($format) . " file", $client_id);
 
     exit;
 

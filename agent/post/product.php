@@ -244,55 +244,90 @@ if (isset($_POST['bulk_delete_products'])) {
 
 }
 
-if (isset($_POST['export_products_csv'])) {
+if (isset($_POST['export_products'])) {
 
     validateCSRFToken();
 
+    // Exports are reads - see CONTRIBUTING.md
     enforceUserPermission('module_sales');
 
-    //get records from database
-    $sql = mysqli_query($mysqli,"SELECT * FROM products
-      LEFT JOIN categories ON product_category_id = category_id
-      LEFT JOIN taxes ON product_tax_id = tax_id
-      WHERE product_archived_at IS NULL
-      ORDER BY product_name DESC
-    ");
+    $format = resolveExportFormat($_POST['export_products']);
+
+    // Filters inherited from the products page - mirrors agent/products.php
+    $filter_summary = [];
+
+    // Archived Filter
+    $archived = (isset($_POST['archived']) && $_POST['archived'] == 1);
+    if ($archived) {
+        $filter_summary['Archived'] = 'Archived only';
+    }
+
+    $client_id = 0; // for Logging
+    $file_name_prepend = "$session_company_name-";
+
+    // Type Filter
+    if (isset($_POST['type']) && $_POST['type'] === 'product') {
+        $type_query = "AND product_type = 'product'";
+        $filter_summary['Type'] = 'Product';
+    } elseif (isset($_POST['type']) && $_POST['type'] === 'service') {
+        $type_query = "AND product_type = 'service'";
+        $filter_summary['Type'] = 'Service';
+    } else {
+        // Default - any
+        $type_query = '';
+    }
+
+    $archive_query = $archived ? "product_archived_at IS NOT NULL" : "product_archived_at IS NULL";
+
+    // Category Filter
+    if (!empty($_POST['category'])) {
+        $filter_category_id = intval($_POST['category']);
+        $category_query = "AND (category_id = $filter_category_id)";
+        $filter_summary['Category'] = getFieldById('categories', $filter_category_id, 'category_name');
+    } else {
+        // Default - any
+        $category_query = '';
+    }
+
+    // Search Filter
+    $q = escapeSql($_POST['q'] ?? '');
+    if (!empty($q)) {
+        $filter_summary['Search'] = $_POST['q'];
+    }
+
+    $sql = mysqli_query(
+        $mysqli,
+        "SELECT products.*, categories.*, taxes.*
+        FROM products
+        LEFT JOIN categories ON product_category_id = category_id
+        LEFT JOIN taxes ON product_tax_id = tax_id
+        WHERE (product_name LIKE '%$q%' OR product_description LIKE '%$q%' OR product_code LIKE '%$q%' OR product_location LIKE '%$q%' OR category_name LIKE '%$q%' OR product_price LIKE '%$q%' OR tax_name LIKE '%$q%')
+        $type_query
+        AND $archive_query
+        $category_query
+        GROUP BY product_id
+        ORDER BY product_name ASC"
+    );
 
     $num_rows = mysqli_num_rows($sql);
 
     if ($num_rows > 0) {
-        $delimiter = ",";
-        $enclosure = '"';
-        $escape    = '\\';   // backslash
-        $filename = sanitizeFilename("$session_company_name-Products-" . date('Y-m-d_H-i-s') . ".csv");
 
-        //create a file pointer
-        $f = fopen('php://memory', 'w');
+        guardExportPdfRowCount($format, $num_rows);
 
-        //set column headers
-        $fields = array('Product', 'Description', 'Price', 'Currency', 'Category', 'Tax');
-        fputcsv($f, $fields, $delimiter, $enclosure, $escape);
+        $export = beginExport('products', $format, $file_name_prepend . 'Products', 'Products', summarizeExportFilters($filter_summary));
 
-        //output each row of the data, format line as csv and write to file pointer
-        while($row = mysqli_fetch_assoc($sql)) {
-            $lineData = array($row['product_name'], $row['product_description'], $row['product_price'], $row['product_currency_code'], $row['category_name'], $row['tax_name']);
-            fputcsv($f, array_map('escapeCsvFormula', $lineData), $delimiter, $enclosure, $escape);
+        while ($row = mysqli_fetch_assoc($sql)) {
+            addExportRow($export, $row);
         }
 
-        //move back to beginning of file
-        fseek($f, 0);
-
-        //set headers to download file rather than displayed
-        header('Content-Type: text/csv');
-        header('Content-Disposition: attachment; filename="' . $filename . '";');
-
-        //output all remaining data on a file pointer
-        fpassthru($f);
+        finishExport($export);
     }
 
-    logAudit("Product", "Export", "$session_name exported $num_rows product(s) to a CSV file");
+    logAudit("Product", "Export", "$session_name exported $num_rows product(s) to a " . strtoupper($format) . " file", $client_id);
 
     exit;
+
 }
 
 if (isset($_POST['add_product_stock'])) {

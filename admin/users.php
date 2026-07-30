@@ -34,7 +34,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     <!--<a class="dropdown-item text-dark ajax-modal" href="#" data-modal-url="modals/user/user_invite.php"><i class="fas fa-paper-plane mr-2"></i>Invite User</a>-->
                     <?php if ($num_rows[0] > 1) { ?>
                         <a class="dropdown-item text-dark ajax-modal" href="#"
-                            data-modal-url="modals/user/user_export.php">
+                            data-modal-url="<?= buildExportModalUrl('modals/user/user_export.php', ['archived', 'q']) ?>">
                             <i class="fa fa-fw fa-download mr-2"></i>Export
                         </a>
                         <div class="dropdown-divider"></div>

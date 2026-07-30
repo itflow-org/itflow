@@ -2,7 +2,7 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header bg-dark">
-                <h5 class="modal-title"><i class="fas fa-fw fa-download mr-2"></i>Export Interfaces to CSV</h5>
+                <h5 class="modal-title"><i class="fas fa-fw fa-download mr-2"></i>Export Interfaces</h5>
                 <button type="button" class="close text-white" data-dismiss="modal">
                     <span>&times;</span>
                 </button>
@@ -13,10 +13,11 @@
 
                 <div class="modal-body">
 
+                    <?php renderExportColumnPicker('asset_interfaces'); ?>
+
                 </div>
                 <div class="modal-footer">
-                    <button type="submit" name="export_client_asset_interfaces_csv" class="btn btn-primary text-bold"><i class="fas fa-fw fa-download mr-2"></i>Download CSV</button>
-                    <button type="button" class="btn btn-light" data-dismiss="modal"><i class="fas fa-times mr-2"></i>Cancel</button>
+                    <?php renderExportButtons('export_asset_interfaces'); ?>
                 </div>
             </form>
         </div>

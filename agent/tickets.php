@@ -203,7 +203,7 @@ $sql_categories_filter = mysqli_query(
                         <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown"></button>
                         <div class="dropdown-menu">
                             <a class="dropdown-item text-dark ajax-modal" href="#"
-                                data-modal-url="modals/ticket/ticket_export.php?<?= $client_url ?>">
+                                data-modal-url="<?= buildExportModalUrl('modals/ticket/ticket_export.php', ['client_id', 'status', 'billable', 'unbilled', 'category', 'assigned', 'sla', 'project', 'q'], ['dtf' => $dtf, 'dtt' => $dtt]) ?>">
                                 <i class="fa fa-fw fa-download mr-2"></i>Export
                             </a>
                         </div>

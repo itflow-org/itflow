@@ -76,15 +76,19 @@ ob_start();
 ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fa fa-fw fa-download mr-2"></i>Exporting Transactions to CSV</h5>
+    <h5 class="modal-title"><i class="fa fa-fw fa-download mr-2"></i>Export Transactions</h5>
     <button type="button" class="close text-white" data-dismiss="modal">
         <span>&times;</span>
     </button>
 </div>
+<?php exportTabsNav(); ?>
+
 <form action="post.php" method="post" autocomplete="off">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
 
     <div class="modal-body">
+
+        <?php exportTabsFiltersOpen(); ?>
 
         <div class="form-group">
             <label>Account</label>
@@ -239,10 +243,11 @@ ob_start();
             </div>
         </div>
 
+        <?php exportTabsColumns('transactions'); ?>
+
     </div>
     <div class="modal-footer">
-        <button type="submit" name="export_transactions_csv" class="btn btn-primary text-bold"><i class="fas fa-fw fa-download mr-2"></i>Download CSV</button>
-        <button type="button" class="btn btn-light" data-dismiss="modal"><i class="fa fa-times mr-2"></i>Cancel</button>
+        <?php renderExportButtons('export_transactions'); ?>
     </div>
 </form>
 

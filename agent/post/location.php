@@ -388,59 +388,103 @@ if (isset($_POST['bulk_delete_locations'])) {
 
 }
 
-if(isset($_POST['export_locations_csv'])){
+if (isset($_POST['export_locations'])) {
 
     validateCSRFToken();
 
+    // Exports are reads - see CONTRIBUTING.md
     enforceUserPermission('module_client');
 
-    if ($_POST['client_id']) {
+    $format = resolveExportFormat($_POST['export_locations']);
+
+    // Filters inherited from the locations page - mirrors agent/locations.php
+    $filter_summary = [];
+
+    // Archived Filter
+    $archived = (isset($_POST['archived']) && $_POST['archived'] == 1);
+    if ($archived) {
+        $filter_summary['Archived'] = 'Archived only';
+    }
+
+    if (!empty($_POST['client_id'])) {
         $client_id = intval($_POST['client_id']);
         $client_query = "AND location_client_id = $client_id";
         $client_name = getFieldById('clients', $client_id, 'client_name');
         $file_name_prepend = "$client_name-";
+        $filter_summary['Client'] = $client_name;
+
+        enforceClientAccess();
+
+        $archive_query = $archived ? "location_archived_at IS NOT NULL" : "location_archived_at IS NULL";
     } else {
         $client_query = '';
-        $client_id = 0;
+        $client_id = 0; // for Logging
         $file_name_prepend = "$session_company_name-";
+
+        // Client Filter
+        if (!empty($_POST['client'])) {
+            $filter_client_id = intval($_POST['client']);
+            $client_query = "AND (location_client_id = $filter_client_id)";
+            $filter_summary['Client'] = getFieldById('clients', $filter_client_id, 'client_name');
+        }
+
+        $archive_query = $archived ? "(client_archived_at IS NOT NULL OR location_archived_at IS NOT NULL)" : "(client_archived_at IS NULL AND location_archived_at IS NULL)";
     }
 
-    //Locations
-    $sql = mysqli_query($mysqli,"SELECT * FROM locations LEFT JOIN clients ON client_id = location_client_id WHERE location_archived_at IS NULL AND client_archived_at IS NULL $client_query $access_permission_query ORDER BY location_name ASC");
+    // Tags Filter
+    if (isset($_POST['tags']) && is_array($_POST['tags']) && !empty($_POST['tags'])) {
+        $tag_filter = implode(",", array_map('intval', $_POST['tags']));
+        $tag_query = "AND tags.tag_id IN ($tag_filter)";
+
+        $tag_names = [];
+        $sql_tags = mysqli_query($mysqli, "SELECT tag_name FROM tags WHERE tag_id IN ($tag_filter) ORDER BY tag_name ASC");
+        while ($tag_row = mysqli_fetch_assoc($sql_tags)) {
+            $tag_names[] = $tag_row['tag_name'];
+        }
+        $filter_summary['Tags'] = implode(', ', $tag_names);
+    } else {
+        // Default - any
+        $tag_query = '';
+    }
+
+    // Search Filter
+    $q = escapeSql($_POST['q'] ?? '');
+    if (!empty($q)) {
+        $filter_summary['Search'] = $_POST['q'];
+    }
+
+    $sql = mysqli_query(
+        $mysqli,
+        "SELECT locations.*, clients.*
+        FROM locations
+        LEFT JOIN clients ON client_id = location_client_id
+        LEFT JOIN location_tags ON location_tags.location_id = locations.location_id
+        LEFT JOIN tags ON tags.tag_id = location_tags.tag_id
+        WHERE $archive_query
+        $tag_query
+        AND (location_name LIKE '%$q%' OR location_description LIKE '%$q%' OR location_address LIKE '%$q%' OR location_city LIKE '%$q%' OR location_state LIKE '%$q%' OR location_zip LIKE '%$q%' OR location_country LIKE '%$q%' OR location_phone LIKE '%$q%' OR client_name LIKE '%$q%' OR tag_name LIKE '%$q%')
+        $access_permission_query
+        $client_query
+        GROUP BY location_id
+        ORDER BY location_name ASC"
+    );
 
     $num_rows = mysqli_num_rows($sql);
 
-    if($num_rows > 0) {
-        $delimiter = ",";
-        $enclosure = '"';
-        $escape    = '\\';   // backslash
-        $filename = sanitizeFilename($file_name_prepend . "Locations-" . date('Y-m-d_H-i-s') . ".csv");
+    if ($num_rows > 0) {
 
-        //create a file pointer
-        $f = fopen('php://memory', 'w');
+        guardExportPdfRowCount($format, $num_rows);
 
-        //set column headers
-        $fields = array('Name', 'Description', 'Address', 'City', 'State', 'Postal Code', 'Phone', 'Hours');
-        fputcsv($f, $fields, $delimiter, $enclosure, $escape);
+        $export = beginExport('locations', $format, $file_name_prepend . 'Locations', 'Locations', summarizeExportFilters($filter_summary));
 
-        //output each row of the data, format line as csv and write to file pointer
-        while($row = $sql->fetch_assoc()){
-            $lineData = array($row['location_name'], $row['location_description'], $row['location_address'], $row['location_city'], $row['location_state'], $row['location_zip'], $row['location_phone'], $row['location_hours']);
-            fputcsv($f, array_map('escapeCsvFormula', $lineData), $delimiter, $enclosure, $escape);
+        while ($row = mysqli_fetch_assoc($sql)) {
+            addExportRow($export, $row);
         }
 
-        //move back to beginning of file
-        fseek($f, 0);
-
-        //set headers to download file rather than displayed
-        header('Content-Type: text/csv');
-        header('Content-Disposition: attachment; filename="' . $filename . '";');
-
-        //output all remaining data on a file pointer
-        fpassthru($f);
+        finishExport($export);
     }
 
-    logAudit("Location", "Export", "$session_name exported $num_rows location(s) to a CSV file", $client_id);
+    logAudit("Location", "Export", "$session_name exported $num_rows location(s) to a " . strtoupper($format) . " file", $client_id);
 
     exit;
 

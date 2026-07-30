@@ -9,11 +9,13 @@ if (!defined('FROM_POST_HANDLER')) {
     exit;
 }
 
-if (isset($_POST['export_income_csv'])) {
+if (isset($_POST['export_income'])) {
 
     validateCSRFToken();
 
     enforceUserPermission('module_financial');
+
+    $format = resolveExportFormat($_POST['export_income']);
 
     $date_from = escapeSql($_POST['date_from']);
     $date_to = escapeSql($_POST['date_to']);
@@ -139,36 +141,19 @@ if (isset($_POST['export_income_csv'])) {
 
     $num_rows = mysqli_num_rows($sql);
     if ($num_rows > 0) {
-        $delimiter = ",";
-        $enclosure = '"';
-        $escape    = '\\';   // backslash
-        $filename = sanitizeFilename($file_name_prepend . "Income-" . date('Y-m-d_H-i-s') . ".csv");
 
-        //create a file pointer
-        $f = fopen('php://memory', 'w');
+        guardExportPdfRowCount($format, $num_rows);
 
-        //set column headers
-        $fields = array('Date', 'Type', 'Source', 'Description', 'Client', 'Amount', 'Currency', 'Payment Method', 'Reference', 'Account');
-        fputcsv($f, $fields, $delimiter, $enclosure, $escape);
+        $export = beginExport('income', $format, $file_name_prepend . 'Income', 'Income', summarizeExportFilters($filter_summary ?? []));
 
-        //output each row of the data, format line as csv and write to file pointer
         while ($row = mysqli_fetch_assoc($sql)) {
-            $lineData = array($row['income_date'], $row['income_type'], $row['income_source'], $row['income_description'], $row['income_client'], $row['income_amount'], $row['income_currency_code'], $row['income_method'], $row['income_reference'], $row['income_account']);
-            fputcsv($f, array_map('escapeCsvFormula', $lineData), $delimiter, $enclosure, $escape);
+            addExportRow($export, $row);
         }
 
-        //move back to beginning of file
-        fseek($f, 0);
-
-        //set headers to download file rather than displayed
-        header('Content-Type: text/csv');
-        header('Content-Disposition: attachment; filename="' . $filename . '";');
-
-        //output all remaining data on a file pointer
-        fpassthru($f);
+        finishExport($export);
     }
 
-    logAudit("Income", "Export", "$session_name exported $num_rows income record(s) to CSV file");
+    logAudit("Income", "Export", "$session_name exported $num_rows income record(s) to a " . strtoupper($format) . " file");
 
     exit;
 
