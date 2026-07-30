@@ -28,6 +28,12 @@ if (isset($_POST['edit_cron_job'])) {
     $enabled = isset($_POST['enabled']) ? 1 : 0;
     $schedule = $_POST['schedule'] === 'Daily' ? 'Daily' : 'Interval';
 
+    // A job the registry marks interval-unsafe only accepts the daily schedule. The form
+    // does not offer anything else, so anything else arriving here is a crafted request
+    if (($registry[$row['cron_job_name']]['interval_safe'] ?? true) === false) {
+        $schedule = 'Daily';
+    }
+
     // A job cannot be asked to run more than once a minute (the dispatcher only wakes that
     // often) and anything over a day belongs on the daily schedule instead.
     $interval_minutes = min(1440, max(1, intval($_POST['interval_minutes'])));

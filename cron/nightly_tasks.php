@@ -100,6 +100,29 @@ if ($config_enable_cron == 0) {
 }
 
 /*
+ * Whether cron has already recorded doing something to an invoice today, judged by the
+ * history rows this script writes. The overdue and autopay queries below are day-matched -
+ * they select the same invoices on every run of a given day - so each action that emails a
+ * client or changes money checks here first. This is what makes a second run in one day
+ * (Run Now after the 3am pass) safe. Named for this script per the shared-process rule in
+ * CONTRIBUTING.
+ */
+function cronInvoiceHistoryToday(int $invoice_id, string $description_prefix): bool
+{
+    global $mysqli;
+
+    $description_prefix = escapeSql($description_prefix);
+
+    $sql = mysqli_query($mysqli, "SELECT history_id FROM history
+        WHERE history_invoice_id = $invoice_id
+        AND history_description LIKE '$description_prefix%'
+        AND history_created_at >= CURDATE()
+        LIMIT 1");
+
+    return mysqli_num_rows($sql) > 0;
+}
+
+/*
  * ###############################################################################################################
  *  STARTUP ACTIONS
  * ###############################################################################################################
@@ -554,8 +577,9 @@ if ($config_send_invoice_reminders == 1) {
                 continue;
             }
 
-            // Late Charges
-            if ($config_invoice_late_fee_enable == 1 && $day > 1) {
+            // Late Charges - at most one per invoice per day, or a second run of this
+            // script stacks another fee on the already-inflated balance
+            if ($config_invoice_late_fee_enable == 1 && $day > 1 && !cronInvoiceHistoryToday($invoice_id, 'Cron applied a late fee')) {
 
                 $todays_date = date('Y-m-d');
                 $late_fee_amount = ($invoice_balance * $config_invoice_late_fee_percent) / 100;
@@ -577,6 +601,12 @@ if ($config_send_invoice_reminders == 1) {
             }
 
             appNotify("Invoice Overdue", "Invoice $invoice_prefix$invoice_number for $client_name with a balance of " . numfmt_format_currency($currency_format, $invoice_balance, $invoice_currency_code) . " is overdue by $day days", "/agent/invoice.php?invoice_id=$invoice_id", $client_id);
+
+            // One client email per invoice per day - the 3am run and a Run Now the same
+            // afternoon must not both mail them
+            if (cronInvoiceHistoryToday($invoice_id, 'Cron Emailed Overdue Invoice')) {
+                continue;
+            }
 
             $subject = "Overdue Invoice $invoice_prefix$invoice_number";
 
@@ -814,6 +844,12 @@ while ($row = mysqli_fetch_assoc($sql_recurring_payments)) {
     $client_name = escapeSql($row['client_name']);
     $contact_name = escapeSql($row['contact_name']);
     $contact_email = escapeSql($row['contact_email']);
+
+    // A card that already declined today is not retried - the day-matched selection above
+    // would otherwise re-attempt the same charge on every extra run of this script
+    if (cronInvoiceHistoryToday($invoice_id, 'Stripe autopay failed')) {
+        continue;
+    }
 
     // Only attempt autopay if a saved payment method is set
     if ($recurring_payment_saved_payment_id) {

@@ -104,6 +104,13 @@ function cronJobClaim($mysqli, array $job): bool
             // start a second or two late, and an exact n-minute comparison would then find the
             // job 'not due yet' and skip every other cycle.
             $interval = max(1, intval($row['cron_job_interval_minutes']));
+
+            // A job the registry marks interval-unsafe never runs more often than daily,
+            // whatever its row says - a leftover row from before the schedule was locked
+            // must not revive the every-minute failure. See includes/cron_jobs.php.
+            if (($job['interval_safe'] ?? true) === false) {
+                $interval = max($interval, 1440);
+            }
             $threshold = date('Y-m-d H:i:s', time() - (($interval * 60) - 30));
             $scheduled = true;
         }

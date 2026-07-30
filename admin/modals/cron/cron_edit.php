@@ -9,6 +9,7 @@ $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT * FROM cron_jobs WHERE c
 
 $registry = cronJobRegistryByName();
 $job = $registry[$row['cron_job_name']] ?? null;
+$cron_job_interval_safe = ($job['interval_safe'] ?? true);
 
 $cron_job_name = escapeHtml($row['cron_job_name']);
 $cron_job_label = escapeHtml($job['label'] ?? $row['cron_job_name']);
@@ -50,10 +51,15 @@ ob_start();
                     <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
                 </div>
                 <select class="form-control" name="schedule" id="cronJobSchedule">
-                    <option value="Interval" <?= $cron_job_schedule === 'Interval' ? 'selected' : '' ?>>Every so many minutes</option>
-                    <option value="Daily" <?= $cron_job_schedule === 'Daily' ? 'selected' : '' ?>>Once a day</option>
+                    <?php if ($cron_job_interval_safe) { ?>
+                        <option value="Interval" <?= $cron_job_schedule === 'Interval' ? 'selected' : '' ?>>Every so many minutes</option>
+                    <?php } ?>
+                    <option value="Daily" <?= ($cron_job_schedule === 'Daily' || !$cron_job_interval_safe) ? 'selected' : '' ?>>Once a day</option>
                 </select>
             </div>
+            <?php if (!$cron_job_interval_safe) { ?>
+                <small class="text-muted">This job's work repeats if it runs twice in one day, so it only runs on the daily schedule.</small>
+            <?php } ?>
         </div>
 
         <div class="form-group" id="cronJobIntervalGroup">

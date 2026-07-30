@@ -97,7 +97,8 @@ Because the jobs share one PHP process, job code has three rules:
 
 1. **Never `exit()` or `die()`.** It ends the whole cycle and every job after it. Use `cronJobStop($message, $exit_code)` instead: it exits when the script was run directly and unwinds back to the dispatcher when it wasn't, so both paths behave as they always have.
 2. **Never declare a function or class another job might declare.** Two jobs each declaring the same helper is a fatal `Cannot redeclare` the moment they share a process. Shared helpers belong in `functions/`.
-3. **Set what you read.** One global scope and one set of `require_once` includes are shared across the cycle — a job's own `require_once "../config.php"` is a no-op if an earlier job already loaded it, and any variable an earlier job left behind is still there. Do not rely on the state a fresh process would have given you.
+3. **Be safe to run twice in one day.** The dispatcher's lock stops overlap, but nothing stops a repeat: an admin presses Run Now after the scheduled pass, or a schedule is misconfigured. Work selected by a date match (`... = CURDATE()`) fires again on every run of that day unless something records that it happened — nightly's late fees and overdue reminders guard on the history rows they write. A job whose work cannot be made repeat-safe declares `'interval_safe' => false` in `includes/cron_jobs.php`, which locks it to the daily schedule in Settings > Cron and in the dispatcher.
+4. **Set what you read.** One global scope and one set of `require_once` includes are shared across the cycle — a job's own `require_once "../config.php"` is a no-op if an earlier job already loaded it, and any variable an earlier job left behind is still there. Do not rely on the state a fresh process would have given you.
 
 Every script in `cron/` still runs standalone (`php cron/mail_queue.php`) and still takes its own lock when it does, so anything can be run by hand for testing.
 

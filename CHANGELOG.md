@@ -89,6 +89,11 @@ This file documents all notable changes made to ITFlow.
   the command line. The last error a job hit is kept until it is dismissed, rather than
   disappearing behind the next success, and the page says plainly when the crontab entry itself is
   missing — the dispatcher records a heartbeat every minute whether or not any job was due.
+- **The nightly run is safe to repeat.** Late fees and overdue invoice reminders now apply at
+  most once per invoice per day, and a card that declined an autopay charge is not retried
+  until the next day — so a Run Now after the scheduled pass, or a misconfigured schedule, no
+  longer stacks fees or re-emails clients. Nightly Tasks itself only accepts the daily
+  schedule in Settings > Cron.
 
 - **Ticket SLAs (optional).** SLAs define a response target and an optional resolution target,
   and are assigned per client and priority, with a global default and an explicit "no SLA"

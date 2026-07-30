@@ -22,6 +22,11 @@
  *
  * That shared use is why this sits here rather than in cron/includes/ with the lock, which
  * only cron loads: the admin pages would otherwise be reaching into the cron directory.
+ *
+ * 'interval_safe' => false marks a job whose work repeats if the day repeats - nightly's
+ * late fees and overdue reminders fire again on a second run of the same day. Settings >
+ * Cron only offers the daily schedule for such a job, and the dispatcher refuses to run
+ * one on an interval whatever its row says.
  */
 
 function cronJobRegistry(): array
@@ -66,6 +71,7 @@ function cronJobRegistry(): array
             'description' => 'The daily run: recurring invoices and tickets, overdue reminders, autopay, late fees, clean-up, update check.',
             'schedule' => 'Daily',
             'daily_at' => '03:00',
+            'interval_safe' => false,
         ],
         [
             'name' => 'certificate_refresher',
