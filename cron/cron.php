@@ -44,12 +44,12 @@ if (php_sapi_name() !== 'cli') {
     die("This script must be run from the command line.\n");
 }
 
-// Tells includes/cron_lock.php and the jobs themselves that they are running under the
+// Tells cron/includes/cron_lock.php and the jobs themselves that they are running under the
 // dispatcher rather than being executed directly. Must be defined before anything else
 // is loaded.
 define('ITFLOW_CRON_DISPATCHER', true);
 
-require_once "../includes/cron_lock.php";
+require_once "includes/cron_lock.php";
 require_once "../config.php";
 
 // Set Timezone

@@ -14,6 +14,14 @@
  * This file is the only thing that decides which scripts can be run. The database holds
  * when and whether, never what - a row naming a script that is not listed here is ignored,
  * so nothing that reaches the database can point the dispatcher at an arbitrary file.
+ *
+ * Loaded from both sides: cron/cron.php requires it on the command line under system cron,
+ * and Settings > Cron requires it in a web request. Nothing in here may touch $_SERVER,
+ * $_SESSION or any other superglobal - there is no DOCUMENT_ROOT, no session and no request
+ * when cron runs it.
+ *
+ * That shared use is why this sits here rather than in cron/includes/ with the lock, which
+ * only cron loads: the admin pages would otherwise be reaching into the cron directory.
  */
 
 function cronJobRegistry(): array
@@ -48,8 +56,8 @@ function cronJobRegistry(): array
             'label' => 'Domain Refresher',
             'script' => 'domain_refresher.php',
             'description' => 'Refreshes WHOIS and DNS for the domain that was checked longest ago. One domain per run.',
-            'schedule' => 'Interval',
-            'interval_minutes' => 5,
+            'schedule' => 'Daily',
+            'daily_at' => '04:00',
         ],
         [
             'name' => 'nightly_tasks',

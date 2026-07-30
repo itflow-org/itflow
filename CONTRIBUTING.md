@@ -24,7 +24,7 @@ There is no `composer install` or `npm install` step. All third-party libraries 
 | `client/` | The logged-in client portal (contacts of a client). |
 | `guest/` | Unauthenticated flows via URL keys (view/pay invoice, view quote/ticket, view shared credentials/files/documents). |
 | `api/v1/` | Key-authenticated JSON CRUD API, one directory per module. |
-| `cron/` | Scheduled jobs. `cron.php` is the dispatcher and the only entry in the crontab; everything else in the directory is a job it runs. See [Cron](#cron). |
+| `cron/` | Scheduled jobs. `cron.php` is the dispatcher and the only entry in the crontab; everything else in the directory is a job it runs, with `cron/includes/` for the parts only cron uses. See [Cron](#cron). |
 | `functions.php` + `functions/` | Shared helper functions, split into topical files (`sanitize.php`, `auth.php`, `logging.php`, …) loaded by `functions.php`. New helpers go in the topical file that matches their concern. |
 | `includes/` (root) | **Shared** across portals: session/auth bootstrap, DB, layout partials. |
 | `post/` (root) | **Shared** POST handlers (logout, misc). |
@@ -91,7 +91,7 @@ That registry is the only thing that decides **which** scripts can run, and the 
 
 Run Now in the admin UI does not execute anything in the web request: these scripts are CLI-only and some take minutes, so the button sets `cron_job_run_now` and the next dispatch picks it up, through the same lock and claim as a scheduled run.
 
-Due-ness is recorded in the `cron_jobs` table rather than matched against the clock, so a job whose minute was missed — machine down, previous run still going — runs at the next opportunity instead of being skipped for the day. A job is claimed *before* it runs, not after: a run that dies half way through is not repeated, which matters because `nightly_tasks.php` generates invoices and charges cards. Each job is also locked individually for the length of its own run (`includes/cron_lock.php`), so a long or hung job holds up only itself — the next minute's dispatch picks up everything else in a second process.
+Due-ness is recorded in the `cron_jobs` table rather than matched against the clock, so a job whose minute was missed — machine down, previous run still going — runs at the next opportunity instead of being skipped for the day. A job is claimed *before* it runs, not after: a run that dies half way through is not repeated, which matters because `nightly_tasks.php` generates invoices and charges cards. Each job is also locked individually for the length of its own run (`cron/includes/cron_lock.php`), so a long or hung job holds up only itself — the next minute's dispatch picks up everything else in a second process.
 
 Because the jobs share one PHP process, job code has three rules:
 

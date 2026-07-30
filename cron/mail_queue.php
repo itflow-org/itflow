@@ -9,7 +9,7 @@ if (php_sapi_name() !== 'cli') {
 
 // Prevent overlapping runs of this script
 $cron_lock_script = __FILE__;
-require_once "../includes/cron_lock.php";
+require_once "includes/cron_lock.php";
 
 require_once "../config.php";
 require_once "../includes/inc_set_timezone.php";

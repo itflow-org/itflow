@@ -1555,7 +1555,13 @@ if (isset($_POST['add_telemetry'])) {
                                 <p>A few <a href="https://docs.itflow.org/installation#post-installation_essential_housekeeping">housekeeping steps</a> are required to ensure everything runs smoothly, namely:</p>
                                 <ul>
                                     <li><a href="https://docs.itflow.org/backups">Setup backups</a></li>
-                                    <li><a href="https://docs.itflow.org/cron">Setup cron</a> *If Installing via script cron jobs will be automatically setup for you.</li>
+                                    <li>
+                                        <a href="https://docs.itflow.org/cron">Setup cron</a> - ITFlow needs one entry, which runs
+                                        every job on the schedule set in Settings &gt; Cron. Add it to the crontab of the user that
+                                        owns the ITFlow files:
+                                        <pre class="bg-dark text-white p-2 mt-2"><?= escapeHtml("* * * * * php " . dirname(__DIR__) . "/cron/cron.php >/dev/null") ?></pre>
+                                        *If installing via the script this is set up for you.
+                                    </li>
                                     <li>Star ITFlow on <a href="https://github.com/itflow-org/itflow">Github</a> :)</li>
                                 </ul>
 

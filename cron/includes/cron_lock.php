@@ -108,7 +108,7 @@ function cronLockRelease($lock_handle): void
 if (!defined('ITFLOW_CRON_DISPATCHER')) {
 
     if (!isset($cron_lock_script)) {
-        die("Cron scripts must set \$cron_lock_script = __FILE__ before requiring includes/cron_lock.php.\n");
+        die("Cron scripts must set \$cron_lock_script = __FILE__ before requiring cron/includes/cron_lock.php.\n");
     }
 
     $cron_lock_handle = cronLockAcquire($cron_lock_script);
