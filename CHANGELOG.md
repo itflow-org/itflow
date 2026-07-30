@@ -41,15 +41,22 @@ This file documents all notable changes made to ITFlow.
 >
 > **Back up your database before upgrading.**
  
-- **A new cron job is required if you intend to use ticket SLAs.** `cron/ticket_sla.php` moves
-  tickets through their SLA warning and breach stages and sends the notifications. Without it,
-  SLA targets are still calculated and displayed but warnings and breaches will never fire. Add
-  it alongside the existing every-minute jobs:
+- **The crontab collapses to a single entry.** `cron/cron.php` is now a dispatcher: it runs every
+  minute and decides which of the scripts in `cron/` are due. Everything the old `cron.php` did
+  nightly has moved to `cron/nightly_tasks.php`, which the dispatcher runs at 03:00. Replace every
+  ITFlow line in your crontab with this one:
 ```
-  * * * * * php /path/to/itflow/cron/ticket_sla.php
+  * * * * * php /path/to/itflow/cron/cron.php >/dev/null
 ```
- 
-  If you do not use SLAs the job is a no-op and can be skipped.
+
+  An existing crontab keeps working as it is — the per-minute scripts still run and still lock
+  correctly, and `cron.php` still runs the nightly work at whatever time you call it — but jobs
+  added in this and future releases only run if the dispatcher is scheduled.
+- **Ticket SLAs need no cron entry of their own.** `cron/ticket_sla.php` moves tickets through
+  their SLA warning and breach stages and sends the notifications. It is in the dispatcher's job
+  list and runs every minute once the entry above is in place. Without it, SLA targets are still
+  calculated and displayed but warnings and breaches will never fire. If you do not use SLAs the
+  job is a no-op.
 - **All existing API keys are deleted by this update and must be recreated.** API keys are now
   owned by a user and inherit that user's role, module, and client permissions rather than
   carrying their own client scope. Existing keys predate this and cannot be safely mapped to a
@@ -67,7 +74,14 @@ This file documents all notable changes made to ITFlow.
 - Several pages were renamed to drop the `_details` suffix and to use consistent singular and
   plural filenames. Bookmarks or external links pointing at the old filenames will 404.
 ### Major Changes
- 
+
+- **One cron entry instead of five.** `cron/cron.php` is now a dispatcher that runs every minute
+  and decides which jobs are due, so scheduling lives in ITFlow rather than in the crontab and new
+  jobs arrive with an update instead of an install note. Jobs are tracked in a new `cron_jobs`
+  table, which means a job whose slot was missed runs at the next opportunity rather than waiting
+  a day, and each job is locked for its own run so a slow mailbox or a long nightly run no longer
+  delays anything else. The nightly work itself moved to `cron/nightly_tasks.php`.
+
 - **Ticket SLAs (optional).** SLAs define a response target and an optional resolution target,
   and are assigned per client and priority, with a global default and an explicit "no SLA"
   override available for any combination. Targets are measured against your configured business

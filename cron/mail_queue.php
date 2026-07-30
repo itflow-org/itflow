@@ -77,12 +77,12 @@ $config_mail_oauth_access_token_expires_at = $row['config_mail_oauth_access_toke
 
 if ($config_enable_cron == 0) {
     logApp("Cron-Mail-Queue", "error", "Cron Mail Queue unable to run - cron not enabled in admin settings.");
-    exit("Cron: is not enabled -- Quitting..");
+    cronJobStop("Cron: is not enabled -- Quitting..");
 }
 
 if (empty($config_smtp_provider)) {
     logApp("Cron-Mail-Queue", "info", "SMTP sending skipped: provider not configured.");
-    exit(0);
+    cronJobStop();
 }
 
 /** =======================================================================
@@ -100,27 +100,6 @@ function tokenIsExpired(?string $expires_at): bool {
     }
 
     return ($ts - 60) <= time();
-}
-
-function httpFormPost(string $url, array $fields): array {
-    $ch = curl_init($url);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_POST, true);
-    curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($fields, '', '&'));
-    curl_setopt($ch, CURLOPT_TIMEOUT, 20);
-
-    $raw = curl_exec($ch);
-    $err = curl_error($ch);
-    $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-
-    curl_close($ch);
-
-    return [
-        'ok' => ($raw !== false && $code >= 200 && $code < 300),
-        'body' => $raw,
-        'code' => $code,
-        'err' => $err,
-    ];
 }
 
 function persistMailOauthTokens(string $access_token, string $expires_at, ?string $refresh_token = null): void {

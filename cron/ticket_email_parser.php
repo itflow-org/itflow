@@ -45,35 +45,13 @@ $company_phone = escapeSql(formatPhoneNumber($row['company_phone'], $row['compan
 // Check setting enabled
 if ($config_ticket_email_parse == 0) {
     logApp("Cron-Email-Parser", "error", "Cron Email Parser unable to run - not enabled in admin settings.");
-    exit("Email Parser: Feature is not enabled - check Settings > Ticketing > Email-to-ticket parsing. See https://docs.itflow.org/ticket_email_parse  -- Quitting..");
+    cronJobStop("Email Parser: Feature is not enabled - check Settings > Ticketing > Email-to-ticket parsing. See https://docs.itflow.org/ticket_email_parse  -- Quitting..");
 }
 
-// System temp directory & lock
-$temp_dir = sys_get_temp_dir();
-$lock_file_path = "{$temp_dir}/itflow_email_parser_{$installation_id}.lock";
-
-if (file_exists($lock_file_path)) {
-    $file_age = time() - filemtime($lock_file_path);
-    if ($file_age > 300) {
-        unlink($lock_file_path);
-        logApp("Cron-Email-Parser", "warning", "Cron Email Parser detected a lock file was present but was over 5 minutes old so it removed it.");
-    } else {
-        logApp("Cron-Email-Parser", "warning", "Lock file present. Cron Email Parser attempted to execute but was already executing, so instead it terminated.");
-        exit("Script is already running. Exiting.");
-    }
-}
-// Atomically create the lock ('x' fails if another process beat us to it)
-if (@fopen($lock_file_path, 'x') === false) {
-    logApp("Cron-Email-Parser", "warning", "Lock file present (race). Cron Email Parser attempted to execute but was already executing, so instead it terminated.");
-    exit("Script is already running. Exiting.");
-}
-
-// Ensure lock gets removed even on fatal error
-register_shutdown_function(function() use ($lock_file_path) {
-    if (file_exists($lock_file_path)) {
-        @unlink($lock_file_path);
-    }
-});
+// Overlapping runs are prevented by includes/cron_lock.php. This script used to keep a
+// lock file of its own alongside that one, which needed a five minute age heuristic to
+// recover from a killed run and could only end itself with exit() - fatal to a dispatched
+// job. flock covers the same ground and the kernel drops it however the process ends.
 
 // Allowed attachment extensions
 $allowed_extensions = array('jpg', 'jpeg', 'gif', 'png', 'webp', 'svg', 'pdf', 'txt', 'md', 'doc', 'docx', 'csv', 'xls', 'xlsx', 'xlsm', 'zip', 'tar', 'gz');
@@ -394,19 +372,6 @@ function tokenExpired(?string $expires_at): bool {
 }
 
 // very small form-encoded POST helper using curl
-function httpFormPost(string $url, array $fields): array {
-    $ch = curl_init($url);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_POST, true);
-    curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($fields, '', '&'));
-    curl_setopt($ch, CURLOPT_TIMEOUT, 20);
-    $raw = curl_exec($ch);
-    $err = curl_error($ch);
-    $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-    curl_close($ch);
-    return ['ok' => ($raw !== false && $code >= 200 && $code < 300), 'body' => $raw, 'code' => $code, 'err' => $err];
-}
-
 /**
  * Get a valid access token for Google Workspace IMAP via refresh token if needed.
  * Uses settings: config_mail_oauth_client_id / _client_secret / _refresh_token / _access_token / _access_token_expires_at
@@ -524,8 +489,7 @@ if ($imap_provider === null) $imap_provider = '';
 if ($imap_provider === '') {
     // IMAP disabled by admin: exit cleanly
     logApp("Cron-Email-Parser", "info", "IMAP polling skipped: provider not configured.");
-    @unlink($lock_file_path);
-    exit(0);
+    cronJobStop();
 }
 
 /** ------------------------------------------------------------------
@@ -551,8 +515,7 @@ if ($imap_provider === 'google_oauth') {
     $pass = getGoogleAccessToken($user);
     if (empty($pass)) {
         logApp("Cron-Email-Parser", "error", "Google OAuth: no usable access token (check refresh token/client credentials).");
-        @unlink($lock_file_path);
-        exit(1);
+        cronJobStop('', 1);
     }
 } elseif ($imap_provider === 'microsoft_oauth') {
     $host = 'outlook.office365.com';
@@ -562,15 +525,13 @@ if ($imap_provider === 'google_oauth') {
     $pass = getMicrosoftAccessToken($user);
     if (empty($pass)) {
         logApp("Cron-Email-Parser", "error", "Microsoft OAuth: no usable access token (check refresh token/client credentials/tenant).");
-        @unlink($lock_file_path);
-        exit(1);
+        cronJobStop('', 1);
     }
 } else {
     // standard_imap (username/password)
     if (empty($host) || empty($port) || empty($user)) {
         logApp("Cron-Email-Parser", "error", "Standard IMAP: missing host/port/username.");
-        @unlink($lock_file_path);
-        exit(1);
+        cronJobStop('', 1);
     }
 }
 
@@ -597,8 +558,7 @@ try {
     $mailbox->connect();
 } catch (\Throwable $e) {
     echo "Error connecting to IMAP server: " . $e->getMessage();
-    @unlink($lock_file_path);
-    exit(1);
+    cronJobStop('', 1);
 }
 
 $inbox = $mailbox->inbox();
@@ -664,8 +624,7 @@ try {
     }
 } catch (\Throwable $e) {
     logApp("Cron-Email-Parser", "error", "Unable to find/create target folder [$targetFolderName]: " . $e->getMessage());
-    @unlink($lock_file_path);
-    exit(1);
+    cronJobStop('', 1);
 }
 
 // Fetch unseen messages (headers, body & flags; BODY.PEEK so they stay unread)
@@ -1037,13 +996,6 @@ if ($processed_count || $unprocessed_count) {
     logApp("Cron-Email-Parser", "info", "Cron Email Parser executed in $execution_time_formatted seconds. $processed_info");
 }
 
-// Remove the lock file
-unlink($lock_file_path);
-
 // DEBUG
-echo "\nLock File Path: $lock_file_path\n";
-if (file_exists($lock_file_path)) {
-    echo "\nLock is present\n\n";
-}
 echo "Processed Emails: $processed_count\n";
 echo "Unprocessed Emails: $unprocessed_count\n";

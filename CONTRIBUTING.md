@@ -24,7 +24,7 @@ There is no `composer install` or `npm install` step. All third-party libraries 
 | `client/` | The logged-in client portal (contacts of a client). |
 | `guest/` | Unauthenticated flows via URL keys (view/pay invoice, view quote/ticket, view shared credentials/files/documents). |
 | `api/v1/` | Key-authenticated JSON CRUD API, one directory per module. |
-| `cron/` | Scheduled jobs: `cron.php`, mail queue, ticket email parser, domain/cert refreshers. |
+| `cron/` | Scheduled jobs. `cron.php` is the dispatcher and the only entry in the crontab; everything else in the directory is a job it runs. See [Cron](#cron). |
 | `functions.php` + `functions/` | Shared helper functions, split into topical files (`sanitize.php`, `auth.php`, `logging.php`, …) loaded by `functions.php`. New helpers go in the topical file that matches their concern. |
 | `includes/` (root) | **Shared** across portals: session/auth bootstrap, DB, layout partials. |
 | `post/` (root) | **Shared** POST handlers (logout, misc). |
@@ -77,6 +77,28 @@ Files named `agent/post/*_model.php` hold shared field collection/sanitization l
  
 ---
  
+## Cron
+
+One crontab entry runs everything:
+
+```
+* * * * * php /path/to/itflow/cron/cron.php >/dev/null
+```
+
+`cron/cron.php` is a dispatcher. It wakes every minute, works out which scripts in `cron/` are due, and requires them into its own process. Adding a job is a new script in `cron/` plus a line in the job table at the top of the dispatcher — `'every' => n` for interval jobs, `'daily_at' => 'HH:MM'` for daily ones. The crontab never changes again.
+
+Due-ness is recorded in the `cron_jobs` table rather than matched against the clock, so a job whose minute was missed — machine down, previous run still going — runs at the next opportunity instead of being skipped for the day. A job is claimed *before* it runs, not after: a run that dies half way through is not repeated, which matters because `nightly_tasks.php` generates invoices and charges cards. Each job is also locked individually for the length of its own run (`includes/cron_lock.php`), so a long or hung job holds up only itself — the next minute's dispatch picks up everything else in a second process.
+
+Because the jobs share one PHP process, job code has three rules:
+
+1. **Never `exit()` or `die()`.** It ends the whole cycle and every job after it. Use `cronJobStop($message, $exit_code)` instead: it exits when the script was run directly and unwinds back to the dispatcher when it wasn't, so both paths behave as they always have.
+2. **Never declare a function or class another job might declare.** Two jobs each declaring the same helper is a fatal `Cannot redeclare` the moment they share a process. Shared helpers belong in `functions/`.
+3. **Set what you read.** One global scope and one set of `require_once` includes are shared across the cycle — a job's own `require_once "../config.php"` is a no-op if an earlier job already loaded it, and any variable an earlier job left behind is still there. Do not rely on the state a fresh process would have given you.
+
+Every script in `cron/` still runs standalone (`php cron/mail_queue.php`) and still takes its own lock when it does, so anything can be run by hand for testing.
+
+---
+
 ## Security rules (non-negotiable)
  
 ITFlow does not use prepared statements or an ORM; queries are built as strings. That works **only** if every value is neutralized before interpolation. The rules:

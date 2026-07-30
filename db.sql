@@ -951,6 +951,24 @@ CREATE TABLE `credits` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `cron_jobs`
+--
+
+DROP TABLE IF EXISTS `cron_jobs`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `cron_jobs` (
+  `cron_job_id` int(11) NOT NULL AUTO_INCREMENT,
+  `cron_job_name` varchar(200) NOT NULL,
+  `cron_job_last_run_at` datetime DEFAULT NULL,
+  `cron_job_last_finished_at` datetime DEFAULT NULL,
+  `cron_job_last_status` varchar(200) DEFAULT NULL,
+  PRIMARY KEY (`cron_job_id`),
+  UNIQUE KEY `cron_job_name` (`cron_job_name`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `custom_fields`
 --
 
