@@ -433,7 +433,7 @@ CREATE TABLE `calendars` (
   `calendar_id` int(11) NOT NULL AUTO_INCREMENT,
   `calendar_name` varchar(200) NOT NULL,
   `calendar_color` varchar(200) NOT NULL,
-  `calendar_feed_key` varchar(64) COLLATE utf8mb4_bin DEFAULT NULL,
+  `calendar_feed_key` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL,
   `calendar_feed_busy_only` tinyint(1) NOT NULL DEFAULT 0,
   `calendar_feed_created_at` datetime DEFAULT NULL,
   `calendar_feed_accessed_at` datetime DEFAULT NULL,
@@ -3093,4 +3093,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2026-07-29 18:09:44
+-- Dump completed on 2026-07-30  2:29:56
