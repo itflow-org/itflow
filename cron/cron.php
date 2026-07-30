@@ -7,8 +7,9 @@
  *
  *   * * * * * php /path/to/itflow/cron/cron.php >/dev/null
  *
- * It wakes once a minute, works out which jobs are due, and runs them. Adding a job is a
- * new script in cron/ and a line in the table below - the crontab never has to change again.
+ * It wakes once a minute, works out which jobs are due, and runs them. The jobs themselves
+ * are listed in includes/cron_jobs.php; when and whether each one runs is held in the
+ * cron_jobs table and edited from Settings > Cron.
  *
  * WHAT THE JOBS INHERIT
  *
@@ -54,34 +55,13 @@ require_once "../config.php";
 // Set Timezone
 require_once "../includes/inc_set_timezone.php";
 require_once "../functions.php";
-
-/*
- * The jobs, in the order they run.
- *
- *   'every'    => n         run every n minutes
- *   'daily_at' => 'HH:MM'   run once a day, at or after this time
- *
- * Order matters: the every-minute jobs come first so a nightly run cannot delay them, and
- * mail_queue comes before the jobs that queue mail so nothing sits in the queue for a
- * minute longer than it has to.
- *
- * Each job still checks its own settings (cron enabled, email parsing enabled, and so on)
- * and stops itself when it has nothing to do, so a disabled feature costs a require and a
- * settings read.
- */
-$cron_dispatch_jobs = [
-    ['name' => 'mail_queue',            'script' => 'mail_queue.php',            'every' => 1],
-    ['name' => 'ticket_email_parser',   'script' => 'ticket_email_parser.php',   'every' => 1],
-    ['name' => 'ticket_sla',            'script' => 'ticket_sla.php',            'every' => 1],
-    ['name' => 'domain_refresher',      'script' => 'domain_refresher.php',      'every' => 5],
-    ['name' => 'nightly_tasks',         'script' => 'nightly_tasks.php',         'daily_at' => '03:00'],
-    ['name' => 'certificate_refresher', 'script' => 'certificate_refresher.php', 'daily_at' => '03:30'],
-];
+require_once "../includes/cron_jobs.php";
 
 /*
  * Claim a job if it is due. The UPDATE is the claim: two dispatchers racing for the same
  * job both run it against the same row and the loser matches nothing, which also holds
- * across two web servers sharing one database, where the file lock would not.
+ * across two web servers sharing one database, where the file lock would not. The same
+ * statement consumes a Run Now request, so a button press can only ever produce one run.
  *
  * Every comparison is made against PHP's clock, not the database's, so the schedule follows
  * the timezone ITFlow is configured for however the database server is set up.
@@ -91,68 +71,111 @@ function cronJobClaim($mysqli, array $job): bool
     $name = escapeSql($job['name']);
     $now = date('Y-m-d H:i:s');
 
-    // Register the job the first time it is seen - adding a job needs no migration
-    mysqli_query($mysqli, "INSERT IGNORE INTO cron_jobs SET cron_job_name = '$name'");
+    // Register the job the first time it is seen, seeded with the schedule it ships with.
+    // From here on the row is what runs - Settings > Cron writes to it.
+    $default_schedule = escapeSql($job['schedule']);
+    $default_interval = intval($job['interval_minutes'] ?? 1);
+    $default_daily_at = isset($job['daily_at']) ? "'" . escapeSql($job['daily_at']) . ":00'" : 'NULL';
 
-    if (isset($job['daily_at'])) {
-        // Due once today's scheduled time has passed, unless we have already run since it
-        $threshold = date('Y-m-d') . ' ' . $job['daily_at'] . ':00';
-        if ($now < $threshold) {
-            return false;
+    mysqli_query($mysqli, "INSERT IGNORE INTO cron_jobs SET
+        cron_job_name = '$name',
+        cron_job_schedule = '$default_schedule',
+        cron_job_interval_minutes = $default_interval,
+        cron_job_daily_at = $default_daily_at");
+
+    $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT * FROM cron_jobs WHERE cron_job_name = '$name' LIMIT 1"));
+
+    if (!$row) {
+        return false;
+    }
+
+    // A Run Now request runs the job whatever its schedule says, and whether or not it is
+    // enabled - turning the schedule off and running it by hand is a legitimate way to work.
+    $due_clause = "cron_job_run_now = 1";
+
+    if (!empty($row['cron_job_enabled'])) {
+
+        if ($row['cron_job_schedule'] === 'Daily') {
+            // Due once today's scheduled time has passed, unless we have already run since it
+            $threshold = date('Y-m-d') . ' ' . substr((string)$row['cron_job_daily_at'], 0, 5) . ':00';
+            $scheduled = ($now >= $threshold);
+        } else {
+            // Interval jobs get 30 seconds of slack. cron fires on the minute but a run can
+            // start a second or two late, and an exact n-minute comparison would then find the
+            // job 'not due yet' and skip every other cycle.
+            $interval = max(1, intval($row['cron_job_interval_minutes']));
+            $threshold = date('Y-m-d H:i:s', time() - (($interval * 60) - 30));
+            $scheduled = true;
         }
-    } else {
-        // Interval jobs get 30 seconds of slack. cron fires on the minute but a run can
-        // start a second or two late, and an exact n-minute comparison would then find the
-        // job 'not due yet' and skip every other cycle.
-        $every = max(1, intval($job['every'] ?? 1));
-        $threshold = date('Y-m-d H:i:s', time() - (($every * 60) - 30));
+
+        if ($scheduled) {
+            $threshold = escapeSql($threshold);
+            $due_clause .= " OR (cron_job_enabled = 1 AND (cron_job_last_run_at IS NULL OR cron_job_last_run_at < '$threshold'))";
+        }
     }
 
     mysqli_query($mysqli, "UPDATE cron_jobs SET
         cron_job_last_run_at = '$now',
-        cron_job_last_status = 'Running'
+        cron_job_last_status = 'Running',
+        cron_job_run_now = 0
         WHERE cron_job_name = '$name'
-        AND (cron_job_last_run_at IS NULL OR cron_job_last_run_at < '$threshold')");
+        AND ($due_clause)");
 
     return mysqli_affected_rows($mysqli) === 1;
 }
 
 /*
- * Record how a job ended. Only ever cosmetic - nothing schedules off the result - but it is
- * the difference between "cron is broken" and knowing which job broke and when.
+ * Record how a job ended. The status is the outcome of the run that just happened; the error
+ * is sticky and survives later successes, because the run that failed is usually long gone by
+ * the time anyone goes looking. Settings > Cron clears it.
  */
-function cronJobFinished($mysqli, string $job_name, string $status): void
+function cronJobFinished($mysqli, string $job_name, string $status, ?float $duration = null, ?string $error = null): void
 {
     $name = escapeSql($job_name);
     $status = escapeSql(substr($status, 0, 200));
     $finished_at = date('Y-m-d H:i:s');
+    $duration_sql = $duration === null ? 'NULL' : "'" . number_format($duration, 2, '.', '') . "'";
+
+    $error_sql = '';
+    if ($error !== null) {
+        $error_text = escapeSql(substr($error, 0, 1000));
+        $error_sql = ", cron_job_last_error = '$error_text', cron_job_last_error_at = '$finished_at'";
+    }
 
     mysqli_query($mysqli, "UPDATE cron_jobs SET
         cron_job_last_finished_at = '$finished_at',
-        cron_job_last_status = '$status'
+        cron_job_last_status = '$status',
+        cron_job_last_duration = $duration_sql
+        $error_sql
         WHERE cron_job_name = '$name'");
 }
+
+// Proof the crontab is firing, recorded before any job runs. Settings > Cron reads it to tell
+// "no job was due" apart from "nothing has run this since the server was rebuilt".
+mysqli_query($mysqli, "UPDATE settings SET config_cron_last_dispatch_at = '" . date('Y-m-d H:i:s') . "' WHERE company_id = 1");
 
 // A fatal error inside a job cannot be caught, and it takes the rest of the cycle with it.
 // Recording which job was running at the time is the only trace of that left behind.
 $cron_dispatch_running = null;
-register_shutdown_function(function () use (&$cron_dispatch_running, $mysqli) {
+$cron_dispatch_started = null;
+register_shutdown_function(function () use (&$cron_dispatch_running, &$cron_dispatch_started, $mysqli) {
     if ($cron_dispatch_running === null) {
         return;
     }
 
     $error = error_get_last();
     $reason = $error['message'] ?? 'ended unexpectedly';
+    $duration = $cron_dispatch_started === null ? null : microtime(true) - $cron_dispatch_started;
 
-    cronJobFinished($mysqli, $cron_dispatch_running, "Failed: $reason");
+    cronJobFinished($mysqli, $cron_dispatch_running, 'Failed', $duration, $reason);
 });
 
-foreach ($cron_dispatch_jobs as $cron_dispatch_job) {
+foreach (cronJobRegistry() as $cron_dispatch_job) {
 
     $cron_dispatch_path = realpath(__DIR__ . '/' . $cron_dispatch_job['script']);
 
     if ($cron_dispatch_path === false) {
-        // A job listed above with no script behind it is a mistake worth hearing about
+        // A job listed in the registry with no script behind it is a mistake worth hearing about
         echo "Cron: job '{$cron_dispatch_job['name']}' points at {$cron_dispatch_job['script']}, which does not exist.\n";
         continue;
     }
@@ -170,21 +193,23 @@ foreach ($cron_dispatch_jobs as $cron_dispatch_job) {
     }
 
     $cron_dispatch_running = $cron_dispatch_job['name'];
+    $cron_dispatch_started = microtime(true);
 
     try {
         require_once $cron_dispatch_path;
-        cronJobFinished($mysqli, $cron_dispatch_job['name'], 'Completed');
+        cronJobFinished($mysqli, $cron_dispatch_job['name'], 'Completed', microtime(true) - $cron_dispatch_started);
     } catch (CronJobStopped $e) {
         // The job ended itself early - disabled in settings, nothing configured, nothing to do
         $reason = $e->getMessage();
-        cronJobFinished($mysqli, $cron_dispatch_job['name'], $reason === '' ? 'Stopped' : "Stopped: $reason");
+        cronJobFinished($mysqli, $cron_dispatch_job['name'], $reason === '' ? 'Stopped' : "Stopped: $reason", microtime(true) - $cron_dispatch_started);
     } catch (Throwable $e) {
         // One job throwing is not a reason to skip the rest of the cycle
         logApp("Cron", "error", "Cron job {$cron_dispatch_job['name']} failed: " . $e->getMessage());
-        cronJobFinished($mysqli, $cron_dispatch_job['name'], 'Failed: ' . $e->getMessage());
+        cronJobFinished($mysqli, $cron_dispatch_job['name'], 'Failed', microtime(true) - $cron_dispatch_started, $e->getMessage());
     }
 
     $cron_dispatch_running = null;
+    $cron_dispatch_started = null;
 
     cronLockRelease($cron_dispatch_lock);
 }

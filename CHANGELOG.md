@@ -75,12 +75,20 @@ This file documents all notable changes made to ITFlow.
   plural filenames. Bookmarks or external links pointing at the old filenames will 404.
 ### Major Changes
 
-- **One cron entry instead of five.** `cron/cron.php` is now a dispatcher that runs every minute
-  and decides which jobs are due, so scheduling lives in ITFlow rather than in the crontab and new
-  jobs arrive with an update instead of an install note. Jobs are tracked in a new `cron_jobs`
-  table, which means a job whose slot was missed runs at the next opportunity rather than waiting
-  a day, and each job is locked for its own run so a slow mailbox or a long nightly run no longer
-  delays anything else. The nightly work itself moved to `cron/nightly_tasks.php`.
+- **One cron entry instead of five, and a page to manage it.** `cron/cron.php` is now a dispatcher
+  that runs every minute and decides which jobs are due, so scheduling lives in ITFlow rather than
+  in the crontab and new jobs arrive with an update instead of an install note. Jobs are tracked in
+  a new `cron_jobs` table, which means a job whose slot was missed runs at the next opportunity
+  rather than waiting a day, and each job is locked for its own run so a slow mailbox or a long
+  nightly run no longer delays anything else. The nightly work itself moved to
+  `cron/nightly_tasks.php`.
+- **Settings > Cron.** A new admin page lists every job with its schedule, when it last ran, how
+  long it took, how it ended, and when it is next due. Each job can be turned off, given a
+  different frequency or time of day, and run on demand — Run Now hands the job to the next
+  dispatch rather than running it in the browser, so it starts within a minute and still runs on
+  the command line. The last error a job hit is kept until it is dismissed, rather than
+  disappearing behind the next success, and the page says plainly when the crontab entry itself is
+  missing — the dispatcher records a heartbeat every minute whether or not any job was due.
 
 - **Ticket SLAs (optional).** SLAs define a response target and an optional resolution target,
   and are assigned per client and priority, with a global default and an explicit "no SLA"

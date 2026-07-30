@@ -960,9 +960,17 @@ DROP TABLE IF EXISTS `cron_jobs`;
 CREATE TABLE `cron_jobs` (
   `cron_job_id` int(11) NOT NULL AUTO_INCREMENT,
   `cron_job_name` varchar(200) NOT NULL,
+  `cron_job_enabled` tinyint(1) NOT NULL DEFAULT 1,
+  `cron_job_schedule` varchar(200) NOT NULL DEFAULT 'Interval',
+  `cron_job_interval_minutes` int(11) NOT NULL DEFAULT 1,
+  `cron_job_daily_at` time DEFAULT NULL,
+  `cron_job_run_now` tinyint(1) NOT NULL DEFAULT 0,
   `cron_job_last_run_at` datetime DEFAULT NULL,
   `cron_job_last_finished_at` datetime DEFAULT NULL,
+  `cron_job_last_duration` decimal(10,2) DEFAULT NULL,
   `cron_job_last_status` varchar(200) DEFAULT NULL,
+  `cron_job_last_error` text DEFAULT NULL,
+  `cron_job_last_error_at` datetime DEFAULT NULL,
   PRIMARY KEY (`cron_job_id`),
   UNIQUE KEY `cron_job_name` (`cron_job_name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -2240,6 +2248,7 @@ CREATE TABLE `settings` (
   `config_ticket_default_billable` tinyint(1) NOT NULL DEFAULT 0,
   `config_ticket_timer_autostart` tinyint(1) NOT NULL DEFAULT 0,
   `config_enable_cron` tinyint(1) NOT NULL DEFAULT 0,
+  `config_cron_last_dispatch_at` datetime DEFAULT NULL,
   `config_recurring_auto_send_invoice` tinyint(1) NOT NULL DEFAULT 1,
   `config_enable_alert_domain_expire` tinyint(1) NOT NULL DEFAULT 1,
   `config_send_invoice_reminders` tinyint(1) NOT NULL DEFAULT 1,

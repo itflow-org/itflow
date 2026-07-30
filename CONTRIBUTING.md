@@ -85,7 +85,11 @@ One crontab entry runs everything:
 * * * * * php /path/to/itflow/cron/cron.php >/dev/null
 ```
 
-`cron/cron.php` is a dispatcher. It wakes every minute, works out which scripts in `cron/` are due, and requires them into its own process. Adding a job is a new script in `cron/` plus a line in the job table at the top of the dispatcher — `'every' => n` for interval jobs, `'daily_at' => 'HH:MM'` for daily ones. The crontab never changes again.
+`cron/cron.php` is a dispatcher. It wakes every minute, works out which scripts in `cron/` are due, and requires them into its own process. Adding a job is a new script in `cron/` plus an entry in `includes/cron_jobs.php`. The crontab never changes again.
+
+That registry is the only thing that decides **which** scripts can run, and the schedule in it is only a default: it seeds the job's `cron_jobs` row the first time the dispatcher meets the job, and from then on the row is what runs, because Settings > Cron writes to it. The database therefore holds **when and whether**, never **what** — a row naming a script that is not in the registry is ignored, so nothing that reaches the database can point the dispatcher at an arbitrary file. Keep it that way.
+
+Run Now in the admin UI does not execute anything in the web request: these scripts are CLI-only and some take minutes, so the button sets `cron_job_run_now` and the next dispatch picks it up, through the same lock and claim as a scheduled run.
 
 Due-ness is recorded in the `cron_jobs` table rather than matched against the clock, so a job whose minute was missed — machine down, previous run still going — runs at the next opportunity instead of being skipped for the day. A job is claimed *before* it runs, not after: a run that dies half way through is not repeated, which matters because `nightly_tasks.php` generates invoices and charges cards. Each job is also locked individually for the length of its own run (`includes/cron_lock.php`), so a long or hung job holds up only itself — the next minute's dispatch picks up everything else in a second process.
 
