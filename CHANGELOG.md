@@ -4,42 +4,53 @@ This file documents all notable changes made to ITFlow.
 
 ## [26.08]
  
-### Breaking Changes and Notes
+### Upgrading to 26.08
  
-> **Important:** The database update for this release **must** be run from the command line.
->
-> This release changes the database structure. After the files are updated the application will
-> be **broken until the database update is run** — pages that rely on the new columns will error
-> out, and that includes the admin area, so the in-app updater cannot be relied on to finish the
-> job. Update the files first, then immediately run the database update:
->
-> ```bash
-> php /path/to/itflow/scripts/update_cli.php --update
-> php /path/to/itflow/scripts/update_cli.php --update_db
-> ```
->
-> The script must be run by the user that owns the ITFlow files (commonly the web server user).
-> If it refuses to start, it will tell you which user to use:
->
-> ```bash
-> sudo -u www-data php /path/to/itflow/scripts/update_cli.php --update_db
-> ```
->
-> A single `--update_db` run now applies **every** pending database version in order, so it no
-> longer needs to be repeated until it comes back clean. It reports each version as it is applied.
-> If a step fails it stops there and leaves the recorded version at the last successful update, so
-> it is safe to correct the problem and run it again.
->
-> Run `--update_db` after **every** ITFlow update from now on, not just this one — any release may
-> contain database changes.
->
-> On an install with a lot of ticket history the database update can take **a minute or more** —
-> one step generates a guest URL key for every ticket that is missing one, row by row. Let it run
-> to completion. If it is interrupted it resumes cleanly on the next run, but this is another
-> reason not to attempt the update through the web interface, which is bound by PHP's execution
-> time limit.
->
-> **Back up your database before upgrading.**
+> **Read this before updating — done out of order, this update can break your entire instance.**
+> The database structure changes, every existing API key is deleted, and the whole cron setup is
+> replaced. Follow the steps below in order.
+
+1. **Back everything up.** Take a full VM backup or snapshot, and dump the database as well:
+```bash
+mysqldump itflow > itflow-pre-26.08.sql
+```
+
+2. **Delete every ITFlow entry from your crontab** (or remove `/etc/cron.d/itflow`). The old
+   per-minute jobs must not keep firing against a half-updated install. The new entry is added
+   back in step 5.
+
+3. **Update the files** through the web updater as usual (or from the shell:
+   `php /path/to/itflow/scripts/update_cli.php --update`).
+
+4. **You will get an error 500 — this is expected.** The updated code needs the updated database,
+   and the database update no longer runs through the web interface. Go to the shell and run it
+   as the user that owns the ITFlow files (the script tells you which user if you get it wrong):
+```bash
+sudo -u www-data php /path/to/itflow/scripts/update_cli.php --update_db
+```
+   It applies every pending database version in order and reports each one. On installs with a
+   lot of ticket history it can take a minute or more — let it finish. If a step fails it stops
+   there without advancing the recorded version, so it is safe to fix the problem and run it
+   again. The 500s stop as soon as it completes.
+
+5. **Create the new single cron entry.** One line now runs everything, and schedules are managed
+   in ITFlow under Settings > Cron from here on:
+```
+* * * * * www-data php /path/to/itflow/cron/cron.php >/dev/null
+```
+   Drop the `www-data` column if this goes in a user crontab instead of `/etc/cron.d`.
+
+6. **Recreate your API keys.** Every existing key is deleted by this update (see the note below).
+   Issue new keys and update every integration and script that talks to the ITFlow API.
+
+7. **Verify.** Sign in and open Settings > Cron — the green "Cron last checked in" banner should
+   appear within a couple of minutes, and every job should show a schedule and start picking up
+   runs.
+
+From this release on, run `--update_db` after **every** ITFlow update, not just this one — any
+release may contain database changes.
+ 
+### Breaking Changes and Notes
  
 - **The crontab collapses to a single entry.** `cron/cron.php` is now a dispatcher: it runs every
   minute and decides which of the scripts in `cron/` are due. Everything the old `cron.php` did
