@@ -80,6 +80,51 @@ This file documents all notable changes made to ITFlow.
 - Added an **Urgent** ticket priority.
 - **Multiple notes per asset**, mirroring the existing contact notes, with categorized note types
   (Maintenance, Repair, Configuration, Upgrade, Inspection, Note).
+- Fixed the last day of a multi-day all-day event not being drawn on the calendar or published
+  to subscribed feeds. `event_end` holds the last day the event covers, which is what the event
+  modal asks for, but both FullCalendar and iCalendar treat an all-day end as exclusive.
+- Selecting a day in month view creates an all-day event; selecting a time range in a week or
+  day view fills the time fields in and clears All day. Unchecking All day after a month-view
+  click reveals the time fields with the dates left in place, so a timed event can still be
+  created from month view. The end date follows the start date, and the end time defaults to an
+  hour after the start, in both cases leaving a longer span alone if one is already set.
+- **Clicking empty space on the calendar creates an event there.** Clicking a day or a time
+  slot - or dragging across several - opens the New Event modal with the start and end already
+  filled in from the selection, and the All day switch set to match. Dragging out a range in a
+  week or day view carries the length of the selection through, and the automatic
+  end-time-follows-start behaviour no longer overwrites a range that was dragged out or
+  lengthened by hand.
+- Repeating events are now marked on the calendar with a repeat icon and a hover note saying
+  how often they recur, and the edit modal states that saving or deleting affects every
+  occurrence. The delete action on a repeating event reads **Delete series** and now asks for
+  confirmation first &mdash; as does every other `confirm-link` inside an ajax modal, which
+  previously did nothing because the handler was bound only to links present at page load.
+- **Repeating calendar events now work.** The Repeat field on the add and edit event modals
+  was present but disabled, and the stored value was never rendered. It is now selectable
+  (daily, weekly, monthly, yearly) and occurrences are drawn on the calendar. Monthly and
+  yearly series skip dates that do not exist in a given period rather than sliding into the
+  next month, so an event on the 31st appears only in months that have one, and a 29 February
+  event only in leap years. Recurrence is series-wide: editing any occurrence edits the whole
+  series, and individual occurrences cannot yet be moved or cancelled. Subscribed calendar
+  feeds publish the recurrence rule and let the subscribing client expand it.
+- **Calendar events can be marked all day, and the date and time are now separate fields.**
+  Previously `calendar_events` had no all-day column and the calendar inferred it from a start
+  time of midnight, which made a genuine midnight appointment indistinguishable from an all-day
+  event. The add and edit event modals now carry an **All day** switch above four fields - date
+  from, date to, time from, time to - and the two time fields are hidden while All day is on.
+  All day is selected by default on a new event. Existing events are backfilled by the database
+  update using the old rule, so nothing in an existing calendar changes appearance.
+- **Calendars can be published as a read-only subscription feed.** Any calendar can be shared as
+  an iCalendar (ICS) link from its menu on the Calendar page and subscribed to in Google Calendar,
+  Nextcloud, Apple Calendar, Thunderbird, or anything else that accepts a feed URL. The link
+  carries a secret key and requires no login, so it can be added to a phone or handed to a
+  colleague without an ITFlow account. It can be regenerated or revoked at any time, and a shared
+  calendar is marked with an icon in the calendar list. A **busy only** option publishes time
+  blocks without titles, descriptions, or locations. Feeds are read-only: events added or edited
+  in the subscribing client never reach ITFlow. Refresh timing belongs to the client — Google
+  refreshes on its own schedule, often 12-24 hours, and cannot be forced, while Nextcloud defaults
+  to once a week unless `calendarSubscriptionRefreshRate` is lowered, and will refuse a feed URL
+  that resolves to a private IP address.
 - **Ticket templates on recurring tickets.** A recurring ticket can now be assigned a ticket
   template. Picking one fills in the subject and details, and the template's task list is stamped
   onto every ticket the schedule raises - from the nightly cron run and from a forced run alike.

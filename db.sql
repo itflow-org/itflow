@@ -408,6 +408,7 @@ CREATE TABLE `calendar_events` (
   `event_description` longtext DEFAULT NULL,
   `event_start` datetime NOT NULL,
   `event_end` datetime DEFAULT NULL,
+  `event_all_day` tinyint(1) NOT NULL DEFAULT 0,
   `event_repeat` varchar(200) DEFAULT NULL,
   `event_created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `event_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
@@ -432,10 +433,15 @@ CREATE TABLE `calendars` (
   `calendar_id` int(11) NOT NULL AUTO_INCREMENT,
   `calendar_name` varchar(200) NOT NULL,
   `calendar_color` varchar(200) NOT NULL,
+  `calendar_feed_key` varchar(64) COLLATE utf8mb4_bin DEFAULT NULL,
+  `calendar_feed_busy_only` tinyint(1) NOT NULL DEFAULT 0,
+  `calendar_feed_created_at` datetime DEFAULT NULL,
+  `calendar_feed_accessed_at` datetime DEFAULT NULL,
   `calendar_created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `calendar_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
   `calendar_archived_at` datetime DEFAULT NULL,
-  PRIMARY KEY (`calendar_id`)
+  PRIMARY KEY (`calendar_id`),
+  UNIQUE KEY `calendar_feed_key` (`calendar_feed_key`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 

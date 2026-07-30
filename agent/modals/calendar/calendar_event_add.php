@@ -62,22 +62,56 @@
                                 </div>
                             </div>
 
+
                             <div class="form-group">
-                                <label>Start / End <strong class="text-danger">*</strong></label>
-                                <div class="input-group">
-                                    <div class="input-group-prepend">
-                                        <span class="input-group-text"><i class="fa fa-fw fa-calendar-check"></i></span>
-                                    </div>
-                                    <input type="datetime-local" class="form-control" id="event_add_start" name="start" required onblur="updateIncrementEndTime()">
+                                <div class="custom-control custom-switch">
+                                    <input type="checkbox" class="custom-control-input event-all-day-toggle" id="event_add_all_day" name="all_day" value="1" checked>
+                                    <label class="custom-control-label" for="event_add_all_day">All day</label>
                                 </div>
                             </div>
 
-                            <div class="form-group">
-                                <div class="input-group">
-                                    <div class="input-group-prepend">
-                                        <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
+                            <div class="form-row">
+                                <div class="form-group col-md-6">
+                                    <label>Date from <strong class="text-danger">*</strong></label>
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text"><i class="fa fa-fw fa-calendar-check"></i></span>
+                                        </div>
+                                        <input type="date" class="form-control event-start-date" id="event_add_start_date" name="start_date" required>
                                     </div>
-                                    <input type="datetime-local" class="form-control" id="event_add_end" name="end" required>
+                                </div>
+                                <div class="form-group col-md-6">
+                                    <label>Date to <strong class="text-danger">*</strong></label>
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
+                                        </div>
+                                        <input type="date" class="form-control" id="event_add_end_date" name="end_date" required>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Hidden while All day is on. The toggle handler in app.js also
+                                 adds and removes required, because a hidden required field
+                                 blocks submission with an unfocusable-element error. -->
+                            <div class="form-row d-none" id="event_add_time_fields">
+                                <div class="form-group col-md-6">
+                                    <label>Time from <strong class="text-danger">*</strong></label>
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text"><i class="fa fa-fw fa-clock"></i></span>
+                                        </div>
+                                        <input type="time" class="form-control event-start-time" id="event_add_start_time" name="start_time">
+                                    </div>
+                                </div>
+                                <div class="form-group col-md-6">
+                                    <label>Time to <strong class="text-danger">*</strong></label>
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text"><i class="fa fa-fw fa-clock"></i></span>
+                                        </div>
+                                        <input type="time" class="form-control" id="event_add_end_time" name="end_time">
+                                    </div>
                                 </div>
                             </div>
 
@@ -87,7 +121,7 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-recycle"></i></span>
                                     </div>
-                                    <select class="form-control select2" name="repeat" disabled>
+                                    <select class="form-control select2" name="repeat">
                                         <option value="">Never</option>
                                         <option>Day</option>
                                         <option>Week</option>

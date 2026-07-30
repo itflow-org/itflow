@@ -24,3 +24,4 @@ require_once __DIR__ . '/functions/db.php';
 require_once __DIR__ . '/functions/payments.php';
 require_once __DIR__ . '/functions/sla.php';
 require_once __DIR__ . '/functions/export.php';
+require_once __DIR__ . '/functions/calendar.php';

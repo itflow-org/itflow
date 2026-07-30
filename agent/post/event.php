@@ -68,6 +68,103 @@ if (isset($_GET['delete_calendar'])) {
 
 }
 
+if (isset($_POST['share_calendar'])) {
+
+    validateCSRFToken();
+
+    // Publishing a calendar mints an unauthenticated public URL, so keep it to
+    // admins. This is a deliberately narrow check using $session_is_admin rather
+    // than the module permission system - calendars are not owned by a module.
+    enforceAdminPermission();
+
+    $calendar_id = intval($_POST['calendar_id']);
+    $busy_only = isset($_POST['busy_only']) ? 1 : 0;
+
+    $calendar_name = escapeSql(getFieldById('calendars', $calendar_id, 'calendar_name'));
+    $existing_key = getFieldById('calendars', $calendar_id, 'calendar_feed_key');
+
+    if (empty($existing_key)) {
+
+        // 32 URL-safe base64 chars (~192 bits). Stored in cleartext, like
+        // invoice_url_key, so the link stays re-copyable for a second device.
+        $feed_key = escapeSql(randomString(32));
+
+        mysqli_query($mysqli, "UPDATE calendars SET
+            calendar_feed_key = '$feed_key',
+            calendar_feed_busy_only = $busy_only,
+            calendar_feed_created_at = NOW()
+            WHERE calendar_id = $calendar_id");
+
+        logAudit("Calendar", "Share", "$session_name published calendar $calendar_name as a read-only feed", 0, $calendar_id);
+
+        flashAlert("Calendar <strong>$calendar_name</strong> published - copy the subscription link from the share dialog");
+
+    } else {
+
+        mysqli_query($mysqli, "UPDATE calendars SET
+            calendar_feed_busy_only = $busy_only
+            WHERE calendar_id = $calendar_id");
+
+        logAudit("Calendar", "Edit", "$session_name updated feed settings for calendar $calendar_name", 0, $calendar_id);
+
+        flashAlert("Feed settings for <strong>$calendar_name</strong> updated");
+    }
+
+    redirect();
+
+}
+
+if (isset($_GET['regenerate_calendar_feed'])) {
+
+    validateCSRFToken();
+
+    enforceAdminPermission();
+
+    $calendar_id = intval($_GET['regenerate_calendar_feed']);
+
+    $calendar_name = escapeSql(getFieldById('calendars', $calendar_id, 'calendar_name'));
+
+    $feed_key = escapeSql(randomString(32));
+
+    mysqli_query($mysqli, "UPDATE calendars SET
+        calendar_feed_key = '$feed_key',
+        calendar_feed_created_at = NOW(),
+        calendar_feed_accessed_at = NULL
+        WHERE calendar_id = $calendar_id");
+
+    logAudit("Calendar", "Share", "$session_name regenerated the feed link for calendar $calendar_name", 0, $calendar_id);
+
+    flashAlert("Feed link for <strong>$calendar_name</strong> regenerated - existing subscribers will stop updating and must re-subscribe", 'error');
+
+    redirect();
+
+}
+
+if (isset($_GET['unshare_calendar'])) {
+
+    validateCSRFToken();
+
+    enforceAdminPermission();
+
+    $calendar_id = intval($_GET['unshare_calendar']);
+
+    $calendar_name = escapeSql(getFieldById('calendars', $calendar_id, 'calendar_name'));
+
+    mysqli_query($mysqli, "UPDATE calendars SET
+        calendar_feed_key = NULL,
+        calendar_feed_busy_only = 0,
+        calendar_feed_created_at = NULL,
+        calendar_feed_accessed_at = NULL
+        WHERE calendar_id = $calendar_id");
+
+    logAudit("Calendar", "Share", "$session_name stopped sharing calendar $calendar_name", 0, $calendar_id);
+
+    flashAlert("Calendar <strong>$calendar_name</strong> is no longer shared", 'error');
+
+    redirect();
+
+}
+
 if (isset($_POST['add_event'])) {
 
     validateCSRFToken();
@@ -79,7 +176,7 @@ if (isset($_POST['add_event'])) {
         enforceClientAccess();
     }
 
-    mysqli_query($mysqli,"INSERT INTO calendar_events SET event_title = '$title', event_location = '$location', event_description = '$description', event_start = '$start', event_end = '$end', event_repeat = '$repeat', event_calendar_id = $calendar_id, event_client_id = $client_id");
+    mysqli_query($mysqli,"INSERT INTO calendar_events SET event_title = '$title', event_location = '$location', event_description = '$description', event_start = '$start', event_end = '$end', event_all_day = $all_day, event_repeat = '$repeat', event_calendar_id = $calendar_id, event_client_id = $client_id");
 
     $event_id = mysqli_insert_id($mysqli);
 
@@ -158,7 +255,7 @@ if (isset($_POST['edit_event'])) {
 
     $event_id = intval($_POST['event_id']);
 
-    mysqli_query($mysqli,"UPDATE calendar_events SET event_title = '$title', event_location = '$location', event_description = '$description', event_start = '$start', event_end = '$end', event_repeat = '$repeat', event_calendar_id = $calendar_id, event_client_id = $client_id WHERE event_id = $event_id");
+    mysqli_query($mysqli,"UPDATE calendar_events SET event_title = '$title', event_location = '$location', event_description = '$description', event_start = '$start', event_end = '$end', event_all_day = $all_day, event_repeat = '$repeat', event_calendar_id = $calendar_id, event_client_id = $client_id WHERE event_id = $event_id");
 
     //If email is checked
     if ($email_event == 1) {
