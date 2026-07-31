@@ -54,7 +54,7 @@ if ($config_ticket_email_parse == 0) {
 // job. flock covers the same ground and the kernel drops it however the process ends.
 
 // Allowed attachment extensions
-$allowed_extensions = array('jpg', 'jpeg', 'gif', 'png', 'webp', 'svg', 'pdf', 'txt', 'md', 'doc', 'docx', 'csv', 'xls', 'xlsx', 'xlsm', 'zip', 'tar', 'gz');
+$allowed_extensions = array('jpg', 'jpeg', 'gif', 'png', 'webp', 'pdf', 'txt', 'md', 'doc', 'docx', 'csv', 'xls', 'xlsx', 'xlsm', 'zip', 'tar', 'gz');
 
 // Processing limits
 $max_emails_per_run = 50;          // Cap per cron run to bound memory usage (cron catches up on the next run)
