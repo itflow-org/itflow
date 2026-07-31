@@ -3,6 +3,23 @@
 This file documents all notable changes made to ITFlow.
 
 ## [26.08]
+
+### Backups
+
+Backups are now encrypted, catalogued, schedulable, and restorable from the command line.
+
+- **Three types** — Full (database + uploads), Database Only, and Master Key. Every archive is an AES-256 encrypted zip.
+- **One encryption key per install**, generated on first use and stored in `config.php` — never in the database and never in the file name. It is shown in Settings > Backup. **Write it down: without it a backup cannot be restored.** Open archives with 7-Zip, WinZip, PeaZip or Keka — `unzip`, Windows Explorer and the macOS Archive Utility do not support AES.
+- **Backups are built by cron, not by your browser.** The button queues the work and the dispatcher picks it up within the minute, then notifies you. A dump of a real install takes longer than a web request is allowed to live, which is why the old Download Backup button timed out on large instances.
+- **Scheduled backups** are a new `backup` cron job, off by default. Turn it on in Settings > Cron. Retention (by age and by count) runs in the nightly job and never deletes the newest backup.
+- **Archives are stored outside the web-served path** under `uploads/backups/` with a deny-all rule, and downloaded through an admin-only handler. Set `$config_backup_path` in `config.php` to keep them off the web root entirely.
+- **Restore from the command line** with `php scripts/restore_cli.php --file=/path/to/backup.zip`. This is the only restore path with no size limit — the setup wizard's restore is capped by PHP's upload limits, and a full backup is usually larger. Use `--inspect` to check an archive without changing anything.
+- **Restores validate before they destroy.** The key is checked and the archive unpacked before any table is dropped, and the current database is dumped first and put back automatically if the import fails.
+
+### Security
+
+- **The setup wizard's restore step is now closed on any install that has users**, whatever `config.php` says. Previously `$config_enable_setup` defaulted to enabled when the flag was missing from `config.php` — and the flag is only written at the very end of a successful install, so an install abandoned partway (or one where that final write failed) left an unauthenticated endpoint that would drop every table, import an attacker-supplied archive, and overwrite `uploads/` including the `.htaccess` that stops PHP executing there. Restoring over a live install is now done from the command line. This affects 26.07 and earlier.
+- A restore no longer takes ITFlow's `uploads/.htaccess` from the archive — the guards are rewritten afterwards regardless of what the backup contained, so restoring a backup taken before those guards existed no longer removes them.
  
 ### Upgrading to 26.08
  

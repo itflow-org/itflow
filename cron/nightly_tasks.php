@@ -159,6 +159,11 @@ mysqli_query($mysqli, "DELETE FROM email_queue WHERE email_queued_at < CURDATE()
 // Clean-up old remember me tokens
 mysqli_query($mysqli, "DELETE FROM remember_tokens WHERE remember_token_created_at < CURDATE() - INTERVAL $config_login_remember_me_expire DAY");
 
+// Cleanup old backups, and reconcile rows whose file is gone against files with no row.
+// Retention lives here rather than in cron/backup.php so a failed backup run can never
+// delete the archive it was supposed to replace.
+backupRunRetention($mysqli);
+
 // Cleanup old audit logs
 mysqli_query($mysqli, "DELETE FROM logs WHERE log_created_at < CURDATE() - INTERVAL $config_log_retention DAY");
 

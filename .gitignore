@@ -20,6 +20,9 @@ uploads/users/*
 !uploads/users/index.php
 uploads/tmp/*
 !uploads/tmp/index.php
+uploads/backups/*
+!uploads/backups/index.php
+!uploads/backups/.htaccess
 uploads/tickets/*
 !uploads/tickets/index.php
 uploads/ticket_templates/*

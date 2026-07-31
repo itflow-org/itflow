@@ -32,7 +32,7 @@ There is no `composer install` or `npm install` step. All third-party libraries 
 | `js/`, `css/` (root) | Shared front-end assets (portals also have their own). |
 | `libs/` | Vendored third-party libraries. Never edit these; update them wholesale. |
 | `setup/` | First-run installer. |
-| `scripts/` | Helper/utility scripts. |
+| `scripts/` | Helper/utility scripts — `setup_cli.php`, `update_cli.php`, `restore_cli.php`. CLI only; the directory denies web access. |
  
 Rule of thumb: **root-level `includes/`, `post/`, `modals/`, `js/`, `css/` are shared code; everything inside a portal directory is scoped to that portal.**
  
@@ -99,6 +99,25 @@ Because the jobs share one PHP process, job code has three rules:
 2. **Never declare a function or class another job might declare.** Two jobs each declaring the same helper is a fatal `Cannot redeclare` the moment they share a process. Shared helpers belong in `functions/`.
 3. **Be safe to run twice in one day.** The dispatcher's lock stops overlap, but nothing stops a repeat: an admin presses Run Now after the scheduled pass, or a schedule is misconfigured. Work selected by a date match (`... = CURDATE()`) fires again on every run of that day unless something records that it happened — nightly's late fees and overdue reminders guard on the history rows they write. A job whose work cannot be made repeat-safe declares `'interval_safe' => false` in `includes/cron_jobs.php`, which locks it to the daily schedule in Settings > Cron and in the dispatcher.
 4. **Set what you read.** One global scope and one set of `require_once` includes are shared across the cycle — a job's own `require_once "../config.php"` is a no-op if an earlier job already loaded it, and any variable an earlier job left behind is still there. Do not rely on the state a fresh process would have given you.
+
+A job can also ship switched off with `'enabled' => 0` in the registry. The row is seeded disabled and stays that way until somebody turns it on in Settings > Cron. Use it for work an install should opt into rather than inherit silently from an upgrade — `backup` ships this way, because a full backup can be gigabytes a night.
+
+## Backups
+
+`functions/backup.php` is the whole engine, and all three entry points go through it: Settings > Backup, `cron/backup.php`, and `scripts/restore_cli.php`. Nothing else should dump, zip, or import a database.
+
+Archives are AES-256 encrypted zips. The key is one value per install, generated on first use and appended to `config.php` — **never** the database and **never** the file name. That is the point: a backup that leaks cannot be opened with anything the backup itself contains, and a URL or an access log never carries the key. The 32 random characters in the file name are an unguessable path component, nothing more. Note that `unzip`, Windows Explorer and the macOS Archive Utility cannot read AES zips; 7-Zip, WinZip, PeaZip and Keka can.
+
+The web tier never builds an archive in the request. It writes a `Pending` row and `cron/backup.php` does the work, because a dump of a real install outlives `request_terminate_timeout` and `set_time_limit()` does not help. Same reasoning as Run Now.
+
+Two rules for anything touching restore:
+
+1. **Validate before you destroy.** The key is checked and the archive unpacked before a single table is dropped, and the live database is dumped to a rollback file first. If the import fails the rollback goes back in. `mysqli` throws rather than returning false under PHP 8.1's default report mode, so every statement in the import path is wrapped — an uncaught throw there leaves an install with no database at all.
+2. **The archive does not get to decide what our guards say.** A restore wipes `uploads/`, and an archive is allowed to contain a `.htaccess`. `backupAssertUploadsGuards()` rewrites ours afterwards unconditionally, and the backup storage directory is preserved through the wipe so a restore cannot destroy every other archive on the box.
+
+Retention lives in `nightly_tasks.php`, never in the backup job, so a failed backup cannot delete the archive it was supposed to replace. It never removes the newest complete backup, and an archive on disk with no row is **adopted** rather than deleted — after a restore the `backups` table is the old one, so everything made since looks unknown.
+
+Setup's restore step closes itself once the `users` table has rows, whatever `config.php` says. It used to default `$config_enable_setup` to `1` when the flag was absent, which fails the wrong way: the flag is only appended at the end of a successful install, so an install abandoned in between left an unauthenticated endpoint that dropped every table, imported an arbitrary archive, and rewrote `uploads/` including the `.htaccess` that stops PHP running there.
 
 Every script in `cron/` still runs standalone (`php cron/mail_queue.php`) and still takes its own lock when it does, so anything can be run by hand for testing.
 

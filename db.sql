@@ -352,6 +352,31 @@ CREATE TABLE `auth_logs` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `backups`
+--
+
+DROP TABLE IF EXISTS `backups`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `backups` (
+  `backup_id` int(11) NOT NULL AUTO_INCREMENT,
+  `backup_type` varchar(20) NOT NULL DEFAULT 'full',
+  `backup_file_name` varchar(255) NOT NULL,
+  `backup_size` bigint(20) NOT NULL DEFAULT 0,
+  `backup_sha256` varchar(64) DEFAULT NULL,
+  `backup_status` varchar(20) NOT NULL DEFAULT 'Pending',
+  `backup_error` text DEFAULT NULL,
+  `backup_source` varchar(20) NOT NULL DEFAULT 'Manual',
+  `backup_created_by` varchar(200) DEFAULT NULL,
+  `backup_created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `backup_completed_at` datetime DEFAULT NULL,
+  `backup_downloaded_at` datetime DEFAULT NULL,
+  PRIMARY KEY (`backup_id`),
+  KEY `backup_status_created` (`backup_status`,`backup_created_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `budget`
 --
 
@@ -2278,6 +2303,9 @@ CREATE TABLE `settings` (
   `config_ticket_ordering` tinyint(1) NOT NULL DEFAULT 0,
   `config_ticket_moving_columns` tinyint(1) NOT NULL DEFAULT 1,
   `config_cron_last_dispatch_at` datetime DEFAULT NULL,
+  `config_backup_retention_days` int(11) NOT NULL DEFAULT 30,
+  `config_backup_retention_count` int(11) NOT NULL DEFAULT 5,
+  `config_backup_cron_type` varchar(20) NOT NULL DEFAULT 'full',
   PRIMARY KEY (`company_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -3122,4 +3150,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2026-07-31 14:15:12
+-- Dump completed on 2026-07-31 16:18:11

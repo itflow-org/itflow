@@ -23,6 +23,10 @@
  * That shared use is why this sits here rather than in cron/includes/ with the lock, which
  * only cron loads: the admin pages would otherwise be reaching into the cron directory.
  *
+ * 'enabled' => 0 ships a job switched off - the row is seeded disabled and stays that way
+ * until somebody turns it on in Settings > Cron. Used for work an install should opt into
+ * rather than inherit from an upgrade, like the backup job filling a disk overnight.
+ *
  * 'interval_safe' => false marks a job whose work repeats if the day repeats - nightly's
  * late fees and overdue reminders fire again on a second run of the same day. Settings >
  * Cron only offers the daily schedule for such a job, and the dispatcher refuses to run
@@ -71,6 +75,16 @@ function cronJobRegistry(): array
             'description' => 'The daily run: recurring invoices and tickets, overdue reminders, autopay, late fees, clean-up, update check.',
             'schedule' => 'Daily',
             'daily_at' => '03:00',
+            'interval_safe' => false,
+        ],
+        [
+            'name' => 'backup',
+            'label' => 'Backup',
+            'script' => 'backup.php',
+            'description' => 'Builds the scheduled backup and anything queued from Settings > Backup. Off by default.',
+            'schedule' => 'Daily',
+            'daily_at' => '02:00',
+            'enabled' => 0,
             'interval_safe' => false,
         ],
         [

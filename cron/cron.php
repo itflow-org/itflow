@@ -77,8 +77,11 @@ function cronJobClaim($mysqli, array $job): bool
     $default_interval = intval($job['interval_minutes'] ?? 1);
     $default_daily_at = isset($job['daily_at']) ? "'" . escapeSql($job['daily_at']) . ":00'" : 'NULL';
 
+    $default_enabled = isset($job['enabled']) ? intval($job['enabled']) : 1;
+
     mysqli_query($mysqli, "INSERT IGNORE INTO cron_jobs SET
         cron_job_name = '$name',
+        cron_job_enabled = $default_enabled,
         cron_job_schedule = '$default_schedule',
         cron_job_interval_minutes = $default_interval,
         cron_job_daily_at = $default_daily_at");
@@ -156,12 +159,24 @@ function cronJobFinished($mysqli, string $job_name, string $status, ?float $dura
         $error_sql = ", cron_job_last_error = '$error_text', cron_job_last_error_at = '$finished_at'";
     }
 
-    mysqli_query($mysqli, "UPDATE cron_jobs SET
-        cron_job_last_finished_at = '$finished_at',
-        cron_job_last_status = '$status',
-        cron_job_last_duration = $duration_sql
-        $error_sql
-        WHERE cron_job_name = '$name'");
+    // This is the failure path. A job that killed the database connection - a long backup
+    // whose idle connection was closed, a server restart mid-cycle - must not have its
+    // bookkeeping throw on top, or an uncaught mysqli_sql_exception ends the dispatch and
+    // no record of the original failure survives anywhere.
+    if (function_exists('backupDbEnsure')) {
+        $mysqli = backupDbEnsure($mysqli);
+    }
+
+    try {
+        mysqli_query($mysqli, "UPDATE cron_jobs SET
+            cron_job_last_finished_at = '$finished_at',
+            cron_job_last_status = '$status',
+            cron_job_last_duration = $duration_sql
+            $error_sql
+            WHERE cron_job_name = '$name'");
+    } catch (Throwable $e) {
+        echo "Cron: could not record the outcome of '$job_name' - " . $e->getMessage() . "\n";
+    }
 }
 
 // Proof the crontab is firing, recorded before any job runs. Settings > Cron reads it to tell
@@ -218,7 +233,12 @@ foreach (cronJobRegistry() as $cron_dispatch_job) {
         cronJobFinished($mysqli, $cron_dispatch_job['name'], $reason === '' ? 'Stopped' : "Stopped: $reason", microtime(true) - $cron_dispatch_started);
     } catch (Throwable $e) {
         // One job throwing is not a reason to skip the rest of the cycle
-        logApp("Cron", "error", "Cron job {$cron_dispatch_job['name']} failed: " . $e->getMessage());
+        echo "Cron: job '{$cron_dispatch_job['name']}' failed - " . $e->getMessage() . "\n";
+        try {
+            logApp("Cron", "error", "Cron job {$cron_dispatch_job['name']} failed: " . $e->getMessage());
+        } catch (Throwable $log_e) {
+            // Logging the failure must never become a second, fatal failure
+        }
         cronJobFinished($mysqli, $cron_dispatch_job['name'], 'Failed', microtime(true) - $cron_dispatch_started, $e->getMessage());
     }
 

@@ -8,31 +8,57 @@ if (file_exists("../config.php")) {
 include "../functions.php"; // Global Functions
 include "../includes/database_version.php";
 
-if (!isset($config_enable_setup)) {
-    $config_enable_setup = 1;
-}
-
-if ($config_enable_setup == 0) {
-    header("Location: /login.php");
-    exit;
-}
-
 $mysqli_available = isset($mysqli) && $mysqli instanceof mysqli;
 $can_show_restore = false;
 $should_skip_to_user = false;
 
+/*
+ * An install with users in it is a live install, and setup is closed on one whatever
+ * config.php says.
+ *
+ * This used to default $config_enable_setup to 1 when the flag was absent, which fails the
+ * wrong way: config.php is written when the database step completes but the flag is only
+ * appended at the very end of a successful run, so an install abandoned in between - or one
+ * where that final append failed - left the restore below reachable with no authentication
+ * at all. That endpoint drops every table and imports whatever archive it is handed, and it
+ * rewrites the uploads directory, including the .htaccess that stops PHP running there.
+ */
+$install_is_live = false;
+
 if (file_exists("../config.php") && $mysqli_available) {
     $table_result = mysqli_query($mysqli, "SHOW TABLES LIKE 'users'");
     if ($table_result && mysqli_num_rows($table_result) > 0) {
-        $can_show_restore = true;
         $should_skip_to_user = true;
-    } else {
-        // If DB exists but doesn't have user table yet, maybe still allow restore
+
+        $user_count_result = mysqli_query($mysqli, "SELECT COUNT(*) AS user_count FROM users");
+        if ($user_count_result) {
+            $user_count_row = mysqli_fetch_assoc($user_count_result);
+            if (intval($user_count_row['user_count']) > 0) {
+                $install_is_live = true;
+            }
+        } else {
+            // Cannot prove the install is empty, so treat it as live
+            $install_is_live = true;
+        }
+    }
+
+    // Restore needs a database connection and an empty install. A populated one restores
+    // from the command line instead - scripts/restore_cli.php.
+    if (!$install_is_live) {
         $all_tables = mysqli_query($mysqli, "SHOW TABLES");
         if ($all_tables && mysqli_num_rows($all_tables) > 0) {
             $can_show_restore = true;
         }
     }
+}
+
+if (!isset($config_enable_setup)) {
+    $config_enable_setup = $install_is_live ? 0 : 1;
+}
+
+if ($config_enable_setup == 0 || $install_is_live) {
+    header("Location: /login.php");
+    exit;
 }
 
 include_once "../includes/settings_localization_array.php";
@@ -126,239 +152,93 @@ if (isset($_POST['add_database'])) {
 
 if (isset($_POST['restore'])) {
 
-    // ---------- Long-running guards ----------
-    @set_time_limit(0);
-    if (function_exists('ini_set')) { @ini_set('memory_limit', '1024M'); }
-
-    // ---------- Minimal helpers (scoped) ----------
-    if (!function_exists('deleteDir')) {
-        function deleteDir($dir) {
-            if (!is_dir($dir)) return;
-            $it = new RecursiveIteratorIterator(
-                new RecursiveDirectoryIterator($dir, FilesystemIterator::SKIP_DOTS),
-                RecursiveIteratorIterator::CHILD_FIRST
-            );
-            foreach ($it as $item) {
-                $item->isDir() ? @rmdir($item->getPathname()) : @unlink($item->getPathname());
-            }
-            @rmdir($dir);
-        }
+    // Belt and braces: the page-level gate above already sends a live install to the login
+    // page, but this handler is the destructive one, so it re-checks rather than trusting
+    // that it was only reached through the form.
+    if ($install_is_live || !$can_show_restore) {
+        $_SESSION['alert_message'] = "This install already has users. Restore over it from the command line instead: php scripts/restore_cli.php --file=/path/to/backup.zip";
+        header("Location: ?restore");
+        exit;
     }
 
-    if (!function_exists('importSqlFile')) {
-        /**
-         * Import a SQL file via mysqli, supports DELIMITER and multi statements.
-         */
-        function importSqlFile(mysqli $mysqli, string $path): void {
-            if (!is_file($path) || !is_readable($path)) {
-                throw new RuntimeException("SQL file not found or unreadable: $path");
-            }
-            $fh = fopen($path, 'r');
-            if (!$fh) throw new RuntimeException("Failed to open SQL file");
+    // An upload larger than post_max_size arrives with $_FILES and $_POST both empty, so
+    // PHP cannot tell us which field failed - it is worth naming, because a real full
+    // backup is usually bigger than the limit and the old message just said the upload
+    // failed.
+    $max_upload_bytes = backupMaxUploadBytes();
+    $content_length = intval($_SERVER['CONTENT_LENGTH'] ?? 0);
 
-            $delimiter = ';';
-            $statement = '';
-
-            while (($line = fgets($fh)) !== false) {
-                $trim = trim($line);
-
-                // Skip comments/empty
-                if ($trim === '' || str_starts_with($trim, '--') || str_starts_with($trim, '#')) {
-                    continue;
-                }
-
-                // Handle DELIMITER changes
-                if (preg_match('/^DELIMITER\s+(.+)$/i', $trim, $m)) {
-                    $delimiter = $m[1];
-                    continue;
-                }
-
-                $statement .= $line;
-
-                // End of statement?
-                if (substr(rtrim($statement), -strlen($delimiter)) === $delimiter) {
-                    $sql = substr($statement, 0, -strlen($delimiter));
-                    if ($mysqli->multi_query($sql) === false) {
-                        fclose($fh);
-                        throw new RuntimeException("SQL error: " . $mysqli->error);
-                    }
-                    // Flush any result sets
-                    while ($mysqli->more_results() && $mysqli->next_result()) { /* discard */ }
-                    $statement = '';
-                }
-            }
-            fclose($fh);
-        }
+    $too_large = false;
+    if (!isset($_FILES['backup_zip']) && $content_length > 0 && $max_upload_bytes > 0 && $content_length > $max_upload_bytes) {
+        $too_large = true;
+    } elseif (isset($_FILES['backup_zip']) && in_array($_FILES['backup_zip']['error'], [UPLOAD_ERR_INI_SIZE, UPLOAD_ERR_FORM_SIZE], true)) {
+        $too_large = true;
     }
 
-    // ---------- 1) Validate uploaded backup ----------
+    if ($too_large) {
+        $_SESSION['alert_message'] = "That backup is too large to upload through a browser (this server accepts up to "
+            . backupFormatBytes($max_upload_bytes)
+            . "). Restore it from the command line instead - there is no size limit there. Copy the backup onto this server and run: php "
+            . dirname(__DIR__) . "/scripts/restore_cli.php --file=/path/to/backup.zip";
+        header("Location: ?restore");
+        exit;
+    }
+
     if (!isset($_FILES['backup_zip']) || $_FILES['backup_zip']['error'] !== UPLOAD_ERR_OK) {
-        die("No backup file uploaded or upload failed.");
+        $_SESSION['alert_message'] = "No backup file was uploaded, or the upload failed.";
+        header("Location: ?restore");
+        exit;
     }
 
-    $file = $_FILES['backup_zip'];
-    $fileExt = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
-    if ($fileExt !== "zip") {
-        die("Only .zip files are allowed.");
+    if (strtolower(pathinfo($_FILES['backup_zip']['name'], PATHINFO_EXTENSION)) !== 'zip') {
+        $_SESSION['alert_message'] = "Only .zip backup archives can be restored.";
+        header("Location: ?restore");
+        exit;
     }
 
-    // ---------- 2) Save to secure temp ----------
-    $tempZip = tempnam(sys_get_temp_dir(), "restore_");
-    if (!move_uploaded_file($file["tmp_name"], $tempZip)) {
-        die("Failed to save uploaded backup file.");
-    }
-    @chmod($tempZip, 0600);
-
-    $zip = new ZipArchive;
-    if ($zip->open($tempZip) !== TRUE) {
-        @unlink($tempZip);
-        die("Failed to open backup zip file.");
+    // The key belongs to the install that MADE the backup, which on a rebuilt server is not
+    // this one, so it is asked for rather than read from config.php.
+    $restore_key = trim($_POST['backup_key'] ?? '');
+    if ($restore_key === '') {
+        $restore_key = $config_backup_key ?? '';
     }
 
-    // ---------- 3) Guard & extract OUTER zip ----------
-    $tempDir = sys_get_temp_dir() . "/restore_temp_" . uniqid("", true);
-    if (!mkdir($tempDir, 0700, true)) {
-        $zip->close();
-        @unlink($tempZip);
-        die("Failed to create temp directory.");
+    if ($restore_key === '') {
+        $_SESSION['alert_message'] = "Enter the backup encryption key. It is shown in Settings > Backup on the install that made this archive.";
+        header("Location: ?restore");
+        exit;
     }
 
-    // Zip-slip guard (outer)
-    for ($i = 0; $i < $zip->numFiles; $i++) {
-        $name = $zip->getNameIndex($i);
-        if ($name === false) continue;
-        if (strpos($name, '..') !== false || preg_match('#^(?:/|\\\\|[a-zA-Z]:[\\\\/])#', $name)) {
-            $zip->close();
-            @unlink($tempZip);
-            deleteDir($tempDir);
-            die("Invalid file path in outer ZIP.");
-        }
+    $temp_zip = tempnam(sys_get_temp_dir(), "itflow_restore_upload_");
+    if (!move_uploaded_file($_FILES['backup_zip']['tmp_name'], $temp_zip)) {
+        @unlink($temp_zip);
+        $_SESSION['alert_message'] = "Could not save the uploaded backup file.";
+        header("Location: ?restore");
+        exit;
+    }
+    @chmod($temp_zip, 0600);
+
+    $restore_error = null;
+    $restored = backupRestoreArchive($mysqli, $temp_zip, $restore_key, $restore_error);
+
+    @unlink($temp_zip);
+
+    if (!$restored) {
+        $_SESSION['alert_message'] = $restore_error;
+        header("Location: ?restore");
+        exit;
     }
 
-    if (!$zip->extractTo($tempDir)) {
-        $zip->close();
-        @unlink($tempZip);
-        deleteDir($tempDir);
-        die("Failed to extract backup contents.");
-    }
-
-    $zip->close();
-    @unlink($tempZip);
-
-    // ---------- 4) Restore SQL (via PHP, no CLI) ----------
-    $sqlPath = "$tempDir/db.sql";
-    if (file_exists($sqlPath)) {
-        // Drop-all first (foreign key safe)
-        mysqli_query($mysqli, "SET FOREIGN_KEY_CHECKS = 0");
-        $tables = mysqli_query($mysqli, "SHOW TABLES");
-        if ($tables) {
-            while ($row = mysqli_fetch_row($tables)) {
-                mysqli_query($mysqli, "DROP TABLE IF EXISTS `" . $row[0] . "`");
-            }
-        }
-        mysqli_query($mysqli, "SET FOREIGN_KEY_CHECKS = 1");
-
-        try {
-            importSqlFile($mysqli, $sqlPath);
-        } catch (Throwable $e) {
-            deleteDir($tempDir);
-            die("SQL import failed: " . htmlspecialchars($e->getMessage(), ENT_QUOTES, 'UTF-8'));
-        }
+    // Close setup behind us. The gate above would now do this on its own because the
+    // restored database has users, but the flag is what stops the wizard being reachable
+    // at all.
+    $config_path = __DIR__ . "/../config.php";
+    if (@file_put_contents($config_path, "\n\$config_enable_setup = 0;\n\n", FILE_APPEND | LOCK_EX) === false) {
+        $_SESSION['alert_message'] = "Backup restored, but config.php could not be updated - please set \$config_enable_setup = 0 in it by hand.";
     } else {
-        deleteDir($tempDir);
-        die("Missing db.sql in the backup archive.");
+        $_SESSION['alert_message'] = "Backup restored. Log in with the credentials that were in use when the backup was taken.";
     }
 
-    // ---------- 5) Restore uploads directory ----------
-    $uploadDir  = rtrim(__DIR__ . "/../uploads", '/\\') . '/';
-    $uploadsZip = "$tempDir/uploads.zip";
-
-    if (!file_exists($uploadsZip)) {
-        deleteDir($tempDir);
-        die("Missing uploads.zip in the backup archive.");
-    }
-
-    $uploads = new ZipArchive;
-    if ($uploads->open($uploadsZip) !== TRUE) {
-        deleteDir($tempDir);
-        die("Failed to open uploads.zip in backup.");
-    }
-
-    // Zip-slip guard (inner)
-    for ($i = 0; $i < $uploads->numFiles; $i++) {
-        $name = $uploads->getNameIndex($i);
-        if ($name === false) continue;
-        if (strpos($name, '..') !== false || preg_match('#^(?:/|\\\\|[a-zA-Z]:[\\\\/])#', $name)) {
-            $uploads->close();
-            deleteDir($tempDir);
-            die("Invalid file path in uploads.zip.");
-        }
-    }
-
-    // Ensure uploads dir exists then clean it
-    if (!is_dir($uploadDir)) {
-        if (!mkdir($uploadDir, 0750, true)) {
-            $uploads->close();
-            deleteDir($tempDir);
-            die("Failed to create uploads directory.");
-        }
-    } else {
-        foreach (new RecursiveIteratorIterator(
-            new RecursiveDirectoryIterator($uploadDir, FilesystemIterator::SKIP_DOTS),
-            RecursiveIteratorIterator::CHILD_FIRST
-        ) as $item) {
-            $item->isDir() ? @rmdir($item->getPathname()) : @unlink($item->getPathname());
-        }
-    }
-
-    // Extract uploads.zip directly into /uploads (your original, working behavior)
-    if (!$uploads->extractTo($uploadDir)) {
-        $uploads->close();
-        deleteDir($tempDir);
-        die("Failed to extract uploads.zip into uploads directory.");
-    }
-    $uploads->close();
-
-    // Verify uploads isn’t empty
-    $hasFiles = false;
-    $fileCount = 0; $dirCount = 0;
-    if (is_dir($uploadDir)) {
-        $it = new RecursiveIteratorIterator(
-            new RecursiveDirectoryIterator($uploadDir, FilesystemIterator::SKIP_DOTS),
-            RecursiveIteratorIterator::SELF_FIRST
-        );
-        foreach ($it as $node) {
-            if ($node->isDir()) $dirCount++;
-            else { $fileCount++; $hasFiles = true; }
-        }
-    }
-    if (!$hasFiles) {
-        deleteDir($tempDir);
-        die("Uploads restore appears empty after extraction.");
-    }
-
-    // ---------- 6) Optional: version info ----------
-    $versionTxt = "$tempDir/version.txt";
-    if (file_exists($versionTxt)) {
-        $versionInfo = @file_get_contents($versionTxt);
-        if ($versionInfo !== false) {
-            logAudit("Backup Restore", "Version Info", $versionInfo);
-        }
-    }
-
-    // ---------- 7) Cleanup temp ----------
-    deleteDir($tempDir);
-
-    // ---------- 8) Finalize setup flag (append safely) ----------
-    $configPath = __DIR__ . "/../config.php";
-    $append = "\n\$config_enable_setup = 0;\n\n";
-    if (!@file_put_contents($configPath, $append, FILE_APPEND | LOCK_EX)) {
-        $_SESSION['alert_message'] = "Backup restored ($fileCount files, $dirCount folders), but couldn't update setup flag — please set \$config_enable_setup = 0 in config.php.";
-    } else {
-        $_SESSION['alert_message'] = "Full backup restored successfully ($fileCount files, $dirCount folders).";
-    }
-
-    // ---------- 9) Done ----------
     header("Location: ../login.php");
     exit;
 }
@@ -1264,10 +1144,27 @@ if (isset($_POST['add_telemetry'])) {
                                 <h3 class="card-title"><i class="fas fa-fw fa-database mr-2"></i>Restore from Backup</h3>
                             </div>
                             <div class="card-body">
+                                <?php $setup_max_upload = backupMaxUploadBytes(); ?>
+
                                 <form method="post" enctype="multipart/form-data" autocomplete="off">
-                                    <label>Restore ITFlow Backup (.zip)</label>
-                                    <input type="file" name="backup_zip" accept=".zip" required>
-                                    <p class="text-muted mt-2 mb-0"><small>Large restores may take several minutes. Do not close this page.</small></p>
+                                    <div class="form-group">
+                                        <label>ITFlow backup archive (.zip)</label>
+                                        <input type="file" name="backup_zip" accept=".zip" class="form-control-file" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Backup encryption key</label>
+                                        <input type="text" name="backup_key" class="form-control" placeholder="The key from the install that made this backup" autocomplete="off" required>
+                                        <small class="text-muted">Shown in Settings &gt; Backup on that install. The archive cannot be opened without it.</small>
+                                    </div>
+
+                                    <div class="alert alert-warning mb-0">
+                                        <strong>This server accepts uploads up to <?= escapeHtml(backupFormatBytes($setup_max_upload)) ?>.</strong>
+                                        A full backup is usually larger than that. If yours is, copy it onto the server and restore from the
+                                        command line instead - there is no size limit there:
+                                        <pre class="bg-dark text-white p-2 mt-2 mb-0"><?= escapeHtml("php " . dirname(__DIR__) . "/scripts/restore_cli.php --file=/path/to/backup.zip") ?></pre>
+                                    </div>
+
+                                    <p class="text-muted mt-2 mb-0"><small>The restore replaces the database and the uploads folder. Large restores take several minutes - do not close this page.</small></p>
                                     <hr>
                                     <button type="submit" name="restore" class="btn btn-primary text-bold">
                                         Restore Backup<i class="fas fa-fw fa-upload ml-2"></i>
