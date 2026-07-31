@@ -223,9 +223,9 @@ if (!empty($_SESSION['backup_master_key_reveal'])) {
                     <small class="text-muted">0 disables age-based deletion.</small>
                 </div>
                 <div class="form-group col-md-4">
-                    <label>Keep at most (backups)</label>
+                    <label>Keep at most (per type)</label>
                     <input type="number" class="form-control" name="config_backup_retention_count" min="1" value="<?= intval($config_backup_retention_count) ?>">
-                    <small class="text-muted">The newest is never deleted.</small>
+                    <small class="text-muted">Counted separately for each type. The newest of each is never deleted.</small>
                 </div>
             </div>
 

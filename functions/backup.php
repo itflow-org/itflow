@@ -532,7 +532,15 @@ function backupQueue(mysqli $mysqli, string $type, string $created_by, ?string &
 
     mysqli_query($mysqli, "INSERT INTO backups SET backup_type = '$type_esc', backup_file_name = '', backup_status = 'Pending', backup_source = 'Manual', backup_created_by = '$created_by_esc'");
 
-    return intval(mysqli_insert_id($mysqli));
+    $backup_id = intval(mysqli_insert_id($mysqli));
+
+    // Ask the dispatcher to run the backup job on its next pass. Without this the row sits
+    // Pending for ever on a default install: the job ships disabled, so the schedule never
+    // calls it and nothing ever builds what the button just queued. run_now is honoured
+    // whether or not a job is enabled, which is exactly the case this needs.
+    mysqli_query($mysqli, "UPDATE cron_jobs SET cron_job_run_now = 1 WHERE cron_job_name = 'backup'");
+
+    return $backup_id;
 }
 
 /**
@@ -841,51 +849,10 @@ function backupRunRetention(mysqli $mysqli): array
     }
 
 
-    // Keep the newest $count complete backups regardless of age
-    $keep = [];
-    $keep_res = mysqli_query($mysqli, "SELECT backup_id FROM backups WHERE backup_status = 'Complete' ORDER BY backup_created_at DESC LIMIT " . max(1, $count));
-    if ($keep_res) {
-        while ($row = mysqli_fetch_assoc($keep_res)) {
-            $keep[] = intval($row['backup_id']);
-        }
-    }
-
-    $keep_clause = empty($keep) ? "" : " AND backup_id NOT IN (" . implode(",", $keep) . ")";
-
-    // Age-based removal
-    if ($days > 0) {
-        $old = mysqli_query($mysqli, "SELECT backup_id FROM backups WHERE backup_created_at < CURDATE() - INTERVAL $days DAY $keep_clause");
-        if ($old) {
-            while ($row = mysqli_fetch_assoc($old)) {
-                if (backupDeleteById($mysqli, intval($row['backup_id']))) {
-                    $result['deleted']++;
-                }
-            }
-        }
-    }
-
-    // Count-based removal
-    if ($count > 0 && !empty($keep)) {
-        $surplus = mysqli_query($mysqli, "SELECT backup_id FROM backups WHERE backup_status = 'Complete' $keep_clause");
-        if ($surplus) {
-            while ($row = mysqli_fetch_assoc($surplus)) {
-                if (backupDeleteById($mysqli, intval($row['backup_id']))) {
-                    $result['deleted']++;
-                }
-            }
-        }
-    }
-
-    // Failed rows never had a usable file
-    $failed = mysqli_query($mysqli, "SELECT backup_id FROM backups WHERE backup_status = 'Failed' AND backup_created_at < CURDATE() - INTERVAL 7 DAY");
-    if ($failed) {
-        while ($row = mysqli_fetch_assoc($failed)) {
-            if (backupDeleteById($mysqli, intval($row['backup_id']))) {
-                $result['deleted']++;
-            }
-        }
-    }
-
+    // Reconciliation runs BEFORE the retention maths, not after. A row this rescues or
+    // adopts has to be counted by the same pass that decides what to delete - otherwise it
+    // escapes retention until tomorrow, and a second run on the same day is not the no-op
+    // CONTRIBUTING's third cron rule asks for.
     // Orphans: rows whose file is gone, and files with no row
     $known = [];
     $rows = mysqli_query($mysqli, "SELECT backup_id, backup_file_name, backup_status FROM backups");
@@ -940,6 +907,60 @@ function backupRunRetention(mysqli $mysqli): array
         mysqli_query($mysqli, "INSERT INTO backups SET backup_type = '$type_esc', backup_file_name = '$name_esc', backup_size = $size, backup_status = 'Complete', backup_source = 'Adopted', backup_created_at = '$created', backup_completed_at = '$created'");
 
         $result['orphan_files']++;
+    }
+
+
+    // Keep the newest $count complete backups OF EACH TYPE, regardless of age.
+    //
+    // Per type rather than one shared pool: a master key export is a few hundred bytes and
+    // a full backup is gigabytes, so counting them together means five master key exports
+    // silently evict every real backup on the box. They are also the artefact you would
+    // least want retention to quietly remove.
+    $keep = [];
+    foreach (backupAllTypes() as $keep_type) {
+        $keep_type_esc = escapeSql($keep_type);
+        $keep_res = mysqli_query($mysqli, "SELECT backup_id FROM backups WHERE backup_status = 'Complete' AND backup_type = '$keep_type_esc' ORDER BY backup_created_at DESC LIMIT " . max(1, $count));
+        if ($keep_res) {
+            while ($row = mysqli_fetch_assoc($keep_res)) {
+                $keep[] = intval($row['backup_id']);
+            }
+        }
+    }
+
+    $keep_clause = empty($keep) ? "" : " AND backup_id NOT IN (" . implode(",", $keep) . ")";
+
+    // Age-based removal
+    if ($days > 0) {
+        $old = mysqli_query($mysqli, "SELECT backup_id FROM backups WHERE backup_created_at < CURDATE() - INTERVAL $days DAY $keep_clause");
+        if ($old) {
+            while ($row = mysqli_fetch_assoc($old)) {
+                if (backupDeleteById($mysqli, intval($row['backup_id']))) {
+                    $result['deleted']++;
+                }
+            }
+        }
+    }
+
+    // Count-based removal
+    if ($count > 0 && !empty($keep)) {
+        $surplus = mysqli_query($mysqli, "SELECT backup_id FROM backups WHERE backup_status = 'Complete' $keep_clause");
+        if ($surplus) {
+            while ($row = mysqli_fetch_assoc($surplus)) {
+                if (backupDeleteById($mysqli, intval($row['backup_id']))) {
+                    $result['deleted']++;
+                }
+            }
+        }
+    }
+
+    // Failed rows never had a usable file
+    $failed = mysqli_query($mysqli, "SELECT backup_id FROM backups WHERE backup_status = 'Failed' AND backup_created_at < CURDATE() - INTERVAL 7 DAY");
+    if ($failed) {
+        while ($row = mysqli_fetch_assoc($failed)) {
+            if (backupDeleteById($mysqli, intval($row['backup_id']))) {
+                $result['deleted']++;
+            }
+        }
     }
 
     return $result;

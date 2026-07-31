@@ -46,6 +46,16 @@ if ($queued > 0) {
  * CONTRIBUTING's cron rules. A second dispatch in the same day (a manual Run Now, a catch-up
  * after downtime) must not produce a second scheduled archive.
  */
+$backup_job_row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT cron_job_enabled FROM cron_jobs WHERE cron_job_name = 'backup'"));
+
+if (empty($backup_job_row['cron_job_enabled'])) {
+    // Reached by a Run Now, which is how a queued backup gets built while the schedule is
+    // off. Building the scheduled archive as well would hand somebody who asked for a
+    // database backup an unasked-for full one. Scheduled work belongs to the schedule.
+    echo "Scheduled backups are switched off - built queued work only\n";
+    return;
+}
+
 $type = in_array($config_backup_cron_type, backupUnattendedTypes(), true) ? $config_backup_cron_type : BACKUP_TYPE_FULL;
 $type_esc = escapeSql($type);
 

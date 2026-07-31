@@ -20,7 +20,16 @@ if (isset($_GET['queue_backup'])) {
 
     if ($backup_id > 0) {
         logAudit("Backup", "Queue", ($session_name ?? 'Unknown User') . " queued a " . backupTypeLabel($type));
-        flashAlert(backupTypeLabel($type) . " queued - it will start within a minute and you will be notified when it is ready.");
+
+        // Saying "it will start within a minute" when the master cron switch is off is a lie
+        // the user only discovers by waiting, so check before promising.
+        $cron_row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT config_enable_cron FROM settings WHERE company_id = 1"));
+
+        if (intval($cron_row['config_enable_cron']) === 0) {
+            flashAlert(backupTypeLabel($type) . " queued, but cron is switched off in Settings > Notifications, so it will not start until that is enabled.", 'error');
+        } else {
+            flashAlert(backupTypeLabel($type) . " queued - it will start within a minute and you will be notified when it is ready.");
+        }
     } else {
         flashAlert($error ?? "Could not queue the backup.", 'error');
     }

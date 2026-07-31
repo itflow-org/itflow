@@ -183,6 +183,11 @@ function cronJobFinished($mysqli, string $job_name, string $status, ?float $dura
 // "no job was due" apart from "nothing has run this since the server was rebuilt".
 mysqli_query($mysqli, "UPDATE settings SET config_cron_last_dispatch_at = '" . date('Y-m-d H:i:s') . "' WHERE company_id = 1");
 
+// Best effort: ask the server not to hang up while a long job is quiet.
+if (function_exists('backupDbHoldOpen')) {
+    backupDbHoldOpen($mysqli);
+}
+
 // A fatal error inside a job cannot be caught, and it takes the rest of the cycle with it.
 // Recording which job was running at the time is the only trace of that left behind.
 $cron_dispatch_running = null;
@@ -223,6 +228,15 @@ foreach (cronJobRegistry() as $cron_dispatch_job) {
 
     $cron_dispatch_running = $cron_dispatch_job['name'];
     $cron_dispatch_started = microtime(true);
+
+    // Every job runs in this one process on this one connection, and a job that spends
+    // minutes on network or file work without querying leaves it idle long enough for a
+    // server with a short wait_timeout to close it. The next job then dies on a connection
+    // it never touched. Re-establish before each one so a quiet job cannot poison the rest
+    // of the cycle.
+    if (function_exists('backupDbEnsure')) {
+        $mysqli = backupDbEnsure($mysqli);
+    }
 
     try {
         require_once $cron_dispatch_path;
