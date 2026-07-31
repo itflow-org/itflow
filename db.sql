@@ -2685,7 +2685,8 @@ CREATE TABLE `ticket_attachments` (
   `ticket_attachment_created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `ticket_attachment_ticket_id` int(11) NOT NULL,
   `ticket_attachment_reply_id` int(11) DEFAULT NULL,
-  PRIMARY KEY (`ticket_attachment_id`)
+  PRIMARY KEY (`ticket_attachment_id`),
+  KEY `ticket_attachment_reply_id` (`ticket_attachment_reply_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -2723,7 +2724,8 @@ CREATE TABLE `ticket_replies` (
   `ticket_reply_archived_at` datetime DEFAULT NULL,
   `ticket_reply_by` int(11) NOT NULL,
   `ticket_reply_ticket_id` int(11) NOT NULL,
-  PRIMARY KEY (`ticket_reply_id`)
+  PRIMARY KEY (`ticket_reply_id`),
+  KEY `ticket_reply_ticket_id` (`ticket_reply_ticket_id`,`ticket_reply_archived_at`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -3120,4 +3122,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2026-07-30 17:07:30
+-- Dump completed on 2026-07-31 14:15:12
