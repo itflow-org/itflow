@@ -18,7 +18,7 @@ Backups are now encrypted, catalogued, schedulable, and restorable from the comm
 
 ### Security
 
-- **The setup wizard's restore step is now closed on any install that has users**, whatever `config.php` says. Previously `$config_enable_setup` defaulted to enabled when the flag was missing from `config.php` — and the flag is only written at the very end of a successful install, so an install abandoned partway (or one where that final write failed) left an unauthenticated endpoint that would drop every table, import an attacker-supplied archive, and overwrite `uploads/` including the `.htaccess` that stops PHP executing there. Restoring over a live install is now done from the command line. This affects 26.07 and earlier.
+- **The setup wizard's restore step is now closed on any install that has users**, whatever `config.php` says. Previously, if `$config_enable_setup` was missing from `config.php` — a state an install can be left in when setup does not reach its final step — the restore step stayed reachable. An install in that state cannot be logged into, so it is normally noticed and corrected straight away, but the restore step should not have been reachable in that window. Restoring over a live install is now done from the command line.
 - A restore no longer takes ITFlow's `uploads/.htaccess` from the archive — the guards are rewritten afterwards regardless of what the backup contained, so restoring a backup taken before those guards existed no longer removes them.
  
 ### Upgrading to 26.08
