@@ -133,6 +133,16 @@ ITFlow does not use prepared statements or an ORM; queries are built as strings.
 - **Strings**: `escapeSql($_POST['subject'])`. This normalizes encoding to UTF-8, then runs `strip_tags()`, `trim()`, and `mysqli_real_escape_string()`. Because it relies on SQL escaping, the value **must be placed inside quotes in the query** (`'$subject'`). An escaped string interpolated without quotes is still injectable.
 - **Values read back from the database** get the same treatment before reuse in another query (you will see `escapeSql($row['ticket_prefix'])` throughout — this is why).
 If you write a query and even one variable in it skipped these, that is a SQL injection. This is the single most common review rejection.
+
+**Fetch helpers return raw values — you escape them.** `getFieldById()` and `getTicketStatusName()` hand back exactly what is in the column. Escaping is the call site's job, the same as any other row you read:
+
+```php
+$client_name = escapeSql(getFieldById('clients', $client_id, 'client_name'));    // into a query
+$client_name = escapeHtml(getFieldById('clients', $client_id, 'client_name'));   // into a page
+$client_id   = intval(getFieldById('tickets', $ticket_id, 'ticket_client_id'));  // an id
+```
+
+Both helpers used to escape internally, via an `$escape_method` argument. It went badly: most call sites wrapped them in `escapeSql()` anyway and got a double-escaped value, so a client named `O'Brien` came back as `O\'Brien` and the backslash reached export filenames, PDF headings, flash messages and — on the user restore path — the database itself. A value that is already safe cannot be made safer, only wrong.
  
 ### 2. Every state-changing action validates CSRF.
  
@@ -169,6 +179,8 @@ $asset_name = escapeHtml($row['asset_name']);
 
 Follow that pattern. Escaping at the echo instead would double-escape a value that is already safe, and mixing the two is how fields get missed. If you introduce a view variable that does not come from a row, escape it at assignment so the rule still holds at the top of the file.
 
+A value that arrives through a fetch helper rather than a row read follows the same rule — `escapeHtml(getFieldById(...))` at the assignment, not at the echo. See rule 1.
+
 Rich-text fields (TinyMCE content) are the exception and have their own handling; follow the existing pattern for the specific field rather than inventing one.
  
 ### 6. No shell-outs. No `eval`.
@@ -203,6 +215,8 @@ A single update run applies every pending migration in order, stopping at the fi
 
 **Function names (post-rename).** Helpers were renamed for clarity in 2026; the old names **no longer exist** — code calling them fatals. If you're rebasing an old PR or following an old tutorial, translate: `sanitizeInput` → `escapeSql`, `nullable_htmlentities` → `escapeHtml`, `logAction` → `logAudit`, `flash_alert` → `flashAlert`, `customAction` → `triggerCustomAction`, `encryptLoginEntry`/`decryptLoginEntry` → `encryptCredentialEntry`/`decryptCredentialEntry`, `strtoAZaz09` → `toAlphanumeric`, `fetchUpdates` → `checkForUpdates`, `sanitize_url` → `escapeUrl`.
  
+**Helpers that fetch data return it raw.** If you add a `getXById()`-style helper, return the column value untouched and let callers escape it (security rule 1). Validating what the helper interpolates into its *own* query — table and column names, the id — is still the helper's job; that is query construction, not output escaping, and the two are not the same thing.
+
 **Bulk vs. single actions.** If you change the behavior of a single action (e.g. resolving a ticket), check whether a `bulk_*` counterpart exists and update it too. They are currently parallel implementations and drift between them is a known bug source.
  
 **UI.** Bootstrap 4 / AdminLTE, modals per-module under `<portal>/modals/<module>/`, DataTables for lists, monospace styling for technical data (IPs, serials, keys) and proportional for human text. Match the page you're standing in.
