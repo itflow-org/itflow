@@ -55,6 +55,46 @@ function logAudit($type, $action, $description, $client_id = 0, $entity_id = 0) 
     mysqli_query($mysqli, "INSERT INTO logs SET log_type = '$type', log_action = '$action', log_description = '$description', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $entity_id");
 }
 
+/*
+ * Records a ticket history entry - the per-ticket change trail shown in the
+ * History card on agent/ticket.php.
+ *
+ * Follows the same convention as logAudit() above: the description is
+ * interpolated as-is, so callers pass values that are already SQL-safe.
+ *
+ * Call this AFTER the change has been written - the status stamped on the entry
+ * is whatever the ticket is in at the time of the call.
+ */
+function logTicketHistory($ticket_id, $description) {
+    global $mysqli;
+
+    $ticket_id = intval($ticket_id);
+
+    // ticket_history_description is varchar(255) and NOT NULL, so an over-long
+    // description would be an error under strict mode rather than a truncation
+    $description = substr($description, 0, 255);
+
+    // The description arrives already escaped, and cutting it at 255 can split a
+    // \' pair - the leftover backslash would escape this query's closing quote
+    $trailing_backslashes = strlen($description) - strlen(rtrim($description, '\\'));
+    if ($trailing_backslashes % 2 === 1) {
+        $description = substr($description, 0, -1);
+    }
+
+    $status_name = '';
+    $sql = mysqli_query(
+        $mysqli,
+        "SELECT ticket_status_name FROM tickets
+        LEFT JOIN ticket_statuses ON ticket_status = ticket_status_id
+        WHERE ticket_id = $ticket_id"
+    );
+    if ($sql && mysqli_num_rows($sql)) {
+        $status_name = escapeSql(mysqli_fetch_assoc($sql)['ticket_status_name']);
+    }
+
+    mysqli_query($mysqli, "INSERT INTO ticket_history SET ticket_history_status = '$status_name', ticket_history_description = '$description', ticket_history_ticket_id = $ticket_id");
+}
+
 function logApp($category, $type, $details) {
     global $mysqli;
 

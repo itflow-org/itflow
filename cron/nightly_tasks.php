@@ -527,6 +527,8 @@ while ($row = mysqli_fetch_assoc($sql_resolved_tickets_to_close)) {
     syncTicketSlaClock($ticket_id);
 
     //Logging
+    logTicketHistory($ticket_id, "Automatically closed after $config_ticket_autoclose_hours hours with no activity");
+
     logAudit("Ticket", "Closed", "$ticket_prefix$ticket_number auto closed", $client_id, $ticket_id);
 
     triggerCustomAction('ticket_close', $ticket_id);

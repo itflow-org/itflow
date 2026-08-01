@@ -87,10 +87,15 @@ if (!empty($ticket_id) && !empty($reply)) {
             if (!empty($reply_ticket_status)) {
                 mysqli_query($mysqli, "UPDATE tickets SET ticket_status = $reply_ticket_status WHERE ticket_id = $ticket_id LIMIT 1");
 
+                $new_status_name = getTicketStatusName($reply_ticket_status, 'sql');
+                logTicketHistory($ticket_id, "Status set to $new_status_name via the API ($api_key_name)");
+
                 // Resolve the ticket, if set
                 if ($reply_ticket_status == 4) {
                     mysqli_query($mysqli, "UPDATE tickets SET ticket_resolved_at = NOW() WHERE ticket_id = $ticket_id AND ticket_resolved_at IS NULL LIMIT 1");
                     setTicketResolutionSlaMet($ticket_id);
+
+                    logTicketHistory($ticket_id, "Resolved via the API ($api_key_name)");
 
                     logAudit("Ticket", "Resolved", "Resolved ticket $ticket_prefix$ticket_number via API ($api_key_name)", $client_id, $ticket_id);
 

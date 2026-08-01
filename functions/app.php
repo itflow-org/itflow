@@ -55,19 +55,35 @@ function getInvoiceBadgeColor($invoice_status) {
     return $invoice_badge_color;
 }
 
-function getTicketStatusName($ticket_status) {
+/*
+ * The display name for a ticket status id.
+ *
+ * $escape_method follows getFieldById() - 'html' (the default, unchanged for
+ * existing callers), 'sql' for interpolating into a query, or 'raw'. The one
+ * caller that wanted SQL was wrapping this in escapeSql(), which escaped the
+ * already-HTML-escaped string and mangled names containing & or an apostrophe.
+ */
+function getTicketStatusName($ticket_status, $escape_method = 'html') {
 
     global $mysqli;
 
     $status_id = intval($ticket_status);
-    $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT * FROM ticket_statuses WHERE ticket_status_id = $status_id LIMIT 1"));
+    $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT ticket_status_name FROM ticket_statuses WHERE ticket_status_id = $status_id LIMIT 1"));
 
-    if ($row) {
-        return escapeHtml($row['ticket_status_name']);
+    if (!$row) {
+        // Default return
+        return "Unknown";
     }
 
-    // Default return
-    return "Unknown";
+    if ($escape_method === 'sql') {
+        return escapeSql($row['ticket_status_name']);
+    }
+
+    if ($escape_method === 'raw') {
+        return $row['ticket_status_name'];
+    }
+
+    return escapeHtml($row['ticket_status_name']);
 
 }
 

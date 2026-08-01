@@ -350,6 +350,8 @@ function addReply($from_email, $date, $subject, $ticket_number, $message, $attac
         mysqli_query($mysqli, "UPDATE tickets SET ticket_status = 2, ticket_resolved_at = NULL WHERE ticket_id = $ticket_id AND ticket_client_id = $client_id LIMIT 1");
         resetTicketResolutionSla($ticket_id);
 
+        logTicketHistory($ticket_id, "$from_email_esc replied by email, reopening the ticket");
+
         logAudit("Ticket", "Edit", "Email parser: Client contact $from_email_esc updated ticket $config_ticket_prefix$ticket_number_esc ($subject)", $client_id, $ticket_id);
         triggerCustomAction('ticket_reply_client', $ticket_id);
         return true;
