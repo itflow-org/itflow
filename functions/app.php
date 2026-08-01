@@ -56,14 +56,10 @@ function getInvoiceBadgeColor($invoice_status) {
 }
 
 /*
- * The display name for a ticket status id.
- *
- * $escape_method follows getFieldById() - 'html' (the default, unchanged for
- * existing callers), 'sql' for interpolating into a query, or 'raw'. The one
- * caller that wanted SQL was wrapping this in escapeSql(), which escaped the
- * already-HTML-escaped string and mangled names containing & or an apostrophe.
+ * The display name for a ticket status id, RAW. Escaping is the caller's job -
+ * same convention as getFieldById() above.
  */
-function getTicketStatusName($ticket_status, $escape_method = 'html') {
+function getTicketStatusName($ticket_status) {
 
     global $mysqli;
 
@@ -75,17 +71,10 @@ function getTicketStatusName($ticket_status, $escape_method = 'html') {
         return "Unknown";
     }
 
-    if ($escape_method === 'sql') {
-        return escapeSql($row['ticket_status_name']);
-    }
-
-    if ($escape_method === 'raw') {
-        return $row['ticket_status_name'];
-    }
-
-    return escapeHtml($row['ticket_status_name']);
+    return $row['ticket_status_name'];
 
 }
+
 
 /**
  * Copies a ticket template's tasks onto a ticket.
@@ -201,19 +190,21 @@ function parseSubmittedTasks() {
     return $tasks;
 }
 
-/**
- * Retrieves a specified field's value from a table based on the record's id.
- * It validates the table and field names, automatically determines the primary key (or uses the first column as fallback),
- * and returns the field value with an appropriate escaping method.
+/*
+ * Fetches one field from one row by id, and returns it RAW.
  *
- * @param string $table         The name of the table.
- * @param int    $id            The record's id.
- * @param string $field         The field (column) to retrieve.
- * @param string $escape_method The escape method: 'sql' (default, auto-detects int), 'html', 'json', or 'int'.
+ * Escaping is the caller's job, the same as any other value read out of the
+ * database - wrap the call in escapeSql() for a query or escapeHtml() for
+ * output. This function used to escape for you via an $escape_method argument,
+ * which meant half its callers wrapped it in escapeSql() anyway and got a
+ * double-escaped value: a client named O'Brien came back as O\'Brien and the
+ * backslash ended up in export filenames, flash messages and, on the user
+ * restore path, written back into the database.
  *
- * @return mixed The escaped field value, or null if not found or invalid input.
+ * Table, field and id are still validated here - that is about building a safe
+ * query, not about escaping what comes out of it.
  */
-function getFieldById($table, $id, $field, $escape_method = 'sql') {
+function getFieldById($table, $id, $field) {
     global $mysqli;  // Use the global MySQLi connection
 
     // Validate table and field names to allow only letters, numbers, and underscores
@@ -224,29 +215,34 @@ function getFieldById($table, $id, $field, $escape_method = 'sql') {
     // Sanitize id as an integer
     $id = (int)$id;
 
-    // Get the list of columns and their details from the table
-    $columns_result = mysqli_query($mysqli, "SHOW COLUMNS FROM `$table`");
+    /*
+     * Get the list of columns from the table, to find the primary key and to
+     * confirm the requested field exists.
+     *
+     * The catch is what makes the "table not found" case actually return null:
+     * mysqli throws on an unknown table by default on PHP 8.1+, so this
+     * function's own not-found branch was unreachable and a bad table name
+     * took the whole page down instead.
+     */
+    try {
+        $columns_result = mysqli_query($mysqli, "SHOW COLUMNS FROM `$table`");
+    } catch (mysqli_sql_exception $e) {
+        return null; // Table not found
+    }
+
     if (!$columns_result || mysqli_num_rows($columns_result) == 0) {
         return null; // Table not found or has no columns
     }
 
-    // Build an associative array with column details
     $columns = [];
-    while ($row = mysqli_fetch_assoc($columns_result)) {
-        $columns[$row['Field']] = [
-            'type' => $row['Type'],
-            'key'  => $row['Key']
-        ];
-    }
-
-    // Find the primary key field if available
     $id_field = null;
-    foreach ($columns as $col => $details) {
-        if ($details['key'] === 'PRI') {
-            $id_field = $col;
-            break;
+    while ($row = mysqli_fetch_assoc($columns_result)) {
+        $columns[$row['Field']] = true;
+        if (!$id_field && $row['Key'] === 'PRI') {
+            $id_field = $row['Field'];
         }
     }
+
     // Fallback: if no primary key is found, use the first column
     if (!$id_field) {
         reset($columns);
@@ -259,36 +255,16 @@ function getFieldById($table, $id, $field, $escape_method = 'sql') {
     }
 
     // Build and execute the query to fetch the specified field value
-    $query = "SELECT `$field` FROM `$table` WHERE `$id_field` = $id";
-    $sql = mysqli_query($mysqli, $query);
+    $sql = mysqli_query($mysqli, "SELECT `$field` FROM `$table` WHERE `$id_field` = $id");
 
     if ($sql && mysqli_num_rows($sql) > 0) {
         $row = mysqli_fetch_assoc($sql);
-        $value = $row[$field];
-
-        // Apply the desired escaping method or auto-detect integer type if using SQL escaping
-        switch ($escape_method) {
-            case 'raw':
-                return $value; // Return as-is from the database
-            case 'html':
-                return htmlspecialchars($value ?? '', ENT_QUOTES, 'UTF-8'); // Escape for HTML
-            case 'json':
-                return json_encode($value); // Escape for JSON
-            case 'int':
-                return (int)$value; // Explicitly cast value to integer
-            case 'sql':
-            default:
-                // Auto-detect if the field type is integer
-                if (stripos($columns[$field]['type'], 'int') !== false) {
-                    return (int)$value;
-                } else {
-                    return escapeSql($value); // Escape for SQL using a custom function
-                }
-        }
+        return $row[$field];
     }
 
     return null; // Return null if no record was found
 }
+
 
 // Recursive function to display folder options - Used in folders files and documents
 function displayFolderOptions($parent_folder_id, $client_id, $indent = 0) {

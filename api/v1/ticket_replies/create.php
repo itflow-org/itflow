@@ -87,7 +87,7 @@ if (!empty($ticket_id) && !empty($reply)) {
             if (!empty($reply_ticket_status)) {
                 mysqli_query($mysqli, "UPDATE tickets SET ticket_status = $reply_ticket_status WHERE ticket_id = $ticket_id LIMIT 1");
 
-                $new_status_name = getTicketStatusName($reply_ticket_status, 'sql');
+                $new_status_name = escapeSql(getTicketStatusName($reply_ticket_status));
                 logTicketHistory($ticket_id, "Status set to $new_status_name via the API ($api_key_name)");
 
                 // Resolve the ticket, if set

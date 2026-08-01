@@ -278,7 +278,7 @@ if (isset($_POST['archive_user'])) {
     mysqli_query($mysqli, "UPDATE tickets SET ticket_assigned_to = $ticket_assign WHERE ticket_assigned_to = $user_id AND ticket_closed_at IS NULL AND ticket_resolved_at IS NULL");
     mysqli_query($mysqli, "UPDATE recurring_tickets SET recurring_ticket_assigned_to = $ticket_assign WHERE recurring_ticket_assigned_to = $user_id");
 
-    $reassigned_to_name = $ticket_assign ? escapeSql(getFieldById('users', $ticket_assign, 'user_name', 'raw')) : '';
+    $reassigned_to_name = $ticket_assign ? escapeSql(getFieldById('users', $ticket_assign, 'user_name')) : '';
     foreach ($affected_ticket_ids as $affected_ticket_id) {
         if ($reassigned_to_name) {
             logTicketHistory($affected_ticket_id, "$session_name reassigned the ticket to $reassigned_to_name when $user_name was archived");

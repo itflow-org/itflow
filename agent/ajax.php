@@ -545,7 +545,7 @@ if (isset($_POST['update_kanban_ticket'])) {
                 mysqli_query($mysqli, "UPDATE tickets SET ticket_order = $kanban, ticket_status = $status, ticket_resolved_at = NULL WHERE ticket_id = $ticket_id");
                 resetTicketResolutionSla($ticket_id);
                 syncTicketSlaClock($ticket_id);
-                $new_status_name = getTicketStatusName($status, 'sql');
+                $new_status_name = escapeSql(getTicketStatusName($status));
                 logTicketHistory($ticket_id, "$session_name reopened the ticket to $new_status_name from the kanban");
                 triggerCustomAction('ticket_update', $ticket_id);
             } elseif ($status === $statuses['Resolved']) {
@@ -638,7 +638,7 @@ if (isset($_POST['update_kanban_ticket'])) {
                 // If the ticket was moved from any status to another status
                 mysqli_query($mysqli, "UPDATE tickets SET ticket_order = $kanban, ticket_status = $status WHERE ticket_id = $ticket_id");
                 syncTicketSlaClock($ticket_id);
-                $new_status_name = getTicketStatusName($status, 'sql');
+                $new_status_name = escapeSql(getTicketStatusName($status));
                 logTicketHistory($ticket_id, "$session_name set the status to $new_status_name from the kanban");
                 triggerCustomAction('ticket_update', $ticket_id);
             }

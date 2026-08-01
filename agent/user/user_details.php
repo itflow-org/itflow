@@ -58,7 +58,7 @@ require_once "includes/inc_all_user.php";
 
                     <div class="form-group">
                         <label>Signature</label>
-                        <textarea class="form-control tinymceTicket" name="signature" rows="4" placeholder="Create a signature automatically appended to tickets, emails etc"><?= getFieldById('user_settings',$session_user_id,'user_config_signature','html') ?>
+                        <textarea class="form-control tinymceTicket" name="signature" rows="4" placeholder="Create a signature automatically appended to tickets, emails etc"><?= escapeHtml(getFieldById('user_settings',$session_user_id,'user_config_signature')) ?>
                         </textarea>
                     </div>
                     

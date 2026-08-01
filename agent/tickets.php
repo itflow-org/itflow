@@ -170,7 +170,7 @@ $category_filter = '';
 if (!empty($_GET['category'])) {
     $category_filter = intval($_GET['category']);
     $category_query = "AND ticket_category = $category_filter";
-    $active_filters[] = array('label' => 'Category', 'value' => getFieldById('categories', $category_filter, 'category_name', 'html'), 'drop' => 'category');
+    $active_filters[] = array('label' => 'Category', 'value' => escapeHtml(getFieldById('categories', $category_filter, 'category_name')), 'drop' => 'category');
 }
 
 // Priority Filter
@@ -219,7 +219,7 @@ if (!empty($_GET['assigned'])) {
     } else {
         $ticket_assigned_filter_id = intval($_GET['assigned']);
         $ticket_assigned_query = "AND ticket_assigned_to = $ticket_assigned_filter_id";
-        $assigned_name = $ticket_assigned_filter_id === intval($session_user_id) ? 'Me' : getFieldById('users', $ticket_assigned_filter_id, 'user_name', 'html');
+        $assigned_name = $ticket_assigned_filter_id === intval($session_user_id) ? 'Me' : escapeHtml(getFieldById('users', $ticket_assigned_filter_id, 'user_name'));
         $active_filters[] = array('label' => 'Assigned', 'value' => $assigned_name, 'drop' => 'assigned');
     }
 }
@@ -230,7 +230,7 @@ $ticket_project_filter_id = '';
 if (!empty($_GET['project'])) {
     $ticket_project_filter_id = intval($_GET['project']);
     $ticket_project_snippet = "AND ticket_project_id = $ticket_project_filter_id";
-    $active_filters[] = array('label' => 'Project', 'value' => getFieldById('projects', $ticket_project_filter_id, 'project_name', 'html'), 'drop' => 'project');
+    $active_filters[] = array('label' => 'Project', 'value' => escapeHtml(getFieldById('projects', $ticket_project_filter_id, 'project_name')), 'drop' => 'project');
 }
 
 // Date range - filter_header.php resolves the canned ranges into $dtf / $dtt

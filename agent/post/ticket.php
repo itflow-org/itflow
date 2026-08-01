@@ -127,7 +127,7 @@ if (isset($_POST['add_ticket'])) {
         $ticket_details = mysqli_escape_string($mysqli, $row['ticket_details']);
         $ticket_priority = escapeSql($row['ticket_priority']);
         $ticket_status = escapeSql($row['ticket_status']);
-        $ticket_status_name = getTicketStatusName($row['ticket_status'], 'sql');
+        $ticket_status_name = escapeSql(getTicketStatusName($row['ticket_status']));
         $client_id = intval($row['ticket_client_id']);
         $ticket_created_by = intval($row['ticket_created_by']);
         $ticket_assigned_to = intval($row['ticket_assigned_to']);
@@ -263,7 +263,7 @@ if (isset($_POST['edit_ticket'])) {
 
     if ($original_assigned_to !== $assigned_to) {
         if ($assigned_to) {
-            $new_agent_name = escapeSql(getFieldById('users', $assigned_to, 'user_name', 'raw'));
+            $new_agent_name = escapeSql(getFieldById('users', $assigned_to, 'user_name'));
             logTicketHistory($ticket_id, "$session_name assigned the ticket to $new_agent_name");
         } else {
             logTicketHistory($ticket_id, "$session_name unassigned the ticket");
@@ -1548,7 +1548,7 @@ if (isset($_POST['bulk_ticket_reply'])) {
             mysqli_query($mysqli, "UPDATE tickets SET ticket_status = '$ticket_status' WHERE ticket_id = $ticket_id");
             syncTicketSlaClock($ticket_id);
 
-            $new_status_name = getTicketStatusName($ticket_status, 'sql');
+            $new_status_name = escapeSql(getTicketStatusName($ticket_status));
             logTicketHistory($ticket_id, "$session_name set the status to $new_status_name");
 
             logAudit("Ticket", "Reply", "$session_name replied to ticket $ticket_prefix$ticket_number - $ticket_subject and was a $ticket_reply_type reply", $client_id, $ticket_id);
@@ -1861,7 +1861,7 @@ if (isset($_POST['add_ticket_reply'])) {
     }
     // Add Signature to the end of the ticket reply if not Internal and if there is reply
     if ($ticket_reply !== '' && $ticket_reply_type !== 'Internal' && $send_email == 1) {
-        $ticket_reply .= getFieldById('user_settings',$session_user_id,'user_config_signature', 'raw');
+        $ticket_reply .= getFieldById('user_settings',$session_user_id,'user_config_signature');
     }
 
     $ticket_reply = mysqli_escape_string($mysqli, $ticket_reply); // SQL Escape Ticket Reply
@@ -2032,7 +2032,7 @@ if (isset($_POST['add_ticket_reply'])) {
         flashAlert("Stored on the ticket but too large to email: <strong>" . implode(', ', $skipped_names) . "</strong>", 'error');
     }
 
-    $new_status_name = getTicketStatusName($ticket_status, 'sql');
+    $new_status_name = escapeSql(getTicketStatusName($ticket_status));
     logTicketHistory($ticket_id, "$session_name set the status to $new_status_name");
 
     logAudit("Ticket", "Reply", "$session_name replied to ticket $ticket_prefix$ticket_number - $ticket_subject and was a $ticket_reply_type reply", $client_id, $ticket_id);

@@ -116,7 +116,7 @@ if (isset($_GET['archive_contract_template'])) {
 
     $contract_template_id = intval($_GET['archive_contract_template']);
 
-    $name = getFieldById('contract_templates', $contract_template_id, 'contract_template_name');
+    $name = escapeSql(getFieldById('contract_templates', $contract_template_id, 'contract_template_name'));
 
     mysqli_query($mysqli, "
         UPDATE contract_templates SET contract_template_archived_at = NOW()
@@ -135,7 +135,7 @@ if (isset($_GET['restore_contract_template'])) {
 
     $contract_template_id = intval($_GET['restore_contract_template']);
 
-    $name = getFieldById('contract_templates', $contract_template_id, 'contract_template_name');
+    $name = escapeSql(getFieldById('contract_templates', $contract_template_id, 'contract_template_name'));
 
     mysqli_query($mysqli, "
         UPDATE contract_templates SET contract_template_archived_at = NULL
@@ -154,7 +154,7 @@ if (isset($_GET['delete_contract_template'])) {
     
     $contract_template_id = intval($_GET['delete_contract_template']);
 
-    $name = getFieldById('contract_templates', $contract_template_id, 'contract_template_name');
+    $name = escapeSql(getFieldById('contract_templates', $contract_template_id, 'contract_template_name'));
 
     mysqli_query($mysqli, "
         DELETE FROM contract_templates
