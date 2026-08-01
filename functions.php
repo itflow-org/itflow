@@ -20,7 +20,6 @@ require_once __DIR__ . '/functions/domain.php';
 require_once __DIR__ . '/functions/auth.php';
 require_once __DIR__ . '/functions/logging.php';
 require_once __DIR__ . '/functions/app.php';
-require_once __DIR__ . '/functions/db.php';
 require_once __DIR__ . '/functions/payments.php';
 require_once __DIR__ . '/functions/sla.php';
 require_once __DIR__ . '/functions/export.php';
