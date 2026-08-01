@@ -8,8 +8,6 @@ defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
 
 if (isset($_POST['add_client'])) {
 
-    // JQ - Using Prepared MySQLi Statements here for show this is not our standard and is only used in the client add/edit POST.
-
     validateCSRFToken();
 
     enforceUserPermission('module_client', 2);
@@ -22,57 +20,27 @@ if (isset($_POST['add_client'])) {
     $location_extension = preg_replace("/[^0-9]/", '', $_POST['location_extension']);
     $location_fax_country_code = preg_replace("/[^0-9]/", '', $_POST['location_fax_country_code']);
     $location_fax = preg_replace("/[^0-9]/", '', $_POST['location_fax']);
-    $address = cleanInput($_POST['address']);
-    $city = cleanInput($_POST['city']);
-    $state = cleanInput($_POST['state']);
-    $zip = cleanInput($_POST['zip']);
-    $country = cleanInput($_POST['country']);
+    $address = escapeSql($_POST['address']);
+    $city = escapeSql($_POST['city']);
+    $state = escapeSql($_POST['state']);
+    $zip = escapeSql($_POST['zip']);
+    $country = escapeSql($_POST['country']);
 
     // Contact inputs
-    $contact = cleanInput($_POST['contact']);
-    $title = cleanInput($_POST['title']);
+    $contact = escapeSql($_POST['contact']);
+    $title = escapeSql($_POST['title']);
     $contact_phone_country_code = preg_replace("/[^0-9]/", '', $_POST['contact_phone_country_code']);
     $contact_phone = preg_replace("/[^0-9]/", '', $_POST['contact_phone']);
     $contact_extension = preg_replace("/[^0-9]/", '', $_POST['contact_extension']);
     $contact_mobile_country_code = preg_replace("/[^0-9]/", '', $_POST['contact_mobile_country_code']);
     $contact_mobile = preg_replace("/[^0-9]/", '', $_POST['contact_mobile']);
-    $contact_email = cleanInput($_POST['contact_email']);
+    $contact_email = escapeSql($_POST['contact_email']);
 
     $extended_log_description = '';
 
-    // Insert client using SET
-    $query = mysqli_prepare(
-        $mysqli,
-        "INSERT INTO clients SET
-        client_name = ?,
-        client_type = ?,
-        client_website = ?,
-        client_referral = ?,
-        client_rate = ?,
-        client_currency_code = ?,
-        client_net_terms = ?,
-        client_tax_id_number = ?,
-        client_lead = ?,
-        client_abbreviation = ?,
-        client_notes = ?,
-        client_accessed_at = NOW()"
-    );
-    mysqli_stmt_bind_param(
-        $query,
-        "ssssdsiisss",
-        $name,
-        $type,
-        $website,
-        $referral,
-        $rate,
-        $session_company_currency,
-        $net_terms,
-        $tax_id_number,
-        $lead,
-        $abbreviation,
-        $notes
-    );
-    mysqli_stmt_execute($query);
+    // Create client
+    mysqli_query($mysqli, "INSERT INTO clients SET client_name = '$name', client_type = '$type', client_website = '$website', client_referral = '$referral', client_rate = $rate, client_currency_code = '$session_company_currency', client_net_terms = $net_terms, client_tax_id_number = '$tax_id_number', client_lead = $lead, client_abbreviation = '$abbreviation', client_notes = '$notes', client_accessed_at = NOW()");
+
     $client_id = mysqli_insert_id($mysqli);
 
     // Create client folder
@@ -83,125 +51,46 @@ if (isset($_POST['add_client'])) {
     }
 
     // Create referral category if it doesn't exist
-    $query = mysqli_prepare($mysqli, "SELECT category_name FROM categories WHERE category_type = 'Referral' AND category_archived_at IS NULL AND category_name = ?");
-    mysqli_stmt_bind_param($query, "s", $referral);
-    mysqli_stmt_execute($query);
-    mysqli_stmt_store_result($query);
-    if (mysqli_stmt_num_rows($query) == 0) {
-        $query = mysqli_prepare($mysqli, "INSERT INTO categories SET category_name = ?, category_type = 'Referral'");
-        mysqli_stmt_bind_param($query, "s", $referral);
-        mysqli_stmt_execute($query);
+    $sql = mysqli_query($mysqli, "SELECT category_name FROM categories WHERE category_type = 'Referral' AND category_archived_at IS NULL AND category_name = '$referral'");
+    if (mysqli_num_rows($sql) == 0) {
+        mysqli_query($mysqli, "INSERT INTO categories SET category_name = '$referral', category_type = 'Referral'");
 
         logAudit("Category", "Create", "$session_name created referral category $referral");
     }
 
-    // Insert primary location using SET
+    // Create primary location
     if (!empty($location_phone) || !empty($address) || !empty($city) || !empty($state) || !empty($zip)) {
-        $query = mysqli_prepare(
-            $mysqli,
-            "INSERT INTO locations SET
-            location_name = 'Primary',
-            location_address = ?,
-            location_city = ?,
-            location_state = ?,
-            location_zip = ?,
-            location_phone_country_code = ?,
-            location_phone = ?,
-            location_phone_extension = ?,
-            location_fax_country_code = ?,
-            location_fax = ?,
-            location_country = ?,
-            location_primary = 1,
-            location_client_id = ?"
-        );
-        mysqli_stmt_bind_param(
-            $query,
-            "ssssssssssi",
-            $address,
-            $city,
-            $state,
-            $zip,
-            $location_phone_country_code,
-            $location_phone,
-            $location_extension,
-            $location_fax_country_code,
-            $location_fax,
-            $country,
-            $client_id
-        );
-        mysqli_stmt_execute($query);
+        mysqli_query($mysqli, "INSERT INTO locations SET location_name = 'Primary', location_address = '$address', location_city = '$city', location_state = '$state', location_zip = '$zip', location_phone_country_code = '$location_phone_country_code', location_phone = '$location_phone', location_phone_extension = '$location_extension', location_fax_country_code = '$location_fax_country_code', location_fax = '$location_fax', location_country = '$country', location_primary = 1, location_client_id = $client_id");
+
         $extended_log_description .= ", primary location $address added";
     }
 
-    // Insert primary contact using SET
+    // Create primary contact
     if (!empty($contact) || !empty($title) || !empty($contact_phone) || !empty($contact_mobile) || !empty($contact_email)) {
-        $query = mysqli_prepare(
-            $mysqli,
-            "INSERT INTO contacts SET
-            contact_name = ?,
-            contact_title = ?,
-            contact_phone_country_code = ?,
-            contact_phone = ?,
-            contact_extension = ?,
-            contact_mobile_country_code = ?,
-            contact_mobile = ?,
-            contact_email = ?,
-            contact_primary = 1,
-            contact_important = 1,
-            contact_client_id = ?"
-        );
-        mysqli_stmt_bind_param(
-            $query,
-            "ssssssssi",
-            $contact,
-            $title,
-            $contact_phone_country_code,
-            $contact_phone,
-            $contact_extension,
-            $contact_mobile_country_code,
-            $contact_mobile,
-            $contact_email,
-            $client_id
-        );
-        mysqli_stmt_execute($query);
+        mysqli_query($mysqli, "INSERT INTO contacts SET contact_name = '$contact', contact_title = '$title', contact_phone_country_code = '$contact_phone_country_code', contact_phone = '$contact_phone', contact_extension = '$contact_extension', contact_mobile_country_code = '$contact_mobile_country_code', contact_mobile = '$contact_mobile', contact_email = '$contact_email', contact_primary = 1, contact_important = 1, contact_client_id = $client_id");
+
         $extended_log_description .= ", primary contact $contact added";
     }
 
     // Add tags
     if (isset($_POST['tags'])) {
-        $query = mysqli_prepare($mysqli, "INSERT INTO client_tags SET client_id = ?, tag_id = ?");
         foreach ($_POST['tags'] as $tag) {
             $tag = intval($tag);
-            mysqli_stmt_bind_param($query, "ii", $client_id, $tag);
-            mysqli_stmt_execute($query);
+            mysqli_query($mysqli, "INSERT INTO client_tags SET client_id = $client_id, tag_id = $tag");
         }
     }
 
-    // Insert domain and SSL using SET
+    // Create domain and SSL certificate
     if (!empty($website) && filter_var($website, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME)) {
         $expire = getDomainExpirationDate($website);
         $records = getDnsRecords($website);
-        $a = cleanInput($records['a']);
-        $ns = cleanInput($records['ns']);
-        $mx = cleanInput($records['mx']);
-        $whois = cleanInput($records['whois']);
+        $a = escapeSql($records['a']);
+        $ns = escapeSql($records['ns']);
+        $mx = escapeSql($records['mx']);
+        $whois = escapeSql($records['whois']);
 
         try {
-            $query = mysqli_prepare(
-                $mysqli,
-                "INSERT INTO domains SET
-                domain_name = ?,
-                domain_registrar = 0,
-                domain_webhost = 0,
-                domain_expire = ?,
-                domain_ip = ?,
-                domain_name_servers = ?,
-                domain_mail_servers = ?,
-                domain_raw_whois = ?,
-                domain_client_id = ?"
-            );
-            mysqli_stmt_bind_param($query, "ssssssi", $website, $expire, $a, $ns, $mx, $whois, $client_id);
-            mysqli_stmt_execute($query);
+            mysqli_query($mysqli, "INSERT INTO domains SET domain_name = '$website', domain_registrar = 0, domain_webhost = 0, domain_expire = '$expire', domain_ip = '$a', domain_name_servers = '$ns', domain_mail_servers = '$mx', domain_raw_whois = '$whois', domain_client_id = $client_id");
             $extended_log_description .= ", domain $website added";
         } catch (Exception $e) {
             $extended_log_description .= ", domain not added";
@@ -212,33 +101,11 @@ if (isset($_POST['add_client'])) {
         $certificate = getSslCertificate($website);
 
         if ($certificate['success'] == "TRUE") {
-            $expire = cleanInput($certificate['expire']);
-            $issued_by = cleanInput($certificate['issued_by']);
-            $public_key = cleanInput($certificate['public_key']);
+            $expire = escapeSql($certificate['expire']);
+            $issued_by = escapeSql($certificate['issued_by']);
+            $public_key = escapeSql($certificate['public_key']);
 
-            $query = mysqli_prepare(
-                $mysqli,
-                "INSERT INTO certificates SET
-                certificate_name = ?,
-                certificate_domain = ?,
-                certificate_issued_by = ?,
-                certificate_expire = ?,
-                certificate_public_key = ?,
-                certificate_domain_id = ?,
-                certificate_client_id = ?"
-            );
-            mysqli_stmt_bind_param(
-                $query,
-                "sssssii",
-                $website,
-                $website,
-                $issued_by,
-                $expire,
-                $public_key,
-                $domain_id,
-                $client_id
-            );
-            mysqli_stmt_execute($query);
+            mysqli_query($mysqli, "INSERT INTO certificates SET certificate_name = '$website', certificate_domain = '$website', certificate_issued_by = '$issued_by', certificate_expire = '$expire', certificate_public_key = '$public_key', certificate_domain_id = $domain_id, certificate_client_id = $client_id");
 
             $extended_log_description .= ", SSL certificate $website added";
         }
@@ -273,63 +140,24 @@ if (isset($_POST['edit_client'])) {
 
     $client_id = intval($_POST['client_id']);
 
-    // Update client using prepared statement
-    $query = mysqli_prepare(
-        $mysqli,
-        "UPDATE clients SET
-        client_name = ?,
-        client_type = ?,
-        client_website = ?,
-        client_referral = ?,
-        client_rate = ?,
-        client_net_terms = ?,
-        client_tax_id_number = ?,
-        client_lead = ?,
-        client_abbreviation = ?,
-        client_notes = ?
-        WHERE client_id = ?"
-    );
-    mysqli_stmt_bind_param(
-        $query,
-        "ssssdisissi",
-        $name,
-        $type,
-        $website,
-        $referral,
-        $rate,
-        $net_terms,
-        $tax_id_number,
-        $lead,
-        $abbreviation,
-        $notes,
-        $client_id
-    );
-    mysqli_stmt_execute($query);
+    // Update client
+    mysqli_query($mysqli, "UPDATE clients SET client_name = '$name', client_type = '$type', client_website = '$website', client_referral = '$referral', client_rate = $rate, client_net_terms = $net_terms, client_tax_id_number = '$tax_id_number', client_lead = $lead, client_abbreviation = '$abbreviation', client_notes = '$notes' WHERE client_id = $client_id");
 
     // Create referral category if it doesn't exist
-    $query = mysqli_prepare($mysqli, "SELECT category_name FROM categories WHERE category_type = 'Referral' AND category_archived_at IS NULL AND category_name = ?");
-    mysqli_stmt_bind_param($query, "s", $referral);
-    mysqli_stmt_execute($query);
-    mysqli_stmt_store_result($query);
-    if (mysqli_stmt_num_rows($query) == 0) {
-        $query = mysqli_prepare($mysqli, "INSERT INTO categories SET category_name = ?, category_type = 'Referral'");
-        mysqli_stmt_bind_param($query, "s", $referral);
-        mysqli_stmt_execute($query);
+    $sql = mysqli_query($mysqli, "SELECT category_name FROM categories WHERE category_type = 'Referral' AND category_archived_at IS NULL AND category_name = '$referral'");
+    if (mysqli_num_rows($sql) == 0) {
+        mysqli_query($mysqli, "INSERT INTO categories SET category_name = '$referral', category_type = 'Referral'");
 
         logAudit("Category", "Create", "$session_name created referral category $referral");
     }
 
     // Tags - delete existing and re-insert
-    $query = mysqli_prepare($mysqli, "DELETE FROM client_tags WHERE client_id = ?");
-    mysqli_stmt_bind_param($query, "i", $client_id);
-    mysqli_stmt_execute($query);
+    mysqli_query($mysqli, "DELETE FROM client_tags WHERE client_id = $client_id");
 
     if (isset($_POST['tags'])) {
-        $query = mysqli_prepare($mysqli, "INSERT INTO client_tags SET client_id = ?, tag_id = ?");
         foreach ($_POST['tags'] as $tag) {
             $tag = intval($tag);
-            mysqli_stmt_bind_param($query, "ii", $client_id, $tag);
-            mysqli_stmt_execute($query);
+            mysqli_query($mysqli, "INSERT INTO client_tags SET client_id = $client_id, tag_id = $tag");
         }
     }
 
