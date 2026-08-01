@@ -31,8 +31,8 @@ if ($client_id) {
     enforceClientAccess();
 }
 
-// Generate the HTML form content using output buffering.
 ob_start();
+
 ?>
 
 <div class="modal-header bg-dark">
@@ -240,7 +240,7 @@ ob_start();
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
                         </div>
-                        <select class="form-control select2" name="client">
+                        <select class="form-control select2" name="client_id">
                             <option value="">- Select Client -</option>
                             <?php
 

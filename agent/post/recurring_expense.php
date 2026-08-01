@@ -23,6 +23,10 @@ if (isset($_POST['create_recurring_expense'])) {
     $description = escapeSql($_POST['description']);
     $reference = escapeSql($_POST['reference']);
 
+    if ($client_id) {
+        enforceClientAccess();
+    }
+
     $year = date('Y');
     if (strtotime("$year-$month-$day") < time()) {
         $year++;
@@ -58,6 +62,10 @@ if (isset($_POST['edit_recurring_expense'])) {
     $category = intval($_POST['category']);
     $description = escapeSql($_POST['description']);
     $reference = escapeSql($_POST['reference']);
+
+    if ($client_id) {
+        enforceClientAccess();
+    }
 
     $year = date('Y');
     if (strtotime("$year-$month-$day") < time()) {
