@@ -32,25 +32,6 @@ function escapeSql($input) {
     return $input;
 }
 
-function cleanInput($input) {
-    // Only process non-empty input
-    if (!empty($input)) {
-        // Normalize encoding to UTF-8 if it’s not valid
-        if (!mb_check_encoding($input, 'UTF-8')) {
-            // Convert from Windows-1252 as a safe fallback
-            $input = mb_convert_encoding($input, 'UTF-8', 'Windows-1252');
-        }
-    }
-
-    // Remove HTML and PHP tags
-    $input = strip_tags((string) $input);
-
-    // Trim whitespace
-    $input = trim($input);
-
-    return $input;
-}
-
 function toAlphanumeric($string) {
     // Gets rid of non-alphanumerics
     return preg_replace('/[^A-Za-z0-9_-]/', '', $string);

@@ -1,7 +1,7 @@
 <?php
 
 /*
- * ITFlow - GET/POST request handler for AI Providers ('ai_providers')
+ * ITFlow - GET/POST request handler for payment methods ('payment_methods')
  */
 
 defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
@@ -10,17 +10,10 @@ if (isset($_POST['add_payment_method'])) {
 
     validateCSRFToken();
 
-    $name = cleanInput($_POST['name']);
-    $description = cleanInput($_POST['description']);
+    $name = escapeSql($_POST['name']);
+    $description = escapeSql($_POST['description']);
 
-    $query = mysqli_prepare(
-        $mysqli, "INSERT INTO payment_methods
-        SET payment_method_name = ?, payment_method_description = ?"
-    );
-
-    mysqli_stmt_bind_param($query, "ss", $name, $description);
-
-    mysqli_stmt_execute($query);
+    mysqli_query($mysqli, "INSERT INTO payment_methods SET payment_method_name = '$name', payment_method_description = '$description'");
 
     logAudit("Payment Method", "Create", "$session_name created Payment Method $name");
 
@@ -35,19 +28,10 @@ if (isset($_POST['edit_payment_method'])) {
     validateCSRFToken();
 
     $payment_method_id = intval($_POST['payment_method_id']);
-    $name = cleanInput($_POST['name']);
-    $description = cleanInput($_POST['description']);
+    $name = escapeSql($_POST['name']);
+    $description = escapeSql($_POST['description']);
 
-    $query = mysqli_prepare(
-        $mysqli,
-        "UPDATE payment_methods
-         SET payment_method_name = ?, payment_method_description = ?
-         WHERE payment_method_id = ?"
-    );
-
-    mysqli_stmt_bind_param($query, "ssi", $name, $description, $payment_method_id);
-
-    mysqli_stmt_execute($query);
+    mysqli_query($mysqli, "UPDATE payment_methods SET payment_method_name = '$name', payment_method_description = '$description' WHERE payment_method_id = $payment_method_id");
 
     logAudit("Payment Method", "Edit", "$session_name edited Payment Method $name");
 
@@ -63,7 +47,7 @@ if (isset($_GET['delete_payment_method'])) {
 
     $payment_method_id = intval($_GET['delete_payment_method']);
 
-    $payment_method_name = escapeSql(getFieldById('payment_methods', $payment_method_is, 'payment_method_name'));
+    $payment_method_name = escapeSql(getFieldById('payment_methods', $payment_method_id, 'payment_method_name'));
 
     mysqli_query($mysqli,"DELETE FROM payment_methods WHERE payment_method_id = $payment_method_id");
 
