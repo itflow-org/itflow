@@ -371,35 +371,15 @@ $(document).ready(function() {
     // ClipboardJS fix for Bootstrap modals
     $.fn.modal.Constructor.prototype._enforceFocus = function() {};
 
-    // Tooltip
-    $('button').tooltip({
-        trigger: 'click',
-        placement: 'bottom'
-    });
-
-    function setTooltip(btn, message) {
-        $(btn).tooltip('hide')
-            .attr('data-original-title', message)
-            .tooltip('show');
-    }
-
-    function hideTooltip(btn) {
-        setTimeout(function() {
-            $(btn).tooltip('hide');
-        }, 1000);
-    }
-
     // Clipboard
     var clipboard = new ClipboardJS('.clipboardjs');
 
     clipboard.on('success', function(e) {
-        setTooltip(e.trigger, 'Copied!');
-        hideTooltip(e.trigger);
+        flashTooltip(e.trigger, 'Copied!');
     });
 
     clipboard.on('error', function(e) {
-        setTooltip(e.trigger, 'Failed!');
-        hideTooltip(e.trigger);
+        flashTooltip(e.trigger, 'Failed!');
     });
 
     // Enable Popovers
@@ -502,3 +482,29 @@ $(document).off('change.itflowEventTime').on('change.itflowEventTime', '.event-s
         }
     }
 });
+
+/*
+ * Bootstrap tooltips are only used for the brief "Copied!" flash on a copy
+ * button. Everything else relies on the browser's own title attribute.
+ *
+ * This used to be `$('button').tooltip({trigger: 'click'})`, which attached a
+ * click-toggled tooltip to EVERY button in the app. A click-triggered tooltip
+ * is only dismissed by clicking the same button again - clicking anywhere else
+ * leaves it on screen - and if the button was then removed from the DOM by a
+ * modal closing or an ajax refresh, its tooltip was orphaned and stayed up
+ * until the next page load.
+ */
+function flashTooltip(button, message) {
+    $(button)
+        .tooltip('dispose')
+        .tooltip({
+            trigger: 'manual',
+            placement: 'bottom',
+            title: message
+        })
+        .tooltip('show');
+
+    setTimeout(function() {
+        $(button).tooltip('dispose');
+    }, 1000);
+}

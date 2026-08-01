@@ -16,7 +16,11 @@ $q_filter = $_GET['q'] ?? '';
 
 // Status Filter - the page uses an ID set, or the Open / Closed shorthand
 $status_filter = (isset($_GET['status']) && is_array($_GET['status'])) ? array_map('intval', $_GET['status']) : [];
-$status_shorthand = (isset($_GET['status']) && !is_array($_GET['status'])) ? $_GET['status'] : '';
+// Coarse open / closed / all state. `status` scalar is the pre-rework name.
+$state_filter = $_GET['state'] ?? '';
+if (!in_array($state_filter, array('open', 'closed', 'all'), true)) {
+    $state_filter = (isset($_GET['status']) && !is_array($_GET['status']) && strtolower($_GET['status']) === 'closed') ? 'closed' : 'open';
+}
 
 // Client Filter
 $client_filter = intval($_GET['client'] ?? 0);
@@ -29,6 +33,9 @@ $assigned_filter = intval($_GET['assigned'] ?? 0);
 
 // SLA Filter
 $sla_filter = $_GET['sla'] ?? '';
+
+// Billing Filter
+$billing_filter = $_GET['billing'] ?? '';
 
 // Date Filter - the all-time sentinels from filter_header.php leave the fields blank
 $date_from_filter = (!empty($_GET['dtf']) && $_GET['dtf'] !== '1970-01-01') ? escapeHtml($_GET['dtf']) : '';
@@ -94,11 +101,29 @@ ob_start();
                     <span class="input-group-text"><i class="fa fa-fw fa-check"></i></span>
                 </div>
                 <select class="form-control select2" name="resolution">
-                    <option <?php if ($status_shorthand !== 'Closed') { echo "selected"; } ?> value="">Open</option>
-                    <option <?php if ($status_shorthand === 'Closed') { echo "selected"; } ?> value="Closed">Closed</option>
+                    <option <?php if ($state_filter === 'open') { echo "selected"; } ?> value="">Open</option>
+                    <option <?php if ($state_filter === 'closed') { echo "selected"; } ?> value="Closed">Closed</option>
+                    <option <?php if ($state_filter === 'all') { echo "selected"; } ?> value="All">Open and closed</option>
                 </select>
             </div>
         </div>
+
+        <?php if ($config_module_enable_accounting && lookupUserPermission("module_sales") >= 2) { ?>
+        <div class="form-group">
+            <label>Billing</label>
+            <div class="input-group">
+                <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fa fa-fw fa-dollar-sign"></i></span>
+                </div>
+                <select class="form-control select2" name="billing">
+                    <option value="">- Any -</option>
+                    <option <?php if ($billing_filter === 'unbilled') { echo "selected"; } ?> value="unbilled">Billable, not invoiced</option>
+                    <option <?php if ($billing_filter === 'invoiced') { echo "selected"; } ?> value="invoiced">Invoiced</option>
+                    <option <?php if ($billing_filter === 'nonbillable') { echo "selected"; } ?> value="nonbillable">Not billable</option>
+                </select>
+            </div>
+        </div>
+        <?php } ?>
 
         <?php if (!$client_id) { ?>
         <div class="form-group">

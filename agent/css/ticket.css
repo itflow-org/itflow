@@ -1,0 +1,62 @@
+/* Ticket detail page */
+
+/*
+ * Header property fields.
+ *
+ * These used to be a run of inline label/value pairs separated only by a right
+ * margin, which read as one crunched line and collided outright when it wrapped.
+ * A fixed minimum width and a shared gutter give the row a rhythm, so each
+ * value reads as its own field and a wrapped row keeps its spacing.
+ */
+.ticket-fields {
+    display: flex;
+    flex-wrap: wrap;
+    margin: 0 -0.85rem;
+}
+
+.ticket-field {
+    flex: 0 0 auto;
+    min-width: 150px;
+    max-width: 100%;
+    padding: 0 0.85rem;
+    margin-top: 0.85rem;
+}
+
+.ticket-field-label {
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: #8a94a0;
+    margin-bottom: 0.2rem;
+    white-space: nowrap;
+}
+
+.ticket-field-value {
+    font-size: 0.95rem;
+    line-height: 1.4;
+}
+
+/* The subject is the page's real heading, so let it breathe */
+.ticket-subject {
+    font-weight: 600;
+    word-break: break-word;
+}
+
+/* The pencil next to the subject shouldn't drag the heading's line height around */
+.ticket-subject .btn-tool {
+    font-size: 0.9rem;
+    vertical-align: middle;
+}
+
+.ticket-meta {
+    font-size: 0.85rem;
+    color: #6c757d;
+    word-break: break-word;
+}
+
+@media (max-width: 575px) {
+    .ticket-field {
+        min-width: 45%;
+    }
+}

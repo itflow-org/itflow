@@ -1,13 +1,10 @@
 $(document).ready(function () {
-    console.log('CONFIG_TICKET_MOVING_COLUMNS:', CONFIG_TICKET_MOVING_COLUMNS);
-    console.log('CONFIG_TICKET_ORDERING:', CONFIG_TICKET_ORDERING);
-
     // -------------------------------
     // Drag: Kanban Columns (Statuses)
     // -------------------------------
     new Sortable(document.querySelector('#kanban-board'), {
         animation: 150,
-        handle: '.panel-title',
+        handle: '.kanban-column-header',
         draggable: '.kanban-column',
         onEnd: function () {
             const columnPositions = Array.from(document.querySelectorAll('#kanban-board .kanban-column')).map((col, index) => ({
@@ -19,8 +16,6 @@ $(document).ready(function () {
                 $.post('ajax.php', {
                     update_kanban_status_position: true,
                     positions: columnPositions
-                }).done(() => {
-                    console.log('Ticket status kanban orders updated.');
                 }).fail((xhr) => {
                     console.error('Error updating status order:', xhr.responseText);
                 });
@@ -35,6 +30,9 @@ $(document).ready(function () {
         new Sortable(statusCol, {
             group: 'tickets',
             animation: 150,
+            // Let the ticket number / subject links work without starting a drag
+            filter: 'a',
+            preventOnFilter: false,
             handle: isTouchDevice() ? '.drag-handle-class' : undefined,
             onStart: () => hidePlaceholders(),
             onEnd: function (evt) {
@@ -69,8 +67,6 @@ $(document).ready(function () {
                 $.post('ajax.php', {
                     update_kanban_ticket: true,
                     positions: positions
-                }).done(() => {
-                    console.log('Updated kanban ticket positions.');
                 }).fail((xhr) => {
                     console.error('Error updating ticket positions:', xhr.responseText);
                 });

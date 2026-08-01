@@ -2742,19 +2742,28 @@ if (isset($_POST['export_tickets'])) {
     } elseif (!empty($_POST['resolution']) && $_POST['resolution'] == 'Closed') {
         $ticket_status_snippet = "ticket_resolved_at IS NOT NULL";
         $filter_summary['Status'] = 'Closed';
+    } elseif (!empty($_POST['resolution']) && $_POST['resolution'] == 'All') {
+        $ticket_status_snippet = "1 = 1";
+        $filter_summary['Status'] = 'Open and closed';
     } else {
         // Default - open tickets
         $ticket_status_snippet = "ticket_resolved_at IS NULL";
         $filter_summary['Status'] = 'Open';
     }
 
-    // Billable / unbilled Filter - overrides the status snippet, same as the page
-    if (isset($_POST['billable']) && $_POST['billable'] == 1 && isset($_POST['unbilled'])) {
-        $ticket_billable_snippet = "AND ticket_billable = 1 AND ticket_invoice_id = 0";
-        $ticket_status_snippet = '1 = 1';
-        $filter_summary['Billable'] = 'Billable, not yet invoiced';
-    } else {
-        $ticket_billable_snippet = '';
+    // Billing Filter - same values the tickets page offers
+    $ticket_billable_snippet = '';
+    if (!empty($_POST['billing'])) {
+        if ($_POST['billing'] == 'unbilled') {
+            $ticket_billable_snippet = "AND ticket_billable = 1 AND ticket_invoice_id = 0";
+            $filter_summary['Billing'] = 'Billable, not invoiced';
+        } elseif ($_POST['billing'] == 'invoiced') {
+            $ticket_billable_snippet = "AND ticket_invoice_id > 0";
+            $filter_summary['Billing'] = 'Invoiced';
+        } elseif ($_POST['billing'] == 'nonbillable') {
+            $ticket_billable_snippet = "AND ticket_billable = 0";
+            $filter_summary['Billing'] = 'Not billable';
+        }
     }
 
     // Category Filter

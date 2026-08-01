@@ -114,22 +114,21 @@ $data = "otpauth://totp/ITFlow:$session_email?secret=$token";
 
     // ClipboardJS
 
-    // Tooltip
+    // Tooltip - manual trigger only, so a copy flash can never stay stranded
+    // on screen. This page is standalone and does not load js/app.js, so it
+    // carries its own copy of the helper.
+    function flashTooltip(button, message) {
+        $(button)
+            .tooltip('dispose')
+            .tooltip({
+                trigger: 'manual',
+                placement: 'bottom',
+                title: message
+            })
+            .tooltip('show');
 
-    $('button').tooltip({
-        trigger: 'click',
-        placement: 'bottom'
-    });
-
-    function setTooltip(btn, message) {
-        $(btn).tooltip('hide')
-        .attr('data-original-title', message)
-        .tooltip('show');
-    }
-
-    function hideTooltip(btn) {
         setTimeout(function() {
-            $(btn).tooltip('hide');
+            $(button).tooltip('dispose');
         }, 1000);
     }
 
@@ -138,13 +137,11 @@ $data = "otpauth://totp/ITFlow:$session_email?secret=$token";
     var clipboard = new ClipboardJS('.clipboardjs');
 
     clipboard.on('success', function(e) {
-        setTooltip(e.trigger, 'Copied!');
-        hideTooltip(e.trigger);
+        flashTooltip(e.trigger, 'Copied!');
     });
 
     clipboard.on('error', function(e) {
-        setTooltip(e.trigger, 'Failed!');
-        hideTooltip(e.trigger);
+        flashTooltip(e.trigger, 'Failed!');
     });
 
     // Enable Popovers

@@ -29,14 +29,8 @@ function copyPasswordViaCredentialID(button, credential_id) {
             const credential = JSON.parse(data);
 
             navigator.clipboard.writeText(credential.password).then(function() {
-                // Flash "Copied!" tooltip, matching the ClipboardJS success handler in app.js
-                jQuery(button).tooltip('hide')
-                    .attr('data-original-title', 'Copied!')
-                    .tooltip('show');
-
-                setTimeout(function() {
-                    jQuery(button).tooltip('hide');
-                }, 1000);
+                // Same "Copied!" flash the ClipboardJS handler in app.js uses
+                flashTooltip(button, 'Copied!');
             });
         }
     );
