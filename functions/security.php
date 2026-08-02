@@ -175,6 +175,60 @@ function apiEncryptCredentialEntry(#[\SensitiveParameter]$credential_cleartext, 
     return $iv . $ciphertext;
 }
 
+/*
+ * Longest cleartext a credential username or password may be.
+ * Both encrypt functions above return a 16-char IV followed by base64 AES-128-CBC
+ * ciphertext, which expands about 1.37x, so 350 is the most that still fits the
+ * varchar(500) columns. Keep in step with the maxlength on the credential/asset forms.
+ */
+define('CREDENTIAL_ENTRY_MAX_LENGTH', 350);
+
+/*
+ * Checks a credential's cleartext fields against what the columns can actually store.
+ * Form maxlength is client-side only, so the CSV import, the API and any hand-rolled POST
+ * reach the INSERT with nothing stopping an overlong value - and MySQL rejects it outright
+ * rather than truncating, taking the request down with it.
+ *
+ * Returns the name of the first field that is too long, or an empty string when they all
+ * fit. Only keys actually present are checked, so partial updates are fine.
+ */
+function checkCredentialLengths(array $fields) {
+
+    // Encrypted before storage - ciphertext size follows the BYTE length of the cleartext.
+    $byte_limits = [
+        'username'    => CREDENTIAL_ENTRY_MAX_LENGTH,
+        'password'    => CREDENTIAL_ENTRY_MAX_LENGTH,
+    ];
+
+    // Stored as given - MySQL measures varchar in CHARACTERS, not bytes.
+    $char_limits = [
+        'name'        => 200,
+        'description' => 500,
+        'uri'         => 500,
+        'uri_2'       => 500,
+        'otp_secret'  => 200,
+    ];
+
+    foreach ($byte_limits as $field => $limit) {
+        if (isset($fields[$field]) && strlen($fields[$field]) > $limit) {
+            return $field;
+        }
+    }
+
+    foreach ($char_limits as $field => $limit) {
+        if (!isset($fields[$field]) || strlen($fields[$field]) <= $limit) {
+            continue; // byte length caps character count, so this already fits
+        }
+        // Only worth counting characters once the cheap check fails. preg keeps this
+        // free of an mbstring dependency, which nothing else in the tree relies on.
+        if (preg_match_all('/./us', $fields[$field]) > $limit) {
+            return $field;
+        }
+    }
+
+    return '';
+}
+
 // Cross-Site Request Forgery check for sensitive functions
 // Validates the CSRF token provided matches the one in the users session
 function validateCSRFToken(?string $token = null) {

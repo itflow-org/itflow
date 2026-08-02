@@ -3,6 +3,29 @@
 
 // Variable assignment from POST (or: blank/from DB is updating)
 
+/*
+ * There is no form behind the API, so nothing has capped these before they arrive.
+ * An overlong value is a hard MySQL error, not a truncation, so it would surface as a
+ * generic "insert query failed" - say what actually went wrong instead.
+ * Only the fields present are checked, which keeps partial updates working.
+ */
+$credential_field_too_long = checkCredentialLengths([
+    'name'        => $_POST['credential_name'] ?? null,
+    'description' => $_POST['credential_description'] ?? null,
+    'uri'         => $_POST['credential_uri'] ?? null,
+    'uri_2'       => $_POST['credential_uri_2'] ?? null,
+    'username'    => $_POST['credential_username'] ?? null,
+    'password'    => $_POST['credential_password'] ?? null,
+    'otp_secret'  => $_POST['credential_otp_secret'] ?? null,
+]);
+
+if ($credential_field_too_long) {
+    $return_arr['success'] = "False";
+    $return_arr['message'] = "credential_$credential_field_too_long is too long to store.";
+    echo json_encode($return_arr);
+    exit();
+}
+
 $api_key_decrypt_password = '';
 if (isset($_POST['api_key_decrypt_password'])) {
     $api_key_decrypt_password = $_POST['api_key_decrypt_password']; // No sanitization

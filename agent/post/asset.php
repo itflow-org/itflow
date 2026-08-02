@@ -18,6 +18,19 @@ if (isset($_POST['add_asset'])) {
 
     enforceClientAccess();
 
+    // Only the two credential fields this handler writes - name/description/uri here
+    // belong to the asset, not the credential, and have their own column widths.
+    // Checked before the asset is created, so an overlong credential can't leave a
+    // half-built asset behind. Form maxlength doesn't reach a hand-rolled POST.
+    if ($credential_field_too_long = checkCredentialLengths([
+        'username' => $_POST['username'] ?? null,
+        'password' => $_POST['password'] ?? null,
+    ])) {
+        flashAlert("Credential <strong>$credential_field_too_long</strong> is too long to store", 'error');
+        redirect();
+        exit;
+    }
+
     $alert_extended = "";
 
     mysqli_query($mysqli,"INSERT INTO assets SET asset_name = '$name', asset_description = '$description', asset_type = '$type', asset_make = '$make', asset_model = '$model', asset_serial = '$serial', asset_os = '$os', asset_uri = '$uri', asset_uri_2 = '$uri_2', asset_uri_client = '$uri_client', asset_location_id = $location, asset_vendor_id = $vendor, asset_contact_id = $contact, asset_status = '$status', asset_purchase_reference = '$purchase_reference', asset_purchase_date = $purchase_date, asset_warranty_expire = $warranty_expire, asset_install_date = $install_date, asset_physical_location = '$physical_location', asset_notes = '$notes', asset_favorite = $favorite, asset_client_id = $client_id");

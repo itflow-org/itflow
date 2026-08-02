@@ -563,8 +563,24 @@ if (isset($_POST["import_credentials_csv"])) {
         fgetcsv($file, 1000, ","); // Skip first line
         $row_count = 0;
         $duplicate_count = 0;
+        $too_long_count = 0;
         while(($column = fgetcsv($file, 1000, ",")) !== false){
             $duplicate_detect = 0;
+
+            // Nothing client-side guards an uploaded file, and an overlong value is a hard
+            // MySQL error - skip the row and report it rather than losing the whole import
+            if (checkCredentialLengths([
+                'name'        => $column[0] ?? null,
+                'description' => $column[1] ?? null,
+                'username'    => $column[2] ?? null,
+                'password'    => $column[3] ?? null,
+                'otp_secret'  => $column[4] ?? null,
+                'uri'         => $column[5] ?? null,
+            ])) {
+                $too_long_count = $too_long_count + 1;
+                continue;
+            }
+
             // Name
             if (isset($column[0])) {
                 $name = escapeSql($column[0]);
@@ -589,7 +605,7 @@ if (isset($_POST["import_credentials_csv"])) {
                 $totp = escapeSql($column[4]);
             }
             // URL
-            if (isset($column[4])) {
+            if (isset($column[5])) {
                 $uri = escapeSql($column[5]);
             }
 
@@ -604,9 +620,9 @@ if (isset($_POST["import_credentials_csv"])) {
         }
         fclose($file);
 
-        logAudit("Credential", "Import", "$session_name imported $row_count credential(s) via CSV file. $duplicate_count duplicate(s) found and not imported", $client_id);
+        logAudit("Credential", "Import", "$session_name imported $row_count credential(s) via CSV file. $duplicate_count duplicate(s) found and not imported, $too_long_count row(s) skipped for over-length fields", $client_id);
 
-        flashAlert("<strong>$row_count</strong> credential(s) imported, <strong>$duplicate_count</strong> duplicate(s) detected and not imported", 'warning');
+        flashAlert("<strong>$row_count</strong> credential(s) imported, <strong>$duplicate_count</strong> duplicate(s) detected and not imported, <strong>$too_long_count</strong> row(s) skipped for over-length fields", 'warning');
 
         redirect();
     }

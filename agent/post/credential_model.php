@@ -2,6 +2,13 @@
 // Model of reusable variables for client credentials - not to be confused with the ITFLow login process
 defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
 
+// The form maxlength is client-side only - a hand-rolled POST gets here without it
+if ($credential_field_too_long = checkCredentialLengths($_POST)) {
+    flashAlert("Credential <strong>$credential_field_too_long</strong> is too long to store", 'error');
+    redirect();
+    exit;
+}
+
 $name = escapeSql($_POST['name']);
 $description = escapeSql($_POST['description']);
 $uri = escapeSql($_POST['uri']);
