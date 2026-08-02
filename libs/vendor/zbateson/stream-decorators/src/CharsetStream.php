@@ -24,18 +24,7 @@ class CharsetStream implements StreamInterface
     /**
      * @var MbWrapper the charset converter
      */
-    protected MbWrapper $converter;
-
-    /**
-     * @var string charset of the source stream
-     */
-    protected string $streamCharset = 'ISO-8859-1';
-
-    /**
-     * @var string charset of strings passed in write operations, and returned
-     *      in read operations.
-     */
-    protected string $stringCharset = 'UTF-8';
+    protected readonly MbWrapper $converter;
 
     /**
      * @var int current read/write position
@@ -54,22 +43,17 @@ class CharsetStream implements StreamInterface
     private string $buffer = '';
 
     /**
-     * @var StreamInterface $stream
-     */
-    private StreamInterface $stream;
-
-    /**
      * @param StreamInterface $stream Stream to decorate
      * @param string $streamCharset The underlying stream's charset
      * @param string $stringCharset The charset to encode strings to (or
      *        expected for write)
      */
-    public function __construct(StreamInterface $stream, string $streamCharset = 'ISO-8859-1', string $stringCharset = 'UTF-8')
-    {
-        $this->stream = $stream;
+    public function __construct(
+        private readonly StreamInterface $stream,
+        protected readonly string $streamCharset = 'ISO-8859-1',
+        protected readonly string $stringCharset = 'UTF-8',
+    ) {
         $this->converter = new MbWrapper();
-        $this->streamCharset = $streamCharset;
-        $this->stringCharset = $stringCharset;
     }
 
     /**
@@ -97,7 +81,7 @@ class CharsetStream implements StreamInterface
      * @param int $whence
      * @throws RuntimeException
      */
-    public function seek($offset, $whence = SEEK_SET) : void
+    public function seek($offset, $whence = SEEK_SET) : never
     {
         throw new RuntimeException('Cannot seek a CharsetStream');
     }

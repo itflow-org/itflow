@@ -25,34 +25,18 @@ class ChunkSplitStream implements StreamInterface
      *      final $lineEnding on close (and so maintained instead of using
      *      tell() directly)
      */
-    private int $position;
-
-    /**
-     * @var int The number of characters in a line before inserting $lineEnding.
-     */
-    private int $lineLength;
-
-    /**
-     * @var string The line ending characters to insert.
-     */
-    private string $lineEnding;
+    private int $position = 0;
 
     /**
      * @var int The strlen() of $lineEnding
      */
-    private int $lineEndingLength;
+    private readonly int $lineEndingLength;
 
-    /**
-     * @var StreamInterface $stream
-     */
-    private StreamInterface $stream;
-
-    public function __construct(StreamInterface $stream, int $lineLength = 76, string $lineEnding = "\r\n")
-    {
-        $this->stream = $stream;
-        $this->position = 0;
-        $this->lineLength = $lineLength;
-        $this->lineEnding = $lineEnding;
+    public function __construct(
+        private readonly StreamInterface $stream,
+        private readonly int $lineLength = 76,
+        private readonly string $lineEnding = "\r\n",
+    ) {
         $this->lineEndingLength = \strlen($this->lineEnding);
     }
 

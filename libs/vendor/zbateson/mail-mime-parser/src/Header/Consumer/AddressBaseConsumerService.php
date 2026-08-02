@@ -61,7 +61,7 @@ class AddressBaseConsumerService extends AbstractConsumerService
      * AddressBaseConsumerService doesn't have start/end tokens, and so always
      * returns false.
      *
-     * @return false
+     * @return bool
      */
     protected function isEndToken(string $token) : bool
     {
@@ -73,7 +73,7 @@ class AddressBaseConsumerService extends AbstractConsumerService
      * returns false.
      *
      * @codeCoverageIgnore
-     * @return false
+     * @return bool
      */
     protected function isStartToken(string $token) : bool
     {

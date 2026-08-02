@@ -36,7 +36,8 @@ interface IMimePart extends IMultiPart
      * same name, the one at the passed offset is returned.
      *
      * Note that mime header names aren't case sensitive, and the '-' character
-     * is ignored, so ret
+     * is ignored, so 'Content-Type', 'content-type', and 'ContentType' are
+     * equivalent.
      *
      * If a header with the given $name and $offset doesn't exist, null is
      * returned.
@@ -58,7 +59,10 @@ interface IMimePart extends IMultiPart
      * @param string $name The name of the header to retrieve.
      * @param int $offset Optional offset if there are multiple headers with the
      *        given name.
-     * @return ?IHeader the header object if it exists, or null if not
+     * @return ?IHeader The concrete header type depends on the header name
+     *         (AddressHeader, DateHeader, GenericHeader, IdHeader,
+     *         ParameterHeader, ReceivedHeader, or SubjectHeader). See
+     *         {@see HeaderFactory} for the mapping.
      */
     public function getHeader(string $name, int $offset = 0) : ?IHeader;
 
@@ -70,6 +74,8 @@ interface IMimePart extends IMultiPart
      * same name, the one at the passed offset is returned.
      *
      * Note that mime headers aren't case sensitive, and the '-' character is
+     * ignored, so 'Content-Type', 'content-type', and 'ContentType' are
+     * equivalent.
      *
      * If a header with the given $name and $offset doesn't exist, null is
      * returned.

@@ -12,11 +12,18 @@ use Psr\Log\NullLogger;
 use ZBateson\MailMimeParser\Header\Consumer\Received\DomainConsumerService;
 use ZBateson\MailMimeParser\Header\Consumer\Received\GenericReceivedConsumerService;
 use ZBateson\MailMimeParser\Header\Consumer\ReceivedConsumerService;
+use ZBateson\MailMimeParser\Message\Factory\IMessagePartFactory;
+use ZBateson\MailMimeParser\Message\Factory\IMimePartFactory;
+use ZBateson\MailMimeParser\Message\Factory\IUUEncodedPartFactory;
 use ZBateson\MailMimeParser\Message\Factory\PartStreamContainerFactory;
 use ZBateson\MailMimeParser\Message\PartStreamContainer;
 use ZBateson\MailMimeParser\Parser\HeaderParserService;
 use ZBateson\MailMimeParser\Parser\MimeParserService;
 use ZBateson\MailMimeParser\Parser\Part\ParserPartStreamContainerFactory;
+use ZBateson\MailMimeParser\Parser\Proxy\ParserMessageProxyFactory;
+use ZBateson\MailMimeParser\Parser\Proxy\ParserMimePartProxyFactory;
+use ZBateson\MailMimeParser\Parser\Proxy\ParserNonMimeMessageProxyFactory;
+use ZBateson\MailMimeParser\Parser\Proxy\ParserUUEncodedPartProxyFactory;
 use ZBateson\MailMimeParser\Stream\StreamFactory;
 
 return [
@@ -25,6 +32,11 @@ return [
     // only affects reading part content, not for instance decoding mime encoded
     // header parts
     'throwExceptionReadingPartContentFromUnsupportedCharsets' => false,
+
+    // Fallback charset for text/* content parts without a declared charset.
+    // Per RFC 2045, the default is ISO-8859-1 but many modern messages omit the
+    // charset and are actually UTF-8.  Override this to 'UTF-8' if desired.
+    'defaultFallbackCharset' => 'ISO-8859-1',
 
     // Maximum multipart nesting depth before parsing stops with a recorded error.
     'maxMimePartDepth' => 256,
@@ -69,6 +81,34 @@ return [
     StreamFactory::class => (new AutowireDefinitionHelper())
         ->constructor(
             throwExceptionReadingPartContentFromUnsupportedCharsets: new Reference('throwExceptionReadingPartContentFromUnsupportedCharsets')
+        ),
+    IMessagePartFactory::class => (new AutowireDefinitionHelper())
+        ->constructor(
+            defaultFallbackCharset: new Reference('defaultFallbackCharset')
+        ),
+    IMimePartFactory::class => (new AutowireDefinitionHelper())
+        ->constructor(
+            defaultFallbackCharset: new Reference('defaultFallbackCharset')
+        ),
+    IUUEncodedPartFactory::class => (new AutowireDefinitionHelper())
+        ->constructor(
+            defaultFallbackCharset: new Reference('defaultFallbackCharset')
+        ),
+    ParserMimePartProxyFactory::class => (new AutowireDefinitionHelper())
+        ->constructor(
+            defaultFallbackCharset: new Reference('defaultFallbackCharset')
+        ),
+    ParserUUEncodedPartProxyFactory::class => (new AutowireDefinitionHelper())
+        ->constructor(
+            defaultFallbackCharset: new Reference('defaultFallbackCharset')
+        ),
+    ParserMessageProxyFactory::class => (new AutowireDefinitionHelper())
+        ->constructor(
+            defaultFallbackCharset: new Reference('defaultFallbackCharset')
+        ),
+    ParserNonMimeMessageProxyFactory::class => (new AutowireDefinitionHelper())
+        ->constructor(
+            defaultFallbackCharset: new Reference('defaultFallbackCharset')
         ),
     HeaderParserService::class => (new AutowireDefinitionHelper())
         ->constructor(

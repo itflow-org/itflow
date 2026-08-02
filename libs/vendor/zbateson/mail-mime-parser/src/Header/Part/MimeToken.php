@@ -81,10 +81,7 @@ class MimeToken extends Token
         }
         $this->charset = $matches[1];
         $this->language = (!empty($matches[2])) ? $matches[2] : null;
-        if ($this->charset !== null) {
-            return $this->convertEncoding($body, $this->charset, true);
-        }
-        return $this->convertEncoding($body, 'ISO-8859-1', true);
+        return $this->convertEncoding($body, $this->charset, true);
     }
 
     /**

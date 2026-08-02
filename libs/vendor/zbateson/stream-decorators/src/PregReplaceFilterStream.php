@@ -25,30 +25,15 @@ class PregReplaceFilterStream implements StreamInterface
     use StreamDecoratorTrait;
 
     /**
-     * @var string The regex pattern
-     */
-    private string $pattern;
-
-    /**
-     * @var string The replacement
-     */
-    private string $replacement;
-
-    /**
      * @var BufferStream Buffered stream of input from the underlying stream
      */
-    private BufferStream $buffer;
+    private readonly BufferStream $buffer;
 
-    /**
-     * @var StreamInterface $stream
-     */
-    private StreamInterface $stream;
-
-    public function __construct(StreamInterface $stream, string $pattern, string $replacement)
-    {
-        $this->stream = $stream;
-        $this->pattern = $pattern;
-        $this->replacement = $replacement;
+    public function __construct(
+        private readonly StreamInterface $stream,
+        private readonly string $pattern,
+        private readonly string $replacement,
+    ) {
         $this->buffer = new BufferStream();
     }
 
@@ -67,7 +52,7 @@ class PregReplaceFilterStream implements StreamInterface
      * @param int $whence
      * @throws RuntimeException
      */
-    public function seek($offset, $whence = SEEK_SET) : void
+    public function seek($offset, $whence = SEEK_SET) : never
     {
         throw new RuntimeException('Cannot seek a PregReplaceFilterStream');
     }

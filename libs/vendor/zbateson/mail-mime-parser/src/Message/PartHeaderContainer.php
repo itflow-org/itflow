@@ -18,6 +18,8 @@ use ZBateson\MailMimeParser\Header\IHeader;
 /**
  * Maintains a collection of headers for a part.
  *
+ * @implements IteratorAggregate<int, array<string>>
+ *
  * @author Zaahid Bateson
  */
 class PartHeaderContainer extends ErrorBag implements IteratorAggregate
@@ -25,36 +27,36 @@ class PartHeaderContainer extends ErrorBag implements IteratorAggregate
     /**
      * @var HeaderFactory the HeaderFactory object used for created headers
      */
-    protected $headerFactory;
+    protected HeaderFactory $headerFactory;
 
     /**
      * @var string[][] Each element in the array is an array with its first
      * element set to the header's name, and the second its value.
      */
-    private $headers = [];
+    private array $headers = [];
 
     /**
-     * @var \ZBateson\MailMimeParser\Header\IHeader[] Each element is an IHeader
+     * @var array<int, ?IHeader> Each element is an IHeader
      *      representing the header at the same index in the $headers array.  If
      *      an IHeader has not been constructed for the header at that index,
      *      the element would be set to null.
      */
-    private $headerObjects = [];
+    private array $headerObjects = [];
 
     /**
-     * @var array Maps header names by their "normalized" (lower-cased,
+     * @var array<string, int[]> Maps header names by their "normalized" (lower-cased,
      *      non-alphanumeric characters stripped) name to an array of indexes in
      *      the $headers array.  For example:
      *      $headerMap['contenttype'] = [ 1, 4 ]
      *      would indicate that the headers in $headers[1] and $headers[4] are
      *      both headers with the name 'Content-Type' or 'contENTtype'.
      */
-    private $headerMap = [];
+    private array $headerMap = [];
 
     /**
      * @var int the next index to use for $headers and $headerObjects.
      */
-    private $nextIndex = 0;
+    private int $nextIndex = 0;
 
     /**
      * Pass a PartHeaderContainer as the second parameter.  This is useful when
@@ -103,10 +105,7 @@ class PartHeaderContainer extends ErrorBag implements IteratorAggregate
     {
         $s = $this->headerFactory->getNormalizedHeaderName($name);
         if (isset($this->headerMap[$s])) {
-            $self = $this;
-            $filtered = \array_filter($this->headerMap[$s], function($h) use ($name, $self) {
-                return (\strcasecmp($self->headers[$h][0], $name) === 0);
-            });
+            $filtered = \array_filter($this->headerMap[$s], fn($h) => \strcasecmp($this->headers[$h][0], $name) === 0);
             return (!empty($filtered)) ? $filtered : $this->headerMap[$s];
         }
         return null;
@@ -157,10 +156,7 @@ class PartHeaderContainer extends ErrorBag implements IteratorAggregate
     {
         $a = $this->getAllWithOriginalHeaderNameIfSet($name);
         if (!empty($a)) {
-            $self = $this;
-            return \array_map(function($index) use ($self) {
-                return $self->getByIndex($index);
-            }, $a);
+            return \array_map(fn($index) => $this->getByIndex($index), $a);
         }
         return [];
     }
@@ -284,7 +280,7 @@ class PartHeaderContainer extends ErrorBag implements IteratorAggregate
      */
     public function getHeaderObjects() : array
     {
-        return \array_filter(\array_map([$this, 'getByIndex'], \array_keys($this->headers)));
+        return \array_filter(\array_map($this->getByIndex(...), \array_keys($this->headers)));
     }
 
     /**
@@ -312,7 +308,7 @@ class PartHeaderContainer extends ErrorBag implements IteratorAggregate
      *
      * [ 'Header-Name', 'Header Value' ]
      *
-     * return Traversable<array<string>>
+     * @return Traversable<int, array<string>>
      */
     public function getIterator() : Traversable
     {

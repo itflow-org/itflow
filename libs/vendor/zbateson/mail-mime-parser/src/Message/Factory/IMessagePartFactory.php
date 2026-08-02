@@ -19,20 +19,12 @@ use ZBateson\MailMimeParser\Stream\StreamFactory;
  */
 abstract class IMessagePartFactory
 {
-    protected LoggerInterface $logger;
-
-    protected StreamFactory $streamFactory;
-
-    protected PartStreamContainerFactory $partStreamContainerFactory;
-
     public function __construct(
-        LoggerInterface $logger,
-        StreamFactory $streamFactory,
-        PartStreamContainerFactory $partStreamContainerFactory
+        protected readonly LoggerInterface $logger,
+        protected readonly StreamFactory $streamFactory,
+        protected readonly PartStreamContainerFactory $partStreamContainerFactory,
+        protected readonly string $defaultFallbackCharset = 'ISO-8859-1'
     ) {
-        $this->logger = $logger;
-        $this->streamFactory = $streamFactory;
-        $this->partStreamContainerFactory = $partStreamContainerFactory;
     }
 
     /**

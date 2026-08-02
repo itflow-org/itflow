@@ -20,26 +20,6 @@ use Throwable;
 class Error
 {
     /**
-     * @var string The error message.
-     */
-    protected string $message;
-
-    /**
-     * @var string The PSR log level for this error.
-     */
-    protected string $psrLevel;
-
-    /**
-     * @var ErrorBag The object the error/notice occurred on.
-     */
-    protected ErrorBag $object;
-
-    /**
-     * @var ?Throwable An Exception object if one happened, or null if not
-     */
-    protected ?Throwable $exception;
-
-    /**
      * @var array<string, int>
      */
     private array $levelMap = [
@@ -55,18 +35,18 @@ class Error
 
     /**
      *
-     * @throws InvalidArgumentException if the passed $psrLogLevelAsErrorLevel
+     * @throws InvalidArgumentException if the passed $psrLevel
      *         is not a known PSR log level (see \Psr\Log\LogLevel)
      */
-    public function __construct(string $message, string $psrLogLevelAsErrorLevel, ErrorBag $object, ?Throwable $exception = null)
-    {
-        if (!isset($this->levelMap[$psrLogLevelAsErrorLevel])) {
-            throw new InvalidArgumentException($psrLogLevelAsErrorLevel . ' is not a known PSR Log Level');
+    public function __construct(
+        protected readonly string $message,
+        protected readonly string $psrLevel,
+        protected readonly ErrorBag $object,
+        protected readonly ?Throwable $exception = null
+    ) {
+        if (!isset($this->levelMap[$psrLevel])) {
+            throw new InvalidArgumentException($psrLevel . ' is not a known PSR Log Level');
         }
-        $this->message = $message;
-        $this->psrLevel = $psrLogLevelAsErrorLevel;
-        $this->object = $object;
-        $this->exception = $exception;
     }
 
     /**

@@ -9,6 +9,7 @@ namespace ZBateson\MailMimeParser\Header\Part;
 
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
+use ZBateson\MailMimeParser\Header\IHeaderPart;
 use ZBateson\MbWrapper\MbWrapper;
 
 /**
@@ -27,8 +28,8 @@ class AddressGroupPart extends NameValuePart
      * Creates an AddressGroupPart out of the passed array of AddressParts/
      * AddressGroupParts and name.
      *
-     * @param HeaderPart[] $nameParts
-     * @param AddressPart[]|AddressGroupPart[] $addressesAndGroupParts
+     * @param IHeaderPart[] $nameParts
+     * @param IHeaderPart[] $addressesAndGroupParts
      */
     public function __construct(
         LoggerInterface $logger,
@@ -76,7 +77,7 @@ class AddressGroupPart extends NameValuePart
 
     protected function validate() : void
     {
-        if ($this->name === null || \mb_strlen($this->name) === 0) {
+        if (\mb_strlen($this->name) === 0) {
             $this->addError('Address group doesn\'t have a name', LogLevel::ERROR);
         }
         if (empty($this->addresses)) {

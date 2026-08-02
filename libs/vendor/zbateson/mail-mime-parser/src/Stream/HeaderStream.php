@@ -39,9 +39,8 @@ class HeaderStream extends MessagePartStreamDecorator implements SplObserver, St
         parent::__construct($part);
         $part->attach($this);
 
-        // unsetting the property forces the first access to go through
-        // __get().
-        unset($this->stream);
+        // Don't initialize $stream - let the StreamDecoratorTrait's __get()
+        // call createStream() lazily when needed.
     }
 
     public function __destruct()
@@ -61,12 +60,14 @@ class HeaderStream extends MessagePartStreamDecorator implements SplObserver, St
      *
      * If the part is not a MimePart, Content-Type, Content-Disposition and
      * Content-Transfer-Encoding headers are generated manually.
+     *
+     * @return Traversable<int, array{0: string, 1: string}>
      */
     private function getPartHeadersIterator() : Traversable
     {
         if ($this->part instanceof IMimePart) {
             return $this->part->getRawHeaderIterator();
-        } elseif ($this->part->getParent() !== null && $this->part->getParent()->isMime()) {
+        } elseif ($this->part->getParent()?->isMime()) {
             return new ArrayIterator([
                 [HeaderConsts::CONTENT_TYPE, $this->part->getContentType()],
                 [HeaderConsts::CONTENT_DISPOSITION, $this->part->getContentDisposition()],

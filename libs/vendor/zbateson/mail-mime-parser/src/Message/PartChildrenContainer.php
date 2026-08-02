@@ -14,27 +14,23 @@ use RecursiveIterator;
 /**
  * Container of IMessagePart items for a parent IMultiPart.
  *
+ * @implements ArrayAccess<int, IMessagePart>
+ * @implements RecursiveIterator<int, IMessagePart>
+ *
  * @author Zaahid Bateson
  */
 class PartChildrenContainer implements ArrayAccess, RecursiveIterator
 {
     /**
-     * @var IMessagePart[] array of child parts of the IMultiPart object that is
-     *      holding this container.
-     */
-    protected array $children;
-
-    /**
      * @var int current key position within $children for iteration.
      */
-    protected $position = 0;
+    protected int $position = 0;
 
     /**
      * @param IMessagePart[] $children
      */
-    public function __construct(array $children = [])
+    public function __construct(protected array $children = [])
     {
-        $this->children = $children;
     }
 
     /**
@@ -50,7 +46,7 @@ class PartChildrenContainer implements ArrayAccess, RecursiveIterator
      * If the current element points to an IMultiPart, its child iterator is
      * returned by calling {@see IMultiPart::getChildIterator()}.
      *
-     * @return RecursiveIterator<IMessagePart>|null the iterator
+     * @return RecursiveIterator<int, IMessagePart>|null the iterator
      */
     public function getChildren() : ?RecursiveIterator
     {
@@ -98,7 +94,7 @@ class PartChildrenContainer implements ArrayAccess, RecursiveIterator
      * @param int $position An optional index position (0-based) to add the
      *        child at.
      */
-    public function add(IMessagePart $part, $position = null) : static
+    public function add(IMessagePart $part, ?int $position = null) : static
     {
         if ($position === null || $position >= \count($this->children)) {
             $this->children[] = $part;
@@ -147,7 +143,7 @@ class PartChildrenContainer implements ArrayAccess, RecursiveIterator
     }
 
     /**
-     * @param int $offset
+     * @param int|null $offset
      * @param IMessagePart $value
      */
     public function offsetSet(mixed $offset, mixed $value) : void
@@ -167,7 +163,7 @@ class PartChildrenContainer implements ArrayAccess, RecursiveIterator
     /**
      * @param int $offset
      */
-    public function offsetUnset($offset) : void
+    public function offsetUnset(mixed $offset) : void
     {
         \array_splice($this->children, $offset, 1);
         if ($this->position >= $offset) {

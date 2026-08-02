@@ -15,6 +15,8 @@ use Psr\Http\Message\StreamInterface;
 #[\AllowDynamicProperties]
 final class FnStream implements StreamInterface
 {
+    use NonSerializableStreamTrait;
+
     private const SLOTS = [
         '__toString', 'close', 'detach', 'rewind',
         'getSize', 'tell', 'eof', 'isSeekable', 'seek', 'isWritable', 'write',
@@ -22,7 +24,9 @@ final class FnStream implements StreamInterface
     ];
 
     /** @var array<string, callable> */
-    private $methods;
+    private array $methods;
+
+    private bool $detached = false;
 
     /**
      * @param array<string, callable> $methods Hash of method name to a callable.
@@ -44,8 +48,7 @@ final class FnStream implements StreamInterface
      */
     public function __get(string $name): void
     {
-        throw new \BadMethodCallException(str_replace('_fn_', '', $name)
-            .'() is not implemented in the FnStream');
+        throw new \BadMethodCallException(\sprintf('%s() is not implemented in the FnStream', DiagnosticValue::escape(str_replace('_fn_', '', $name))));
     }
 
     /**
@@ -53,8 +56,14 @@ final class FnStream implements StreamInterface
      */
     public function __destruct()
     {
-        if (isset($this->_fn_close)) {
-            ($this->_fn_close)();
+        if ($this->detached || !isset($this->_fn_close)) {
+            return;
+        }
+
+        try {
+            $this->close();
+        } catch (\Throwable $e) {
+            // Destructors must not surface cleanup failures.
         }
     }
 
@@ -65,7 +74,18 @@ final class FnStream implements StreamInterface
      */
     public function __wakeup(): void
     {
-        throw new \LogicException('FnStream should never be unserialized');
+        $this->methods = [];
+        $this->detached = true;
+
+        throw new \LogicException(static::class.' should never be unserialized');
+    }
+
+    public function __unserialize(array $data): void
+    {
+        $this->methods = [];
+        $this->detached = true;
+
+        throw new \LogicException(static::class.' should never be unserialized');
     }
 
     /**
@@ -74,10 +94,8 @@ final class FnStream implements StreamInterface
      *
      * @param StreamInterface         $stream  Stream to decorate
      * @param array<string, callable> $methods Hash of method name to a callable
-     *
-     * @return FnStream
      */
-    public static function decorate(StreamInterface $stream, array $methods)
+    public static function decorate(StreamInterface $stream, array $methods): self
     {
         // If any of the required methods were not provided, then simply
         // proxy to the decorated stream.
@@ -92,110 +110,113 @@ final class FnStream implements StreamInterface
 
     public function __toString(): string
     {
-        try {
-            /** @var string */
-            return ($this->_fn___toString)();
-        } catch (\Throwable $e) {
-            if (\PHP_VERSION_ID >= 70400) {
-                throw $e;
-            }
-            trigger_error(sprintf('%s::__toString exception: %s', self::class, (string) $e), E_USER_ERROR);
+        $this->assertAttached();
 
-            return '';
-        }
+        /** @var string */
+        return ($this->_fn___toString)();
     }
 
     public function close(): void
     {
-        ($this->_fn_close)();
+        if ($this->detached) {
+            return;
+        }
+
+        $close = $this->_fn_close;
+        $this->detached = true;
+        $close();
     }
 
     public function detach()
     {
-        return ($this->_fn_detach)();
+        if ($this->detached) {
+            return null;
+        }
+
+        $detach = $this->_fn_detach;
+        $result = $detach();
+        $this->detached = true;
+
+        return $result;
     }
 
     public function getSize(): ?int
     {
+        if ($this->detached) {
+            return null;
+        }
+
         return ($this->_fn_getSize)();
     }
 
     public function tell(): int
     {
+        $this->assertAttached();
+
         return ($this->_fn_tell)();
     }
 
     public function eof(): bool
     {
+        $this->assertAttached();
+
         return ($this->_fn_eof)();
     }
 
     public function isSeekable(): bool
     {
+        if ($this->detached) {
+            return false;
+        }
+
         return ($this->_fn_isSeekable)();
     }
 
     public function rewind(): void
     {
+        $this->assertAttached();
+
         ($this->_fn_rewind)();
     }
 
-    public function seek($offset, $whence = SEEK_SET): void
+    public function seek(int $offset, int $whence = SEEK_SET): void
     {
-        if (!\is_int($offset)) {
-            \trigger_deprecation(
-                'guzzlehttp/psr7',
-                '2.11',
-                'Passing %s to StreamInterface::seek() is deprecated; guzzlehttp/psr7 3.0 requires int for $offset.',
-                \get_debug_type($offset)
-            );
-        }
-
-        if (!\is_int($whence)) {
-            \trigger_deprecation(
-                'guzzlehttp/psr7',
-                '2.11',
-                'Passing %s to StreamInterface::seek() is deprecated; guzzlehttp/psr7 3.0 requires int for $whence.',
-                \get_debug_type($whence)
-            );
-        }
+        $this->assertAttached();
 
         ($this->_fn_seek)($offset, $whence);
     }
 
     public function isWritable(): bool
     {
+        if ($this->detached) {
+            return false;
+        }
+
         return ($this->_fn_isWritable)();
     }
 
-    public function write($string): int
+    public function write(string $string): int
     {
-        if (!\is_string($string)) {
-            \trigger_deprecation(
-                'guzzlehttp/psr7',
-                '2.11',
-                'Passing %s to StreamInterface::write() is deprecated; guzzlehttp/psr7 3.0 requires string for $string.',
-                \get_debug_type($string)
-            );
-        }
+        $this->assertAttached();
 
         return ($this->_fn_write)($string);
     }
 
     public function isReadable(): bool
     {
+        if ($this->detached) {
+            return false;
+        }
+
         return ($this->_fn_isReadable)();
     }
 
-    public function read($length): string
+    public function read(int $length): string
     {
-        if (!\is_int($length)) {
-            \trigger_deprecation(
-                'guzzlehttp/psr7',
-                '2.11',
-                'Passing %s to StreamInterface::read() is deprecated; guzzlehttp/psr7 3.0 requires int for $length.',
-                \get_debug_type($length)
-            );
+        $this->assertAttached();
+
+        if ($length < 0) {
+            throw new \RuntimeException('Length parameter cannot be negative');
         }
 
         return ($this->_fn_read)($length);
@@ -203,23 +224,27 @@ final class FnStream implements StreamInterface
 
     public function getContents(): string
     {
+        $this->assertAttached();
+
         return ($this->_fn_getContents)();
     }
 
     /**
      * @return mixed
      */
-    public function getMetadata($key = null)
+    public function getMetadata(?string $key = null)
     {
-        if ($key !== null && !\is_string($key)) {
-            \trigger_deprecation(
-                'guzzlehttp/psr7',
-                '2.11',
-                'Passing %s to StreamInterface::getMetadata() is deprecated; guzzlehttp/psr7 3.0 requires string|null for $key.',
-                \get_debug_type($key)
-            );
+        if ($this->detached) {
+            return $key === null ? [] : null;
         }
 
         return ($this->_fn_getMetadata)($key);
+    }
+
+    private function assertAttached(): void
+    {
+        if ($this->detached) {
+            throw new \RuntimeException('Stream is detached');
+        }
     }
 }

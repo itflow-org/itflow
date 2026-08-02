@@ -11,6 +11,7 @@ use ZBateson\MailMimeParser\Header\HeaderConsts;
 use ZBateson\MailMimeParser\Header\IHeader;
 use ZBateson\MailMimeParser\IMessage;
 use ZBateson\MailMimeParser\MailMimeParser;
+use ZBateson\MailMimeParser\Message\IMessagePart;
 use ZBateson\MailMimeParser\Message\IMimePart;
 
 /**
@@ -30,6 +31,9 @@ class GenericHelper extends AbstractHelper
      * Returns true if the passed header's name is a Content-* header other than
      * one defined in the static $nonMimeContentFields
      *
+     */
+    /**
+     * @param string[] $exceptions
      */
     private function isMimeContentField(IHeader $header, array $exceptions = []) : bool
     {
@@ -145,15 +149,20 @@ class GenericHelper extends AbstractHelper
      * replaced, and instead $replacement's type headers are copied to $message,
      * and any children below $replacement are added directly below $message.
      */
-    public function replacePart(IMessage $message, IMimePart $part, IMimePart $replacement) : static
+    public function replacePart(IMessage $message, IMessagePart $part, IMessagePart $replacement) : static
     {
-        $position = $message->removePart($replacement);
+        $replacementParent = $replacement->getParent();
+        $position = ($replacementParent !== null)
+            ? \array_search($replacement, $replacementParent->getChildParts(), true)
+            : false;
+        $message->removePart($replacement);
         if ($part === $message) {
+            \assert($replacement instanceof IMimePart);
             $this->movePartContentAndChildren($replacement, $message);
             return $this;
         }
         $parent = $part->getParent();
-        $parent->addChild($replacement, $position);
+        $parent->addChild($replacement, $position !== false ? $position : null);
         $parent->removePart($part);
 
         return $this;

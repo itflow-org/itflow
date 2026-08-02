@@ -17,14 +17,10 @@ use ZBateson\MailMimeParser\Message\PartHeaderContainer;
  */
 class HeaderParserService
 {
-    private int $maxHeaderCount;
-
-    private int $maxHeaderSizeBytes;
-
-    public function __construct(int $maxHeaderCount = 1000, int $maxHeaderSizeBytes = 1048576)
-    {
-        $this->maxHeaderCount = $maxHeaderCount;
-        $this->maxHeaderSizeBytes = $maxHeaderSizeBytes;
+    public function __construct(
+        private readonly int $maxHeaderCount = 1000,
+        private readonly int $maxHeaderSizeBytes = 1048576
+    ) {
     }
 
     /**

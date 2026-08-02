@@ -133,7 +133,12 @@ class ParserMimePartProxy extends ParserPartProxy
      */
     public function getContentType() : ?ParameterHeader
     {
-        return $this->getHeaderContainer()->get(HeaderConsts::CONTENT_TYPE);
+        $header = $this->getHeaderContainer()->get(HeaderConsts::CONTENT_TYPE);
+        if ($header === null) {
+            return null;
+        }
+        \assert($header instanceof ParameterHeader);
+        return $header;
     }
 
     /**
@@ -163,7 +168,7 @@ class ParserMimePartProxy extends ParserPartProxy
     public function setEndBoundaryFound(string $line) : bool
     {
         $boundary = $this->getMimeBoundary();
-        if ($this->getParent() !== null && $this->getParent()->setEndBoundaryFound($line)) {
+        if ($this->getParent()?->setEndBoundaryFound($line)) {
             $this->parentBoundaryFound = true;
             return true;
         } elseif ($boundary !== null) {
@@ -222,7 +227,7 @@ class ParserMimePartProxy extends ParserPartProxy
     {
         // check if we're expecting a boundary and didn't find one
         if (!$this->endBoundaryFound && !$this->parentBoundaryFound) {
-            if (!empty($this->mimeBoundary) || ($this->getParent() !== null && !empty($this->getParent()->mimeBoundary))) {
+            if (!empty($this->mimeBoundary) || !empty($this->getParent()->mimeBoundary)) {
                 $this->addError('End boundary for part not found', LogLevel::WARNING);
             }
         }

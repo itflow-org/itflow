@@ -13,8 +13,12 @@ namespace ZBateson\MailMimeParser\Message;
  *
  * @author Zaahid Bateson
  */
-abstract class PartFilter
+final class PartFilter
 {
+    private function __construct()
+    {
+    }
+
     /**
      * Provides an 'attachment' filter used by Message::getAttachmentPart.
      *
@@ -70,9 +74,7 @@ abstract class PartFilter
      */
     public static function fromContentType(string $mimeType) : callable
     {
-        return function(IMessagePart $part) use ($mimeType) {
-            return \strcasecmp($part->getContentType() ?: '', $mimeType) === 0;
-        };
+        return fn(IMessagePart $part) => \strcasecmp($part->getContentType(), $mimeType) === 0;
     }
 
     /**
@@ -85,7 +87,7 @@ abstract class PartFilter
     {
         return function(IMessagePart $part) use ($mimeType) {
             $disp = $part->getContentDisposition();
-            return (\strcasecmp($part->getContentType() ?: '', $mimeType) === 0) && ($disp === null
+            return (\strcasecmp($part->getContentType(), $mimeType) === 0) && ($disp === null
                 || \strcasecmp($disp, 'attachment') !== 0);
         };
     }

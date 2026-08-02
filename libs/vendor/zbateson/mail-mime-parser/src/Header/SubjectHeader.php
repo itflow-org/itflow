@@ -9,7 +9,6 @@ namespace ZBateson\MailMimeParser\Header;
 
 use Psr\Log\LoggerInterface;
 use ZBateson\MailMimeParser\Header\Consumer\SubjectConsumerService;
-use ZBateson\MailMimeParser\MailMimeParser;
 
 /**
  * Reads a subject header.
@@ -27,10 +26,9 @@ class SubjectHeader extends AbstractHeader
         ?LoggerInterface $logger = null,
         ?SubjectConsumerService $consumerService = null
     ) {
-        $di = MailMimeParser::getGlobalContainer();
         parent::__construct(
-            $logger ?? $di->get(LoggerInterface::class),
-            $consumerService ?? $di->get(SubjectConsumerService::class),
+            self::resolveService($logger, LoggerInterface::class),
+            self::resolveService($consumerService, SubjectConsumerService::class),
             $name,
             $value
         );

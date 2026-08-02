@@ -7,6 +7,8 @@
 
 namespace ZBateson\MailMimeParser\Message;
 
+use Psr\Log\LoggerInterface;
+
 /**
  * Represents part of a non-mime message.
  *
@@ -14,6 +16,17 @@ namespace ZBateson\MailMimeParser\Message;
  */
 abstract class NonMimePart extends MessagePart
 {
+    protected string $fallbackCharset = 'ISO-8859-1';
+
+    public function __construct(
+        LoggerInterface $logger,
+        PartStreamContainer $partStreamContainer,
+        ?IMimePart $parent = null,
+        string $defaultFallbackCharset = 'ISO-8859-1'
+    ) {
+        parent::__construct($logger, $partStreamContainer, $parent);
+        $this->fallbackCharset = $defaultFallbackCharset;
+    }
     /**
      * Returns true.
      *
@@ -26,17 +39,17 @@ abstract class NonMimePart extends MessagePart
     /**
      * Returns text/plain
      */
-    public function getContentType(string $default = 'text/plain') : ?string
+    public function getContentType(string $default = 'text/plain') : string
     {
         return $default;
     }
 
     /**
-     * Returns ISO-8859-1
+     * Returns the configured fallback charset (ISO-8859-1 by default).
      */
     public function getCharset() : ?string
     {
-        return 'ISO-8859-1';
+        return $this->fallbackCharset;
     }
 
     /**

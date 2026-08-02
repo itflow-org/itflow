@@ -184,7 +184,7 @@ interface IMultiPart extends IMessagePart
      *      this part.
      * @see IMultiPart::getAllParts() to get an array of all parts with an
      *      optional filter.
-     * @return RecursiveIterator<IMessagePart>
+     * @return RecursiveIterator<int, IMessagePart>
      */
     public function getChildIterator() : RecursiveIterator;
 
@@ -250,18 +250,16 @@ interface IMultiPart extends IMessagePart
      * If the $position parameter is non-null, adds the part at the passed
      * position index, otherwise adds it as the last child.
      *
-     * @param MessagePart $part The part to add.
+     * @param IMessagePart $part The part to add.
      * @param int $position Optional insertion position 0-based index.
      */
-    public function addChild(MessagePart $part, ?int $position = null) : static;
+    public function addChild(IMessagePart $part, ?int $position = null) : static;
 
     /**
-     * Removes the child part from this part and returns its previous position
-     * or null if it wasn't found.
+     * Removes the child part from this part.
      *
-     * Note that if the part is not a direct child of this part, the returned
-     * position is its index within its parent (calls removePart on its direct
-     * parent).
+     * Note that if the part is not a direct child of this part, it is removed
+     * from its direct parent instead.
      *
      * This also means that parts from unrelated parts/messages could be removed
      * by a call to removePart -- it will always remove the part from its parent
@@ -269,10 +267,8 @@ interface IMultiPart extends IMessagePart
      * ```php $part->getParent()->removePart(); ```.
      *
      * @param IMessagePart $part The part to remove
-     * @return int|null The previous index position of the part within its old
-     *         parent.
      */
-    public function removePart(IMessagePart $part) : ?int;
+    public function removePart(IMessagePart $part) : static;
 
     /**
      * Removes all parts below the current part.  If a callable filter is

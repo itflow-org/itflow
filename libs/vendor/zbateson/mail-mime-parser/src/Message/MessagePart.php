@@ -13,27 +13,17 @@ use Psr\Http\Message\StreamInterface;
 use Psr\Log\LoggerInterface;
 use SplObjectStorage;
 use SplObserver;
+use SplSubject;
 use ZBateson\MailMimeParser\ErrorBag;
 use ZBateson\MailMimeParser\MailMimeParser;
-use ZBateson\MailMimeParser\Stream\MessagePartStreamDecorator;
 
 /**
  * Most basic representation of a single part of an email.
  *
  * @author Zaahid Bateson
  */
-abstract class MessagePart extends ErrorBag implements IMessagePart
+abstract class MessagePart extends ErrorBag implements IMessagePart, SplSubject
 {
-    /**
-     * @var ?IMimePart parent part
-     */
-    protected ?IMimePart $parent;
-
-    /**
-     * @var PartStreamContainer holds 'stream' and 'content stream'.
-     */
-    protected PartStreamContainer $partStreamContainer;
-
     /**
      * @var ?string can be used to set an override for content's charset in cases
      *      where a user knows the charset on the content is not what it claims
@@ -49,19 +39,17 @@ abstract class MessagePart extends ErrorBag implements IMessagePart
     protected bool $ignoreTransferEncoding = false;
 
     /**
-     * @var SplObjectStorage attached observers that need to be notified of
+     * @var SplObjectStorage<SplObserver, null> attached observers that need to be notified of
      *      modifications to this part.
      */
     protected SplObjectStorage $observers;
 
     public function __construct(
         LoggerInterface $logger,
-        PartStreamContainer $streamContainer,
-        ?IMimePart $parent = null
+        protected readonly PartStreamContainer $partStreamContainer,
+        protected ?IMimePart $parent = null
     ) {
         parent::__construct($logger);
-        $this->partStreamContainer = $streamContainer;
-        $this->parent = $parent;
         $this->observers = new SplObjectStorage();
     }
 
@@ -108,7 +96,7 @@ abstract class MessagePart extends ErrorBag implements IMessagePart
         return $this;
     }
 
-    public function getContentStream(string $charset = MailMimeParser::DEFAULT_CHARSET) : ?MessagePartStreamDecorator
+    public function getContentStream(string $charset = MailMimeParser::DEFAULT_CHARSET) : ?StreamInterface
     {
         if ($this->hasContent()) {
             $tr = ($this->ignoreTransferEncoding) ? '' : $this->getContentTransferEncoding();
@@ -123,7 +111,7 @@ abstract class MessagePart extends ErrorBag implements IMessagePart
         return null;
     }
 
-    public function getBinaryContentStream() : ?MessagePartStreamDecorator
+    public function getBinaryContentStream() : ?StreamInterface
     {
         if ($this->hasContent()) {
             $tr = ($this->ignoreTransferEncoding) ? '' : $this->getContentTransferEncoding();
@@ -188,10 +176,10 @@ abstract class MessagePart extends ErrorBag implements IMessagePart
         return $this;
     }
 
-    public function setContent($resource, string $charset = MailMimeParser::DEFAULT_CHARSET) : static
+    public function setContent($resource, string $resourceCharset = MailMimeParser::DEFAULT_CHARSET) : static
     {
         $stream = Utils::streamFor($resource);
-        $this->attachContentStream($stream, $charset);
+        $this->attachContentStream($stream, $resourceCharset);
         // this->notify() called in attachContentStream
         return $this;
     }
@@ -240,7 +228,8 @@ abstract class MessagePart extends ErrorBag implements IMessagePart
         }
         $params .= ', content-type=' . $this->getContentType();
         $nsClass = static::class;
-        $class = \substr($nsClass, (\strrpos($nsClass, '\\') ?? -1) + 1);
+        $pos = \strrpos($nsClass, '\\');
+        $class = ($pos !== false) ? \substr($nsClass, $pos + 1) : $nsClass;
         return $class . '(' . \spl_object_id($this) . $params . ')';
     }
 

@@ -9,6 +9,7 @@ namespace ZBateson\MailMimeParser\Header\Part;
 
 use Psr\Log\LoggerInterface;
 use ZBateson\MailMimeParser\ErrorBag;
+use ZBateson\MailMimeParser\Header\IHeaderPart;
 use ZBateson\MbWrapper\MbWrapper;
 
 /**
@@ -27,11 +28,14 @@ use ZBateson\MbWrapper\MbWrapper;
 class ContainerPart extends HeaderPart
 {
     /**
-     * @var HeaderPart[] parts that were used to create this part, collected for
+     * @var IHeaderPart[] parts that were used to create this part, collected for
      *      proper error reporting and validation.
      */
-    protected $children = [];
+    protected array $children = [];
 
+    /**
+     * @param array<IHeaderPart> $children
+     */
     public function __construct(
         LoggerInterface $logger,
         MbWrapper $charsetConverter,
@@ -54,8 +58,8 @@ class ContainerPart extends HeaderPart
      * Spaces are removed if parts on either side of it have their
      * canIgnoreSpaceAfter/canIgnoreSpaceBefore properties set to true.
      *
-     * @param HeaderPart[] $parts
-     * @return HeaderPart[]
+     * @param IHeaderPart[] $parts
+     * @return IHeaderPart[]
      */
     protected function filterIgnoredSpaces(array $parts) : array
     {
@@ -91,7 +95,7 @@ class ContainerPart extends HeaderPart
      * The default implementation filters out ignorable whitespace between
      * parts, and concatenates parts calling 'getValue'.
      *
-     * @param HeaderParts[] $parts
+     * @param IHeaderPart[] $parts
      */
     protected function getValueFromParts(array $parts) : string
     {
@@ -119,10 +123,11 @@ class ContainerPart extends HeaderPart
     /**
      * Returns this part's children, same as getChildParts().
      *
-     * @return ErrorBag
+     * @return array<ErrorBag>
      */
     protected function getErrorBagChildren() : array
     {
+        /** @var array<ErrorBag> */
         return $this->children;
     }
 }

@@ -33,13 +33,13 @@ class DecoratedCachingStream implements StreamInterface
     /**
      *  @var StreamInterface the stream to read from and fill writeStream with
      */
-    private StreamInterface $readStream;
+    private readonly StreamInterface $readStream;
 
     /**
      * @var StreamInterface the underlying undecorated stream to read from,
      *      where $writeStream is being written to
      */
-    private StreamInterface $stream;
+    private readonly StreamInterface $stream;
 
     /**
      * @var StreamInterface decorated $stream that will be written to for
@@ -47,13 +47,6 @@ class DecoratedCachingStream implements StreamInterface
      *      supports a Base64Stream which writes bytes at the end.
      */
     private ?StreamInterface $writeStream;
-
-    /**
-     * @var int Minimum buffer read length. At least this many bytes will be
-     *      read and cached into $writeStream on each call to read from
-     *      $readStream
-     */
-    private int $minBytesCache;
 
     /**
      * @param StreamInterface $stream Stream to cache. The cursor is assumed to
@@ -65,13 +58,12 @@ class DecoratedCachingStream implements StreamInterface
     public function __construct(
         StreamInterface $stream,
         callable $decorator,
-        int $minBytesCache = 16384
+        private readonly int $minBytesCache = 16384,
     ) {
         $this->readStream = $stream;
         $bufferStream = new TellZeroStream(new BufferStream());
         $this->stream = new CachingStream($bufferStream);
         $this->writeStream = $decorator(new NonClosingStream($bufferStream));
-        $this->minBytesCache = $minBytesCache;
     }
 
     public function getSize(): ?int
@@ -142,7 +134,7 @@ class DecoratedCachingStream implements StreamInterface
         return false;
     }
 
-    public function write($string): int
+    public function write($string): never
     {
         throw new \RuntimeException('Cannot write to a DecoratedCachingStream');
     }
@@ -167,7 +159,7 @@ class DecoratedCachingStream implements StreamInterface
     private function cacheEntireStream(): int
     {
         // as-is from CachingStream
-        $target = new FnStream(['write' => 'strlen']);
+        $target = new FnStream(['write' => strlen(...)]);
         Utils::copyToStream($this, $target);
 
         return $this->tell();

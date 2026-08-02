@@ -20,7 +20,9 @@ class ParserUUEncodedPartProxy extends ParserPartProxy
      */
     public function getParent() : ParserNonMimeMessageProxy
     {
-        return parent::getParent();
+        $parent = parent::getParent();
+        \assert($parent instanceof ParserNonMimeMessageProxy);
+        return $parent;
     }
 
     /**

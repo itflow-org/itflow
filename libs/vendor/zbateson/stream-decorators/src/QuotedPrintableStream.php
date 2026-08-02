@@ -34,7 +34,7 @@ class QuotedPrintableStream implements StreamInterface
      * @var StreamInterface $stream
      * @phpstan-ignore-next-line
      */
-    private StreamInterface $stream;
+    private readonly StreamInterface $stream;
 
     /**
      * Overridden to return the position in the target encoding.
@@ -61,7 +61,7 @@ class QuotedPrintableStream implements StreamInterface
      * @param int $whence
      * @throws RuntimeException
      */
-    public function seek($offset, $whence = SEEK_SET) : void
+    public function seek($offset, $whence = SEEK_SET) : never
     {
         throw new RuntimeException('Cannot seek a QuotedPrintableStream');
     }
@@ -107,7 +107,7 @@ class QuotedPrintableStream implements StreamInterface
      */
     private function decodeBlock(string $block) : string
     {
-        if (\substr($block, -1) === '=') {
+        if (\str_ends_with($block, '=')) {
             $block .= $this->readEncodedChars(2);
         } elseif (\substr($block, -2, 1) === '=') {
             $first = \substr($block, -1);

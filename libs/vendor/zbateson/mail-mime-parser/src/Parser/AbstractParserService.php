@@ -22,39 +22,16 @@ use ZBateson\MailMimeParser\Parser\Proxy\ParserPartProxyFactory;
 abstract class AbstractParserService implements IParserService
 {
     /**
-     * @var ParserPartProxyFactory the parser's message proxy factory service
-     *      responsible for creating an IMessage part wrapped in a
-     *      ParserPartProxy.
-     */
-    protected ParserPartProxyFactory $parserMessageProxyFactory;
-
-    /**
-     * @var ParserPartProxyFactory the parser's part proxy factory service
-     *      responsible for creating IMessagePart parts wrapped in a
-     *      ParserPartProxy.
-     */
-    protected ParserPartProxyFactory $parserPartProxyFactory;
-
-    /**
-     * @var PartBuilderFactory Service for creating PartBuilder objects for new
-     *      children.
-     */
-    protected PartBuilderFactory $partBuilderFactory;
-
-    /**
      * @var ParserManagerService the ParserManager, which should call setParserManager
      *      when the parser is added.
      */
     protected ParserManagerService $parserManager;
 
     public function __construct(
-        ParserPartProxyFactory $parserMessageProxyFactory,
-        ParserPartProxyFactory $parserPartProxyFactory,
-        PartBuilderFactory $partBuilderFactory
+        protected readonly ParserPartProxyFactory $parserMessageProxyFactory,
+        protected readonly ParserPartProxyFactory $parserPartProxyFactory,
+        protected readonly PartBuilderFactory $partBuilderFactory
     ) {
-        $this->parserMessageProxyFactory = $parserMessageProxyFactory;
-        $this->parserPartProxyFactory = $parserPartProxyFactory;
-        $this->partBuilderFactory = $partBuilderFactory;
     }
 
     public function setParserManager(ParserManagerService $pm) : static

@@ -19,24 +19,12 @@ use ZBateson\MbWrapper\MbWrapper;
  */
 class ParserPartStreamContainerFactory
 {
-    protected LoggerInterface $logger;
-
-    protected StreamFactory $streamFactory;
-
-    protected MbWrapper $mbWrapper;
-
-    protected bool $throwExceptionReadingPartContentFromUnsupportedCharsets;
-
     public function __construct(
-        LoggerInterface $logger,
-        StreamFactory $streamFactory,
-        MbWrapper $mbWrapper,
-        bool $throwExceptionReadingPartContentFromUnsupportedCharsets
+        protected readonly LoggerInterface $logger,
+        protected readonly StreamFactory $streamFactory,
+        protected readonly MbWrapper $mbWrapper,
+        protected readonly bool $throwExceptionReadingPartContentFromUnsupportedCharsets
     ) {
-        $this->logger = $logger;
-        $this->streamFactory = $streamFactory;
-        $this->mbWrapper = $mbWrapper;
-        $this->throwExceptionReadingPartContentFromUnsupportedCharsets = $throwExceptionReadingPartContentFromUnsupportedCharsets;
     }
 
     public function newInstance(ParserPartProxy $parserProxy) : ParserPartStreamContainer

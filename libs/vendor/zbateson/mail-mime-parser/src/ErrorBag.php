@@ -18,8 +18,6 @@ use Throwable;
  */
 abstract class ErrorBag implements IErrorBag
 {
-    protected LoggerInterface $logger;
-
     /**
      * @var Error[] array of Error objects belonging to this object.
      */
@@ -30,9 +28,8 @@ abstract class ErrorBag implements IErrorBag
      */
     private bool $validated = false;
 
-    public function __construct(LoggerInterface $logger)
+    public function __construct(protected LoggerInterface $logger)
     {
-        $this->logger = $logger;
     }
 
     /**
@@ -95,9 +92,7 @@ abstract class ErrorBag implements IErrorBag
         }
         return \array_values(\array_filter(
             $this->errors,
-            function($e) use ($minPsrLevel) {
-                return $e->isPsrLevelGreaterOrEqualTo($minPsrLevel);
-            }
+            fn($e) => $e->isPsrLevelGreaterOrEqualTo($minPsrLevel)
         ));
     }
 
@@ -109,9 +104,7 @@ abstract class ErrorBag implements IErrorBag
     public function getAllErrors(bool $validate = false, string $minPsrLevel = LogLevel::ERROR) : array
     {
         $arr = \array_values(\array_map(
-            function($e) use ($validate, $minPsrLevel) {
-                return $e->getAllErrors($validate, $minPsrLevel);
-            },
+            fn($e) => $e->getAllErrors($validate, $minPsrLevel),
             $this->getErrorBagChildren()
         ));
         return \array_merge($this->getErrors($validate, $minPsrLevel), ...$arr);

@@ -13,12 +13,11 @@ use Psr\Http\Message\StreamInterface;
 final class DroppingStream implements StreamInterface
 {
     use StreamDecoratorTrait;
+    use NonSerializableStreamTrait;
 
-    /** @var int */
-    private $maxLength;
+    private int $maxLength;
 
-    /** @var StreamInterface */
-    private $stream;
+    private StreamInterface $stream;
 
     /**
      * @param StreamInterface $stream    Underlying stream to decorate.
@@ -27,20 +26,11 @@ final class DroppingStream implements StreamInterface
     public function __construct(StreamInterface $stream, int $maxLength)
     {
         $this->stream = $stream;
-        $this->maxLength = $maxLength;
+        $this->maxLength = Integers::assertNonNegativeInteger($maxLength, 'Maximum length');
     }
 
-    public function write($string): int
+    public function write(string $string): int
     {
-        if (!\is_string($string)) {
-            \trigger_deprecation(
-                'guzzlehttp/psr7',
-                '2.11',
-                'Passing %s to StreamInterface::write() is deprecated; guzzlehttp/psr7 3.0 requires string for $string.',
-                \get_debug_type($string)
-            );
-        }
-
         $diff = $this->maxLength - $this->stream->getSize();
 
         // Begin returning 0 when the underlying stream is too large.

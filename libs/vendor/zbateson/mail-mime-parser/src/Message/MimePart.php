@@ -29,12 +29,18 @@ class MimePart extends MultiPart implements IMimePart
      */
     protected PartHeaderContainer $headerContainer;
 
+    /**
+     * @var string Fallback charset for text parts without a declared charset.
+     */
+    protected string $fallbackCharset;
+
     public function __construct(
         ?IMimePart $parent = null,
         ?LoggerInterface $logger = null,
         ?PartStreamContainer $streamContainer = null,
         ?PartHeaderContainer $headerContainer = null,
-        ?PartChildrenContainer $partChildrenContainer = null
+        ?PartChildrenContainer $partChildrenContainer = null,
+        string $defaultFallbackCharset = 'ISO-8859-1'
     ) {
         $di = MailMimeParser::getGlobalContainer();
         parent::__construct(
@@ -44,6 +50,7 @@ class MimePart extends MultiPart implements IMimePart
             $parent
         );
         $this->headerContainer = $headerContainer ?? $di->get(PartHeaderContainer::class);
+        $this->fallbackCharset = $defaultFallbackCharset;
     }
 
     /**
@@ -115,7 +122,7 @@ class MimePart extends MultiPart implements IMimePart
      *        than text/plain if needed.
      * @return string the mime type
      */
-    public function getContentType(string $default = 'text/plain') : ?string
+    public function getContentType(string $default = 'text/plain') : string
     {
         return \strtolower($this->getHeaderValue(HeaderConsts::CONTENT_TYPE, $default));
     }
@@ -137,7 +144,7 @@ class MimePart extends MultiPart implements IMimePart
         if ($charset === null || \strcasecmp($charset, 'binary') === 0) {
             $contentType = $this->getContentType();
             if ($contentType === 'text/plain' || $contentType === 'text/html') {
-                return 'ISO-8859-1';
+                return $this->fallbackCharset;
             }
             return null;
         }

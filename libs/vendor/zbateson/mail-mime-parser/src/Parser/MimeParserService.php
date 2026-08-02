@@ -22,34 +22,15 @@ use ZBateson\MailMimeParser\Parser\Proxy\ParserPartProxy;
  */
 class MimeParserService extends AbstractParserService
 {
-    /**
-     * @var PartHeaderContainerFactory Factory service for creating
-     *      PartHeaderContainers for headers.
-     */
-    protected PartHeaderContainerFactory $partHeaderContainerFactory;
-
-    /**
-     * @var HeaderParserService The HeaderParser service.
-     */
-    protected HeaderParserService $headerParser;
-
-    /**
-     * @var int Maximum multipart nesting depth.
-     */
-    protected int $maxMimePartDepth;
-
     public function __construct(
         ParserMessageProxyFactory $parserMessageProxyFactory,
         ParserMimePartProxyFactory $parserMimePartProxyFactory,
         PartBuilderFactory $partBuilderFactory,
-        PartHeaderContainerFactory $partHeaderContainerFactory,
-        HeaderParserService $headerParser,
-        int $maxMimePartDepth = 256
+        protected readonly PartHeaderContainerFactory $partHeaderContainerFactory,
+        protected readonly HeaderParserService $headerParser,
+        protected readonly int $maxMimePartDepth = 256
     ) {
         parent::__construct($parserMessageProxyFactory, $parserMimePartProxyFactory, $partBuilderFactory);
-        $this->partHeaderContainerFactory = $partHeaderContainerFactory;
-        $this->headerParser = $headerParser;
-        $this->maxMimePartDepth = $maxMimePartDepth;
     }
 
     /**
@@ -121,6 +102,7 @@ class MimeParserService extends AbstractParserService
 
     public function parseContent(ParserPartProxy $proxy) : static
     {
+        \assert($proxy instanceof ParserMimePartProxy);
         $proxy->setStreamContentStartPos($proxy->getMessageResourceHandlePos());
         $this->findContentBoundary($proxy);
         return $this;

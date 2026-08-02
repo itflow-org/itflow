@@ -27,22 +27,17 @@ use ZBateson\MailMimeParser\Stream\StreamFactory;
  */
 class ParserMessageProxyFactory extends ParserMimePartProxyFactory
 {
-    protected MultipartHelper $multipartHelper;
-
-    protected PrivacyHelper $privacyHelper;
-
     public function __construct(
         LoggerInterface $logger,
-        StreamFactory $sdf,
-        PartHeaderContainerFactory $phcf,
-        ParserPartStreamContainerFactory $pscf,
-        ParserPartChildrenContainerFactory $ppccf,
-        MultipartHelper $multipartHelper,
-        PrivacyHelper $privacyHelper
+        StreamFactory $streamFactory,
+        PartHeaderContainerFactory $partHeaderContainerFactory,
+        ParserPartStreamContainerFactory $parserPartStreamContainerFactory,
+        ParserPartChildrenContainerFactory $parserPartChildrenContainerFactory,
+        protected readonly MultipartHelper $multipartHelper,
+        protected readonly PrivacyHelper $privacyHelper,
+        string $defaultFallbackCharset = 'ISO-8859-1'
     ) {
-        parent::__construct($logger, $sdf, $phcf, $pscf, $ppccf);
-        $this->multipartHelper = $multipartHelper;
-        $this->privacyHelper = $privacyHelper;
+        parent::__construct($logger, $streamFactory, $partHeaderContainerFactory, $parserPartStreamContainerFactory, $parserPartChildrenContainerFactory, $defaultFallbackCharset);
     }
 
     /**
@@ -63,7 +58,8 @@ class ParserMessageProxyFactory extends ParserMimePartProxyFactory
             $headerContainer,
             $childrenContainer,
             $this->multipartHelper,
-            $this->privacyHelper
+            $this->privacyHelper,
+            $this->defaultFallbackCharset
         );
         $parserProxy->setPart($message);
 

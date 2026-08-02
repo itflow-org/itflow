@@ -24,10 +24,8 @@ trait StreamDecoratorTrait
     /**
      * Magic method used to create a new stream if streams are not added in
      * the constructor of a decorator (e.g., LazyOpenStream).
-     *
-     * @return StreamInterface
      */
-    public function __get(string $name)
+    public function __get(string $name): StreamInterface
     {
         if ($name === 'stream') {
             $this->stream = $this->createStream();
@@ -35,25 +33,16 @@ trait StreamDecoratorTrait
             return $this->stream;
         }
 
-        throw new \UnexpectedValueException("$name not found on class");
+        throw new \UnexpectedValueException(\sprintf('%s not found on class', DiagnosticValue::escape($name)));
     }
 
     public function __toString(): string
     {
-        try {
-            if ($this->isSeekable()) {
-                $this->seek(0);
-            }
-
-            return $this->getContents();
-        } catch (\Throwable $e) {
-            if (\PHP_VERSION_ID >= 70400) {
-                throw $e;
-            }
-            trigger_error(sprintf('%s::__toString exception: %s', self::class, (string) $e), E_USER_ERROR);
-
-            return '';
+        if ($this->isSeekable()) {
+            $this->seek(0);
         }
+
+        return $this->getContents();
     }
 
     public function getContents(): string
@@ -84,17 +73,8 @@ trait StreamDecoratorTrait
     /**
      * @return mixed
      */
-    public function getMetadata($key = null)
+    public function getMetadata(?string $key = null)
     {
-        if ($key !== null && !\is_string($key)) {
-            \trigger_deprecation(
-                'guzzlehttp/psr7',
-                '2.11',
-                'Passing %s to StreamInterface::getMetadata() is deprecated; guzzlehttp/psr7 3.0 requires string|null for $key.',
-                \get_debug_type($key)
-            );
-        }
-
         return $this->stream->getMetadata($key);
     }
 
@@ -138,54 +118,22 @@ trait StreamDecoratorTrait
         $this->seek(0);
     }
 
-    public function seek($offset, $whence = SEEK_SET): void
+    public function seek(int $offset, int $whence = SEEK_SET): void
     {
-        if (!\is_int($offset)) {
-            \trigger_deprecation(
-                'guzzlehttp/psr7',
-                '2.11',
-                'Passing %s to StreamInterface::seek() is deprecated; guzzlehttp/psr7 3.0 requires int for $offset.',
-                \get_debug_type($offset)
-            );
-        }
-
-        if (!\is_int($whence)) {
-            \trigger_deprecation(
-                'guzzlehttp/psr7',
-                '2.11',
-                'Passing %s to StreamInterface::seek() is deprecated; guzzlehttp/psr7 3.0 requires int for $whence.',
-                \get_debug_type($whence)
-            );
-        }
-
         $this->stream->seek($offset, $whence);
     }
 
-    public function read($length): string
+    public function read(int $length): string
     {
-        if (!\is_int($length)) {
-            \trigger_deprecation(
-                'guzzlehttp/psr7',
-                '2.11',
-                'Passing %s to StreamInterface::read() is deprecated; guzzlehttp/psr7 3.0 requires int for $length.',
-                \get_debug_type($length)
-            );
+        if ($length < 0) {
+            throw new \RuntimeException('Length parameter cannot be negative');
         }
 
         return $this->stream->read($length);
     }
 
-    public function write($string): int
+    public function write(string $string): int
     {
-        if (!\is_string($string)) {
-            \trigger_deprecation(
-                'guzzlehttp/psr7',
-                '2.11',
-                'Passing %s to StreamInterface::write() is deprecated; guzzlehttp/psr7 3.0 requires string for $string.',
-                \get_debug_type($string)
-            );
-        }
-
         return $this->stream->write($string);
     }
 

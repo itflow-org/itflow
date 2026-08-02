@@ -8,7 +8,6 @@
 namespace ZBateson\MailMimeParser\Message;
 
 use Psr\Http\Message\StreamInterface;
-use SplSubject;
 use ZBateson\MailMimeParser\IErrorBag;
 use ZBateson\MailMimeParser\MailMimeParser;
 
@@ -19,12 +18,9 @@ use ZBateson\MailMimeParser\MailMimeParser;
  * contain content, have a parent, and identify the type of content (e.g.
  * mime-type or charset) agnostically.
  *
- * The interface extends SplSubject -- any modifications to a message must
- * notify any attached observers.
- *
  * @author Zaahid Bateson
  */
-interface IMessagePart extends IErrorBag, SplSubject
+interface IMessagePart extends IErrorBag
 {
     /**
      * Returns this part's parent.
@@ -47,10 +43,10 @@ interface IMessagePart extends IErrorBag, SplSubject
      * Returns the mime type of the content, or $default if one is not set.
      *
      * @param string $default Optional override for the default return value of
-     *        'text/plain.
+     *        'text/plain'.
      * @return string the mime type
      */
-    public function getContentType(string $default = 'text/plain') : ?string;
+    public function getContentType(string $default = 'text/plain') : string;
 
     /**
      * Returns the charset of the content, or null if not applicable/defined.
@@ -127,7 +123,7 @@ interface IMessagePart extends IErrorBag, SplSubject
      * doesn't have a content section.
      *
      * To get a stream without charset conversion if you know the part's content
-     * contains a binary stream, call {@see self::getBinaryContentStream()}
+     * contains a binary stream, call {@see IMessagePart::getBinaryContentStream()}
      * instead.
      *
      * The library automatically handles decoding and charset conversion (to the
@@ -282,7 +278,7 @@ interface IMessagePart extends IErrorBag, SplSubject
      *
      * If the part has not been modified and represents a parsed part, the
      * original stream should be returned.  Otherwise a stream representation of
-     * the part including its modifications should be returned.  This insures
+     * the part including its modifications should be returned.  This ensures
      * that an unmodified, signed message could be passed on that way even after
      * parsing and reading.
      *
@@ -299,7 +295,7 @@ interface IMessagePart extends IErrorBag, SplSubject
      *      resource handle.
      * @see IMessagePart::__toString() to write the part to a string and return
      *      it.
-     * @see IMessage::save() to write the part to a file, resource handle or
+     * @see IMessagePart::save() to write the part to a file, resource handle or
      *      Psr7 stream.
      * @return resource the resource handle containing the part.
      */
@@ -311,7 +307,7 @@ interface IMessagePart extends IErrorBag, SplSubject
      *
      * If the part has not been modified and represents a parsed part, the
      * original stream should be returned.  Otherwise a stream representation of
-     * the part including its modifications should be returned.  This insures
+     * the part including its modifications should be returned.  This ensures
      * that an unmodified, signed message could be passed on that way even after
      * parsing and reading.
      *
@@ -327,7 +323,7 @@ interface IMessagePart extends IErrorBag, SplSubject
      * @see IMessagePart::getResourceHandle() to get a resource handle.
      * @see IMessagePart::__toString() to write the part to a string and return
      *      it.
-     * @see IMessage::save() to write the part to a file, resource handle or
+     * @see IMessagePart::save() to write the part to a file, resource handle or
      *      Psr7 stream.
      * @return StreamInterface the stream containing the part.
      */
@@ -340,7 +336,7 @@ interface IMessagePart extends IErrorBag, SplSubject
      * If the part has not been modified and represents a parsed part, the
      * original stream should be written to the file.  Otherwise a stream
      * representation of the part including its modifications should be written.
-     * This insures that an unmodified, signed message could be passed on this
+     * This ensures that an unmodified, signed message could be passed on this
      * way even after parsing and reading.
      *
      * The written stream is not guaranteed to be RFC822 (or greater) compliant
@@ -360,7 +356,7 @@ interface IMessagePart extends IErrorBag, SplSubject
      *
      * @see IMessagePart::getResourceHandle() to get a resource handle.
      * @see IMessagePart::__toString() to get the part in a string.
-     * @see IMessage::save() to write the part to a file, resource handle or
+     * @see IMessagePart::save() to write the part to a file, resource handle or
      *      Psr7 stream.
      * @param string|resource|StreamInterface $filenameResourceOrStream the
      *        file, resource, or stream to write to.
@@ -379,7 +375,7 @@ interface IMessagePart extends IErrorBag, SplSubject
      * @see IMessagePart::getStream() to get a Psr7 StreamInterface instead of a
      *      string.
      * @see IMessagePart::getResourceHandle() to get a resource handle.
-     * @see IMessage::save() to write the part to a file, resource handle or
+     * @see IMessagePart::save() to write the part to a file, resource handle or
      *      Psr7 stream.
      */
     public function __toString() : string;

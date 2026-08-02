@@ -21,8 +21,9 @@ class TellZeroStream implements StreamInterface
 
     /**
      * @var StreamInterface
+     * @phpstan-ignore-next-line
      */
-    private StreamInterface $stream;
+    private readonly StreamInterface $stream;
 
     public function tell() : int
     {

@@ -13,26 +13,30 @@ use Psr\Http\Message\StreamInterface;
 final class CachingStream implements StreamInterface
 {
     use StreamDecoratorTrait;
+    use NonSerializableStreamTrait;
 
     /** @var StreamInterface Stream being wrapped */
-    private $remoteStream;
+    private StreamInterface $remoteStream;
 
     /** @var int Number of bytes to skip reading due to a write on the buffer */
-    private $skipReadBytes = 0;
+    private int $skipReadBytes = 0;
 
-    /**
-     * @var StreamInterface
-     */
-    private $stream;
+    private StreamInterface $stream;
 
-    /** @var bool */
-    private $detached = false;
+    private bool $detached = false;
+
+    private bool $closed = false;
 
     /**
      * We will treat the buffer object as the body of the stream
      *
      * @param StreamInterface $stream Stream to cache. The cursor is assumed to be at the beginning of the stream.
-     * @param StreamInterface $target Optionally specify where data is cached
+     * @param StreamInterface $target Optionally specify where data is cached. Defaults to a "php://temp"
+     *                                stream. A custom target is used as a random-access byte buffer to
+     *                                replay the remote stream, so it must be readable, writable, and
+     *                                seekable, report an accurate position and size, and store writes
+     *                                losslessly. Lossy or non-seekable streams such as BufferStream and
+     *                                DroppingStream are not valid targets.
      */
     public function __construct(
         StreamInterface $stream,
@@ -62,36 +66,31 @@ final class CachingStream implements StreamInterface
         $this->seek(0);
     }
 
-    public function seek($offset, $whence = SEEK_SET): void
+    public function seek(int $offset, int $whence = SEEK_SET): void
     {
-        if (!\is_int($offset)) {
-            \trigger_deprecation(
-                'guzzlehttp/psr7',
-                '2.11',
-                'Passing %s to StreamInterface::seek() is deprecated; guzzlehttp/psr7 3.0 requires int for $offset.',
-                \get_debug_type($offset)
-            );
-        }
-
-        if (!\is_int($whence)) {
-            \trigger_deprecation(
-                'guzzlehttp/psr7',
-                '2.11',
-                'Passing %s to StreamInterface::seek() is deprecated; guzzlehttp/psr7 3.0 requires int for $whence.',
-                \get_debug_type($whence)
-            );
-        }
-
         if ($whence === SEEK_SET) {
             $byte = $offset;
         } elseif ($whence === SEEK_CUR) {
-            $byte = $offset + $this->tell();
+            $byte = Integers::addSigned($this->tell(), $offset);
         } elseif ($whence === SEEK_END) {
             $size = $this->remoteStream->getSize();
             if ($size === null) {
+                // Discovering the size reads the remote stream to EOF and
+                // moves the cursor, so restore the cursor if the computed
+                // target is rejected to keep a failed seek side-effect free.
+                $position = $this->tell();
                 $size = $this->cacheEntireStream();
+
+                try {
+                    $byte = Integers::addSigned($size, $offset);
+                } catch (\Throwable $e) {
+                    $this->stream->seek($position);
+
+                    throw $e;
+                }
+            } else {
+                $byte = Integers::addSigned($size, $offset);
             }
-            $byte = $size + $offset;
         } else {
             throw new \InvalidArgumentException('Invalid whence');
         }
@@ -119,15 +118,10 @@ final class CachingStream implements StreamInterface
         }
     }
 
-    public function read($length): string
+    public function read(int $length): string
     {
-        if (!\is_int($length)) {
-            \trigger_deprecation(
-                'guzzlehttp/psr7',
-                '2.11',
-                'Passing %s to StreamInterface::read() is deprecated; guzzlehttp/psr7 3.0 requires int for $length.',
-                \get_debug_type($length)
-            );
+        if ($length < 0) {
+            throw new \RuntimeException('Length parameter cannot be negative');
         }
 
         // Perform a regular read on any previously read data from the buffer
@@ -140,8 +134,10 @@ final class CachingStream implements StreamInterface
             // been filled from the remote stream, then we must skip bytes on
             // the remote stream to emulate overwriting bytes from that
             // position. This mimics the behavior of other PHP stream wrappers.
-            $remoteData = $this->remoteStream->read(
-                $remaining + $this->skipReadBytes
+            $remoteData = StreamTimeout::read(
+                $this->remoteStream,
+                Integers::add($remaining, $this->skipReadBytes),
+                'Unable to read from stream: timed out'
             );
 
             if ($this->skipReadBytes) {
@@ -161,24 +157,15 @@ final class CachingStream implements StreamInterface
         return $data;
     }
 
-    public function write($string): int
+    public function write(string $string): int
     {
-        if (!\is_string($string)) {
-            \trigger_deprecation(
-                'guzzlehttp/psr7',
-                '2.11',
-                'Passing %s to StreamInterface::write() is deprecated; guzzlehttp/psr7 3.0 requires string for $string.',
-                \get_debug_type($string)
-            );
-        }
-
         // When appending to the end of the currently read stream, you'll want
         // to skip bytes from being read from the remote stream to emulate
         // other stream wrappers. Basically replacing bytes of data of a fixed
         // length.
-        $overflow = (strlen($string) + $this->tell()) - $this->remoteStream->tell();
+        $overflow = Integers::add(strlen($string), $this->tell()) - $this->remoteStream->tell();
         if ($overflow > 0) {
-            $this->skipReadBytes += $overflow;
+            $this->skipReadBytes = Integers::add($this->skipReadBytes, $overflow);
         }
 
         return $this->stream->write($string);
@@ -207,13 +194,39 @@ final class CachingStream implements StreamInterface
     }
 
     /**
-     * Close both the remote stream and buffer stream
+     * Close the remote stream and any attached cache stream.
      */
     public function close(): void
     {
-        $this->remoteStream->close();
-        $this->stream->close();
+        if ($this->closed) {
+            return;
+        }
+
+        $closeCache = !$this->detached;
+        $this->closed = true;
         $this->detached = true;
+
+        $exception = null;
+
+        try {
+            $this->remoteStream->close();
+        } catch (\Throwable $e) {
+            $exception = $e;
+        }
+
+        if ($closeCache) {
+            try {
+                $this->stream->close();
+            } catch (\Throwable $e) {
+                if ($exception === null) {
+                    $exception = $e;
+                }
+            }
+        }
+
+        if ($exception !== null) {
+            throw $exception;
+        }
     }
 
     private function cacheEntireStream(): int

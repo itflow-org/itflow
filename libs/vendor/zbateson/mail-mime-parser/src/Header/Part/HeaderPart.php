@@ -22,19 +22,6 @@ use ZBateson\MbWrapper\UnsupportedCharsetException;
 abstract class HeaderPart extends ErrorBag implements IHeaderPart
 {
     /**
-     * @var string the representative value of the part after any conversion or
-     *      processing has been done on it (e.g. removing new lines, converting,
-     *      whatever else).
-     */
-    protected string $value;
-
-    /**
-     * @var MbWrapper $charsetConverter the charset converter used for
-     *      converting strings in HeaderPart::convertEncoding
-     */
-    protected MbWrapper $charsetConverter;
-
-    /**
      * @var bool set to true to ignore spaces before this part
      */
     protected bool $canIgnoreSpacesBefore = false;
@@ -49,11 +36,12 @@ abstract class HeaderPart extends ErrorBag implements IHeaderPart
      */
     protected bool $isSpace = false;
 
-    public function __construct(LoggerInterface $logger, MbWrapper $charsetConverter, string $value)
-    {
+    public function __construct(
+        LoggerInterface $logger,
+        protected MbWrapper $charsetConverter,
+        protected string $value
+    ) {
         parent::__construct($logger);
-        $this->charsetConverter = $charsetConverter;
-        $this->value = $value;
     }
 
     /**
@@ -101,6 +89,9 @@ abstract class HeaderPart extends ErrorBag implements IHeaderPart
         return $str;
     }
 
+    /**
+     * @return CommentPart[]
+     */
     public function getComments() : array
     {
         return [];

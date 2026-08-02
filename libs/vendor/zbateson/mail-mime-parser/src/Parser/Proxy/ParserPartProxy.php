@@ -25,24 +25,14 @@ use ZBateson\MailMimeParser\Parser\PartBuilder;
 abstract class ParserPartProxy extends PartBuilder
 {
     /**
-     * @var IParserService The parser.
-     */
-    protected IParserService $parser;
-
-    /**
-     * @var PartBuilder The part's PartBuilder.
-     */
-    protected PartBuilder $partBuilder;
-
-    /**
      * @var IMessagePart The part.
      */
     private IMessagePart $part;
 
-    public function __construct(PartBuilder $partBuilder, IParserService $parser)
-    {
-        $this->partBuilder = $partBuilder;
-        $this->parser = $parser;
+    public function __construct(
+        protected readonly PartBuilder $partBuilder,
+        protected readonly IParserService $parser
+    ) {
     }
 
     /**
@@ -94,7 +84,7 @@ abstract class ParserPartProxy extends PartBuilder
         return $this;
     }
 
-    public function getParent() : ?ParserMimePartProxy
+    public function getParent() : ?ParserPartProxy
     {
         return $this->partBuilder->getParent();
     }

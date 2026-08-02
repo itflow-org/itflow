@@ -21,25 +21,13 @@ use ZBateson\MailMimeParser\Message\IMessagePart;
  */
 class PrivacyHelper extends AbstractHelper
 {
-    /**
-     * @var GenericHelper a GenericHelper instance
-     */
-    private GenericHelper $genericHelper;
-
-    /**
-     * @var MultipartHelper a MultipartHelper instance
-     */
-    private MultipartHelper $multipartHelper;
-
     public function __construct(
         IMimePartFactory $mimePartFactory,
         IUUEncodedPartFactory $uuEncodedPartFactory,
-        GenericHelper $genericHelper,
-        MultipartHelper $multipartHelper
+        private readonly GenericHelper $genericHelper,
+        private readonly MultipartHelper $multipartHelper
     ) {
         parent::__construct($mimePartFactory, $uuEncodedPartFactory);
-        $this->genericHelper = $genericHelper;
-        $this->multipartHelper = $multipartHelper;
     }
 
     /**
@@ -99,9 +87,7 @@ class PrivacyHelper extends AbstractHelper
      */
     public function overwrite8bitContentEncoding(IMessage $message) : static
     {
-        $parts = $message->getAllParts(function(IMessagePart $part) {
-            return \strcasecmp($part->getContentTransferEncoding(), '8bit') === 0;
-        });
+        $parts = $message->getAllParts(fn(IMessagePart $part) => \strcasecmp($part->getContentTransferEncoding(), '8bit') === 0);
         foreach ($parts as $part) {
             $contentType = \strtolower($part->getContentType());
             $part->setRawHeader(

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of the ZBateson\MailMimeParser project.
  *
@@ -7,6 +8,7 @@
 
 namespace ZBateson\MailMimeParser;
 
+use Composer\InstalledVersions;
 use DI\Container;
 use DI\ContainerBuilder;
 use DI\Definition\Source\DefinitionSource;
@@ -62,6 +64,12 @@ class MailMimeParser
     private const DEFAULT_DEFINITIONS_FILE = __DIR__ . '/di_config.php';
 
     /**
+     * The key in a package's composer.json "extra" section that MMP looks
+     * for to auto-discover plugin DI configurations.
+     */
+    private const PLUGIN_EXTRA_KEY = 'mail-mime-parser';
+
+    /**
      * @var Container The instance's dependency injection container.
      */
     protected Container $container;
@@ -77,13 +85,15 @@ class MailMimeParser
     private static ?Container $globalContainer = null;
 
     /**
-     * @var array<array|string|DefinitionSource> an array of global definitions
+     * @var array<array<string, mixed>|string|DefinitionSource> an array of global definitions
      *      being used.
      */
     private static array $globalDefinitions = [self::DEFAULT_DEFINITIONS_FILE];
 
     /**
      * Returns the default ContainerBuilder with default loaded definitions.
+     *
+     * @return ContainerBuilder<Container>
      */
     private static function getGlobalContainerBuilder() : ContainerBuilder
     {
@@ -91,7 +101,69 @@ class MailMimeParser
         foreach (self::$globalDefinitions as $def) {
             $builder->addDefinitions($def);
         }
+        foreach (self::discoverPluginConfigs() as $configFile) {
+            $builder->addDefinitions($configFile);
+        }
         return $builder;
+    }
+
+    /**
+     * Discovers plugin DI config files from installed Composer packages.
+     *
+     * Uses Composer's InstalledVersions runtime API to enumerate installed
+     * packages and reads each package's composer.json for the
+     * "extra.mail-mime-parser.di_config" entry.
+     *
+     * Returns an empty array in non-Composer environments.
+     *
+     * @return string[] Absolute paths to discovered config files
+     */
+    private static function discoverPluginConfigs() : array
+    {
+        if (!\class_exists(InstalledVersions::class)) {
+            return [];
+        }
+
+        $configs = [];
+        foreach (InstalledVersions::getInstalledPackages() as $packageName) {
+            $installPath = InstalledVersions::getInstallPath($packageName);
+            if ($installPath === null) {
+                continue;
+            }
+            $configFile = self::readPluginConfigPath($installPath);
+            if ($configFile !== null) {
+                $configs[] = $configFile;
+            }
+        }
+        return $configs;
+    }
+
+    /**
+     * Reads a package's composer.json and returns the absolute path to its
+     * MMP DI config file, or null if the package is not an MMP plugin.
+     *
+     * Looks for "extra.mail-mime-parser.di_config" in the package's
+     * composer.json.
+     */
+    public static function readPluginConfigPath(string $packageInstallPath) : ?string
+    {
+        $composerJsonPath = $packageInstallPath . '/composer.json';
+        if (!\file_exists($composerJsonPath)) {
+            return null;
+        }
+        $data = \json_decode(\file_get_contents($composerJsonPath), true);
+        if (!\is_array($data)) {
+            return null;
+        }
+        $extra = $data['extra'][self::PLUGIN_EXTRA_KEY] ?? null;
+        if (!\is_array($extra) || !isset($extra['di_config'])) {
+            return null;
+        }
+        $configFile = \realpath($packageInstallPath . '/' . $extra['di_config']);
+        if ($configFile === false || !\file_exists($configFile)) {
+            return null;
+        }
+        return $configFile;
     }
 
     /**
@@ -99,7 +171,7 @@ class MailMimeParser
      * definitions.  You can optionally not use the default MMP definitions file
      * by passing 'false' to the $useDefaultDefinitionsFile argument.
      *
-     * @var array<array|string|DefinitionSource> array of definitions
+     * @param array<array<string, mixed>|string|DefinitionSource> $phpDiConfigs array of definitions
      */
     public static function setGlobalPhpDiConfigurations(array $phpDiConfigs, bool $useDefaultDefinitionsFile = true) : void
     {
@@ -110,6 +182,9 @@ class MailMimeParser
         self::$globalContainer = null;
     }
 
+    /**
+     * @param array<string, mixed>|string|DefinitionSource $phpDiConfig
+     */
     public static function addGlobalPhpDiContainerDefinition(array|string|DefinitionSource $phpDiConfig) : void
     {
         self::$globalDefinitions[] = $phpDiConfig;
@@ -133,6 +208,19 @@ class MailMimeParser
             self::$globalContainer = $builder->build();
         }
         return self::$globalContainer;
+    }
+
+    /**
+     * Sets the fallback charset used for text/* content parts that don't
+     * declare a charset.  Defaults to 'ISO-8859-1' per RFC 2045.
+     *
+     * Many modern messages omit the charset and are actually UTF-8, so you
+     * may want to set this to 'UTF-8'.
+     */
+    public static function setFallbackCharset(string $charset) : void
+    {
+        self::$globalDefinitions[] = ['defaultFallbackCharset' => $charset];
+        self::$globalContainer = null;
     }
 
     /**
@@ -162,6 +250,8 @@ class MailMimeParser
      * @see MailMimeParser::setGlobalPhpDiConfiguration() to register
      *      configuration globally.
      * @see MailMimeParser::setGlobalLogger() to set a global logger
+     *
+     * @param array<string, mixed>|string|DefinitionSource|null $phpDiContainerConfig
      */
     public function __construct(
         ?LoggerInterface $logger = null,
@@ -194,22 +284,21 @@ class MailMimeParser
      *
      * If the passed $resource is a resource handle or StreamInterface, the
      * resource must remain open while the returned IMessage object exists.
-     * Pass true as the second argument to have the resource attached to the
-     * IMessage and closed for you when it's destroyed, or pass false to
-     * manually close it if it should remain open after the IMessage object is
-     * destroyed.
+     * Pass true as the second argument to have the resource automatically
+     * closed when the returned IMessage is destroyed, or pass false to
+     * manage the resource lifecycle yourself.
      *
      * @param resource|StreamInterface|string $resource The resource handle to
      *        the input stream of the mime message, or a string containing a
      *        mime message.
-     * @param bool $attached pass true to have it attached to the returned
-     *        IMessage and destroyed with it.
+     * @param bool $autoClose pass true to have the resource closed
+     *        automatically when the returned IMessage is destroyed.
      */
-    public function parse(mixed $resource, bool $attached) : IMessage
+    public function parse(mixed $resource, bool $autoClose) : IMessage
     {
         $stream = Utils::streamFor(
             $resource,
-            ['metadata' => ['mmp-detached-stream' => ($attached !== true)]]
+            ['metadata' => ['mmp-detached-stream' => ($autoClose !== true)]]
         );
         if (!$stream->isSeekable()) {
             $stream = new CachingStream($stream);

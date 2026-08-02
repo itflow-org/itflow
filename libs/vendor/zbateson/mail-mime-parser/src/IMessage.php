@@ -66,7 +66,7 @@ interface IMessage extends IMimePart
      * returned.
      *
      * @see IMessage::getHtmlStream() to get the html content stream directly.
-     * @see IMessage::getHtmlStream() to get the html content in a string.
+     * @see IMessage::getHtmlContent() to get the html content in a string.
      * @see IMessage::getTextPart() to get the text part(s).
      * @see IMessage::getTextPartCount() to get a count of text parts.
      * @see IMessage::getHtmlPartCount() to get a count of html parts.
@@ -191,15 +191,12 @@ interface IMessage extends IMimePart
      * Removes the text/plain part of the message at the passed index if one
      * exists (defaults to first part if an index isn't passed).
      *
-     * Returns true if a part exists at the passed index and has been removed.
-     *
      * @see IMessage::setTextPart() to set the text part
      * @see IMessage::removeHtmlPart() to remove an html part
      * @see IMessage::removeAllTextParts() to remove all text parts
      * @param int $index Optional 0-based index of inline text part to remove.
-     * @return bool true on success
      */
-    public function removeTextPart(int $index = 0) : bool;
+    public function removeTextPart(int $index = 0) : static;
 
     /**
      * Removes all text/plain inline parts in this message.
@@ -225,23 +222,19 @@ interface IMessage extends IMimePart
      * @see IMessage::removeAllHtmlParts() to remove all html parts
      * @param bool $moveRelatedPartsBelowMessage Optionally pass false to remove
      *        related parts.
-     * @return bool true on success
      */
-    public function removeAllTextParts(bool $moveRelatedPartsBelowMessage = true) : bool;
+    public function removeAllTextParts(bool $moveRelatedPartsBelowMessage = true) : static;
 
     /**
      * Removes the text/html part of the message at the passed index if one
      * exists (defaults to first part if an index isn't passed).
      *
-     * Returns true if a part exists at the passed index and has been removed.
-     *
      * @see IMessage::setHtmlPart() to set the html part
      * @see IMessage::removeTextPart() to remove a text part
      * @see IMessage::removeAllHtmlParts() to remove all html parts
      * @param int $index Optional 0-based index of inline html part to remove.
-     * @return bool true on success
      */
-    public function removeHtmlPart(int $index = 0) : bool;
+    public function removeHtmlPart(int $index = 0) : static;
 
     /**
      * Removes all text/html inline parts in this message.
@@ -264,12 +257,11 @@ interface IMessage extends IMimePart
      *
      * @see IMessage::setHtmlPart() to set the html part
      * @see IMessage::removeHtmlPart() to remove an html part
-     * @see IMessage::removeAllTextParts() to remove all html parts
+     * @see IMessage::removeAllTextParts() to remove all text parts
      * @param bool $moveRelatedPartsBelowMessage Optionally pass false to remove
      *        related parts.
-     * @return bool true on success
      */
-    public function removeAllHtmlParts(bool $moveRelatedPartsBelowMessage = true) : bool;
+    public function removeAllHtmlParts(bool $moveRelatedPartsBelowMessage = true) : static;
 
     /**
      * Returns the attachment part at the given 0-based index, or null if none

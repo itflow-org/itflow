@@ -11,6 +11,7 @@ use DateTime;
 use Exception;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
+use ZBateson\MailMimeParser\Header\IHeaderPart;
 use ZBateson\MbWrapper\MbWrapper;
 
 /**
@@ -31,7 +32,7 @@ class DatePart extends ContainerPart
      * an RFC 822 date, and failing that, tries to parse it by calling
      * new DateTime($value).
      *
-     * @param HeaderPart[] $children
+     * @param IHeaderPart[] $children
      */
     public function __construct(
         LoggerInterface $logger,

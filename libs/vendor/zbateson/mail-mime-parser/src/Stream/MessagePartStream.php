@@ -56,9 +56,8 @@ class MessagePartStream extends MessagePartStreamDecorator implements SplObserve
         $this->throwExceptionReadingPartContentFromUnsupportedCharsets = $throwExceptionReadingPartContentFromUnsupportedCharsets;
         $part->attach($this);
 
-        // unsetting the property forces the first access to go through
-        // __get().
-        unset($this->stream);
+        // Don't initialize $stream - let the StreamDecoratorTrait's __get()
+        // call createStream() lazily when needed.
     }
 
     public function __destruct()
@@ -69,8 +68,7 @@ class MessagePartStream extends MessagePartStreamDecorator implements SplObserve
     public function update(SplSubject $subject) : void
     {
         if ($this->appendStream !== null) {
-            // unset forces recreation in StreamDecoratorTrait with a call to __get
-            unset($this->stream);
+            $this->stream = null;
             $this->appendStream = null;
         }
     }
@@ -121,9 +119,7 @@ class MessagePartStream extends MessagePartStreamDecorator implements SplObserve
         $boundary = $part->getHeaderParameter(HeaderConsts::CONTENT_TYPE, 'boundary');
         if ($boundary === null) {
             return \array_map(
-                function($child) {
-                    return $child->getStream();
-                },
+                fn($child) => $child->getStream(),
                 $part->getChildParts()
             );
         }

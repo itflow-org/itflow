@@ -55,7 +55,7 @@ interface IHeader extends IErrorBag
      * or parameter headers (Content-Type), the 'value' is the value of the
      * first parsed part that isn't a comment.
      *
-     * @return string The value
+     * @return ?string The value, or null if the header has no parts.
      */
     public function getValue() : ?string;
 
@@ -65,6 +65,19 @@ interface IHeader extends IErrorBag
      * @return string The raw value.
      */
     public function getRawValue() : string;
+
+    /**
+     * Returns the full decoded and unfolded value of the header, reconstructed
+     * from the parsed parts (excluding comments).
+     *
+     * Unlike getValue() which returns only the value of the first part, this
+     * returns the full decoded representation.  For example, for an
+     * AddressHeader with `=?UTF-8?Q?J=C3=B6hn?= <john@example.com>`, this
+     * would return `Jöhn <john@example.com>`.
+     *
+     * @return string The full decoded value.
+     */
+    public function getDecodedValue() : string;
 
     /**
      * Returns the name of the header.

@@ -20,20 +20,42 @@ use ZBateson\MailMimeParser\Message\IMessagePart;
 class MessagePartStreamDecorator implements StreamInterface
 {
     use StreamDecoratorTrait {
+        StreamDecoratorTrait::__construct as private traitConstruct;
         read as private decoratorRead;
     }
 
-    /**
-     * @var IMessagePart The part to read from.
-     */
+    protected ?StreamInterface $stream = null;
+
     protected IMessagePart $part;
 
-    protected ?StreamInterface $stream;
-
-    public function __construct(IMessagePart $part, ?StreamInterface $stream = null)
-    {
+    public function __construct(
+        IMessagePart $part,
+        ?StreamInterface $stream = null
+    ) {
         $this->part = $part;
-        $this->stream = $stream;
+        if ($stream !== null) {
+            $this->stream = $stream;
+        }
+    }
+
+    /**
+     * Returns the underlying stream, lazily creating it via createStream() if
+     * not yet initialized.
+     */
+    protected function resolveStream() : StreamInterface
+    {
+        if ($this->stream === null) {
+            $this->stream = $this->createStream();
+        }
+        return $this->stream;
+    }
+
+    public function __get(string $name) : StreamInterface
+    {
+        if ($name === 'stream') {
+            return $this->resolveStream();
+        }
+        throw new \UnexpectedValueException("$name not found on class");
     }
 
     /**
@@ -45,7 +67,7 @@ class MessagePartStreamDecorator implements StreamInterface
     public function read(int $length) : string
     {
         try {
-            return $this->decoratorRead($length);
+            return $this->resolveStream()->read($length);
         } catch (MessagePartStreamReadException $me) {
             throw $me;
         } catch (RuntimeException $e) {
@@ -57,5 +79,97 @@ class MessagePartStreamDecorator implements StreamInterface
                 $e
             );
         }
+    }
+
+    public function close() : void
+    {
+        $this->resolveStream()->close();
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getMetadata($key = null)
+    {
+        return $this->resolveStream()->getMetadata($key);
+    }
+
+    public function detach()
+    {
+        return $this->resolveStream()->detach();
+    }
+
+    public function getSize() : ?int
+    {
+        return $this->resolveStream()->getSize();
+    }
+
+    public function eof() : bool
+    {
+        return $this->resolveStream()->eof();
+    }
+
+    public function tell() : int
+    {
+        return $this->resolveStream()->tell();
+    }
+
+    public function isReadable() : bool
+    {
+        return $this->resolveStream()->isReadable();
+    }
+
+    public function isWritable() : bool
+    {
+        return $this->resolveStream()->isWritable();
+    }
+
+    public function isSeekable() : bool
+    {
+        return $this->resolveStream()->isSeekable();
+    }
+
+    public function seek($offset, $whence = SEEK_SET) : void
+    {
+        $this->resolveStream()->seek($offset, $whence);
+    }
+
+    public function write($string) : int
+    {
+        return $this->resolveStream()->write($string);
+    }
+
+    public function rewind() : void
+    {
+        $this->seek(0);
+    }
+
+    public function __toString() : string
+    {
+        try {
+            if ($this->isSeekable()) {
+                $this->seek(0);
+            }
+            return $this->getContents();
+        } catch (\Throwable $e) {
+            throw $e;
+        }
+    }
+
+    public function getContents() : string
+    {
+        return \GuzzleHttp\Psr7\Utils::copyToString($this);
+    }
+
+    /**
+     * @param array<mixed> $args
+     * @return mixed
+     */
+    public function __call(string $method, array $args)
+    {
+        /** @var callable $callable */
+        $callable = [$this->resolveStream(), $method];
+        $result = ($callable)(...$args);
+        return $result === $this->stream ? $this : $result;
     }
 }

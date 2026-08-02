@@ -17,21 +17,9 @@ use ZBateson\MailMimeParser\Message\Factory\IUUEncodedPartFactory;
  */
 abstract class AbstractHelper
 {
-    /**
-     * @var IMimePartFactory to create parts for attachments/content
-     */
-    protected IMimePartFactory $mimePartFactory;
-
-    /**
-     * @var IUUEncodedPartFactory to create parts for attachments
-     */
-    protected IUUEncodedPartFactory $uuEncodedPartFactory;
-
     public function __construct(
-        IMimePartFactory $mimePartFactory,
-        IUUEncodedPartFactory $uuEncodedPartFactory
+        protected readonly IMimePartFactory $mimePartFactory,
+        protected readonly IUUEncodedPartFactory $uuEncodedPartFactory
     ) {
-        $this->mimePartFactory = $mimePartFactory;
-        $this->uuEncodedPartFactory = $uuEncodedPartFactory;
     }
 }

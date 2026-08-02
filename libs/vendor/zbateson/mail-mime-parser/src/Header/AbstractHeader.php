@@ -51,6 +51,21 @@ abstract class AbstractHeader extends ErrorBag implements IHeader
     private ?array $comments = null;
 
     /**
+     * Resolves a nullable service from the global DI container, returning the
+     * provided instance if non-null.
+     *
+     * @template T of object
+     * @param T|null $service
+     * @param class-string<T> $class
+     * @return T
+     */
+    protected static function resolveService(?object $service, string $class): object
+    {
+        /** @var T */
+        return $service ?? MailMimeParser::getGlobalContainer()->get($class);
+    }
+
+    /**
      * Assigns the header's name and raw value, then calls parseHeaderValue to
      * extract a parsed value.
      *
@@ -78,9 +93,7 @@ abstract class AbstractHeader extends ErrorBag implements IHeader
      */
     protected function filterAndAssignToParts() : void
     {
-        $this->parts = \array_values(\array_filter($this->allParts, function($p) {
-            return !($p instanceof CommentPart);
-        }));
+        $this->parts = \array_values(\array_filter($this->allParts, fn($p) => !($p instanceof CommentPart)));
     }
 
     /**
@@ -137,6 +150,11 @@ abstract class AbstractHeader extends ErrorBag implements IHeader
     public function getRawValue() : string
     {
         return $this->rawValue;
+    }
+
+    public function getDecodedValue() : string
+    {
+        return \implode('', \array_map(fn(IHeaderPart $p) => $p->getValue(), $this->parts));
     }
 
     public function getName() : string

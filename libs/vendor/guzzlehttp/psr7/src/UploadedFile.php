@@ -22,40 +22,19 @@ class UploadedFile implements UploadedFileInterface
         UPLOAD_ERR_EXTENSION => 'UPLOAD_ERR_EXTENSION',
     ];
 
-    /**
-     * @var string|null
-     */
-    private $clientFilename;
+    private ?string $clientFilename;
 
-    /**
-     * @var string|null
-     */
-    private $clientMediaType;
+    private ?string $clientMediaType;
 
-    /**
-     * @var int
-     */
-    private $error;
+    private int $error;
 
-    /**
-     * @var string|null
-     */
-    private $file;
+    private ?string $file = null;
 
-    /**
-     * @var bool
-     */
-    private $moved = false;
+    private bool $moved = false;
 
-    /**
-     * @var int|null
-     */
-    private $size;
+    private ?int $size;
 
-    /**
-     * @var StreamInterface|null
-     */
-    private $stream;
+    private ?StreamInterface $stream = null;
 
     /**
      * @param StreamInterface|string|resource $streamOrFile
@@ -68,7 +47,7 @@ class UploadedFile implements UploadedFileInterface
         ?string $clientMediaType = null
     ) {
         $this->setError($errorStatus);
-        $this->size = $size;
+        $this->size = Integers::assertOptionalNonNegativeSize($size, 'Uploaded file size');
         $this->clientFilename = $clientFilename;
         $this->clientMediaType = $clientMediaType;
 
@@ -113,11 +92,6 @@ class UploadedFile implements UploadedFileInterface
         $this->error = $error;
     }
 
-    private static function isStringNotEmpty($param): bool
-    {
-        return is_string($param) && false === empty($param);
-    }
-
     /**
      * Return true if there is no upload error
      */
@@ -159,11 +133,11 @@ class UploadedFile implements UploadedFileInterface
         return new LazyOpenStream($file, 'r+');
     }
 
-    public function moveTo($targetPath): void
+    public function moveTo(string $targetPath): void
     {
         $this->validateActive();
 
-        if (false === self::isStringNotEmpty($targetPath)) {
+        if ($targetPath === '') {
             throw new InvalidArgumentException(
                 'Invalid path provided for move operation; must be a non-empty string'
             );
@@ -174,8 +148,13 @@ class UploadedFile implements UploadedFileInterface
                 ? rename($this->file, $targetPath)
                 : move_uploaded_file($this->file, $targetPath);
         } else {
+            $stream = $this->getStream();
+            if ($stream->isSeekable()) {
+                $stream->rewind();
+            }
+
             Utils::copyToStream(
-                $this->getStream(),
+                $stream,
                 new LazyOpenStream($targetPath, 'w')
             );
 
@@ -183,9 +162,7 @@ class UploadedFile implements UploadedFileInterface
         }
 
         if (false === $this->moved) {
-            throw new RuntimeException(
-                sprintf('Uploaded file could not be moved to %s', $targetPath)
-            );
+            throw new RuntimeException(sprintf('Uploaded file could not be moved to %s', DiagnosticValue::escape($targetPath)));
         }
     }
 

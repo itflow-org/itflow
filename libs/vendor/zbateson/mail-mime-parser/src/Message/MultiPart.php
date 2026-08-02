@@ -21,19 +21,13 @@ use RecursiveIteratorIterator;
  */
 abstract class MultiPart extends MessagePart implements IMultiPart
 {
-    /**
-     * @var PartChildrenContainer child part container
-     */
-    protected PartChildrenContainer $partChildrenContainer;
-
     public function __construct(
         LoggerInterface $logger,
         PartStreamContainer $streamContainer,
-        PartChildrenContainer $partChildrenContainer,
+        protected readonly PartChildrenContainer $partChildrenContainer,
         ?IMimePart $parent = null
     ) {
         parent::__construct($logger, $streamContainer, $parent);
-        $this->partChildrenContainer = $partChildrenContainer;
     }
 
     private function getAllPartsIterator() : AppendIterator
@@ -90,6 +84,9 @@ abstract class MultiPart extends MessagePart implements IMultiPart
         );
     }
 
+    /**
+     * @return RecursiveIterator<int, IMessagePart>
+     */
     public function getChildIterator() : RecursiveIterator
     {
         return $this->partChildrenContainer;
@@ -133,9 +130,10 @@ abstract class MultiPart extends MessagePart implements IMultiPart
         });
     }
 
-    public function addChild(MessagePart $part, ?int $position = null) : static
+    public function addChild(IMessagePart $part, ?int $position = null) : static
     {
         if ($part !== $this) {
+            \assert($part instanceof MessagePart);
             $part->parent = $this;
             $this->partChildrenContainer->add($part, $position);
             $this->notify();
@@ -143,18 +141,19 @@ abstract class MultiPart extends MessagePart implements IMultiPart
         return $this;
     }
 
-    public function removePart(IMessagePart $part) : ?int
+    public function removePart(IMessagePart $part) : static
     {
         $parent = $part->getParent();
         if ($this !== $parent && $parent !== null) {
-            return $parent->removePart($part);
+            $parent->removePart($part);
+            return $this;
         }
 
         $position = $this->partChildrenContainer->remove($part);
         if ($position !== null) {
             $this->notify();
         }
-        return $position;
+        return $this;
     }
 
     public function removeAllParts(?callable $fnFilter = null) : int

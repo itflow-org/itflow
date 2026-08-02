@@ -27,15 +27,9 @@ use ZBateson\StreamDecorators\UUStream;
  */
 class StreamFactory
 {
-    /**
-     * @var bool if true, saving a content stream with an unsupported charset
-     *      will be written in the default charset.
-     */
-    protected bool $throwExceptionReadingPartContentFromUnsupportedCharsets;
-
-    public function __construct(bool $throwExceptionReadingPartContentFromUnsupportedCharsets)
-    {
-        $this->throwExceptionReadingPartContentFromUnsupportedCharsets = $throwExceptionReadingPartContentFromUnsupportedCharsets;
+    public function __construct(
+        protected readonly bool $throwExceptionReadingPartContentFromUnsupportedCharsets
+    ) {
     }
 
     /**
@@ -136,24 +130,15 @@ class StreamFactory
 
     public function getTransferEncodingDecoratedStream(StreamInterface $stream, ?string $transferEncoding, ?string $filename = null) : StreamInterface
     {
-        $decorated = null;
-        switch ($transferEncoding) {
-            case 'quoted-printable':
-                $decorated = $this->newQuotedPrintableStream($stream);
-                break;
-            case 'base64':
-                $decorated = $this->newBase64Stream(
-                    $this->newChunkSplitStream($stream)
-                );
-                break;
-            case 'x-uuencode':
-                $decorated = $this->newUUStream($stream);
-                if ($filename !== null) {
-                    $decorated->setFilename($filename);
-                }
-                break;
-            default:
-                return $stream;
+        $decorated = match ($transferEncoding) {
+            'quoted-printable' => $this->newQuotedPrintableStream($stream),
+            'base64' => $this->newBase64Stream($this->newChunkSplitStream($stream)),
+            'x-uuencode' => $this->newUUStream($stream),
+            default => $stream,
+        };
+        if ($transferEncoding === 'x-uuencode' && $filename !== null) {
+            \assert($decorated instanceof UUStream);
+            $decorated->setFilename($filename);
         }
         return $decorated;
     }
@@ -169,7 +154,7 @@ class StreamFactory
     /**
      * Creates and returns a MessagePartStream
      */
-    public function newMessagePartStream(IMessagePart $part) : MessagePartStreamDecorator
+    public function newMessagePartStream(IMessagePart $part) : StreamInterface
     {
         return new MessagePartStream($this, $part, $this->throwExceptionReadingPartContentFromUnsupportedCharsets);
     }
@@ -191,7 +176,7 @@ class StreamFactory
         return new HeaderStream($part);
     }
 
-    public function newDecoratedMessagePartStream(IMessagePart $part, StreamInterface $stream) : MessagePartStreamDecorator
+    public function newDecoratedMessagePartStream(IMessagePart $part, StreamInterface $stream) : StreamInterface
     {
         return new MessagePartStreamDecorator($part, $stream);
     }

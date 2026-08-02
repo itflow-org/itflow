@@ -18,18 +18,10 @@ use ZBateson\MbWrapper\MbWrapper;
  */
 class HeaderPartFactory
 {
-    /**
-     * @var MbWrapper $charsetConverter passed to IHeaderPart constructors
-     *      for converting strings in IHeaderPart::convertEncoding
-     */
-    protected MbWrapper $charsetConverter;
-
-    protected LoggerInterface $logger;
-
-    public function __construct(LoggerInterface $logger, MbWrapper $charsetConverter)
-    {
-        $this->logger = $logger;
-        $this->charsetConverter = $charsetConverter;
+    public function __construct(
+        protected readonly LoggerInterface $logger,
+        protected readonly MbWrapper $charsetConverter
+    ) {
     }
 
     /**
@@ -70,7 +62,7 @@ class HeaderPartFactory
     /**
      * Initializes and returns a new ContainerPart.
      *
-     * @param HeaderPart[] $children
+     * @param IHeaderPart[] $children
      */
     public function newContainerPart(array $children) : ContainerPart
     {
@@ -90,7 +82,7 @@ class HeaderPartFactory
     /**
      * Initializes and returns a new QuotedLiteralPart.
      *
-     * @param HeaderPart[] $parts
+     * @param IHeaderPart[] $parts
      */
     public function newQuotedLiteralPart(array $parts) : QuotedLiteralPart
     {
@@ -100,7 +92,7 @@ class HeaderPartFactory
     /**
      * Initializes and returns a new CommentPart.
      *
-     * @param HeaderPart[] $children
+     * @param IHeaderPart[] $children
      */
     public function newCommentPart(array $children) : CommentPart
     {
@@ -110,8 +102,8 @@ class HeaderPartFactory
     /**
      * Initializes and returns a new AddressPart.
      *
-     * @param HeaderPart[] $nameParts
-     * @param HeaderPart[] $emailParts
+     * @param IHeaderPart[] $nameParts
+     * @param IHeaderPart[] $emailParts
      */
     public function newAddress(array $nameParts, array $emailParts) : AddressPart
     {
@@ -121,8 +113,8 @@ class HeaderPartFactory
     /**
      * Initializes and returns a new AddressGroupPart
      *
-     * @param HeaderPart[] $nameParts
-     * @param AddressPart[]|AddressGroupPart[] $addressesAndGroups
+     * @param IHeaderPart[] $nameParts
+     * @param IHeaderPart[] $addressesAndGroups
      */
     public function newAddressGroupPart(array $nameParts, array $addressesAndGroups) : AddressGroupPart
     {
@@ -132,7 +124,7 @@ class HeaderPartFactory
     /**
      * Initializes and returns a new DatePart
      *
-     * @param HeaderPart[] $children
+     * @param IHeaderPart[] $children
      */
     public function newDatePart(array $children) : DatePart
     {
@@ -142,7 +134,7 @@ class HeaderPartFactory
     /**
      * Initializes and returns a new ParameterPart.
      *
-     * @param HeaderPart[] $nameParts
+     * @param IHeaderPart[] $nameParts
      */
     public function newParameterPart(array $nameParts, ContainerPart $valuePart) : ParameterPart
     {
@@ -152,7 +144,7 @@ class HeaderPartFactory
     /**
      * Initializes and returns a new ReceivedPart.
      *
-     * @param HeaderPart[] $children
+     * @param IHeaderPart[] $children
      */
     public function newReceivedPart(string $name, array $children) : ReceivedPart
     {
@@ -162,7 +154,7 @@ class HeaderPartFactory
     /**
      * Initializes and returns a new ReceivedDomainPart.
      *
-     * @param HeaderPart[] $children
+     * @param IHeaderPart[] $children
      */
     public function newReceivedDomainPart(string $name, array $children) : ReceivedDomainPart
     {

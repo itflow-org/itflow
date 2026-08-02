@@ -9,6 +9,7 @@ namespace ZBateson\MailMimeParser\Header\Consumer;
 
 use Psr\Log\LoggerInterface;
 use Iterator;
+use ZBateson\MailMimeParser\Header\IHeaderPart;
 use ZBateson\MailMimeParser\Header\Part\AddressGroupPart;
 use ZBateson\MailMimeParser\Header\Part\HeaderPartFactory;
 
@@ -78,7 +79,7 @@ class AddressGroupConsumerService extends AddressBaseConsumerService
      * addresses, since a group could be empty.
      *
      * @param Iterator $tokens
-     * @return IHeaderPart[]
+     * @return \ZBateson\MailMimeParser\Header\IHeaderPart[]
      */
     protected function parseTokensIntoParts(Iterator $tokens) : array
     {

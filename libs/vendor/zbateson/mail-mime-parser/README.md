@@ -3,8 +3,6 @@
 Testable and PSR-compliant mail mime parser alternative to PHP's imap* functions and Pear libraries for reading messages in _Internet Message Format_ [RFC 822](http://tools.ietf.org/html/rfc822) (and later revisions [RFC 2822](http://tools.ietf.org/html/rfc2822), [RFC 5322](http://tools.ietf.org/html/rfc5322)).
 
 [![Build Status](https://github.com/zbateson/mail-mime-parser/actions/workflows/tests.yml/badge.svg)](https://github.com/zbateson/mail-mime-parser/actions/workflows/tests.yml)
-[![Code Coverage](https://scrutinizer-ci.com/g/zbateson/mail-mime-parser/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/zbateson/mail-mime-parser/?branch=master)
-[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/zbateson/mail-mime-parser/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/zbateson/mail-mime-parser/?branch=master)
 [![Total Downloads](https://poser.pugx.org/zbateson/mail-mime-parser/downloads)](//packagist.org/packages/zbateson/mail-mime-parser)
 [![Latest Stable Version](https://poser.pugx.org/zbateson/mail-mime-parser/v)](//packagist.org/packages/zbateson/mail-mime-parser)
 
@@ -28,23 +26,13 @@ A huge thank you to [all my sponsors](https://github.com/sponsors/zbateson). <3
 
 If this project's helped you, please consider [sponsoring me](https://github.com/sponsors/zbateson).
 
-## Php 7 Support Dropped
+## New in 4.0
 
-As of mail-mime-parser 3.0, support for php 7 has been dropped.
-
-## New in 3.0
-
-Most changes in 3.0 are 'backend' changes, for example switching to PHP-DI for dependency injection, and basic usage should not be affected.
-
-The header class method 'getAllParts' includes comment parts in 3.0.
-
-Error, validation, and logging support has been added.
-
-For a more complete list of changes, please visit the [3.0 Upgrade Guide](https://mail-mime-parser.org/upgrade-3.0) and the [Usage Guide](https://mail-mime-parser.org/).
+Version 4.0 requires PHP 8.1+ and focuses on API cleanup and improved configurability.  For details, see the [4.0 Upgrade Guide](https://mail-mime-parser.org/upgrade-4.0).
 
 ## Requirements
 
-MailMimeParser requires PHP 8.0 or newer.  Tested on PHP 8.0, 8.1, 8.2, 8.3 and 8.4.
+MailMimeParser requires PHP 8.1 or newer.  Tested on PHP 8.1, 8.2, 8.3, 8.4 and 8.5.
 
 ## Usage
 
@@ -109,16 +97,29 @@ fclose($handle);
 
 ```
 
+## Encryption and Signing Plugins
+
+Optional companion packages add S/MIME and PGP/MIME support for decrypting,
+encrypting, signing and verifying messages:
+
+* [zbateson/mmp-crypt-smime](https://github.com/zbateson/mmp-crypt-smime) -- S/MIME via PHP's OpenSSL extension
+* [zbateson/mmp-crypt-gpg](https://github.com/zbateson/mmp-crypt-gpg) -- PGP/MIME via PEAR's Crypt_GPG
+
+Install either package and encrypted/signed messages are automatically detected
+and decrypted during parsing. See the [Usage Guide](https://mail-mime-parser.org/#encryption-and-signing)
+for examples of reading encrypted messages and composing signed/encrypted ones.
+
 ## Documentation
 
 * [Usage Guide](https://mail-mime-parser.org/)
-* [API Reference](https://mail-mime-parser.org/api/3.0)
+* [API Reference](https://mail-mime-parser.org/api/4.0)
 
 ## Upgrade guides
 
 * [1.x Upgrade Guide](https://mail-mime-parser.org/upgrade-1.0)
 * [2.x Upgrade Guide](https://mail-mime-parser.org/upgrade-2.0)
 * [3.x Upgrade Guide](https://mail-mime-parser.org/upgrade-3.0)
+* [4.x Upgrade Guide](https://mail-mime-parser.org/upgrade-4.0)
 
 ## License
 

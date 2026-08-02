@@ -10,6 +10,7 @@ namespace ZBateson\MailMimeParser\Header\Part;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
 use ZBateson\MailMimeParser\ErrorBag;
+use ZBateson\MailMimeParser\Header\IHeaderPart;
 use ZBateson\MbWrapper\MbWrapper;
 
 /**
@@ -24,6 +25,10 @@ class NameValuePart extends ContainerPart
      */
     protected string $name;
 
+    /**
+     * @param array<IHeaderPart> $nameParts
+     * @param array<IHeaderPart> $valueParts
+     */
     public function __construct(
         LoggerInterface $logger,
         MbWrapper $charsetConverter,
@@ -41,7 +46,7 @@ class NameValuePart extends ContainerPart
      * Creates the string 'name' representation of this part constructed from
      * the child name parts passed to it.
      *
-     * @param HeaderParts[] $parts
+     * @param IHeaderPart[] $parts
      */
     protected function getNameFromParts(array $parts) : string
     {

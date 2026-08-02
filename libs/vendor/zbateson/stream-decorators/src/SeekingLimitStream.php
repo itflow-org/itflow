@@ -38,20 +38,14 @@ class SeekingLimitStream implements StreamInterface
     private int $position = 0;
 
     /**
-     * @var StreamInterface $stream
-     */
-    private StreamInterface $stream;
-
-    /**
      * @param StreamInterface $stream Stream to wrap
      * @param int             $limit  Total number of bytes to allow to be read
      *                                from the stream. Pass -1 for no limit.
      * @param int             $offset Position to seek to before reading (only
      *                                works on seekable streams).
      */
-    public function __construct(StreamInterface $stream, int $limit = -1, int $offset = 0)
+    public function __construct(private readonly StreamInterface $stream, int $limit = -1, int $offset = 0)
     {
-        $this->stream = $stream;
         $this->setLimit($limit);
         $this->setOffset($offset);
     }
@@ -123,17 +117,11 @@ class SeekingLimitStream implements StreamInterface
      */
     public function seek($offset, $whence = SEEK_SET) : void
     {
-        $pos = $offset;
-        switch ($whence) {
-            case SEEK_CUR:
-                $pos = $this->position + $offset;
-                break;
-            case SEEK_END:
-                $pos = $this->limit + $offset;
-                break;
-            default:
-                break;
-        }
+        $pos = match ($whence) {
+            SEEK_CUR => $this->position + $offset,
+            SEEK_END => $this->limit + $offset,
+            default => $offset,
+        };
         $this->doSeek($pos);
     }
 

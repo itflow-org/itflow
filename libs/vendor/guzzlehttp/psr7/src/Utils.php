@@ -4,12 +4,17 @@ declare(strict_types=1);
 
 namespace GuzzleHttp\Psr7;
 
+use GuzzleHttp\Psr7\Exception\TimeoutException;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\StreamInterface;
 use Psr\Http\Message\UriInterface;
 
 final class Utils
 {
+    private function __construct()
+    {
+    }
+
     /**
      * Converts ASCII uppercase letters in a string to lowercase.
      *
@@ -70,9 +75,9 @@ final class Utils
     }
 
     /**
-     * Remove the items given by the keys, case insensitively from the data.
+     * Remove the items given by the keys from the data, case-insensitively.
      *
-     * @param (string|int)[] $keys
+     * @param array<array-key, string|int> $keys
      */
     public static function caselessRemove(array $keys, array $data): array
     {
@@ -93,12 +98,18 @@ final class Utils
 
     /**
      * Copy the contents of a stream into another stream until the given number
-     * of bytes have been read.
+     * of bytes have been read, returning the number of bytes copied as an
+     * `int`. On 32-bit PHP, an unbounded copy larger than `PHP_INT_MAX` bytes
+     * cannot be represented by that return type. 64-bit PHP is not affected.
      *
-     * The copy stops if the destination write returns 0, for example a
-     * BufferStream at its high water mark or a full DroppingStream. For a
-     * guaranteed full copy use a normal writable stream such as a file or
-     * php://temp stream.
+     * The destination must accept writes that make positive progress. Streams
+     * that return 0 as a backpressure or drop signal (a `BufferStream` at its
+     * high water mark, or a full `DroppingStream`) will cause this method to
+     * throw. For full copies, use a normal writable stream such as a file or
+     * `php://temp` stream.
+     *
+     * Throws `TimeoutException` when PHP-style timeout metadata can be detected
+     * after a source read or destination write cannot make progress.
      *
      * @param StreamInterface $source Stream to read from
      * @param StreamInterface $dest   Stream to write to
@@ -107,62 +118,70 @@ final class Utils
      *
      * @throws \RuntimeException on error.
      */
-    public static function copyToStream(StreamInterface $source, StreamInterface $dest, int $maxLen = -1): void
+    public static function copyToStream(StreamInterface $source, StreamInterface $dest, int $maxLen = -1): int
     {
         $bufferSize = 8192;
+        $copied = 0;
 
         if ($maxLen === -1) {
             while (!$source->eof()) {
-                $buf = $source->read($bufferSize);
+                $buf = StreamTimeout::read($source, $bufferSize, 'Unable to read from stream: timed out');
                 if ($buf === '') {
                     break;
                 }
 
-                if (!self::writeAll($dest, $buf)) {
-                    break;
-                }
+                self::writeAll($dest, $buf);
+                $copied = Integers::add($copied, strlen($buf));
             }
         } else {
             $remaining = $maxLen;
             while ($remaining > 0 && !$source->eof()) {
-                $buf = $source->read(min($bufferSize, $remaining));
+                $buf = StreamTimeout::read($source, min($bufferSize, $remaining), 'Unable to read from stream: timed out');
                 $len = strlen($buf);
                 if (!$len) {
                     break;
                 }
                 $remaining -= $len;
-                if (!self::writeAll($dest, $buf)) {
-                    break;
-                }
+                self::writeAll($dest, $buf);
+                $copied = Integers::add($copied, $len);
             }
         }
+
+        return $copied;
     }
 
-    /**
-     * Writes the full buffer to the destination, retrying short writes.
-     *
-     * Returns false when the destination write returns 0 or less.
-     */
-    private static function writeAll(StreamInterface $dest, string $buf): bool
+    private static function writeAll(StreamInterface $dest, string $buf): void
     {
         $written = 0;
         $len = strlen($buf);
 
         while ($written < $len) {
-            $result = $dest->write(substr($buf, $written));
+            try {
+                $result = $dest->write(substr($buf, $written));
+            } catch (TimeoutException $e) {
+                throw $e;
+            } catch (\RuntimeException $e) {
+                StreamTimeout::throwIfWriteTimedOut($dest, $e);
+
+                throw $e;
+            }
+
             if ($result <= 0) {
-                return false;
+                StreamTimeout::throwIfWriteTimedOut($dest);
+
+                throw new \RuntimeException('Unable to write to stream');
             }
 
             $written += $result;
         }
-
-        return true;
     }
 
     /**
      * Copy the contents of a stream into a string until the given number of
      * bytes have been read.
+     *
+     * Throws `TimeoutException` when PHP-style timeout metadata can be detected
+     * after a stream read cannot make progress.
      *
      * @param StreamInterface $stream Stream to read
      * @param int             $maxLen Maximum number of bytes to read. Pass -1
@@ -176,7 +195,7 @@ final class Utils
 
         if ($maxLen === -1) {
             while (!$stream->eof()) {
-                $buf = $stream->read(1048576);
+                $buf = StreamTimeout::read($stream, 1048576, 'Unable to read from stream: timed out');
                 if ($buf === '') {
                     break;
                 }
@@ -188,7 +207,7 @@ final class Utils
 
         $len = 0;
         while (!$stream->eof() && $len < $maxLen) {
-            $buf = $stream->read($maxLen - $len);
+            $buf = StreamTimeout::read($stream, $maxLen - $len, 'Unable to read from stream: timed out');
             if ($buf === '') {
                 break;
             }
@@ -202,8 +221,11 @@ final class Utils
     /**
      * Calculate a hash of a stream.
      *
-     * This method reads the entire stream to calculate a rolling hash, based
-     * on PHP's `hash_init` functions.
+     * This method reads the entire stream to calculate a rolling hash, based on
+     * PHP's `hash_init` functions.
+     *
+     * Throws `TimeoutException` when PHP-style timeout metadata can be detected
+     * after a stream read cannot make progress.
      *
      * @param StreamInterface $stream    Stream to calculate the hash for
      * @param string          $algo      Hash algorithm (e.g. md5, crc32, etc)
@@ -221,7 +243,12 @@ final class Utils
 
         $ctx = hash_init($algo);
         while (!$stream->eof()) {
-            hash_update($ctx, $stream->read(1048576));
+            $buf = StreamTimeout::read($stream, 1048576, 'Unable to calculate stream hash: timed out');
+            if ($buf === '') {
+                break;
+            }
+
+            hash_update($ctx, $buf);
         }
 
         $out = hash_final($ctx, $rawOutput);
@@ -242,16 +269,27 @@ final class Utils
      *   or non-empty arrays of strings.
      * - remove_headers: (array) Remove the given headers. Values may be
      *   strings or integers.
-     * - body: (mixed) Sets the given body. Present non-null values are converted
-     *   with self::streamFor(), including scalar values, resources, streams,
-     *   iterators, callable arrays, closures, invokable objects, and objects
-     *   with __toString(). String inputs remain literal bodies.
-     * - uri: (UriInterface) Set the URI.
+     * - body: (mixed) Sets the given body. Present non-null values are
+     *   converted with self::streamFor(), including resources, streams,
+     *   iterators, callable arrays, closures, invokable objects, and stringable
+     *   objects. String inputs remain literal bodies.
+     * - uri: (UriInterface) Set the URI. When the URI contains a host, the
+     *   Host header is updated from it, and combining this with an explicit
+     *   Host entry in set_headers throws an InvalidArgumentException. Apply
+     *   an intentional Host override separately with withHeader() afterwards.
      * - query: (string) Set the query string value of the URI.
      * - version: (string) Set the protocol version.
      *
      * @param RequestInterface $request Request to clone and modify.
-     * @param array            $changes Changes to apply.
+     * @param array{
+     *     method?: string,
+     *     set_headers?: array<array-key, string|non-empty-array<array-key, string>>,
+     *     remove_headers?: array<array-key, string|int>,
+     *     body?: resource|string|StreamInterface|callable|\Iterator|\Stringable,
+     *     uri?: UriInterface,
+     *     query?: string,
+     *     version?: string
+     * } $changes Changes to apply.
      */
     public static function modifyRequest(RequestInterface $request, array $changes): RequestInterface
     {
@@ -259,16 +297,20 @@ final class Utils
             return $request;
         }
 
-        self::warnOnInvalidModifyRequestChanges($changes);
+        self::assertValidModifyRequestChanges($changes);
 
         $headers = $request->getHeaders();
 
         if (!isset($changes['uri'])) {
             $uri = $request->getUri();
         } else {
-            // Remove the host header if one is on the URI
-            $host = $changes['uri']->getHost();
+            /** @var UriInterface */
+            $uri = $changes['uri'];
+
+            $host = $uri->getHost();
             if ($host !== '') {
+                Uri::assertValidHost($host);
+
                 if (isset($changes['set_headers']) && is_array($changes['set_headers'])) {
                     foreach (array_keys($changes['set_headers']) as $header) {
                         if (self::asciiToLower((string) $header) === 'host') {
@@ -281,15 +323,15 @@ final class Utils
 
                 $changes['set_headers']['Host'] = $host;
 
-                if ($port = $changes['uri']->getPort()) {
+                $port = $uri->getPort();
+                if ($port !== null) {
                     $standardPorts = ['http' => 80, 'https' => 443];
-                    $scheme = $changes['uri']->getScheme();
-                    if (isset($standardPorts[$scheme]) && $port != $standardPorts[$scheme]) {
+                    $scheme = $uri->getScheme();
+                    if (!isset($standardPorts[$scheme]) || $port != $standardPorts[$scheme]) {
                         $changes['set_headers']['Host'] .= ':'.$port;
                     }
                 }
             }
-            $uri = $changes['uri'];
         }
 
         if (!empty($changes['remove_headers'])) {
@@ -316,6 +358,7 @@ final class Utils
         // Match Request::__construct() by adding a Host header when one is not provided.
         if (!$hasHost && $uri->getHost() !== '') {
             $host = $uri->getHost();
+            Uri::assertValidHost($host);
 
             if (($port = $uri->getPort()) !== null) {
                 $host .= ':'.$port;
@@ -372,45 +415,45 @@ final class Utils
     /**
      * @param array<array-key, mixed> $changes
      */
-    private static function warnOnInvalidModifyRequestChanges(array $changes): void
+    private static function assertValidModifyRequestChanges(array $changes): void
     {
         foreach (['method', 'query', 'version'] as $key) {
             if (\array_key_exists($key, $changes) && !\is_string($changes[$key])) {
-                self::warnOnInvalidModifyRequestChange($key, 'string', $changes[$key]);
+                self::assertValidModifyRequestChange($key, 'string', $changes[$key]);
             }
         }
 
         if (\array_key_exists('uri', $changes) && !$changes['uri'] instanceof UriInterface) {
-            self::warnOnInvalidModifyRequestChange('uri', 'UriInterface', $changes['uri']);
+            self::assertValidModifyRequestChange('uri', 'UriInterface', $changes['uri']);
         }
 
         if (\array_key_exists('body', $changes) && $changes['body'] === null) {
-            self::warnOnInvalidModifyRequestChange('body', 'resource|string|int|float|bool|StreamInterface|callable|\Iterator|\Stringable', $changes['body']);
+            self::assertValidModifyRequestChange('body', 'resource|string|StreamInterface|callable|\Iterator|\Stringable', $changes['body']);
         }
 
         if (\array_key_exists('set_headers', $changes)) {
             if (!\is_array($changes['set_headers'])) {
-                self::warnOnInvalidModifyRequestChange('set_headers', 'array<array-key, string|non-empty-array<array-key, string>>', $changes['set_headers']);
+                self::assertValidModifyRequestChange('set_headers', 'array<array-key, string|non-empty-array<array-key, string>>', $changes['set_headers']);
             } else {
                 foreach ($changes['set_headers'] as $header => $value) {
                     $headerPath = \sprintf('set_headers.%s', (string) $header);
 
                     if (\is_array($value)) {
                         if ($value === []) {
-                            self::warnOnInvalidModifyRequestChange($headerPath, 'string|non-empty-array<array-key, string>', $value);
+                            self::assertValidModifyRequestChange($headerPath, 'string|non-empty-array<array-key, string>', $value);
 
                             break;
                         }
 
                         foreach ($value as $index => $item) {
                             if (!\is_string($item)) {
-                                self::warnOnInvalidModifyRequestChange(\sprintf('%s.%s', $headerPath, (string) $index), 'string', $item);
+                                self::assertValidModifyRequestChange(\sprintf('%s.%s', $headerPath, (string) $index), 'string', $item);
 
                                 break 2;
                             }
                         }
                     } elseif (!\is_string($value)) {
-                        self::warnOnInvalidModifyRequestChange($headerPath, 'string|non-empty-array<array-key, string>', $value);
+                        self::assertValidModifyRequestChange($headerPath, 'string|non-empty-array<array-key, string>', $value);
 
                         break;
                     }
@@ -423,14 +466,14 @@ final class Utils
         }
 
         if (!\is_array($changes['remove_headers'])) {
-            self::warnOnInvalidModifyRequestChange('remove_headers', 'array<array-key, string|int>', $changes['remove_headers']);
+            self::assertValidModifyRequestChange('remove_headers', 'array<array-key, string|int>', $changes['remove_headers']);
 
             return;
         }
 
         foreach ($changes['remove_headers'] as $index => $header) {
             if (!\is_string($header) && !\is_int($header)) {
-                self::warnOnInvalidModifyRequestChange(\sprintf('remove_headers.%s', (string) $index), 'string|int', $header);
+                self::assertValidModifyRequestChange(\sprintf('remove_headers.%s', (string) $index), 'string|int', $header);
 
                 return;
             }
@@ -440,20 +483,16 @@ final class Utils
     /**
      * @param mixed $value
      */
-    private static function warnOnInvalidModifyRequestChange(string $key, string $expected, $value): void
+    private static function assertValidModifyRequestChange(string $key, string $expected, $value): void
     {
-        \trigger_deprecation(
-            'guzzlehttp/psr7',
-            '2.11',
-            'Passing %s to Utils::modifyRequest() change "%s" is deprecated; guzzlehttp/psr7 3.0 requires %s.',
-            \get_debug_type($value),
-            $key,
-            $expected
-        );
+        throw new \InvalidArgumentException(\sprintf('Utils::modifyRequest() change "%s" must be %s; %s provided.', DiagnosticValue::escape($key), $expected, \get_debug_type($value)));
     }
 
     /**
      * Read a line from the stream up to the maximum allowed buffer length.
+     *
+     * Throws `TimeoutException` when PHP-style timeout metadata can be detected
+     * after a stream read cannot make progress.
      *
      * @param StreamInterface $stream    Stream to read from
      * @param int|null        $maxLength Maximum buffer length
@@ -464,7 +503,7 @@ final class Utils
         $size = 0;
 
         while (!$stream->eof()) {
-            if ('' === ($byte = $stream->read(1))) {
+            if ('' === ($byte = StreamTimeout::read($stream, 1, 'Unable to read line from stream: timed out'))) {
                 return $buffer;
             }
             $buffer .= $byte;
@@ -478,54 +517,113 @@ final class Utils
     }
 
     /**
-     * Redact the password in the user info part of a URI.
+     * Redact the user info part of a URI.
+     *
+     * Returns the URI with the whole userinfo component replaced by "***"
+     * when one is present, so neither the username nor the password survives
+     * into logs and diagnostics. A URI without userinfo is returned
+     * unchanged.
      */
-    public static function redactUserInfo(UriInterface $uri): UriInterface
-    {
-        $userInfo = $uri->getUserInfo();
+    public static function redactUserInfo(
+        #[\SensitiveParameter]
+        UriInterface $uri
+    ): UriInterface {
+        return $uri->getUserInfo() === '' ? $uri : $uri->withUserInfo('***');
+    }
 
-        if (false !== ($pos = \strpos($userInfo, ':'))) {
-            return $uri->withUserInfo(\substr($userInfo, 0, $pos), '***');
+    /**
+     * Redacts the userinfo of a raw URI string wherever it appears in a
+     * subject string.
+     *
+     * The needle is taken verbatim from the raw URI rather than from parsed
+     * components, so credentials that URI normalization would rewrite, such
+     * as raw control bytes or unencoded reserved characters, are still found
+     * in text that embeds the URI exactly as given, for example transport
+     * error messages. A URI without "://" is treated as authority-form: a
+     * host and port with optional userinfo.
+     *
+     * A URI that does not parse has no trustworthy authority boundary, so
+     * everything between any scheme and its last "@" is redacted as a safe-side
+     * fallback.
+     *
+     * @param string $subject Text that may embed the URI
+     * @param string $uri     Raw URI whose userinfo is redacted in the text
+     */
+    public static function redactUserInfoInString(string $subject, string $uri): string
+    {
+        if (\strpos($uri, '@') === false) {
+            return $subject;
         }
 
-        return $uri;
+        $schemePosition = \strpos($uri, '://');
+        $remainder = $schemePosition === false ? $uri : \substr($uri, $schemePosition + 3);
+
+        if (\parse_url($schemePosition === false ? 'http://'.$uri : $uri) === false) {
+            // Raw '/', '?', or '#' separators may sit inside the credentials
+            // of a URI that defeats parse_url(), so the redaction cannot stop
+            // at the apparent authority.
+            $atPosition = \strrpos($remainder, '@');
+
+            if ($atPosition === false || $atPosition === 0) {
+                return $subject;
+            }
+
+            return \str_replace(\substr($remainder, 0, $atPosition).'@', '***@', $subject);
+        }
+
+        $authority = \substr($remainder, 0, \strcspn($remainder, '/?#'));
+        $atPosition = \strrpos($authority, '@');
+
+        if ($atPosition === false || $atPosition === 0) {
+            // A parseable URI with '@' only past its authority, or with an
+            // empty userinfo, carries no credentials to redact.
+            return $subject;
+        }
+
+        return \str_replace(\substr($authority, 0, $atPosition).'@', '***@', $subject);
     }
 
     /**
      * Create a new stream based on the input type.
      *
-     * Options is an associative array that can contain the following keys:
+     * Options are provided as an associative array that can contain the
+     * following keys:
      * - metadata: Array of custom metadata.
      * - size: Size of the stream.
      *
      * This method accepts the following `$resource` types:
      * - `Psr\Http\Message\StreamInterface`: Returns the value as-is.
-     * - `string`: Creates a stream object that uses the given string as the contents.
-     * - `resource`: Creates a stream object that wraps the given PHP stream resource.
-     * - `Iterator`: If the provided value implements `Iterator`, then a read-only
-     *   stream object will be created that wraps the given iterable. Each time the
-     *   stream is read from, data from the iterator will fill a buffer and will be
-     *   continuously called until the buffer is equal to the requested read size.
-     *   Subsequent read calls will first read from the buffer and then call `next`
-     *   on the underlying iterator until it is exhausted.
-     * - `object` with `__toString()`: If the object has the `__toString()` method,
-     *   the object will be cast to a string and then a stream will be returned that
-     *   uses the string value.
+     * - `string`: Creates a stream object that uses the given string as the
+     *   contents.
+     * - `resource`: Creates a stream object that wraps the given PHP stream
+     *   resource.
+     * - `Iterator`: If the provided value implements `Iterator`, then a
+     *   read-only stream object will be created that wraps the given iterable.
+     *   Each time the stream is read from, data from the iterator will fill a
+     *   buffer and will be continuously called until the buffer is equal to the
+     *   requested read size. Yielded strings, integers, finite floats,
+     *   booleans, `null`, and stringable objects are converted to string
+     *   chunks; non-finite floats and other values throw
+     *   `UnexpectedValueException` when the stream is read. Values that
+     *   stringify to an empty string are skipped while the iterator advances.
+     *   Subsequent read calls will first read from the buffer and then call
+     *   `next` on the underlying iterator until it is exhausted.
+     * - `object` with `__toString()`: If the object has the `__toString()`
+     *   method, the object will be cast to a string and then a stream will be
+     *   returned that uses the string value.
      * - `NULL`: When `null` is passed, an empty stream object is returned.
-     * - `callable`: When a callable array, closure, or invokable object is passed
-     *   and no earlier resource or object rule applies, a read-only stream object
-     *   will be created that invokes the given callable. The callable is invoked
-     *   with the suggested number of bytes to read. The callable can return fewer
-     *   or more bytes than requested, but MUST return `false` or `null` when there
-     *   is no more data to return. Any additional bytes will be buffered and used
-     *   in subsequent reads. String inputs are always treated as string bodies,
-     *   even when they name callable functions.
+     * - `callable`: When a callable array, closure, or invokable object is
+     *   passed and no earlier resource or object rule applies, a read-only
+     *   stream object will be created that invokes the given callable. The
+     *   callable is invoked with the suggested number of bytes to read. The
+     *   callable can return fewer or more bytes than requested, but MUST return
+     *   a non-empty string to provide data and MUST return `false` or `null`
+     *   when there is no more data to return. Any additional bytes will be
+     *   buffered and used in subsequent reads. String inputs are always treated
+     *   as string bodies, even when they name callable functions.
      *
-     * Passing a non-string scalar (`int`, `float`, or `bool`) is deprecated; cast
-     * it to a string instead. guzzlehttp/psr7 3.0 will reject non-string scalars.
-     *
-     * @param resource|string|int|float|bool|StreamInterface|callable|\Iterator|null $resource Entity body data
-     * @param array{size?: int, metadata?: array}                                    $options  Additional options
+     * @param resource|string|StreamInterface|callable|\Iterator|\Stringable|null $resource Entity body data
+     * @param array{size?: int, metadata?: array}                                 $options  Additional options
      *
      * @throws \InvalidArgumentException if the $resource arg is not valid.
      */
@@ -533,24 +631,15 @@ final class Utils
     {
         if (is_scalar($resource)) {
             if (!is_string($resource)) {
-                \trigger_deprecation(
-                    'guzzlehttp/psr7',
-                    '2.12',
-                    'Passing %s to Utils::streamFor() is deprecated; cast it to a string. guzzlehttp/psr7 3.0 will only accept string, resource, StreamInterface, Stringable, Iterator, callable, or null.',
-                    \gettype($resource)
-                );
-
-                if (is_float($resource) && !is_finite($resource)) {
-                    // Normalized only to avoid PHP 8.5's (string) NAN warning
-                    // while deprecated; 3.0 rejects non-finite floats with every
-                    // other non-string scalar.
-                    $resource = is_nan($resource) ? 'NAN' : ($resource > 0 ? 'INF' : '-INF');
-                }
+                throw new \InvalidArgumentException(\sprintf(
+                    'Cannot create a stream from %s; pass a string, resource, StreamInterface, Stringable, Iterator, callable, or null.',
+                    \get_debug_type($resource)
+                ));
             }
 
             $stream = self::tryFopen('php://temp', 'r+');
             if ($resource !== '') {
-                fwrite($stream, (string) $resource);
+                fwrite($stream, $resource);
                 fseek($stream, 0);
             }
 
@@ -578,14 +667,29 @@ final class Utils
                 if ($resource instanceof StreamInterface) {
                     return $resource;
                 } elseif ($resource instanceof \Iterator) {
-                    return new PumpStream(function () use ($resource) {
-                        if (!$resource->valid()) {
-                            return false;
-                        }
-                        $result = $resource->current();
-                        $resource->next();
+                    return new PumpStream(function (int $length) use ($resource) {
+                        while ($resource->valid()) {
+                            $result = $resource->current();
+                            $resource->next();
 
-                        return $result;
+                            if (is_float($result) && !is_finite($result)) {
+                                throw new \UnexpectedValueException('Iterator must not yield non-finite float values');
+                            }
+
+                            if ($result === null || is_scalar($result)) {
+                                $data = (string) $result;
+                            } elseif (is_object($result) && method_exists($result, '__toString')) {
+                                $data = (string) $result;
+                            } else {
+                                throw new \UnexpectedValueException('Iterator must yield scalar, null, or stringable values');
+                            }
+
+                            if ($data !== '') {
+                                return $data;
+                            }
+                        }
+
+                        return false;
                     }, $options);
                 } elseif (method_exists($resource, '__toString')) {
                     return self::streamFor((string) $resource, $options);
@@ -599,14 +703,14 @@ final class Utils
             return new PumpStream($resource, $options);
         }
 
-        throw new \InvalidArgumentException('Invalid resource type: '.gettype($resource));
+        throw new \InvalidArgumentException('Invalid resource type: '.\get_debug_type($resource));
     }
 
     /**
      * Safely opens a PHP stream resource using a filename.
      *
-     * When fopen fails, PHP normally raises a warning. This function adds an
-     * error handler that checks for errors and throws an exception instead.
+     * When `fopen()` fails, PHP normally raises a warning. This function adds
+     * an error handler that checks for errors and throws an exception instead.
      *
      * @param string $filename File to open
      * @param string $mode     Mode used to open the file
@@ -619,12 +723,7 @@ final class Utils
     {
         $ex = null;
         set_error_handler(static function (int $errno, string $errstr) use ($filename, $mode, &$ex): bool {
-            $ex = new \RuntimeException(sprintf(
-                'Unable to open "%s" using mode "%s": %s',
-                $filename,
-                $mode,
-                $errstr
-            ));
+            $ex = new \RuntimeException(sprintf('Unable to open %s using mode %s: %s', DiagnosticValue::escape($filename), DiagnosticValue::escape($mode), DiagnosticValue::escape($errstr)));
 
             return true;
         });
@@ -633,12 +732,7 @@ final class Utils
             /** @var resource $handle */
             $handle = fopen($filename, $mode);
         } catch (\Throwable $e) {
-            $ex = new \RuntimeException(sprintf(
-                'Unable to open "%s" using mode "%s": %s',
-                $filename,
-                $mode,
-                $e->getMessage()
-            ), 0, $e);
+            $ex = new \RuntimeException(sprintf('Unable to open %s using mode %s: %s', DiagnosticValue::escape($filename), DiagnosticValue::escape($mode), $e->getMessage()), 0, $e);
         }
 
         restore_error_handler();
@@ -654,9 +748,12 @@ final class Utils
     /**
      * Safely gets the contents of a given stream.
      *
-     * When stream_get_contents fails, PHP normally raises a warning. This
+     * When `stream_get_contents()` fails, PHP normally raises a warning. This
      * function adds an error handler that checks for errors and throws an
      * exception instead.
+     *
+     * Throws `TimeoutException` when PHP-style timeout metadata can be detected
+     * after a stream read cannot make progress.
      *
      * @param resource $stream
      *
@@ -666,10 +763,7 @@ final class Utils
     {
         $ex = null;
         set_error_handler(static function (int $errno, string $errstr) use (&$ex): bool {
-            $ex = new \RuntimeException(sprintf(
-                'Unable to read stream contents: %s',
-                $errstr
-            ));
+            $ex = new \RuntimeException(sprintf('Unable to read stream contents: %s', DiagnosticValue::escape($errstr)));
 
             return true;
         });
@@ -679,13 +773,18 @@ final class Utils
             $contents = stream_get_contents($stream);
 
             if ($contents === false) {
-                $ex = new \RuntimeException('Unable to read stream contents');
+                $ex = StreamTimeout::isResourceReadTimedOut($stream)
+                    ? new TimeoutException('Unable to read stream contents: timed out')
+                    : new \RuntimeException('Unable to read stream contents');
+            } elseif (StreamTimeout::isResourceReadTimedOut($stream)) {
+                $ex = new TimeoutException('Unable to read stream contents: timed out');
             }
+        } catch (TimeoutException $e) {
+            $ex = $e;
         } catch (\Throwable $e) {
-            $ex = new \RuntimeException(sprintf(
-                'Unable to read stream contents: %s',
-                $e->getMessage()
-            ), 0, $e);
+            $ex = StreamTimeout::isResourceReadTimedOut($stream)
+                ? new TimeoutException('Unable to read stream contents: timed out', 0, $e)
+                : new \RuntimeException(sprintf('Unable to read stream contents: %s', $e->getMessage()), 0, $e);
         }
 
         restore_error_handler();
@@ -699,11 +798,11 @@ final class Utils
     }
 
     /**
-     * Returns a UriInterface for the given value.
+     * Returns a `UriInterface` for the given value.
      *
-     * This function accepts a string or UriInterface and returns a
-     * UriInterface for the given value. If the value is already a
-     * UriInterface, it is returned as-is.
+     * This function accepts a string or `UriInterface` and returns a
+     * `UriInterface` for the given value. If the value is already a
+     * `UriInterface`, it is returned as-is.
      *
      * @param string|UriInterface $uri
      *

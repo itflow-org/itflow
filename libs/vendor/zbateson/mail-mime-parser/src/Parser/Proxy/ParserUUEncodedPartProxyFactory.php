@@ -8,6 +8,7 @@
 namespace ZBateson\MailMimeParser\Parser\Proxy;
 
 use Psr\Log\LoggerInterface;
+use ZBateson\MailMimeParser\Message\IMimePart;
 use ZBateson\MailMimeParser\Message\UUEncodedPart;
 use ZBateson\MailMimeParser\Parser\IParserService;
 use ZBateson\MailMimeParser\Parser\Part\ParserPartStreamContainerFactory;
@@ -22,20 +23,12 @@ use ZBateson\MailMimeParser\Stream\StreamFactory;
  */
 class ParserUUEncodedPartProxyFactory extends ParserPartProxyFactory
 {
-    protected LoggerInterface $logger;
-
-    protected StreamFactory $streamFactory;
-
-    protected ParserPartStreamContainerFactory $parserPartStreamContainerFactory;
-
     public function __construct(
-        LoggerInterface $logger,
-        StreamFactory $sdf,
-        ParserPartStreamContainerFactory $parserPartStreamContainerFactory
+        protected readonly LoggerInterface $logger,
+        protected readonly StreamFactory $streamFactory,
+        protected readonly ParserPartStreamContainerFactory $parserPartStreamContainerFactory,
+        protected readonly string $defaultFallbackCharset = 'ISO-8859-1'
     ) {
-        $this->logger = $logger;
-        $this->streamFactory = $sdf;
-        $this->parserPartStreamContainerFactory = $parserPartStreamContainerFactory;
     }
 
     /**
@@ -46,12 +39,15 @@ class ParserUUEncodedPartProxyFactory extends ParserPartProxyFactory
         $parserProxy = new ParserUUEncodedPartProxy($partBuilder, $parser);
         $streamContainer = $this->parserPartStreamContainerFactory->newInstance($parserProxy);
 
+        $parent = $partBuilder->getParent()?->getPart();
+        \assert($parent === null || $parent instanceof IMimePart);
         $part = new UUEncodedPart(
             $parserProxy->getUnixFileMode(),
             $parserProxy->getFileName(),
-            $partBuilder->getParent()->getPart(),
+            $parent,
             $this->logger,
-            $streamContainer
+            $streamContainer,
+            $this->defaultFallbackCharset
         );
         $parserProxy->setPart($part);
 

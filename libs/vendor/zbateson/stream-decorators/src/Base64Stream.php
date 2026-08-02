@@ -47,7 +47,7 @@ class Base64Stream implements StreamInterface
     /**
      * @var BufferStream buffered bytes
      */
-    private BufferStream $buffer;
+    private readonly BufferStream $buffer;
 
     /**
      * @var string remainder of write operation if the bytes didn't align to 3
@@ -60,14 +60,8 @@ class Base64Stream implements StreamInterface
      */
     private int $position = 0;
 
-    /**
-     * @var StreamInterface $stream
-     */
-    private StreamInterface $stream;
-
-    public function __construct(StreamInterface $stream)
+    public function __construct(private readonly StreamInterface $stream)
     {
-        $this->stream = $stream;
         $this->buffer = new BufferStream();
     }
 
@@ -98,7 +92,7 @@ class Base64Stream implements StreamInterface
      * @param int $whence
      * @throws RuntimeException
      */
-    public function seek($offset, $whence = SEEK_SET) : void
+    public function seek($offset, $whence = SEEK_SET) : never
     {
         throw new RuntimeException('Cannot seek a Base64Stream');
     }

@@ -19,39 +19,12 @@ use ZBateson\MailMimeParser\Message\Factory\PartHeaderContainerFactory;
  */
 class MessageParserService
 {
-    /**
-     * @var PartHeaderContainerFactory To create a container to read the
-     *      message's headers into.
-     */
-    protected PartHeaderContainerFactory $partHeaderContainerFactory;
-
-    /**
-     * @var ParserManagerService To figure out what parser is responsible for parsing a
-     *      message.
-     */
-    protected ParserManagerService $parserManager;
-
-    /**
-     * @var PartBuilderFactory To create a PartBuilder representing this
-     *      message, and to pass it to ParserManager.
-     */
-    protected PartBuilderFactory $partBuilderFactory;
-
-    /**
-     * @var HeaderParserService To parse the headers into a PartHeaderContainer.
-     */
-    protected HeaderParserService $headerParser;
-
     public function __construct(
-        PartBuilderFactory $pbf,
-        PartHeaderContainerFactory $phcf,
-        ParserManagerService $pm,
-        HeaderParserService $hp
+        protected readonly PartBuilderFactory $partBuilderFactory,
+        protected readonly PartHeaderContainerFactory $partHeaderContainerFactory,
+        protected readonly ParserManagerService $parserManager,
+        protected readonly HeaderParserService $headerParser
     ) {
-        $this->partBuilderFactory = $pbf;
-        $this->partHeaderContainerFactory = $phcf;
-        $this->parserManager = $pm;
-        $this->headerParser = $hp;
     }
 
     /**
@@ -90,6 +63,8 @@ class MessageParserService
             $headerContainer
         );
         $proxy = $this->parserManager->createParserProxyFor($partBuilder);
-        return $proxy->getPart();
+        $part = $proxy->getPart();
+        \assert($part instanceof IMessage);
+        return $part;
     }
 }

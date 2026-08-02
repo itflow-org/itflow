@@ -9,6 +9,7 @@ namespace ZBateson\MailMimeParser\Header;
 
 use Psr\Log\LoggerInterface;
 use ReflectionClass;
+use ReflectionNamedType;
 use ZBateson\MailMimeParser\Header\Consumer\AddressBaseConsumerService;
 use ZBateson\MailMimeParser\Header\Consumer\DateConsumerService;
 use ZBateson\MailMimeParser\Header\Consumer\GenericConsumerMimeLiteralPartService;
@@ -41,22 +42,15 @@ use ZBateson\MailMimeParser\Header\Part\MimeTokenPartFactory;
  */
 class HeaderFactory
 {
-    protected LoggerInterface $logger;
-
     /**
      * @var IConsumerService[] array of available consumer service classes
      */
     protected array $consumerServices;
 
     /**
-     * @var MimeTokenPartFactory for mime decoding.
-     */
-    protected MimeTokenPartFactory $mimeTokenPartFactory;
-
-    /**
      * @var string[][] maps IHeader types to headers.
      */
-    protected $types = [
+    protected array $types = [
         AddressHeader::class => [
             'from',
             'to',
@@ -106,11 +100,11 @@ class HeaderFactory
      * @var string Defines the generic IHeader type to use for headers that
      *      aren't mapped in $types
      */
-    protected $genericType = GenericHeader::class;
+    protected string $genericType = GenericHeader::class;
 
     public function __construct(
-        LoggerInterface $logger,
-        MimeTokenPartFactory $mimeTokenPartFactory,
+        protected readonly LoggerInterface $logger,
+        protected readonly MimeTokenPartFactory $mimeTokenPartFactory,
         AddressBaseConsumerService $addressBaseConsumerService,
         DateConsumerService $dateConsumerService,
         GenericConsumerMimeLiteralPartService $genericConsumerMimeLiteralPartService,
@@ -119,8 +113,6 @@ class HeaderFactory
         ReceivedConsumerService $receivedConsumerService,
         SubjectConsumerService $subjectConsumerService
     ) {
-        $this->logger = $logger;
-        $this->mimeTokenPartFactory = $mimeTokenPartFactory;
         $this->consumerServices = [
             AddressBaseConsumerService::class => $addressBaseConsumerService,
             DateConsumerService::class => $dateConsumerService,
@@ -195,19 +187,23 @@ class HeaderFactory
         $ref = new ReflectionClass($iHeaderClass);
         $params = $ref->getConstructor()->getParameters();
         if ($ref->isSubclassOf(MimeEncodedHeader::class)) {
+            $type = $params[4]->getType();
+            \assert($type instanceof ReflectionNamedType);
             return new $iHeaderClass(
                 $name,
                 $value,
                 $this->logger,
                 $this->mimeTokenPartFactory,
-                $this->consumerServices[$params[4]->getType()->getName()]
+                $this->consumerServices[$type->getName()]
             );
         }
+        $type = $params[3]->getType();
+        \assert($type instanceof ReflectionNamedType);
         return new $iHeaderClass(
             $name,
             $value,
             $this->logger,
-            $this->consumerServices[$params[3]->getType()->getName()]
+            $this->consumerServices[$type->getName()]
         );
     }
 }

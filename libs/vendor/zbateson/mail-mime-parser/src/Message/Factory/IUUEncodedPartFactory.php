@@ -29,7 +29,8 @@ class IUUEncodedPartFactory extends IMessagePartFactory
             null,
             $parent,
             $this->logger,
-            $streamContainer
+            $streamContainer,
+            $this->defaultFallbackCharset
         );
         $streamContainer->setStream($this->streamFactory->newMessagePartStream($part));
         return $part;

@@ -47,14 +47,16 @@ class Message extends MimePart implements IMessage
         ?PartHeaderContainer $headerContainer = null,
         ?PartChildrenContainer $partChildrenContainer = null,
         ?MultipartHelper $multipartHelper = null,
-        ?PrivacyHelper $privacyHelper = null
+        ?PrivacyHelper $privacyHelper = null,
+        string $defaultFallbackCharset = 'ISO-8859-1'
     ) {
         parent::__construct(
             null,
             $logger,
             $streamContainer,
             $headerContainer,
-            $partChildrenContainer
+            $partChildrenContainer,
+            $defaultFallbackCharset
         );
         $di = MailMimeParser::getGlobalContainer();
         $this->multipartHelper = $multipartHelper ?? $di->get(MultipartHelper::class);
@@ -67,24 +69,23 @@ class Message extends MimePart implements IMessage
      *
      * If the passed $resource is a resource handle or StreamInterface, the
      * resource must remain open while the returned IMessage object exists.
-     * Pass true as the second argument to have the resource attached to the
-     * IMessage and closed for you when it's destroyed, or pass false to
-     * manually close it if it should remain open after the IMessage object is
-     * destroyed.
+     * Pass true as the second argument to have the resource automatically
+     * closed when the returned IMessage is destroyed, or pass false to
+     * manage the resource lifecycle yourself.
      *
      * @param resource|StreamInterface|string $resource The resource handle to
      *        the input stream of the mime message, or a string containing a
      *        mime message.
-     * @param bool $attached pass true to have it attached to the returned
-     *        IMessage and destroyed with it.
+     * @param bool $autoClose pass true to have the resource closed
+     *        automatically when the returned IMessage is destroyed.
      */
-    public static function from(mixed $resource, bool $attached) : IMessage
+    public static function from(mixed $resource, bool $autoClose) : IMessage
     {
         static $mmp = null;
         if ($mmp === null) {
             $mmp = new MailMimeParser();
         }
-        return $mmp->parse($resource, $attached);
+        return $mmp->parse($resource, $autoClose);
     }
 
     /**
@@ -196,44 +197,48 @@ class Message extends MimePart implements IMessage
         return $this;
     }
 
-    public function removeTextPart(int $index = 0) : bool
+    public function removeTextPart(int $index = 0) : static
     {
-        return $this->multipartHelper
+        $this->multipartHelper
             ->removePartByMimeType(
                 $this,
                 'text/plain',
                 $index
             );
+        return $this;
     }
 
-    public function removeAllTextParts(bool $moveRelatedPartsBelowMessage = true) : bool
+    public function removeAllTextParts(bool $moveRelatedPartsBelowMessage = true) : static
     {
-        return $this->multipartHelper
+        $this->multipartHelper
             ->removeAllContentPartsByMimeType(
                 $this,
                 'text/plain',
                 $moveRelatedPartsBelowMessage
             );
+        return $this;
     }
 
-    public function removeHtmlPart(int $index = 0) : bool
+    public function removeHtmlPart(int $index = 0) : static
     {
-        return $this->multipartHelper
+        $this->multipartHelper
             ->removePartByMimeType(
                 $this,
                 'text/html',
                 $index
             );
+        return $this;
     }
 
-    public function removeAllHtmlParts(bool $moveRelatedPartsBelowMessage = true) : bool
+    public function removeAllHtmlParts(bool $moveRelatedPartsBelowMessage = true) : static
     {
-        return $this->multipartHelper
+        $this->multipartHelper
             ->removeAllContentPartsByMimeType(
                 $this,
                 'text/html',
                 $moveRelatedPartsBelowMessage
             );
+        return $this;
     }
 
     public function getAttachmentPart(int $index) : ?IMessagePart
@@ -332,11 +337,12 @@ class Message extends MimePart implements IMessage
     {
         $params = '';
         if (!empty($this->getMessageId())) {
-            $params .= ', message-id=' . $this->getContentId();
+            $params .= ', message-id=' . $this->getMessageId();
         }
         $params .= ', content-type=' . $this->getContentType();
         $nsClass = static::class;
-        $class = \substr($nsClass, (\strrpos($nsClass, '\\') ?? -1) + 1);
+        $pos = \strrpos($nsClass, '\\');
+        $class = ($pos !== false) ? \substr($nsClass, $pos + 1) : $nsClass;
         return $class . '(' . \spl_object_id($this) . $params . ')';
     }
 }

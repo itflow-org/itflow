@@ -11,7 +11,6 @@ use Psr\Log\LoggerInterface;
 use ZBateson\MailMimeParser\Header\Consumer\AddressBaseConsumerService;
 use ZBateson\MailMimeParser\Header\Part\AddressGroupPart;
 use ZBateson\MailMimeParser\Header\Part\AddressPart;
-use ZBateson\MailMimeParser\MailMimeParser;
 
 /**
  * A header containing one or more email addresses and/or groups of addresses.
@@ -44,10 +43,9 @@ class AddressHeader extends AbstractHeader
         ?LoggerInterface $logger = null,
         ?AddressBaseConsumerService $consumerService = null
     ) {
-        $di = MailMimeParser::getGlobalContainer();
         parent::__construct(
-            $logger ?? $di->get(LoggerInterface::class),
-            $consumerService ?? $di->get(AddressBaseConsumerService::class),
+            self::resolveService($logger, LoggerInterface::class),
+            self::resolveService($consumerService, AddressBaseConsumerService::class),
             $name,
             $value
         );
@@ -55,7 +53,7 @@ class AddressHeader extends AbstractHeader
 
     /**
      * Filters $this->allParts into the parts required by $this->parts
-     * and assignes it.
+     * and assigns it.
      *
      * The AbstractHeader::filterAndAssignToParts method filters out CommentParts.
      */
@@ -107,6 +105,30 @@ class AddressHeader extends AbstractHeader
             }
         }
         return false;
+    }
+
+    public function getDecodedValue() : string
+    {
+        $parts = [];
+        foreach ($this->parts as $part) {
+            if ($part instanceof AddressGroupPart) {
+                $addrs = \array_map(fn(AddressPart $a) => $this->formatAddress($a), $part->getAddresses());
+                $parts[] = $part->getName() . ': ' . \implode(', ', $addrs) . ';';
+            } elseif ($part instanceof AddressPart) {
+                $parts[] = $this->formatAddress($part);
+            }
+        }
+        return \implode(', ', $parts);
+    }
+
+    private function formatAddress(AddressPart $address) : string
+    {
+        $name = $address->getName();
+        $email = $address->getEmail();
+        if ($name !== '') {
+            return $name . ' <' . $email . '>';
+        }
+        return $email;
     }
 
     /**

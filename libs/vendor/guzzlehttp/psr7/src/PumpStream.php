@@ -13,38 +13,37 @@ use Psr\Http\Message\StreamInterface;
  * number of bytes to read to the callable. The callable can choose to ignore
  * this value and return fewer or more bytes than requested. Any extra data
  * returned by the callable is buffered internally until drained using the
- * read() function of the PumpStream. The callable MUST return false or null
- * when there is no more data to read.
+ * read() function of the PumpStream. The callable MUST return a non-empty
+ * string when data is available, or false or null when there is no more data
+ * to read.
  *
  * Userland callables that declare no parameters are tolerated by PHP, but
  * length-aware callables remain the recommended formal shape.
  */
 final class PumpStream implements StreamInterface
 {
+    use NonSerializableStreamTrait;
+
     /** @var callable|null */
     private $source;
 
-    /** @var int|null */
-    private $size;
+    private ?int $size;
 
-    /** @var int */
-    private $tellPos = 0;
+    private int $tellPos = 0;
 
-    /** @var array */
-    private $metadata;
+    private array $metadata;
 
-    /** @var BufferStream */
-    private $buffer;
+    private BufferStream $buffer;
 
     /**
      * @param (callable(): (string|false|null))|(callable(int): (string|false|null)) $source  Source of the stream data. The callable receives
      *                                                                                        the suggested number of bytes to read, may ignore
      *                                                                                        that value, and may return fewer or more bytes.
      *                                                                                        Extra bytes are buffered. The callable MUST return
-     *                                                                                        a string when called, or false|null on error or EOF.
-     *                                                                                        Userland callables that declare no parameters are
-     *                                                                                        tolerated by PHP, but length-aware callables remain
-     *                                                                                        the recommended formal shape.
+     *                                                                                        a non-empty string when producing data, or false|null
+     *                                                                                        on error or EOF. Userland callables that declare no
+     *                                                                                        parameters are tolerated by PHP, but length-aware
+     *                                                                                        callables remain the recommended formal shape.
      * @param array{size?: int, metadata?: array}                                    $options Stream options:
      *                                                                                        - metadata: Hash of metadata to use with stream.
      *                                                                                        - size: Size of the stream, if known.
@@ -52,23 +51,25 @@ final class PumpStream implements StreamInterface
     public function __construct(callable $source, array $options = [])
     {
         $this->source = $source;
-        $this->size = $options['size'] ?? null;
+        $this->size = Integers::assertOptionalNonNegativeSize($options['size'] ?? null, 'Stream size');
         $this->metadata = $options['metadata'] ?? [];
         $this->buffer = new BufferStream();
     }
 
+    public function __unserialize(array $data): void
+    {
+        $this->source = null;
+        $this->size = null;
+        $this->tellPos = 0;
+        $this->metadata = [];
+        $this->buffer = new BufferStream();
+
+        throw new \LogicException(static::class.' should never be unserialized');
+    }
+
     public function __toString(): string
     {
-        try {
-            return Utils::copyToString($this);
-        } catch (\Throwable $e) {
-            if (\PHP_VERSION_ID >= 70400) {
-                throw $e;
-            }
-            trigger_error(sprintf('%s::__toString exception: %s', self::class, (string) $e), E_USER_ERROR);
-
-            return '';
-        }
+        return Utils::copyToString($this);
     }
 
     public function close(): void
@@ -80,6 +81,7 @@ final class PumpStream implements StreamInterface
     {
         $this->tellPos = 0;
         $this->source = null;
+        $this->buffer->close();
 
         return null;
     }
@@ -109,26 +111,8 @@ final class PumpStream implements StreamInterface
         $this->seek(0);
     }
 
-    public function seek($offset, $whence = SEEK_SET): void
+    public function seek(int $offset, int $whence = SEEK_SET): void
     {
-        if (!\is_int($offset)) {
-            \trigger_deprecation(
-                'guzzlehttp/psr7',
-                '2.11',
-                'Passing %s to StreamInterface::seek() is deprecated; guzzlehttp/psr7 3.0 requires int for $offset.',
-                \get_debug_type($offset)
-            );
-        }
-
-        if (!\is_int($whence)) {
-            \trigger_deprecation(
-                'guzzlehttp/psr7',
-                '2.11',
-                'Passing %s to StreamInterface::seek() is deprecated; guzzlehttp/psr7 3.0 requires int for $whence.',
-                \get_debug_type($whence)
-            );
-        }
-
         throw new \RuntimeException('Cannot seek a PumpStream');
     }
 
@@ -137,17 +121,8 @@ final class PumpStream implements StreamInterface
         return false;
     }
 
-    public function write($string): int
+    public function write(string $string): int
     {
-        if (!\is_string($string)) {
-            \trigger_deprecation(
-                'guzzlehttp/psr7',
-                '2.11',
-                'Passing %s to StreamInterface::write() is deprecated; guzzlehttp/psr7 3.0 requires string for $string.',
-                \get_debug_type($string)
-            );
-        }
-
         throw new \RuntimeException('Cannot write to a PumpStream');
     }
 
@@ -156,56 +131,35 @@ final class PumpStream implements StreamInterface
         return true;
     }
 
-    public function read($length): string
+    public function read(int $length): string
     {
-        if (!\is_int($length)) {
-            \trigger_deprecation(
-                'guzzlehttp/psr7',
-                '2.11',
-                'Passing %s to StreamInterface::read() is deprecated; guzzlehttp/psr7 3.0 requires int for $length.',
-                \get_debug_type($length)
-            );
+        if ($length < 0) {
+            throw new \RuntimeException('Length parameter cannot be negative');
+        }
+
+        $bufferLength = $this->buffer->getSize() ?? 0;
+
+        if ($length > $bufferLength) {
+            $this->pump($length - $bufferLength);
         }
 
         $data = $this->buffer->read($length);
-        $readLen = strlen($data);
-        $this->tellPos += $readLen;
-        $remaining = $length - $readLen;
-
-        if ($remaining) {
-            $this->pump($remaining);
-            $data .= $this->buffer->read($remaining);
-            $this->tellPos += strlen($data) - $readLen;
-        }
+        $this->tellPos = Integers::add($this->tellPos, strlen($data));
 
         return $data;
     }
 
     public function getContents(): string
     {
-        $result = '';
-        while (!$this->eof()) {
-            $result .= $this->read(1000000);
-        }
-
-        return $result;
+        return Utils::copyToString($this);
     }
 
     /**
      * @return mixed
      */
-    public function getMetadata($key = null)
+    public function getMetadata(?string $key = null)
     {
-        if ($key !== null && !\is_string($key)) {
-            \trigger_deprecation(
-                'guzzlehttp/psr7',
-                '2.11',
-                'Passing %s to StreamInterface::getMetadata() is deprecated; guzzlehttp/psr7 3.0 requires string|null for $key.',
-                \get_debug_type($key)
-            );
-        }
-
-        if (!$key) {
+        if ($key === null) {
             return $this->metadata;
         }
 
@@ -216,12 +170,18 @@ final class PumpStream implements StreamInterface
     {
         if ($this->source !== null) {
             do {
+                /** @var string|false|null $data */
                 $data = ($this->source)($length);
                 if ($data === false || $data === null) {
                     $this->source = null;
 
                     return;
                 }
+
+                if ($data === '') {
+                    throw new \RuntimeException('PumpStream source returned an empty string');
+                }
+
                 $this->buffer->write($data);
                 $length -= strlen($data);
             } while ($length > 0);

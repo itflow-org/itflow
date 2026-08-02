@@ -25,19 +25,6 @@ use ZBateson\MailMimeParser\Header\Part\MimeToken;
  */
 abstract class AbstractConsumerService implements IConsumerService
 {
-    protected LoggerInterface $logger;
-
-    /**
-     * @var HeaderPartFactory used to construct IHeaderPart objects
-     */
-    protected HeaderPartFactory $partFactory;
-
-    /**
-     * @var AbstractConsumerService[] array of sub-consumers used by this
-     *      consumer if any, or an empty array if none exist.
-     */
-    protected array $subConsumers = [];
-
     /**
      * @var ?string the generated token split pattern on first run, so it doesn't
      *      need to be regenerated every time.
@@ -47,11 +34,11 @@ abstract class AbstractConsumerService implements IConsumerService
     /**
      * @param AbstractConsumerService[] $subConsumers
      */
-    public function __construct(LoggerInterface $logger, HeaderPartFactory $partFactory, array $subConsumers = [])
-    {
-        $this->logger = $logger;
-        $this->partFactory = $partFactory;
-        $this->subConsumers = $subConsumers;
+    public function __construct(
+        protected readonly LoggerInterface $logger,
+        protected readonly HeaderPartFactory $partFactory,
+        protected array $subConsumers = []
+    ) {
     }
 
     public function __invoke(string $value) : array

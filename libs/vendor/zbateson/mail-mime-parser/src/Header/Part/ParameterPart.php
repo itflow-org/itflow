@@ -8,6 +8,7 @@
 namespace ZBateson\MailMimeParser\Header\Part;
 
 use Psr\Log\LoggerInterface;
+use ZBateson\MailMimeParser\Header\IHeaderPart;
 use ZBateson\MbWrapper\MbWrapper;
 
 /**
@@ -40,7 +41,7 @@ class ParameterPart extends NameValuePart
     protected bool $encoded = false;
 
     /**
-     * @param HeaderPart[] $nameParts
+     * @param IHeaderPart[] $nameParts
      */
     public function __construct(
         LoggerInterface $logger,

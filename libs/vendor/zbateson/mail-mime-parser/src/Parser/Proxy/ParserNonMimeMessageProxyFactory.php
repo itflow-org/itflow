@@ -36,7 +36,8 @@ class ParserNonMimeMessageProxyFactory extends ParserMessageProxyFactory
             $headerContainer,
             $childrenContainer,
             $this->multipartHelper,
-            $this->privacyHelper
+            $this->privacyHelper,
+            $this->defaultFallbackCharset
         );
         $parserProxy->setPart($message);
 

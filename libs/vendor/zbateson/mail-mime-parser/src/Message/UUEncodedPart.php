@@ -17,31 +17,21 @@ use ZBateson\MailMimeParser\MailMimeParser;
  */
 class UUEncodedPart extends NonMimePart implements IUUEncodedPart
 {
-    /**
-     * @var int the unix file permission
-     */
-    protected ?int $mode = null;
-
-    /**
-     * @var string the name of the file in the uuencoding 'header'.
-     */
-    protected ?string $filename = null;
-
     public function __construct(
-        ?int $mode = null,
-        ?string $filename = null,
+        protected ?int $mode = null,
+        protected ?string $filename = null,
         ?IMimePart $parent = null,
         ?LoggerInterface $logger = null,
-        ?PartStreamContainer $streamContainer = null
+        ?PartStreamContainer $streamContainer = null,
+        string $defaultFallbackCharset = 'ISO-8859-1'
     ) {
         $di = MailMimeParser::getGlobalContainer();
         parent::__construct(
             $logger ?? $di->get(LoggerInterface::class),
             $streamContainer ?? $di->get(PartStreamContainer::class),
-            $parent
+            $parent,
+            $defaultFallbackCharset
         );
-        $this->mode = $mode;
-        $this->filename = $filename;
     }
 
     /**
@@ -77,7 +67,7 @@ class UUEncodedPart extends NonMimePart implements IUUEncodedPart
     /**
      * Returns 'application/octet-stream'.
      */
-    public function getContentType(string $default = 'application/octet-stream') : ?string
+    public function getContentType(string $default = 'application/octet-stream') : string
     {
         return 'application/octet-stream';
     }

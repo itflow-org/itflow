@@ -47,6 +47,9 @@ class SplitParameterPart extends ParameterPart
         return $parts[0]->getName();
     }
 
+    /**
+     * @return array<MimeToken|Token>
+     */
     private function getMimeTokens(string $value) : array
     {
         $pattern = MimeToken::MIME_PART_PATTERN;
@@ -60,6 +63,10 @@ class SplitParameterPart extends ParameterPart
         );
     }
 
+    /**
+     * @param array<ParameterPart> $parts
+     * @return array<ParameterPart|MimeToken|Token>
+     */
     private function combineAdjacentUnencodedParts(array $parts) : array
     {
         $runningValue = '';
@@ -81,6 +88,9 @@ class SplitParameterPart extends ParameterPart
         return $returnedParts;
     }
 
+    /**
+     * @param array<ParameterPart> $parts
+     */
     protected function getValueFromParts(array $parts) : string
     {
         $sorted = $parts;

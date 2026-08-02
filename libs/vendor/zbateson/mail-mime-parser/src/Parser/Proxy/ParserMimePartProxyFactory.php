@@ -9,6 +9,7 @@ namespace ZBateson\MailMimeParser\Parser\Proxy;
 
 use Psr\Log\LoggerInterface;
 use ZBateson\MailMimeParser\Message\Factory\PartHeaderContainerFactory;
+use ZBateson\MailMimeParser\Message\IMimePart;
 use ZBateson\MailMimeParser\Message\MimePart;
 use ZBateson\MailMimeParser\Parser\IParserService;
 use ZBateson\MailMimeParser\Parser\Part\ParserPartChildrenContainerFactory;
@@ -24,28 +25,14 @@ use ZBateson\MailMimeParser\Stream\StreamFactory;
  */
 class ParserMimePartProxyFactory extends ParserPartProxyFactory
 {
-    protected LoggerInterface $logger;
-
-    protected StreamFactory $streamFactory;
-
-    protected ParserPartStreamContainerFactory $parserPartStreamContainerFactory;
-
-    protected PartHeaderContainerFactory $partHeaderContainerFactory;
-
-    protected ParserPartChildrenContainerFactory $parserPartChildrenContainerFactory;
-
     public function __construct(
-        LoggerInterface $logger,
-        StreamFactory $sdf,
-        PartHeaderContainerFactory $phcf,
-        ParserPartStreamContainerFactory $pscf,
-        ParserPartChildrenContainerFactory $ppccf
+        protected readonly LoggerInterface $logger,
+        protected readonly StreamFactory $streamFactory,
+        protected readonly PartHeaderContainerFactory $partHeaderContainerFactory,
+        protected readonly ParserPartStreamContainerFactory $parserPartStreamContainerFactory,
+        protected readonly ParserPartChildrenContainerFactory $parserPartChildrenContainerFactory,
+        protected readonly string $defaultFallbackCharset = 'ISO-8859-1'
     ) {
-        $this->logger = $logger;
-        $this->streamFactory = $sdf;
-        $this->partHeaderContainerFactory = $phcf;
-        $this->parserPartStreamContainerFactory = $pscf;
-        $this->parserPartChildrenContainerFactory = $ppccf;
     }
 
     /**
@@ -61,12 +48,15 @@ class ParserMimePartProxyFactory extends ParserPartProxyFactory
         $headerContainer = $this->partHeaderContainerFactory->newInstance($parserProxy->getHeaderContainer());
         $childrenContainer = $this->parserPartChildrenContainerFactory->newInstance($parserProxy);
 
+        $parent = $partBuilder->getParent()?->getPart();
+        \assert($parent === null || $parent instanceof IMimePart);
         $part = new MimePart(
-            $partBuilder->getParent()->getPart(),
+            $parent,
             $this->logger,
             $streamContainer,
             $headerContainer,
-            $childrenContainer
+            $childrenContainer,
+            $this->defaultFallbackCharset
         );
         $parserProxy->setPart($part);
 

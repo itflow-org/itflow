@@ -12,7 +12,6 @@ use DateTimeImmutable;
 use Psr\Log\LoggerInterface;
 use ZBateson\MailMimeParser\Header\Consumer\DateConsumerService;
 use ZBateson\MailMimeParser\Header\Part\DatePart;
-use ZBateson\MailMimeParser\MailMimeParser;
 
 /**
  * Reads a DatePart value header in either RFC 2822 or RFC 822 format.
@@ -27,10 +26,9 @@ class DateHeader extends AbstractHeader
         ?LoggerInterface $logger = null,
         ?DateConsumerService $consumerService = null
     ) {
-        $di = MailMimeParser::getGlobalContainer();
         parent::__construct(
-            $logger ?? $di->get(LoggerInterface::class),
-            $consumerService ?? $di->get(DateConsumerService::class),
+            self::resolveService($logger, LoggerInterface::class),
+            self::resolveService($consumerService, DateConsumerService::class),
             $name,
             $value
         );

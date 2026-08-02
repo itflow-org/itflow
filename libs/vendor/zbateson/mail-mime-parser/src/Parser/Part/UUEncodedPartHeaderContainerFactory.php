@@ -17,22 +17,10 @@ use ZBateson\MailMimeParser\Header\HeaderFactory;
  */
 class UUEncodedPartHeaderContainerFactory
 {
-    protected LoggerInterface $logger;
-
-    /**
-     * @var HeaderFactory the HeaderFactory passed to
-     *      UUEncodedPartHeaderContainer instances.
-     */
-    protected HeaderFactory $headerFactory;
-
-    /**
-     * Constructor
-     *
-     */
-    public function __construct(LoggerInterface $logger, HeaderFactory $headerFactory)
-    {
-        $this->logger = $logger;
-        $this->headerFactory = $headerFactory;
+    public function __construct(
+        protected readonly LoggerInterface $logger,
+        protected readonly HeaderFactory $headerFactory
+    ) {
     }
 
     /**

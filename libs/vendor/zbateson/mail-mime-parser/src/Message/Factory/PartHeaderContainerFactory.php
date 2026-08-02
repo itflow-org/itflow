@@ -18,21 +18,10 @@ use ZBateson\MailMimeParser\Message\PartHeaderContainer;
  */
 class PartHeaderContainerFactory
 {
-    protected LoggerInterface $logger;
-
-    /**
-     * @var HeaderFactory the HeaderFactory passed to HeaderContainer instances.
-     */
-    protected HeaderFactory $headerFactory;
-
-    /**
-     * Constructor
-     *
-     */
-    public function __construct(LoggerInterface $logger, HeaderFactory $headerFactory)
-    {
-        $this->logger = $logger;
-        $this->headerFactory = $headerFactory;
+    public function __construct(
+        protected readonly LoggerInterface $logger,
+        protected readonly HeaderFactory $headerFactory
+    ) {
     }
 
     /**

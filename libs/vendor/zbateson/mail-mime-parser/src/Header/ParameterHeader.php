@@ -11,7 +11,6 @@ use Psr\Log\LoggerInterface;
 use ZBateson\MailMimeParser\Header\Consumer\IConsumerService;
 use ZBateson\MailMimeParser\Header\Consumer\ParameterConsumerService;
 use ZBateson\MailMimeParser\Header\Part\NameValuePart;
-use ZBateson\MailMimeParser\MailMimeParser;
 
 /**
  * Represents a header containing an optional main value part and subsequent
@@ -36,8 +35,8 @@ use ZBateson\MailMimeParser\MailMimeParser;
 class ParameterHeader extends AbstractHeader
 {
     /**
-     * @var ParameterPart[] key map of lower-case parameter names and associated
-     *      ParameterParts.
+     * @var array<string, NameValuePart> key map of lower-case parameter names and associated
+     *      NameValueParts.
      */
     protected array $parameters = [];
 
@@ -47,10 +46,9 @@ class ParameterHeader extends AbstractHeader
         ?LoggerInterface $logger = null,
         ?ParameterConsumerService $consumerService = null
     ) {
-        $di = MailMimeParser::getGlobalContainer();
         parent::__construct(
-            $logger ?? $di->get(LoggerInterface::class),
-            $consumerService ?? $di->get(ParameterConsumerService::class),
+            self::resolveService($logger, LoggerInterface::class),
+            self::resolveService($consumerService, ParameterConsumerService::class),
             $name,
             $value
         );
@@ -68,6 +66,17 @@ class ParameterHeader extends AbstractHeader
                 $this->parameters[\strtolower($part->getName())] = $part;
             }
         }
+    }
+
+    public function getDecodedValue() : string
+    {
+        $value = $this->getValue() ?? '';
+        foreach ($this->parameters as $param) {
+            if ($param->getName() !== '') {
+                $value .= '; ' . $param->getName() . '=' . $param->getValue();
+            }
+        }
+        return $value;
     }
 
     /**
