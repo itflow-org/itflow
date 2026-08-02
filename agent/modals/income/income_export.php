@@ -15,6 +15,13 @@ if (isset($_GET['type']) && !empty($_GET['type']) && in_array($_GET['type'], $in
     $type_filter = '';
 }
 
+// Category Filter
+if (isset($_GET['category']) && !empty($_GET['category'])) {
+    $category_filter = intval($_GET['category']);
+} else {
+    $category_filter = '';
+}
+
 // Account Filter
 if (isset($_GET['account']) && !empty($_GET['account'])) {
     $account_filter = intval($_GET['account']);
@@ -74,7 +81,7 @@ ob_start();
                 <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-search"></i></span>
                 </div>
-                <input type="text" class="form-control" name="q" value="<?= stripslashes(escapeHtml($q_filter)) ?>" placeholder="Source, client, account, method, reference or amount">
+                <input type="text" class="form-control" name="q" value="<?= stripslashes(escapeHtml($q_filter)) ?>" placeholder="Source, category, client, account, method, reference or amount">
             </div>
         </div>
 
@@ -90,6 +97,34 @@ ob_start();
                     <?php foreach ($income_types_array as $income_type_option) { ?>
                         <option <?php if ($type_filter == $income_type_option) { echo "selected"; } ?> value="<?= $income_type_option ?>"><?= $income_type_option ?></option>
                     <?php } ?>
+
+                </select>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label>Category</label>
+            <div class="input-group">
+                <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
+                </div>
+                <select class="form-control select2" name="category">
+                    <option value="">- All Categories -</option>
+
+                    <?php
+                    $sql_categories_filter = mysqli_query($mysqli, "SELECT category_id, category_name FROM categories
+                        WHERE category_type = 'Income'
+                        AND (EXISTS (SELECT 1 FROM revenues WHERE revenue_category_id = category_id)
+                            OR EXISTS (SELECT 1 FROM payments JOIN invoices ON payment_invoice_id = invoice_id WHERE invoice_category_id = category_id))
+                        ORDER BY category_name ASC");
+                    while ($row = mysqli_fetch_assoc($sql_categories_filter)) {
+                        $filter_category_id = intval($row['category_id']);
+                        $filter_category_name = escapeHtml($row['category_name']);
+                    ?>
+                        <option <?php if ($category_filter == $filter_category_id) { echo "selected"; } ?> value="<?= $filter_category_id ?>"><?= $filter_category_name ?></option>
+                    <?php
+                    }
+                    ?>
 
                 </select>
             </div>

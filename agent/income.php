@@ -41,6 +41,17 @@ if (isset($_GET['account']) && !empty($_GET['account'])) {
     $account_filter = '';
 }
 
+// Category Filter - a revenue carries its own category, a payment inherits the one on the
+// invoice it was paid against. Both come from the same 'Income' category pool.
+if (isset($_GET['category']) && !empty($_GET['category'])) {
+    $category_query = 'AND (income_category_id = ' . intval($_GET['category']) . ')';
+    $category_filter = intval($_GET['category']);
+} else {
+    // Default - any
+    $category_query = '';
+    $category_filter = '';
+}
+
 // Payment Method Filter
 if (isset($_GET['method']) && !empty($_GET['method'])) {
     $method_query = "AND (income_method = '" . escapeSql($_GET['method']) . "')";
@@ -62,6 +73,8 @@ $income_query =
         payment_created_at AS income_created_at,
         payment_invoice_id AS income_invoice_id,
         CONCAT(invoice_prefix, invoice_number) AS income_source,
+        category_name AS income_category,
+        IFNULL(invoice_category_id, 0) AS income_category_id,
         invoice_client_id AS income_client_id,
         client_name AS income_client,
         payment_amount AS income_amount,
@@ -75,6 +88,7 @@ $income_query =
     LEFT JOIN invoices ON payment_invoice_id = invoice_id
     LEFT JOIN clients ON invoice_client_id = client_id
     LEFT JOIN accounts ON payment_account_id = account_id
+    LEFT JOIN categories ON invoice_category_id = category_id
     WHERE payment_archived_at IS NULL
     $payment_client_query
     $access_permission_query
@@ -87,7 +101,9 @@ $income_query =
         revenue_date,
         revenue_created_at,
         0,
+        revenue_description,
         category_name,
+        revenue_category_id,
         revenue_client_id,
         client_name,
         revenue_amount,
@@ -108,8 +124,9 @@ $income_query =
 
 $income_filter_query =
     "WHERE DATE(income_date) BETWEEN '$dtf' AND '$dtt'
-    AND (income_source LIKE '%$q%' OR income_client LIKE '%$q%' OR income_account LIKE '%$q%' OR income_method LIKE '%$q%' OR income_reference LIKE '%$q%' OR income_amount LIKE '%$q%')
+    AND (income_source LIKE '%$q%' OR income_category LIKE '%$q%' OR income_client LIKE '%$q%' OR income_account LIKE '%$q%' OR income_method LIKE '%$q%' OR income_reference LIKE '%$q%' OR income_amount LIKE '%$q%')
     $type_query
+    $category_query
     $account_query
     $method_query";
 
@@ -155,14 +172,14 @@ $summary_total_income = floatval($row['total_income']);
                         <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown"></button>
                         <div class="dropdown-menu">
                             <a class="dropdown-item text-dark ajax-modal" href="#"
-                                data-modal-url="modals/income/income_export.php?<?= $client_url ?>type=<?= urlencode($type_filter) ?>&account=<?= $account_filter ?>&method=<?= urlencode($_GET['method'] ?? '') ?>&dtf=<?= $dtf ?>&dtt=<?= $dtt ?>&q=<?= urlencode($q ?? '') ?>">
+                                data-modal-url="modals/income/income_export.php?<?= $client_url ?>type=<?= urlencode($type_filter) ?>&category=<?= $category_filter ?>&account=<?= $account_filter ?>&method=<?= urlencode($_GET['method'] ?? '') ?>&dtf=<?= $dtf ?>&dtt=<?= $dtt ?>&q=<?= urlencode($q ?? '') ?>">
                                 <i class="fa fa-fw fa-download mr-2"></i>Export
                             </a>
                         </div>
                     </div>
                 <?php } else { ?>
                     <button type="button" class="btn btn-default ajax-modal"
-                        data-modal-url="modals/income/income_export.php?<?= $client_url ?>type=<?= urlencode($type_filter) ?>&account=<?= $account_filter ?>&method=<?= urlencode($_GET['method'] ?? '') ?>&dtf=<?= $dtf ?>&dtt=<?= $dtt ?>&q=<?= urlencode($q ?? '') ?>">
+                        data-modal-url="modals/income/income_export.php?<?= $client_url ?>type=<?= urlencode($type_filter) ?>&category=<?= $category_filter ?>&account=<?= $account_filter ?>&method=<?= urlencode($_GET['method'] ?? '') ?>&dtf=<?= $dtf ?>&dtt=<?= $dtt ?>&q=<?= urlencode($q ?? '') ?>">
                         <i class="fa fa-fw fa-download mr-2"></i>Export
                     </button>
                 <?php } ?>
@@ -196,6 +213,29 @@ $summary_total_income = floatval($row['total_income']);
                     </div>
                     <div class="col-md-2">
                         <div class="input-group mb-3 mb-sm-0">
+                            <select class="form-control select2" name="category" onchange="this.form.submit()">
+                                <option value="">- All Categories -</option>
+
+                                <?php
+                                $sql_categories_filter = mysqli_query($mysqli, "SELECT category_id, category_name FROM categories
+                                    WHERE category_type = 'Income'
+                                    AND (EXISTS (SELECT 1 FROM revenues WHERE revenue_category_id = category_id)
+                                        OR EXISTS (SELECT 1 FROM payments JOIN invoices ON payment_invoice_id = invoice_id WHERE invoice_category_id = category_id))
+                                    ORDER BY category_name ASC");
+                                while ($row = mysqli_fetch_assoc($sql_categories_filter)) {
+                                    $filter_category_id = intval($row['category_id']);
+                                    $filter_category_name = escapeHtml($row['category_name']);
+                                ?>
+                                    <option <?php if ($category_filter == $filter_category_id) { echo "selected"; } ?> value="<?= $filter_category_id ?>"><?= $filter_category_name ?></option>
+                                <?php
+                                }
+                                ?>
+
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="input-group mb-3 mb-sm-0">
                             <select class="form-control select2" name="account" onchange="this.form.submit()">
                                 <option value="">- All Accounts -</option>
 
@@ -217,7 +257,7 @@ $summary_total_income = floatval($row['total_income']);
                         </div>
                     </div>
 
-                    <div class="col-sm-2">
+                    <div class="col-md-2">
                         <div class="input-group">
                             <select class="form-control select2" name="method" onchange="this.form.submit()">
                                 <option value="">- All Payment Methods -</option>
@@ -244,7 +284,7 @@ $summary_total_income = floatval($row['total_income']);
                             <div class="form-group">
                                 <label>Date range</label>
                                 <input type="text" id="dateFilter" class="form-control" autocomplete="off">
-                                <input type="hidden" name="canned_date" id="canned_date" value="<?= escapeHtml($_GET['canned_date']) ?? '' ?>">
+                                <input type="hidden" name="canned_date" id="canned_date" value="<?= escapeHtml($_GET['canned_date'] ?? '') ?>">
                                 <input type="hidden" name="dtf" id="dtf" value="<?= escapeHtml($dtf ?? '') ?>">
                                 <input type="hidden" name="dtt" id="dtt" value="<?= escapeHtml($dtt ?? '') ?>">
                             </div>
@@ -317,6 +357,11 @@ $summary_total_income = floatval($row['total_income']);
                                 Source <?php if ($sort == 'income_source') { echo $order_icon; } ?>
                             </a>
                         </th>
+                        <th>
+                            <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=income_category&order=<?= $disp ?>">
+                                Category <?php if ($sort == 'income_category') { echo $order_icon; } ?>
+                            </a>
+                        </th>
                         <?php if (!$client_url) { ?>
                         <th>
                             <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=income_client&order=<?= $disp ?>">
@@ -356,6 +401,7 @@ $summary_total_income = floatval($row['total_income']);
                         $income_date = escapeHtml($row['income_date']);
                         $income_invoice_id = intval($row['income_invoice_id']);
                         $income_source = escapeHtml($row['income_source']);
+                        $income_category = escapeHtml($row['income_category']);
                         $income_client_id = intval($row['income_client_id']);
                         $income_client = escapeHtml($row['income_client']);
                         $income_amount = floatval($row['income_amount']);
@@ -403,9 +449,10 @@ $summary_total_income = floatval($row['total_income']);
                                         <?= $income_source ?>
                                     </a>
                                 <?php } else { ?>
-                                    <?= $income_source ?>
+                                    <?= $income_source === '' ? '-' : $income_source ?>
                                 <?php } ?>
                             </td>
+                            <td><?= $income_category === '' ? '-' : $income_category ?></td>
                             <?php if (!$client_url) { ?>
                             <td>
                                 <?php if ($income_client_id) { ?>

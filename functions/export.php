@@ -259,8 +259,8 @@ function getExportColumns($export_type) {
         'income' => [
             'income_date'          => ['label' => 'Date'],
             'income_type'          => ['label' => 'Type'],
-            'income_source'        => ['label' => 'Source'],
-            'income_description'   => ['label' => 'Description', 'weight' => 3],
+            'income_source'        => ['label' => 'Source', 'weight' => 3],
+            'income_category'      => ['label' => 'Category'],
             'income_client'        => ['label' => 'Client', 'weight' => 2],
             'income_amount'        => ['label' => 'Amount', 'format' => 'money'],
             'income_currency_code' => ['label' => 'Currency'],
