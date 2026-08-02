@@ -8,11 +8,17 @@ if (isset($_GET['update'])) {
 
     enforceAdminPermission();
 
-    //git fetch downloads the latest from remote without trying to merge or rebase anything. Then the git reset resets the master branch to what you just fetched. The --hard option changes all the files in your working tree to match the files in origin/master
-
+    // git fetch downloads the latest from the remote without merging or rebasing anything.
+    // The hard reset then throws away every local change and makes the working tree match
+    // the tracked branch exactly.
+    //
+    // That reset used to name origin/master outright, so a force update on an install
+    // tracking any other branch silently moved it onto master and discarded the code it was
+    // actually running.
     if (isset($_GET['force_update']) == 1) {
+        $remote_ref = escapeshellarg("origin/" . getRepoBranch());
         exec("git fetch --all");
-        exec("git reset --hard origin/master");
+        exec("git reset --hard $remote_ref");
     } else {
         exec("git pull");
     }

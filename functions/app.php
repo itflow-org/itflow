@@ -292,13 +292,29 @@ function displayFolderOptions($parent_folder_id, $client_id, $indent = 0) {
     }
 }
 
-function checkForUpdates() {
-
+/*
+ * The branch this install tracks. Both setup paths write $repo_branch into config.php, but
+ * an install older than that has no value at all, and every caller puts it into a shell
+ * command - so it is defaulted and escaped here rather than trusted at each call site.
+ */
+function getRepoBranch(): string
+{
     global $repo_branch;
 
-    // Fetch the latest code changes but don't apply them
-    exec("git fetch", $output, $result);
-    $latest_version = exec("git rev-parse origin/$repo_branch");
+    $branch = trim((string) ($repo_branch ?? ''));
+
+    return $branch === '' ? 'master' : $branch;
+}
+
+function checkForUpdates() {
+
+    $remote_ref = escapeshellarg("origin/" . getRepoBranch());
+
+    // Fetch the latest code changes but don't apply them. stderr is merged in because git
+    // reports failures there, and it is the only thing the update page can show when this
+    // breaks - it used to run a second git fetch of its own just to get the message.
+    exec("git fetch 2>&1", $output, $result);
+    $latest_version = exec("git rev-parse $remote_ref");
     $current_version = exec("git rev-parse HEAD");
 
     if ($current_version == $latest_version) {
