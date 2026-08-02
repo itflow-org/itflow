@@ -308,7 +308,7 @@ ob_start();
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-ethernet"></i></span>
                         </div>
-                        <input type="text" class="form-control text-monospace" name="ip" placeholder="e.g. 192.168.1.10" data-inputmask="'alias': 'ip'" data-mask>
+                        <input type="text" class="form-control text-monospace" name="ip" placeholder="e.g. 192.168.1.10" maxlength="200" data-inputmask="'alias': 'ip'" data-mask>
                         <div class="input-group-append">
                             <div class="input-group-text">
                                 <input type="checkbox" name="dhcp" value="1">
@@ -412,7 +412,7 @@ ob_start();
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fa fa-fw fa-receipt"></i></span>
                             </div>
-                            <input type="text" class="form-control" name="purchase_reference" placeholder="e.g. INV-1045 or PO-7782">
+                            <input type="text" class="form-control" name="purchase_reference" placeholder="e.g. INV-1045 or PO-7782" maxlength="200">
                         </div>
                     </div>
 
@@ -459,7 +459,7 @@ ob_start();
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
                         </div>
-                        <input type="text" class="form-control" name="username" placeholder="e.g. admin">
+                        <input type="text" class="form-control" name="username" placeholder="e.g. admin" maxlength="350">
                     </div>
                 </div>
 

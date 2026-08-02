@@ -248,7 +248,7 @@ ob_start();
                                     <span class="input-group-text"><i class="fa fa-fw fa-fax"></i></span>
                                 </div>
                                 <input type="tel" class="form-control col-2" name="location_fax_country_code" placeholder="+" maxlength="4">
-                                <input type="tel" class="form-control" name="location_fax" placeholder="Fax Number">
+                                <input type="tel" class="form-control" name="location_fax" placeholder="Fax Number" maxlength="200">
                             </div>
                         </div>
                     </div>
@@ -307,7 +307,7 @@ ob_start();
                                     <span class="input-group-text"><i class="fa fa-fw fa-mobile-alt"></i></span>
                                 </div>
                                 <input type="tel" class="form-control col-2" name="contact_mobile_country_code" placeholder="+" maxlength="4">
-                                <input type="tel" class="form-control" name="contact_mobile" placeholder="Mobile Phone Number">
+                                <input type="tel" class="form-control" name="contact_mobile" placeholder="Mobile Phone Number" maxlength="200">
                             </div>
                         </div>
                     </div>

@@ -54,7 +54,7 @@ ob_start();
                 <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-file"></i></span>
                 </div>
-                <input type="text" class="form-control" name="name" placeholder="Name" required>
+                <input type="text" class="form-control" name="name" placeholder="Name" maxlength="200" required>
             </div>
         </div>
 

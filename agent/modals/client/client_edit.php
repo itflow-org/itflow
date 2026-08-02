@@ -117,7 +117,7 @@ ob_start();
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-briefcase"></i></span>
                         </div>
-                        <input type="text" class="form-control" name="type" placeholder="Industry"
+                        <input type="text" class="form-control" name="type" placeholder="Industry" maxlength="200"
                                value="<?= $client_type ?>">
                     </div>
                 </div>

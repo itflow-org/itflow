@@ -453,7 +453,7 @@ if (isset($_GET['invoice_id'])) {
                                         <input type="hidden" name="item_order" value="<?= mysqli_num_rows($sql_invoice_items) + 1 ?>">
                                         <td></td>
                                         <td>
-                                            <input type="text" class="form-control" id="name" name="name" placeholder="Item" required>
+                                            <input type="text" class="form-control" id="name" name="name" placeholder="Item" maxlength="200" required>
                                         </td>
                                         <td>
                                             <textarea class="form-control" rows="2" id="desc" name="description" placeholder="Enter a Description"></textarea>

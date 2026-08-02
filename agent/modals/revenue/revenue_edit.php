@@ -140,7 +140,7 @@ ob_start();
 
         <div class="form-group">
             <label>Description</label>
-            <textarea class="form-control" rows="8" name="description"><?= $revenue_description ?></textarea>
+            <textarea class="form-control" rows="8" name="description" maxlength="200"><?= $revenue_description ?></textarea>
         </div>
 
         <div class="form-row">

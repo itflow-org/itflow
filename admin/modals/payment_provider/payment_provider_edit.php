@@ -52,7 +52,7 @@ ob_start();
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-eye"></i></span>
                         </div>
-                        <input type="text" class="form-control" name="public_key" placeholder="Publishable API Key (pk_...)" value="<?= $public_key ?>">
+                        <input type="text" class="form-control" name="public_key" placeholder="Publishable API Key (pk_...)" maxlength="250" value="<?= $public_key ?>">
                     </div>
                 </div>
 
@@ -62,7 +62,7 @@ ob_start();
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-key"></i></span>
                         </div>
-                        <input type="text" class="form-control" name="private_key" placeholder="Secret API Key (sk_...)" value="<?= $private_key ?>">
+                        <input type="text" class="form-control" name="private_key" placeholder="Secret API Key (sk_...)" maxlength="250" value="<?= $private_key ?>">
                     </div>
                 </div>
 

@@ -28,7 +28,7 @@ ob_start();
         </div>
 
         <div class="form-group">
-            <textarea class="form-control" rows="3" name="description" placeholder="Enter a description..."></textarea>
+            <textarea class="form-control" rows="3" name="description" placeholder="Enter a description..." maxlength="250"></textarea>
         </div>
 
     </div>

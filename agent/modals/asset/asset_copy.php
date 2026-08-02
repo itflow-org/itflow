@@ -108,7 +108,7 @@ ob_start();
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
                         </div>
-                        <input type="text" class="form-control" name="name" placeholder="Name the asset" value="<?= $asset_name ?>" required>
+                        <input type="text" class="form-control" name="name" placeholder="Name the asset" maxlength="200" value="<?= $asset_name ?>" required>
                     </div>
                 </div>
 
@@ -120,7 +120,7 @@ ob_start();
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fa fa-fw fa-building"></i></span>
                             </div>
-                            <input type="text" class="form-control" name="make" placeholder="Manufacturer" value="<?= $asset_make ?>">
+                            <input type="text" class="form-control" name="make" placeholder="Manufacturer" maxlength="200" value="<?= $asset_make ?>">
                         </div>
                     </div>
 
@@ -130,7 +130,7 @@ ob_start();
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fa fa-fw fa-cube"></i></span>
                             </div>
-                            <input type="text" class="form-control" name="model" placeholder="Model Number" value="<?= $asset_model ?>">
+                            <input type="text" class="form-control" name="model" placeholder="Model Number" maxlength="200" value="<?= $asset_model ?>">
                         </div>
                     </div>
 
@@ -140,7 +140,7 @@ ob_start();
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fa fa-fw fa-barcode"></i></span>
                             </div>
-                            <input type="text" class="form-control text-monospace" name="serial" placeholder="Serial number">
+                            <input type="text" class="form-control text-monospace" name="serial" placeholder="Serial number" maxlength="200">
                         </div>
                     </div>
                 <?php } ?>
@@ -152,7 +152,7 @@ ob_start();
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fas fa-fw fa-laptop-code"></i></span>
                             </div>
-                            <input type="text" class="form-control" name="os" placeholder="ex Windows 10 Pro" value="<?= $asset_os ?>">
+                            <input type="text" class="form-control" name="os" placeholder="ex Windows 10 Pro" maxlength="200" value="<?= $asset_os ?>">
                         </div>
                     </div>
                 <?php } ?>
@@ -163,7 +163,7 @@ ob_start();
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-align-left"></i></span>
                         </div>
-                        <input type="text" class="form-control" name="description" placeholder="Description of the asset" value="<?= $asset_description ?>">
+                        <input type="text" class="form-control" name="description" placeholder="Description of the asset" maxlength="255" value="<?= $asset_description ?>">
                     </div>
                 </div>
 
@@ -199,7 +199,7 @@ ob_start();
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-map-marker-alt"></i></span>
                         </div>
-                        <input type="text" class="form-control" name="physical_location" placeholder="Physical location eg. Floor 2, Closet B">
+                        <input type="text" class="form-control" name="physical_location" placeholder="Physical location eg. Floor 2, Closet B" maxlength="200">
                     </div>
                 </div>
 
@@ -285,7 +285,7 @@ ob_start();
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-ethernet"></i></span>
                         </div>
-                        <input type="text" class="form-control text-monospace" name="ip" placeholder="192.168.10.250" data-inputmask="'alias': 'ip'" data-mask>
+                        <input type="text" class="form-control text-monospace" name="ip" placeholder="192.168.10.250" maxlength="200" data-inputmask="'alias': 'ip'" data-mask>
                         <div class="input-group-append">
                             <div class="input-group-text">
                                 <input type="checkbox" name="dhcp" value="1" <?php if($asset_ip == 'DHCP'){ echo "checked"; } ?>>
@@ -300,7 +300,7 @@ ob_start();
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-ethernet"></i></span>
                         </div>
-                        <input type="text" class="form-control text-monospace" name="mac" placeholder="00:11:22:AA:BB:CC" data-inputmask="'alias': 'mac'" data-mask>
+                        <input type="text" class="form-control text-monospace" name="mac" placeholder="00:11:22:AA:BB:CC" maxlength="200" data-inputmask="'alias': 'mac'" data-mask>
                     </div>
                 </div>
 
@@ -310,7 +310,7 @@ ob_start();
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-ethernet"></i></span>
                         </div>
-                        <input type="text" class="form-control text-monospace" name="ipv6" value="<?= $asset_ipv6 ?>" placeholder="2001:0db8:1000::3">
+                        <input type="text" class="form-control text-monospace" name="ipv6" value="<?= $asset_ipv6 ?>" placeholder="2001:0db8:1000::3" maxlength="200">
                     </div>
                 </div>
 
@@ -320,7 +320,7 @@ ob_start();
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-exchange-alt"></i></span>
                         </div>
-                        <input type="text" class="form-control text-monospace" name="nat_ip" placeholder="10.52.4.55" data-inputmask="'alias': 'ip'" data-mask>
+                        <input type="text" class="form-control text-monospace" name="nat_ip" placeholder="10.52.4.55" maxlength="200" data-inputmask="'alias': 'ip'" data-mask>
                     </div>
                 </div>
 
@@ -330,7 +330,7 @@ ob_start();
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-globe"></i></span>
                         </div>
-                        <input type="text" class="form-control" name="uri" placeholder="URI http:// ftp:// ssh: etc">
+                        <input type="text" class="form-control" name="uri" placeholder="URI http:// ftp:// ssh: etc" maxlength="500">
                     </div>
                 </div>
 
@@ -340,7 +340,7 @@ ob_start();
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-globe"></i></span>
                         </div>
-                        <input type="text" class="form-control" name="uri_2" placeholder="URI http:// ftp:// ssh: etc">
+                        <input type="text" class="form-control" name="uri_2" placeholder="URI http:// ftp:// ssh: etc" maxlength="500">
                     </div>
                 </div>
 
@@ -387,7 +387,7 @@ ob_start();
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fa fa-fw fa-shopping-cart"></i></span>
                             </div>
-                            <input type="text" class="form-control" name="purchase_reference" placeholder="eg. Invoice, PO Number" value="<?= $asset_purchase_reference ?>">
+                            <input type="text" class="form-control" name="purchase_reference" placeholder="eg. Invoice, PO Number" maxlength="200" value="<?= $asset_purchase_reference ?>">
                         </div>
                     </div>
 
@@ -422,7 +422,7 @@ ob_start();
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa  fa-fw fa-user"></i></span>
                         </div>
-                        <input type="text" class="form-control" name="username" placeholder="Username">
+                        <input type="text" class="form-control" name="username" placeholder="Username" maxlength="350">
                     </div>
                 </div>
 

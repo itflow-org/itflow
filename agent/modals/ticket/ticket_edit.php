@@ -372,7 +372,7 @@ ob_start();
                                 <div class="input-group-prepend">
                                     <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
                                 </div>
-                                <input type="text" class="form-control" name="vendor_ticket_number" placeholder="Vendor ticket number" value="<?= $ticket_vendor_ticket_number ?>">
+                                <input type="text" class="form-control" name="vendor_ticket_number" placeholder="Vendor ticket number" maxlength="255" value="<?= $ticket_vendor_ticket_number ?>">
                             </div>
                         </div>
 

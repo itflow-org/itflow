@@ -137,7 +137,7 @@ ob_start();
                                     <span class="input-group-text"><i class="fa fa-fw fa-phone"></i></span>
                                 </div>
                                 <input type="tel" class="form-control col-2" name="phone_country_code" placeholder="+" maxlength="4" value="<?= $vendor_phone_country_code ?>">
-                                <input type="tel" class="form-control" name="phone" value="<?= $vendor_phone ?>">
+                                <input type="tel" class="form-control" name="phone" maxlength="200" value="<?= $vendor_phone ?>">
                             </div>
                         </div>
                     </div>

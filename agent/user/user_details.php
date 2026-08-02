@@ -32,7 +32,7 @@ require_once "includes/inc_all_user.php";
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
                             </div>
-                            <input type="text" class="form-control" name="name" placeholder="Full Name" value="<?= stripslashes(escapeHtml($session_name)) ?>" required>
+                            <input type="text" class="form-control" name="name" placeholder="Full Name" maxlength="200" value="<?= stripslashes(escapeHtml($session_name)) ?>" required>
                         </div>
                     </div>
 
@@ -52,7 +52,7 @@ require_once "includes/inc_all_user.php";
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fa fa-fw fa-envelope"></i></span>
                             </div>
-                            <input type="email" class="form-control" name="email" placeholder="Email Address" value="<?= escapeHtml($session_email) ?>" required>
+                            <input type="email" class="form-control" name="email" placeholder="Email Address" maxlength="200" value="<?= escapeHtml($session_email) ?>" required>
                         </div>
                     </div>
 

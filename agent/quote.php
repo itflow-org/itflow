@@ -376,7 +376,7 @@ if (isset($_GET['quote_id'])) {
                                             ?>">
                                             <td></td>
                                             <td>
-                                                <input type="text" class="form-control" name="name" id="name" placeholder="Item" required>
+                                                <input type="text" class="form-control" name="name" id="name" placeholder="Item" maxlength="200" required>
                                             </td>
                                             <td>
                                                 <textarea class="form-control" rows="2" name="description" id="desc" placeholder="Enter a Description"></textarea>

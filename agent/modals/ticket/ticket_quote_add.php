@@ -161,7 +161,7 @@ ob_start();
                     <div class="input-group-prepend">
                         <span class="input-group-text"><i class="fa fa-fw fa-box"></i></span>
                     </div>
-                    <input type="text" class="form-control" name="item_name" placeholder="Item" required>
+                    <input type="text" class="form-control" name="item_name" placeholder="Item" maxlength="200" required>
                 </div>
             </div>
 

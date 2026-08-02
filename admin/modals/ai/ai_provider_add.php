@@ -23,7 +23,7 @@ ob_start();
                 <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-robot"></i></span>
                 </div>
-                <input type="text" class="form-control" name="provider" placeholder="ex OpenAI">
+                <input type="text" class="form-control" name="provider" placeholder="ex OpenAI" maxlength="200">
             </div>
         </div>
 
@@ -33,7 +33,7 @@ ob_start();
                 <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-globe"></i></span>
                 </div>
-                <input type="url" class="form-control" name="url" placeholder="ex https://ai.company.ext/api">
+                <input type="url" class="form-control" name="url" placeholder="ex https://ai.company.ext/api" maxlength="200">
             </div>
         </div>
 
@@ -43,7 +43,7 @@ ob_start();
                 <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-key"></i></span>
                 </div>
-                <input type="text" class="form-control" name="api_key" placeholder="Enter API key here">
+                <input type="text" class="form-control" name="api_key" placeholder="Enter API key here" maxlength="200">
             </div>
         </div>
 

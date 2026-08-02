@@ -217,7 +217,7 @@ ob_start();
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-shopping-cart"></i></span>
                         </div>
-                        <input type="text" class="form-control" name="purchase_reference" placeholder="eg. Invoice, PO Number" value="<?= $software_purchase_reference ?>">
+                        <input type="text" class="form-control" name="purchase_reference" placeholder="eg. Invoice, PO Number" maxlength="200" value="<?= $software_purchase_reference ?>">
                     </div>
                 </div>
 

@@ -18,7 +18,7 @@ require_once "includes/inc_all_admin.php";
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-barcode"></i></span>
                         </div>
-                        <input type="text" class="form-control" name="config_invoice_prefix" placeholder="Invoice Prefix" value="<?= escapeHtml($config_invoice_prefix) ?>" required>
+                        <input type="text" class="form-control" name="config_invoice_prefix" placeholder="Invoice Prefix" maxlength="200" value="<?= escapeHtml($config_invoice_prefix) ?>" required>
                     </div>
                 </div>
 
@@ -72,7 +72,7 @@ require_once "includes/inc_all_admin.php";
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-bell"></i></span>
                         </div>
-                        <input type="email" class="form-control" name="config_invoice_paid_notification_email" placeholder="Address to notify for paid invoices, leave blank for none" value="<?= escapeHtml($config_invoice_paid_notification_email) ?>">
+                        <input type="email" class="form-control" name="config_invoice_paid_notification_email" placeholder="Address to notify for paid invoices, leave blank for none" maxlength="200" value="<?= escapeHtml($config_invoice_paid_notification_email) ?>">
                     </div>
                 </div>
 
@@ -86,7 +86,7 @@ require_once "includes/inc_all_admin.php";
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-barcode"></i></span>
                         </div>
-                        <input type="text" class="form-control" name="config_recurring_invoice_prefix" placeholder="Recurring Invoice Prefix" value="<?= escapeHtml($config_recurring_invoice_prefix) ?>" required>
+                        <input type="text" class="form-control" name="config_recurring_invoice_prefix" placeholder="Recurring Invoice Prefix" maxlength="200" value="<?= escapeHtml($config_recurring_invoice_prefix) ?>" required>
                     </div>
                 </div>
 

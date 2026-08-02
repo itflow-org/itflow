@@ -120,7 +120,7 @@ ob_start();
                 <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-map-marker-alt"></i></span>
                 </div>
-                <input type="text" class="form-control" name="location" placeholder="Enter a location" value="<?= $product_location ?>">
+                <input type="text" class="form-control" name="location" placeholder="Enter a location" maxlength="250" value="<?= $product_location ?>">
             </div>
         </div>
         <?php } ?>
@@ -136,7 +136,7 @@ ob_start();
                 <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-barcode"></i></span>
                 </div>
-                <input type="text" class="form-control" name="code" placeholder="Enter product code eg. SKU #" value="<?= $product_code ?>">
+                <input type="text" class="form-control" name="code" placeholder="Enter product code eg. SKU #" maxlength="200" value="<?= $product_code ?>">
             </div>
         </div>
 

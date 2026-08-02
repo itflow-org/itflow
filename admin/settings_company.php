@@ -53,7 +53,7 @@ $company_initials = escapeHtml(initials($company_name));
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-building"></i></span>
                                     </div>
-                                    <input type="text" class="form-control" name="name" placeholder="Company Name" value="<?= $company_name ?>" required>
+                                    <input type="text" class="form-control" name="name" placeholder="Company Name" maxlength="200" value="<?= $company_name ?>" required>
                                 </div>
                             </div>
 
@@ -63,7 +63,7 @@ $company_initials = escapeHtml(initials($company_name));
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-map-marker-alt"></i></span>
                                     </div>
-                                    <input type="text" class="form-control" name="address" placeholder="Street Address" value="<?= $company_address ?>">
+                                    <input type="text" class="form-control" name="address" placeholder="Street Address" maxlength="200" value="<?= $company_address ?>">
                                 </div>
                             </div>
 
@@ -73,7 +73,7 @@ $company_initials = escapeHtml(initials($company_name));
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-city"></i></span>
                                     </div>
-                                    <input type="text" class="form-control" name="city" placeholder="City" value="<?= $company_city ?>">
+                                    <input type="text" class="form-control" name="city" placeholder="City" maxlength="200" value="<?= $company_city ?>">
                                 </div>
                             </div>
 
@@ -83,7 +83,7 @@ $company_initials = escapeHtml(initials($company_name));
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-flag"></i></span>
                                     </div>
-                                    <input type="text" class="form-control" name="state" placeholder="State or Province" value="<?= $company_state ?>">
+                                    <input type="text" class="form-control" name="state" placeholder="State or Province" maxlength="200" value="<?= $company_state ?>">
                                 </div>
                             </div>
 
@@ -93,7 +93,7 @@ $company_initials = escapeHtml(initials($company_name));
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fab fa-fw fa-usps"></i></span>
                                     </div>
-                                    <input type="text" class="form-control" name="zip" placeholder="Zip or Postal Code" value="<?= $company_zip ?>">
+                                    <input type="text" class="form-control" name="zip" placeholder="Zip or Postal Code" maxlength="200" value="<?= $company_zip ?>">
                                 </div>
                             </div>
 
@@ -133,7 +133,7 @@ $company_initials = escapeHtml(initials($company_name));
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-envelope"></i></span>
                                     </div>
-                                    <input type="email" class="form-control" name="email" placeholder="Email address" value="<?= $company_email ?>">
+                                    <input type="email" class="form-control" name="email" placeholder="Email address" maxlength="200" value="<?= $company_email ?>">
                                 </div>
                             </div>
 
@@ -143,7 +143,7 @@ $company_initials = escapeHtml(initials($company_name));
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-globe"></i></span>
                                     </div>
-                                    <input type="text" class="form-control" name="website" placeholder="Website address" value="<?= $company_website ?>">
+                                    <input type="text" class="form-control" name="website" placeholder="Website address" maxlength="200" value="<?= $company_website ?>">
                                 </div>
                             </div>
 

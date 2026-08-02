@@ -99,7 +99,7 @@ ob_start();
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-align-left"></i></span>
                         </div>
-                        <input type="text" class="form-control" name="description" placeholder="Description" value="<?= $credential_description ?>">
+                        <input type="text" class="form-control" name="description" placeholder="Description" maxlength="500" value="<?= $credential_description ?>">
                     </div>
                 </div>
 

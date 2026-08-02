@@ -128,7 +128,7 @@ $imap_ready = $imap_standard_ready || $imap_oauth_ready;
                                 <label>SMTP Host</label>
                                 <div class="input-group">
                                     <div class="input-group-prepend"><span class="input-group-text"><i class="fa fa-fw fa-server"></i></span></div>
-                                    <input type="text" class="form-control" name="config_smtp_host" placeholder="smtp.yourcompany.com" value="<?= escapeHtml($config_smtp_host) ?>" required>
+                                    <input type="text" class="form-control" name="config_smtp_host" placeholder="smtp.yourcompany.com" maxlength="200" value="<?= escapeHtml($config_smtp_host) ?>" required>
                                 </div>
                             </div>
                             <div class="form-group col-md-3">
@@ -157,7 +157,7 @@ $imap_ready = $imap_standard_ready || $imap_oauth_ready;
                             <label id="smtp_user_label">SMTP Username</label>
                             <div class="input-group">
                                 <div class="input-group-prepend"><span class="input-group-text"><i class="fa fa-fw fa-user"></i></span></div>
-                                <input type="text" class="form-control" name="config_smtp_username" id="config_smtp_username" placeholder="usually your full email address" value="<?= escapeHtml($config_smtp_username) ?>">
+                                <input type="text" class="form-control" name="config_smtp_username" id="config_smtp_username" placeholder="usually your full email address" maxlength="200" value="<?= escapeHtml($config_smtp_username) ?>">
                             </div>
                             <small class="form-text text-muted" id="smtp_user_hint">Leave blank if no authentication is required.</small>
                         </div>
@@ -165,7 +165,7 @@ $imap_ready = $imap_standard_ready || $imap_oauth_ready;
                             <label>SMTP Password</label>
                             <div class="input-group">
                                 <div class="input-group-prepend"><span class="input-group-text"><i class="fa fa-fw fa-key"></i></span></div>
-                                <input type="password" class="form-control" data-toggle="password" name="config_smtp_password" placeholder="mailbox or app password" value="<?= escapeHtml($config_smtp_password) ?>" autocomplete="new-password">
+                                <input type="password" class="form-control" data-toggle="password" name="config_smtp_password" placeholder="mailbox or app password" maxlength="200" value="<?= escapeHtml($config_smtp_password) ?>" autocomplete="new-password">
                                 <div class="input-group-append"><span class="input-group-text"><i class="fa fa-fw fa-eye"></i></span></div>
                             </div>
                         </div>
@@ -209,7 +209,7 @@ $imap_ready = $imap_standard_ready || $imap_oauth_ready;
                                 <label>IMAP Host</label>
                                 <div class="input-group">
                                     <div class="input-group-prepend"><span class="input-group-text"><i class="fa fa-fw fa-server"></i></span></div>
-                                    <input type="text" class="form-control" name="config_imap_host" placeholder="imap.yourcompany.com" value="<?= escapeHtml($config_imap_host) ?>">
+                                    <input type="text" class="form-control" name="config_imap_host" placeholder="imap.yourcompany.com" maxlength="200" value="<?= escapeHtml($config_imap_host) ?>">
                                 </div>
                             </div>
                             <div class="form-group col-md-3">
@@ -238,7 +238,7 @@ $imap_ready = $imap_standard_ready || $imap_oauth_ready;
                             <label id="imap_user_label">IMAP Username</label>
                             <div class="input-group">
                                 <div class="input-group-prepend"><span class="input-group-text"><i class="fa fa-fw fa-user"></i></span></div>
-                                <input type="text" class="form-control" name="config_imap_username" placeholder="tickets@yourcompany.com" value="<?= escapeHtml($config_imap_username) ?>" required>
+                                <input type="text" class="form-control" name="config_imap_username" placeholder="tickets@yourcompany.com" maxlength="200" value="<?= escapeHtml($config_imap_username) ?>" required>
                             </div>
                             <small class="form-text text-muted" id="imap_user_hint">The mailbox address to monitor for incoming tickets.</small>
                         </div>
@@ -246,7 +246,7 @@ $imap_ready = $imap_standard_ready || $imap_oauth_ready;
                             <label>IMAP Password</label>
                             <div class="input-group">
                                 <div class="input-group-prepend"><span class="input-group-text"><i class="fa fa-fw fa-key"></i></span></div>
-                                <input type="password" class="form-control" data-toggle="password" name="config_imap_password" placeholder="mailbox or app password" value="<?= escapeHtml($config_imap_password) ?>" autocomplete="new-password">
+                                <input type="password" class="form-control" data-toggle="password" name="config_imap_password" placeholder="mailbox or app password" maxlength="200" value="<?= escapeHtml($config_imap_password) ?>" autocomplete="new-password">
                                 <div class="input-group-append"><span class="input-group-text"><i class="fa fa-fw fa-eye"></i></span></div>
                             </div>
                         </div>
@@ -279,14 +279,14 @@ $imap_ready = $imap_standard_ready || $imap_oauth_ready;
                             <label>OAuth Client ID</label>
                             <div class="input-group">
                                 <div class="input-group-prepend"><span class="input-group-text"><i class="fa fa-fw fa-id-badge"></i></span></div>
-                                <input type="text" class="form-control" name="config_mail_oauth_client_id" id="config_mail_oauth_client_id" placeholder="Application (client) ID" value="<?= escapeHtml($config_mail_oauth_client_id ?? '') ?>">
+                                <input type="text" class="form-control" name="config_mail_oauth_client_id" id="config_mail_oauth_client_id" placeholder="Application (client) ID" maxlength="255" value="<?= escapeHtml($config_mail_oauth_client_id ?? '') ?>">
                             </div>
                         </div>
                         <div class="form-group col-md-6">
                             <label>OAuth Client Secret</label>
                             <div class="input-group">
                                 <div class="input-group-prepend"><span class="input-group-text"><i class="fa fa-fw fa-key"></i></span></div>
-                                <input type="password" class="form-control" data-toggle="password" name="config_mail_oauth_client_secret" id="config_mail_oauth_client_secret" placeholder="Client secret value" value="<?= escapeHtml($config_mail_oauth_client_secret ?? '') ?>" autocomplete="new-password">
+                                <input type="password" class="form-control" data-toggle="password" name="config_mail_oauth_client_secret" id="config_mail_oauth_client_secret" placeholder="Client secret value" maxlength="255" value="<?= escapeHtml($config_mail_oauth_client_secret ?? '') ?>" autocomplete="new-password">
                                 <div class="input-group-append"><span class="input-group-text"><i class="fa fa-fw fa-eye"></i></span></div>
                             </div>
                         </div>
@@ -296,7 +296,7 @@ $imap_ready = $imap_standard_ready || $imap_oauth_ready;
                         <label>Tenant ID <small class="text-muted">— Microsoft 365 only</small></label>
                         <div class="input-group">
                             <div class="input-group-prepend"><span class="input-group-text"><i class="fa fa-fw fa-building"></i></span></div>
-                            <input type="text" class="form-control" name="config_mail_oauth_tenant_id" placeholder="Directory (tenant) ID, e.g. 00000000-0000-0000-0000-000000000000" value="<?= escapeHtml($config_mail_oauth_tenant_id ?? '') ?>">
+                            <input type="text" class="form-control" name="config_mail_oauth_tenant_id" placeholder="Directory (tenant) ID, e.g. 00000000-0000-0000-0000-000000000000" maxlength="255" value="<?= escapeHtml($config_mail_oauth_tenant_id ?? '') ?>">
                         </div>
                     </div>
 
@@ -350,23 +350,23 @@ $imap_ready = $imap_standard_ready || $imap_oauth_ready;
                         <tbody>
                             <tr>
                                 <td class="align-middle">System Default<br><small class="text-muted">share links &amp; system tasks</small></td>
-                                <td class="align-middle"><input type="email" class="form-control form-control-sm" name="config_mail_from_email" placeholder="noreply@yourcompany.com" value="<?= escapeHtml($config_mail_from_email) ?>"></td>
-                                <td class="align-middle"><input type="text" class="form-control form-control-sm" name="config_mail_from_name" placeholder="YourCompany" value="<?= escapeHtml($config_mail_from_name) ?>"></td>
+                                <td class="align-middle"><input type="email" class="form-control form-control-sm" name="config_mail_from_email" placeholder="noreply@yourcompany.com" maxlength="200" value="<?= escapeHtml($config_mail_from_email) ?>"></td>
+                                <td class="align-middle"><input type="text" class="form-control form-control-sm" name="config_mail_from_name" placeholder="YourCompany" maxlength="200" value="<?= escapeHtml($config_mail_from_name) ?>"></td>
                             </tr>
                             <tr>
                                 <td class="align-middle">Invoices<br><small class="text-muted">sent when emailing invoices</small></td>
-                                <td class="align-middle"><input type="email" class="form-control form-control-sm" name="config_invoice_from_email" placeholder="billing@yourcompany.com" value="<?= escapeHtml($config_invoice_from_email) ?>"></td>
-                                <td class="align-middle"><input type="text" class="form-control form-control-sm" name="config_invoice_from_name" placeholder="YourCompany Billing" value="<?= escapeHtml($config_invoice_from_name) ?>"></td>
+                                <td class="align-middle"><input type="email" class="form-control form-control-sm" name="config_invoice_from_email" placeholder="billing@yourcompany.com" maxlength="200" value="<?= escapeHtml($config_invoice_from_email) ?>"></td>
+                                <td class="align-middle"><input type="text" class="form-control form-control-sm" name="config_invoice_from_name" placeholder="YourCompany Billing" maxlength="200" value="<?= escapeHtml($config_invoice_from_name) ?>"></td>
                             </tr>
                             <tr>
                                 <td class="align-middle">Quotes<br><small class="text-muted">sent when emailing quotes</small></td>
-                                <td class="align-middle"><input type="email" class="form-control form-control-sm" name="config_quote_from_email" placeholder="sales@yourcompany.com" value="<?= escapeHtml($config_quote_from_email) ?>"></td>
-                                <td class="align-middle"><input type="text" class="form-control form-control-sm" name="config_quote_from_name" placeholder="YourCompany Sales" value="<?= escapeHtml($config_quote_from_name) ?>"></td>
+                                <td class="align-middle"><input type="email" class="form-control form-control-sm" name="config_quote_from_email" placeholder="sales@yourcompany.com" maxlength="200" value="<?= escapeHtml($config_quote_from_email) ?>"></td>
+                                <td class="align-middle"><input type="text" class="form-control form-control-sm" name="config_quote_from_name" placeholder="YourCompany Sales" maxlength="200" value="<?= escapeHtml($config_quote_from_name) ?>"></td>
                             </tr>
                             <tr>
                                 <td class="align-middle">Tickets<br><small class="text-muted">ticket creation &amp; client replies</small></td>
-                                <td class="align-middle"><input type="email" class="form-control form-control-sm" name="config_ticket_from_email" placeholder="support@yourcompany.com" value="<?= escapeHtml($config_ticket_from_email) ?>"></td>
-                                <td class="align-middle"><input type="text" class="form-control form-control-sm" name="config_ticket_from_name" placeholder="YourCompany Support" value="<?= escapeHtml($config_ticket_from_name) ?>"></td>
+                                <td class="align-middle"><input type="email" class="form-control form-control-sm" name="config_ticket_from_email" placeholder="support@yourcompany.com" maxlength="200" value="<?= escapeHtml($config_ticket_from_email) ?>"></td>
+                                <td class="align-middle"><input type="text" class="form-control form-control-sm" name="config_ticket_from_name" placeholder="YourCompany Support" maxlength="200" value="<?= escapeHtml($config_ticket_from_name) ?>"></td>
                             </tr>
                         </tbody>
                     </table>

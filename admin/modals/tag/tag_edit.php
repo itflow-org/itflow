@@ -66,7 +66,7 @@ ob_start();
                 <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-image"></i></span>
                 </div>
-                <input type="text" class="form-control" name="icon" placeholder="Icon ex handshake" value="<?= $tag_icon ?>">
+                <input type="text" class="form-control" name="icon" placeholder="Icon ex handshake" maxlength="200" value="<?= $tag_icon ?>">
             </div>
         </div>
 

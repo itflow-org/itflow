@@ -183,7 +183,7 @@ while ($assignment_row = mysqli_fetch_assoc($sql_assignments)) {
                 </div>
                 <div class="form-group col-md-3">
                     <label>Notification email <small class="text-muted">(optional)</small></label>
-                    <input type="email" class="form-control" name="notification_email" placeholder="dispatch@example.com" value="<?= $config_sla_notification_email ?>">
+                    <input type="email" class="form-control" name="notification_email" placeholder="dispatch@example.com" maxlength="200" value="<?= $config_sla_notification_email ?>">
                 </div>
             </div>
 

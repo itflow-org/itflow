@@ -183,7 +183,7 @@ ob_start();
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
                         </div>
-                        <input type="text" class="form-control" name="support_hours" placeholder="e.g., Mon-Fri 9am-5pm">
+                        <input type="text" class="form-control" name="support_hours" placeholder="e.g., Mon-Fri 9am-5pm" maxlength="100">
                     </div>
                 </div>
 
@@ -193,7 +193,7 @@ ob_start();
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-file-invoice-dollar"></i></span>
                         </div>
-                        <input type="text" class="form-control" name="net_terms" placeholder="e.g., Net 30">
+                        <input type="text" class="form-control" name="net_terms" placeholder="e.g., Net 30" maxlength="50">
                     </div>
                 </div>
             </div>

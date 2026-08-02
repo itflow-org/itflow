@@ -29,7 +29,7 @@ require_once "includes/inc_all_admin.php";
                     <div class="input-group-prepend">
                         <span class="input-group-text"><i class="fa fa-fw fa-key"></i></span>
                     </div>
-                    <input type="text" class="form-control" name="config_login_key_secret" pattern="\w{3,99}" placeholder="Something really easy for techs to remember: e.g. MYSECRET" value="<?= escapeHtml($config_login_key_secret) ?>">
+                    <input type="text" class="form-control" name="config_login_key_secret" pattern="\w{3,99}" placeholder="Something really easy for techs to remember: e.g. MYSECRET" maxlength="99" value="<?= escapeHtml($config_login_key_secret) ?>">
                 </div>
             </div>
 

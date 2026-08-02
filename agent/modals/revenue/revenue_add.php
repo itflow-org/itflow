@@ -116,7 +116,7 @@ ob_start();
 
         <div class="form-group">
             <label>Description</label>
-            <textarea class="form-control" rows="5" name="description" placeholder="Enter a description"></textarea>
+            <textarea class="form-control" rows="5" name="description" placeholder="Enter a description" maxlength="200"></textarea>
         </div>
 
         <div class="form-row">
