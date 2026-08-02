@@ -29,7 +29,7 @@ if ($config_enable_cron == 0) {
 }
 
 /*
- * Anything an administrator started from Settings > Backup is built first. Those are
+ * Anything an administrator started from Maintenance > Backup is built first. Those are
  * explicit requests and somebody is waiting on the notification.
  */
 $queued = backupRunQueued($mysqli);

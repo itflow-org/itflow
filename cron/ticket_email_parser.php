@@ -42,6 +42,12 @@ $row = mysqli_fetch_assoc($sql);
 $company_name = escapeSql($row['company_name']);
 $company_phone = escapeSql(formatPhoneNumber($row['company_phone'], $row['company_phone_country_code']));
 
+// Check cron is enabled
+if ($config_enable_cron == 0) {
+    logApp("Cron-Email-Parser", "error", "Cron Email Parser unable to run - cron not enabled in admin settings.");
+    cronJobStop("Cron: is not enabled -- Quitting..");
+}
+
 // Check setting enabled
 if ($config_ticket_email_parse == 0) {
     logApp("Cron-Email-Parser", "error", "Cron Email Parser unable to run - not enabled in admin settings.");

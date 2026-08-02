@@ -8,7 +8,7 @@
 defined('FROM_DB_UPDATER') || die("Direct file access is not allowed");
 
     // The cron dispatcher's schedule moves out of code and into the database so it can be
-    // managed from Settings > Cron. The registry in includes/cron_jobs.php still decides
+    // managed from Maintenance > Cron. The registry in includes/cron_jobs.php still decides
     // which scripts exist and seeds these columns the first time it meets a job; from then
     // on the row is what runs. Nothing here can name a script - a row whose job is not in
     // the registry is ignored.

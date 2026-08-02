@@ -7,7 +7,7 @@
  * Adding a job is a script in cron/ and an entry here - the crontab never changes.
  *
  * Schedules here are DEFAULTS. They seed the job's row in the cron_jobs table the first
- * time the dispatcher sees it, and from then on the row is what runs: Settings > Cron
+ * time the dispatcher sees it, and from then on the row is what runs: Maintenance > Cron
  * writes to it. Changing a default in this file therefore only affects installs that have
  * not met the job yet.
  *
@@ -16,7 +16,7 @@
  * so nothing that reaches the database can point the dispatcher at an arbitrary file.
  *
  * Loaded from both sides: cron/cron.php requires it on the command line under system cron,
- * and Settings > Cron requires it in a web request. Nothing in here may touch $_SERVER,
+ * and Maintenance > Cron requires it in a web request. Nothing in here may touch $_SERVER,
  * $_SESSION or any other superglobal - there is no DOCUMENT_ROOT, no session and no request
  * when cron runs it.
  *
@@ -24,13 +24,17 @@
  * only cron loads: the admin pages would otherwise be reaching into the cron directory.
  *
  * 'enabled' => 0 ships a job switched off - the row is seeded disabled and stays that way
- * until somebody turns it on in Settings > Cron. Used for work an install should opt into
+ * until somebody turns it on in Maintenance > Cron. Used for work an install should opt into
  * rather than inherit from an upgrade, like the backup job filling a disk overnight.
  *
  * 'interval_safe' => false marks a job whose work repeats if the day repeats - nightly's
- * late fees and overdue reminders fire again on a second run of the same day. Settings >
+ * late fees and overdue reminders fire again on a second run of the same day. Maintenance >
  * Cron only offers the daily schedule for such a job, and the dispatcher refuses to run
  * one on an interval whatever its row says.
+ *
+ * Every job here checks config_enable_cron in its own header and stops itself when that
+ * switch is off. It is not a dispatcher-level gate - a new job has to make the check
+ * itself, and a job that skips it will keep running on an install that thinks cron is off.
  */
 
 function cronJobRegistry(): array
@@ -81,7 +85,7 @@ function cronJobRegistry(): array
             'name' => 'backup',
             'label' => 'Backup',
             'script' => 'backup.php',
-            'description' => 'Builds the scheduled backup and anything queued from Settings > Backup. Off by default.',
+            'description' => 'Builds the scheduled backup and anything queued from Maintenance > Backup. Off by default.',
             'schedule' => 'Daily',
             'daily_at' => '02:00',
             'enabled' => 0,

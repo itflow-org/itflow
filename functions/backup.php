@@ -58,7 +58,7 @@ function backupAppRoot(): string
  * The encryption key for this install.
  *
  * Lives in config.php only. Generated and appended on first use so nobody has to think
- * about it, then displayed in Settings > Backup so it can be written down - without it a
+ * about it, then displayed in Maintenance > Backup so it can be written down - without it a
  * backup cannot be restored, on this server or any other.
  *
  * Returns an empty string if config.php could not be written, which every caller treats
@@ -513,7 +513,7 @@ function backupSealArchive(array $entries, string $zip_path, string $key, ?strin
  * than a web request is allowed to live on most hosts - PHP-FPM's request_terminate_timeout
  * and the front end's read timeout both cut it off, and neither is affected by
  * set_time_limit() - so the button records the intent and cron/backup.php does the work
- * within the minute. Same shape as the Run Now button on Settings > Cron.
+ * within the minute. Same shape as the Run Now button on Maintenance > Cron.
  */
 function backupQueue(mysqli $mysqli, string $type, string $created_by, ?string &$error = null): int
 {

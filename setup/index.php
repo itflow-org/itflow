@@ -204,7 +204,7 @@ if (isset($_POST['restore'])) {
     }
 
     if ($restore_key === '') {
-        $_SESSION['alert_message'] = "Enter the backup encryption key. It is shown in Settings > Backup on the install that made this archive.";
+        $_SESSION['alert_message'] = "Enter the backup encryption key. It is shown in Maintenance > Backup on the install that made this archive.";
         header("Location: ?restore");
         exit;
     }
@@ -376,7 +376,7 @@ if (isset($_POST['add_company_settings'])) {
     }
 
     $latest_database_version = LATEST_DATABASE_VERSION;
-    mysqli_query($mysqli,"INSERT INTO settings SET company_id = 1, config_current_database_version = '$latest_database_version', config_invoice_prefix = 'INV-', config_invoice_next_number = 1, config_recurring_invoice_prefix = 'REC-', config_invoice_overdue_reminders = '1,3,7', config_quote_prefix = 'QUO-', config_quote_next_number = 1, config_default_net_terms = 30, config_ticket_next_number = 1, config_ticket_prefix = 'TCK-'");
+    mysqli_query($mysqli,"INSERT INTO settings SET company_id = 1, config_current_database_version = '$latest_database_version', config_invoice_prefix = 'INV-', config_invoice_next_number = 1, config_recurring_invoice_prefix = 'REC-', config_quote_prefix = 'QUO-', config_quote_next_number = 1, config_default_net_terms = 30, config_ticket_next_number = 1, config_ticket_prefix = 'TCK-'");
 
     // Create Categories
     // Expense Categories Examples
@@ -1154,7 +1154,7 @@ if (isset($_POST['add_telemetry'])) {
                                     <div class="form-group">
                                         <label>Backup encryption key</label>
                                         <input type="text" name="backup_key" class="form-control" placeholder="The key from the install that made this backup" autocomplete="off" required>
-                                        <small class="text-muted">Shown in Settings &gt; Backup on that install. The archive cannot be opened without it.</small>
+                                        <small class="text-muted">Shown in Maintenance &gt; Backup on that install. The archive cannot be opened without it.</small>
                                     </div>
 
                                     <div class="alert alert-warning mb-0">
@@ -1454,10 +1454,12 @@ if (isset($_POST['add_telemetry'])) {
                                     <li><a href="https://docs.itflow.org/backups">Setup backups</a></li>
                                     <li>
                                         <a href="https://docs.itflow.org/cron">Setup cron</a> - ITFlow needs one entry, which runs
-                                        every job on the schedule set in Settings &gt; Cron. Add it to the crontab of the user that
+                                        every job on the schedule set in Maintenance &gt; Cron. Add it to the crontab of the user that
                                         owns the ITFlow files:
                                         <pre class="bg-dark text-white p-2 mt-2"><?= escapeHtml("* * * * * php " . dirname(__DIR__) . "/cron/cron.php >/dev/null") ?></pre>
-                                        *If installing via the script this is set up for you.
+                                        Then <strong>turn cron on</strong> in Maintenance &gt; Cron - it ships off, and every job
+                                        stops itself until it is enabled.
+                                        *If installing via the script the crontab entry is set up for you.
                                     </li>
                                     <li>Star ITFlow on <a href="https://github.com/itflow-org/itflow">Github</a> :)</li>
                                 </ul>

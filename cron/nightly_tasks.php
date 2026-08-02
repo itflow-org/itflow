@@ -43,7 +43,6 @@ $company_currency = escapeSql($row['company_currency']);
 
 // Company Settings
 $config_enable_cron = intval($row['config_enable_cron']);
-$config_invoice_overdue_reminders = $row['config_invoice_overdue_reminders'];
 $config_invoice_prefix = escapeSql($row['config_invoice_prefix']);
 $config_invoice_from_email = escapeSql($row['config_invoice_from_email']);
 $config_invoice_from_name = escapeSql($row['config_invoice_from_name']);
@@ -539,7 +538,6 @@ while ($row = mysqli_fetch_assoc($sql_resolved_tickets_to_close)) {
 if ($config_send_invoice_reminders == 1) {
 
     // PAST DUE INVOICE Notifications
-    //$invoiceAlertArray = [$config_invoice_overdue_reminders];
     $invoiceAlertArray = [1,30,60,90,120,150,180,210,240,270,300,330,360,390,420,450,480,510,540,570,590,620,650,680,710,740];
 
     foreach ($invoiceAlertArray as $day) {

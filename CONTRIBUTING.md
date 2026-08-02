@@ -87,7 +87,7 @@ One crontab entry runs everything:
 
 `cron/cron.php` is a dispatcher. It wakes every minute, works out which scripts in `cron/` are due, and requires them into its own process. Adding a job is a new script in `cron/` plus an entry in `includes/cron_jobs.php`. The crontab never changes again.
 
-That registry is the only thing that decides **which** scripts can run, and the schedule in it is only a default: it seeds the job's `cron_jobs` row the first time the dispatcher meets the job, and from then on the row is what runs, because Settings > Cron writes to it. The database therefore holds **when and whether**, never **what** — a row naming a script that is not in the registry is ignored, so nothing that reaches the database can point the dispatcher at an arbitrary file. Keep it that way.
+That registry is the only thing that decides **which** scripts can run, and the schedule in it is only a default: it seeds the job's `cron_jobs` row the first time the dispatcher meets the job, and from then on the row is what runs, because Maintenance > Cron writes to it. The database therefore holds **when and whether**, never **what** — a row naming a script that is not in the registry is ignored, so nothing that reaches the database can point the dispatcher at an arbitrary file. Keep it that way.
 
 Run Now in the admin UI does not execute anything in the web request: these scripts are CLI-only and some take minutes, so the button sets `cron_job_run_now` and the next dispatch picks it up, through the same lock and claim as a scheduled run.
 
@@ -97,14 +97,24 @@ Because the jobs share one PHP process, job code has three rules:
 
 1. **Never `exit()` or `die()`.** It ends the whole cycle and every job after it. Use `cronJobStop($message, $exit_code)` instead: it exits when the script was run directly and unwinds back to the dispatcher when it wasn't, so both paths behave as they always have.
 2. **Never declare a function or class another job might declare.** Two jobs each declaring the same helper is a fatal `Cannot redeclare` the moment they share a process. Shared helpers belong in `functions/`.
-3. **Be safe to run twice in one day.** The dispatcher's lock stops overlap, but nothing stops a repeat: an admin presses Run Now after the scheduled pass, or a schedule is misconfigured. Work selected by a date match (`... = CURDATE()`) fires again on every run of that day unless something records that it happened — nightly's late fees and overdue reminders guard on the history rows they write. A job whose work cannot be made repeat-safe declares `'interval_safe' => false` in `includes/cron_jobs.php`, which locks it to the daily schedule in Settings > Cron and in the dispatcher.
+3. **Be safe to run twice in one day.** The dispatcher's lock stops overlap, but nothing stops a repeat: an admin presses Run Now after the scheduled pass, or a schedule is misconfigured. Work selected by a date match (`... = CURDATE()`) fires again on every run of that day unless something records that it happened — nightly's late fees and overdue reminders guard on the history rows they write. A job whose work cannot be made repeat-safe declares `'interval_safe' => false` in `includes/cron_jobs.php`, which locks it to the daily schedule in Maintenance > Cron and in the dispatcher.
 4. **Set what you read.** One global scope and one set of `require_once` includes are shared across the cycle — a job's own `require_once "../config.php"` is a no-op if an earlier job already loaded it, and any variable an earlier job left behind is still there. Do not rely on the state a fresh process would have given you.
 
-A job can also ship switched off with `'enabled' => 0` in the registry. The row is seeded disabled and stays that way until somebody turns it on in Settings > Cron. Use it for work an install should opt into rather than inherit silently from an upgrade — `backup` ships this way, because a full backup can be gigabytes a night.
+A job can also ship switched off with `'enabled' => 0` in the registry. The row is seeded disabled and stays that way until somebody turns it on in Maintenance > Cron. Use it for work an install should opt into rather than inherit silently from an upgrade — `backup` ships this way, because a full backup can be gigabytes a night.
+
+### The master switch
+
+`config_enable_cron` is a second, coarser switch that sits above the per-job ones. It is **not** enforced by the dispatcher — every job checks it in its own header and stops itself with `cronJobStop()`. A new job has to make that check too; one that skips it keeps running on an install that believes cron is off, which is exactly the trap `ticket_email_parser` and `ticket_sla` sat in until 26.08.
+
+Be precise about what it does, because it is easy to oversell. It is **not** a guard on restored data: a full backup dumps the `settings` table, so a restored copy comes back with `config_enable_cron = 1` alongside every enabled `cron_jobs` row, exactly as production had them. What it gives you is one reversible bit — the fastest way to stop an install acting on live data once you have noticed, and the only way to stop everything without editing seven rows.
+
+That last part is the reason it is not redundant with `cron_job_enabled`. Turning the switch off and back on returns you to exactly the configuration you had. Sweeping all seven rows off and back on does not: `backup` ships `'enabled' => 0`, so the sweep quietly turns on nightly backups nobody asked for, along with anything else that was deliberately disabled.
+
+It defaults to `0`. That is a weaker guard than it looks — an install with no crontab entry runs nothing whatever the switch says, so the entry is the real gate — but it does mean adding the crontab line to a half-configured install is not enough on its own to start emailing. Both setup paths name the step on the way out.
 
 ## Backups
 
-`functions/backup.php` is the whole engine, and all three entry points go through it: Settings > Backup, `cron/backup.php`, and `scripts/restore_cli.php`. Nothing else should dump, zip, or import a database.
+`functions/backup.php` is the whole engine, and all three entry points go through it: Maintenance > Backup, `cron/backup.php`, and `scripts/restore_cli.php`. Nothing else should dump, zip, or import a database.
 
 Archives are AES-256 encrypted zips. The key is one value per install, generated on first use and appended to `config.php` — **never** the database and **never** the file name. That is the point: a backup that leaks cannot be opened with anything the backup itself contains, and a URL or an access log never carries the key. The 32 random characters in the file name are an unguessable path component, nothing more. Note that `unzip`, Windows Explorer and the macOS Archive Utility cannot read AES zips; 7-Zip, WinZip, PeaZip and Keka can.
 

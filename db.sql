@@ -2276,7 +2276,6 @@ CREATE TABLE `settings` (
   `config_recurring_auto_send_invoice` tinyint(1) NOT NULL DEFAULT 1,
   `config_enable_alert_domain_expire` tinyint(1) NOT NULL DEFAULT 1,
   `config_send_invoice_reminders` tinyint(1) NOT NULL DEFAULT 1,
-  `config_invoice_overdue_reminders` varchar(200) DEFAULT NULL,
   `config_azure_client_id` varchar(200) DEFAULT NULL,
   `config_azure_client_secret` varchar(200) DEFAULT NULL,
   `config_module_enable_itdoc` tinyint(1) NOT NULL DEFAULT 1,
@@ -3150,4 +3149,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2026-08-02 16:18:05
+-- Dump completed on 2026-08-02 17:22:01

@@ -3,10 +3,31 @@
 defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
 
 /*
- * Settings > Cron. Everything here identifies a job by its row, and every row is checked
- * against the registry in includes/cron_jobs.php before anything is written - the database
- * decides when and whether a job runs, never which file the dispatcher executes.
+ * Maintenance > Cron. Apart from the master switch, everything here identifies a job by its
+ * row, and every row is checked against the registry in includes/cron_jobs.php before
+ * anything is written - the database decides when and whether a job runs, never which file
+ * the dispatcher executes.
  */
+
+if (isset($_GET['enable_cron']) || isset($_GET['disable_cron'])) {
+
+    validateCSRFToken();
+
+    // The master switch, config_enable_cron. Most jobs check it themselves and stop; it is
+    // not a dispatcher-level gate, so the two jobs that do not check it keep running. It
+    // lived in Settings > Notifications until 26.08, which is nowhere near anything else
+    // about cron.
+    $enabled = isset($_GET['enable_cron']) ? 1 : 0;
+
+    mysqli_query($mysqli, "UPDATE settings SET config_enable_cron = $enabled WHERE company_id = 1");
+
+    logAudit("Cron", "Edit", "$session_name " . ($enabled ? 'enabled' : 'disabled') . " the master cron switch");
+
+    flashAlert("Cron " . ($enabled ? 'enabled' : 'disabled') . ".", $enabled ? 'success' : 'error');
+
+    redirect();
+
+}
 
 if (isset($_POST['edit_cron_job'])) {
 

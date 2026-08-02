@@ -9,7 +9,7 @@
  *
  * It wakes once a minute, works out which jobs are due, and runs them. The jobs themselves
  * are listed in includes/cron_jobs.php; when and whether each one runs is held in the
- * cron_jobs table and edited from Settings > Cron.
+ * cron_jobs table and edited from Maintenance > Cron.
  *
  * WHAT THE JOBS INHERIT
  *
@@ -72,7 +72,7 @@ function cronJobClaim($mysqli, array $job): bool
     $now = date('Y-m-d H:i:s');
 
     // Register the job the first time it is seen, seeded with the schedule it ships with.
-    // From here on the row is what runs - Settings > Cron writes to it.
+    // From here on the row is what runs - Maintenance > Cron writes to it.
     $default_schedule = escapeSql($job['schedule']);
     $default_interval = intval($job['interval_minutes'] ?? 1);
     $default_daily_at = isset($job['daily_at']) ? "'" . escapeSql($job['daily_at']) . ":00'" : 'NULL';
@@ -144,7 +144,7 @@ function cronJobClaim($mysqli, array $job): bool
 /*
  * Record how a job ended. The status is the outcome of the run that just happened; the error
  * is sticky and survives later successes, because the run that failed is usually long gone by
- * the time anyone goes looking. Settings > Cron clears it.
+ * the time anyone goes looking. Maintenance > Cron clears it.
  */
 function cronJobFinished($mysqli, string $job_name, string $status, ?float $duration = null, ?string $error = null): void
 {
@@ -179,7 +179,7 @@ function cronJobFinished($mysqli, string $job_name, string $status, ?float $dura
     }
 }
 
-// Proof the crontab is firing, recorded before any job runs. Settings > Cron reads it to tell
+// Proof the crontab is firing, recorded before any job runs. Maintenance > Cron reads it to tell
 // "no job was due" apart from "nothing has run this since the server was rebuilt".
 mysqli_query($mysqli, "UPDATE settings SET config_cron_last_dispatch_at = '" . date('Y-m-d H:i:s') . "' WHERE company_id = 1");
 

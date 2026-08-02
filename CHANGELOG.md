@@ -9,9 +9,9 @@ This file documents all notable changes made to ITFlow.
 Backups are now encrypted, catalogued, schedulable, and restorable from the command line.
 
 - **Three types** — Full (database + uploads), Database Only, and Master Key. Every archive is an AES-256 encrypted zip.
-- **One encryption key per install**, generated on first use and stored in `config.php` — never in the database and never in the file name. It is shown in Settings > Backup. **Write it down: without it a backup cannot be restored.** Open archives with 7-Zip, WinZip, PeaZip or Keka — `unzip`, Windows Explorer and the macOS Archive Utility do not support AES.
+- **One encryption key per install**, generated on first use and stored in `config.php` — never in the database and never in the file name. It is shown in Maintenance > Backup. **Write it down: without it a backup cannot be restored.** Open archives with 7-Zip, WinZip, PeaZip or Keka — `unzip`, Windows Explorer and the macOS Archive Utility do not support AES.
 - **Backups are built by cron, not by your browser.** The button queues the work and the dispatcher picks it up within the minute, then notifies you. A dump of a real install takes longer than a web request is allowed to live, which is why the old Download Backup button timed out on large instances.
-- **Scheduled backups** are a new `backup` cron job, off by default. Turn it on in Settings > Cron. Retention (by age and by count) runs in the nightly job and never deletes the newest backup.
+- **Scheduled backups** are a new `backup` cron job, off by default. Turn it on in Maintenance > Cron. Retention (by age and by count) runs in the nightly job and never deletes the newest backup.
 - **Archives are stored outside the web-served path** under `uploads/backups/` with a deny-all rule, and downloaded through an admin-only handler. Set `$config_backup_path` in `config.php` to keep them off the web root entirely.
 - **Restore from the command line** with `php scripts/restore_cli.php --file=/path/to/backup.zip`. This is the only restore path with no size limit — the setup wizard's restore is capped by PHP's upload limits, and a full backup is usually larger. Use `--inspect` to check an archive without changing anything.
 - **Restores validate before they destroy.** The key is checked and the archive unpacked before any table is dropped, and the current database is dumped first and put back automatically if the import fails.
@@ -38,14 +38,14 @@ sudo -u www-data php /path/to/itflow/scripts/update_cli.php --update_db
 ```
 It applies every pending version in order and reports each one as it goes. On an install with a lot of ticket history it can take a minute or more, so let it finish. If a step fails it stops there without advancing the recorded version, so you can fix the problem and run it again. The 500s stop as soon as it completes.
  
-5. **Add the new cron entry.** One line runs everything now, and the schedules are managed in ITFlow under Settings > Cron:
+5. **Add the new cron entry.** One line runs everything now, and the schedules are managed in ITFlow under Maintenance > Cron:
 ```
 * * * * * www-data php /path/to/itflow/cron/cron.php >/dev/null
 ```
 Drop the `www-data` column if this goes in a user crontab rather than `/etc/cron.d`.
  
 6. **Recreate your API keys.** Every existing key is deleted by this update. Issue new ones and update anything that talks to the ITFlow API.
-7. **Check it took.** Open Settings > Cron — the green "Cron last checked in" banner should appear within a couple of minutes and every job should pick up a schedule.
+7. **Check it took, and check the master switch.** Open Maintenance > Cron — the green "Cron last checked in" banner should appear within a couple of minutes and every job should pick up a schedule. The **Enable Cron** switch has moved to this page from Settings > Notifications, and it now stops *every* job rather than most of them. If it is off, turn it on here: on earlier releases the ticket email parser and the SLA monitor ran regardless of it, so an install with the switch off may have been parsing mail all along without anyone realising the switch mattered.
 Only this release needs the command line for the database update. Normal updates go back to running from Settings > Update as usual.
  
 ### Breaking Changes and Notes
@@ -62,7 +62,13 @@ Only this release needs the command line for the database update. Normal updates
 ### New Features & Updates
  
 - Cron: one entry instead of five, and a page to manage it. Jobs are tracked in a new `cron_jobs` table, so a job whose slot was missed runs at the next opportunity rather than waiting a day, and each job locks for its own run so a slow mailbox or a long nightly pass no longer holds anything else up.
-- Cron: new Settings > Cron page listing every job with its schedule, last run, duration, outcome and next due time. Jobs can be disabled, rescheduled, or run on demand — Run Now hands the job to the next dispatch so it starts within a minute and still runs on the command line. The last error is kept until dismissed rather than vanishing behind the next success, and the page says plainly when the crontab entry itself is missing.
+- Cron: new Maintenance > Cron page listing every job with its schedule, last run, duration, outcome and next due time. Jobs can be disabled, rescheduled, or run on demand — Run Now hands the job to the next dispatch so it starts within a minute and still runs on the command line. The last error is kept until dismissed rather than vanishing behind the next success, and the page says plainly when the crontab entry itself is missing.
+- Cron: the master **Enable Cron** switch has moved from Settings > Notifications to Maintenance > Cron, alongside everything else about cron. It can be turned on and off from that page, and the page now explains what it is for — stopping a restored backup or a staging clone from emailing clients and charging cards, which per-job toggles cannot do on their own. Saving Notification settings no longer touches it.
+- Cron: the master switch now stops **every** job. The Ticket Email Parser and Ticket SLA Monitor previously ignored it and kept running while cron was switched off, which was neither documented nor visible anywhere. **If your Enable Cron switch is off but email-to-ticket has been working, turn cron on in Maintenance > Cron after upgrading** — see the upgrade steps above. Both jobs report "Cron: is not enabled" on the Cron page when the switch is off, so the state is now legible instead of silent.
+- Settings > Notifications: removed five rows that had no controls in them and no setting behind them — certificate expiry, asset warranty expiry, shared item views, cron execution and ITFlow updates. The cron execution row is now covered properly by the last run, duration and outcome columns on Maintenance > Cron.
+- Settings > Ticketing: the email-to-ticket hint no longer names a cron script that has not existed for several releases, and points at Maintenance > Cron instead.
+- Setup: the command line installer now prints the crontab entry and the reminder to turn cron on, the same two steps the web installer shows on its finish page.
+- Removed the unused `config_invoice_overdue_reminders` setting. It was seeded on install and read in two places but never actually used by anything; the overdue reminder schedule is fixed in the nightly job.
 - Cron: the nightly run is safe to repeat. Late fees, overdue invoice reminders and autopay retries now apply at most once per invoice per day, so a Run Now after the scheduled pass no longer stacks fees or re-emails clients. Nightly Tasks only accepts the daily schedule.
 - Ticket SLAs, optional throughout. An SLA sets a response target and an optional resolution target, assigned per client and priority with a global default and an explicit "no SLA" override. Targets are measured against your business hours. Tickets show time remaining and turn yellow at a configurable warning threshold and red on breach, on both the ticket list and the kanban board, and can be filtered by SLA state. Nominated statuses pause the resolution clock for "waiting on customer", preserving the remaining budget. Two new reports, SLA Summary and SLA by Client. With no assignments defined nothing behaves any differently.
 - Ticket: added an Urgent priority.

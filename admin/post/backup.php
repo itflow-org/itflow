@@ -26,7 +26,7 @@ if (isset($_GET['queue_backup'])) {
         $cron_row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT config_enable_cron FROM settings WHERE company_id = 1"));
 
         if (intval($cron_row['config_enable_cron']) === 0) {
-            flashAlert(backupTypeLabel($type) . " queued, but cron is switched off in Settings > Notifications, so it will not start until that is enabled.", 'error');
+            flashAlert(backupTypeLabel($type) . " queued, but cron is switched off in Maintenance > Cron, so it will not start until that is enabled.", 'error');
         } else {
             flashAlert(backupTypeLabel($type) . " queued - it will start within a minute and you will be notified when it is ready.");
         }

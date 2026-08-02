@@ -34,6 +34,19 @@ require_once "../functions.php";
  * breach until someone moves them back to a running status.
  */
 
+// Read the master switch here rather than trusting a global. Every job shares one process
+// and one global scope, so a value an earlier job happened to leave behind is not this
+// script's to rely on - see the cron rules in CONTRIBUTING.md.
+$row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT config_enable_cron FROM settings WHERE company_id = 1"));
+
+$config_enable_cron = intval($row['config_enable_cron']);
+
+// Check cron is enabled
+if ($config_enable_cron == 0) {
+    logApp("Cron-Ticket-SLA", "error", "Cron Ticket SLA monitor unable to run - cron not enabled in admin settings.");
+    cronJobStop("Cron: is not enabled -- Quitting..");
+}
+
 $sla_settings = getSlaSettings();
 
 $warning_percent = intval($sla_settings['warning_percent']);

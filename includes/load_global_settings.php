@@ -99,7 +99,6 @@ $config_enable_cron = intval($row['config_enable_cron']);
 $config_recurring_auto_send_invoice = intval($row['config_recurring_auto_send_invoice']);
 $config_enable_alert_domain_expire = intval($row['config_enable_alert_domain_expire']);
 $config_send_invoice_reminders = intval($row['config_send_invoice_reminders']);
-$config_invoice_overdue_reminders = intval($row['config_invoice_overdue_reminders']);
 
 // Modules
 $config_module_enable_itdoc = intval($row['config_module_enable_itdoc']);

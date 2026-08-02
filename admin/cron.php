@@ -54,10 +54,25 @@ while ($job_row = mysqli_fetch_assoc($sql)) {
 
         <?php if ($config_enable_cron == 0) { ?>
             <div class="alert alert-warning">
-                <i class="fas fa-fw fa-exclamation-circle mr-2"></i>Cron is switched off in
-                <a href="settings_notification.php">Settings &gt; Notifications</a>. The dispatcher is running, but most jobs
-                stop themselves immediately while this is off.
+                <div class="float-right">
+                    <a class="btn btn-sm btn-warning" href="post.php?enable_cron=1&amp;csrf_token=<?= $_SESSION['csrf_token'] ?>">
+                        <i class="fas fa-fw fa-power-off mr-2"></i>Turn cron on
+                    </a>
+                </div>
+                <h5><i class="fas fa-fw fa-exclamation-circle mr-2"></i>Cron is switched off</h5>
+                The dispatcher is running, but every job below stops itself immediately while this is off -
+                no mail is sent, no email becomes a ticket, and nothing is invoiced.
             </div>
+        <?php } else { ?>
+            <p class="text-muted">
+                <small>
+                    <i class="fas fa-fw fa-power-off mr-1"></i>The master switch is <strong>on</strong>. Turning it off
+                    stops every job at once without touching their schedules, which is what you want on a restored
+                    backup or a staging clone - those come up with every job enabled and will otherwise email clients
+                    and charge cards. Switching back on returns you to exactly this configuration.
+                    <a href="post.php?disable_cron=1&amp;csrf_token=<?= $_SESSION['csrf_token'] ?>">Turn cron off</a>.
+                </small>
+            </p>
         <?php } ?>
 
         <div class="table-responsive-sm">

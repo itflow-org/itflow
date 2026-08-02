@@ -13,7 +13,7 @@ $config_backup_retention_days = intval($row['config_backup_retention_days']);
 $config_backup_retention_count = intval($row['config_backup_retention_count']);
 $config_backup_cron_type = $row['config_backup_cron_type'];
 
-// Same heartbeat rule as Settings > Cron - archives are built by the dispatcher, so a dead
+// Same heartbeat rule as Maintenance > Cron - archives are built by the dispatcher, so a dead
 // crontab means the buttons below queue work that never runs
 $cron_is_running = $cron_last_dispatch_at !== null && (time() - strtotime($cron_last_dispatch_at)) < 300;
 
@@ -51,12 +51,12 @@ if (!empty($_SESSION['backup_master_key_reveal'])) {
     <div class="alert alert-danger">
         <h5><i class="fas fa-fw fa-exclamation-triangle mr-2"></i>Cron is not running</h5>
         Backups are built by the cron dispatcher, not by your browser. Until cron is running, anything you
-        start here will sit in the queue. See <a href="cron.php">Settings &gt; Cron</a>.
+        start here will sit in the queue. See <a href="cron.php">Maintenance &gt; Cron</a>.
     </div>
 <?php } elseif ($config_enable_cron == 0) { ?>
     <div class="alert alert-warning">
         <i class="fas fa-fw fa-exclamation-circle mr-2"></i>Cron is switched off in
-        <a href="settings_notification.php">Settings &gt; Notifications</a>.
+        <a href="cron.php">Maintenance &gt; Cron</a>.
     </div>
 <?php } ?>
 
@@ -241,7 +241,7 @@ if (!empty($_SESSION['backup_master_key_reveal'])) {
             <?php } else { ?>
                 <i class="fas fa-fw fa-times text-danger mr-2"></i>Scheduled backups are switched off.
             <?php } ?>
-            Turn them on or change the time in <a href="cron.php">Settings &gt; Cron</a>.
+            Turn them on or change the time in <a href="cron.php">Maintenance &gt; Cron</a>.
         </p>
         <p class="text-muted small mt-2 mb-0">
             Old backups are removed by the nightly job, never by the backup itself, so a failed nightly

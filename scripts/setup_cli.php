@@ -282,7 +282,7 @@ mysqli_query($mysqli,"INSERT INTO companies SET company_name = '$company_name', 
 
 // Insert default settings and categories
 $latest_database_version = LATEST_DATABASE_VERSION;
-mysqli_query($mysqli,"INSERT INTO settings SET company_id = 1, config_current_database_version = '$latest_database_version', config_invoice_prefix = 'INV-', config_invoice_next_number = 1, config_recurring_invoice_prefix = 'REC-', config_invoice_overdue_reminders = '1,3,7', config_quote_prefix = 'QUO-', config_quote_next_number = 1, config_default_net_terms = 30, config_ticket_next_number = 1, config_ticket_prefix = 'TCK-'");
+mysqli_query($mysqli,"INSERT INTO settings SET company_id = 1, config_current_database_version = '$latest_database_version', config_invoice_prefix = 'INV-', config_invoice_next_number = 1, config_recurring_invoice_prefix = 'REC-', config_quote_prefix = 'QUO-', config_quote_next_number = 1, config_default_net_terms = 30, config_ticket_next_number = 1, config_ticket_prefix = 'TCK-'");
 
 // Categories
 mysqli_query($mysqli,"INSERT INTO categories SET category_name = 'Office Supplies', category_type = 'Expense', category_color = 'blue'");
@@ -446,5 +446,16 @@ fclose($myfile);
 
 echo "\nSetup complete!\n";
 echo "You can now log in with the user you created at: https://$base_url/login.php\n";
+
+// Whoever ran this is already at a shell on the right host, which makes this the one moment
+// they can paste the crontab line without going and finding it. The web setup shows the same
+// two steps on its finish page.
+$itflow_path = realpath(__DIR__ . '/..');
+
+echo "\nTwo things left before ITFlow can send mail, parse tickets or bill anyone:\n\n";
+echo "  1. Add this single entry to the crontab of the user that owns the ITFlow files:\n\n";
+echo "     * * * * * php $itflow_path/cron/cron.php >/dev/null\n\n";
+echo "  2. Turn cron on in Maintenance > Cron. It ships off, and every job stops\n";
+echo "     itself until it is enabled. Per-job schedules live on the same page.\n\n";
 
 exit(0);

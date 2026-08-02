@@ -62,7 +62,7 @@ $key = $options['key'] ?? ($config_backup_key ?? '');
 if ($key === '') {
     fwrite(STDERR, "No encryption key.\n\n");
     fwrite(STDERR, "config.php has no \$config_backup_key, so pass the key from the install that made\n");
-    fwrite(STDERR, "this backup with --key=... It is shown in Settings > Backup on that install.\n");
+    fwrite(STDERR, "this backup with --key=... It is shown in Maintenance > Backup on that install.\n");
     exit(1);
 }
 
@@ -131,6 +131,6 @@ echo "\nNext steps:\n";
 echo "  1. Log in with the credentials that were in use when the backup was taken.\n";
 echo "  2. If the backup is older than the code in this directory, finish the database update:\n";
 echo "     php " . realpath(__DIR__) . "/update_cli.php --update_db\n";
-echo "  3. Check Settings > Cron - the schedule came back with the database.\n";
+echo "  3. Check Maintenance > Cron - the schedule came back with the database.\n";
 
 exit(0);
