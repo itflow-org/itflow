@@ -934,7 +934,7 @@ CREATE TABLE `credentials` (
   `credential_uri` varchar(500) DEFAULT NULL,
   `credential_uri_2` varchar(500) DEFAULT NULL,
   `credential_username` varchar(500) DEFAULT NULL,
-  `credential_password` varbinary(200) DEFAULT NULL,
+  `credential_password` varchar(500) DEFAULT NULL,
   `credential_otp_secret` varchar(200) DEFAULT NULL,
   `credential_note` text DEFAULT NULL,
   `credential_favorite` tinyint(1) NOT NULL DEFAULT 0,
@@ -3150,4 +3150,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2026-07-31 16:18:11
+-- Dump completed on 2026-08-02 16:18:05

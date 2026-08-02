@@ -432,7 +432,7 @@ ob_start();
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-lock"></i></span>
                         </div>
-                        <input type="text" class="form-control" name="password" placeholder="Password" autocomplete="off">
+                        <input type="text" class="form-control" name="password" placeholder="Password" maxlength="350" autocomplete="off">
                     </div>
                 </div>
 
