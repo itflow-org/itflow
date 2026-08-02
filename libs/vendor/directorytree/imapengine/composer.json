@@ -21,7 +21,7 @@
         "symfony/mime": ">=6.0",
         "nesbot/carbon": ">=2.0",
         "illuminate/collections": ">=9.0",
-        "zbateson/mail-mime-parser": "^3.0",
+        "zbateson/mail-mime-parser": "^3.0|^4.0",
         "egulias/email-validator": "^4.0"
     },
     "require-dev": {

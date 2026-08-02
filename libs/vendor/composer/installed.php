@@ -5,9 +5,9 @@
         'type' => 'library',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
-        'reference' => '2b756f6ea4ca540c7f59b332a0168d76a5c8aaa3',
+        'reference' => 'ab415435789dace46d65303ccbdf9628df3481d8',
         'name' => '__root__',
-        'dev' => false,
+        'dev' => true,
     ),
     'versions' => array(
         '__root__' => array(
@@ -16,7 +16,7 @@
             'type' => 'library',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
-            'reference' => '2b756f6ea4ca540c7f59b332a0168d76a5c8aaa3',
+            'reference' => 'ab415435789dace46d65303ccbdf9628df3481d8',
             'dev_requirement' => false,
         ),
         'carbonphp/carbon-doctrine-types' => array(
@@ -29,12 +29,12 @@
             'dev_requirement' => false,
         ),
         'directorytree/imapengine' => array(
-            'pretty_version' => 'v1.25.3',
-            'version' => '1.25.3.0',
+            'pretty_version' => 'v1.25.4',
+            'version' => '1.25.4.0',
             'type' => 'library',
             'install_path' => __DIR__ . '/../directorytree/imapengine',
             'aliases' => array(),
-            'reference' => '62d4f4080683b1b1136720bec8c90354709298fe',
+            'reference' => 'f2a626c34d0f3b9774a4e729893e84e6360605f6',
             'dev_requirement' => false,
         ),
         'doctrine/lexer' => array(

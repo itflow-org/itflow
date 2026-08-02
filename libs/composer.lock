@@ -77,16 +77,16 @@
         },
         {
             "name": "directorytree/imapengine",
-            "version": "v1.25.3",
+            "version": "v1.25.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/DirectoryTree/ImapEngine.git",
-                "reference": "62d4f4080683b1b1136720bec8c90354709298fe"
+                "reference": "f2a626c34d0f3b9774a4e729893e84e6360605f6"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/DirectoryTree/ImapEngine/zipball/62d4f4080683b1b1136720bec8c90354709298fe",
-                "reference": "62d4f4080683b1b1136720bec8c90354709298fe",
+                "url": "https://api.github.com/repos/DirectoryTree/ImapEngine/zipball/f2a626c34d0f3b9774a4e729893e84e6360605f6",
+                "reference": "f2a626c34d0f3b9774a4e729893e84e6360605f6",
                 "shasum": ""
             },
             "require": {
@@ -95,7 +95,7 @@
                 "nesbot/carbon": ">=2.0",
                 "php": "^8.1",
                 "symfony/mime": ">=6.0",
-                "zbateson/mail-mime-parser": "^3.0"
+                "zbateson/mail-mime-parser": "^3.0|^4.0"
             },
             "require-dev": {
                 "pestphp/pest": "^2.0|^3.0|^4.0",
@@ -127,7 +127,7 @@
             ],
             "support": {
                 "issues": "https://github.com/DirectoryTree/ImapEngine/issues",
-                "source": "https://github.com/DirectoryTree/ImapEngine/tree/v1.25.3"
+                "source": "https://github.com/DirectoryTree/ImapEngine/tree/v1.25.4"
             },
             "funding": [
                 {
@@ -135,7 +135,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2026-07-20T14:31:20+00:00"
+            "time": "2026-07-30T21:01:32+00:00"
         },
         {
             "name": "doctrine/lexer",
