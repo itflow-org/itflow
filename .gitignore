@@ -20,6 +20,7 @@ uploads/users/*
 !uploads/users/index.php
 uploads/tmp/*
 !uploads/tmp/index.php
+!uploads/tmp/.htaccess
 uploads/backups/*
 !uploads/backups/index.php
 !uploads/backups/.htaccess
