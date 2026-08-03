@@ -163,7 +163,7 @@ if (isset($_GET['invoice_id'])) {
     //Product autocomplete
     $products_sql = mysqli_query($mysqli, "
         SELECT
-            CONCAT(product_code, ' - ', product_name) AS label,
+            IF(product_code IS NULL OR product_code = '', product_name, CONCAT(product_code, ' - ', product_name)) AS label,
             product_name,
             product_code,
             product_type AS type,
@@ -178,6 +178,7 @@ if (isset($_GET['invoice_id'])) {
         LEFT JOIN taxes ON product_tax_id = tax_id
         WHERE product_archived_at IS NULL
         GROUP BY product_id
+        ORDER BY product_name ASC
     ");
 
     if (mysqli_num_rows($products_sql) > 0) {
@@ -449,7 +450,7 @@ if (isset($_GET['invoice_id'])) {
                                     <form action="post.php" method="post" autocomplete="off">
                                         <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
                                         <input type="hidden" name="invoice_id" value="<?= $invoice_id ?>">
-                                        <input type="hidden" id="product_id" name="product_id" value="<?= $item_product_id ?? 0 ?>">
+                                        <input type="hidden" id="product_id" name="product_id" value="0">
                                         <input type="hidden" name="item_order" value="<?= mysqli_num_rows($sql_invoice_items) + 1 ?>">
                                         <td></td>
                                         <td>
@@ -752,20 +753,31 @@ $(function() {
             var term = $.ui.autocomplete.escapeRegex(request.term.toLowerCase());
             var matcher = new RegExp(term, "i");
             var matches = $.grep(availableProducts, function(item) {
-                return matcher.test(item.label) || matcher.test(item.product_name) || matcher.test(item.product_code);
+                return matcher.test(item.label || "") || matcher.test(item.product_name || "") || matcher.test(item.product_code || "");
             });
             response(matches);
         },
         select: function (event, ui) {
-            $("#name").val(ui.item.label);
+            $("#name").val(ui.item.product_name);
             $("#desc").val(ui.item.description);
             $("#qty").val(1);
             $("#price").val(ui.item.price);
-            $("#tax").val(ui.item.tax);
+            $("#tax").val(ui.item.tax).trigger('change');
             $("#product_id").val(ui.item.prod_id);
             return false;
         }
     });
+
+    // Typing over the name by hand breaks the link to the product
+    $("#name").on("input", function() {
+        $("#product_id").val(0);
+    });
+
+    // Product names and descriptions are user supplied - escape before
+    // building markup, the default renderer uses .text() for this reason
+    function esc(value) {
+        return $("<div>").text(value == null ? "" : value).html();
+    }
 
     // Keep it simple: default jQuery UI look, just richer content
     $("#name").autocomplete("instance")._renderItem = function(ul, item) {
@@ -774,21 +786,22 @@ $(function() {
 
         var taxText = (item.tax_percent != null) ? (parseFloat(item.tax_percent) + "%") : "No tax";
         var priceText = (item.price != null && item.price !== "") ? String(item.price) : "";
+        var stockText = (item.available_stock ?? 0);
 
         var infoLeft =
             "<div class='d-flex justify-content-between align-items-start'>" +
                 "<div class='flex-fill pr-2'>" +
-                    "<div class='font-weight-bold'>" + (item.label || "") +
-                        (typeText ? " <small class='text-muted'>(" + typeText + ")</small>" : "") +
+                    "<div class='font-weight-bold'>" + esc(item.label) +
+                        (typeText ? " <small class='text-muted'>(" + esc(typeText) + ")</small>" : "") +
                     "</div>" +
-                    "<div class='small text-muted'>" + (item.description || "") + "</div>" +
+                    "<div class='small text-muted'>" + esc(item.description) + "</div>" +
                     "<div class='mt-1'>" +
-                        "<span class='badge badge-secondary mr-1'>Tax: " + taxText + "</span>" +
-                        (showStock ? "<span class='badge " + ((item.available_stock ?? 0) > 0 ? "badge-success" : "badge-danger") + "'>Stock: " + (item.available_stock ?? 0) + "</span>" : "") +
+                        "<span class='badge badge-secondary mr-1'>Tax: " + esc(taxText) + "</span>" +
+                        (showStock ? "<span class='badge " + (stockText > 0 ? "badge-success" : "badge-danger") + "'>Stock: " + esc(stockText) + "</span>" : "") +
                     "</div>" +
                 "</div>" +
                 "<div class='text-right'>" +
-                    "<div class='font-weight-bold'>" + priceText + "</div>" +
+                    "<div class='font-weight-bold'>" + esc(priceText) + "</div>" +
                 "</div>" +
             "</div>";
 

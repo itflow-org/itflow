@@ -584,7 +584,7 @@ require_once "../includes/footer.php";
 <script src="../libs/jquery-ui/jquery-ui.min.js"></script>
 <script>
     $(function() {
-        var availableProducts = <?= $json_products ?? '""' ?>;
+        var availableProducts = <?= $json_products ?? '[]' ?>;
 
         $("#name").autocomplete({
             source: availableProducts,
@@ -593,7 +593,7 @@ require_once "../includes/footer.php";
                 $("#desc").val(ui.item.description); // Product description field
                 $("#qty").val(1); // Product quantity field automatically make it a 1
                 $("#price").val(ui.item.price); // Product price field
-                $("#tax").val(ui.item.tax); // Tax field
+                $("#tax").val(ui.item.tax).trigger('change'); // Tax field - trigger repaints select2
                 return false;
             }
         });
