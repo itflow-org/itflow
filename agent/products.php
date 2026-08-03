@@ -69,6 +69,13 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     <?php } ?>
                     <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown"></button>
                     <div class="dropdown-menu">
+                        <?php if ($type_display == 'Products') { ?>
+                            <a class="dropdown-item text-dark ajax-modal" href="#"
+                                data-modal-url="modals/product/product_import.php">
+                                <i class="fa fa-fw fa-upload mr-2"></i>Import
+                            </a>
+                            <div class="dropdown-divider"></div>                            
+                        <?php } ?>                   
                         <a class="dropdown-item text-dark ajax-modal"
                             data-modal-url="<?= buildExportModalUrl('modals/product/product_export.php', ['type', 'category', 'archived', 'q']) ?>">
                             <i class="fa fa-fw fa-download mr-2"></i>Export

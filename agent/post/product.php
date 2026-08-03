@@ -353,3 +353,112 @@ if (isset($_POST['add_product_stock'])) {
     redirect();
 
 }
+
+if (isset($_POST["import_products_csv"])) {
+
+    validateCSRFToken();
+
+    enforceUserPermission('module_sales', 2);
+    $error = false;
+
+    if (!empty($_FILES["file"]["tmp_name"])) {
+        $file_name = $_FILES["file"]["tmp_name"];
+    } else {
+        flashAlert("Please select a file to upload.", 'error');
+        redirect();
+    }
+
+    //Check file is CSV
+    $file_extension = strtolower(end(explode('.',$_FILES['file']['name'])));
+    $allowed_file_extensions = array('csv');
+    if (in_array($file_extension,$allowed_file_extensions) === false) {
+        $error = true;
+        flashAlert("Bad file extension", 'error');
+    }
+
+    //Check file isn't empty
+    elseif ($_FILES["file"]["size"] < 1) {
+        $error = true;
+        flashAlert("Bad file size (empty?)", 'error');
+    }
+
+    //(Else)Check column count
+    $f = fopen($file_name, "r");
+    $f_columns = fgetcsv($f, 1000, ",");
+    if (!$error & count($f_columns) != 3) {
+        $error = true;
+        flashAlert("Bad column count.", 'error');
+    }
+
+    //Else, parse the file
+    if (!$error) {
+
+        $file = fopen($file_name, "r");
+        fgetcsv($file, 1000, ","); // Skip first line
+        $row_count = 0;
+
+        while(($column = fgetcsv($file, 1000, ",")) !== false) {
+            $name = '';
+            if (isset($column[0])) {
+                $name = escapeSql(substr($column[0], 0, 200));
+            }
+
+            $description = '';
+            if (isset($column[1])) {
+                $description = escapeSql($column[1]);
+            }
+
+            $price = 0;
+            if (isset($column[2])) {
+                $price = floatval($column[2]);
+            }
+
+            if (!empty($name)) {
+                mysqli_query($mysqli, "INSERT INTO products SET product_name = '$name', product_type = 'product', product_description = '$description', product_price = '$price', product_currency_code = '$session_company_currency', product_category_id = 0");
+                $row_count++;
+            }
+
+        }
+        fclose($file);
+
+        logAudit("Product", "Import", "$session_name imported $row_count product(s) via CSV file");
+
+        flashAlert("<strong>$row_count</strong> Product(s) added");
+
+        redirect();
+
+    }
+
+    //Check for any errors, if there are notify user and redirect
+    if ($error) {
+        redirect();
+    }
+}
+
+if (isset($_GET['download_products_csv_template'])) {
+
+    $delimiter = ",";
+    $enclosure = '"';
+    $escape    = '\\';   // backsla
+    $filename = "Products-Template.csv";
+
+    //create a file pointer
+    $f = fopen('php://memory', 'w');
+
+    //set column headers
+    $fields = array('Product Name', 'Description', 'Price');
+    fputcsv($f, $fields, $delimiter, $enclosure, $escape);
+
+    //move back to beginning of file
+    fseek($f, 0);
+
+    //set headers to download file rather than displayed
+    header('Content-Type: text/csv');
+    header('Content-Disposition: attachment; filename="' . $filename . '";');
+
+    //output all remaining data on a file pointer
+    fpassthru($f);
+
+    exit;
+
+}
