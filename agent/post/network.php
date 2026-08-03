@@ -98,7 +98,7 @@ if (isset($_GET['restore_network'])) {
 
     mysqli_query($mysqli,"UPDATE networks SET network_archived_at = NULL WHERE network_id = $network_id");
 
-    logAudit("Network", "Restore", "$session_name restored contact $contact_name", $client_id, $network_id);
+    logAudit("Network", "Restore", "$session_name restored network $network_name", $client_id, $network_id);
 
     flashAlert("Network <strong>$network_name</strong> restored");
 

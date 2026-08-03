@@ -61,7 +61,7 @@ if (isset($_GET['delete_ticket_status'])) {
         exit("Can't delete built-in statuses");
     }
 
-    $ticlet_status_name = escapeSql(getFieldById('ticket_statuses', $ticket_status_id, 'ticket_status_name'));
+    $ticket_status_name = escapeSql(getFieldById('ticket_statuses', $ticket_status_id, 'ticket_status_name'));
 
     mysqli_query($mysqli, "DELETE FROM ticket_statuses WHERE ticket_status_id = $ticket_status_id");
 

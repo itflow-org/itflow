@@ -278,6 +278,38 @@ $summary_total_income = floatval($row['total_income']);
                         </div>
                     </div>
                 </div>
+                <?php if (lookupUserPermission("module_sales") >= 3 && lookupUserPermission("module_financial") >= 3) { ?>
+                <div class="row">
+                    <div class="col-12">
+                        <div class="btn-group float-right">
+                            <div class="dropdown mt-3" id="bulkActionButton" hidden>
+                                <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">
+                                    <i class="fas fa-fw fa-layer-group mr-2"></i>Bulk Action (<span id="selectedCount">0</span>)
+                                </button>
+                                <div class="dropdown-menu">
+                                    <a class="dropdown-item ajax-modal" href="#"
+                                        data-modal-url="modals/income/income_bulk_edit_category.php"
+                                        data-bulk="true">
+                                        <i class="fas fa-fw fa-list mr-2"></i>Set Category
+                                    </a>
+                                    <div class="dropdown-divider"></div>
+                                    <a class="dropdown-item ajax-modal" href="#"
+                                        data-modal-url="modals/income/income_bulk_edit_account.php"
+                                        data-bulk="true">
+                                        <i class="fas fa-fw fa-piggy-bank mr-2"></i>Set Account
+                                    </a>
+                                    <div class="dropdown-divider"></div>
+                                    <a class="dropdown-item ajax-modal" href="#"
+                                        data-modal-url="modals/income/income_bulk_edit_method.php"
+                                        data-bulk="true">
+                                        <i class="fas fa-fw fa-money-check-alt mr-2"></i>Set Payment Method
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <?php } ?>
                 <div class="collapse mt-3 <?php if (isset($_GET['dtf']) && $_GET['dtf'] !== '1970-01-01') { echo "show"; } ?>" id="advancedFilter">
                     <div class="row">
                         <div class="col-md-3">
@@ -342,6 +374,13 @@ $summary_total_income = floatval($row['total_income']);
                 <table class="table table-striped table-borderless table-hover">
                     <thead class="text-dark <?php if ($num_rows[0] == 0) { echo "d-none"; } ?> text-nowrap">
                     <tr>
+                        <?php if (lookupUserPermission("module_sales") >= 3 && lookupUserPermission("module_financial") >= 3) { ?>
+                        <td class="bg-light checkbox-column">
+                            <div class="form-check">
+                                <input class="form-check-input" id="selectAllCheckbox" type="checkbox" onclick="checkAll(this)">
+                            </div>
+                        </td>
+                        <?php } ?>
                         <th>
                             <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=income_date&order=<?= $disp ?>">
                                 Date <?php if ($sort == 'income_date') { echo $order_icon; } ?>
@@ -435,6 +474,13 @@ $summary_total_income = floatval($row['total_income']);
                         ?>
 
                         <tr>
+                            <?php if (lookupUserPermission("module_sales") >= 3 && lookupUserPermission("module_financial") >= 3) { ?>
+                            <td class="bg-light checkbox-column">
+                                <div class="form-check">
+                                    <input class="form-check-input bulk-select" type="checkbox" name="income_ids[]" value="<?= $income_type ?>-<?= $income_id ?>">
+                                </div>
+                            </td>
+                            <?php } ?>
                             <td>
                                 <a class="ajax-modal" href="#"
                                     data-modal-size = "lg"
@@ -500,6 +546,8 @@ $summary_total_income = floatval($row['total_income']);
             <?php require_once "../includes/filter_footer.php"; ?>
         </div>
     </div>
+
+<script src="/js/bulk_actions.js"></script>
 
 <?php
 require_once "../includes/footer.php";

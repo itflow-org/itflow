@@ -158,7 +158,7 @@ if (isset($_POST['bulk_edit_expense_category'])) {
 
             mysqli_query($mysqli,"UPDATE expenses SET expense_category_id = $category_id WHERE expense_id = $expense_id");
 
-            logAudit("Expense", "Edit", "$session_name assigned expense $expense_descrition to category $category_name", $client_id, $expense_id);
+            logAudit("Expense", "Edit", "$session_name assigned expense $expense_description to category $category_name", $client_id, $expense_id);
 
         } // End Assign Loop
 
@@ -203,7 +203,7 @@ if (isset($_POST['bulk_edit_expense_account'])) {
 
             mysqli_query($mysqli,"UPDATE expenses SET expense_account_id = $account_id WHERE expense_id = $expense_id");
 
-            logAudit("Expense", "Edit", "$session_name assigned expense $expense_descrition to account $account_name", $client_id, $expense_id);
+            logAudit("Expense", "Edit", "$session_name assigned expense $expense_description to account $account_name", $client_id, $expense_id);
 
         } // End Assign Loop
 
@@ -243,11 +243,11 @@ if (isset($_POST['bulk_edit_expense_client'])) {
 
             mysqli_query($mysqli,"UPDATE expenses SET expense_client_id = $client_id WHERE expense_id = $expense_id");
 
-            logAudit("Expense", "Edit", "$session_name assigned expense $expense_descrition to client $client_name", $client_id, $expense_id);
+            logAudit("Expense", "Edit", "$session_name assigned expense $expense_description to client $client_name", $client_id, $expense_id);
 
         } // End Assign Loop
 
-       flashAlert("You assigned Client <b>$client_name</b> to <b>$expense_count</b> expenses");
+       flashAlert("You assigned client <strong>$client_name</strong> to <strong>$count</strong> expense(s)");
     }
 
     redirect();
@@ -284,7 +284,7 @@ if (isset($_POST['bulk_delete_expenses'])) {
 
             mysqli_query($mysqli, "DELETE FROM expenses WHERE expense_id = $expense_id");
 
-            logAudit("Expense", "Delete", "$session_name deleted expense $expense_descrition", $client_id);
+            logAudit("Expense", "Delete", "$session_name deleted expense $expense_description", $client_id);
 
         }
 

@@ -272,7 +272,7 @@ if (isset($_GET['remove_rack_unit'])) {
     $unit_id = intval($_GET['remove_rack_unit']);
 
     // Get Name and Client ID for logging and alert message
-    $sql = mysqli_query($mysqli,"SELECT rack_name, rack_id, rack_client_id FROM racks LEFT JOIN rack_units ON unit_rack_id = rack_id WHERE unit_id = $unit_id");
+    $sql = mysqli_query($mysqli,"SELECT rack_name, rack_id, rack_client_id, unit_device FROM racks LEFT JOIN rack_units ON unit_rack_id = rack_id WHERE unit_id = $unit_id");
     $row = mysqli_fetch_assoc($sql);
     $rack_name = escapeSql($row['rack_name']);
     $unit_device = escapeSql($row['unit_device']);
@@ -283,9 +283,9 @@ if (isset($_GET['remove_rack_unit'])) {
 
     mysqli_query($mysqli,"DELETE FROM rack_units WHERE unit_id = $unit_id");
 
-    logAudit("Rack", "Edit", "$session_name removed device $device_name from rack $rack_name", $client_id, $rack_id);
+    logAudit("Rack", "Edit", "$session_name removed device $unit_device from rack $rack_name", $client_id, $rack_id);
 
-    flashAlert("Device <strong>$device_name</strong> removed from rack", 'error');
+    flashAlert("Device <strong>$unit_device</strong> removed from rack", 'error');
 
     redirect();
 
