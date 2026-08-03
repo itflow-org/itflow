@@ -374,7 +374,7 @@ if (isset($_POST['bulk_assign_contact_location'])) {
 
             mysqli_query($mysqli,"UPDATE contacts SET contact_location_id = $location_id WHERE contact_id = $contact_id");
 
-            logAudit("Contact", "Edit", "$session_name assigned $contaxt_name to location $location_name", $client_id, $contact_id);
+            logAudit("Contact", "Edit", "$session_name assigned $contact_name to location $location_name", $client_id, $contact_id);
 
         } // End Assign Location Loop
 

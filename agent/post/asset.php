@@ -953,7 +953,7 @@ if (isset($_POST['link_asset_to_credential'])) {
 
     logAudit("Credential", "Link", "$session_name linked credential $credential_name to asset $asset_name", $client_id, $credential_id);
 
-    flashAlert("Asset <strong>$asset_name</strong> linked with credential <strong>$crdential_name</strong>");
+    flashAlert("Asset <strong>$asset_name</strong> linked with credential <strong>$credential_name</strong>");
 
     redirect();
 

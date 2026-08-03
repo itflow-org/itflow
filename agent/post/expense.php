@@ -203,7 +203,7 @@ if (isset($_POST['bulk_edit_expense_account'])) {
 
             mysqli_query($mysqli,"UPDATE expenses SET expense_account_id = $account_id WHERE expense_id = $expense_id");
 
-            logAudit("Expense", "Edit", "$session_name assigned expense $expense_descritpion to account $account_name", $client_id, $expense_id);
+            logAudit("Expense", "Edit", "$session_name assigned expense $expense_description to account $account_name", $client_id, $expense_id);
 
         } // End Assign Loop
 
@@ -247,7 +247,7 @@ if (isset($_POST['bulk_edit_expense_client'])) {
 
         } // End Assign Loop
 
-       flashAlert("You assigned Client <b>$client_name</b> to <b>$expense_count</b> expenses");
+       flashAlert("You assigned client <strong>$client_name</strong> to <strong>$count</strong> expense(s)");
     }
 
     redirect();
