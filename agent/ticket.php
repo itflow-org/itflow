@@ -364,6 +364,17 @@ if (isset($_GET['ticket_id'])) {
         $sla_label = '';
         $sla_class = '';
         $sla_icon = 'fa-stopwatch';
+
+        /*
+         * Only surface the SLA field when SLAs are actually in play - either this
+         * ticket has one, or plans exist to assign. Mirrors $sla_filter_in_use on
+         * agent/tickets.php so an install that does not use SLAs never sees them.
+         * The count is only queried when the ticket has no SLA of its own.
+         */
+        $sla_in_use = $ticket_sla_id > 0;
+        if (!$sla_in_use && $can_edit_ticket) {
+            $sla_in_use = mysqli_fetch_row(mysqli_query($mysqli, "SELECT COUNT(sla_id) FROM slas WHERE sla_archived_at IS NULL"))[0] > 0;
+        }
         if ($ticket_sla_id) {
             $sla_next_due = empty($ticket_first_response_at) ? $ticket_response_due_at : $ticket_resolution_due_at;
             $sla_next_label = empty($ticket_first_response_at) ? 'First response due' : 'Resolution due';
@@ -575,7 +586,7 @@ if (isset($_GET['ticket_id'])) {
                         </div>
                     </div>
 
-                    <?php if ($ticket_sla_id || $can_edit_ticket) { ?>
+                    <?php if ($sla_in_use) { ?>
                         <div class="ticket-field">
                             <div class="ticket-field-label">SLA</div>
                             <div class="ticket-field-value">
