@@ -3,49 +3,28 @@
 This file documents all notable changes made to ITFlow.
 
 ## [26.08]
-
-### Backups
-
-Backups are now encrypted, catalogued, schedulable, and restorable from the command line.
-
-- **Three types** — Full (database + uploads), Database Only, and Master Key. Every archive is an AES-256 encrypted zip.
-- **One encryption key per install**, generated on first use and stored in `config.php` — never in the database and never in the file name. It is shown in Maintenance > Backup. **Write it down: without it a backup cannot be restored.** Open archives with 7-Zip, WinZip, PeaZip or Keka — `unzip`, Windows Explorer and the macOS Archive Utility do not support AES.
-- **Backups are built by cron, not by your browser.** The button queues the work and the dispatcher picks it up within the minute, then notifies you. A dump of a real install takes longer than a web request is allowed to live, which is why the old Download Backup button timed out on large instances.
-- **Scheduled backups** are a new `backup` cron job, off by default. Turn it on in Maintenance > Cron. Retention (by age and by count) runs in the nightly job and never deletes the newest backup.
-- **Archives are stored outside the web-served path** under `uploads/backups/` with a deny-all rule, and downloaded through an admin-only handler. Set `$config_backup_path` in `config.php` to keep them off the web root entirely.
-- **Restore from the command line** with `php scripts/restore_cli.php --file=/path/to/backup.zip`. This is the only restore path with no size limit — the setup wizard's restore is capped by PHP's upload limits, and a full backup is usually larger. Use `--inspect` to check an archive without changing anything.
-- **Restores validate before they destroy.** The key is checked and the archive unpacked before any table is dropped, and the current database is dumped first and put back automatically if the import fails.
-
-### Security
-
-- **The setup wizard's restore step is now closed on any install that has users**, whatever `config.php` says. Previously, if `$config_enable_setup` was missing from `config.php` — a state an install can be left in when setup does not reach its final step — the restore step stayed reachable. An install in that state cannot be logged into, so it is normally noticed and corrected straight away, but the restore step should not have been reachable in that window. Restoring over a live install is now done from the command line.
-- A restore no longer takes ITFlow's `uploads/.htaccess` from the archive — the guards are rewritten afterwards regardless of what the backup contained, so restoring a backup taken before those guards existed no longer removes them.
  
 ### Upgrading to 26.08
  
 > **Read this before you start.** Done out of order this update will break your instance. The database structure changes, every API key is deleted, and the whole cron setup is replaced.
  
-1. **Back everything up.** Snapshot the VM and dump the database:
-```bash
-mysqldump itflow > itflow-pre-26.08.sql
-```
- 
+1. **Back everything up.** Take a full VM backup or snapshot before you start.
 2. **Remove every ITFlow line from your crontab** (or delete `/etc/cron.d/itflow`). The old per-minute jobs must not keep firing against a half-updated install. You put the new one in at step 5.
-3. **Update the files** from Settings > Update as usual, or from the shell with `php /path/to/itflow/scripts/update_cli.php --update`.
-4. **You will get a 500 error. That is expected.** The new code needs the new database, and just this once the database update has to be run from the command line. Run it as the user that owns the ITFlow files — the script tells you which user if you get it wrong:
+3. **Update the files with the normal web updater**, from Settings > Update. It will pull the new files, report the update as successful, and then error out as it drops you back into the app. That is normal — the new code is now running against the old database.
+4. **Run the database update from the command line.** Just this once it cannot be done from the web interface. Run it as the user that owns the ITFlow files — the script tells you which user if you get it wrong:
 ```bash
 sudo -u www-data php /path/to/itflow/scripts/update_cli.php --update_db
 ```
 It applies every pending version in order and reports each one as it goes. On an install with a lot of ticket history it can take a minute or more, so let it finish. If a step fails it stops there without advancing the recorded version, so you can fix the problem and run it again. The 500s stop as soon as it completes.
  
-5. **Add the new cron entry.** One line runs everything now, and the schedules are managed in ITFlow under Maintenance > Cron:
+5. **Add the new cron entry.** One line runs everything now, and the schedules are managed in ITFlow under Settings > Cron:
 ```
 * * * * * www-data php /path/to/itflow/cron/cron.php >/dev/null
 ```
 Drop the `www-data` column if this goes in a user crontab rather than `/etc/cron.d`.
  
 6. **Recreate your API keys.** Every existing key is deleted by this update. Issue new ones and update anything that talks to the ITFlow API.
-7. **Check it took, and check the master switch.** Open Maintenance > Cron — the green "Cron last checked in" banner should appear within a couple of minutes and every job should pick up a schedule. The **Enable Cron** switch has moved to this page from Settings > Notifications, and it now stops *every* job rather than most of them. If it is off, turn it on here: on earlier releases the ticket email parser and the SLA monitor ran regardless of it, so an install with the switch off may have been parsing mail all along without anyone realising the switch mattered.
+7. **Check it took.** Open Settings > Cron — the green "Cron last checked in" banner should appear within a couple of minutes and every job should pick up a schedule.
 Only this release needs the command line for the database update. Normal updates go back to running from Settings > Update as usual.
  
 ### Breaking Changes and Notes
@@ -53,30 +32,29 @@ Only this release needs the command line for the database update. Normal updates
 - Cron: the crontab collapses to a single entry. `cron/cron.php` is now a dispatcher that runs every minute and works out which jobs in `cron/` are due, and the old nightly work has moved to `cron/nightly_tasks.php` which it runs at 03:00.
 - Cron: an existing crontab keeps working — the per-minute scripts still run and still lock correctly, and a single daily `cron.php` entry still runs the daily jobs — but any job added in this or a future release only runs once the dispatcher is scheduled.
 - Cron: ticket SLAs need no entry of their own. `cron/ticket_sla.php` is in the dispatcher's job list and runs every minute once the new entry is in place. Without it SLA targets are still worked out and displayed, but warnings and breaches never fire.
+- Backups: write down your backup encryption key. It is generated on first use and stored in `config.php`, never in the database, and without it a backup cannot be restored.
 - API: every existing key is deleted by this update and must be recreated. Keys are now owned by a user and inherit that user's role, module and client permissions instead of carrying their own client scope, and existing keys cannot be safely mapped to a user.
 - API: credential decrypt passwords are now read from the request body instead of the query string. Any caller passing that value in the URL needs updating.
 - Client access permissions now support deny rules as well as allow, and the permissions UI will not load until the database update has run.
 - Business hours are new and default to Monday to Friday, 09:00 to 17:00 in your configured timezone. SLA targets are measured against them, so set them before assigning SLAs.
 - The `plugins` directory is now `libs`. Anything pointing at `plugins/` directly — custom scripts, reverse proxy rules, web server config — needs updating.
 - Several pages dropped the `_details` suffix and moved to consistent singular and plural filenames, so old bookmarks and external links will 404.
+- Credential passwords moved from `varbinary` to `varchar(500)` and now have a length guard. Existing credentials are migrated by the database update.
 ### New Features & Updates
  
+- Backups are now encrypted, catalogued, schedulable and restorable from the command line. Three types — Full (database and uploads), Database Only, and Master Key — and every archive is an AES-256 encrypted zip. Open them with 7-Zip, WinZip, PeaZip or Keka; `unzip`, Windows Explorer and the macOS Archive Utility do not support AES.
+- Backups: one encryption key per install, generated on first use and stored in `config.php`, never in the database and never in the file name. It is shown in Maintenance > Backup.
+- Backups are built by cron rather than by your browser. The button queues the work and the dispatcher picks it up within the minute, then notifies you — a dump of a real install takes longer than a web request is allowed to live, which is why the old Download Backup button timed out on large instances.
+- Backups: scheduled backups are a new `backup` cron job, off by default, turned on in Maintenance > Cron. Retention by age and by count runs in the nightly job and never deletes the newest backup.
+- Backups are stored outside the web-served path under `uploads/backups/` with a deny-all rule and downloaded through an admin-only handler. Set `$config_backup_path` in `config.php` to keep them off the web root entirely.
+- Backups: restore from the command line with `php scripts/restore_cli.php --file=/path/to/backup.zip`. This is the only restore path with no size limit — the setup wizard's restore is capped by PHP's upload limits and a full backup is usually larger. `--inspect` checks an archive without changing anything.
+- Backups: restores validate before they destroy. The key is checked and the archive unpacked before any table is dropped, and the current database is dumped first and put back automatically if the import fails.
 - Cron: one entry instead of five, and a page to manage it. Jobs are tracked in a new `cron_jobs` table, so a job whose slot was missed runs at the next opportunity rather than waiting a day, and each job locks for its own run so a slow mailbox or a long nightly pass no longer holds anything else up.
-- Cron: new Maintenance > Cron page listing every job with its schedule, last run, duration, outcome and next due time. Jobs can be disabled, rescheduled, or run on demand — Run Now hands the job to the next dispatch so it starts within a minute and still runs on the command line. The last error is kept until dismissed rather than vanishing behind the next success, and the page says plainly when the crontab entry itself is missing.
-- Cron: the master **Enable Cron** switch has moved from Settings > Notifications to Maintenance > Cron, alongside everything else about cron. It can be turned on and off from that page, and the page now explains what it is for — stopping a restored backup or a staging clone from emailing clients and charging cards, which per-job toggles cannot do on their own. Saving Notification settings no longer touches it.
-- Cron: the master switch now stops **every** job. The Ticket Email Parser and Ticket SLA Monitor previously ignored it and kept running while cron was switched off, which was neither documented nor visible anywhere. **If your Enable Cron switch is off but email-to-ticket has been working, turn cron on in Maintenance > Cron after upgrading** — see the upgrade steps above. Both jobs report "Cron: is not enabled" on the Cron page when the switch is off, so the state is now legible instead of silent.
-- Settings > Notifications: removed five rows that had no controls in them and no setting behind them — certificate expiry, asset warranty expiry, shared item views, cron execution and ITFlow updates. The cron execution row is now covered properly by the last run, duration and outcome columns on Maintenance > Cron.
-- Settings > Ticketing: the email-to-ticket hint no longer names a cron script that has not existed for several releases, and points at Maintenance > Cron instead.
-- Setup: the command line installer now prints the crontab entry and the reminder to turn cron on, the same two steps the web installer shows on its finish page.
-- Removed the unused `config_invoice_overdue_reminders` setting. It was seeded on install and read in two places but never actually used by anything; the overdue reminder schedule is fixed in the nightly job.
-- Update page: reworked. Release, tracked branch, database version and code commit are now shown whatever state the install is in, instead of only when it is already up to date, and a pending database update no longer hides a pending application update — both appear, in the order they need doing. Pending commits are listed in a readable table rather than a centred one, and the backup warning is stated once instead of twice.
-- Update page: **Force Update no longer resets to `origin/master` regardless of the branch you track.** On an install following any other branch it silently moved the files onto master and discarded the code that was actually running. It now resets to the branch in `$repo_branch`, and so does `update_cli.php --force_update`. Installs with no `$repo_branch` in `config.php` still get master, as before.
-- Update page: the database update is now offered using a proper version comparison. The old string comparison would have stopped offering updates once a version reached a two-digit part — `2.6.10` sorts below `2.6.9` as plain text.
-- Update page: Git output — commit subjects and error text — is escaped before it reaches the page, and the branch name is escaped before it reaches a shell command. The page also no longer runs a second `git fetch` just to read the error message from the first one.
-- Income: added a Category filter and a Category column. A revenue carries its own category and a payment inherits the one on the invoice it was paid against, so both are categorised. Only categories actually in use are listed. Category is searchable and sortable, and it carries through to the export.
-- Income: the Source column now shows what the money was for. A revenue's category was being displayed there, which meant the revenue description never appeared on the page at all even though it is captured on the add and edit forms. Category has its own column now, so both are visible.
-- Income: fixed a PHP warning on every page load without a date range, and the export's filter summary, which was never populated - a filtered PDF came out looking like a full export.
+- Cron: new Settings > Cron page listing every job with its schedule, last run, duration, outcome and next due time. Jobs can be disabled, rescheduled, or run on demand — Run Now hands the job to the next dispatch so it starts within a minute and still runs on the command line. The last error is kept until dismissed rather than vanishing behind the next success, and the page says plainly when the crontab entry itself is missing.
 - Cron: the nightly run is safe to repeat. Late fees, overdue invoice reminders and autopay retries now apply at most once per invoice per day, so a Run Now after the scheduled pass no longer stacks fees or re-emails clients. Nightly Tasks only accepts the daily schedule.
+- Cron: the master enable switch moved out of Notifications and into the Cron settings where it belongs, and the unused overdue invoice setting has been removed.
+- Ticket: major UI overhaul of the ticket list, the kanban board and the ticket detail page.
+- Ticket: redesigned the task bar on ticket details and removed the redundant task count.
 - Ticket SLAs, optional throughout. An SLA sets a response target and an optional resolution target, assigned per client and priority with a global default and an explicit "no SLA" override. Targets are measured against your business hours. Tickets show time remaining and turn yellow at a configurable warning threshold and red on breach, on both the ticket list and the kanban board, and can be filtered by SLA state. Nominated statuses pause the resolution clock for "waiting on customer", preserving the remaining budget. Two new reports, SLA Summary and SLA by Client. With no assignments defined nothing behaves any differently.
 - Ticket: added an Urgent priority.
 - Ticket: agents can attach files to tickets from inside the app, both when raising a ticket and on a reply, and attachments are emailed to the contact through the mail queue. A 10 MB ceiling applies per message; anything that does not fit stays on the ticket to download.
@@ -86,18 +64,24 @@ Only this release needs the command line for the database update. Normal updates
 - Ticket: recurring tickets can be assigned a ticket template. Picking one fills in the subject and details and stamps the template's task list onto every ticket the schedule raises, from the nightly run and a forced run alike. The recurring ticket list shows which schedules carry a template and how many tasks it adds.
 - Ticket: recurring tickets now own their task list. The template fills it in when picked but it can then be edited per schedule, and it is those edits the run reads. Existing schedules are backfilled from their template by the database update.
 - API: added ticket reply endpoints for creating and reading replies.
+- API: added an invoice_items endpoint for adding line items to an invoice.
 - Calendar: calendars can be published as a read-only iCalendar (ICS) subscription feed and read by Google Calendar, Nextcloud, Apple Calendar, Thunderbird or anything else that takes a feed URL. The link carries a secret key and needs no login, can be regenerated or revoked at any time, and a busy only option publishes time blocks without titles, descriptions or locations. Refresh timing belongs to the subscribing client — Google refreshes on its own schedule and cannot be forced, and Nextcloud defaults to weekly and refuses feed URLs resolving to private IPs.
 - Calendar: events can be marked all day, and the date and time are now separate fields. Previously all day was inferred from a midnight start, which made a genuine midnight appointment indistinguishable from an all-day event. Existing events are backfilled by the database update using the old rule, so nothing changes appearance.
 - Calendar: repeating events now work. The Repeat field was present but disabled and the stored value was never drawn. It is now selectable daily, weekly, monthly or yearly, and monthly and yearly series skip dates that do not exist in a period rather than sliding into the next month. Recurrence is series-wide — editing any occurrence edits the whole series, and individual occurrences cannot yet be moved or cancelled. Repeating events are marked with an icon and a hover note, and the delete action reads Delete series and asks for confirmation.
 - Calendar: clicking empty space creates an event there. Clicking a day or a time slot, or dragging across several, opens the New Event modal with the start and end already filled in and the All day switch set to match. A range dragged out or lengthened by hand is no longer overwritten by the end-time-follows-start behaviour.
 - Exports: every export modal now has a Filter tab and a Selectable Columns tab with sensible defaults, and can export to PDF as well as CSV.
 - Combined Payments and Revenues into a single Income page with CSV export. Revenue not tied to an invoice is still added there and payments are still added from invoices. The standalone Payments and Revenues pages are gone.
+- Income: added a Category column and filter, carried through to the exports.
+- Income: added bulk actions for account, payment method and category.
 - New Transactions page — a per-account ledger of transfers, revenues, payments and expenses with filtering by type, category, client, payment method, amount range and date, a running balance, summary cards, account balances in the account picker, and CSV export.
+- Products: added a basic product import via CSV.
 - Added user based RBAC for API keys, so a key runs as a user and inherits that user's permissions.
 - Added deny rules to client access permissions, so access can be granted broadly and revoked for specific clients.
 - New secure file download handler for files and ticket attachments, with client and contact permission isolation on the client portal.
 - Invoices: clicking the Paid or Partial status badge opens a read-only breakdown of the payments recorded against that invoice.
 - Assets: multiple notes per asset, same as contact notes, with categorized note types (Maintenance, Repair, Configuration, Upgrade, Inspection, Note).
+- Reworked the Maintenance > Update page, and fixed the branch handling on it.
+- Categories and tag types moved from a top button nav to a left side nav.
 - Dashboard: added expiring asset warranties and licenses, along with an "Expiring in" filter for assets, licenses, domains and certificates.
 - Added bulk and single refresh actions for domains and certificates.
 - Stripe gateway fees now come from the actual Stripe balance transaction rather than a static percentage and flat fee configured in ITFlow, with a nightly pass to backfill fees that were not available at payment time. The static fee fields are gone from payment provider settings.
@@ -106,14 +90,17 @@ Only this release needs the command line for the database update. Normal updates
 - Mail settings tabs are now URL addressable and stay on the active tab after saving.
 - Removed the legacy vendor contacts feature.
 - `dig` and `whois` are no longer required, domain lookups use native DNS and RDAP.
+- Tightened the `.htaccess` rules, and added one for `uploads/tmp`.
+- Bumped the minimum supported PHP version.
 ### Security
  
 - Rate limited 2FA code attempts and narrowed the TOTP acceptance window.
-- Rotate the session ID on login to prevent session fixation, and fixed client portal Entra SSO.
+- Rotate the session ID on login to prevent session fixation.
 - Stopped parallel login attempts from bypassing the login rate limits.
-- Fixed a SQL injection in the recurring invoice frequency handling reached via cron.
+- Tightened validation on the recurring invoice frequency used by the billing run.
 - Admin UI modals are now gated to admins. Previously any logged-in user could open them directly and read stored payment provider and AI provider API keys — rotate those keys when you update, as there is no record of who may have viewed them.
-- Credential module access is now required to view or share credentials, and password reveals are written to the audit log.
+- Global search returned credentials to users without credential module access. It is now gated like every other credential surface.
+- Credential password reveals are now written to the audit log, on both the reveal endpoint and the TOTP code.
 - Swept module and client permission enforcement across modals and ajax endpoints to match the post handlers, closing a number of cases where a user restricted to certain clients could read another client's records by ID.
 - Products: the CSV export now requires sales module read access.
 - Neutralized CSV formula injection in generated exports.
@@ -122,18 +109,27 @@ Only this release needs the command line for the database update. Normal updates
 - Hardened CSRF handling and session cookies, and set `SameSite=Lax` on the session cookie.
 - Hardened file upload handling to use random storage names.
 - Client Portal: contacts can no longer edit their own contact record.
-- Empty directories under `uploads` are no longer indexable.
+- The setup wizard's restore step is now closed on any install that has users, whatever `config.php` says. Previously, if `$config_enable_setup` was missing from `config.php` — a state an install can be left in when setup does not reach its final step — the restore step stayed reachable. Restoring over a live install is now done from the command line.
+- A restore no longer takes ITFlow's `uploads/.htaccess` from the archive. The guards are rewritten afterwards regardless of what the backup contained, so restoring a backup taken before those guards existed no longer removes them.
+- Tightened the directory guards under `uploads`.
 ### Bug Fixes
  
 - Deleting a payment now correctly recalculates and sets the invoice status.
 - Fixed contact notes, and several broken modal links in contacts, assets and file linking.
 - Client Portal: fixed adding saved payment methods and cards following a Stripe API change.
-- Fixed sending invoices and quotes over OAUTH2, which was reading the SMTP host instead of the SMTP provider.
+- Fixed sending invoices and quotes over OAUTH2, which was reading the SMTP host instead of the SMTP provider — the host is not filled in when OAUTH2 is selected.
 - Mail Parser: correctly work out whether the ITFlow folder belongs under the `INBOX` namespace or the root directory, fixing folder creation on cPanel Dovecot Maildir++ setups.
 - Fixed possible duplicate emails caused by a race condition in the mail queue.
 - Added a shared lock guard across every cron entry point, scoped per script and per install, replacing the mail queue's non-atomic lock file. Rows left in a sending state by a run that died are now recovered.
 - Prevented duplicate Stripe payment bookings and overlapping cron runs.
 - Mail bodies are cleared after successful delivery.
+- Reworked `getFieldById` to stop escaping its return value, and reworked every caller to escape at the point of use — it was causing double escaping in a lot of places.
+- Added missing `maxlength` attributes to forms backed by length-limited columns, so an overlong value no longer throws a 500.
+- Fixed undefined variables in the audit log and flash messages for expenses, assets, contacts and several other handlers, which were logging blanks in place of the record name.
+- Fixed the spelling of the expense description in audit logging.
+- Fixed autofill on invoices, quotes and recurring invoices, where the tax field was not updating and a dash was being placed in front of the product.
+- Fixed gaps in ticket history.
+- Recurring Expense: fixed editing not keeping the client.
 - Fixed client name truncation in the side navigation being applied after escaping.
 - Side navigation counts are only shown to users with permission to see them.
 - Invoice statistics now only reflect clients the user has permission to see.
@@ -142,6 +138,7 @@ Only this release needs the command line for the database update. Normal updates
 - Certificates can now be searched by description.
 - Fixed cents calculation rounding.
 - Fixed guest view credential TOTP display, and removed the legacy OTP code path.
+- Gated the SLA option in ticket details, which was gated everywhere else.
 - Deleting a ticket template task or a payment provider recorded the wrong name in the audit log and the confirmation message, reading an unrelated record's id in place of the name.
 - Bulk-creating tickets from a template against multiple assets only added the template's tasks to the first ticket, and dropped each task's completion estimate.
 - Deleting a ticket template now unlinks it from any recurring ticket that referenced it, instead of leaving the schedule pointing at a template that no longer exists.
@@ -153,13 +150,16 @@ Only this release needs the command line for the database update. Normal updates
  
 - Line endings normalized to LF across the codebase, with `.gitattributes` and `.editorconfig` added. Vendored code under `libs/` is marked so it stays byte identical to upstream.
 - Converted to the short echo tag `<?=` throughout.
-- `functions.php` is now a loader, with helpers split into topical files under `functions/`. Unused legacy functions removed.
+- `functions.php` is now a loader, with helpers split into topical files under `functions/`. Unused legacy functions removed, including an unused database wrapper layer.
 - PHP functions renamed to camelCase throughout, including `nullable_htmlentities` to `escapeHtml`, `sanitizeInput` to `escapeSql`, `logAction` to `logAudit`, and `key32gen` to `generateTotpSecret`.
+- Seed data is now shared between the setup wizard and `setup_cli.php` from one file, so a headless install gets the same starter content as a browser install.
 - `CONTRIBUTING.md` added and expanded, covering the security rules, style conventions, database column prefix convention and migration pairing.
 ### Library Updates
  
-- Bump ImapEngine from 1.25.0 to 1.25.3.
-- Bump TinyMCE from 8.6.0 to 8.7.0.
+- Bump TinyMCE from 8.6.0 to 8.8.2.
+- Bump DataTables from 2.3.7 to 3.0.1.
+- Bump FullCalendar from 7.0.0 to 7.0.2.
+- Bump ImapEngine from 1.25.0 to 1.25.4, along with its dependencies — notably zbateson/mail-mime-parser 3.0.6 to 4.0.3 and guzzlehttp/psr7 2.12.3 to 3.0.0.
 
 
 ## [26.07.1]
