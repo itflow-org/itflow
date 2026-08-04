@@ -1,5 +1,5 @@
 /*!
-FullCalendar (Vanilla JS) v7.0.0
+FullCalendar (Vanilla JS) v7.0.2
 Docs & License: https://fullcalendar.io
 (c) 2026 Adam Shaw
 */
@@ -268,7 +268,7 @@ Docs & License: https://fullcalendar.io
                 /* No-Events Screen
                 ------------------------------------------------------------------------------------------- */
                 noEventsClass: "fc-classic-k3f fc-classic-dl1 fc-classic-sgX fc-classic-XpK fc-classic-E9P",
-                noEventsInnerClass: "sticky fc-classic-jGI fc-classic-P9h",
+                noEventsInnerClass: "fc-classic-OUe fc-classic-jGI fc-classic-P9h",
             },
             timeline: {
                 /* Timeline > Row Event

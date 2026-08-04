@@ -341,9 +341,11 @@ if ($tickets) {
                                     <a href="ticket.php?ticket_id=<?= "$ticket_id$has_client" ?>"><?= $ticket_subject ?></a>
 
                                     <?php if ($task_count) { ?>
-                                        <div class="progress mt-1" style="height: 15px; position: relative;" title="<?= $completed_task_count ?> of <?= $task_count ?> tasks complete">
-                                            <div class="progress-bar bg-secondary" style="width: <?= $tasks_completed_percent ?>%;"></div>
-                                            <small class="justify-content-center d-flex position-absolute w-100 text-dark"><?= $completed_task_count ?> / <?= $task_count ?> tasks</small>
+                                        <div class="d-flex align-items-center mt-1">
+                                            <div class="progress mr-2" style="flex: 0 0 48px; height: 5px;" role="progressbar" aria-valuenow="<?= $tasks_completed_percent ?>" aria-valuemin="0" aria-valuemax="100">
+                                                <div class="progress-bar <?= $completed_task_count == $task_count ? 'bg-success' : 'bg-secondary' ?>" style="width: <?= $tasks_completed_percent ?>%;"></div>
+                                            </div>
+                                            <small class="text-muted"><?= "$completed_task_count / $task_count tasks" ?></small>
                                         </div>
                                     <?php } ?>
                                 </td>

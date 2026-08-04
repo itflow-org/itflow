@@ -661,11 +661,11 @@ if (isset($_GET['ticket_id'])) {
                     <?php if ($task_count) { ?>
                         <div class="ticket-field">
                             <div class="ticket-field-label">Tasks</div>
-                            <div class="ticket-field-value">
-                                <div class="progress mt-1" style="height: 18px; position: relative;" title="<?= $completed_task_count ?> of <?= $task_count ?> complete">
-                                    <div class="progress-bar <?= $tasks_completed_percent == 100 ? 'bg-success' : 'bg-secondary' ?>" style="width: <?= $tasks_completed_percent ?>%;"></div>
-                                    <small class="justify-content-center d-flex position-absolute w-100 text-dark"><?= "$completed_task_count / $task_count" ?></small>
+                            <div class="ticket-field-value d-flex align-items-center">
+                                <div class="progress ticket-task-progress mr-2" role="progressbar" aria-valuenow="<?= $tasks_completed_percent ?>" aria-valuemin="0" aria-valuemax="100" title="<?= $tasks_completed_percent ?>% complete">
+                                    <div class="progress-bar <?= $tasks_block_resolve ? 'bg-secondary' : 'bg-success' ?>" style="width: <?= $tasks_completed_percent ?>%;"></div>
                                 </div>
+                                <?= "$completed_task_count of $task_count" ?>
                             </div>
                         </div>
                     <?php } ?>

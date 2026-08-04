@@ -37,6 +37,18 @@
     line-height: 1.4;
 }
 
+/*
+ * Task progress. A slim track sitting beside the count rather than a chart
+ * with text floating on top of it. The count is real text, so the flex cell
+ * can size itself - the old bar's only children were a percentage-width div
+ * and an absolutely-positioned label, neither of which contributes intrinsic
+ * width, so the Tasks cell was pinned at min-width whatever it contained.
+ */
+.ticket-task-progress {
+    flex: 0 0 56px;
+    height: 6px;
+}
+
 /* The subject is the page's real heading, so let it breathe */
 .ticket-subject {
     font-weight: 600;
