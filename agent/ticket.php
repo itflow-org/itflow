@@ -545,13 +545,6 @@ if (isset($_GET['ticket_id'])) {
                                     </div>
                             </div>
                         </div>
-
-                        <?php if ($tasks_block_resolve && !$ticket_is_resolved && !$ticket_is_closed) { ?>
-                                <!-- The Resolve button used to just disappear here with no explanation -->
-                                <div class="small text-warning mt-2">
-                                    <i class="fas fa-fw fa-exclamation-circle mr-1"></i><?= $task_count - $completed_task_count ?> open task<?= ($task_count - $completed_task_count) == 1 ? '' : 's' ?> before this can be resolved
-                                </div>
-                            <?php } ?>
                         </div>
                     <?php } ?>
 
@@ -952,9 +945,6 @@ if (isset($_GET['ticket_id'])) {
                         <div class="card-header px-3 py-2">
                             <h5 class="card-title mt-1">
                                 <i class="fas fa-fw fa-tasks mr-2"></i>Tasks
-                                <?php if ($task_count) { ?>
-                                    <span class="badge <?= $tasks_block_resolve ? 'badge-warning' : 'badge-success' ?> ml-1"><?= "$completed_task_count/$task_count" ?></span>
-                                <?php } ?>
                             </h5>
                             <div class="card-tools">
                                 <?php if (!$ticket_is_resolved && $can_edit_ticket && $task_count) { ?>
